@@ -2,492 +2,219 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8CA158494A
-	for <lists+stable@lfdr.de>; Fri, 29 Jul 2022 03:13:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 479DD5849BD
+	for <lists+stable@lfdr.de>; Fri, 29 Jul 2022 04:28:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233026AbiG2BNk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Jul 2022 21:13:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
+        id S233545AbiG2C2z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Jul 2022 22:28:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233436AbiG2BNk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Jul 2022 21:13:40 -0400
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A0AC76457;
-        Thu, 28 Jul 2022 18:13:35 -0700 (PDT)
-Received: by mail-pj1-f50.google.com with SMTP id o5-20020a17090a3d4500b001ef76490983so3849164pjf.2;
-        Thu, 28 Jul 2022 18:13:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=U5PYfUySvIYVONcOoCaNuJqSNpNcdRUV4E3EsyjFpMs=;
-        b=vfFEkBCnB+c/KIVoHTcqTZ4GDp00jQz1fPfyZq8nr+6Q/p0go1+Sb5Frm+czqcnbEc
-         5s3gV96iXW3p/Qhy+gmDJkW3xBt2zFVASzRSJpDUkL3xp3yoglEHtK1vuSmXZW/ScSDg
-         rKnqqdmybbjuWdNDFgxn2T5AlkXxlhi/3b6Re5aHWLFR6d5ouhApQDmqr5ZMfUKU99bq
-         xVqZroISK3jS41ZbSVKwGmeKcNlXPBiMhmCWTCLotW/LdMS+MEVsL1phH+IRd9VA14Lt
-         3R+m6nf331Imm9ooZJhGXSSRgcWEjEbaHrP61CIsByAlvhr1cgGtC85vEwwtxLt3JFLO
-         lq0w==
-X-Gm-Message-State: ACgBeo2HjXRleobzYeorDkC5qONllhUAqVFJ3rk1XpOHHypHptd3SAz3
-        dNSY7e85VbpNfllNL+N45vBVpgj5u7g=
-X-Google-Smtp-Source: AA6agR7yf7hgY9wVMv+zFH9Gg+BeFNVwreK5oVTyVNamkPqOSTj/mYnD7EFmu1u42griuYaPkzIGdg==
-X-Received: by 2002:a17:902:8bcb:b0:16c:a264:77ae with SMTP id r11-20020a1709028bcb00b0016ca26477aemr1501585plo.130.1659057214518;
-        Thu, 28 Jul 2022 18:13:34 -0700 (PDT)
-Received: from localhost.localdomain ([211.49.23.9])
-        by smtp.gmail.com with ESMTPSA id mn17-20020a17090b189100b001f23db09351sm1642673pjb.46.2022.07.28.18.13.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Jul 2022 18:13:34 -0700 (PDT)
-From:   Namjae Jeon <linkinjeon@kernel.org>
-To:     linux-cifs@vger.kernel.org
-Cc:     smfrench@gmail.com, hyc.lee@gmail.com, senozhatsky@chromium.org,
-        gregkh@linuxfoundation.org, Namjae Jeon <linkinjeon@kernel.org>,
-        stable@vger.kernel.org, zdi-disclosures@trendmicro.com
-Subject: [PATCH v3] ksmbd: fix heap-based overflow in set_ntacl_dacl()
-Date:   Fri, 29 Jul 2022 10:13:21 +0900
-Message-Id: <20220729011321.15663-2-linkinjeon@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220729011321.15663-1-linkinjeon@kernel.org>
-References: <20220729011321.15663-1-linkinjeon@kernel.org>
+        with ESMTP id S229535AbiG2C2z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Jul 2022 22:28:55 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24E7D7B1F4;
+        Thu, 28 Jul 2022 19:28:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1659061734; x=1690597734;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=12gKVngtqnjv+QPw8p8qTC74M0DQ2NH3SlFgYl5vsoQ=;
+  b=GOFV5TQyBSl8WuneX8oGHNn9c0iIHCd8LtAy+syRT3pC/7VVlFzrQEiY
+   RoxItuoRBhWYGCkTJxOG+uq93MWiWn4azOaRrLUMdeEcfstuG0oharIum
+   9tSf/stDTLvWnootubaRPBk0hHOmMp/ANbHW2PXvOUZNjLgc4cjSJx1Br
+   eY5vaP15eQWBuYsHiaLJS88diZ4U8rOxjF0eeFTrR651rwYq1TtDXX783
+   7answ6K2XeVCygpLH9kSfOk9Dw3m9KUnbvA+ytUpBwibcIJY7I1U5UyPW
+   wMEKsaao694wSTpFXST139wXxguq1977leqDMpYIaA/YPc+TWz6lXfcIc
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10422"; a="275555809"
+X-IronPort-AV: E=Sophos;i="5.93,200,1654585200"; 
+   d="scan'208";a="275555809"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jul 2022 19:28:53 -0700
+X-IronPort-AV: E=Sophos;i="5.93,200,1654585200"; 
+   d="scan'208";a="669120036"
+Received: from astallix-mobl.amr.corp.intel.com (HELO desk) ([10.212.148.249])
+  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jul 2022 19:28:52 -0700
+Date:   Thu, 28 Jul 2022 19:28:51 -0700
+From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     Jonathan Corbet <corbet@lwn.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        tony.luck@intel.com, antonio.gomez.iglesias@linux.intel.com,
+        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
+        andrew.cooper3@citrix.com, Josh Poimboeuf <jpoimboe@kernel.org>
+Subject: Re: [RESEND RFC PATCH] x86/bugs: Add "unknown" reporting for MMIO
+ Stale Data
+Message-ID: <20220729022851.mdj3wuevkztspodh@desk>
+References: <a932c154772f2121794a5f2eded1a11013114711.1657846269.git.pawan.kumar.gupta@linux.intel.com>
+ <YuJ6TQpSTIeXLNfB@zn.tnic>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YuJ6TQpSTIeXLNfB@zn.tnic>
+X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The testcase use SMB2_SET_INFO_HE command to set a malformed file attribute
-under the label `security.NTACL`. SMB2_QUERY_INFO_HE command in testcase
-trigger the following overflow.
+On Thu, Jul 28, 2022 at 02:00:13PM +0200, Borislav Petkov wrote:
+> On Thu, Jul 14, 2022 at 06:30:18PM -0700, Pawan Gupta wrote:
+> > Older CPUs beyond its Servicing period are not listed in the affected
+> > processor list for MMIO Stale Data vulnerabilities. These CPUs currently
+> > report "Not affected" in sysfs, which may not be correct.
+> > 
+> > Add support for "Unknown" reporting for such CPUs. Mitigation is not
+> > deployed when the status is "Unknown".
+> > 
+> > "CPU is beyond its Servicing period" means these CPUs are beyond their
+> > Servicing [1] period and have reached End of Servicing Updates (ESU) [2].
+> > 
+> >   [1] Servicing: The process of providing functional and security
+> >   updates to Intel processors or platforms, utilizing the Intel Platform
+> >   Update (IPU) process or other similar mechanisms.
+> > 
+> >   [2] End of Servicing Updates (ESU): ESU is the date at which Intel
+> >   will no longer provide Servicing, such as through IPU or other similar
+> >   update processes. ESU dates will typically be aligned to end of
+> >   quarter.
+> 
+> The explanations of those things need to be...
+> 
+> > Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
+> > Suggested-by: Tony Luck <tony.luck@intel.com>
+> > Fixes: 8d50cdf8b834 ("x86/speculation/mmio: Add sysfs reporting for Processor MMIO Stale Data")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+> > ---
+> > CPU vulnerability is unknown if, hardware doesn't set the immunity bits
+> > and CPU is not in the known-affected-list.
+> > 
+> > In order to report the unknown status, this patch sets the MMIO bug
+> > for all Intel CPUs that don't have the hardware immunity bits set.
+> > Based on the known-affected-list of CPUs, mitigation selection then
+> > deploys the mitigation or sets the "Unknown" status; which is ugly.
+> > 
+> > I will appreciate suggestions to improve this.
+> > 
+> > Thanks,
+> > Pawan
+> > 
+> >  .../hw-vuln/processor_mmio_stale_data.rst     |  3 +++
+> >  arch/x86/kernel/cpu/bugs.c                    | 11 +++++++-
+> >  arch/x86/kernel/cpu/common.c                  | 26 +++++++++++++------
+> >  arch/x86/kernel/cpu/cpu.h                     |  1 +
+> >  4 files changed, 32 insertions(+), 9 deletions(-)
+> > 
+> > diff --git a/Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst b/Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
+> > index 9393c50b5afc..55524e0798da 100644
+> > --- a/Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
+> > +++ b/Documentation/admin-guide/hw-vuln/processor_mmio_stale_data.rst
+> > @@ -230,6 +230,9 @@ The possible values in this file are:
+> >       * - 'Mitigation: Clear CPU buffers'
+> >         - The processor is vulnerable and the CPU buffer clearing mitigation is
+> >           enabled.
+> > +     * - 'Unknown: CPU is beyond its Servicing period'
+> > +       - The processor vulnerability status is unknown because it is
+> > +	 out of Servicing period. Mitigation is not attempted.
+> 
+> ... here.
 
-[ 4712.003781] ==================================================================
-[ 4712.003790] BUG: KASAN: slab-out-of-bounds in build_sec_desc+0x842/0x1dd0 [ksmbd]
-[ 4712.003807] Write of size 1060 at addr ffff88801e34c068 by task kworker/0:0/4190
+Sure, I will move it here.
 
-[ 4712.003813] CPU: 0 PID: 4190 Comm: kworker/0:0 Not tainted 5.19.0-rc5 #1
-[ 4712.003850] Workqueue: ksmbd-io handle_ksmbd_work [ksmbd]
-[ 4712.003867] Call Trace:
-[ 4712.003870]  <TASK>
-[ 4712.003873]  dump_stack_lvl+0x49/0x5f
-[ 4712.003935]  print_report.cold+0x5e/0x5cf
-[ 4712.003972]  ? ksmbd_vfs_get_sd_xattr+0x16d/0x500 [ksmbd]
-[ 4712.003984]  ? cmp_map_id+0x200/0x200
-[ 4712.003988]  ? build_sec_desc+0x842/0x1dd0 [ksmbd]
-[ 4712.004000]  kasan_report+0xaa/0x120
-[ 4712.004045]  ? build_sec_desc+0x842/0x1dd0 [ksmbd]
-[ 4712.004056]  kasan_check_range+0x100/0x1e0
-[ 4712.004060]  memcpy+0x3c/0x60
-[ 4712.004064]  build_sec_desc+0x842/0x1dd0 [ksmbd]
-[ 4712.004076]  ? parse_sec_desc+0x580/0x580 [ksmbd]
-[ 4712.004088]  ? ksmbd_acls_fattr+0x281/0x410 [ksmbd]
-[ 4712.004099]  smb2_query_info+0xa8f/0x6110 [ksmbd]
-[ 4712.004111]  ? psi_group_change+0x856/0xd70
-[ 4712.004148]  ? update_load_avg+0x1c3/0x1af0
-[ 4712.004152]  ? asym_cpu_capacity_scan+0x5d0/0x5d0
-[ 4712.004157]  ? xas_load+0x23/0x300
-[ 4712.004162]  ? smb2_query_dir+0x1530/0x1530 [ksmbd]
-[ 4712.004173]  ? _raw_spin_lock_bh+0xe0/0xe0
-[ 4712.004179]  handle_ksmbd_work+0x30e/0x1020 [ksmbd]
-[ 4712.004192]  process_one_work+0x778/0x11c0
-[ 4712.004227]  ? _raw_spin_lock_irq+0x8e/0xe0
-[ 4712.004231]  worker_thread+0x544/0x1180
-[ 4712.004234]  ? __cpuidle_text_end+0x4/0x4
-[ 4712.004239]  kthread+0x282/0x320
-[ 4712.004243]  ? process_one_work+0x11c0/0x11c0
-[ 4712.004246]  ? kthread_complete_and_exit+0x30/0x30
-[ 4712.004282]  ret_from_fork+0x1f/0x30
+> > diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+> > index 736262a76a12..82088410870e 100644
+> > --- a/arch/x86/kernel/cpu/common.c
+> > +++ b/arch/x86/kernel/cpu/common.c
+> > @@ -1286,6 +1286,22 @@ static bool arch_cap_mmio_immune(u64 ia32_cap)
+> >  		ia32_cap & ARCH_CAP_SBDR_SSDP_NO);
+> >  }
+> >  
+> > +bool __init mmio_stale_data_unknown(void)
+> 
+> This function need to go to ...cpu/intel.c
 
-This patch add the buffer validation for security descriptor that is
-stored by malformed SMB2_SET_INFO_HE command. and allocate large
-response buffer about SMB2_O_INFO_SECURITY file info class.
+It will be big churn to move this function to ...cpu/intel.c.
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Cc: stable@vger.kernel.org
-Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-17771
-Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
----
- v2:
-   - add missing fixes and stable tags.
- v3:
-   - change goto statement with break for smb_ace buffer validation
-     check.
+cpu/intel.c is not compiled for !CONFIG_CPU_SUP_INTEL, and bugs.c
+depends on this function. For bugs.c to compile there needs to be
+another version of this function for !CONFIG_CPU_SUP_INTEL.
 
- fs/ksmbd/smb2pdu.c |  37 ++++++++-----
- fs/ksmbd/smbacl.c  | 130 ++++++++++++++++++++++++++++++---------------
- fs/ksmbd/smbacl.h  |   2 +-
- fs/ksmbd/vfs.c     |   5 ++
- 4 files changed, 118 insertions(+), 56 deletions(-)
+Secondly, this function relies on cpu_vuln_blacklist and
+arch_cap_mmio_immune(), both are in cpu/common.c and defined static.
+They would also need to made available in cpu/intel.c.
 
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index ea47aa0262ee..c2c25e50cec6 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -535,9 +535,10 @@ int smb2_allocate_rsp_buf(struct ksmbd_work *work)
- 		struct smb2_query_info_req *req;
- 
- 		req = smb2_get_msg(work->request_buf);
--		if (req->InfoType == SMB2_O_INFO_FILE &&
--		    (req->FileInfoClass == FILE_FULL_EA_INFORMATION ||
--		     req->FileInfoClass == FILE_ALL_INFORMATION))
-+		if ((req->InfoType == SMB2_O_INFO_FILE &&
-+		     (req->FileInfoClass == FILE_FULL_EA_INFORMATION ||
-+		     req->FileInfoClass == FILE_ALL_INFORMATION)) ||
-+		    req->InfoType == SMB2_O_INFO_SECURITY)
- 			sz = large_sz;
- 	}
- 
-@@ -2988,7 +2989,7 @@ int smb2_open(struct ksmbd_work *work)
- 						goto err_out;
- 
- 					rc = build_sec_desc(user_ns,
--							    pntsd, NULL,
-+							    pntsd, NULL, 0,
- 							    OWNER_SECINFO |
- 							    GROUP_SECINFO |
- 							    DACL_SECINFO,
-@@ -3833,6 +3834,15 @@ static int verify_info_level(int info_level)
- 	return 0;
- }
- 
-+static int smb2_resp_buf_len(struct ksmbd_work *work, unsigned short hdr2_len)
-+{
-+	int free_len;
-+
-+	free_len = (int)(work->response_sz -
-+		(get_rfc1002_len(work->response_buf) + 4)) - hdr2_len;
-+	return free_len;
-+}
-+
- static int smb2_calc_max_out_buf_len(struct ksmbd_work *work,
- 				     unsigned short hdr2_len,
- 				     unsigned int out_buf_len)
-@@ -3842,9 +3852,7 @@ static int smb2_calc_max_out_buf_len(struct ksmbd_work *work,
- 	if (out_buf_len > work->conn->vals->max_trans_size)
- 		return -EINVAL;
- 
--	free_len = (int)(work->response_sz -
--			 (get_rfc1002_len(work->response_buf) + 4)) -
--		hdr2_len;
-+	free_len = smb2_resp_buf_len(work, hdr2_len);
- 	if (free_len < 0)
- 		return -EINVAL;
- 
-@@ -5110,7 +5118,7 @@ static int smb2_get_info_sec(struct ksmbd_work *work,
- 	__u32 secdesclen;
- 	unsigned int id = KSMBD_NO_FID, pid = KSMBD_NO_FID;
- 	int addition_info = le32_to_cpu(req->AdditionalInformation);
--	int rc;
-+	int rc = 0, ppntsd_size = 0;
- 
- 	if (addition_info & ~(OWNER_SECINFO | GROUP_SECINFO | DACL_SECINFO |
- 			      PROTECTED_DACL_SECINFO |
-@@ -5156,11 +5164,14 @@ static int smb2_get_info_sec(struct ksmbd_work *work,
- 
- 	if (test_share_config_flag(work->tcon->share_conf,
- 				   KSMBD_SHARE_FLAG_ACL_XATTR))
--		ksmbd_vfs_get_sd_xattr(work->conn, user_ns,
--				       fp->filp->f_path.dentry, &ppntsd);
--
--	rc = build_sec_desc(user_ns, pntsd, ppntsd, addition_info,
--			    &secdesclen, &fattr);
-+		ppntsd_size = ksmbd_vfs_get_sd_xattr(work->conn, user_ns,
-+						     fp->filp->f_path.dentry,
-+						     &ppntsd);
-+
-+	/* Check if sd buffer size exceeds response buffer size */
-+	if (smb2_resp_buf_len(work, 8) > ppntsd_size)
-+		rc = build_sec_desc(user_ns, pntsd, ppntsd, ppntsd_size,
-+				    addition_info, &secdesclen, &fattr);
- 	posix_acl_release(fattr.cf_acls);
- 	posix_acl_release(fattr.cf_dacls);
- 	kfree(ppntsd);
-diff --git a/fs/ksmbd/smbacl.c b/fs/ksmbd/smbacl.c
-index 38f23bf981ac..e9cd96f0bc44 100644
---- a/fs/ksmbd/smbacl.c
-+++ b/fs/ksmbd/smbacl.c
-@@ -690,6 +690,7 @@ static void set_posix_acl_entries_dacl(struct user_namespace *user_ns,
- static void set_ntacl_dacl(struct user_namespace *user_ns,
- 			   struct smb_acl *pndacl,
- 			   struct smb_acl *nt_dacl,
-+			   unsigned int aces_size,
- 			   const struct smb_sid *pownersid,
- 			   const struct smb_sid *pgrpsid,
- 			   struct smb_fattr *fattr)
-@@ -703,9 +704,19 @@ static void set_ntacl_dacl(struct user_namespace *user_ns,
- 	if (nt_num_aces) {
- 		ntace = (struct smb_ace *)((char *)nt_dacl + sizeof(struct smb_acl));
- 		for (i = 0; i < nt_num_aces; i++) {
--			memcpy((char *)pndace + size, ntace, le16_to_cpu(ntace->size));
--			size += le16_to_cpu(ntace->size);
--			ntace = (struct smb_ace *)((char *)ntace + le16_to_cpu(ntace->size));
-+			unsigned short nt_ace_size;
-+
-+			if (offsetof(struct smb_ace, access_req) > aces_size)
-+				break;
-+
-+			nt_ace_size = le16_to_cpu(ntace->size);
-+			if (nt_ace_size > aces_size)
-+				break;
-+
-+			memcpy((char *)pndace + size, ntace, nt_ace_size);
-+			size += nt_ace_size;
-+			aces_size -= nt_ace_size;
-+			ntace = (struct smb_ace *)((char *)ntace + nt_ace_size);
- 			num_aces++;
- 		}
- 	}
-@@ -878,7 +889,7 @@ int parse_sec_desc(struct user_namespace *user_ns, struct smb_ntsd *pntsd,
- /* Convert permission bits from mode to equivalent CIFS ACL */
- int build_sec_desc(struct user_namespace *user_ns,
- 		   struct smb_ntsd *pntsd, struct smb_ntsd *ppntsd,
--		   int addition_info, __u32 *secdesclen,
-+		   int ppntsd_size, int addition_info, __u32 *secdesclen,
- 		   struct smb_fattr *fattr)
- {
- 	int rc = 0;
-@@ -938,15 +949,25 @@ int build_sec_desc(struct user_namespace *user_ns,
- 
- 		if (!ppntsd) {
- 			set_mode_dacl(user_ns, dacl_ptr, fattr);
--		} else if (!ppntsd->dacloffset) {
--			goto out;
- 		} else {
- 			struct smb_acl *ppdacl_ptr;
-+			unsigned int dacl_offset = le32_to_cpu(ppntsd->dacloffset);
-+			int ppdacl_size, ntacl_size = ppntsd_size - dacl_offset;
-+
-+			if (!dacl_offset ||
-+			    (dacl_offset + sizeof(struct smb_acl) > ppntsd_size))
-+				goto out;
-+
-+			ppdacl_ptr = (struct smb_acl *)((char *)ppntsd + dacl_offset);
-+			ppdacl_size = le16_to_cpu(ppdacl_ptr->size);
-+			if (ppdacl_size > ntacl_size ||
-+			    ppdacl_size < sizeof(struct smb_acl))
-+				goto out;
- 
--			ppdacl_ptr = (struct smb_acl *)((char *)ppntsd +
--						le32_to_cpu(ppntsd->dacloffset));
- 			set_ntacl_dacl(user_ns, dacl_ptr, ppdacl_ptr,
--				       nowner_sid_ptr, ngroup_sid_ptr, fattr);
-+				       ntacl_size - sizeof(struct smb_acl),
-+				       nowner_sid_ptr, ngroup_sid_ptr,
-+				       fattr);
- 		}
- 		pntsd->dacloffset = cpu_to_le32(offset);
- 		offset += le16_to_cpu(dacl_ptr->size);
-@@ -980,24 +1001,31 @@ int smb_inherit_dacl(struct ksmbd_conn *conn,
- 	struct smb_sid owner_sid, group_sid;
- 	struct dentry *parent = path->dentry->d_parent;
- 	struct user_namespace *user_ns = mnt_user_ns(path->mnt);
--	int inherited_flags = 0, flags = 0, i, ace_cnt = 0, nt_size = 0;
--	int rc = 0, num_aces, dacloffset, pntsd_type, acl_len;
-+	int inherited_flags = 0, flags = 0, i, ace_cnt = 0, nt_size = 0, pdacl_size;
-+	int rc = 0, num_aces, dacloffset, pntsd_type, pntsd_size, acl_len, aces_size;
- 	char *aces_base;
- 	bool is_dir = S_ISDIR(d_inode(path->dentry)->i_mode);
- 
--	acl_len = ksmbd_vfs_get_sd_xattr(conn, user_ns,
--					 parent, &parent_pntsd);
--	if (acl_len <= 0)
-+	pntsd_size = ksmbd_vfs_get_sd_xattr(conn, user_ns,
-+					    parent, &parent_pntsd);
-+	if (pntsd_size <= 0)
- 		return -ENOENT;
- 	dacloffset = le32_to_cpu(parent_pntsd->dacloffset);
--	if (!dacloffset) {
-+	if (!dacloffset || (dacloffset + sizeof(struct smb_acl) > pntsd_size)) {
- 		rc = -EINVAL;
- 		goto free_parent_pntsd;
- 	}
- 
- 	parent_pdacl = (struct smb_acl *)((char *)parent_pntsd + dacloffset);
-+	acl_len = pntsd_size - dacloffset;
- 	num_aces = le32_to_cpu(parent_pdacl->num_aces);
- 	pntsd_type = le16_to_cpu(parent_pntsd->type);
-+	pdacl_size = le16_to_cpu(parent_pdacl->size);
-+
-+	if (pdacl_size > acl_len || pdacl_size < sizeof(struct smb_acl)) {
-+		rc = -EINVAL;
-+		goto free_parent_pntsd;
-+	}
- 
- 	aces_base = kmalloc(sizeof(struct smb_ace) * num_aces * 2, GFP_KERNEL);
- 	if (!aces_base) {
-@@ -1008,11 +1036,23 @@ int smb_inherit_dacl(struct ksmbd_conn *conn,
- 	aces = (struct smb_ace *)aces_base;
- 	parent_aces = (struct smb_ace *)((char *)parent_pdacl +
- 			sizeof(struct smb_acl));
-+	aces_size = acl_len - sizeof(struct smb_acl);
- 
- 	if (pntsd_type & DACL_AUTO_INHERITED)
- 		inherited_flags = INHERITED_ACE;
- 
- 	for (i = 0; i < num_aces; i++) {
-+		int pace_size;
-+
-+		if (offsetof(struct smb_ace, access_req) > aces_size)
-+			break;
-+
-+		pace_size = le16_to_cpu(parent_aces->size);
-+		if (pace_size > aces_size)
-+			break;
-+
-+		aces_size -= pace_size;
-+
- 		flags = parent_aces->flags;
- 		if (!smb_inherit_flags(flags, is_dir))
- 			goto pass;
-@@ -1057,8 +1097,7 @@ int smb_inherit_dacl(struct ksmbd_conn *conn,
- 		aces = (struct smb_ace *)((char *)aces + le16_to_cpu(aces->size));
- 		ace_cnt++;
- pass:
--		parent_aces =
--			(struct smb_ace *)((char *)parent_aces + le16_to_cpu(parent_aces->size));
-+		parent_aces = (struct smb_ace *)((char *)parent_aces + pace_size);
- 	}
- 
- 	if (nt_size > 0) {
-@@ -1153,7 +1192,7 @@ int smb_check_perm_dacl(struct ksmbd_conn *conn, struct path *path,
- 	struct smb_ntsd *pntsd = NULL;
- 	struct smb_acl *pdacl;
- 	struct posix_acl *posix_acls;
--	int rc = 0, acl_size;
-+	int rc = 0, pntsd_size, acl_size, aces_size, pdacl_size, dacl_offset;
- 	struct smb_sid sid;
- 	int granted = le32_to_cpu(*pdaccess & ~FILE_MAXIMAL_ACCESS_LE);
- 	struct smb_ace *ace;
-@@ -1162,37 +1201,33 @@ int smb_check_perm_dacl(struct ksmbd_conn *conn, struct path *path,
- 	struct smb_ace *others_ace = NULL;
- 	struct posix_acl_entry *pa_entry;
- 	unsigned int sid_type = SIDOWNER;
--	char *end_of_acl;
-+	unsigned short ace_size;
- 
- 	ksmbd_debug(SMB, "check permission using windows acl\n");
--	acl_size = ksmbd_vfs_get_sd_xattr(conn, user_ns,
--					  path->dentry, &pntsd);
--	if (acl_size <= 0 || !pntsd || !pntsd->dacloffset) {
--		kfree(pntsd);
--		return 0;
--	}
-+	pntsd_size = ksmbd_vfs_get_sd_xattr(conn, user_ns,
-+					    path->dentry, &pntsd);
-+	if (pntsd_size <= 0)
-+		goto err_out;
-+
-+	dacl_offset = le32_to_cpu(pntsd->dacloffset);
-+	if (!pntsd || !pntsd->dacloffset ||
-+	    (dacl_offset + sizeof(struct smb_acl) > pntsd_size))
-+		goto err_out;
- 
- 	pdacl = (struct smb_acl *)((char *)pntsd + le32_to_cpu(pntsd->dacloffset));
--	end_of_acl = ((char *)pntsd) + acl_size;
--	if (end_of_acl <= (char *)pdacl) {
--		kfree(pntsd);
--		return 0;
--	}
-+	acl_size = pntsd_size - dacl_offset;
-+	pdacl_size = le16_to_cpu(pdacl->size);
- 
--	if (end_of_acl < (char *)pdacl + le16_to_cpu(pdacl->size) ||
--	    le16_to_cpu(pdacl->size) < sizeof(struct smb_acl)) {
--		kfree(pntsd);
--		return 0;
--	}
-+	if (pdacl_size > acl_size || pdacl_size < sizeof(struct smb_acl))
-+		goto err_out;
- 
- 	if (!pdacl->num_aces) {
--		if (!(le16_to_cpu(pdacl->size) - sizeof(struct smb_acl)) &&
-+		if (!(pdacl_size - sizeof(struct smb_acl)) &&
- 		    *pdaccess & ~(FILE_READ_CONTROL_LE | FILE_WRITE_DAC_LE)) {
- 			rc = -EACCES;
- 			goto err_out;
- 		}
--		kfree(pntsd);
--		return 0;
-+		goto err_out;
- 	}
- 
- 	if (*pdaccess & FILE_MAXIMAL_ACCESS_LE) {
-@@ -1200,11 +1235,16 @@ int smb_check_perm_dacl(struct ksmbd_conn *conn, struct path *path,
- 			DELETE;
- 
- 		ace = (struct smb_ace *)((char *)pdacl + sizeof(struct smb_acl));
-+		aces_size = acl_size - sizeof(struct smb_acl);
- 		for (i = 0; i < le32_to_cpu(pdacl->num_aces); i++) {
-+			if (offsetof(struct smb_ace, access_req) > aces_size)
-+				break;
-+			ace_size = le16_to_cpu(ace->size);
-+			if (ace_size > aces_size)
-+				break;
-+			aces_size -= ace_size;
- 			granted |= le32_to_cpu(ace->access_req);
- 			ace = (struct smb_ace *)((char *)ace + le16_to_cpu(ace->size));
--			if (end_of_acl < (char *)ace)
--				goto err_out;
- 		}
- 
- 		if (!pdacl->num_aces)
-@@ -1216,7 +1256,15 @@ int smb_check_perm_dacl(struct ksmbd_conn *conn, struct path *path,
- 	id_to_sid(uid, sid_type, &sid);
- 
- 	ace = (struct smb_ace *)((char *)pdacl + sizeof(struct smb_acl));
-+	aces_size = acl_size - sizeof(struct smb_acl);
- 	for (i = 0; i < le32_to_cpu(pdacl->num_aces); i++) {
-+		if (offsetof(struct smb_ace, access_req) > aces_size)
-+			break;
-+		ace_size = le16_to_cpu(ace->size);
-+		if (ace_size > aces_size)
-+			break;
-+		aces_size -= ace_size;
-+
- 		if (!compare_sids(&sid, &ace->sid) ||
- 		    !compare_sids(&sid_unix_NFS_mode, &ace->sid)) {
- 			found = 1;
-@@ -1226,8 +1274,6 @@ int smb_check_perm_dacl(struct ksmbd_conn *conn, struct path *path,
- 			others_ace = ace;
- 
- 		ace = (struct smb_ace *)((char *)ace + le16_to_cpu(ace->size));
--		if (end_of_acl < (char *)ace)
--			goto err_out;
- 	}
- 
- 	if (*pdaccess & FILE_MAXIMAL_ACCESS_LE && found) {
-diff --git a/fs/ksmbd/smbacl.h b/fs/ksmbd/smbacl.h
-index 811af3309429..fcb2c83f2992 100644
---- a/fs/ksmbd/smbacl.h
-+++ b/fs/ksmbd/smbacl.h
-@@ -193,7 +193,7 @@ struct posix_acl_state {
- int parse_sec_desc(struct user_namespace *user_ns, struct smb_ntsd *pntsd,
- 		   int acl_len, struct smb_fattr *fattr);
- int build_sec_desc(struct user_namespace *user_ns, struct smb_ntsd *pntsd,
--		   struct smb_ntsd *ppntsd, int addition_info,
-+		   struct smb_ntsd *ppntsd, int ppntsd_size, int addition_info,
- 		   __u32 *secdesclen, struct smb_fattr *fattr);
- int init_acl_state(struct posix_acl_state *state, int cnt);
- void free_acl_state(struct posix_acl_state *state);
-diff --git a/fs/ksmbd/vfs.c b/fs/ksmbd/vfs.c
-index 4f75b1436eab..7af7e0853f06 100644
---- a/fs/ksmbd/vfs.c
-+++ b/fs/ksmbd/vfs.c
-@@ -1539,6 +1539,11 @@ int ksmbd_vfs_get_sd_xattr(struct ksmbd_conn *conn,
- 	}
- 
- 	*pntsd = acl.sd_buf;
-+	if (acl.sd_size < sizeof(struct smb_ntsd)) {
-+		pr_err("sd size is invalid\n");
-+		goto out_free;
-+	}
-+
- 	(*pntsd)->osidoffset = cpu_to_le32(le32_to_cpu((*pntsd)->osidoffset) -
- 					   NDR_NTSD_OFFSETOF);
- 	(*pntsd)->gsidoffset = cpu_to_le32(le32_to_cpu((*pntsd)->gsidoffset) -
--- 
-2.25.1
+To keep things simple, can this stay in cpu/common.c? And if there is a
+compelling reason, I am willing to make the required changes.
 
+> > +{
+> > +	u64 ia32_cap = x86_read_arch_cap_msr();
+> > +
+> > +	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
+> > +		return false;
+> 
+> <---- newline here.
+> 
+> > +	/*
+> > +	 * CPU vulnerability is unknown when, hardware doesn't set the
+> 
+> no comma after the "when"
+> 
+> > +	 * immunity bits and CPU is not in the known affected list.
+> > +	 */
+> > +	if (!cpu_matches(cpu_vuln_blacklist, MMIO) &&
+> > +	    !arch_cap_mmio_immune(ia32_cap))
+> > +		return true;
+> 
+> <---- newline here.
+
+Will do this, and above changes.
+
+> > +	return false;
+> > +}
+> > +
+> >  static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
+> >  {
+> >  	u64 ia32_cap = x86_read_arch_cap_msr();
+> > @@ -1349,14 +1365,8 @@ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
+> >  	    cpu_matches(cpu_vuln_blacklist, SRBDS | MMIO_SBDS))
+> >  		    setup_force_cpu_bug(X86_BUG_SRBDS);
+> >  
+> > -	/*
+> > -	 * Processor MMIO Stale Data bug enumeration
+> > -	 *
+> > -	 * Affected CPU list is generally enough to enumerate the vulnerability,
+> > -	 * but for virtualization case check for ARCH_CAP MSR bits also, VMM may
+> > -	 * not want the guest to enumerate the bug.
+> > -	 */
+> > -	if (cpu_matches(cpu_vuln_blacklist, MMIO) &&
+> > +	 /* Processor MMIO Stale Data bug enumeration */
+> > +	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL &&
+> 
+> Why is that vendor check here? We have the cpu_vuln_blacklist for a
+> reason.
+
+cpu_vuln_blacklist only has in-support MMIO vulnerable CPUs.
+
+There is no easy way to report unknown status for older CPUs. This
+patch sets the MMIO bug for all Intel CPUs that don't have the hardware
+immunity bits set.
+
+Later, mmio_select_mitigation() deploys the mitigation or sets the
+"Unknown" status based on the known-affected-list of CPUs i.e.
+cpu_vuln_blacklist.
+
+The vendor check is required, otherwise MMIO bug will be set for
+non-Intel CPUs also.
+
+Thanks,
+Pawan
