@@ -2,82 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B9E0584C89
-	for <lists+stable@lfdr.de>; Fri, 29 Jul 2022 09:29:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD1B4584CED
+	for <lists+stable@lfdr.de>; Fri, 29 Jul 2022 09:49:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234103AbiG2H3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jul 2022 03:29:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40880 "EHLO
+        id S235123AbiG2HtN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Jul 2022 03:49:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233949AbiG2H3D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 03:29:03 -0400
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B05E780493
-        for <stable@vger.kernel.org>; Fri, 29 Jul 2022 00:29:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1659079742; x=1690615742;
-  h=subject:references:in-reply-to:to:cc:from:message-id:
-   date:mime-version:content-transfer-encoding;
-  bh=DGjur7ob2G3bKGxLkZFZ11jP6ajCK7zWMxZxuXTD9Nw=;
-  b=VrPeFBbD4lvUMKyx+zpav3Z7eJQDSydFrX+m2NZBYQ1MRkQxHT8oDLSO
-   /mOt4vUaTHWX8CVn44vWLJ9FpyCX2o+ZJ2/9WpPFL/Msc8Fst84+o6WbH
-   fEIPwSuUWjEpmMBrr1PQorYys/ZM2VgSxbj0aVEJfsCe+kec853FcGJJl
-   eGEOT5HB6QmAgyC2H0RxTiQ4Q+/XMQC3G5GEBdPyFFm5Ef4Y9OeatjYNu
-   4hWEs+kUj9QrHtFVlIQVHoYh5PRcvNqBMb9njUSA5x0lBL5w+cDZXWeHN
-   AR42nvTvoMee6akstKzz3at24kdnT4KBX8kCS9RKXedtHtq3pkliTa7CD
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10422"; a="268477161"
-X-IronPort-AV: E=Sophos;i="5.93,200,1654585200"; 
-   d="scan'208";a="268477161"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jul 2022 00:29:02 -0700
-X-IronPort-AV: E=Sophos;i="5.93,200,1654585200"; 
-   d="scan'208";a="928646192"
-Received: from rongch2-mobl.ccr.corp.intel.com (HELO [10.249.174.178]) ([10.249.174.178])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jul 2022 00:29:01 -0700
-Subject: warning: stable kernel rule is not satisfied
-References: <YuOFhUb9VRGxk6jh@a446980b915c>
-In-Reply-To: <YuOFhUb9VRGxk6jh@a446980b915c>
-To:     Zhang Wensheng <zhangwensheng5@huawei.com>,
-        Zhang Wensheng <zhangwensheng@huaweicloud.com>
-Cc:     stable@vger.kernel.org
-From:   kernel test robot <rong.a.chen@intel.com>
-X-Forwarded-Message-Id: <YuOFhUb9VRGxk6jh@a446980b915c>
-Message-ID: <2364552d-9b18-875a-484a-d54ee8b9b9ee@intel.com>
-Date:   Fri, 29 Jul 2022 15:28:59 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.12.0
+        with ESMTP id S235141AbiG2Hsu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 03:48:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D161FCC9;
+        Fri, 29 Jul 2022 00:48:49 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 459D061BA2;
+        Fri, 29 Jul 2022 07:48:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23791C433C1;
+        Fri, 29 Jul 2022 07:48:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1659080928;
+        bh=I5F1Y/po8lkj1uLMAhaSQTOoxM0phFGL6HARqZ3pz1o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Y76aBwmE6XAjF+ZDNOAqF2jCv+varqBhWVkhgjWRpw0btSOzYmPkhbC3cwuRV2Gu4
+         vqRoWcsTM+VsyngethuhgnMsUizBoFDnaUqfbr3vq3wyKYmSCKjfAN+detX2zD/Yd/
+         gxAmX5JtMcY+JR0N6A9Pzb1b+rPSpUGYcUmOSJEI=
+Date:   Fri, 29 Jul 2022 09:48:46 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Zhang Wensheng <zhangwensheng@huaweicloud.com>
+Cc:     stable@vger.kernel.org, axboe@kernel.dk, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
+        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
+        kpsingh@kernel.org, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org, zhangwensheng5@huawei.com,
+        yukuai3@huawei.com
+Subject: Re: [PATCH 5.10] block: fix null-deref in percpu_ref_put
+Message-ID: <YuOQ3mzvtDyQHeLB@kroah.com>
+References: <20220729065243.1786222-1-zhangwensheng@huaweicloud.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220729065243.1786222-1-zhangwensheng@huaweicloud.com>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Fri, Jul 29, 2022 at 02:52:43PM +0800, Zhang Wensheng wrote:
+> From: Zhang Wensheng <zhangwensheng5@huawei.com>
+> 
+> In the use of q_usage_counter of request_queue, blk_cleanup_queue using
+> "wait_event(q->mq_freeze_wq, percpu_ref_is_zero(&q->q_usage_counter))"
+> to wait q_usage_counter becoming zero. however, if the q_usage_counter
+> becoming zero quickly, and percpu_ref_exit will execute and ref->data
+> will be freed, maybe another process will cause a null-defef problem
+> like below:
+> 
+> 	CPU0                             CPU1
+> blk_cleanup_queue
+>  blk_freeze_queue
+>   blk_mq_freeze_queue_wait
+> 				scsi_end_request
+> 				 percpu_ref_get
+> 				 ...
+> 				 percpu_ref_put
+> 				  atomic_long_sub_and_test
+>   percpu_ref_exit
+>    ref->data -> NULL
+>    				   ref->data->release(ref) -> null-deref
+> 
+> Fix it by setting flag(QUEUE_FLAG_USAGE_COUNT_SYNC) to add synchronization
+> mechanism, when ref->data->release is called, the flag will be setted,
+> and the "wait_event" in blk_mq_freeze_queue_wait must wait flag becoming
+> true as well, which will limit percpu_ref_exit to execute ahead of time.
+> 
+> Signed-off-by: Zhang Wensheng <zhangwensheng5@huawei.com>
+> ---
+>  block/blk-core.c       | 4 +++-
+>  block/blk-mq.c         | 7 +++++++
+>  include/linux/blk-mq.h | 1 +
+>  include/linux/blkdev.h | 2 ++
+>  4 files changed, 13 insertions(+), 1 deletion(-)
 
-Thanks for your patch.
 
-FYI: kernel test robot notices the stable kernel rule is not satisfied.
+<formletter>
 
-Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
-Subject: [PATCH 5.10] block: fix null-deref in percpu_ref_put
-Link: 
-https://lore.kernel.org/stable/20220729065243.1786222-1-zhangwensheng%40huaweicloud.com
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-The check is based on 
-https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
-
-
-
+</formletter>
