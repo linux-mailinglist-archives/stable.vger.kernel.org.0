@@ -2,117 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30E3C585931
-	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 10:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 870EC585AD7
+	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 16:45:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231805AbiG3Ie6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jul 2022 04:34:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52376 "EHLO
+        id S232596AbiG3OpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jul 2022 10:45:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231700AbiG3Ie5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 04:34:57 -0400
-Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D33613E21;
-        Sat, 30 Jul 2022 01:34:54 -0700 (PDT)
-Received: from mail02.huawei.com (unknown [172.30.67.153])
-        by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4LvyMj5yx8zKCMB;
-        Sat, 30 Jul 2022 16:33:37 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.175.127.227])
-        by APP3 (Coremail) with SMTP id _Ch0CgCH6mkn7eRi2T9yBQ--.5018S5;
-        Sat, 30 Jul 2022 16:34:49 +0800 (CST)
-From:   Yu Kuai <yukuai1@huaweicloud.com>
-To:     stable@vger.kernel.org, ming.lei@redhat.com
-Cc:     jejb@linux.vnet.ibm.com, martin.petersen@oracle.com,
-        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        yukuai3@huawei.com, yukuai1@huaweicloud.com, yi.zhang@huawei.com
-Subject: [PATCH stable 4.19 1/1] scsi: core: Fix race between handling STS_RESOURCE and completion
-Date:   Sat, 30 Jul 2022 16:46:51 +0800
-Message-Id: <20220730084651.4093719-2-yukuai1@huaweicloud.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220730084651.4093719-1-yukuai1@huaweicloud.com>
-References: <20220730084651.4093719-1-yukuai1@huaweicloud.com>
+        with ESMTP id S234399AbiG3OpN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 10:45:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E0BA62CF
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 07:45:12 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93CC460DC0
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 14:45:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EBA0C433D6;
+        Sat, 30 Jul 2022 14:45:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1659192311;
+        bh=4uqKB0elQRmsTO1c1R5M8oY4B3Mxe2VMkhNi4yeE+EM=;
+        h=Subject:To:Cc:From:Date:From;
+        b=MDRn7bOq/Vt7z2ItMBbgqDlsYh/sh+sCmhRjOXfYTipW9Z3+ChqTvQ/Y/8iS4OTKO
+         j4qmZMuNPfD0OVscB/yvhk2HTELPm2QX4NNZLwdEBKppmPlLURb/kWSV7WtjmCiGPF
+         iIjnHYlA7ZQgn0CnUDx6exQeaKwQholBrhBqpko4=
+Subject: FAILED: patch "[PATCH] bridge: Do not send empty IFLA_AF_SPEC attribute" failed to apply to 5.15-stable tree
+To:     bpoirier@nvidia.com, idosch@nvidia.com, pabeni@redhat.com,
+        razor@blackwall.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 30 Jul 2022 16:45:08 +0200
+Message-ID: <165919230819483@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: _Ch0CgCH6mkn7eRi2T9yBQ--.5018S5
-X-Coremail-Antispam: 1UD129KBjvJXoW7tFyxXr4fXr1DWF1rCFy7trb_yoW8ur4fpF
-        Z7ua4jkrWIgF4rC3yDWF1fury5u397Jry5WFW7W3s8ua43tryxXws3t3WDXF9YkF97GF1Y
-        qryqqFZ2q3W5ArUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUU9m14x267AKxVW5JVWrJwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-        rVWUuVWrJwAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_Jr4l82xGYIkIc2
-        x26xkF7I0E14v26r1I6r4UM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
-        Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJw
-        A2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS
-        0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2
-        IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0
-        Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCF04k20xvY0x0EwIxGrwCFx2
-        IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v2
-        6r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67
-        AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IY
-        s7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr
-        0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUqAp5UUUUU=
-X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
 
-commit 673235f915318ced5d7ec4b2bfd8cb909e6a4a55 upstream.
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-When queuing I/O request to LLD, STS_RESOURCE may be returned because:
+thanks,
 
- - Host is in recovery or blocked
+greg k-h
 
- - Target queue throttling or target is blocked
+------------------ original commit in Linus's tree ------------------
 
- - LLD rejection
+From 9b134b1694ec8926926ba6b7b80884ea829245a0 Mon Sep 17 00:00:00 2001
+From: Benjamin Poirier <bpoirier@nvidia.com>
+Date: Mon, 25 Jul 2022 09:12:36 +0900
+Subject: [PATCH] bridge: Do not send empty IFLA_AF_SPEC attribute
 
-In these scenarios BLK_STS_DEV_RESOURCE is returned to the block layer to
-avoid an unnecessary re-run of the queue. However, all of the requests
-queued to this SCSI device may complete immediately after reading
-'sdev->device_busy' and BLK_STS_DEV_RESOURCE is returned to block layer. In
-that case the current I/O won't get a chance to get queued since it is
-invisible at that time for both scsi_run_queue_async() and blk-mq's
-RESTART.
+After commit b6c02ef54913 ("bridge: Netlink interface fix."),
+br_fill_ifinfo() started to send an empty IFLA_AF_SPEC attribute when a
+bridge vlan dump is requested but an interface does not have any vlans
+configured.
 
-Fix the issue by not returning BLK_STS_DEV_RESOURCE in this situation.
+iproute2 ignores such an empty attribute since commit b262a9becbcb
+("bridge: Fix output with empty vlan lists") but older iproute2 versions as
+well as other utilities have their output changed by the cited kernel
+commit, resulting in failed test cases. Regardless, emitting an empty
+attribute is pointless and inefficient.
 
-Link: https://lore.kernel.org/r/20201202100419.525144-1-ming.lei@redhat.com
-Fixes: 86ff7c2a80cd ("blk-mq: introduce BLK_STS_DEV_RESOURCE")
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Sumit Saxena <sumit.saxena@broadcom.com>
-Cc: Kashyap Desai <kashyap.desai@broadcom.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Ewan Milne <emilne@redhat.com>
-Cc: Long Li <longli@microsoft.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Tested-by: "chenxiang (M)" <chenxiang66@hisilicon.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
----
- drivers/scsi/scsi_lib.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Avoid this change by canceling the attribute if no AF_SPEC data was added.
 
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index 0191708c9dd4..ace4a7230bcf 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -2157,8 +2157,7 @@ static blk_status_t scsi_queue_rq(struct blk_mq_hw_ctx *hctx,
- 	case BLK_STS_OK:
- 		break;
- 	case BLK_STS_RESOURCE:
--		if (atomic_read(&sdev->device_busy) ||
--		    scsi_device_blocked(sdev))
-+		if (scsi_device_blocked(sdev))
- 			ret = BLK_STS_DEV_RESOURCE;
- 		break;
- 	default:
--- 
-2.31.1
+Fixes: b6c02ef54913 ("bridge: Netlink interface fix.")
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Benjamin Poirier <bpoirier@nvidia.com>
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+Link: https://lore.kernel.org/r/20220725001236.95062-1-bpoirier@nvidia.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index bb01776d2d88..c96509c442a5 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -589,9 +589,13 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 	}
+ 
+ done:
++	if (af) {
++		if (nlmsg_get_pos(skb) - (void *)af > nla_attr_size(0))
++			nla_nest_end(skb, af);
++		else
++			nla_nest_cancel(skb, af);
++	}
+ 
+-	if (af)
+-		nla_nest_end(skb, af);
+ 	nlmsg_end(skb, nlh);
+ 	return 0;
+ 
 
