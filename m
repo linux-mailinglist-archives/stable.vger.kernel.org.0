@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5770C585B54
-	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 19:04:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01498585B55
+	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 19:04:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234479AbiG3REe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jul 2022 13:04:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39580 "EHLO
+        id S235070AbiG3REl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jul 2022 13:04:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230120AbiG3REd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 13:04:33 -0400
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F8413F13
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 10:04:32 -0700 (PDT)
-Received: by mail-ej1-x62e.google.com with SMTP id f5so605960eje.3
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 10:04:32 -0700 (PDT)
+        with ESMTP id S230120AbiG3REj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 13:04:39 -0400
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99CD713F13
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 10:04:38 -0700 (PDT)
+Received: by mail-ed1-x52a.google.com with SMTP id a89so9076591edf.5
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 10:04:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc;
-        bh=aaEle2Y+9h5QabMtHHW6QgGwF8ImVAx4a7F9Kq/rGWc=;
-        b=JE7oGHIruK+r75t1tG7/Fzs957PvSsw2pex5TRP9Rn0lwya8Fb78X5I0B4szfjqgZh
-         qXgspQCOtwegTyF53eZLca7sBXPrjNX1k3pP+HUkTK46aBMBNWibcn5ndE9IJF/F896C
-         yWTFg58scHRoiARelhycmiGHMSnL+PVw9PxIWRmrOB89AMl/fZrg3ZiSRfDCt9fzYHMq
-         IyU3hVJquKXSdLEpCRgiTru0bu19hyol20F4x4PU4LVy+kTLmc/OpIuxFT/Sz8blmrEw
-         1llcAMF+LwBDodHy3Kz0fNvH7WcfwypU9+ifdByBqied+KnKTTQ+6UZaFAKHotkFa6gJ
-         ey6A==
+        bh=qsaZNDTYZNoMo1WzxgtCrCqVV+PZ5bTxEW+MTbC0QjQ=;
+        b=Lynksvhd5z2dXuCNZ68QRebbnA5EH+HcqeIpRP4AUZDhYaoWlw6QXk/ZOE04SvBg9x
+         lm3SlXlPyluy7aBMNVsZKRNbO3nrdnWBklcYXFrsffTKK9L/2F4ABzR41faBuvmMgluV
+         RqV6y/5zzNHnOqs8bjoRZKRAwnIWLBIVZV8YI82RHz3oxzn9xBfAro8TkD3eBwk3oxIx
+         NAC4SFO/A84TcbmJIVcTC+TTGegCfFlmIZL735KE77YuKQ8Q/5oIy/ba74Cs+2PfrNWl
+         hs8N2AXHc6ZpIPeg3mFWUKbDGGpOMfQN8SolpJU+WU0qtL8atwb9EzMIBRwUcNPcYUWQ
+         +IwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=aaEle2Y+9h5QabMtHHW6QgGwF8ImVAx4a7F9Kq/rGWc=;
-        b=0lx5T7xDvJx2s0Bu5yRtXHKj/Hcae1ftY0XCZAZ4SSmnDK4EParCK6k04/gpYP/14s
-         NZ/S4xRbr0gf+WPuxEXSgx17OQOak7+bGvKh11wOXdH1n+VMGeHNYKhSto3XeYatnS9+
-         iieMNwM2jaJbXp74YKNEaAiOcTvVvjwdWMyjGD2sWQzfndvlSdoO+wH+DYSvSI/iguAw
-         +ZaTVrqtpgLHxWMaGrmNxYosO2vKRj/gleYBG78/xRM9b3UvRw/Rkl651AsI8u3e1iCr
-         nJ9Gt6kiVJvrQX5+0nXzVDV4p84WEWIvFwxuCZiLzq+vqHxpC46RrFPcwbtki9Pv78Bz
-         hD6g==
-X-Gm-Message-State: AJIora8UEZ/mjdoKk3MTQJo4chSvBlWKEhVa+GxCySM0gzzjr4PfOuFd
-        3g/Dp08o6PewmrB7U4xXXovy4hEoO/t0Hw==
-X-Google-Smtp-Source: AGRyM1sAiMtNPlZcm77TescW+SmKLVfuLZZm+EMZmk9Umuel0MP+Ve6hqTpiHqgP+lpVIb2qJCt+bQ==
-X-Received: by 2002:a17:907:d26:b0:72b:8311:a167 with SMTP id gn38-20020a1709070d2600b0072b8311a167mr6659387ejc.89.1659200671413;
-        Sat, 30 Jul 2022 10:04:31 -0700 (PDT)
+        bh=qsaZNDTYZNoMo1WzxgtCrCqVV+PZ5bTxEW+MTbC0QjQ=;
+        b=MGSbcZTDIW2V0UoHkfLLp9Orx+xdtkLg80R4IBmlcNoQ8Ji6dArSo+YaxnHTEdi2i4
+         osicBPH3rDvD0eJtr7sRsSrDd0Rjt+e8J1dwISzXubCwuulWDyuUQlfEFlWbw/nx/n2L
+         FBrGuWaznWjMCeMMU6f4BfYdVqeM1Jlq4rfviOdyVtSEVXI4M0ItEmDWPtYWqjqINmNl
+         7Lzq4Qx/iCnhrqr5wwCuMBNjmZhRpraYeYREFTXBCxfbgTlCeHreAJKHNWEStZA3+RRU
+         bq8mcl/+dWow1e008d+CsNQhCCB5I/iJr08T4JeDyv2qROcdz0iBn70NjWatGBvRF7Bd
+         bobg==
+X-Gm-Message-State: AJIora8vMHZ+z2gjAERHf1Gbha2pamuow4GBO/2E4OCsVTjlfjI88LID
+        5auUHYR92QutNnH/is5oFnlKfpqWScUKVA==
+X-Google-Smtp-Source: AGRyM1vM0q5IhpqJrUoPtl+DP+Uy9Oj6slrB1EfHRxjbH0mwt0HvFzKPMBGiBk02Wkh9B4c0zUSrPg==
+X-Received: by 2002:a05:6402:d05:b0:425:b7ab:776e with SMTP id eb5-20020a0564020d0500b00425b7ab776emr8678502edb.142.1659200676939;
+        Sat, 30 Jul 2022 10:04:36 -0700 (PDT)
 Received: from alex-Mint.fritz.box (p200300f6af2fc300f82d90934ef08f18.dip0.t-ipconnect.de. [2003:f6:af2f:c300:f82d:9093:4ef0:8f18])
-        by smtp.googlemail.com with ESMTPSA id b8-20020aa7c908000000b0043af8007e7fsm4101868edt.3.2022.07.30.10.04.30
+        by smtp.googlemail.com with ESMTPSA id b8-20020aa7c908000000b0043af8007e7fsm4101868edt.3.2022.07.30.10.04.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 30 Jul 2022 10:04:30 -0700 (PDT)
+        Sat, 30 Jul 2022 10:04:36 -0700 (PDT)
 From:   Alexander Grund <theflamefire89@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
         Alexander Grund <theflamefire89@gmail.com>
-Subject: [PATCH 4.9 1/6] selinux: Minor cleanups
-Date:   Sat, 30 Jul 2022 19:03:38 +0200
-Message-Id: <20220730170343.11477-2-theflamefire89@gmail.com>
+Subject: [PATCH 4.9 2/6] proc: Pass file mode to proc_pid_make_inode
+Date:   Sat, 30 Jul 2022 19:03:39 +0200
+Message-Id: <20220730170343.11477-3-theflamefire89@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220730170343.11477-1-theflamefire89@gmail.com>
 References: <20220730170343.11477-1-theflamefire89@gmail.com>
@@ -71,64 +71,190 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit 420591128cb206201dc444c2d42fb6f299b2ecd0 upstream.
+commit db978da8fa1d0819b210c137d31a339149b88875 upstream.
 
-Fix the comment for function __inode_security_revalidate, which returns
-an integer.
-
-Use the LABEL_* constants consistently for isec->initialized.
+Pass the file mode of the proc inode to be created to
+proc_pid_make_inode.  In proc_pid_make_inode, initialize inode->i_mode
+before calling security_task_to_inode.  This allows selinux to set
+isec->sclass right away without introducing "half-initialized" inode
+security structs.
 
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Alexander Grund <theflamefire89@gmail.com>
 ---
- security/selinux/hooks.c     | 3 ++-
- security/selinux/selinuxfs.c | 4 ++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ fs/proc/base.c           | 23 +++++++++--------------
+ fs/proc/fd.c             |  6 ++----
+ fs/proc/internal.h       |  2 +-
+ fs/proc/namespaces.c     |  3 +--
+ security/selinux/hooks.c |  1 +
+ 5 files changed, 14 insertions(+), 21 deletions(-)
 
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 886e408f4769..2dd4a2b7222c 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -1676,7 +1676,8 @@ const struct inode_operations proc_pid_link_inode_operations = {
+ 
+ /* building an inode */
+ 
+-struct inode *proc_pid_make_inode(struct super_block * sb, struct task_struct *task)
++struct inode *proc_pid_make_inode(struct super_block * sb,
++				  struct task_struct *task, umode_t mode)
+ {
+ 	struct inode * inode;
+ 	struct proc_inode *ei;
+@@ -1690,6 +1691,7 @@ struct inode *proc_pid_make_inode(struct super_block * sb, struct task_struct *t
+ 
+ 	/* Common stuff */
+ 	ei = PROC_I(inode);
++	inode->i_mode = mode;
+ 	inode->i_ino = get_next_ino();
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
+ 	inode->i_op = &proc_def_inode_operations;
+@@ -2041,7 +2043,9 @@ proc_map_files_instantiate(struct inode *dir, struct dentry *dentry,
+ 	struct proc_inode *ei;
+ 	struct inode *inode;
+ 
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, S_IFLNK |
++				    ((mode & FMODE_READ ) ? S_IRUSR : 0) |
++				    ((mode & FMODE_WRITE) ? S_IWUSR : 0));
+ 	if (!inode)
+ 		return -ENOENT;
+ 
+@@ -2050,12 +2054,6 @@ proc_map_files_instantiate(struct inode *dir, struct dentry *dentry,
+ 
+ 	inode->i_op = &proc_map_files_link_inode_operations;
+ 	inode->i_size = 64;
+-	inode->i_mode = S_IFLNK;
+-
+-	if (mode & FMODE_READ)
+-		inode->i_mode |= S_IRUSR;
+-	if (mode & FMODE_WRITE)
+-		inode->i_mode |= S_IWUSR;
+ 
+ 	d_set_d_op(dentry, &tid_map_files_dentry_operations);
+ 	d_add(dentry, inode);
+@@ -2409,12 +2407,11 @@ static int proc_pident_instantiate(struct inode *dir,
+ 	struct inode *inode;
+ 	struct proc_inode *ei;
+ 
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, p->mode);
+ 	if (!inode)
+ 		goto out;
+ 
+ 	ei = PROC_I(inode);
+-	inode->i_mode = p->mode;
+ 	if (S_ISDIR(inode->i_mode))
+ 		set_nlink(inode, 2);	/* Use getattr to fix if necessary */
+ 	if (p->iop)
+@@ -3109,11 +3106,10 @@ static int proc_pid_instantiate(struct inode *dir,
+ {
+ 	struct inode *inode;
+ 
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, S_IFDIR | S_IRUGO | S_IXUGO);
+ 	if (!inode)
+ 		goto out;
+ 
+-	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
+ 	inode->i_op = &proc_tgid_base_inode_operations;
+ 	inode->i_fop = &proc_tgid_base_operations;
+ 	inode->i_flags|=S_IMMUTABLE;
+@@ -3404,11 +3400,10 @@ static int proc_task_instantiate(struct inode *dir,
+ 	struct dentry *dentry, struct task_struct *task, const void *ptr)
+ {
+ 	struct inode *inode;
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, S_IFDIR | S_IRUGO | S_IXUGO);
+ 
+ 	if (!inode)
+ 		goto out;
+-	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
+ 	inode->i_op = &proc_tid_base_inode_operations;
+ 	inode->i_fop = &proc_tid_base_operations;
+ 	inode->i_flags|=S_IMMUTABLE;
+diff --git a/fs/proc/fd.c b/fs/proc/fd.c
+index d21dafef3102..4274f83bf100 100644
+--- a/fs/proc/fd.c
++++ b/fs/proc/fd.c
+@@ -183,14 +183,13 @@ proc_fd_instantiate(struct inode *dir, struct dentry *dentry,
+ 	struct proc_inode *ei;
+ 	struct inode *inode;
+ 
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, S_IFLNK);
+ 	if (!inode)
+ 		goto out;
+ 
+ 	ei = PROC_I(inode);
+ 	ei->fd = fd;
+ 
+-	inode->i_mode = S_IFLNK;
+ 	inode->i_op = &proc_pid_link_inode_operations;
+ 	inode->i_size = 64;
+ 
+@@ -322,14 +321,13 @@ proc_fdinfo_instantiate(struct inode *dir, struct dentry *dentry,
+ 	struct proc_inode *ei;
+ 	struct inode *inode;
+ 
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, S_IFREG | S_IRUSR);
+ 	if (!inode)
+ 		goto out;
+ 
+ 	ei = PROC_I(inode);
+ 	ei->fd = fd;
+ 
+-	inode->i_mode = S_IFREG | S_IRUSR;
+ 	inode->i_fop = &proc_fdinfo_file_operations;
+ 
+ 	d_set_d_op(dentry, &tid_fd_dentry_operations);
+diff --git a/fs/proc/internal.h b/fs/proc/internal.h
+index c0bdeceaaeb6..5bc057be6fa3 100644
+--- a/fs/proc/internal.h
++++ b/fs/proc/internal.h
+@@ -163,7 +163,7 @@ extern int proc_pid_statm(struct seq_file *, struct pid_namespace *,
+ extern const struct dentry_operations pid_dentry_operations;
+ extern int pid_getattr(struct vfsmount *, struct dentry *, struct kstat *);
+ extern int proc_setattr(struct dentry *, struct iattr *);
+-extern struct inode *proc_pid_make_inode(struct super_block *, struct task_struct *);
++extern struct inode *proc_pid_make_inode(struct super_block *, struct task_struct *, umode_t);
+ extern int pid_revalidate(struct dentry *, unsigned int);
+ extern int pid_delete_dentry(const struct dentry *);
+ extern int proc_pid_readdir(struct file *, struct dir_context *);
+diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
+index 51b8b0a8ad91..766f0c637ad1 100644
+--- a/fs/proc/namespaces.c
++++ b/fs/proc/namespaces.c
+@@ -92,12 +92,11 @@ static int proc_ns_instantiate(struct inode *dir,
+ 	struct inode *inode;
+ 	struct proc_inode *ei;
+ 
+-	inode = proc_pid_make_inode(dir->i_sb, task);
++	inode = proc_pid_make_inode(dir->i_sb, task, S_IFLNK | S_IRWXUGO);
+ 	if (!inode)
+ 		goto out;
+ 
+ 	ei = PROC_I(inode);
+-	inode->i_mode = S_IFLNK|S_IRWXUGO;
+ 	inode->i_op = &proc_ns_link_inode_operations;
+ 	ei->ns_ops = ns_ops;
+ 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index eb503eccbacc..43f81db42169 100644
+index 43f81db42169..1997d87b35d5 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -237,6 +237,7 @@ static int inode_alloc_security(struct inode *inode)
- 	isec->sid = SECINITSID_UNLABELED;
- 	isec->sclass = SECCLASS_FILE;
- 	isec->task_sid = sid;
-+	isec->initialized = LABEL_INVALID;
- 	inode->i_security = isec;
+@@ -3958,6 +3958,7 @@ static void selinux_task_to_inode(struct task_struct *p,
+ 	struct inode_security_struct *isec = inode->i_security;
+ 	u32 sid = task_sid(p);
  
- 	return 0;
-@@ -247,7 +248,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- /*
-  * Try reloading inode security labels that have been marked as invalid.  The
-  * @may_sleep parameter indicates when sleeping and thus reloading labels is
-- * allowed; when set to false, returns ERR_PTR(-ECHILD) when the label is
-+ * allowed; when set to false, returns -ECHILD when the label is
-  * invalid.  The @opt_dentry parameter should be set to a dentry of the inode;
-  * when no dentry is available, set it to NULL instead.
-  */
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index ef1226c1c3ad..a033306d14ee 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1301,7 +1301,7 @@ static int sel_make_bools(void)
- 			goto out;
- 
- 		isec->sid = sid;
--		isec->initialized = 1;
-+		isec->initialized = LABEL_INITIALIZED;
- 		inode->i_fop = &sel_bool_ops;
- 		inode->i_ino = i|SEL_BOOL_INO_OFFSET;
- 		d_add(dentry, inode);
-@@ -1835,7 +1835,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
- 	isec = (struct inode_security_struct *)inode->i_security;
- 	isec->sid = SECINITSID_DEVNULL;
- 	isec->sclass = SECCLASS_CHR_FILE;
--	isec->initialized = 1;
-+	isec->initialized = LABEL_INITIALIZED;
- 
- 	init_special_inode(inode, S_IFCHR | S_IRUGO | S_IWUGO, MKDEV(MEM_MAJOR, 3));
- 	d_add(dentry, inode);
++	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = sid;
+ 	isec->initialized = LABEL_INITIALIZED;
+ }
 -- 
 2.25.1
 
