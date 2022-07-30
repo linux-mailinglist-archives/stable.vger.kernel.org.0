@@ -2,97 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4645D5857B4
-	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 03:09:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB51D585806
+	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 04:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239764AbiG3BJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jul 2022 21:09:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35046 "EHLO
+        id S239779AbiG3Cb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Jul 2022 22:31:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239591AbiG3BIy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 21:08:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E80F087221;
-        Fri, 29 Jul 2022 18:08:37 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96D7AB82926;
-        Sat, 30 Jul 2022 01:08:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA44C433D7;
-        Sat, 30 Jul 2022 01:08:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1659143315;
-        bh=jdOQcJDQs1cHInz97O9LsgfylMp7cnPLylY9wbziNs0=;
-        h=Date:To:From:Subject:From;
-        b=UlYcjC2snOt9idpuFrK0TbHG50/yIIxjDc2T1swCRjP7hK+b8NGdvl4Y7Dsoccu4S
-         8fzluHPDI4bJlrMU6ow+uP38ibKFa0w6G47X00ZIbdi7NisPtTgqe+wYud6ChAOTCo
-         9osKYuKCNlpkjlL1EDhAKOTd/OFDOImrWkWXM1OU=
-Date:   Fri, 29 Jul 2022 18:08:34 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        songmuchun@bytedance.com, shakeelb@google.com,
-        mike.kravetz@oracle.com, keescook@chromium.org,
-        almasrymina@google.com, linmiaohe@huawei.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-stable] hugetlb_cgroup-fix-wrong-hugetlb-cgroup-numa-stat.patch removed from -mm tree
-Message-Id: <20220730010835.2BA44C433D7@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S232937AbiG3Cbz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 22:31:55 -0400
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A03F5B0;
+        Fri, 29 Jul 2022 19:31:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1659148313; x=1690684313;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=PcbwJg9Nq+orwj9qt2TIBWrJonHyULIKW9jq5xBZJlY=;
+  b=DWC4JAFU8zH/m7E92G/WNCaD8kTAddLJ/K9O/Gsp56vkcWcYHKyEC7jG
+   HyUFahuiZi1zgo/nUueelpxhAh21oF392wOSXkfUQfiicymXTqaZANiNv
+   GlZDe6KesyjqxPqebyqmpJ/w6KoY7LE0qcqzws+qsl7da2ST/q+jCczE1
+   SeI8vaZlUZuz52GE5WqeQf0LwvqaSAyNbED5JGRLbs8OwpSVE3X/FUwe+
+   IAFv2BVOSDVVa6nZazpLceJjPA0NNn0ouC5MO8bVSCHE90FOp4oFFyNIJ
+   RlAeUhITILNX/bO7m5usK67DpqvuWOcjz0HizKXMWwAxdF9Xz5lcIcbEa
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10423"; a="286440000"
+X-IronPort-AV: E=Sophos;i="5.93,202,1654585200"; 
+   d="scan'208";a="286440000"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jul 2022 19:31:53 -0700
+X-IronPort-AV: E=Sophos;i="5.93,202,1654585200"; 
+   d="scan'208";a="629589983"
+Received: from unknown (HELO desk) ([10.252.135.102])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jul 2022 19:31:52 -0700
+Date:   Fri, 29 Jul 2022 19:31:51 -0700
+From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     Jonathan Corbet <corbet@lwn.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        tony.luck@intel.com, antonio.gomez.iglesias@linux.intel.com,
+        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
+        andrew.cooper3@citrix.com, Josh Poimboeuf <jpoimboe@kernel.org>
+Subject: Re: [RESEND RFC PATCH] x86/bugs: Add "unknown" reporting for MMIO
+ Stale Data
+Message-ID: <20220730023151.kogebjrhsvhitklj@desk>
+References: <a932c154772f2121794a5f2eded1a11013114711.1657846269.git.pawan.kumar.gupta@linux.intel.com>
+ <YuJ6TQpSTIeXLNfB@zn.tnic>
+ <20220729022851.mdj3wuevkztspodh@desk>
+ <YuPpKa6OsG9e9nTj@zn.tnic>
+ <20220729173609.45o7lllpvsgjttqt@desk>
+ <YuRDbuQPYiYBZghm@zn.tnic>
+ <20220729214627.wowu5sny226c5pe4@desk>
+ <YuRY+rKaocoV8ECn@zn.tnic>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YuRY+rKaocoV8ECn@zn.tnic>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Jul 30, 2022 at 12:02:34AM +0200, Borislav Petkov wrote:
+> On Fri, Jul 29, 2022 at 02:46:27PM -0700, Pawan Gupta wrote:
+> > Let me see if there is a way to distinguish between 4. and 5. below:
+> > 
+> >    CPU category				  X86_BUG_MMIO_STALE_DATA	X86_BUG_MMIO_UNKNOWN
+> > -----------------------------------------------------------------------------------------------
+> > 1. Known affected (in cpu list)			1				0
+> > 2. CPUs with HW immunity (MMIO_NO=1)		0				0
+> > 3. Other vendors				0				0
+> > 4. Older Intel CPUs				0				1
+> > 5. Not affected current CPUs (but MMIO_NO=0)	0				?
+> 
+> Not affected current CPUs should be arch_cap_mmio_immune() == true, no?
 
-The quilt patch titled
-     Subject: hugetlb_cgroup: fix wrong hugetlb cgroup numa stat
-has been removed from the -mm tree.  Its filename was
-     hugetlb_cgroup-fix-wrong-hugetlb-cgroup-numa-stat.patch
-
-This patch was dropped because it was merged into the mm-stable branch
-of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-------------------------------------------------------
-From: Miaohe Lin <linmiaohe@huawei.com>
-Subject: hugetlb_cgroup: fix wrong hugetlb cgroup numa stat
-Date: Sat, 23 Jul 2022 15:38:04 +0800
-
-We forget to set cft->private for numa stat file.  As a result, numa stat
-of hstates[0] is always showed for all hstates.  Encode the hstates index
-into cft->private to fix this issue.
-
-Link: https://lkml.kernel.org/r/20220723073804.53035-1-linmiaohe@huawei.com
-Fixes: f47761999052 ("hugetlb: add hugetlb.*.numa_stat file")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Mina Almasry <almasrymina@google.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/hugetlb_cgroup.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/mm/hugetlb_cgroup.c~hugetlb_cgroup-fix-wrong-hugetlb-cgroup-numa-stat
-+++ a/mm/hugetlb_cgroup.c
-@@ -772,6 +772,7 @@ static void __init __hugetlb_cgroup_file
- 	/* Add the numa stat file */
- 	cft = &h->cgroup_files_dfl[6];
- 	snprintf(cft->name, MAX_CFTYPE_NAME, "%s.numa_stat", buf);
-+	cft->private = MEMFILE_PRIVATE(idx, 0);
- 	cft->seq_show = hugetlb_cgroup_read_numa_stat;
- 	cft->flags = CFTYPE_NOT_ON_ROOT;
- 
-_
-
-Patches currently in -mm which might be from linmiaohe@huawei.com are
-
-mm-hugetlb-avoid-corrupting-page-mapping-in-hugetlb_mcopy_atomic_pte.patch
-mm-page_alloc-minor-clean-up-for-memmap_init_compound.patch
-
+That would be true in most cases, with some exceptions like systems
+that did not update the microcode.
