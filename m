@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 636FF585AFD
-	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 17:24:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39145585AFE
+	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 17:24:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234755AbiG3PYy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jul 2022 11:24:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48410 "EHLO
+        id S234808AbiG3PY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jul 2022 11:24:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234808AbiG3PYw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 11:24:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08D5B13FB2
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 08:24:52 -0700 (PDT)
+        with ESMTP id S234829AbiG3PY5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 11:24:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A77A13FB2
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 08:24:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C3B460DD0
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 15:24:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A21CC433D6;
-        Sat, 30 Jul 2022 15:24:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1411C60DE8
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 15:24:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10EF5C433C1;
+        Sat, 30 Jul 2022 15:24:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659194691;
-        bh=1Afrd12zop2C1UK3npheueRbxG6r3+D9FzmAfCcaDOM=;
+        s=korg; t=1659194694;
+        bh=rZRcPAPhXwdOO00ShcblMRpN0eUJMmUTWveMLXcoXU4=;
         h=Subject:To:Cc:From:Date:From;
-        b=czlbMhm5fBFmRa3HmKKPmBFUkUqtRlphnt99/wbq9YBboNcIEottRNQ79BfEOKS8c
-         c2yjNPtSYLkCI7rvcEAm++PBtzbe/lptJSZWPGzFgdiLaetMNmejmLgMaIB5Ga7xBk
-         0sIpB6gXef0ZGqE84P/P2l13mVMyQPAVwKHMoXbk=
-Subject: FAILED: patch "[PATCH] scsi: ufs: core: Fix a race condition related to device" failed to apply to 4.9-stable tree
-To:     bvanassche@acm.org, adrian.hunter@intel.com, avri.altman@wdc.com,
-        beanhuo@micron.com, martin.petersen@oracle.com,
-        stanley.chu@mediatek.com
+        b=hyqxFDB819oFcw5qyJjb22PCHw0vufx6ESPhCpWuAJxLcz5JlVZ0x58jcaXnSde4O
+         qFnSXF3OQN8XuplbHj9PH9up/ltUVtGyx3tXPr66DVkIhsi8Zui6ewlyMu0WSvsa/S
+         TGDXmYzRyY6LFnEjS+BnghlyZK+PzTgpl5gwF2rw=
+Subject: FAILED: patch "[PATCH] Revert "tcp: change pingpong threshold to 3"" failed to apply to 5.4-stable tree
+To:     weiwan@google.com, edumazet@google.com, hlm3280@163.com,
+        kuba@kernel.org, ncardwell@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Jul 2022 17:24:31 +0200
-Message-ID: <1659194671151220@kroah.com>
+Date:   Sat, 30 Jul 2022 17:24:51 +0200
+Message-ID: <165919469116877@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,133 +59,83 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f5c2976e0cb0f6236013bfb479868531b04f61d4 Mon Sep 17 00:00:00 2001
-From: Bart Van Assche <bvanassche@acm.org>
-Date: Wed, 20 Jul 2022 10:02:23 -0700
-Subject: [PATCH] scsi: ufs: core: Fix a race condition related to device
- management
+From 4d8f24eeedc58d5f87b650ddda73c16e8ba56559 Mon Sep 17 00:00:00 2001
+From: Wei Wang <weiwan@google.com>
+Date: Thu, 21 Jul 2022 20:44:04 +0000
+Subject: [PATCH] Revert "tcp: change pingpong threshold to 3"
 
-If a device management command completion happens after
-wait_for_completion_timeout() times out and before ufshcd_clear_cmds() is
-called, then the completion code may crash on the complete() call in
-__ufshcd_transfer_req_compl().
+This reverts commit 4a41f453bedfd5e9cd040bad509d9da49feb3e2c.
 
-Fix the following crash:
+This to-be-reverted commit was meant to apply a stricter rule for the
+stack to enter pingpong mode. However, the condition used to check for
+interactive session "before(tp->lsndtime, icsk->icsk_ack.lrcvtime)" is
+jiffy based and might be too coarse, which delays the stack entering
+pingpong mode.
+We revert this patch so that we no longer use the above condition to
+determine interactive session, and also reduce pingpong threshold to 1.
 
-  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
-  Call trace:
-   complete+0x64/0x178
-   __ufshcd_transfer_req_compl+0x30c/0x9c0
-   ufshcd_poll+0xf0/0x208
-   ufshcd_sl_intr+0xb8/0xf0
-   ufshcd_intr+0x168/0x2f4
-   __handle_irq_event_percpu+0xa0/0x30c
-   handle_irq_event+0x84/0x178
-   handle_fasteoi_irq+0x150/0x2e8
-   __handle_domain_irq+0x114/0x1e4
-   gic_handle_irq.31846+0x58/0x300
-   el1_irq+0xe4/0x1c0
-   efi_header_end+0x110/0x680
-   __irq_exit_rcu+0x108/0x124
-   __handle_domain_irq+0x118/0x1e4
-   gic_handle_irq.31846+0x58/0x300
-   el1_irq+0xe4/0x1c0
-   cpuidle_enter_state+0x3ac/0x8c4
-   do_idle+0x2fc/0x55c
-   cpu_startup_entry+0x84/0x90
-   kernel_init+0x0/0x310
-   start_kernel+0x0/0x608
-   start_kernel+0x4ec/0x608
+Fixes: 4a41f453bedf ("tcp: change pingpong threshold to 3")
+Reported-by: LemmyHuang <hlm3280@163.com>
+Suggested-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Wei Wang <weiwan@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220721204404.388396-1-weiwan@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-Link: https://lore.kernel.org/r/20220720170228.1598842-1-bvanassche@acm.org
-Fixes: 5a0b0cb9bee7 ("[SCSI] ufs: Add support for sending NOP OUT UPIU")
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Avri Altman <avri.altman@wdc.com>
-Cc: Bean Huo <beanhuo@micron.com>
-Cc: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-
-diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
-index c7b337480e3e..3d367be71728 100644
---- a/drivers/ufs/core/ufshcd.c
-+++ b/drivers/ufs/core/ufshcd.c
-@@ -2953,37 +2953,59 @@ ufshcd_dev_cmd_completion(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
- static int ufshcd_wait_for_dev_cmd(struct ufs_hba *hba,
- 		struct ufshcd_lrb *lrbp, int max_timeout)
+diff --git a/include/net/inet_connection_sock.h b/include/net/inet_connection_sock.h
+index 85cd695e7fd1..ee88f0f1350f 100644
+--- a/include/net/inet_connection_sock.h
++++ b/include/net/inet_connection_sock.h
+@@ -321,7 +321,7 @@ void inet_csk_update_fastreuse(struct inet_bind_bucket *tb,
+ 
+ struct dst_entry *inet_csk_update_pmtu(struct sock *sk, u32 mtu);
+ 
+-#define TCP_PINGPONG_THRESH	3
++#define TCP_PINGPONG_THRESH	1
+ 
+ static inline void inet_csk_enter_pingpong_mode(struct sock *sk)
  {
--	int err = 0;
--	unsigned long time_left;
-+	unsigned long time_left = msecs_to_jiffies(max_timeout);
- 	unsigned long flags;
-+	bool pending;
-+	int err;
+@@ -338,14 +338,6 @@ static inline bool inet_csk_in_pingpong_mode(struct sock *sk)
+ 	return inet_csk(sk)->icsk_ack.pingpong >= TCP_PINGPONG_THRESH;
+ }
  
-+retry:
- 	time_left = wait_for_completion_timeout(hba->dev_cmd.complete,
--			msecs_to_jiffies(max_timeout));
-+						time_left);
- 
--	spin_lock_irqsave(hba->host->host_lock, flags);
--	hba->dev_cmd.complete = NULL;
- 	if (likely(time_left)) {
-+		/*
-+		 * The completion handler called complete() and the caller of
-+		 * this function still owns the @lrbp tag so the code below does
-+		 * not trigger any race conditions.
-+		 */
-+		hba->dev_cmd.complete = NULL;
- 		err = ufshcd_get_tr_ocs(lrbp);
- 		if (!err)
- 			err = ufshcd_dev_cmd_completion(hba, lrbp);
--	}
--	spin_unlock_irqrestore(hba->host->host_lock, flags);
+-static inline void inet_csk_inc_pingpong_cnt(struct sock *sk)
+-{
+-	struct inet_connection_sock *icsk = inet_csk(sk);
 -
--	if (!time_left) {
-+	} else {
- 		err = -ETIMEDOUT;
- 		dev_dbg(hba->dev, "%s: dev_cmd request timedout, tag %d\n",
- 			__func__, lrbp->task_tag);
--		if (!ufshcd_clear_cmds(hba, 1U << lrbp->task_tag))
-+		if (ufshcd_clear_cmds(hba, 1U << lrbp->task_tag) == 0) {
- 			/* successfully cleared the command, retry if needed */
- 			err = -EAGAIN;
--		/*
--		 * in case of an error, after clearing the doorbell,
--		 * we also need to clear the outstanding_request
--		 * field in hba
--		 */
--		spin_lock_irqsave(&hba->outstanding_lock, flags);
--		__clear_bit(lrbp->task_tag, &hba->outstanding_reqs);
--		spin_unlock_irqrestore(&hba->outstanding_lock, flags);
-+			/*
-+			 * Since clearing the command succeeded we also need to
-+			 * clear the task tag bit from the outstanding_reqs
-+			 * variable.
-+			 */
-+			spin_lock_irqsave(&hba->outstanding_lock, flags);
-+			pending = test_bit(lrbp->task_tag,
-+					   &hba->outstanding_reqs);
-+			if (pending) {
-+				hba->dev_cmd.complete = NULL;
-+				__clear_bit(lrbp->task_tag,
-+					    &hba->outstanding_reqs);
-+			}
-+			spin_unlock_irqrestore(&hba->outstanding_lock, flags);
-+
-+			if (!pending) {
-+				/*
-+				 * The completion handler ran while we tried to
-+				 * clear the command.
-+				 */
-+				time_left = 1;
-+				goto retry;
-+			}
-+		} else {
-+			dev_err(hba->dev, "%s: failed to clear tag %d\n",
-+				__func__, lrbp->task_tag);
-+		}
- 	}
+-	if (icsk->icsk_ack.pingpong < U8_MAX)
+-		icsk->icsk_ack.pingpong++;
+-}
+-
+ static inline bool inet_csk_has_ulp(struct sock *sk)
+ {
+ 	return inet_sk(sk)->is_icsk && !!inet_csk(sk)->icsk_ulp_ops;
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index cf6713c9567e..2efe41c84ee8 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -167,16 +167,13 @@ static void tcp_event_data_sent(struct tcp_sock *tp,
+ 	if (tcp_packets_in_flight(tp) == 0)
+ 		tcp_ca_event(sk, CA_EVENT_TX_START);
  
- 	return err;
+-	/* If this is the first data packet sent in response to the
+-	 * previous received data,
+-	 * and it is a reply for ato after last received packet,
+-	 * increase pingpong count.
+-	 */
+-	if (before(tp->lsndtime, icsk->icsk_ack.lrcvtime) &&
+-	    (u32)(now - icsk->icsk_ack.lrcvtime) < icsk->icsk_ack.ato)
+-		inet_csk_inc_pingpong_cnt(sk);
+-
+ 	tp->lsndtime = now;
++
++	/* If it is a reply for ato after last received
++	 * packet, enter pingpong mode.
++	 */
++	if ((u32)(now - icsk->icsk_ack.lrcvtime) < icsk->icsk_ack.ato)
++		inet_csk_enter_pingpong_mode(sk);
+ }
+ 
+ /* Account for an ACK we sent. */
 
