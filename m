@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39145585AFE
-	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 17:24:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32656585AFF
+	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 17:28:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234808AbiG3PY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jul 2022 11:24:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48446 "EHLO
+        id S234707AbiG3P2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jul 2022 11:28:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234829AbiG3PY5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 11:24:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A77A13FB2
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 08:24:55 -0700 (PDT)
+        with ESMTP id S232942AbiG3P2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 11:28:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D29F512A94
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 08:28:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1411C60DE8
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 15:24:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10EF5C433C1;
-        Sat, 30 Jul 2022 15:24:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7615BB80110
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 15:28:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8A2BC433C1;
+        Sat, 30 Jul 2022 15:28:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659194694;
-        bh=rZRcPAPhXwdOO00ShcblMRpN0eUJMmUTWveMLXcoXU4=;
+        s=korg; t=1659194894;
+        bh=SwN9gS9vQzleQEuqVH0O1JcNke/Yb8Y5i8TQhaBx84U=;
         h=Subject:To:Cc:From:Date:From;
-        b=hyqxFDB819oFcw5qyJjb22PCHw0vufx6ESPhCpWuAJxLcz5JlVZ0x58jcaXnSde4O
-         qFnSXF3OQN8XuplbHj9PH9up/ltUVtGyx3tXPr66DVkIhsi8Zui6ewlyMu0WSvsa/S
-         TGDXmYzRyY6LFnEjS+BnghlyZK+PzTgpl5gwF2rw=
-Subject: FAILED: patch "[PATCH] Revert "tcp: change pingpong threshold to 3"" failed to apply to 5.4-stable tree
-To:     weiwan@google.com, edumazet@google.com, hlm3280@163.com,
-        kuba@kernel.org, ncardwell@google.com
+        b=YXBkzRviFVMyxPvJ7Of1jJtrUa5pUBWzo0voQ71930i6QEdIEcKMjSmhVM4kHeQ4i
+         5W7Rbgs7j5g3w+hFut3MKQyCifsktnQQ5V6KSUJQtt2b52RgU07m7tcMnRLnJ2LyPe
+         +mpy8Q5LGSSK9u4XnpwwSxtLAV5y9NvdxaWYKqNc=
+Subject: FAILED: patch "[PATCH] scsi: core: Fix warning in scsi_alloc_sgtables()" failed to apply to 5.10-stable tree
+To:     yanaijie@huawei.com, bvanassche@acm.org, hch@lst.de,
+        martin.petersen@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Jul 2022 17:24:51 +0200
-Message-ID: <165919469116877@kroah.com>
+Date:   Sat, 30 Jul 2022 17:28:11 +0200
+Message-ID: <165919489155179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,83 +59,99 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4d8f24eeedc58d5f87b650ddda73c16e8ba56559 Mon Sep 17 00:00:00 2001
-From: Wei Wang <weiwan@google.com>
-Date: Thu, 21 Jul 2022 20:44:04 +0000
-Subject: [PATCH] Revert "tcp: change pingpong threshold to 3"
+From d9a434fa0c12ed5f7afe1e9dd30003ab5d059b85 Mon Sep 17 00:00:00 2001
+From: Jason Yan <yanaijie@huawei.com>
+Date: Wed, 20 Jul 2022 10:51:20 +0800
+Subject: [PATCH] scsi: core: Fix warning in scsi_alloc_sgtables()
 
-This reverts commit 4a41f453bedfd5e9cd040bad509d9da49feb3e2c.
+As explained in SG_IO howto[1]:
 
-This to-be-reverted commit was meant to apply a stricter rule for the
-stack to enter pingpong mode. However, the condition used to check for
-interactive session "before(tp->lsndtime, icsk->icsk_ack.lrcvtime)" is
-jiffy based and might be too coarse, which delays the stack entering
-pingpong mode.
-We revert this patch so that we no longer use the above condition to
-determine interactive session, and also reduce pingpong threshold to 1.
+"If iovec_count is non-zero then 'dxfer_len' should be equal to the sum of
+iov_len lengths. If not, the minimum of the two is the transfer length."
 
-Fixes: 4a41f453bedf ("tcp: change pingpong threshold to 3")
-Reported-by: LemmyHuang <hlm3280@163.com>
-Suggested-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Wei Wang <weiwan@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220721204404.388396-1-weiwan@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+When iovec_count is non-zero and dxfer_len is zero, the sg_io() just
+genarated a null bio, and finally caused a warning below. To fix it, skip
+generating a bio for this request if dxfer_len is zero.
 
-diff --git a/include/net/inet_connection_sock.h b/include/net/inet_connection_sock.h
-index 85cd695e7fd1..ee88f0f1350f 100644
---- a/include/net/inet_connection_sock.h
-+++ b/include/net/inet_connection_sock.h
-@@ -321,7 +321,7 @@ void inet_csk_update_fastreuse(struct inet_bind_bucket *tb,
+[1] https://tldp.org/HOWTO/SCSI-Generic-HOWTO/x198.html
+
+WARNING: CPU: 2 PID: 3643 at drivers/scsi/scsi_lib.c:1032 scsi_alloc_sgtables+0xc7d/0xf70 drivers/scsi/scsi_lib.c:1032
+Modules linked in:
+
+CPU: 2 PID: 3643 Comm: syz-executor397 Not tainted
+5.17.0-rc3-syzkaller-00316-gb81b1829e7e3 #0
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-204/01/2014
+RIP: 0010:scsi_alloc_sgtables+0xc7d/0xf70 drivers/scsi/scsi_lib.c:1032
+Code: e7 fc 31 ff 44 89 f6 e8 c1 4e e7 fc 45 85 f6 0f 84 1a f5 ff ff e8
+93 4c e7 fc 83 c5 01 0f b7 ed e9 0f f5 ff ff e8 83 4c e7 fc <0f> 0b 41
+   bc 0a 00 00 00 e9 2b fb ff ff 41 bc 09 00 00 00 e9 20 fb
+RSP: 0018:ffffc90000d07558 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: ffff88801bfc96a0 RCX: 0000000000000000
+RDX: ffff88801c876000 RSI: ffffffff849060bd RDI: 0000000000000003
+RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffff849055b9 R11: 0000000000000000 R12: ffff888012b8c000
+R13: ffff88801bfc9580 R14: 0000000000000000 R15: ffff88801432c000
+FS:  00007effdec8e700(0000) GS:ffff88802cc00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007effdec6d718 CR3: 00000000206d6000 CR4: 0000000000150ee0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ scsi_setup_scsi_cmnd drivers/scsi/scsi_lib.c:1219 [inline]
+ scsi_prepare_cmd drivers/scsi/scsi_lib.c:1614 [inline]
+ scsi_queue_rq+0x283e/0x3630 drivers/scsi/scsi_lib.c:1730
+ blk_mq_dispatch_rq_list+0x6ea/0x22e0 block/blk-mq.c:1851
+ __blk_mq_sched_dispatch_requests+0x20b/0x410 block/blk-mq-sched.c:299
+ blk_mq_sched_dispatch_requests+0xfb/0x180 block/blk-mq-sched.c:332
+ __blk_mq_run_hw_queue+0xf9/0x350 block/blk-mq.c:1968
+ __blk_mq_delay_run_hw_queue+0x5b6/0x6c0 block/blk-mq.c:2045
+ blk_mq_run_hw_queue+0x30f/0x480 block/blk-mq.c:2096
+ blk_mq_sched_insert_request+0x340/0x440 block/blk-mq-sched.c:451
+ blk_execute_rq+0xcc/0x340 block/blk-mq.c:1231
+ sg_io+0x67c/0x1210 drivers/scsi/scsi_ioctl.c:485
+ scsi_ioctl_sg_io drivers/scsi/scsi_ioctl.c:866 [inline]
+ scsi_ioctl+0xa66/0x1560 drivers/scsi/scsi_ioctl.c:921
+ sd_ioctl+0x199/0x2a0 drivers/scsi/sd.c:1576
+ blkdev_ioctl+0x37a/0x800 block/ioctl.c:588
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:874 [inline]
+ __se_sys_ioctl fs/ioctl.c:860 [inline]
+ __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:860
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7effdecdc5d9
+Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 81 14 00 00 90 48 89 f8 48 89
+f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
+f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007effdec8e2f8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00007effded664c0 RCX: 00007effdecdc5d9
+RDX: 0000000020002300 RSI: 0000000000002285 RDI: 0000000000000004
+RBP: 00007effded34034 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000003
+R13: 00007effded34054 R14: 2f30656c69662f2e R15: 00007effded664c8
+
+Link: https://lore.kernel.org/r/20220720025120.3226770-1-yanaijie@huawei.com
+Fixes: 25636e282fe9 ("block: fix SG_IO vector request data length handling")
+Reported-by: syzbot+d44b35ecfb807e5af0b5@syzkaller.appspotmail.com
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+
+diff --git a/drivers/scsi/scsi_ioctl.c b/drivers/scsi/scsi_ioctl.c
+index a480c4d589f5..729e309e6034 100644
+--- a/drivers/scsi/scsi_ioctl.c
++++ b/drivers/scsi/scsi_ioctl.c
+@@ -450,7 +450,7 @@ static int sg_io(struct scsi_device *sdev, struct sg_io_hdr *hdr, fmode_t mode)
+ 		goto out_put_request;
  
- struct dst_entry *inet_csk_update_pmtu(struct sock *sk, u32 mtu);
+ 	ret = 0;
+-	if (hdr->iovec_count) {
++	if (hdr->iovec_count && hdr->dxfer_len) {
+ 		struct iov_iter i;
+ 		struct iovec *iov = NULL;
  
--#define TCP_PINGPONG_THRESH	3
-+#define TCP_PINGPONG_THRESH	1
- 
- static inline void inet_csk_enter_pingpong_mode(struct sock *sk)
- {
-@@ -338,14 +338,6 @@ static inline bool inet_csk_in_pingpong_mode(struct sock *sk)
- 	return inet_csk(sk)->icsk_ack.pingpong >= TCP_PINGPONG_THRESH;
- }
- 
--static inline void inet_csk_inc_pingpong_cnt(struct sock *sk)
--{
--	struct inet_connection_sock *icsk = inet_csk(sk);
--
--	if (icsk->icsk_ack.pingpong < U8_MAX)
--		icsk->icsk_ack.pingpong++;
--}
--
- static inline bool inet_csk_has_ulp(struct sock *sk)
- {
- 	return inet_sk(sk)->is_icsk && !!inet_csk(sk)->icsk_ulp_ops;
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index cf6713c9567e..2efe41c84ee8 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -167,16 +167,13 @@ static void tcp_event_data_sent(struct tcp_sock *tp,
- 	if (tcp_packets_in_flight(tp) == 0)
- 		tcp_ca_event(sk, CA_EVENT_TX_START);
- 
--	/* If this is the first data packet sent in response to the
--	 * previous received data,
--	 * and it is a reply for ato after last received packet,
--	 * increase pingpong count.
--	 */
--	if (before(tp->lsndtime, icsk->icsk_ack.lrcvtime) &&
--	    (u32)(now - icsk->icsk_ack.lrcvtime) < icsk->icsk_ack.ato)
--		inet_csk_inc_pingpong_cnt(sk);
--
- 	tp->lsndtime = now;
-+
-+	/* If it is a reply for ato after last received
-+	 * packet, enter pingpong mode.
-+	 */
-+	if ((u32)(now - icsk->icsk_ack.lrcvtime) < icsk->icsk_ack.ato)
-+		inet_csk_enter_pingpong_mode(sk);
- }
- 
- /* Account for an ACK we sent. */
 
