@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19759585B03
-	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 17:28:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9341585B09
+	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 17:30:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233360AbiG3P24 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jul 2022 11:28:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50470 "EHLO
+        id S235088AbiG3Pat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jul 2022 11:30:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232942AbiG3P2z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 11:28:55 -0400
+        with ESMTP id S235219AbiG3Pam (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 11:30:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFFC312A94
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 08:28:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC01D13D49
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 08:30:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C207B800E2
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 15:28:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9218C433C1;
-        Sat, 30 Jul 2022 15:28:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 483A5B8068E
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 15:30:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87741C433C1;
+        Sat, 30 Jul 2022 15:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659194931;
-        bh=bwPKMPRSrfMZiH1cOk2DN7irajlIQ1hNn/yl4Q7Npew=;
+        s=korg; t=1659195031;
+        bh=1IgyhbgPtatpa9sqhvj5w3ZkxTctiY7pqNE3kydobM8=;
         h=Subject:To:Cc:From:Date:From;
-        b=NhGwWV7EFlf4ei9YgAr7RJLJktJNon42at//cDCTLoBptjK10jOQlyKUW/MEey1Hi
-         7wjbJKOqk1n9TIr/h+yGjD8BqB8Fgc9xTNwU0a8bfxiv3kmExdQ/1RhvwHmmoHUMlp
-         enhAoIKwnZa23h7jIEwYLEKlHsqIt9vrEVVYvP5Y=
-Subject: FAILED: patch "[PATCH] scsi: core: Fix warning in scsi_alloc_sgtables()" failed to apply to 4.9-stable tree
-To:     yanaijie@huawei.com, bvanassche@acm.org, hch@lst.de,
-        martin.petersen@oracle.com
+        b=I9aRGoiz0XDZlWK+0E95v3N+DplFrj9xDxdLMQpr2+aBzX3TxY5rYdCBF0+DS7uw9
+         bpbsUpXbSwnqDn4IuLv4UpSiXCHrLNY03N1m+kR8ZgcSB1cDVhkEXCdsjdzMvgmHHC
+         kOL88Fb1LoclvbqZUpQhj4/MOanzqsH3cUWvdfSU=
+Subject: FAILED: patch "[PATCH] ipv6/addrconf: fix a null-ptr-deref bug for ip6_ptr" failed to apply to 4.19-stable tree
+To:     william.xuanziyang@huawei.com, dsahern@kernel.org, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Jul 2022 17:28:48 +0200
-Message-ID: <165919492867202@kroah.com>
+Date:   Sat, 30 Jul 2022 17:30:29 +0200
+Message-ID: <165919502920161@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,99 +58,95 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d9a434fa0c12ed5f7afe1e9dd30003ab5d059b85 Mon Sep 17 00:00:00 2001
-From: Jason Yan <yanaijie@huawei.com>
-Date: Wed, 20 Jul 2022 10:51:20 +0800
-Subject: [PATCH] scsi: core: Fix warning in scsi_alloc_sgtables()
+From 85f0173df35e5462d89947135a6a5599c6c3ef6f Mon Sep 17 00:00:00 2001
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
+Date: Thu, 28 Jul 2022 09:33:07 +0800
+Subject: [PATCH] ipv6/addrconf: fix a null-ptr-deref bug for ip6_ptr
 
-As explained in SG_IO howto[1]:
+Change net device's MTU to smaller than IPV6_MIN_MTU or unregister
+device while matching route. That may trigger null-ptr-deref bug
+for ip6_ptr probability as following.
 
-"If iovec_count is non-zero then 'dxfer_len' should be equal to the sum of
-iov_len lengths. If not, the minimum of the two is the transfer length."
+=========================================================
+BUG: KASAN: null-ptr-deref in find_match.part.0+0x70/0x134
+Read of size 4 at addr 0000000000000308 by task ping6/263
 
-When iovec_count is non-zero and dxfer_len is zero, the sg_io() just
-genarated a null bio, and finally caused a warning below. To fix it, skip
-generating a bio for this request if dxfer_len is zero.
+CPU: 2 PID: 263 Comm: ping6 Not tainted 5.19.0-rc7+ #14
+Call trace:
+ dump_backtrace+0x1a8/0x230
+ show_stack+0x20/0x70
+ dump_stack_lvl+0x68/0x84
+ print_report+0xc4/0x120
+ kasan_report+0x84/0x120
+ __asan_load4+0x94/0xd0
+ find_match.part.0+0x70/0x134
+ __find_rr_leaf+0x408/0x470
+ fib6_table_lookup+0x264/0x540
+ ip6_pol_route+0xf4/0x260
+ ip6_pol_route_output+0x58/0x70
+ fib6_rule_lookup+0x1a8/0x330
+ ip6_route_output_flags_noref+0xd8/0x1a0
+ ip6_route_output_flags+0x58/0x160
+ ip6_dst_lookup_tail+0x5b4/0x85c
+ ip6_dst_lookup_flow+0x98/0x120
+ rawv6_sendmsg+0x49c/0xc70
+ inet_sendmsg+0x68/0x94
 
-[1] https://tldp.org/HOWTO/SCSI-Generic-HOWTO/x198.html
+Reproducer as following:
+Firstly, prepare conditions:
+$ip netns add ns1
+$ip netns add ns2
+$ip link add veth1 type veth peer name veth2
+$ip link set veth1 netns ns1
+$ip link set veth2 netns ns2
+$ip netns exec ns1 ip -6 addr add 2001:0db8:0:f101::1/64 dev veth1
+$ip netns exec ns2 ip -6 addr add 2001:0db8:0:f101::2/64 dev veth2
+$ip netns exec ns1 ifconfig veth1 up
+$ip netns exec ns2 ifconfig veth2 up
+$ip netns exec ns1 ip -6 route add 2000::/64 dev veth1 metric 1
+$ip netns exec ns2 ip -6 route add 2001::/64 dev veth2 metric 1
 
-WARNING: CPU: 2 PID: 3643 at drivers/scsi/scsi_lib.c:1032 scsi_alloc_sgtables+0xc7d/0xf70 drivers/scsi/scsi_lib.c:1032
-Modules linked in:
+Secondly, execute the following two commands in two ssh windows
+respectively:
+$ip netns exec ns1 sh
+$while true; do ip -6 addr add 2001:0db8:0:f101::1/64 dev veth1; ip -6 route add 2000::/64 dev veth1 metric 1; ping6 2000::2; done
 
-CPU: 2 PID: 3643 Comm: syz-executor397 Not tainted
-5.17.0-rc3-syzkaller-00316-gb81b1829e7e3 #0
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-204/01/2014
-RIP: 0010:scsi_alloc_sgtables+0xc7d/0xf70 drivers/scsi/scsi_lib.c:1032
-Code: e7 fc 31 ff 44 89 f6 e8 c1 4e e7 fc 45 85 f6 0f 84 1a f5 ff ff e8
-93 4c e7 fc 83 c5 01 0f b7 ed e9 0f f5 ff ff e8 83 4c e7 fc <0f> 0b 41
-   bc 0a 00 00 00 e9 2b fb ff ff 41 bc 09 00 00 00 e9 20 fb
-RSP: 0018:ffffc90000d07558 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: ffff88801bfc96a0 RCX: 0000000000000000
-RDX: ffff88801c876000 RSI: ffffffff849060bd RDI: 0000000000000003
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffff849055b9 R11: 0000000000000000 R12: ffff888012b8c000
-R13: ffff88801bfc9580 R14: 0000000000000000 R15: ffff88801432c000
-FS:  00007effdec8e700(0000) GS:ffff88802cc00000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007effdec6d718 CR3: 00000000206d6000 CR4: 0000000000150ee0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- scsi_setup_scsi_cmnd drivers/scsi/scsi_lib.c:1219 [inline]
- scsi_prepare_cmd drivers/scsi/scsi_lib.c:1614 [inline]
- scsi_queue_rq+0x283e/0x3630 drivers/scsi/scsi_lib.c:1730
- blk_mq_dispatch_rq_list+0x6ea/0x22e0 block/blk-mq.c:1851
- __blk_mq_sched_dispatch_requests+0x20b/0x410 block/blk-mq-sched.c:299
- blk_mq_sched_dispatch_requests+0xfb/0x180 block/blk-mq-sched.c:332
- __blk_mq_run_hw_queue+0xf9/0x350 block/blk-mq.c:1968
- __blk_mq_delay_run_hw_queue+0x5b6/0x6c0 block/blk-mq.c:2045
- blk_mq_run_hw_queue+0x30f/0x480 block/blk-mq.c:2096
- blk_mq_sched_insert_request+0x340/0x440 block/blk-mq-sched.c:451
- blk_execute_rq+0xcc/0x340 block/blk-mq.c:1231
- sg_io+0x67c/0x1210 drivers/scsi/scsi_ioctl.c:485
- scsi_ioctl_sg_io drivers/scsi/scsi_ioctl.c:866 [inline]
- scsi_ioctl+0xa66/0x1560 drivers/scsi/scsi_ioctl.c:921
- sd_ioctl+0x199/0x2a0 drivers/scsi/sd.c:1576
- blkdev_ioctl+0x37a/0x800 block/ioctl.c:588
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:874 [inline]
- __se_sys_ioctl fs/ioctl.c:860 [inline]
- __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:860
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7effdecdc5d9
-Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 81 14 00 00 90 48 89 f8 48 89
-f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
-f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007effdec8e2f8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007effded664c0 RCX: 00007effdecdc5d9
-RDX: 0000000020002300 RSI: 0000000000002285 RDI: 0000000000000004
-RBP: 00007effded34034 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000003
-R13: 00007effded34054 R14: 2f30656c69662f2e R15: 00007effded664c8
+$ip netns exec ns1 sh
+$while true; do ip link set veth1 mtu 1000; ip link set veth1 mtu 1500; sleep 5; done
 
-Link: https://lore.kernel.org/r/20220720025120.3226770-1-yanaijie@huawei.com
-Fixes: 25636e282fe9 ("block: fix SG_IO vector request data length handling")
-Reported-by: syzbot+d44b35ecfb807e5af0b5@syzkaller.appspotmail.com
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jason Yan <yanaijie@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+It is because ip6_ptr has been assigned to NULL in addrconf_ifdown() firstly,
+then ip6_ignore_linkdown() accesses ip6_ptr directly without NULL check.
 
-diff --git a/drivers/scsi/scsi_ioctl.c b/drivers/scsi/scsi_ioctl.c
-index a480c4d589f5..729e309e6034 100644
---- a/drivers/scsi/scsi_ioctl.c
-+++ b/drivers/scsi/scsi_ioctl.c
-@@ -450,7 +450,7 @@ static int sg_io(struct scsi_device *sdev, struct sg_io_hdr *hdr, fmode_t mode)
- 		goto out_put_request;
+	cpu0			cpu1
+fib6_table_lookup
+__find_rr_leaf
+			addrconf_notify [ NETDEV_CHANGEMTU ]
+			addrconf_ifdown
+			RCU_INIT_POINTER(dev->ip6_ptr, NULL)
+find_match
+ip6_ignore_linkdown
+
+So we can add NULL check for ip6_ptr before using in ip6_ignore_linkdown() to
+fix the null-ptr-deref bug.
+
+Fixes: dcd1f572954f ("net/ipv6: Remove fib6_idev")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220728013307.656257-1-william.xuanziyang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/include/net/addrconf.h b/include/net/addrconf.h
+index f7506f08e505..c04f359655b8 100644
+--- a/include/net/addrconf.h
++++ b/include/net/addrconf.h
+@@ -405,6 +405,9 @@ static inline bool ip6_ignore_linkdown(const struct net_device *dev)
+ {
+ 	const struct inet6_dev *idev = __in6_dev_get(dev);
  
- 	ret = 0;
--	if (hdr->iovec_count) {
-+	if (hdr->iovec_count && hdr->dxfer_len) {
- 		struct iov_iter i;
- 		struct iovec *iov = NULL;
++	if (unlikely(!idev))
++		return true;
++
+ 	return !!idev->cnf.ignore_routes_with_linkdown;
+ }
  
 
