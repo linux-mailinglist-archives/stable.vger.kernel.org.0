@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 125E8585AF6
-	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 17:23:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1032A585AF7
+	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 17:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233238AbiG3PXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jul 2022 11:23:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47804 "EHLO
+        id S234790AbiG3PYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jul 2022 11:24:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235124AbiG3PWz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 11:22:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD88313F8D
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 08:22:54 -0700 (PDT)
+        with ESMTP id S234755AbiG3PYd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 11:24:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E20413F8D
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 08:24:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7885A60DD7
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 15:22:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 827EFC433C1;
-        Sat, 30 Jul 2022 15:22:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC19BB8068B
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 15:24:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8659C433D6;
+        Sat, 30 Jul 2022 15:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659194573;
-        bh=uMg4yoORvEilhDVEDcr6wc6DVlz5FPKAVZuLZ2IUDXo=;
+        s=korg; t=1659194669;
+        bh=44ezTbwsqUkToqFu+zFxrbVETqscLHJYVnT0VgYZxQ4=;
         h=Subject:To:Cc:From:Date:From;
-        b=SlAJDoou2x0ZG1h8Epu70QL++HsfDV55k67jRQ36l5qsuI0z+iwE6eJkSjuhExrpc
-         uIn24S1QKdWwfrtuYUKa+dxHn9Dd1jYets1ol5Tz0mHJfWAUz2/yaKz2vJlm95WJ21
-         eCKj+/fKuKT4hkWP/JdNJetG7QcNrvUkGawIei7I=
-Subject: FAILED: patch "[PATCH] ice: Fix VSIs unable to share unicast MAC" failed to apply to 5.10-stable tree
-To:     anirudh.venkataramanan@intel.com, anthony.l.nguyen@intel.com,
-        jedrzej.jagielski@intel.com, marek.szlosek@intel.com,
-        mateusz.palczewski@intel.com, sylwesterx.dziedziuch@intel.com
+        b=2AxBdN79X8u98JeY1hnm/+WUeT4mVnUVUsTN0bQOUE4+yS8sMi9RfHoOmCg8RTMa6
+         FQm+2DHs3HS2f5nZjvJ7lLPH12B7m7c8Bw0a6FpTj58lq/jyHGwrkqh44EMg6JPEhA
+         gJDLSYnbBzEajkZKwawjpbNbKLRS7G/yZdMjpKwM=
+Subject: FAILED: patch "[PATCH] scsi: ufs: core: Fix a race condition related to device" failed to apply to 5.18-stable tree
+To:     bvanassche@acm.org, adrian.hunter@intel.com, avri.altman@wdc.com,
+        beanhuo@micron.com, martin.petersen@oracle.com,
+        stanley.chu@mediatek.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Jul 2022 17:22:43 +0200
-Message-ID: <165919456321643@kroah.com>
+Date:   Sat, 30 Jul 2022 17:24:25 +0200
+Message-ID: <1659194665167200@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,102 +60,133 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5c8e3c7ff3e7bd7b938659be704f75cc746b697f Mon Sep 17 00:00:00 2001
-From: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
-Date: Thu, 21 Jul 2022 10:03:09 +0200
-Subject: [PATCH] ice: Fix VSIs unable to share unicast MAC
+From f5c2976e0cb0f6236013bfb479868531b04f61d4 Mon Sep 17 00:00:00 2001
+From: Bart Van Assche <bvanassche@acm.org>
+Date: Wed, 20 Jul 2022 10:02:23 -0700
+Subject: [PATCH] scsi: ufs: core: Fix a race condition related to device
+ management
 
-The driver currently does not allow two VSIs in the same PF domain
-to have the same unicast MAC address. This is incorrect in the sense
-that a policy decision is being made in the driver when it must be
-left to the user. This approach was causing issues when rebooting
-the system with VFs spawned not being able to change their MAC addresses.
-Such errors were present in dmesg:
+If a device management command completion happens after
+wait_for_completion_timeout() times out and before ufshcd_clear_cmds() is
+called, then the completion code may crash on the complete() call in
+__ufshcd_transfer_req_compl().
 
-[ 7921.068237] ice 0000:b6:00.2 ens2f2: Unicast MAC 6a:0d:e4:70:ca:d1 already
-exists on this PF. Preventing setting VF 7 unicast MAC address to 6a:0d:e4:70:ca:d1
+Fix the following crash:
 
-Fix that by removing this restriction. Doing this also allows
-us to remove some additional code that's checking if a unicast MAC
-filter already exists.
+  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
+  Call trace:
+   complete+0x64/0x178
+   __ufshcd_transfer_req_compl+0x30c/0x9c0
+   ufshcd_poll+0xf0/0x208
+   ufshcd_sl_intr+0xb8/0xf0
+   ufshcd_intr+0x168/0x2f4
+   __handle_irq_event_percpu+0xa0/0x30c
+   handle_irq_event+0x84/0x178
+   handle_fasteoi_irq+0x150/0x2e8
+   __handle_domain_irq+0x114/0x1e4
+   gic_handle_irq.31846+0x58/0x300
+   el1_irq+0xe4/0x1c0
+   efi_header_end+0x110/0x680
+   __irq_exit_rcu+0x108/0x124
+   __handle_domain_irq+0x118/0x1e4
+   gic_handle_irq.31846+0x58/0x300
+   el1_irq+0xe4/0x1c0
+   cpuidle_enter_state+0x3ac/0x8c4
+   do_idle+0x2fc/0x55c
+   cpu_startup_entry+0x84/0x90
+   kernel_init+0x0/0x310
+   start_kernel+0x0/0x608
+   start_kernel+0x4ec/0x608
 
-Fixes: 47ebc7b02485 ("ice: Check if unicast MAC exists before setting VF MAC")
-Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
-Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-Tested-by: Marek Szlosek <marek.szlosek@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20220720170228.1598842-1-bvanassche@acm.org
+Fixes: 5a0b0cb9bee7 ("[SCSI] ufs: Add support for sending NOP OUT UPIU")
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Avri Altman <avri.altman@wdc.com>
+Cc: Bean Huo <beanhuo@micron.com>
+Cc: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index ff2eac2f8c64..b41a45c03d22 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -4656,6 +4656,8 @@ ice_probe(struct pci_dev *pdev, const struct pci_device_id __always_unused *ent)
- 		ice_set_safe_mode_caps(hw);
+diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
+index c7b337480e3e..3d367be71728 100644
+--- a/drivers/ufs/core/ufshcd.c
++++ b/drivers/ufs/core/ufshcd.c
+@@ -2953,37 +2953,59 @@ ufshcd_dev_cmd_completion(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+ static int ufshcd_wait_for_dev_cmd(struct ufs_hba *hba,
+ 		struct ufshcd_lrb *lrbp, int max_timeout)
+ {
+-	int err = 0;
+-	unsigned long time_left;
++	unsigned long time_left = msecs_to_jiffies(max_timeout);
+ 	unsigned long flags;
++	bool pending;
++	int err;
+ 
++retry:
+ 	time_left = wait_for_completion_timeout(hba->dev_cmd.complete,
+-			msecs_to_jiffies(max_timeout));
++						time_left);
+ 
+-	spin_lock_irqsave(hba->host->host_lock, flags);
+-	hba->dev_cmd.complete = NULL;
+ 	if (likely(time_left)) {
++		/*
++		 * The completion handler called complete() and the caller of
++		 * this function still owns the @lrbp tag so the code below does
++		 * not trigger any race conditions.
++		 */
++		hba->dev_cmd.complete = NULL;
+ 		err = ufshcd_get_tr_ocs(lrbp);
+ 		if (!err)
+ 			err = ufshcd_dev_cmd_completion(hba, lrbp);
+-	}
+-	spin_unlock_irqrestore(hba->host->host_lock, flags);
+-
+-	if (!time_left) {
++	} else {
+ 		err = -ETIMEDOUT;
+ 		dev_dbg(hba->dev, "%s: dev_cmd request timedout, tag %d\n",
+ 			__func__, lrbp->task_tag);
+-		if (!ufshcd_clear_cmds(hba, 1U << lrbp->task_tag))
++		if (ufshcd_clear_cmds(hba, 1U << lrbp->task_tag) == 0) {
+ 			/* successfully cleared the command, retry if needed */
+ 			err = -EAGAIN;
+-		/*
+-		 * in case of an error, after clearing the doorbell,
+-		 * we also need to clear the outstanding_request
+-		 * field in hba
+-		 */
+-		spin_lock_irqsave(&hba->outstanding_lock, flags);
+-		__clear_bit(lrbp->task_tag, &hba->outstanding_reqs);
+-		spin_unlock_irqrestore(&hba->outstanding_lock, flags);
++			/*
++			 * Since clearing the command succeeded we also need to
++			 * clear the task tag bit from the outstanding_reqs
++			 * variable.
++			 */
++			spin_lock_irqsave(&hba->outstanding_lock, flags);
++			pending = test_bit(lrbp->task_tag,
++					   &hba->outstanding_reqs);
++			if (pending) {
++				hba->dev_cmd.complete = NULL;
++				__clear_bit(lrbp->task_tag,
++					    &hba->outstanding_reqs);
++			}
++			spin_unlock_irqrestore(&hba->outstanding_lock, flags);
++
++			if (!pending) {
++				/*
++				 * The completion handler ran while we tried to
++				 * clear the command.
++				 */
++				time_left = 1;
++				goto retry;
++			}
++		} else {
++			dev_err(hba->dev, "%s: failed to clear tag %d\n",
++				__func__, lrbp->task_tag);
++		}
  	}
  
-+	hw->ucast_shared = true;
-+
- 	err = ice_init_pf(pf);
- 	if (err) {
- 		dev_err(dev, "ice_init_pf failed: %d\n", err);
-diff --git a/drivers/net/ethernet/intel/ice/ice_sriov.c b/drivers/net/ethernet/intel/ice/ice_sriov.c
-index bb1721f1321d..f4907a3c2d19 100644
---- a/drivers/net/ethernet/intel/ice/ice_sriov.c
-+++ b/drivers/net/ethernet/intel/ice/ice_sriov.c
-@@ -1309,39 +1309,6 @@ ice_get_vf_cfg(struct net_device *netdev, int vf_id, struct ifla_vf_info *ivi)
- 	return ret;
- }
- 
--/**
-- * ice_unicast_mac_exists - check if the unicast MAC exists on the PF's switch
-- * @pf: PF used to reference the switch's rules
-- * @umac: unicast MAC to compare against existing switch rules
-- *
-- * Return true on the first/any match, else return false
-- */
--static bool ice_unicast_mac_exists(struct ice_pf *pf, u8 *umac)
--{
--	struct ice_sw_recipe *mac_recipe_list =
--		&pf->hw.switch_info->recp_list[ICE_SW_LKUP_MAC];
--	struct ice_fltr_mgmt_list_entry *list_itr;
--	struct list_head *rule_head;
--	struct mutex *rule_lock; /* protect MAC filter list access */
--
--	rule_head = &mac_recipe_list->filt_rules;
--	rule_lock = &mac_recipe_list->filt_rule_lock;
--
--	mutex_lock(rule_lock);
--	list_for_each_entry(list_itr, rule_head, list_entry) {
--		u8 *existing_mac = &list_itr->fltr_info.l_data.mac.mac_addr[0];
--
--		if (ether_addr_equal(existing_mac, umac)) {
--			mutex_unlock(rule_lock);
--			return true;
--		}
--	}
--
--	mutex_unlock(rule_lock);
--
--	return false;
--}
--
- /**
-  * ice_set_vf_mac
-  * @netdev: network interface device structure
-@@ -1376,13 +1343,6 @@ int ice_set_vf_mac(struct net_device *netdev, int vf_id, u8 *mac)
- 	if (ret)
- 		goto out_put_vf;
- 
--	if (ice_unicast_mac_exists(pf, mac)) {
--		netdev_err(netdev, "Unicast MAC %pM already exists on this PF. Preventing setting VF %u unicast MAC address to %pM\n",
--			   mac, vf_id, mac);
--		ret = -EINVAL;
--		goto out_put_vf;
--	}
--
- 	mutex_lock(&vf->cfg_lock);
- 
- 	/* VF is notified of its new MAC via the PF's response to the
+ 	return err;
 
