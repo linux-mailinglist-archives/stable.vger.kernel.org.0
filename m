@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9CA6585AF5
-	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 17:23:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 125E8585AF6
+	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 17:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233197AbiG3PXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233238AbiG3PXm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 30 Jul 2022 11:23:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47764 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234920AbiG3PWq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 11:22:46 -0400
+        with ESMTP id S235124AbiG3PWz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 11:22:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D535813F8D
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 08:22:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD88313F8D
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 08:22:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FD0360DC1
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 15:22:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 801E8C433C1;
-        Sat, 30 Jul 2022 15:22:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7885A60DD7
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 15:22:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 827EFC433C1;
+        Sat, 30 Jul 2022 15:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659194564;
-        bh=0zWoEPLTIut9qYTh0HtLO0LkOP36L6/o6Pb85WMoHeM=;
+        s=korg; t=1659194573;
+        bh=uMg4yoORvEilhDVEDcr6wc6DVlz5FPKAVZuLZ2IUDXo=;
         h=Subject:To:Cc:From:Date:From;
-        b=i6Bxn558ggTYkDzTb9ahZ0B754bTPbHjsnDLe/gn/I7xi7JDfQrPtxaMeQHav+Zur
-         tbceVkPKc29RUcd8Cfjzl4MYbRqGNh9DbBhAsqF9oeng8y5UUuAhENZ5sMliauxlIM
-         jFIRF48Aw8SaFkaZzTh7gdGg66aQLVjY0BUhyQho=
-Subject: FAILED: patch "[PATCH] ice: Fix VSIs unable to share unicast MAC" failed to apply to 5.15-stable tree
+        b=SlAJDoou2x0ZG1h8Epu70QL++HsfDV55k67jRQ36l5qsuI0z+iwE6eJkSjuhExrpc
+         uIn24S1QKdWwfrtuYUKa+dxHn9Dd1jYets1ol5Tz0mHJfWAUz2/yaKz2vJlm95WJ21
+         eCKj+/fKuKT4hkWP/JdNJetG7QcNrvUkGawIei7I=
+Subject: FAILED: patch "[PATCH] ice: Fix VSIs unable to share unicast MAC" failed to apply to 5.10-stable tree
 To:     anirudh.venkataramanan@intel.com, anthony.l.nguyen@intel.com,
         jedrzej.jagielski@intel.com, marek.szlosek@intel.com,
         mateusz.palczewski@intel.com, sylwesterx.dziedziuch@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Jul 2022 17:22:42 +0200
-Message-ID: <1659194562193196@kroah.com>
+Date:   Sat, 30 Jul 2022 17:22:43 +0200
+Message-ID: <165919456321643@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
