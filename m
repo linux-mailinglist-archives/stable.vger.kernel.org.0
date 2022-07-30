@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AB80585AD8
-	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 16:45:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9CA6585AF5
+	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 17:23:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233403AbiG3OpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jul 2022 10:45:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58162 "EHLO
+        id S233197AbiG3PXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jul 2022 11:23:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234399AbiG3OpV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 10:45:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80FB7DFB8
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 07:45:20 -0700 (PDT)
+        with ESMTP id S234920AbiG3PWq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 11:22:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D535813F8D
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 08:22:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 075B760D3C
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 14:45:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19A1DC433C1;
-        Sat, 30 Jul 2022 14:45:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FD0360DC1
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 15:22:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 801E8C433C1;
+        Sat, 30 Jul 2022 15:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659192319;
-        bh=O3Ci98GUmv8o438iZdzYIJBb1kuuUY6Bkl8LCctfr0I=;
+        s=korg; t=1659194564;
+        bh=0zWoEPLTIut9qYTh0HtLO0LkOP36L6/o6Pb85WMoHeM=;
         h=Subject:To:Cc:From:Date:From;
-        b=xuJ9/RiBOgL9ldrk5mqbgAihYs9Et39D10PZybJ0ZKSA2AJXoCymM/bFXHiEkKzkt
-         rxyqJpuYmVjzWTioGy6Agb8Pi/rnjlHHxfMfQD682en0BhM9kBnsx1c5MypbCh1pxM
-         nAGeNEwYqgt/bOLPx2xY416IIGqbtVINj5xZkv+I=
-Subject: FAILED: patch "[PATCH] bridge: Do not send empty IFLA_AF_SPEC attribute" failed to apply to 5.10-stable tree
-To:     bpoirier@nvidia.com, idosch@nvidia.com, pabeni@redhat.com,
-        razor@blackwall.org
+        b=i6Bxn558ggTYkDzTb9ahZ0B754bTPbHjsnDLe/gn/I7xi7JDfQrPtxaMeQHav+Zur
+         tbceVkPKc29RUcd8Cfjzl4MYbRqGNh9DbBhAsqF9oeng8y5UUuAhENZ5sMliauxlIM
+         jFIRF48Aw8SaFkaZzTh7gdGg66aQLVjY0BUhyQho=
+Subject: FAILED: patch "[PATCH] ice: Fix VSIs unable to share unicast MAC" failed to apply to 5.15-stable tree
+To:     anirudh.venkataramanan@intel.com, anthony.l.nguyen@intel.com,
+        jedrzej.jagielski@intel.com, marek.szlosek@intel.com,
+        mateusz.palczewski@intel.com, sylwesterx.dziedziuch@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Jul 2022 16:45:09 +0200
-Message-ID: <1659192309224135@kroah.com>
+Date:   Sat, 30 Jul 2022 17:22:42 +0200
+Message-ID: <1659194562193196@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,49 +60,102 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9b134b1694ec8926926ba6b7b80884ea829245a0 Mon Sep 17 00:00:00 2001
-From: Benjamin Poirier <bpoirier@nvidia.com>
-Date: Mon, 25 Jul 2022 09:12:36 +0900
-Subject: [PATCH] bridge: Do not send empty IFLA_AF_SPEC attribute
+From 5c8e3c7ff3e7bd7b938659be704f75cc746b697f Mon Sep 17 00:00:00 2001
+From: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+Date: Thu, 21 Jul 2022 10:03:09 +0200
+Subject: [PATCH] ice: Fix VSIs unable to share unicast MAC
 
-After commit b6c02ef54913 ("bridge: Netlink interface fix."),
-br_fill_ifinfo() started to send an empty IFLA_AF_SPEC attribute when a
-bridge vlan dump is requested but an interface does not have any vlans
-configured.
+The driver currently does not allow two VSIs in the same PF domain
+to have the same unicast MAC address. This is incorrect in the sense
+that a policy decision is being made in the driver when it must be
+left to the user. This approach was causing issues when rebooting
+the system with VFs spawned not being able to change their MAC addresses.
+Such errors were present in dmesg:
 
-iproute2 ignores such an empty attribute since commit b262a9becbcb
-("bridge: Fix output with empty vlan lists") but older iproute2 versions as
-well as other utilities have their output changed by the cited kernel
-commit, resulting in failed test cases. Regardless, emitting an empty
-attribute is pointless and inefficient.
+[ 7921.068237] ice 0000:b6:00.2 ens2f2: Unicast MAC 6a:0d:e4:70:ca:d1 already
+exists on this PF. Preventing setting VF 7 unicast MAC address to 6a:0d:e4:70:ca:d1
 
-Avoid this change by canceling the attribute if no AF_SPEC data was added.
+Fix that by removing this restriction. Doing this also allows
+us to remove some additional code that's checking if a unicast MAC
+filter already exists.
 
-Fixes: b6c02ef54913 ("bridge: Netlink interface fix.")
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Benjamin Poirier <bpoirier@nvidia.com>
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-Link: https://lore.kernel.org/r/20220725001236.95062-1-bpoirier@nvidia.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 47ebc7b02485 ("ice: Check if unicast MAC exists before setting VF MAC")
+Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+Tested-by: Marek Szlosek <marek.szlosek@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index bb01776d2d88..c96509c442a5 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -589,9 +589,13 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index ff2eac2f8c64..b41a45c03d22 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -4656,6 +4656,8 @@ ice_probe(struct pci_dev *pdev, const struct pci_device_id __always_unused *ent)
+ 		ice_set_safe_mode_caps(hw);
  	}
  
- done:
-+	if (af) {
-+		if (nlmsg_get_pos(skb) - (void *)af > nla_attr_size(0))
-+			nla_nest_end(skb, af);
-+		else
-+			nla_nest_cancel(skb, af);
-+	}
++	hw->ucast_shared = true;
++
+ 	err = ice_init_pf(pf);
+ 	if (err) {
+ 		dev_err(dev, "ice_init_pf failed: %d\n", err);
+diff --git a/drivers/net/ethernet/intel/ice/ice_sriov.c b/drivers/net/ethernet/intel/ice/ice_sriov.c
+index bb1721f1321d..f4907a3c2d19 100644
+--- a/drivers/net/ethernet/intel/ice/ice_sriov.c
++++ b/drivers/net/ethernet/intel/ice/ice_sriov.c
+@@ -1309,39 +1309,6 @@ ice_get_vf_cfg(struct net_device *netdev, int vf_id, struct ifla_vf_info *ivi)
+ 	return ret;
+ }
  
--	if (af)
--		nla_nest_end(skb, af);
- 	nlmsg_end(skb, nlh);
- 	return 0;
+-/**
+- * ice_unicast_mac_exists - check if the unicast MAC exists on the PF's switch
+- * @pf: PF used to reference the switch's rules
+- * @umac: unicast MAC to compare against existing switch rules
+- *
+- * Return true on the first/any match, else return false
+- */
+-static bool ice_unicast_mac_exists(struct ice_pf *pf, u8 *umac)
+-{
+-	struct ice_sw_recipe *mac_recipe_list =
+-		&pf->hw.switch_info->recp_list[ICE_SW_LKUP_MAC];
+-	struct ice_fltr_mgmt_list_entry *list_itr;
+-	struct list_head *rule_head;
+-	struct mutex *rule_lock; /* protect MAC filter list access */
+-
+-	rule_head = &mac_recipe_list->filt_rules;
+-	rule_lock = &mac_recipe_list->filt_rule_lock;
+-
+-	mutex_lock(rule_lock);
+-	list_for_each_entry(list_itr, rule_head, list_entry) {
+-		u8 *existing_mac = &list_itr->fltr_info.l_data.mac.mac_addr[0];
+-
+-		if (ether_addr_equal(existing_mac, umac)) {
+-			mutex_unlock(rule_lock);
+-			return true;
+-		}
+-	}
+-
+-	mutex_unlock(rule_lock);
+-
+-	return false;
+-}
+-
+ /**
+  * ice_set_vf_mac
+  * @netdev: network interface device structure
+@@ -1376,13 +1343,6 @@ int ice_set_vf_mac(struct net_device *netdev, int vf_id, u8 *mac)
+ 	if (ret)
+ 		goto out_put_vf;
  
+-	if (ice_unicast_mac_exists(pf, mac)) {
+-		netdev_err(netdev, "Unicast MAC %pM already exists on this PF. Preventing setting VF %u unicast MAC address to %pM\n",
+-			   mac, vf_id, mac);
+-		ret = -EINVAL;
+-		goto out_put_vf;
+-	}
+-
+ 	mutex_lock(&vf->cfg_lock);
+ 
+ 	/* VF is notified of its new MAC via the PF's response to the
 
