@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 197CC5857B3
-	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 03:08:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4645D5857B4
+	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 03:09:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239516AbiG3BIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jul 2022 21:08:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34872 "EHLO
+        id S239764AbiG3BJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Jul 2022 21:09:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239645AbiG3BIc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 21:08:32 -0400
+        with ESMTP id S239591AbiG3BIy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 21:08:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 971C582F81;
-        Fri, 29 Jul 2022 18:08:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E80F087221;
+        Fri, 29 Jul 2022 18:08:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40BB5B82922;
-        Sat, 30 Jul 2022 01:08:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE148C433C1;
-        Sat, 30 Jul 2022 01:08:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96D7AB82926;
+        Sat, 30 Jul 2022 01:08:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA44C433D7;
+        Sat, 30 Jul 2022 01:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1659143305;
-        bh=tHEGa8mazQJPWNnxEBc8I/W8u2gQ35FZyowey+91he0=;
+        s=korg; t=1659143315;
+        bh=jdOQcJDQs1cHInz97O9LsgfylMp7cnPLylY9wbziNs0=;
         h=Date:To:From:Subject:From;
-        b=ejJkKV7Tyt2GdfVgYxfKT7xJHXZsWtH4nyDgtExJj+qLyrOWz0AiUWw1QOiIJLFBz
-         L7JXHkzAsHEhuZmMNfPpUemPBQgy904lfqRJvXeYS6CIsffXhFtmFleHJ2uPEQIngH
-         cndNc6enM/4IU7FdQuPVinqrTm72RiVMioLhLQ9k=
-Date:   Fri, 29 Jul 2022 18:08:25 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org, sj@kernel.org,
-        niejianglei2021@163.com, akpm@linux-foundation.org
+        b=UlYcjC2snOt9idpuFrK0TbHG50/yIIxjDc2T1swCRjP7hK+b8NGdvl4Y7Dsoccu4S
+         8fzluHPDI4bJlrMU6ow+uP38ibKFa0w6G47X00ZIbdi7NisPtTgqe+wYud6ChAOTCo
+         9osKYuKCNlpkjlL1EDhAKOTd/OFDOImrWkWXM1OU=
+Date:   Fri, 29 Jul 2022 18:08:34 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        songmuchun@bytedance.com, shakeelb@google.com,
+        mike.kravetz@oracle.com, keescook@chromium.org,
+        almasrymina@google.com, linmiaohe@huawei.com,
+        akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-stable] mm-damon-reclaim-fix-potential-memory-leak-in-damon_reclaim_init.patch removed from -mm tree
-Message-Id: <20220730010825.CE148C433C1@smtp.kernel.org>
+Subject: [merged mm-stable] hugetlb_cgroup-fix-wrong-hugetlb-cgroup-numa-stat.patch removed from -mm tree
+Message-Id: <20220730010835.2BA44C433D7@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -45,52 +48,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm/damon/reclaim: fix potential memory leak in damon_reclaim_init()
+     Subject: hugetlb_cgroup: fix wrong hugetlb cgroup numa stat
 has been removed from the -mm tree.  Its filename was
-     mm-damon-reclaim-fix-potential-memory-leak-in-damon_reclaim_init.patch
+     hugetlb_cgroup-fix-wrong-hugetlb-cgroup-numa-stat.patch
 
 This patch was dropped because it was merged into the mm-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Jianglei Nie <niejianglei2021@163.com>
-Subject: mm/damon/reclaim: fix potential memory leak in damon_reclaim_init()
-Date: Thu, 14 Jul 2022 14:37:46 +0800
+From: Miaohe Lin <linmiaohe@huawei.com>
+Subject: hugetlb_cgroup: fix wrong hugetlb cgroup numa stat
+Date: Sat, 23 Jul 2022 15:38:04 +0800
 
-damon_reclaim_init() allocates a memory chunk for ctx with
-damon_new_ctx().  When damon_select_ops() fails, ctx is not released,
-which will lead to a memory leak.
+We forget to set cft->private for numa stat file.  As a result, numa stat
+of hstates[0] is always showed for all hstates.  Encode the hstates index
+into cft->private to fix this issue.
 
-We should release the ctx with damon_destroy_ctx() when damon_select_ops()
-fails to fix the memory leak.
-
-Link: https://lkml.kernel.org/r/20220714063746.2343549-1-niejianglei2021@163.com
-Fixes: 4d69c3457821 ("mm/damon/reclaim: use damon_select_ops() instead of damon_{v,p}a_set_operations()")
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Reviewed-by: SeongJae Park <sj@kernel.org>
+Link: https://lkml.kernel.org/r/20220723073804.53035-1-linmiaohe@huawei.com
+Fixes: f47761999052 ("hugetlb: add hugetlb.*.numa_stat file")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Acked-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Mina Almasry <almasrymina@google.com>
+Cc: Shakeel Butt <shakeelb@google.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/damon/reclaim.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ mm/hugetlb_cgroup.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/damon/reclaim.c~mm-damon-reclaim-fix-potential-memory-leak-in-damon_reclaim_init
-+++ a/mm/damon/reclaim.c
-@@ -435,8 +435,10 @@ static int __init damon_reclaim_init(voi
- 	if (!ctx)
- 		return -ENOMEM;
+--- a/mm/hugetlb_cgroup.c~hugetlb_cgroup-fix-wrong-hugetlb-cgroup-numa-stat
++++ a/mm/hugetlb_cgroup.c
+@@ -772,6 +772,7 @@ static void __init __hugetlb_cgroup_file
+ 	/* Add the numa stat file */
+ 	cft = &h->cgroup_files_dfl[6];
+ 	snprintf(cft->name, MAX_CFTYPE_NAME, "%s.numa_stat", buf);
++	cft->private = MEMFILE_PRIVATE(idx, 0);
+ 	cft->seq_show = hugetlb_cgroup_read_numa_stat;
+ 	cft->flags = CFTYPE_NOT_ON_ROOT;
  
--	if (damon_select_ops(ctx, DAMON_OPS_PADDR))
-+	if (damon_select_ops(ctx, DAMON_OPS_PADDR)) {
-+		damon_destroy_ctx(ctx);
- 		return -EINVAL;
-+	}
- 
- 	ctx->callback.after_wmarks_check = damon_reclaim_after_wmarks_check;
- 	ctx->callback.after_aggregation = damon_reclaim_after_aggregation;
 _
 
-Patches currently in -mm which might be from niejianglei2021@163.com are
+Patches currently in -mm which might be from linmiaohe@huawei.com are
 
+mm-hugetlb-avoid-corrupting-page-mapping-in-hugetlb_mcopy_atomic_pte.patch
+mm-page_alloc-minor-clean-up-for-memmap_init_compound.patch
 
