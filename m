@@ -2,109 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EB3758580E
-	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 04:40:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26BA558592E
+	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 10:34:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233163AbiG3Ck2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Jul 2022 22:40:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59130 "EHLO
+        id S230380AbiG3Iey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jul 2022 04:34:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230476AbiG3Ck0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Jul 2022 22:40:26 -0400
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EA36E029;
-        Fri, 29 Jul 2022 19:40:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1659148824; x=1690684824;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ZOfkkbSr9Kz9OSg2dqohMlXKgKNZ6vkhC5qYNXvx98E=;
-  b=J9ynEbYt1Vg2WEgNXh62ZS0B/UdPKMpREX6UX+qAmgj1Z2j9I8Uwglx6
-   XDkmAbsDrlIcVnik6i///4bL64f+2fBYo5jIB+VHQc0LgDlydpRL3bGLD
-   0TnNH2Q7YkkQtHYepy/+q39XwIHLrHvQomDxAvH2nInZwZi0pshDcUxbE
-   W1+G/XJDMWeUKuhm6/K1BYj2c0Pe9cbyF7LkbtDeSbceLvccC5+lcuS7o
-   5ofGNPRSgoOO08pXLAKZI5DRtx9AlpynJ/GEcDBN1nG75yHygCVJMC31M
-   ctMwBiVHl3Cq54nFtrk4TEeTefLZuNL5YQtjN49f9MNDTEJCQJumhRXfx
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10423"; a="314693219"
-X-IronPort-AV: E=Sophos;i="5.93,202,1654585200"; 
-   d="scan'208";a="314693219"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jul 2022 19:40:24 -0700
-X-IronPort-AV: E=Sophos;i="5.93,202,1654585200"; 
-   d="scan'208";a="777715583"
-Received: from unknown (HELO desk) ([10.252.135.102])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jul 2022 19:40:23 -0700
-Date:   Fri, 29 Jul 2022 19:40:22 -0700
-From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-To:     Tony Luck <tony.luck@intel.com>
-Cc:     Dave Hansen <dave.hansen@intel.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        antonio.gomez.iglesias@linux.intel.com,
-        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
-        andrew.cooper3@citrix.com, Josh Poimboeuf <jpoimboe@kernel.org>
-Subject: Re: [RESEND RFC PATCH] x86/bugs: Add "unknown" reporting for MMIO
- Stale Data
-Message-ID: <20220730024022.dn2b66ecaqar5h4t@desk>
-References: <a932c154772f2121794a5f2eded1a11013114711.1657846269.git.pawan.kumar.gupta@linux.intel.com>
- <YuJ6TQpSTIeXLNfB@zn.tnic>
- <20220729022851.mdj3wuevkztspodh@desk>
- <YuPpKa6OsG9e9nTj@zn.tnic>
- <20220729173609.45o7lllpvsgjttqt@desk>
- <YuRDbuQPYiYBZghm@zn.tnic>
- <20220729214627.wowu5sny226c5pe4@desk>
- <1bcf0b54-6ddf-b343-87c5-f7fd7538759c@intel.com>
- <YuRoOCUxGUJ/8QVH@agluck-desk3.sc.intel.com>
+        with ESMTP id S229674AbiG3Iex (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 04:34:53 -0400
+Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0FDF13E21;
+        Sat, 30 Jul 2022 01:34:51 -0700 (PDT)
+Received: from mail02.huawei.com (unknown [172.30.67.153])
+        by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4LvyMg50yHz6Pn3s;
+        Sat, 30 Jul 2022 16:33:35 +0800 (CST)
+Received: from huaweicloud.com (unknown [10.175.127.227])
+        by APP3 (Coremail) with SMTP id _Ch0CgCH6mkn7eRi2T9yBQ--.5018S4;
+        Sat, 30 Jul 2022 16:34:49 +0800 (CST)
+From:   Yu Kuai <yukuai1@huaweicloud.com>
+To:     stable@vger.kernel.org, ming.lei@redhat.com
+Cc:     jejb@linux.vnet.ibm.com, martin.petersen@oracle.com,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        yukuai3@huawei.com, yukuai1@huaweicloud.com, yi.zhang@huawei.com
+Subject: [PATCH stable 4.19 0/1] fix io hung for scsi
+Date:   Sat, 30 Jul 2022 16:46:50 +0800
+Message-Id: <20220730084651.4093719-1-yukuai1@huaweicloud.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YuRoOCUxGUJ/8QVH@agluck-desk3.sc.intel.com>
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: _Ch0CgCH6mkn7eRi2T9yBQ--.5018S4
+X-Coremail-Antispam: 1UD129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
+        VFW2AGmfu7bjvjm3AaLaJ3UjIYCTnIWjp_UUU5E7AC8VAFwI0_Gr0_Xr1l1xkIjI8I6I8E
+        6xAIw20EY4v20xvaj40_JFC_Wr1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28Cjx
+        kF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8I
+        cVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87
+        Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE
+        6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72
+        CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7
+        MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr
+        0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0E
+        wIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJV
+        W8JwCI42IY6xAIw20EY4v20xvaj40_WFyUJVCq3wCI42IY6I8E87Iv67AKxVWUJVW8JwCI
+        42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjfUoOJ5UUUUU
+X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 29, 2022 at 04:07:36PM -0700, Tony Luck wrote:
-> On Fri, Jul 29, 2022 at 03:54:58PM -0700, Dave Hansen wrote:
-> > On 7/29/22 14:46, Pawan Gupta wrote:
-> > > Let me see if there is a way to distinguish between 4. and 5. below:
-> > > 
-> > >    CPU category				  X86_BUG_MMIO_STALE_DATA	X86_BUG_MMIO_UNKNOWN
-> > > -----------------------------------------------------------------------------------------------
-> > > 1. Known affected (in cpu list)			1				0
-> > > 2. CPUs with HW immunity (MMIO_NO=1)		0				0
-> > > 3. Other vendors				0				0
-> > > 4. Older Intel CPUs				0				1
-> > > 5. Not affected current CPUs (but MMIO_NO=0)	0				?
-> > 
-> > This seems like something we would need to go back to our colleagues to
-> > figure out.  Basically, at the time of publishing the
-> > X86_BUG_MMIO_STALE_DATA papers, what was considered "older"?
-> > 
-> > In other words, we need the folks at Intel that did this good work to
-> > _show_ their work (at least part of it).
-> 
-> https://www.intel.com/content/www/us/en/developer/topic-technology/software-security-guidance/processors-affected-consolidated-product-cpu-model.html
-> 
-> Click to the 2022 tab. The MMIO affected/not-affected status is there
-> (you'll need to use the horizontal scroll to shift over to see those
-> columns).
-> 
-> This table lists all the CPUs that were not "older".
-> 
-> Any CPU not on that list is out of servicing period.
+From: Yu Kuai <yukuai3@huawei.com>
 
-I thought about this option, this will require CPUs to be added to
-whitelist too. If the maintainers wont hate it, I will go this route.
+One of our product reported a io hung problem, turns out the problem
+can be fixed by the patch.
+
+I'm not sure why this patch is not backported yet, however, please
+consider it in 4.19 lts.
+
+Ming Lei (1):
+  scsi: core: Fix race between handling STS_RESOURCE and completion
+
+ drivers/scsi/scsi_lib.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+-- 
+2.31.1
+
