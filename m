@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 870EC585AD7
-	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 16:45:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AB80585AD8
+	for <lists+stable@lfdr.de>; Sat, 30 Jul 2022 16:45:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232596AbiG3OpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Jul 2022 10:45:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57814 "EHLO
+        id S233403AbiG3OpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Jul 2022 10:45:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234399AbiG3OpN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 10:45:13 -0400
+        with ESMTP id S234399AbiG3OpV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Jul 2022 10:45:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E0BA62CF
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 07:45:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80FB7DFB8
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 07:45:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93CC460DC0
-        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 14:45:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EBA0C433D6;
-        Sat, 30 Jul 2022 14:45:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 075B760D3C
+        for <stable@vger.kernel.org>; Sat, 30 Jul 2022 14:45:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19A1DC433C1;
+        Sat, 30 Jul 2022 14:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659192311;
-        bh=4uqKB0elQRmsTO1c1R5M8oY4B3Mxe2VMkhNi4yeE+EM=;
+        s=korg; t=1659192319;
+        bh=O3Ci98GUmv8o438iZdzYIJBb1kuuUY6Bkl8LCctfr0I=;
         h=Subject:To:Cc:From:Date:From;
-        b=MDRn7bOq/Vt7z2ItMBbgqDlsYh/sh+sCmhRjOXfYTipW9Z3+ChqTvQ/Y/8iS4OTKO
-         j4qmZMuNPfD0OVscB/yvhk2HTELPm2QX4NNZLwdEBKppmPlLURb/kWSV7WtjmCiGPF
-         iIjnHYlA7ZQgn0CnUDx6exQeaKwQholBrhBqpko4=
-Subject: FAILED: patch "[PATCH] bridge: Do not send empty IFLA_AF_SPEC attribute" failed to apply to 5.15-stable tree
+        b=xuJ9/RiBOgL9ldrk5mqbgAihYs9Et39D10PZybJ0ZKSA2AJXoCymM/bFXHiEkKzkt
+         rxyqJpuYmVjzWTioGy6Agb8Pi/rnjlHHxfMfQD682en0BhM9kBnsx1c5MypbCh1pxM
+         nAGeNEwYqgt/bOLPx2xY416IIGqbtVINj5xZkv+I=
+Subject: FAILED: patch "[PATCH] bridge: Do not send empty IFLA_AF_SPEC attribute" failed to apply to 5.10-stable tree
 To:     bpoirier@nvidia.com, idosch@nvidia.com, pabeni@redhat.com,
         razor@blackwall.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Jul 2022 16:45:08 +0200
-Message-ID: <165919230819483@kroah.com>
+Date:   Sat, 30 Jul 2022 16:45:09 +0200
+Message-ID: <1659192309224135@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
