@@ -2,57 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B406585E96
-	for <lists+stable@lfdr.de>; Sun, 31 Jul 2022 13:13:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58000585E9D
+	for <lists+stable@lfdr.de>; Sun, 31 Jul 2022 13:22:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229600AbiGaLNb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 31 Jul 2022 07:13:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33864 "EHLO
+        id S233093AbiGaLWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 31 Jul 2022 07:22:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232603AbiGaLNa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 31 Jul 2022 07:13:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DB84DE9D
-        for <stable@vger.kernel.org>; Sun, 31 Jul 2022 04:13:29 -0700 (PDT)
+        with ESMTP id S232378AbiGaLWY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 31 Jul 2022 07:22:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADD53AE73
+        for <stable@vger.kernel.org>; Sun, 31 Jul 2022 04:22:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06298B80B20
-        for <stable@vger.kernel.org>; Sun, 31 Jul 2022 11:13:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8711C4347C
-        for <stable@vger.kernel.org>; Sun, 31 Jul 2022 11:13:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C84A60C79
+        for <stable@vger.kernel.org>; Sun, 31 Jul 2022 11:22:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC58CC433D6
+        for <stable@vger.kernel.org>; Sun, 31 Jul 2022 11:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659266006;
-        bh=zyiuKQHS40qfCly0L6PnM1NVDd7eMxtPyT90sMlse2c=;
+        s=k20201202; t=1659266542;
+        bh=LebUxnoJqQxwYBGLS2pTI6LjWQjipUlx/vluZkP0ZXg=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=gWiRCavyx9NWArXx7Kmvxukggjc2+XH0ZqFIyk0aHJeG3tR/sv/qDdgpFF3JOWouj
-         xdw8C2P+1+37z5ByxDVw3wiuu/4yUUIACu2asZ9CVZE4xRTbTRkrwO4Z6+89JAUlQq
-         tWBmeOxn/7oEJ5MoiBEwZr6lRvW4KJekcqJnzxNxx2Vhli0wpSDefaV347KIMdYRtG
-         4pPxO2JXh36kn8xO8RWkOsWKb7EQH2zvpheqlThLNVJo5ARxk9KijfnpT7D7nzzwbi
-         1CO7bdx3mZ2unwx0k5OPYN8WyQA9qmb5Rh/A9NNDrHSZ/Zc6dOiPyroVynknJlcKJW
-         bHxEknl87yCpQ==
-Received: by mail-oo1-f43.google.com with SMTP id v5-20020a4aa505000000b00435b0bb4227so1553246ook.12
-        for <stable@vger.kernel.org>; Sun, 31 Jul 2022 04:13:26 -0700 (PDT)
-X-Gm-Message-State: AJIora9QuYklxnjPC0eiKU3tUCReLYrfhY/hKuR46aKxNsNZrojSWESo
-        cAPiJNWur0KeiWQklLVdDlpp0etUwGaoAFHOWlU=
-X-Google-Smtp-Source: AGRyM1uniCizgwfvPXcszFmmyCB6vbOUjxg6u2E3e6Vl5rYuJOYHRoi2DCa/ZvPxrEwydjmwuKw4YIRxnzyMM2a4gYg=
-X-Received: by 2002:a4a:cb10:0:b0:435:9075:a86b with SMTP id
- r16-20020a4acb10000000b004359075a86bmr3888557ooq.98.1659266005854; Sun, 31
- Jul 2022 04:13:25 -0700 (PDT)
+        b=cmSHyr+PtradXKGfVP+/CeMXCaNMArgJt5B1GM5WCrBCcLh8zqQ5NEChz7roeplhb
+         lCgm7sB6E/w3nJflHbe4kv0TVMVOEs2QyRW+5PA1AoMkMcVDtsKaIPSr5ONID7GQ/c
+         0nqnTxErelbv7o61F8ngdmYGTZhpO7WT9OKEEoXiV7WMytyOw8ZiVjB+BDSGBt/ei6
+         +0HZuJ8Jw8PYqkybJ2JMLMvD1ea2i1stHWTRS90hQOd0dQzoqgTtGBlV7lZRRGkCrc
+         Cv5uaKGwQELhLbqLIKVvJEXBtlpAyEtKpdP0mbqgDOuArPb5hpBI+HbObjHH9jI4KO
+         jAx1kmiwiaq7w==
+Received: by mail-ej1-f44.google.com with SMTP id rq15so9581265ejc.10
+        for <stable@vger.kernel.org>; Sun, 31 Jul 2022 04:22:22 -0700 (PDT)
+X-Gm-Message-State: ACgBeo24bOHWJuocXRYk9ul/YIakBww9dJLwXPEVW6kDc7tiL4FLqb6/
+        KBaZsLnYL5OrvVoNIO/7u5evX3VIa7Td8CSPfuQ=
+X-Google-Smtp-Source: AA6agR4imQTCxKZDLBzbVXWZd+AvZHRuv8alJGUKK1OXZ7VRqA4VhCF2+XOUu9SYN3DV0k+3djBjdR3uXiHSl5aqc5w=
+X-Received: by 2002:a17:907:2cf8:b0:730:6854:1c26 with SMTP id
+ hz24-20020a1709072cf800b0073068541c26mr1989125ejc.766.1659266540895; Sun, 31
+ Jul 2022 04:22:20 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220731100551.3679874-1-gregkh@linuxfoundation.org>
- <CAMj1kXHPV-EHVQDa5hmJJAQP-dDfTgVpD6+7g65+Q9-C6xdwhg@mail.gmail.com> <YuZb5BEORzZ94z0k@kroah.com>
-In-Reply-To: <YuZb5BEORzZ94z0k@kroah.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Sun, 31 Jul 2022 13:13:14 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXFODDitAF+_UjrPeyV-tdAYv2n=8+hpXcQM4606ygiw=w@mail.gmail.com>
-Message-ID: <CAMj1kXFODDitAF+_UjrPeyV-tdAYv2n=8+hpXcQM4606ygiw=w@mail.gmail.com>
+In-Reply-To: <20220731100551.3679874-1-gregkh@linuxfoundation.org>
+From:   Arnd Bergmann <arnd@kernel.org>
+Date:   Sun, 31 Jul 2022 13:22:02 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a1xg=LN-Q0vrTDEssfDpRqDCudCt=ibxPkdbwG+960p9A@mail.gmail.com>
+Message-ID: <CAK8P3a1xg=LN-Q0vrTDEssfDpRqDCudCt=ibxPkdbwG+960p9A@mail.gmail.com>
 Subject: Re: [PATCH] ARM: crypto: comment out gcc warning that breaks clang builds
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+Cc:     stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
         "Justin M. Forbes" <jforbes@fedoraproject.org>,
-        Arnd Bergmann <arnd@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Nicolas Pitre <nico@linaro.org>,
         Nathan Chancellor <nathan@kernel.org>,
         Nick Desaulniers <ndesaulniers@google.com>
@@ -66,51 +64,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 31 Jul 2022 at 12:39, Greg Kroah-Hartman
+On Sun, Jul 31, 2022 at 12:05 PM Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> On Sun, Jul 31, 2022 at 12:17:40PM +0200, Ard Biesheuvel wrote:
-> > On Sun, 31 Jul 2022 at 12:05, Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > >
-> > > The gcc build warning prevents all clang-built kernels from working
-> > > properly, so comment it out to fix the build.
-> > >
-> > > This is a -stable kernel only patch for now, it will be resolved
-> > > differently in mainline releases in the future.
-> > >
-> > > Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
-> > > Cc: "Justin M. Forbes" <jforbes@fedoraproject.org>
-> > > Cc: Ard Biesheuvel <ardb@kernel.org>
-> > > Cc: Arnd Bergmann <arnd@kernel.org>
-> > > Cc: Nicolas Pitre <nico@linaro.org>
-> > > Cc: Nathan Chancellor <nathan@kernel.org>
-> > > Cc: Nick Desaulniers <ndesaulniers@google.com>
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > ---
-> > >  arch/arm/lib/xor-neon.c | 3 ++-
-> > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/arch/arm/lib/xor-neon.c b/arch/arm/lib/xor-neon.c
-> > > index b99dd8e1c93f..7ba6cf826162 100644
-> > > --- a/arch/arm/lib/xor-neon.c
-> > > +++ b/arch/arm/lib/xor-neon.c
-> > > @@ -26,8 +26,9 @@ MODULE_LICENSE("GPL");
-> > >   * While older versions of GCC do not generate incorrect code, they fail to
-> > >   * recognize the parallel nature of these functions, and emit plain ARM code,
-> > >   * which is known to be slower than the optimized ARM code in asm-arm/xor.h.
-> > > + *
-> > > + * #warning This code requires at least version 4.6 of GCC
-> > >   */
-> > > -#warning This code requires at least version 4.6 of GCC
-> > >  #endif
-> > >
-> > >  #pragma GCC diagnostic ignored "-Wunused-variable"
-> >
-> > LGTM but doesn't Clang also complain about the GCC specific pragma?
+> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 >
-> I don't know, all clang builds always failed at the first #warning line :)
+> The gcc build warning prevents all clang-built kernels from working
+> properly, so comment it out to fix the build.
+>
+> This is a -stable kernel only patch for now, it will be resolved
+> differently in mainline releases in the future.
+>
+> Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+> Cc: "Justin M. Forbes" <jforbes@fedoraproject.org>
+> Cc: Ard Biesheuvel <ardb@kernel.org>
+> Cc: Arnd Bergmann <arnd@kernel.org>
+> Cc: Nicolas Pitre <nico@linaro.org>
+> Cc: Nathan Chancellor <nathan@kernel.org>
+> Cc: Nick Desaulniers <ndesaulniers@google.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Just tried it, and it appears to ignore the #pragma so we're all good.
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+
+I always resisted this from going into mainline without actually
+making the code work
+as intended on clang, but now that mainline kernels get it right and we have
+decided not to backport the new version, this is the best we can do
+for LTS backports.
+
+        Arnd
