@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1FCF5868FF
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:55:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4404758687C
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:49:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232495AbiHALz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:55:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38908 "EHLO
+        id S231608AbiHALtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:49:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232367AbiHALym (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:54:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B93AA402CC;
-        Mon,  1 Aug 2022 04:51:05 -0700 (PDT)
+        with ESMTP id S231609AbiHALsr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:48:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2E483C8D9;
+        Mon,  1 Aug 2022 04:48:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3DD90B8116E;
-        Mon,  1 Aug 2022 11:51:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E7B9C433C1;
-        Mon,  1 Aug 2022 11:51:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BED2612D5;
+        Mon,  1 Aug 2022 11:48:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BF93C433C1;
+        Mon,  1 Aug 2022 11:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354663;
-        bh=cyjrXZJwdrwioLXFVkyJDSYjcxeXmM63Z6IBhBmD9q4=;
+        s=korg; t=1659354503;
+        bh=C87C7EzLl4tWVgrvdxffYag5TQAHIvH812FsT8eBZRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZIhVsgtJG/dVgDflndWcRlBkagj+sfN81P8Gwzq4MkpWDJ9EH4kYlmBNi7Q2q5UJ4
-         5APch2FAE/1io81qRzlWLJYM9VE8KZ9Fu9/MAiAPUoTB4pd2eMFMT8CDZ1ZzktAttz
-         O5VTQEUWuUszxOzhij9/i1Lu9Fz9C/yUSohtbBJw=
+        b=JS+wuthP94xyVCchaJjdUxeua7kTNrNu9TtAULkRwUG8keUYAOWGnKViDwJ17FBHw
+         XcnrJ4W+ZmjEhDCvuWZYDy8oTHn3D4JZn0NqDswH4ZrPxdc78nBYfAi2E4MilIJ3YE
+         aMfQ1m/FigSq8GWNjMgtdIYudxoIivxQ9geiodRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Domingo Dirutigliano <pwnzer0tt1@proton.me>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 42/65] netfilter: nf_queue: do not allow packet truncation below transport header offset
+Subject: [PATCH 5.4 19/34] tcp: Fix a data-race around sysctl_tcp_min_rtt_wlen.
 Date:   Mon,  1 Aug 2022 13:46:59 +0200
-Message-Id: <20220801114135.476451070@linuxfoundation.org>
+Message-Id: <20220801114128.774532066@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
-References: <20220801114133.641770326@linuxfoundation.org>
+In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
+References: <20220801114128.025615151@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 99a63d36cb3ed5ca3aa6fcb64cffbeaf3b0fb164 ]
+[ Upstream commit 1330ffacd05fc9ac4159d19286ce119e22450ed2 ]
 
-Domingo Dirutigliano and Nicola Guerrera report kernel panic when
-sending nf_queue verdict with 1-byte nfta_payload attribute.
+While reading sysctl_tcp_min_rtt_wlen, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-The IP/IPv6 stack pulls the IP(v6) header from the packet after the
-input hook.
-
-If user truncates the packet below the header size, this skb_pull() will
-result in a malformed skb (skb->len < 0).
-
-Fixes: 7af4cc3fa158 ("[NETFILTER]: Add "nfnetlink_queue" netfilter queue handler over nfnetlink")
-Reported-by: Domingo Dirutigliano <pwnzer0tt1@proton.me>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Reviewed-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: f672258391b4 ("tcp: track min RTT using windowed min-filter")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nfnetlink_queue.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/ipv4/tcp_input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
-index 1640da5c5077..72d30922ed29 100644
---- a/net/netfilter/nfnetlink_queue.c
-+++ b/net/netfilter/nfnetlink_queue.c
-@@ -838,11 +838,16 @@ nfqnl_enqueue_packet(struct nf_queue_entry *entry, unsigned int queuenum)
- }
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index a8d8ff488281..b760ad0b16d9 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -2914,7 +2914,7 @@ static void tcp_fastretrans_alert(struct sock *sk, const u32 prior_snd_una,
  
- static int
--nfqnl_mangle(void *data, int data_len, struct nf_queue_entry *e, int diff)
-+nfqnl_mangle(void *data, unsigned int data_len, struct nf_queue_entry *e, int diff)
+ static void tcp_update_rtt_min(struct sock *sk, u32 rtt_us, const int flag)
  {
- 	struct sk_buff *nskb;
+-	u32 wlen = sock_net(sk)->ipv4.sysctl_tcp_min_rtt_wlen * HZ;
++	u32 wlen = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_min_rtt_wlen) * HZ;
+ 	struct tcp_sock *tp = tcp_sk(sk);
  
- 	if (diff < 0) {
-+		unsigned int min_len = skb_transport_offset(e->skb);
-+
-+		if (data_len < min_len)
-+			return -EINVAL;
-+
- 		if (pskb_trim(e->skb, data_len))
- 			return -ENOMEM;
- 	} else if (diff > 0) {
+ 	if ((flag & FLAG_ACK_MAYBE_DELAYED) && rtt_us > tcp_min_rtt(tp)) {
 -- 
 2.35.1
 
