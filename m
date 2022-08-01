@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B5F25868E0
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:54:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1677658689D
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:51:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232184AbiHALyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:54:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35900 "EHLO
+        id S231557AbiHALvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:51:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232192AbiHALxf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:53:35 -0400
+        with ESMTP id S231589AbiHALt4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:49:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A84629CBF;
-        Mon,  1 Aug 2022 04:50:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FCA93FA03;
+        Mon,  1 Aug 2022 04:49:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E808B8116E;
-        Mon,  1 Aug 2022 11:50:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84644C433D6;
-        Mon,  1 Aug 2022 11:50:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51FFDB80EAC;
+        Mon,  1 Aug 2022 11:48:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5481C433D6;
+        Mon,  1 Aug 2022 11:48:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354621;
-        bh=JldWJW3ntF3SZTyasCpQWeWDzCX/AG7rGZgkZ/Q4Y9k=;
+        s=korg; t=1659354537;
+        bh=0DOI+tH+obLM/ah1ir/rAmzRsoGfunCYQfDTahRUfW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h+sg5zCVn6OGsixL90gXDlv+i9Kz3U50hN9m5vKN9gsIwT73spy6rXz29k11E/A5x
-         I+O0Q+QcJva5KfAyYC1fUrygAHNvnK2goy0Es5bM7TfUiI2qXnjfTV5w0VPhzskXcW
-         MijvBNbl4/aMGPFsxBj5hBnGiOQ8G++B8uY1eSV0=
+        b=c8iLnzGsdgsElllUtLEAGy7Kk0JXFeISIpRQu4hudicQrYVupMNaXDp8eRnKRBf29
+         OW6MDza9nyri7fgBM0H3WoSf9XRzG/7XP6FJJimLCAsFI4Zp5P02JqBtB2N3dBlATM
+         MaRlInLRp+biODfXQWV4MgxKVxsitb7jPRZR3bAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 26/65] tcp: Fix a data-race around sysctl_tcp_min_tso_segs.
+        stable@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Juergen Christ <jchrist@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: [PATCH 5.4 03/34] s390/archrandom: prevent CPACF trng invocations in interrupt context
 Date:   Mon,  1 Aug 2022 13:46:43 +0200
-Message-Id: <20220801114134.804266707@linuxfoundation.org>
+Message-Id: <20220801114128.180782961@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
-References: <20220801114133.641770326@linuxfoundation.org>
+In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
+References: <20220801114128.025615151@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +55,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-[ Upstream commit e0bb4ab9dfddd872622239f49fb2bd403b70853b ]
+commit 918e75f77af7d2e049bb70469ec0a2c12782d96a upstream.
 
-While reading sysctl_tcp_min_tso_segs, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+This patch slightly reworks the s390 arch_get_random_seed_{int,long}
+implementation: Make sure the CPACF trng instruction is never
+called in any interrupt context. This is done by adding an
+additional condition in_task().
 
-Fixes: 95bd09eb2750 ("tcp: TSO packets automatic sizing")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Justification:
+
+There are some constrains to satisfy for the invocation of the
+arch_get_random_seed_{int,long}() functions:
+- They should provide good random data during kernel initialization.
+- They should not be called in interrupt context as the TRNG
+  instruction is relatively heavy weight and may for example
+  make some network loads cause to timeout and buck.
+
+However, it was not clear what kind of interrupt context is exactly
+encountered during kernel init or network traffic eventually calling
+arch_get_random_seed_long().
+
+After some days of investigations it is clear that the s390
+start_kernel function is not running in any interrupt context and
+so the trng is called:
+
+Jul 11 18:33:39 t35lp54 kernel:  [<00000001064e90ca>] arch_get_random_seed_long.part.0+0x32/0x70
+Jul 11 18:33:39 t35lp54 kernel:  [<000000010715f246>] random_init+0xf6/0x238
+Jul 11 18:33:39 t35lp54 kernel:  [<000000010712545c>] start_kernel+0x4a4/0x628
+Jul 11 18:33:39 t35lp54 kernel:  [<000000010590402a>] startup_continue+0x2a/0x40
+
+The condition in_task() is true and the CPACF trng provides random data
+during kernel startup.
+
+The network traffic however, is more difficult. A typical call stack
+looks like this:
+
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b5600fc>] extract_entropy.constprop.0+0x23c/0x240
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b560136>] crng_reseed+0x36/0xd8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b5604b8>] crng_make_state+0x78/0x340
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b5607e0>] _get_random_bytes+0x60/0xf8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b56108a>] get_random_u32+0xda/0x248
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008aefe7a8>] kfence_guarded_alloc+0x48/0x4b8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008aeff35e>] __kfence_alloc+0x18e/0x1b8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008aef7f10>] __kmalloc_node_track_caller+0x368/0x4d8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b611eac>] kmalloc_reserve+0x44/0xa0
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b611f98>] __alloc_skb+0x90/0x178
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b6120dc>] __napi_alloc_skb+0x5c/0x118
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b8f06b4>] qeth_extract_skb+0x13c/0x680
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b8f6526>] qeth_poll+0x256/0x3f8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b63d76e>] __napi_poll.constprop.0+0x46/0x2f8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b63dbec>] net_rx_action+0x1cc/0x408
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b937302>] __do_softirq+0x132/0x6b0
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008abf46ce>] __irq_exit_rcu+0x13e/0x170
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008abf531a>] irq_exit_rcu+0x22/0x50
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b922506>] do_io_irq+0xe6/0x198
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b935826>] io_int_handler+0xd6/0x110
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b9358a6>] psw_idle_exit+0x0/0xa
+Jul 06 17:37:07 t35lp54 kernel: ([<000000008ab9c59a>] arch_cpu_idle+0x52/0xe0)
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b933cfe>] default_idle_call+0x6e/0xd0
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008ac59f4e>] do_idle+0xf6/0x1b0
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008ac5a28e>] cpu_startup_entry+0x36/0x40
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008abb0d90>] smp_start_secondary+0x148/0x158
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b935b9e>] restart_int_handler+0x6e/0x90
+
+which confirms that the call is in softirq context. So in_task() covers exactly
+the cases where we want to have CPACF trng called: not in nmi, not in hard irq,
+not in soft irq but in normal task context and during kernel init.
+
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Acked-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Reviewed-by: Juergen Christ <jchrist@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220713131721.257907-1-freude@linux.ibm.com
+Fixes: e4f74400308c ("s390/archrandom: simplify back to earlier design and initialize earlier")
+[agordeev@linux.ibm.com changed desc, added Fixes and Link, removed -stable]
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_output.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/include/asm/archrandom.h |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 1a144c38039c..657b0a4d9359 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1984,7 +1984,7 @@ static u32 tcp_tso_segs(struct sock *sk, unsigned int mss_now)
+--- a/arch/s390/include/asm/archrandom.h
++++ b/arch/s390/include/asm/archrandom.h
+@@ -2,7 +2,7 @@
+ /*
+  * Kernel interface for the s390 arch_random_* functions
+  *
+- * Copyright IBM Corp. 2017, 2020
++ * Copyright IBM Corp. 2017, 2022
+  *
+  * Author: Harald Freudenberger <freude@de.ibm.com>
+  *
+@@ -14,6 +14,7 @@
+ #ifdef CONFIG_ARCH_RANDOM
  
- 	min_tso = ca_ops->min_tso_segs ?
- 			ca_ops->min_tso_segs(sk) :
--			sock_net(sk)->ipv4.sysctl_tcp_min_tso_segs;
-+			READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_min_tso_segs);
+ #include <linux/static_key.h>
++#include <linux/preempt.h>
+ #include <linux/atomic.h>
+ #include <asm/cpacf.h>
  
- 	tso_segs = tcp_tso_autosize(sk, mss_now, min_tso);
- 	return min_t(u32, tso_segs, sk->sk_gso_max_segs);
--- 
-2.35.1
-
+@@ -32,7 +33,8 @@ static inline bool __must_check arch_get
+ 
+ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ {
+-	if (static_branch_likely(&s390_arch_random_available)) {
++	if (static_branch_likely(&s390_arch_random_available) &&
++	    in_task()) {
+ 		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
+ 		atomic64_add(sizeof(*v), &s390_arch_random_counter);
+ 		return true;
+@@ -42,7 +44,8 @@ static inline bool __must_check arch_get
+ 
+ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ {
+-	if (static_branch_likely(&s390_arch_random_available)) {
++	if (static_branch_likely(&s390_arch_random_available) &&
++	    in_task()) {
+ 		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
+ 		atomic64_add(sizeof(*v), &s390_arch_random_counter);
+ 		return true;
 
 
