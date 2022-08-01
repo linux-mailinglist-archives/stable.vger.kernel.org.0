@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 651E7586879
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:49:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9A755868F7
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231738AbiHALs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:48:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34712 "EHLO
+        id S232461AbiHALzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:55:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231649AbiHALsq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:48:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C0663719D;
-        Mon,  1 Aug 2022 04:48:22 -0700 (PDT)
+        with ESMTP id S232363AbiHALyj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:54:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C96E93DF3E;
+        Mon,  1 Aug 2022 04:51:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 566B5612D0;
-        Mon,  1 Aug 2022 11:48:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63762C433D6;
-        Mon,  1 Aug 2022 11:48:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 850CFB8116D;
+        Mon,  1 Aug 2022 11:51:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D81B3C433D7;
+        Mon,  1 Aug 2022 11:50:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354500;
-        bh=3sCoI8BpI7uF1zU0CY9LpPBLBwBcSwpqFOjuvTAicaU=;
+        s=korg; t=1659354660;
+        bh=eQkHLvuFiQC4fCGZQxZG6VEon3kkOfjQUOYlGs5oa7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ga/4Ikto6Egz8s1AyZ4vsWvKXOpdwc/dxZvK9u5w/QpqeKwi4ZcYyRGLIxMQedCos
-         2K9t5ZTs4XOcdNm4sF0abBrqpy8iQOXh1nfXCdmoATb5Txmy+FlTvufKn0cDxEZP+N
-         2Y/Qq7dxhpPOHYlPTc1QGhuh3Mpouxf+sR29t3Aw=
+        b=gzuOUl/D6h7NH3KYgxRu9c6g5XIEooFg8DLZej22tD/CKHfoK59yg6NyuDg7rsKDG
+         ulmZbrZi63Ivmiz2HFVPPLeeyqJGEnIOtEUjOum8RQDhBAtDdXDr665SWEfTYSR+Jg
+         dNx3uGJW3zMTMoofG+0GPvaxUc00x0BhTzBOkPY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 18/34] tcp: Fix a data-race around sysctl_tcp_min_tso_segs.
+Subject: [PATCH 5.10 41/65] sctp: fix sleep in atomic context bug in timer handlers
 Date:   Mon,  1 Aug 2022 13:46:58 +0200
-Message-Id: <20220801114128.744393211@linuxfoundation.org>
+Message-Id: <20220801114135.436497128@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
-References: <20220801114128.025615151@linuxfoundation.org>
+In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
+References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit e0bb4ab9dfddd872622239f49fb2bd403b70853b ]
+[ Upstream commit b89fc26f741d9f9efb51cba3e9b241cf1380ec5a ]
 
-While reading sysctl_tcp_min_tso_segs, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+There are sleep in atomic context bugs in timer handlers of sctp
+such as sctp_generate_t3_rtx_event(), sctp_generate_probe_event(),
+sctp_generate_t1_init_event(), sctp_generate_timeout_event(),
+sctp_generate_t3_rtx_event() and so on.
 
-Fixes: 95bd09eb2750 ("tcp: TSO packets automatic sizing")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The root cause is sctp_sched_prio_init_sid() with GFP_KERNEL parameter
+that may sleep could be called by different timer handlers which is in
+interrupt context.
+
+One of the call paths that could trigger bug is shown below:
+
+      (interrupt context)
+sctp_generate_probe_event
+  sctp_do_sm
+    sctp_side_effects
+      sctp_cmd_interpreter
+        sctp_outq_teardown
+          sctp_outq_init
+            sctp_sched_set_sched
+              n->init_sid(..,GFP_KERNEL)
+                sctp_sched_prio_init_sid //may sleep
+
+This patch changes gfp_t parameter of init_sid in sctp_sched_set_sched()
+from GFP_KERNEL to GFP_ATOMIC in order to prevent sleep in atomic
+context bugs.
+
+Fixes: 5bbbbe32a431 ("sctp: introduce stream scheduler foundations")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Link: https://lore.kernel.org/r/20220723015809.11553-1-duoming@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c | 2 +-
+ net/sctp/stream_sched.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 99e077422975..ef749a47768a 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1761,7 +1761,7 @@ static u32 tcp_tso_segs(struct sock *sk, unsigned int mss_now)
+diff --git a/net/sctp/stream_sched.c b/net/sctp/stream_sched.c
+index 99e5f69fbb74..a2e1d34f52c5 100644
+--- a/net/sctp/stream_sched.c
++++ b/net/sctp/stream_sched.c
+@@ -163,7 +163,7 @@ int sctp_sched_set_sched(struct sctp_association *asoc,
+ 		if (!SCTP_SO(&asoc->stream, i)->ext)
+ 			continue;
  
- 	min_tso = ca_ops->min_tso_segs ?
- 			ca_ops->min_tso_segs(sk) :
--			sock_net(sk)->ipv4.sysctl_tcp_min_tso_segs;
-+			READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_min_tso_segs);
- 
- 	tso_segs = tcp_tso_autosize(sk, mss_now, min_tso);
- 	return min_t(u32, tso_segs, sk->sk_gso_max_segs);
+-		ret = n->init_sid(&asoc->stream, i, GFP_KERNEL);
++		ret = n->init_sid(&asoc->stream, i, GFP_ATOMIC);
+ 		if (ret)
+ 			goto err;
+ 	}
 -- 
 2.35.1
 
