@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4118E586A0D
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:12:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04259586A14
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233842AbiHAMMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:12:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57500 "EHLO
+        id S233851AbiHAMMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:12:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234222AbiHAMKy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:10:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 801846BC03;
-        Mon,  1 Aug 2022 04:56:46 -0700 (PDT)
+        with ESMTP id S234243AbiHAMK5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:10:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9811A6BC0D;
+        Mon,  1 Aug 2022 04:56:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B547B80EAC;
-        Mon,  1 Aug 2022 11:56:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C54F7C433C1;
-        Mon,  1 Aug 2022 11:56:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 782116010C;
+        Mon,  1 Aug 2022 11:56:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53939C433C1;
+        Mon,  1 Aug 2022 11:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659355003;
-        bh=UNsBv5enHLJ3J/h7oyP4hiTFaz+6uZq+D1FX11qoP+E=;
+        s=korg; t=1659355005;
+        bh=6NF7vDSmopqfD1FN2vWLgUBEVHkIgrgT9Qr7AExNFYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wARRNarHHyRnY2a9M1fqrKIHw/S+vzvBXVCV4bd9eSxY5D2ERhg+CwY0Gfui2rqwA
-         5EpUMJgvjjuATxLt1NRO3WscCWAFnW/EfYWjIOU6yU5PmL1ziwk8Y0YikXSb+glnZW
-         4PQeYaOBWaXdXbJdN66y+abfP5VlAbcY/KaOHu7E=
+        b=Wh1M/Kt1LpxZE2EbbppXvIrJ8yL6xXi89P3UZbky2lVoF5P/Ee8A/RrAeVKREwQcw
+         qMtHDYl9z5qBaMyQCtgyyYr49zVLYqLEYvIwnutCyHJYXbgXtDd1+/qEO6l3O+Gk68
+         7loL7iPJl9c8VPhN8g3kQsMvYsXyKOWB/xTNorYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurence de Bruxelles <lfdebrux@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.18 04/88] ARM: pxa2xx: Fix GPIO descriptor tables
-Date:   Mon,  1 Aug 2022 13:46:18 +0200
-Message-Id: <20220801114138.238581181@linuxfoundation.org>
+        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>, heming.zhao@suse.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.18 05/88] Revert "ocfs2: mount shared volume without ha stack"
+Date:   Mon,  1 Aug 2022 13:46:19 +0200
+Message-Id: <20220801114138.287111701@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
 References: <20220801114138.041018499@linuxfoundation.org>
@@ -46,149 +50,251 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Junxiao Bi <ocfs2-devel@oss.oracle.com>
 
-commit c5cdb9286913aa5a5ebb81bcca0c17df3b0e2c79 upstream.
+commit c80af0c250c8f8a3c978aa5aafbe9c39b336b813 upstream.
 
-Laurence reports:
+This reverts commit 912f655d78c5d4ad05eac287f23a435924df7144.
 
-"Kernel >5.18 on Zaurus has a bug where the power management code can't
-talk to devices, emitting the following errors:
+This commit introduced a regression that can cause mount hung.  The
+changes in __ocfs2_find_empty_slot causes that any node with none-zero
+node number can grab the slot that was already taken by node 0, so node 1
+will access the same journal with node 0, when it try to grab journal
+cluster lock, it will hung because it was already acquired by node 0.
+It's very easy to reproduce this, in one cluster, mount node 0 first, then
+node 1, you will see the following call trace from node 1.
 
-sharpsl-pm sharpsl-pm: Error: AC check failed: voltage -22.
-sharpsl-pm sharpsl-pm: Charging Error!
-sharpsl-pm sharpsl-pm: Warning: Cannot read main battery!
+[13148.735424] INFO: task mount.ocfs2:53045 blocked for more than 122 seconds.
+[13148.739691]       Not tainted 5.15.0-2148.0.4.el8uek.mountracev2.x86_64 #2
+[13148.742560] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[13148.745846] task:mount.ocfs2     state:D stack:    0 pid:53045 ppid: 53044 flags:0x00004000
+[13148.749354] Call Trace:
+[13148.750718]  <TASK>
+[13148.752019]  ? usleep_range+0x90/0x89
+[13148.753882]  __schedule+0x210/0x567
+[13148.755684]  schedule+0x44/0xa8
+[13148.757270]  schedule_timeout+0x106/0x13c
+[13148.759273]  ? __prepare_to_swait+0x53/0x78
+[13148.761218]  __wait_for_common+0xae/0x163
+[13148.763144]  __ocfs2_cluster_lock.constprop.0+0x1d6/0x870 [ocfs2]
+[13148.765780]  ? ocfs2_inode_lock_full_nested+0x18d/0x398 [ocfs2]
+[13148.768312]  ocfs2_inode_lock_full_nested+0x18d/0x398 [ocfs2]
+[13148.770968]  ocfs2_journal_init+0x91/0x340 [ocfs2]
+[13148.773202]  ocfs2_check_volume+0x39/0x461 [ocfs2]
+[13148.775401]  ? iput+0x69/0xba
+[13148.777047]  ocfs2_mount_volume.isra.0.cold+0x40/0x1f5 [ocfs2]
+[13148.779646]  ocfs2_fill_super+0x54b/0x853 [ocfs2]
+[13148.781756]  mount_bdev+0x190/0x1b7
+[13148.783443]  ? ocfs2_remount+0x440/0x440 [ocfs2]
+[13148.785634]  legacy_get_tree+0x27/0x48
+[13148.787466]  vfs_get_tree+0x25/0xd0
+[13148.789270]  do_new_mount+0x18c/0x2d9
+[13148.791046]  __x64_sys_mount+0x10e/0x142
+[13148.792911]  do_syscall_64+0x3b/0x89
+[13148.794667]  entry_SYSCALL_64_after_hwframe+0x170/0x0
+[13148.797051] RIP: 0033:0x7f2309f6e26e
+[13148.798784] RSP: 002b:00007ffdcee7d408 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
+[13148.801974] RAX: ffffffffffffffda RBX: 00007ffdcee7d4a0 RCX: 00007f2309f6e26e
+[13148.804815] RDX: 0000559aa762a8ae RSI: 0000559aa939d340 RDI: 0000559aa93a22b0
+[13148.807719] RBP: 00007ffdcee7d5b0 R08: 0000559aa93a2290 R09: 00007f230a0b4820
+[13148.810659] R10: 0000000000000000 R11: 0000000000000246 R12: 00007ffdcee7d420
+[13148.813609] R13: 0000000000000000 R14: 0000559aa939f000 R15: 0000000000000000
+[13148.816564]  </TASK>
 
-Looking at the recent changes, I found that commit 31455bbda208 ("spi:
-pxa2xx_spi: Convert to use GPIO descriptors") replaced the deprecated
-SPI chip select platform device code with a gpiod lookup table. However,
-this didn't seem to work until I changed the `dev_id` member from the
-device name to the bus id. I'm not entirely sure why this is necessary,
-but I suspect it is related to the fact that in sysfs SPI devices are
-attached under /sys/devices/.../dev_name/spi_master/spiB/spiB.C, rather
-than directly to the device."
+To fix it, we can just fix __ocfs2_find_empty_slot.  But original commit
+introduced the feature to mount ocfs2 locally even it is cluster based,
+that is a very dangerous, it can easily cause serious data corruption,
+there is no way to stop other nodes mounting the fs and corrupting it.
+Setup ha or other cluster-aware stack is just the cost that we have to
+take for avoiding corruption, otherwise we have to do it in kernel.
 
-After reviewing the change I conclude that the same fix is needed
-for all affected boards.
-
-Fixes: 31455bbda208 ("spi: pxa2xx_spi: Convert to use GPIO descriptors")
-Reported-by: Laurence de Bruxelles <lfdebrux@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220722114611.1517414-1-linus.walleij@linaro.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lkml.kernel.org/r/20220603222801.42488-1-junxiao.bi@oracle.com
+Fixes: 912f655d78c5("ocfs2: mount shared volume without ha stack")
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <heming.zhao@suse.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-pxa/corgi.c     |    2 +-
- arch/arm/mach-pxa/hx4700.c    |    2 +-
- arch/arm/mach-pxa/icontrol.c  |    4 ++--
- arch/arm/mach-pxa/littleton.c |    2 +-
- arch/arm/mach-pxa/magician.c  |    2 +-
- arch/arm/mach-pxa/spitz.c     |    2 +-
- arch/arm/mach-pxa/z2.c        |    4 ++--
- 7 files changed, 9 insertions(+), 9 deletions(-)
+ fs/ocfs2/ocfs2.h    |    4 +---
+ fs/ocfs2/slot_map.c |   46 +++++++++++++++++++---------------------------
+ fs/ocfs2/super.c    |   21 ---------------------
+ 3 files changed, 20 insertions(+), 51 deletions(-)
 
---- a/arch/arm/mach-pxa/corgi.c
-+++ b/arch/arm/mach-pxa/corgi.c
-@@ -531,7 +531,7 @@ static struct pxa2xx_spi_controller corg
+--- a/fs/ocfs2/ocfs2.h
++++ b/fs/ocfs2/ocfs2.h
+@@ -277,7 +277,6 @@ enum ocfs2_mount_options
+ 	OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT = 1 << 15,  /* Journal Async Commit */
+ 	OCFS2_MOUNT_ERRORS_CONT = 1 << 16, /* Return EIO to the calling process on error */
+ 	OCFS2_MOUNT_ERRORS_ROFS = 1 << 17, /* Change filesystem to read-only on error */
+-	OCFS2_MOUNT_NOCLUSTER = 1 << 18, /* No cluster aware filesystem mount */
  };
  
- static struct gpiod_lookup_table corgi_spi_gpio_table = {
--	.dev_id = "pxa2xx-spi.1",
-+	.dev_id = "spi1",
- 	.table = {
- 		GPIO_LOOKUP_IDX("gpio-pxa", CORGI_GPIO_ADS7846_CS, "cs", 0, GPIO_ACTIVE_LOW),
- 		GPIO_LOOKUP_IDX("gpio-pxa", CORGI_GPIO_LCDCON_CS, "cs", 1, GPIO_ACTIVE_LOW),
---- a/arch/arm/mach-pxa/hx4700.c
-+++ b/arch/arm/mach-pxa/hx4700.c
-@@ -635,7 +635,7 @@ static struct pxa2xx_spi_controller pxa_
+ #define OCFS2_OSB_SOFT_RO	0x0001
+@@ -673,8 +672,7 @@ static inline int ocfs2_cluster_o2cb_glo
+ 
+ static inline int ocfs2_mount_local(struct ocfs2_super *osb)
+ {
+-	return ((osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT)
+-		|| (osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER));
++	return (osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT);
+ }
+ 
+ static inline int ocfs2_uses_extended_slot_map(struct ocfs2_super *osb)
+--- a/fs/ocfs2/slot_map.c
++++ b/fs/ocfs2/slot_map.c
+@@ -252,16 +252,14 @@ static int __ocfs2_find_empty_slot(struc
+ 	int i, ret = -ENOSPC;
+ 
+ 	if ((preferred >= 0) && (preferred < si->si_num_slots)) {
+-		if (!si->si_slots[preferred].sl_valid ||
+-		    !si->si_slots[preferred].sl_node_num) {
++		if (!si->si_slots[preferred].sl_valid) {
+ 			ret = preferred;
+ 			goto out;
+ 		}
+ 	}
+ 
+ 	for(i = 0; i < si->si_num_slots; i++) {
+-		if (!si->si_slots[i].sl_valid ||
+-		    !si->si_slots[i].sl_node_num) {
++		if (!si->si_slots[i].sl_valid) {
+ 			ret = i;
+ 			break;
+ 		}
+@@ -456,30 +454,24 @@ int ocfs2_find_slot(struct ocfs2_super *
+ 	spin_lock(&osb->osb_lock);
+ 	ocfs2_update_slot_info(si);
+ 
+-	if (ocfs2_mount_local(osb))
+-		/* use slot 0 directly in local mode */
+-		slot = 0;
+-	else {
+-		/* search for ourselves first and take the slot if it already
+-		 * exists. Perhaps we need to mark this in a variable for our
+-		 * own journal recovery? Possibly not, though we certainly
+-		 * need to warn to the user */
+-		slot = __ocfs2_node_num_to_slot(si, osb->node_num);
++	/* search for ourselves first and take the slot if it already
++	 * exists. Perhaps we need to mark this in a variable for our
++	 * own journal recovery? Possibly not, though we certainly
++	 * need to warn to the user */
++	slot = __ocfs2_node_num_to_slot(si, osb->node_num);
++	if (slot < 0) {
++		/* if no slot yet, then just take 1st available
++		 * one. */
++		slot = __ocfs2_find_empty_slot(si, osb->preferred_slot);
+ 		if (slot < 0) {
+-			/* if no slot yet, then just take 1st available
+-			 * one. */
+-			slot = __ocfs2_find_empty_slot(si, osb->preferred_slot);
+-			if (slot < 0) {
+-				spin_unlock(&osb->osb_lock);
+-				mlog(ML_ERROR, "no free slots available!\n");
+-				status = -EINVAL;
+-				goto bail;
+-			}
+-		} else
+-			printk(KERN_INFO "ocfs2: Slot %d on device (%s) was "
+-			       "already allocated to this node!\n",
+-			       slot, osb->dev_str);
+-	}
++			spin_unlock(&osb->osb_lock);
++			mlog(ML_ERROR, "no free slots available!\n");
++			status = -EINVAL;
++			goto bail;
++		}
++	} else
++		printk(KERN_INFO "ocfs2: Slot %d on device (%s) was already "
++		       "allocated to this node!\n", slot, osb->dev_str);
+ 
+ 	ocfs2_set_slot(si, slot, osb->node_num);
+ 	osb->slot_num = slot;
+--- a/fs/ocfs2/super.c
++++ b/fs/ocfs2/super.c
+@@ -172,7 +172,6 @@ enum {
+ 	Opt_dir_resv_level,
+ 	Opt_journal_async_commit,
+ 	Opt_err_cont,
+-	Opt_nocluster,
+ 	Opt_err,
  };
  
- static struct gpiod_lookup_table pxa_ssp2_gpio_table = {
--	.dev_id = "pxa2xx-spi.2",
-+	.dev_id = "spi2",
- 	.table = {
- 		GPIO_LOOKUP_IDX("gpio-pxa", GPIO88_HX4700_TSC2046_CS, "cs", 0, GPIO_ACTIVE_LOW),
- 		{ },
---- a/arch/arm/mach-pxa/icontrol.c
-+++ b/arch/arm/mach-pxa/icontrol.c
-@@ -140,7 +140,7 @@ struct platform_device pxa_spi_ssp4 = {
+@@ -206,7 +205,6 @@ static const match_table_t tokens = {
+ 	{Opt_dir_resv_level, "dir_resv_level=%u"},
+ 	{Opt_journal_async_commit, "journal_async_commit"},
+ 	{Opt_err_cont, "errors=continue"},
+-	{Opt_nocluster, "nocluster"},
+ 	{Opt_err, NULL}
  };
  
- static struct gpiod_lookup_table pxa_ssp3_gpio_table = {
--	.dev_id = "pxa2xx-spi.3",
-+	.dev_id = "spi3",
- 	.table = {
- 		GPIO_LOOKUP_IDX("gpio-pxa", ICONTROL_MCP251x_nCS1, "cs", 0, GPIO_ACTIVE_LOW),
- 		GPIO_LOOKUP_IDX("gpio-pxa", ICONTROL_MCP251x_nCS2, "cs", 1, GPIO_ACTIVE_LOW),
-@@ -149,7 +149,7 @@ static struct gpiod_lookup_table pxa_ssp
- };
+@@ -618,13 +616,6 @@ static int ocfs2_remount(struct super_bl
+ 		goto out;
+ 	}
  
- static struct gpiod_lookup_table pxa_ssp4_gpio_table = {
--	.dev_id = "pxa2xx-spi.4",
-+	.dev_id = "spi4",
- 	.table = {
- 		GPIO_LOOKUP_IDX("gpio-pxa", ICONTROL_MCP251x_nCS3, "cs", 0, GPIO_ACTIVE_LOW),
- 		GPIO_LOOKUP_IDX("gpio-pxa", ICONTROL_MCP251x_nCS4, "cs", 1, GPIO_ACTIVE_LOW),
---- a/arch/arm/mach-pxa/littleton.c
-+++ b/arch/arm/mach-pxa/littleton.c
-@@ -208,7 +208,7 @@ static struct spi_board_info littleton_s
- };
+-	tmp = OCFS2_MOUNT_NOCLUSTER;
+-	if ((osb->s_mount_opt & tmp) != (parsed_options.mount_opt & tmp)) {
+-		ret = -EINVAL;
+-		mlog(ML_ERROR, "Cannot change nocluster option on remount\n");
+-		goto out;
+-	}
+-
+ 	tmp = OCFS2_MOUNT_HB_LOCAL | OCFS2_MOUNT_HB_GLOBAL |
+ 		OCFS2_MOUNT_HB_NONE;
+ 	if ((osb->s_mount_opt & tmp) != (parsed_options.mount_opt & tmp)) {
+@@ -865,7 +856,6 @@ static int ocfs2_verify_userspace_stack(
+ 	}
  
- static struct gpiod_lookup_table littleton_spi_gpio_table = {
--	.dev_id = "pxa2xx-spi.2",
-+	.dev_id = "spi2",
- 	.table = {
- 		GPIO_LOOKUP_IDX("gpio-pxa", LITTLETON_GPIO_LCD_CS, "cs", 0, GPIO_ACTIVE_LOW),
- 		{ },
---- a/arch/arm/mach-pxa/magician.c
-+++ b/arch/arm/mach-pxa/magician.c
-@@ -946,7 +946,7 @@ static struct pxa2xx_spi_controller magi
- };
+ 	if (ocfs2_userspace_stack(osb) &&
+-	    !(osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER) &&
+ 	    strncmp(osb->osb_cluster_stack, mopt->cluster_stack,
+ 		    OCFS2_STACK_LABEL_LEN)) {
+ 		mlog(ML_ERROR,
+@@ -1144,11 +1134,6 @@ static int ocfs2_fill_super(struct super
+ 	       osb->s_mount_opt & OCFS2_MOUNT_DATA_WRITEBACK ? "writeback" :
+ 	       "ordered");
  
- static struct gpiod_lookup_table magician_spi_gpio_table = {
--	.dev_id = "pxa2xx-spi.2",
-+	.dev_id = "spi2",
- 	.table = {
- 		/* NOTICE must be GPIO, incompatibility with hw PXA SPI framing */
- 		GPIO_LOOKUP_IDX("gpio-pxa", GPIO14_MAGICIAN_TSC2046_CS, "cs", 0, GPIO_ACTIVE_LOW),
---- a/arch/arm/mach-pxa/spitz.c
-+++ b/arch/arm/mach-pxa/spitz.c
-@@ -578,7 +578,7 @@ static struct pxa2xx_spi_controller spit
- };
+-	if ((osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER) &&
+-	   !(osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT))
+-		printk(KERN_NOTICE "ocfs2: The shared device (%s) is mounted "
+-		       "without cluster aware mode.\n", osb->dev_str);
+-
+ 	atomic_set(&osb->vol_state, VOLUME_MOUNTED);
+ 	wake_up(&osb->osb_mount_event);
  
- static struct gpiod_lookup_table spitz_spi_gpio_table = {
--	.dev_id = "pxa2xx-spi.2",
-+	.dev_id = "spi2",
- 	.table = {
- 		GPIO_LOOKUP_IDX("gpio-pxa", SPITZ_GPIO_ADS7846_CS, "cs", 0, GPIO_ACTIVE_LOW),
- 		GPIO_LOOKUP_IDX("gpio-pxa", SPITZ_GPIO_LCDCON_CS, "cs", 1, GPIO_ACTIVE_LOW),
---- a/arch/arm/mach-pxa/z2.c
-+++ b/arch/arm/mach-pxa/z2.c
-@@ -623,7 +623,7 @@ static struct pxa2xx_spi_controller pxa_
- };
+@@ -1455,9 +1440,6 @@ static int ocfs2_parse_options(struct su
+ 		case Opt_journal_async_commit:
+ 			mopt->mount_opt |= OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT;
+ 			break;
+-		case Opt_nocluster:
+-			mopt->mount_opt |= OCFS2_MOUNT_NOCLUSTER;
+-			break;
+ 		default:
+ 			mlog(ML_ERROR,
+ 			     "Unrecognized mount option \"%s\" "
+@@ -1569,9 +1551,6 @@ static int ocfs2_show_options(struct seq
+ 	if (opts & OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT)
+ 		seq_printf(s, ",journal_async_commit");
  
- static struct gpiod_lookup_table pxa_ssp1_gpio_table = {
--	.dev_id = "pxa2xx-spi.1",
-+	.dev_id = "spi1",
- 	.table = {
- 		GPIO_LOOKUP_IDX("gpio-pxa", GPIO24_ZIPITZ2_WIFI_CS, "cs", 0, GPIO_ACTIVE_LOW),
- 		{ },
-@@ -631,7 +631,7 @@ static struct gpiod_lookup_table pxa_ssp
- };
+-	if (opts & OCFS2_MOUNT_NOCLUSTER)
+-		seq_printf(s, ",nocluster");
+-
+ 	return 0;
+ }
  
- static struct gpiod_lookup_table pxa_ssp2_gpio_table = {
--	.dev_id = "pxa2xx-spi.2",
-+	.dev_id = "spi2",
- 	.table = {
- 		GPIO_LOOKUP_IDX("gpio-pxa", GPIO88_ZIPITZ2_LCD_CS, "cs", 0, GPIO_ACTIVE_LOW),
- 		{ },
 
 
