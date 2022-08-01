@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91A82586947
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:00:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7571C58695A
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:02:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232809AbiHAL74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:59:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34936 "EHLO
+        id S232445AbiHAMAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:00:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232976AbiHAL7b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:59:31 -0400
+        with ESMTP id S233045AbiHAL7i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:59:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84B7B4C60F;
-        Mon,  1 Aug 2022 04:52:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5315D4D17A;
+        Mon,  1 Aug 2022 04:52:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 211B5B81170;
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF048B81174;
+        Mon,  1 Aug 2022 11:52:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2103FC433C1;
         Mon,  1 Aug 2022 11:52:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70702C433D6;
-        Mon,  1 Aug 2022 11:52:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354759;
-        bh=VBH1TpZZyZwT5mtyysWp68ObVLFEUBt+O5pRICLEnDY=;
+        s=korg; t=1659354762;
+        bh=Q4E5SVS6/3RbSDAb14h/sq6AMsHcdHhY793JUR5gV9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=da/8Z+JCceaWwFvF0yVPqfSBDLysSTkQKa4AZZMXrbfrB6Ryl8RzkXbFMClTlS4jX
-         ZLp0EozeMQCSBGh06oTKacm8+Z0J3s6mb0dUkBQoRIr0E9L5wVHxxhk1jzGe+n+30m
-         1H9I9prH90vgv+d+T6p7/ZBInpV+qwmMbHzFbR5o=
+        b=MKTriVGiuMb36yvtUCnXSGjdJyCNBk8VZMySoiPNPLc0cOqPJf+iaNwN2awXVnGNh
+         jzyRjFfWDnyABh1Y7Ag661i97d/5fqRYxy2FcI4w8XmnzvXTainCXgqQShbIyiUPSZ
+         RcKFk4vuMuveOpwYfkaLcgSEnSBkXyTN2znwO9Tg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Hawkins Jiawei <yin31149@gmail.com>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Yongqiang Liu <liuyongqiang13@huawei.com>,
-        Zhang Yi <yi.zhang@huawei.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        stable@vger.kernel.org, Andrei Vagin <avagin@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 03/69] ntfs: fix use-after-free in ntfs_ucsncmp()
-Date:   Mon,  1 Aug 2022 13:46:27 +0200
-Message-Id: <20220801114134.611030451@linuxfoundation.org>
+Subject: [PATCH 5.15 04/69] fs: sendfile handles O_NONBLOCK of out_fd
+Date:   Mon,  1 Aug 2022 13:46:28 +0200
+Message-Id: <20220801114134.653201863@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
 References: <20220801114134.468284027@linuxfoundation.org>
@@ -57,107 +53,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Andrei Vagin <avagin@gmail.com>
 
-commit 38c9c22a85aeed28d0831f230136e9cf6fa2ed44 upstream.
+commit bdeb77bc2c405fa9f954c20269db175a0bd2793f upstream.
 
-Syzkaller reported use-after-free bug as follows:
+sendfile has to return EAGAIN if out_fd is nonblocking and the write into
+it would block.
 
-==================================================================
-BUG: KASAN: use-after-free in ntfs_ucsncmp+0x123/0x130
-Read of size 2 at addr ffff8880751acee8 by task a.out/879
+Here is a small reproducer for the problem:
 
-CPU: 7 PID: 879 Comm: a.out Not tainted 5.19.0-rc4-next-20220630-00001-gcc5218c8bd2c-dirty #7
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0x1c0/0x2b0
- print_address_description.constprop.0.cold+0xd4/0x484
- print_report.cold+0x55/0x232
- kasan_report+0xbf/0xf0
- ntfs_ucsncmp+0x123/0x130
- ntfs_are_names_equal.cold+0x2b/0x41
- ntfs_attr_find+0x43b/0xb90
- ntfs_attr_lookup+0x16d/0x1e0
- ntfs_read_locked_attr_inode+0x4aa/0x2360
- ntfs_attr_iget+0x1af/0x220
- ntfs_read_locked_inode+0x246c/0x5120
- ntfs_iget+0x132/0x180
- load_system_files+0x1cc6/0x3480
- ntfs_fill_super+0xa66/0x1cf0
- mount_bdev+0x38d/0x460
- legacy_get_tree+0x10d/0x220
- vfs_get_tree+0x93/0x300
- do_new_mount+0x2da/0x6d0
- path_mount+0x496/0x19d0
- __x64_sys_mount+0x284/0x300
- do_syscall_64+0x3b/0xc0
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-RIP: 0033:0x7f3f2118d9ea
-Code: 48 8b 0d a9 f4 0b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 f4 0b 00 f7 d8 64 89 01 48
-RSP: 002b:00007ffc269deac8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f3f2118d9ea
-RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffc269dec00
-RBP: 00007ffc269dec80 R08: 00007ffc269deb00 R09: 00007ffc269dec44
-R10: 0000000000000000 R11: 0000000000000202 R12: 000055f81ab1d220
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
- </TASK>
+#define _GNU_SOURCE /* See feature_test_macros(7) */
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/sendfile.h>
 
-The buggy address belongs to the physical page:
-page:0000000085430378 refcount:1 mapcount:1 mapping:0000000000000000 index:0x555c6a81d pfn:0x751ac
-memcg:ffff888101f7e180
-anon flags: 0xfffffc00a0014(uptodate|lru|mappedtodisk|swapbacked|node=0|zone=1|lastcpupid=0x1fffff)
-raw: 000fffffc00a0014 ffffea0001bf2988 ffffea0001de2448 ffff88801712e201
-raw: 0000000555c6a81d 0000000000000000 0000000100000000 ffff888101f7e180
-page dumped because: kasan: bad access detected
 
-Memory state around the buggy address:
- ffff8880751acd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff8880751ace00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff8880751ace80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-                                                          ^
- ffff8880751acf00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff8880751acf80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-==================================================================
+#define FILE_SIZE (1UL << 30)
+int main(int argc, char **argv) {
+        int p[2], fd;
 
-The reason is that struct ATTR_RECORD->name_offset is 6485, end address of
-name string is out of bounds.
+        if (pipe2(p, O_NONBLOCK))
+                return 1;
 
-Fix this by adding sanity check on end address of attribute name string.
+        fd = open(argv[1], O_RDWR | O_TMPFILE, 0666);
+        if (fd < 0)
+                return 1;
+        ftruncate(fd, FILE_SIZE);
 
-[akpm@linux-foundation.org: coding-style cleanups]
-[chenxiaosong2@huawei.com: cleanup suggested by Hawkins Jiawei]
-  Link: https://lkml.kernel.org/r/20220709064511.3304299-1-chenxiaosong2@huawei.com
-Link: https://lkml.kernel.org/r/20220707105329.4020708-1-chenxiaosong2@huawei.com
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Cc: ChenXiaoSong <chenxiaosong2@huawei.com>
-Cc: Yongqiang Liu <liuyongqiang13@huawei.com>
-Cc: Zhang Yi <yi.zhang@huawei.com>
-Cc: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+        if (sendfile(p[1], fd, 0, FILE_SIZE) == -1) {
+                fprintf(stderr, "FAIL\n");
+        }
+        if (sendfile(p[1], fd, 0, FILE_SIZE) != -1 || errno != EAGAIN) {
+                fprintf(stderr, "FAIL\n");
+        }
+        return 0;
+}
+
+It worked before b964bf53e540, it is stuck after b964bf53e540, and it
+works again with this fix.
+
+This regression occurred because do_splice_direct() calls pipe_write
+that handles O_NONBLOCK.  Here is a trace log from the reproducer:
+
+ 1)               |  __x64_sys_sendfile64() {
+ 1)               |    do_sendfile() {
+ 1)               |      __fdget()
+ 1)               |      rw_verify_area()
+ 1)               |      __fdget()
+ 1)               |      rw_verify_area()
+ 1)               |      do_splice_direct() {
+ 1)               |        rw_verify_area()
+ 1)               |        splice_direct_to_actor() {
+ 1)               |          do_splice_to() {
+ 1)               |            rw_verify_area()
+ 1)               |            generic_file_splice_read()
+ 1) + 74.153 us   |          }
+ 1)               |          direct_splice_actor() {
+ 1)               |            iter_file_splice_write() {
+ 1)               |              __kmalloc()
+ 1)   0.148 us    |              pipe_lock();
+ 1)   0.153 us    |              splice_from_pipe_next.part.0();
+ 1)   0.162 us    |              page_cache_pipe_buf_confirm();
+... 16 times
+ 1)   0.159 us    |              page_cache_pipe_buf_confirm();
+ 1)               |              vfs_iter_write() {
+ 1)               |                do_iter_write() {
+ 1)               |                  rw_verify_area()
+ 1)               |                  do_iter_readv_writev() {
+ 1)               |                    pipe_write() {
+ 1)               |                      mutex_lock()
+ 1)   0.153 us    |                      mutex_unlock();
+ 1)   1.368 us    |                    }
+ 1)   1.686 us    |                  }
+ 1)   5.798 us    |                }
+ 1)   6.084 us    |              }
+ 1)   0.174 us    |              kfree();
+ 1)   0.152 us    |              pipe_unlock();
+ 1) + 14.461 us   |            }
+ 1) + 14.783 us   |          }
+ 1)   0.164 us    |          page_cache_pipe_buf_release();
+... 16 times
+ 1)   0.161 us    |          page_cache_pipe_buf_release();
+ 1)               |          touch_atime()
+ 1) + 95.854 us   |        }
+ 1) + 99.784 us   |      }
+ 1) ! 107.393 us  |    }
+ 1) ! 107.699 us  |  }
+
+Link: https://lkml.kernel.org/r/20220415005015.525191-1-avagin@gmail.com
+Fixes: b964bf53e540 ("teach sendfile(2) to handle send-to-pipe directly")
+Signed-off-by: Andrei Vagin <avagin@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs/attrib.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/read_write.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/ntfs/attrib.c
-+++ b/fs/ntfs/attrib.c
-@@ -592,8 +592,12 @@ static int ntfs_attr_find(const ATTR_TYP
- 		a = (ATTR_RECORD*)((u8*)ctx->attr +
- 				le32_to_cpu(ctx->attr->length));
- 	for (;;	a = (ATTR_RECORD*)((u8*)a + le32_to_cpu(a->length))) {
--		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > (u8*)ctx->mrec +
--				le32_to_cpu(ctx->mrec->bytes_allocated))
-+		u8 *mrec_end = (u8 *)ctx->mrec +
-+		               le32_to_cpu(ctx->mrec->bytes_allocated);
-+		u8 *name_end = (u8 *)a + le16_to_cpu(a->name_offset) +
-+			       a->name_length * sizeof(ntfschar);
-+		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > mrec_end ||
-+		    name_end > mrec_end)
- 			break;
- 		ctx->attr = a;
- 		if (unlikely(le32_to_cpu(a->type) > le32_to_cpu(type) ||
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -1250,6 +1250,9 @@ static ssize_t do_sendfile(int out_fd, i
+ 					  count, fl);
+ 		file_end_write(out.file);
+ 	} else {
++		if (out.file->f_flags & O_NONBLOCK)
++			fl |= SPLICE_F_NONBLOCK;
++
+ 		retval = splice_file_to_pipe(in.file, opipe, &pos, count, fl);
+ 	}
+ 
 
 
