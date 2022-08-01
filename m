@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1007586910
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:56:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35BBB586890
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:50:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231580AbiHAL4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:56:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48956 "EHLO
+        id S231831AbiHALuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:50:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232621AbiHALzs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:55:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88A5E474C5;
-        Mon,  1 Aug 2022 04:51:25 -0700 (PDT)
+        with ESMTP id S231659AbiHALta (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:49:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 673C23C16B;
+        Mon,  1 Aug 2022 04:48:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EBF6AB81171;
-        Mon,  1 Aug 2022 11:51:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 455EFC433D7;
-        Mon,  1 Aug 2022 11:51:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45A2A6122C;
+        Mon,  1 Aug 2022 11:48:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52357C433C1;
+        Mon,  1 Aug 2022 11:48:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354682;
-        bh=eO/ZtQD8LMvCR0OR1BCQ6/nXAd1L0wr32Z8IaAYC+4k=;
+        s=korg; t=1659354528;
+        bh=OunI6hSDHwul4no2TGTSH/Kz2Ba6zXgedfsNEhkGKDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VW5DIPg4I0dh3cLsV+7d5Ovyd4gW2YRCmQc4cxXBKvhiQR9RTmgcbXVrDHTeG7uq9
-         7FXZv+MD8YnD4Tyku6Nj/vZaDZbz90p/yjdSUKXVB8ubdq4Lk3ub23ej/zH8vniv7E
-         AY5uSs67a6sMaKCCil+bp/P6CRbHKbD2wO5S9UY4=
+        b=J2BBfVR/C9qx2Z0ZRwBQtp1N/ujIUkwFztAr7NCTvBJ36ug0/C6v8VpnnNYl+k/iO
+         5TDuxQva0oI+GmircQGLbr8cp6oGVd0pyw3JtM4O3PFS664o7JacDpgH0x4iLA5baY
+         DHNJK9aPwpquRhegJJGIoTblZ+e+VffDl9QlHmBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Mingzhi <whistler@member.fsf.org>,
-        Jakub Kicinski <kubakici@wp.pl>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Yan Xinyu <sdlyyxy@bupt.edu.cn>
-Subject: [PATCH 5.10 49/65] mt7601u: add USB device ID for some versions of XiaoDu WiFi Dongle.
-Date:   Mon,  1 Aug 2022 13:47:06 +0200
-Message-Id: <20220801114135.766582370@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Domingo Dirutigliano <pwnzer0tt1@proton.me>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 27/34] netfilter: nf_queue: do not allow packet truncation below transport header offset
+Date:   Mon,  1 Aug 2022 13:47:07 +0200
+Message-Id: <20220801114129.048052216@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
-References: <20220801114133.641770326@linuxfoundation.org>
+In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
+References: <20220801114128.025615151@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Mingzhi <whistler@member.fsf.org>
+From: Florian Westphal <fw@strlen.de>
 
-commit 829eea7c94e0bac804e65975639a2f2e5f147033 upstream.
+[ Upstream commit 99a63d36cb3ed5ca3aa6fcb64cffbeaf3b0fb164 ]
 
-USB device ID of some versions of XiaoDu WiFi Dongle is 2955:1003
-instead of 2955:1001. Both are the same mt7601u hardware.
+Domingo Dirutigliano and Nicola Guerrera report kernel panic when
+sending nf_queue verdict with 1-byte nfta_payload attribute.
 
-Signed-off-by: Wei Mingzhi <whistler@member.fsf.org>
-Acked-by: Jakub Kicinski <kubakici@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210618160840.305024-1-whistler@member.fsf.org
-Cc: Yan Xinyu <sdlyyxy@bupt.edu.cn>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The IP/IPv6 stack pulls the IP(v6) header from the packet after the
+input hook.
+
+If user truncates the packet below the header size, this skb_pull() will
+result in a malformed skb (skb->len < 0).
+
+Fixes: 7af4cc3fa158 ("[NETFILTER]: Add "nfnetlink_queue" netfilter queue handler over nfnetlink")
+Reported-by: Domingo Dirutigliano <pwnzer0tt1@proton.me>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Reviewed-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt7601u/usb.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/netfilter/nfnetlink_queue.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/mediatek/mt7601u/usb.c
-+++ b/drivers/net/wireless/mediatek/mt7601u/usb.c
-@@ -26,6 +26,7 @@ static const struct usb_device_id mt7601
- 	{ USB_DEVICE(0x2717, 0x4106) },
- 	{ USB_DEVICE(0x2955, 0x0001) },
- 	{ USB_DEVICE(0x2955, 0x1001) },
-+	{ USB_DEVICE(0x2955, 0x1003) },
- 	{ USB_DEVICE(0x2a5f, 0x1000) },
- 	{ USB_DEVICE(0x7392, 0x7710) },
- 	{ 0, }
+diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
+index 7d3ab08a5a2d..581bd1353a44 100644
+--- a/net/netfilter/nfnetlink_queue.c
++++ b/net/netfilter/nfnetlink_queue.c
+@@ -846,11 +846,16 @@ nfqnl_enqueue_packet(struct nf_queue_entry *entry, unsigned int queuenum)
+ }
+ 
+ static int
+-nfqnl_mangle(void *data, int data_len, struct nf_queue_entry *e, int diff)
++nfqnl_mangle(void *data, unsigned int data_len, struct nf_queue_entry *e, int diff)
+ {
+ 	struct sk_buff *nskb;
+ 
+ 	if (diff < 0) {
++		unsigned int min_len = skb_transport_offset(e->skb);
++
++		if (data_len < min_len)
++			return -EINVAL;
++
+ 		if (pskb_trim(e->skb, data_len))
+ 			return -ENOMEM;
+ 	} else if (diff > 0) {
+-- 
+2.35.1
+
 
 
