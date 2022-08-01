@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9875586A6E
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:16:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A58D5869BB
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:06:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234263AbiHAMQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:16:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39826 "EHLO
+        id S233326AbiHAMGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:06:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234564AbiHAMQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:16:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D074A7B7B2;
-        Mon,  1 Aug 2022 04:58:41 -0700 (PDT)
+        with ESMTP id S233647AbiHAMFw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:05:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE8D93DF36;
+        Mon,  1 Aug 2022 04:55:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 163EBB81177;
-        Mon,  1 Aug 2022 11:58:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D51EC433D6;
-        Mon,  1 Aug 2022 11:58:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CA866122C;
+        Mon,  1 Aug 2022 11:55:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22A7BC433D6;
+        Mon,  1 Aug 2022 11:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659355118;
-        bh=BCSZ5FcxKHLnLX9QYsEZYRemGsHyujug8mJ30WI0Syo=;
+        s=korg; t=1659354899;
+        bh=FjzBCPAb7C25Y28emX03KeTIQr80qdVVFHA6xEHStRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U0rfW4RclhbNf+tvS4I3B1d3x042P1gRiaI8jRt3P2Y0A4QJPWlH13VpEuibFTvmr
-         yp3/zWn77eS/pBU7KCDfYnfnB9wwZlSedOmr07/zOZonnqG9WNRp/WlXs2ycP3mdQU
-         gOXnlX6GbnwAQJTUmjJ1U0CNgsoXVavtAA3/ImQ0=
+        b=T2j75sL1H/VV4nQCA4HSLR1mF9trWYEvEqxWdEcC99l80WTXTk0WE5+YvTk7VM8HF
+         0oIDCIhyOWwjog6JHVpI953eENPcV06e3EZxCr+OWXtaieDFUQJmCsQXS9ziyEbh1A
+         qDZatlSSd3iR8cPOM/2oYxxYm/B15RDZn9fy6wYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Alejandro Lucero <alejandro.lucero-palau@amd.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 70/88] scsi: ufs: Support clearing multiple commands at once
+Subject: [PATCH 5.15 60/69] sfc: disable softirqs for ptp TX
 Date:   Mon,  1 Aug 2022 13:47:24 +0200
-Message-Id: <20220801114141.237012467@linuxfoundation.org>
+Message-Id: <20220801114136.906733549@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
-References: <20220801114138.041018499@linuxfoundation.org>
+In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
+References: <20220801114134.468284027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,115 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Alejandro Lucero <alejandro.lucero-palau@amd.com>
 
-[ Upstream commit d1a7644648b7cdacaf8d1013a4285001911e9bc8 ]
+[ Upstream commit 67c3b611d92fc238c43734878bc3e232ab570c79 ]
 
-Modify ufshcd_clear_cmd() such that it supports clearing multiple commands
-at once instead of one command at a time. This change will be used in a
-later patch to reduce the time spent in the reset handler.
+Sending a PTP packet can imply to use the normal TX driver datapath but
+invoked from the driver's ptp worker. The kernel generic TX code
+disables softirqs and preemption before calling specific driver TX code,
+but the ptp worker does not. Although current ptp driver functionality
+does not require it, there are several reasons for doing so:
 
-Link: https://lore.kernel.org/r/20220613214442.212466-3-bvanassche@acm.org
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+   1) The invoked code is always executed with softirqs disabled for non
+      PTP packets.
+   2) Better if a ptp packet transmission is not interrupted by softirq
+      handling which could lead to high latencies.
+   3) netdev_xmit_more used by the TX code requires preemption to be
+      disabled.
+
+Indeed a solution for dealing with kernel preemption state based on static
+kernel configuration is not possible since the introduction of dynamic
+preemption level configuration at boot time using the static calls
+functionality.
+
+Fixes: f79c957a0b537 ("drivers: net: sfc: use netdev_xmit_more helper")
+Signed-off-by: Alejandro Lucero <alejandro.lucero-palau@amd.com>
+Link: https://lore.kernel.org/r/20220726064504.49613-1-alejandro.lucero-palau@amd.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 42 ++++++++++++++++++++++++++-------------
- 1 file changed, 28 insertions(+), 14 deletions(-)
+ drivers/net/ethernet/sfc/ptp.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 452ad0612067..a34c1fab0246 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -734,17 +734,28 @@ static enum utp_ocs ufshcd_get_tr_ocs(struct ufshcd_lrb *lrbp)
- }
+diff --git a/drivers/net/ethernet/sfc/ptp.c b/drivers/net/ethernet/sfc/ptp.c
+index 725b0f38813a..a2b4e3befa59 100644
+--- a/drivers/net/ethernet/sfc/ptp.c
++++ b/drivers/net/ethernet/sfc/ptp.c
+@@ -1100,7 +1100,29 @@ static void efx_ptp_xmit_skb_queue(struct efx_nic *efx, struct sk_buff *skb)
  
- /**
-- * ufshcd_utrl_clear - Clear a bit in UTRLCLR register
-+ * ufshcd_utrl_clear() - Clear requests from the controller request list.
-  * @hba: per adapter instance
-- * @pos: position of the bit to be cleared
-+ * @mask: mask with one bit set for each request to be cleared
-  */
--static inline void ufshcd_utrl_clear(struct ufs_hba *hba, u32 pos)
-+static inline void ufshcd_utrl_clear(struct ufs_hba *hba, u32 mask)
- {
- 	if (hba->quirks & UFSHCI_QUIRK_BROKEN_REQ_LIST_CLR)
--		ufshcd_writel(hba, (1 << pos), REG_UTP_TRANSFER_REQ_LIST_CLEAR);
--	else
--		ufshcd_writel(hba, ~(1 << pos),
--				REG_UTP_TRANSFER_REQ_LIST_CLEAR);
-+		mask = ~mask;
-+	/*
-+	 * From the UFSHCI specification: "UTP Transfer Request List CLear
-+	 * Register (UTRLCLR): This field is bit significant. Each bit
-+	 * corresponds to a slot in the UTP Transfer Request List, where bit 0
-+	 * corresponds to request slot 0. A bit in this field is set to ‘0’
-+	 * by host software to indicate to the host controller that a transfer
-+	 * request slot is cleared. The host controller
-+	 * shall free up any resources associated to the request slot
-+	 * immediately, and shall set the associated bit in UTRLDBR to ‘0’. The
-+	 * host software indicates no change to request slots by setting the
-+	 * associated bits in this field to ‘1’. Bits in this field shall only
-+	 * be set ‘1’ or ‘0’ by host software when UTRLRSR is set to ‘1’."
-+	 */
-+	ufshcd_writel(hba, ~mask, REG_UTP_TRANSFER_REQ_LIST_CLEAR);
- }
- 
- /**
-@@ -2853,16 +2864,19 @@ static int ufshcd_compose_dev_cmd(struct ufs_hba *hba,
- 	return ufshcd_compose_devman_upiu(hba, lrbp);
- }
- 
--static int
--ufshcd_clear_cmd(struct ufs_hba *hba, int tag)
-+/*
-+ * Clear all the requests from the controller for which a bit has been set in
-+ * @mask and wait until the controller confirms that these requests have been
-+ * cleared.
-+ */
-+static int ufshcd_clear_cmds(struct ufs_hba *hba, u32 mask)
- {
- 	int err = 0;
- 	unsigned long flags;
--	u32 mask = 1 << tag;
- 
- 	/* clear outstanding transaction before retry */
- 	spin_lock_irqsave(hba->host->host_lock, flags);
--	ufshcd_utrl_clear(hba, tag);
-+	ufshcd_utrl_clear(hba, mask);
- 	spin_unlock_irqrestore(hba->host->host_lock, flags);
- 
- 	/*
-@@ -2953,7 +2967,7 @@ static int ufshcd_wait_for_dev_cmd(struct ufs_hba *hba,
- 		err = -ETIMEDOUT;
- 		dev_dbg(hba->dev, "%s: dev_cmd request timedout, tag %d\n",
- 			__func__, lrbp->task_tag);
--		if (!ufshcd_clear_cmd(hba, lrbp->task_tag))
-+		if (!ufshcd_clear_cmds(hba, 1U << lrbp->task_tag))
- 			/* successfully cleared the command, retry if needed */
- 			err = -EAGAIN;
- 		/*
-@@ -6988,7 +7002,7 @@ static int ufshcd_eh_device_reset_handler(struct scsi_cmnd *cmd)
- 	/* clear the commands that were pending for corresponding LUN */
- 	for_each_set_bit(pos, &hba->outstanding_reqs, hba->nutrs) {
- 		if (hba->lrb[pos].lun == lun) {
--			err = ufshcd_clear_cmd(hba, pos);
-+			err = ufshcd_clear_cmds(hba, 1U << pos);
- 			if (err)
- 				break;
- 			__ufshcd_transfer_req_compl(hba, 1U << pos);
-@@ -7090,7 +7104,7 @@ static int ufshcd_try_to_abort_task(struct ufs_hba *hba, int tag)
- 		goto out;
- 	}
- 
--	err = ufshcd_clear_cmd(hba, tag);
-+	err = ufshcd_clear_cmds(hba, 1U << tag);
- 	if (err)
- 		dev_err(hba->dev, "%s: Failed clearing cmd at tag %d, err %d\n",
- 			__func__, tag, err);
+ 	tx_queue = efx_channel_get_tx_queue(ptp_data->channel, type);
+ 	if (tx_queue && tx_queue->timestamping) {
++		/* This code invokes normal driver TX code which is always
++		 * protected from softirqs when called from generic TX code,
++		 * which in turn disables preemption. Look at __dev_queue_xmit
++		 * which uses rcu_read_lock_bh disabling preemption for RCU
++		 * plus disabling softirqs. We do not need RCU reader
++		 * protection here.
++		 *
++		 * Although it is theoretically safe for current PTP TX/RX code
++		 * running without disabling softirqs, there are three good
++		 * reasond for doing so:
++		 *
++		 *      1) The code invoked is mainly implemented for non-PTP
++		 *         packets and it is always executed with softirqs
++		 *         disabled.
++		 *      2) This being a single PTP packet, better to not
++		 *         interrupt its processing by softirqs which can lead
++		 *         to high latencies.
++		 *      3) netdev_xmit_more checks preemption is disabled and
++		 *         triggers a BUG_ON if not.
++		 */
++		local_bh_disable();
+ 		efx_enqueue_skb(tx_queue, skb);
++		local_bh_enable();
+ 	} else {
+ 		WARN_ONCE(1, "PTP channel has no timestamped tx queue\n");
+ 		dev_kfree_skb_any(skb);
 -- 
 2.35.1
 
