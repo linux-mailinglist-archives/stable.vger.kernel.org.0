@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 706A0586AA2
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A874D5869B5
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:06:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231723AbiHAMTi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:19:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40478 "EHLO
+        id S233254AbiHAMGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:06:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231250AbiHAMTC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:19:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C552341D24;
-        Mon,  1 Aug 2022 04:59:41 -0700 (PDT)
+        with ESMTP id S233276AbiHAMFJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:05:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C59D5927E;
+        Mon,  1 Aug 2022 04:54:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62B68B80EAC;
-        Mon,  1 Aug 2022 11:59:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B191DC433D6;
-        Mon,  1 Aug 2022 11:59:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DCE261227;
+        Mon,  1 Aug 2022 11:54:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD477C433D6;
+        Mon,  1 Aug 2022 11:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659355179;
-        bh=wGBP3vpY2EXQPUTz+LAQAA7C2ooTfZjpQU4fqeVse8o=;
+        s=korg; t=1659354883;
+        bh=eQkHLvuFiQC4fCGZQxZG6VEon3kkOfjQUOYlGs5oa7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RoeT/Y+Z9sQaM0lGqza0Gp+ws0T4mBuhyttcbjkuKKl9bcTTIDi3UNBqS2wv1OyW9
-         J14KTcSZXTFGr25uHjo7u6hzBv+AA2hvarK+TPWvE2Rtv3ATjgCwBMgBmpQ9JcwtwS
-         8wIDt9xEp1ssFpDB0q70Jqo2mtWmov7kwFV2l8vY=
+        b=gvIlVOTfRaXa368fpO+z2gqStsJ5CwYSZkRXTH0/EfB96ubnVnX+kUVXhBnCxj2Q/
+         wSObBbOoGqimJ3qU1kQcf7gxJ9zEDxQzYjnkW8rR3tdOasEO1mvEbPoZw0ur08FMhR
+         eZnJW9YOu1NBeQLODul1lHiBm/rPH4F5agDEqw8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 64/88] ipv4: Fix data-races around sysctl_fib_notify_on_flag_change.
-Date:   Mon,  1 Aug 2022 13:47:18 +0200
-Message-Id: <20220801114140.980705341@linuxfoundation.org>
+Subject: [PATCH 5.15 55/69] sctp: fix sleep in atomic context bug in timer handlers
+Date:   Mon,  1 Aug 2022 13:47:19 +0200
+Message-Id: <20220801114136.701782781@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
-References: <20220801114138.041018499@linuxfoundation.org>
+In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
+References: <20220801114134.468284027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 96b9bd8c6d125490f9adfb57d387ef81a55a103e ]
+[ Upstream commit b89fc26f741d9f9efb51cba3e9b241cf1380ec5a ]
 
-While reading sysctl_fib_notify_on_flag_change, it can be changed
-concurrently.  Thus, we need to add READ_ONCE() to its readers.
+There are sleep in atomic context bugs in timer handlers of sctp
+such as sctp_generate_t3_rtx_event(), sctp_generate_probe_event(),
+sctp_generate_t1_init_event(), sctp_generate_timeout_event(),
+sctp_generate_t3_rtx_event() and so on.
 
-Fixes: 680aea08e78c ("net: ipv4: Emit notification when fib hardware flags are changed")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The root cause is sctp_sched_prio_init_sid() with GFP_KERNEL parameter
+that may sleep could be called by different timer handlers which is in
+interrupt context.
+
+One of the call paths that could trigger bug is shown below:
+
+      (interrupt context)
+sctp_generate_probe_event
+  sctp_do_sm
+    sctp_side_effects
+      sctp_cmd_interpreter
+        sctp_outq_teardown
+          sctp_outq_init
+            sctp_sched_set_sched
+              n->init_sid(..,GFP_KERNEL)
+                sctp_sched_prio_init_sid //may sleep
+
+This patch changes gfp_t parameter of init_sid in sctp_sched_set_sched()
+from GFP_KERNEL to GFP_ATOMIC in order to prevent sleep in atomic
+context bugs.
+
+Fixes: 5bbbbe32a431 ("sctp: introduce stream scheduler foundations")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Link: https://lore.kernel.org/r/20220723015809.11553-1-duoming@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/fib_trie.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/sctp/stream_sched.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/fib_trie.c b/net/ipv4/fib_trie.c
-index 43a496272227..c1b53854047b 100644
---- a/net/ipv4/fib_trie.c
-+++ b/net/ipv4/fib_trie.c
-@@ -1042,6 +1042,7 @@ fib_find_matching_alias(struct net *net, const struct fib_rt_info *fri)
+diff --git a/net/sctp/stream_sched.c b/net/sctp/stream_sched.c
+index 99e5f69fbb74..a2e1d34f52c5 100644
+--- a/net/sctp/stream_sched.c
++++ b/net/sctp/stream_sched.c
+@@ -163,7 +163,7 @@ int sctp_sched_set_sched(struct sctp_association *asoc,
+ 		if (!SCTP_SO(&asoc->stream, i)->ext)
+ 			continue;
  
- void fib_alias_hw_flags_set(struct net *net, const struct fib_rt_info *fri)
- {
-+	u8 fib_notify_on_flag_change;
- 	struct fib_alias *fa_match;
- 	struct sk_buff *skb;
- 	int err;
-@@ -1063,14 +1064,16 @@ void fib_alias_hw_flags_set(struct net *net, const struct fib_rt_info *fri)
- 	WRITE_ONCE(fa_match->offload, fri->offload);
- 	WRITE_ONCE(fa_match->trap, fri->trap);
- 
-+	fib_notify_on_flag_change = READ_ONCE(net->ipv4.sysctl_fib_notify_on_flag_change);
-+
- 	/* 2 means send notifications only if offload_failed was changed. */
--	if (net->ipv4.sysctl_fib_notify_on_flag_change == 2 &&
-+	if (fib_notify_on_flag_change == 2 &&
- 	    READ_ONCE(fa_match->offload_failed) == fri->offload_failed)
- 		goto out;
- 
- 	WRITE_ONCE(fa_match->offload_failed, fri->offload_failed);
- 
--	if (!net->ipv4.sysctl_fib_notify_on_flag_change)
-+	if (!fib_notify_on_flag_change)
- 		goto out;
- 
- 	skb = nlmsg_new(fib_nlmsg_size(fa_match->fa_info), GFP_ATOMIC);
+-		ret = n->init_sid(&asoc->stream, i, GFP_KERNEL);
++		ret = n->init_sid(&asoc->stream, i, GFP_ATOMIC);
+ 		if (ret)
+ 			goto err;
+ 	}
 -- 
 2.35.1
 
