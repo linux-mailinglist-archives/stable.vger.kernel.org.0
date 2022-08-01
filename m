@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DF7458697B
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:02:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E2E0586A6C
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:16:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232659AbiHAMCc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:02:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33230 "EHLO
+        id S234112AbiHAMQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:16:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233189AbiHAMAw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:00:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E306B4F655;
-        Mon,  1 Aug 2022 04:53:14 -0700 (PDT)
+        with ESMTP id S234320AbiHAMPc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:15:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1D1441981;
+        Mon,  1 Aug 2022 04:58:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 794F9B80E8F;
-        Mon,  1 Aug 2022 11:53:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4470C433C1;
-        Mon,  1 Aug 2022 11:53:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9282BB80EAC;
+        Mon,  1 Aug 2022 11:58:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E304AC433D7;
+        Mon,  1 Aug 2022 11:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354792;
-        bh=A4HOruPbbaKVIxq1nerFl1jW8NyTpVY694MfOQPQpO8=;
+        s=korg; t=1659355102;
+        bh=LARZAiDrC/yVd6yIGxBo8r5qc1cW9qVjsXp3JdlPGDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Puob3fpMNznZXy07aSZuk5YC5OWnIdEcUVqeZLJJ1jTBgQ05R3KMfVjrUIcXbd1LI
-         5DdD2LMbtJKJh+xt7Va9dhwYj7xpqsN0WMqYAqfvEHje5PKfF1W6FbgIq49dzzloBJ
-         qpGWNsfLrHXox6mi13BqFJtSgEn84W6QEOD3HqN4=
+        b=NI1M9BddxTbnQ6Mlsp6AV+SrQUKZmPCQvIk2ygze5s+Nif3oGFCSn/97JwlS8o5GQ
+         WaqFb8sf77CilotN/qQotAjUXCuwYePnXPhutGxVt8iejLA4E3pGCiczbs7z+JmSfD
+         QfQt3IbkPae8Phs+0j6IGs4RFPz85cdwUWVcyppI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Liang He <windhl@126.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 22/69] scsi: ufs: host: Hold reference returned by of_parse_phandle()
-Date:   Mon,  1 Aug 2022 13:46:46 +0200
-Message-Id: <20220801114135.418190782@linuxfoundation.org>
+        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.18 33/88] octeontx2-pf: Fix UDP/TCP src and dst port tc filters
+Date:   Mon,  1 Aug 2022 13:46:47 +0200
+Message-Id: <20220801114139.546511574@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
+References: <20220801114138.041018499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Subbaraya Sundeep <sbhatta@marvell.com>
 
-commit a3435afba87dc6cd83f5595e7607f3c40f93ef01 upstream.
+commit 59e1be6f83b928a04189bbf3ab683a1fc6248db3 upstream.
 
-In ufshcd_populate_vreg(), we should hold the reference returned by
-of_parse_phandle() and then use it to call of_node_put() for refcount
-balance.
+Check the mask for non-zero value before installing tc filters
+for L4 source and destination ports. Otherwise installing a
+filter for source port installs destination port too and
+vice-versa.
 
-Link: https://lore.kernel.org/r/20220719071529.1081166-1-windhl@126.com
-Fixes: aa4976130934 ("ufs: Add regulator enable support")
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 1d4d9e42c240 ("octeontx2-pf: Add tc flower hardware offload on ingress traffic")
+Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
+Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshcd-pltfrm.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c |   30 +++++++++++--------
+ 1 file changed, 18 insertions(+), 12 deletions(-)
 
---- a/drivers/scsi/ufs/ufshcd-pltfrm.c
-+++ b/drivers/scsi/ufs/ufshcd-pltfrm.c
-@@ -107,9 +107,20 @@ out:
- 	return ret;
- }
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c
+@@ -614,21 +614,27 @@ static int otx2_tc_prepare_flow(struct o
  
-+static bool phandle_exists(const struct device_node *np,
-+			   const char *phandle_name, int index)
-+{
-+	struct device_node *parse_np = of_parse_phandle(np, phandle_name, index);
+ 		flow_spec->dport = match.key->dst;
+ 		flow_mask->dport = match.mask->dst;
+-		if (ip_proto == IPPROTO_UDP)
+-			req->features |= BIT_ULL(NPC_DPORT_UDP);
+-		else if (ip_proto == IPPROTO_TCP)
+-			req->features |= BIT_ULL(NPC_DPORT_TCP);
+-		else if (ip_proto == IPPROTO_SCTP)
+-			req->features |= BIT_ULL(NPC_DPORT_SCTP);
 +
-+	if (parse_np)
-+		of_node_put(parse_np);
++		if (flow_mask->dport) {
++			if (ip_proto == IPPROTO_UDP)
++				req->features |= BIT_ULL(NPC_DPORT_UDP);
++			else if (ip_proto == IPPROTO_TCP)
++				req->features |= BIT_ULL(NPC_DPORT_TCP);
++			else if (ip_proto == IPPROTO_SCTP)
++				req->features |= BIT_ULL(NPC_DPORT_SCTP);
++		}
+ 
+ 		flow_spec->sport = match.key->src;
+ 		flow_mask->sport = match.mask->src;
+-		if (ip_proto == IPPROTO_UDP)
+-			req->features |= BIT_ULL(NPC_SPORT_UDP);
+-		else if (ip_proto == IPPROTO_TCP)
+-			req->features |= BIT_ULL(NPC_SPORT_TCP);
+-		else if (ip_proto == IPPROTO_SCTP)
+-			req->features |= BIT_ULL(NPC_SPORT_SCTP);
 +
-+	return parse_np != NULL;
-+}
-+
- #define MAX_PROP_SIZE 32
- static int ufshcd_populate_vreg(struct device *dev, const char *name,
--		struct ufs_vreg **out_vreg)
-+				struct ufs_vreg **out_vreg)
- {
- 	char prop_name[MAX_PROP_SIZE];
- 	struct ufs_vreg *vreg = NULL;
-@@ -121,7 +132,7 @@ static int ufshcd_populate_vreg(struct d
++		if (flow_mask->sport) {
++			if (ip_proto == IPPROTO_UDP)
++				req->features |= BIT_ULL(NPC_SPORT_UDP);
++			else if (ip_proto == IPPROTO_TCP)
++				req->features |= BIT_ULL(NPC_SPORT_TCP);
++			else if (ip_proto == IPPROTO_SCTP)
++				req->features |= BIT_ULL(NPC_SPORT_SCTP);
++		}
  	}
  
- 	snprintf(prop_name, MAX_PROP_SIZE, "%s-supply", name);
--	if (!of_parse_phandle(np, prop_name, 0)) {
-+	if (!phandle_exists(np, prop_name, 0)) {
- 		dev_info(dev, "%s: Unable to find %s regulator, assuming enabled\n",
- 				__func__, prop_name);
- 		goto out;
+ 	return otx2_tc_parse_actions(nic, &rule->action, req, f, node);
 
 
