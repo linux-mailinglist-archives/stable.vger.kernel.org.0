@@ -2,75 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBDD65872FB
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 23:20:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC8958739C
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 23:52:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231152AbiHAVUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 17:20:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46644 "EHLO
+        id S233396AbiHAVwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 17:52:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234192AbiHAVUA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 17:20:00 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 356C32DDF;
-        Mon,  1 Aug 2022 14:20:00 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id iw1so11624518plb.6;
-        Mon, 01 Aug 2022 14:20:00 -0700 (PDT)
+        with ESMTP id S229914AbiHAVwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 17:52:34 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFB823C8DC
+        for <stable@vger.kernel.org>; Mon,  1 Aug 2022 14:52:33 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id t2so11702896ply.2
+        for <stable@vger.kernel.org>; Mon, 01 Aug 2022 14:52:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc;
-        bh=A/aNXaWz42+Te8imfEyxce8tSCY7PxmGSISl5ue8ov0=;
-        b=CkA3ZXrqp94B6h0iXj7jminwN2u59wyreML5tHHXfWT5/7yJmkFoMZR3K3mMUJzgvw
-         hs05pWmwO1S/WkniXs4qNNx5Q6C6UotR6sTnzdsIx49sQPj9hQJ6tp3PbRW0HW8ivyLN
-         PWda5F/myC6+u6c3yFQgyuxocphKBvUtKzQFkzJbRiAq4bEER9EXWh/5REMrcLjkGhLJ
-         4f2FJ7wnOeYLBwy7y7PGarv1bmRvO+QrRJrspatWahndeaHNttLXR7IqFLVQP9bEX19c
-         YiedHQUUiW9iRc7+3n1VvC2ZTDmjHvXVzyyVi2nQn2XZv9ny4raA930z1TKYn8UZ4Xd1
-         LvLA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=DSjx5ESRkE6J5qM9SItlC8+3YSKs3/SsUSl/zYm3BAs=;
+        b=ms7qqoRASU4lhk9WzLC/YQaIdRaDXA8MutDBwJHozc+cperoDIRIyuUQlj42CNgpCl
+         J4KLnCD7lhAdqrDV3nSqeuNACp90CTYGxWi6kZuQQFug3aqlFabiyhOxr+VgI6vn1tr6
+         dKRlYrhBjBChyDJZm4kZ1Zn1Qylb4FXHv+AHLAyB4XFwGBMnABcu08G55CQu2Dr/QfsY
+         13YHY76g6LFwOcjbQCkOc0V1Mmhv2or/608WzquBkuSypb3ilOsMyJGVs24b8BPsWj4Z
+         uY7Zy2PjEOmVkwRxUH9J5X+HAZH6Q4nwuL1zeXnpHUwhjogSLXn4SDo2mT0uFn+8uf4K
+         yJ4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc;
-        bh=A/aNXaWz42+Te8imfEyxce8tSCY7PxmGSISl5ue8ov0=;
-        b=uUIdBpKKLBXGj9VSpAfKGJPDsSKOYIoUl2OEnbUptTPAMn5mdZiX6+aiDsQKo0A4kB
-         sF5E/8UBTfZdAB2GtBYz/DOWXPIdAT31tWr5d5oih1Zlq6ybl0n7J0wPE8fQU+unmHDC
-         RxIy9ki7ncD2w63+Hr0G3E+T4/OPfs36kjhA4l9N7OZj6jZ2AOeScU+dKKWp6B+jysDJ
-         S8XPDkPP/TYe1biYYdaQx2K5MDWWCNxSrzhK5YAsNrg83XexneU5F+FX6Qn0SNEIMLrX
-         hRAh+uuUdPhR3ll0QbaZKz7xZaKB2lChLuOEzEvTNzIK4Sr4m/DMdIINJrkabdIjKwRT
-         lJfw==
-X-Gm-Message-State: ACgBeo28WoKlQPCOtK3NSjOmzgEAsVyLwE/x+tVnP/ih5K3MbiHOZ2lw
-        f9pe+twMcdL/Tk7K5BxOUQk=
-X-Google-Smtp-Source: AA6agR5MfNj9zU68+zilCs+LDnQslOlC38xmMkyk+3wchHRxJ4jgiSSr6rCpqPMx1o8gTdIiBXNoSg==
-X-Received: by 2002:a17:902:ea0b:b0:16d:d268:e4c5 with SMTP id s11-20020a170902ea0b00b0016dd268e4c5mr17321878plg.152.1659388799626;
-        Mon, 01 Aug 2022 14:19:59 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id qe6-20020a17090b4f8600b001df264610c4sm534121pjb.0.2022.08.01.14.19.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 01 Aug 2022 14:19:59 -0700 (PDT)
-Message-ID: <737e98a6-ad6b-0970-0d4f-e6560937e7eb@gmail.com>
-Date:   Mon, 1 Aug 2022 14:19:57 -0700
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=DSjx5ESRkE6J5qM9SItlC8+3YSKs3/SsUSl/zYm3BAs=;
+        b=EnOopcYdSpDNtzmJSdv9HKEvPkI8yjN0/xueJCJchjUrxu6fJrI2kYgkJpl4pzwMQe
+         BVUm23nmDY/0/TGhuSrBc8MJcwbHCbdP5rA2h3zJPl7n+TBJLLxtYpbbZ0HlUdtHDn6L
+         n7yBBrhQ60BNl++z0OlW58jenkj0YDzGosajQxxDunj32pkXBe+Ix/2A8F32vlmGFSOu
+         pO9ljqAgTqEffC/hYVCOTEmeBILRnuJYP50aHnUsHVyDHC0kU3oSP154N2lyreVp1FA+
+         1338peNfmSHz+I36969BZfNbrMXBB+RIT54ueQ3UEMMQK7q2lJSjm8LROdWS9m+N6sja
+         gujQ==
+X-Gm-Message-State: ACgBeo1HQmFySGbBr1JAoNSXAZKzeAnN40LmXq6IF6JCprNM4GlkzvN0
+        pZKaMK/SQXXpE48SFj8LFn8cxUmHxrZGH9jdBfM=
+X-Google-Smtp-Source: AA6agR4GzsnEphrO72kg6NkoSLbVpDKfEMURgXj31qLbskLdoFZw3nGF5DDzmZsCCQpD46qwSOSNKA==
+X-Received: by 2002:a17:90a:540c:b0:1f2:26f1:6a37 with SMTP id z12-20020a17090a540c00b001f226f16a37mr21079175pjh.68.1659390753274;
+        Mon, 01 Aug 2022 14:52:33 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e19-20020a17090a4a1300b001f329d1c54bsm8489926pjh.6.2022.08.01.14.52.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Aug 2022 14:52:32 -0700 (PDT)
+Message-ID: <62e84b20.170a0220.ee3f.cee3@mx.google.com>
+Date:   Mon, 01 Aug 2022 14:52:32 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 5.15 00/69] 5.15.59-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220801114134.468284027@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.18
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.18.14-247-gf2dafe30428d9
+Subject: stable-rc/queue/5.18 baseline: 119 runs,
+ 3 regressions (v5.18.14-247-gf2dafe30428d9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,27 +70,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/1/22 04:46, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.59 release.
-> There are 69 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 03 Aug 2022 11:41:16 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.59-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+stable-rc/queue/5.18 baseline: 119 runs, 3 regressions (v5.18.14-247-gf2daf=
+e30428d9)
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on BMIPS_GENERIC:
+Regressions Summary
+-------------------
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+platform                     | arch  | lab             | compiler | defconf=
+ig                  | regressions
+-----------------------------+-------+-----------------+----------+--------=
+--------------------+------------
+imx6ul-pico-hobbit           | arm   | lab-pengutronix | gcc-10   | multi_v=
+7_defconfig         | 1          =
+
+kontron-bl-imx8mm            | arm64 | lab-kontron     | gcc-10   | defconf=
+ig                  | 1          =
+
+mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora   | gcc-10   | defconf=
+ig+arm64-chromebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.18/ker=
+nel/v5.18.14-247-gf2dafe30428d9/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.18
+  Describe: v5.18.14-247-gf2dafe30428d9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f2dafe30428d9a388867711c9a1be6d1e38f84bb =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab             | compiler | defconf=
+ig                  | regressions
+-----------------------------+-------+-----------------+----------+--------=
+--------------------+------------
+imx6ul-pico-hobbit           | arm   | lab-pengutronix | gcc-10   | multi_v=
+7_defconfig         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62e822c4309f6a8e79daf05a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.14-=
+247-gf2dafe30428d9/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-i=
+mx6ul-pico-hobbit.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.14-=
+247-gf2dafe30428d9/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-i=
+mx6ul-pico-hobbit.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220718.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62e822c4309f6a8e79daf=
+05b
+        failing since 26 days (last pass: v5.18.9-96-g91cfa3d0b94d, first f=
+ail: v5.18.9-102-ga6b8287ea0b9) =
+
+ =
+
+
+
+platform                     | arch  | lab             | compiler | defconf=
+ig                  | regressions
+-----------------------------+-------+-----------------+----------+--------=
+--------------------+------------
+kontron-bl-imx8mm            | arm64 | lab-kontron     | gcc-10   | defconf=
+ig                  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62e81a0ad8231e7d44daf07e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.14-=
+247-gf2dafe30428d9/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-bl-i=
+mx8mm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.14-=
+247-gf2dafe30428d9/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-bl-i=
+mx8mm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220718.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62e81a0ad8231e7d44daf=
+07f
+        new failure (last pass: v5.18.14-247-g0a1610bd15a5b) =
+
+ =
+
+
+
+platform                     | arch  | lab             | compiler | defconf=
+ig                  | regressions
+-----------------------------+-------+-----------------+----------+--------=
+--------------------+------------
+mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora   | gcc-10   | defconf=
+ig+arm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62e8199207c7fbf92ddaf078
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.14-=
+247-gf2dafe30428d9/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-mt8183-kukui-jacuzzi-juniper-sku16.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.14-=
+247-gf2dafe30428d9/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-mt8183-kukui-jacuzzi-juniper-sku16.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220718.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62e8199207c7fbf92ddaf=
+079
+        new failure (last pass: v5.18.14-239-g0cb79a713f90e) =
+
+ =20
