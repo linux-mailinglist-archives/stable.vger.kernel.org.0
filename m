@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 477CD586963
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:02:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A55D65868E3
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231916AbiHAMCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:02:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34980 "EHLO
+        id S231589AbiHALyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:54:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233032AbiHAMAm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:00:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 053654E87E;
-        Mon,  1 Aug 2022 04:53:07 -0700 (PDT)
+        with ESMTP id S231580AbiHALxt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:53:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 750432F38C;
+        Mon,  1 Aug 2022 04:50:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A05D612C6;
-        Mon,  1 Aug 2022 11:53:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47314C433C1;
-        Mon,  1 Aug 2022 11:53:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DCCB5B81163;
+        Mon,  1 Aug 2022 11:50:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EEA1C433C1;
+        Mon,  1 Aug 2022 11:50:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354786;
-        bh=ylwYwQBHKHrrf5WERfOmLKeWNJrYqbbBICcC7Ddjhpg=;
+        s=korg; t=1659354624;
+        bh=ANJyZndjBVSoGi/HJZXgkuECWYmgAnEMr6t4G82Hlh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jxhRYgA3Ag4bB822X3tSBEcRT6EQ5Y/EWHqkrF8obB1oessRDT/F7OoIyB8buAVE1
-         JwesmDNfeV5ry5ykIEd8DjyRpAT21+0Ej3dV4X72aGKfBRcTO5CGkqplg3h1jDkPlC
-         DBvR6N/AGXaUDJHuGSkQdl4s7uGmA7ve1XOF/MsI=
+        b=nQXsgM9fBTL6PorhZWnGEDIjjy0RfoaR4GeYwrmRPcqVtYjFZvNhNiayh4un+3xOw
+         dudBr/alst2Eox7M2SbF1b7RCEZTMUxz4TMpnpNlalvq+V5i7t4mMk0Hg05s0EXMFG
+         ZyhrMQtjmQeLklo52EjbCUJIzx28c2cf57D7hwsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        George Kuruvinakunnel <george.kuruvinakunnel@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.15 20/69] ice: check (DD | EOF) bits on Rx descriptor rather than (EOP | RS)
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 27/65] tcp: Fix a data-race around sysctl_tcp_min_rtt_wlen.
 Date:   Mon,  1 Aug 2022 13:46:44 +0200
-Message-Id: <20220801114135.330401083@linuxfoundation.org>
+Message-Id: <20220801114134.853372464@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
+References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 283d736ff7c7e96ac5b32c6c0de40372f8eb171e upstream.
+[ Upstream commit 1330ffacd05fc9ac4159d19286ce119e22450ed2 ]
 
-Tx side sets EOP and RS bits on descriptors to indicate that a
-particular descriptor is the last one and needs to generate an irq when
-it was sent. These bits should not be checked on completion path
-regardless whether it's the Tx or the Rx. DD bit serves this purpose and
-it indicates that a particular descriptor is either for Rx or was
-successfully Txed. EOF is also set as loopback test does not xmit
-fragmented frames.
+While reading sysctl_tcp_min_rtt_wlen, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Look at (DD | EOF) bits setting in ice_lbtest_receive_frames() instead
-of EOP and RS pair.
-
-Fixes: 0e674aeb0b77 ("ice: Add handler for ethtool selftest")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: George Kuruvinakunnel <george.kuruvinakunnel@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f672258391b4 ("tcp: track min RTT using windowed min-filter")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ethtool.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/tcp_input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -651,7 +651,8 @@ static int ice_lbtest_receive_frames(str
- 		rx_desc = ICE_RX_DESC(rx_ring, i);
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index c31db58b93a6..79539ef5eb90 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -3004,7 +3004,7 @@ static void tcp_fastretrans_alert(struct sock *sk, const u32 prior_snd_una,
  
- 		if (!(rx_desc->wb.status_error0 &
--		    cpu_to_le16(ICE_TX_DESC_CMD_EOP | ICE_TX_DESC_CMD_RS)))
-+		    (cpu_to_le16(BIT(ICE_RX_FLEX_DESC_STATUS0_DD_S)) |
-+		     cpu_to_le16(BIT(ICE_RX_FLEX_DESC_STATUS0_EOF_S)))))
- 			continue;
+ static void tcp_update_rtt_min(struct sock *sk, u32 rtt_us, const int flag)
+ {
+-	u32 wlen = sock_net(sk)->ipv4.sysctl_tcp_min_rtt_wlen * HZ;
++	u32 wlen = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_min_rtt_wlen) * HZ;
+ 	struct tcp_sock *tp = tcp_sk(sk);
  
- 		rx_buf = &rx_ring->rx_buf[i];
+ 	if ((flag & FLAG_ACK_MAYBE_DELAYED) && rtt_us > tcp_min_rtt(tp)) {
+-- 
+2.35.1
+
 
 
