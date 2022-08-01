@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E5F586964
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:02:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3E4E5868E6
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:54:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232365AbiHAMCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:02:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37236 "EHLO
+        id S232285AbiHALyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:54:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233116AbiHAMAq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:00:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AB604E872;
-        Mon,  1 Aug 2022 04:53:10 -0700 (PDT)
+        with ESMTP id S232284AbiHALyK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:54:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D53A93D5AA;
+        Mon,  1 Aug 2022 04:50:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 08559612C6;
-        Mon,  1 Aug 2022 11:53:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CEFBC433D6;
-        Mon,  1 Aug 2022 11:53:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42554B8116B;
+        Mon,  1 Aug 2022 11:50:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1A97C433C1;
+        Mon,  1 Aug 2022 11:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354789;
-        bh=h2cD6mP9oo859yPB9nAEQNjXoWrMcTRTI3Ci+qVuKZg=;
+        s=korg; t=1659354630;
+        bh=Oy2OiGFCyNRuqRzWzV+LwDomxG5ED94j0Q1gxZO3snM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wbS6eeRImnpwXY3RoMIkqRmy+FmbSd7dNLx5QyDYILz8xLIFqHbpyFVjL4CkwFo0U
-         mG8rEOTjekz3kD1ofWGMFPaI8LHuMDiHQ2cN30985YBDQqNA4jUQEASYvAArn0awpa
-         CusKtdinTxbFuwRZHf1jS/6KX38vl7/C0GXyMDhs=
+        b=pgxLyzhPwa4ZWPaqWfkoYLt6hnCHLMs4Y7sfbCfD3NMmLNAnT7wF2qzYZ/wm3G452
+         OY8CrTowUrpTDRMYthlz9WRpcNqBwCWeVZuiCGEdEjeB5tuZI2H+qulb1uSamNwOHU
+         X60BtzY5ireq9f+lFrXmDzfh6aLZlFEf4EDvNoz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        George Kuruvinakunnel <george.kuruvinakunnel@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.15 21/69] ice: do not setup vlan for loopback VSI
-Date:   Mon,  1 Aug 2022 13:46:45 +0200
-Message-Id: <20220801114135.369470914@linuxfoundation.org>
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 29/65] tcp: Fix a data-race around sysctl_tcp_invalid_ratelimit.
+Date:   Mon,  1 Aug 2022 13:46:46 +0200
+Message-Id: <20220801114134.931482013@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
+References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit cc019545a238518fa9da1e2a889f6e1bb1005a63 upstream.
+[ Upstream commit 2afdbe7b8de84c28e219073a6661080e1b3ded48 ]
 
-Currently loopback test is failiing due to the error returned from
-ice_vsi_vlan_setup(). Skip calling it when preparing loopback VSI.
+While reading sysctl_tcp_invalid_ratelimit, it can be changed
+concurrently.  Thus, we need to add READ_ONCE() to its reader.
 
-Fixes: 0e674aeb0b77 ("ice: Add handler for ethtool selftest")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: George Kuruvinakunnel <george.kuruvinakunnel@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 032ee4236954 ("tcp: helpers to mitigate ACK loops by rate-limiting out-of-window dupacks")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/ipv4/tcp_input.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -5481,10 +5481,12 @@ int ice_vsi_cfg(struct ice_vsi *vsi)
- 	if (vsi->netdev) {
- 		ice_set_rx_mode(vsi->netdev);
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 79539ef5eb90..716bc95ebfb0 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -3528,7 +3528,8 @@ static bool __tcp_oow_rate_limited(struct net *net, int mib_idx,
+ 	if (*last_oow_ack_time) {
+ 		s32 elapsed = (s32)(tcp_jiffies32 - *last_oow_ack_time);
  
--		err = ice_vsi_vlan_setup(vsi);
-+		if (vsi->type != ICE_VSI_LB) {
-+			err = ice_vsi_vlan_setup(vsi);
- 
--		if (err)
--			return err;
-+			if (err)
-+				return err;
-+		}
- 	}
- 	ice_vsi_cfg_dcb_rings(vsi);
- 
+-		if (0 <= elapsed && elapsed < net->ipv4.sysctl_tcp_invalid_ratelimit) {
++		if (0 <= elapsed &&
++		    elapsed < READ_ONCE(net->ipv4.sysctl_tcp_invalid_ratelimit)) {
+ 			NET_INC_STATS(net, mib_idx);
+ 			return true;	/* rate-limited: don't send yet! */
+ 		}
+-- 
+2.35.1
+
 
 
