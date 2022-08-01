@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C58E3586975
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:02:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3C755869FF
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:10:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232628AbiHAMCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:02:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34806 "EHLO
+        id S233964AbiHAMKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:10:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233390AbiHAMBI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:01:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 654D843338;
-        Mon,  1 Aug 2022 04:53:27 -0700 (PDT)
+        with ESMTP id S233631AbiHAMJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:09:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5036F6610D;
+        Mon,  1 Aug 2022 04:56:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8646361227;
-        Mon,  1 Aug 2022 11:53:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92A16C433D6;
-        Mon,  1 Aug 2022 11:53:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BCE4CB81171;
+        Mon,  1 Aug 2022 11:56:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A5F2C433D6;
+        Mon,  1 Aug 2022 11:56:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354805;
-        bh=0DOI+tH+obLM/ah1ir/rAmzRsoGfunCYQfDTahRUfW4=;
+        s=korg; t=1659354978;
+        bh=5hFJJ5gAtqb4rt193r1r4mkbDulYR0rJCVrXO3f4blY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZxwD3GqYuGAxs0+vj7KLvFpyE1wpiCCYc6pZeGUolKW1qih6pVHofS3Z7cKdl43cH
-         4js4sSe55+POyWEG9p9pcPwqeS3Ut2S7VpuHT3i1Q8hDz/FM7WCBFL0LnnZNMG6Mnu
-         QkYo132viArqSHXaUQAxCDwTeywJidmom2yjM+dI=
+        b=dxRzUA/bXlIhHaw2cvz3oPTAPI/LYrdtybBh6rxFwbE6tL+/yvqngOWmBV7qZPCEu
+         b2i2EXV4jNVmJHf54q2PiWD4jYtmGS9zOfq1QD8k6Z6OwB23NQXw6WiUSD45dzhjPv
+         VY3PxljB4CChHMXBxkiyhgU27HXBhfr/U5lgaPjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Juergen Christ <jchrist@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH 5.15 09/69] s390/archrandom: prevent CPACF trng invocations in interrupt context
+        syzbot+03d7b43290037d1f87ca@syzkaller.appspotmail.com,
+        David Howells <dhowells@redhat.com>, keyrings@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.18 19/88] watch_queue: Fix missing locking in add_watch_to_object()
 Date:   Mon,  1 Aug 2022 13:46:33 +0200
-Message-Id: <20220801114134.853687091@linuxfoundation.org>
+Message-Id: <20220801114138.914986548@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
+References: <20220801114138.041018499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,125 +54,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 918e75f77af7d2e049bb70469ec0a2c12782d96a upstream.
+commit e64ab2dbd882933b65cd82ff6235d705ad65dbb6 upstream.
 
-This patch slightly reworks the s390 arch_get_random_seed_{int,long}
-implementation: Make sure the CPACF trng instruction is never
-called in any interrupt context. This is done by adding an
-additional condition in_task().
+If a watch is being added to a queue, it needs to guard against
+interference from addition of a new watch, manual removal of a watch and
+removal of a watch due to some other queue being destroyed.
 
-Justification:
+KEYCTL_WATCH_KEY guards against this for the same {key,queue} pair by
+holding the key->sem writelocked and by holding refs on both the key and
+the queue - but that doesn't prevent interaction from other {key,queue}
+pairs.
 
-There are some constrains to satisfy for the invocation of the
-arch_get_random_seed_{int,long}() functions:
-- They should provide good random data during kernel initialization.
-- They should not be called in interrupt context as the TRNG
-  instruction is relatively heavy weight and may for example
-  make some network loads cause to timeout and buck.
+While add_watch_to_object() does take the spinlock on the event queue,
+it doesn't take the lock on the source's watch list.  The assumption was
+that the caller would prevent that (say by taking key->sem) - but that
+doesn't prevent interference from the destruction of another queue.
 
-However, it was not clear what kind of interrupt context is exactly
-encountered during kernel init or network traffic eventually calling
-arch_get_random_seed_long().
+Fix this by locking the watcher list in add_watch_to_object().
 
-After some days of investigations it is clear that the s390
-start_kernel function is not running in any interrupt context and
-so the trng is called:
-
-Jul 11 18:33:39 t35lp54 kernel:  [<00000001064e90ca>] arch_get_random_seed_long.part.0+0x32/0x70
-Jul 11 18:33:39 t35lp54 kernel:  [<000000010715f246>] random_init+0xf6/0x238
-Jul 11 18:33:39 t35lp54 kernel:  [<000000010712545c>] start_kernel+0x4a4/0x628
-Jul 11 18:33:39 t35lp54 kernel:  [<000000010590402a>] startup_continue+0x2a/0x40
-
-The condition in_task() is true and the CPACF trng provides random data
-during kernel startup.
-
-The network traffic however, is more difficult. A typical call stack
-looks like this:
-
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b5600fc>] extract_entropy.constprop.0+0x23c/0x240
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b560136>] crng_reseed+0x36/0xd8
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b5604b8>] crng_make_state+0x78/0x340
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b5607e0>] _get_random_bytes+0x60/0xf8
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b56108a>] get_random_u32+0xda/0x248
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008aefe7a8>] kfence_guarded_alloc+0x48/0x4b8
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008aeff35e>] __kfence_alloc+0x18e/0x1b8
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008aef7f10>] __kmalloc_node_track_caller+0x368/0x4d8
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b611eac>] kmalloc_reserve+0x44/0xa0
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b611f98>] __alloc_skb+0x90/0x178
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b6120dc>] __napi_alloc_skb+0x5c/0x118
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b8f06b4>] qeth_extract_skb+0x13c/0x680
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b8f6526>] qeth_poll+0x256/0x3f8
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b63d76e>] __napi_poll.constprop.0+0x46/0x2f8
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b63dbec>] net_rx_action+0x1cc/0x408
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b937302>] __do_softirq+0x132/0x6b0
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008abf46ce>] __irq_exit_rcu+0x13e/0x170
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008abf531a>] irq_exit_rcu+0x22/0x50
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b922506>] do_io_irq+0xe6/0x198
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b935826>] io_int_handler+0xd6/0x110
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b9358a6>] psw_idle_exit+0x0/0xa
-Jul 06 17:37:07 t35lp54 kernel: ([<000000008ab9c59a>] arch_cpu_idle+0x52/0xe0)
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b933cfe>] default_idle_call+0x6e/0xd0
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008ac59f4e>] do_idle+0xf6/0x1b0
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008ac5a28e>] cpu_startup_entry+0x36/0x40
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008abb0d90>] smp_start_secondary+0x148/0x158
-Jul 06 17:37:07 t35lp54 kernel:  [<000000008b935b9e>] restart_int_handler+0x6e/0x90
-
-which confirms that the call is in softirq context. So in_task() covers exactly
-the cases where we want to have CPACF trng called: not in nmi, not in hard irq,
-not in soft irq but in normal task context and during kernel init.
-
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Acked-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Juergen Christ <jchrist@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220713131721.257907-1-freude@linux.ibm.com
-Fixes: e4f74400308c ("s390/archrandom: simplify back to earlier design and initialize earlier")
-[agordeev@linux.ibm.com changed desc, added Fixes and Link, removed -stable]
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Fixes: c73be61cede5 ("pipe: Add general notification queue support")
+Reported-by: syzbot+03d7b43290037d1f87ca@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: keyrings@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/include/asm/archrandom.h |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ kernel/watch_queue.c |   58 +++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 36 insertions(+), 22 deletions(-)
 
---- a/arch/s390/include/asm/archrandom.h
-+++ b/arch/s390/include/asm/archrandom.h
-@@ -2,7 +2,7 @@
- /*
-  * Kernel interface for the s390 arch_random_* functions
-  *
-- * Copyright IBM Corp. 2017, 2020
-+ * Copyright IBM Corp. 2017, 2022
-  *
-  * Author: Harald Freudenberger <freude@de.ibm.com>
-  *
-@@ -14,6 +14,7 @@
- #ifdef CONFIG_ARCH_RANDOM
+--- a/kernel/watch_queue.c
++++ b/kernel/watch_queue.c
+@@ -454,6 +454,33 @@ void init_watch(struct watch *watch, str
+ 	rcu_assign_pointer(watch->queue, wqueue);
+ }
  
- #include <linux/static_key.h>
-+#include <linux/preempt.h>
- #include <linux/atomic.h>
- #include <asm/cpacf.h>
- 
-@@ -32,7 +33,8 @@ static inline bool __must_check arch_get
- 
- static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
++static int add_one_watch(struct watch *watch, struct watch_list *wlist, struct watch_queue *wqueue)
++{
++	const struct cred *cred;
++	struct watch *w;
++
++	hlist_for_each_entry(w, &wlist->watchers, list_node) {
++		struct watch_queue *wq = rcu_access_pointer(w->queue);
++		if (wqueue == wq && watch->id == w->id)
++			return -EBUSY;
++	}
++
++	cred = current_cred();
++	if (atomic_inc_return(&cred->user->nr_watches) > task_rlimit(current, RLIMIT_NOFILE)) {
++		atomic_dec(&cred->user->nr_watches);
++		return -EAGAIN;
++	}
++
++	watch->cred = get_cred(cred);
++	rcu_assign_pointer(watch->watch_list, wlist);
++
++	kref_get(&wqueue->usage);
++	kref_get(&watch->usage);
++	hlist_add_head(&watch->queue_node, &wqueue->watches);
++	hlist_add_head_rcu(&watch->list_node, &wlist->watchers);
++	return 0;
++}
++
+ /**
+  * add_watch_to_object - Add a watch on an object to a watch list
+  * @watch: The watch to add
+@@ -468,34 +495,21 @@ void init_watch(struct watch *watch, str
+  */
+ int add_watch_to_object(struct watch *watch, struct watch_list *wlist)
  {
--	if (static_branch_likely(&s390_arch_random_available)) {
-+	if (static_branch_likely(&s390_arch_random_available) &&
-+	    in_task()) {
- 		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
- 		atomic64_add(sizeof(*v), &s390_arch_random_counter);
- 		return true;
-@@ -42,7 +44,8 @@ static inline bool __must_check arch_get
+-	struct watch_queue *wqueue = rcu_access_pointer(watch->queue);
+-	struct watch *w;
++	struct watch_queue *wqueue;
++	int ret = -ENOENT;
  
- static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
- {
--	if (static_branch_likely(&s390_arch_random_available)) {
-+	if (static_branch_likely(&s390_arch_random_available) &&
-+	    in_task()) {
- 		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
- 		atomic64_add(sizeof(*v), &s390_arch_random_counter);
- 		return true;
+-	hlist_for_each_entry(w, &wlist->watchers, list_node) {
+-		struct watch_queue *wq = rcu_access_pointer(w->queue);
+-		if (wqueue == wq && watch->id == w->id)
+-			return -EBUSY;
+-	}
+-
+-	watch->cred = get_current_cred();
+-	rcu_assign_pointer(watch->watch_list, wlist);
+-
+-	if (atomic_inc_return(&watch->cred->user->nr_watches) >
+-	    task_rlimit(current, RLIMIT_NOFILE)) {
+-		atomic_dec(&watch->cred->user->nr_watches);
+-		put_cred(watch->cred);
+-		return -EAGAIN;
+-	}
++	rcu_read_lock();
+ 
++	wqueue = rcu_access_pointer(watch->queue);
+ 	if (lock_wqueue(wqueue)) {
+-		kref_get(&wqueue->usage);
+-		kref_get(&watch->usage);
+-		hlist_add_head(&watch->queue_node, &wqueue->watches);
++		spin_lock(&wlist->lock);
++		ret = add_one_watch(watch, wlist, wqueue);
++		spin_unlock(&wlist->lock);
+ 		unlock_wqueue(wqueue);
+ 	}
+ 
+-	hlist_add_head_rcu(&watch->list_node, &wlist->watchers);
+-	return 0;
++	rcu_read_unlock();
++	return ret;
+ }
+ EXPORT_SYMBOL(add_watch_to_object);
+ 
 
 
