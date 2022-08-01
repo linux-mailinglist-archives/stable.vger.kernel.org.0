@@ -2,54 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24239586959
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:02:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A76A586941
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:59:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231987AbiHAMCI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:02:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34984 "EHLO
+        id S230136AbiHAL7x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:59:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232830AbiHAL75 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:59:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DFF54D836;
-        Mon,  1 Aug 2022 04:52:54 -0700 (PDT)
+        with ESMTP id S232769AbiHAL7Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:59:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4DA741D22;
+        Mon,  1 Aug 2022 04:52:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72BC561166;
-        Mon,  1 Aug 2022 11:52:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56283C433D6;
-        Mon,  1 Aug 2022 11:52:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F13ED61166;
+        Mon,  1 Aug 2022 11:52:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B123C433C1;
+        Mon,  1 Aug 2022 11:52:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354772;
-        bh=3fbAPjWjA0p946EKliHD6CKzxOCrgfRkvLCpwBVM6wU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=rIP2CvQUdjjp9mlFRDQ18n8d/yT5kodzXU43CVH+HMvKzQtg21Ov3fxAKRwx2P125
-         ZwbqPbiOR1iByahhuBFByu8LzV5fqzp247Q+QSqKZKvwAA4Aet4EpHKKIKxdHpM7dd
-         9oK1jHLelihBjPlTDlwEsV6PilbDjU8dsst9keVA=
+        s=korg; t=1659354754;
+        bh=TQGrzUR7bN5P6FTJjCcDQFHLq/FCQ4+/s9gPkvPh1YQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=o8hrzUMe/2QDHRbFg7mYL+T+fhqIMzt29jHfLxv7Kp18WFvTrszwDd9RanEg/Tc2k
+         wtqJaAscawfMhgVZuGBDwiEqdSLvRCO6wirAz19wPCvjdOr6HqkGPr7Qv6hgBy4f+j
+         dCZ+a3qv95IYA00sdkI4NBejJV+uDBukHbj79snE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.15 00/69] 5.15.59-rc1 review
-Date:   Mon,  1 Aug 2022 13:46:24 +0200
-Message-Id: <20220801114134.468284027@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Lee Jones <lee.jones@linaro.org>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 5.15 01/69] Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put
+Date:   Mon,  1 Aug 2022 13:46:25 +0200
+Message-Id: <20220801114134.535760767@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-MIME-Version: 1.0
+In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
+References: <20220801114134.468284027@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.59-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.15.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.15.59-rc1
-X-KernelTest-Deadline: 2022-08-03T11:41+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -60,302 +55,264 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.15.59 release.
-There are 69 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
-
-Responses should be made by Wed, 03 Aug 2022 11:41:16 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.59-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.15.59-rc1
-
-Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-    x86/bugs: Do not enable IBPB at firmware entry when IBPB is not available
-
-Waiman Long <longman@redhat.com>
-    locking/rwsem: Allow slowpath writer to ignore handoff bit if not set by first waiter
-
-Eiichi Tsukata <eiichi.tsukata@nutanix.com>
-    docs/kernel-parameters: Update descriptions for "mitigations=" param with retbleed
-
-Toshi Kani <toshi.kani@hpe.com>
-    EDAC/ghes: Set the DIMM label unconditionally
-
-Florian Fainelli <f.fainelli@gmail.com>
-    ARM: 9216/1: Fix MAX_DMA_ADDRESS overflow
-
-Jaewon Kim <jaewon31.kim@samsung.com>
-    page_alloc: fix invalid watermark check on a negative value
-
-Ralph Campbell <rcampbell@nvidia.com>
-    mm/hmm: fault non-owner device private entries
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    ARM: crypto: comment out gcc warning that breaks clang builds
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: leave the err path free in sctp_stream_init to sctp_stream_free
-
-Alejandro Lucero <alejandro.lucero-palau@amd.com>
-    sfc: disable softirqs for ptp TX
-
-Leo Yan <leo.yan@linaro.org>
-    perf symbol: Correct address for bss symbols
-
-Jason Wang <jasowang@redhat.com>
-    virtio-net: fix the race between refill work and close
-
-Florian Westphal <fw@strlen.de>
-    netfilter: nf_queue: do not allow packet truncation below transport header offset
-
-Sunil Goutham <sgoutham@marvell.com>
-    octeontx2-pf: cn10k: Fix egress ratelimit configuration
-
-Duoming Zhou <duoming@zju.edu.cn>
-    sctp: fix sleep in atomic context bug in timer handlers
-
-Michal Maloszewski <michal.maloszewski@intel.com>
-    i40e: Fix interface init with MSI interrupts (no MSI-X)
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    ipv4: Fix data-races around sysctl_fib_notify_on_flag_change.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix data-races around sysctl_tcp_reflect_tos.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_comp_sack_nr.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_comp_sack_slack_ns.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_comp_sack_delay_ns.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    net: Fix data-races around sysctl_[rw]mem(_offset)?.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix data-races around sk_pacing_rate.
-
-Taehee Yoo <ap420073@gmail.com>
-    net: mld: fix reference count leak in mld_{query | report}_work()
-
-Jianglei Nie <niejianglei2021@163.com>
-    net: macsec: fix potential resource leak in macsec_add_rxsa() and macsec_add_txsa()
-
-Sabrina Dubroca <sd@queasysnail.net>
-    macsec: always read MACSEC_SA_ATTR_PN as a u64
-
-Sabrina Dubroca <sd@queasysnail.net>
-    macsec: limit replay window size with XPN
-
-Sabrina Dubroca <sd@queasysnail.net>
-    macsec: fix error message in macsec_add_rxsa and _txsa
-
-Sabrina Dubroca <sd@queasysnail.net>
-    macsec: fix NULL deref in macsec_add_rxsa
-
-Xin Long <lucien.xin@gmail.com>
-    Documentation: fix sctp_wmem in ip-sysctl.rst
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_invalid_ratelimit.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_autocorking.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_min_rtt_wlen.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_min_tso_segs.
-
-Liang He <windhl@126.com>
-    net: sungem_phy: Add of_node_put() for reference returned by of_get_parent()
-
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    net: pcs: xpcs: propagate xpcs_read error to xpcs_get_state_c37_sgmii
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    igmp: Fix data-races around sysctl_igmp_qrv.
-
-Maxim Mikityanskiy <maximmi@nvidia.com>
-    net/tls: Remove the context from the list in tls_device_down
-
-Ziyang Xuan <william.xuanziyang@huawei.com>
-    ipv6/addrconf: fix a null-ptr-deref bug for ip6_ptr
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    net: ping6: Fix memleak in ipv6_renew_options().
-
-David Jeffery <djeffery@redhat.com>
-    scsi: mpt3sas: Stop fw fault watchdog work item during system shutdown
-
-Jason Yan <yanaijie@huawei.com>
-    scsi: core: Fix warning in scsi_alloc_sgtables()
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_challenge_ack_limit.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_limit_output_bytes.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix data-races around sysctl_tcp_moderate_rcvbuf.
-
-Subbaraya Sundeep <sbhatta@marvell.com>
-    octeontx2-pf: Fix UDP/TCP src and dst port tc filters
-
-Wei Wang <weiwan@google.com>
-    Revert "tcp: change pingpong threshold to 3"
-
-Liang He <windhl@126.com>
-    scsi: ufs: host: Hold reference returned by of_parse_phandle()
-
-Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-    ice: do not setup vlan for loopback VSI
-
-Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-    ice: check (DD | EOF) bits on Rx descriptor rather than (EOP | RS)
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix data-races around sysctl_tcp_no_ssthresh_metrics_save.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_nometrics_save.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_frto.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_adv_win_scale.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix a data-race around sysctl_tcp_app_win.
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp: Fix data-races around sysctl_tcp_dsack.
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    watch_queue: Fix missing locking in add_watch_to_object()
-
-David Howells <dhowells@redhat.com>
-    watch_queue: Fix missing rcu annotation
-
-Nathan Chancellor <nathan@kernel.org>
-    drm/simpledrm: Fix return type of simpledrm_simple_display_pipe_mode_valid()
-
-Alistair Popple <apopple@nvidia.com>
-    nouveau/svm: Fix to migrate all requested pages
-
-Harald Freudenberger <freude@linux.ibm.com>
-    s390/archrandom: prevent CPACF trng invocations in interrupt context
-
-Lukas Bulwahn <lukas.bulwahn@gmail.com>
-    asm-generic: remove a broken and needless ifdef conditional
-
-Miaohe Lin <linmiaohe@huawei.com>
-    hugetlb: fix memoryleak in hugetlb_mcopy_atomic_pte
-
-Josef Bacik <josef@toxicpanda.com>
-    mm: fix page leak with multiple threads mapping the same page
-
-Mike Rapoport <rppt@kernel.org>
-    secretmem: fix unhandled fault in truncate
-
-Andrei Vagin <avagin@gmail.com>
-    fs: sendfile handles O_NONBLOCK of out_fd
-
-ChenXiaoSong <chenxiaosong2@huawei.com>
-    ntfs: fix use-after-free in ntfs_ucsncmp()
-
-Junxiao Bi <ocfs2-devel@oss.oracle.com>
-    Revert "ocfs2: mount shared volume without ha stack"
-
-Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-    Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put
-
-
--------------
-
-Diffstat:
-
- Documentation/admin-guide/kernel-parameters.txt    |   2 +
- Documentation/networking/ip-sysctl.rst             |   9 +-
- Makefile                                           |   4 +-
- arch/arm/include/asm/dma.h                         |   2 +-
- arch/arm/lib/xor-neon.c                            |   3 +-
- arch/s390/include/asm/archrandom.h                 |   9 +-
- arch/x86/kernel/cpu/bugs.c                         |   1 +
- drivers/edac/ghes_edac.c                           |  11 ++-
- drivers/gpu/drm/nouveau/nouveau_dmem.c             |   6 +-
- drivers/gpu/drm/tiny/simpledrm.c                   |   2 +-
- drivers/net/ethernet/intel/i40e/i40e_main.c        |   4 +
- drivers/net/ethernet/intel/ice/ice_ethtool.c       |   3 +-
- drivers/net/ethernet/intel/ice/ice_main.c          |   8 +-
- .../net/ethernet/marvell/octeontx2/nic/otx2_tc.c   | 106 ++++++++++++++-------
- drivers/net/ethernet/sfc/ptp.c                     |  22 +++++
- drivers/net/macsec.c                               |  33 ++++---
- drivers/net/pcs/pcs-xpcs.c                         |   2 +-
- drivers/net/sungem_phy.c                           |   1 +
- drivers/net/virtio_net.c                           |  37 ++++++-
- drivers/scsi/mpt3sas/mpt3sas_scsih.c               |   1 +
- drivers/scsi/scsi_ioctl.c                          |   2 +-
- drivers/scsi/ufs/ufshcd-pltfrm.c                   |  15 ++-
- fs/ntfs/attrib.c                                   |   8 +-
- fs/ocfs2/ocfs2.h                                   |   4 +-
- fs/ocfs2/slot_map.c                                |  46 ++++-----
- fs/ocfs2/super.c                                   |  21 ----
- fs/read_write.c                                    |   3 +
- include/asm-generic/io.h                           |   2 -
- include/net/addrconf.h                             |   3 +
- include/net/bluetooth/l2cap.h                      |   1 +
- include/net/inet_connection_sock.h                 |  10 +-
- include/net/sock.h                                 |   8 +-
- include/net/tcp.h                                  |   2 +-
- kernel/locking/rwsem.c                             |  30 ++++--
- kernel/watch_queue.c                               |  58 ++++++-----
- mm/hmm.c                                           |  19 ++--
- mm/hugetlb.c                                       |   1 +
- mm/memory.c                                        |   7 +-
- mm/page_alloc.c                                    |  12 ++-
- mm/secretmem.c                                     |  33 +++++--
- net/bluetooth/l2cap_core.c                         |  61 +++++++++---
- net/decnet/af_decnet.c                             |   4 +-
- net/ipv4/fib_trie.c                                |   7 +-
- net/ipv4/igmp.c                                    |  24 ++---
- net/ipv4/tcp.c                                     |   8 +-
- net/ipv4/tcp_input.c                               |  41 ++++----
- net/ipv4/tcp_ipv4.c                                |   4 +-
- net/ipv4/tcp_metrics.c                             |  10 +-
- net/ipv4/tcp_output.c                              |  21 ++--
- net/ipv6/mcast.c                                   |  14 +--
- net/ipv6/ping.c                                    |   6 ++
- net/ipv6/tcp_ipv6.c                                |   4 +-
- net/mptcp/protocol.c                               |   8 +-
- net/netfilter/nfnetlink_queue.c                    |   7 +-
- net/sctp/associola.c                               |   5 +-
- net/sctp/stream.c                                  |  19 +---
- net/sctp/stream_sched.c                            |   2 +-
- net/tipc/socket.c                                  |   2 +-
- net/tls/tls_device.c                               |   7 +-
- tools/perf/util/symbol-elf.c                       |  45 ++++++++-
- 60 files changed, 547 insertions(+), 303 deletions(-)
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+
+commit d0be8347c623e0ac4202a1d4e0373882821f56b0 upstream.
+
+This fixes the following trace which is caused by hci_rx_work starting up
+*after* the final channel reference has been put() during sock_close() but
+*before* the references to the channel have been destroyed, so instead
+the code now rely on kref_get_unless_zero/l2cap_chan_hold_unless_zero to
+prevent referencing a channel that is about to be destroyed.
+
+  refcount_t: increment on 0; use-after-free.
+  BUG: KASAN: use-after-free in refcount_dec_and_test+0x20/0xd0
+  Read of size 4 at addr ffffffc114f5bf18 by task kworker/u17:14/705
+
+  CPU: 4 PID: 705 Comm: kworker/u17:14 Tainted: G S      W
+  4.14.234-00003-g1fb6d0bd49a4-dirty #28
+  Hardware name: Qualcomm Technologies, Inc. SM8150 V2 PM8150
+  Google Inc. MSM sm8150 Flame DVT (DT)
+  Workqueue: hci0 hci_rx_work
+  Call trace:
+   dump_backtrace+0x0/0x378
+   show_stack+0x20/0x2c
+   dump_stack+0x124/0x148
+   print_address_description+0x80/0x2e8
+   __kasan_report+0x168/0x188
+   kasan_report+0x10/0x18
+   __asan_load4+0x84/0x8c
+   refcount_dec_and_test+0x20/0xd0
+   l2cap_chan_put+0x48/0x12c
+   l2cap_recv_frame+0x4770/0x6550
+   l2cap_recv_acldata+0x44c/0x7a4
+   hci_acldata_packet+0x100/0x188
+   hci_rx_work+0x178/0x23c
+   process_one_work+0x35c/0x95c
+   worker_thread+0x4cc/0x960
+   kthread+0x1a8/0x1c4
+   ret_from_fork+0x10/0x18
+
+Cc: stable@kernel.org
+Reported-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Tested-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ include/net/bluetooth/l2cap.h |    1 
+ net/bluetooth/l2cap_core.c    |   61 +++++++++++++++++++++++++++++++++---------
+ 2 files changed, 49 insertions(+), 13 deletions(-)
+
+--- a/include/net/bluetooth/l2cap.h
++++ b/include/net/bluetooth/l2cap.h
+@@ -847,6 +847,7 @@ enum {
+ };
+ 
+ void l2cap_chan_hold(struct l2cap_chan *c);
++struct l2cap_chan *l2cap_chan_hold_unless_zero(struct l2cap_chan *c);
+ void l2cap_chan_put(struct l2cap_chan *c);
+ 
+ static inline void l2cap_chan_lock(struct l2cap_chan *chan)
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -111,7 +111,8 @@ static struct l2cap_chan *__l2cap_get_ch
+ }
+ 
+ /* Find channel with given SCID.
+- * Returns locked channel. */
++ * Returns a reference locked channel.
++ */
+ static struct l2cap_chan *l2cap_get_chan_by_scid(struct l2cap_conn *conn,
+ 						 u16 cid)
+ {
+@@ -119,15 +120,19 @@ static struct l2cap_chan *l2cap_get_chan
+ 
+ 	mutex_lock(&conn->chan_lock);
+ 	c = __l2cap_get_chan_by_scid(conn, cid);
+-	if (c)
+-		l2cap_chan_lock(c);
++	if (c) {
++		/* Only lock if chan reference is not 0 */
++		c = l2cap_chan_hold_unless_zero(c);
++		if (c)
++			l2cap_chan_lock(c);
++	}
+ 	mutex_unlock(&conn->chan_lock);
+ 
+ 	return c;
+ }
+ 
+ /* Find channel with given DCID.
+- * Returns locked channel.
++ * Returns a reference locked channel.
+  */
+ static struct l2cap_chan *l2cap_get_chan_by_dcid(struct l2cap_conn *conn,
+ 						 u16 cid)
+@@ -136,8 +141,12 @@ static struct l2cap_chan *l2cap_get_chan
+ 
+ 	mutex_lock(&conn->chan_lock);
+ 	c = __l2cap_get_chan_by_dcid(conn, cid);
+-	if (c)
+-		l2cap_chan_lock(c);
++	if (c) {
++		/* Only lock if chan reference is not 0 */
++		c = l2cap_chan_hold_unless_zero(c);
++		if (c)
++			l2cap_chan_lock(c);
++	}
+ 	mutex_unlock(&conn->chan_lock);
+ 
+ 	return c;
+@@ -162,8 +171,12 @@ static struct l2cap_chan *l2cap_get_chan
+ 
+ 	mutex_lock(&conn->chan_lock);
+ 	c = __l2cap_get_chan_by_ident(conn, ident);
+-	if (c)
+-		l2cap_chan_lock(c);
++	if (c) {
++		/* Only lock if chan reference is not 0 */
++		c = l2cap_chan_hold_unless_zero(c);
++		if (c)
++			l2cap_chan_lock(c);
++	}
+ 	mutex_unlock(&conn->chan_lock);
+ 
+ 	return c;
+@@ -497,6 +510,16 @@ void l2cap_chan_hold(struct l2cap_chan *
+ 	kref_get(&c->kref);
+ }
+ 
++struct l2cap_chan *l2cap_chan_hold_unless_zero(struct l2cap_chan *c)
++{
++	BT_DBG("chan %p orig refcnt %u", c, kref_read(&c->kref));
++
++	if (!kref_get_unless_zero(&c->kref))
++		return NULL;
++
++	return c;
++}
++
+ void l2cap_chan_put(struct l2cap_chan *c)
+ {
+ 	BT_DBG("chan %p orig refcnt %u", c, kref_read(&c->kref));
+@@ -1969,7 +1992,10 @@ static struct l2cap_chan *l2cap_global_c
+ 			src_match = !bacmp(&c->src, src);
+ 			dst_match = !bacmp(&c->dst, dst);
+ 			if (src_match && dst_match) {
+-				l2cap_chan_hold(c);
++				c = l2cap_chan_hold_unless_zero(c);
++				if (!c)
++					continue;
++
+ 				read_unlock(&chan_list_lock);
+ 				return c;
+ 			}
+@@ -1984,7 +2010,7 @@ static struct l2cap_chan *l2cap_global_c
+ 	}
+ 
+ 	if (c1)
+-		l2cap_chan_hold(c1);
++		c1 = l2cap_chan_hold_unless_zero(c1);
+ 
+ 	read_unlock(&chan_list_lock);
+ 
+@@ -4464,6 +4490,7 @@ static inline int l2cap_config_req(struc
+ 
+ unlock:
+ 	l2cap_chan_unlock(chan);
++	l2cap_chan_put(chan);
+ 	return err;
+ }
+ 
+@@ -4578,6 +4605,7 @@ static inline int l2cap_config_rsp(struc
+ 
+ done:
+ 	l2cap_chan_unlock(chan);
++	l2cap_chan_put(chan);
+ 	return err;
+ }
+ 
+@@ -5305,6 +5333,7 @@ send_move_response:
+ 	l2cap_send_move_chan_rsp(chan, result);
+ 
+ 	l2cap_chan_unlock(chan);
++	l2cap_chan_put(chan);
+ 
+ 	return 0;
+ }
+@@ -5397,6 +5426,7 @@ static void l2cap_move_continue(struct l
+ 	}
+ 
+ 	l2cap_chan_unlock(chan);
++	l2cap_chan_put(chan);
+ }
+ 
+ static void l2cap_move_fail(struct l2cap_conn *conn, u8 ident, u16 icid,
+@@ -5426,6 +5456,7 @@ static void l2cap_move_fail(struct l2cap
+ 	l2cap_send_move_chan_cfm(chan, L2CAP_MC_UNCONFIRMED);
+ 
+ 	l2cap_chan_unlock(chan);
++	l2cap_chan_put(chan);
+ }
+ 
+ static int l2cap_move_channel_rsp(struct l2cap_conn *conn,
+@@ -5489,6 +5520,7 @@ static int l2cap_move_channel_confirm(st
+ 	l2cap_send_move_chan_cfm_rsp(conn, cmd->ident, icid);
+ 
+ 	l2cap_chan_unlock(chan);
++	l2cap_chan_put(chan);
+ 
+ 	return 0;
+ }
+@@ -5524,6 +5556,7 @@ static inline int l2cap_move_channel_con
+ 	}
+ 
+ 	l2cap_chan_unlock(chan);
++	l2cap_chan_put(chan);
+ 
+ 	return 0;
+ }
+@@ -5896,12 +5929,11 @@ static inline int l2cap_le_credits(struc
+ 	if (credits > max_credits) {
+ 		BT_ERR("LE credits overflow");
+ 		l2cap_send_disconn_req(chan, ECONNRESET);
+-		l2cap_chan_unlock(chan);
+ 
+ 		/* Return 0 so that we don't trigger an unnecessary
+ 		 * command reject packet.
+ 		 */
+-		return 0;
++		goto unlock;
+ 	}
+ 
+ 	chan->tx_credits += credits;
+@@ -5912,7 +5944,9 @@ static inline int l2cap_le_credits(struc
+ 	if (chan->tx_credits)
+ 		chan->ops->resume(chan);
+ 
++unlock:
+ 	l2cap_chan_unlock(chan);
++	l2cap_chan_put(chan);
+ 
+ 	return 0;
+ }
+@@ -7598,6 +7632,7 @@ drop:
+ 
+ done:
+ 	l2cap_chan_unlock(chan);
++	l2cap_chan_put(chan);
+ }
+ 
+ static void l2cap_conless_channel(struct l2cap_conn *conn, __le16 psm,
+@@ -8086,7 +8121,7 @@ static struct l2cap_chan *l2cap_global_f
+ 		if (src_type != c->src_type)
+ 			continue;
+ 
+-		l2cap_chan_hold(c);
++		c = l2cap_chan_hold_unless_zero(c);
+ 		read_unlock(&chan_list_lock);
+ 		return c;
+ 	}
 
 
