@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AD7B58693B
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:59:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38A04586876
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:48:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232850AbiHAL7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:59:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49386 "EHLO
+        id S231603AbiHALsq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:48:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232633AbiHAL6s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:58:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEE033F300;
-        Mon,  1 Aug 2022 04:52:24 -0700 (PDT)
+        with ESMTP id S231589AbiHALsW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:48:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56720357FC;
+        Mon,  1 Aug 2022 04:48:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39A36612C6;
-        Mon,  1 Aug 2022 11:52:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47985C433D7;
-        Mon,  1 Aug 2022 11:52:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8EB66122C;
+        Mon,  1 Aug 2022 11:48:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4703C433C1;
+        Mon,  1 Aug 2022 11:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354743;
-        bh=MhDWw/SRIG6IZVqIevUfhqFNM0IasYDAl4zA5qMQQng=;
+        s=korg; t=1659354492;
+        bh=x5U3Uw+9VPMK0nBFev12SLRahZJIAopla8AhpZH9IYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PYJ1d36qGsIqgkmVwlBi9JtFzs2GVr83dPWhAr/eNzs3v0tYiOdT41S+b34ZL1js0
-         R5ZR1dNfNdDwpPNEMsA2N1pQy6V4Ekr2Kg5fXpYYwFjgjuVX/kxhlMqHE1izk5ECMg
-         M+RY0KZQsn6oMfn44OufWM5tub4TSfA2GxHZ8T8U=
+        b=1tOJPPdv0aPmMquO5tKYZ2x39174wV/rFfIksh45uusipnsqvTAdMJYSpnBodjEyF
+         PiD3xUYU5asfg9GGH1JVWOWbgpBmowN9+tbOEmNn25Af4zI7Y6iJZEbzZUCwlH01gj
+         X9OHFaXeid/ffvQF5VL728QZVbXPgg72AuDG7/a4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 38/65] tcp: Fix a data-race around sysctl_tcp_comp_sack_nr.
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 15/34] ipv6/addrconf: fix a null-ptr-deref bug for ip6_ptr
 Date:   Mon,  1 Aug 2022 13:46:55 +0200
-Message-Id: <20220801114135.299039329@linuxfoundation.org>
+Message-Id: <20220801114128.624528202@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
-References: <20220801114133.641770326@linuxfoundation.org>
+In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
+References: <20220801114128.025615151@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 79f55473bfc8ac51bd6572929a679eeb4da22251 ]
+commit 85f0173df35e5462d89947135a6a5599c6c3ef6f upstream.
 
-While reading sysctl_tcp_comp_sack_nr, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+Change net device's MTU to smaller than IPV6_MIN_MTU or unregister
+device while matching route. That may trigger null-ptr-deref bug
+for ip6_ptr probability as following.
 
-Fixes: 9c21d2fc41c0 ("tcp: add tcp_comp_sack_nr sysctl")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+=========================================================
+BUG: KASAN: null-ptr-deref in find_match.part.0+0x70/0x134
+Read of size 4 at addr 0000000000000308 by task ping6/263
+
+CPU: 2 PID: 263 Comm: ping6 Not tainted 5.19.0-rc7+ #14
+Call trace:
+ dump_backtrace+0x1a8/0x230
+ show_stack+0x20/0x70
+ dump_stack_lvl+0x68/0x84
+ print_report+0xc4/0x120
+ kasan_report+0x84/0x120
+ __asan_load4+0x94/0xd0
+ find_match.part.0+0x70/0x134
+ __find_rr_leaf+0x408/0x470
+ fib6_table_lookup+0x264/0x540
+ ip6_pol_route+0xf4/0x260
+ ip6_pol_route_output+0x58/0x70
+ fib6_rule_lookup+0x1a8/0x330
+ ip6_route_output_flags_noref+0xd8/0x1a0
+ ip6_route_output_flags+0x58/0x160
+ ip6_dst_lookup_tail+0x5b4/0x85c
+ ip6_dst_lookup_flow+0x98/0x120
+ rawv6_sendmsg+0x49c/0xc70
+ inet_sendmsg+0x68/0x94
+
+Reproducer as following:
+Firstly, prepare conditions:
+$ip netns add ns1
+$ip netns add ns2
+$ip link add veth1 type veth peer name veth2
+$ip link set veth1 netns ns1
+$ip link set veth2 netns ns2
+$ip netns exec ns1 ip -6 addr add 2001:0db8:0:f101::1/64 dev veth1
+$ip netns exec ns2 ip -6 addr add 2001:0db8:0:f101::2/64 dev veth2
+$ip netns exec ns1 ifconfig veth1 up
+$ip netns exec ns2 ifconfig veth2 up
+$ip netns exec ns1 ip -6 route add 2000::/64 dev veth1 metric 1
+$ip netns exec ns2 ip -6 route add 2001::/64 dev veth2 metric 1
+
+Secondly, execute the following two commands in two ssh windows
+respectively:
+$ip netns exec ns1 sh
+$while true; do ip -6 addr add 2001:0db8:0:f101::1/64 dev veth1; ip -6 route add 2000::/64 dev veth1 metric 1; ping6 2000::2; done
+
+$ip netns exec ns1 sh
+$while true; do ip link set veth1 mtu 1000; ip link set veth1 mtu 1500; sleep 5; done
+
+It is because ip6_ptr has been assigned to NULL in addrconf_ifdown() firstly,
+then ip6_ignore_linkdown() accesses ip6_ptr directly without NULL check.
+
+	cpu0			cpu1
+fib6_table_lookup
+__find_rr_leaf
+			addrconf_notify [ NETDEV_CHANGEMTU ]
+			addrconf_ifdown
+			RCU_INIT_POINTER(dev->ip6_ptr, NULL)
+find_match
+ip6_ignore_linkdown
+
+So we can add NULL check for ip6_ptr before using in ip6_ignore_linkdown() to
+fix the null-ptr-deref bug.
+
+Fixes: dcd1f572954f ("net/ipv6: Remove fib6_idev")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220728013307.656257-1-william.xuanziyang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/addrconf.h |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 72a339d3f18f..d35e88b5ffcb 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -5440,7 +5440,7 @@ static void __tcp_ack_snd_check(struct sock *sk, int ofo_possible)
- 	}
+--- a/include/net/addrconf.h
++++ b/include/net/addrconf.h
+@@ -399,6 +399,9 @@ static inline bool ip6_ignore_linkdown(c
+ {
+ 	const struct inet6_dev *idev = __in6_dev_get(dev);
  
- 	if (!tcp_is_sack(tp) ||
--	    tp->compressed_ack >= sock_net(sk)->ipv4.sysctl_tcp_comp_sack_nr)
-+	    tp->compressed_ack >= READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_comp_sack_nr))
- 		goto send_now;
++	if (unlikely(!idev))
++		return true;
++
+ 	return !!idev->cnf.ignore_routes_with_linkdown;
+ }
  
- 	if (tp->compressed_ack_rcv_nxt != tp->rcv_nxt) {
--- 
-2.35.1
-
 
 
