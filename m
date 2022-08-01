@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2B8A586A93
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:18:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4516C586A95
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:19:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234578AbiHAMSo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:18:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38978 "EHLO
+        id S233838AbiHAMS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:18:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234586AbiHAMSI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:18:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25D8D49B5F;
-        Mon,  1 Aug 2022 04:59:15 -0700 (PDT)
+        with ESMTP id S233603AbiHAMSM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:18:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A74880481;
+        Mon,  1 Aug 2022 04:59:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE1E7601C5;
-        Mon,  1 Aug 2022 11:59:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECAFAC433C1;
-        Mon,  1 Aug 2022 11:59:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56CABB81163;
+        Mon,  1 Aug 2022 11:59:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D59C433D7;
+        Mon,  1 Aug 2022 11:59:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659355154;
-        bh=Kr1Yx27AWLh+1gvT8gaFpSOhnROqSVu0uXH2DRg+H2g=;
+        s=korg; t=1659355157;
+        bh=VA2wohoCImHpJ67x4JVTxx0JPiyhyzHT+u6woSJvBRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Do9arLBY+JWYTpX3rV3riVQc8B4YmT/P7Jcpd3qt2wYoGmbYLgJ0dz8PboAHEksJ3
-         ShVofVkMRczbF6iYm4U84Ox15cWQ238asHFo1FUNeC19EP2KVUg9TjGUEVBcSef0+4
-         7uN8SYxvP3rKv0AyD2zyZrEqifs+zo2i9cHJ/Jy4=
+        b=M0/ifsvpurZvTQ4MKgHipIaEIR6k+WjSEGcWhyeMuli5cOBUfIcvuA2GCZK5lmsV6
+         XNuPd/fygcADVNUe2yvdt11XHGnNNo9MdF0iJPjlV5FHCvhjBl+Ibx0zOnthObA/x1
+         wGLIpMjl82aQ5cmFwxVsmsvKmEtVV/+X8eGwN/GA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 82/88] ARM: 9216/1: Fix MAX_DMA_ADDRESS overflow
-Date:   Mon,  1 Aug 2022 13:47:36 +0200
-Message-Id: <20220801114141.740058208@linuxfoundation.org>
+        stable@vger.kernel.org, Robert Richter <rric@kernel.org>,
+        Toshi Kani <toshi.kani@hpe.com>, Borislav Petkov <bp@suse.de>,
+        Robert Elliott <elliott@hpe.com>
+Subject: [PATCH 5.18 83/88] EDAC/ghes: Set the DIMM label unconditionally
+Date:   Mon,  1 Aug 2022 13:47:37 +0200
+Message-Id: <20220801114141.775276721@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
 References: <20220801114138.041018499@linuxfoundation.org>
@@ -54,52 +53,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Toshi Kani <toshi.kani@hpe.com>
 
-[ Upstream commit fb0fd3469ead5b937293c213daa1f589b4b7ce46 ]
+commit 5e2805d5379619c4a2e3ae4994e73b36439f4bad upstream.
 
-Commit 26f09e9b3a06 ("mm/memblock: add memblock memory allocation apis")
-added a check to determine whether arm_dma_zone_size is exceeding the
-amount of kernel virtual address space available between the upper 4GB
-virtual address limit and PAGE_OFFSET in order to provide a suitable
-definition of MAX_DMA_ADDRESS that should fit within the 32-bit virtual
-address space. The quantity used for comparison was off by a missing
-trailing 0, leading to MAX_DMA_ADDRESS to be overflowing a 32-bit
-quantity.
+The commit
 
-This was caught thanks to CONFIG_DEBUG_VIRTUAL on the bcm2711 platform
-where we define a dma_zone_size of 1GB and we have a PAGE_OFFSET value
-of 0xc000_0000 (CONFIG_VMSPLIT_3G) leading to MAX_DMA_ADDRESS being
-0x1_0000_0000 which overflows the unsigned long type used throughout
-__pa() and then __virt_addr_valid(). Because the virtual address passed
-to __virt_addr_valid() would now be 0, the function would loudly warn
-and flood the kernel log, thus making the platform unable to boot
-properly.
+  cb51a371d08e ("EDAC/ghes: Setup DIMM label from DMI and use it in error reports")
 
-Fixes: 26f09e9b3a06 ("mm/memblock: add memblock memory allocation apis")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+enforced that both the bank and device strings passed to
+dimm_setup_label() are not NULL.
+
+However, there are BIOSes, for example on a
+
+  HPE ProLiant DL360 Gen10/ProLiant DL360 Gen10, BIOS U32 03/15/2019
+
+which don't populate both strings:
+
+  Handle 0x0020, DMI type 17, 84 bytes
+  Memory Device
+          Array Handle: 0x0013
+          Error Information Handle: Not Provided
+          Total Width: 72 bits
+          Data Width: 64 bits
+          Size: 32 GB
+          Form Factor: DIMM
+          Set: None
+          Locator: PROC 1 DIMM 1        <===== device
+          Bank Locator: Not Specified   <===== bank
+
+This results in a buffer overflow because ghes_edac_register() calls
+strlen() on an uninitialized label, which had non-zero values left over
+from krealloc_array():
+
+  detected buffer overflow in __fortify_strlen
+   ------------[ cut here ]------------
+   kernel BUG at lib/string_helpers.c:983!
+   invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+   CPU: 1 PID: 1 Comm: swapper/0 Tainted: G          I       5.18.6-200.fc36.x86_64 #1
+   Hardware name: HPE ProLiant DL360 Gen10/ProLiant DL360 Gen10, BIOS U32 03/15/2019
+   RIP: 0010:fortify_panic
+   ...
+   Call Trace:
+    <TASK>
+    ghes_edac_register.cold
+    ghes_probe
+    platform_probe
+    really_probe
+    __driver_probe_device
+    driver_probe_device
+    __driver_attach
+    ? __device_attach_driver
+    bus_for_each_dev
+    bus_add_driver
+    driver_register
+    acpi_ghes_init
+    acpi_init
+    ? acpi_sleep_proc_init
+    do_one_initcall
+
+The label contains garbage because the commit in Fixes reallocs the
+DIMMs array while scanning the system but doesn't clear the newly
+allocated memory.
+
+Change dimm_setup_label() to always initialize the label to fix the
+issue. Set it to the empty string in case BIOS does not provide both
+bank and device so that ghes_edac_register() can keep the default label
+given by edac_mc_alloc_dimms().
+
+  [ bp: Rewrite commit message. ]
+
+Fixes: b9cae27728d1f ("EDAC/ghes: Scan the system once on driver init")
+Co-developed-by: Robert Richter <rric@kernel.org>
+Signed-off-by: Robert Richter <rric@kernel.org>
+Signed-off-by: Toshi Kani <toshi.kani@hpe.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Robert Elliott <elliott@hpe.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220719220124.760359-1-toshi.kani@hpe.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/asm/dma.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/edac/ghes_edac.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/include/asm/dma.h b/arch/arm/include/asm/dma.h
-index a81dda65c576..45180a2cc47c 100644
---- a/arch/arm/include/asm/dma.h
-+++ b/arch/arm/include/asm/dma.h
-@@ -10,7 +10,7 @@
- #else
- #define MAX_DMA_ADDRESS	({ \
- 	extern phys_addr_t arm_dma_zone_size; \
--	arm_dma_zone_size && arm_dma_zone_size < (0x10000000 - PAGE_OFFSET) ? \
-+	arm_dma_zone_size && arm_dma_zone_size < (0x100000000ULL - PAGE_OFFSET) ? \
- 		(PAGE_OFFSET + arm_dma_zone_size) : 0xffffffffUL; })
- #endif
+--- a/drivers/edac/ghes_edac.c
++++ b/drivers/edac/ghes_edac.c
+@@ -101,9 +101,14 @@ static void dimm_setup_label(struct dimm
  
--- 
-2.35.1
-
+ 	dmi_memdev_name(handle, &bank, &device);
+ 
+-	/* both strings must be non-zero */
+-	if (bank && *bank && device && *device)
+-		snprintf(dimm->label, sizeof(dimm->label), "%s %s", bank, device);
++	/*
++	 * Set to a NULL string when both bank and device are zero. In this case,
++	 * the label assigned by default will be preserved.
++	 */
++	snprintf(dimm->label, sizeof(dimm->label), "%s%s%s",
++		 (bank && *bank) ? bank : "",
++		 (bank && *bank && device && *device) ? " " : "",
++		 (device && *device) ? device : "");
+ }
+ 
+ static void assign_dmi_dimm_info(struct dimm_info *dimm, struct memdev_dmi_entry *entry)
 
 
