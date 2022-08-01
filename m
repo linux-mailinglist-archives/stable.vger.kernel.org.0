@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BDF45870FF
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 21:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99F32587105
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 21:06:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234239AbiHATFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 15:05:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53228 "EHLO
+        id S234305AbiHATFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 15:05:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234520AbiHATEy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 15:04:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BC0532452;
+        with ESMTP id S234514AbiHATEx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 15:04:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F59532EFC;
         Mon,  1 Aug 2022 12:03:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB541B81628;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F09561223;
+        Mon,  1 Aug 2022 19:03:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29A78C433B5;
         Mon,  1 Aug 2022 19:03:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A66AC433D6;
-        Mon,  1 Aug 2022 19:03:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659380600;
-        bh=WO0Is6Ap7HPT+oMAFCBFYAkwz657lC7CvErEigQn9to=;
-        h=From:To:Cc:Subject:Date:From;
-        b=HcM6yjNbxNIpULQ1Ko1vSEx0o2o/42zXGAO/vipKMbQHr78lyesCUPAgAdEbSKzxV
-         lCXzXADMlxpv0soXbDSFIN0CdmjSRYi7iks1pvYj0KLf6hJKdPdwBThs+gB2VMd+Zr
-         7WlFAqEvzq5I1fwgzNzGQPRXyiNomBif8J0sLxvs7dQIm2XyE+6z8jk7D2J4gJp4DJ
-         eAFUBgHCkrY21+kx+x/rHY41h8/63zcnaY8tWfSJijcUKoAKustZH7czueFGAO7kny
-         gZ/nZ5vDV1+iURmFNPV98k/QZR/TISny9S+poaVGuIn4LjPPLG6jDMHw99qQ4PkOLi
-         GHdQAv1mcytdg==
+        s=k20201202; t=1659380602;
+        bh=lpSj1NNhiHPnDfqWLUp3MPq8+c3a0hP1j7exSHushs0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=b2CwuiVl0jzImDm1oHBbJugY8pm4llok9eXr9FPJWAndLRXqHw5of+xcgv+intrjm
+         H9MJmqVmURpAmZhz9kB7DdEKTtPRv+osEcZp5I1YZqRqmUnoYU8QqwYbizhBpGk98/
+         6+2165JB7VRg2dOpwL5I+frfAgzIszYGl1MKT0O7iAtZzA+zRExFUysSCCQCrPQJhn
+         mLx20NahuwTZBVBrxyl3S0cRowszyndReUUNkwVEBHIuldo4O2+5qDreq9MEXKvTMx
+         OIo2cNC4gIQc7vswqHJ4Taa9kKJcPQBH4j4l5oLJFfLRtRObeTp0l/5frlcnDKcmmk
+         xTvkHzj+ohN4g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Hawkins Jiawei <yin31149@gmail.com>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Yongqiang Liu <liuyongqiang13@huawei.com>,
-        Zhang Yi <yi.zhang@huawei.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.4 1/6] ntfs: fix use-after-free in ntfs_ucsncmp()
-Date:   Mon,  1 Aug 2022 15:03:12 -0400
-Message-Id: <20220801190317.3819520-1-sashal@kernel.org>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 2/6] spi: spi-rspi: Fix PIO fallback on RZ platforms
+Date:   Mon,  1 Aug 2022 15:03:13 -0400
+Message-Id: <20220801190317.3819520-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220801190317.3819520-1-sashal@kernel.org>
+References: <20220801190317.3819520-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,110 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit 38c9c22a85aeed28d0831f230136e9cf6fa2ed44 ]
+[ Upstream commit b620aa3a7be346f04ae7789b165937615c6ee8d3 ]
 
-Syzkaller reported use-after-free bug as follows:
+RSPI IP on RZ/{A, G2L} SoC's has the same signal for both interrupt
+and DMA transfer request. Setting DMARS register for DMA transfer
+makes the signal to work as a DMA transfer request signal and
+subsequent interrupt requests to the interrupt controller
+are masked.
 
-==================================================================
-BUG: KASAN: use-after-free in ntfs_ucsncmp+0x123/0x130
-Read of size 2 at addr ffff8880751acee8 by task a.out/879
+PIO fallback does not work as interrupt signal is disabled.
 
-CPU: 7 PID: 879 Comm: a.out Not tainted 5.19.0-rc4-next-20220630-00001-gcc5218c8bd2c-dirty #7
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0x1c0/0x2b0
- print_address_description.constprop.0.cold+0xd4/0x484
- print_report.cold+0x55/0x232
- kasan_report+0xbf/0xf0
- ntfs_ucsncmp+0x123/0x130
- ntfs_are_names_equal.cold+0x2b/0x41
- ntfs_attr_find+0x43b/0xb90
- ntfs_attr_lookup+0x16d/0x1e0
- ntfs_read_locked_attr_inode+0x4aa/0x2360
- ntfs_attr_iget+0x1af/0x220
- ntfs_read_locked_inode+0x246c/0x5120
- ntfs_iget+0x132/0x180
- load_system_files+0x1cc6/0x3480
- ntfs_fill_super+0xa66/0x1cf0
- mount_bdev+0x38d/0x460
- legacy_get_tree+0x10d/0x220
- vfs_get_tree+0x93/0x300
- do_new_mount+0x2da/0x6d0
- path_mount+0x496/0x19d0
- __x64_sys_mount+0x284/0x300
- do_syscall_64+0x3b/0xc0
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-RIP: 0033:0x7f3f2118d9ea
-Code: 48 8b 0d a9 f4 0b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 f4 0b 00 f7 d8 64 89 01 48
-RSP: 002b:00007ffc269deac8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f3f2118d9ea
-RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffc269dec00
-RBP: 00007ffc269dec80 R08: 00007ffc269deb00 R09: 00007ffc269dec44
-R10: 0000000000000000 R11: 0000000000000202 R12: 000055f81ab1d220
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
- </TASK>
+This patch fixes this issue by re-enabling the interrupts by
+calling dmaengine_synchronize().
 
-The buggy address belongs to the physical page:
-page:0000000085430378 refcount:1 mapcount:1 mapping:0000000000000000 index:0x555c6a81d pfn:0x751ac
-memcg:ffff888101f7e180
-anon flags: 0xfffffc00a0014(uptodate|lru|mappedtodisk|swapbacked|node=0|zone=1|lastcpupid=0x1fffff)
-raw: 000fffffc00a0014 ffffea0001bf2988 ffffea0001de2448 ffff88801712e201
-raw: 0000000555c6a81d 0000000000000000 0000000100000000 ffff888101f7e180
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff8880751acd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff8880751ace00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff8880751ace80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-                                                          ^
- ffff8880751acf00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff8880751acf80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-==================================================================
-
-The reason is that struct ATTR_RECORD->name_offset is 6485, end address of
-name string is out of bounds.
-
-Fix this by adding sanity check on end address of attribute name string.
-
-[akpm@linux-foundation.org: coding-style cleanups]
-[chenxiaosong2@huawei.com: cleanup suggested by Hawkins Jiawei]
-  Link: https://lkml.kernel.org/r/20220709064511.3304299-1-chenxiaosong2@huawei.com
-Link: https://lkml.kernel.org/r/20220707105329.4020708-1-chenxiaosong2@huawei.com
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Cc: ChenXiaoSong <chenxiaosong2@huawei.com>
-Cc: Yongqiang Liu <liuyongqiang13@huawei.com>
-Cc: Zhang Yi <yi.zhang@huawei.com>
-Cc: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20220721143449.879257-1-biju.das.jz@bp.renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs/attrib.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/spi/spi-rspi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/ntfs/attrib.c b/fs/ntfs/attrib.c
-index d563abc3e136..914e99173130 100644
---- a/fs/ntfs/attrib.c
-+++ b/fs/ntfs/attrib.c
-@@ -592,8 +592,12 @@ static int ntfs_attr_find(const ATTR_TYPE type, const ntfschar *name,
- 		a = (ATTR_RECORD*)((u8*)ctx->attr +
- 				le32_to_cpu(ctx->attr->length));
- 	for (;;	a = (ATTR_RECORD*)((u8*)a + le32_to_cpu(a->length))) {
--		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > (u8*)ctx->mrec +
--				le32_to_cpu(ctx->mrec->bytes_allocated))
-+		u8 *mrec_end = (u8 *)ctx->mrec +
-+		               le32_to_cpu(ctx->mrec->bytes_allocated);
-+		u8 *name_end = (u8 *)a + le16_to_cpu(a->name_offset) +
-+			       a->name_length * sizeof(ntfschar);
-+		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > mrec_end ||
-+		    name_end > mrec_end)
- 			break;
- 		ctx->attr = a;
- 		if (unlikely(le32_to_cpu(a->type) > le32_to_cpu(type) ||
+diff --git a/drivers/spi/spi-rspi.c b/drivers/spi/spi-rspi.c
+index 0524741d73b9..8ae2ac40b4b2 100644
+--- a/drivers/spi/spi-rspi.c
++++ b/drivers/spi/spi-rspi.c
+@@ -595,6 +595,10 @@ static int rspi_dma_transfer(struct rspi_data *rspi, struct sg_table *tx,
+ 					       rspi->dma_callbacked, HZ);
+ 	if (ret > 0 && rspi->dma_callbacked) {
+ 		ret = 0;
++		if (tx)
++			dmaengine_synchronize(rspi->ctlr->dma_tx);
++		if (rx)
++			dmaengine_synchronize(rspi->ctlr->dma_rx);
+ 	} else {
+ 		if (!ret) {
+ 			dev_err(&rspi->ctlr->dev, "DMA timeout\n");
 -- 
 2.35.1
 
