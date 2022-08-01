@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35BBB586890
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:50:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2CB9586912
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:56:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231831AbiHALuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:50:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35714 "EHLO
+        id S232366AbiHAL4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:56:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231659AbiHALta (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:49:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 673C23C16B;
-        Mon,  1 Aug 2022 04:48:49 -0700 (PDT)
+        with ESMTP id S232654AbiHALzw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:55:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D0A474D5;
+        Mon,  1 Aug 2022 04:51:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45A2A6122C;
-        Mon,  1 Aug 2022 11:48:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52357C433C1;
-        Mon,  1 Aug 2022 11:48:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD90AB80E8F;
+        Mon,  1 Aug 2022 11:51:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 017FCC433C1;
+        Mon,  1 Aug 2022 11:51:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354528;
-        bh=OunI6hSDHwul4no2TGTSH/Kz2Ba6zXgedfsNEhkGKDg=;
+        s=korg; t=1659354685;
+        bh=Kr1Yx27AWLh+1gvT8gaFpSOhnROqSVu0uXH2DRg+H2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J2BBfVR/C9qx2Z0ZRwBQtp1N/ujIUkwFztAr7NCTvBJ36ug0/C6v8VpnnNYl+k/iO
-         5TDuxQva0oI+GmircQGLbr8cp6oGVd0pyw3JtM4O3PFS664o7JacDpgH0x4iLA5baY
-         DHNJK9aPwpquRhegJJGIoTblZ+e+VffDl9QlHmBo=
+        b=ntPdekIEo4TkTj2xXGMf0a087Il0MXsI2k5Pe1t+n5kaJEX5tccKrCv03X/fb7fbT
+         goU3EVwmPTFkeHvWkLoV+TVUu3K09GxMbPm9xWMQkDnGQfFiUJyKyn8FV8KDoNo33W
+         74M6Qw76OcexeF30d+bRlcc9T+UMq4DkE+3ZFWCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Domingo Dirutigliano <pwnzer0tt1@proton.me>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 27/34] netfilter: nf_queue: do not allow packet truncation below transport header offset
+Subject: [PATCH 5.10 50/65] ARM: 9216/1: Fix MAX_DMA_ADDRESS overflow
 Date:   Mon,  1 Aug 2022 13:47:07 +0200
-Message-Id: <20220801114129.048052216@linuxfoundation.org>
+Message-Id: <20220801114135.797039713@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
-References: <20220801114128.025615151@linuxfoundation.org>
+In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
+References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 99a63d36cb3ed5ca3aa6fcb64cffbeaf3b0fb164 ]
+[ Upstream commit fb0fd3469ead5b937293c213daa1f589b4b7ce46 ]
 
-Domingo Dirutigliano and Nicola Guerrera report kernel panic when
-sending nf_queue verdict with 1-byte nfta_payload attribute.
+Commit 26f09e9b3a06 ("mm/memblock: add memblock memory allocation apis")
+added a check to determine whether arm_dma_zone_size is exceeding the
+amount of kernel virtual address space available between the upper 4GB
+virtual address limit and PAGE_OFFSET in order to provide a suitable
+definition of MAX_DMA_ADDRESS that should fit within the 32-bit virtual
+address space. The quantity used for comparison was off by a missing
+trailing 0, leading to MAX_DMA_ADDRESS to be overflowing a 32-bit
+quantity.
 
-The IP/IPv6 stack pulls the IP(v6) header from the packet after the
-input hook.
+This was caught thanks to CONFIG_DEBUG_VIRTUAL on the bcm2711 platform
+where we define a dma_zone_size of 1GB and we have a PAGE_OFFSET value
+of 0xc000_0000 (CONFIG_VMSPLIT_3G) leading to MAX_DMA_ADDRESS being
+0x1_0000_0000 which overflows the unsigned long type used throughout
+__pa() and then __virt_addr_valid(). Because the virtual address passed
+to __virt_addr_valid() would now be 0, the function would loudly warn
+and flood the kernel log, thus making the platform unable to boot
+properly.
 
-If user truncates the packet below the header size, this skb_pull() will
-result in a malformed skb (skb->len < 0).
-
-Fixes: 7af4cc3fa158 ("[NETFILTER]: Add "nfnetlink_queue" netfilter queue handler over nfnetlink")
-Reported-by: Domingo Dirutigliano <pwnzer0tt1@proton.me>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Reviewed-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 26f09e9b3a06 ("mm/memblock: add memblock memory allocation apis")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nfnetlink_queue.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/arm/include/asm/dma.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
-index 7d3ab08a5a2d..581bd1353a44 100644
---- a/net/netfilter/nfnetlink_queue.c
-+++ b/net/netfilter/nfnetlink_queue.c
-@@ -846,11 +846,16 @@ nfqnl_enqueue_packet(struct nf_queue_entry *entry, unsigned int queuenum)
- }
+diff --git a/arch/arm/include/asm/dma.h b/arch/arm/include/asm/dma.h
+index a81dda65c576..45180a2cc47c 100644
+--- a/arch/arm/include/asm/dma.h
++++ b/arch/arm/include/asm/dma.h
+@@ -10,7 +10,7 @@
+ #else
+ #define MAX_DMA_ADDRESS	({ \
+ 	extern phys_addr_t arm_dma_zone_size; \
+-	arm_dma_zone_size && arm_dma_zone_size < (0x10000000 - PAGE_OFFSET) ? \
++	arm_dma_zone_size && arm_dma_zone_size < (0x100000000ULL - PAGE_OFFSET) ? \
+ 		(PAGE_OFFSET + arm_dma_zone_size) : 0xffffffffUL; })
+ #endif
  
- static int
--nfqnl_mangle(void *data, int data_len, struct nf_queue_entry *e, int diff)
-+nfqnl_mangle(void *data, unsigned int data_len, struct nf_queue_entry *e, int diff)
- {
- 	struct sk_buff *nskb;
- 
- 	if (diff < 0) {
-+		unsigned int min_len = skb_transport_offset(e->skb);
-+
-+		if (data_len < min_len)
-+			return -EINVAL;
-+
- 		if (pskb_trim(e->skb, data_len))
- 			return -ENOMEM;
- 	} else if (diff > 0) {
 -- 
 2.35.1
 
