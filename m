@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F03BB5869F1
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5A05869F2
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:09:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233819AbiHAMJg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:09:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46742 "EHLO
+        id S233619AbiHAMJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:09:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231628AbiHAMIx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:08:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AF5E655A0;
-        Mon,  1 Aug 2022 04:56:04 -0700 (PDT)
+        with ESMTP id S233839AbiHAMJD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:09:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C927965652;
+        Mon,  1 Aug 2022 04:56:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F16C6B81163;
-        Mon,  1 Aug 2022 11:56:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D896C433C1;
-        Mon,  1 Aug 2022 11:56:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 169DA61227;
+        Mon,  1 Aug 2022 11:56:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2263BC433D6;
+        Mon,  1 Aug 2022 11:56:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354961;
-        bh=QdhoJKHWHOYGae7EJTZdGq1HN/BPTPc3s5JJatJcrEw=;
+        s=korg; t=1659354964;
+        bh=0DOI+tH+obLM/ah1ir/rAmzRsoGfunCYQfDTahRUfW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HMjZn/SD2UVd1e7xv5faG373LHAXFkls1JOZ5oVc29VEYwyqDY1lHUM9tW02wKSRj
-         fyIp62PyWGvFbs7816gN9rBpYvgf29XOhlYdwbHzZH2pGpPPntRPPWtNW6+jMKRna7
-         NJwJlBX/etI/K4qePVUUKgSO918Hiy5WaFU4K0vk=
+        b=n30zbhrLzwU0N3Z04RhFl6klxDyUfusTFBIM+upgzP/FbXbjvVtmrSus1rSQBoCVI
+         mq7noZOUV/z9rUhrmkdKcsN72IKU7UYZT3Kw55G9gt/Tdh7Ux7NREkPVJzG5lWgyKN
+         m4BxeL6ErPNI4wXVwA1q98wPRBQUpttD2QqWQz0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.18 13/88] asm-generic: remove a broken and needless ifdef conditional
-Date:   Mon,  1 Aug 2022 13:46:27 +0200
-Message-Id: <20220801114138.662815688@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Juergen Christ <jchrist@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: [PATCH 5.18 14/88] s390/archrandom: prevent CPACF trng invocations in interrupt context
+Date:   Mon,  1 Aug 2022 13:46:28 +0200
+Message-Id: <20220801114138.701851448@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
 References: <20220801114138.041018499@linuxfoundation.org>
@@ -52,51 +55,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-commit e2a619ca0b38f2114347b7078b8a67d72d457a3d upstream.
+commit 918e75f77af7d2e049bb70469ec0a2c12782d96a upstream.
 
-Commit 527701eda5f1 ("lib: Add a generic version of devmem_is_allowed()")
-introduces the config symbol GENERIC_LIB_DEVMEM_IS_ALLOWED, but then
-falsely refers to CONFIG_GENERIC_DEVMEM_IS_ALLOWED (note the missing LIB
-in the reference) in ./include/asm-generic/io.h.
+This patch slightly reworks the s390 arch_get_random_seed_{int,long}
+implementation: Make sure the CPACF trng instruction is never
+called in any interrupt context. This is done by adding an
+additional condition in_task().
 
-Luckily, ./scripts/checkkconfigsymbols.py warns on non-existing configs:
+Justification:
 
-GENERIC_DEVMEM_IS_ALLOWED
-Referencing files: include/asm-generic/io.h
+There are some constrains to satisfy for the invocation of the
+arch_get_random_seed_{int,long}() functions:
+- They should provide good random data during kernel initialization.
+- They should not be called in interrupt context as the TRNG
+  instruction is relatively heavy weight and may for example
+  make some network loads cause to timeout and buck.
 
-The actual fix, though, is simply to not to make this function declaration
-dependent on any kernel config. For architectures that intend to use
-the generic version, the arch's 'select GENERIC_LIB_DEVMEM_IS_ALLOWED' will
-lead to picking the function definition, and for other architectures, this
-function is simply defined elsewhere.
+However, it was not clear what kind of interrupt context is exactly
+encountered during kernel init or network traffic eventually calling
+arch_get_random_seed_long().
 
-The wrong '#ifndef' on a non-existing config symbol also always had the
-same effect (although more by mistake than by intent). So, there is no
-functional change.
+After some days of investigations it is clear that the s390
+start_kernel function is not running in any interrupt context and
+so the trng is called:
 
-Remove this broken and needless ifdef conditional.
+Jul 11 18:33:39 t35lp54 kernel:  [<00000001064e90ca>] arch_get_random_seed_long.part.0+0x32/0x70
+Jul 11 18:33:39 t35lp54 kernel:  [<000000010715f246>] random_init+0xf6/0x238
+Jul 11 18:33:39 t35lp54 kernel:  [<000000010712545c>] start_kernel+0x4a4/0x628
+Jul 11 18:33:39 t35lp54 kernel:  [<000000010590402a>] startup_continue+0x2a/0x40
 
-Fixes: 527701eda5f1 ("lib: Add a generic version of devmem_is_allowed()")
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+The condition in_task() is true and the CPACF trng provides random data
+during kernel startup.
+
+The network traffic however, is more difficult. A typical call stack
+looks like this:
+
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b5600fc>] extract_entropy.constprop.0+0x23c/0x240
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b560136>] crng_reseed+0x36/0xd8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b5604b8>] crng_make_state+0x78/0x340
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b5607e0>] _get_random_bytes+0x60/0xf8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b56108a>] get_random_u32+0xda/0x248
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008aefe7a8>] kfence_guarded_alloc+0x48/0x4b8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008aeff35e>] __kfence_alloc+0x18e/0x1b8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008aef7f10>] __kmalloc_node_track_caller+0x368/0x4d8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b611eac>] kmalloc_reserve+0x44/0xa0
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b611f98>] __alloc_skb+0x90/0x178
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b6120dc>] __napi_alloc_skb+0x5c/0x118
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b8f06b4>] qeth_extract_skb+0x13c/0x680
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b8f6526>] qeth_poll+0x256/0x3f8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b63d76e>] __napi_poll.constprop.0+0x46/0x2f8
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b63dbec>] net_rx_action+0x1cc/0x408
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b937302>] __do_softirq+0x132/0x6b0
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008abf46ce>] __irq_exit_rcu+0x13e/0x170
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008abf531a>] irq_exit_rcu+0x22/0x50
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b922506>] do_io_irq+0xe6/0x198
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b935826>] io_int_handler+0xd6/0x110
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b9358a6>] psw_idle_exit+0x0/0xa
+Jul 06 17:37:07 t35lp54 kernel: ([<000000008ab9c59a>] arch_cpu_idle+0x52/0xe0)
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b933cfe>] default_idle_call+0x6e/0xd0
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008ac59f4e>] do_idle+0xf6/0x1b0
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008ac5a28e>] cpu_startup_entry+0x36/0x40
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008abb0d90>] smp_start_secondary+0x148/0x158
+Jul 06 17:37:07 t35lp54 kernel:  [<000000008b935b9e>] restart_int_handler+0x6e/0x90
+
+which confirms that the call is in softirq context. So in_task() covers exactly
+the cases where we want to have CPACF trng called: not in nmi, not in hard irq,
+not in soft irq but in normal task context and during kernel init.
+
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Acked-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Reviewed-by: Juergen Christ <jchrist@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220713131721.257907-1-freude@linux.ibm.com
+Fixes: e4f74400308c ("s390/archrandom: simplify back to earlier design and initialize earlier")
+[agordeev@linux.ibm.com changed desc, added Fixes and Link, removed -stable]
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/asm-generic/io.h |    2 --
- 1 file changed, 2 deletions(-)
+ arch/s390/include/asm/archrandom.h |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/include/asm-generic/io.h
-+++ b/include/asm-generic/io.h
-@@ -1125,9 +1125,7 @@ static inline void memcpy_toio(volatile
- }
- #endif
+--- a/arch/s390/include/asm/archrandom.h
++++ b/arch/s390/include/asm/archrandom.h
+@@ -2,7 +2,7 @@
+ /*
+  * Kernel interface for the s390 arch_random_* functions
+  *
+- * Copyright IBM Corp. 2017, 2020
++ * Copyright IBM Corp. 2017, 2022
+  *
+  * Author: Harald Freudenberger <freude@de.ibm.com>
+  *
+@@ -14,6 +14,7 @@
+ #ifdef CONFIG_ARCH_RANDOM
  
--#ifndef CONFIG_GENERIC_DEVMEM_IS_ALLOWED
- extern int devmem_is_allowed(unsigned long pfn);
--#endif
+ #include <linux/static_key.h>
++#include <linux/preempt.h>
+ #include <linux/atomic.h>
+ #include <asm/cpacf.h>
  
- #endif /* __KERNEL__ */
+@@ -32,7 +33,8 @@ static inline bool __must_check arch_get
  
+ static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ {
+-	if (static_branch_likely(&s390_arch_random_available)) {
++	if (static_branch_likely(&s390_arch_random_available) &&
++	    in_task()) {
+ 		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
+ 		atomic64_add(sizeof(*v), &s390_arch_random_counter);
+ 		return true;
+@@ -42,7 +44,8 @@ static inline bool __must_check arch_get
+ 
+ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ {
+-	if (static_branch_likely(&s390_arch_random_available)) {
++	if (static_branch_likely(&s390_arch_random_available) &&
++	    in_task()) {
+ 		cpacf_trng(NULL, 0, (u8 *)v, sizeof(*v));
+ 		atomic64_add(sizeof(*v), &s390_arch_random_counter);
+ 		return true;
 
 
