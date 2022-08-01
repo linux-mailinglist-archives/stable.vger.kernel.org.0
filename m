@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66C2058690F
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:56:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D33E658688D
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:50:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232039AbiHAL4S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:56:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48018 "EHLO
+        id S231718AbiHALuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:50:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232542AbiHALzm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:55:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EB7B46D91;
-        Mon,  1 Aug 2022 04:51:20 -0700 (PDT)
+        with ESMTP id S231721AbiHALtO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:49:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 038563ED67;
+        Mon,  1 Aug 2022 04:48:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55FFEB81171;
-        Mon,  1 Aug 2022 11:51:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6038C433D6;
-        Mon,  1 Aug 2022 11:51:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D84DA612C6;
+        Mon,  1 Aug 2022 11:48:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB741C433C1;
+        Mon,  1 Aug 2022 11:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354677;
-        bh=ovaRUObMAvZXzLI3pFsi8aRPVpgULcDH1zTnBrKal/Q=;
+        s=korg; t=1659354523;
+        bh=UMWnBXZ/6z15jkJ5TpcjEq0X7QC9NJWGksPHannIGe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hh1/XWPNP4WzjpupoijT4NrKSa2Dxy/60p1BnoY5qIIXGIHz6eemYuw4c7IVtp+ne
-         Zh5dmWb719IkZDdJ36QlmWiGdDLWXs6bemfpJQ7Ucmhe2yP26AKq24EM+c4c0A9wOT
-         AbHF9g3oY13L7oOR9eBIArErWxqrrqSrQ0LmTOFs=
+        b=jPJxKDWCjCURDSAuQ2SOa7rDthb004TNeRs1UgAAF95B7Mz9yCaT1YEcfneHWkG9T
+         s/njbKJejOZxZXRPlXHHkcOaQl2EDMRuYBcKfO49nraLmhjArvxqTA2StR4Tyfwcz7
+         vtkHQ6a9YJ0Hzk+BaKw+6tx1DXz4OrnV2b0xWKlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        "Justin M. Forbes" <jforbes@fedoraproject.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Nicolas Pitre <nico@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.10 47/65] ARM: crypto: comment out gcc warning that breaks clang builds
-Date:   Mon,  1 Aug 2022 13:47:04 +0200
-Message-Id: <20220801114135.689220683@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dawid Lukwinski <dawid.lukwinski@intel.com>,
+        Michal Maloszewski <michal.maloszewski@intel.com>,
+        Dave Switzer <david.switzer@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 25/34] i40e: Fix interface init with MSI interrupts (no MSI-X)
+Date:   Mon,  1 Aug 2022 13:47:05 +0200
+Message-Id: <20220801114128.986934341@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
-References: <20220801114133.641770326@linuxfoundation.org>
+In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
+References: <20220801114128.025615151@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Michal Maloszewski <michal.maloszewski@intel.com>
 
-The gcc build warning prevents all clang-built kernels from working
-properly, so comment it out to fix the build.
+[ Upstream commit 5fcbb711024aac6d4db385623e6f2fdf019f7782 ]
 
-This is a -stable kernel only patch for now, it will be resolved
-differently in mainline releases in the future.
+Fix the inability to bring an interface up on a setup with
+only MSI interrupts enabled (no MSI-X).
+Solution is to add a default number of QPs = 1. This is enough,
+since without MSI-X support driver enables only a basic feature set.
 
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc: "Justin M. Forbes" <jforbes@fedoraproject.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Nicolas Pitre <nico@linaro.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bc6d33c8d93f ("i40e: Fix the number of queues available to be mapped for use")
+Signed-off-by: Dawid Lukwinski <dawid.lukwinski@intel.com>
+Signed-off-by: Michal Maloszewski <michal.maloszewski@intel.com>
+Tested-by: Dave Switzer <david.switzer@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20220722175401.112572-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/lib/xor-neon.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/arm/lib/xor-neon.c
-+++ b/arch/arm/lib/xor-neon.c
-@@ -26,8 +26,9 @@ MODULE_LICENSE("GPL");
-  * While older versions of GCC do not generate incorrect code, they fail to
-  * recognize the parallel nature of these functions, and emit plain ARM code,
-  * which is known to be slower than the optimized ARM code in asm-arm/xor.h.
-+ *
-+ * #warning This code requires at least version 4.6 of GCC
-  */
--#warning This code requires at least version 4.6 of GCC
- #endif
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 0610d344fdbf..637f6ed78b48 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -1821,11 +1821,15 @@ static void i40e_vsi_setup_queue_map(struct i40e_vsi *vsi,
+ 		 * non-zero req_queue_pairs says that user requested a new
+ 		 * queue count via ethtool's set_channels, so use this
+ 		 * value for queues distribution across traffic classes
++		 * We need at least one queue pair for the interface
++		 * to be usable as we see in else statement.
+ 		 */
+ 		if (vsi->req_queue_pairs > 0)
+ 			vsi->num_queue_pairs = vsi->req_queue_pairs;
+ 		else if (pf->flags & I40E_FLAG_MSIX_ENABLED)
+ 			vsi->num_queue_pairs = pf->num_lan_msix;
++		else
++			vsi->num_queue_pairs = 1;
+ 	}
  
- #pragma GCC diagnostic ignored "-Wunused-variable"
+ 	/* Number of queues per enabled TC */
+-- 
+2.35.1
+
 
 
