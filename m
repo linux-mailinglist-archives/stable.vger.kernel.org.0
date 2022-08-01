@@ -2,47 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAA45869BD
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:06:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC999586A7E
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:17:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233441AbiHAMG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:06:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43278 "EHLO
+        id S234533AbiHAMRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:17:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233782AbiHAMGF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:06:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43210C8;
-        Mon,  1 Aug 2022 04:55:09 -0700 (PDT)
+        with ESMTP id S234086AbiHAMQT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:16:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D65A348EB4;
+        Mon,  1 Aug 2022 04:58:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66533612E9;
-        Mon,  1 Aug 2022 11:55:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D682C433D6;
-        Mon,  1 Aug 2022 11:55:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EF6BB80E8F;
+        Mon,  1 Aug 2022 11:58:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55C9FC433C1;
+        Mon,  1 Aug 2022 11:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354907;
-        bh=c6jwXhG8ZaugPYMKXI6+L6tNkj+voJ6779qrSNNKXZo=;
+        s=korg; t=1659355129;
+        bh=6LDtu3xfLD3w2Kt9zGVdzUU8HzppBADqvcuwSBLmMK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xNg+Xj3+mAJdN/7kO2Sq3lMExkVVJjY/VaK5ein6htluOKiRZAR8Rwq3UYh1qKmSu
-         TmI/f51jQFsHVExX68Q6q6xA8Z1X3EkGcwjefdPkVU31i/HE5O+TEdI3ztI73SRl4S
-         5cJK04MbcwnpfaKfOT8evrAjmlF7RpxuprlU4GKQ=
+        b=KK7nRXpzACsVzXfYbWd4WLRa6HRDvG+e9C5A8IiYA8dcgzqtb9jV9AQfD5KfK8z5F
+         7FOWE2IgufX+ixhBLQ+F9YfVti1XeE7YN2m/Kg9mzZjoYDa+km70HRG3RY+CbFZ8ki
+         Ke7cqSLtFSxOqHV2oowzlXggsykjUBPn57g6G1V4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ralph Campbell <rcampbell@nvidia.com>,
-        Felix Kuehling <felix.kuehling@amd.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Philip Yang <Philip.Yang@amd.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 63/69] mm/hmm: fault non-owner device private entries
-Date:   Mon,  1 Aug 2022 13:47:27 +0200
-Message-Id: <20220801114137.017061618@linuxfoundation.org>
+        stable@vger.kernel.org, Chang Rui <changruinj@gmail.com>,
+        Fangrui Song <maskray@google.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 74/88] perf symbol: Correct address for bss symbols
+Date:   Mon,  1 Aug 2022 13:47:28 +0200
+Message-Id: <20220801114141.409143282@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
+References: <20220801114138.041018499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,79 +61,182 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ralph Campbell <rcampbell@nvidia.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-commit 8a295dbbaf7292c582a40ce469c326f472d51f66 upstream.
+[ Upstream commit 2d86612aacb7805f72873691a2644d7279ed0630 ]
 
-If hmm_range_fault() is called with the HMM_PFN_REQ_FAULT flag and a
-device private PTE is found, the hmm_range::dev_private_owner page is used
-to determine if the device private page should not be faulted in.
-However, if the device private page is not owned by the caller,
-hmm_range_fault() returns an error instead of calling migrate_to_ram() to
-fault in the page.
+When using 'perf mem' and 'perf c2c', an issue is observed that tool
+reports the wrong offset for global data symbols.  This is a common
+issue on both x86 and Arm64 platforms.
 
-For example, if a page is migrated to GPU private memory and a RDMA fault
-capable NIC tries to read the migrated page, without this patch it will
-get an error.  With this patch, the page will be migrated back to system
-memory and the NIC will be able to read the data.
+Let's see an example, for a test program, below is the disassembly for
+its .bss section which is dumped with objdump:
 
-Link: https://lkml.kernel.org/r/20220727000837.4128709-2-rcampbell@nvidia.com
-Link: https://lkml.kernel.org/r/20220725183615.4118795-2-rcampbell@nvidia.com
-Fixes: 08ddddda667b ("mm/hmm: check the device private page owner in hmm_range_fault()")
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Reported-by: Felix Kuehling <felix.kuehling@amd.com>
-Reviewed-by: Alistair Popple <apopple@nvidia.com>
-Cc: Philip Yang <Philip.Yang@amd.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  ...
+
+  Disassembly of section .bss:
+
+  0000000000004040 <completed.0>:
+  	...
+
+  0000000000004080 <buf1>:
+  	...
+
+  00000000000040c0 <buf2>:
+  	...
+
+  0000000000004100 <thread>:
+  	...
+
+First we used 'perf mem record' to run the test program and then used
+'perf --debug verbose=4 mem report' to observe what's the symbol info
+for 'buf1' and 'buf2' structures.
+
+  # ./perf mem record -e ldlat-loads,ldlat-stores -- false_sharing.exe 8
+  # ./perf --debug verbose=4 mem report
+    ...
+    dso__load_sym_internal: adjusting symbol: st_value: 0x40c0 sh_addr: 0x4040 sh_offset: 0x3028
+    symbol__new: buf2 0x30a8-0x30e8
+    ...
+    dso__load_sym_internal: adjusting symbol: st_value: 0x4080 sh_addr: 0x4040 sh_offset: 0x3028
+    symbol__new: buf1 0x3068-0x30a8
+    ...
+
+The perf tool relies on libelf to parse symbols, in executable and
+shared object files, 'st_value' holds a virtual address; 'sh_addr' is
+the address at which section's first byte should reside in memory, and
+'sh_offset' is the byte offset from the beginning of the file to the
+first byte in the section.  The perf tool uses below formula to convert
+a symbol's memory address to a file address:
+
+  file_address = st_value - sh_addr + sh_offset
+                    ^
+                    ` Memory address
+
+We can see the final adjusted address ranges for buf1 and buf2 are
+[0x30a8-0x30e8) and [0x3068-0x30a8) respectively, apparently this is
+incorrect, in the code, the structure for 'buf1' and 'buf2' specifies
+compiler attribute with 64-byte alignment.
+
+The problem happens for 'sh_offset', libelf returns it as 0x3028 which
+is not 64-byte aligned, combining with disassembly, it's likely libelf
+doesn't respect the alignment for .bss section, therefore, it doesn't
+return the aligned value for 'sh_offset'.
+
+Suggested by Fangrui Song, ELF file contains program header which
+contains PT_LOAD segments, the fields p_vaddr and p_offset in PT_LOAD
+segments contain the execution info.  A better choice for converting
+memory address to file address is using the formula:
+
+  file_address = st_value - p_vaddr + p_offset
+
+This patch introduces elf_read_program_header() which returns the
+program header based on the passed 'st_value', then it uses the formula
+above to calculate the symbol file address; and the debugging log is
+updated respectively.
+
+After applying the change:
+
+  # ./perf --debug verbose=4 mem report
+    ...
+    dso__load_sym_internal: adjusting symbol: st_value: 0x40c0 p_vaddr: 0x3d28 p_offset: 0x2d28
+    symbol__new: buf2 0x30c0-0x3100
+    ...
+    dso__load_sym_internal: adjusting symbol: st_value: 0x4080 p_vaddr: 0x3d28 p_offset: 0x2d28
+    symbol__new: buf1 0x3080-0x30c0
+    ...
+
+Fixes: f17e04afaff84b5c ("perf report: Fix ELF symbol parsing")
+Reported-by: Chang Rui <changruinj@gmail.com>
+Suggested-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220724060013.171050-2-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hmm.c |   19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
+ tools/perf/util/symbol-elf.c | 45 ++++++++++++++++++++++++++++++++----
+ 1 file changed, 41 insertions(+), 4 deletions(-)
 
---- a/mm/hmm.c
-+++ b/mm/hmm.c
-@@ -212,14 +212,6 @@ int hmm_vma_handle_pmd(struct mm_walk *w
- 		unsigned long end, unsigned long hmm_pfns[], pmd_t pmd);
- #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
+index ecd377938eea..ef6ced5c5746 100644
+--- a/tools/perf/util/symbol-elf.c
++++ b/tools/perf/util/symbol-elf.c
+@@ -233,6 +233,33 @@ Elf_Scn *elf_section_by_name(Elf *elf, GElf_Ehdr *ep,
+ 	return NULL;
+ }
  
--static inline bool hmm_is_device_private_entry(struct hmm_range *range,
--		swp_entry_t entry)
--{
--	return is_device_private_entry(entry) &&
--		pfn_swap_entry_to_page(entry)->pgmap->owner ==
--		range->dev_private_owner;
--}
--
- static inline unsigned long pte_to_hmm_pfn_flags(struct hmm_range *range,
- 						 pte_t pte)
- {
-@@ -252,10 +244,12 @@ static int hmm_vma_handle_pte(struct mm_
- 		swp_entry_t entry = pte_to_swp_entry(pte);
- 
- 		/*
--		 * Never fault in device private pages, but just report
--		 * the PFN even if not present.
-+		 * Don't fault in device private pages owned by the caller,
-+		 * just report the PFN.
- 		 */
--		if (hmm_is_device_private_entry(range, entry)) {
-+		if (is_device_private_entry(entry) &&
-+		    pfn_swap_entry_to_page(entry)->pgmap->owner ==
-+		    range->dev_private_owner) {
- 			cpu_flags = HMM_PFN_VALID;
- 			if (is_writable_device_private_entry(entry))
- 				cpu_flags |= HMM_PFN_WRITE;
-@@ -273,6 +267,9 @@ static int hmm_vma_handle_pte(struct mm_
- 		if (!non_swap_entry(entry))
- 			goto fault;
- 
-+		if (is_device_private_entry(entry))
-+			goto fault;
++static int elf_read_program_header(Elf *elf, u64 vaddr, GElf_Phdr *phdr)
++{
++	size_t i, phdrnum;
++	u64 sz;
 +
- 		if (is_device_exclusive_entry(entry))
- 			goto fault;
++	if (elf_getphdrnum(elf, &phdrnum))
++		return -1;
++
++	for (i = 0; i < phdrnum; i++) {
++		if (gelf_getphdr(elf, i, phdr) == NULL)
++			return -1;
++
++		if (phdr->p_type != PT_LOAD)
++			continue;
++
++		sz = max(phdr->p_memsz, phdr->p_filesz);
++		if (!sz)
++			continue;
++
++		if (vaddr >= phdr->p_vaddr && (vaddr < phdr->p_vaddr + sz))
++			return 0;
++	}
++
++	/* Not found any valid program header */
++	return -1;
++}
++
+ static bool want_demangle(bool is_kernel_sym)
+ {
+ 	return is_kernel_sym ? symbol_conf.demangle_kernel : symbol_conf.demangle;
+@@ -1209,6 +1236,7 @@ dso__load_sym_internal(struct dso *dso, struct map *map, struct symsrc *syms_ss,
+ 					sym.st_value);
+ 			used_opd = true;
+ 		}
++
+ 		/*
+ 		 * When loading symbols in a data mapping, ABS symbols (which
+ 		 * has a value of SHN_ABS in its st_shndx) failed at
+@@ -1262,11 +1290,20 @@ dso__load_sym_internal(struct dso *dso, struct map *map, struct symsrc *syms_ss,
+ 				goto out_elf_end;
+ 		} else if ((used_opd && runtime_ss->adjust_symbols) ||
+ 			   (!used_opd && syms_ss->adjust_symbols)) {
++			GElf_Phdr phdr;
++
++			if (elf_read_program_header(syms_ss->elf,
++						    (u64)sym.st_value, &phdr)) {
++				pr_warning("%s: failed to find program header for "
++					   "symbol: %s st_value: %#" PRIx64 "\n",
++					   __func__, elf_name, (u64)sym.st_value);
++				continue;
++			}
+ 			pr_debug4("%s: adjusting symbol: st_value: %#" PRIx64 " "
+-				  "sh_addr: %#" PRIx64 " sh_offset: %#" PRIx64 "\n", __func__,
+-				  (u64)sym.st_value, (u64)shdr.sh_addr,
+-				  (u64)shdr.sh_offset);
+-			sym.st_value -= shdr.sh_addr - shdr.sh_offset;
++				  "p_vaddr: %#" PRIx64 " p_offset: %#" PRIx64 "\n",
++				  __func__, (u64)sym.st_value, (u64)phdr.p_vaddr,
++				  (u64)phdr.p_offset);
++			sym.st_value -= phdr.p_vaddr - phdr.p_offset;
+ 		}
  
+ 		demangled = demangle_sym(dso, kmodule, elf_name);
+-- 
+2.35.1
+
 
 
