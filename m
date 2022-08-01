@@ -2,101 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E32B55865A2
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 09:29:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 442735865D0
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 09:46:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229724AbiHAH3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 03:29:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33990 "EHLO
+        id S229743AbiHAHq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 03:46:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229651AbiHAH3c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 03:29:32 -0400
-Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 565B832D8F;
-        Mon,  1 Aug 2022 00:29:31 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R711e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=dtcccc@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VL2sBJ._1659338968;
-Received: from localhost.localdomain(mailfrom:dtcccc@linux.alibaba.com fp:SMTPD_---0VL2sBJ._1659338968)
-          by smtp.aliyun-inc.com;
-          Mon, 01 Aug 2022 15:29:28 +0800
-From:   Tianchen Ding <dtcccc@linux.alibaba.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Lorenz Bauer <lmb@cloudflare.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH 5.10 3/3] selftests: bpf: Don't run sk_lookup in verifier tests
-Date:   Mon,  1 Aug 2022 15:29:16 +0800
-Message-Id: <20220801072916.29586-4-dtcccc@linux.alibaba.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20220801072916.29586-1-dtcccc@linux.alibaba.com>
-References: <20220801072916.29586-1-dtcccc@linux.alibaba.com>
+        with ESMTP id S229732AbiHAHq1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 03:46:27 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4E2472CC99
+        for <stable@vger.kernel.org>; Mon,  1 Aug 2022 00:46:26 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-405-Y1qdvxiGN3CazYPDeLT3AA-1; Mon, 01 Aug 2022 08:46:23 +0100
+X-MC-Unique: Y1qdvxiGN3CazYPDeLT3AA-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.36; Mon, 1 Aug 2022 08:46:22 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.036; Mon, 1 Aug 2022 08:46:22 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Steven Rostedt' <rostedt@goodmis.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [for-next][PATCH 21/21] tracing: Use a struct alignof to
+ determine trace event field alignment
+Thread-Topic: [for-next][PATCH 21/21] tracing: Use a struct alignof to
+ determine trace event field alignment
+Thread-Index: AQHYpRCiiZXga/pkuEmpCjyvwUgeD62Zqvzg
+Date:   Mon, 1 Aug 2022 07:46:22 +0000
+Message-ID: <a7d202457150472588df0bd3b7334b3f@AcuMS.aculab.com>
+References: <20220731190329.641602282@goodmis.org>
+ <20220731190435.611455708@goodmis.org>
+In-Reply-To: <20220731190435.611455708@goodmis.org>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.9 required=5.0 tests=BAYES_00,
-        ENV_AND_HDR_SPF_MATCH,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL autolearn=no autolearn_force=no
-        version=3.4.6
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lmb@cloudflare.com>
-
-commit b4f894633fa14d7d46ba7676f950b90a401504bb upstream.
-
-sk_lookup doesn't allow setting data_in for bpf_prog_run. This doesn't
-play well with the verifier tests, since they always set a 64 byte
-input buffer. Allow not running verifier tests by setting
-bpf_test.runs to a negative value and don't run the ctx access case
-for sk_lookup. We have dedicated ctx access tests so skipping here
-doesn't reduce coverage.
-
-Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210303101816.36774-6-lmb@cloudflare.com
-Signed-off-by: Tianchen Ding <dtcccc@linux.alibaba.com>
----
- tools/testing/selftests/bpf/test_verifier.c          | 4 ++--
- tools/testing/selftests/bpf/verifier/ctx_sk_lookup.c | 1 +
- 2 files changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/tools/testing/selftests/bpf/test_verifier.c b/tools/testing/selftests/bpf/test_verifier.c
-index a4c55fcb0e7b..0fb92d9a319b 100644
---- a/tools/testing/selftests/bpf/test_verifier.c
-+++ b/tools/testing/selftests/bpf/test_verifier.c
-@@ -100,7 +100,7 @@ struct bpf_test {
- 	enum bpf_prog_type prog_type;
- 	uint8_t flags;
- 	void (*fill_helper)(struct bpf_test *self);
--	uint8_t runs;
-+	int runs;
- #define bpf_testdata_struct_t					\
- 	struct {						\
- 		uint32_t retval, retval_unpriv;			\
-@@ -1054,7 +1054,7 @@ static void do_test_single(struct bpf_test *test, bool unpriv,
- 
- 	run_errs = 0;
- 	run_successes = 0;
--	if (!alignment_prevented_execution && fd_prog >= 0) {
-+	if (!alignment_prevented_execution && fd_prog >= 0 && test->runs >= 0) {
- 		uint32_t expected_val;
- 		int i;
- 
-diff --git a/tools/testing/selftests/bpf/verifier/ctx_sk_lookup.c b/tools/testing/selftests/bpf/verifier/ctx_sk_lookup.c
-index 2ad5f974451c..fd3b62a084b9 100644
---- a/tools/testing/selftests/bpf/verifier/ctx_sk_lookup.c
-+++ b/tools/testing/selftests/bpf/verifier/ctx_sk_lookup.c
-@@ -239,6 +239,7 @@
- 	.result = ACCEPT,
- 	.prog_type = BPF_PROG_TYPE_SK_LOOKUP,
- 	.expected_attach_type = BPF_SK_LOOKUP,
-+	.runs = -1,
- },
- /* invalid 8-byte reads from a 4-byte fields in bpf_sk_lookup */
- {
--- 
-2.27.0
+RnJvbTogU3RldmVuIFJvc3RlZHQNCj4gU2VudDogMzEgSnVseSAyMDIyIDIwOjA0DQo+IA0KPiBh
+bGlnbm9mKCkgZ2l2ZXMgYW4gYWxpZ25tZW50IG9mIHR5cGVzIGFzIHRoZXkgd291bGQgYmUgYXMg
+c3RhbmRhbG9uZQ0KPiB2YXJpYWJsZXMuIEJ1dCBhbGlnbm1lbnQgaW4gc3RydWN0dXJlcyBtaWdo
+dCBiZSBkaWZmZXJlbnQsIGFuZCB3aGVuDQo+IGJ1aWxkaW5nIHRoZSBmaWVsZHMgb2YgZXZlbnRz
+LCB0aGUgYWxpZ25tZW50IG11c3QgYmUgdGhlIGFjdHVhbA0KPiBhbGlnbm1lbnQgb3RoZXJ3aXNl
+IHRoZSBmaWVsZCBvZmZzZXRzIG1heSBub3QgbWF0Y2ggd2hhdCB0aGV5IGFjdHVhbGx5DQo+IGFy
+ZS4NCj4gDQo+IFRoaXMgY2F1c2VkIHRyYWNlLWNtZCB0byBjcmFzaCwgYXMgbGlidHJhY2VldmVu
+dCBkaWQgbm90IGNoZWNrIGlmIHRoZQ0KPiBmaWVsZCBvZmZzZXQgd2FzIGJpZ2dlciB0aGFuIHRo
+ZSBldmVudC4gVGhlIHdyaXRlX21zciBhbmQgcmVhZF9tc3INCj4gZXZlbnRzIG9uIDMyIGJpdCBo
+YWQgdGhlaXIgZmllbGRzIGluY29ycmVjdCwgYmVjYXVzZSBpdCBoYWQgYSB1NjQgZmllbGQNCj4g
+YmV0d2VlbiB0d28gaW50cy4gYWxpZ25vZih1NjQpIHdvdWxkIGdpdmUgOCwgYnV0IHRoZSB1NjQg
+ZmllbGQgd2FzIGF0IGENCj4gNCBieXRlIGFsaWdubWVudC4NCj4gDQo+IERlZmluZSBhIG1hY3Jv
+IGFzOg0KPiANCj4gICAgQUxJR05fU1RSVUNURklFTEQodHlwZSkgKChpbnQpKG9mZnNldG9mKHN0
+cnVjdCB7Y2hhciBhOyB0eXBlIGI7fSwgYikpKQ0KPiANCj4gd2hpY2ggZ2l2ZXMgdGhlIGFjdHVh
+bCBhbGlnbm1lbnQgb2YgdHlwZXMgaW4gYSBzdHJ1Y3R1cmUuDQoNClRoZSBzaW1wbGVyOg0KCV9f
+YWxpZ25vZl9fKHN0cnVjdCB7dHlwZSBiO30pDQphbHNvIHdvcmtzLg0KDQoJRGF2aWQNCg0KLQ0K
+UmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1p
+bHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVz
+KQ0K
 
