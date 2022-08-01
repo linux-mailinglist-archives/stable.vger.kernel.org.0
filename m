@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E1A7586A72
+	by mail.lfdr.de (Postfix) with ESMTP id 920D2586A73
 	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:16:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234376AbiHAMQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:16:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40478 "EHLO
+        id S233670AbiHAMQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:16:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234600AbiHAMQJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:16:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 380657CB4D;
-        Mon,  1 Aug 2022 04:58:44 -0700 (PDT)
+        with ESMTP id S234617AbiHAMQM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:16:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94FFC7CB56;
+        Mon,  1 Aug 2022 04:58:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3CB3B80E8F;
-        Mon,  1 Aug 2022 11:58:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 305C0C433D6;
-        Mon,  1 Aug 2022 11:58:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 088AB6010C;
+        Mon,  1 Aug 2022 11:58:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10925C433C1;
+        Mon,  1 Aug 2022 11:58:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659355121;
-        bh=t9K1ljGtuwOhs5uxy8grAgH4UHD7p6dHciwG8jNTmFI=;
+        s=korg; t=1659355124;
+        bh=DsYUMY9t7A0aU7eZB/mzzqS4nrfPLs6ALAid1gFFE6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BvMls7l8Yi7ZdhgeXDh1QLRESjxIqdGuvsW3M1oqv/D7450DkPfi5Z/sYhbJ48rfh
-         qacb2/4yYZP87TJTGxYZEpELfutAjuLycAQVrhvA+ZPPMPt45N/wX39EGAXcngD1PK
-         mCSUXPucDpF/IgLFtFT3TGRABZYBXbvF4RkJrl/M=
+        b=ONtp5v70uey4cjwLsPC0xZ5Y/HEbP9o2K5KFMlCuWCC48Igk1QmLeLrBmRD3Pjvz1
+         b3LsJXcf8ogeipJAxboMljgq+t24PSa1cIkYpuXvr7awwRZrGo83CbyL9sH9qcwblM
+         A26glOHaJu5eLx/qP1oaHe3wyw7uJFiYcSmX51KY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Bean Huo <beanhuo@micron.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Geliang Tang <geliang.tang@suse.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 71/88] scsi: ufs: core: Fix a race condition related to device management
-Date:   Mon,  1 Aug 2022 13:47:25 +0200
-Message-Id: <20220801114141.269290284@linuxfoundation.org>
+Subject: [PATCH 5.18 72/88] mptcp: dont send RST for single subflow
+Date:   Mon,  1 Aug 2022 13:47:26 +0200
+Message-Id: <20220801114141.321741611@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
 References: <20220801114138.041018499@linuxfoundation.org>
@@ -57,137 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Geliang Tang <geliang.tang@suse.com>
 
-[ Upstream commit f5c2976e0cb0f6236013bfb479868531b04f61d4 ]
+[ Upstream commit 1761fed2567807f26fbd53032ff622f55978c7a9 ]
 
-If a device management command completion happens after
-wait_for_completion_timeout() times out and before ufshcd_clear_cmds() is
-called, then the completion code may crash on the complete() call in
-__ufshcd_transfer_req_compl().
+When a bad checksum is detected and a single subflow is in use, don't
+send RST + MP_FAIL, send data_ack + MP_FAIL instead.
 
-Fix the following crash:
+So invoke tcp_send_active_reset() only when mptcp_has_another_subflow()
+is true.
 
-  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
-  Call trace:
-   complete+0x64/0x178
-   __ufshcd_transfer_req_compl+0x30c/0x9c0
-   ufshcd_poll+0xf0/0x208
-   ufshcd_sl_intr+0xb8/0xf0
-   ufshcd_intr+0x168/0x2f4
-   __handle_irq_event_percpu+0xa0/0x30c
-   handle_irq_event+0x84/0x178
-   handle_fasteoi_irq+0x150/0x2e8
-   __handle_domain_irq+0x114/0x1e4
-   gic_handle_irq.31846+0x58/0x300
-   el1_irq+0xe4/0x1c0
-   efi_header_end+0x110/0x680
-   __irq_exit_rcu+0x108/0x124
-   __handle_domain_irq+0x118/0x1e4
-   gic_handle_irq.31846+0x58/0x300
-   el1_irq+0xe4/0x1c0
-   cpuidle_enter_state+0x3ac/0x8c4
-   do_idle+0x2fc/0x55c
-   cpu_startup_entry+0x84/0x90
-   kernel_init+0x0/0x310
-   start_kernel+0x0/0x608
-   start_kernel+0x4ec/0x608
-
-Link: https://lore.kernel.org/r/20220720170228.1598842-1-bvanassche@acm.org
-Fixes: 5a0b0cb9bee7 ("[SCSI] ufs: Add support for sending NOP OUT UPIU")
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Avri Altman <avri.altman@wdc.com>
-Cc: Bean Huo <beanhuo@micron.com>
-Cc: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Geliang Tang <geliang.tang@suse.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 58 +++++++++++++++++++++++++++------------
- 1 file changed, 40 insertions(+), 18 deletions(-)
+ net/mptcp/subflow.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index a34c1fab0246..874490f7f5e7 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -2947,37 +2947,59 @@ ufshcd_dev_cmd_completion(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
- static int ufshcd_wait_for_dev_cmd(struct ufs_hba *hba,
- 		struct ufshcd_lrb *lrbp, int max_timeout)
- {
--	int err = 0;
--	unsigned long time_left;
-+	unsigned long time_left = msecs_to_jiffies(max_timeout);
- 	unsigned long flags;
-+	bool pending;
-+	int err;
- 
-+retry:
- 	time_left = wait_for_completion_timeout(hba->dev_cmd.complete,
--			msecs_to_jiffies(max_timeout));
-+						time_left);
- 
--	spin_lock_irqsave(hba->host->host_lock, flags);
--	hba->dev_cmd.complete = NULL;
- 	if (likely(time_left)) {
-+		/*
-+		 * The completion handler called complete() and the caller of
-+		 * this function still owns the @lrbp tag so the code below does
-+		 * not trigger any race conditions.
-+		 */
-+		hba->dev_cmd.complete = NULL;
- 		err = ufshcd_get_tr_ocs(lrbp);
- 		if (!err)
- 			err = ufshcd_dev_cmd_completion(hba, lrbp);
--	}
--	spin_unlock_irqrestore(hba->host->host_lock, flags);
--
--	if (!time_left) {
-+	} else {
- 		err = -ETIMEDOUT;
- 		dev_dbg(hba->dev, "%s: dev_cmd request timedout, tag %d\n",
- 			__func__, lrbp->task_tag);
--		if (!ufshcd_clear_cmds(hba, 1U << lrbp->task_tag))
-+		if (ufshcd_clear_cmds(hba, 1U << lrbp->task_tag) == 0) {
- 			/* successfully cleared the command, retry if needed */
- 			err = -EAGAIN;
--		/*
--		 * in case of an error, after clearing the doorbell,
--		 * we also need to clear the outstanding_request
--		 * field in hba
--		 */
--		spin_lock_irqsave(&hba->outstanding_lock, flags);
--		__clear_bit(lrbp->task_tag, &hba->outstanding_reqs);
--		spin_unlock_irqrestore(&hba->outstanding_lock, flags);
-+			/*
-+			 * Since clearing the command succeeded we also need to
-+			 * clear the task tag bit from the outstanding_reqs
-+			 * variable.
-+			 */
-+			spin_lock_irqsave(&hba->outstanding_lock, flags);
-+			pending = test_bit(lrbp->task_tag,
-+					   &hba->outstanding_reqs);
-+			if (pending) {
-+				hba->dev_cmd.complete = NULL;
-+				__clear_bit(lrbp->task_tag,
-+					    &hba->outstanding_reqs);
-+			}
-+			spin_unlock_irqrestore(&hba->outstanding_lock, flags);
-+
-+			if (!pending) {
-+				/*
-+				 * The completion handler ran while we tried to
-+				 * clear the command.
-+				 */
-+				time_left = 1;
-+				goto retry;
-+			}
-+		} else {
-+			dev_err(hba->dev, "%s: failed to clear tag %d\n",
-+				__func__, lrbp->task_tag);
-+		}
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index 7919e259175d..ccae50eba664 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -1221,14 +1221,14 @@ static bool subflow_check_data_avail(struct sock *ssk)
+ 	/* RFC 8684 section 3.7. */
+ 	if (subflow->send_mp_fail) {
+ 		if (mptcp_has_another_subflow(ssk)) {
++			ssk->sk_err = EBADMSG;
++			tcp_set_state(ssk, TCP_CLOSE);
++			subflow->reset_transient = 0;
++			subflow->reset_reason = MPTCP_RST_EMIDDLEBOX;
++			tcp_send_active_reset(ssk, GFP_ATOMIC);
+ 			while ((skb = skb_peek(&ssk->sk_receive_queue)))
+ 				sk_eat_skb(ssk, skb);
+ 		}
+-		ssk->sk_err = EBADMSG;
+-		tcp_set_state(ssk, TCP_CLOSE);
+-		subflow->reset_transient = 0;
+-		subflow->reset_reason = MPTCP_RST_EMIDDLEBOX;
+-		tcp_send_active_reset(ssk, GFP_ATOMIC);
+ 		WRITE_ONCE(subflow->data_avail, MPTCP_SUBFLOW_NODATA);
+ 		return true;
  	}
- 
- 	return err;
 -- 
 2.35.1
 
