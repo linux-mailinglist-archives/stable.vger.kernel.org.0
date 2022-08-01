@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 432435870EC
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 21:05:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F220E5870EE
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 21:05:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234539AbiHATFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 15:05:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52298 "EHLO
+        id S234563AbiHATFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 15:05:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234335AbiHATEb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 15:04:31 -0400
+        with ESMTP id S234138AbiHATEe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 15:04:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B0AE402CC;
-        Mon,  1 Aug 2022 12:03:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 405E4402F8;
+        Mon,  1 Aug 2022 12:03:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B4EA61227;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F09C61226;
+        Mon,  1 Aug 2022 19:03:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E27CC4347C;
         Mon,  1 Aug 2022 19:03:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45337C433D6;
-        Mon,  1 Aug 2022 19:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659380589;
-        bh=d/iGv3GxcSHuxsO3Syz/ugha7MoQ9UUrS+dhzXkqnuc=;
+        s=k20201202; t=1659380590;
+        bh=9GOEyyKIu5txa7YOq6e4eOPfuw1vHedxTV7LyEIoq6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=usQY6CkEjKhkql7+wU8XT0ztMsMdP+K6t1QV5NVYJu3GBUi/sNjWF5p0iIILLnJ86
-         kV+rIg/s+RKjCvScIfW37JLiRXlMJsB9ivoVLvSj40fawH9PCLQ7hgX0PtE3pl0Xfu
-         VQRg4E6ICD/T+OpYOoq88ny7P02ZvjIiw/jyEeVFpDTQz6qFc7jSqyPm6WUWraCgxy
-         x7k6yidd2xtJRYoJR7NdveEHXBu4pxJBfHTar7MG2ymer5dQO+DpV19XrJV/651rlr
-         ODu3d/JvgMJ0fdDknRKHL29f0kcmACfbyj0ZHM/gOGEwpmJ7XwCLiXizUnAKvYM3+m
-         MpTml4fglUMdw==
+        b=q/Y0GaOjea5hxb0nbRQbHv42i4EIZg4TTo5H7rPHOVqXgzHbabjb2UWfS0Qjcqnys
+         k55NTY9mvpEEXC5uQnd0ij2DSbI5lFeu/zTN/54TzSbQEMkt2KkaWyaS5DXpAUtc+p
+         dr8SnMwkGxu8PP/tyi6270eTT1iO3VHUXQzBAJ3AsYXTzS5bEeLYmmHlZncybfbLlQ
+         HVOeDngNCb0ipFB3Byd5ojmLpzZ9h+18vIzoqsFeHNf1UwmbueACCI+1VCKW7Qfzfn
+         9MiByR2hecFd+AGtLS1xFAtA118tGR8FOnF5+qaEQBhd7H3csFxJ/lfvZZc7av2bdi
+         R1MBTAUe3CjPA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 3/7] spi: spi-rspi: Fix PIO fallback on RZ platforms
-Date:   Mon,  1 Aug 2022 15:02:57 -0400
-Message-Id: <20220801190301.3819065-3-sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, aneesh.kumar@linux.ibm.com,
+        npiggin@gmail.com, linux-arch@vger.kernel.org, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.10 4/7] mmu_gather: Let there be one tlb_{start,end}_vma() implementation
+Date:   Mon,  1 Aug 2022 15:02:58 -0400
+Message-Id: <20220801190301.3819065-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220801190301.3819065-1-sashal@kernel.org>
 References: <20220801190301.3819065-1-sashal@kernel.org>
@@ -56,45 +57,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit b620aa3a7be346f04ae7789b165937615c6ee8d3 ]
+[ Upstream commit 18ba064e42df3661e196ab58a23931fc732a420b ]
 
-RSPI IP on RZ/{A, G2L} SoC's has the same signal for both interrupt
-and DMA transfer request. Setting DMARS register for DMA transfer
-makes the signal to work as a DMA transfer request signal and
-subsequent interrupt requests to the interrupt controller
-are masked.
+Now that architectures are no longer allowed to override
+tlb_{start,end}_vma() re-arrange code so that there is only one
+implementation for each of these functions.
 
-PIO fallback does not work as interrupt signal is disabled.
+This much simplifies trying to figure out what they actually do.
 
-This patch fixes this issue by re-enabling the interrupts by
-calling dmaengine_synchronize().
-
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20220721143449.879257-1-biju.das.jz@bp.renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rspi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/asm-generic/tlb.h | 15 ++-------------
+ 1 file changed, 2 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/spi/spi-rspi.c b/drivers/spi/spi-rspi.c
-index ea03cc589e61..4600e3c9e49e 100644
---- a/drivers/spi/spi-rspi.c
-+++ b/drivers/spi/spi-rspi.c
-@@ -612,6 +612,10 @@ static int rspi_dma_transfer(struct rspi_data *rspi, struct sg_table *tx,
- 					       rspi->dma_callbacked, HZ);
- 	if (ret > 0 && rspi->dma_callbacked) {
- 		ret = 0;
-+		if (tx)
-+			dmaengine_synchronize(rspi->ctlr->dma_tx);
-+		if (rx)
-+			dmaengine_synchronize(rspi->ctlr->dma_rx);
- 	} else {
- 		if (!ret) {
- 			dev_err(&rspi->ctlr->dev, "DMA timeout\n");
+diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
+index a0c4b99d2899..a8112510522b 100644
+--- a/include/asm-generic/tlb.h
++++ b/include/asm-generic/tlb.h
+@@ -332,8 +332,8 @@ static inline void __tlb_reset_range(struct mmu_gather *tlb)
+ 
+ #ifdef CONFIG_MMU_GATHER_NO_RANGE
+ 
+-#if defined(tlb_flush) || defined(tlb_start_vma) || defined(tlb_end_vma)
+-#error MMU_GATHER_NO_RANGE relies on default tlb_flush(), tlb_start_vma() and tlb_end_vma()
++#if defined(tlb_flush)
++#error MMU_GATHER_NO_RANGE relies on default tlb_flush()
+ #endif
+ 
+ /*
+@@ -353,17 +353,10 @@ static inline void tlb_flush(struct mmu_gather *tlb)
+ static inline void
+ tlb_update_vma_flags(struct mmu_gather *tlb, struct vm_area_struct *vma) { }
+ 
+-#define tlb_end_vma tlb_end_vma
+-static inline void tlb_end_vma(struct mmu_gather *tlb, struct vm_area_struct *vma) { }
+-
+ #else /* CONFIG_MMU_GATHER_NO_RANGE */
+ 
+ #ifndef tlb_flush
+ 
+-#if defined(tlb_start_vma) || defined(tlb_end_vma)
+-#error Default tlb_flush() relies on default tlb_start_vma() and tlb_end_vma()
+-#endif
+-
+ /*
+  * When an architecture does not provide its own tlb_flush() implementation
+  * but does have a reasonably efficient flush_vma_range() implementation
+@@ -484,7 +477,6 @@ static inline unsigned long tlb_get_unmap_size(struct mmu_gather *tlb)
+  * case where we're doing a full MM flush.  When we're doing a munmap,
+  * the vmas are adjusted to only cover the region to be torn down.
+  */
+-#ifndef tlb_start_vma
+ static inline void tlb_start_vma(struct mmu_gather *tlb, struct vm_area_struct *vma)
+ {
+ 	if (tlb->fullmm)
+@@ -493,9 +485,7 @@ static inline void tlb_start_vma(struct mmu_gather *tlb, struct vm_area_struct *
+ 	tlb_update_vma_flags(tlb, vma);
+ 	flush_cache_range(vma, vma->vm_start, vma->vm_end);
+ }
+-#endif
+ 
+-#ifndef tlb_end_vma
+ static inline void tlb_end_vma(struct mmu_gather *tlb, struct vm_area_struct *vma)
+ {
+ 	if (tlb->fullmm)
+@@ -509,7 +499,6 @@ static inline void tlb_end_vma(struct mmu_gather *tlb, struct vm_area_struct *vm
+ 	 */
+ 	tlb_flush_mmu_tlbonly(tlb);
+ }
+-#endif
+ 
+ /*
+  * tlb_flush_{pte|pmd|pud|p4d}_range() adjust the tlb->start and tlb->end,
 -- 
 2.35.1
 
