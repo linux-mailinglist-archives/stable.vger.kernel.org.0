@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0297758692B
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:58:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E290B586937
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:58:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231894AbiHAL6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:58:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48886 "EHLO
+        id S232562AbiHAL6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:58:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232114AbiHAL5m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:57:42 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2698D41999;
-        Mon,  1 Aug 2022 04:52:01 -0700 (PDT)
+        with ESMTP id S231432AbiHAL6J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:58:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F7E9419A2;
+        Mon,  1 Aug 2022 04:52:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5E012CE1385;
-        Mon,  1 Aug 2022 11:52:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54401C433D6;
-        Mon,  1 Aug 2022 11:51:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9930612E3;
+        Mon,  1 Aug 2022 11:52:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1A28C433C1;
+        Mon,  1 Aug 2022 11:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354718;
-        bh=p5yOBq3IDsty6Ax7Ab2coWgH9lo3WfpRgUZ+K5yoMK8=;
+        s=korg; t=1659354735;
+        bh=v3eMzd9USaj7O5CPtj1Ypzb355onBF7y+Urro/QYSdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oW5CiQTJLHCHzkLVZmNvf5jvUoKB9NVTNTvkHt5o+42xn+3pGXqrFcJYgeUvUwAN6
-         RKJGCg4aimb4wxWd/+/MauN5SLFQAHwTPShf89Y9/6zqQN2Ao/gO3G8yzVXqZfDlX/
-         +Or8kdzhOO+/2uW62FacMtc+ln7+i0gizSnMDXVY=
+        b=enHaUITfRKojnOT1HvUWttU1GdrZkCUypqeLD1DfDlOOT1Iv9MTmajgsXqqPanZeX
+         OhbUldg5SXoctRiFNbXhjFOvF38DM6V2QmqQQkoPjy8qNwUTp8yyzK2vNKEGhV9xdE
+         FW+xI4FnyIVP6jgk1vquUoy+cuxjKugfgUmKDYHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 34/65] macsec: always read MACSEC_SA_ATTR_PN as a u64
-Date:   Mon,  1 Aug 2022 13:46:51 +0200
-Message-Id: <20220801114135.137687992@linuxfoundation.org>
+Subject: [PATCH 5.10 35/65] net: macsec: fix potential resource leak in macsec_add_rxsa() and macsec_add_txsa()
+Date:   Mon,  1 Aug 2022 13:46:52 +0200
+Message-Id: <20220801114135.176779971@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
 References: <20220801114133.641770326@linuxfoundation.org>
@@ -53,60 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-[ Upstream commit c630d1fe6219769049c87d1a6a0e9a6de55328a1 ]
+[ Upstream commit c7b205fbbf3cffa374721bb7623f7aa8c46074f1 ]
 
-Currently, MACSEC_SA_ATTR_PN is handled inconsistently, sometimes as a
-u32, sometimes forced into a u64 without checking the actual length of
-the attribute. Instead, we can use nla_get_u64 everywhere, which will
-read up to 64 bits into a u64, capped by the actual length of the
-attribute coming from userspace.
+init_rx_sa() allocates relevant resource for rx_sa->stats and rx_sa->
+key.tfm with alloc_percpu() and macsec_alloc_tfm(). When some error
+occurs after init_rx_sa() is called in macsec_add_rxsa(), the function
+released rx_sa with kfree() without releasing rx_sa->stats and rx_sa->
+key.tfm, which will lead to a resource leak.
 
-This fixes several issues:
- - the check in validate_add_rxsa doesn't work with 32-bit attributes
- - the checks in validate_add_txsa and validate_upd_sa incorrectly
-   reject X << 32 (with X != 0)
+We should call macsec_rxsa_put() instead of kfree() to decrease the ref
+count of rx_sa and release the relevant resource if the refcount is 0.
+The same bug exists in macsec_add_txsa() for tx_sa as well. This patch
+fixes the above two bugs.
 
-Fixes: 48ef50fa866a ("macsec: Netlink support of XPN cipher suites (IEEE 802.1AEbw)")
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Fixes: 3cf3227a21d1 ("net: macsec: hardware offloading infrastructure")
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/macsec.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 96dc7bd4813d..8d73b72d6179 100644
+index 8d73b72d6179..70c5905a916b 100644
 --- a/drivers/net/macsec.c
 +++ b/drivers/net/macsec.c
-@@ -1695,7 +1695,7 @@ static bool validate_add_rxsa(struct nlattr **attrs)
- 		return false;
+@@ -1841,7 +1841,7 @@ static int macsec_add_rxsa(struct sk_buff *skb, struct genl_info *info)
+ 	return 0;
  
- 	if (attrs[MACSEC_SA_ATTR_PN] &&
--	    *(u64 *)nla_data(attrs[MACSEC_SA_ATTR_PN]) == 0)
-+	    nla_get_u64(attrs[MACSEC_SA_ATTR_PN]) == 0)
- 		return false;
+ cleanup:
+-	kfree(rx_sa);
++	macsec_rxsa_put(rx_sa);
+ 	rtnl_unlock();
+ 	return err;
+ }
+@@ -2084,7 +2084,7 @@ static int macsec_add_txsa(struct sk_buff *skb, struct genl_info *info)
  
- 	if (attrs[MACSEC_SA_ATTR_ACTIVE]) {
-@@ -1938,7 +1938,7 @@ static bool validate_add_txsa(struct nlattr **attrs)
- 	if (nla_get_u8(attrs[MACSEC_SA_ATTR_AN]) >= MACSEC_NUM_AN)
- 		return false;
- 
--	if (nla_get_u32(attrs[MACSEC_SA_ATTR_PN]) == 0)
-+	if (nla_get_u64(attrs[MACSEC_SA_ATTR_PN]) == 0)
- 		return false;
- 
- 	if (attrs[MACSEC_SA_ATTR_ACTIVE]) {
-@@ -2292,7 +2292,7 @@ static bool validate_upd_sa(struct nlattr **attrs)
- 	if (nla_get_u8(attrs[MACSEC_SA_ATTR_AN]) >= MACSEC_NUM_AN)
- 		return false;
- 
--	if (attrs[MACSEC_SA_ATTR_PN] && nla_get_u32(attrs[MACSEC_SA_ATTR_PN]) == 0)
-+	if (attrs[MACSEC_SA_ATTR_PN] && nla_get_u64(attrs[MACSEC_SA_ATTR_PN]) == 0)
- 		return false;
- 
- 	if (attrs[MACSEC_SA_ATTR_ACTIVE]) {
+ cleanup:
+ 	secy->operational = was_operational;
+-	kfree(tx_sa);
++	macsec_txsa_put(tx_sa);
+ 	rtnl_unlock();
+ 	return err;
+ }
 -- 
 2.35.1
 
