@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEABF5869D2
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:07:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 061E3586A8C
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:18:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233675AbiHAMHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:07:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43908 "EHLO
+        id S234213AbiHAMSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:18:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233594AbiHAMHU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:07:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA0CB5F130;
-        Mon,  1 Aug 2022 04:55:23 -0700 (PDT)
+        with ESMTP id S234199AbiHAMRx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:17:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA255491E9;
+        Mon,  1 Aug 2022 04:59:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 663C761227;
-        Mon,  1 Aug 2022 11:55:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 705DBC433D6;
-        Mon,  1 Aug 2022 11:55:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 803D0B81177;
+        Mon,  1 Aug 2022 11:59:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6EBAC433C1;
+        Mon,  1 Aug 2022 11:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354921;
-        bh=b3RRbMvj1I7RgAEBxzdVO+YSM6bS7D3bRC0SQIiEaLo=;
+        s=korg; t=1659355146;
+        bh=c6jwXhG8ZaugPYMKXI6+L6tNkj+voJ6779qrSNNKXZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j90pg0R8bZjGnBVsPgWC/KD687byOQwUOXkg2Jt5LH3YZ7bsxKH5a0Pdkc0K5F6Hu
-         m1tIgV2/cNqmNNxRhqtvAAYQatUE4tlKouqdCNDTtcOCjWfecFtik9GnhiYlgaEBDU
-         PtkSg/rHxuXkKxD1Qjufo6zQSP0Ix11a3dIyXaN8=
+        b=oXN+vbrson9Yol4v8NP/0ObQ8kyto5q4ZSVBpUlEI1EKXvhRP9wYqhegSU/G/QZgz
+         xlZcibfz9JI8ErHg/tqYxgDSDRGWLc+gUzq6c1bsMphKNO0KAdpzsXUqNtj4xzEsab
+         HdXJAcOJU2QiLH/FYb1SemZs/SBzQ/2ZG2gBV42U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        John Donnelly <john.p.donnelly@oracle.com>,
-        Mel Gorman <mgorman@techsingularity.net>
-Subject: [PATCH 5.15 68/69] locking/rwsem: Allow slowpath writer to ignore handoff bit if not set by first waiter
-Date:   Mon,  1 Aug 2022 13:47:32 +0200
-Message-Id: <20220801114137.213981995@linuxfoundation.org>
+        stable@vger.kernel.org, Ralph Campbell <rcampbell@nvidia.com>,
+        Felix Kuehling <felix.kuehling@amd.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Philip Yang <Philip.Yang@amd.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.18 79/88] mm/hmm: fault non-owner device private entries
+Date:   Mon,  1 Aug 2022 13:47:33 +0200
+Message-Id: <20220801114141.616100115@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
+References: <20220801114138.041018499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,110 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Ralph Campbell <rcampbell@nvidia.com>
 
-commit 6eebd5fb20838f5971ba17df9f55cc4f84a31053 upstream.
+commit 8a295dbbaf7292c582a40ce469c326f472d51f66 upstream.
 
-With commit d257cc8cb8d5 ("locking/rwsem: Make handoff bit handling more
-consistent"), the writer that sets the handoff bit can be interrupted
-out without clearing the bit if the wait queue isn't empty. This disables
-reader and writer optimistic lock spinning and stealing.
+If hmm_range_fault() is called with the HMM_PFN_REQ_FAULT flag and a
+device private PTE is found, the hmm_range::dev_private_owner page is used
+to determine if the device private page should not be faulted in.
+However, if the device private page is not owned by the caller,
+hmm_range_fault() returns an error instead of calling migrate_to_ram() to
+fault in the page.
 
-Now if a non-first writer in the queue is somehow woken up or a new
-waiter enters the slowpath, it can't acquire the lock.  This is not the
-case before commit d257cc8cb8d5 as the writer that set the handoff bit
-will clear it when exiting out via the out_nolock path. This is less
-efficient as the busy rwsem stays in an unlock state for a longer time.
+For example, if a page is migrated to GPU private memory and a RDMA fault
+capable NIC tries to read the migrated page, without this patch it will
+get an error.  With this patch, the page will be migrated back to system
+memory and the NIC will be able to read the data.
 
-In some cases, this new behavior may cause lockups as shown in [1] and
-[2].
-
-This patch allows a non-first writer to ignore the handoff bit if it
-is not originally set or initiated by the first waiter. This patch is
-shown to be effective in fixing the lockup problem reported in [1].
-
-[1] https://lore.kernel.org/lkml/20220617134325.GC30825@techsingularity.net/
-[2] https://lore.kernel.org/lkml/3f02975c-1a9d-be20-32cf-f1d8e3dfafcc@oracle.com/
-
-Fixes: d257cc8cb8d5 ("locking/rwsem: Make handoff bit handling more consistent")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: John Donnelly <john.p.donnelly@oracle.com>
-Tested-by: Mel Gorman <mgorman@techsingularity.net>
-Link: https://lore.kernel.org/r/20220622200419.778799-1-longman@redhat.com
+Link: https://lkml.kernel.org/r/20220727000837.4128709-2-rcampbell@nvidia.com
+Link: https://lkml.kernel.org/r/20220725183615.4118795-2-rcampbell@nvidia.com
+Fixes: 08ddddda667b ("mm/hmm: check the device private page owner in hmm_range_fault()")
+Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
+Reported-by: Felix Kuehling <felix.kuehling@amd.com>
+Reviewed-by: Alistair Popple <apopple@nvidia.com>
+Cc: Philip Yang <Philip.Yang@amd.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/locking/rwsem.c |   30 ++++++++++++++++++++----------
- 1 file changed, 20 insertions(+), 10 deletions(-)
+ mm/hmm.c |   19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
 
---- a/kernel/locking/rwsem.c
-+++ b/kernel/locking/rwsem.c
-@@ -335,8 +335,6 @@ struct rwsem_waiter {
- 	struct task_struct *task;
- 	enum rwsem_waiter_type type;
- 	unsigned long timeout;
+--- a/mm/hmm.c
++++ b/mm/hmm.c
+@@ -212,14 +212,6 @@ int hmm_vma_handle_pmd(struct mm_walk *w
+ 		unsigned long end, unsigned long hmm_pfns[], pmd_t pmd);
+ #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+ 
+-static inline bool hmm_is_device_private_entry(struct hmm_range *range,
+-		swp_entry_t entry)
+-{
+-	return is_device_private_entry(entry) &&
+-		pfn_swap_entry_to_page(entry)->pgmap->owner ==
+-		range->dev_private_owner;
+-}
 -
--	/* Writer only, not initialized in reader */
- 	bool handoff_set;
- };
- #define rwsem_first_waiter(sem) \
-@@ -456,10 +454,12 @@ static void rwsem_mark_wake(struct rw_se
- 			 * to give up the lock), request a HANDOFF to
- 			 * force the issue.
- 			 */
--			if (!(oldcount & RWSEM_FLAG_HANDOFF) &&
--			    time_after(jiffies, waiter->timeout)) {
--				adjustment -= RWSEM_FLAG_HANDOFF;
--				lockevent_inc(rwsem_rlock_handoff);
-+			if (time_after(jiffies, waiter->timeout)) {
-+				if (!(oldcount & RWSEM_FLAG_HANDOFF)) {
-+					adjustment -= RWSEM_FLAG_HANDOFF;
-+					lockevent_inc(rwsem_rlock_handoff);
-+				}
-+				waiter->handoff_set = true;
- 			}
- 
- 			atomic_long_add(-adjustment, &sem->count);
-@@ -569,7 +569,7 @@ static void rwsem_mark_wake(struct rw_se
- static inline bool rwsem_try_write_lock(struct rw_semaphore *sem,
- 					struct rwsem_waiter *waiter)
+ static inline unsigned long pte_to_hmm_pfn_flags(struct hmm_range *range,
+ 						 pte_t pte)
  {
--	bool first = rwsem_first_waiter(sem) == waiter;
-+	struct rwsem_waiter *first = rwsem_first_waiter(sem);
- 	long count, new;
+@@ -252,10 +244,12 @@ static int hmm_vma_handle_pte(struct mm_
+ 		swp_entry_t entry = pte_to_swp_entry(pte);
  
- 	lockdep_assert_held(&sem->wait_lock);
-@@ -579,11 +579,20 @@ static inline bool rwsem_try_write_lock(
- 		bool has_handoff = !!(count & RWSEM_FLAG_HANDOFF);
+ 		/*
+-		 * Never fault in device private pages, but just report
+-		 * the PFN even if not present.
++		 * Don't fault in device private pages owned by the caller,
++		 * just report the PFN.
+ 		 */
+-		if (hmm_is_device_private_entry(range, entry)) {
++		if (is_device_private_entry(entry) &&
++		    pfn_swap_entry_to_page(entry)->pgmap->owner ==
++		    range->dev_private_owner) {
+ 			cpu_flags = HMM_PFN_VALID;
+ 			if (is_writable_device_private_entry(entry))
+ 				cpu_flags |= HMM_PFN_WRITE;
+@@ -273,6 +267,9 @@ static int hmm_vma_handle_pte(struct mm_
+ 		if (!non_swap_entry(entry))
+ 			goto fault;
  
- 		if (has_handoff) {
--			if (!first)
-+			/*
-+			 * Honor handoff bit and yield only when the first
-+			 * waiter is the one that set it. Otherwisee, we
-+			 * still try to acquire the rwsem.
-+			 */
-+			if (first->handoff_set && (waiter != first))
- 				return false;
++		if (is_device_private_entry(entry))
++			goto fault;
++
+ 		if (is_device_exclusive_entry(entry))
+ 			goto fault;
  
--			/* First waiter inherits a previously set handoff bit */
--			waiter->handoff_set = true;
-+			/*
-+			 * First waiter can inherit a previously set handoff
-+			 * bit and spin on rwsem if lock acquisition fails.
-+			 */
-+			if (waiter == first)
-+				waiter->handoff_set = true;
- 		}
- 
- 		new = count;
-@@ -978,6 +987,7 @@ queue:
- 	waiter.task = current;
- 	waiter.type = RWSEM_WAITING_FOR_READ;
- 	waiter.timeout = jiffies + RWSEM_WAIT_TIMEOUT;
-+	waiter.handoff_set = false;
- 
- 	raw_spin_lock_irq(&sem->wait_lock);
- 	if (list_empty(&sem->wait_list)) {
 
 
