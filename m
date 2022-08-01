@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83AD2586877
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:48:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DB12586944
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231575AbiHALss (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:48:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34756 "EHLO
+        id S232630AbiHAL7z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:59:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231526AbiHALsX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:48:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87A633719F;
-        Mon,  1 Aug 2022 04:48:16 -0700 (PDT)
+        with ESMTP id S232891AbiHAL66 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:58:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41BE94A80D;
+        Mon,  1 Aug 2022 04:52:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B96AE6122C;
-        Mon,  1 Aug 2022 11:48:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C520CC433D6;
-        Mon,  1 Aug 2022 11:48:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C6BDB81173;
+        Mon,  1 Aug 2022 11:52:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F02C5C43140;
+        Mon,  1 Aug 2022 11:52:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354495;
-        bh=PCQGixB3Nq9ppfBsK4omZqME3l8LAfJ3BdoXwgjIUfQ=;
+        s=korg; t=1659354746;
+        bh=/aiidocJnBedxF7hINvURb2iXWFTCt5ZfPgv11oB8As=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s9Y9vm8Kbr0R9uX/JU/RCVqEudaXvSY30Lg3GEPR7HIW204HZDxe/s9S3lHXz7sod
-         6d9Bo/cL9GWlIOL2v4/wQwJo/pmTESjaQzNlhMRCklWbV0r4ANDboScRSFH19mmv/f
-         sD3xkIvdh378hRKZBVw7qpWdfwgQr94XjSlt9ooM=
+        b=SLsQGX2FdKb6UPoJhK4PIuZSc3vR6zaH6oTSMbcvJhuEMY+/QVScaQwvXKXU845hA
+         glaPHgG/p2NLCEvF9T2NE0Sf6n+Nasoxd3prg8DyGWEXntH38AY9w6QdR0wShgQFCp
+         RYsEmoBN329N0IjR2cYUxF4udEzCzEWsrlTBmefY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Wei Wang <weiwan@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 16/34] igmp: Fix data-races around sysctl_igmp_qrv.
+Subject: [PATCH 5.10 39/65] tcp: Fix data-races around sysctl_tcp_reflect_tos.
 Date:   Mon,  1 Aug 2022 13:46:56 +0200
-Message-Id: <20220801114128.662594502@linuxfoundation.org>
+Message-Id: <20220801114135.345687804@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
-References: <20220801114128.025615151@linuxfoundation.org>
+In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
+References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,123 +56,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 8ebcc62c738f68688ee7c6fec2efe5bc6d3d7e60 ]
+[ Upstream commit 870e3a634b6a6cb1543b359007aca73fe6a03ac5 ]
 
-While reading sysctl_igmp_qrv, it can be changed concurrently.
+While reading sysctl_tcp_reflect_tos, it can be changed concurrently.
 Thus, we need to add READ_ONCE() to its readers.
 
-This test can be packed into a helper, so such changes will be in the
-follow-up series after net is merged into net-next.
-
-  qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
-
-Fixes: a9fe8e29945d ("ipv4: implement igmp_qrv sysctl to tune igmp robustness variable")
+Fixes: ac8f1710c12b ("tcp: reflect tos value received in SYN to the socket")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Acked-by: Wei Wang <weiwan@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/igmp.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ net/ipv4/tcp_ipv4.c | 4 ++--
+ net/ipv6/tcp_ipv6.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
-index 660b41040c77..1023f881091e 100644
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -829,7 +829,7 @@ static void igmp_ifc_event(struct in_device *in_dev)
- 	struct net *net = dev_net(in_dev->dev);
- 	if (IGMP_V1_SEEN(in_dev) || IGMP_V2_SEEN(in_dev))
- 		return;
--	WRITE_ONCE(in_dev->mr_ifc_count, in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv);
-+	WRITE_ONCE(in_dev->mr_ifc_count, in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv));
- 	igmp_ifc_start_timer(in_dev, 1);
- }
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index d5f13ff7d900..0d165ce2d80a 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -983,7 +983,7 @@ static int tcp_v4_send_synack(const struct sock *sk, struct dst_entry *dst,
+ 	if (skb) {
+ 		__tcp_v4_send_check(skb, ireq->ir_loc_addr, ireq->ir_rmt_addr);
  
-@@ -1011,7 +1011,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
- 		 * received value was zero, use the default or statically
- 		 * configured value.
- 		 */
--		in_dev->mr_qrv = ih3->qrv ?: net->ipv4.sysctl_igmp_qrv;
-+		in_dev->mr_qrv = ih3->qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
- 		in_dev->mr_qi = IGMPV3_QQIC(ih3->qqic)*HZ ?: IGMP_QUERY_INTERVAL;
- 
- 		/* RFC3376, 8.3. Query Response Interval:
-@@ -1191,7 +1191,7 @@ static void igmpv3_add_delrec(struct in_device *in_dev, struct ip_mc_list *im,
- 	pmc->interface = im->interface;
- 	in_dev_hold(in_dev);
- 	pmc->multiaddr = im->multiaddr;
--	pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
-+	pmc->crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
- 	pmc->sfmode = im->sfmode;
- 	if (pmc->sfmode == MCAST_INCLUDE) {
- 		struct ip_sf_list *psf;
-@@ -1242,9 +1242,11 @@ static void igmpv3_del_delrec(struct in_device *in_dev, struct ip_mc_list *im)
- 			swap(im->tomb, pmc->tomb);
- 			swap(im->sources, pmc->sources);
- 			for (psf = im->sources; psf; psf = psf->sf_next)
--				psf->sf_crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
-+				psf->sf_crcount = in_dev->mr_qrv ?:
-+					READ_ONCE(net->ipv4.sysctl_igmp_qrv);
- 		} else {
--			im->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
-+			im->crcount = in_dev->mr_qrv ?:
-+				READ_ONCE(net->ipv4.sysctl_igmp_qrv);
- 		}
- 		in_dev_put(pmc->interface);
- 		kfree_pmc(pmc);
-@@ -1351,7 +1353,7 @@ static void igmp_group_added(struct ip_mc_list *im)
- 	if (in_dev->dead)
- 		return;
- 
--	im->unsolicit_count = net->ipv4.sysctl_igmp_qrv;
-+	im->unsolicit_count = READ_ONCE(net->ipv4.sysctl_igmp_qrv);
- 	if (IGMP_V1_SEEN(in_dev) || IGMP_V2_SEEN(in_dev)) {
- 		spin_lock_bh(&im->lock);
- 		igmp_start_timer(im, IGMP_INITIAL_REPORT_DELAY);
-@@ -1365,7 +1367,7 @@ static void igmp_group_added(struct ip_mc_list *im)
- 	 * IN() to IN(A).
+-		tos = sock_net(sk)->ipv4.sysctl_tcp_reflect_tos ?
++		tos = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reflect_tos) ?
+ 				(tcp_rsk(req)->syn_tos & ~INET_ECN_MASK) |
+ 				(inet_sk(sk)->tos & INET_ECN_MASK) :
+ 				inet_sk(sk)->tos;
+@@ -1558,7 +1558,7 @@ struct sock *tcp_v4_syn_recv_sock(const struct sock *sk, struct sk_buff *skb,
+ 	/* Set ToS of the new socket based upon the value of incoming SYN.
+ 	 * ECT bits are set later in tcp_init_transfer().
  	 */
- 	if (im->sfmode == MCAST_EXCLUDE)
--		im->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
-+		im->crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+-	if (sock_net(sk)->ipv4.sysctl_tcp_reflect_tos)
++	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reflect_tos))
+ 		newinet->tos = tcp_rsk(req)->syn_tos & ~INET_ECN_MASK;
  
- 	igmp_ifc_event(in_dev);
- #endif
-@@ -1756,7 +1758,7 @@ static void ip_mc_reset(struct in_device *in_dev)
+ 	if (!dst) {
+diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
+index 303b54414a6c..8d91f36cb11b 100644
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -542,7 +542,7 @@ static int tcp_v6_send_synack(const struct sock *sk, struct dst_entry *dst,
+ 		if (np->repflow && ireq->pktopts)
+ 			fl6->flowlabel = ip6_flowlabel(ipv6_hdr(ireq->pktopts));
  
- 	in_dev->mr_qi = IGMP_QUERY_INTERVAL;
- 	in_dev->mr_qri = IGMP_QUERY_RESPONSE_INTERVAL;
--	in_dev->mr_qrv = net->ipv4.sysctl_igmp_qrv;
-+	in_dev->mr_qrv = READ_ONCE(net->ipv4.sysctl_igmp_qrv);
- }
- #else
- static void ip_mc_reset(struct in_device *in_dev)
-@@ -1890,7 +1892,7 @@ static int ip_mc_del1_src(struct ip_mc_list *pmc, int sfmode,
- #ifdef CONFIG_IP_MULTICAST
- 		if (psf->sf_oldin &&
- 		    !IGMP_V1_SEEN(in_dev) && !IGMP_V2_SEEN(in_dev)) {
--			psf->sf_crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
-+			psf->sf_crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
- 			psf->sf_next = pmc->tomb;
- 			pmc->tomb = psf;
- 			rv = 1;
-@@ -1954,7 +1956,7 @@ static int ip_mc_del_src(struct in_device *in_dev, __be32 *pmca, int sfmode,
- 		/* filter mode change */
- 		pmc->sfmode = MCAST_INCLUDE;
- #ifdef CONFIG_IP_MULTICAST
--		pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
-+		pmc->crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
- 		WRITE_ONCE(in_dev->mr_ifc_count, pmc->crcount);
- 		for (psf = pmc->sources; psf; psf = psf->sf_next)
- 			psf->sf_crcount = 0;
-@@ -2133,7 +2135,7 @@ static int ip_mc_add_src(struct in_device *in_dev, __be32 *pmca, int sfmode,
- #ifdef CONFIG_IP_MULTICAST
- 		/* else no filters; keep old mode for reports */
+-		tclass = sock_net(sk)->ipv4.sysctl_tcp_reflect_tos ?
++		tclass = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reflect_tos) ?
+ 				(tcp_rsk(req)->syn_tos & ~INET_ECN_MASK) |
+ 				(np->tclass & INET_ECN_MASK) :
+ 				np->tclass;
+@@ -1344,7 +1344,7 @@ static struct sock *tcp_v6_syn_recv_sock(const struct sock *sk, struct sk_buff *
+ 	/* Set ToS of the new socket based upon the value of incoming SYN.
+ 	 * ECT bits are set later in tcp_init_transfer().
+ 	 */
+-	if (sock_net(sk)->ipv4.sysctl_tcp_reflect_tos)
++	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reflect_tos))
+ 		newnp->tclass = tcp_rsk(req)->syn_tos & ~INET_ECN_MASK;
  
--		pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
-+		pmc->crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
- 		WRITE_ONCE(in_dev->mr_ifc_count, pmc->crcount);
- 		for (psf = pmc->sources; psf; psf = psf->sf_next)
- 			psf->sf_crcount = 0;
+ 	/* Clone native IPv6 options from listening socket (if any)
 -- 
 2.35.1
 
