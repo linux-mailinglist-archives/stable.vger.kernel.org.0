@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62D5C5869ED
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:09:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F03BB5869F1
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:09:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233672AbiHAMJO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:09:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42894 "EHLO
+        id S233819AbiHAMJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:09:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233797AbiHAMIe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:08:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44AE646D90;
-        Mon,  1 Aug 2022 04:56:00 -0700 (PDT)
+        with ESMTP id S231628AbiHAMIx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:08:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AF5E655A0;
+        Mon,  1 Aug 2022 04:56:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80F8561356;
-        Mon,  1 Aug 2022 11:55:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A1F0C43140;
-        Mon,  1 Aug 2022 11:55:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F16C6B81163;
+        Mon,  1 Aug 2022 11:56:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D896C433C1;
+        Mon,  1 Aug 2022 11:56:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354958;
-        bh=gummr80YA9ygIDr3lIJCdVmUi0GAWxy6pwRvH1WisG0=;
+        s=korg; t=1659354961;
+        bh=QdhoJKHWHOYGae7EJTZdGq1HN/BPTPc3s5JJatJcrEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GkyyOC0fyDQjVSdT96dkSWoyVNFGAV9J8/TkJjD8FvZKTj56DQTem5bQcoVigcMOH
-         SHGZThzOVpSYhwRO1QYX4+66d7ehUpxY8DtHvVuAcFI0VT9y8Qx1XVNZJ4Kf4a6ZXq
-         HBhz64WR3qn8+AE+S0ns8e6cgQDSD/xheCQpnNm8=
+        b=HMjZn/SD2UVd1e7xv5faG373LHAXFkls1JOZ5oVc29VEYwyqDY1lHUM9tW02wKSRj
+         fyIp62PyWGvFbs7816gN9rBpYvgf29XOhlYdwbHzZH2pGpPPntRPPWtNW6+jMKRna7
+         NJwJlBX/etI/K4qePVUUKgSO918Hiy5WaFU4K0vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.18 12/88] hugetlb: fix memoryleak in hugetlb_mcopy_atomic_pte
-Date:   Mon,  1 Aug 2022 13:46:26 +0200
-Message-Id: <20220801114138.623301792@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.18 13/88] asm-generic: remove a broken and needless ifdef conditional
+Date:   Mon,  1 Aug 2022 13:46:27 +0200
+Message-Id: <20220801114138.662815688@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
 References: <20220801114138.041018499@linuxfoundation.org>
@@ -56,36 +52,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 
-commit da9a298f5fad0dc615079a340da42928bc5b138e upstream.
+commit e2a619ca0b38f2114347b7078b8a67d72d457a3d upstream.
 
-When alloc_huge_page fails, *pagep is set to NULL without put_page first.
-So the hugepage indicated by *pagep is leaked.
+Commit 527701eda5f1 ("lib: Add a generic version of devmem_is_allowed()")
+introduces the config symbol GENERIC_LIB_DEVMEM_IS_ALLOWED, but then
+falsely refers to CONFIG_GENERIC_DEVMEM_IS_ALLOWED (note the missing LIB
+in the reference) in ./include/asm-generic/io.h.
 
-Link: https://lkml.kernel.org/r/20220709092629.54291-1-linmiaohe@huawei.com
-Fixes: 8cc5fcbb5be8 ("mm, hugetlb: fix racy resv_huge_pages underflow on UFFDIO_COPY")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Luckily, ./scripts/checkkconfigsymbols.py warns on non-existing configs:
+
+GENERIC_DEVMEM_IS_ALLOWED
+Referencing files: include/asm-generic/io.h
+
+The actual fix, though, is simply to not to make this function declaration
+dependent on any kernel config. For architectures that intend to use
+the generic version, the arch's 'select GENERIC_LIB_DEVMEM_IS_ALLOWED' will
+lead to picking the function definition, and for other architectures, this
+function is simply defined elsewhere.
+
+The wrong '#ifndef' on a non-existing config symbol also always had the
+same effect (although more by mistake than by intent). So, there is no
+functional change.
+
+Remove this broken and needless ifdef conditional.
+
+Fixes: 527701eda5f1 ("lib: Add a generic version of devmem_is_allowed()")
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/asm-generic/io.h |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5822,6 +5822,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_s
+--- a/include/asm-generic/io.h
++++ b/include/asm-generic/io.h
+@@ -1125,9 +1125,7 @@ static inline void memcpy_toio(volatile
+ }
+ #endif
  
- 		page = alloc_huge_page(dst_vma, dst_addr, 0);
- 		if (IS_ERR(page)) {
-+			put_page(*pagep);
- 			ret = -ENOMEM;
- 			*pagep = NULL;
- 			goto out;
+-#ifndef CONFIG_GENERIC_DEVMEM_IS_ALLOWED
+ extern int devmem_is_allowed(unsigned long pfn);
+-#endif
+ 
+ #endif /* __KERNEL__ */
+ 
 
 
