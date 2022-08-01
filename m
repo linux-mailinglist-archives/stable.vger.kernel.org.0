@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 301B4586A84
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:17:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F8435869CD
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:07:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234212AbiHAMRy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:17:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40174 "EHLO
+        id S233688AbiHAMH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:07:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234318AbiHAMQe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:16:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED5F93ED6A;
-        Mon,  1 Aug 2022 04:58:57 -0700 (PDT)
+        with ESMTP id S233656AbiHAMHJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:07:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF71B357D1;
+        Mon,  1 Aug 2022 04:55:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89409B81163;
-        Mon,  1 Aug 2022 11:58:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0A3EC433D6;
-        Mon,  1 Aug 2022 11:58:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C89A261210;
+        Mon,  1 Aug 2022 11:55:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4915C433C1;
+        Mon,  1 Aug 2022 11:55:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659355135;
-        bh=TQns3hjRBLYuanL/YF6iu0M/uuZZf7+dlf8QceGSMv8=;
+        s=korg; t=1659354916;
+        bh=VA2wohoCImHpJ67x4JVTxx0JPiyhyzHT+u6woSJvBRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RjmU+5VfKdsWsaZ4CzwJOt4X6dby1s7wKjW3fLyvXjqj3pZnVXfXZnalZnqUw5D6D
-         sePTRLD4dxB9MyDmYVxmIjuGQpO0tlJzKSO8Szi85yu+v8iR3056Qi75zDUvAZd2UX
-         S6yuG4DpD9oCmPe6O6USuLzkoh0mefGYTJ/PPQEE=
+        b=S3+VNpqk0yV64tZbO5VK4vxK+ByuE8S3N6RdrHPCnATxfH84EbCbPxZPGF2W2g1fl
+         HzSBGKM75ZqRuN1i3yCbJdJcjL+nIA9HQjWHezUO8/dnW1Ews8HDV9h9iHmILuzjkt
+         JarISAZ7U/x6nAfDFrgf5MKz0Oa+IF1Ev7kWfbQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Chen <harperchen1110@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 76/88] sctp: leave the err path free in sctp_stream_init to sctp_stream_free
+        stable@vger.kernel.org, Robert Richter <rric@kernel.org>,
+        Toshi Kani <toshi.kani@hpe.com>, Borislav Petkov <bp@suse.de>,
+        Robert Elliott <elliott@hpe.com>
+Subject: [PATCH 5.15 66/69] EDAC/ghes: Set the DIMM label unconditionally
 Date:   Mon,  1 Aug 2022 13:47:30 +0200
-Message-Id: <20220801114141.504347668@linuxfoundation.org>
+Message-Id: <20220801114137.129963445@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
-References: <20220801114138.041018499@linuxfoundation.org>
+In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
+References: <20220801114134.468284027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,109 +53,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Toshi Kani <toshi.kani@hpe.com>
 
-[ Upstream commit 181d8d2066c000ba0a0e6940a7ad80f1a0e68e9d ]
+commit 5e2805d5379619c4a2e3ae4994e73b36439f4bad upstream.
 
-A NULL pointer dereference was reported by Wei Chen:
+The commit
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  RIP: 0010:__list_del_entry_valid+0x26/0x80
-  Call Trace:
-   <TASK>
-   sctp_sched_dequeue_common+0x1c/0x90
-   sctp_sched_prio_dequeue+0x67/0x80
-   __sctp_outq_teardown+0x299/0x380
-   sctp_outq_free+0x15/0x20
-   sctp_association_free+0xc3/0x440
-   sctp_do_sm+0x1ca7/0x2210
-   sctp_assoc_bh_rcv+0x1f6/0x340
+  cb51a371d08e ("EDAC/ghes: Setup DIMM label from DMI and use it in error reports")
 
-This happens when calling sctp_sendmsg without connecting to server first.
-In this case, a data chunk already queues up in send queue of client side
-when processing the INIT_ACK from server in sctp_process_init() where it
-calls sctp_stream_init() to alloc stream_in. If it fails to alloc stream_in
-all stream_out will be freed in sctp_stream_init's err path. Then in the
-asoc freeing it will crash when dequeuing this data chunk as stream_out
-is missing.
+enforced that both the bank and device strings passed to
+dimm_setup_label() are not NULL.
 
-As we can't free stream out before dequeuing all data from send queue, and
-this patch is to fix it by moving the err path stream_out/in freeing in
-sctp_stream_init() to sctp_stream_free() which is eventually called when
-freeing the asoc in sctp_association_free(). This fix also makes the code
-in sctp_process_init() more clear.
+However, there are BIOSes, for example on a
 
-Note that in sctp_association_init() when it fails in sctp_stream_init(),
-sctp_association_free() will not be called, and in that case it should
-go to 'stream_free' err path to free stream instead of 'fail_init'.
+  HPE ProLiant DL360 Gen10/ProLiant DL360 Gen10, BIOS U32 03/15/2019
 
-Fixes: 5bbbbe32a431 ("sctp: introduce stream scheduler foundations")
-Reported-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Link: https://lore.kernel.org/r/831a3dc100c4908ff76e5bcc363be97f2778bc0b.1658787066.git.lucien.xin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+which don't populate both strings:
+
+  Handle 0x0020, DMI type 17, 84 bytes
+  Memory Device
+          Array Handle: 0x0013
+          Error Information Handle: Not Provided
+          Total Width: 72 bits
+          Data Width: 64 bits
+          Size: 32 GB
+          Form Factor: DIMM
+          Set: None
+          Locator: PROC 1 DIMM 1        <===== device
+          Bank Locator: Not Specified   <===== bank
+
+This results in a buffer overflow because ghes_edac_register() calls
+strlen() on an uninitialized label, which had non-zero values left over
+from krealloc_array():
+
+  detected buffer overflow in __fortify_strlen
+   ------------[ cut here ]------------
+   kernel BUG at lib/string_helpers.c:983!
+   invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+   CPU: 1 PID: 1 Comm: swapper/0 Tainted: G          I       5.18.6-200.fc36.x86_64 #1
+   Hardware name: HPE ProLiant DL360 Gen10/ProLiant DL360 Gen10, BIOS U32 03/15/2019
+   RIP: 0010:fortify_panic
+   ...
+   Call Trace:
+    <TASK>
+    ghes_edac_register.cold
+    ghes_probe
+    platform_probe
+    really_probe
+    __driver_probe_device
+    driver_probe_device
+    __driver_attach
+    ? __device_attach_driver
+    bus_for_each_dev
+    bus_add_driver
+    driver_register
+    acpi_ghes_init
+    acpi_init
+    ? acpi_sleep_proc_init
+    do_one_initcall
+
+The label contains garbage because the commit in Fixes reallocs the
+DIMMs array while scanning the system but doesn't clear the newly
+allocated memory.
+
+Change dimm_setup_label() to always initialize the label to fix the
+issue. Set it to the empty string in case BIOS does not provide both
+bank and device so that ghes_edac_register() can keep the default label
+given by edac_mc_alloc_dimms().
+
+  [ bp: Rewrite commit message. ]
+
+Fixes: b9cae27728d1f ("EDAC/ghes: Scan the system once on driver init")
+Co-developed-by: Robert Richter <rric@kernel.org>
+Signed-off-by: Robert Richter <rric@kernel.org>
+Signed-off-by: Toshi Kani <toshi.kani@hpe.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Robert Elliott <elliott@hpe.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220719220124.760359-1-toshi.kani@hpe.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/associola.c |  5 ++---
- net/sctp/stream.c    | 19 +++----------------
- 2 files changed, 5 insertions(+), 19 deletions(-)
+ drivers/edac/ghes_edac.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/net/sctp/associola.c b/net/sctp/associola.c
-index be29da09cc7a..3460abceba44 100644
---- a/net/sctp/associola.c
-+++ b/net/sctp/associola.c
-@@ -229,9 +229,8 @@ static struct sctp_association *sctp_association_init(
- 	if (!sctp_ulpq_init(&asoc->ulpq, asoc))
- 		goto fail_init;
+--- a/drivers/edac/ghes_edac.c
++++ b/drivers/edac/ghes_edac.c
+@@ -101,9 +101,14 @@ static void dimm_setup_label(struct dimm
  
--	if (sctp_stream_init(&asoc->stream, asoc->c.sinit_num_ostreams,
--			     0, gfp))
--		goto fail_init;
-+	if (sctp_stream_init(&asoc->stream, asoc->c.sinit_num_ostreams, 0, gfp))
-+		goto stream_free;
+ 	dmi_memdev_name(handle, &bank, &device);
  
- 	/* Initialize default path MTU. */
- 	asoc->pathmtu = sp->pathmtu;
-diff --git a/net/sctp/stream.c b/net/sctp/stream.c
-index 6dc95dcc0ff4..ef9fceadef8d 100644
---- a/net/sctp/stream.c
-+++ b/net/sctp/stream.c
-@@ -137,7 +137,7 @@ int sctp_stream_init(struct sctp_stream *stream, __u16 outcnt, __u16 incnt,
- 
- 	ret = sctp_stream_alloc_out(stream, outcnt, gfp);
- 	if (ret)
--		goto out_err;
-+		return ret;
- 
- 	for (i = 0; i < stream->outcnt; i++)
- 		SCTP_SO(stream, i)->state = SCTP_STREAM_OPEN;
-@@ -145,22 +145,9 @@ int sctp_stream_init(struct sctp_stream *stream, __u16 outcnt, __u16 incnt,
- handle_in:
- 	sctp_stream_interleave_init(stream);
- 	if (!incnt)
--		goto out;
--
--	ret = sctp_stream_alloc_in(stream, incnt, gfp);
--	if (ret)
--		goto in_err;
--
--	goto out;
-+		return 0;
- 
--in_err:
--	sched->free(stream);
--	genradix_free(&stream->in);
--out_err:
--	genradix_free(&stream->out);
--	stream->outcnt = 0;
--out:
--	return ret;
-+	return sctp_stream_alloc_in(stream, incnt, gfp);
+-	/* both strings must be non-zero */
+-	if (bank && *bank && device && *device)
+-		snprintf(dimm->label, sizeof(dimm->label), "%s %s", bank, device);
++	/*
++	 * Set to a NULL string when both bank and device are zero. In this case,
++	 * the label assigned by default will be preserved.
++	 */
++	snprintf(dimm->label, sizeof(dimm->label), "%s%s%s",
++		 (bank && *bank) ? bank : "",
++		 (bank && *bank && device && *device) ? " " : "",
++		 (device && *device) ? device : "");
  }
  
- int sctp_stream_init_ext(struct sctp_stream *stream, __u16 sid)
--- 
-2.35.1
-
+ static void assign_dmi_dimm_info(struct dimm_info *dimm, struct memdev_dmi_entry *entry)
 
 
