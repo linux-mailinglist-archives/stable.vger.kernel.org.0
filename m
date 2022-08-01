@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BEFF5868AB
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:52:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57C01586924
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:57:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232013AbiHALwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:52:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34648 "EHLO
+        id S232408AbiHAL5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:57:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231859AbiHALvd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:51:33 -0400
+        with ESMTP id S232487AbiHAL4j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:56:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC9FD3E77E;
-        Mon,  1 Aug 2022 04:49:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 798F948C8C;
+        Mon,  1 Aug 2022 04:51:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26F78B8116B;
-        Mon,  1 Aug 2022 11:49:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 474BFC433D6;
-        Mon,  1 Aug 2022 11:49:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02738B81163;
+        Mon,  1 Aug 2022 11:51:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 659C0C433D6;
+        Mon,  1 Aug 2022 11:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354566;
-        bh=vYtUgWJOtyovVyFdms+tN1lBrNToWs07uk+ePG6BBiM=;
+        s=korg; t=1659354707;
+        bh=1P8mkzwbB14g4oMscYA+zqx1Erlt0gIDYOVB6LuB2Cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KMXQexf8eWrclj8piMd3UjUfNR31rbM2WMkEDecaD9UQgwvKB8iPRWzI755Jrj239
-         oowqym1S/kef426lt7jPV48R01UtUIftG6mukKEMBmHNYNzwp/eEhETpiy3WSYANmH
-         N8H/SMHhTfdEs/BhsLRkHC47DKBA4t7kjLRjsb3U=
+        b=yx3Jr3W+Tz9I8WfFBNsvOC0CFM5v1TFMpA8GpEV/rfB3L9ppEqWNu1/AMC29MHoU7
+         8iaeCq83kf14jGyPi6FMnOpfN0u/1q9HEXA3nFcEe7nDrJAViTd9fh12e+t1YHWoVV
+         50d0cZIxnrmtAM/95qoFe+5TxuQn8j8glwALXE0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
-        Sumit Saxena <sumit.saxena@broadcom.com>,
-        Kashyap Desai <kashyap.desai@broadcom.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Ewan Milne <emilne@redhat.com>, Long Li <longli@microsoft.com>,
-        John Garry <john.garry@huawei.com>,
-        "chenxiang (M)" <chenxiang66@hisilicon.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Yu Kuai <yukuai3@huawei.com>
-Subject: [PATCH 5.4 34/34] scsi: core: Fix race between handling STS_RESOURCE and completion
+        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 57/65] xfs: force the log offline when log intent item recovery fails
 Date:   Mon,  1 Aug 2022 13:47:14 +0200
-Message-Id: <20220801114129.332434263@linuxfoundation.org>
+Message-Id: <20220801114136.056238154@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
-References: <20220801114128.025615151@linuxfoundation.org>
+In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
+References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,57 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-commit 673235f915318ced5d7ec4b2bfd8cb909e6a4a55 upstream.
+commit 4e6b8270c820c8c57a73f869799a0af2b56eff3e upstream.
 
-When queuing I/O request to LLD, STS_RESOURCE may be returned because:
+If any part of log intent item recovery fails, we should shut down the
+log immediately to stop the log from writing a clean unmount record to
+disk, because the metadata is not consistent.  The inability to cancel a
+dirty transaction catches most of these cases, but there are a few
+things that have slipped through the cracks, such as ENOSPC from a
+transaction allocation, or runtime errors that result in cancellation of
+a non-dirty transaction.
 
- - Host is in recovery or blocked
+This solves some weird behaviors reported by customers where a system
+goes down, the first mount fails, the second succeeds, but then the fs
+goes down later because of inconsistent metadata.
 
- - Target queue throttling or target is blocked
-
- - LLD rejection
-
-In these scenarios BLK_STS_DEV_RESOURCE is returned to the block layer to
-avoid an unnecessary re-run of the queue. However, all of the requests
-queued to this SCSI device may complete immediately after reading
-'sdev->device_busy' and BLK_STS_DEV_RESOURCE is returned to block layer. In
-that case the current I/O won't get a chance to get queued since it is
-invisible at that time for both scsi_run_queue_async() and blk-mq's
-RESTART.
-
-Fix the issue by not returning BLK_STS_DEV_RESOURCE in this situation.
-
-Link: https://lore.kernel.org/r/20201202100419.525144-1-ming.lei@redhat.com
-Fixes: 86ff7c2a80cd ("blk-mq: introduce BLK_STS_DEV_RESOURCE")
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Sumit Saxena <sumit.saxena@broadcom.com>
-Cc: Kashyap Desai <kashyap.desai@broadcom.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Ewan Milne <emilne@redhat.com>
-Cc: Long Li <longli@microsoft.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Tested-by: "chenxiang (M)" <chenxiang66@hisilicon.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_lib.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/xfs/xfs_log.c         |    3 +++
+ fs/xfs/xfs_log_recover.c |    5 ++++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1719,8 +1719,7 @@ out_put_budget:
- 	case BLK_STS_OK:
- 		break;
- 	case BLK_STS_RESOURCE:
--		if (atomic_read(&sdev->device_busy) ||
--		    scsi_device_blocked(sdev))
-+		if (scsi_device_blocked(sdev))
- 			ret = BLK_STS_DEV_RESOURCE;
- 		break;
- 	default:
+--- a/fs/xfs/xfs_log.c
++++ b/fs/xfs/xfs_log.c
+@@ -765,6 +765,9 @@ xfs_log_mount_finish(
+ 	if (readonly)
+ 		mp->m_flags |= XFS_MOUNT_RDONLY;
+ 
++	/* Make sure the log is dead if we're returning failure. */
++	ASSERT(!error || (mp->m_log->l_flags & XLOG_IO_ERROR));
++
+ 	return error;
+ }
+ 
+--- a/fs/xfs/xfs_log_recover.c
++++ b/fs/xfs/xfs_log_recover.c
+@@ -2457,8 +2457,10 @@ xlog_finish_defer_ops(
+ 
+ 		error = xfs_trans_alloc(mp, &resv, dfc->dfc_blkres,
+ 				dfc->dfc_rtxres, XFS_TRANS_RESERVE, &tp);
+-		if (error)
++		if (error) {
++			xfs_force_shutdown(mp, SHUTDOWN_LOG_IO_ERROR);
+ 			return error;
++		}
+ 
+ 		/*
+ 		 * Transfer to this new transaction all the dfops we captured
+@@ -3454,6 +3456,7 @@ xlog_recover_finish(
+ 			 * this) before we get around to xfs_log_mount_cancel.
+ 			 */
+ 			xlog_recover_cancel_intents(log);
++			xfs_force_shutdown(log->l_mp, SHUTDOWN_LOG_IO_ERROR);
+ 			xfs_alert(log->l_mp, "Failed to recover intents");
+ 			return error;
+ 		}
 
 
