@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A538586A90
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:18:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B8A586A93
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:18:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234342AbiHAMSY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:18:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43824 "EHLO
+        id S234578AbiHAMSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:18:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234351AbiHAMR5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:17:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 297E97F51D;
-        Mon,  1 Aug 2022 04:59:12 -0700 (PDT)
+        with ESMTP id S234586AbiHAMSI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:18:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25D8D49B5F;
+        Mon,  1 Aug 2022 04:59:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 43A916010C;
-        Mon,  1 Aug 2022 11:59:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 530D7C433C1;
-        Mon,  1 Aug 2022 11:59:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE1E7601C5;
+        Mon,  1 Aug 2022 11:59:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECAFAC433C1;
+        Mon,  1 Aug 2022 11:59:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659355151;
-        bh=o0GoZC8jqwAki4OA/myQhdnHoWr7JPzkZQ93pZ7RDjE=;
+        s=korg; t=1659355154;
+        bh=Kr1Yx27AWLh+1gvT8gaFpSOhnROqSVu0uXH2DRg+H2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=llgvTUmeWUJdXjx6NUuikzZluxESnvVQDPwDuFKfnT8g/xx8OWxQLNH9kT2R0a5st
-         pijhaeedT+cvaGJrF1GbtSp4DOgnEY2Ec+8n3XtjENfGDI3SshV0K2dK1aWBSJk3lC
-         rBxM+xVcX0GhgbAPywYKCHlOnJezglXK5tk3Ri3g=
+        b=Do9arLBY+JWYTpX3rV3riVQc8B4YmT/P7Jcpd3qt2wYoGmbYLgJ0dz8PboAHEksJ3
+         ShVofVkMRczbF6iYm4U84Ox15cWQ238asHFo1FUNeC19EP2KVUg9TjGUEVBcSef0+4
+         7uN8SYxvP3rKv0AyD2zyZrEqifs+zo2i9cHJ/Jy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 81/88] tcp: Fix data-races around sysctl_tcp_workaround_signed_windows.
-Date:   Mon,  1 Aug 2022 13:47:35 +0200
-Message-Id: <20220801114141.695725172@linuxfoundation.org>
+Subject: [PATCH 5.18 82/88] ARM: 9216/1: Fix MAX_DMA_ADDRESS overflow
+Date:   Mon,  1 Aug 2022 13:47:36 +0200
+Message-Id: <20220801114141.740058208@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
 References: <20220801114138.041018499@linuxfoundation.org>
@@ -53,43 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 0f1e4d06591d0a7907c71f7b6d1c79f8a4de8098 ]
+[ Upstream commit fb0fd3469ead5b937293c213daa1f589b4b7ce46 ]
 
-While reading sysctl_tcp_workaround_signed_windows, it can be changed
-concurrently.  Thus, we need to add READ_ONCE() to its readers.
+Commit 26f09e9b3a06 ("mm/memblock: add memblock memory allocation apis")
+added a check to determine whether arm_dma_zone_size is exceeding the
+amount of kernel virtual address space available between the upper 4GB
+virtual address limit and PAGE_OFFSET in order to provide a suitable
+definition of MAX_DMA_ADDRESS that should fit within the 32-bit virtual
+address space. The quantity used for comparison was off by a missing
+trailing 0, leading to MAX_DMA_ADDRESS to be overflowing a 32-bit
+quantity.
 
-Fixes: 15d99e02baba ("[TCP]: sysctl to allow TCP window > 32767 sans wscale")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This was caught thanks to CONFIG_DEBUG_VIRTUAL on the bcm2711 platform
+where we define a dma_zone_size of 1GB and we have a PAGE_OFFSET value
+of 0xc000_0000 (CONFIG_VMSPLIT_3G) leading to MAX_DMA_ADDRESS being
+0x1_0000_0000 which overflows the unsigned long type used throughout
+__pa() and then __virt_addr_valid(). Because the virtual address passed
+to __virt_addr_valid() would now be 0, the function would loudly warn
+and flood the kernel log, thus making the platform unable to boot
+properly.
+
+Fixes: 26f09e9b3a06 ("mm/memblock: add memblock memory allocation apis")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/include/asm/dma.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 66836b8bd46f..a7f0a1f0c2a3 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -227,7 +227,7 @@ void tcp_select_initial_window(const struct sock *sk, int __space, __u32 mss,
- 	 * which we interpret as a sign the remote TCP is not
- 	 * misinterpreting the window field as a signed quantity.
- 	 */
--	if (sock_net(sk)->ipv4.sysctl_tcp_workaround_signed_windows)
-+	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_workaround_signed_windows))
- 		(*rcv_wnd) = min(space, MAX_TCP_WINDOW);
- 	else
- 		(*rcv_wnd) = min_t(u32, space, U16_MAX);
-@@ -282,7 +282,7 @@ static u16 tcp_select_window(struct sock *sk)
- 	 * scaled window.
- 	 */
- 	if (!tp->rx_opt.rcv_wscale &&
--	    sock_net(sk)->ipv4.sysctl_tcp_workaround_signed_windows)
-+	    READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_workaround_signed_windows))
- 		new_win = min(new_win, MAX_TCP_WINDOW);
- 	else
- 		new_win = min(new_win, (65535U << tp->rx_opt.rcv_wscale));
+diff --git a/arch/arm/include/asm/dma.h b/arch/arm/include/asm/dma.h
+index a81dda65c576..45180a2cc47c 100644
+--- a/arch/arm/include/asm/dma.h
++++ b/arch/arm/include/asm/dma.h
+@@ -10,7 +10,7 @@
+ #else
+ #define MAX_DMA_ADDRESS	({ \
+ 	extern phys_addr_t arm_dma_zone_size; \
+-	arm_dma_zone_size && arm_dma_zone_size < (0x10000000 - PAGE_OFFSET) ? \
++	arm_dma_zone_size && arm_dma_zone_size < (0x100000000ULL - PAGE_OFFSET) ? \
+ 		(PAGE_OFFSET + arm_dma_zone_size) : 0xffffffffUL; })
+ #endif
+ 
 -- 
 2.35.1
 
