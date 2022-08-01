@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B6275869D5
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:08:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3F6F586A8E
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:18:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233656AbiHAMID (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:08:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43168 "EHLO
+        id S234610AbiHAMSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:18:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233700AbiHAMH3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:07:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A7055F99C;
-        Mon,  1 Aug 2022 04:55:26 -0700 (PDT)
+        with ESMTP id S234563AbiHAMRz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:17:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D056E785B1;
+        Mon,  1 Aug 2022 04:59:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F39F612D0;
-        Mon,  1 Aug 2022 11:55:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B04AC433C1;
-        Mon,  1 Aug 2022 11:55:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E949B81163;
+        Mon,  1 Aug 2022 11:59:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82B42C433C1;
+        Mon,  1 Aug 2022 11:59:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354924;
-        bh=R4r38YJ5Dy31el24nkUxBsEoOBTpXjcjl5kVMXZYn0Q=;
+        s=korg; t=1659355149;
+        bh=R8xRDyc8IDTC5wOZ0hqq+pKX1t9BRLJ7EvV+0yyX6Ec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oR8d9sBzlm911P52+XYucIPtBfcrqjwTyRHnq4tJ6lA0rxXvD8IdcWH+A4Gma9ihI
-         icQZRhUcdGWRieSF9vdEO256wKU2SDRuFhRRle3pjFluxb9vBUJVRkjeNRXmJU8wad
-         70O9eL4HExtZdcH7XuufHMQzOPBaoCyRZ7e0U5+o=
+        b=uZuE6Q1wasWUGZRcVG9ZnjQnehOBaU/zlrsfv7WdRINFkW4yN8o2Qtn9DTTSBxuny
+         zanZQfE2UBBqA6k+pGfrfIJUMZK5bxK7Xa7jcErKTtjAmL5tNHA6sMzK5FSBxFNbvb
+         DS1tYRy4q9cCGJgFNQ0dc8L/1vA2eSIh+RJwVNU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.15 69/69] x86/bugs: Do not enable IBPB at firmware entry when IBPB is not available
-Date:   Mon,  1 Aug 2022 13:47:33 +0200
-Message-Id: <20220801114137.252692437@linuxfoundation.org>
+        stable@vger.kernel.org, Jaewon Kim <jaewon31.kim@samsung.com>,
+        GyeongHwan Hong <gh21.hong@samsung.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Minchan Kim <minchan@kernel.org>, Baoquan He <bhe@redhat.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Yong-Taek Lee <ytk.lee@samsung.com>, stable@vger.kerenl.org,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.18 80/88] page_alloc: fix invalid watermark check on a negative value
+Date:   Mon,  1 Aug 2022 13:47:34 +0200
+Message-Id: <20220801114141.657732633@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
+References: <20220801114138.041018499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +59,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Jaewon Kim <jaewon31.kim@samsung.com>
 
-commit 571c30b1a88465a1c85a6f7762609939b9085a15 upstream.
+commit 9282012fc0aa248b77a69f5eb802b67c5a16bb13 upstream.
 
-Some cloud hypervisors do not provide IBPB on very recent CPU processors,
-including AMD processors affected by Retbleed.
+There was a report that a task is waiting at the
+throttle_direct_reclaim. The pgscan_direct_throttle in vmstat was
+increasing.
 
-Using IBPB before firmware calls on such systems would cause a GPF at boot
-like the one below. Do not enable such calls when IBPB support is not
-present.
+This is a bug where zone_watermark_fast returns true even when the free
+is very low. The commit f27ce0e14088 ("page_alloc: consider highatomic
+reserve in watermark fast") changed the watermark fast to consider
+highatomic reserve. But it did not handle a negative value case which
+can be happened when reserved_highatomic pageblock is bigger than the
+actual free.
 
-  EFI Variables Facility v0.08 2004-May-17
-  general protection fault, maybe for address 0x1: 0000 [#1] PREEMPT SMP NOPTI
-  CPU: 0 PID: 24 Comm: kworker/u2:1 Not tainted 5.19.0-rc8+ #7
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
-  Workqueue: efi_rts_wq efi_call_rts
-  RIP: 0010:efi_call_rts
-  Code: e8 37 33 58 ff 41 bf 48 00 00 00 49 89 c0 44 89 f9 48 83 c8 01 4c 89 c2 48 c1 ea 20 66 90 b9 49 00 00 00 b8 01 00 00 00 31 d2 <0f> 30 e8 7b 9f 5d ff e8 f6 f8 ff ff 4c 89 f1 4c 89 ea 4c 89 e6 48
-  RSP: 0018:ffffb373800d7e38 EFLAGS: 00010246
-  RAX: 0000000000000001 RBX: 0000000000000006 RCX: 0000000000000049
-  RDX: 0000000000000000 RSI: ffff94fbc19d8fe0 RDI: ffff94fbc1b2b300
-  RBP: ffffb373800d7e70 R08: 0000000000000000 R09: 0000000000000000
-  R10: 000000000000000b R11: 000000000000000b R12: ffffb3738001fd78
-  R13: ffff94fbc2fcfc00 R14: ffffb3738001fd80 R15: 0000000000000048
-  FS:  0000000000000000(0000) GS:ffff94fc3da00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: ffff94fc30201000 CR3: 000000006f610000 CR4: 00000000000406f0
-  Call Trace:
-   <TASK>
-   ? __wake_up
-   process_one_work
-   worker_thread
-   ? rescuer_thread
-   kthread
-   ? kthread_complete_and_exit
-   ret_from_fork
-   </TASK>
-  Modules linked in:
+If watermark is considered as ok for the negative value, allocating
+contexts for order-0 will consume all free pages without direct reclaim,
+and finally free page may become depleted except highatomic free.
 
-Fixes: 28a99e95f55c ("x86/amd: Use IBPB for firmware calls")
-Reported-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220728122602.2500509-1-cascardo@canonical.com
+Then allocating contexts may fall into throttle_direct_reclaim. This
+symptom may easily happen in a system where wmark min is low and other
+reclaimers like kswapd does not make free pages quickly.
+
+Handle the negative case by using MIN.
+
+Link: https://lkml.kernel.org/r/20220725095212.25388-1-jaewon31.kim@samsung.com
+Fixes: f27ce0e14088 ("page_alloc: consider highatomic reserve in watermark fast")
+Signed-off-by: Jaewon Kim <jaewon31.kim@samsung.com>
+Reported-by: GyeongHwan Hong <gh21.hong@samsung.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Yong-Taek Lee <ytk.lee@samsung.com>
+Cc: <stable@vger.kerenl.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |    1 +
- 1 file changed, 1 insertion(+)
+ mm/page_alloc.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1513,6 +1513,7 @@ static void __init spectre_v2_select_mit
- 	 * enable IBRS around firmware calls.
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -3953,11 +3953,15 @@ static inline bool zone_watermark_fast(s
+ 	 * need to be calculated.
  	 */
- 	if (boot_cpu_has_bug(X86_BUG_RETBLEED) &&
-+	    boot_cpu_has(X86_FEATURE_IBPB) &&
- 	    (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
- 	     boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)) {
+ 	if (!order) {
+-		long fast_free;
++		long usable_free;
++		long reserved;
+ 
+-		fast_free = free_pages;
+-		fast_free -= __zone_watermark_unusable_free(z, 0, alloc_flags);
+-		if (fast_free > mark + z->lowmem_reserve[highest_zoneidx])
++		usable_free = free_pages;
++		reserved = __zone_watermark_unusable_free(z, 0, alloc_flags);
++
++		/* reserved may over estimate high-atomic reserves. */
++		usable_free -= min(usable_free, reserved);
++		if (usable_free > mark + z->lowmem_reserve[highest_zoneidx])
+ 			return true;
+ 	}
  
 
 
