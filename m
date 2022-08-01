@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0137058699D
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:05:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A08FA5869FC
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:10:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233435AbiHAMFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:05:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43066 "EHLO
+        id S233954AbiHAMKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:10:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233336AbiHAME0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:04:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0655B57273;
-        Mon,  1 Aug 2022 04:54:26 -0700 (PDT)
+        with ESMTP id S233417AbiHAMJd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:09:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85D746566F;
+        Mon,  1 Aug 2022 04:56:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40839B81163;
-        Mon,  1 Aug 2022 11:54:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1F60C433C1;
-        Mon,  1 Aug 2022 11:54:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 032B4B81170;
+        Mon,  1 Aug 2022 11:56:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E759C433D7;
+        Mon,  1 Aug 2022 11:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354864;
-        bh=kdVP2qKbvN4yMUOSpwx8raN54nwWbc4Q2QdJKyqjSgY=;
+        s=korg; t=1659354975;
+        bh=L65EoCY1Wjh6qCUUyO68ActgUWoVIRRu6kgfGRc9XL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J2Grp/VLrbgeiJ9i73E0u7sUBuRpnr7yOdB1PBtZwIqxjGNlWhZGvMbKFY8IEjykH
-         RnDB1sCO+Coc1c20CVcrR9Xu4ENi8ViC5Tquulf4YqiutcHqSfnQ6g20ncgvChwpG1
-         d0rWHzBOS+8BM+FQJRxuoRb2ndD2OwDmqvxEFTFg=
+        b=vIjEwxf9U5MAq8HOJHk7BzmoIEg0CX6tHf1aLomir6RF2GpWrxMXjCXr7vBaQ0yET
+         BCFVUAPpBOB2mJ06+aYgtqzj3O26EWFwVtXzsBqkwFd/2MeTjnjwUdTQziHT5JSH8q
+         3pRQ7sK4/qnaamzJUByYajFUwV3XbpTWhFZ9hD18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 07/69] hugetlb: fix memoryleak in hugetlb_mcopy_atomic_pte
-Date:   Mon,  1 Aug 2022 13:46:31 +0200
-Message-Id: <20220801114134.777267366@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.18 18/88] watch_queue: Fix missing rcu annotation
+Date:   Mon,  1 Aug 2022 13:46:32 +0200
+Message-Id: <20220801114138.878778584@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
+References: <20220801114138.041018499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: David Howells <dhowells@redhat.com>
 
-commit da9a298f5fad0dc615079a340da42928bc5b138e upstream.
+commit e0339f036ef4beb9b20f0b6532a1e0ece7f594c6 upstream.
 
-When alloc_huge_page fails, *pagep is set to NULL without put_page first.
-So the hugepage indicated by *pagep is leaked.
+Since __post_watch_notification() walks wlist->watchers with only the
+RCU read lock held, we need to use RCU methods to add to the list (we
+already use RCU methods to remove from the list).
 
-Link: https://lkml.kernel.org/r/20220709092629.54291-1-linmiaohe@huawei.com
-Fixes: 8cc5fcbb5be8 ("mm, hugetlb: fix racy resv_huge_pages underflow on UFFDIO_COPY")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fix add_watch_to_object() to use hlist_add_head_rcu() instead of
+hlist_add_head() for that list.
+
+Fixes: c73be61cede5 ("pipe: Add general notification queue support")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/watch_queue.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5314,6 +5314,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_s
+--- a/kernel/watch_queue.c
++++ b/kernel/watch_queue.c
+@@ -494,7 +494,7 @@ int add_watch_to_object(struct watch *wa
+ 		unlock_wqueue(wqueue);
+ 	}
  
- 		page = alloc_huge_page(dst_vma, dst_addr, 0);
- 		if (IS_ERR(page)) {
-+			put_page(*pagep);
- 			ret = -ENOMEM;
- 			*pagep = NULL;
- 			goto out;
+-	hlist_add_head(&watch->list_node, &wlist->watchers);
++	hlist_add_head_rcu(&watch->list_node, &wlist->watchers);
+ 	return 0;
+ }
+ EXPORT_SYMBOL(add_watch_to_object);
 
 
