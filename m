@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 721BC58689B
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:51:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CDBD58691E
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:57:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230470AbiHALvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:51:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35914 "EHLO
+        id S232619AbiHAL5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:57:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231336AbiHALuF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:50:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 518EE3C8D4;
-        Mon,  1 Aug 2022 04:49:02 -0700 (PDT)
+        with ESMTP id S232871AbiHAL4J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:56:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A33E3E749;
+        Mon,  1 Aug 2022 04:51:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F098CB81171;
-        Mon,  1 Aug 2022 11:49:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6015FC433C1;
-        Mon,  1 Aug 2022 11:48:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2AFCB81170;
+        Mon,  1 Aug 2022 11:51:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 334BCC433C1;
+        Mon,  1 Aug 2022 11:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354539;
-        bh=ycTU+HSomfoHdSW0vq0bveUJxpdgzefs1QvVTkOlf5s=;
+        s=korg; t=1659354696;
+        bh=TBaPcf8ji5KmfeLiWir8lhWYb1nLLVbFM9xBxGqqqEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GP20LbMIn743X9abfhc5DEfV2Shz2gAcYmkkpY8IR2X0iYk8L/5n5U96ylSp+pK1h
-         Ou/AhBWydM4aInXGsodIj8cx3S2BURUlLkrewvCBYYsc8QbaJehNMqsH1tlV6dNlfL
-         zB30kYod4+5oTRJqNEOqw+PthP+dThSGMC0amDPY=
+        b=Q33VbcDRVlUfhqeRrKfkipOV83MpcFYpiv2HJtRLfOnAcrIdvv1/JcxG5ungOo1t1
+         s925BjZ/mf7EPtnDQ9EBHNDIVHJikibN36KpN1rivGkWVFc3dK1ZKOAOZIbouif3XO
+         nA4O/DB3C0FOZz36Djtmt/VphkRfy+GPbRhYeaNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alejandro Lucero <alejandro.lucero-palau@amd.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 30/34] sfc: disable softirqs for ptp TX
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Chinner <dchinner@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 5.10 53/65] xfs: refactor xfs_file_fsync
 Date:   Mon,  1 Aug 2022 13:47:10 +0200
-Message-Id: <20220801114129.169784087@linuxfoundation.org>
+Message-Id: <20220801114135.892518156@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
-References: <20220801114128.025615151@linuxfoundation.org>
+In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
+References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +55,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alejandro Lucero <alejandro.lucero-palau@amd.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 67c3b611d92fc238c43734878bc3e232ab570c79 ]
+commit f22c7f87777361f94aa17f746fbadfa499248dc8 upstream.
 
-Sending a PTP packet can imply to use the normal TX driver datapath but
-invoked from the driver's ptp worker. The kernel generic TX code
-disables softirqs and preemption before calling specific driver TX code,
-but the ptp worker does not. Although current ptp driver functionality
-does not require it, there are several reasons for doing so:
+[backported for dependency]
 
-   1) The invoked code is always executed with softirqs disabled for non
-      PTP packets.
-   2) Better if a ptp packet transmission is not interrupted by softirq
-      handling which could lead to high latencies.
-   3) netdev_xmit_more used by the TX code requires preemption to be
-      disabled.
+Factor out the log syncing logic into two helpers to make the code easier
+to read and more maintainable.
 
-Indeed a solution for dealing with kernel preemption state based on static
-kernel configuration is not possible since the introduction of dynamic
-preemption level configuration at boot time using the static calls
-functionality.
-
-Fixes: f79c957a0b537 ("drivers: net: sfc: use netdev_xmit_more helper")
-Signed-off-by: Alejandro Lucero <alejandro.lucero-palau@amd.com>
-Link: https://lore.kernel.org/r/20220726064504.49613-1-alejandro.lucero-palau@amd.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sfc/ptp.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ fs/xfs/xfs_file.c |   81 +++++++++++++++++++++++++++++++++---------------------
+ 1 file changed, 50 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/ptp.c b/drivers/net/ethernet/sfc/ptp.c
-index 1fa1b71dbfa1..ed1140ecca60 100644
---- a/drivers/net/ethernet/sfc/ptp.c
-+++ b/drivers/net/ethernet/sfc/ptp.c
-@@ -1093,7 +1093,29 @@ static void efx_ptp_xmit_skb_queue(struct efx_nic *efx, struct sk_buff *skb)
+--- a/fs/xfs/xfs_file.c
++++ b/fs/xfs/xfs_file.c
+@@ -118,6 +118,54 @@ xfs_dir_fsync(
+ 	return xfs_log_force_inode(ip);
+ }
  
- 	tx_queue = &ptp_data->channel->tx_queue[type];
- 	if (tx_queue && tx_queue->timestamping) {
-+		/* This code invokes normal driver TX code which is always
-+		 * protected from softirqs when called from generic TX code,
-+		 * which in turn disables preemption. Look at __dev_queue_xmit
-+		 * which uses rcu_read_lock_bh disabling preemption for RCU
-+		 * plus disabling softirqs. We do not need RCU reader
-+		 * protection here.
-+		 *
-+		 * Although it is theoretically safe for current PTP TX/RX code
-+		 * running without disabling softirqs, there are three good
-+		 * reasond for doing so:
-+		 *
-+		 *      1) The code invoked is mainly implemented for non-PTP
-+		 *         packets and it is always executed with softirqs
-+		 *         disabled.
-+		 *      2) This being a single PTP packet, better to not
-+		 *         interrupt its processing by softirqs which can lead
-+		 *         to high latencies.
-+		 *      3) netdev_xmit_more checks preemption is disabled and
-+		 *         triggers a BUG_ON if not.
-+		 */
-+		local_bh_disable();
- 		efx_enqueue_skb(tx_queue, skb);
-+		local_bh_enable();
- 	} else {
- 		WARN_ONCE(1, "PTP channel has no timestamped tx queue\n");
- 		dev_kfree_skb_any(skb);
--- 
-2.35.1
-
++static xfs_lsn_t
++xfs_fsync_lsn(
++	struct xfs_inode	*ip,
++	bool			datasync)
++{
++	if (!xfs_ipincount(ip))
++		return 0;
++	if (datasync && !(ip->i_itemp->ili_fsync_fields & ~XFS_ILOG_TIMESTAMP))
++		return 0;
++	return ip->i_itemp->ili_last_lsn;
++}
++
++/*
++ * All metadata updates are logged, which means that we just have to flush the
++ * log up to the latest LSN that touched the inode.
++ *
++ * If we have concurrent fsync/fdatasync() calls, we need them to all block on
++ * the log force before we clear the ili_fsync_fields field. This ensures that
++ * we don't get a racing sync operation that does not wait for the metadata to
++ * hit the journal before returning.  If we race with clearing ili_fsync_fields,
++ * then all that will happen is the log force will do nothing as the lsn will
++ * already be on disk.  We can't race with setting ili_fsync_fields because that
++ * is done under XFS_ILOCK_EXCL, and that can't happen because we hold the lock
++ * shared until after the ili_fsync_fields is cleared.
++ */
++static  int
++xfs_fsync_flush_log(
++	struct xfs_inode	*ip,
++	bool			datasync,
++	int			*log_flushed)
++{
++	int			error = 0;
++	xfs_lsn_t		lsn;
++
++	xfs_ilock(ip, XFS_ILOCK_SHARED);
++	lsn = xfs_fsync_lsn(ip, datasync);
++	if (lsn) {
++		error = xfs_log_force_lsn(ip->i_mount, lsn, XFS_LOG_SYNC,
++					  log_flushed);
++
++		spin_lock(&ip->i_itemp->ili_lock);
++		ip->i_itemp->ili_fsync_fields = 0;
++		spin_unlock(&ip->i_itemp->ili_lock);
++	}
++	xfs_iunlock(ip, XFS_ILOCK_SHARED);
++	return error;
++}
++
+ STATIC int
+ xfs_file_fsync(
+ 	struct file		*file,
+@@ -125,13 +173,10 @@ xfs_file_fsync(
+ 	loff_t			end,
+ 	int			datasync)
+ {
+-	struct inode		*inode = file->f_mapping->host;
+-	struct xfs_inode	*ip = XFS_I(inode);
+-	struct xfs_inode_log_item *iip = ip->i_itemp;
++	struct xfs_inode	*ip = XFS_I(file->f_mapping->host);
+ 	struct xfs_mount	*mp = ip->i_mount;
+ 	int			error = 0;
+ 	int			log_flushed = 0;
+-	xfs_lsn_t		lsn = 0;
+ 
+ 	trace_xfs_file_fsync(ip);
+ 
+@@ -155,33 +200,7 @@ xfs_file_fsync(
+ 	else if (mp->m_logdev_targp != mp->m_ddev_targp)
+ 		xfs_blkdev_issue_flush(mp->m_ddev_targp);
+ 
+-	/*
+-	 * All metadata updates are logged, which means that we just have to
+-	 * flush the log up to the latest LSN that touched the inode. If we have
+-	 * concurrent fsync/fdatasync() calls, we need them to all block on the
+-	 * log force before we clear the ili_fsync_fields field. This ensures
+-	 * that we don't get a racing sync operation that does not wait for the
+-	 * metadata to hit the journal before returning. If we race with
+-	 * clearing the ili_fsync_fields, then all that will happen is the log
+-	 * force will do nothing as the lsn will already be on disk. We can't
+-	 * race with setting ili_fsync_fields because that is done under
+-	 * XFS_ILOCK_EXCL, and that can't happen because we hold the lock shared
+-	 * until after the ili_fsync_fields is cleared.
+-	 */
+-	xfs_ilock(ip, XFS_ILOCK_SHARED);
+-	if (xfs_ipincount(ip)) {
+-		if (!datasync ||
+-		    (iip->ili_fsync_fields & ~XFS_ILOG_TIMESTAMP))
+-			lsn = iip->ili_last_lsn;
+-	}
+-
+-	if (lsn) {
+-		error = xfs_log_force_lsn(mp, lsn, XFS_LOG_SYNC, &log_flushed);
+-		spin_lock(&iip->ili_lock);
+-		iip->ili_fsync_fields = 0;
+-		spin_unlock(&iip->ili_lock);
+-	}
+-	xfs_iunlock(ip, XFS_ILOCK_SHARED);
++	error = xfs_fsync_flush_log(ip, datasync, &log_flushed);
+ 
+ 	/*
+ 	 * If we only have a single device, and the log force about was
 
 
