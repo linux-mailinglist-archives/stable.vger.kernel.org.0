@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C963D5868B3
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:52:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C9D45868D3
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:53:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231939AbiHALw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:52:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35654 "EHLO
+        id S231261AbiHALx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:53:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231981AbiHALwC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:52:02 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD92C41D07;
-        Mon,  1 Aug 2022 04:49:37 -0700 (PDT)
+        with ESMTP id S231941AbiHALw5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:52:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9627B43335;
+        Mon,  1 Aug 2022 04:50:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D93E1CE13B6;
-        Mon,  1 Aug 2022 11:49:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D645EC433C1;
-        Mon,  1 Aug 2022 11:49:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE96D6125A;
+        Mon,  1 Aug 2022 11:50:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4F8BC433D6;
+        Mon,  1 Aug 2022 11:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354572;
-        bh=2LAb/H2YhtEwETXdojMvcIKjicsvYXdbSIwixWIIDVg=;
+        s=korg; t=1659354602;
+        bh=G+ukdMlm5U26LtuHh5+3Mp0yNZHXJdDq7qsQCyGPy+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FfXe6709eQZmBV5NX1hC7OUnI8IJIjFs1bXfjTSH/e6uXrHAC3Zo7gazjl1Lc57wL
-         /0KRMgv+nfiOorns4XOQakR48WtfIOizpY5EXktmsommOQGceGRLEi7IO+E/28B0MC
-         jijqjXrDP8IfV9TqR1WBjIVPeSJRrPSu5YEVMl74=
+        b=g48a8ThNIzJ6ePm6X1qmCySIzgKWa9sft1A1r5iYAccNledPeMchwH/xFFhXZiCdn
+         eTUrojEm8F1pWxizjAWYyb2oMWnmzYOuJfQU3mWvo3ntqudUeQ7+dUM26eAz9tXK27
+         dGqpEa5cccPjsyDjDihWBu5DlXwIdJ4sNDvQ4eVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Lee Jones <lee.jones@linaro.org>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 5.10 01/65] Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put
-Date:   Mon,  1 Aug 2022 13:46:18 +0200
-Message-Id: <20220801114133.705250630@linuxfoundation.org>
+        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>, heming.zhao@suse.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 02/65] Revert "ocfs2: mount shared volume without ha stack"
+Date:   Mon,  1 Aug 2022 13:46:19 +0200
+Message-Id: <20220801114133.748437185@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
 References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,264 +57,243 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Junxiao Bi <ocfs2-devel@oss.oracle.com>
 
-commit d0be8347c623e0ac4202a1d4e0373882821f56b0 upstream.
+commit c80af0c250c8f8a3c978aa5aafbe9c39b336b813 upstream.
 
-This fixes the following trace which is caused by hci_rx_work starting up
-*after* the final channel reference has been put() during sock_close() but
-*before* the references to the channel have been destroyed, so instead
-the code now rely on kref_get_unless_zero/l2cap_chan_hold_unless_zero to
-prevent referencing a channel that is about to be destroyed.
+This reverts commit 912f655d78c5d4ad05eac287f23a435924df7144.
 
-  refcount_t: increment on 0; use-after-free.
-  BUG: KASAN: use-after-free in refcount_dec_and_test+0x20/0xd0
-  Read of size 4 at addr ffffffc114f5bf18 by task kworker/u17:14/705
+This commit introduced a regression that can cause mount hung.  The
+changes in __ocfs2_find_empty_slot causes that any node with none-zero
+node number can grab the slot that was already taken by node 0, so node 1
+will access the same journal with node 0, when it try to grab journal
+cluster lock, it will hung because it was already acquired by node 0.
+It's very easy to reproduce this, in one cluster, mount node 0 first, then
+node 1, you will see the following call trace from node 1.
 
-  CPU: 4 PID: 705 Comm: kworker/u17:14 Tainted: G S      W
-  4.14.234-00003-g1fb6d0bd49a4-dirty #28
-  Hardware name: Qualcomm Technologies, Inc. SM8150 V2 PM8150
-  Google Inc. MSM sm8150 Flame DVT (DT)
-  Workqueue: hci0 hci_rx_work
-  Call trace:
-   dump_backtrace+0x0/0x378
-   show_stack+0x20/0x2c
-   dump_stack+0x124/0x148
-   print_address_description+0x80/0x2e8
-   __kasan_report+0x168/0x188
-   kasan_report+0x10/0x18
-   __asan_load4+0x84/0x8c
-   refcount_dec_and_test+0x20/0xd0
-   l2cap_chan_put+0x48/0x12c
-   l2cap_recv_frame+0x4770/0x6550
-   l2cap_recv_acldata+0x44c/0x7a4
-   hci_acldata_packet+0x100/0x188
-   hci_rx_work+0x178/0x23c
-   process_one_work+0x35c/0x95c
-   worker_thread+0x4cc/0x960
-   kthread+0x1a8/0x1c4
-   ret_from_fork+0x10/0x18
+[13148.735424] INFO: task mount.ocfs2:53045 blocked for more than 122 seconds.
+[13148.739691]       Not tainted 5.15.0-2148.0.4.el8uek.mountracev2.x86_64 #2
+[13148.742560] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[13148.745846] task:mount.ocfs2     state:D stack:    0 pid:53045 ppid: 53044 flags:0x00004000
+[13148.749354] Call Trace:
+[13148.750718]  <TASK>
+[13148.752019]  ? usleep_range+0x90/0x89
+[13148.753882]  __schedule+0x210/0x567
+[13148.755684]  schedule+0x44/0xa8
+[13148.757270]  schedule_timeout+0x106/0x13c
+[13148.759273]  ? __prepare_to_swait+0x53/0x78
+[13148.761218]  __wait_for_common+0xae/0x163
+[13148.763144]  __ocfs2_cluster_lock.constprop.0+0x1d6/0x870 [ocfs2]
+[13148.765780]  ? ocfs2_inode_lock_full_nested+0x18d/0x398 [ocfs2]
+[13148.768312]  ocfs2_inode_lock_full_nested+0x18d/0x398 [ocfs2]
+[13148.770968]  ocfs2_journal_init+0x91/0x340 [ocfs2]
+[13148.773202]  ocfs2_check_volume+0x39/0x461 [ocfs2]
+[13148.775401]  ? iput+0x69/0xba
+[13148.777047]  ocfs2_mount_volume.isra.0.cold+0x40/0x1f5 [ocfs2]
+[13148.779646]  ocfs2_fill_super+0x54b/0x853 [ocfs2]
+[13148.781756]  mount_bdev+0x190/0x1b7
+[13148.783443]  ? ocfs2_remount+0x440/0x440 [ocfs2]
+[13148.785634]  legacy_get_tree+0x27/0x48
+[13148.787466]  vfs_get_tree+0x25/0xd0
+[13148.789270]  do_new_mount+0x18c/0x2d9
+[13148.791046]  __x64_sys_mount+0x10e/0x142
+[13148.792911]  do_syscall_64+0x3b/0x89
+[13148.794667]  entry_SYSCALL_64_after_hwframe+0x170/0x0
+[13148.797051] RIP: 0033:0x7f2309f6e26e
+[13148.798784] RSP: 002b:00007ffdcee7d408 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
+[13148.801974] RAX: ffffffffffffffda RBX: 00007ffdcee7d4a0 RCX: 00007f2309f6e26e
+[13148.804815] RDX: 0000559aa762a8ae RSI: 0000559aa939d340 RDI: 0000559aa93a22b0
+[13148.807719] RBP: 00007ffdcee7d5b0 R08: 0000559aa93a2290 R09: 00007f230a0b4820
+[13148.810659] R10: 0000000000000000 R11: 0000000000000246 R12: 00007ffdcee7d420
+[13148.813609] R13: 0000000000000000 R14: 0000559aa939f000 R15: 0000000000000000
+[13148.816564]  </TASK>
 
-Cc: stable@kernel.org
-Reported-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Tested-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+To fix it, we can just fix __ocfs2_find_empty_slot.  But original commit
+introduced the feature to mount ocfs2 locally even it is cluster based,
+that is a very dangerous, it can easily cause serious data corruption,
+there is no way to stop other nodes mounting the fs and corrupting it.
+Setup ha or other cluster-aware stack is just the cost that we have to
+take for avoiding corruption, otherwise we have to do it in kernel.
+
+Link: https://lkml.kernel.org/r/20220603222801.42488-1-junxiao.bi@oracle.com
+Fixes: 912f655d78c5("ocfs2: mount shared volume without ha stack")
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <heming.zhao@suse.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/bluetooth/l2cap.h |    1 
- net/bluetooth/l2cap_core.c    |   61 +++++++++++++++++++++++++++++++++---------
- 2 files changed, 49 insertions(+), 13 deletions(-)
+ fs/ocfs2/ocfs2.h    |    4 +---
+ fs/ocfs2/slot_map.c |   46 +++++++++++++++++++---------------------------
+ fs/ocfs2/super.c    |   21 ---------------------
+ 3 files changed, 20 insertions(+), 51 deletions(-)
 
---- a/include/net/bluetooth/l2cap.h
-+++ b/include/net/bluetooth/l2cap.h
-@@ -845,6 +845,7 @@ enum {
+--- a/fs/ocfs2/ocfs2.h
++++ b/fs/ocfs2/ocfs2.h
+@@ -279,7 +279,6 @@ enum ocfs2_mount_options
+ 	OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT = 1 << 15,  /* Journal Async Commit */
+ 	OCFS2_MOUNT_ERRORS_CONT = 1 << 16, /* Return EIO to the calling process on error */
+ 	OCFS2_MOUNT_ERRORS_ROFS = 1 << 17, /* Change filesystem to read-only on error */
+-	OCFS2_MOUNT_NOCLUSTER = 1 << 18, /* No cluster aware filesystem mount */
  };
  
- void l2cap_chan_hold(struct l2cap_chan *c);
-+struct l2cap_chan *l2cap_chan_hold_unless_zero(struct l2cap_chan *c);
- void l2cap_chan_put(struct l2cap_chan *c);
+ #define OCFS2_OSB_SOFT_RO	0x0001
+@@ -675,8 +674,7 @@ static inline int ocfs2_cluster_o2cb_glo
  
- static inline void l2cap_chan_lock(struct l2cap_chan *chan)
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -111,7 +111,8 @@ static struct l2cap_chan *__l2cap_get_ch
- }
- 
- /* Find channel with given SCID.
-- * Returns locked channel. */
-+ * Returns a reference locked channel.
-+ */
- static struct l2cap_chan *l2cap_get_chan_by_scid(struct l2cap_conn *conn,
- 						 u16 cid)
+ static inline int ocfs2_mount_local(struct ocfs2_super *osb)
  {
-@@ -119,15 +120,19 @@ static struct l2cap_chan *l2cap_get_chan
- 
- 	mutex_lock(&conn->chan_lock);
- 	c = __l2cap_get_chan_by_scid(conn, cid);
--	if (c)
--		l2cap_chan_lock(c);
-+	if (c) {
-+		/* Only lock if chan reference is not 0 */
-+		c = l2cap_chan_hold_unless_zero(c);
-+		if (c)
-+			l2cap_chan_lock(c);
-+	}
- 	mutex_unlock(&conn->chan_lock);
- 
- 	return c;
+-	return ((osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT)
+-		|| (osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER));
++	return (osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT);
  }
  
- /* Find channel with given DCID.
-- * Returns locked channel.
-+ * Returns a reference locked channel.
-  */
- static struct l2cap_chan *l2cap_get_chan_by_dcid(struct l2cap_conn *conn,
- 						 u16 cid)
-@@ -136,8 +141,12 @@ static struct l2cap_chan *l2cap_get_chan
+ static inline int ocfs2_uses_extended_slot_map(struct ocfs2_super *osb)
+--- a/fs/ocfs2/slot_map.c
++++ b/fs/ocfs2/slot_map.c
+@@ -254,16 +254,14 @@ static int __ocfs2_find_empty_slot(struc
+ 	int i, ret = -ENOSPC;
  
- 	mutex_lock(&conn->chan_lock);
- 	c = __l2cap_get_chan_by_dcid(conn, cid);
--	if (c)
--		l2cap_chan_lock(c);
-+	if (c) {
-+		/* Only lock if chan reference is not 0 */
-+		c = l2cap_chan_hold_unless_zero(c);
-+		if (c)
-+			l2cap_chan_lock(c);
-+	}
- 	mutex_unlock(&conn->chan_lock);
- 
- 	return c;
-@@ -162,8 +171,12 @@ static struct l2cap_chan *l2cap_get_chan
- 
- 	mutex_lock(&conn->chan_lock);
- 	c = __l2cap_get_chan_by_ident(conn, ident);
--	if (c)
--		l2cap_chan_lock(c);
-+	if (c) {
-+		/* Only lock if chan reference is not 0 */
-+		c = l2cap_chan_hold_unless_zero(c);
-+		if (c)
-+			l2cap_chan_lock(c);
-+	}
- 	mutex_unlock(&conn->chan_lock);
- 
- 	return c;
-@@ -497,6 +510,16 @@ void l2cap_chan_hold(struct l2cap_chan *
- 	kref_get(&c->kref);
- }
- 
-+struct l2cap_chan *l2cap_chan_hold_unless_zero(struct l2cap_chan *c)
-+{
-+	BT_DBG("chan %p orig refcnt %u", c, kref_read(&c->kref));
-+
-+	if (!kref_get_unless_zero(&c->kref))
-+		return NULL;
-+
-+	return c;
-+}
-+
- void l2cap_chan_put(struct l2cap_chan *c)
- {
- 	BT_DBG("chan %p orig refcnt %d", c, kref_read(&c->kref));
-@@ -1965,7 +1988,10 @@ static struct l2cap_chan *l2cap_global_c
- 			src_match = !bacmp(&c->src, src);
- 			dst_match = !bacmp(&c->dst, dst);
- 			if (src_match && dst_match) {
--				l2cap_chan_hold(c);
-+				c = l2cap_chan_hold_unless_zero(c);
-+				if (!c)
-+					continue;
-+
- 				read_unlock(&chan_list_lock);
- 				return c;
- 			}
-@@ -1980,7 +2006,7 @@ static struct l2cap_chan *l2cap_global_c
+ 	if ((preferred >= 0) && (preferred < si->si_num_slots)) {
+-		if (!si->si_slots[preferred].sl_valid ||
+-		    !si->si_slots[preferred].sl_node_num) {
++		if (!si->si_slots[preferred].sl_valid) {
+ 			ret = preferred;
+ 			goto out;
+ 		}
  	}
  
- 	if (c1)
--		l2cap_chan_hold(c1);
-+		c1 = l2cap_chan_hold_unless_zero(c1);
+ 	for(i = 0; i < si->si_num_slots; i++) {
+-		if (!si->si_slots[i].sl_valid ||
+-		    !si->si_slots[i].sl_node_num) {
++		if (!si->si_slots[i].sl_valid) {
+ 			ret = i;
+ 			break;
+ 		}
+@@ -458,30 +456,24 @@ int ocfs2_find_slot(struct ocfs2_super *
+ 	spin_lock(&osb->osb_lock);
+ 	ocfs2_update_slot_info(si);
  
- 	read_unlock(&chan_list_lock);
+-	if (ocfs2_mount_local(osb))
+-		/* use slot 0 directly in local mode */
+-		slot = 0;
+-	else {
+-		/* search for ourselves first and take the slot if it already
+-		 * exists. Perhaps we need to mark this in a variable for our
+-		 * own journal recovery? Possibly not, though we certainly
+-		 * need to warn to the user */
+-		slot = __ocfs2_node_num_to_slot(si, osb->node_num);
++	/* search for ourselves first and take the slot if it already
++	 * exists. Perhaps we need to mark this in a variable for our
++	 * own journal recovery? Possibly not, though we certainly
++	 * need to warn to the user */
++	slot = __ocfs2_node_num_to_slot(si, osb->node_num);
++	if (slot < 0) {
++		/* if no slot yet, then just take 1st available
++		 * one. */
++		slot = __ocfs2_find_empty_slot(si, osb->preferred_slot);
+ 		if (slot < 0) {
+-			/* if no slot yet, then just take 1st available
+-			 * one. */
+-			slot = __ocfs2_find_empty_slot(si, osb->preferred_slot);
+-			if (slot < 0) {
+-				spin_unlock(&osb->osb_lock);
+-				mlog(ML_ERROR, "no free slots available!\n");
+-				status = -EINVAL;
+-				goto bail;
+-			}
+-		} else
+-			printk(KERN_INFO "ocfs2: Slot %d on device (%s) was "
+-			       "already allocated to this node!\n",
+-			       slot, osb->dev_str);
+-	}
++			spin_unlock(&osb->osb_lock);
++			mlog(ML_ERROR, "no free slots available!\n");
++			status = -EINVAL;
++			goto bail;
++		}
++	} else
++		printk(KERN_INFO "ocfs2: Slot %d on device (%s) was already "
++		       "allocated to this node!\n", slot, osb->dev_str);
  
-@@ -4460,6 +4486,7 @@ static inline int l2cap_config_req(struc
+ 	ocfs2_set_slot(si, slot, osb->node_num);
+ 	osb->slot_num = slot;
+--- a/fs/ocfs2/super.c
++++ b/fs/ocfs2/super.c
+@@ -175,7 +175,6 @@ enum {
+ 	Opt_dir_resv_level,
+ 	Opt_journal_async_commit,
+ 	Opt_err_cont,
+-	Opt_nocluster,
+ 	Opt_err,
+ };
  
- unlock:
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 	return err;
- }
+@@ -209,7 +208,6 @@ static const match_table_t tokens = {
+ 	{Opt_dir_resv_level, "dir_resv_level=%u"},
+ 	{Opt_journal_async_commit, "journal_async_commit"},
+ 	{Opt_err_cont, "errors=continue"},
+-	{Opt_nocluster, "nocluster"},
+ 	{Opt_err, NULL}
+ };
  
-@@ -4573,6 +4600,7 @@ static inline int l2cap_config_rsp(struc
+@@ -621,13 +619,6 @@ static int ocfs2_remount(struct super_bl
+ 		goto out;
+ 	}
  
- done:
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 	return err;
- }
+-	tmp = OCFS2_MOUNT_NOCLUSTER;
+-	if ((osb->s_mount_opt & tmp) != (parsed_options.mount_opt & tmp)) {
+-		ret = -EINVAL;
+-		mlog(ML_ERROR, "Cannot change nocluster option on remount\n");
+-		goto out;
+-	}
+-
+ 	tmp = OCFS2_MOUNT_HB_LOCAL | OCFS2_MOUNT_HB_GLOBAL |
+ 		OCFS2_MOUNT_HB_NONE;
+ 	if ((osb->s_mount_opt & tmp) != (parsed_options.mount_opt & tmp)) {
+@@ -868,7 +859,6 @@ static int ocfs2_verify_userspace_stack(
+ 	}
  
-@@ -5300,6 +5328,7 @@ send_move_response:
- 	l2cap_send_move_chan_rsp(chan, result);
+ 	if (ocfs2_userspace_stack(osb) &&
+-	    !(osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER) &&
+ 	    strncmp(osb->osb_cluster_stack, mopt->cluster_stack,
+ 		    OCFS2_STACK_LABEL_LEN)) {
+ 		mlog(ML_ERROR,
+@@ -1149,11 +1139,6 @@ static int ocfs2_fill_super(struct super
+ 	       osb->s_mount_opt & OCFS2_MOUNT_DATA_WRITEBACK ? "writeback" :
+ 	       "ordered");
  
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
+-	if ((osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER) &&
+-	   !(osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT))
+-		printk(KERN_NOTICE "ocfs2: The shared device (%s) is mounted "
+-		       "without cluster aware mode.\n", osb->dev_str);
+-
+ 	atomic_set(&osb->vol_state, VOLUME_MOUNTED);
+ 	wake_up(&osb->osb_mount_event);
  
+@@ -1460,9 +1445,6 @@ static int ocfs2_parse_options(struct su
+ 		case Opt_journal_async_commit:
+ 			mopt->mount_opt |= OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT;
+ 			break;
+-		case Opt_nocluster:
+-			mopt->mount_opt |= OCFS2_MOUNT_NOCLUSTER;
+-			break;
+ 		default:
+ 			mlog(ML_ERROR,
+ 			     "Unrecognized mount option \"%s\" "
+@@ -1574,9 +1556,6 @@ static int ocfs2_show_options(struct seq
+ 	if (opts & OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT)
+ 		seq_printf(s, ",journal_async_commit");
+ 
+-	if (opts & OCFS2_MOUNT_NOCLUSTER)
+-		seq_printf(s, ",nocluster");
+-
  	return 0;
  }
-@@ -5392,6 +5421,7 @@ static void l2cap_move_continue(struct l
- 	}
  
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- }
- 
- static void l2cap_move_fail(struct l2cap_conn *conn, u8 ident, u16 icid,
-@@ -5421,6 +5451,7 @@ static void l2cap_move_fail(struct l2cap
- 	l2cap_send_move_chan_cfm(chan, L2CAP_MC_UNCONFIRMED);
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- }
- 
- static int l2cap_move_channel_rsp(struct l2cap_conn *conn,
-@@ -5484,6 +5515,7 @@ static int l2cap_move_channel_confirm(st
- 	l2cap_send_move_chan_cfm_rsp(conn, cmd->ident, icid);
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 
- 	return 0;
- }
-@@ -5519,6 +5551,7 @@ static inline int l2cap_move_channel_con
- 	}
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 
- 	return 0;
- }
-@@ -5891,12 +5924,11 @@ static inline int l2cap_le_credits(struc
- 	if (credits > max_credits) {
- 		BT_ERR("LE credits overflow");
- 		l2cap_send_disconn_req(chan, ECONNRESET);
--		l2cap_chan_unlock(chan);
- 
- 		/* Return 0 so that we don't trigger an unnecessary
- 		 * command reject packet.
- 		 */
--		return 0;
-+		goto unlock;
- 	}
- 
- 	chan->tx_credits += credits;
-@@ -5907,7 +5939,9 @@ static inline int l2cap_le_credits(struc
- 	if (chan->tx_credits)
- 		chan->ops->resume(chan);
- 
-+unlock:
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 
- 	return 0;
- }
-@@ -7587,6 +7621,7 @@ drop:
- 
- done:
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- }
- 
- static void l2cap_conless_channel(struct l2cap_conn *conn, __le16 psm,
-@@ -8074,7 +8109,7 @@ static struct l2cap_chan *l2cap_global_f
- 		if (src_type != c->src_type)
- 			continue;
- 
--		l2cap_chan_hold(c);
-+		c = l2cap_chan_hold_unless_zero(c);
- 		read_unlock(&chan_list_lock);
- 		return c;
- 	}
 
 
