@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73688586894
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:50:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBFA1586908
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:56:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231750AbiHALuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:50:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35744 "EHLO
+        id S232391AbiHAL4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:56:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231310AbiHALtb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:49:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB1723C8C9;
-        Mon,  1 Aug 2022 04:48:52 -0700 (PDT)
+        with ESMTP id S232740AbiHALz6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:55:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EEF6402CA;
+        Mon,  1 Aug 2022 04:51:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B2CB61210;
-        Mon,  1 Aug 2022 11:48:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18AF4C43140;
-        Mon,  1 Aug 2022 11:48:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B807B8116E;
+        Mon,  1 Aug 2022 11:51:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DC9FC433C1;
+        Mon,  1 Aug 2022 11:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354531;
-        bh=wN1+1bl7lUFhlmqzdb0t9pGvMiBru8S6fVSBylcjz6I=;
+        s=korg; t=1659354690;
+        bh=VA2wohoCImHpJ67x4JVTxx0JPiyhyzHT+u6woSJvBRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OIFM+YfNzinILfGuMakx6iiTMixVh7xo8cycRPPd4cwq+TehLCIrZhlnd/8bPaT1H
-         6tnfFR9pEoz6b8+U1+8ZVH+NFYZfPmSYi35cZmVnzWzkwOCtNd/eoeatb/QH/p0kON
-         DayGI43hnDIMKork8sKCPoY5TTOQYHeg5qBqJHSo=
+        b=uWLXyapyjFUuJv54+vYBIHf+FSvUmBsv1HgFbCSNi1CqLyc8m/VV4lMrKswBlbA39
+         HeMsvkIgRk9pdOM1d3J2oa4dt8gYOzFJg+3w0TjGFTxkUM9wwJd163qPVVqFkIjC5P
+         TqO3zgPeZAjQRAFLDVEGcJi0kRWdUk0Cfkvpkrp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 28/34] virtio-net: fix the race between refill work and close
+        stable@vger.kernel.org, Robert Richter <rric@kernel.org>,
+        Toshi Kani <toshi.kani@hpe.com>, Borislav Petkov <bp@suse.de>,
+        Robert Elliott <elliott@hpe.com>
+Subject: [PATCH 5.10 51/65] EDAC/ghes: Set the DIMM label unconditionally
 Date:   Mon,  1 Aug 2022 13:47:08 +0200
-Message-Id: <20220801114129.088165437@linuxfoundation.org>
+Message-Id: <20220801114135.826131097@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
-References: <20220801114128.025615151@linuxfoundation.org>
+In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
+References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,151 +53,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Toshi Kani <toshi.kani@hpe.com>
 
-[ Upstream commit 5a159128faff151b7fe5f4eb0f310b1e0a2d56bf ]
+commit 5e2805d5379619c4a2e3ae4994e73b36439f4bad upstream.
 
-We try using cancel_delayed_work_sync() to prevent the work from
-enabling NAPI. This is insufficient since we don't disable the source
-of the refill work scheduling. This means an NAPI poll callback after
-cancel_delayed_work_sync() can schedule the refill work then can
-re-enable the NAPI that leads to use-after-free [1].
+The commit
 
-Since the work can enable NAPI, we can't simply disable NAPI before
-calling cancel_delayed_work_sync(). So fix this by introducing a
-dedicated boolean to control whether or not the work could be
-scheduled from NAPI.
+  cb51a371d08e ("EDAC/ghes: Setup DIMM label from DMI and use it in error reports")
 
-[1]
-==================================================================
-BUG: KASAN: use-after-free in refill_work+0x43/0xd4
-Read of size 2 at addr ffff88810562c92e by task kworker/2:1/42
+enforced that both the bank and device strings passed to
+dimm_setup_label() are not NULL.
 
-CPU: 2 PID: 42 Comm: kworker/2:1 Not tainted 5.19.0-rc1+ #480
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
-Workqueue: events refill_work
-Call Trace:
- <TASK>
- dump_stack_lvl+0x34/0x44
- print_report.cold+0xbb/0x6ac
- ? _printk+0xad/0xde
- ? refill_work+0x43/0xd4
- kasan_report+0xa8/0x130
- ? refill_work+0x43/0xd4
- refill_work+0x43/0xd4
- process_one_work+0x43d/0x780
- worker_thread+0x2a0/0x6f0
- ? process_one_work+0x780/0x780
- kthread+0x167/0x1a0
- ? kthread_exit+0x50/0x50
- ret_from_fork+0x22/0x30
- </TASK>
-...
+However, there are BIOSes, for example on a
 
-Fixes: b2baed69e605c ("virtio_net: set/cancel work on ndo_open/ndo_stop")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  HPE ProLiant DL360 Gen10/ProLiant DL360 Gen10, BIOS U32 03/15/2019
+
+which don't populate both strings:
+
+  Handle 0x0020, DMI type 17, 84 bytes
+  Memory Device
+          Array Handle: 0x0013
+          Error Information Handle: Not Provided
+          Total Width: 72 bits
+          Data Width: 64 bits
+          Size: 32 GB
+          Form Factor: DIMM
+          Set: None
+          Locator: PROC 1 DIMM 1        <===== device
+          Bank Locator: Not Specified   <===== bank
+
+This results in a buffer overflow because ghes_edac_register() calls
+strlen() on an uninitialized label, which had non-zero values left over
+from krealloc_array():
+
+  detected buffer overflow in __fortify_strlen
+   ------------[ cut here ]------------
+   kernel BUG at lib/string_helpers.c:983!
+   invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+   CPU: 1 PID: 1 Comm: swapper/0 Tainted: G          I       5.18.6-200.fc36.x86_64 #1
+   Hardware name: HPE ProLiant DL360 Gen10/ProLiant DL360 Gen10, BIOS U32 03/15/2019
+   RIP: 0010:fortify_panic
+   ...
+   Call Trace:
+    <TASK>
+    ghes_edac_register.cold
+    ghes_probe
+    platform_probe
+    really_probe
+    __driver_probe_device
+    driver_probe_device
+    __driver_attach
+    ? __device_attach_driver
+    bus_for_each_dev
+    bus_add_driver
+    driver_register
+    acpi_ghes_init
+    acpi_init
+    ? acpi_sleep_proc_init
+    do_one_initcall
+
+The label contains garbage because the commit in Fixes reallocs the
+DIMMs array while scanning the system but doesn't clear the newly
+allocated memory.
+
+Change dimm_setup_label() to always initialize the label to fix the
+issue. Set it to the empty string in case BIOS does not provide both
+bank and device so that ghes_edac_register() can keep the default label
+given by edac_mc_alloc_dimms().
+
+  [ bp: Rewrite commit message. ]
+
+Fixes: b9cae27728d1f ("EDAC/ghes: Scan the system once on driver init")
+Co-developed-by: Robert Richter <rric@kernel.org>
+Signed-off-by: Robert Richter <rric@kernel.org>
+Signed-off-by: Toshi Kani <toshi.kani@hpe.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Robert Elliott <elliott@hpe.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220719220124.760359-1-toshi.kani@hpe.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/virtio_net.c | 37 ++++++++++++++++++++++++++++++++++---
- 1 file changed, 34 insertions(+), 3 deletions(-)
+ drivers/edac/ghes_edac.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index e14842fbe3d6..579df7c5411d 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -213,9 +213,15 @@ struct virtnet_info {
- 	/* Packet virtio header size */
- 	u8 hdr_len;
+--- a/drivers/edac/ghes_edac.c
++++ b/drivers/edac/ghes_edac.c
+@@ -101,9 +101,14 @@ static void dimm_setup_label(struct dimm
  
--	/* Work struct for refilling if we run low on memory. */
-+	/* Work struct for delayed refilling if we run low on memory. */
- 	struct delayed_work refill;
+ 	dmi_memdev_name(handle, &bank, &device);
  
-+	/* Is delayed refill enabled? */
-+	bool refill_enabled;
-+
-+	/* The lock to synchronize the access to refill_enabled */
-+	spinlock_t refill_lock;
-+
- 	/* Work struct for config space updates */
- 	struct work_struct config_work;
- 
-@@ -319,6 +325,20 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
- 	return p;
+-	/* both strings must be non-zero */
+-	if (bank && *bank && device && *device)
+-		snprintf(dimm->label, sizeof(dimm->label), "%s %s", bank, device);
++	/*
++	 * Set to a NULL string when both bank and device are zero. In this case,
++	 * the label assigned by default will be preserved.
++	 */
++	snprintf(dimm->label, sizeof(dimm->label), "%s%s%s",
++		 (bank && *bank) ? bank : "",
++		 (bank && *bank && device && *device) ? " " : "",
++		 (device && *device) ? device : "");
  }
  
-+static void enable_delayed_refill(struct virtnet_info *vi)
-+{
-+	spin_lock_bh(&vi->refill_lock);
-+	vi->refill_enabled = true;
-+	spin_unlock_bh(&vi->refill_lock);
-+}
-+
-+static void disable_delayed_refill(struct virtnet_info *vi)
-+{
-+	spin_lock_bh(&vi->refill_lock);
-+	vi->refill_enabled = false;
-+	spin_unlock_bh(&vi->refill_lock);
-+}
-+
- static void virtqueue_napi_schedule(struct napi_struct *napi,
- 				    struct virtqueue *vq)
- {
-@@ -1388,8 +1408,12 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
- 	}
- 
- 	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
--		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
--			schedule_delayed_work(&vi->refill, 0);
-+		if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
-+			spin_lock(&vi->refill_lock);
-+			if (vi->refill_enabled)
-+				schedule_delayed_work(&vi->refill, 0);
-+			spin_unlock(&vi->refill_lock);
-+		}
- 	}
- 
- 	u64_stats_update_begin(&rq->stats.syncp);
-@@ -1508,6 +1532,8 @@ static int virtnet_open(struct net_device *dev)
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	int i, err;
- 
-+	enable_delayed_refill(vi);
-+
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		if (i < vi->curr_queue_pairs)
- 			/* Make sure we have some buffers: if oom use wq. */
-@@ -1878,6 +1904,8 @@ static int virtnet_close(struct net_device *dev)
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	int i;
- 
-+	/* Make sure NAPI doesn't schedule refill work */
-+	disable_delayed_refill(vi);
- 	/* Make sure refill_work doesn't re-enable napi! */
- 	cancel_delayed_work_sync(&vi->refill);
- 
-@@ -2417,6 +2445,8 @@ static int virtnet_restore_up(struct virtio_device *vdev)
- 
- 	virtio_device_ready(vdev);
- 
-+	enable_delayed_refill(vi);
-+
- 	if (netif_running(vi->dev)) {
- 		err = virtnet_open(vi->dev);
- 		if (err)
-@@ -3140,6 +3170,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	vdev->priv = vi;
- 
- 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
-+	spin_lock_init(&vi->refill_lock);
- 
- 	/* If we can receive ANY GSO packets, we must allocate large ones. */
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
--- 
-2.35.1
-
+ static void assign_dmi_dimm_info(struct dimm_info *dimm, struct memdev_dmi_entry *entry)
 
 
