@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1252E586AA4
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:19:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF9705869B8
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234689AbiHAMTj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:19:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42968 "EHLO
+        id S232952AbiHAMGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:06:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234277AbiHAMTG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:19:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F60541D22;
-        Mon,  1 Aug 2022 04:59:47 -0700 (PDT)
+        with ESMTP id S232874AbiHAMFZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:05:25 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0E4C5A3C6;
+        Mon,  1 Aug 2022 04:54:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D56B9B810A2;
-        Mon,  1 Aug 2022 11:59:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 421B7C433C1;
-        Mon,  1 Aug 2022 11:59:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 40812CE1157;
+        Mon,  1 Aug 2022 11:54:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34B51C433C1;
+        Mon,  1 Aug 2022 11:54:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659355184;
-        bh=kEWNh5s559gADhfV8Rv7aum1MxgKxuQ87EdsTHhgQLQ=;
+        s=korg; t=1659354888;
+        bh=COGnvKI3TA8NxmZ6PUaCgjEEP6RaalfNvTdWi+lFvrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkvuuynnDJ3A8W/WcB94/aGXi/0eazIW9CsVL9wd97pHHY4NNiR0luLd7ph99iV9z
-         UTcfbgLUhzb7SA4HXir+aF7ot8bGUykX3X6HtjUkTBCuj3AszXcjLgWyjYrOcaKpNf
-         /wVJFETRd0xzxehZJM2pCoE0TeOZM+cbXRy9yIw8=
+        b=k1a/wB85YDuEC123SWDy94T1LyFTFSiJMwgbKJnxCbdjW/wWMu0GfCIY9joljF5QL
+         T3SWLsFaspnYL5c7BqpD8BOjsU/k+hkBIi2X5KSvD6q8e6h424gALJbzApEGNukpWD
+         mDKSzr3SM/p2Gx4PeBTW98ZsFBM9ZmjUuZy795Hs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Domingo Dirutigliano <pwnzer0tt1@proton.me>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 66/88] net: dsa: fix reference counting for LAG FDBs
-Date:   Mon,  1 Aug 2022 13:47:20 +0200
-Message-Id: <20220801114141.068425530@linuxfoundation.org>
+Subject: [PATCH 5.15 57/69] netfilter: nf_queue: do not allow packet truncation below transport header offset
+Date:   Mon,  1 Aug 2022 13:47:21 +0200
+Message-Id: <20220801114136.780889603@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
-References: <20220801114138.041018499@linuxfoundation.org>
+In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
+References: <20220801114134.468284027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit c7560d1203b7a1ea0b99a5c575547e95d564b2a8 ]
+[ Upstream commit 99a63d36cb3ed5ca3aa6fcb64cffbeaf3b0fb164 ]
 
-Due to an invalid conflict resolution on my side while working on 2
-different series (LAG FDBs and FDB isolation), dsa_switch_do_lag_fdb_add()
-does not store the database associated with a dsa_mac_addr structure.
+Domingo Dirutigliano and Nicola Guerrera report kernel panic when
+sending nf_queue verdict with 1-byte nfta_payload attribute.
 
-So after adding an FDB entry associated with a LAG, dsa_mac_addr_find()
-fails to find it while deleting it, because &a->db is zeroized memory
-for all stored FDB entries of lag->fdbs, and dsa_switch_do_lag_fdb_del()
-returns -ENOENT rather than deleting the entry.
+The IP/IPv6 stack pulls the IP(v6) header from the packet after the
+input hook.
 
-Fixes: c26933639b54 ("net: dsa: request drivers to perform FDB isolation")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20220723012411.1125066-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+If user truncates the packet below the header size, this skb_pull() will
+result in a malformed skb (skb->len < 0).
+
+Fixes: 7af4cc3fa158 ("[NETFILTER]: Add "nfnetlink_queue" netfilter queue handler over nfnetlink")
+Reported-by: Domingo Dirutigliano <pwnzer0tt1@proton.me>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Reviewed-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/switch.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/netfilter/nfnetlink_queue.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/dsa/switch.c b/net/dsa/switch.c
-index d8a80cf9742c..52f84ea349d2 100644
---- a/net/dsa/switch.c
-+++ b/net/dsa/switch.c
-@@ -363,6 +363,7 @@ static int dsa_switch_do_lag_fdb_add(struct dsa_switch *ds, struct dsa_lag *lag,
+diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
+index 8787d0613ad8..5329ebf19a18 100644
+--- a/net/netfilter/nfnetlink_queue.c
++++ b/net/netfilter/nfnetlink_queue.c
+@@ -836,11 +836,16 @@ nfqnl_enqueue_packet(struct nf_queue_entry *entry, unsigned int queuenum)
+ }
  
- 	ether_addr_copy(a->addr, addr);
- 	a->vid = vid;
-+	a->db = db;
- 	refcount_set(&a->refcount, 1);
- 	list_add_tail(&a->list, &lag->fdbs);
+ static int
+-nfqnl_mangle(void *data, int data_len, struct nf_queue_entry *e, int diff)
++nfqnl_mangle(void *data, unsigned int data_len, struct nf_queue_entry *e, int diff)
+ {
+ 	struct sk_buff *nskb;
  
+ 	if (diff < 0) {
++		unsigned int min_len = skb_transport_offset(e->skb);
++
++		if (data_len < min_len)
++			return -EINVAL;
++
+ 		if (pskb_trim(e->skb, data_len))
+ 			return -ENOMEM;
+ 	} else if (diff > 0) {
 -- 
 2.35.1
 
