@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C314586976
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:02:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 861E3586A40
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:14:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232958AbiHAMCl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:02:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34982 "EHLO
+        id S234126AbiHAMOK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:14:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233826AbiHAMBx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:01:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 668C55073D;
-        Mon,  1 Aug 2022 04:53:52 -0700 (PDT)
+        with ESMTP id S234140AbiHAMNZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:13:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9589753AD;
+        Mon,  1 Aug 2022 04:57:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9733761344;
-        Mon,  1 Aug 2022 11:53:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B9D2C433D6;
-        Mon,  1 Aug 2022 11:53:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A05AAB81177;
+        Mon,  1 Aug 2022 11:57:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0AAFC43470;
+        Mon,  1 Aug 2022 11:57:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354831;
-        bh=Z2nPSpHn1y5163xrsf+ZmDTgWIF3XTh49tZw0iUcB1g=;
+        s=korg; t=1659355050;
+        bh=FyEep/jFRSTtylJI1Fb5kcB37dDN715UCJD70qJGHJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=um/clWAcFqQffRbwINXvI2jGtMo5dk94qH8XKn18kNnYVUuS56MGdmIwUcv6jnrtk
-         wK36K8wvRwRSxL6sl09kRowrr1S5sdOpEKP50M4TBG2ik2e1eE8hVCg39b7n3vvNzj
-         OjO9TybWQlwXtMMEk++pmxC+Z/qxE7YC01fZqn5U=
+        b=lzdlSMpy0In8chgiOrBZx1yozdP81uRKxMMII4XrvIKoJm+OhhE/s9NryJAJ1oyhV
+         pP6kJegIDcA1Cy0jgV3T3Qaq2oShwetdTWpop6WhOfCwYvmYiJhtu4tYqqOqCWieEZ
+         njFvr7pMJ64+8DhFW+HABlFcJAkJLq6rGoPcWjOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Ido Schimmel <idosch@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 35/69] net: sungem_phy: Add of_node_put() for reference returned by of_get_parent()
+Subject: [PATCH 5.18 45/88] mlxsw: spectrum_router: simplify list unwinding
 Date:   Mon,  1 Aug 2022 13:46:59 +0200
-Message-Id: <20220801114135.935603482@linuxfoundation.org>
+Message-Id: <20220801114140.109582978@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
+References: <20220801114138.041018499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit ebbbe23fdf6070e31509638df3321688358cc211 ]
+[ Upstream commit 6f2f36e5f932c58e370bff79aba7f05963ea1c2a ]
 
-In bcm5421_init(), we should call of_node_put() for the reference
-returned by of_get_parent() which has increased the refcount.
+The setting of i here
+err_nexthop6_group_get:
+	i = nrt6;
+Is redundant, i is already nrt6.  So remove
+this statement.
 
-Fixes: 3c326fe9cb7a ("[PATCH] ppc64: Add new PHY to sungem")
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220720131003.1287426-1-windhl@126.com
+The for loop for the unwinding
+err_rt6_create:
+	for (i--; i >= 0; i--) {
+Is equivelent to
+	for (; i > 0; i--) {
+
+Two consecutive labels can be reduced to one.
+
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/20220402121516.2750284-1-trix@redhat.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/sungem_phy.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../ethernet/mellanox/mlxsw/spectrum_router.c | 20 ++++++++-----------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/sungem_phy.c b/drivers/net/sungem_phy.c
-index 291fa449993f..45f295403cb5 100644
---- a/drivers/net/sungem_phy.c
-+++ b/drivers/net/sungem_phy.c
-@@ -454,6 +454,7 @@ static int bcm5421_init(struct mii_phy* phy)
- 		int can_low_power = 1;
- 		if (np == NULL || of_get_property(np, "no-autolowpower", NULL))
- 			can_low_power = 0;
-+		of_node_put(np);
- 		if (can_low_power) {
- 			/* Enable automatic low-power */
- 			sungem_phy_write(phy, 0x1c, 0x9002);
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+index c00d6c4ed37c..245d36696486 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+@@ -7022,7 +7022,7 @@ mlxsw_sp_fib6_entry_nexthop_add(struct mlxsw_sp *mlxsw_sp,
+ 		mlxsw_sp_rt6 = mlxsw_sp_rt6_create(rt_arr[i]);
+ 		if (IS_ERR(mlxsw_sp_rt6)) {
+ 			err = PTR_ERR(mlxsw_sp_rt6);
+-			goto err_rt6_create;
++			goto err_rt6_unwind;
+ 		}
+ 
+ 		list_add_tail(&mlxsw_sp_rt6->list, &fib6_entry->rt6_list);
+@@ -7031,14 +7031,12 @@ mlxsw_sp_fib6_entry_nexthop_add(struct mlxsw_sp *mlxsw_sp,
+ 
+ 	err = mlxsw_sp_nexthop6_group_update(mlxsw_sp, op_ctx, fib6_entry);
+ 	if (err)
+-		goto err_nexthop6_group_update;
++		goto err_rt6_unwind;
+ 
+ 	return 0;
+ 
+-err_nexthop6_group_update:
+-	i = nrt6;
+-err_rt6_create:
+-	for (i--; i >= 0; i--) {
++err_rt6_unwind:
++	for (; i > 0; i--) {
+ 		fib6_entry->nrt6--;
+ 		mlxsw_sp_rt6 = list_last_entry(&fib6_entry->rt6_list,
+ 					       struct mlxsw_sp_rt6, list);
+@@ -7166,7 +7164,7 @@ mlxsw_sp_fib6_entry_create(struct mlxsw_sp *mlxsw_sp,
+ 		mlxsw_sp_rt6 = mlxsw_sp_rt6_create(rt_arr[i]);
+ 		if (IS_ERR(mlxsw_sp_rt6)) {
+ 			err = PTR_ERR(mlxsw_sp_rt6);
+-			goto err_rt6_create;
++			goto err_rt6_unwind;
+ 		}
+ 		list_add_tail(&mlxsw_sp_rt6->list, &fib6_entry->rt6_list);
+ 		fib6_entry->nrt6++;
+@@ -7174,7 +7172,7 @@ mlxsw_sp_fib6_entry_create(struct mlxsw_sp *mlxsw_sp,
+ 
+ 	err = mlxsw_sp_nexthop6_group_get(mlxsw_sp, fib6_entry);
+ 	if (err)
+-		goto err_nexthop6_group_get;
++		goto err_rt6_unwind;
+ 
+ 	err = mlxsw_sp_nexthop_group_vr_link(fib_entry->nh_group,
+ 					     fib_node->fib);
+@@ -7193,10 +7191,8 @@ mlxsw_sp_fib6_entry_create(struct mlxsw_sp *mlxsw_sp,
+ 	mlxsw_sp_nexthop_group_vr_unlink(fib_entry->nh_group, fib_node->fib);
+ err_nexthop_group_vr_link:
+ 	mlxsw_sp_nexthop6_group_put(mlxsw_sp, fib_entry);
+-err_nexthop6_group_get:
+-	i = nrt6;
+-err_rt6_create:
+-	for (i--; i >= 0; i--) {
++err_rt6_unwind:
++	for (; i > 0; i--) {
+ 		fib6_entry->nrt6--;
+ 		mlxsw_sp_rt6 = list_last_entry(&fib6_entry->rt6_list,
+ 					       struct mlxsw_sp_rt6, list);
 -- 
 2.35.1
 
