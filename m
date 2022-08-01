@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C56A3586A0C
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:12:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88341586A64
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:16:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233752AbiHAMMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:12:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54866 "EHLO
+        id S232318AbiHAMQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:16:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234065AbiHAMKm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:10:42 -0400
+        with ESMTP id S234422AbiHAMPy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:15:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 351B46A491;
-        Mon,  1 Aug 2022 04:56:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6814D7AC17;
+        Mon,  1 Aug 2022 04:58:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0649DB81177;
-        Mon,  1 Aug 2022 11:56:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60274C433D6;
-        Mon,  1 Aug 2022 11:56:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EDA0AB81171;
+        Mon,  1 Aug 2022 11:58:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 422B2C433C1;
+        Mon,  1 Aug 2022 11:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354997;
-        bh=Pk5xfaZveeo4I7PJdyybX2fZfA1CFcunfBUWgqk6NJA=;
+        s=korg; t=1659355110;
+        bh=eJKRV90rG1YYkyI0zQh3lPHiACffaEECIn1A0+30NFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0261XgzS8j/1xGvrBImt+MMgSJdRuLeybP1biBLXg+ukzOtqoZ2ud+5SMWsh4Dj1E
-         WsYIG8jARq7KCv658EmXtm/iNeGoxuKGPiHHQ3M3VjZhYNsAM/cbfjy1P5YczRV8aa
-         AraYTSFspO0qOm09+r7T8xipcWaNUawKF3XfxzLA=
+        b=hFNowBi6OWKyMFe1Yc1XRpzRcfZrp1NJfFGyfb7b/24T2fCCstY139t3uKaxa6lbt
+         oOp1/Cs165Z32tCYsOCmnWrzP+L6ssStveMn41QXpBWIJ8se9qx0E4Pu3+wtSpoGvD
+         BdZY8z6wAE6c5hsYPb4IsBpmWQMdWVc3pt+N9Fps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.18 25/88] tcp: Fix data-races around sysctl_tcp_no_ssthresh_metrics_save.
-Date:   Mon,  1 Aug 2022 13:46:39 +0200
-Message-Id: <20220801114139.191743400@linuxfoundation.org>
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Benjamin Poirier <bpoirier@nvidia.com>,
+        Nikolay Aleksandrov <razor@blackwall.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.18 26/88] bridge: Do not send empty IFLA_AF_SPEC attribute
+Date:   Mon,  1 Aug 2022 13:46:40 +0200
+Message-Id: <20220801114139.231282517@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
 References: <20220801114138.041018499@linuxfoundation.org>
@@ -52,58 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Benjamin Poirier <bpoirier@nvidia.com>
 
-commit ab1ba21b523ab496b1a4a8e396333b24b0a18f9a upstream.
+commit 9b134b1694ec8926926ba6b7b80884ea829245a0 upstream.
 
-While reading sysctl_tcp_no_ssthresh_metrics_save, it can be changed
-concurrently.  Thus, we need to add READ_ONCE() to its readers.
+After commit b6c02ef54913 ("bridge: Netlink interface fix."),
+br_fill_ifinfo() started to send an empty IFLA_AF_SPEC attribute when a
+bridge vlan dump is requested but an interface does not have any vlans
+configured.
 
-Fixes: 65e6d90168f3 ("net-tcp: Disable TCP ssthresh metrics cache by default")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+iproute2 ignores such an empty attribute since commit b262a9becbcb
+("bridge: Fix output with empty vlan lists") but older iproute2 versions as
+well as other utilities have their output changed by the cited kernel
+commit, resulting in failed test cases. Regardless, emitting an empty
+attribute is pointless and inefficient.
+
+Avoid this change by canceling the attribute if no AF_SPEC data was added.
+
+Fixes: b6c02ef54913 ("bridge: Netlink interface fix.")
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Benjamin Poirier <bpoirier@nvidia.com>
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+Link: https://lore.kernel.org/r/20220725001236.95062-1-bpoirier@nvidia.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_metrics.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/bridge/br_netlink.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/net/ipv4/tcp_metrics.c
-+++ b/net/ipv4/tcp_metrics.c
-@@ -385,7 +385,7 @@ void tcp_update_metrics(struct sock *sk)
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -589,9 +589,13 @@ static int br_fill_ifinfo(struct sk_buff
+ 	}
  
- 	if (tcp_in_initial_slowstart(tp)) {
- 		/* Slow start still did not finish. */
--		if (!net->ipv4.sysctl_tcp_no_ssthresh_metrics_save &&
-+		if (!READ_ONCE(net->ipv4.sysctl_tcp_no_ssthresh_metrics_save) &&
- 		    !tcp_metric_locked(tm, TCP_METRIC_SSTHRESH)) {
- 			val = tcp_metric_get(tm, TCP_METRIC_SSTHRESH);
- 			if (val && (tcp_snd_cwnd(tp) >> 1) > val)
-@@ -401,7 +401,7 @@ void tcp_update_metrics(struct sock *sk)
- 	} else if (!tcp_in_slow_start(tp) &&
- 		   icsk->icsk_ca_state == TCP_CA_Open) {
- 		/* Cong. avoidance phase, cwnd is reliable. */
--		if (!net->ipv4.sysctl_tcp_no_ssthresh_metrics_save &&
-+		if (!READ_ONCE(net->ipv4.sysctl_tcp_no_ssthresh_metrics_save) &&
- 		    !tcp_metric_locked(tm, TCP_METRIC_SSTHRESH))
- 			tcp_metric_set(tm, TCP_METRIC_SSTHRESH,
- 				       max(tcp_snd_cwnd(tp) >> 1, tp->snd_ssthresh));
-@@ -418,7 +418,7 @@ void tcp_update_metrics(struct sock *sk)
- 			tcp_metric_set(tm, TCP_METRIC_CWND,
- 				       (val + tp->snd_ssthresh) >> 1);
- 		}
--		if (!net->ipv4.sysctl_tcp_no_ssthresh_metrics_save &&
-+		if (!READ_ONCE(net->ipv4.sysctl_tcp_no_ssthresh_metrics_save) &&
- 		    !tcp_metric_locked(tm, TCP_METRIC_SSTHRESH)) {
- 			val = tcp_metric_get(tm, TCP_METRIC_SSTHRESH);
- 			if (val && tp->snd_ssthresh > val)
-@@ -463,7 +463,7 @@ void tcp_init_metrics(struct sock *sk)
- 	if (tcp_metric_locked(tm, TCP_METRIC_CWND))
- 		tp->snd_cwnd_clamp = tcp_metric_get(tm, TCP_METRIC_CWND);
+ done:
++	if (af) {
++		if (nlmsg_get_pos(skb) - (void *)af > nla_attr_size(0))
++			nla_nest_end(skb, af);
++		else
++			nla_nest_cancel(skb, af);
++	}
  
--	val = net->ipv4.sysctl_tcp_no_ssthresh_metrics_save ?
-+	val = READ_ONCE(net->ipv4.sysctl_tcp_no_ssthresh_metrics_save) ?
- 	      0 : tcp_metric_get(tm, TCP_METRIC_SSTHRESH);
- 	if (val) {
- 		tp->snd_ssthresh = val;
+-	if (af)
+-		nla_nest_end(skb, af);
+ 	nlmsg_end(skb, nlh);
+ 	return 0;
+ 
 
 
