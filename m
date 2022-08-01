@@ -2,119 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91D0D586E32
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 18:00:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FA6D586E89
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 18:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231325AbiHAQAI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 12:00:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58358 "EHLO
+        id S229780AbiHAQ1T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 12:27:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229943AbiHAQAH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 12:00:07 -0400
-Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E24D3343D
-        for <stable@vger.kernel.org>; Mon,  1 Aug 2022 09:00:06 -0700 (PDT)
-Received: from localhost.localdomain (unknown [95.31.173.239])
-        by mail.ispras.ru (Postfix) with ESMTPSA id 3B2E840D403D;
-        Mon,  1 Aug 2022 16:00:04 +0000 (UTC)
-From:   Fedor Pchelkin <pchelkin@ispras.ru>
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        ldv-project@linuxtesting.org,
-        syzbot <syzbot+31d54c60c5b254d6f75b@syzkaller.appspotmail.com>,
-        Fedor Pchelkin <pchelkin@ispras.ru>
-Subject: [PATCH 5.10 2/2] ath9k_htc: fix NULL pointer dereference at ath9k_htc_tx_get_packet()
-Date:   Mon,  1 Aug 2022 18:59:08 +0300
-Message-Id: <20220801155908.1539833-3-pchelkin@ispras.ru>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220801155908.1539833-1-pchelkin@ispras.ru>
-References: <20220801155908.1539833-1-pchelkin@ispras.ru>
+        with ESMTP id S233106AbiHAQ1S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 12:27:18 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A8C8F313BF
+        for <stable@vger.kernel.org>; Mon,  1 Aug 2022 09:27:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1659371236;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=uKOVHziYsiU1y+MgVuXiBUXHStQJ8opX9xrQUMAXIJw=;
+        b=buPu+cnon/CTmroGf07s72Dnd0ZkINaHG6WmURf7ESDGW/6mBDoNTtj7RjZ+ClV3MDE+3V
+        hGlFyxifexCVof0+zl23is7b2BRX0fp3F3TvzHOEy5p1/YjA8MHiE1mRU9HR/yTdP9go42
+        prKlbW0K0akd4K72xhgAW8QpgcMTMng=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-659-d5Vbs5rFPZGodkSsEFNFVw-1; Mon, 01 Aug 2022 12:27:14 -0400
+X-MC-Unique: d5Vbs5rFPZGodkSsEFNFVw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3F8228032F6;
+        Mon,  1 Aug 2022 16:27:14 +0000 (UTC)
+Received: from emilne.bos.redhat.com (unknown [10.18.25.205])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 16A812166B26;
+        Mon,  1 Aug 2022 16:27:14 +0000 (UTC)
+From:   "Ewan D. Milne" <emilne@redhat.com>
+To:     linux-nvme@lists.infradead.org
+Cc:     hch@lst.de, muneendra.kumar@broadcom.com, james.smart@broadcom.com,
+        stable@vger.kernel.org
+Subject: [PATCH] Revert "nvme-fc: fold t fc_update_appid into fc_appid_store"
+Date:   Mon,  1 Aug 2022 12:27:13 -0400
+Message-Id: <20220801162713.17324-1-emilne@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.6
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+This reverts commit c814153c83a892dfd42026eaa661ae2c1f298792.
 
-commit 8b3046abc99eefe11438090bcc4ec3a3994b55d0 upstream.
+The commit c814153c83a8 "nvme-fc: fold t fc_update_appid into fc_appid_store"
+changed the userspace interface, because the code that decrements "count"
+to remove a trailing '\n' in the parsing results in the decremented value being
+incorrectly be returned from the sysfs write.  Fix this by revering the commit.
 
-syzbot is reporting lockdep warning at ath9k_wmi_event_tasklet() followed
-by kernel panic at get_htc_epid_queue() from ath9k_htc_tx_get_packet() from
-ath9k_htc_txstatus() [1], for ath9k_wmi_event_tasklet(WMI_TXSTATUS_EVENTID)
-depends on spin_lock_init() from ath9k_init_priv() being already completed.
-
-Since ath9k_wmi_event_tasklet() is set by ath9k_init_wmi() from
-ath9k_htc_probe_device(), it is possible that ath9k_wmi_event_tasklet() is
-called via tasklet interrupt before spin_lock_init() from ath9k_init_priv()
- from ath9k_init_device() from ath9k_htc_probe_device() is called.
-
-Let's hold ath9k_wmi_event_tasklet(WMI_TXSTATUS_EVENTID) no-op until
-ath9k_tx_init() completes.
-
-Link: https://syzkaller.appspot.com/bug?extid=31d54c60c5b254d6f75b [1]
-Reported-by: syzbot <syzbot+31d54c60c5b254d6f75b@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+31d54c60c5b254d6f75b@syzkaller.appspotmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/77b76ac8-2bee-6444-d26c-8c30858b8daa@i-love.sakura.ne.jp
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ewan D. Milne <emilne@redhat.com>
 ---
- drivers/net/wireless/ath/ath9k/htc.h          | 1 +
- drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 5 +++++
- drivers/net/wireless/ath/ath9k/wmi.c          | 4 ++++
- 3 files changed, 10 insertions(+)
+ drivers/nvme/host/fc.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc.h b/drivers/net/wireless/ath/ath9k/htc.h
-index 4f71e962279a..6b45e63fae4b 100644
---- a/drivers/net/wireless/ath/ath9k/htc.h
-+++ b/drivers/net/wireless/ath/ath9k/htc.h
-@@ -306,6 +306,7 @@ struct ath9k_htc_tx {
- 	DECLARE_BITMAP(tx_slot, MAX_TX_BUF_NUM);
- 	struct timer_list cleanup_timer;
- 	spinlock_t tx_lock;
-+	bool initialized;
- };
- 
- struct ath9k_htc_tx_ctl {
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-index 592034ea4b68..43a743ec9d9e 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-@@ -808,6 +808,11 @@ int ath9k_tx_init(struct ath9k_htc_priv *priv)
- 	skb_queue_head_init(&priv->tx.data_vi_queue);
- 	skb_queue_head_init(&priv->tx.data_vo_queue);
- 	skb_queue_head_init(&priv->tx.tx_failed);
-+
-+	/* Allow ath9k_wmi_event_tasklet(WMI_TXSTATUS_EVENTID) to operate. */
-+	smp_wmb();
-+	priv->tx.initialized = true;
-+
- 	return 0;
+diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+index 9987797620b6..27f6dfad5d3b 100644
+--- a/drivers/nvme/host/fc.c
++++ b/drivers/nvme/host/fc.c
+@@ -3873,10 +3873,12 @@ static int fc_parse_cgrpid(const char *buf, u64 *id)
  }
  
-diff --git a/drivers/net/wireless/ath/ath9k/wmi.c b/drivers/net/wireless/ath/ath9k/wmi.c
-index fe29ad4b9023..f315c54bd3ac 100644
---- a/drivers/net/wireless/ath/ath9k/wmi.c
-+++ b/drivers/net/wireless/ath/ath9k/wmi.c
-@@ -169,6 +169,10 @@ void ath9k_wmi_event_tasklet(struct tasklet_struct *t)
- 					     &wmi->drv_priv->fatal_work);
- 			break;
- 		case WMI_TXSTATUS_EVENTID:
-+			/* Check if ath9k_tx_init() completed. */
-+			if (!data_race(priv->tx.initialized))
-+				break;
+ /*
+- * Parse and update the appid in the blkcg associated with the cgroupid.
++ * fc_update_appid: Parse and update the appid in the blkcg associated with
++ * cgroupid.
++ * @buf: buf contains both cgrpid and appid info
++ * @count: size of the buffer
+  */
+-static ssize_t fc_appid_store(struct device *dev,
+-		struct device_attribute *attr, const char *buf, size_t count)
++static int fc_update_appid(const char *buf, size_t count)
+ {
+ 	u64 cgrp_id;
+ 	int appid_len = 0;
+@@ -3904,6 +3906,17 @@ static ssize_t fc_appid_store(struct device *dev,
+ 		return ret;
+ 	return count;
+ }
 +
- 			spin_lock_bh(&priv->tx.tx_lock);
- 			if (priv->tx.flags & ATH9K_HTC_OP_TX_DRAIN) {
- 				spin_unlock_bh(&priv->tx.tx_lock);
++static ssize_t fc_appid_store(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	int ret  = 0;
++
++	ret = fc_update_appid(buf, count);
++	if (ret < 0)
++		return -EINVAL;
++	return count;
++}
+ static DEVICE_ATTR(appid_store, 0200, NULL, fc_appid_store);
+ #endif /* CONFIG_BLK_CGROUP_FC_APPID */
+ 
 -- 
-2.25.1
+2.20.1
 
