@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ACBC586969
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:02:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 433D4586A3B
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:13:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232753AbiHAMC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:02:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34080 "EHLO
+        id S233986AbiHAMNz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:13:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233692AbiHAMBk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:01:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD9E452DE3;
-        Mon,  1 Aug 2022 04:53:42 -0700 (PDT)
+        with ESMTP id S234012AbiHAMMW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:12:22 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F1A940BD5;
+        Mon,  1 Aug 2022 04:57:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E066DB81170;
-        Mon,  1 Aug 2022 11:53:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52168C433C1;
-        Mon,  1 Aug 2022 11:53:39 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D941FCE13BA;
+        Mon,  1 Aug 2022 11:57:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE70BC433C1;
+        Mon,  1 Aug 2022 11:57:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354819;
-        bh=WuhQ8glCoCgZcuHqBbEAvdh4TYzU60trc0vQAcMLLBY=;
+        s=korg; t=1659355039;
+        bh=5uesq9rIRXGZcge29XMMG/2+QB+X/pWuqao7Azxf3tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bf63rCi2RjREB1JRX4kXW/oX8PoYCNWTgcAZbRmwvwJMZVP94hZspIyqT01yJBNbT
-         cg33THGbKk1SsnkBRzH8S2PoD0SaNJONgOA/64lUfI4Nkjvnzt8VjOGhTFSrsughuR
-         AxPam/QZ7kiSytRBMwOk50flq37pEVcEdjbu/cd4=
+        b=RJVgbBSuObktD+2ryMc8zfX3t33BRnuj7WME8sKXNoC5O9vAgIfM/rQsMd88S3HM/
+         WZpYRweoxm/zGH8Y57n+VmPyvypWD/TVJaddMQ3WCF/djUjWs8GQ6iKnMNrmnxnHwm
+         426U1uPJfGgiCzoEcPuAyB2hwbth8jYopy39mUmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ziyang Xuan <william.xuanziyang@huawei.com>,
         David Ahern <dsahern@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 31/69] ipv6/addrconf: fix a null-ptr-deref bug for ip6_ptr
+Subject: [PATCH 5.18 41/88] ipv6/addrconf: fix a null-ptr-deref bug for ip6_ptr
 Date:   Mon,  1 Aug 2022 13:46:55 +0200
-Message-Id: <20220801114135.774760661@linuxfoundation.org>
+Message-Id: <20220801114139.921794555@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
+References: <20220801114138.041018499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -137,7 +137,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/include/net/addrconf.h
 +++ b/include/net/addrconf.h
-@@ -403,6 +403,9 @@ static inline bool ip6_ignore_linkdown(c
+@@ -405,6 +405,9 @@ static inline bool ip6_ignore_linkdown(c
  {
  	const struct inet6_dev *idev = __in6_dev_get(dev);
  
