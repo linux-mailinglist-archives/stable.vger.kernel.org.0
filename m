@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A365869B0
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:05:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE08F586A9E
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:19:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233315AbiHAMFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:05:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43018 "EHLO
+        id S234609AbiHAMTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:19:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232952AbiHAME7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:04:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A6285925E;
-        Mon,  1 Aug 2022 04:54:37 -0700 (PDT)
+        with ESMTP id S234214AbiHAMTA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:19:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B35834A831;
+        Mon,  1 Aug 2022 04:59:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65DB8B80E8F;
-        Mon,  1 Aug 2022 11:54:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA428C433C1;
-        Mon,  1 Aug 2022 11:54:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 47A2C601BF;
+        Mon,  1 Aug 2022 11:59:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53039C433C1;
+        Mon,  1 Aug 2022 11:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354875;
-        bh=lB65SN4XKWN+spOEm/goss9bKu24Ye83b7wJb0hIeds=;
+        s=korg; t=1659355173;
+        bh=qrEcXrtPmbjb3Gl+n4dgF60SFPGbQZ0JD+BIa11mq0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PIfEvAvPp56o/rNLx1J9pNaPI+82yj+Wo1jXzHsutCTduyg09vaTQjcdd4kaZ+SLL
-         RXOubTRsLVDTrBYFLgu0fABceVoS2+mDy8I/y7KEae7fBVT4Me324xkwYRNcxRGpsB
-         jai9LFzkOhLFSrbuzfrRuCXdgNP5+ScuKaMFKucw=
+        b=XcmY9NDxvYYGCgXvouPvg8hFFzxk8logGwtGhsFdg9Tq3FjAekstAr93GLjIy+loX
+         bJFDoso/ID1RUCVUa5ZRwS+1N37rLaAPNeoX4LUVaH/83Z4kUZDlorn2DyF3jhcNna
+         C6kv2TQFzK1K8E74e7uTNNGtttJkgFDk7YGowC4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Wei Wang <weiwan@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 52/69] tcp: Fix data-races around sysctl_tcp_reflect_tos.
+Subject: [PATCH 5.18 62/88] tcp: Fix a data-race around sysctl_tcp_comp_sack_nr.
 Date:   Mon,  1 Aug 2022 13:47:16 +0200
-Message-Id: <20220801114136.584095045@linuxfoundation.org>
+Message-Id: <20220801114140.898286327@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
+References: <20220801114138.041018499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +55,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 870e3a634b6a6cb1543b359007aca73fe6a03ac5 ]
+[ Upstream commit 79f55473bfc8ac51bd6572929a679eeb4da22251 ]
 
-While reading sysctl_tcp_reflect_tos, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its readers.
+While reading sysctl_tcp_comp_sack_nr, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Fixes: ac8f1710c12b ("tcp: reflect tos value received in SYN to the socket")
+Fixes: 9c21d2fc41c0 ("tcp: add tcp_comp_sack_nr sysctl")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Acked-by: Wei Wang <weiwan@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_ipv4.c | 4 ++--
- net/ipv6/tcp_ipv6.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ net/ipv4/tcp_input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index fba02cf6b468..dae0776c4948 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -1004,7 +1004,7 @@ static int tcp_v4_send_synack(const struct sock *sk, struct dst_entry *dst,
- 	if (skb) {
- 		__tcp_v4_send_check(skb, ireq->ir_loc_addr, ireq->ir_rmt_addr);
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 5de396075a27..9221c8c7b9a9 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -5525,7 +5525,7 @@ static void __tcp_ack_snd_check(struct sock *sk, int ofo_possible)
+ 	}
  
--		tos = sock_net(sk)->ipv4.sysctl_tcp_reflect_tos ?
-+		tos = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reflect_tos) ?
- 				(tcp_rsk(req)->syn_tos & ~INET_ECN_MASK) |
- 				(inet_sk(sk)->tos & INET_ECN_MASK) :
- 				inet_sk(sk)->tos;
-@@ -1590,7 +1590,7 @@ struct sock *tcp_v4_syn_recv_sock(const struct sock *sk, struct sk_buff *skb,
- 	/* Set ToS of the new socket based upon the value of incoming SYN.
- 	 * ECT bits are set later in tcp_init_transfer().
- 	 */
--	if (sock_net(sk)->ipv4.sysctl_tcp_reflect_tos)
-+	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reflect_tos))
- 		newinet->tos = tcp_rsk(req)->syn_tos & ~INET_ECN_MASK;
+ 	if (!tcp_is_sack(tp) ||
+-	    tp->compressed_ack >= sock_net(sk)->ipv4.sysctl_tcp_comp_sack_nr)
++	    tp->compressed_ack >= READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_comp_sack_nr))
+ 		goto send_now;
  
- 	if (!dst) {
-diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
-index beaa0c2ada23..8ab39cf57d43 100644
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -542,7 +542,7 @@ static int tcp_v6_send_synack(const struct sock *sk, struct dst_entry *dst,
- 		if (np->repflow && ireq->pktopts)
- 			fl6->flowlabel = ip6_flowlabel(ipv6_hdr(ireq->pktopts));
- 
--		tclass = sock_net(sk)->ipv4.sysctl_tcp_reflect_tos ?
-+		tclass = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reflect_tos) ?
- 				(tcp_rsk(req)->syn_tos & ~INET_ECN_MASK) |
- 				(np->tclass & INET_ECN_MASK) :
- 				np->tclass;
-@@ -1364,7 +1364,7 @@ static struct sock *tcp_v6_syn_recv_sock(const struct sock *sk, struct sk_buff *
- 	/* Set ToS of the new socket based upon the value of incoming SYN.
- 	 * ECT bits are set later in tcp_init_transfer().
- 	 */
--	if (sock_net(sk)->ipv4.sysctl_tcp_reflect_tos)
-+	if (READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_reflect_tos))
- 		newnp->tclass = tcp_rsk(req)->syn_tos & ~INET_ECN_MASK;
- 
- 	/* Clone native IPv6 options from listening socket (if any)
+ 	if (tp->compressed_ack_rcv_nxt != tp->rcv_nxt) {
 -- 
 2.35.1
 
