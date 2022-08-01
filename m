@@ -2,106 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FD91586DC0
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 17:28:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C742B586E2F
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 17:59:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233621AbiHAP25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 11:28:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33790 "EHLO
+        id S230356AbiHAP7z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 11:59:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233381AbiHAP2z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 11:28:55 -0400
-Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC9AA22BDB
-        for <stable@vger.kernel.org>; Mon,  1 Aug 2022 08:28:54 -0700 (PDT)
-Received: by mail-lj1-x244.google.com with SMTP id e11so12712583ljl.4
-        for <stable@vger.kernel.org>; Mon, 01 Aug 2022 08:28:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=q9Slei3vdZHf3BWZhWjxjnYHcSiTDd6lLLw5COAJJH4=;
-        b=ZrVwuDcPr/3jT+Ss6Z3edkPP5bSUfYFvp3UXccm02aQdNJBuiR6eiYgGaJcat+3PVZ
-         yIQPkbfoFY8Qbf6RQ3zuKGIGdPPX+KkA4WET4BlSvm7Ud7y8RWSBVHACCnPWrBx2LUPn
-         JsC1y1OpRle46mlDxmcycub14n1B7oG7nv+ZKldfJWX1fvPam1bxRAIFENurC0tJVUF6
-         YPtCXA3SxkvjQKw6SpB6+z21O0zh3t5+vHysY3LOojVPPG6YWUfXjNKqAO77XAu9069N
-         ixexe6G1zIJWh6ND3fklYF173gagltowCz/CzLJWCO0z7/nNWZ+EEJbTytb/hV+H15wQ
-         P3yQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=q9Slei3vdZHf3BWZhWjxjnYHcSiTDd6lLLw5COAJJH4=;
-        b=ZUax2X3R5x9HvTzoZKxpK7UhIyuMmY5cRZ7iI4KII+wd6//724qG/X+5Cd0rvb+STE
-         PW+WHJGYc30MEFEeuJCUOAruqVJyX+rISgZ9q7DSRD6z2yggtWSO6Q8650sWOgegC0ZY
-         gWxND5Q09peBwNph/quIB1PsbZOH/WvITuCd0pIO2ylGVbBcG5wt+lnQHjAEN81hWXky
-         2gANK5ckW7sj/be6Vb9TBHYdlmUBhNOSfdvFS68UaTWezJ2v7wfvtoXhPwS07hn4cISg
-         asY2krnToDKbXI+QakczfgiuFJxMgcdh/edqzeT3MQBgWJQo8HhDn8Jt2YIDeXcTLMT+
-         cj8g==
-X-Gm-Message-State: AJIora+W7YEReh6MqQVrdBZuNAwz2jJ8v4A1TUDhfBQD2R73HK45Osxq
-        A4wolEHr/Xhq7RGKeycUKG0zag8z5HoL9UUzHaU=
-X-Google-Smtp-Source: AGRyM1vwnLQ4J3mk1mOomkg3kbUShuQNqPbmRJv852ZN2RZ6qWyjyjzMj0H6Z0NGppzquFPFu3tL4SmbTnpr6etLEnk=
-X-Received: by 2002:a2e:be90:0:b0:25e:1496:a0b8 with SMTP id
- a16-20020a2ebe90000000b0025e1496a0b8mr5463600ljr.194.1659367733282; Mon, 01
- Aug 2022 08:28:53 -0700 (PDT)
+        with ESMTP id S229943AbiHAP7y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 11:59:54 -0400
+Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13A1D3343D
+        for <stable@vger.kernel.org>; Mon,  1 Aug 2022 08:59:51 -0700 (PDT)
+Received: from localhost.localdomain (unknown [95.31.173.239])
+        by mail.ispras.ru (Postfix) with ESMTPSA id 35B0740D403D;
+        Mon,  1 Aug 2022 15:59:46 +0000 (UTC)
+From:   Fedor Pchelkin <pchelkin@ispras.ru>
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Fedor Pchelkin <pchelkin@ispras.ru>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        ldv-project@linuxtesting.org
+Subject: [PATCH 5.10 0/2] ath9k_htc: fix NULL pointer dereferences at ath9k_htc_rxep() and ath9k_htc_tx_get_packet()
+Date:   Mon,  1 Aug 2022 18:59:06 +0300
+Message-Id: <20220801155908.1539833-1-pchelkin@ispras.ru>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Received: by 2002:aa6:cb52:0:b0:1fa:aaed:e6d9 with HTTP; Mon, 1 Aug 2022
- 08:28:52 -0700 (PDT)
-From:   Bright Gawayn <gben68387@gmail.com>
-Date:   Mon, 1 Aug 2022 20:58:52 +0530
-Message-ID: <CAG1+V0yLu1a0H9cuYKJ9q50AX+eWgtbWcvoeM1XVrRPfe8Ft-g@mail.gmail.com>
-Subject: Lucrative business proposal very urgent!
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=6.9 required=5.0 tests=ADVANCE_FEE_3_NEW,BAYES_50,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,UNDISC_MONEY autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:244 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5003]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [gben68387[at]gmail.com]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [gben68387[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        *  3.5 ADVANCE_FEE_3_NEW Appears to be advance fee fraud (Nigerian
-        *      419)
-        *  2.5 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: ******
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello dear My name is Mr Bright Gawayn,  It's my pleasure to contact you today.
+Syzkaller reports NULL pointer dereference issues at ath9k_htc_rxep()
+and ath9k_htc_tx_get_packet() in 5.10 stable releases. The problems have
+been fixed by the following patch series which can be cleanly applied to
+the 5.10 branch.
 
-We use a certain raw material in our pharmaceutical firm for the
-manufacture of animal vaccines and many more.
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
 
-My intention is to give you the new contact information of the local
-manufacturer of this raw material in India and every details regarding
-how to supply the material to my company if you're interested, my
-company pays in advance for this material.
-
-Due to some reasons, which I will explain in my next email, I cannot
-procure this material and supply it to my company myself due to the
-fact that I am a staff in the company.
-
-Please get back to me as soon as possible for full detail if you are interested.
-
-Thanks and regards
-Bright.
