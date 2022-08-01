@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F46958695E
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 588755868DC
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232082AbiHAMCN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:02:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34790 "EHLO
+        id S232159AbiHALyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:54:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232954AbiHAMAh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:00:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B513942ADD;
-        Mon,  1 Aug 2022 04:53:02 -0700 (PDT)
+        with ESMTP id S231916AbiHALx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:53:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8499BBCB4;
+        Mon,  1 Aug 2022 04:50:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAB2A612E9;
-        Mon,  1 Aug 2022 11:53:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3748C433C1;
-        Mon,  1 Aug 2022 11:53:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABA26612DF;
+        Mon,  1 Aug 2022 11:50:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B21F9C433C1;
+        Mon,  1 Aug 2022 11:50:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354781;
-        bh=nWkaHB4aObE4+ORXQz/gbELbp69I+2ype2nxZe9a19U=;
+        s=korg; t=1659354619;
+        bh=Z2nPSpHn1y5163xrsf+ZmDTgWIF3XTh49tZw0iUcB1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CAB5PcVt8myx2h/rHToQNqP8u5c44gy+8SNJz0cDvehAZHue+HjeXZNFslgssdkbJ
-         MNLtOIJybGPmTLm4dw0wWQrSJeboG39zWsOpLTjqx9SP6MvIbNIT3RzVv0BXFHKY35
-         mfC2yRbu5qJaIiOiaq3I6ssIXr0rgNA/FbncMMEk=
+        b=IiE6bdjfHrTQbCgbLvvI0JZtY7lQr+k/AdYYhAZK8hjJL7CEIYmTTW2BLtosK0WXA
+         rYm12yMO80m45WeGN3DCoje2Gn50aphUTgoLEGX88lW7qlTAzUum/HlPEWDFoRKK99
+         yOlTNdDAOo/JmIrkIBw7NxcFQ+zfR5hWqoQ+vtyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 18/69] tcp: Fix a data-race around sysctl_tcp_nometrics_save.
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 25/65] net: sungem_phy: Add of_node_put() for reference returned by of_get_parent()
 Date:   Mon,  1 Aug 2022 13:46:42 +0200
-Message-Id: <20220801114135.235052420@linuxfoundation.org>
+Message-Id: <20220801114134.753601925@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
+References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,31 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Liang He <windhl@126.com>
 
-commit 8499a2454d9e8a55ce616ede9f9580f36fd5b0f3 upstream.
+[ Upstream commit ebbbe23fdf6070e31509638df3321688358cc211 ]
 
-While reading sysctl_tcp_nometrics_save, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+In bcm5421_init(), we should call of_node_put() for the reference
+returned by of_get_parent() which has increased the refcount.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3c326fe9cb7a ("[PATCH] ppc64: Add new PHY to sungem")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220720131003.1287426-1-windhl@126.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_metrics.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/sungem_phy.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv4/tcp_metrics.c
-+++ b/net/ipv4/tcp_metrics.c
-@@ -329,7 +329,7 @@ void tcp_update_metrics(struct sock *sk)
- 	int m;
- 
- 	sk_dst_confirm(sk);
--	if (net->ipv4.sysctl_tcp_nometrics_save || !dst)
-+	if (READ_ONCE(net->ipv4.sysctl_tcp_nometrics_save) || !dst)
- 		return;
- 
- 	rcu_read_lock();
+diff --git a/drivers/net/sungem_phy.c b/drivers/net/sungem_phy.c
+index 291fa449993f..45f295403cb5 100644
+--- a/drivers/net/sungem_phy.c
++++ b/drivers/net/sungem_phy.c
+@@ -454,6 +454,7 @@ static int bcm5421_init(struct mii_phy* phy)
+ 		int can_low_power = 1;
+ 		if (np == NULL || of_get_property(np, "no-autolowpower", NULL))
+ 			can_low_power = 0;
++		of_node_put(np);
+ 		if (can_low_power) {
+ 			/* Enable automatic low-power */
+ 			sungem_phy_write(phy, 0x1c, 0x9002);
+-- 
+2.35.1
+
 
 
