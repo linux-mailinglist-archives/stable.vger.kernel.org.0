@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E2E0586A6C
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:16:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E0CC586A68
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:16:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234112AbiHAMQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:16:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39006 "EHLO
+        id S233763AbiHAMQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:16:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234320AbiHAMPc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:15:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1D1441981;
-        Mon,  1 Aug 2022 04:58:24 -0700 (PDT)
+        with ESMTP id S233283AbiHAMPf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:15:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE4FA7AB08;
+        Mon,  1 Aug 2022 04:58:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9282BB80EAC;
-        Mon,  1 Aug 2022 11:58:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E304AC433D7;
-        Mon,  1 Aug 2022 11:58:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 590B0B8117B;
+        Mon,  1 Aug 2022 11:58:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA11BC433D6;
+        Mon,  1 Aug 2022 11:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659355102;
-        bh=LARZAiDrC/yVd6yIGxBo8r5qc1cW9qVjsXp3JdlPGDk=;
+        s=korg; t=1659355105;
+        bh=FAVsQMKM+xWsrgh2OtFVs4D7ZSSDfn563TOdSHFaIPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NI1M9BddxTbnQ6Mlsp6AV+SrQUKZmPCQvIk2ygze5s+Nif3oGFCSn/97JwlS8o5GQ
-         WaqFb8sf77CilotN/qQotAjUXCuwYePnXPhutGxVt8iejLA4E3pGCiczbs7z+JmSfD
-         QfQt3IbkPae8Phs+0j6IGs4RFPz85cdwUWVcyppI=
+        b=WjuWALTGNy7naGHN/kx8H1TlxzWyeXs2YG3cUX9LD3RCqOoVOLXEciogAeny2Y9cU
+         /o4mIFnFZ/Uny7Comd23SaVYYCIQrn48EFkis556JqMHfaD0wjPzqx6172iD5fPMJ5
+         iHdvNUgD5l4ypyabs9K/1IeXewjpnEPF0DWD1+lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.18 33/88] octeontx2-pf: Fix UDP/TCP src and dst port tc filters
-Date:   Mon,  1 Aug 2022 13:46:47 +0200
-Message-Id: <20220801114139.546511574@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Vazquez <brianvv@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        David Ahern <dsahern@kernel.org>,
+        Dmitry Safonov <dima@arista.com>,
+        Leonard Crestez <cdleonard@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 34/88] tcp: md5: fix IPv4-mapped support
+Date:   Mon,  1 Aug 2022 13:46:48 +0200
+Message-Id: <20220801114139.588702628@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
 References: <20220801114138.041018499@linuxfoundation.org>
@@ -53,65 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraya Sundeep <sbhatta@marvell.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 59e1be6f83b928a04189bbf3ab683a1fc6248db3 upstream.
+commit e62d2e110356093c034998e093675df83057e511 upstream.
 
-Check the mask for non-zero value before installing tc filters
-for L4 source and destination ports. Otherwise installing a
-filter for source port installs destination port too and
-vice-versa.
+After the blamed commit, IPv4 SYN packets handled
+by a dual stack IPv6 socket are dropped, even if
+perfectly valid.
 
-Fixes: 1d4d9e42c240 ("octeontx2-pf: Add tc flower hardware offload on ingress traffic")
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+$ nstat | grep MD5
+TcpExtTCPMD5Failure             5                  0.0
+
+For a dual stack listener, an incoming IPv4 SYN packet
+would call tcp_inbound_md5_hash() with @family == AF_INET,
+while tp->af_specific is pointing to tcp_sock_ipv6_specific.
+
+Only later when an IPv4-mapped child is created, tp->af_specific
+is changed to tcp_sock_ipv6_mapped_specific.
+
+Fixes: 7bbb765b7349 ("net/tcp: Merge TCP-MD5 inbound callbacks")
+Reported-by: Brian Vazquez <brianvv@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Reviewed-by: Dmitry Safonov <dima@arista.com>
+Tested-by: Leonard Crestez <cdleonard@gmail.com>
+Link: https://lore.kernel.org/r/20220726115743.2759832-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c |   30 +++++++++++--------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ net/ipv4/tcp.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c
-@@ -614,21 +614,27 @@ static int otx2_tc_prepare_flow(struct o
- 
- 		flow_spec->dport = match.key->dst;
- 		flow_mask->dport = match.mask->dst;
--		if (ip_proto == IPPROTO_UDP)
--			req->features |= BIT_ULL(NPC_DPORT_UDP);
--		else if (ip_proto == IPPROTO_TCP)
--			req->features |= BIT_ULL(NPC_DPORT_TCP);
--		else if (ip_proto == IPPROTO_SCTP)
--			req->features |= BIT_ULL(NPC_DPORT_SCTP);
-+
-+		if (flow_mask->dport) {
-+			if (ip_proto == IPPROTO_UDP)
-+				req->features |= BIT_ULL(NPC_DPORT_UDP);
-+			else if (ip_proto == IPPROTO_TCP)
-+				req->features |= BIT_ULL(NPC_DPORT_TCP);
-+			else if (ip_proto == IPPROTO_SCTP)
-+				req->features |= BIT_ULL(NPC_DPORT_SCTP);
-+		}
- 
- 		flow_spec->sport = match.key->src;
- 		flow_mask->sport = match.mask->src;
--		if (ip_proto == IPPROTO_UDP)
--			req->features |= BIT_ULL(NPC_SPORT_UDP);
--		else if (ip_proto == IPPROTO_TCP)
--			req->features |= BIT_ULL(NPC_SPORT_TCP);
--		else if (ip_proto == IPPROTO_SCTP)
--			req->features |= BIT_ULL(NPC_SPORT_SCTP);
-+
-+		if (flow_mask->sport) {
-+			if (ip_proto == IPPROTO_UDP)
-+				req->features |= BIT_ULL(NPC_SPORT_UDP);
-+			else if (ip_proto == IPPROTO_TCP)
-+				req->features |= BIT_ULL(NPC_SPORT_TCP);
-+			else if (ip_proto == IPPROTO_SCTP)
-+				req->features |= BIT_ULL(NPC_SPORT_SCTP);
-+		}
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -4481,9 +4481,18 @@ tcp_inbound_md5_hash(const struct sock *
+ 		return SKB_DROP_REASON_TCP_MD5UNEXPECTED;
  	}
  
- 	return otx2_tc_parse_actions(nic, &rule->action, req, f, node);
+-	/* check the signature */
+-	genhash = tp->af_specific->calc_md5_hash(newhash, hash_expected,
+-						 NULL, skb);
++	/* Check the signature.
++	 * To support dual stack listeners, we need to handle
++	 * IPv4-mapped case.
++	 */
++	if (family == AF_INET)
++		genhash = tcp_v4_md5_hash_skb(newhash,
++					      hash_expected,
++					      NULL, skb);
++	else
++		genhash = tp->af_specific->calc_md5_hash(newhash,
++							 hash_expected,
++							 NULL, skb);
+ 
+ 	if (genhash || memcmp(hash_location, newhash, 16) != 0) {
+ 		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPMD5FAILURE);
 
 
