@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C9D45868D3
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:53:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D25915868EA
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:54:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231261AbiHALx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:53:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35864 "EHLO
+        id S231724AbiHALyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:54:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231941AbiHALw5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:52:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9627B43335;
-        Mon,  1 Aug 2022 04:50:03 -0700 (PDT)
+        with ESMTP id S232168AbiHALyR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:54:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 128C53D5B3;
+        Mon,  1 Aug 2022 04:50:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE96D6125A;
-        Mon,  1 Aug 2022 11:50:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4F8BC433D6;
-        Mon,  1 Aug 2022 11:50:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 505D66122C;
+        Mon,  1 Aug 2022 11:50:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58AD0C433D6;
+        Mon,  1 Aug 2022 11:50:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354602;
-        bh=G+ukdMlm5U26LtuHh5+3Mp0yNZHXJdDq7qsQCyGPy+8=;
+        s=korg; t=1659354632;
+        bh=VBH1TpZZyZwT5mtyysWp68ObVLFEUBt+O5pRICLEnDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g48a8ThNIzJ6ePm6X1qmCySIzgKWa9sft1A1r5iYAccNledPeMchwH/xFFhXZiCdn
-         eTUrojEm8F1pWxizjAWYyb2oMWnmzYOuJfQU3mWvo3ntqudUeQ7+dUM26eAz9tXK27
-         dGqpEa5cccPjsyDjDihWBu5DlXwIdJ4sNDvQ4eVg=
+        b=tGXG361IQh5QOZDI//yj6vAZ0CmtDxoEY+i3rzNRw+FPvQblCE6g8aINXQ8p6Hx8Q
+         L6OY0VNVFe7Iym2PIIGvNmKiwl34iyBbFnzapWe3fi/zIRdqgkD3jk8GpBZ9W/osqp
+         6bv5fBA54CqLR6rmTkN8gw/Qs600R5FvqNe8bKPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>, heming.zhao@suse.com,
+        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
+        Hawkins Jiawei <yin31149@gmail.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Yongqiang Liu <liuyongqiang13@huawei.com>,
+        Zhang Yi <yi.zhang@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 02/65] Revert "ocfs2: mount shared volume without ha stack"
-Date:   Mon,  1 Aug 2022 13:46:19 +0200
-Message-Id: <20220801114133.748437185@linuxfoundation.org>
+Subject: [PATCH 5.10 03/65] ntfs: fix use-after-free in ntfs_ucsncmp()
+Date:   Mon,  1 Aug 2022 13:46:20 +0200
+Message-Id: <20220801114133.797062024@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
 References: <20220801114133.641770326@linuxfoundation.org>
@@ -57,243 +57,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <ocfs2-devel@oss.oracle.com>
+From: ChenXiaoSong <chenxiaosong2@huawei.com>
 
-commit c80af0c250c8f8a3c978aa5aafbe9c39b336b813 upstream.
+commit 38c9c22a85aeed28d0831f230136e9cf6fa2ed44 upstream.
 
-This reverts commit 912f655d78c5d4ad05eac287f23a435924df7144.
+Syzkaller reported use-after-free bug as follows:
 
-This commit introduced a regression that can cause mount hung.  The
-changes in __ocfs2_find_empty_slot causes that any node with none-zero
-node number can grab the slot that was already taken by node 0, so node 1
-will access the same journal with node 0, when it try to grab journal
-cluster lock, it will hung because it was already acquired by node 0.
-It's very easy to reproduce this, in one cluster, mount node 0 first, then
-node 1, you will see the following call trace from node 1.
+==================================================================
+BUG: KASAN: use-after-free in ntfs_ucsncmp+0x123/0x130
+Read of size 2 at addr ffff8880751acee8 by task a.out/879
 
-[13148.735424] INFO: task mount.ocfs2:53045 blocked for more than 122 seconds.
-[13148.739691]       Not tainted 5.15.0-2148.0.4.el8uek.mountracev2.x86_64 #2
-[13148.742560] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[13148.745846] task:mount.ocfs2     state:D stack:    0 pid:53045 ppid: 53044 flags:0x00004000
-[13148.749354] Call Trace:
-[13148.750718]  <TASK>
-[13148.752019]  ? usleep_range+0x90/0x89
-[13148.753882]  __schedule+0x210/0x567
-[13148.755684]  schedule+0x44/0xa8
-[13148.757270]  schedule_timeout+0x106/0x13c
-[13148.759273]  ? __prepare_to_swait+0x53/0x78
-[13148.761218]  __wait_for_common+0xae/0x163
-[13148.763144]  __ocfs2_cluster_lock.constprop.0+0x1d6/0x870 [ocfs2]
-[13148.765780]  ? ocfs2_inode_lock_full_nested+0x18d/0x398 [ocfs2]
-[13148.768312]  ocfs2_inode_lock_full_nested+0x18d/0x398 [ocfs2]
-[13148.770968]  ocfs2_journal_init+0x91/0x340 [ocfs2]
-[13148.773202]  ocfs2_check_volume+0x39/0x461 [ocfs2]
-[13148.775401]  ? iput+0x69/0xba
-[13148.777047]  ocfs2_mount_volume.isra.0.cold+0x40/0x1f5 [ocfs2]
-[13148.779646]  ocfs2_fill_super+0x54b/0x853 [ocfs2]
-[13148.781756]  mount_bdev+0x190/0x1b7
-[13148.783443]  ? ocfs2_remount+0x440/0x440 [ocfs2]
-[13148.785634]  legacy_get_tree+0x27/0x48
-[13148.787466]  vfs_get_tree+0x25/0xd0
-[13148.789270]  do_new_mount+0x18c/0x2d9
-[13148.791046]  __x64_sys_mount+0x10e/0x142
-[13148.792911]  do_syscall_64+0x3b/0x89
-[13148.794667]  entry_SYSCALL_64_after_hwframe+0x170/0x0
-[13148.797051] RIP: 0033:0x7f2309f6e26e
-[13148.798784] RSP: 002b:00007ffdcee7d408 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
-[13148.801974] RAX: ffffffffffffffda RBX: 00007ffdcee7d4a0 RCX: 00007f2309f6e26e
-[13148.804815] RDX: 0000559aa762a8ae RSI: 0000559aa939d340 RDI: 0000559aa93a22b0
-[13148.807719] RBP: 00007ffdcee7d5b0 R08: 0000559aa93a2290 R09: 00007f230a0b4820
-[13148.810659] R10: 0000000000000000 R11: 0000000000000246 R12: 00007ffdcee7d420
-[13148.813609] R13: 0000000000000000 R14: 0000559aa939f000 R15: 0000000000000000
-[13148.816564]  </TASK>
+CPU: 7 PID: 879 Comm: a.out Not tainted 5.19.0-rc4-next-20220630-00001-gcc5218c8bd2c-dirty #7
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x1c0/0x2b0
+ print_address_description.constprop.0.cold+0xd4/0x484
+ print_report.cold+0x55/0x232
+ kasan_report+0xbf/0xf0
+ ntfs_ucsncmp+0x123/0x130
+ ntfs_are_names_equal.cold+0x2b/0x41
+ ntfs_attr_find+0x43b/0xb90
+ ntfs_attr_lookup+0x16d/0x1e0
+ ntfs_read_locked_attr_inode+0x4aa/0x2360
+ ntfs_attr_iget+0x1af/0x220
+ ntfs_read_locked_inode+0x246c/0x5120
+ ntfs_iget+0x132/0x180
+ load_system_files+0x1cc6/0x3480
+ ntfs_fill_super+0xa66/0x1cf0
+ mount_bdev+0x38d/0x460
+ legacy_get_tree+0x10d/0x220
+ vfs_get_tree+0x93/0x300
+ do_new_mount+0x2da/0x6d0
+ path_mount+0x496/0x19d0
+ __x64_sys_mount+0x284/0x300
+ do_syscall_64+0x3b/0xc0
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+RIP: 0033:0x7f3f2118d9ea
+Code: 48 8b 0d a9 f4 0b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 f4 0b 00 f7 d8 64 89 01 48
+RSP: 002b:00007ffc269deac8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f3f2118d9ea
+RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffc269dec00
+RBP: 00007ffc269dec80 R08: 00007ffc269deb00 R09: 00007ffc269dec44
+R10: 0000000000000000 R11: 0000000000000202 R12: 000055f81ab1d220
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+ </TASK>
 
-To fix it, we can just fix __ocfs2_find_empty_slot.  But original commit
-introduced the feature to mount ocfs2 locally even it is cluster based,
-that is a very dangerous, it can easily cause serious data corruption,
-there is no way to stop other nodes mounting the fs and corrupting it.
-Setup ha or other cluster-aware stack is just the cost that we have to
-take for avoiding corruption, otherwise we have to do it in kernel.
+The buggy address belongs to the physical page:
+page:0000000085430378 refcount:1 mapcount:1 mapping:0000000000000000 index:0x555c6a81d pfn:0x751ac
+memcg:ffff888101f7e180
+anon flags: 0xfffffc00a0014(uptodate|lru|mappedtodisk|swapbacked|node=0|zone=1|lastcpupid=0x1fffff)
+raw: 000fffffc00a0014 ffffea0001bf2988 ffffea0001de2448 ffff88801712e201
+raw: 0000000555c6a81d 0000000000000000 0000000100000000 ffff888101f7e180
+page dumped because: kasan: bad access detected
 
-Link: https://lkml.kernel.org/r/20220603222801.42488-1-junxiao.bi@oracle.com
-Fixes: 912f655d78c5("ocfs2: mount shared volume without ha stack")
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <heming.zhao@suse.com>
-Cc: <stable@vger.kernel.org>
+Memory state around the buggy address:
+ ffff8880751acd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff8880751ace00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff8880751ace80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                                                          ^
+ ffff8880751acf00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff8880751acf80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+==================================================================
+
+The reason is that struct ATTR_RECORD->name_offset is 6485, end address of
+name string is out of bounds.
+
+Fix this by adding sanity check on end address of attribute name string.
+
+[akpm@linux-foundation.org: coding-style cleanups]
+[chenxiaosong2@huawei.com: cleanup suggested by Hawkins Jiawei]
+  Link: https://lkml.kernel.org/r/20220709064511.3304299-1-chenxiaosong2@huawei.com
+Link: https://lkml.kernel.org/r/20220707105329.4020708-1-chenxiaosong2@huawei.com
+Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
+Cc: Anton Altaparmakov <anton@tuxera.com>
+Cc: ChenXiaoSong <chenxiaosong2@huawei.com>
+Cc: Yongqiang Liu <liuyongqiang13@huawei.com>
+Cc: Zhang Yi <yi.zhang@huawei.com>
+Cc: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/ocfs2.h    |    4 +---
- fs/ocfs2/slot_map.c |   46 +++++++++++++++++++---------------------------
- fs/ocfs2/super.c    |   21 ---------------------
- 3 files changed, 20 insertions(+), 51 deletions(-)
+ fs/ntfs/attrib.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/ocfs2/ocfs2.h
-+++ b/fs/ocfs2/ocfs2.h
-@@ -279,7 +279,6 @@ enum ocfs2_mount_options
- 	OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT = 1 << 15,  /* Journal Async Commit */
- 	OCFS2_MOUNT_ERRORS_CONT = 1 << 16, /* Return EIO to the calling process on error */
- 	OCFS2_MOUNT_ERRORS_ROFS = 1 << 17, /* Change filesystem to read-only on error */
--	OCFS2_MOUNT_NOCLUSTER = 1 << 18, /* No cluster aware filesystem mount */
- };
- 
- #define OCFS2_OSB_SOFT_RO	0x0001
-@@ -675,8 +674,7 @@ static inline int ocfs2_cluster_o2cb_glo
- 
- static inline int ocfs2_mount_local(struct ocfs2_super *osb)
- {
--	return ((osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT)
--		|| (osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER));
-+	return (osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT);
- }
- 
- static inline int ocfs2_uses_extended_slot_map(struct ocfs2_super *osb)
---- a/fs/ocfs2/slot_map.c
-+++ b/fs/ocfs2/slot_map.c
-@@ -254,16 +254,14 @@ static int __ocfs2_find_empty_slot(struc
- 	int i, ret = -ENOSPC;
- 
- 	if ((preferred >= 0) && (preferred < si->si_num_slots)) {
--		if (!si->si_slots[preferred].sl_valid ||
--		    !si->si_slots[preferred].sl_node_num) {
-+		if (!si->si_slots[preferred].sl_valid) {
- 			ret = preferred;
- 			goto out;
- 		}
- 	}
- 
- 	for(i = 0; i < si->si_num_slots; i++) {
--		if (!si->si_slots[i].sl_valid ||
--		    !si->si_slots[i].sl_node_num) {
-+		if (!si->si_slots[i].sl_valid) {
- 			ret = i;
+--- a/fs/ntfs/attrib.c
++++ b/fs/ntfs/attrib.c
+@@ -592,8 +592,12 @@ static int ntfs_attr_find(const ATTR_TYP
+ 		a = (ATTR_RECORD*)((u8*)ctx->attr +
+ 				le32_to_cpu(ctx->attr->length));
+ 	for (;;	a = (ATTR_RECORD*)((u8*)a + le32_to_cpu(a->length))) {
+-		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > (u8*)ctx->mrec +
+-				le32_to_cpu(ctx->mrec->bytes_allocated))
++		u8 *mrec_end = (u8 *)ctx->mrec +
++		               le32_to_cpu(ctx->mrec->bytes_allocated);
++		u8 *name_end = (u8 *)a + le16_to_cpu(a->name_offset) +
++			       a->name_length * sizeof(ntfschar);
++		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > mrec_end ||
++		    name_end > mrec_end)
  			break;
- 		}
-@@ -458,30 +456,24 @@ int ocfs2_find_slot(struct ocfs2_super *
- 	spin_lock(&osb->osb_lock);
- 	ocfs2_update_slot_info(si);
- 
--	if (ocfs2_mount_local(osb))
--		/* use slot 0 directly in local mode */
--		slot = 0;
--	else {
--		/* search for ourselves first and take the slot if it already
--		 * exists. Perhaps we need to mark this in a variable for our
--		 * own journal recovery? Possibly not, though we certainly
--		 * need to warn to the user */
--		slot = __ocfs2_node_num_to_slot(si, osb->node_num);
-+	/* search for ourselves first and take the slot if it already
-+	 * exists. Perhaps we need to mark this in a variable for our
-+	 * own journal recovery? Possibly not, though we certainly
-+	 * need to warn to the user */
-+	slot = __ocfs2_node_num_to_slot(si, osb->node_num);
-+	if (slot < 0) {
-+		/* if no slot yet, then just take 1st available
-+		 * one. */
-+		slot = __ocfs2_find_empty_slot(si, osb->preferred_slot);
- 		if (slot < 0) {
--			/* if no slot yet, then just take 1st available
--			 * one. */
--			slot = __ocfs2_find_empty_slot(si, osb->preferred_slot);
--			if (slot < 0) {
--				spin_unlock(&osb->osb_lock);
--				mlog(ML_ERROR, "no free slots available!\n");
--				status = -EINVAL;
--				goto bail;
--			}
--		} else
--			printk(KERN_INFO "ocfs2: Slot %d on device (%s) was "
--			       "already allocated to this node!\n",
--			       slot, osb->dev_str);
--	}
-+			spin_unlock(&osb->osb_lock);
-+			mlog(ML_ERROR, "no free slots available!\n");
-+			status = -EINVAL;
-+			goto bail;
-+		}
-+	} else
-+		printk(KERN_INFO "ocfs2: Slot %d on device (%s) was already "
-+		       "allocated to this node!\n", slot, osb->dev_str);
- 
- 	ocfs2_set_slot(si, slot, osb->node_num);
- 	osb->slot_num = slot;
---- a/fs/ocfs2/super.c
-+++ b/fs/ocfs2/super.c
-@@ -175,7 +175,6 @@ enum {
- 	Opt_dir_resv_level,
- 	Opt_journal_async_commit,
- 	Opt_err_cont,
--	Opt_nocluster,
- 	Opt_err,
- };
- 
-@@ -209,7 +208,6 @@ static const match_table_t tokens = {
- 	{Opt_dir_resv_level, "dir_resv_level=%u"},
- 	{Opt_journal_async_commit, "journal_async_commit"},
- 	{Opt_err_cont, "errors=continue"},
--	{Opt_nocluster, "nocluster"},
- 	{Opt_err, NULL}
- };
- 
-@@ -621,13 +619,6 @@ static int ocfs2_remount(struct super_bl
- 		goto out;
- 	}
- 
--	tmp = OCFS2_MOUNT_NOCLUSTER;
--	if ((osb->s_mount_opt & tmp) != (parsed_options.mount_opt & tmp)) {
--		ret = -EINVAL;
--		mlog(ML_ERROR, "Cannot change nocluster option on remount\n");
--		goto out;
--	}
--
- 	tmp = OCFS2_MOUNT_HB_LOCAL | OCFS2_MOUNT_HB_GLOBAL |
- 		OCFS2_MOUNT_HB_NONE;
- 	if ((osb->s_mount_opt & tmp) != (parsed_options.mount_opt & tmp)) {
-@@ -868,7 +859,6 @@ static int ocfs2_verify_userspace_stack(
- 	}
- 
- 	if (ocfs2_userspace_stack(osb) &&
--	    !(osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER) &&
- 	    strncmp(osb->osb_cluster_stack, mopt->cluster_stack,
- 		    OCFS2_STACK_LABEL_LEN)) {
- 		mlog(ML_ERROR,
-@@ -1149,11 +1139,6 @@ static int ocfs2_fill_super(struct super
- 	       osb->s_mount_opt & OCFS2_MOUNT_DATA_WRITEBACK ? "writeback" :
- 	       "ordered");
- 
--	if ((osb->s_mount_opt & OCFS2_MOUNT_NOCLUSTER) &&
--	   !(osb->s_feature_incompat & OCFS2_FEATURE_INCOMPAT_LOCAL_MOUNT))
--		printk(KERN_NOTICE "ocfs2: The shared device (%s) is mounted "
--		       "without cluster aware mode.\n", osb->dev_str);
--
- 	atomic_set(&osb->vol_state, VOLUME_MOUNTED);
- 	wake_up(&osb->osb_mount_event);
- 
-@@ -1460,9 +1445,6 @@ static int ocfs2_parse_options(struct su
- 		case Opt_journal_async_commit:
- 			mopt->mount_opt |= OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT;
- 			break;
--		case Opt_nocluster:
--			mopt->mount_opt |= OCFS2_MOUNT_NOCLUSTER;
--			break;
- 		default:
- 			mlog(ML_ERROR,
- 			     "Unrecognized mount option \"%s\" "
-@@ -1574,9 +1556,6 @@ static int ocfs2_show_options(struct seq
- 	if (opts & OCFS2_MOUNT_JOURNAL_ASYNC_COMMIT)
- 		seq_printf(s, ",journal_async_commit");
- 
--	if (opts & OCFS2_MOUNT_NOCLUSTER)
--		seq_printf(s, ",nocluster");
--
- 	return 0;
- }
- 
+ 		ctx->attr = a;
+ 		if (unlikely(le32_to_cpu(a->type) > le32_to_cpu(type) ||
 
 
