@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FF675868F8
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:55:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EAE15868AA
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:52:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232012AbiHALzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:55:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49350 "EHLO
+        id S231945AbiHALvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:51:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232262AbiHALyj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:54:39 -0400
+        with ESMTP id S232062AbiHALuz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:50:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12E633E765;
-        Mon,  1 Aug 2022 04:51:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E57940BF0;
+        Mon,  1 Aug 2022 04:49:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9F10B8116D;
-        Mon,  1 Aug 2022 11:50:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21C83C433C1;
-        Mon,  1 Aug 2022 11:50:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3447B81055;
+        Mon,  1 Aug 2022 11:49:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D8FCC433D7;
+        Mon,  1 Aug 2022 11:49:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354657;
-        bh=fccSz834zV3hpRoaHeJs1Um/CBE6M8nxqixFWsZs9f0=;
+        s=korg; t=1659354561;
+        bh=NxgMr9IOK2r74FmzVfDcwXghgS/ZLi9ZSMBfS4OirPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M7L50dtIcJuYrf2TrMPGPjQHaEg7XvrF6x5cmUoB8NxklAyqVmuFwAR533ZmEmOc1
-         uIsBZJABPilmH1Bj1b9Sw5vbx6ISmHvHwWf+jowvBLV4/9hVfQr1quowAHBPoYkes1
-         +Kaci+ub6NZfZJXg5wappnBxlMJUvwdKCRuVr7Bk=
+        b=iXKyqGEn+Uak2ciWDp/KIUC0WJ7nXlb1n8z3hPWkGhrp5v5h1SWnVcK24R/JJK+mR
+         ynKHJSIYkOhcxIZUU25uVuv7YFdGLb/PU+NY6CQnLZVl2DWhBvjqcFrZTJky7sWcN9
+         2x/4CvR0LMgloGMJuoSnoXZ7SCAi+GLNB6tIkT8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 32/65] macsec: fix error message in macsec_add_rxsa and _txsa
+        stable@vger.kernel.org,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        George Kuruvinakunnel <george.kuruvinakunnel@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.4 09/34] ice: check (DD | EOF) bits on Rx descriptor rather than (EOP | RS)
 Date:   Mon,  1 Aug 2022 13:46:49 +0200
-Message-Id: <20220801114135.048046088@linuxfoundation.org>
+Message-Id: <20220801114128.406083028@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
-References: <20220801114133.641770326@linuxfoundation.org>
+In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
+References: <20220801114128.025615151@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit 3240eac4ff20e51b87600dbd586ed814daf313db ]
+commit 283d736ff7c7e96ac5b32c6c0de40372f8eb171e upstream.
 
-The expected length is MACSEC_SALT_LEN, not MACSEC_SA_ATTR_SALT.
+Tx side sets EOP and RS bits on descriptors to indicate that a
+particular descriptor is the last one and needs to generate an irq when
+it was sent. These bits should not be checked on completion path
+regardless whether it's the Tx or the Rx. DD bit serves this purpose and
+it indicates that a particular descriptor is either for Rx or was
+successfully Txed. EOF is also set as loopback test does not xmit
+fragmented frames.
 
-Fixes: 48ef50fa866a ("macsec: Netlink support of XPN cipher suites (IEEE 802.1AEbw)")
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Look at (DD | EOF) bits setting in ice_lbtest_receive_frames() instead
+of EOP and RS pair.
+
+Fixes: 0e674aeb0b77 ("ice: Add handler for ethtool selftest")
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: George Kuruvinakunnel <george.kuruvinakunnel@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/macsec.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_ethtool.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 0b53c7cadd87..c2d8bcda2503 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -1767,7 +1767,7 @@ static int macsec_add_rxsa(struct sk_buff *skb, struct genl_info *info)
- 		if (nla_len(tb_sa[MACSEC_SA_ATTR_SALT]) != MACSEC_SALT_LEN) {
- 			pr_notice("macsec: nl: add_rxsa: bad salt length: %d != %d\n",
- 				  nla_len(tb_sa[MACSEC_SA_ATTR_SALT]),
--				  MACSEC_SA_ATTR_SALT);
-+				  MACSEC_SALT_LEN);
- 			rtnl_unlock();
- 			return -EINVAL;
- 		}
-@@ -2009,7 +2009,7 @@ static int macsec_add_txsa(struct sk_buff *skb, struct genl_info *info)
- 		if (nla_len(tb_sa[MACSEC_SA_ATTR_SALT]) != MACSEC_SALT_LEN) {
- 			pr_notice("macsec: nl: add_txsa: bad salt length: %d != %d\n",
- 				  nla_len(tb_sa[MACSEC_SA_ATTR_SALT]),
--				  MACSEC_SA_ATTR_SALT);
-+				  MACSEC_SALT_LEN);
- 			rtnl_unlock();
- 			return -EINVAL;
- 		}
--- 
-2.35.1
-
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -619,7 +619,8 @@ static int ice_lbtest_receive_frames(str
+ 		rx_desc = ICE_RX_DESC(rx_ring, i);
+ 
+ 		if (!(rx_desc->wb.status_error0 &
+-		    cpu_to_le16(ICE_TX_DESC_CMD_EOP | ICE_TX_DESC_CMD_RS)))
++		    (cpu_to_le16(BIT(ICE_RX_FLEX_DESC_STATUS0_DD_S)) |
++		     cpu_to_le16(BIT(ICE_RX_FLEX_DESC_STATUS0_EOF_S)))))
+ 			continue;
+ 
+ 		rx_buf = &rx_ring->rx_buf[i];
 
 
