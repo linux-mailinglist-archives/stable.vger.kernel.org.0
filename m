@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7619586A4F
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:14:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0A435869BA
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:06:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234255AbiHAMOw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:14:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56246 "EHLO
+        id S233290AbiHAMGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:06:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234086AbiHAMOJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:14:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AC57481DA;
-        Mon,  1 Aug 2022 04:57:52 -0700 (PDT)
+        with ESMTP id S233546AbiHAMFm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:05:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1883A3DBE2;
+        Mon,  1 Aug 2022 04:54:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01B45B80EAC;
-        Mon,  1 Aug 2022 11:57:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50AD5C4314C;
-        Mon,  1 Aug 2022 11:57:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 452A961227;
+        Mon,  1 Aug 2022 11:54:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 553DFC433C1;
+        Mon,  1 Aug 2022 11:54:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659355069;
-        bh=/5CZygGq4BwDZcE4D5t5rnKAa8XQjuxhRvcakUpGfME=;
+        s=korg; t=1659354896;
+        bh=CNw/7brM5jrLWQwSiP+kjevAisFkviPlhD85FH8R8r8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e3V2gLahlIb0C5gioBYOIWbPSpyGiFLe11W8pcZPv8wtNAT4YUvjaJgeawHKnsCRw
-         3Ts+wfP0mjcbPc3KJoOrzITnfBuFRmXvuFmfwstVOt7rPQFdnHaM0CHvn1bay8vnfI
-         i72oZyluXs2LTNS1UnG9Qkz+AyuVqJrCwKiRLza8=
+        b=iYjnakJVVrSe7tuZ1sCum8n34T5E1xRfWFi/TsNL5+/lF2BwIqXMhfznZTXDPm293
+         E8iVwTr7qYijdI5ubcCfixb0xoW2stQTKqbonocr4lhX6PZs+IQUQAVEwVRpfEUO8x
+         4wS4i72iQiLqK2Yafq0XRLCXJxRjvNBIMdcTiXM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 51/88] Documentation: fix sctp_wmem in ip-sysctl.rst
-Date:   Mon,  1 Aug 2022 13:47:05 +0200
-Message-Id: <20220801114140.357178617@linuxfoundation.org>
+Subject: [PATCH 5.15 42/69] macsec: fix error message in macsec_add_rxsa and _txsa
+Date:   Mon,  1 Aug 2022 13:47:06 +0200
+Message-Id: <20220801114136.173024277@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
-References: <20220801114138.041018499@linuxfoundation.org>
+In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
+References: <20220801114134.468284027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit aa709da0e032cee7c202047ecd75f437bb0126ed ]
+[ Upstream commit 3240eac4ff20e51b87600dbd586ed814daf313db ]
 
-Since commit 1033990ac5b2 ("sctp: implement memory accounting on tx path"),
-SCTP has supported memory accounting on tx path where 'sctp_wmem' is used
-by sk_wmem_schedule(). So we should fix the description for this option in
-ip-sysctl.rst accordingly.
+The expected length is MACSEC_SALT_LEN, not MACSEC_SA_ATTR_SALT.
 
-v1->v2:
-  - Improve the description as Marcelo suggested.
-
-Fixes: 1033990ac5b2 ("sctp: implement memory accounting on tx path")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Fixes: 48ef50fa866a ("macsec: Netlink support of XPN cipher suites (IEEE 802.1AEbw)")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.rst | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/macsec.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/networking/ip-sysctl.rst b/Documentation/networking/ip-sysctl.rst
-index 8899b474edbf..e29017d4d7a2 100644
---- a/Documentation/networking/ip-sysctl.rst
-+++ b/Documentation/networking/ip-sysctl.rst
-@@ -2848,7 +2848,14 @@ sctp_rmem - vector of 3 INTEGERs: min, default, max
- 	Default: 4K
- 
- sctp_wmem  - vector of 3 INTEGERs: min, default, max
--	Currently this tunable has no effect.
-+	Only the first value ("min") is used, "default" and "max" are
-+	ignored.
-+
-+	min: Minimum size of send buffer that can be used by SCTP sockets.
-+	It is guaranteed to each SCTP socket (but not association) even
-+	under moderate memory pressure.
-+
-+	Default: 4K
- 
- addr_scope_policy - INTEGER
- 	Control IPv4 address scoping - draft-stewart-tsvwg-sctp-ipv4-00
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index f72d4380374d..9ede0d7cd0b5 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -1768,7 +1768,7 @@ static int macsec_add_rxsa(struct sk_buff *skb, struct genl_info *info)
+ 		if (nla_len(tb_sa[MACSEC_SA_ATTR_SALT]) != MACSEC_SALT_LEN) {
+ 			pr_notice("macsec: nl: add_rxsa: bad salt length: %d != %d\n",
+ 				  nla_len(tb_sa[MACSEC_SA_ATTR_SALT]),
+-				  MACSEC_SA_ATTR_SALT);
++				  MACSEC_SALT_LEN);
+ 			rtnl_unlock();
+ 			return -EINVAL;
+ 		}
+@@ -2010,7 +2010,7 @@ static int macsec_add_txsa(struct sk_buff *skb, struct genl_info *info)
+ 		if (nla_len(tb_sa[MACSEC_SA_ATTR_SALT]) != MACSEC_SALT_LEN) {
+ 			pr_notice("macsec: nl: add_txsa: bad salt length: %d != %d\n",
+ 				  nla_len(tb_sa[MACSEC_SA_ATTR_SALT]),
+-				  MACSEC_SA_ATTR_SALT);
++				  MACSEC_SALT_LEN);
+ 			rtnl_unlock();
+ 			return -EINVAL;
+ 		}
 -- 
 2.35.1
 
