@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E2AD586A29
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:12:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42EF558696D
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:02:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234018AbiHAMMX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:12:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56412 "EHLO
+        id S232680AbiHAMCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:02:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234743AbiHAMLr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:11:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F07671BD5;
-        Mon,  1 Aug 2022 04:57:16 -0700 (PDT)
+        with ESMTP id S233535AbiHAMBW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:01:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FDBD4333C;
+        Mon,  1 Aug 2022 04:53:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2034660011;
-        Mon,  1 Aug 2022 11:57:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D2EEC433D7;
-        Mon,  1 Aug 2022 11:57:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C63D0B8116B;
+        Mon,  1 Aug 2022 11:53:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B9BFC433C1;
+        Mon,  1 Aug 2022 11:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659355030;
-        bh=aJiWP4ED4wvxmCGNNZYxNFqOxxTEHvjtMy5sHDg0GGw=;
+        s=korg; t=1659354811;
+        bh=fR6sGdctlk86wKYAPg5e/udcoOdUrVmcPiKCxbAWgj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2dYtxjEARher1qs6pm7A9HFSPPwwS18pSUTFDZIaw7I4F5ubLbPNDa32kkRQ1pibw
-         WmfX8n7VeEqTLsuoDlnZ+Wx7OUatoU4L2xYfTvGO55tJCRFqTaNJbk3rT1vX4ZyOeg
-         1TLA3OuWs3Rmvr6HvHdTm5JHFzUr7lONdArP9yR0=
+        b=K1sXL46CxNtxxiVYeCGRfQqeW6SpE1yMvHzCMivH+8nwMnGEfUfQAcGR3O7PdqQOL
+         PQwVA1ylxNblDP/DNtlYww3oF7ovY2YNuMUbROWRWxv97FlxSivrNqxRGpp+qhWHbZ
+         0edRTq65rd141jWUZfvyxmByGpbVBbvXItJC3g3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,20 +37,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bart Van Assche <bvanassche@acm.org>,
         Jason Yan <yanaijie@huawei.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.18 38/88] scsi: core: Fix warning in scsi_alloc_sgtables()
+Subject: [PATCH 5.15 28/69] scsi: core: Fix warning in scsi_alloc_sgtables()
 Date:   Mon,  1 Aug 2022 13:46:52 +0200
-Message-Id: <20220801114139.783672341@linuxfoundation.org>
+Message-Id: <20220801114135.665610053@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
-References: <20220801114138.041018499@linuxfoundation.org>
+In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
+References: <20220801114134.468284027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -144,8 +143,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/scsi/scsi_ioctl.c
 +++ b/drivers/scsi/scsi_ioctl.c
-@@ -450,7 +450,7 @@ static int sg_io(struct scsi_device *sde
- 		goto out_put_request;
+@@ -457,7 +457,7 @@ static int sg_io(struct scsi_device *sde
+ 		goto out_free_cdb;
  
  	ret = 0;
 -	if (hdr->iovec_count) {
