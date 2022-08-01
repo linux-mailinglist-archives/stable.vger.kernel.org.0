@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E466586869
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:48:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE6935868DF
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:54:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231408AbiHALsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:48:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33988 "EHLO
+        id S232147AbiHALyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:54:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230341AbiHALr7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:47:59 -0400
+        with ESMTP id S232071AbiHALxZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:53:25 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B23E357E6;
-        Mon,  1 Aug 2022 04:47:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2A85BC9C;
+        Mon,  1 Aug 2022 04:50:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B37BCB81163;
-        Mon,  1 Aug 2022 11:47:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A712C433D7;
-        Mon,  1 Aug 2022 11:47:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76D79B80E8F;
+        Mon,  1 Aug 2022 11:50:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7A1EC433D6;
+        Mon,  1 Aug 2022 11:50:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354475;
-        bh=/84djZfIdkDkqzPDIuV+7LN9m1x7972+uqaLrrjqWPY=;
+        s=korg; t=1659354616;
+        bh=ZgTX1xYORGpaMshMzsAcx77X/gR0/NHi1txnd9buRYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZvFxKY76jZHI8Vkyn20ISFHgEt4HoEVYegFZRHmoTpw8qO6RV8SFGspfO+NWeAJP
-         7D1tBxOE/+k5Dt+rS4MTh6lDKJdFJrPiiuCfUw7UxQ//5+ozsyfdVQ7rsuhE3lk/jH
-         bqzw5HrYhlfANkDyRnxGjRBQbMPbJSQZQHFauxRw=
+        b=cnvTIQBYfn3d9hqOTuzg9UbRzvTV5LTMDySGvXZvdkbiqtjALGKht7vJLd2E66avz
+         ubYgo5Yp0jvob17Go4BSv0mJ/KT7h9/k6m9t+NpMCnNzZr1sY4mwkhPOc9yFdnn4kd
+         k3GsXjggDNgJftiZzh6VVitb4VT71pNoj4VxRoSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Lee Jones <lee.jones@linaro.org>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 5.4 01/34] Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 24/65] igmp: Fix data-races around sysctl_igmp_qrv.
 Date:   Mon,  1 Aug 2022 13:46:41 +0200
-Message-Id: <20220801114128.092552506@linuxfoundation.org>
+Message-Id: <20220801114134.714482596@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
-References: <20220801114128.025615151@linuxfoundation.org>
+In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
+References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,264 +53,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit d0be8347c623e0ac4202a1d4e0373882821f56b0 upstream.
+[ Upstream commit 8ebcc62c738f68688ee7c6fec2efe5bc6d3d7e60 ]
 
-This fixes the following trace which is caused by hci_rx_work starting up
-*after* the final channel reference has been put() during sock_close() but
-*before* the references to the channel have been destroyed, so instead
-the code now rely on kref_get_unless_zero/l2cap_chan_hold_unless_zero to
-prevent referencing a channel that is about to be destroyed.
+While reading sysctl_igmp_qrv, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-  refcount_t: increment on 0; use-after-free.
-  BUG: KASAN: use-after-free in refcount_dec_and_test+0x20/0xd0
-  Read of size 4 at addr ffffffc114f5bf18 by task kworker/u17:14/705
+This test can be packed into a helper, so such changes will be in the
+follow-up series after net is merged into net-next.
 
-  CPU: 4 PID: 705 Comm: kworker/u17:14 Tainted: G S      W
-  4.14.234-00003-g1fb6d0bd49a4-dirty #28
-  Hardware name: Qualcomm Technologies, Inc. SM8150 V2 PM8150
-  Google Inc. MSM sm8150 Flame DVT (DT)
-  Workqueue: hci0 hci_rx_work
-  Call trace:
-   dump_backtrace+0x0/0x378
-   show_stack+0x20/0x2c
-   dump_stack+0x124/0x148
-   print_address_description+0x80/0x2e8
-   __kasan_report+0x168/0x188
-   kasan_report+0x10/0x18
-   __asan_load4+0x84/0x8c
-   refcount_dec_and_test+0x20/0xd0
-   l2cap_chan_put+0x48/0x12c
-   l2cap_recv_frame+0x4770/0x6550
-   l2cap_recv_acldata+0x44c/0x7a4
-   hci_acldata_packet+0x100/0x188
-   hci_rx_work+0x178/0x23c
-   process_one_work+0x35c/0x95c
-   worker_thread+0x4cc/0x960
-   kthread+0x1a8/0x1c4
-   ret_from_fork+0x10/0x18
+  qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
 
-Cc: stable@kernel.org
-Reported-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Tested-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a9fe8e29945d ("ipv4: implement igmp_qrv sysctl to tune igmp robustness variable")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/bluetooth/l2cap.h |    1 
- net/bluetooth/l2cap_core.c    |   61 +++++++++++++++++++++++++++++++++---------
- 2 files changed, 49 insertions(+), 13 deletions(-)
+ net/ipv4/igmp.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
---- a/include/net/bluetooth/l2cap.h
-+++ b/include/net/bluetooth/l2cap.h
-@@ -802,6 +802,7 @@ enum {
- };
- 
- void l2cap_chan_hold(struct l2cap_chan *c);
-+struct l2cap_chan *l2cap_chan_hold_unless_zero(struct l2cap_chan *c);
- void l2cap_chan_put(struct l2cap_chan *c);
- 
- static inline void l2cap_chan_lock(struct l2cap_chan *chan)
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -110,7 +110,8 @@ static struct l2cap_chan *__l2cap_get_ch
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index 428cc3a4c36f..c71b863093ac 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -827,7 +827,7 @@ static void igmp_ifc_event(struct in_device *in_dev)
+ 	struct net *net = dev_net(in_dev->dev);
+ 	if (IGMP_V1_SEEN(in_dev) || IGMP_V2_SEEN(in_dev))
+ 		return;
+-	WRITE_ONCE(in_dev->mr_ifc_count, in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv);
++	WRITE_ONCE(in_dev->mr_ifc_count, in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv));
+ 	igmp_ifc_start_timer(in_dev, 1);
  }
  
- /* Find channel with given SCID.
-- * Returns locked channel. */
-+ * Returns a reference locked channel.
-+ */
- static struct l2cap_chan *l2cap_get_chan_by_scid(struct l2cap_conn *conn,
- 						 u16 cid)
- {
-@@ -118,15 +119,19 @@ static struct l2cap_chan *l2cap_get_chan
- 
- 	mutex_lock(&conn->chan_lock);
- 	c = __l2cap_get_chan_by_scid(conn, cid);
--	if (c)
--		l2cap_chan_lock(c);
-+	if (c) {
-+		/* Only lock if chan reference is not 0 */
-+		c = l2cap_chan_hold_unless_zero(c);
-+		if (c)
-+			l2cap_chan_lock(c);
-+	}
- 	mutex_unlock(&conn->chan_lock);
- 
- 	return c;
- }
- 
- /* Find channel with given DCID.
-- * Returns locked channel.
-+ * Returns a reference locked channel.
-  */
- static struct l2cap_chan *l2cap_get_chan_by_dcid(struct l2cap_conn *conn,
- 						 u16 cid)
-@@ -135,8 +140,12 @@ static struct l2cap_chan *l2cap_get_chan
- 
- 	mutex_lock(&conn->chan_lock);
- 	c = __l2cap_get_chan_by_dcid(conn, cid);
--	if (c)
--		l2cap_chan_lock(c);
-+	if (c) {
-+		/* Only lock if chan reference is not 0 */
-+		c = l2cap_chan_hold_unless_zero(c);
-+		if (c)
-+			l2cap_chan_lock(c);
-+	}
- 	mutex_unlock(&conn->chan_lock);
- 
- 	return c;
-@@ -161,8 +170,12 @@ static struct l2cap_chan *l2cap_get_chan
- 
- 	mutex_lock(&conn->chan_lock);
- 	c = __l2cap_get_chan_by_ident(conn, ident);
--	if (c)
--		l2cap_chan_lock(c);
-+	if (c) {
-+		/* Only lock if chan reference is not 0 */
-+		c = l2cap_chan_hold_unless_zero(c);
-+		if (c)
-+			l2cap_chan_lock(c);
-+	}
- 	mutex_unlock(&conn->chan_lock);
- 
- 	return c;
-@@ -496,6 +509,16 @@ void l2cap_chan_hold(struct l2cap_chan *
- 	kref_get(&c->kref);
- }
- 
-+struct l2cap_chan *l2cap_chan_hold_unless_zero(struct l2cap_chan *c)
-+{
-+	BT_DBG("chan %p orig refcnt %u", c, kref_read(&c->kref));
-+
-+	if (!kref_get_unless_zero(&c->kref))
-+		return NULL;
-+
-+	return c;
-+}
-+
- void l2cap_chan_put(struct l2cap_chan *c)
- {
- 	BT_DBG("chan %p orig refcnt %d", c, kref_read(&c->kref));
-@@ -1812,7 +1835,10 @@ static struct l2cap_chan *l2cap_global_c
- 			src_match = !bacmp(&c->src, src);
- 			dst_match = !bacmp(&c->dst, dst);
- 			if (src_match && dst_match) {
--				l2cap_chan_hold(c);
-+				c = l2cap_chan_hold_unless_zero(c);
-+				if (!c)
-+					continue;
-+
- 				read_unlock(&chan_list_lock);
- 				return c;
- 			}
-@@ -1827,7 +1853,7 @@ static struct l2cap_chan *l2cap_global_c
- 	}
- 
- 	if (c1)
--		l2cap_chan_hold(c1);
-+		c1 = l2cap_chan_hold_unless_zero(c1);
- 
- 	read_unlock(&chan_list_lock);
- 
-@@ -4221,6 +4247,7 @@ static inline int l2cap_config_req(struc
- 
- unlock:
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 	return err;
- }
- 
-@@ -4334,6 +4361,7 @@ static inline int l2cap_config_rsp(struc
- 
- done:
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 	return err;
- }
- 
-@@ -5062,6 +5090,7 @@ send_move_response:
- 	l2cap_send_move_chan_rsp(chan, result);
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 
- 	return 0;
- }
-@@ -5154,6 +5183,7 @@ static void l2cap_move_continue(struct l
- 	}
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- }
- 
- static void l2cap_move_fail(struct l2cap_conn *conn, u8 ident, u16 icid,
-@@ -5183,6 +5213,7 @@ static void l2cap_move_fail(struct l2cap
- 	l2cap_send_move_chan_cfm(chan, L2CAP_MC_UNCONFIRMED);
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- }
- 
- static int l2cap_move_channel_rsp(struct l2cap_conn *conn,
-@@ -5246,6 +5277,7 @@ static int l2cap_move_channel_confirm(st
- 	l2cap_send_move_chan_cfm_rsp(conn, cmd->ident, icid);
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 
- 	return 0;
- }
-@@ -5281,6 +5313,7 @@ static inline int l2cap_move_channel_con
- 	}
- 
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 
- 	return 0;
- }
-@@ -5653,12 +5686,11 @@ static inline int l2cap_le_credits(struc
- 	if (credits > max_credits) {
- 		BT_ERR("LE credits overflow");
- 		l2cap_send_disconn_req(chan, ECONNRESET);
--		l2cap_chan_unlock(chan);
- 
- 		/* Return 0 so that we don't trigger an unnecessary
- 		 * command reject packet.
+@@ -1009,7 +1009,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
+ 		 * received value was zero, use the default or statically
+ 		 * configured value.
  		 */
--		return 0;
-+		goto unlock;
- 	}
+-		in_dev->mr_qrv = ih3->qrv ?: net->ipv4.sysctl_igmp_qrv;
++		in_dev->mr_qrv = ih3->qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 		in_dev->mr_qi = IGMPV3_QQIC(ih3->qqic)*HZ ?: IGMP_QUERY_INTERVAL;
  
- 	chan->tx_credits += credits;
-@@ -5669,7 +5701,9 @@ static inline int l2cap_le_credits(struc
- 	if (chan->tx_credits)
- 		chan->ops->resume(chan);
+ 		/* RFC3376, 8.3. Query Response Interval:
+@@ -1189,7 +1189,7 @@ static void igmpv3_add_delrec(struct in_device *in_dev, struct ip_mc_list *im,
+ 	pmc->interface = im->interface;
+ 	in_dev_hold(in_dev);
+ 	pmc->multiaddr = im->multiaddr;
+-	pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++	pmc->crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 	pmc->sfmode = im->sfmode;
+ 	if (pmc->sfmode == MCAST_INCLUDE) {
+ 		struct ip_sf_list *psf;
+@@ -1240,9 +1240,11 @@ static void igmpv3_del_delrec(struct in_device *in_dev, struct ip_mc_list *im)
+ 			swap(im->tomb, pmc->tomb);
+ 			swap(im->sources, pmc->sources);
+ 			for (psf = im->sources; psf; psf = psf->sf_next)
+-				psf->sf_crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++				psf->sf_crcount = in_dev->mr_qrv ?:
++					READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 		} else {
+-			im->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++			im->crcount = in_dev->mr_qrv ?:
++				READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 		}
+ 		in_dev_put(pmc->interface);
+ 		kfree_pmc(pmc);
+@@ -1349,7 +1351,7 @@ static void igmp_group_added(struct ip_mc_list *im)
+ 	if (in_dev->dead)
+ 		return;
  
-+unlock:
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
+-	im->unsolicit_count = net->ipv4.sysctl_igmp_qrv;
++	im->unsolicit_count = READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 	if (IGMP_V1_SEEN(in_dev) || IGMP_V2_SEEN(in_dev)) {
+ 		spin_lock_bh(&im->lock);
+ 		igmp_start_timer(im, IGMP_INITIAL_REPORT_DELAY);
+@@ -1363,7 +1365,7 @@ static void igmp_group_added(struct ip_mc_list *im)
+ 	 * IN() to IN(A).
+ 	 */
+ 	if (im->sfmode == MCAST_EXCLUDE)
+-		im->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++		im->crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
  
- 	return 0;
+ 	igmp_ifc_event(in_dev);
+ #endif
+@@ -1754,7 +1756,7 @@ static void ip_mc_reset(struct in_device *in_dev)
+ 
+ 	in_dev->mr_qi = IGMP_QUERY_INTERVAL;
+ 	in_dev->mr_qri = IGMP_QUERY_RESPONSE_INTERVAL;
+-	in_dev->mr_qrv = net->ipv4.sysctl_igmp_qrv;
++	in_dev->mr_qrv = READ_ONCE(net->ipv4.sysctl_igmp_qrv);
  }
-@@ -6983,6 +7017,7 @@ drop:
+ #else
+ static void ip_mc_reset(struct in_device *in_dev)
+@@ -1888,7 +1890,7 @@ static int ip_mc_del1_src(struct ip_mc_list *pmc, int sfmode,
+ #ifdef CONFIG_IP_MULTICAST
+ 		if (psf->sf_oldin &&
+ 		    !IGMP_V1_SEEN(in_dev) && !IGMP_V2_SEEN(in_dev)) {
+-			psf->sf_crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++			psf->sf_crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 			psf->sf_next = pmc->tomb;
+ 			pmc->tomb = psf;
+ 			rv = 1;
+@@ -1952,7 +1954,7 @@ static int ip_mc_del_src(struct in_device *in_dev, __be32 *pmca, int sfmode,
+ 		/* filter mode change */
+ 		pmc->sfmode = MCAST_INCLUDE;
+ #ifdef CONFIG_IP_MULTICAST
+-		pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++		pmc->crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 		WRITE_ONCE(in_dev->mr_ifc_count, pmc->crcount);
+ 		for (psf = pmc->sources; psf; psf = psf->sf_next)
+ 			psf->sf_crcount = 0;
+@@ -2131,7 +2133,7 @@ static int ip_mc_add_src(struct in_device *in_dev, __be32 *pmca, int sfmode,
+ #ifdef CONFIG_IP_MULTICAST
+ 		/* else no filters; keep old mode for reports */
  
- done:
- 	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- }
- 
- static void l2cap_conless_channel(struct l2cap_conn *conn, __le16 psm,
-@@ -7386,7 +7421,7 @@ static struct l2cap_chan *l2cap_global_f
- 		if (src_type != c->src_type)
- 			continue;
- 
--		l2cap_chan_hold(c);
-+		c = l2cap_chan_hold_unless_zero(c);
- 		read_unlock(&chan_list_lock);
- 		return c;
- 	}
+-		pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++		pmc->crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 		WRITE_ONCE(in_dev->mr_ifc_count, pmc->crcount);
+ 		for (psf = pmc->sources; psf; psf = psf->sf_next)
+ 			psf->sf_crcount = 0;
+-- 
+2.35.1
+
 
 
