@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3DA5586A7B
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EAA45869BD
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:06:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234454AbiHAMRL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:17:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42990 "EHLO
+        id S233441AbiHAMG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:06:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234665AbiHAMQO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:16:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EEA63E779;
-        Mon,  1 Aug 2022 04:58:48 -0700 (PDT)
+        with ESMTP id S233782AbiHAMGF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:06:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43210C8;
+        Mon,  1 Aug 2022 04:55:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA66E6023B;
-        Mon,  1 Aug 2022 11:58:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA128C433D6;
-        Mon,  1 Aug 2022 11:58:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66533612E9;
+        Mon,  1 Aug 2022 11:55:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D682C433D6;
+        Mon,  1 Aug 2022 11:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659355127;
-        bh=MSU+wIZy6YkLdrzUgPvd6S2garQUL9V0rYkYpyfa7mI=;
+        s=korg; t=1659354907;
+        bh=c6jwXhG8ZaugPYMKXI6+L6tNkj+voJ6779qrSNNKXZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jbeiOraKXhU8YL/MPBJhzG/i5JgPStTRY+eM9quDMJ+GSzx4zMCFiL4C+1RXtOHVO
-         wj+vw0QYWOpQQSdjYbMN/RSIYAqfmYFhNtTlhiKpzE6G6qJAY0nF5AR6Glq0Fe9h7C
-         qVFBAgetTnUPGnE+rgzlT3zOljwQKbg1WQtpEbac=
+        b=xNg+Xj3+mAJdN/7kO2Sq3lMExkVVJjY/VaK5ein6htluOKiRZAR8Rwq3UYh1qKmSu
+         TmI/f51jQFsHVExX68Q6q6xA8Z1X3EkGcwjefdPkVU31i/HE5O+TEdI3ztI73SRl4S
+         5cJK04MbcwnpfaKfOT8evrAjmlF7RpxuprlU4GKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 73/88] virtio-net: fix the race between refill work and close
+        stable@vger.kernel.org, Ralph Campbell <rcampbell@nvidia.com>,
+        Felix Kuehling <felix.kuehling@amd.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Philip Yang <Philip.Yang@amd.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 63/69] mm/hmm: fault non-owner device private entries
 Date:   Mon,  1 Aug 2022 13:47:27 +0200
-Message-Id: <20220801114141.369132581@linuxfoundation.org>
+Message-Id: <20220801114137.017061618@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
-References: <20220801114138.041018499@linuxfoundation.org>
+In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
+References: <20220801114134.468284027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,151 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Ralph Campbell <rcampbell@nvidia.com>
 
-[ Upstream commit 5a159128faff151b7fe5f4eb0f310b1e0a2d56bf ]
+commit 8a295dbbaf7292c582a40ce469c326f472d51f66 upstream.
 
-We try using cancel_delayed_work_sync() to prevent the work from
-enabling NAPI. This is insufficient since we don't disable the source
-of the refill work scheduling. This means an NAPI poll callback after
-cancel_delayed_work_sync() can schedule the refill work then can
-re-enable the NAPI that leads to use-after-free [1].
+If hmm_range_fault() is called with the HMM_PFN_REQ_FAULT flag and a
+device private PTE is found, the hmm_range::dev_private_owner page is used
+to determine if the device private page should not be faulted in.
+However, if the device private page is not owned by the caller,
+hmm_range_fault() returns an error instead of calling migrate_to_ram() to
+fault in the page.
 
-Since the work can enable NAPI, we can't simply disable NAPI before
-calling cancel_delayed_work_sync(). So fix this by introducing a
-dedicated boolean to control whether or not the work could be
-scheduled from NAPI.
+For example, if a page is migrated to GPU private memory and a RDMA fault
+capable NIC tries to read the migrated page, without this patch it will
+get an error.  With this patch, the page will be migrated back to system
+memory and the NIC will be able to read the data.
 
-[1]
-==================================================================
-BUG: KASAN: use-after-free in refill_work+0x43/0xd4
-Read of size 2 at addr ffff88810562c92e by task kworker/2:1/42
-
-CPU: 2 PID: 42 Comm: kworker/2:1 Not tainted 5.19.0-rc1+ #480
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
-Workqueue: events refill_work
-Call Trace:
- <TASK>
- dump_stack_lvl+0x34/0x44
- print_report.cold+0xbb/0x6ac
- ? _printk+0xad/0xde
- ? refill_work+0x43/0xd4
- kasan_report+0xa8/0x130
- ? refill_work+0x43/0xd4
- refill_work+0x43/0xd4
- process_one_work+0x43d/0x780
- worker_thread+0x2a0/0x6f0
- ? process_one_work+0x780/0x780
- kthread+0x167/0x1a0
- ? kthread_exit+0x50/0x50
- ret_from_fork+0x22/0x30
- </TASK>
-...
-
-Fixes: b2baed69e605c ("virtio_net: set/cancel work on ndo_open/ndo_stop")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220727000837.4128709-2-rcampbell@nvidia.com
+Link: https://lkml.kernel.org/r/20220725183615.4118795-2-rcampbell@nvidia.com
+Fixes: 08ddddda667b ("mm/hmm: check the device private page owner in hmm_range_fault()")
+Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
+Reported-by: Felix Kuehling <felix.kuehling@amd.com>
+Reviewed-by: Alistair Popple <apopple@nvidia.com>
+Cc: Philip Yang <Philip.Yang@amd.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/virtio_net.c | 37 ++++++++++++++++++++++++++++++++++---
- 1 file changed, 34 insertions(+), 3 deletions(-)
+ mm/hmm.c |   19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index c7804fce204c..206904e60784 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -242,9 +242,15 @@ struct virtnet_info {
- 	/* Packet virtio header size */
- 	u8 hdr_len;
+--- a/mm/hmm.c
++++ b/mm/hmm.c
+@@ -212,14 +212,6 @@ int hmm_vma_handle_pmd(struct mm_walk *w
+ 		unsigned long end, unsigned long hmm_pfns[], pmd_t pmd);
+ #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
  
--	/* Work struct for refilling if we run low on memory. */
-+	/* Work struct for delayed refilling if we run low on memory. */
- 	struct delayed_work refill;
- 
-+	/* Is delayed refill enabled? */
-+	bool refill_enabled;
-+
-+	/* The lock to synchronize the access to refill_enabled */
-+	spinlock_t refill_lock;
-+
- 	/* Work struct for config space updates */
- 	struct work_struct config_work;
- 
-@@ -348,6 +354,20 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
- 	return p;
- }
- 
-+static void enable_delayed_refill(struct virtnet_info *vi)
-+{
-+	spin_lock_bh(&vi->refill_lock);
-+	vi->refill_enabled = true;
-+	spin_unlock_bh(&vi->refill_lock);
-+}
-+
-+static void disable_delayed_refill(struct virtnet_info *vi)
-+{
-+	spin_lock_bh(&vi->refill_lock);
-+	vi->refill_enabled = false;
-+	spin_unlock_bh(&vi->refill_lock);
-+}
-+
- static void virtqueue_napi_schedule(struct napi_struct *napi,
- 				    struct virtqueue *vq)
+-static inline bool hmm_is_device_private_entry(struct hmm_range *range,
+-		swp_entry_t entry)
+-{
+-	return is_device_private_entry(entry) &&
+-		pfn_swap_entry_to_page(entry)->pgmap->owner ==
+-		range->dev_private_owner;
+-}
+-
+ static inline unsigned long pte_to_hmm_pfn_flags(struct hmm_range *range,
+ 						 pte_t pte)
  {
-@@ -1527,8 +1547,12 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
- 	}
+@@ -252,10 +244,12 @@ static int hmm_vma_handle_pte(struct mm_
+ 		swp_entry_t entry = pte_to_swp_entry(pte);
  
- 	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
--		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
--			schedule_delayed_work(&vi->refill, 0);
-+		if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
-+			spin_lock(&vi->refill_lock);
-+			if (vi->refill_enabled)
-+				schedule_delayed_work(&vi->refill, 0);
-+			spin_unlock(&vi->refill_lock);
-+		}
- 	}
+ 		/*
+-		 * Never fault in device private pages, but just report
+-		 * the PFN even if not present.
++		 * Don't fault in device private pages owned by the caller,
++		 * just report the PFN.
+ 		 */
+-		if (hmm_is_device_private_entry(range, entry)) {
++		if (is_device_private_entry(entry) &&
++		    pfn_swap_entry_to_page(entry)->pgmap->owner ==
++		    range->dev_private_owner) {
+ 			cpu_flags = HMM_PFN_VALID;
+ 			if (is_writable_device_private_entry(entry))
+ 				cpu_flags |= HMM_PFN_WRITE;
+@@ -273,6 +267,9 @@ static int hmm_vma_handle_pte(struct mm_
+ 		if (!non_swap_entry(entry))
+ 			goto fault;
  
- 	u64_stats_update_begin(&rq->stats.syncp);
-@@ -1651,6 +1675,8 @@ static int virtnet_open(struct net_device *dev)
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	int i, err;
- 
-+	enable_delayed_refill(vi);
++		if (is_device_private_entry(entry))
++			goto fault;
 +
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		if (i < vi->curr_queue_pairs)
- 			/* Make sure we have some buffers: if oom use wq. */
-@@ -2033,6 +2059,8 @@ static int virtnet_close(struct net_device *dev)
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	int i;
+ 		if (is_device_exclusive_entry(entry))
+ 			goto fault;
  
-+	/* Make sure NAPI doesn't schedule refill work */
-+	disable_delayed_refill(vi);
- 	/* Make sure refill_work doesn't re-enable napi! */
- 	cancel_delayed_work_sync(&vi->refill);
- 
-@@ -2792,6 +2820,8 @@ static int virtnet_restore_up(struct virtio_device *vdev)
- 
- 	virtio_device_ready(vdev);
- 
-+	enable_delayed_refill(vi);
-+
- 	if (netif_running(vi->dev)) {
- 		err = virtnet_open(vi->dev);
- 		if (err)
-@@ -3534,6 +3564,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	vdev->priv = vi;
- 
- 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
-+	spin_lock_init(&vi->refill_lock);
- 
- 	/* If we can receive ANY GSO packets, we must allocate large ones. */
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
--- 
-2.35.1
-
 
 
