@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7571C58695A
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:02:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AED825868B5
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232445AbiHAMAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:00:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52892 "EHLO
+        id S231753AbiHALwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:52:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233045AbiHAL7i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:59:38 -0400
+        with ESMTP id S230255AbiHALwE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:52:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5315D4D17A;
-        Mon,  1 Aug 2022 04:52:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E0CD3F30A;
+        Mon,  1 Aug 2022 04:49:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF048B81174;
-        Mon,  1 Aug 2022 11:52:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2103FC433C1;
-        Mon,  1 Aug 2022 11:52:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED714B8116D;
+        Mon,  1 Aug 2022 11:49:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 641B2C433D6;
+        Mon,  1 Aug 2022 11:49:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354762;
-        bh=Q4E5SVS6/3RbSDAb14h/sq6AMsHcdHhY793JUR5gV9I=;
+        s=korg; t=1659354577;
+        bh=tvwONgUMdT/xk95Lk2G0aBmM8D9wZoH0L1zR3yd79NQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MKTriVGiuMb36yvtUCnXSGjdJyCNBk8VZMySoiPNPLc0cOqPJf+iaNwN2awXVnGNh
-         jzyRjFfWDnyABh1Y7Ag661i97d/5fqRYxy2FcI4w8XmnzvXTainCXgqQShbIyiUPSZ
-         RcKFk4vuMuveOpwYfkaLcgSEnSBkXyTN2znwO9Tg=
+        b=nDUMb9KNurwIFdTh05pALMi0HFMpQDlKsUPBvLY8Wj4ORUxbK17FOYtrv50Ubpbwn
+         hJQzU2ozs9Z68PGq3Pl0s8EMaQoSFhKe+bG92PH5roSRken0tdXDk21+V93shpdnxU
+         S0GbhcoGUesKJ1Yoo9MrsGBO0lb72yOw9PAOgA2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrei Vagin <avagin@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 04/69] fs: sendfile handles O_NONBLOCK of out_fd
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 11/65] tcp: Fix a data-race around sysctl_tcp_frto.
 Date:   Mon,  1 Aug 2022 13:46:28 +0200
-Message-Id: <20220801114134.653201863@linuxfoundation.org>
+Message-Id: <20220801114134.159617213@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
+References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,119 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Vagin <avagin@gmail.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit bdeb77bc2c405fa9f954c20269db175a0bd2793f upstream.
+commit 706c6202a3589f290e1ef9be0584a8f4a3cc0507 upstream.
 
-sendfile has to return EAGAIN if out_fd is nonblocking and the write into
-it would block.
+While reading sysctl_tcp_frto, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Here is a small reproducer for the problem:
-
-#define _GNU_SOURCE /* See feature_test_macros(7) */
-#include <fcntl.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/sendfile.h>
-
-
-#define FILE_SIZE (1UL << 30)
-int main(int argc, char **argv) {
-        int p[2], fd;
-
-        if (pipe2(p, O_NONBLOCK))
-                return 1;
-
-        fd = open(argv[1], O_RDWR | O_TMPFILE, 0666);
-        if (fd < 0)
-                return 1;
-        ftruncate(fd, FILE_SIZE);
-
-        if (sendfile(p[1], fd, 0, FILE_SIZE) == -1) {
-                fprintf(stderr, "FAIL\n");
-        }
-        if (sendfile(p[1], fd, 0, FILE_SIZE) != -1 || errno != EAGAIN) {
-                fprintf(stderr, "FAIL\n");
-        }
-        return 0;
-}
-
-It worked before b964bf53e540, it is stuck after b964bf53e540, and it
-works again with this fix.
-
-This regression occurred because do_splice_direct() calls pipe_write
-that handles O_NONBLOCK.  Here is a trace log from the reproducer:
-
- 1)               |  __x64_sys_sendfile64() {
- 1)               |    do_sendfile() {
- 1)               |      __fdget()
- 1)               |      rw_verify_area()
- 1)               |      __fdget()
- 1)               |      rw_verify_area()
- 1)               |      do_splice_direct() {
- 1)               |        rw_verify_area()
- 1)               |        splice_direct_to_actor() {
- 1)               |          do_splice_to() {
- 1)               |            rw_verify_area()
- 1)               |            generic_file_splice_read()
- 1) + 74.153 us   |          }
- 1)               |          direct_splice_actor() {
- 1)               |            iter_file_splice_write() {
- 1)               |              __kmalloc()
- 1)   0.148 us    |              pipe_lock();
- 1)   0.153 us    |              splice_from_pipe_next.part.0();
- 1)   0.162 us    |              page_cache_pipe_buf_confirm();
-... 16 times
- 1)   0.159 us    |              page_cache_pipe_buf_confirm();
- 1)               |              vfs_iter_write() {
- 1)               |                do_iter_write() {
- 1)               |                  rw_verify_area()
- 1)               |                  do_iter_readv_writev() {
- 1)               |                    pipe_write() {
- 1)               |                      mutex_lock()
- 1)   0.153 us    |                      mutex_unlock();
- 1)   1.368 us    |                    }
- 1)   1.686 us    |                  }
- 1)   5.798 us    |                }
- 1)   6.084 us    |              }
- 1)   0.174 us    |              kfree();
- 1)   0.152 us    |              pipe_unlock();
- 1) + 14.461 us   |            }
- 1) + 14.783 us   |          }
- 1)   0.164 us    |          page_cache_pipe_buf_release();
-... 16 times
- 1)   0.161 us    |          page_cache_pipe_buf_release();
- 1)               |          touch_atime()
- 1) + 95.854 us   |        }
- 1) + 99.784 us   |      }
- 1) ! 107.393 us  |    }
- 1) ! 107.699 us  |  }
-
-Link: https://lkml.kernel.org/r/20220415005015.525191-1-avagin@gmail.com
-Fixes: b964bf53e540 ("teach sendfile(2) to handle send-to-pipe directly")
-Signed-off-by: Andrei Vagin <avagin@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/read_write.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv4/tcp_input.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -1250,6 +1250,9 @@ static ssize_t do_sendfile(int out_fd, i
- 					  count, fl);
- 		file_end_write(out.file);
- 	} else {
-+		if (out.file->f_flags & O_NONBLOCK)
-+			fl |= SPLICE_F_NONBLOCK;
-+
- 		retval = splice_file_to_pipe(in.file, opipe, &pos, count, fl);
- 	}
- 
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -2135,7 +2135,7 @@ void tcp_enter_loss(struct sock *sk)
+ 	 * loss recovery is underway except recurring timeout(s) on
+ 	 * the same SND.UNA (sec 3.2). Disable F-RTO on path MTU probing
+ 	 */
+-	tp->frto = net->ipv4.sysctl_tcp_frto &&
++	tp->frto = READ_ONCE(net->ipv4.sysctl_tcp_frto) &&
+ 		   (new_recovery || icsk->icsk_retransmits) &&
+ 		   !inet_csk(sk)->icsk_mtup.probe_size;
+ }
 
 
