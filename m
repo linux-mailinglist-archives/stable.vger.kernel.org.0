@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EAE15868AA
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:52:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7809F586903
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:56:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231945AbiHALvp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:51:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35108 "EHLO
+        id S232380AbiHAL4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:56:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232062AbiHALuz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:50:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E57940BF0;
-        Mon,  1 Aug 2022 04:49:24 -0700 (PDT)
+        with ESMTP id S232689AbiHALzx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:55:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 603FC474C0;
+        Mon,  1 Aug 2022 04:51:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3447B81055;
-        Mon,  1 Aug 2022 11:49:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D8FCC433D7;
-        Mon,  1 Aug 2022 11:49:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3D9661303;
+        Mon,  1 Aug 2022 11:51:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF589C433B5;
+        Mon,  1 Aug 2022 11:51:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354561;
-        bh=NxgMr9IOK2r74FmzVfDcwXghgS/ZLi9ZSMBfS4OirPs=;
+        s=korg; t=1659354688;
+        bh=BPh/BTH07jIXHRC9sasVDWYMwiMPYMIst5WIHlFXXw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iXKyqGEn+Uak2ciWDp/KIUC0WJ7nXlb1n8z3hPWkGhrp5v5h1SWnVcK24R/JJK+mR
-         ynKHJSIYkOhcxIZUU25uVuv7YFdGLb/PU+NY6CQnLZVl2DWhBvjqcFrZTJky7sWcN9
-         2x/4CvR0LMgloGMJuoSnoXZ7SCAi+GLNB6tIkT8U=
+        b=MkySJqxDNcN8I7VoynUv33hqWs7YOdWm1L+jHVrCLbleeTJEY/H6Wy8ekQ1znXm9k
+         1GgCgVQeHWvXIkDa3qDvS2m9wOlEuL9YwecF3E208bDCxkK4NMUGBvVs9Y2f0Vs4qT
+         tTvYXGEuGl+ctBQTEWvvY6em8aakg/p724PZ4EX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        George Kuruvinakunnel <george.kuruvinakunnel@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.4 09/34] ice: check (DD | EOF) bits on Rx descriptor rather than (EOP | RS)
-Date:   Mon,  1 Aug 2022 13:46:49 +0200
-Message-Id: <20220801114128.406083028@linuxfoundation.org>
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 33/65] macsec: limit replay window size with XPN
+Date:   Mon,  1 Aug 2022 13:46:50 +0200
+Message-Id: <20220801114135.098794319@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
-References: <20220801114128.025615151@linuxfoundation.org>
+In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
+References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-commit 283d736ff7c7e96ac5b32c6c0de40372f8eb171e upstream.
+[ Upstream commit b07a0e2044057f201d694ab474f5c42a02b6465b ]
 
-Tx side sets EOP and RS bits on descriptors to indicate that a
-particular descriptor is the last one and needs to generate an irq when
-it was sent. These bits should not be checked on completion path
-regardless whether it's the Tx or the Rx. DD bit serves this purpose and
-it indicates that a particular descriptor is either for Rx or was
-successfully Txed. EOF is also set as loopback test does not xmit
-fragmented frames.
+IEEE 802.1AEbw-2013 (section 10.7.8) specifies that the maximum value
+of the replay window is 2^30-1, to help with recovery of the upper
+bits of the PN.
 
-Look at (DD | EOF) bits setting in ice_lbtest_receive_frames() instead
-of EOP and RS pair.
+To avoid leaving the existing macsec device in an inconsistent state
+if this test fails during changelink, reuse the cleanup mechanism
+introduced for HW offload. This wasn't needed until now because
+macsec_changelink_common could not fail during changelink, as
+modifying the cipher suite was not allowed.
 
-Fixes: 0e674aeb0b77 ("ice: Add handler for ethtool selftest")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: George Kuruvinakunnel <george.kuruvinakunnel@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Finally, this must happen after handling IFLA_MACSEC_CIPHER_SUITE so
+that secy->xpn is set.
+
+Fixes: 48ef50fa866a ("macsec: Netlink support of XPN cipher suites (IEEE 802.1AEbw)")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ethtool.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/macsec.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -619,7 +619,8 @@ static int ice_lbtest_receive_frames(str
- 		rx_desc = ICE_RX_DESC(rx_ring, i);
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index c2d8bcda2503..96dc7bd4813d 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -240,6 +240,7 @@ static struct macsec_cb *macsec_skb_cb(struct sk_buff *skb)
+ #define DEFAULT_SEND_SCI true
+ #define DEFAULT_ENCRYPT false
+ #define DEFAULT_ENCODING_SA 0
++#define MACSEC_XPN_MAX_REPLAY_WINDOW (((1 << 30) - 1))
  
- 		if (!(rx_desc->wb.status_error0 &
--		    cpu_to_le16(ICE_TX_DESC_CMD_EOP | ICE_TX_DESC_CMD_RS)))
-+		    (cpu_to_le16(BIT(ICE_RX_FLEX_DESC_STATUS0_DD_S)) |
-+		     cpu_to_le16(BIT(ICE_RX_FLEX_DESC_STATUS0_EOF_S)))))
- 			continue;
+ static bool send_sci(const struct macsec_secy *secy)
+ {
+@@ -3738,9 +3739,6 @@ static int macsec_changelink_common(struct net_device *dev,
+ 		secy->operational = tx_sa && tx_sa->active;
+ 	}
  
- 		rx_buf = &rx_ring->rx_buf[i];
+-	if (data[IFLA_MACSEC_WINDOW])
+-		secy->replay_window = nla_get_u32(data[IFLA_MACSEC_WINDOW]);
+-
+ 	if (data[IFLA_MACSEC_ENCRYPT])
+ 		tx_sc->encrypt = !!nla_get_u8(data[IFLA_MACSEC_ENCRYPT]);
+ 
+@@ -3786,6 +3784,16 @@ static int macsec_changelink_common(struct net_device *dev,
+ 		}
+ 	}
+ 
++	if (data[IFLA_MACSEC_WINDOW]) {
++		secy->replay_window = nla_get_u32(data[IFLA_MACSEC_WINDOW]);
++
++		/* IEEE 802.1AEbw-2013 10.7.8 - maximum replay window
++		 * for XPN cipher suites */
++		if (secy->xpn &&
++		    secy->replay_window > MACSEC_XPN_MAX_REPLAY_WINDOW)
++			return -EINVAL;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -3815,7 +3823,7 @@ static int macsec_changelink(struct net_device *dev, struct nlattr *tb[],
+ 
+ 	ret = macsec_changelink_common(dev, data);
+ 	if (ret)
+-		return ret;
++		goto cleanup;
+ 
+ 	/* If h/w offloading is available, propagate to the device */
+ 	if (macsec_is_offloaded(macsec)) {
+-- 
+2.35.1
+
 
 
