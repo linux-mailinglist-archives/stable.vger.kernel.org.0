@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09A325868AD
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:52:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BEFF5868AB
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:52:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231899AbiHALwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:52:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34580 "EHLO
+        id S232013AbiHALwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:52:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231895AbiHALvl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:51:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAA7B3ED61;
-        Mon,  1 Aug 2022 04:49:32 -0700 (PDT)
+        with ESMTP id S231859AbiHALvd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:51:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC9FD3E77E;
+        Mon,  1 Aug 2022 04:49:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8A36B8116E;
-        Mon,  1 Aug 2022 11:49:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26DB0C433D6;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26F78B8116B;
         Mon,  1 Aug 2022 11:49:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 474BFC433D6;
+        Mon,  1 Aug 2022 11:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354569;
-        bh=eO/ZtQD8LMvCR0OR1BCQ6/nXAd1L0wr32Z8IaAYC+4k=;
+        s=korg; t=1659354566;
+        bh=vYtUgWJOtyovVyFdms+tN1lBrNToWs07uk+ePG6BBiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WXl95/s6CO34L5ZQzfPWCEyB//VgbbQ2EwAw4U5wOMvMnq+ijTuOV7ANs5LDROoSC
-         ZsyROOenBr/5/dowLnkbTE94Tw8y6CRE2tZ8CmjV0uy77c5VtEiV6zJ/DRU3sjjggE
-         NdUmzYt9+RQHB9HSTs4YeKg4rGdekz3XrHtyDz9E=
+        b=KMXQexf8eWrclj8piMd3UjUfNR31rbM2WMkEDecaD9UQgwvKB8iPRWzI755Jrj239
+         oowqym1S/kef426lt7jPV48R01UtUIftG6mukKEMBmHNYNzwp/eEhETpiy3WSYANmH
+         N8H/SMHhTfdEs/BhsLRkHC47DKBA4t7kjLRjsb3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Mingzhi <whistler@member.fsf.org>,
-        Jakub Kicinski <kubakici@wp.pl>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Yan Xinyu <sdlyyxy@bupt.edu.cn>
-Subject: [PATCH 5.4 33/34] mt7601u: add USB device ID for some versions of XiaoDu WiFi Dongle.
-Date:   Mon,  1 Aug 2022 13:47:13 +0200
-Message-Id: <20220801114129.292086195@linuxfoundation.org>
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
+        Sumit Saxena <sumit.saxena@broadcom.com>,
+        Kashyap Desai <kashyap.desai@broadcom.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Ewan Milne <emilne@redhat.com>, Long Li <longli@microsoft.com>,
+        John Garry <john.garry@huawei.com>,
+        "chenxiang (M)" <chenxiang66@hisilicon.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Yu Kuai <yukuai3@huawei.com>
+Subject: [PATCH 5.4 34/34] scsi: core: Fix race between handling STS_RESOURCE and completion
+Date:   Mon,  1 Aug 2022 13:47:14 +0200
+Message-Id: <20220801114129.332434263@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
 References: <20220801114128.025615151@linuxfoundation.org>
@@ -54,32 +60,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Mingzhi <whistler@member.fsf.org>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 829eea7c94e0bac804e65975639a2f2e5f147033 upstream.
+commit 673235f915318ced5d7ec4b2bfd8cb909e6a4a55 upstream.
 
-USB device ID of some versions of XiaoDu WiFi Dongle is 2955:1003
-instead of 2955:1001. Both are the same mt7601u hardware.
+When queuing I/O request to LLD, STS_RESOURCE may be returned because:
 
-Signed-off-by: Wei Mingzhi <whistler@member.fsf.org>
-Acked-by: Jakub Kicinski <kubakici@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210618160840.305024-1-whistler@member.fsf.org
-Cc: Yan Xinyu <sdlyyxy@bupt.edu.cn>
+ - Host is in recovery or blocked
+
+ - Target queue throttling or target is blocked
+
+ - LLD rejection
+
+In these scenarios BLK_STS_DEV_RESOURCE is returned to the block layer to
+avoid an unnecessary re-run of the queue. However, all of the requests
+queued to this SCSI device may complete immediately after reading
+'sdev->device_busy' and BLK_STS_DEV_RESOURCE is returned to block layer. In
+that case the current I/O won't get a chance to get queued since it is
+invisible at that time for both scsi_run_queue_async() and blk-mq's
+RESTART.
+
+Fix the issue by not returning BLK_STS_DEV_RESOURCE in this situation.
+
+Link: https://lore.kernel.org/r/20201202100419.525144-1-ming.lei@redhat.com
+Fixes: 86ff7c2a80cd ("blk-mq: introduce BLK_STS_DEV_RESOURCE")
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Sumit Saxena <sumit.saxena@broadcom.com>
+Cc: Kashyap Desai <kashyap.desai@broadcom.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Ewan Milne <emilne@redhat.com>
+Cc: Long Li <longli@microsoft.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Tested-by: "chenxiang (M)" <chenxiang66@hisilicon.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mediatek/mt7601u/usb.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/scsi_lib.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/wireless/mediatek/mt7601u/usb.c
-+++ b/drivers/net/wireless/mediatek/mt7601u/usb.c
-@@ -26,6 +26,7 @@ static const struct usb_device_id mt7601
- 	{ USB_DEVICE(0x2717, 0x4106) },
- 	{ USB_DEVICE(0x2955, 0x0001) },
- 	{ USB_DEVICE(0x2955, 0x1001) },
-+	{ USB_DEVICE(0x2955, 0x1003) },
- 	{ USB_DEVICE(0x2a5f, 0x1000) },
- 	{ USB_DEVICE(0x7392, 0x7710) },
- 	{ 0, }
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -1719,8 +1719,7 @@ out_put_budget:
+ 	case BLK_STS_OK:
+ 		break;
+ 	case BLK_STS_RESOURCE:
+-		if (atomic_read(&sdev->device_busy) ||
+-		    scsi_device_blocked(sdev))
++		if (scsi_device_blocked(sdev))
+ 			ret = BLK_STS_DEV_RESOURCE;
+ 		break;
+ 	default:
 
 
