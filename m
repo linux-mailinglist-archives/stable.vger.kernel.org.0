@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E290B586937
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:58:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D23B258686D
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:48:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232562AbiHAL6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:58:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48830 "EHLO
+        id S231481AbiHALsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:48:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231432AbiHAL6J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:58:09 -0400
+        with ESMTP id S231482AbiHALsF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:48:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F7E9419A2;
-        Mon,  1 Aug 2022 04:52:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1D50357ED;
+        Mon,  1 Aug 2022 04:48:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9930612E3;
-        Mon,  1 Aug 2022 11:52:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1A28C433C1;
-        Mon,  1 Aug 2022 11:52:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9155A612C5;
+        Mon,  1 Aug 2022 11:48:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EDC0C433D7;
+        Mon,  1 Aug 2022 11:48:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354735;
-        bh=v3eMzd9USaj7O5CPtj1Ypzb355onBF7y+Urro/QYSdE=;
+        s=korg; t=1659354484;
+        bh=/qYEJzRwOPh3lmTo2H4V8MfPr1kkl0t/ufrJ74RZtfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enHaUITfRKojnOT1HvUWttU1GdrZkCUypqeLD1DfDlOOT1Iv9MTmajgsXqqPanZeX
-         OhbUldg5SXoctRiFNbXhjFOvF38DM6V2QmqQQkoPjy8qNwUTp8yyzK2vNKEGhV9xdE
-         FW+xI4FnyIVP6jgk1vquUoy+cuxjKugfgUmKDYHo=
+        b=Kwiiy6FpoLhBLrv+i933LY/5ILEyM3VV0fv6xu4I/7OYjB+awTj9b+ZmNqwfOCUq2
+         /XZa+g1pgV0Kg6d+6GTQX5O1ZYUXgK+QVig6zMhqehFDuwhYK1pHNG/h58v4Gd4pb4
+         5y/l0SR98/nYDPWp7hoiydC/CVuYElksdZWkyhjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 35/65] net: macsec: fix potential resource leak in macsec_add_rxsa() and macsec_add_txsa()
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 12/34] tcp: Fix a data-race around sysctl_tcp_limit_output_bytes.
 Date:   Mon,  1 Aug 2022 13:46:52 +0200
-Message-Id: <20220801114135.176779971@linuxfoundation.org>
+Message-Id: <20220801114128.501168275@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
-References: <20220801114133.641770326@linuxfoundation.org>
+In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
+References: <20220801114128.025615151@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit c7b205fbbf3cffa374721bb7623f7aa8c46074f1 ]
+commit 9fb90193fbd66b4c5409ef729fd081861f8b6351 upstream.
 
-init_rx_sa() allocates relevant resource for rx_sa->stats and rx_sa->
-key.tfm with alloc_percpu() and macsec_alloc_tfm(). When some error
-occurs after init_rx_sa() is called in macsec_add_rxsa(), the function
-released rx_sa with kfree() without releasing rx_sa->stats and rx_sa->
-key.tfm, which will lead to a resource leak.
+While reading sysctl_tcp_limit_output_bytes, it can be changed
+concurrently.  Thus, we need to add READ_ONCE() to its reader.
 
-We should call macsec_rxsa_put() instead of kfree() to decrease the ref
-count of rx_sa and release the relevant resource if the refcount is 0.
-The same bug exists in macsec_add_txsa() for tx_sa as well. This patch
-fixes the above two bugs.
-
-Fixes: 3cf3227a21d1 ("net: macsec: hardware offloading infrastructure")
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Fixes: 46d3ceabd8d9 ("tcp: TCP Small Queues")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/macsec.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/tcp_output.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 8d73b72d6179..70c5905a916b 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -1841,7 +1841,7 @@ static int macsec_add_rxsa(struct sk_buff *skb, struct genl_info *info)
- 	return 0;
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -2276,7 +2276,7 @@ static bool tcp_small_queue_check(struct
+ 		      sk->sk_pacing_rate >> READ_ONCE(sk->sk_pacing_shift));
+ 	if (sk->sk_pacing_status == SK_PACING_NONE)
+ 		limit = min_t(unsigned long, limit,
+-			      sock_net(sk)->ipv4.sysctl_tcp_limit_output_bytes);
++			      READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_limit_output_bytes));
+ 	limit <<= factor;
  
- cleanup:
--	kfree(rx_sa);
-+	macsec_rxsa_put(rx_sa);
- 	rtnl_unlock();
- 	return err;
- }
-@@ -2084,7 +2084,7 @@ static int macsec_add_txsa(struct sk_buff *skb, struct genl_info *info)
- 
- cleanup:
- 	secy->operational = was_operational;
--	kfree(tx_sa);
-+	macsec_txsa_put(tx_sa);
- 	rtnl_unlock();
- 	return err;
- }
--- 
-2.35.1
-
+ 	if (static_branch_unlikely(&tcp_tx_delay_enabled) &&
 
 
