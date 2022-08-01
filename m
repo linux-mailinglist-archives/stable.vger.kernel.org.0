@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A166C586DB3
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 17:25:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FD91586DC0
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 17:28:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233502AbiHAPZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 11:25:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59202 "EHLO
+        id S233621AbiHAP25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 11:28:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232357AbiHAPZN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 11:25:13 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 022FAB5C
-        for <stable@vger.kernel.org>; Mon,  1 Aug 2022 08:25:12 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id s9so6712513ljs.6
-        for <stable@vger.kernel.org>; Mon, 01 Aug 2022 08:25:11 -0700 (PDT)
+        with ESMTP id S233381AbiHAP2z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 11:28:55 -0400
+Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC9AA22BDB
+        for <stable@vger.kernel.org>; Mon,  1 Aug 2022 08:28:54 -0700 (PDT)
+Received: by mail-lj1-x244.google.com with SMTP id e11so12712583ljl.4
+        for <stable@vger.kernel.org>; Mon, 01 Aug 2022 08:28:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:from:date:message-id:subject:to;
         bh=q9Slei3vdZHf3BWZhWjxjnYHcSiTDd6lLLw5COAJJH4=;
-        b=AoVt0vKfgw2aNdFvfTDu0jOmSgAlenaLtP2gymCrdJVdA67D/E74nd/XhC8NdZIzji
-         tBF8a50WZv6Tg+QPb+3foOHMN/obISpJLpfOb7SvbKsvHvMFXT6TNLEPRxzmr8pZPo2v
-         F5ueokezamG82rxo2sYSrlR2GxC/p7By6fwQ+EcC9Jme+AqTP8dimV9ABW0w9ZaI7Rwj
-         5UGhuT0UKALQyQw4hHLXHnrLXZ4DdAeSiYKlA8roXkZBel3IWkNbNc7kCh5kDvGOzec4
-         e9DgTG7rYrOI89oBsV0poZtPkiWZsKZ2VEZ9jq0v+5OzVbEV7IG55mwqHfNS83sELgF7
-         STyQ==
+        b=ZrVwuDcPr/3jT+Ss6Z3edkPP5bSUfYFvp3UXccm02aQdNJBuiR6eiYgGaJcat+3PVZ
+         yIQPkbfoFY8Qbf6RQ3zuKGIGdPPX+KkA4WET4BlSvm7Ud7y8RWSBVHACCnPWrBx2LUPn
+         JsC1y1OpRle46mlDxmcycub14n1B7oG7nv+ZKldfJWX1fvPam1bxRAIFENurC0tJVUF6
+         YPtCXA3SxkvjQKw6SpB6+z21O0zh3t5+vHysY3LOojVPPG6YWUfXjNKqAO77XAu9069N
+         ixexe6G1zIJWh6ND3fklYF173gagltowCz/CzLJWCO0z7/nNWZ+EEJbTytb/hV+H15wQ
+         P3yQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
         bh=q9Slei3vdZHf3BWZhWjxjnYHcSiTDd6lLLw5COAJJH4=;
-        b=AS/SiTE05U/jqxm234i5vsWtqkSO8EqiB5T8uVtYKT5nvV1imozMB1+UJnnb73F6XO
-         mZMjNJLygxZgmUfWVDcKwZ7As1yu84twgZic2pIGKXzFKhWfjTaobbHVtWsc6Ps8wnUj
-         +wF12cj++y/TOs//p6LyKR1NwcHpQjzhxeWQ7eKS3XrsKXftU6U/b6pisgrTOziBM4Hp
-         BS5PBepzRTZz4mXwqsDQgXijpO5Q3oo8h73jZlv61PQ7pUIvVR4pmQR0GXmzSUpr5PhM
-         +ICf0B61bf24d0yiABahtgev9+7J3gDB5VOWPwARWot2i3ITBPv9X5IiPSlwopVXpSJA
-         Qp8g==
-X-Gm-Message-State: AJIora9l/UIAKCB/tEPFFEAjKlPUS0v6dwB+BwaSAxg0+f+H7JimDIFT
-        V5tzfKZQ1B/vYdNogRr40lTSZBaPWEoGq0z5oa0=
-X-Google-Smtp-Source: AGRyM1slvVvyUJurIsoIvCs926lIwP+39RemFs/U9o/5rpIb5kn6npYkPhHK3Fu2qq4QI8fTavbX80tJ82+ZFvALkCs=
-X-Received: by 2002:a2e:a60b:0:b0:25e:3087:4fbb with SMTP id
- v11-20020a2ea60b000000b0025e30874fbbmr4967841ljp.460.1659367511373; Mon, 01
- Aug 2022 08:25:11 -0700 (PDT)
+        b=ZUax2X3R5x9HvTzoZKxpK7UhIyuMmY5cRZ7iI4KII+wd6//724qG/X+5Cd0rvb+STE
+         PW+WHJGYc30MEFEeuJCUOAruqVJyX+rISgZ9q7DSRD6z2yggtWSO6Q8650sWOgegC0ZY
+         gWxND5Q09peBwNph/quIB1PsbZOH/WvITuCd0pIO2ylGVbBcG5wt+lnQHjAEN81hWXky
+         2gANK5ckW7sj/be6Vb9TBHYdlmUBhNOSfdvFS68UaTWezJ2v7wfvtoXhPwS07hn4cISg
+         asY2krnToDKbXI+QakczfgiuFJxMgcdh/edqzeT3MQBgWJQo8HhDn8Jt2YIDeXcTLMT+
+         cj8g==
+X-Gm-Message-State: AJIora+W7YEReh6MqQVrdBZuNAwz2jJ8v4A1TUDhfBQD2R73HK45Osxq
+        A4wolEHr/Xhq7RGKeycUKG0zag8z5HoL9UUzHaU=
+X-Google-Smtp-Source: AGRyM1vwnLQ4J3mk1mOomkg3kbUShuQNqPbmRJv852ZN2RZ6qWyjyjzMj0H6Z0NGppzquFPFu3tL4SmbTnpr6etLEnk=
+X-Received: by 2002:a2e:be90:0:b0:25e:1496:a0b8 with SMTP id
+ a16-20020a2ebe90000000b0025e1496a0b8mr5463600ljr.194.1659367733282; Mon, 01
+ Aug 2022 08:28:53 -0700 (PDT)
 MIME-Version: 1.0
 Received: by 2002:aa6:cb52:0:b0:1fa:aaed:e6d9 with HTTP; Mon, 1 Aug 2022
- 08:25:10 -0700 (PDT)
+ 08:28:52 -0700 (PDT)
 From:   Bright Gawayn <gben68387@gmail.com>
-Date:   Mon, 1 Aug 2022 20:55:10 +0530
-Message-ID: <CAG1+V0zd3t_csL7pvJGnsE5v98BZYeSbMN0-sbNvcjYwcAyhAQ@mail.gmail.com>
+Date:   Mon, 1 Aug 2022 20:58:52 +0530
+Message-ID: <CAG1+V0yLu1a0H9cuYKJ9q50AX+eWgtbWcvoeM1XVrRPfe8Ft-g@mail.gmail.com>
 Subject: Lucrative business proposal very urgent!
 To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
@@ -58,10 +58,10 @@ X-Spam-Status: Yes, score=6.9 required=5.0 tests=ADVANCE_FEE_3_NEW,BAYES_50,
         version=3.4.6
 X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
         *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:243 listed in]
+        *      [2a00:1450:4864:20:0:0:0:244 listed in]
         [list.dnswl.org]
         *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5009]
+        *      [score: 0.5003]
         *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
         *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
         *      provider
