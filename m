@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4A6A58696A
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:02:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D325E586A65
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:16:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232530AbiHAMCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:02:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36932 "EHLO
+        id S234032AbiHAMQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:16:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233319AbiHAMBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:01:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DAC84F65C;
-        Mon,  1 Aug 2022 04:53:23 -0700 (PDT)
+        with ESMTP id S234360AbiHAMPt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:15:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 301C17A519;
+        Mon,  1 Aug 2022 04:58:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD99DB810A2;
-        Mon,  1 Aug 2022 11:53:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23C5FC433D6;
-        Mon,  1 Aug 2022 11:53:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76E7D601BD;
+        Mon,  1 Aug 2022 11:58:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DC71C433D6;
+        Mon,  1 Aug 2022 11:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354800;
-        bh=xxhsfMY3ok9TbG2hC+nbsICfFlUN65e0HBoVgAo4llM=;
+        s=korg; t=1659355107;
+        bh=o8COW7HGUbdghPKHXH+743bq+xK9nKbl1dSwaMzfLyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RaLwhs3xNdkfljlR0O6egFGZp4vxj584btuqeUagUP0K77Ert2Te8usnqY32JoQDO
-         DjxyJQ/RKgv1CJUAc7gd32JaJmidGQcYr6+xKQfEbxzkcjGOIYQcRfrmPfjoHtIjef
-         rcxH5dJKghme8W/Mfcywv5Rajxmt1d5S4DBcwsLg=
+        b=GKARKcSN+nb6WqmzQzB/OGywAuYhrlnbnR9XiUF6RfKu+SX68IdiTIrwHAT1vENau
+         8CELF4+P6WwRMdpuV54etP5ns4quZZk7XDthCwu8sU+XFAGL5ibxG8aI5seSPsZuZ5
+         dfLQm3o9b0QrHzxXPhEEWfFNvaj3LZtcL3GlHmWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 25/69] tcp: Fix data-races around sysctl_tcp_moderate_rcvbuf.
+Subject: [PATCH 5.18 35/88] tcp: Fix data-races around sysctl_tcp_moderate_rcvbuf.
 Date:   Mon,  1 Aug 2022 13:46:49 +0200
-Message-Id: <20220801114135.534159123@linuxfoundation.org>
+Message-Id: <20220801114139.634683929@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
+References: <20220801114138.041018499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,7 +70,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/ipv4/tcp_input.c
 +++ b/net/ipv4/tcp_input.c
-@@ -716,7 +716,7 @@ void tcp_rcv_space_adjust(struct sock *s
+@@ -724,7 +724,7 @@ void tcp_rcv_space_adjust(struct sock *s
  	 * <prev RTT . ><current RTT .. ><next RTT .... >
  	 */
  
@@ -81,7 +81,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		u64 rcvwin, grow;
 --- a/net/mptcp/protocol.c
 +++ b/net/mptcp/protocol.c
-@@ -1881,7 +1881,7 @@ static void mptcp_rcv_space_adjust(struc
+@@ -1882,7 +1882,7 @@ static void mptcp_rcv_space_adjust(struc
  	if (msk->rcvq_space.copied <= msk->rcvq_space.space)
  		goto new_measure;
  
