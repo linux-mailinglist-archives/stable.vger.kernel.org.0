@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 588755868DC
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:54:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B5F25868E0
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:54:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232159AbiHALyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:54:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35106 "EHLO
+        id S232184AbiHALyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:54:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231916AbiHALx0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:53:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8499BBCB4;
-        Mon,  1 Aug 2022 04:50:20 -0700 (PDT)
+        with ESMTP id S232192AbiHALxf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:53:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A84629CBF;
+        Mon,  1 Aug 2022 04:50:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ABA26612DF;
-        Mon,  1 Aug 2022 11:50:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B21F9C433C1;
-        Mon,  1 Aug 2022 11:50:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E808B8116E;
+        Mon,  1 Aug 2022 11:50:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84644C433D6;
+        Mon,  1 Aug 2022 11:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354619;
-        bh=Z2nPSpHn1y5163xrsf+ZmDTgWIF3XTh49tZw0iUcB1g=;
+        s=korg; t=1659354621;
+        bh=JldWJW3ntF3SZTyasCpQWeWDzCX/AG7rGZgkZ/Q4Y9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IiE6bdjfHrTQbCgbLvvI0JZtY7lQr+k/AdYYhAZK8hjJL7CEIYmTTW2BLtosK0WXA
-         rYm12yMO80m45WeGN3DCoje2Gn50aphUTgoLEGX88lW7qlTAzUum/HlPEWDFoRKK99
-         yOlTNdDAOo/JmIrkIBw7NxcFQ+zfR5hWqoQ+vtyY=
+        b=h+sg5zCVn6OGsixL90gXDlv+i9Kz3U50hN9m5vKN9gsIwT73spy6rXz29k11E/A5x
+         I+O0Q+QcJva5KfAyYC1fUrygAHNvnK2goy0Es5bM7TfUiI2qXnjfTV5w0VPhzskXcW
+         MijvBNbl4/aMGPFsxBj5hBnGiOQ8G++B8uY1eSV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 25/65] net: sungem_phy: Add of_node_put() for reference returned by of_get_parent()
-Date:   Mon,  1 Aug 2022 13:46:42 +0200
-Message-Id: <20220801114134.753601925@linuxfoundation.org>
+Subject: [PATCH 5.10 26/65] tcp: Fix a data-race around sysctl_tcp_min_tso_segs.
+Date:   Mon,  1 Aug 2022 13:46:43 +0200
+Message-Id: <20220801114134.804266707@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
 References: <20220801114133.641770326@linuxfoundation.org>
@@ -53,34 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit ebbbe23fdf6070e31509638df3321688358cc211 ]
+[ Upstream commit e0bb4ab9dfddd872622239f49fb2bd403b70853b ]
 
-In bcm5421_init(), we should call of_node_put() for the reference
-returned by of_get_parent() which has increased the refcount.
+While reading sysctl_tcp_min_tso_segs, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its reader.
 
-Fixes: 3c326fe9cb7a ("[PATCH] ppc64: Add new PHY to sungem")
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220720131003.1287426-1-windhl@126.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 95bd09eb2750 ("tcp: TSO packets automatic sizing")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/sungem_phy.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/tcp_output.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/sungem_phy.c b/drivers/net/sungem_phy.c
-index 291fa449993f..45f295403cb5 100644
---- a/drivers/net/sungem_phy.c
-+++ b/drivers/net/sungem_phy.c
-@@ -454,6 +454,7 @@ static int bcm5421_init(struct mii_phy* phy)
- 		int can_low_power = 1;
- 		if (np == NULL || of_get_property(np, "no-autolowpower", NULL))
- 			can_low_power = 0;
-+		of_node_put(np);
- 		if (can_low_power) {
- 			/* Enable automatic low-power */
- 			sungem_phy_write(phy, 0x1c, 0x9002);
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index 1a144c38039c..657b0a4d9359 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1984,7 +1984,7 @@ static u32 tcp_tso_segs(struct sock *sk, unsigned int mss_now)
+ 
+ 	min_tso = ca_ops->min_tso_segs ?
+ 			ca_ops->min_tso_segs(sk) :
+-			sock_net(sk)->ipv4.sysctl_tcp_min_tso_segs;
++			READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_min_tso_segs);
+ 
+ 	tso_segs = tcp_tso_autosize(sk, mss_now, min_tso);
+ 	return min_t(u32, tso_segs, sk->sk_gso_max_segs);
 -- 
 2.35.1
 
