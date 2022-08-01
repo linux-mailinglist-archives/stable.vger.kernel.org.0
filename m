@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11C8A5869C9
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA3BA586A81
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:17:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233629AbiHAMHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:07:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43908 "EHLO
+        id S234546AbiHAMRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:17:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233618AbiHAMHF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:07:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A84BB272A;
-        Mon,  1 Aug 2022 04:55:13 -0700 (PDT)
+        with ESMTP id S232764AbiHAMQU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:16:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F8A048EBA;
+        Mon,  1 Aug 2022 04:58:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB3ADB81163;
-        Mon,  1 Aug 2022 11:55:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12322C433D6;
-        Mon,  1 Aug 2022 11:55:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3413C601BD;
+        Mon,  1 Aug 2022 11:58:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4286FC433D6;
+        Mon,  1 Aug 2022 11:58:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354910;
-        bh=tuaWM0RS08UKYD1ZGPzHKRoYPvP0Ao/9TYJpx7LX5Ek=;
+        s=korg; t=1659355132;
+        bh=V9i1hf2LQpzY+KIjI62YaHiuBTwGLrzlI/aKwlWDq64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=csvEaXXIQyJk1ld5u7w9NIm0iu3n4cl98KW5peDREWCGDYqVQBS0gfpEzuy8dQiKR
-         JSrgvEKffI0s+d64vZcl1aMVCXENH98hrLDqRgAhkzDjlx51jIN1cm2qSbFc7FwQ9g
-         lS8JPfsNgUPAp0O2GKaPj1wfuYOFTPoDU59ROTLs=
+        b=RTDuqLwkdZ1QoU896LRWjp1xF2fsfHAS/Jv3TgWKfcTF5lddDZhNNbNhZsk0YJsTz
+         933EPb8n63/1K+Yv8XJvkhxTU2G5rRj+SyXrpVTpJfGZQV2vvCcibhi00LyC7zGnzf
+         YeeViPF7BQ0tIKdNSuXJ+FyQ5zL9t/hQpFx5cROw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaewon Kim <jaewon31.kim@samsung.com>,
-        GyeongHwan Hong <gh21.hong@samsung.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Minchan Kim <minchan@kernel.org>, Baoquan He <bhe@redhat.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Yong-Taek Lee <ytk.lee@samsung.com>, stable@vger.kerenl.org,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 64/69] page_alloc: fix invalid watermark check on a negative value
-Date:   Mon,  1 Aug 2022 13:47:28 +0200
-Message-Id: <20220801114137.047337783@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alejandro Lucero <alejandro.lucero-palau@amd.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 75/88] sfc: disable softirqs for ptp TX
+Date:   Mon,  1 Aug 2022 13:47:29 +0200
+Message-Id: <20220801114141.456883459@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
+References: <20220801114138.041018499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,70 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaewon Kim <jaewon31.kim@samsung.com>
+From: Alejandro Lucero <alejandro.lucero-palau@amd.com>
 
-commit 9282012fc0aa248b77a69f5eb802b67c5a16bb13 upstream.
+[ Upstream commit 67c3b611d92fc238c43734878bc3e232ab570c79 ]
 
-There was a report that a task is waiting at the
-throttle_direct_reclaim. The pgscan_direct_throttle in vmstat was
-increasing.
+Sending a PTP packet can imply to use the normal TX driver datapath but
+invoked from the driver's ptp worker. The kernel generic TX code
+disables softirqs and preemption before calling specific driver TX code,
+but the ptp worker does not. Although current ptp driver functionality
+does not require it, there are several reasons for doing so:
 
-This is a bug where zone_watermark_fast returns true even when the free
-is very low. The commit f27ce0e14088 ("page_alloc: consider highatomic
-reserve in watermark fast") changed the watermark fast to consider
-highatomic reserve. But it did not handle a negative value case which
-can be happened when reserved_highatomic pageblock is bigger than the
-actual free.
+   1) The invoked code is always executed with softirqs disabled for non
+      PTP packets.
+   2) Better if a ptp packet transmission is not interrupted by softirq
+      handling which could lead to high latencies.
+   3) netdev_xmit_more used by the TX code requires preemption to be
+      disabled.
 
-If watermark is considered as ok for the negative value, allocating
-contexts for order-0 will consume all free pages without direct reclaim,
-and finally free page may become depleted except highatomic free.
+Indeed a solution for dealing with kernel preemption state based on static
+kernel configuration is not possible since the introduction of dynamic
+preemption level configuration at boot time using the static calls
+functionality.
 
-Then allocating contexts may fall into throttle_direct_reclaim. This
-symptom may easily happen in a system where wmark min is low and other
-reclaimers like kswapd does not make free pages quickly.
-
-Handle the negative case by using MIN.
-
-Link: https://lkml.kernel.org/r/20220725095212.25388-1-jaewon31.kim@samsung.com
-Fixes: f27ce0e14088 ("page_alloc: consider highatomic reserve in watermark fast")
-Signed-off-by: Jaewon Kim <jaewon31.kim@samsung.com>
-Reported-by: GyeongHwan Hong <gh21.hong@samsung.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Yong-Taek Lee <ytk.lee@samsung.com>
-Cc: <stable@vger.kerenl.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f79c957a0b537 ("drivers: net: sfc: use netdev_xmit_more helper")
+Signed-off-by: Alejandro Lucero <alejandro.lucero-palau@amd.com>
+Link: https://lore.kernel.org/r/20220726064504.49613-1-alejandro.lucero-palau@amd.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/sfc/ptp.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -3928,11 +3928,15 @@ static inline bool zone_watermark_fast(s
- 	 * need to be calculated.
- 	 */
- 	if (!order) {
--		long fast_free;
-+		long usable_free;
-+		long reserved;
+diff --git a/drivers/net/ethernet/sfc/ptp.c b/drivers/net/ethernet/sfc/ptp.c
+index 4625f85acab2..10ad0b93d283 100644
+--- a/drivers/net/ethernet/sfc/ptp.c
++++ b/drivers/net/ethernet/sfc/ptp.c
+@@ -1100,7 +1100,29 @@ static void efx_ptp_xmit_skb_queue(struct efx_nic *efx, struct sk_buff *skb)
  
--		fast_free = free_pages;
--		fast_free -= __zone_watermark_unusable_free(z, 0, alloc_flags);
--		if (fast_free > mark + z->lowmem_reserve[highest_zoneidx])
-+		usable_free = free_pages;
-+		reserved = __zone_watermark_unusable_free(z, 0, alloc_flags);
-+
-+		/* reserved may over estimate high-atomic reserves. */
-+		usable_free -= min(usable_free, reserved);
-+		if (usable_free > mark + z->lowmem_reserve[highest_zoneidx])
- 			return true;
- 	}
- 
+ 	tx_queue = efx_channel_get_tx_queue(ptp_data->channel, type);
+ 	if (tx_queue && tx_queue->timestamping) {
++		/* This code invokes normal driver TX code which is always
++		 * protected from softirqs when called from generic TX code,
++		 * which in turn disables preemption. Look at __dev_queue_xmit
++		 * which uses rcu_read_lock_bh disabling preemption for RCU
++		 * plus disabling softirqs. We do not need RCU reader
++		 * protection here.
++		 *
++		 * Although it is theoretically safe for current PTP TX/RX code
++		 * running without disabling softirqs, there are three good
++		 * reasond for doing so:
++		 *
++		 *      1) The code invoked is mainly implemented for non-PTP
++		 *         packets and it is always executed with softirqs
++		 *         disabled.
++		 *      2) This being a single PTP packet, better to not
++		 *         interrupt its processing by softirqs which can lead
++		 *         to high latencies.
++		 *      3) netdev_xmit_more checks preemption is disabled and
++		 *         triggers a BUG_ON if not.
++		 */
++		local_bh_disable();
+ 		efx_enqueue_skb(tx_queue, skb);
++		local_bh_enable();
+ 	} else {
+ 		WARN_ONCE(1, "PTP channel has no timestamped tx queue\n");
+ 		dev_kfree_skb_any(skb);
+-- 
+2.35.1
+
 
 
