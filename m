@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F5785868B0
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:52:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91A82586947
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:00:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231864AbiHALwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:52:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35850 "EHLO
+        id S232809AbiHAL74 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:59:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231939AbiHALvp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:51:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F5193ED40;
-        Mon,  1 Aug 2022 04:49:36 -0700 (PDT)
+        with ESMTP id S232976AbiHAL7b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:59:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84B7B4C60F;
+        Mon,  1 Aug 2022 04:52:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AE95B8116B;
-        Mon,  1 Aug 2022 11:49:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1088C433C1;
-        Mon,  1 Aug 2022 11:49:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 211B5B81170;
+        Mon,  1 Aug 2022 11:52:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70702C433D6;
+        Mon,  1 Aug 2022 11:52:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354575;
-        bh=YGubQLSJwr0t4C507UNhkoARqzJApVJS5qMvm9iFLNg=;
+        s=korg; t=1659354759;
+        bh=VBH1TpZZyZwT5mtyysWp68ObVLFEUBt+O5pRICLEnDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bpt+uCD41Dp/Djr64y70Y/QTkA/+Mp3BOzfFztyecFYUDJ1Hz5IXqKakvbZyZa38h
-         kaVKCxY87nTLt+3BWvkyrFfKlpqjq0xu2Rxy7gLUibEKkbFUSMKM+TzopMCOPMVYo9
-         ajDKnm81+vFmUEoarvIlxLEWPgDWrYoFRrGnvVdg=
+        b=da/8Z+JCceaWwFvF0yVPqfSBDLysSTkQKa4AZZMXrbfrB6Ryl8RzkXbFMClTlS4jX
+         ZLp0EozeMQCSBGh06oTKacm8+Z0J3s6mb0dUkBQoRIr0E9L5wVHxxhk1jzGe+n+30m
+         1H9I9prH90vgv+d+T6p7/ZBInpV+qwmMbHzFbR5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 10/65] tcp: Fix a data-race around sysctl_tcp_adv_win_scale.
+        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
+        Hawkins Jiawei <yin31149@gmail.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Yongqiang Liu <liuyongqiang13@huawei.com>,
+        Zhang Yi <yi.zhang@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 03/69] ntfs: fix use-after-free in ntfs_ucsncmp()
 Date:   Mon,  1 Aug 2022 13:46:27 +0200
-Message-Id: <20220801114134.120448185@linuxfoundation.org>
+Message-Id: <20220801114134.611030451@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
-References: <20220801114133.641770326@linuxfoundation.org>
+In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
+References: <20220801114134.468284027@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,31 +57,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: ChenXiaoSong <chenxiaosong2@huawei.com>
 
-commit 36eeee75ef0157e42fb6593dcc65daab289b559e upstream.
+commit 38c9c22a85aeed28d0831f230136e9cf6fa2ed44 upstream.
 
-While reading sysctl_tcp_adv_win_scale, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+Syzkaller reported use-after-free bug as follows:
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+==================================================================
+BUG: KASAN: use-after-free in ntfs_ucsncmp+0x123/0x130
+Read of size 2 at addr ffff8880751acee8 by task a.out/879
+
+CPU: 7 PID: 879 Comm: a.out Not tainted 5.19.0-rc4-next-20220630-00001-gcc5218c8bd2c-dirty #7
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x1c0/0x2b0
+ print_address_description.constprop.0.cold+0xd4/0x484
+ print_report.cold+0x55/0x232
+ kasan_report+0xbf/0xf0
+ ntfs_ucsncmp+0x123/0x130
+ ntfs_are_names_equal.cold+0x2b/0x41
+ ntfs_attr_find+0x43b/0xb90
+ ntfs_attr_lookup+0x16d/0x1e0
+ ntfs_read_locked_attr_inode+0x4aa/0x2360
+ ntfs_attr_iget+0x1af/0x220
+ ntfs_read_locked_inode+0x246c/0x5120
+ ntfs_iget+0x132/0x180
+ load_system_files+0x1cc6/0x3480
+ ntfs_fill_super+0xa66/0x1cf0
+ mount_bdev+0x38d/0x460
+ legacy_get_tree+0x10d/0x220
+ vfs_get_tree+0x93/0x300
+ do_new_mount+0x2da/0x6d0
+ path_mount+0x496/0x19d0
+ __x64_sys_mount+0x284/0x300
+ do_syscall_64+0x3b/0xc0
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+RIP: 0033:0x7f3f2118d9ea
+Code: 48 8b 0d a9 f4 0b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 f4 0b 00 f7 d8 64 89 01 48
+RSP: 002b:00007ffc269deac8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f3f2118d9ea
+RDX: 0000000020000000 RSI: 0000000020000100 RDI: 00007ffc269dec00
+RBP: 00007ffc269dec80 R08: 00007ffc269deb00 R09: 00007ffc269dec44
+R10: 0000000000000000 R11: 0000000000000202 R12: 000055f81ab1d220
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+ </TASK>
+
+The buggy address belongs to the physical page:
+page:0000000085430378 refcount:1 mapcount:1 mapping:0000000000000000 index:0x555c6a81d pfn:0x751ac
+memcg:ffff888101f7e180
+anon flags: 0xfffffc00a0014(uptodate|lru|mappedtodisk|swapbacked|node=0|zone=1|lastcpupid=0x1fffff)
+raw: 000fffffc00a0014 ffffea0001bf2988 ffffea0001de2448 ffff88801712e201
+raw: 0000000555c6a81d 0000000000000000 0000000100000000 ffff888101f7e180
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff8880751acd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff8880751ace00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff8880751ace80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                                                          ^
+ ffff8880751acf00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff8880751acf80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+==================================================================
+
+The reason is that struct ATTR_RECORD->name_offset is 6485, end address of
+name string is out of bounds.
+
+Fix this by adding sanity check on end address of attribute name string.
+
+[akpm@linux-foundation.org: coding-style cleanups]
+[chenxiaosong2@huawei.com: cleanup suggested by Hawkins Jiawei]
+  Link: https://lkml.kernel.org/r/20220709064511.3304299-1-chenxiaosong2@huawei.com
+Link: https://lkml.kernel.org/r/20220707105329.4020708-1-chenxiaosong2@huawei.com
+Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
+Cc: Anton Altaparmakov <anton@tuxera.com>
+Cc: ChenXiaoSong <chenxiaosong2@huawei.com>
+Cc: Yongqiang Liu <liuyongqiang13@huawei.com>
+Cc: Zhang Yi <yi.zhang@huawei.com>
+Cc: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tcp.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ntfs/attrib.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -1396,7 +1396,7 @@ void tcp_select_initial_window(const str
- 
- static inline int tcp_win_from_space(const struct sock *sk, int space)
- {
--	int tcp_adv_win_scale = sock_net(sk)->ipv4.sysctl_tcp_adv_win_scale;
-+	int tcp_adv_win_scale = READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_adv_win_scale);
- 
- 	return tcp_adv_win_scale <= 0 ?
- 		(space>>(-tcp_adv_win_scale)) :
+--- a/fs/ntfs/attrib.c
++++ b/fs/ntfs/attrib.c
+@@ -592,8 +592,12 @@ static int ntfs_attr_find(const ATTR_TYP
+ 		a = (ATTR_RECORD*)((u8*)ctx->attr +
+ 				le32_to_cpu(ctx->attr->length));
+ 	for (;;	a = (ATTR_RECORD*)((u8*)a + le32_to_cpu(a->length))) {
+-		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > (u8*)ctx->mrec +
+-				le32_to_cpu(ctx->mrec->bytes_allocated))
++		u8 *mrec_end = (u8 *)ctx->mrec +
++		               le32_to_cpu(ctx->mrec->bytes_allocated);
++		u8 *name_end = (u8 *)a + le16_to_cpu(a->name_offset) +
++			       a->name_length * sizeof(ntfschar);
++		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > mrec_end ||
++		    name_end > mrec_end)
+ 			break;
+ 		ctx->attr = a;
+ 		if (unlikely(le32_to_cpu(a->type) > le32_to_cpu(type) ||
 
 
