@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA0995869BC
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:06:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E1A7586A72
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:16:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233366AbiHAMGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:06:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47614 "EHLO
+        id S234376AbiHAMQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:16:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233675AbiHAMFy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:05:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99E6D5C963;
-        Mon,  1 Aug 2022 04:55:03 -0700 (PDT)
+        with ESMTP id S234600AbiHAMQJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:16:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 380657CB4D;
+        Mon,  1 Aug 2022 04:58:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C498261359;
-        Mon,  1 Aug 2022 11:55:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD074C433D7;
-        Mon,  1 Aug 2022 11:55:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3CB3B80E8F;
+        Mon,  1 Aug 2022 11:58:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 305C0C433D6;
+        Mon,  1 Aug 2022 11:58:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354902;
-        bh=TQns3hjRBLYuanL/YF6iu0M/uuZZf7+dlf8QceGSMv8=;
+        s=korg; t=1659355121;
+        bh=t9K1ljGtuwOhs5uxy8grAgH4UHD7p6dHciwG8jNTmFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xU8CPwFX81bPBv+kLUgZXPGe3iph5QWiKWw3an8J9n/s/LhS25FEbL/oTtJNlkwT7
-         TVaZvdnS8Sl4i7ZVD7ir1eFGV6PZzcBQXsW9YrFXTYw6AhkclQltaTkAtgeMDWNMnz
-         oPRNpCX7KjYhM6y/MH8fEaXuEc59lBg8fVOgjiJE=
+        b=BvMls7l8Yi7ZdhgeXDh1QLRESjxIqdGuvsW3M1oqv/D7450DkPfi5Z/sYhbJ48rfh
+         qacb2/4yYZP87TJTGxYZEpELfutAjuLycAQVrhvA+ZPPMPt45N/wX39EGAXcngD1PK
+         mCSUXPucDpF/IgLFtFT3TGRABZYBXbvF4RkJrl/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Chen <harperchen1110@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Bean Huo <beanhuo@micron.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 61/69] sctp: leave the err path free in sctp_stream_init to sctp_stream_free
+Subject: [PATCH 5.18 71/88] scsi: ufs: core: Fix a race condition related to device management
 Date:   Mon,  1 Aug 2022 13:47:25 +0200
-Message-Id: <20220801114136.937720338@linuxfoundation.org>
+Message-Id: <20220801114141.269290284@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114134.468284027@linuxfoundation.org>
-References: <20220801114134.468284027@linuxfoundation.org>
+In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
+References: <20220801114138.041018499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +57,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 181d8d2066c000ba0a0e6940a7ad80f1a0e68e9d ]
+[ Upstream commit f5c2976e0cb0f6236013bfb479868531b04f61d4 ]
 
-A NULL pointer dereference was reported by Wei Chen:
+If a device management command completion happens after
+wait_for_completion_timeout() times out and before ufshcd_clear_cmds() is
+called, then the completion code may crash on the complete() call in
+__ufshcd_transfer_req_compl().
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  RIP: 0010:__list_del_entry_valid+0x26/0x80
-  Call Trace:
-   <TASK>
-   sctp_sched_dequeue_common+0x1c/0x90
-   sctp_sched_prio_dequeue+0x67/0x80
-   __sctp_outq_teardown+0x299/0x380
-   sctp_outq_free+0x15/0x20
-   sctp_association_free+0xc3/0x440
-   sctp_do_sm+0x1ca7/0x2210
-   sctp_assoc_bh_rcv+0x1f6/0x340
+Fix the following crash:
 
-This happens when calling sctp_sendmsg without connecting to server first.
-In this case, a data chunk already queues up in send queue of client side
-when processing the INIT_ACK from server in sctp_process_init() where it
-calls sctp_stream_init() to alloc stream_in. If it fails to alloc stream_in
-all stream_out will be freed in sctp_stream_init's err path. Then in the
-asoc freeing it will crash when dequeuing this data chunk as stream_out
-is missing.
+  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
+  Call trace:
+   complete+0x64/0x178
+   __ufshcd_transfer_req_compl+0x30c/0x9c0
+   ufshcd_poll+0xf0/0x208
+   ufshcd_sl_intr+0xb8/0xf0
+   ufshcd_intr+0x168/0x2f4
+   __handle_irq_event_percpu+0xa0/0x30c
+   handle_irq_event+0x84/0x178
+   handle_fasteoi_irq+0x150/0x2e8
+   __handle_domain_irq+0x114/0x1e4
+   gic_handle_irq.31846+0x58/0x300
+   el1_irq+0xe4/0x1c0
+   efi_header_end+0x110/0x680
+   __irq_exit_rcu+0x108/0x124
+   __handle_domain_irq+0x118/0x1e4
+   gic_handle_irq.31846+0x58/0x300
+   el1_irq+0xe4/0x1c0
+   cpuidle_enter_state+0x3ac/0x8c4
+   do_idle+0x2fc/0x55c
+   cpu_startup_entry+0x84/0x90
+   kernel_init+0x0/0x310
+   start_kernel+0x0/0x608
+   start_kernel+0x4ec/0x608
 
-As we can't free stream out before dequeuing all data from send queue, and
-this patch is to fix it by moving the err path stream_out/in freeing in
-sctp_stream_init() to sctp_stream_free() which is eventually called when
-freeing the asoc in sctp_association_free(). This fix also makes the code
-in sctp_process_init() more clear.
-
-Note that in sctp_association_init() when it fails in sctp_stream_init(),
-sctp_association_free() will not be called, and in that case it should
-go to 'stream_free' err path to free stream instead of 'fail_init'.
-
-Fixes: 5bbbbe32a431 ("sctp: introduce stream scheduler foundations")
-Reported-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Link: https://lore.kernel.org/r/831a3dc100c4908ff76e5bcc363be97f2778bc0b.1658787066.git.lucien.xin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20220720170228.1598842-1-bvanassche@acm.org
+Fixes: 5a0b0cb9bee7 ("[SCSI] ufs: Add support for sending NOP OUT UPIU")
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Avri Altman <avri.altman@wdc.com>
+Cc: Bean Huo <beanhuo@micron.com>
+Cc: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/associola.c |  5 ++---
- net/sctp/stream.c    | 19 +++----------------
- 2 files changed, 5 insertions(+), 19 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 58 +++++++++++++++++++++++++++------------
+ 1 file changed, 40 insertions(+), 18 deletions(-)
 
-diff --git a/net/sctp/associola.c b/net/sctp/associola.c
-index be29da09cc7a..3460abceba44 100644
---- a/net/sctp/associola.c
-+++ b/net/sctp/associola.c
-@@ -229,9 +229,8 @@ static struct sctp_association *sctp_association_init(
- 	if (!sctp_ulpq_init(&asoc->ulpq, asoc))
- 		goto fail_init;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index a34c1fab0246..874490f7f5e7 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -2947,37 +2947,59 @@ ufshcd_dev_cmd_completion(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+ static int ufshcd_wait_for_dev_cmd(struct ufs_hba *hba,
+ 		struct ufshcd_lrb *lrbp, int max_timeout)
+ {
+-	int err = 0;
+-	unsigned long time_left;
++	unsigned long time_left = msecs_to_jiffies(max_timeout);
+ 	unsigned long flags;
++	bool pending;
++	int err;
  
--	if (sctp_stream_init(&asoc->stream, asoc->c.sinit_num_ostreams,
--			     0, gfp))
--		goto fail_init;
-+	if (sctp_stream_init(&asoc->stream, asoc->c.sinit_num_ostreams, 0, gfp))
-+		goto stream_free;
++retry:
+ 	time_left = wait_for_completion_timeout(hba->dev_cmd.complete,
+-			msecs_to_jiffies(max_timeout));
++						time_left);
  
- 	/* Initialize default path MTU. */
- 	asoc->pathmtu = sp->pathmtu;
-diff --git a/net/sctp/stream.c b/net/sctp/stream.c
-index 6dc95dcc0ff4..ef9fceadef8d 100644
---- a/net/sctp/stream.c
-+++ b/net/sctp/stream.c
-@@ -137,7 +137,7 @@ int sctp_stream_init(struct sctp_stream *stream, __u16 outcnt, __u16 incnt,
- 
- 	ret = sctp_stream_alloc_out(stream, outcnt, gfp);
- 	if (ret)
--		goto out_err;
-+		return ret;
- 
- 	for (i = 0; i < stream->outcnt; i++)
- 		SCTP_SO(stream, i)->state = SCTP_STREAM_OPEN;
-@@ -145,22 +145,9 @@ int sctp_stream_init(struct sctp_stream *stream, __u16 outcnt, __u16 incnt,
- handle_in:
- 	sctp_stream_interleave_init(stream);
- 	if (!incnt)
--		goto out;
+-	spin_lock_irqsave(hba->host->host_lock, flags);
+-	hba->dev_cmd.complete = NULL;
+ 	if (likely(time_left)) {
++		/*
++		 * The completion handler called complete() and the caller of
++		 * this function still owns the @lrbp tag so the code below does
++		 * not trigger any race conditions.
++		 */
++		hba->dev_cmd.complete = NULL;
+ 		err = ufshcd_get_tr_ocs(lrbp);
+ 		if (!err)
+ 			err = ufshcd_dev_cmd_completion(hba, lrbp);
+-	}
+-	spin_unlock_irqrestore(hba->host->host_lock, flags);
 -
--	ret = sctp_stream_alloc_in(stream, incnt, gfp);
--	if (ret)
--		goto in_err;
--
--	goto out;
-+		return 0;
+-	if (!time_left) {
++	} else {
+ 		err = -ETIMEDOUT;
+ 		dev_dbg(hba->dev, "%s: dev_cmd request timedout, tag %d\n",
+ 			__func__, lrbp->task_tag);
+-		if (!ufshcd_clear_cmds(hba, 1U << lrbp->task_tag))
++		if (ufshcd_clear_cmds(hba, 1U << lrbp->task_tag) == 0) {
+ 			/* successfully cleared the command, retry if needed */
+ 			err = -EAGAIN;
+-		/*
+-		 * in case of an error, after clearing the doorbell,
+-		 * we also need to clear the outstanding_request
+-		 * field in hba
+-		 */
+-		spin_lock_irqsave(&hba->outstanding_lock, flags);
+-		__clear_bit(lrbp->task_tag, &hba->outstanding_reqs);
+-		spin_unlock_irqrestore(&hba->outstanding_lock, flags);
++			/*
++			 * Since clearing the command succeeded we also need to
++			 * clear the task tag bit from the outstanding_reqs
++			 * variable.
++			 */
++			spin_lock_irqsave(&hba->outstanding_lock, flags);
++			pending = test_bit(lrbp->task_tag,
++					   &hba->outstanding_reqs);
++			if (pending) {
++				hba->dev_cmd.complete = NULL;
++				__clear_bit(lrbp->task_tag,
++					    &hba->outstanding_reqs);
++			}
++			spin_unlock_irqrestore(&hba->outstanding_lock, flags);
++
++			if (!pending) {
++				/*
++				 * The completion handler ran while we tried to
++				 * clear the command.
++				 */
++				time_left = 1;
++				goto retry;
++			}
++		} else {
++			dev_err(hba->dev, "%s: failed to clear tag %d\n",
++				__func__, lrbp->task_tag);
++		}
+ 	}
  
--in_err:
--	sched->free(stream);
--	genradix_free(&stream->in);
--out_err:
--	genradix_free(&stream->out);
--	stream->outcnt = 0;
--out:
--	return ret;
-+	return sctp_stream_alloc_in(stream, incnt, gfp);
- }
- 
- int sctp_stream_init_ext(struct sctp_stream *stream, __u16 sid)
+ 	return err;
 -- 
 2.35.1
 
