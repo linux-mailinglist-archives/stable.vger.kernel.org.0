@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 021CE58688B
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:49:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66C2058690F
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 13:56:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230295AbiHALtq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 07:49:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35144 "EHLO
+        id S232039AbiHAL4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 07:56:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231708AbiHALtL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:49:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B8A83F31C;
-        Mon,  1 Aug 2022 04:48:41 -0700 (PDT)
+        with ESMTP id S232542AbiHALzm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 07:55:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EB7B46D91;
+        Mon,  1 Aug 2022 04:51:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF95661210;
-        Mon,  1 Aug 2022 11:48:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04D9EC433D6;
-        Mon,  1 Aug 2022 11:48:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55FFEB81171;
+        Mon,  1 Aug 2022 11:51:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6038C433D6;
+        Mon,  1 Aug 2022 11:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354520;
-        bh=jSo4xF4m8OnK0v74bY7eInmtx1SwCGLzwrI1ExsX8p0=;
+        s=korg; t=1659354677;
+        bh=ovaRUObMAvZXzLI3pFsi8aRPVpgULcDH1zTnBrKal/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vhWdgH3IrIAPpQWphhXM8vRxLJlXKbidAIoPLQ3E2xrt09su+ZhuT/6mYkXPx236I
-         nILjyF/xS7hXW0Uu/dEVQlH0t6xrfDoj3MYxKuyaiAR7x0YxPEq7sXC5epLmGRPI7r
-         i1JKnDXaJX4HACpJxaeK3GH889Twn4HJfo9hMkq4=
+        b=hh1/XWPNP4WzjpupoijT4NrKSa2Dxy/60p1BnoY5qIIXGIHz6eemYuw4c7IVtp+ne
+         Zh5dmWb719IkZDdJ36QlmWiGdDLWXs6bemfpJQ7Ucmhe2yP26AKq24EM+c4c0A9wOT
+         AbHF9g3oY13L7oOR9eBIArErWxqrrqSrQ0LmTOFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/34] tcp: Fix a data-race around sysctl_tcp_comp_sack_nr.
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        "Justin M. Forbes" <jforbes@fedoraproject.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Nicolas Pitre <nico@linaro.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 5.10 47/65] ARM: crypto: comment out gcc warning that breaks clang builds
 Date:   Mon,  1 Aug 2022 13:47:04 +0200
-Message-Id: <20220801114128.948187739@linuxfoundation.org>
+Message-Id: <20220801114135.689220683@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220801114128.025615151@linuxfoundation.org>
-References: <20220801114128.025615151@linuxfoundation.org>
+In-Reply-To: <20220801114133.641770326@linuxfoundation.org>
+References: <20220801114133.641770326@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 79f55473bfc8ac51bd6572929a679eeb4da22251 ]
+The gcc build warning prevents all clang-built kernels from working
+properly, so comment it out to fix the build.
 
-While reading sysctl_tcp_comp_sack_nr, it can be changed concurrently.
-Thus, we need to add READ_ONCE() to its reader.
+This is a -stable kernel only patch for now, it will be resolved
+differently in mainline releases in the future.
 
-Fixes: 9c21d2fc41c0 ("tcp: add tcp_comp_sack_nr sysctl")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: "Justin M. Forbes" <jforbes@fedoraproject.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Nicolas Pitre <nico@linaro.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/lib/xor-neon.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index f8fa036cfae2..f4e00ff909da 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -5303,7 +5303,7 @@ static void __tcp_ack_snd_check(struct sock *sk, int ofo_possible)
- 	}
+--- a/arch/arm/lib/xor-neon.c
++++ b/arch/arm/lib/xor-neon.c
+@@ -26,8 +26,9 @@ MODULE_LICENSE("GPL");
+  * While older versions of GCC do not generate incorrect code, they fail to
+  * recognize the parallel nature of these functions, and emit plain ARM code,
+  * which is known to be slower than the optimized ARM code in asm-arm/xor.h.
++ *
++ * #warning This code requires at least version 4.6 of GCC
+  */
+-#warning This code requires at least version 4.6 of GCC
+ #endif
  
- 	if (!tcp_is_sack(tp) ||
--	    tp->compressed_ack >= sock_net(sk)->ipv4.sysctl_tcp_comp_sack_nr)
-+	    tp->compressed_ack >= READ_ONCE(sock_net(sk)->ipv4.sysctl_tcp_comp_sack_nr))
- 		goto send_now;
- 
- 	if (tp->compressed_ack_rcv_nxt != tp->rcv_nxt) {
--- 
-2.35.1
-
+ #pragma GCC diagnostic ignored "-Wunused-variable"
 
 
