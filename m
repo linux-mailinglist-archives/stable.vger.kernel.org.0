@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 370FF5869EB
-	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:09:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 665A95869E9
+	for <lists+stable@lfdr.de>; Mon,  1 Aug 2022 14:09:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233249AbiHAMJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Aug 2022 08:09:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43186 "EHLO
+        id S233737AbiHAMJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Aug 2022 08:09:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233744AbiHAMIa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:08:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 217C545F4A;
-        Mon,  1 Aug 2022 04:55:56 -0700 (PDT)
+        with ESMTP id S233735AbiHAMI3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Aug 2022 08:08:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6258945F7E;
+        Mon,  1 Aug 2022 04:55:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8E40B80EAC;
-        Mon,  1 Aug 2022 11:55:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27D77C433C1;
-        Mon,  1 Aug 2022 11:55:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C76DD61227;
+        Mon,  1 Aug 2022 11:55:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D34E2C433D7;
+        Mon,  1 Aug 2022 11:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659354953;
-        bh=6uHo3ZP7kvSw4oagX/VlqwE8fSt9Rspmj2PhTp3d8WU=;
+        s=korg; t=1659354956;
+        bh=Jizby1RHFzU4Ah7+X4auJpnP6fL8l4UvXwDc5hix7e0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xahs9axabjgREQ/imEmSmabi61C84h1OBoebizQLaHAqeXcgtFdpif6cxaNjlTFur
-         z0C/YmJUJ+H+gHizCUZFutQmie/V3OAhtF59YR1g6qlleGo73DekpBO6TeabJOikn0
-         DLzuavGVLJ//oIi3wzy4w9t+27pzzjTblS7AmGJE=
+        b=GK3f6Uf778ITwYLp3UNSdgE5mvcIiT3ff7wgyQnOMQGEo6Oqct29KflfJpNWTk2j8
+         M38kWOxecBUD8IwxMZHPe436y17Siu/ibNrXySMCU9OkD5AaR77I0cBBW1b3q8JtRB
+         WsqfGTdNVAdGbGbDXoWQqQxipJlrEEo7jLZv+xq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Rik van Riel <riel@surriel.com>, Chris Mason <clm@fb.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        John Hubbard <jhubbard@nvidia.com>,
+        William Kucharski <william.kucharski@oracle.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Jan Kara <jack@suse.cz>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.18 10/88] mm: fix page leak with multiple threads mapping the same page
-Date:   Mon,  1 Aug 2022 13:46:24 +0200
-Message-Id: <20220801114138.522672752@linuxfoundation.org>
+Subject: [PATCH 5.18 11/88] mm: fix missing wake-up event for FSDAX pages
+Date:   Mon,  1 Aug 2022 13:46:25 +0200
+Message-Id: <20220801114138.573589322@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
 References: <20220801114138.041018499@linuxfoundation.org>
@@ -55,72 +58,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 3fe2895cfecd03ac74977f32102b966b6589f481 upstream.
+commit f4f451a16dd1f478fdb966bcbb612c1e4ce6b962 upstream.
 
-We have an application with a lot of threads that use a shared mmap backed
-by tmpfs mounted with -o huge=within_size.  This application started
-leaking loads of huge pages when we upgraded to a recent kernel.
+FSDAX page refcounts are 1-based, rather than 0-based: if refcount is
+1, then the page is freed.  The FSDAX pages can be pinned through GUP,
+then they will be unpinned via unpin_user_page() using a folio variant
+to put the page, however, folio variants did not consider this special
+case, the result will be to miss a wakeup event (like the user of
+__fuse_dax_break_layouts()).  This results in a task being permanently
+stuck in TASK_INTERRUPTIBLE state.
 
-Using the page ref tracepoints and a BPF program written by Tejun Heo we
-were able to determine that these pages would have multiple refcounts from
-the page fault path, but when it came to unmap time we wouldn't drop the
-number of refs we had added from the faults.
+Since FSDAX pages are only possibly obtained by GUP users, so fix GUP
+instead of folio_put() to lower overhead.
 
-I wrote a reproducer that mmap'ed a file backed by tmpfs with -o
-huge=always, and then spawned 20 threads all looping faulting random
-offsets in this map, while using madvise(MADV_DONTNEED) randomly for huge
-page aligned ranges.  This very quickly reproduced the problem.
-
-The problem here is that we check for the case that we have multiple
-threads faulting in a range that was previously unmapped.  One thread maps
-the PMD, the other thread loses the race and then returns 0.  However at
-this point we already have the page, and we are no longer putting this
-page into the processes address space, and so we leak the page.  We
-actually did the correct thing prior to f9ce0be71d1f, however it looks
-like Kirill copied what we do in the anonymous page case.  In the
-anonymous page case we don't yet have a page, so we don't have to drop a
-reference on anything.  Previously we did the correct thing for file based
-faults by returning VM_FAULT_NOPAGE so we correctly drop the reference on
-the page we faulted in.
-
-Fix this by returning VM_FAULT_NOPAGE in the pmd_devmap_trans_unstable()
-case, this makes us drop the ref on the page properly, and now my
-reproducer no longer leaks the huge pages.
-
-[josef@toxicpanda.com: v2]
-  Link: https://lkml.kernel.org/r/e90c8f0dbae836632b669c2afc434006a00d4a67.1657721478.git.josef@toxicpanda.com
-Link: https://lkml.kernel.org/r/2b798acfd95c9ab9395fe85e8d5a835e2e10a920.1657051137.git.josef@toxicpanda.com
-Fixes: f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault() codepaths")
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Signed-off-by: Chris Mason <clm@fb.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Link: https://lkml.kernel.org/r/20220705123532.283-1-songmuchun@bytedance.com
+Fixes: d8ddc099c6b3 ("mm/gup: Add gup_put_folio()")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Suggested-by: Matthew Wilcox <willy@infradead.org>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: William Kucharski <william.kucharski@oracle.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Jan Kara <jack@suse.cz>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ include/linux/mm.h |   14 +++++++++-----
+ mm/gup.c           |    6 ++++--
+ mm/memremap.c      |    6 +++---
+ 3 files changed, 16 insertions(+), 10 deletions(-)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4108,9 +4108,12 @@ vm_fault_t finish_fault(struct vm_fault
- 			return VM_FAULT_OOM;
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1130,23 +1130,27 @@ static inline bool is_zone_movable_page(
+ #if defined(CONFIG_ZONE_DEVICE) && defined(CONFIG_FS_DAX)
+ DECLARE_STATIC_KEY_FALSE(devmap_managed_key);
+ 
+-bool __put_devmap_managed_page(struct page *page);
+-static inline bool put_devmap_managed_page(struct page *page)
++bool __put_devmap_managed_page_refs(struct page *page, int refs);
++static inline bool put_devmap_managed_page_refs(struct page *page, int refs)
+ {
+ 	if (!static_branch_unlikely(&devmap_managed_key))
+ 		return false;
+ 	if (!is_zone_device_page(page))
+ 		return false;
+-	return __put_devmap_managed_page(page);
++	return __put_devmap_managed_page_refs(page, refs);
+ }
+-
+ #else /* CONFIG_ZONE_DEVICE && CONFIG_FS_DAX */
+-static inline bool put_devmap_managed_page(struct page *page)
++static inline bool put_devmap_managed_page_refs(struct page *page, int refs)
+ {
+ 	return false;
+ }
+ #endif /* CONFIG_ZONE_DEVICE && CONFIG_FS_DAX */
+ 
++static inline bool put_devmap_managed_page(struct page *page)
++{
++	return put_devmap_managed_page_refs(page, 1);
++}
++
+ /* 127: arbitrary random number, small enough to assemble well */
+ #define folio_ref_zero_or_close_to_overflow(folio) \
+ 	((unsigned int) folio_ref_count(folio) + 127u <= 127u)
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -54,7 +54,8 @@ retry:
+ 	 * belongs to this folio.
+ 	 */
+ 	if (unlikely(page_folio(page) != folio)) {
+-		folio_put_refs(folio, refs);
++		if (!put_devmap_managed_page_refs(&folio->page, refs))
++			folio_put_refs(folio, refs);
+ 		goto retry;
  	}
  
--	/* See comment in handle_pte_fault() */
-+	/*
-+	 * See comment in handle_pte_fault() for how this scenario happens, we
-+	 * need to return NOPAGE so that we drop this page.
-+	 */
- 	if (pmd_devmap_trans_unstable(vmf->pmd))
--		return 0;
-+		return VM_FAULT_NOPAGE;
+@@ -143,7 +144,8 @@ static void gup_put_folio(struct folio *
+ 			refs *= GUP_PIN_COUNTING_BIAS;
+ 	}
  
- 	vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd,
- 				      vmf->address, &vmf->ptl);
+-	folio_put_refs(folio, refs);
++	if (!put_devmap_managed_page_refs(&folio->page, refs))
++		folio_put_refs(folio, refs);
+ }
+ 
+ /**
+--- a/mm/memremap.c
++++ b/mm/memremap.c
+@@ -489,7 +489,7 @@ void free_zone_device_page(struct page *
+ }
+ 
+ #ifdef CONFIG_FS_DAX
+-bool __put_devmap_managed_page(struct page *page)
++bool __put_devmap_managed_page_refs(struct page *page, int refs)
+ {
+ 	if (page->pgmap->type != MEMORY_DEVICE_FS_DAX)
+ 		return false;
+@@ -499,9 +499,9 @@ bool __put_devmap_managed_page(struct pa
+ 	 * refcount is 1, then the page is free and the refcount is
+ 	 * stable because nobody holds a reference on the page.
+ 	 */
+-	if (page_ref_dec_return(page) == 1)
++	if (page_ref_sub_return(page, refs) == 1)
+ 		wake_up_var(&page->_refcount);
+ 	return true;
+ }
+-EXPORT_SYMBOL(__put_devmap_managed_page);
++EXPORT_SYMBOL(__put_devmap_managed_page_refs);
+ #endif /* CONFIG_FS_DAX */
 
 
