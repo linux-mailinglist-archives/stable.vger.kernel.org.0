@@ -2,288 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63C9B587F3B
-	for <lists+stable@lfdr.de>; Tue,  2 Aug 2022 17:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36F7B588043
+	for <lists+stable@lfdr.de>; Tue,  2 Aug 2022 18:29:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229449AbiHBPtS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Aug 2022 11:49:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49788 "EHLO
+        id S230101AbiHBQ3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Aug 2022 12:29:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229659AbiHBPs7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Aug 2022 11:48:59 -0400
-Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C0854599F;
-        Tue,  2 Aug 2022 08:48:04 -0700 (PDT)
-Received: from localhost.localdomain (unknown [83.149.199.65])
-        by mail.ispras.ru (Postfix) with ESMTPSA id C093540737B1;
-        Tue,  2 Aug 2022 15:47:57 +0000 (UTC)
-From:   Fedor Pchelkin <pchelkin@ispras.ru>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
-Cc:     Fedor Pchelkin <pchelkin@ispras.ru>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        ldv-project@linuxtesting.org,
-        syzkaller <syzkaller@googlegroups.com>,
-        George Kennedy <george.kennedy@oracle.com>
-Subject: [PATCH backport for 5.10] tun: avoid double free in tun_free_netdev
-Date:   Tue,  2 Aug 2022 18:47:11 +0300
-Message-Id: <20220802154711.1745023-1-pchelkin@ispras.ru>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229683AbiHBQ3s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Aug 2022 12:29:48 -0400
+X-Greylist: delayed 601 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 02 Aug 2022 09:29:46 PDT
+Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [188.68.61.102])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30BCF3A480;
+        Tue,  2 Aug 2022 09:29:46 -0700 (PDT)
+Received: from mors-relay-8403.netcup.net (localhost [127.0.0.1])
+        by mors-relay-8403.netcup.net (Postfix) with ESMTPS id 4Ly0Qf2HnFz7vmT;
+        Tue,  2 Aug 2022 18:13:14 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=jonathanweth.de;
+        s=key2; t=1659456794;
+        bh=g+aUoZtn9lkTEhcQ9iJURvNaO6BxMn2nDpOE4kZeFMo=;
+        h=Date:To:Cc:References:Subject:From:In-Reply-To:From;
+        b=EnVTvE6E0PMaoeUNFZZxX+gqj1gabeWI23TA1v96p8fdFZlQOgxA1vdevdDdtryrz
+         G5pNif1ZFCGLK7ebLV6OtugrRDR1u99tRD3HRWA4bUyWs9Wy3RXILudm3QMzCM1tqF
+         RHNH7GEHFLC0p6nTJT2I1KhVsev8VqhPDM/wHb5RwozLvjeP8oPRWbyCaFaUUvJecf
+         EXILQmN+UlosRoGKoFaI0Ow1P++LAOPLLheJ7fNObmxT2Iev3uCEP2LLJrALyjh1rB
+         Efzg7aSWAk87+K0uLJfKERQgDMuBbAHO5N1gOmoRgRpWF5ydELnWZDy0aGEdqlLDyc
+         6G1crlFcqv2gQ==
+Received: from policy02-mors.netcup.net (unknown [46.38.225.53])
+        by mors-relay-8403.netcup.net (Postfix) with ESMTPS id 4Ly0Qf1vLbz7vmR;
+        Tue,  2 Aug 2022 18:13:14 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at policy02-mors.netcup.net
+X-Spam-Score: -2.9
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_PASS,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Received: from mx2f71.netcup.net (unknown [10.243.12.53])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by policy02-mors.netcup.net (Postfix) with ESMTPS id 4Ly0Qd18m7z8sZR;
+        Tue,  2 Aug 2022 18:13:13 +0200 (CEST)
+Received: from [192.168.1.195] (unknown [83.139.202.244])
+        by mx2f71.netcup.net (Postfix) with ESMTPSA id 5687C62372;
+        Tue,  2 Aug 2022 18:13:11 +0200 (CEST)
+Authentication-Results: mx2f71;
+        spf=pass (sender IP is 83.139.202.244) smtp.mailfrom=dev@jonathanweth.de smtp.helo=[192.168.1.195]
+Received-SPF: pass (mx2f71: connection is authenticated)
+Message-ID: <b30e2fd3-55a4-b4fa-e72d-54dc6b22af82@jonathanweth.de>
+Date:   Tue, 2 Aug 2022 18:13:09 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+To:     larry.finger@lwfinger.net
+Cc:     gustavo@padovan.org, hildawu@realtek.com, johan.hedberg@gmail.com,
+        linux-bluetooth@vger.kernel.org, marcel@holtmann.org,
+        stable@vger.kernel.org
+References: <20210927204302.10871-1-Larry.Finger@lwfinger.net>
+Subject: Re: [PATCH] bluetooth: Add another Bluetooth part for Realtek 8852AE
+Content-Language: de-DE
+From:   Jonathan Weth <dev@jonathanweth.de>
+In-Reply-To: <20210927204302.10871-1-Larry.Finger@lwfinger.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PPP-Message-ID: <165945679271.30739.4803581689034896251@mx2f71.netcup.net>
+X-PPP-Vhost: jonathanweth.de
+X-NC-CID: RkBhufbiRBTzb1jrhoWfaRfcT037wlDn3Hp8M//0N5TJJi+7
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+Hi everyone,
 
-commit 158b515f703e75e7d68289bf4d98c664e1d632df upstream.
+>> This Realtek device has both wifi and BT components. The latter reports
+>> a USB ID of 0bda:4852, which is not in the table.
+>> 
+>> The portion of /sys/kernel/debug/usb/devices pertaining to this device is
+>> 
+>> T:  Bus=06 Lev=01 Prnt=01 Port=03 Cnt=02 Dev#=  3 Spd=12   MxCh= 0
+>> D:  Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+>> P:  Vendor=0bda ProdID=4852 Rev= 0.00
+>> S:  Manufacturer=Realtek
+>> S:  Product=Bluetooth Radio
+>> S:  SerialNumber=00e04c000001
+>> C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
+>> I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+>> E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+>> E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+>> E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+>> I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+>> E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+>> E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+>> I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+>> E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+>> E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+>> I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+>> E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+>> E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+>> I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+>> E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+>> E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+>> I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+>> E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+>> E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+>> I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+>> E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+>> E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+>> 
+>> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+>> Cc: Stable <stable@vger.kernel.org>
+>> ---
+>> drivers/bluetooth/btusb.c | 2 ++
+>> 1 file changed, 2 insertions(+)
+> 
+> patch does not apply cleanly to bluetooth-next tree.
 
-Avoid double free in tun_free_netdev() by moving the
-dev->tstats and tun->security allocs to a new ndo_init routine
-(tun_net_init()) that will be called by register_netdevice().
-ndo_init is paired with the desctructor (tun_free_netdev()),
-so if there's an error in register_netdevice() the destructor
-will handle the frees.
+Is there any progress according to this fix? I would like to help as 
+this prevents my bluetooth interface from working but I actually don't 
+know how.
 
-BUG: KASAN: double-free or invalid-free in selinux_tun_dev_free_security+0x1a/0x20 security/selinux/hooks.c:5605
+Regards
 
-CPU: 0 PID: 25750 Comm: syz-executor416 Not tainted 5.16.0-rc2-syzk #1
-Hardware name: Red Hat KVM, BIOS
-Call Trace:
-<TASK>
-__dump_stack lib/dump_stack.c:88 [inline]
-dump_stack_lvl+0x89/0xb5 lib/dump_stack.c:106
-print_address_description.constprop.9+0x28/0x160 mm/kasan/report.c:247
-kasan_report_invalid_free+0x55/0x80 mm/kasan/report.c:372
-____kasan_slab_free mm/kasan/common.c:346 [inline]
-__kasan_slab_free+0x107/0x120 mm/kasan/common.c:374
-kasan_slab_free include/linux/kasan.h:235 [inline]
-slab_free_hook mm/slub.c:1723 [inline]
-slab_free_freelist_hook mm/slub.c:1749 [inline]
-slab_free mm/slub.c:3513 [inline]
-kfree+0xac/0x2d0 mm/slub.c:4561
-selinux_tun_dev_free_security+0x1a/0x20 security/selinux/hooks.c:5605
-security_tun_dev_free_security+0x4f/0x90 security/security.c:2342
-tun_free_netdev+0xe6/0x150 drivers/net/tun.c:2215
-netdev_run_todo+0x4df/0x840 net/core/dev.c:10627
-rtnl_unlock+0x13/0x20 net/core/rtnetlink.c:112
-__tun_chr_ioctl+0x80c/0x2870 drivers/net/tun.c:3302
-tun_chr_ioctl+0x2f/0x40 drivers/net/tun.c:3311
-vfs_ioctl fs/ioctl.c:51 [inline]
-__do_sys_ioctl fs/ioctl.c:874 [inline]
-__se_sys_ioctl fs/ioctl.c:860 [inline]
-__x64_sys_ioctl+0x19d/0x220 fs/ioctl.c:860
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x3a/0x80 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x44/0xae
+Jonathan
 
-Backport commit info: the original patch logic was not changed. The only
-modified fragments are related to upstream commit 497a5757ce4e
-("tun: switch to net core provided statistics counters"):
-struct tun_pcpu_stats is still used instead of net core provided statistics
-counters.
-
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Link: https://lore.kernel.org/r/1639679132-19884-1-git-send-email-george.kennedy@oracle.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
----
- drivers/net/tun.c | 114 ++++++++++++++++++++++++----------------------
- 1 file changed, 59 insertions(+), 55 deletions(-)
-
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index be9ff6a74ecc..a643b2f2f4de 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -220,6 +220,9 @@ struct tun_struct {
- 	struct tun_prog __rcu *steering_prog;
- 	struct tun_prog __rcu *filter_prog;
- 	struct ethtool_link_ksettings link_ksettings;
-+	/* init args */
-+	struct file *file;
-+	struct ifreq *ifr;
- };
- 
- struct veth {
-@@ -227,6 +230,9 @@ struct veth {
- 	__be16 h_vlan_TCI;
- };
- 
-+static void tun_flow_init(struct tun_struct *tun);
-+static void tun_flow_uninit(struct tun_struct *tun);
-+
- static int tun_napi_receive(struct napi_struct *napi, int budget)
- {
- 	struct tun_file *tfile = container_of(napi, struct tun_file, napi);
-@@ -975,6 +981,49 @@ static int check_filter(struct tap_filter *filter, const struct sk_buff *skb)
- 
- static const struct ethtool_ops tun_ethtool_ops;
- 
-+static int tun_net_init(struct net_device *dev)
-+{
-+	struct tun_struct *tun = netdev_priv(dev);
-+	struct ifreq *ifr = tun->ifr;
-+	int err;
-+
-+	tun->pcpu_stats = netdev_alloc_pcpu_stats(struct tun_pcpu_stats);
-+	if (!tun->pcpu_stats)
-+		return -ENOMEM;
-+
-+	spin_lock_init(&tun->lock);
-+
-+	err = security_tun_dev_alloc_security(&tun->security);
-+	if (err < 0) {
-+		free_percpu(tun->pcpu_stats);
-+		return err;
-+	}
-+
-+	tun_flow_init(tun);
-+
-+	dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST |
-+			   TUN_USER_FEATURES | NETIF_F_HW_VLAN_CTAG_TX |
-+			   NETIF_F_HW_VLAN_STAG_TX;
-+	dev->features = dev->hw_features | NETIF_F_LLTX;
-+	dev->vlan_features = dev->features &
-+			     ~(NETIF_F_HW_VLAN_CTAG_TX |
-+			       NETIF_F_HW_VLAN_STAG_TX);
-+
-+	tun->flags = (tun->flags & ~TUN_FEATURES) |
-+		      (ifr->ifr_flags & TUN_FEATURES);
-+
-+	INIT_LIST_HEAD(&tun->disabled);
-+	err = tun_attach(tun, tun->file, false, ifr->ifr_flags & IFF_NAPI,
-+			 ifr->ifr_flags & IFF_NAPI_FRAGS, false);
-+	if (err < 0) {
-+		tun_flow_uninit(tun);
-+		security_tun_dev_free_security(tun->security);
-+		free_percpu(tun->pcpu_stats);
-+		return err;
-+	}
-+	return 0;
-+}
-+
- /* Net device detach from fd. */
- static void tun_net_uninit(struct net_device *dev)
- {
-@@ -1216,6 +1265,7 @@ static int tun_net_change_carrier(struct net_device *dev, bool new_carrier)
- }
- 
- static const struct net_device_ops tun_netdev_ops = {
-+	.ndo_init		= tun_net_init,
- 	.ndo_uninit		= tun_net_uninit,
- 	.ndo_open		= tun_net_open,
- 	.ndo_stop		= tun_net_close,
-@@ -1296,6 +1346,7 @@ static int tun_xdp_tx(struct net_device *dev, struct xdp_buff *xdp)
- }
- 
- static const struct net_device_ops tap_netdev_ops = {
-+	.ndo_init		= tun_net_init,
- 	.ndo_uninit		= tun_net_uninit,
- 	.ndo_open		= tun_net_open,
- 	.ndo_stop		= tun_net_close,
-@@ -1336,7 +1387,7 @@ static void tun_flow_uninit(struct tun_struct *tun)
- #define MAX_MTU 65535
- 
- /* Initialize net device. */
--static void tun_net_init(struct net_device *dev)
-+static void tun_net_initialize(struct net_device *dev)
- {
- 	struct tun_struct *tun = netdev_priv(dev);
- 
-@@ -2268,10 +2319,6 @@ static void tun_free_netdev(struct net_device *dev)
- 	BUG_ON(!(list_empty(&tun->disabled)));
- 
- 	free_percpu(tun->pcpu_stats);
--	/* We clear pcpu_stats so that tun_set_iff() can tell if
--	 * tun_free_netdev() has been called from register_netdevice().
--	 */
--	tun->pcpu_stats = NULL;
- 
- 	tun_flow_uninit(tun);
- 	security_tun_dev_free_security(tun->security);
-@@ -2784,41 +2831,16 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
- 		tun->rx_batched = 0;
- 		RCU_INIT_POINTER(tun->steering_prog, NULL);
- 
--		tun->pcpu_stats = netdev_alloc_pcpu_stats(struct tun_pcpu_stats);
--		if (!tun->pcpu_stats) {
--			err = -ENOMEM;
--			goto err_free_dev;
--		}
-+		tun->ifr = ifr;
-+		tun->file = file;
- 
--		spin_lock_init(&tun->lock);
--
--		err = security_tun_dev_alloc_security(&tun->security);
--		if (err < 0)
--			goto err_free_stat;
--
--		tun_net_init(dev);
--		tun_flow_init(tun);
--
--		dev->hw_features = NETIF_F_SG | NETIF_F_FRAGLIST |
--				   TUN_USER_FEATURES | NETIF_F_HW_VLAN_CTAG_TX |
--				   NETIF_F_HW_VLAN_STAG_TX;
--		dev->features = dev->hw_features | NETIF_F_LLTX;
--		dev->vlan_features = dev->features &
--				     ~(NETIF_F_HW_VLAN_CTAG_TX |
--				       NETIF_F_HW_VLAN_STAG_TX);
--
--		tun->flags = (tun->flags & ~TUN_FEATURES) |
--			      (ifr->ifr_flags & TUN_FEATURES);
--
--		INIT_LIST_HEAD(&tun->disabled);
--		err = tun_attach(tun, file, false, ifr->ifr_flags & IFF_NAPI,
--				 ifr->ifr_flags & IFF_NAPI_FRAGS, false);
--		if (err < 0)
--			goto err_free_flow;
-+		tun_net_initialize(dev);
- 
- 		err = register_netdevice(tun->dev);
--		if (err < 0)
--			goto err_detach;
-+		if (err < 0) {
-+			free_netdev(dev);
-+			return err;
-+		}
- 		/* free_netdev() won't check refcnt, to aovid race
- 		 * with dev_put() we need publish tun after registration.
- 		 */
-@@ -2835,24 +2857,6 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
- 
- 	strcpy(ifr->ifr_name, tun->dev->name);
- 	return 0;
--
--err_detach:
--	tun_detach_all(dev);
--	/* We are here because register_netdevice() has failed.
--	 * If register_netdevice() already called tun_free_netdev()
--	 * while dealing with the error, tun->pcpu_stats has been cleared.
--	 */
--	if (!tun->pcpu_stats)
--		goto err_free_dev;
--
--err_free_flow:
--	tun_flow_uninit(tun);
--	security_tun_dev_free_security(tun->security);
--err_free_stat:
--	free_percpu(tun->pcpu_stats);
--err_free_dev:
--	free_netdev(dev);
--	return err;
- }
- 
- static void tun_get_iff(struct tun_struct *tun, struct ifreq *ifr)
 -- 
-2.25.1
-
+Jonathan Weth
+mail@jonathanweth.de
