@@ -2,154 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44C265877CE
-	for <lists+stable@lfdr.de>; Tue,  2 Aug 2022 09:29:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD6E2587987
+	for <lists+stable@lfdr.de>; Tue,  2 Aug 2022 11:03:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233933AbiHBH3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Aug 2022 03:29:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35142 "EHLO
+        id S236131AbiHBJDe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Aug 2022 05:03:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232550AbiHBH27 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Aug 2022 03:28:59 -0400
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BFBC491C2;
-        Tue,  2 Aug 2022 00:28:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1659425338; x=1690961338;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=MY1UeVCmTorLiElTkcmSLQfpDa7PBuZ+KvAyO3eFpnw=;
-  b=b2WXikC4CPW209uc0F7t4IsWTHPKOw2su0cQKfAX/fVO8AEzH6H/Z9Gt
-   Cw+M9C1XnqEbmg2zxwbvd/OMgfwyPXxlVRGzkFbChSJRB4vCwc1hPRbRb
-   6h3SvddCPvRhbmTQv01Gpcjp6+Lpcs+6mNYah1X9qEE2YFeo4cMs+uFOK
-   ZRsYr3uEFo1RNm2qFA855/q0SJvsSzNoFHU/DaZDNB5KafaV33eTTSHkA
-   IikcTJyqODnTjaR7NkV1QWaGa5o5Il3RfM2rE8VlfrOAJgihvyDc84qpa
-   XKTfvPnleyLhVEF7i9nhE3qTcHloRuV3sQhnhLKSxtI0zW98fSiznb9Ek
-   g==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10426"; a="353348423"
-X-IronPort-AV: E=Sophos;i="5.93,210,1654585200"; 
-   d="scan'208";a="353348423"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Aug 2022 00:28:57 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,210,1654585200"; 
-   d="scan'208";a="744573684"
-Received: from kuha.fi.intel.com ([10.237.72.185])
-  by fmsmga001.fm.intel.com with SMTP; 02 Aug 2022 00:28:53 -0700
-Received: by kuha.fi.intel.com (sSMTP sendmail emulation); Tue, 02 Aug 2022 10:28:52 +0300
-Date:   Tue, 2 Aug 2022 10:28:52 +0300
-From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To:     Macpaul Lin <macpaul.lin@mediatek.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org,
-        Bear Wang <bear.wang@mediatek.com>,
-        Pablo Sun <pablo.sun@mediatek.com>,
-        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
-        Macpaul Lin <macpaul@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] usb: typec: altmodes/displayport: correct pin assignment
- for UFP receptacles
-Message-ID: <YujSNEGm2ikg3j8a@kuha.fi.intel.com>
-References: <20220727110503.5260-1-macpaul.lin@mediatek.com>
+        with ESMTP id S236100AbiHBJDX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Aug 2022 05:03:23 -0400
+Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 795834F180;
+        Tue,  2 Aug 2022 02:03:22 -0700 (PDT)
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+        by localhost (Postfix) with ESMTP id 4LxptV28k5z9sj3;
+        Tue,  2 Aug 2022 11:03:14 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id mFijjTEZ17Rg; Tue,  2 Aug 2022 11:03:14 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4LxptS5BJ4z9sj8;
+        Tue,  2 Aug 2022 11:03:12 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id A07B88B778;
+        Tue,  2 Aug 2022 11:03:12 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id ewIY7rW_tppI; Tue,  2 Aug 2022 11:03:12 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.234.100])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 581DE8B774;
+        Tue,  2 Aug 2022 11:03:12 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.16.1) with ESMTPS id 27292rda2260933
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+        Tue, 2 Aug 2022 11:02:53 +0200
+Received: (from chleroy@localhost)
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.17.1/Submit) id 27292qSv2260929;
+        Tue, 2 Aug 2022 11:02:52 +0200
+X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH v1 1/3] powerpc: Fix eh field when calling lwarx on PPC32
+Date:   Tue,  2 Aug 2022 11:02:36 +0200
+Message-Id: <a1176e19e627dd6a1b8d24c6c457a8ab874b7d12.1659430931.git.christophe.leroy@csgroup.eu>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220727110503.5260-1-macpaul.lin@mediatek.com>
-X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1659430956; l=2806; s=20211009; h=from:subject:message-id; bh=Ql4wH2IxjgIVSI9zEHRKkat7t+pnMzHPhHFvDfUw3aY=; b=yLvG/Xp8YRShPyqSNwp1ZA8JWW7AE6GXD+9lDgvJ52hzYqbFXAheDqpDEHDbA9IZLghG9vme77+P lbjSCEVvDtVntoszYgkRBpgLT8HG5GJboyaUz6g0xuzKne+rB396
+X-Developer-Key: i=christophe.leroy@csgroup.eu; a=ed25519; pk=HIzTzUj91asvincQGOFx6+ZF5AoUuP9GdOtQChs7Mm0=
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi guys,
+Commit 9401f4e46cf6 ("powerpc: Use lwarx/ldarx directly instead of
+PPC_LWARX/LDARX macros") properly handled the eh field of lwarx
+in asm/bitops.h but failed to clear it for PPC32 in
+asm/simple_spinlock.h
 
-On Wed, Jul 27, 2022 at 07:05:03PM +0800, Macpaul Lin wrote:
-> From: Pablo Sun <pablo.sun@mediatek.com>
-> 
-> From: Pablo Sun <pablo.sun@mediatek.com>
+So, do as in arch_atomic_try_cmpxchg_lock(), set it to 1 if PPC64
+but set it to 0 if PPC32. For that use IS_ENABLED(CONFIG_PPC64) which
+returns 1 when CONFIG_PPC64 is set and 0 otherwise.
 
-Looks like there's something wrong with the formating of the patch
-here?
+Reported-by: Pali Rohár <pali@kernel.org>
+Fixes: 9401f4e46cf6 ("powerpc: Use lwarx/ldarx directly instead of PPC_LWARX/LDARX macros")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+---
+ arch/powerpc/include/asm/simple_spinlock.h | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-> Fix incorrect pin assignment values when connecting to a monitor with
-> Type-C receptacle instead of a plug.
-> 
-> According to specification, an UFP_D receptacle's pin assignment
-> should came from the UFP_D pin assignments field (bit 23:16), while
-> an UFP_D plug's assignments are described in the DFP_D pin assignments
-> (bit 15:8) during Mode Discovery.
-> 
-> For example the LG 27 UL850-W is a monitor with Type-C receptacle.
-> The monitor responds to MODE DISCOVERY command with following
-> DisplayPort Capability flag:
-> 
->         dp->alt->vdo=0x140045
-> 
-> The existing logic only take cares of UPF_D plug case,
-> and would take the bit 15:8 for this 0x140045 case.
-> 
-> This results in an non-existing pin assignment 0x0 in
-> dp_altmode_configure.
-> 
-> To fix this problem a new set of macros are introduced
-> to take plug/receptacle differences into consideration.
-> 
-> Co-developed-by: Pablo Sun <pablo.sun@mediatek.com>
-> Signed-off-by: Pablo Sun <pablo.sun@mediatek.com>
-> Co-developed-by: Macpaul Lin <macpaul.lin@mediatek.com>
-> Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-> Reviewed-by: Guillaume Ranquet <granquet@baylibre.com>
-> Cc: stable@vger.kernel.org
-
-If this is a fix, then you need to have the "Fixes" tag that tells
-which commit the patch is fixing.
-
-> ---
->  drivers/usb/typec/altmodes/displayport.c | 4 ++--
->  include/linux/usb/typec_dp.h             | 5 +++++
->  2 files changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/usb/typec/altmodes/displayport.c b/drivers/usb/typec/altmodes/displayport.c
-> index 9360ca177c7d..8dd0e505ef99 100644
-> --- a/drivers/usb/typec/altmodes/displayport.c
-> +++ b/drivers/usb/typec/altmodes/displayport.c
-> @@ -98,8 +98,8 @@ static int dp_altmode_configure(struct dp_altmode *dp, u8 con)
->  	case DP_STATUS_CON_UFP_D:
->  	case DP_STATUS_CON_BOTH: /* NOTE: First acting as DP source */
->  		conf |= DP_CONF_UFP_U_AS_UFP_D;
-> -		pin_assign = DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo) &
-> -			     DP_CAP_UFP_D_PIN_ASSIGN(dp->port->vdo);
-> +		pin_assign = DP_CAP_PIN_ASSIGN_UFP_D(dp->alt->vdo) &
-> +				 DP_CAP_PIN_ASSIGN_DFP_D(dp->port->vdo);
->  		break;
->  	default:
->  		break;
-> diff --git a/include/linux/usb/typec_dp.h b/include/linux/usb/typec_dp.h
-> index cfb916cccd31..8d09c2f0a9b8 100644
-> --- a/include/linux/usb/typec_dp.h
-> +++ b/include/linux/usb/typec_dp.h
-> @@ -73,6 +73,11 @@ enum {
->  #define DP_CAP_USB			BIT(7)
->  #define DP_CAP_DFP_D_PIN_ASSIGN(_cap_)	(((_cap_) & GENMASK(15, 8)) >> 8)
->  #define DP_CAP_UFP_D_PIN_ASSIGN(_cap_)	(((_cap_) & GENMASK(23, 16)) >> 16)
-> +/* Get pin assignment taking plug & receptacle into consideration */
-> +#define DP_CAP_PIN_ASSIGN_UFP_D(_cap_) ((_cap_ & DP_CAP_RECEPTACLE) ? \
-> +			DP_CAP_UFP_D_PIN_ASSIGN(_cap_) : DP_CAP_DFP_D_PIN_ASSIGN(_cap_))
-> +#define DP_CAP_PIN_ASSIGN_DFP_D(_cap_) ((_cap_ & DP_CAP_RECEPTACLE) ? \
-> +			DP_CAP_DFP_D_PIN_ASSIGN(_cap_) : DP_CAP_UFP_D_PIN_ASSIGN(_cap_))
->  
->  /* DisplayPort Status Update VDO bits */
->  #define DP_STATUS_CONNECTION(_status_)	((_status_) & 3)
-> -- 
-> 2.18.0
-
-thanks,
-
+diff --git a/arch/powerpc/include/asm/simple_spinlock.h b/arch/powerpc/include/asm/simple_spinlock.h
+index 7ae6aeef8464..5095c636a680 100644
+--- a/arch/powerpc/include/asm/simple_spinlock.h
++++ b/arch/powerpc/include/asm/simple_spinlock.h
+@@ -48,10 +48,11 @@ static inline int arch_spin_is_locked(arch_spinlock_t *lock)
+ static inline unsigned long __arch_spin_trylock(arch_spinlock_t *lock)
+ {
+ 	unsigned long tmp, token;
++	unsigned int eh = IS_ENABLED(CONFIG_PPC64);
+ 
+ 	token = LOCK_TOKEN;
+ 	__asm__ __volatile__(
+-"1:	lwarx		%0,0,%2,1\n\
++"1:	lwarx		%0,0,%2,%3\n\
+ 	cmpwi		0,%0,0\n\
+ 	bne-		2f\n\
+ 	stwcx.		%1,0,%2\n\
+@@ -59,7 +60,7 @@ static inline unsigned long __arch_spin_trylock(arch_spinlock_t *lock)
+ 	PPC_ACQUIRE_BARRIER
+ "2:"
+ 	: "=&r" (tmp)
+-	: "r" (token), "r" (&lock->slock)
++	: "r" (token), "r" (&lock->slock), "i" (eh)
+ 	: "cr0", "memory");
+ 
+ 	return tmp;
+@@ -156,9 +157,10 @@ static inline void arch_spin_unlock(arch_spinlock_t *lock)
+ static inline long __arch_read_trylock(arch_rwlock_t *rw)
+ {
+ 	long tmp;
++	unsigned int eh = IS_ENABLED(CONFIG_PPC64);
+ 
+ 	__asm__ __volatile__(
+-"1:	lwarx		%0,0,%1,1\n"
++"1:	lwarx		%0,0,%1,%2\n"
+ 	__DO_SIGN_EXTEND
+ "	addic.		%0,%0,1\n\
+ 	ble-		2f\n"
+@@ -166,7 +168,7 @@ static inline long __arch_read_trylock(arch_rwlock_t *rw)
+ 	bne-		1b\n"
+ 	PPC_ACQUIRE_BARRIER
+ "2:"	: "=&r" (tmp)
+-	: "r" (&rw->lock)
++	: "r" (&rw->lock), "i" (eh)
+ 	: "cr0", "xer", "memory");
+ 
+ 	return tmp;
+@@ -179,17 +181,18 @@ static inline long __arch_read_trylock(arch_rwlock_t *rw)
+ static inline long __arch_write_trylock(arch_rwlock_t *rw)
+ {
+ 	long tmp, token;
++	unsigned int eh = IS_ENABLED(CONFIG_PPC64);
+ 
+ 	token = WRLOCK_TOKEN;
+ 	__asm__ __volatile__(
+-"1:	lwarx		%0,0,%2,1\n\
++"1:	lwarx		%0,0,%2,%3\n\
+ 	cmpwi		0,%0,0\n\
+ 	bne-		2f\n"
+ "	stwcx.		%1,0,%2\n\
+ 	bne-		1b\n"
+ 	PPC_ACQUIRE_BARRIER
+ "2:"	: "=&r" (tmp)
+-	: "r" (token), "r" (&rw->lock)
++	: "r" (token), "r" (&rw->lock), "i" (eh)
+ 	: "cr0", "memory");
+ 
+ 	return tmp;
 -- 
-heikki
+2.36.1
+
