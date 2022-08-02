@@ -2,94 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1619A5876A9
-	for <lists+stable@lfdr.de>; Tue,  2 Aug 2022 07:29:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC0F25877AC
+	for <lists+stable@lfdr.de>; Tue,  2 Aug 2022 09:17:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231343AbiHBF3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Aug 2022 01:29:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44610 "EHLO
+        id S233889AbiHBHRK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Aug 2022 03:17:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230290AbiHBF3y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Aug 2022 01:29:54 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C89193C8DF;
-        Mon,  1 Aug 2022 22:29:53 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id f11-20020a17090a4a8b00b001f2f7e32d03so879916pjh.0;
-        Mon, 01 Aug 2022 22:29:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc;
-        bh=xpZQqxov8E0HictKISxN7/gkFMetmyAoDMZt8klp/n4=;
-        b=Wp0868rjJcoB/BpB2hBKdIuVMNdz7DmQljgleWzikvt54gcj79JfNv3Gh0jeEuNdnK
-         iXtGdVDhBXUuMLTg+FLz93sXlcDw5oZ+Zx37Lgc8Abbjf4ZVEpJaLtYIMnbYyytEy+wm
-         /6yxN+NaJ0gpW6jrl0NEYjRuHS9gPYzJrrOJgW6t9rh5SbkDv/ADra4db/OrG5BpVCth
-         G0x0fPP0NfxJeo+VT30pbYU/aDwOKNMwbNNXaLH/bP4lTr5SY4zHOYHPMbHI60Yxe5Ec
-         9tAD6qnm9l42vKEYtKJMls/U6aWEjlOhSY8n/SpNXuVwc+DGzLBaxM1tyY9c/dgL/UvD
-         j/qQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc;
-        bh=xpZQqxov8E0HictKISxN7/gkFMetmyAoDMZt8klp/n4=;
-        b=SdPqO2okbqwJRDtS8wxsGo24ju4VhYUodiNrY9HxUJO6umbOAz+tNwyTCTA91oA2A2
-         KCmkD53y2QYL1BJwScjqeqgNYSBx2JaUCEAj5AS6BJN1mN3P3RGGXO4VFiCtQeA1W5AI
-         YnQl7Ke8NAVis4UbaRzJ8PPxbeJXc9yfN62ecquLK3m6Jk//1UsWaPv01Vs1U+ic36q5
-         0uFHQjsR98B/MtktNBffRSRNr/4JbwKGEeODlNjbf8jNX5qGze/D2B4O9mSEi/p5cCTu
-         AShvPGrt8xWeLs50ZpDBgQg4tx4JCPYX1+1Yj3BIWGuwgxrK29jfd2v3BIXlyg9y+w4R
-         KdbQ==
-X-Gm-Message-State: ACgBeo32Yh8X17j8jcMJwWr/F2cciHutazEyZDaAw66TOnNQ3hxpxIrc
-        lNaapTc2CPFRlx2l5RsRMQo=
-X-Google-Smtp-Source: AA6agR5Pv3x0ZE1nD2xlatuSRt84MTKRjE2YCn36lV0xYi7iCGsCDRN0327h1ZF/ZDdEOGUPaJtf6Q==
-X-Received: by 2002:a17:90b:3881:b0:1f5:81e:8ceb with SMTP id mu1-20020a17090b388100b001f5081e8cebmr7135157pjb.207.1659418193369;
-        Mon, 01 Aug 2022 22:29:53 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id c16-20020a170902d49000b0016c0eb202a5sm10765242plg.225.2022.08.01.22.29.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Aug 2022 22:29:52 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Mon, 1 Aug 2022 22:29:51 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.18 00/88] 5.18.16-rc1 review
-Message-ID: <20220802052951.GD572977@roeck-us.net>
-References: <20220801114138.041018499@linuxfoundation.org>
+        with ESMTP id S231804AbiHBHRK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Aug 2022 03:17:10 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE73145F63;
+        Tue,  2 Aug 2022 00:17:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1659424628; x=1690960628;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=EkQEdaF0PKFeFCAcHrRmmKAHg3afrB865tGwaTuNQFw=;
+  b=dQIXi92KBkqcm29UFTAfQ68HcMrDyRjG0TVVgruiZKcKPw+1JhrkAxi0
+   T07AJDfhDuqDCfuSqxgclnTK5ENIpW2wyUO6jLvzai+VJOSzOha5k2ztr
+   8iZxfuACgiuXlSGnsqHOFNxb5kVzIFvB+NRC1cKR09oVBwdLk/ZwmQGf6
+   6KaSjVC/5Afbc43JP4SEb/PSTdBE7RPw7b2ITtNb68WLnkZ6H0QuO/ITK
+   8jf4Twj7P2qXuPc0tyFup784CIkVDrNYEK+uKukoCxMEuJPbhHTwagC0m
+   yK+jcjW4T08RrU7hbX6GVvaft7lpf7JGYkODgFqBEebnce5Cvz9E3zxTL
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10426"; a="269110346"
+X-IronPort-AV: E=Sophos;i="5.93,210,1654585200"; 
+   d="scan'208";a="269110346"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Aug 2022 00:17:08 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.93,210,1654585200"; 
+   d="scan'208";a="744570639"
+Received: from kuha.fi.intel.com ([10.237.72.185])
+  by fmsmga001.fm.intel.com with SMTP; 02 Aug 2022 00:17:06 -0700
+Received: by kuha.fi.intel.com (sSMTP sendmail emulation); Tue, 02 Aug 2022 10:17:05 +0300
+Date:   Tue, 2 Aug 2022 10:17:05 +0300
+From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To:     Linyu Yuan <quic_linyyuan@quicinc.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jack Pham <quic_jackp@quicinc.com>, linux-usb@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] usb: typec: ucsi: Acknowledge the GET_ERROR_STATUS
+ command completion
+Message-ID: <YujPcTrt7wZuM0LF@kuha.fi.intel.com>
+References: <1658817949-4632-1-git-send-email-quic_linyyuan@quicinc.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220801114138.041018499@linuxfoundation.org>
-X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+In-Reply-To: <1658817949-4632-1-git-send-email-quic_linyyuan@quicinc.com>
+X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 01, 2022 at 01:46:14PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.18.16 release.
-> There are 88 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Jul 26, 2022 at 02:45:49PM +0800, Linyu Yuan wrote:
+> We found PPM will not send any notification after it report error status
+> and OPM issue GET_ERROR_STATUS command to read the details about error.
 > 
-> Responses should be made by Wed, 03 Aug 2022 11:41:16 +0000.
-> Anything received after that time might be too late.
+> According UCSI spec, PPM may clear the Error Status Data after the OPM
+> has acknowledged the command completion.
 > 
+> This change add operation to acknowledge the command completion from PPM.
+> 
+> Fixes: bdc62f2bae8f (usb: typec: ucsi: Simplified registration and I/O API)
+> Cc: <stable@vger.kernel.org> # 5.10
+> Signed-off-by: Jack Pham <quic_jackp@quicinc.com>
+> Signed-off-by: Linyu Yuan <quic_linyyuan@quicinc.com>
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 489 pass: 489 fail: 0
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+>  drivers/usb/typec/ucsi/ucsi.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
+> index cbd862f..1aea464 100644
+> --- a/drivers/usb/typec/ucsi/ucsi.c
+> +++ b/drivers/usb/typec/ucsi/ucsi.c
+> @@ -76,6 +76,10 @@ static int ucsi_read_error(struct ucsi *ucsi)
+>  	if (ret)
+>  		return ret;
+>  
+> +	ret = ucsi_acknowledge_command(ucsi);
+> +	if (ret)
+> +		return ret;
+> +
+>  	switch (error) {
+>  	case UCSI_ERROR_INCOMPATIBLE_PARTNER:
+>  		return -EOPNOTSUPP;
 
-Guenter
+thanks,
+
+-- 
+heikki
