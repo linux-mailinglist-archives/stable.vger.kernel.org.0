@@ -2,421 +2,218 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8585C588F08
-	for <lists+stable@lfdr.de>; Wed,  3 Aug 2022 16:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30B21588F27
+	for <lists+stable@lfdr.de>; Wed,  3 Aug 2022 17:12:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236951AbiHCO7o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Aug 2022 10:59:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39742 "EHLO
+        id S237918AbiHCPMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Aug 2022 11:12:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236097AbiHCO7n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Aug 2022 10:59:43 -0400
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 763A231372
-        for <stable@vger.kernel.org>; Wed,  3 Aug 2022 07:59:42 -0700 (PDT)
-Received: by mail-pg1-x52a.google.com with SMTP id s206so15354464pgs.3
-        for <stable@vger.kernel.org>; Wed, 03 Aug 2022 07:59:42 -0700 (PDT)
+        with ESMTP id S237942AbiHCPMt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Aug 2022 11:12:49 -0400
+Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A55623AE6C
+        for <stable@vger.kernel.org>; Wed,  3 Aug 2022 08:12:48 -0700 (PDT)
+Received: by mail-yb1-xb2c.google.com with SMTP id o15so28691235yba.10
+        for <stable@vger.kernel.org>; Wed, 03 Aug 2022 08:12:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=TYo+ZTs+dbCNIJ7E6rP4IWydxwhROsv+Mb+Z0pk5UZw=;
-        b=vj+3ChlIs6hCcRlMC1ILKvUMxbBk9U2yVR7n5k8cD2RjwGjPqHhTzMrA1yMl1zTrFQ
-         wo9EWy8tU+V8gm8lPKchukJEfOiJxACWjLPTY3Qv/E2ahXUEsAbON3OW799aPNyqtwu1
-         4OuPHcQuMYvo+dZODNsltH2OYq3mDJB6aSCXh9SbOQUXdXtasGYCRunJS/HnUBJbCqV0
-         z9a92FXEuOs+m8/ne+6cOsFtbVKt/xDfVsIEm3IDQ1FIsoFgkE5cAEyZwGBLX/a4eM7+
-         TCr+9bUzEDS9j4TXAeb2124es4kkLjXPVQdNb+rXNa4PQ2nRk3om5sqEGbrB7c6XuO02
-         qozg==
+        d=kylehuey.com; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=XZXEy3cvHjx2bX+d6U1ZgIae2UNxoQkQn7NuGYQFw2Y=;
+        b=eTkF0CuqpfS6zseV19j0r6CXBKG181mwXlnys1i2gnvTKj/TyMYrzZY9ZONUS6/YgB
+         pgXCgeuoJdwWFZ0Tp8cZaTfQ9boA7FfUSKFm3CnBonoiqSMQnrjQi9lnw2O9/p+WGbEl
+         ZoGY/gg4XypN8QWyIQ0GHnHTB9l1qerbVGW0PHOkkYoNLytYZb0s7cyAXUb/SgC8mrPH
+         56FxDPvQjt57Cc+sE0bOCZ51QyBmSONXoMWjp65PR6BoCTnpg1aVRF1IqrtzmSwxKkTi
+         8OX76ZsMiYmOH9NZSNaX1pT9mCzT1EaeWc8V001UKdGvDnCNrU+5T9YdzXrOp7lzbjwk
+         SUIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=TYo+ZTs+dbCNIJ7E6rP4IWydxwhROsv+Mb+Z0pk5UZw=;
-        b=2v4t0ieHfng4Xwz8wZnhalPXICziH6BUfxEafIvaGavJswvS+UkhbdJH7y1+Uz6a2x
-         Ewz2S/iLIXxteTMG8Z8XzRNC0W07CdfqG5gB932DA0xJ3r95g3ihH4P3XWCDBacVfiVZ
-         qItcRfpBOCHYMr9qiDNhGXHsUFgpFNJwdDME07eFj3WGBKFSM37kR3wkzeGq9x3mLus+
-         rpmXL/iWSQewGS5iR8mLMXbM9EcSvV6BwaAtTlRQFS8gPirov/8ej2QfO6lttxPeay2J
-         1mzqbyurpZOo5yIWuIJNwnUnhwO95LoAw/6jRY8wjhbeX2DIv8c1geqzHElg5/pNHHeV
-         wrTQ==
-X-Gm-Message-State: ACgBeo3v3XGqCaujQGdxQVmUcS+zSxUQ9aXb8WqJByJ72DWTAPErMapP
-        kr5tWdtCM28xPqOhnZYifBruvfCJapOSnLjxhY8=
-X-Google-Smtp-Source: AA6agR4rdM7oCr+dnWyy6vPc/lQ1b6X/klv/HF7mWIZVHJHg9SCYEIEIB81dssGLQpKdUAUWym7bPA==
-X-Received: by 2002:a05:6a00:238b:b0:52d:dd8a:e814 with SMTP id f11-20020a056a00238b00b0052ddd8ae814mr7973358pfc.21.1659538781735;
-        Wed, 03 Aug 2022 07:59:41 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m8-20020a654c88000000b0040cfb5151fcsm11310843pgt.74.2022.08.03.07.59.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Aug 2022 07:59:41 -0700 (PDT)
-Message-ID: <62ea8d5d.650a0220.be864.0c05@mx.google.com>
-Date:   Wed, 03 Aug 2022 07:59:41 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=XZXEy3cvHjx2bX+d6U1ZgIae2UNxoQkQn7NuGYQFw2Y=;
+        b=OMwR02zXXIGCl+GbFhb9vUXfWR3tSvrQ3yE78CtbAZBIp5bxu8a7PpglR2BLWbHfKn
+         FoBfODsglrvRS+5a54o2pIBQyJ7kaU5yZZOu/SUuoNmrgX4J65knUkLjOAC5W4+daEUI
+         4JOohpWHpaWmkKngunPtin7IZgWWMSxy1IZ1M78JdbOSc9F70KjWmucPr6ln24Z4k5T7
+         o8p8HX3LulMyrNikXnSP0KyQSAD7DFX0iQ58GCxdHEeMASSHMY6xg/cVhp68maqjTx6i
+         J4UBIdaxV71bMfnGpxJ74l/L/j+cjPOdvVfzMKfoWRYPWmP41IOZjDmo7Nldh6/aw1TZ
+         nirg==
+X-Gm-Message-State: ACgBeo0Q2zMZLa1eUQscxVW2BJKUzx5BTDo9sQYAvn/Q53PWqlH1jg8g
+        VsgwmqJjUQv+alnOJc/1Q4aebBgP4gJYLaVX2euOrg==
+X-Google-Smtp-Source: AA6agR7v/HPFCTCefE30aAswl27LuEi01dCUtvdjZs8cqGMByB77wUzH4MdPg6auWGZLmUWuRbRJxX8tKh78xz8UH6o=
+X-Received: by 2002:a25:9d8d:0:b0:676:a71d:edad with SMTP id
+ v13-20020a259d8d000000b00676a71dedadmr19251128ybp.94.1659539567685; Wed, 03
+ Aug 2022 08:12:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.135
-Subject: stable/linux-5.10.y baseline: 75 runs, 9 regressions (v5.10.135)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220731050342.56513-1-khuey@kylehuey.com> <Yuo59tV071/i6yhf@gmail.com>
+In-Reply-To: <Yuo59tV071/i6yhf@gmail.com>
+From:   Kyle Huey <me@kylehuey.com>
+Date:   Wed, 3 Aug 2022 08:12:34 -0700
+Message-ID: <CAP045ArF0SX84tDr=iZoK=EnXK2LsXYut3-KMkCxQO2OOhn=0A@mail.gmail.com>
+Subject: Re: [PATCH] x86/fpu: Allow PKRU to be (once again) written by ptrace.
+To:     Ingo Molnar <mingo@kernel.org>
+Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@redhat.com>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        linux-kernel@vger.kernel.org,
+        "Robert O'Callahan" <robert@ocallahan.org>,
+        David Manouchehri <david.manouchehri@riseup.net>,
+        kvm@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.10.y baseline: 75 runs, 9 regressions (v5.10.135)
-
-Regressions Summary
--------------------
-
-platform                   | arch  | lab           | compiler | defconfig  =
-                | regressions
----------------------------+-------+---------------+----------+------------=
-----------------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-qemu_arm64-virt-gicv2      | arm64 | lab-collabora | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-qemu_arm64-virt-gicv3      | arm64 | lab-collabora | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-collabora | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-rk3399-gru-kevin           | arm64 | lab-collabora | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
-/v5.10.135/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.10.y
-  Describe: v5.10.135
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      4fd9cb57a3f5e611efde7772643134385de3a5a6 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-                | regressions
----------------------------+-------+---------------+----------+------------=
-----------------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ea55d3b24ded8acedaf058
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
-t-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
-t-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220718.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ea55d3b24ded8acedaf=
-059
-        new failure (last pass: v5.10.101) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-                | regressions
----------------------------+-------+---------------+----------+------------=
-----------------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-collabora | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ea553665ebf36073daf0b6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-qemu_arm64-v=
-irt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-qemu_arm64-v=
-irt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220718.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ea553665ebf36073daf=
-0b7
-        new failure (last pass: v5.10.101) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-                | regressions
----------------------------+-------+---------------+----------+------------=
-----------------+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ea55bf948c8c4ae5daf089
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
-t-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
-t-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220718.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ea55bf948c8c4ae5daf=
-08a
-        new failure (last pass: v5.10.101) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-                | regressions
----------------------------+-------+---------------+----------+------------=
-----------------+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ea54e290c0c3c103daf065
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-qemu_arm64-v=
-irt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-qemu_arm64-v=
-irt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220718.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ea54e290c0c3c103daf=
-066
-        new failure (last pass: v5.10.101) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-                | regressions
----------------------------+-------+---------------+----------+------------=
-----------------+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ea5597d33dcfc82edaf075
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
-t-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
-t-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220718.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ea5597d33dcfc82edaf=
-076
-        new failure (last pass: v5.10.101) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-                | regressions
----------------------------+-------+---------------+----------+------------=
-----------------+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-collabora | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ea5496938f1ccc6adaf069
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-qemu_arm64-v=
-irt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-qemu_arm64-v=
-irt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220718.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ea5496938f1ccc6adaf=
-06a
-        new failure (last pass: v5.10.101) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-                | regressions
----------------------------+-------+---------------+----------+------------=
-----------------+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ea55ab948c8c4ae5daf069
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
-t-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
-t-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220718.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ea55ab948c8c4ae5daf=
-06a
-        new failure (last pass: v5.10.101) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-                | regressions
----------------------------+-------+---------------+----------+------------=
-----------------+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-collabora | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ea54a7938f1ccc6adaf0ca
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-qemu_arm64-v=
-irt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-qemu_arm64-v=
-irt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220718.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62ea54a7938f1ccc6adaf=
-0cb
-        new failure (last pass: v5.10.101) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-                | regressions
----------------------------+-------+---------------+----------+------------=
-----------------+------------
-rk3399-gru-kevin           | arm64 | lab-collabora | gcc-10   | defconfig+a=
-rm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62ea546885bbdfcb08daf099
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-k=
-evin.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.135/=
-arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-k=
-evin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220718.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/62ea546885bbdfcb08daf0bb
-        failing since 147 days (last pass: v5.10.102, first fail: v5.10.104)
-
-    2022-08-03T10:56:21.755966  /lava-6959162/1/../bin/lava-test-case   =
-
- =20
+On Wed, Aug 3, 2022 at 2:03 AM Ingo Molnar <mingo@kernel.org> wrote:
+>
+>
+> * Kyle Huey <me@kylehuey.com> wrote:
+>
+> > From: Kyle Huey <me@kylehuey.com>
+> >
+> > When management of the PKRU register was moved away from XSTATE, emulation
+> > of PKRU's existence in XSTATE was added for APIs that read XSTATE, but not
+> > for APIs that write XSTATE. This can be seen by running gdb and executing
+> > `p $pkru`, `set $pkru = 42`, and `p $pkru`. On affected kernels (5.14+) the
+> > write to the PKRU register (which gdb performs through ptrace) is ignored.
+> >
+> > There are three relevant APIs: PTRACE_SETREGSET with NT_X86_XSTATE,
+> > sigreturn, and KVM_SET_XSAVE. KVM_SET_XSAVE has its own special handling to
+> > make PKRU writes take effect (in fpu_copy_uabi_to_guest_fpstate). Push that
+> > down into copy_uabi_to_xstate and have PTRACE_SETREGSET with NT_X86_XSTATE
+> > and sigreturn pass in pointers to the appropriate PKRU value.
+> >
+> > This also adds code to initialize the PKRU value to the hardware init value
+> > (namely 0) if the PKRU bit is not set in the XSTATE header to match XRSTOR.
+> > This is a change to the current KVM_SET_XSAVE behavior.
+> >
+> > Signed-off-by: Kyle Huey <me@kylehuey.com>
+> > Cc: kvm@vger.kernel.org # For edge case behavior of KVM_SET_XSAVE
+> > Cc: stable@vger.kernel.org # 5.14+
+> > Fixes: e84ba47e313dbc097bf859bb6e4f9219883d5f78
+> > ---
+> >  arch/x86/kernel/fpu/core.c   | 11 +----------
+> >  arch/x86/kernel/fpu/regset.c |  2 +-
+> >  arch/x86/kernel/fpu/signal.c |  2 +-
+> >  arch/x86/kernel/fpu/xstate.c | 26 +++++++++++++++++++++-----
+> >  arch/x86/kernel/fpu/xstate.h |  4 ++--
+> >  5 files changed, 26 insertions(+), 19 deletions(-)
+> >
+> > diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
+> > index 0531d6a06df5..dfb79e2ee81f 100644
+> > --- a/arch/x86/kernel/fpu/core.c
+> > +++ b/arch/x86/kernel/fpu/core.c
+> > @@ -406,16 +406,7 @@ int fpu_copy_uabi_to_guest_fpstate(struct fpu_guest *gfpu, const void *buf,
+> >       if (ustate->xsave.header.xfeatures & ~xcr0)
+> >               return -EINVAL;
+> >
+> > -     ret = copy_uabi_from_kernel_to_xstate(kstate, ustate);
+> > -     if (ret)
+> > -             return ret;
+> > -
+> > -     /* Retrieve PKRU if not in init state */
+> > -     if (kstate->regs.xsave.header.xfeatures & XFEATURE_MASK_PKRU) {
+> > -             xpkru = get_xsave_addr(&kstate->regs.xsave, XFEATURE_PKRU);
+> > -             *vpkru = xpkru->pkru;
+> > -     }
+> > -     return 0;
+> > +     return copy_uabi_from_kernel_to_xstate(kstate, ustate, vpkru);
+> >  }
+> >  EXPORT_SYMBOL_GPL(fpu_copy_uabi_to_guest_fpstate);
+> >  #endif /* CONFIG_KVM */
+> > diff --git a/arch/x86/kernel/fpu/regset.c b/arch/x86/kernel/fpu/regset.c
+> > index 75ffaef8c299..6d056b68f4ed 100644
+> > --- a/arch/x86/kernel/fpu/regset.c
+> > +++ b/arch/x86/kernel/fpu/regset.c
+> > @@ -167,7 +167,7 @@ int xstateregs_set(struct task_struct *target, const struct user_regset *regset,
+> >       }
+> >
+> >       fpu_force_restore(fpu);
+> > -     ret = copy_uabi_from_kernel_to_xstate(fpu->fpstate, kbuf ?: tmpbuf);
+> > +     ret = copy_uabi_from_kernel_to_xstate(fpu->fpstate, kbuf ?: tmpbuf, &target->thread.pkru);
+> >
+> >  out:
+> >       vfree(tmpbuf);
+> > diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
+> > index 91d4b6de58ab..558076dbde5b 100644
+> > --- a/arch/x86/kernel/fpu/signal.c
+> > +++ b/arch/x86/kernel/fpu/signal.c
+> > @@ -396,7 +396,7 @@ static bool __fpu_restore_sig(void __user *buf, void __user *buf_fx,
+> >
+> >       fpregs = &fpu->fpstate->regs;
+> >       if (use_xsave() && !fx_only) {
+> > -             if (copy_sigframe_from_user_to_xstate(fpu->fpstate, buf_fx))
+> > +             if (copy_sigframe_from_user_to_xstate(tsk, buf_fx))
+> >                       return false;
+> >       } else {
+> >               if (__copy_from_user(&fpregs->fxsave, buf_fx,
+> > diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
+> > index c8340156bfd2..1eea7af4afd9 100644
+> > --- a/arch/x86/kernel/fpu/xstate.c
+> > +++ b/arch/x86/kernel/fpu/xstate.c
+> > @@ -1197,7 +1197,7 @@ static int copy_from_buffer(void *dst, unsigned int offset, unsigned int size,
+> >
+> >
+> >  static int copy_uabi_to_xstate(struct fpstate *fpstate, const void *kbuf,
+> > -                            const void __user *ubuf)
+> > +                            const void __user *ubuf, u32 *pkru)
+> >  {
+> >       struct xregs_state *xsave = &fpstate->regs.xsave;
+> >       unsigned int offset, size;
+> > @@ -1235,6 +1235,22 @@ static int copy_uabi_to_xstate(struct fpstate *fpstate, const void *kbuf,
+> >       for (i = 0; i < XFEATURE_MAX; i++) {
+> >               mask = BIT_ULL(i);
+> >
+> > +             if (i == XFEATURE_PKRU) {
+> > +                     /*
+> > +                      * Retrieve PKRU if not in init state, otherwise
+> > +                      * initialize it.
+> > +                      */
+> > +                     if (hdr.xfeatures & mask) {
+> > +                             struct pkru_state xpkru = {0};
+> > +
+> > +                             copy_from_buffer(&xpkru, xstate_offsets[i],
+> > +                                              sizeof(xpkru), kbuf, ubuf);
+>
+> Shouldn't the failure case of copy_from_buffer() be handled?
+
+Yes, it should be. The sigreturn case could hit it.
+
+> Also, what's the security model for this register, do we trust all input
+> values user-space provides for the PKRU field in the XSTATE? I realize that
+> WRPKRU already gives user-space write access to the register - but does the
+> CPU write it all into the XSTATE, with no restrictions on content
+> whatsoever?
+
+There is no security model for this register. The CPU does write
+whatever is given to WRPKRU (or XRSTOR) into the PKRU register. The
+pkeys(7) man page notes:
+
+Protection keys have the potential to add a layer of security and
+reliability to applications. But they have not been primarily designed
+as a security feature. For instance, WRPKRU is a completely
+unprivileged instruction, so pkeys are useless in any case that an
+attacker controls the PKRU register or can execute arbitrary
+instructions.
+
+And the ERIM paper
+(https://www.usenix.org/system/files/sec19-vahldiek-oberwagner_0.pdf)
+explicitly contemplates the need to protect against the less
+privileged code containing WRPKRU and XRSTOR instructions (though they
+do seem to have missed the implicit XRSTOR in sigreturn).
+
+> Thanks,
+>
+>         Ingo
+
+- Kyle
