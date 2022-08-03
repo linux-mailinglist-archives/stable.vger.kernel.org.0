@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA0B158879C
-	for <lists+stable@lfdr.de>; Wed,  3 Aug 2022 08:56:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A49625887EE
+	for <lists+stable@lfdr.de>; Wed,  3 Aug 2022 09:29:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233912AbiHCG4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Aug 2022 02:56:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33842 "EHLO
+        id S235326AbiHCH3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Aug 2022 03:29:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233079AbiHCG4M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Aug 2022 02:56:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2732F58E;
-        Tue,  2 Aug 2022 23:56:10 -0700 (PDT)
+        with ESMTP id S230166AbiHCH33 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Aug 2022 03:29:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2748D1B7B3;
+        Wed,  3 Aug 2022 00:29:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3DB68B821A4;
-        Wed,  3 Aug 2022 06:56:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84B70C433D6;
-        Wed,  3 Aug 2022 06:56:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D3676153F;
+        Wed,  3 Aug 2022 07:29:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 789A3C433C1;
+        Wed,  3 Aug 2022 07:29:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659509767;
-        bh=7GTdvcJCr20A98z951Eqp0mRL54/0sIEeI/3bXuhLRA=;
+        s=korg; t=1659511768;
+        bh=1AMumXsn09r0G6qP13M87wEobGRiCzvJnaO+AC6oFEg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TtJcI9iyujAaO7fSRRvBsA0M2XBkmPtMCPPrePNoGoaK4jxsOYgDXJNHZMsvdmaXe
-         z1kG0YpHXt/AKdS2gKfk25Mi82jeyxzIeRK8q3m5KTal0rGJ8zpT6HeeJ1zkztT7K4
-         G+L8fdn81CwtMrf8G5O0/0XFbxkU2AxukqDWFNrQ=
-Date:   Wed, 3 Aug 2022 08:56:05 +0200
+        b=aVeEE3DueIb4Bj5GZw5uhZeKCENFX+YQEHnrNxfEKD4RPiA7tkAdsScxQQ63iN2xz
+         r2G2Rsb13P4Ts3kUq0OakUvhvXaB22JrlKU5bntQVpFXRJ8XUt1vtMkN5HHffFVCu/
+         A4ypoZnmH3rK/ky2nGovMHAvj5j/154fZ6kZFZfI=
+Date:   Wed, 3 Aug 2022 09:29:24 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Geliang Tang <geliang.tang@suse.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 5.18 72/88] mptcp: dont send RST for single subflow
-Message-ID: <YuocBYps1u7zCPMf@kroah.com>
-References: <20220801114138.041018499@linuxfoundation.org>
- <20220801114141.321741611@linuxfoundation.org>
- <9ff367ab-bd52-3c3a-a62-2ade761b18f@linux.intel.com>
- <YumVQNNn3xS2Hf/C@sashalap>
+To:     Carlos Llamas <cmllamas@google.com>
+Cc:     Arve =?iso-8859-1?B?SGr4bm5lduVn?= <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Christian Brauner <brauner@kernel.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Suren Baghdasaryan <surenb@google.com>,
+        kernel-team@android.com, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] binder: fix UAF of ref->proc caused by race condition
+Message-ID: <Yuoj1GVrgtflsYYZ@kroah.com>
+References: <20220801182511.3371447-1-cmllamas@google.com>
+ <Yul9sEAtM+4aGbEg@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YumVQNNn3xS2Hf/C@sashalap>
+In-Reply-To: <Yul9sEAtM+4aGbEg@google.com>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -54,37 +56,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 02, 2022 at 05:21:04PM -0400, Sasha Levin wrote:
-> On Tue, Aug 02, 2022 at 01:52:15PM -0700, Mat Martineau wrote:
-> > On Mon, 1 Aug 2022, Greg Kroah-Hartman wrote:
+On Tue, Aug 02, 2022 at 07:40:32PM +0000, Carlos Llamas wrote:
+> On Mon, Aug 01, 2022 at 06:25:11PM +0000, Carlos Llamas wrote:
+> > A transaction of type BINDER_TYPE_WEAK_HANDLE can fail to increment the
+> > reference for a node. In this case, the target proc normally releases
+> > the failed reference upon close as expected. However, if the target is
+> > dying in parallel the call will race with binder_deferred_release(), so
+> > the target could have released all of its references by now leaving the
+> > cleanup of the new failed reference unhandled.
 > > 
-> > > From: Geliang Tang <geliang.tang@suse.com>
-> > > 
-> > > [ Upstream commit 1761fed2567807f26fbd53032ff622f55978c7a9 ]
-> > > 
-> > > When a bad checksum is detected and a single subflow is in use, don't
-> > > send RST + MP_FAIL, send data_ack + MP_FAIL instead.
-> > > 
-> > > So invoke tcp_send_active_reset() only when mptcp_has_another_subflow()
-> > > is true.
-> > > 
-> > > Signed-off-by: Geliang Tang <geliang.tang@suse.com>
-> > > Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-> > > Signed-off-by: David S. Miller <davem@davemloft.net>
-> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > The transaction then ends and the target proc gets released making the
+> > ref->proc now a dangling pointer. Later on, ref->node is closed and we
+> > attempt to take spin_lock(&ref->proc->inner_lock), which leads to the
+> > use-after-free bug reported below. Let's fix this by cleaning up the
+> > failed reference on the spot instead of relying on the target to do so.
 > > 
-> > Hi Greg -
+> >   ==================================================================
+> >   BUG: KASAN: use-after-free in _raw_spin_lock+0xa8/0x150
+> >   Write of size 4 at addr ffff5ca207094238 by task kworker/1:0/590
 > > 
-> > Please drop this patch from the 5.18-stable queue. It was the first of
-> > an 8-patch series and doesn't really stand alone.
+> >   CPU: 1 PID: 590 Comm: kworker/1:0 Not tainted 5.19.0-rc8 #10
+> >   Hardware name: linux,dummy-virt (DT)
+> >   Workqueue: events binder_deferred_func
+> >   Call trace:
+> >    dump_backtrace.part.0+0x1d0/0x1e0
+> >    show_stack+0x18/0x70
+> >    dump_stack_lvl+0x68/0x84
+> >    print_report+0x2e4/0x61c
+> >    kasan_report+0xa4/0x110
+> >    kasan_check_range+0xfc/0x1a4
+> >    __kasan_check_write+0x3c/0x50
+> >    _raw_spin_lock+0xa8/0x150
+> >    binder_deferred_func+0x5e0/0x9b0
+> >    process_one_work+0x38c/0x5f0
+> >    worker_thread+0x9c/0x694
+> >    kthread+0x188/0x190
+> >    ret_from_fork+0x10/0x20
 > > 
-> > This commit message lacks the Fixes: tag and the magic commit message
-> > words that I've seen the scripts pick up, so I'm curious: was this patch
-> > selected by hand?
+> > Signed-off-by: Carlos Llamas <cmllamas@google.com>
+> > ---
+> >  drivers/android/binder.c | 12 ++++++++++++
+> >  1 file changed, 12 insertions(+)
+> > 
+> > diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> > index 362c0deb65f1..9d42afe60180 100644
+> > --- a/drivers/android/binder.c
+> > +++ b/drivers/android/binder.c
+> > @@ -1361,6 +1361,18 @@ static int binder_inc_ref_for_node(struct binder_proc *proc,
+> >  	}
+> >  	ret = binder_inc_ref_olocked(ref, strong, target_list);
+> >  	*rdata = ref->data;
+> > +	if (ret && ref == new_ref) {
+> > +		/*
+> > +		 * Cleanup the failed reference here as the target
+> > +		 * could now be dead and have already released its
+> > +		 * references by now. Calling on the new reference
+> > +		 * with strong=0 and a tmp_refs will not decrement
+> > +		 * the node. The new_ref gets kfree'd below.
+> > +		 */
+> > +		binder_cleanup_ref_olocked(new_ref);
+> > +		ref = NULL;
+> > +	}
+> > +
+> >  	binder_proc_unlock(proc);
+> >  	if (new_ref && ref != new_ref)
+> >  		/*
+> > -- 
+> > 2.37.1.455.g008518b4e5-goog
+> > 
 > 
-> Yup, between the commit message and the code itself, it looked like a
-> fix for AUTOSEL.
+> Sorry, I forgot to CC stable. This patch should be applied to all stable
+> kernels starting with 4.14 and higher.
+> 
+> Cc: stable@vger.kernel.org # 4.14+
 
-Ok, now dropped, thanks for the review.
+Thanks, I'll add this when I queue it up after 5.20-rc1 is out.
 
 greg k-h
