@@ -2,81 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E959B5890CB
-	for <lists+stable@lfdr.de>; Wed,  3 Aug 2022 18:50:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B49F5589103
+	for <lists+stable@lfdr.de>; Wed,  3 Aug 2022 19:11:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236754AbiHCQui (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Aug 2022 12:50:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38916 "EHLO
+        id S237287AbiHCRK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Aug 2022 13:10:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236844AbiHCQuh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Aug 2022 12:50:37 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 39B742BF7
-        for <stable@vger.kernel.org>; Wed,  3 Aug 2022 09:50:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1659545435;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=NEAncNPlqkr+KXbJj8athp1uFouyJqzbCLtpoJ5cyp8=;
-        b=Aro9KG989BstdoM0rTY5zTMYhqRe8B6trXLUzEDQ3b4RUic1pzz14vhgfch6pvE6fAwN1y
-        uEWKiO6VfOctcfxbhdLmr6DKHpD9G19EGkZWHWjT2OF+4w6vvAaTaPavuF0aFfnOyAL61I
-        9mabz9MvCgj8Ew8gaDtu5D3gOoC/A+s=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-614-_rxy8wtkPp2WhndbPkxQew-1; Wed, 03 Aug 2022 12:50:34 -0400
-X-MC-Unique: _rxy8wtkPp2WhndbPkxQew-1
-Received: by mail-wm1-f71.google.com with SMTP id ay19-20020a05600c1e1300b003a315c2c1c0so1265634wmb.7
-        for <stable@vger.kernel.org>; Wed, 03 Aug 2022 09:50:33 -0700 (PDT)
+        with ESMTP id S231966AbiHCRK5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Aug 2022 13:10:57 -0400
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 018931ADB3
+        for <stable@vger.kernel.org>; Wed,  3 Aug 2022 10:10:57 -0700 (PDT)
+Received: by mail-pf1-x432.google.com with SMTP id h28so10682869pfq.11
+        for <stable@vger.kernel.org>; Wed, 03 Aug 2022 10:10:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=AOgdbeTgszJJpLRKKjeMgo6S2nlPlKUVskAF28cbTBs=;
+        b=l/8p/K0cIa8fhrOCs+XtpP+28S/O4akYs5Amh4QWL+mzoYkSNE3+1NPw9vmXzy6yLw
+         YePngsmdBVNYR5/telKou4IaPRWWvrcQrHEX7DreWvWnF7dit/ZUwclPhEYmFUzhaXvd
+         PKm807v383NKOXzCwtdCoifsFj32qEZhaQCkUsiOOhju61enHtqbqG1twFVqXdGlC+B1
+         rMfj/rvzxj35QDrqVoCrHQz8NyAMn0WhikznwApiJU3y57sgDX4Gni/DUmm/4RSR5QWq
+         7PMUixHTpTCBTdN4k9hHAwWW/VdUKuln2khGdQ8JU4Mfh/0AuJmmeT/LhXn6Shn669wL
+         tTOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc;
-        bh=NEAncNPlqkr+KXbJj8athp1uFouyJqzbCLtpoJ5cyp8=;
-        b=amwF0z18skdwg25mwmNV54CH9ZjDEwaVhXvgHtPjkIPIlgPXjaql14TeSZxbCAVzM+
-         /L0dRSlSsHquBt+QdU5ouh0wr3CawUg9/GtN2JvWFgSfP0dm0FCT8tnafc9Fqr8dwCtG
-         rBAvjLl86neN+X3c7bsQ3tAGyp62rfdoKvDwAnkYpisKY+vJ1GgenPJ9NkIcDE0e4AyG
-         r6B6X4bRoxhWA1/oc8ziJ+kcYP2JOJlWcoYxB9X+67HIMo2piSPXixc31FexUjIQdu5J
-         FpbKXRgLiyAaHhc7KlYlHad08tujX5Bw7IRV4WgfMP7QNukJbbrvgSS1tq6z83sAHKWg
-         Bm5g==
-X-Gm-Message-State: ACgBeo2yQ+FyacpGO1W3s4jv0lnHO6lDgov/2EyDvtNsJQWEf6mKjzv5
-        GkSIMVFhiyMU0MV/5C2yU5ZnmK4dzMEP2B8zmcvDbthhxo3iUFqhrsbi3ogz0byNCR2WUtVp3UD
-        CGb0KQrzvToDlPVDW
-X-Received: by 2002:a05:600c:a07:b0:39e:da6e:fc49 with SMTP id z7-20020a05600c0a0700b0039eda6efc49mr3311578wmp.143.1659545432884;
-        Wed, 03 Aug 2022 09:50:32 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7LYhF69Tj8wD+f/h1aP1S1C3q4Vuqt0UQwJUlPcBc6I3wqZsJ7PBentjPZpGxljsIotWaNsg==
-X-Received: by 2002:a05:600c:a07:b0:39e:da6e:fc49 with SMTP id z7-20020a05600c0a0700b0039eda6efc49mr3311560wmp.143.1659545432684;
-        Wed, 03 Aug 2022 09:50:32 -0700 (PDT)
-Received: from ?IPV6:2001:b07:add:ec09:c399:bc87:7b6c:fb2a? ([2001:b07:add:ec09:c399:bc87:7b6c:fb2a])
-        by smtp.googlemail.com with ESMTPSA id y11-20020a056000108b00b0021e4f595590sm18411537wrw.28.2022.08.03.09.50.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 03 Aug 2022 09:50:31 -0700 (PDT)
-Message-ID: <e7468f00-5d1a-5d9d-ae14-060cdf0f9558@redhat.com>
-Date:   Wed, 3 Aug 2022 18:50:25 +0200
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=AOgdbeTgszJJpLRKKjeMgo6S2nlPlKUVskAF28cbTBs=;
+        b=wrj4jvt6YQMLVKckwkl+d5kKcDsagojN7TC51vodHB9AmG9ZsSPWEHB8MKPNM5lMnu
+         zc6KoFKrqwrynKl5NtKVkx0JZql71+w/BElHYbGLHijU6fTXho18x4bc473hgWwjaNcJ
+         br8rJb0+Iq5btbx4trjt/9lhSNZVbvOnUO8Lah8iVb6q7bgmKGc+jRbVBKKrMUTQCK1p
+         3pW8x2WhsQstaih3MzxM7lIuTE9ExLbibwG7c63+/2a4tBhlEvEXOeQEO20ZQNwCjm00
+         pBsekExvt2Co61MAq2JFuKnIFnpat9ciHEZ1rLSLqmlmLiSSgoo+H2FDx4ur7OZmfi/l
+         PCZg==
+X-Gm-Message-State: AJIora/EfqlblOuEKttqxQn0Raq//HqVBJiQonI2ZyjX7H9wGZuTZBV3
+        2WcRRwMrziQk9zkONhSJq19KvRtBkH1HRV/ZQik=
+X-Google-Smtp-Source: AGRyM1vJTUobGjCgse491mraTy208M0e0Soeho2HVinpNCnYuZX2UrxDpuXEUkwsdRCccqf4ALszGw==
+X-Received: by 2002:a05:6a00:c91:b0:52a:cad7:d755 with SMTP id a17-20020a056a000c9100b0052acad7d755mr26879232pfv.66.1659546656392;
+        Wed, 03 Aug 2022 10:10:56 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h17-20020a170902f55100b0015e8d4eb26esm2245601plf.184.2022.08.03.10.10.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Aug 2022 10:10:56 -0700 (PDT)
+Message-ID: <62eaac20.170a0220.407f3.3c97@mx.google.com>
+Date:   Wed, 03 Aug 2022 10:10:56 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH MANUALSEL 5.18 1/6] KVM: x86: do not report a vCPU as
- preempted outside instruction boundaries
-Content-Language: en-US
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Jann Horn <jannh@google.com>, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        kvm@vger.kernel.org
-References: <20220614021116.1101331-1-sashal@kernel.org>
- <YrI25yOy7WMqr+x3@sashalap>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <YrI25yOy7WMqr+x3@sashalap>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.59
+Subject: stable/linux-5.15.y baseline: 144 runs, 1 regressions (v5.15.59)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -84,14 +69,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/21/22 23:23, Sasha Levin wrote:
-> Paolo, ping?
+stable/linux-5.15.y baseline: 144 runs, 1 regressions (v5.15.59)
 
-Sorry I missed the whole bunch of MANUALSEL patches.
+Regressions Summary
+-------------------
 
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-for all six.
 
-Paolo
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.15.y/kernel=
+/v5.15.59/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.15.y
+  Describe: v5.15.59
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      d676d6149a2f4b4d66b8ea0a1dfef30a54cf5750 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62ea7646432c49e16cdaf05c
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.59/a=
+rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
+vin.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.59/a=
+rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
+vin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220718.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/62ea7646432c49e16cdaf080
+        failing since 147 days (last pass: v5.15.25, first fail: v5.15.27)
+
+    2022-08-03T13:20:47.682866  /lava-6960562/1/../bin/lava-test-case   =
+
+ =20
