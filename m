@@ -2,89 +2,220 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4186558981C
-	for <lists+stable@lfdr.de>; Thu,  4 Aug 2022 09:07:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF31B589822
+	for <lists+stable@lfdr.de>; Thu,  4 Aug 2022 09:08:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239078AbiHDHHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Aug 2022 03:07:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37440 "EHLO
+        id S239095AbiHDHHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Aug 2022 03:07:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239093AbiHDHHq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Aug 2022 03:07:46 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E89B61D66;
-        Thu,  4 Aug 2022 00:07:46 -0700 (PDT)
+        with ESMTP id S239105AbiHDHHt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Aug 2022 03:07:49 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFD2161D62;
+        Thu,  4 Aug 2022 00:07:47 -0700 (PDT)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id F000E4E34C;
-        Thu,  4 Aug 2022 07:07:44 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 649244E34D;
+        Thu,  4 Aug 2022 07:07:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1659596864; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=dZ5fzzOyi7x9K6ycFv/1geqWnPkWAMMG5EnN6mG7mJw=;
-        b=UNqdBFoKliCklvcvyZfqBmI4EOtFq5Iii5TyBxrQ4Aie5jXlbijhRGY4VsyPsqEcu4GSqo
-        dHZ+ytJLP9kP3sePPDaXOeCCdAQ/m9/Aal0K+EX28pH6qdX1LdEj8veacmnlJfQdEkk+vA
-        TYem5jlgLxuNSrzy5VcrF1TxhSXyE+U=
+        t=1659596866; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=NEI5QZbu4vkddk3knFAke6X3+sQ5Ib800fl2D6kkKSc=;
+        b=EGIqbm6VRcVaVuAm9AJ7/VRy5+gP3Mu6dQo4bfmCmvNXrhQ/Zs7oS3AdFb/4dEFW8m+78Q
+        48vsR4g6CujkWEwERbiAadguQ1Eo+RlYeigGZVRlE/gho06nyUXmKYjHnsMtK184Vls587
+        CDwqsQuqa5GKAzNFK4sOxLDanqxdinw=
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 240C21348A;
-        Thu,  4 Aug 2022 07:07:43 +0000 (UTC)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5B9431348A;
+        Thu,  4 Aug 2022 07:07:45 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id WFAbOD9w62J+DgAAMHmgww
-        (envelope-from <wqu@suse.com>); Thu, 04 Aug 2022 07:07:43 +0000
+        id +AcyCkFw62J+DgAAMHmgww
+        (envelope-from <wqu@suse.com>); Thu, 04 Aug 2022 07:07:45 +0000
 From:   Qu Wenruo <wqu@suse.com>
 To:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH STABLE 5.10 5.15 0/2] btrfs: raid56 backports to reduce destructive RMW
-Date:   Thu,  4 Aug 2022 15:07:24 +0800
-Message-Id: <cover.1659596446.git.wqu@suse.com>
+Cc:     David Sterba <dsterba@suse.com>
+Subject: [PATCH STABLE 5.10 5.15 1/2] btrfs: only write the sectors in the vertical stripe which has data stripes
+Date:   Thu,  4 Aug 2022 15:07:25 +0800
+Message-Id: <8401398d6d0e7c7c1f365ccf73d777ac9a7efc42.1659596446.git.wqu@suse.com>
 X-Mailer: git-send-email 2.37.0
+In-Reply-To: <cover.1659596446.git.wqu@suse.com>
+References: <cover.1659596446.git.wqu@suse.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg and Sasha,
+commit bd8f7e627703ca5707833d623efcd43f104c7b3f upstream.
 
-This two patches are backports for v5.15 and v5.10 (for v5.10 conflicts
-can be auto resolved) stable branches.
+If we have only 8K partial write at the beginning of a full RAID56
+stripe, we will write the following contents:
 
-(For older branches from v4.9 to v5.4, due to some naming change,
-although the patches can be applied with auto-resolve, they won't compile).
+                    0  8K           32K             64K
+Disk 1	(data):     |XX|            |               |
+Disk 2  (data):     |               |               |
+Disk 3  (parity):   |XXXXXXXXXXXXXXX|XXXXXXXXXXXXXXX|
 
-These two patches are reducing the chance of destructive RMW cycle,
-where btrfs can use corrupted data to generate new P/Q, thus making some
-repairable data unrepairable.
+|X| means the sector will be written back to disk.
 
-Those patches are more important than what I initially thought, thus
-unfortunately they are not CCed to stable by themselves.
+Note that, although we won't write any sectors from disk 2, but we will
+write the full 64KiB of parity to disk.
 
-Furthermore due to recent refactors/renames, there are quite some member
-change related to those patches, thus have to be manually backported.
+This behavior is fine for now, but not for the future (especially for
+RAID56J, as we waste quite some space to journal the unused parity
+stripes).
 
+So here we will also utilize the btrfs_raid_bio::dbitmap, anytime we
+queue a higher level bio into an rbio, we will update rbio::dbitmap to
+indicate which vertical stripes we need to writeback.
 
-One of the fastest way to verify the behavior is the existing btrfs/125
-test case from fstests. (not in auto group AFAIK).
+And at finish_rmw(), we also check dbitmap to see if we need to write
+any sector in the vertical stripe.
 
-Qu Wenruo (2):
-  btrfs: only write the sectors in the vertical stripe which has data
-    stripes
-  btrfs: raid56: don't trust any cached sector in
-    __raid56_parity_recover()
+So after the patch, above example will only lead to the following
+writeback pattern:
 
- fs/btrfs/raid56.c | 74 ++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 57 insertions(+), 17 deletions(-)
+                    0  8K           32K             64K
+Disk 1	(data):     |XX|            |               |
+Disk 2  (data):     |               |               |
+Disk 3  (parity):   |XX|            |               |
 
+Cc: stable@vger.kernel.org # 5.10 5.15
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/raid56.c | 55 +++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 51 insertions(+), 4 deletions(-)
+
+diff --git a/fs/btrfs/raid56.c b/fs/btrfs/raid56.c
+index 893d93e3c516..ac1e8d2714b0 100644
+--- a/fs/btrfs/raid56.c
++++ b/fs/btrfs/raid56.c
+@@ -324,6 +324,9 @@ static void merge_rbio(struct btrfs_raid_bio *dest,
+ {
+ 	bio_list_merge(&dest->bio_list, &victim->bio_list);
+ 	dest->bio_list_bytes += victim->bio_list_bytes;
++	/* Also inherit the bitmaps from @victim. */
++	bitmap_or(dest->dbitmap, victim->dbitmap, dest->dbitmap,
++		  dest->stripe_npages);
+ 	dest->generic_bio_cnt += victim->generic_bio_cnt;
+ 	bio_list_init(&victim->bio_list);
+ }
+@@ -865,6 +868,12 @@ static void rbio_orig_end_io(struct btrfs_raid_bio *rbio, blk_status_t err)
+ 
+ 	if (rbio->generic_bio_cnt)
+ 		btrfs_bio_counter_sub(rbio->fs_info, rbio->generic_bio_cnt);
++	/*
++	 * Clear the data bitmap, as the rbio may be cached for later usage.
++	 * do this before before unlock_stripe() so there will be no new bio
++	 * for this bio.
++	 */
++	bitmap_clear(rbio->dbitmap, 0, rbio->stripe_npages);
+ 
+ 	/*
+ 	 * At this moment, rbio->bio_list is empty, however since rbio does not
+@@ -1197,6 +1206,9 @@ static noinline void finish_rmw(struct btrfs_raid_bio *rbio)
+ 	else
+ 		BUG();
+ 
++	/* We should have at least one data sector. */
++	ASSERT(bitmap_weight(rbio->dbitmap, rbio->stripe_npages));
++
+ 	/* at this point we either have a full stripe,
+ 	 * or we've read the full stripe from the drive.
+ 	 * recalculate the parity and write the new results.
+@@ -1268,6 +1280,11 @@ static noinline void finish_rmw(struct btrfs_raid_bio *rbio)
+ 	for (stripe = 0; stripe < rbio->real_stripes; stripe++) {
+ 		for (pagenr = 0; pagenr < rbio->stripe_npages; pagenr++) {
+ 			struct page *page;
++
++			/* This vertical stripe has no data, skip it. */
++			if (!test_bit(pagenr, rbio->dbitmap))
++				continue;
++
+ 			if (stripe < rbio->nr_data) {
+ 				page = page_in_rbio(rbio, stripe, pagenr, 1);
+ 				if (!page)
+@@ -1292,6 +1309,11 @@ static noinline void finish_rmw(struct btrfs_raid_bio *rbio)
+ 
+ 		for (pagenr = 0; pagenr < rbio->stripe_npages; pagenr++) {
+ 			struct page *page;
++
++			/* This vertical stripe has no data, skip it. */
++			if (!test_bit(pagenr, rbio->dbitmap))
++				continue;
++
+ 			if (stripe < rbio->nr_data) {
+ 				page = page_in_rbio(rbio, stripe, pagenr, 1);
+ 				if (!page)
+@@ -1715,6 +1737,33 @@ static void btrfs_raid_unplug(struct blk_plug_cb *cb, bool from_schedule)
+ 	run_plug(plug);
+ }
+ 
++/* Add the original bio into rbio->bio_list, and update rbio::dbitmap. */
++static void rbio_add_bio(struct btrfs_raid_bio *rbio, struct bio *orig_bio)
++{
++	const struct btrfs_fs_info *fs_info = rbio->bioc->fs_info;
++	const u64 orig_logical = orig_bio->bi_iter.bi_sector << SECTOR_SHIFT;
++	const u64 full_stripe_start = rbio->bioc->raid_map[0];
++	const u32 orig_len = orig_bio->bi_iter.bi_size;
++	const u32 sectorsize = fs_info->sectorsize;
++	u64 cur_logical;
++
++	ASSERT(orig_logical >= full_stripe_start &&
++	       orig_logical + orig_len <= full_stripe_start +
++	       rbio->nr_data * rbio->stripe_len);
++
++	bio_list_add(&rbio->bio_list, orig_bio);
++	rbio->bio_list_bytes += orig_bio->bi_iter.bi_size;
++
++	/* Update the dbitmap. */
++	for (cur_logical = orig_logical; cur_logical < orig_logical + orig_len;
++	     cur_logical += sectorsize) {
++		int bit = ((u32)(cur_logical - full_stripe_start) >>
++			   fs_info->sectorsize_bits) % rbio->stripe_npages;
++
++		set_bit(bit, rbio->dbitmap);
++	}
++}
++
+ /*
+  * our main entry point for writes from the rest of the FS.
+  */
+@@ -1731,9 +1780,8 @@ int raid56_parity_write(struct btrfs_fs_info *fs_info, struct bio *bio,
+ 		btrfs_put_bioc(bioc);
+ 		return PTR_ERR(rbio);
+ 	}
+-	bio_list_add(&rbio->bio_list, bio);
+-	rbio->bio_list_bytes = bio->bi_iter.bi_size;
+ 	rbio->operation = BTRFS_RBIO_WRITE;
++	rbio_add_bio(rbio, bio);
+ 
+ 	btrfs_bio_counter_inc_noblocked(fs_info);
+ 	rbio->generic_bio_cnt = 1;
+@@ -2135,8 +2183,7 @@ int raid56_parity_recover(struct btrfs_fs_info *fs_info, struct bio *bio,
+ 	}
+ 
+ 	rbio->operation = BTRFS_RBIO_READ_REBUILD;
+-	bio_list_add(&rbio->bio_list, bio);
+-	rbio->bio_list_bytes = bio->bi_iter.bi_size;
++	rbio_add_bio(rbio, bio);
+ 
+ 	rbio->faila = find_logical_bio_stripe(rbio, bio);
+ 	if (rbio->faila == -1) {
 -- 
 2.37.0
 
