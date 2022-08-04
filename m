@@ -2,90 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6C9C589BB4
-	for <lists+stable@lfdr.de>; Thu,  4 Aug 2022 14:29:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F990589C76
+	for <lists+stable@lfdr.de>; Thu,  4 Aug 2022 15:19:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231174AbiHDM36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Aug 2022 08:29:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52140 "EHLO
+        id S239557AbiHDNTA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Aug 2022 09:19:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234170AbiHDM36 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Aug 2022 08:29:58 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E6E543E44
-        for <stable@vger.kernel.org>; Thu,  4 Aug 2022 05:29:57 -0700 (PDT)
-Received: from dggpemm500023.china.huawei.com (unknown [172.30.72.56])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Lz7Jv0FfKzlVsr;
-        Thu,  4 Aug 2022 20:27:11 +0800 (CST)
-Received: from dggpemm500006.china.huawei.com (7.185.36.236) by
- dggpemm500023.china.huawei.com (7.185.36.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Thu, 4 Aug 2022 20:29:55 +0800
-Received: from mdc.huawei.com (10.175.112.208) by
- dggpemm500006.china.huawei.com (7.185.36.236) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Thu, 4 Aug 2022 20:29:55 +0800
-From:   Chen Jun <chenjun102@huawei.com>
-To:     <stable@vger.kernel.org>, <deller@gmx.de>, <geert@linux-m68k.org>,
-        <b.zolnierkie@samsung.com>, <gregkh@linuxfoundation.org>
-CC:     <xuqiang36@huawei.com>
-Subject: [PATCH stable 4.14 v3 3/3] fbmem: Check virtual screen sizes in fb_set_var()
-Date:   Thu, 4 Aug 2022 12:27:34 +0000
-Message-ID: <20220804122734.121201-4-chenjun102@huawei.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20220804122734.121201-1-chenjun102@huawei.com>
-References: <20220804122734.121201-1-chenjun102@huawei.com>
+        with ESMTP id S231807AbiHDNS7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Aug 2022 09:18:59 -0400
+Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E2D41DA73
+        for <stable@vger.kernel.org>; Thu,  4 Aug 2022 06:18:58 -0700 (PDT)
+Received: by mail-lj1-x22b.google.com with SMTP id x25so1770364ljm.5
+        for <stable@vger.kernel.org>; Thu, 04 Aug 2022 06:18:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=U1hEasta6NC0Fhws0/3UxCRL1y11e+6zcIcC0np0f/U=;
+        b=X8XwM1qgfkKR8RH8jGia+PPrw3Ktiy/2N/eLdCVa5TZ9UgnpQjBjdZqHvxXcemCbmi
+         Xcf0opwJhZEfkTNPu+NVk0eKVENyNuLBu34RHNIROCk4xi1ZjwxifW7myLsJtPNO+ujg
+         av7ardjEjGETuBKT63H6aoBlcLECYRItlgELKnUKD3FicrS2Zn9X9uTK1t3wiqJ1CjHI
+         Kc2NxRVzHV7UE3WWq0TRrtwzp32pYdRNvfuKr6QorT1n5Tk7peB7piXRi0Y2Vjy9U7uj
+         s0olUTSfgZ6u8D4h6Ucr0fbdu/+xbbVhmFNHVF4ja9PdItU+U5eMb8eQg46RIvwn1IRa
+         1Wrw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=U1hEasta6NC0Fhws0/3UxCRL1y11e+6zcIcC0np0f/U=;
+        b=lVH05ncJYUEDz1D/DMq04QbNjXqxYl2n6gER71eFuQYefBQSdJCocu/a2fNvnAgcJx
+         d8QN3sD4ROAJLxGK77Khvwfcxt/sQ38MPW98En9dQm/VJU/rSbWLZj6wgi4bWl4OtFUf
+         Mw06vqbSJivF+EuZlBO6IoAsqg113KGjFwSoMU3GbsS+yR38QO71GEPk8VUTkrL+yXj/
+         sWoNjhggGQLgrSNuvi+wvjVMz64cBDELZq0TWRlns6uuQJ23VYzJrg2FgsJT82BB8Ncl
+         BCoTi+FcQmrnUJUOQwzsJZj3augt9ozTSjUkiJTDNLKcI/RMCW2E2aTiwaQqKs2Csyd0
+         Kv5g==
+X-Gm-Message-State: ACgBeo2Hv0v4A5IJesCsgRAWciXmXxlbvdM2zrS62ohmNbVbOjkhBE5/
+        ifrX1Zuc3zqyGHNZerLUnQwnA0XopKX44XdmNvI=
+X-Google-Smtp-Source: AA6agR4vnA0c2Xi4Po9vf7bt3ip0onoLy/ktIY+6rRspO4xea5oaKCZH4ZVqcgoLWAYQu7fvRM0ARzXndCJ92M27HC0=
+X-Received: by 2002:a05:651c:1782:b0:25e:5638:4e72 with SMTP id
+ bn2-20020a05651c178200b0025e56384e72mr572967ljb.197.1659619136797; Thu, 04
+ Aug 2022 06:18:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.175.112.208]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpemm500006.china.huawei.com (7.185.36.236)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Sender: bankatlantic28@gmail.com
+Received: by 2002:a05:6500:c0c:b0:14b:e2a9:6aa4 with HTTP; Thu, 4 Aug 2022
+ 06:18:55 -0700 (PDT)
+From:   "Mrs. Linda Harakan." <haralinda549@gmail.com>
+Date:   Thu, 4 Aug 2022 06:18:55 -0700
+X-Google-Sender-Auth: b_BmKV5iR2HwkrT7mJcX4ainKsA
+Message-ID: <CADtTZG2mdn4uUprNHPpzZjcsLAMGK1NE_xGwzKtwJMA=jW=KfQ@mail.gmail.com>
+Subject: PLEASE CONFIRM MY PREVIOUS MAIL TO PROCEED.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=1.4 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,
+        T_HK_NAME_FM_MR_MRS autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: *
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+Hi,
 
-commit 6c11df58fd1ac0aefcb3b227f72769272b939e56 upstream
+Recently i forwarded you an important message and i have expecting
+your response, please confirm my previous message and get back to me.
 
-Verify that the fbdev or drm driver correctly adjusted the virtual
-screen sizes. On failure report the failing driver and reject the screen
-size change.
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-[Chen Jun: adjust context]
-Signed-off-by: Chen Jun <chenjun102@huawei.com>
----
- drivers/video/fbdev/core/fbmem.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
-index 264e8ca5efa7..1238cc9f42c0 100644
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -1019,6 +1019,16 @@ fb_set_var(struct fb_info *info, struct fb_var_screeninfo *var)
- 		if (ret)
- 			goto done;
- 
-+		/* verify that virtual resolution >= physical resolution */
-+		if (var->xres_virtual < var->xres ||
-+		    var->yres_virtual < var->yres) {
-+			pr_warn("WARNING: fbcon: Driver '%s' missed to adjust virtual screen size (%ux%u vs. %ux%u)\n",
-+				info->fix.id,
-+				var->xres_virtual, var->yres_virtual,
-+				var->xres, var->yres);
-+			return -EINVAL;
-+		}
-+
- 		if ((var->activate & FB_ACTIVATE_MASK) == FB_ACTIVATE_NOW) {
- 			struct fb_var_screeninfo old_var;
- 			struct fb_videomode mode;
--- 
-2.17.1
-
+Mrs. Linda Harakan.
