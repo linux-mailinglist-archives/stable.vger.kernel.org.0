@@ -2,74 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B22DB589FF9
-	for <lists+stable@lfdr.de>; Thu,  4 Aug 2022 19:42:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C19FD58A342
+	for <lists+stable@lfdr.de>; Fri,  5 Aug 2022 00:24:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239203AbiHDRmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Aug 2022 13:42:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56726 "EHLO
+        id S239947AbiHDWYu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Aug 2022 18:24:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236546AbiHDRmR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Aug 2022 13:42:17 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3BB2316D
-        for <stable@vger.kernel.org>; Thu,  4 Aug 2022 10:42:16 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id x2-20020a17090ab00200b001f4da5cdc9cso6000854pjq.0
-        for <stable@vger.kernel.org>; Thu, 04 Aug 2022 10:42:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc;
-        bh=I+2klbPtMg8JDmNlmkLOfkLK7UdOD2bPaKewB5S493I=;
-        b=JWRc8lpzmI1XPDrZdYpOkOaHGJM9cuJ6S36qN6rCIkka1D+pCnjBmWL2QpgE58pchQ
-         Y8hetXvTbbN4FGz9bTRUf5auA47ghrM+ozLswJ5TfKY7AoeM1GvCh8KepCnQJXvTlGeL
-         c91qNyGukSxvdUOhw0mStLikLlq5FvEcWa12peKE/HYibXsvRKJkjKLn5fuKHI8e14TJ
-         tJX4azNySy7c3fVDb1DtoDw1GCvA703nGeQMJ+74ydgW6ujkD/Zg2ho+694ShFqYEw4F
-         1lHb1H7JbUkptA0PWqduIT+12ebhOD4kZWJ6JIZ1GPyD9FD8Mx0K6fzBX28aYJa6jikG
-         p+ow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=I+2klbPtMg8JDmNlmkLOfkLK7UdOD2bPaKewB5S493I=;
-        b=eeocyYeO6rG7SitzAFSAj8yOneJsVrSL8zzVPPrfToSM3YBefxMtZkt7iXSykJmMvm
-         2cQRnfCSOK8RqpW/KkktO6DB7OEhOXrgq9YFLuGe4QKty2Lws8Cui5+N53RRi5jiO7Z0
-         RBZfpSMy+SRO8gkQa6ka3RJXYZ8q+OTEzPViko55ZcFSl3s5lmdFpleZYxySBI9Y7+zd
-         eFCfwsomcOgD+OsI4m99kmS68koa44mg9OA66b+wJF7OOJGnCTh7olc7r/cwByg9TYlt
-         fqxV2WnUtCi/F6+Un/LP7IK9AeHuvbn3wIeF17Qn6BHqTrgpYpstTp4bSfArQaCkxeTX
-         4FJA==
-X-Gm-Message-State: ACgBeo0Kwg2XTRJDQ/F27vA6dimL2FAgkJORbrEyLsiovG+DADpM56pY
-        q+GvnJGzQxnK8vOFXMyO/masKw==
-X-Google-Smtp-Source: AA6agR5EqUfD+yYAIdMZCFrx/O7afJKPSNvQUKx2i/l+0HuCml4gPIS9of9x6dhqZTYLQotLOS6qKg==
-X-Received: by 2002:a17:902:cec8:b0:16f:8081:54bc with SMTP id d8-20020a170902cec800b0016f808154bcmr2833466plg.139.1659634935635;
-        Thu, 04 Aug 2022 10:42:15 -0700 (PDT)
-Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
-        by smtp.gmail.com with ESMTPSA id w79-20020a627b52000000b0052c0a9234e0sm1359044pfc.11.2022.08.04.10.42.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Aug 2022 10:42:15 -0700 (PDT)
-Date:   Thu, 4 Aug 2022 17:42:11 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     "Dr. David Alan Gilbert" <dgilbert@redhat.com>
-Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        Dave Young <ruyang@redhat.com>,
-        Xiaoying Yan <yiyan@redhat.com>,
-        David Woodhouse <dwmw@amazon.co.uk>, stable@vger.kernel.org
-Subject: Re: [PATCH] KVM: x86: revalidate steal time cache if MSR value
- changes
-Message-ID: <YuwE83glEswjkTq0@google.com>
-References: <20220804132832.420648-1-pbonzini@redhat.com>
- <87v8r8yuvo.fsf@redhat.com>
- <Yuv9BoFtf9q3Ew5G@work-vm>
+        with ESMTP id S234587AbiHDWYt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Aug 2022 18:24:49 -0400
+Received: from sonic310-25.consmr.mail.ne1.yahoo.com (sonic310-25.consmr.mail.ne1.yahoo.com [66.163.186.206])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98738268
+        for <stable@vger.kernel.org>; Thu,  4 Aug 2022 15:24:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1659651887; bh=PcTfW0raGYIAkffs8D85wUFLoXDlSJu3kgSidiXhssA=; h=To:From:Subject:Date:References:From:Subject:Reply-To; b=q1F5EgQVymqqJJtTBMgufmEiJWvtB7rUj3YergNk73CZQB6VHsR2mm3XAWUgYmePRk5b0thCv2b6zIs+90T0lidwIfLN3rLi8Em1GdEk9kfesvkns0gcepwtYvOfkQRZvZUKEkouBbrfCwJk5fhEG9VaqCSR4v74WsShFP2Q5NTbOAQlG7TbIx2Gnkz8rmny9mWBdTZc+FvLHOPeJTC/3u4zQ2HmithBhFY7iEACMyYA6cmRqJfD8l32i3BsTyrfuHQP0WshwDHq+8ZjRgpR40ix/sjB2yZh+X3JiuemWVRo94f3b+Gf5Ld3CdVS8cP96q01CXJXWzqcDXGKDMCmTg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1659651887; bh=5EJ+a/5KNBs7mGReHbZ29Uy2aNQuxUd9SFyAVL403BH=; h=X-Sonic-MF:To:From:Subject:Date:From:Subject; b=oZSBR41qSjAvx+q2tChRppb0Q5lfrVuvY2RZrstPcO4lrTTYc/HYoMXLOWvN32XhwRRKKLlx0mNxBJZ/JYDttTiwkehSqDi6L6Sa2sEeA5xGahHSxocZOzQD/Lur2uQXf78UQjQlASpt0dRzHVAXcZpZieWn3rTby9vMfLHlcBOWSWuwdxnfy0bTbXLDZbO1mGkZFee/+fTkRdTAf/TP3KgCz2P0eICjAB9bc8BNdqs/8GQ4x1vDJl4qoBlK8LjM1wVYyjAz4RFXRIsoIzV3mkQfq0qVtBjAOgGWUt6qTvGMzHIAcilEH54ZgnB0F3oMSn1Kk/u2jd/wSxDZCimRJQ==
+X-YMail-OSG: ledymt8VM1lljCkOrqN4ixgVUb156zXFBgxwyYmVw.k..RKZgDjB5jrwe4YsrU_
+ zph7zVb2GkDrJv1K7TOPBiyV8HwGwAkPP_eR6.4w.Nbpoo1IgGpBDi_uqyRBEedqBWf6wyooxEQb
+ PYcTszmjMxOKx1ptTYD._t_O0.tLIWrFwkKQfYHAn6ih46K8_O.5FQlnJ6_k8yZGw3nyN1hO464l
+ 1_YXmSzs_BGmUMkHj2I30r4R1GNEG.Iqmm2eRtSzI.cOAyNFTWMKJJctB79X_cO5O6zL79Y_PHee
+ W5q8LfTrUnXQrAtRYndKzRzA.uEuKN_Y4L6jRaO0F4xcjrGCWn3T11QhxyIwd_ETTrag6wXTfrok
+ d.1SiEEWOOJIu9I4ucpH74sFw4W6isTYYDWnyoSQc.ndDs1BLaHizTKO.SZUeTRs9meextJ4DzFz
+ InCeeN7nS7.MP4lyGzSwKbkPFogAzb.Rw6Dxrsof8jGW_K4r1mW2ixeEULaLgS7rd.XOmPTOuecO
+ Mkceaxw.Gns3TwdjjFj_3XneyshHcmBaXANDy40aa8VL56tVC_Z1H8IWcg1SwZl_WVrWv4mW7Sd6
+ dUa8VrQiFCJ.nll_AugbHqpu6bTAAJSaBlld6lU7Soqx5raaFVeQTtDyjsmOHlur1yPBVhrYXdpO
+ xJk.PEgowKWmFBtMPv7dOv_zQFmPopPxPqTkpfrJlnBuxKvxSRnccbH9LQPjsqsiDAxk8GYdu0oq
+ WpanTZ_JXGFburVmL.P2_74eNe5yzsGBpci2DNaGb0.GPjl8_PPgBslt4_QQY6.WujgoYuPUKghd
+ CaZGctzI3hllO5n7Q44gPkWc0c6RSvJ.39nziH8yoqSOHFwAcC3ahgjit2PkwVi8emKZBZoAX3xs
+ rgSAr..ebdvNazcIf.2o9xG3rSJz.DGTR9jLjyJq9C.vtSheZSblPHSkazr7JNmRY4eShmETjGQ_
+ CYTBzkFtUhMr6sq2JA_amQn.OQzPikvwHzhQx3JbcvosyTRGpDxAc309Yo7P868Aha.nJU_n07_b
+ EQbSQvXTgUAaZRPk.zSzwf5XWbRkVPb40iVYEPcNHI.wFMp2Pt5AJ70oMXRs081yCFtaild3jtkb
+ bmceZXtsCmtds1_hvPWzwW.CI6LqQI5TDEZJDhm8q.SDlmbr_LPXd68YoNGLel_65K4n43EyHh8g
+ yGFiljqtVjhZmHRLf59vg8wj7HbgThZwtt1aVR7vztMigD5EfIKa5RvWRPgH23mHCLaZ.JNmLSw1
+ ebemA8Zq0w_qCvA82cquDmXKMIJkHgjKnUYe7HqV8jkcbrr_NqP6tEshvL1Ajo3xVmq1Qd0lBYR3
+ b9cdlj.6ViRcNIVRQANJBXFGSRN2bnnrVsaJpI3iEtiek2poDImDvO.VsH18GjqYBhXmxWWdzVCZ
+ 5O9bV1mk53Uj7pQuBzNoknn5XGJQDsy46G27lk6rTKZugggCLzPtUrWD_rWwyhOUWzVlCak1B1bm
+ fRnbqIpxu9AJJ9Zu7lQ5BuaN30LIS6QmKqXe3qnPZ.ZCIUnOtTfu6I9QySurKv7fi3Pa6dgBmRBb
+ jKf7fELX_1ChbcevZVgrGeO3AxEqoLXK743C.WbjRKuUZYf.N2Bof5qjLDjPbGjFPns.UPs3rIhX
+ gvj66zEV2_r_5H.xLO3dZHhafPAETYyEs_09j022lVfn4XcZx6QkdhtUvfSKhadlJ0GSfM.HBY4b
+ F0aPFvBQnIlcd2Y0z8CYobVskHK3TZeM_8zm7nKIzvHQy7WVIDiQ9e3Buvapi6l5QfqjjSwhoy6t
+ _2XCZ6rVVBpF8peM7M8O8.yUUPrG16jFYSDnsF3xwIEmEtVBr3Z..h_Utc2bIWgE.ic0NLedgV_0
+ wTVK5QkguAwpyvxF9loUaedphI8Sq8rfE9269n_IXZS1GysYsAq.8vu2nbuRKAyEQjyU0vyqwuwG
+ Q2nusuqFufl6Nbttwx.fnAUYaWx8TjHcKINFaIr3Jj3GnaBG_u6HioqoHI8TiGZ4rLyrc8cka315
+ WKAbYCvvEC2UAEuFAkI_ngYWRtwmXmo1hIEHUj8WZIrudUAkmf5rMNFzvI7wWDpw4ZIcfr10dFpE
+ 43Dy_rGA5Nz9FU3ZGswbRRH4h3skU1T9UTE4FXWoLgjWZ8ZK.sL8uE9dB8HuKdKEgSKq2N_U7JMW
+ vq.VRMtmJQqRNIe2Tc2nR1maAuWMKM0EbZo94zK0uix.3yz.N2N6nVtsGxsX0G95VNLmhQ_zkT7p
+ imM2vCpQ5lWhA8A--
+X-Sonic-MF: <augusto7744@aol.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.ne1.yahoo.com with HTTP; Thu, 4 Aug 2022 22:24:47 +0000
+Received: by hermes--canary-production-ir2-f74ffc99c-5fxhh (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID c5f21c1a5b3e2549f65aa354721acb38;
+          Thu, 04 Aug 2022 22:24:44 +0000 (UTC)
+To:     stable@vger.kernel.org
+From:   Augusto <augusto7744@aol.com>
+Subject: kernel issues
+Message-ID: <c27fc190-306d-c648-ea3a-e52839da2160@aol.com>
+Date:   Thu, 4 Aug 2022 19:24:23 -0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Firefox/68.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yuv9BoFtf9q3Ew5G@work-vm>
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,FSL_HELO_FAKE,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+References: <c27fc190-306d-c648-ea3a-e52839da2160.ref@aol.com>
+X-Mailer: WebService/1.1.20491 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.aol
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,25 +73,14 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 04, 2022, Dr. David Alan Gilbert wrote:
-> * Vitaly Kuznetsov (vkuznets@redhat.com) wrote:
-> > Paolo Bonzini <pbonzini@redhat.com> writes:
-> > > -		gfn_t gfn = vcpu->arch.st.msr_val & KVM_STEAL_VALID_BITS;
-> > > -
-> > >  		/* We rely on the fact that it fits in a single page. */
-> > >  		BUILD_BUG_ON((sizeof(*st) - 1) & KVM_STEAL_VALID_BITS);
-> > >  
-> > > -		if (kvm_gfn_to_hva_cache_init(vcpu->kvm, ghc, gfn, sizeof(*st)) ||
-> > > +		if (kvm_gfn_to_hva_cache_init(vcpu->kvm, ghc, gpa, sizeof(*st)) ||
-> > 
-> > (It would be nice to somehow get at least a warning when 'gfn_t' is used
-> > instead of 'gpa_t' and vice versa)
-> 
-> Can't sparse be taught to do that?
+Hello.
+Thanks for read my message.
+In https://docs.kernel.org/admin-guide/reporting-issues.html has 
+information to send message to stable@vger.kernel.org.
+I see an problem with BTRFS when using dm-writecache module.
+I wish report that bug issue.
+Where is the correct area to report kernel modules bugs ?
 
-Hmm, it probably could, but the result would likely be a mess.  E.g. anything that
-shifts the GPA on-demand will require explicit casts to make sparse happy.
-
-This particular case is solvable without sparse, e.g. WARN if gpa[11:0]!=0, or
-even better rework the function to actually take a @gfn and then WARN if the
-incoming gfn would yield an illegal gpa.
+If stable@vger.kernel.org not is the correct email to ask about my 
+message please excuse me.
+Have an good day and thanks for reply.
