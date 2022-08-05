@@ -2,256 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 527F858A5AE
-	for <lists+stable@lfdr.de>; Fri,  5 Aug 2022 07:37:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 870FA58A5CC
+	for <lists+stable@lfdr.de>; Fri,  5 Aug 2022 08:09:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235482AbiHEFhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Aug 2022 01:37:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49336 "EHLO
+        id S234600AbiHEGJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Aug 2022 02:09:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234889AbiHEFhS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Aug 2022 01:37:18 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73BB418388
-        for <stable@vger.kernel.org>; Thu,  4 Aug 2022 22:37:16 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id f65so1772239pgc.12
-        for <stable@vger.kernel.org>; Thu, 04 Aug 2022 22:37:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kylehuey.com; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc;
-        bh=NOGyRbaYWo9NJB1e+fp0Hlqpz8mEU2cQiZ1I/xbRESo=;
-        b=glaz8N6XNOlv1kGWYQzAq7GCdyjqsN2IMJKgjTYqpjH3uSy7bni97GCWJprDZQaocU
-         yObnBn/bip4ejcjROhIrNSV0uLxL9tMC68iEZhhl5nDQnGVDlR/zy3QsKpHQ7pIbev22
-         vbeqdEQQuqnQUFJ7Y/1bkXDK//mTUWHDcqyXQTSkkWRyRIuyeRUgPKJgwPxDmiPjFEJo
-         ktUdI3lWS/dE8Ua8dRsf/G6hcBgx7tAfUIGZ00SttkLMt4Wn5CjTh6Kgd+A5pu1vgayS
-         Rui/auJfsco3AAb8HGZpOkbQ5sLsqaBvXAH1lbVkNYNiG6Gp1jXvSU2LJ3YF/RJ1ouD8
-         xTzw==
+        with ESMTP id S230492AbiHEGJM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Aug 2022 02:09:12 -0400
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D4115A153
+        for <stable@vger.kernel.org>; Thu,  4 Aug 2022 23:09:11 -0700 (PDT)
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com [209.85.128.72])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 8E7AB3F136
+        for <stable@vger.kernel.org>; Fri,  5 Aug 2022 06:09:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1659679749;
+        bh=h/+KiAlEysn+dIys/0yezAvHiCHVxX/Jn+Rak91weDg=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+         Content-Type:MIME-Version;
+        b=sgjevAvTf3f0nUotgLTdXIZGDDOGdb5M3bwPtr/GS+3JSeDlRjnp/SC0VsHLTbusw
+         l6dUHRD8Lr1doTumw1PcxG3Wg/DkVip1dE9EgebNPa4OfqxwieJ9mvJ64Is/uz2TVu
+         w7aRNIsl4G94QDay0kB7pvAXEnNgXgzGbAuxXQ1MLIkeRBLJQuD/RJ8QVNGVKKQp4/
+         4YiqavxerY/FZnGt87tOGMKhLyPyphX2foYFJX8FCDrbYVAFcVUcKwZ1Z4Ze8J2w5+
+         tCTbAg9gCw9/UQ/OUjWie1nBT8Qzua3RxPB1Dg9RoEuWLTwxWKg/XrDog33Jdi1y4k
+         E3G9KUFLmCRDg==
+Received: by mail-wm1-f72.google.com with SMTP id p2-20020a05600c1d8200b003a3262d9c51so3722105wms.6
+        for <stable@vger.kernel.org>; Thu, 04 Aug 2022 23:09:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc;
-        bh=NOGyRbaYWo9NJB1e+fp0Hlqpz8mEU2cQiZ1I/xbRESo=;
-        b=ttmwCXBiOYQy3Vem+19Uk3s/IpsL96Lo9oBHKT8aHnOSwX2d0McZRm4L3O6aAGPXRP
-         KPDxaFBEn20ikoFmrtuLL151h3VLXUriHebHGzi4la3t0lThiYjbWA3LmQbIb8Zk4vvX
-         fzSfPLh7r/H6ip8k5nuJrlfpClGKxGQGGjWQaKPQZsg+F4QjUoL/vwa53HzC7YskkOS0
-         aOlfTtEtgET6bfV1N+abPEgTr76Xaj5k4N9aI9xfHw28sX8NErw8Tr7TNA7okwrn6PHo
-         uwfd872okM7dXFZFz7AW7mSm6+I55fojDOrhDmRS1yjRLDLcvwNt4ps5sHdMKoiktHrS
-         1Nwg==
-X-Gm-Message-State: ACgBeo0vJaIwh/nd3G6HIITkdwzWspkHq42lTtMQtQ/p+dyicTGM2tnx
-        w3i3Gh1Yff52E9HxgMldN9aBwA==
-X-Google-Smtp-Source: AA6agR5DAwnG14sC1F4GMMBrhr0XOIDKcJawRirlMJbpGid5uEYz0GftkFeybslkesOGaUXbr5F06Q==
-X-Received: by 2002:a63:e343:0:b0:41c:d5cd:a39 with SMTP id o3-20020a63e343000000b0041cd5cd0a39mr4493343pgj.512.1659677835597;
-        Thu, 04 Aug 2022 22:37:15 -0700 (PDT)
-Received: from minbar.home.kylehuey.com (c-71-198-251-229.hsd1.ca.comcast.net. [71.198.251.229])
-        by smtp.gmail.com with ESMTPSA id 6-20020a621506000000b0052d24402e52sm1963067pfv.79.2022.08.04.22.37.13
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc;
+        bh=h/+KiAlEysn+dIys/0yezAvHiCHVxX/Jn+Rak91weDg=;
+        b=nT3xwvj1JtPiuKbJOMV5zCISgoT+JITRH7eMtYCssbXjprysWtDzdvGhEdWX9kxZ3t
+         qIbdWvfoBK3tKSkCyw2h0cloObvMQS7wPL3eyPSeJbrWntcB6NmWrbIUqXe3iLb0l1Kf
+         rGiN1J+cFmZoZ3u9UYcElV7VnsSazT2uIBl2QRJ03Dw3D4FDx5tug8jlw3ONYtGBXr3h
+         TKbZ2V5EYxdS1OSrU9pTgqCRZx3m+b0tiwAa3sq6uUCrVoI43wLULQXe0rHenlLqe4YA
+         L80gUz0IMoAUqTUOqSG37Uw/Q8ID0xTwT8yIzQoVBAdHLx5bdfincx6RfaAIMk2dyXE0
+         OoEQ==
+X-Gm-Message-State: ACgBeo3devOgsuGmJoLAQVbFKcZtrjhGTFA7TOEknmlpyFCEwLOIrzV4
+        AS1Gu/jy6uH8H2KDVlnqQocJcCwDnnZopUrGQk4wftSMt55D427C7WmWZzrg/5SkDE59x2npOW4
+        xSd2Z0aq+jhAliV+LPK/I+v6VMUPPVbMEWQ==
+X-Received: by 2002:a05:6000:1a4e:b0:220:5e43:9843 with SMTP id t14-20020a0560001a4e00b002205e439843mr3141041wry.566.1659679749154;
+        Thu, 04 Aug 2022 23:09:09 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR5yn2gCyHZ12bIPwXIJUkSnmQsfGprwK5jKgRgYQSHp7TFzWSUN40h955r/TzdIaaAXpY4Slw==
+X-Received: by 2002:a05:6000:1a4e:b0:220:5e43:9843 with SMTP id t14-20020a0560001a4e00b002205e439843mr3141028wry.566.1659679748916;
+        Thu, 04 Aug 2022 23:09:08 -0700 (PDT)
+Received: from [192.168.1.28] ([176.217.6.172])
+        by smtp.gmail.com with ESMTPSA id c5-20020a05600c0a4500b003a305c0ab06sm9980921wmq.31.2022.08.04.23.09.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Aug 2022 22:37:15 -0700 (PDT)
-From:   Kyle Huey <me@kylehuey.com>
-X-Google-Original-From: Kyle Huey <khuey@kylehuey.com>
-To:     Dave Hansen <dave.hansen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@alien8.de>
-Cc:     Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-kernel@vger.kernel.org,
-        Robert O'Callahan <robert@ocallahan.org>,
-        David Manouchehri <david.manouchehri@riseup.net>,
-        Kyle Huey <me@kylehuey.com>, Borislav Petkov <bp@suse.de>,
-        kvm@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v3] x86/fpu: Allow PKRU to be (once again) written by ptrace.
-Date:   Thu,  4 Aug 2022 22:37:12 -0700
-Message-Id: <20220805053712.84411-1-khuey@kylehuey.com>
-X-Mailer: git-send-email 2.37.0
+        Thu, 04 Aug 2022 23:09:08 -0700 (PDT)
+Message-ID: <602ce75b5b6dba51bc24cace86c1ada27fb6b0e9.camel@canonical.com>
+Subject: Re: [PATCH stable 4.14 v3 2/3] fbcon: Prevent that screen size is
+ smaller than font size
+From:   Cengiz Can <cengiz.can@canonical.com>
+To:     Chen Jun <chenjun102@huawei.com>, stable@vger.kernel.org,
+        deller@gmx.de, geert@linux-m68k.org, b.zolnierkie@samsung.com,
+        gregkh@linuxfoundation.org
+Cc:     xuqiang36@huawei.com
+Date:   Fri, 05 Aug 2022 09:09:06 +0300
+In-Reply-To: <20220804122734.121201-3-chenjun102@huawei.com>
+References: <20220804122734.121201-1-chenjun102@huawei.com>
+         <20220804122734.121201-3-chenjun102@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.1-0ubuntu1 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Huey <me@kylehuey.com>
+On Thu, 2022-08-04 at 12:27 +0000, Chen Jun wrote:
+> From: Helge Deller <deller@gmx.de>
+>=20
+> commit e64242caef18b4a5840b0e7a9bff37abd4f4f933 upstream
+>=20
+> We need to prevent that users configure a screen size which is smaller th=
+an the
+> currently selected font size. Otherwise rendering chars on the screen wil=
+l
+> access memory outside the graphics memory region.
+>=20
+> This patch adds a new function fbcon_modechange_possible() which
+> implements this check and which later may be extended with other checks
+> if necessary.  The new function is called from the FBIOPUT_VSCREENINFO
+> ioctl handler in fbmem.c, which will return -EINVAL if userspace asked
+> for a too small screen size.
+>=20
+> Signed-off-by: Helge Deller <deller@gmx.de>
+> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> [Chen Jun: adjust context]
+> Signed-off-by: Chen Jun <chenjun102@huawei.com>
+> ---
+>  drivers/video/fbdev/core/fbcon.c | 28 ++++++++++++++++++++++++++++
+>  drivers/video/fbdev/core/fbmem.c | 10 +++++++---
+>  include/linux/fbcon.h            |  4 ++++
+>  3 files changed, 39 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/=
+fbcon.c
+> index a97e94b1c84f..b84264e98929 100644
+> --- a/drivers/video/fbdev/core/fbcon.c
+> +++ b/drivers/video/fbdev/core/fbcon.c
+> @@ -2706,6 +2706,34 @@ static void fbcon_set_all_vcs(struct fb_info *info=
+)
+>  		fbcon_modechanged(info);
+>  }
+> =20
+> +/* let fbcon check if it supports a new screen resolution */
+> +int fbcon_modechange_possible(struct fb_info *info, struct fb_var_screen=
+info *var)
+> +{
+> +	struct fbcon_ops *ops =3D info->fbcon_par;
+> +	struct vc_data *vc;
+> +	unsigned int i;
+> +
+> +	WARN_CONSOLE_UNLOCKED();
+> +
+> +	if (!ops)
+> +		return 0;
+> +
+> +	/* prevent setting a screen size which is smaller than font size */
+> +	for (i =3D first_fb_vc; i <=3D last_fb_vc; i++) {
+> +		vc =3D vc_cons[i].d;
+> +		if (!vc || vc->vc_mode !=3D KD_TEXT ||
+> +			   registered_fb[con2fb_map[i]] !=3D info)
+> +			continue;
+> +
+> +		if (vc->vc_font.width  > FBCON_SWAP(var->rotate, var->xres, var->yres)=
+ ||
+> +		    vc->vc_font.height > FBCON_SWAP(var->rotate, var->yres, var->xres)=
+)
+> +			return -EINVAL;
+> +	}
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(fbcon_modechange_possible);
+> +
+>  static int fbcon_mode_deleted(struct fb_info *info,
+>  			      struct fb_videomode *mode)
+>  {
+> diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/=
+fbmem.c
+> index 9087d467cc46..264e8ca5efa7 100644
+> --- a/drivers/video/fbdev/core/fbmem.c
+> +++ b/drivers/video/fbdev/core/fbmem.c
+> @@ -1134,9 +1134,13 @@ static long do_fb_ioctl(struct fb_info *info, unsi=
+gned int cmd,
+>  			console_unlock();
+>  			return -ENODEV;
+>  		}
+> -		info->flags |=3D FBINFO_MISC_USEREVENT;
+> -		ret =3D fb_set_var(info, &var);
+> -		info->flags &=3D ~FBINFO_MISC_USEREVENT;
+> +		ret =3D fbcon_modechange_possible(info, &var);
+> +		if (!ret) {
+> +			info->flags |=3D FBINFO_MISC_USEREVENT;
+> +			ret =3D fb_set_var(info, &var);
+> +			info->flags &=3D ~FBINFO_MISC_USEREVENT;
+> +		}
+> +		lock_fb_info(info);
+>  		unlock_fb_info(info);
 
-When management of the PKRU register was moved away from XSTATE, emulation
-of PKRU's existence in XSTATE was added for APIs that read XSTATE, but not
-for APIs that write XSTATE. This can be seen by running gdb and executing
-`p $pkru`, `set $pkru = 42`, and `p $pkru`. On affected kernels (5.14+) the
-write to the PKRU register (which gdb performs through ptrace) is ignored.
+Why do we lock and unlock here consecutively?
 
-There are three relevant APIs: PTRACE_SETREGSET with NT_X86_XSTATE,
-sigreturn, and KVM_SET_XSAVE. KVM_SET_XSAVE has its own special handling to
-make PKRU writes take effect (in fpu_copy_uabi_to_guest_fpstate). Push that
-down into copy_uabi_to_xstate and have PTRACE_SETREGSET with NT_X86_XSTATE
-and sigreturn pass in pointers to the appropriate PKRU value.
+Can it be a leftover?
 
-This also adds code to initialize the PKRU value to the hardware init value
-(namely 0) if the PKRU bit is not set in the XSTATE header to match XRSTOR.
-This is a change to the current KVM_SET_XSAVE behavior.
+Because in upstream commit, lock encapsulates `fb_set_var`,
+`fbcon_modechange_possible` and `fbcon_update_vcs` calls, which makes
+sense.
 
-Changelog since v2:
-- Removed now unused variables in fpu_copy_uabi_to_guest_fpstate
+Here, it doesn't.
 
-Changelog since v1:
-- Handles the error case of copy_to_buffer().
-
-Signed-off-by: Kyle Huey <me@kylehuey.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: kvm@vger.kernel.org # For edge case behavior of KVM_SET_XSAVE
-Cc: stable@vger.kernel.org # 5.14+
-Fixes: e84ba47e313d ("x86/fpu: Hook up PKRU into ptrace()")
----
- arch/x86/kernel/fpu/core.c   | 13 +------------
- arch/x86/kernel/fpu/regset.c |  2 +-
- arch/x86/kernel/fpu/signal.c |  2 +-
- arch/x86/kernel/fpu/xstate.c | 28 +++++++++++++++++++++++-----
- arch/x86/kernel/fpu/xstate.h |  4 ++--
- 5 files changed, 28 insertions(+), 21 deletions(-)
-
-diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
-index 3b28c5b25e12..46b935bc87c8 100644
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -391,8 +391,6 @@ int fpu_copy_uabi_to_guest_fpstate(struct fpu_guest *gfpu, const void *buf,
- {
- 	struct fpstate *kstate = gfpu->fpstate;
- 	const union fpregs_state *ustate = buf;
--	struct pkru_state *xpkru;
--	int ret;
- 
- 	if (!cpu_feature_enabled(X86_FEATURE_XSAVE)) {
- 		if (ustate->xsave.header.xfeatures & ~XFEATURE_MASK_FPSSE)
-@@ -406,16 +404,7 @@ int fpu_copy_uabi_to_guest_fpstate(struct fpu_guest *gfpu, const void *buf,
- 	if (ustate->xsave.header.xfeatures & ~xcr0)
- 		return -EINVAL;
- 
--	ret = copy_uabi_from_kernel_to_xstate(kstate, ustate);
--	if (ret)
--		return ret;
--
--	/* Retrieve PKRU if not in init state */
--	if (kstate->regs.xsave.header.xfeatures & XFEATURE_MASK_PKRU) {
--		xpkru = get_xsave_addr(&kstate->regs.xsave, XFEATURE_PKRU);
--		*vpkru = xpkru->pkru;
--	}
--	return 0;
-+	return copy_uabi_from_kernel_to_xstate(kstate, ustate, vpkru);
- }
- EXPORT_SYMBOL_GPL(fpu_copy_uabi_to_guest_fpstate);
- #endif /* CONFIG_KVM */
-diff --git a/arch/x86/kernel/fpu/regset.c b/arch/x86/kernel/fpu/regset.c
-index 75ffaef8c299..6d056b68f4ed 100644
---- a/arch/x86/kernel/fpu/regset.c
-+++ b/arch/x86/kernel/fpu/regset.c
-@@ -167,7 +167,7 @@ int xstateregs_set(struct task_struct *target, const struct user_regset *regset,
- 	}
- 
- 	fpu_force_restore(fpu);
--	ret = copy_uabi_from_kernel_to_xstate(fpu->fpstate, kbuf ?: tmpbuf);
-+	ret = copy_uabi_from_kernel_to_xstate(fpu->fpstate, kbuf ?: tmpbuf, &target->thread.pkru);
- 
- out:
- 	vfree(tmpbuf);
-diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
-index 91d4b6de58ab..558076dbde5b 100644
---- a/arch/x86/kernel/fpu/signal.c
-+++ b/arch/x86/kernel/fpu/signal.c
-@@ -396,7 +396,7 @@ static bool __fpu_restore_sig(void __user *buf, void __user *buf_fx,
- 
- 	fpregs = &fpu->fpstate->regs;
- 	if (use_xsave() && !fx_only) {
--		if (copy_sigframe_from_user_to_xstate(fpu->fpstate, buf_fx))
-+		if (copy_sigframe_from_user_to_xstate(tsk, buf_fx))
- 			return false;
- 	} else {
- 		if (__copy_from_user(&fpregs->fxsave, buf_fx,
-diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
-index c8340156bfd2..e01d3514ae68 100644
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -1197,7 +1197,7 @@ static int copy_from_buffer(void *dst, unsigned int offset, unsigned int size,
- 
- 
- static int copy_uabi_to_xstate(struct fpstate *fpstate, const void *kbuf,
--			       const void __user *ubuf)
-+			       const void __user *ubuf, u32 *pkru)
- {
- 	struct xregs_state *xsave = &fpstate->regs.xsave;
- 	unsigned int offset, size;
-@@ -1235,6 +1235,24 @@ static int copy_uabi_to_xstate(struct fpstate *fpstate, const void *kbuf,
- 	for (i = 0; i < XFEATURE_MAX; i++) {
- 		mask = BIT_ULL(i);
- 
-+		if (i == XFEATURE_PKRU) {
-+			/*
-+			 * Retrieve PKRU if not in init state, otherwise
-+			 * initialize it.
-+			 */
-+			if (hdr.xfeatures & mask) {
-+				struct pkru_state xpkru = {0};
-+
-+				if (copy_from_buffer(&xpkru, xstate_offsets[i],
-+						     sizeof(xpkru), kbuf, ubuf))
-+					return -EFAULT;
-+
-+				*pkru = xpkru.pkru;
-+			} else {
-+				*pkru = 0;
-+			}
-+		}
-+
- 		if (hdr.xfeatures & mask) {
- 			void *dst = __raw_xsave_addr(xsave, i);
- 
-@@ -1264,9 +1282,9 @@ static int copy_uabi_to_xstate(struct fpstate *fpstate, const void *kbuf,
-  * Convert from a ptrace standard-format kernel buffer to kernel XSAVE[S]
-  * format and copy to the target thread. Used by ptrace and KVM.
-  */
--int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf)
-+int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf, u32 *pkru)
- {
--	return copy_uabi_to_xstate(fpstate, kbuf, NULL);
-+	return copy_uabi_to_xstate(fpstate, kbuf, NULL, pkru);
- }
- 
- /*
-@@ -1274,10 +1292,10 @@ int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf)
-  * XSAVE[S] format and copy to the target thread. This is called from the
-  * sigreturn() and rt_sigreturn() system calls.
-  */
--int copy_sigframe_from_user_to_xstate(struct fpstate *fpstate,
-+int copy_sigframe_from_user_to_xstate(struct task_struct *tsk,
- 				      const void __user *ubuf)
- {
--	return copy_uabi_to_xstate(fpstate, NULL, ubuf);
-+	return copy_uabi_to_xstate(tsk->thread.fpu.fpstate, NULL, ubuf, &tsk->thread.pkru);
- }
- 
- static bool validate_independent_components(u64 mask)
-diff --git a/arch/x86/kernel/fpu/xstate.h b/arch/x86/kernel/fpu/xstate.h
-index 5ad47031383b..a4ecb04d8d64 100644
---- a/arch/x86/kernel/fpu/xstate.h
-+++ b/arch/x86/kernel/fpu/xstate.h
-@@ -46,8 +46,8 @@ extern void __copy_xstate_to_uabi_buf(struct membuf to, struct fpstate *fpstate,
- 				      u32 pkru_val, enum xstate_copy_mode copy_mode);
- extern void copy_xstate_to_uabi_buf(struct membuf to, struct task_struct *tsk,
- 				    enum xstate_copy_mode mode);
--extern int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf);
--extern int copy_sigframe_from_user_to_xstate(struct fpstate *fpstate, const void __user *ubuf);
-+extern int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf, u32 *pkru);
-+extern int copy_sigframe_from_user_to_xstate(struct task_struct *tsk, const void __user *ubuf);
- 
- 
- extern void fpu__init_cpu_xstate(void);
--- 
-2.37.0
+>  		console_unlock();
+>  		if (!ret && copy_to_user(argp, &var, sizeof(var)))
+> diff --git a/include/linux/fbcon.h b/include/linux/fbcon.h
+> index f68a7db14165..39939d55c834 100644
+> --- a/include/linux/fbcon.h
+> +++ b/include/linux/fbcon.h
+> @@ -4,9 +4,13 @@
+>  #ifdef CONFIG_FRAMEBUFFER_CONSOLE
+>  void __init fb_console_init(void);
+>  void __exit fb_console_exit(void);
+> +int  fbcon_modechange_possible(struct fb_info *info,
+> +			       struct fb_var_screeninfo *var);
+>  #else
+>  static inline void fb_console_init(void) {}
+>  static inline void fb_console_exit(void) {}
+> +static inline int  fbcon_modechange_possible(struct fb_info *info,
+> +				struct fb_var_screeninfo *var) { return 0; }
+>  #endif
+> =20
+>  #endif /* _LINUX_FBCON_H */
 
