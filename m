@@ -2,75 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 857C458B291
-	for <lists+stable@lfdr.de>; Sat,  6 Aug 2022 01:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6105A58B2B2
+	for <lists+stable@lfdr.de>; Sat,  6 Aug 2022 01:13:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238483AbiHEXCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Aug 2022 19:02:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57360 "EHLO
+        id S241548AbiHEXN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Aug 2022 19:13:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238581AbiHEXCE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Aug 2022 19:02:04 -0400
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A71DB5C94D
-        for <stable@vger.kernel.org>; Fri,  5 Aug 2022 16:02:01 -0700 (PDT)
-Received: by mail-pg1-x52f.google.com with SMTP id bf13so3788462pgb.11
-        for <stable@vger.kernel.org>; Fri, 05 Aug 2022 16:02:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kylehuey.com; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc;
-        bh=0IQUf1XbUyKScDj19IIOVRrRzAluObv3VpeYozO/xMU=;
-        b=EJZAxUC98UB2M+84zuoAM0XjqIyYi2AQeV1Fd5+0Vvw6uoCjCWVHeKuPonMk0YY+ku
-         BKhK3+Tx5i44lWmmDoV0CkPv4ya2uS53DuUmf2IqSUtIbI4FEwAiR4+jT15nZnL6ADKB
-         bT1IBFEczYLCyJ7vzN9kaJkLQXRAab3X0FxAIPW0kjo40/I3wkVDmZCyQqIND2A0fa6g
-         LHwjYH+HZnbwIHLUVc6VEG2SDp5DIfuSYzsXAw9HyBxF76n/G3XWqeC2s5MUhoULWvu5
-         KPlSDFGTOlslLON3ZbZwgNYLyrPyMnitShLtmdhpUC057WYEIpOwajxSlGgRe4bDj/On
-         Pbmw==
+        with ESMTP id S240503AbiHEXNy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Aug 2022 19:13:54 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9197D27173
+        for <stable@vger.kernel.org>; Fri,  5 Aug 2022 16:13:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1659741231;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=CQ0tUUX9dSdS4JRTC1zPGHaQM3Hc6bp+ASxYzjmtUmQ=;
+        b=E555HY3/Kht+Je+3fgfn9tVF44MH7avovwzM2VCN4BOZg5jU82FXTSTEXZugdZYPVj5y/3
+        1obQXpjJ79DJ5XJiMKTNcaDEVFBZh6jq1QWny9UlxBUHqJfq8KzYDcOAwU4bEr3s0SM6di
+        xlTj8kHW016iJpBtQRjtTyGGTAjoQno=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-509-i2VtkK7mNxyiUtS7WObCYQ-1; Fri, 05 Aug 2022 19:13:50 -0400
+X-MC-Unique: i2VtkK7mNxyiUtS7WObCYQ-1
+Received: by mail-qt1-f197.google.com with SMTP id c27-20020ac84e1b000000b00342e8e0b160so1300659qtw.9
+        for <stable@vger.kernel.org>; Fri, 05 Aug 2022 16:13:50 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc;
-        bh=0IQUf1XbUyKScDj19IIOVRrRzAluObv3VpeYozO/xMU=;
-        b=u9wE8FXz4mIEcgUGSznqXleNdMzDBpUXDsrzalX23uVCFixb29rOFxEtdV28BSPiAl
-         34Obl43/tLWRLaVvorL9OVERw9Yj3xfddWDLnJFfWnfz8R14eDQmtzbHYmu8vcIBQ0rq
-         X7Xee818/LEu4Zid53lp0dFCzUuI/US49ctWjj5pWWaJ/vkOCrk+mBfw6VOTfTmcM0ZT
-         4+5Qmlv4K0Lj/gYTXSHc0le39PP5b6diIbEZzqZ4AaNrq9zZVDhSkUMCNIRA2jfOAiCn
-         lLpSckO99BPXWZYKM3yabWlgjSgCYKKyTrz/7vrFnw1u0DrXCHGAAdDJbDxStrXxgkp/
-         vCEQ==
-X-Gm-Message-State: ACgBeo2pOuSTlFwnFSmEwKQVkZwRJY6u2M4TGjhWBArjFBlrF/t4UsNq
-        jarZ7mzRioInAFC4zO65/cyMIQ==
-X-Google-Smtp-Source: AA6agR5eSrbNndEhmiX61O4JBJpwyAE+Y8vYnb1AdQLWqRg9V496J01SOhjaem2A0ePwXcb+2e88Ng==
-X-Received: by 2002:a05:6a00:8cb:b0:52c:6962:2782 with SMTP id s11-20020a056a0008cb00b0052c69622782mr8944542pfu.81.1659740521052;
-        Fri, 05 Aug 2022 16:02:01 -0700 (PDT)
-Received: from minbar.home.kylehuey.com (c-71-198-251-229.hsd1.ca.comcast.net. [71.198.251.229])
-        by smtp.gmail.com with ESMTPSA id g18-20020a635652000000b0041af82dacf7sm1958702pgm.73.2022.08.05.16.01.59
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
+        bh=CQ0tUUX9dSdS4JRTC1zPGHaQM3Hc6bp+ASxYzjmtUmQ=;
+        b=edXcALTyhwXN0qGSMbigJK3ONONvVgaijM7iMNo2aK6r2fz0+uBRvHA5rJwOhfP6OI
+         vLydDsEtd2vKjRV+XegANTp35w5wHz7VVsxcs8STrOwSGIrI7tNKO05rgXw78L6k+d/U
+         PuT+8ynD9Q+Ox8mOlzZUgLZO2TidH9Z2pyZimQL3er7JOilf/vIWRPvyKPqE7w31fGT1
+         NTQWoKPp3HB/gUtnNw0ujF0mHEY0HK0kn9E0b7+0h2cOjNktZM01ak2HyTi0dAWqYmZ8
+         ykerNWHAQ2ziXE/mnN2a+g8OqgD1Bm6zPeFPHQypiWAFD400wmdw5JKKtHnIJPXP6IEO
+         7qTg==
+X-Gm-Message-State: ACgBeo263gYK0qKFKRwYI8SAECZMM1Wxqhc1MX2d4xvqB+HYSBLNuwRW
+        za7o0zA4Lnwfw8LiZrmTp1yWzf0LjTc9dnAjzPfU+6XZiOtYxocsz4GkJHvz4bt+Lc8bbAu1IRy
+        FkmJuRRF1pGdkpJwn
+X-Received: by 2002:a05:620a:b86:b0:6b8:d74e:1e08 with SMTP id k6-20020a05620a0b8600b006b8d74e1e08mr6880997qkh.166.1659741229904;
+        Fri, 05 Aug 2022 16:13:49 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR7vQnU94QQncO9wXjydH0biWvfzN2On2lgdFWzew+raRRdFz5zCSICz/EgkRwetHoifGyaVTQ==
+X-Received: by 2002:a05:620a:b86:b0:6b8:d74e:1e08 with SMTP id k6-20020a05620a0b8600b006b8d74e1e08mr6880984qkh.166.1659741229647;
+        Fri, 05 Aug 2022 16:13:49 -0700 (PDT)
+Received: from xz-m1.local (bras-base-aurron9127w-grc-35-70-27-3-10.dsl.bell.ca. [70.27.3.10])
+        by smtp.gmail.com with ESMTPSA id r11-20020ac87eeb000000b0031f286f868dsm3289067qtc.92.2022.08.05.16.13.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Aug 2022 16:02:00 -0700 (PDT)
-From:   Kyle Huey <me@kylehuey.com>
-X-Google-Original-From: Kyle Huey <khuey@kylehuey.com>
-To:     Dave Hansen <dave.hansen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@alien8.de>
-Cc:     Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        Robert O'Callahan <robert@ocallahan.org>,
-        David Manouchehri <david.manouchehri@riseup.net>,
-        Kyle Huey <me@kylehuey.com>, Borislav Petkov <bp@suse.de>,
-        kvm@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v4 1/2] x86/fpu: Allow PKRU to be (once again) written by ptrace.
-Date:   Fri,  5 Aug 2022 16:01:57 -0700
-Message-Id: <20220805230158.39378-1-khuey@kylehuey.com>
-X-Mailer: git-send-email 2.37.0
+        Fri, 05 Aug 2022 16:13:49 -0700 (PDT)
+Date:   Fri, 5 Aug 2022 19:13:47 -0400
+From:   Peter Xu <peterx@redhat.com>
+To:     Mike Kravetz <mike.kravetz@oracle.com>
+Cc:     David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Peter Feiner <pfeiner@google.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v1 1/2] mm/hugetlb: fix hugetlb not supporting
+ write-notify
+Message-ID: <Yu2kK6s8m8NLDjuV@xz-m1.local>
+References: <20220805110329.80540-1-david@redhat.com>
+ <20220805110329.80540-2-david@redhat.com>
+ <Yu1eCsMqa641zj5C@xz-m1.local>
+ <Yu1gHnpKRZBhSTZB@monkey>
+ <c2a3b903-099c-4b79-6923-8b288d404c51@redhat.com>
+ <Yu1ie559zt8VvDc1@monkey>
+ <73050e64-e40f-0c94-be96-316d1e8d5f3b@redhat.com>
+ <Yu2CI4wGLHCjMSWm@monkey>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Yu2CI4wGLHCjMSWm@monkey>
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,184 +87,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Huey <me@kylehuey.com>
+On Fri, Aug 05, 2022 at 01:48:35PM -0700, Mike Kravetz wrote:
+> On 08/05/22 20:57, David Hildenbrand wrote:
+> > On 05.08.22 20:33, Mike Kravetz wrote:
+> > > On 08/05/22 20:25, David Hildenbrand wrote:
+> > >> On 05.08.22 20:23, Mike Kravetz wrote:
+> > >>> On 08/05/22 14:14, Peter Xu wrote:
+> > >>>> On Fri, Aug 05, 2022 at 01:03:28PM +0200, David Hildenbrand wrote:
+> > >>>>> diff --git a/mm/mmap.c b/mm/mmap.c
+> > >>>>> index 61e6135c54ef..462a6b0344ac 100644
+> > >>>>> --- a/mm/mmap.c
+> > >>>>> +++ b/mm/mmap.c
+> > >>>>> @@ -1683,6 +1683,13 @@ int vma_wants_writenotify(struct vm_area_struct *vma, pgprot_t vm_page_prot)
+> > >>>>>  	if ((vm_flags & (VM_WRITE|VM_SHARED)) != ((VM_WRITE|VM_SHARED)))
+> > >>>>>  		return 0;
+> > >>>>>  
+> > >>>>> +	/*
+> > >>>>> +	 * Hugetlb does not require/support writenotify; especially, it does not
+> > >>>>> +	 * support softdirty tracking.
+> > >>>>> +	 */
+> > >>>>> +	if (is_vm_hugetlb_page(vma))
+> > >>>>> +		return 0;
+> > >>>>
+> > >>>> I'm kind of confused here..  you seems to be fixing up soft-dirty for
+> > >>>> hugetlb but here it's explicitly forbidden.
+> > >>>>
+> > >>>> Could you explain a bit more on why this patch is needed if (assume
+> > >>>> there'll be a working) patch 2 being provided?
+> > >>>>
+> > >>>
+> > >>> No comments on the patch, but ...
+> > >>>
+> > >>> Since it required little thought, I ran the test program on next-20220802 and
+> > >>> was surprised that the issue did not recreate.  Even added a simple printk
+> > >>> to make sure we were getting into vma_wants_writenotify with a hugetlb vma.
+> > >>> We were.
+> > >>
+> > >>
+> > >> ... does your config have CONFIG_MEM_SOFT_DIRTY enabled?
+> > >>
+> > > 
+> > > No, Duh!
+> > > 
+> > > FYI - Some time back, I started looking at adding soft dirty support for
+> > > hugetlb mappings.  I did not finish that work.  But, I seem to recall
+> > > places where code was operating on hugetlb mappings when perhaps it should
+> > > not.
+> > > 
+> > > Perhaps, it would also be good to just disable soft dirty for hugetlb at
+> > > the source?
+> > 
+> > I thought about that as well. But I came to the conclusion that without
+> > patch #2, hugetlb VMAs cannot possibly support write-notify, so there is
+> > no need to bother in vma_wants_writenotify() at all.
+> > 
+> > The "root" would be places where we clear VM_SOFTDIRTY. That should only
+> > be fs/proc/task_mmu.c:clear_refs_write() IIRC.
+> > 
+> > So I don't particularly care, I consider this patch a bit cleaner and
+> > more generic, but I can adjust clear_refs_write() instead of there is a
+> > preference.
+> > 
+> 
+> After a closer look, I agree that this may be the simplest/cleanest way to
+> proceed.  I was going to suggest that you note hugetlb does not support
+> softdirty, but see you did in the comment.
+> 
+> Acked-by: Mike Kravetz <mike.kravetz@oracle.com>
 
-When management of the PKRU register was moved away from XSTATE, emulation
-of PKRU's existence in XSTATE was added for APIs that read XSTATE, but not
-for APIs that write XSTATE. This can be seen by running gdb and executing
-`p $pkru`, `set $pkru = 42`, and `p $pkru`. On affected kernels (5.14+) the
-write to the PKRU register (which gdb performs through ptrace) is ignored.
+Filtering out hugetlbfs in vma_wants_writenotify() is still a bit hard to
+follow to me, since it's not clear why hugetlbfs never wants writenotify.
 
-There are three relevant APIs: PTRACE_SETREGSET with NT_X86_XSTATE,
-sigreturn, and KVM_SET_XSAVE. KVM_SET_XSAVE has its own special handling to
-make PKRU writes take effect (in fpu_copy_uabi_to_guest_fpstate). Push that
-down into copy_uabi_to_xstate and have PTRACE_SETREGSET with NT_X86_XSTATE
-and sigreturn pass in pointers to the appropriate PKRU value.
+If it's only about soft-dirty, we could have added the hugetlbfs check into
+vma_soft_dirty_enabled(), then I think it'll achieve the same thing and
+much clearer - with the soft-dirty check constantly returning false for it,
+hugetlbfs shared vmas should have vma_wants_writenotify() naturally return
+0 already.
 
-This also adds code to initialize the PKRU value to the hardware init value
-(namely 0) if the PKRU bit is not set in the XSTATE header to match XRSTOR.
-This is a change to the current KVM_SET_XSAVE behavior.
+For the long term - shouldn't we just enable soft-dirty for hugetlbfs?  I
+remember Mike used to have that in todo.  Since we've got patch 2 already,
+I feel like that's really much close (is the only missing piece the clear
+refs write part? or maybe some more that I didn't notice).
 
-Changelog since v3:
-- The v3 patch is now part 1 of 2.
-- Adds a selftest in part 2 of 2.
+Then patch 1 (or IMHO equivalant check in vma_soft_dirty_enabled(), but
+maybe in stable trees we don't have vma_soft_dirty_enabled then it's
+exactly patch 1) can be a stable-only backport just to avoid the bug from
+triggering.
 
-Changelog since v2:
-- Removed now unused variables in fpu_copy_uabi_to_guest_fpstate
+Thanks,
 
-Changelog since v1:
-- Handles the error case of copy_to_buffer().
-
-Signed-off-by: Kyle Huey <me@kylehuey.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: kvm@vger.kernel.org # For edge case behavior of KVM_SET_XSAVE
-Cc: stable@vger.kernel.org # 5.14+
-Fixes: e84ba47e313d ("x86/fpu: Hook up PKRU into ptrace()")
----
- arch/x86/kernel/fpu/core.c   | 13 +------------
- arch/x86/kernel/fpu/regset.c |  2 +-
- arch/x86/kernel/fpu/signal.c |  2 +-
- arch/x86/kernel/fpu/xstate.c | 28 +++++++++++++++++++++++-----
- arch/x86/kernel/fpu/xstate.h |  4 ++--
- 5 files changed, 28 insertions(+), 21 deletions(-)
-
-diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
-index 3b28c5b25e12..46b935bc87c8 100644
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -391,8 +391,6 @@ int fpu_copy_uabi_to_guest_fpstate(struct fpu_guest *gfpu, const void *buf,
- {
- 	struct fpstate *kstate = gfpu->fpstate;
- 	const union fpregs_state *ustate = buf;
--	struct pkru_state *xpkru;
--	int ret;
- 
- 	if (!cpu_feature_enabled(X86_FEATURE_XSAVE)) {
- 		if (ustate->xsave.header.xfeatures & ~XFEATURE_MASK_FPSSE)
-@@ -406,16 +404,7 @@ int fpu_copy_uabi_to_guest_fpstate(struct fpu_guest *gfpu, const void *buf,
- 	if (ustate->xsave.header.xfeatures & ~xcr0)
- 		return -EINVAL;
- 
--	ret = copy_uabi_from_kernel_to_xstate(kstate, ustate);
--	if (ret)
--		return ret;
--
--	/* Retrieve PKRU if not in init state */
--	if (kstate->regs.xsave.header.xfeatures & XFEATURE_MASK_PKRU) {
--		xpkru = get_xsave_addr(&kstate->regs.xsave, XFEATURE_PKRU);
--		*vpkru = xpkru->pkru;
--	}
--	return 0;
-+	return copy_uabi_from_kernel_to_xstate(kstate, ustate, vpkru);
- }
- EXPORT_SYMBOL_GPL(fpu_copy_uabi_to_guest_fpstate);
- #endif /* CONFIG_KVM */
-diff --git a/arch/x86/kernel/fpu/regset.c b/arch/x86/kernel/fpu/regset.c
-index 75ffaef8c299..6d056b68f4ed 100644
---- a/arch/x86/kernel/fpu/regset.c
-+++ b/arch/x86/kernel/fpu/regset.c
-@@ -167,7 +167,7 @@ int xstateregs_set(struct task_struct *target, const struct user_regset *regset,
- 	}
- 
- 	fpu_force_restore(fpu);
--	ret = copy_uabi_from_kernel_to_xstate(fpu->fpstate, kbuf ?: tmpbuf);
-+	ret = copy_uabi_from_kernel_to_xstate(fpu->fpstate, kbuf ?: tmpbuf, &target->thread.pkru);
- 
- out:
- 	vfree(tmpbuf);
-diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
-index 91d4b6de58ab..558076dbde5b 100644
---- a/arch/x86/kernel/fpu/signal.c
-+++ b/arch/x86/kernel/fpu/signal.c
-@@ -396,7 +396,7 @@ static bool __fpu_restore_sig(void __user *buf, void __user *buf_fx,
- 
- 	fpregs = &fpu->fpstate->regs;
- 	if (use_xsave() && !fx_only) {
--		if (copy_sigframe_from_user_to_xstate(fpu->fpstate, buf_fx))
-+		if (copy_sigframe_from_user_to_xstate(tsk, buf_fx))
- 			return false;
- 	} else {
- 		if (__copy_from_user(&fpregs->fxsave, buf_fx,
-diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
-index c8340156bfd2..e01d3514ae68 100644
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -1197,7 +1197,7 @@ static int copy_from_buffer(void *dst, unsigned int offset, unsigned int size,
- 
- 
- static int copy_uabi_to_xstate(struct fpstate *fpstate, const void *kbuf,
--			       const void __user *ubuf)
-+			       const void __user *ubuf, u32 *pkru)
- {
- 	struct xregs_state *xsave = &fpstate->regs.xsave;
- 	unsigned int offset, size;
-@@ -1235,6 +1235,24 @@ static int copy_uabi_to_xstate(struct fpstate *fpstate, const void *kbuf,
- 	for (i = 0; i < XFEATURE_MAX; i++) {
- 		mask = BIT_ULL(i);
- 
-+		if (i == XFEATURE_PKRU) {
-+			/*
-+			 * Retrieve PKRU if not in init state, otherwise
-+			 * initialize it.
-+			 */
-+			if (hdr.xfeatures & mask) {
-+				struct pkru_state xpkru = {0};
-+
-+				if (copy_from_buffer(&xpkru, xstate_offsets[i],
-+						     sizeof(xpkru), kbuf, ubuf))
-+					return -EFAULT;
-+
-+				*pkru = xpkru.pkru;
-+			} else {
-+				*pkru = 0;
-+			}
-+		}
-+
- 		if (hdr.xfeatures & mask) {
- 			void *dst = __raw_xsave_addr(xsave, i);
- 
-@@ -1264,9 +1282,9 @@ static int copy_uabi_to_xstate(struct fpstate *fpstate, const void *kbuf,
-  * Convert from a ptrace standard-format kernel buffer to kernel XSAVE[S]
-  * format and copy to the target thread. Used by ptrace and KVM.
-  */
--int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf)
-+int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf, u32 *pkru)
- {
--	return copy_uabi_to_xstate(fpstate, kbuf, NULL);
-+	return copy_uabi_to_xstate(fpstate, kbuf, NULL, pkru);
- }
- 
- /*
-@@ -1274,10 +1292,10 @@ int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf)
-  * XSAVE[S] format and copy to the target thread. This is called from the
-  * sigreturn() and rt_sigreturn() system calls.
-  */
--int copy_sigframe_from_user_to_xstate(struct fpstate *fpstate,
-+int copy_sigframe_from_user_to_xstate(struct task_struct *tsk,
- 				      const void __user *ubuf)
- {
--	return copy_uabi_to_xstate(fpstate, NULL, ubuf);
-+	return copy_uabi_to_xstate(tsk->thread.fpu.fpstate, NULL, ubuf, &tsk->thread.pkru);
- }
- 
- static bool validate_independent_components(u64 mask)
-diff --git a/arch/x86/kernel/fpu/xstate.h b/arch/x86/kernel/fpu/xstate.h
-index 5ad47031383b..a4ecb04d8d64 100644
---- a/arch/x86/kernel/fpu/xstate.h
-+++ b/arch/x86/kernel/fpu/xstate.h
-@@ -46,8 +46,8 @@ extern void __copy_xstate_to_uabi_buf(struct membuf to, struct fpstate *fpstate,
- 				      u32 pkru_val, enum xstate_copy_mode copy_mode);
- extern void copy_xstate_to_uabi_buf(struct membuf to, struct task_struct *tsk,
- 				    enum xstate_copy_mode mode);
--extern int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf);
--extern int copy_sigframe_from_user_to_xstate(struct fpstate *fpstate, const void __user *ubuf);
-+extern int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf, u32 *pkru);
-+extern int copy_sigframe_from_user_to_xstate(struct task_struct *tsk, const void __user *ubuf);
- 
- 
- extern void fpu__init_cpu_xstate(void);
 -- 
-2.37.0
+Peter Xu
 
