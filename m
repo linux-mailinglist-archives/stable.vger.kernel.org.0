@@ -2,185 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B75C58A5D5
-	for <lists+stable@lfdr.de>; Fri,  5 Aug 2022 08:22:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C2AF58A9DE
+	for <lists+stable@lfdr.de>; Fri,  5 Aug 2022 13:04:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234911AbiHEGWO convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 5 Aug 2022 02:22:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41104 "EHLO
+        id S240571AbiHELDx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Aug 2022 07:03:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230492AbiHEGWN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Aug 2022 02:22:13 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD47A5A2EC
-        for <stable@vger.kernel.org>; Thu,  4 Aug 2022 23:22:09 -0700 (PDT)
-Received: from kwepemi100011.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Lzb5y2QLtzlVsG;
-        Fri,  5 Aug 2022 14:19:18 +0800 (CST)
-Received: from dggpemm500006.china.huawei.com (7.185.36.236) by
- kwepemi100011.china.huawei.com (7.221.188.134) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Fri, 5 Aug 2022 14:22:03 +0800
-Received: from dggpemm500006.china.huawei.com ([7.185.36.236]) by
- dggpemm500006.china.huawei.com ([7.185.36.236]) with mapi id 15.01.2375.024;
- Fri, 5 Aug 2022 14:22:03 +0800
-From:   "chenjun (AM)" <chenjun102@huawei.com>
-To:     Cengiz Can <cengiz.can@canonical.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "deller@gmx.de" <deller@gmx.de>,
-        "geert@linux-m68k.org" <geert@linux-m68k.org>,
-        "b.zolnierkie@samsung.com" <b.zolnierkie@samsung.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-CC:     "xuqiang (M)" <xuqiang36@huawei.com>
-Subject: Re: [PATCH stable 4.14 v3 2/3] fbcon: Prevent that screen size is
- smaller than font size
-Thread-Topic: [PATCH stable 4.14 v3 2/3] fbcon: Prevent that screen size is
- smaller than font size
-Thread-Index: AQHYqJHevjk/Lf6Xg0CLiLdyiY6P+Q==
-Date:   Fri, 5 Aug 2022 06:22:03 +0000
-Message-ID: <fdef7841f9474b108ced6e26afb0f21f@huawei.com>
-References: <20220804122734.121201-1-chenjun102@huawei.com>
- <20220804122734.121201-3-chenjun102@huawei.com>
- <602ce75b5b6dba51bc24cace86c1ada27fb6b0e9.camel@canonical.com>
-Accept-Language: zh-CN, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.174.178.43]
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-Transfer-Encoding: 8BIT
+        with ESMTP id S240414AbiHELDt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Aug 2022 07:03:49 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6085D1E3CC
+        for <stable@vger.kernel.org>; Fri,  5 Aug 2022 04:03:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1659697427;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mJ3wb3wnNw2CiOGpWxs5L2Tr+je+/REmFMZ2ZlIWVD0=;
+        b=MGrMMpaz0eSX0+RZ6LK+i07kQo8xM+2f0wZ9gojRIj/N5AwmKXx6ec02qm/JaDdq/sDTT2
+        H3oc5vm/9/wDUB8PgSsGIS2Z/IxWR4YPc5Fmp9JgvDZdBXW2cQvyctWJMI1TyKIC8YK3W+
+        5pCE6OZhUm+1bni9Y9Tye+7FNzoy6Is=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-299-s0xMztL9Mhql4sPg9FocmA-1; Fri, 05 Aug 2022 07:03:36 -0400
+X-MC-Unique: s0xMztL9Mhql4sPg9FocmA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3F65C382ECC7;
+        Fri,  5 Aug 2022 11:03:36 +0000 (UTC)
+Received: from t480s.fritz.box (unknown [10.39.194.85])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1DCC9404E4D6;
+        Fri,  5 Aug 2022 11:03:33 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Feiner <pfeiner@google.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v1 1/2] mm/hugetlb: fix hugetlb not supporting write-notify
+Date:   Fri,  5 Aug 2022 13:03:28 +0200
+Message-Id: <20220805110329.80540-2-david@redhat.com>
+In-Reply-To: <20220805110329.80540-1-david@redhat.com>
+References: <20220805110329.80540-1-david@redhat.com>
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-在 2022/8/5 14:09, Cengiz Can 写道:
-> On Thu, 2022-08-04 at 12:27 +0000, Chen Jun wrote:
->> From: Helge Deller <deller@gmx.de>
->>
->> commit e64242caef18b4a5840b0e7a9bff37abd4f4f933 upstream
->>
->> We need to prevent that users configure a screen size which is smaller than the
->> currently selected font size. Otherwise rendering chars on the screen will
->> access memory outside the graphics memory region.
->>
->> This patch adds a new function fbcon_modechange_possible() which
->> implements this check and which later may be extended with other checks
->> if necessary.  The new function is called from the FBIOPUT_VSCREENINFO
->> ioctl handler in fbmem.c, which will return -EINVAL if userspace asked
->> for a too small screen size.
->>
->> Signed-off-by: Helge Deller <deller@gmx.de>
->> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
->> [Chen Jun: adjust context]
->> Signed-off-by: Chen Jun <chenjun102@huawei.com>
->> ---
->>   drivers/video/fbdev/core/fbcon.c | 28 ++++++++++++++++++++++++++++
->>   drivers/video/fbdev/core/fbmem.c | 10 +++++++---
->>   include/linux/fbcon.h            |  4 ++++
->>   3 files changed, 39 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
->> index a97e94b1c84f..b84264e98929 100644
->> --- a/drivers/video/fbdev/core/fbcon.c
->> +++ b/drivers/video/fbdev/core/fbcon.c
->> @@ -2706,6 +2706,34 @@ static void fbcon_set_all_vcs(struct fb_info *info)
->>   		fbcon_modechanged(info);
->>   }
->>   
->> +/* let fbcon check if it supports a new screen resolution */
->> +int fbcon_modechange_possible(struct fb_info *info, struct fb_var_screeninfo *var)
->> +{
->> +	struct fbcon_ops *ops = info->fbcon_par;
->> +	struct vc_data *vc;
->> +	unsigned int i;
->> +
->> +	WARN_CONSOLE_UNLOCKED();
->> +
->> +	if (!ops)
->> +		return 0;
->> +
->> +	/* prevent setting a screen size which is smaller than font size */
->> +	for (i = first_fb_vc; i <= last_fb_vc; i++) {
->> +		vc = vc_cons[i].d;
->> +		if (!vc || vc->vc_mode != KD_TEXT ||
->> +			   registered_fb[con2fb_map[i]] != info)
->> +			continue;
->> +
->> +		if (vc->vc_font.width  > FBCON_SWAP(var->rotate, var->xres, var->yres) ||
->> +		    vc->vc_font.height > FBCON_SWAP(var->rotate, var->yres, var->xres))
->> +			return -EINVAL;
->> +	}
->> +
->> +	return 0;
->> +}
->> +EXPORT_SYMBOL_GPL(fbcon_modechange_possible);
->> +
->>   static int fbcon_mode_deleted(struct fb_info *info,
->>   			      struct fb_videomode *mode)
->>   {
->> diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
->> index 9087d467cc46..264e8ca5efa7 100644
->> --- a/drivers/video/fbdev/core/fbmem.c
->> +++ b/drivers/video/fbdev/core/fbmem.c
->> @@ -1134,9 +1134,13 @@ static long do_fb_ioctl(struct fb_info *info, unsigned int cmd,
->>   			console_unlock();
->>   			return -ENODEV;
->>   		}
->> -		info->flags |= FBINFO_MISC_USEREVENT;
->> -		ret = fb_set_var(info, &var);
->> -		info->flags &= ~FBINFO_MISC_USEREVENT;
->> +		ret = fbcon_modechange_possible(info, &var);
->> +		if (!ret) {
->> +			info->flags |= FBINFO_MISC_USEREVENT;
->> +			ret = fb_set_var(info, &var);
->> +			info->flags &= ~FBINFO_MISC_USEREVENT;
->> +		}
->> +		lock_fb_info(info);
->>   		unlock_fb_info(info);
-> 
-> Why do we lock and unlock here consecutively?
-> 
-> Can it be a leftover?
-> 
-> Because in upstream commit, lock encapsulates `fb_set_var`,
-> `fbcon_modechange_possible` and `fbcon_update_vcs` calls, which makes
-> sense.
-> 
-> Here, it doesn't.
-> 
+Staring at hugetlb_wp(), one might wonder where all the logic for shared
+mappings is when stumbling over a write-protected page in a shared
+mapping. In fact, there is none, and so far we thought we could get
+away with that because e.g., mprotect() should always do the right thing
+and map all pages directly writable.
 
-Thanks, lock_fb_info(info) is wrong here.
+Looks like we were wrong:
 
->>   		console_unlock();
->>   		if (!ret && copy_to_user(argp, &var, sizeof(var)))
->> diff --git a/include/linux/fbcon.h b/include/linux/fbcon.h
->> index f68a7db14165..39939d55c834 100644
->> --- a/include/linux/fbcon.h
->> +++ b/include/linux/fbcon.h
->> @@ -4,9 +4,13 @@
->>   #ifdef CONFIG_FRAMEBUFFER_CONSOLE
->>   void __init fb_console_init(void);
->>   void __exit fb_console_exit(void);
->> +int  fbcon_modechange_possible(struct fb_info *info,
->> +			       struct fb_var_screeninfo *var);
->>   #else
->>   static inline void fb_console_init(void) {}
->>   static inline void fb_console_exit(void) {}
->> +static inline int  fbcon_modechange_possible(struct fb_info *info,
->> +				struct fb_var_screeninfo *var) { return 0; }
->>   #endif
->>   
->>   #endif /* _LINUX_FBCON_H */
-> 
-> 
+--------------------------------------------------------------------------
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <fcntl.h>
+ #include <unistd.h>
+ #include <errno.h>
+ #include <sys/mman.h>
 
+ #define HUGETLB_SIZE (2 * 1024 * 1024u)
 
+ static void clear_softdirty(void)
+ {
+         int fd = open("/proc/self/clear_refs", O_WRONLY);
+         const char *ctrl = "4";
+         int ret;
+
+         if (fd < 0) {
+                 fprintf(stderr, "open(clear_refs) failed\n");
+                 exit(1);
+         }
+         ret = write(fd, ctrl, strlen(ctrl));
+         if (ret != strlen(ctrl)) {
+                 fprintf(stderr, "write(clear_refs) failed\n");
+                 exit(1);
+         }
+         close(fd);
+ }
+
+ int main(int argc, char **argv)
+ {
+         char *map;
+         int fd;
+
+         fd = open("/dev/hugepages/tmp", O_RDWR | O_CREAT);
+         if (!fd) {
+                 fprintf(stderr, "open() failed\n");
+                 return -errno;
+         }
+         if (ftruncate(fd, HUGETLB_SIZE)) {
+                 fprintf(stderr, "ftruncate() failed\n");
+                 return -errno;
+         }
+
+         map = mmap(NULL, HUGETLB_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+         if (map == MAP_FAILED) {
+                 fprintf(stderr, "mmap() failed\n");
+                 return -errno;
+         }
+
+         *map = 0;
+
+         if (mprotect(map, HUGETLB_SIZE, PROT_READ)) {
+                 fprintf(stderr, "mmprotect() failed\n");
+                 return -errno;
+         }
+
+         clear_softdirty();
+
+         if (mprotect(map, HUGETLB_SIZE, PROT_READ|PROT_WRITE)) {
+                 fprintf(stderr, "mmprotect() failed\n");
+                 return -errno;
+         }
+
+         *map = 0;
+
+         return 0;
+ }
+--------------------------------------------------------------------------
+
+Above test fails with SIGBUS when there is only a single free hugetlb page.
+ # echo 1 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+ # ./test
+ Bus error (core dumped)
+
+And worse, with sufficient free hugetlb pages it will map an anonymous page
+into a shared mapping, for example, messing up accounting during unmap
+and breaking MAP_SHARED semantics:
+ # echo 2 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+ # ./test
+ # cat /proc/meminfo | grep HugePages_
+ HugePages_Total:       2
+ HugePages_Free:        1
+ HugePages_Rsvd:    18446744073709551615
+ HugePages_Surp:        0
+
+Reason in this particular case is that vma_wants_writenotify() will
+return "true", removing VM_SHARED in vma_set_page_prot() to map pages
+write-protected. Let's teach vma_wants_writenotify() that hugetlb does not
+support write-notify, including softdirty tracking.
+
+Fixes: 64e455079e1b ("mm: softdirty: enable write notifications on VMAs after VM_SOFTDIRTY cleared")
+Cc: <stable@vger.kernel.org> # v3.18+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ mm/mmap.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/mm/mmap.c b/mm/mmap.c
+index 61e6135c54ef..462a6b0344ac 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1683,6 +1683,13 @@ int vma_wants_writenotify(struct vm_area_struct *vma, pgprot_t vm_page_prot)
+ 	if ((vm_flags & (VM_WRITE|VM_SHARED)) != ((VM_WRITE|VM_SHARED)))
+ 		return 0;
+ 
++	/*
++	 * Hugetlb does not require/support writenotify; especially, it does not
++	 * support softdirty tracking.
++	 */
++	if (is_vm_hugetlb_page(vma))
++		return 0;
++
+ 	/* The backer wishes to know when pages are first written to? */
+ 	if (vm_ops && (vm_ops->page_mkwrite || vm_ops->pfn_mkwrite))
+ 		return 1;
 -- 
-Regards
-Chen Jun
+2.35.3
+
