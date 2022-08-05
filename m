@@ -2,193 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C2AF58A9DE
-	for <lists+stable@lfdr.de>; Fri,  5 Aug 2022 13:04:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA93958AAC9
+	for <lists+stable@lfdr.de>; Fri,  5 Aug 2022 14:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240571AbiHELDx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Aug 2022 07:03:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36500 "EHLO
+        id S233137AbiHEMWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Aug 2022 08:22:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240414AbiHELDt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Aug 2022 07:03:49 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6085D1E3CC
-        for <stable@vger.kernel.org>; Fri,  5 Aug 2022 04:03:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1659697427;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mJ3wb3wnNw2CiOGpWxs5L2Tr+je+/REmFMZ2ZlIWVD0=;
-        b=MGrMMpaz0eSX0+RZ6LK+i07kQo8xM+2f0wZ9gojRIj/N5AwmKXx6ec02qm/JaDdq/sDTT2
-        H3oc5vm/9/wDUB8PgSsGIS2Z/IxWR4YPc5Fmp9JgvDZdBXW2cQvyctWJMI1TyKIC8YK3W+
-        5pCE6OZhUm+1bni9Y9Tye+7FNzoy6Is=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-299-s0xMztL9Mhql4sPg9FocmA-1; Fri, 05 Aug 2022 07:03:36 -0400
-X-MC-Unique: s0xMztL9Mhql4sPg9FocmA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3F65C382ECC7;
-        Fri,  5 Aug 2022 11:03:36 +0000 (UTC)
-Received: from t480s.fritz.box (unknown [10.39.194.85])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1DCC9404E4D6;
-        Fri,  5 Aug 2022 11:03:33 +0000 (UTC)
-From:   David Hildenbrand <david@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Feiner <pfeiner@google.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v1 1/2] mm/hugetlb: fix hugetlb not supporting write-notify
-Date:   Fri,  5 Aug 2022 13:03:28 +0200
-Message-Id: <20220805110329.80540-2-david@redhat.com>
-In-Reply-To: <20220805110329.80540-1-david@redhat.com>
-References: <20220805110329.80540-1-david@redhat.com>
+        with ESMTP id S229784AbiHEMVy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Aug 2022 08:21:54 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40737389A
+        for <stable@vger.kernel.org>; Fri,  5 Aug 2022 05:21:52 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id l4so3025656wrm.13
+        for <stable@vger.kernel.org>; Fri, 05 Aug 2022 05:21:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:from:to:cc;
+        bh=CYGrnjE+ptPSQWCLJyZC/ltLUx5UOCvg6ncMc56M2JM=;
+        b=Wb5miC4YkCbyp7CONd6k8yPCNHHXl/rkwlfq2+trhvyNnwrd9VpZ9Ams5shvhdZxeo
+         MPB6SNyFwC7WeVPdzKYSe/RPBBBhSeHMaJVmD96QyXFQRVFIBmZIUSuEKRQQLh5cfBgn
+         zKXIlve82G0vOlGsSqFwvYUzk3iZqhtPfioXItlfF/dFIo3ydbE2O9PNcCU2MDIKgL8r
+         koXQEi4s2JsqUIV/osZyAvUz9OeFJ/3h47xuHH4NwI8oj/Kp4p6MgpnqWMOBqXqxJ4D0
+         su58bz1PFwGGNg4zcEmqoSavtXfSVVmGS7F6S4Fx5DDo+F3gdQu2WMSMgYcfh8aEaNFY
+         ArdQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=CYGrnjE+ptPSQWCLJyZC/ltLUx5UOCvg6ncMc56M2JM=;
+        b=C9kBVKHuc9dmBsBHGZUPpGClKjLBYdjbbZ0Q+xThF7L13djRp1rd4z9Ye6FwfXwoNx
+         RfoonCFM+0KrW/982fFFMYYoyhtT3w3W19AmyFzOVtsogsXjJydwmFdwBn+hq8PEJ3eV
+         QXEW/FgqfR9f6LEKvjU2dsuVgsua1A3xHuUEVf90BNNHlyQwkynTcfxs3adOOauZ0X7y
+         7IbEFlXGzaCtBMGqbENPiJlkVvuEJykqCJWL9TSyqcdpCYjJjq9+XDuFOAZxIGVFZivu
+         V36usgTay9GIsv7icyryg3vdCmItKnQ4SLjlsxVs98tvYnSOCJ2SSU+6gZJxFan8R559
+         1/IQ==
+X-Gm-Message-State: ACgBeo0rW9o9G51HyAPVsWybwtUCNv8rAxG96PudH/Ggyt3KHaeDq1fQ
+        hFKkyyGegYLH+GIFQWfUPLfzdPeGnTc8u/Xz/lY=
+X-Google-Smtp-Source: AA6agR5hoSmT2J5wdNbUC9Z/9ZhDeM69S7S26EVcVfh/T84TfpVrzLcIe0T4ZZa040WqIOpnFU9QZjl9glZWgo2WrOI=
+X-Received: by 2002:a5d:5103:0:b0:21f:cf9:68eb with SMTP id
+ s3-20020a5d5103000000b0021f0cf968ebmr4158378wrt.117.1659702110601; Fri, 05
+ Aug 2022 05:21:50 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Received: by 2002:adf:9d81:0:0:0:0:0 with HTTP; Fri, 5 Aug 2022 05:21:50 -0700 (PDT)
+Reply-To: jon768266@gmail.com
+From:   johnson <charliebmoney138@gmail.com>
+Date:   Fri, 5 Aug 2022 12:21:50 +0000
+Message-ID: <CALrmY2vsAaLy6GZ+eTTyvqcNqNrj3rK5ZWJQgAeAx66miO2POw@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: **
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Staring at hugetlb_wp(), one might wonder where all the logic for shared
-mappings is when stumbling over a write-protected page in a shared
-mapping. In fact, there is none, and so far we thought we could get
-away with that because e.g., mprotect() should always do the right thing
-and map all pages directly writable.
-
-Looks like we were wrong:
-
---------------------------------------------------------------------------
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
- #include <fcntl.h>
- #include <unistd.h>
- #include <errno.h>
- #include <sys/mman.h>
-
- #define HUGETLB_SIZE (2 * 1024 * 1024u)
-
- static void clear_softdirty(void)
- {
-         int fd = open("/proc/self/clear_refs", O_WRONLY);
-         const char *ctrl = "4";
-         int ret;
-
-         if (fd < 0) {
-                 fprintf(stderr, "open(clear_refs) failed\n");
-                 exit(1);
-         }
-         ret = write(fd, ctrl, strlen(ctrl));
-         if (ret != strlen(ctrl)) {
-                 fprintf(stderr, "write(clear_refs) failed\n");
-                 exit(1);
-         }
-         close(fd);
- }
-
- int main(int argc, char **argv)
- {
-         char *map;
-         int fd;
-
-         fd = open("/dev/hugepages/tmp", O_RDWR | O_CREAT);
-         if (!fd) {
-                 fprintf(stderr, "open() failed\n");
-                 return -errno;
-         }
-         if (ftruncate(fd, HUGETLB_SIZE)) {
-                 fprintf(stderr, "ftruncate() failed\n");
-                 return -errno;
-         }
-
-         map = mmap(NULL, HUGETLB_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-         if (map == MAP_FAILED) {
-                 fprintf(stderr, "mmap() failed\n");
-                 return -errno;
-         }
-
-         *map = 0;
-
-         if (mprotect(map, HUGETLB_SIZE, PROT_READ)) {
-                 fprintf(stderr, "mmprotect() failed\n");
-                 return -errno;
-         }
-
-         clear_softdirty();
-
-         if (mprotect(map, HUGETLB_SIZE, PROT_READ|PROT_WRITE)) {
-                 fprintf(stderr, "mmprotect() failed\n");
-                 return -errno;
-         }
-
-         *map = 0;
-
-         return 0;
- }
---------------------------------------------------------------------------
-
-Above test fails with SIGBUS when there is only a single free hugetlb page.
- # echo 1 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
- # ./test
- Bus error (core dumped)
-
-And worse, with sufficient free hugetlb pages it will map an anonymous page
-into a shared mapping, for example, messing up accounting during unmap
-and breaking MAP_SHARED semantics:
- # echo 2 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
- # ./test
- # cat /proc/meminfo | grep HugePages_
- HugePages_Total:       2
- HugePages_Free:        1
- HugePages_Rsvd:    18446744073709551615
- HugePages_Surp:        0
-
-Reason in this particular case is that vma_wants_writenotify() will
-return "true", removing VM_SHARED in vma_set_page_prot() to map pages
-write-protected. Let's teach vma_wants_writenotify() that hugetlb does not
-support write-notify, including softdirty tracking.
-
-Fixes: 64e455079e1b ("mm: softdirty: enable write notifications on VMAs after VM_SOFTDIRTY cleared")
-Cc: <stable@vger.kernel.org> # v3.18+
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- mm/mmap.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/mm/mmap.c b/mm/mmap.c
-index 61e6135c54ef..462a6b0344ac 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1683,6 +1683,13 @@ int vma_wants_writenotify(struct vm_area_struct *vma, pgprot_t vm_page_prot)
- 	if ((vm_flags & (VM_WRITE|VM_SHARED)) != ((VM_WRITE|VM_SHARED)))
- 		return 0;
- 
-+	/*
-+	 * Hugetlb does not require/support writenotify; especially, it does not
-+	 * support softdirty tracking.
-+	 */
-+	if (is_vm_hugetlb_page(vma))
-+		return 0;
-+
- 	/* The backer wishes to know when pages are first written to? */
- 	if (vm_ops && (vm_ops->page_mkwrite || vm_ops->pfn_mkwrite))
- 		return 1;
--- 
-2.35.3
-
+0JTRgNCw0LPQviDQvNC4INGY0LUg0YjRgtC+INCy0LDRgSDQvNC+0LPRgyDQvtCx0LDQstC10YHR
+gtC40YLQuCDQviDQvNC+0Lwg0YPRgdC/0LXRhdGDINGDINGC0YDQsNC90YHRhNC10YDRgyDRgtC4
+0YUNCtGB0YDQtdC00YHRgtCw0LLQsCDRg9C3INC/0L7QvNC+0Zsg0L3QvtCy0L7QsyDQv9Cw0YDR
+gtC90LXRgNCwINC40Lcg0JjQvdC00LjRmNC1LiDQotGA0LXQvdGD0YLQvdC+INGB0LDQvCDRgyDQ
+mNC90LTQuNGY0LgNCtC30LHQvtCzINC40L3QstC10YHRgtC40YbQuNC+0L3QuNGFINC/0YDQvtGY
+0LXQutCw0YLQsCDRgdCwINGB0L7Qv9GB0YLQstC10L3QuNC8INGD0LTQtdC70L7QvCDRgyDRg9C6
+0YPQv9C90L7RmCDRgdGD0LzQuC4g0KMNCtC80LXRktGD0LLRgNC10LzQtdC90YMsINC90LjRgdCw
+0Lwg0LfQsNCx0L7RgNCw0LLQuNC+INCy0LDRiNC1INC00L7RgdCw0LTQsNGI0ZrQtSDQvdCw0L/Q
+vtGA0LUg0Lgg0L/QvtC60YPRiNCw0ZjQtSDQtNCwINC80LgNCtC/0L7QvNC+0LPQvdC10YLQtSDR
+gyDRgtGA0LDQvdGB0YTQtdGA0YMg0YLQuNGFINGB0YDQtdC00YHRgtCw0LLQsCDRg9C/0YDQutC+
+0YEg0YLQvtC80LUg0YjRgtC+INGB0YMg0L3QsNGBINC90LXQutCw0LrQvg0K0LjQt9C90LXQstC1
+0YDQuNC70LguINCh0LDQtNCwINC60L7QvdGC0LDQutGC0LjRgNCw0ZjRgtC1INC80L7RmNGDINGB
+0LXQutGA0LXRgtCw0YDQuNGG0YMg0YMg0JvQvtC80LUg0KLQvtCz0L4g0YHQsCDRmtC10LPQvtCy
+0LjQvA0K0LrQvtC90YLQsNC60YLQvtC8INC40YHQv9C+0LQsINC40YHQv9GD0YHRgtC40L4g0YHQ
+sNC8INGB0LXRgNGC0LjRhNC40LrQvtCy0LDQvdGDINCx0LDQvdC60L7QvNCw0YIg0LLQuNGB0LAg
+0LrQsNGA0YLQuNGG0YMg0LfQsA0K0LLQsNGBLiDQt9Cw0LzQvtC70LjRgtC1INCz0LAg0LTQsCDQ
+stCw0Lwg0LPQsCDQv9C+0YjQsNGZ0LUsINC90LAg0LrQsNGA0YLQuNGG0Lgg0YHQtSDQvdCw0LvQ
+sNC30LggMjUwLjAwMCwwMA0K0LTQvtC70LDRgNCwINC60L7RmNC1INGB0LDQvCDQvNGDINC+0YHR
+gtCw0LLQuNC+INC30LAg0LLQsNGI0YMg0LrQvtC80L/QtdC90LfQsNGG0LjRmNGDINC30LAg0YHQ
+stC1INC00L7RgdCw0LTQsNGI0ZrQtQ0K0L3QsNC/0L7RgNC1INC4INC/0L7QutGD0YjQsNGY0LUg
+0LTQsCDQvNC4INC/0L7QvNC+0LPQvdC10YLQtSDRgyDQvtCy0L7RmCDRgdGC0LLQsNGA0LguINCS
+0LXQvtC80LAg0YHQsNC8INGG0LXQvdC40L4g0LLQsNGI0LUNCtC90LDQv9C+0YDQtSDRgyDRgtC+
+INCy0YDQtdC80LUuDQoNCtCX0LDRgtC+INGB0LvQvtCx0L7QtNC90L4g0LrQvtC90YLQsNC60YLQ
+uNGA0LDRmNGC0LUg0LzQvtGY0YMg0YHQtdC60YDQtdGC0LDRgNC40YbRgyDQuCDRg9C/0YPRgtC4
+0YLQtSDQs9CwINCz0LTQtSDQtNCwINCy0LDQvA0K0L/QvtGI0LDRmdC1INCx0LDQvdC60L7QvNCw
+0YIg0LLQuNGB0LAg0LrQsNGA0YLQuNGG0YMg0YHQsCDQuNC30L3QvtGB0L7QvC4g0JzQvtC70LjQ
+vCDQstCw0YEg0LTQsCDQvNC1INC+0LTQvNCw0YUNCtC+0LHQsNCy0LXRgdGC0LjRgtC1INCw0LrQ
+viDQs9CwINC00L7QsdC40ZjQtdGC0LUg0LrQsNC60L4g0LHQuNGB0LzQviDQt9Cw0ZjQtdC00L3Q
+viDQv9C+0LTQtdC70LjQu9C4INGA0LDQtNC+0YHRgiDQv9C+0YHQu9C1DQrRgdCy0LjRhSDQv9Cw
+0YLRmtC4INGDINGC0L4g0LLRgNC10LzQtS4g0YLRgNC10L3Rg9GC0L3QviDRgdCw0Lwg0LLQtdC+
+0LzQsCDQt9Cw0YPQt9C10YIg0L7QstC00LUg0LfQsdC+0LMNCtC40L3QstC10YHRgtC40YbQuNC+
+0L3QuNGFINC/0YDQvtGY0LXQutCw0YLQsCDQutC+0ZjQtSDQstC+0LTQuNC8INGB0LAg0LzQvtGY
+0LjQvCDQvdC+0LLQuNC8INC/0LDRgNGC0L3QtdGA0L7QvCwg0YHQtdGC0Lgg0YHQtQ0K0LrQvtC9
+0LDRh9C90L4g0LTQsCDRgdCw0Lwg0L/RgNC+0YHQu9C10LTQuNC+INC40L3RgdGC0YDRg9C60YbQ
+uNGY0YMg0YHQstC+0ZjQvtGYINGB0LXQutGA0LXRgtCw0YDQuNGG0Lgg0L3QsCDQstCw0YjQtSDQ
+uNC80LUg0LTQsA0K0L/Rg9GB0YLQuCDQsdCw0L3QutC+0LzQsNGCINCy0LjRgdCwINC60LDRgNGC
+0LjRhtGDINGB0LDQvNC+INCy0LDQvNCwLCDQv9CwINGB0LUg0L7RgdC10ZvQsNGC0LUg0YHQu9C+
+0LHQvtC00L3QviDRgdGC0YPQv9C40YLQtQ0K0YMg0LrQvtC90YLQsNC60YIg0YHQsCDRmtC40Lwg
+0Lgg0L/RgNC+0YHQu9C10LTQuNGC0LUg0LzRgyDRgdCy0L7RmNC1INC/0L7QtNCw0YLQutC1LCDR
+gdCy0L7RmNCwINC/0YPQvdCwINC40LzQtdC90LAsDQrQsNC00YDQtdGB0YMg0Lgg0LrQvtC90YLQ
+sNC60YIg0LHRgNC+0Zgg0YDQsNC00Lgg0LvQsNC60YjQtSDQutC+0LzRg9C90LjQutCw0YbQuNGY
+0LUg0LTQvtC6INC90LUg0LTQvtCx0LjRmNC10YLQtSDQsdCw0L3QutC+0LzQsNGCDQrQstC40YHQ
+sCDQutCw0YDRgtC40YbRgy4gKNGY0L7QvTc2ODI2NkDQs9C80LDQuNC7LtGG0L7QvCkNCg0K0KHR
+gNC00LDRh9Cw0L0g0L/QvtC30LTRgNCw0LINCtCe0YDQu9Cw0L3QtNC+INCc0L7RgNC40YEuDQo=
