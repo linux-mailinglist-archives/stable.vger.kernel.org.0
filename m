@@ -2,116 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00FD458B3E4
-	for <lists+stable@lfdr.de>; Sat,  6 Aug 2022 06:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA3BF58B438
+	for <lists+stable@lfdr.de>; Sat,  6 Aug 2022 09:38:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237883AbiHFErP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Aug 2022 00:47:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49690 "EHLO
+        id S229719AbiHFHio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Aug 2022 03:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237545AbiHFErO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Aug 2022 00:47:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EEC813F9F;
-        Fri,  5 Aug 2022 21:47:12 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 170F1603F3;
-        Sat,  6 Aug 2022 04:47:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1E1DC433D7;
-        Sat,  6 Aug 2022 04:47:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1659761231;
-        bh=umWU3SWBI08h0u6WT2+UDZdJBDz3n6iZGhmoXS0+tQw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=c/oSw+Jl0BRMHNMjI00sTjbn7PwlBBK3BKvBE42RZBeQEVrpUInF53gjNtT8AuHb+
-         67XV4+vUepZ6GfZWCT2xesOmzYLhOIB7Um+NilaW0KW1O1ZBGgLi8e39PQPlTio9pK
-         f8wVZ6v+043NOzcEmCal5rE/ZFj0eG8TVv8IEn/g=
-Date:   Sat, 6 Aug 2022 06:47:09 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jose Alonso <joalonsof@gmail.com>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        netdev <netdev@vger.kernel.org>, stable <stable@vger.kernel.org>,
-        Ronald Wahl <ronald.wahl@raritan.com>
-Subject: Re: [PATCH net] net: usb: ax88179_178a have issues with FLAG_SEND_ZLP
-Message-ID: <Yu3yTXS/y2cVzF8S@kroah.com>
-References: <b0f0a44a72bdcbca2573aaa5cdb3ed2de233fbdd.camel@gmail.com>
+        with ESMTP id S229446AbiHFHin (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Aug 2022 03:38:43 -0400
+Received: from mail-yw1-x1133.google.com (mail-yw1-x1133.google.com [IPv6:2607:f8b0:4864:20::1133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E08EE1115B
+        for <stable@vger.kernel.org>; Sat,  6 Aug 2022 00:38:42 -0700 (PDT)
+Received: by mail-yw1-x1133.google.com with SMTP id 00721157ae682-31f443e276fso42181207b3.1
+        for <stable@vger.kernel.org>; Sat, 06 Aug 2022 00:38:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :mime-version:from:to:cc;
+        bh=9qVcN+Dt+9GvpbN7dxen7JWWI2wzROGJwd8itYyi90w=;
+        b=UhWbzMt4MXJtIIVuqRM+z/AmWDYA2MPVH/veDXqu1YW+nCpZMcqDjUCHHghwgTOWCd
+         DtKbpaVBKgZZ1OJQDNmVH8LuVseWFGnIm923i/spG+D8MA/mEFW8SIbMSAhhZ49KLflN
+         nmS8Xz1JZDMDDDjMOsvEVcbiMHhUJs4zx7hVPhFkq4KI6mAIAkn/8YKOludiPjG1FHtq
+         AaI1vgUn43m2NM7IzXIQoavAkIDvzQF1bmwsgZ6WZCvKtqNIWLvwyrJhzUMxea628YQr
+         i8d6W3FFB7MbDc42dQbK+W0ad1a41IWXR7NTApIk/qPKlQ9fnOYGOhaSOK2Dh5iMjoIs
+         HTUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=9qVcN+Dt+9GvpbN7dxen7JWWI2wzROGJwd8itYyi90w=;
+        b=U0vUddy9i6Y48r/JpsE6cAGFlQcS/5H8L3xYtPzEWBYbqiGmfxM6r6BgIL8icGPaL3
+         7u8N019/EvnQYEPO+B9cAv7k6KMJKPYTh1OlE8X83wpsfaJfAgSAbc8zyDSMJCLXgYy3
+         PeaRz6R8gtn0ED8PjtcOLwZHtWg7pim4cAjWu8qBfStZF7565k3ymOj3lWLxcHmbB8JO
+         AbNN/vSfTqYuVBjdTCfPTRazO6LYg5NspNI8kn+GluUgepvIZi04TSazVVIySv1NW2qL
+         FvUFoq2bNtEXpSylUtVtvql2Ra4xo60/XmYTNjuWwvLNQS8Ne/i552OiaRKsQdrXhxMk
+         EgOg==
+X-Gm-Message-State: ACgBeo3ovAdiqdUsMC1lwvtsiGeGBHqNREHwZRo6bI4tQxDfLGR8h3JZ
+        mS+BuicVq1MFP5jDK5WZ6F5RPwPPV91yprl3L3Q=
+X-Google-Smtp-Source: AA6agR6FYB1wPuLzAsORBg/yOaq5rXd3X2UBMuSyHVNgoiXshHfhhVWRabqq8qePAoG3Wa8yh9niKETT5GvwU37vuZk=
+X-Received: by 2002:a0d:fd05:0:b0:329:3836:53ac with SMTP id
+ n5-20020a0dfd05000000b00329383653acmr7007522ywf.455.1659771522181; Sat, 06
+ Aug 2022 00:38:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b0f0a44a72bdcbca2573aaa5cdb3ed2de233fbdd.camel@gmail.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Sender: nagarparkernagar@gmail.com
+Received: by 2002:a05:7110:b009:b0:18d:8090:b49 with HTTP; Sat, 6 Aug 2022
+ 00:38:41 -0700 (PDT)
+From:   Pavillion Tchi <tchi.pavillion@gmail.com>
+Date:   Sat, 6 Aug 2022 07:38:41 +0000
+X-Google-Sender-Auth: dVE7-tWTbXA7LnhbB6_pnRsZ88w
+Message-ID: <CAF3hO+Gn4PofNkkQk-OqNOLtg22yjCZLWSy3JoJYWJndfu4ySw@mail.gmail.com>
+Subject: Hola
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=0.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 05, 2022 at 05:02:22PM -0300, Jose Alonso wrote:
->     The usage of FLAG_SEND_ZLP causes problems to other firmware/hardware
->     versions that have no issues.
->     
->     The FLAG_SEND_ZLP is not safe to use in this context.
->     See:
->     https://patchwork.ozlabs.org/project/netdev/patch/1270599787.8900.8.camel@Linuxdev4-laptop/#118378
->     
->     Reported-by: Ronald Wahl <ronald.wahl@raritan.com>
->     Link: https://bugzilla.kernel.org/show_bug.cgi?id=216327
->     Link: https://bugs.archlinux.org/task/75491
->     
->     Fixes: 36a15e1cb134 ("net: usb: ax88179_178a needs FLAG_SEND_ZLP")
->     Signed-off-by: Jose Alonso <joalonsof@gmail.com>
-
-Odd, why the indentaion of the whole changelog?
-
->     
->     --
-
-That should have been "---", did you hand edit this?  Git should give
-you all of this properly for free.
-
-And, as my bot will say:
-
-<formletter>
-
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
-
-</formletter>
-
-And:
-
-
-Hi,
-
-This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
-a patch that has triggered this response.  He used to manually respond
-to these common problems, but in order to save his sanity (he kept
-writing the same thing over and over, yet to different people), I was
-created.  Hopefully you will not take offence and will fix the problem
-in your patch and resubmit it so that it can be accepted into the Linux
-kernel tree.
-
-You are receiving this message because of the following common error(s)
-as indicated below:
-
-- This looks like a new version of a previously submitted patch, but you
-  did not list below the --- line any changes from the previous version.
-  Please read the section entitled "The canonical patch format" in the
-  kernel file, Documentation/SubmittingPatches for what needs to be done
-  here to properly describe this.
-
-If you wish to discuss this problem further, or you have questions about
-how to resolve this issue, please feel free to respond to this email and
-Greg will reply once he has dug out from the pending patches received
-from other developers.
-
-thanks,
-
-greg k-h's patch email bot
+--=20
+Hola
+=C2=BFRecibiste mi correo electr=C3=B3nico anterior?
