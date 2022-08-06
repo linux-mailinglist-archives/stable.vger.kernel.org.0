@@ -2,107 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C931758B535
-	for <lists+stable@lfdr.de>; Sat,  6 Aug 2022 13:21:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3D6258B53C
+	for <lists+stable@lfdr.de>; Sat,  6 Aug 2022 13:24:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241730AbiHFLVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Aug 2022 07:21:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40906 "EHLO
+        id S241813AbiHFLYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Aug 2022 07:24:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238543AbiHFLVI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Aug 2022 07:21:08 -0400
-Received: from mail-0201.mail-europe.com (mail-0201.mail-europe.com [51.77.79.158])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E6102DEB;
-        Sat,  6 Aug 2022 04:21:07 -0700 (PDT)
-Date:   Sat, 06 Aug 2022 11:20:56 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-        s=protonmail3; t=1659784862; x=1660044062;
-        bh=DDaQcBxHbVdvNZavclAGBdmxiITV+EWaWcRqMUPt5p8=;
-        h=Date:To:From:Cc:Reply-To:Subject:Message-ID:Feedback-ID:From:To:
-         Cc:Date:Subject:Reply-To:Feedback-ID:Message-ID;
-        b=BGrH2+qcjrK0MP5HogcDJv73gftDl1EkjqxRPM6kXvzN86aRgi9OleJXcj4jqVAyr
-         uQnODZHK6+WsXnBihCaLaMjAukgk06TdXzmxnnAbikVrljJdn1Ys9hht2RfaynCO82
-         eCRwVJHXTcCIcnPMi8uYPefUssQVA5LBfcE1BwRrV9gYP+P5HkktBeAah/mvcDct1h
-         Hc0A9uzrYMVNQEJssCRIW1EbwtmSxMlw5P1nzlcXhWFiCkDjs/N3MTHoieC+k4tPym
-         3b3uUGo7xG51axne0JPaBceJdFfZys44URGC3X/xCV9Q6wSj/UfTPfK8FtxRp/9Fzb
-         KTMA7+kwv51uw==
-To:     linux-kernel@vger.kernel.org
-From:   Orlando Chamberlain <redecorating@protonmail.com>
-Cc:     jarkko@kernel.org, zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        gargaditya08@live.com, linux-integrity@vger.kernel.org,
-        keyrings@vger.kernel.org, linux-security-module@vger.kernel.org,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        stable@vger.kernel.org, Samuel Jiang <chyishian.jiang@gmail.com>
-Reply-To: Orlando Chamberlain <redecorating@protonmail.com>
-Subject: [PATCH 1/1] efi: Correct Macmini capitalisation in uefi cert quirk
-Message-ID: <20220806111940.6950-1-redecorating@protonmail.com>
-Feedback-ID: 28131841:user:proton
+        with ESMTP id S230308AbiHFLYx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Aug 2022 07:24:53 -0400
+Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49E9B11C13
+        for <stable@vger.kernel.org>; Sat,  6 Aug 2022 04:24:52 -0700 (PDT)
+Received: by mail-qk1-x72b.google.com with SMTP id p4so2329631qkm.1
+        for <stable@vger.kernel.org>; Sat, 06 Aug 2022 04:24:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=HzJh0YLghezA+W7ONhtFdDOIja3bIw6J8jHQmyCuUaY=;
+        b=M/guQFUESEYAjGGCGqLBSq++8M6Rg/0xNlAw+g9Dm9OWnrMO3ykQnOBx96rh51AflR
+         yJeJ1avg1dxwHvjOvZl3FTx7x6sjwokJ0qmDUNu8xcLuR2TWv1W2RP55kcBjpmYpTs0c
+         XjcubtuJHZB7VosOb56Gr1WfDw+kALqZYgNSbL2XL9/Hei0himq1eNUjBEXgn9A6GE3m
+         C8MtueZhY9uJNMFs6gjAgE5OxATmPMEReRD0en7O4i7LQeTj5CJ/g4/nq1/Jy9b06zZM
+         u5bxBpGJHSibLjH8/4HC3sYGY+nZdulA9SA+h3Ii0AGLJocDv2Al8kyKiVGIOPY+okxe
+         CxGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=HzJh0YLghezA+W7ONhtFdDOIja3bIw6J8jHQmyCuUaY=;
+        b=uV+FF3a/NcyY62oRj/IyXS2oEZ1jV7+gkopfJexpR4flZHa8nC/45vQwLfWiJx97GP
+         0Krwqn30EI4f0vFyPWhRJ70EEsl0NBBMvE08kNKo5v83Fs/QZgnGgQgNtGDYDy2whV0j
+         XjoyDC+beydjxeZftHe0uVYxDSfSqV1G7VUTzY5oFAgU5ICWbLlA0VFRuzhYlKRkqfeW
+         PJw31/5CeXsiqZfO+UwJrkSKAeFDejzgxJaqSp0VMBuJXENgHxosLeShdhGTHfUVDdiJ
+         skQlhI8OetqAyOm2np3XWQDGN+cUFtGfKsRQlhsAGyz/TvbtpfYZKc7axiEAWEpqCYiK
+         jgYQ==
+X-Gm-Message-State: ACgBeo2/9nvFYyKX7zPNae0a9rc1ybcSgFrt+XrvLkyx+pkxUhFANwvZ
+        sG9c3fY09xdg4m0A8lshO3owc/PfD1IFYSVQ0/d8xlaxlj3Fdg==
+X-Google-Smtp-Source: AA6agR4MS7Nb2kKGJLxBQuuGlLphpuIHnY2QPIRKDdbjq2m5UDUvJAr4xpbisWG5VWSe1uMkpN3bC2hlvIiW+/bR+BQ=
+X-Received: by 2002:a05:620a:4454:b0:6b5:d7b9:4839 with SMTP id
+ w20-20020a05620a445400b006b5d7b94839mr8250346qkp.434.1659785091260; Sat, 06
+ Aug 2022 04:24:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+References: <20220721204404.388396-1-weiwan@google.com> <ca408271-8730-eb2b-f12e-3f66df2e643a@kernel.org>
+In-Reply-To: <ca408271-8730-eb2b-f12e-3f66df2e643a@kernel.org>
+From:   Neal Cardwell <ncardwell@google.com>
+Date:   Sat, 6 Aug 2022 07:24:35 -0400
+Message-ID: <CADVnQymVXMamTRP-eSKhwq1M612zx0ZoNd=rs4MtipJNGm5Wcw@mail.gmail.com>
+Subject: Re: [PATCH net v2] Revert "tcp: change pingpong threshold to 3"
+To:     Jiri Slaby <jirislaby@kernel.org>
+Cc:     Wei Wang <weiwan@google.com>, David Miller <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        LemmyHuang <hlm3280@163.com>, stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It turns out Apple doesn't capitalise the "mini" in "Macmini", which is
-inconsistent with other model line names.
+On Sat, Aug 6, 2022 at 6:02 AM Jiri Slaby <jirislaby@kernel.org> wrote:
+>
+> On 21. 07. 22, 22:44, Wei Wang wrote:
+> > This reverts commit 4a41f453bedfd5e9cd040bad509d9da49feb3e2c.
+> >
+> > This to-be-reverted commit was meant to apply a stricter rule for the
+> > stack to enter pingpong mode. However, the condition used to check for
+> > interactive session "before(tp->lsndtime, icsk->icsk_ack.lrcvtime)" is
+> > jiffy based and might be too coarse, which delays the stack entering
+> > pingpong mode.
+> > We revert this patch so that we no longer use the above condition to
+> > determine interactive session, and also reduce pingpong threshold to 1.
+> >
+> > Fixes: 4a41f453bedf ("tcp: change pingpong threshold to 3")
+> > Reported-by: LemmyHuang <hlm3280@163.com>
+> > Suggested-by: Neal Cardwell <ncardwell@google.com>
+> > Signed-off-by: Wei Wang <weiwan@google.com>
+>
+>
+> This breaks python-eventlet [1] (and was backported to stable trees):
+> ________________ TestHttpd.test_018b_http_10_keepalive_framing
+> _________________
+>
+> self = <tests.wsgi_test.TestHttpd
+> testMethod=test_018b_http_10_keepalive_framing>
+>
+>      def test_018b_http_10_keepalive_framing(self):
+>          # verify that if an http/1.0 client sends connection: keep-alive
+>          # that we don't mangle the request framing if the app doesn't
+> read the request
+>          def app(environ, start_response):
+>              resp_body = {
+>                  '/1': b'first response',
+>                  '/2': b'second response',
+>                  '/3': b'third response',
+>              }.get(environ['PATH_INFO'])
+>              if resp_body is None:
+>                  resp_body = 'Unexpected path: ' + environ['PATH_INFO']
+>                  if six.PY3:
+>                      resp_body = resp_body.encode('latin1')
+>              # Never look at wsgi.input!
+>              start_response('200 OK', [('Content-type', 'text/plain')])
+>              return [resp_body]
+>
+>          self.site.application = app
+>          sock = eventlet.connect(self.server_addr)
+>          req_body = b'GET /tricksy HTTP/1.1\r\n'
+>          body_len = str(len(req_body)).encode('ascii')
+>
+>          sock.sendall(b'PUT /1 HTTP/1.0\r\nHost:
+> localhost\r\nConnection: keep-alive\r\n'
+>                       b'Content-Length: ' + body_len + b'\r\n\r\n' +
+> req_body)
+>          result1 = read_http(sock)
+>          self.assertEqual(b'first response', result1.body)
+>          self.assertEqual(result1.headers_original.get('Connection'),
+> 'keep-alive')
+>
+>          sock.sendall(b'PUT /2 HTTP/1.0\r\nHost:
+> localhost\r\nConnection: keep-alive\r\n'
+>                       b'Content-Length: ' + body_len + b'\r\nExpect:
+> 100-continue\r\n\r\n')
+>          # Client may have a short timeout waiting on that 100 Continue
+>          # and basically immediately send its body
+>          sock.sendall(req_body)
+>          result2 = read_http(sock)
+>          self.assertEqual(b'second response', result2.body)
+>          self.assertEqual(result2.headers_original.get('Connection'),
+> 'close')
+>
+>  >       sock.sendall(b'PUT /3 HTTP/1.0\r\nHost:
+> localhost\r\nConnection: close\r\n\r\n')
+>
+> tests/wsgi_test.py:648:
+> _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+> _ _ _ _
+> eventlet/greenio/base.py:407: in sendall
+>      tail = self.send(data, flags)
+> eventlet/greenio/base.py:401: in send
+>      return self._send_loop(self.fd.send, data, flags)
+> _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+> _ _ _ _
+>
+> self = <eventlet.greenio.base.GreenSocket object at 0x7f5f2f73c9a0>
+> send_method = <built-in method send of socket object at 0x7f5f2f73d520>
+> data = b'PUT /3 HTTP/1.0\r\nHost: localhost\r\nConnection: close\r\n\r\n'
+> args = (0,), _timeout_exc = timeout('timed out'), eno = 32
+>
+>      def _send_loop(self, send_method, data, *args):
+>          if self.act_non_blocking:
+>              return send_method(data, *args)
+>
+>          _timeout_exc = socket_timeout('timed out')
+>          while True:
+>              try:
+>  >               return send_method(data, *args)
+> E               BrokenPipeError: [Errno 32] Broken pipe
+>
+> eventlet/greenio/base.py:388: BrokenPipeError
+> ====================
+>
+> Reverting this revert on the top of 5.19 solves the issue.
+>
+> Any ideas?
 
-Correct the capitalisation of Macmini in the quirk for skipping loading
-platform certs on T2 Macs.
+Interesting. This revert should return the kernel back to the delayed
+ACK behavior it had for many years before May 2019 and Linux 5.1,
+which contains the commit it is reverting:
 
-Currently users get:
+  4a41f453bedfd tcp: change pingpong threshold to 3
 
-------------[ cut here ]------------
-[Firmware Bug]: Page fault caused by firmware at PA: 0xffffa30640054000
-WARNING: CPU: 1 PID: 8 at arch/x86/platform/efi/quirks.c:735 efi_crash_grac=
-efully_on_page_fault+0x55/0xe0
-Modules linked in:
-CPU: 1 PID: 8 Comm: kworker/u12:0 Not tainted 5.18.14-arch1-2-t2 #1 4535eb3=
-fc40fd08edab32a509fbf4c9bc52d111e
-Hardware name: Apple Inc. Macmini8,1/Mac-7BA5B2DFE22DDD8C, BIOS 1731.120.10=
-.0.0 (iBridge: 19.16.15071.0.0,0) 04/24/2022
-Workqueue: efi_rts_wq efi_call_rts
-...
----[ end trace 0000000000000000 ]---
-efi: Froze efi_rts_wq and disabled EFI Runtime Services
-integrity: Couldn't get size: 0x8000000000000015
-integrity: MODSIGN: Couldn't get UEFI db list
-efi: EFI Runtime Services are disabled!
-integrity: Couldn't get size: 0x8000000000000015
-integrity: Couldn't get UEFI dbx list
+It sounds like perhaps this test you mention has an implicit
+dependence on the timing of delayed ACKs.
 
-Fixes: 155ca952c7ca ("efi: Do not import certificates from UEFI Secure Boot=
- for T2 Macs")
-Cc: stable@vger.kernel.org
-Cc: Aditya Garg <gargaditya08@live.com>
-Tested-by: Samuel Jiang <chyishian.jiang@gmail.com>
-Signed-off-by: Orlando Chamberlain <redecorating@protonmail.com>
----
- security/integrity/platform_certs/load_uefi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+A few questions:
 
-diff --git a/security/integrity/platform_certs/load_uefi.c b/security/integ=
-rity/platform_certs/load_uefi.c
-index 093894a640dc..b78753d27d8e 100644
---- a/security/integrity/platform_certs/load_uefi.c
-+++ b/security/integrity/platform_certs/load_uefi.c
-@@ -31,7 +31,7 @@ static const struct dmi_system_id uefi_skip_cert[] =3D {
- =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,1") },
- =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,2") },
- =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir9,1") },
--=09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacMini8,1") },
-+=09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "Macmini8,1") },
- =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
- =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
- =09{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
---=20
-2.37.1
+(1) What are the timeout values in this test? If there is some
+implicit or explicit timeout value less than the typical Linux TCP
+40ms delayed ACK timer value then this could be the problem. If you
+make sure all timeouts are at least, say, 300ms then this should
+remove dependencies on delayed ACK behavior (and make the test more
+portable).
 
+(2) Does this test use the TCP_NODELAY socket option to disable
+Nagle's algorithm? Presumably it should, given that it's a network app
+that cares about latency. Omitting the TCP_NODELAY socket option can
+cause request/response traffic to depend on delayed ACK behavior.
 
+(3) If (1) and (2) do not fix the test, would you be able to provide
+binary .pcap traces of the behavior with the test (a) passing and (b)
+failing? For example:
+   sudo tcpdump -i any -w /tmp/trace.pcap -s 100 port 80 &
+   # run test
+   killall tcpdump
+
+thanks,
+neal
