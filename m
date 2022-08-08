@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 960BC58BF79
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:42:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E0D058BF86
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:42:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242363AbiHHBmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:42:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43138 "EHLO
+        id S242624AbiHHBmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:42:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242316AbiHHBkX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:40:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B5F711A0D;
+        with ESMTP id S242656AbiHHBkN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:40:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB73AB7FD;
         Sun,  7 Aug 2022 18:34:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70455B80E06;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F093E60DDC;
         Mon,  8 Aug 2022 01:34:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63804C433D7;
-        Mon,  8 Aug 2022 01:34:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9972DC43144;
+        Mon,  8 Aug 2022 01:34:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922480;
-        bh=K8qM8aSCchZ2PyrrsIMqecG43wGzPfggGVDX+zQYsGA=;
+        s=k20201202; t=1659922481;
+        bh=Ll3VrOpxsVmeadqheby9L6HRHAFePhaWMYtkUoqpQtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mr9oDFcW+O6AgitnE1Z+4klMb80kaBGFIQ7632Gc7F5SnNXs/r7fACFSAnKNnZIDF
-         la7g9GXm9Qz6FhpMWAtwXLYBKZPggxmPSDUA+7IACgb2L1/4IK2vBQ5ngWbPOYrxIV
-         c2vuSvzw6sR+OQGnkeF7OGjzq/W7cn0Yz/LewtDvM+/arF+57Cl0Q10nIgJHLXzi8u
-         QVv3aLNhM7QRCdnHuV4GS4ovTPwnvCjA6tbySL23Gvl0U7jqqi/t0b2XJkrKw9NcA/
-         2RimFbVSFppgagcr7O6GKNERwAQrQhUzXMVxUKwbnLXFsUjXfyK1crHHe0Ndgw1ohv
-         9G3mXqwSgdiQA==
+        b=pyNwQx6u08sfUy0BOtzpE0VNysnKyCMKfqp8F063p7cdRt4lWt3Q/FTv8iJBkMIAB
+         rnej5jU8OH3x6b4H0iR/oHnaygBchvoUcOimi2VqysPEEoEObWLnHVE6TZzv8DM9oR
+         tYs0kq/nI3OQH8RIlPIupsZgLckIlUUGV0adzI6mDHw37q0OR2eCzlmrTx8OpFjd05
+         CJ6vRwGv4RhyCQnLNyFQDPOCTmsF2RDfN53dz6C6aUbNsX2I9yFUD+ahFGLaoaAeSA
+         OQF8fPtzJS1+6IpMV7PaEQziZLwob8MhBUzKIu+Y2Zz1n1JceUgFG8h/nx2WGtSucC
+         eunQaJ5osqm6w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Morse <james.morse@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        catalin.marinas@arm.com, corbet@lwn.net, anshuman.khandual@arm.com,
-        suzuki.poulose@arm.com, mathieu.poirier@linaro.org,
-        lcherian@marvell.com, arnd@arndb.de, broonie@kernel.org,
-        maz@kernel.org, vladimir.murzin@arm.com,
-        linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 12/53] arm64: errata: Remove AES hwcap for COMPAT tasks
-Date:   Sun,  7 Aug 2022 21:33:07 -0400
-Message-Id: <20220808013350.314757-12-sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>,
+        syzbot+d273f7d7f58afd93be48@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, jack@suse.com,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 13/53] ext2: Add more validity checks for inode counts
+Date:   Sun,  7 Aug 2022 21:33:08 -0400
+Message-Id: <20220808013350.314757-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013350.314757-1-sashal@kernel.org>
 References: <20220808013350.314757-1-sashal@kernel.org>
@@ -61,174 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 44b3834b2eed595af07021b1c64e6f9bc396398b ]
+[ Upstream commit fa78f336937240d1bc598db817d638086060e7e9 ]
 
-Cortex-A57 and Cortex-A72 have an erratum where an interrupt that
-occurs between a pair of AES instructions in aarch32 mode may corrupt
-the ELR. The task will subsequently produce the wrong AES result.
+Add checks verifying number of inodes stored in the superblock matches
+the number computed from number of inodes per group. Also verify we have
+at least one block worth of inodes per group. This prevents crashes on
+corrupted filesystems.
 
-The AES instructions are part of the cryptographic extensions, which are
-optional. User-space software will detect the support for these
-instructions from the hwcaps. If the platform doesn't support these
-instructions a software implementation should be used.
-
-Remove the hwcap bits on affected parts to indicate user-space should
-not use the AES instructions.
-
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: James Morse <james.morse@arm.com>
-Link: https://lore.kernel.org/r/20220714161523.279570-3-james.morse@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Reported-by: syzbot+d273f7d7f58afd93be48@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/arm64/silicon-errata.rst |  4 ++++
- arch/arm64/Kconfig                     | 16 ++++++++++++++++
- arch/arm64/kernel/cpu_errata.c         | 16 ++++++++++++++++
- arch/arm64/kernel/cpufeature.c         | 14 +++++++++++++-
- arch/arm64/tools/cpucaps               |  1 +
- 5 files changed, 50 insertions(+), 1 deletion(-)
+ fs/ext2/super.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/arm64/silicon-errata.rst b/Documentation/arm64/silicon-errata.rst
-index d27db84d585e..0b4235b1f8c4 100644
---- a/Documentation/arm64/silicon-errata.rst
-+++ b/Documentation/arm64/silicon-errata.rst
-@@ -82,10 +82,14 @@ stable kernels.
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A57      | #1319537        | ARM64_ERRATUM_1319367       |
- +----------------+-----------------+-----------------+-----------------------------+
-+| ARM            | Cortex-A57      | #1742098        | ARM64_ERRATUM_1742098       |
-++----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A72      | #853709         | N/A                         |
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A72      | #1319367        | ARM64_ERRATUM_1319367       |
- +----------------+-----------------+-----------------+-----------------------------+
-+| ARM            | Cortex-A72      | #1655431        | ARM64_ERRATUM_1742098       |
-++----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A73      | #858921         | ARM64_ERRATUM_858921        |
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A76      | #1188873,1418040| ARM64_ERRATUM_1418040       |
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 20ea89d9ac2f..b2d5a1e8eda3 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -500,6 +500,22 @@ config ARM64_ERRATUM_834220
- 
- 	  If unsure, say Y.
- 
-+config ARM64_ERRATUM_1742098
-+	bool "Cortex-A57/A72: 1742098: ELR recorded incorrectly on interrupt taken between cryptographic instructions in a sequence"
-+	depends on COMPAT
-+	default y
-+	help
-+	  This option removes the AES hwcap for aarch32 user-space to
-+	  workaround erratum 1742098 on Cortex-A57 and Cortex-A72.
-+
-+	  Affected parts may corrupt the AES state if an interrupt is
-+	  taken between a pair of AES instructions. These instructions
-+	  are only present if the cryptography extensions are present.
-+	  All software should have a fallback implementation for CPUs
-+	  that don't implement the cryptography extensions.
-+
-+	  If unsure, say Y.
-+
- config ARM64_ERRATUM_845719
- 	bool "Cortex-A53: 845719: a load might read incorrect data"
- 	depends on COMPAT
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index a0f3d0aaa3c5..27baa41c46ca 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -395,6 +395,14 @@ static struct midr_range trbe_write_out_of_range_cpus[] = {
- };
- #endif /* CONFIG_ARM64_WORKAROUND_TRBE_WRITE_OUT_OF_RANGE */
- 
-+#ifdef CONFIG_ARM64_ERRATUM_1742098
-+static struct midr_range broken_aarch32_aes[] = {
-+	MIDR_RANGE(MIDR_CORTEX_A57, 0, 1, 0xf, 0xf),
-+	MIDR_ALL_VERSIONS(MIDR_CORTEX_A72),
-+	{},
-+};
-+#endif /* CONFIG_ARM64_WORKAROUND_TRBE_WRITE_OUT_OF_RANGE */
-+
- const struct arm64_cpu_capabilities arm64_errata[] = {
- #ifdef CONFIG_ARM64_WORKAROUND_CLEAN_CACHE
- 	{
-@@ -657,6 +665,14 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
- 		/* Cortex-A510 r0p0 - r0p1 */
- 		ERRATA_MIDR_REV_RANGE(MIDR_CORTEX_A510, 0, 0, 1)
- 	},
-+#endif
-+#ifdef CONFIG_ARM64_ERRATUM_1742098
-+	{
-+		.desc = "ARM erratum 1742098",
-+		.capability = ARM64_WORKAROUND_1742098,
-+		CAP_MIDR_RANGE_LIST(broken_aarch32_aes),
-+		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
-+	},
- #endif
- 	{
+diff --git a/fs/ext2/super.c b/fs/ext2/super.c
+index f6a19f6d9f6d..cdffa2a041af 100644
+--- a/fs/ext2/super.c
++++ b/fs/ext2/super.c
+@@ -1059,9 +1059,10 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
+ 			sbi->s_frags_per_group);
+ 		goto failed_mount;
  	}
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 859e9b635ba0..9aa29e8e570b 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -79,6 +79,7 @@
- #include <asm/cpufeature.h>
- #include <asm/cpu_ops.h>
- #include <asm/fpsimd.h>
-+#include <asm/hwcap.h>
- #include <asm/insn.h>
- #include <asm/kvm_host.h>
- #include <asm/mmu_context.h>
-@@ -1921,6 +1922,14 @@ static void cpu_enable_mte(struct arm64_cpu_capabilities const *cap)
- }
- #endif /* CONFIG_ARM64_MTE */
- 
-+static void elf_hwcap_fixup(void)
-+{
-+#ifdef CONFIG_ARM64_ERRATUM_1742098
-+	if (cpus_have_const_cap(ARM64_WORKAROUND_1742098))
-+		compat_elf_hwcap2 &= ~COMPAT_HWCAP2_AES;
-+#endif /* ARM64_ERRATUM_1742098 */
-+}
-+
- #ifdef CONFIG_KVM
- static bool is_kvm_protected_mode(const struct arm64_cpu_capabilities *entry, int __unused)
- {
-@@ -3033,8 +3042,10 @@ void __init setup_cpu_features(void)
- 	setup_system_capabilities();
- 	setup_elf_hwcaps(arm64_elf_hwcaps);
- 
--	if (system_supports_32bit_el0())
-+	if (system_supports_32bit_el0()) {
- 		setup_elf_hwcaps(compat_elf_hwcaps);
-+		elf_hwcap_fixup();
+-	if (sbi->s_inodes_per_group > sb->s_blocksize * 8) {
++	if (sbi->s_inodes_per_group < sbi->s_inodes_per_block ||
++	    sbi->s_inodes_per_group > sb->s_blocksize * 8) {
+ 		ext2_msg(sb, KERN_ERR,
+-			"error: #inodes per group too big: %lu",
++			"error: invalid #inodes per group: %lu",
+ 			sbi->s_inodes_per_group);
+ 		goto failed_mount;
+ 	}
+@@ -1071,6 +1072,13 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
+ 	sbi->s_groups_count = ((le32_to_cpu(es->s_blocks_count) -
+ 				le32_to_cpu(es->s_first_data_block) - 1)
+ 					/ EXT2_BLOCKS_PER_GROUP(sb)) + 1;
++	if ((u64)sbi->s_groups_count * sbi->s_inodes_per_group !=
++	    le32_to_cpu(es->s_inodes_count)) {
++		ext2_msg(sb, KERN_ERR, "error: invalid #inodes: %u vs computed %llu",
++			 le32_to_cpu(es->s_inodes_count),
++			 (u64)sbi->s_groups_count * sbi->s_inodes_per_group);
++		goto failed_mount;
 +	}
- 
- 	if (system_uses_ttbr0_pan())
- 		pr_info("emulated: Privileged Access Never (PAN) using TTBR0_EL1 switching\n");
-@@ -3086,6 +3097,7 @@ static int enable_mismatched_32bit_el0(unsigned int cpu)
- 							 cpu_active_mask);
- 	get_cpu_device(lucky_winner)->offline_disabled = true;
- 	setup_elf_hwcaps(compat_elf_hwcaps);
-+	elf_hwcap_fixup();
- 	pr_info("Asymmetric 32-bit EL0 support detected on CPU %u; CPU hot-unplug disabled on CPU %u\n",
- 		cpu, lucky_winner);
- 	return 0;
-diff --git a/arch/arm64/tools/cpucaps b/arch/arm64/tools/cpucaps
-index 3ed418f70e3b..8cd6088f8875 100644
---- a/arch/arm64/tools/cpucaps
-+++ b/arch/arm64/tools/cpucaps
-@@ -58,6 +58,7 @@ WORKAROUND_1418040
- WORKAROUND_1463225
- WORKAROUND_1508412
- WORKAROUND_1542419
-+WORKAROUND_1742098
- WORKAROUND_1902691
- WORKAROUND_2038923
- WORKAROUND_2064142
+ 	db_count = (sbi->s_groups_count + EXT2_DESC_PER_BLOCK(sb) - 1) /
+ 		   EXT2_DESC_PER_BLOCK(sb);
+ 	sbi->s_group_desc = kmalloc_array(db_count,
 -- 
 2.35.1
 
