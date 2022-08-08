@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3E3958C128
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:57:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 571E458C11C
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:57:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243762AbiHHB5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:57:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52078 "EHLO
+        id S243723AbiHHB5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:57:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243810AbiHHB4E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:56:04 -0400
+        with ESMTP id S243814AbiHHB4F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:56:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EB841C90A;
-        Sun,  7 Aug 2022 18:39:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 840F4F5B7;
+        Sun,  7 Aug 2022 18:39:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C057760DF8;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F8E560DF3;
+        Mon,  8 Aug 2022 01:39:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A05D7C433D6;
         Mon,  8 Aug 2022 01:39:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00568C433D7;
-        Mon,  8 Aug 2022 01:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922776;
-        bh=RSDlD8Uga25bmtLYdSTBMn3lox5GFYwmoLKXqo5AMGo=;
+        s=k20201202; t=1659922777;
+        bh=M1AyWmAGk+oh66zy1o1YHkgCt5uJYmz4Xr4V5wi3H8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=olZVpdX1siRj/tcvR/WLVfDm5+y4gnTXUtPssiQHgUdVG9ovTlQfKc5xgL2YVem+5
-         KYQrbJHzcb+L4D2GJpJRPefZk/brpWkWjS1dZY/P10SytMEfA82HpRWEj5+2ss5RDX
-         FSrUe6Se2y/Y4WfqEcGW6tiL9pqu9vfiz/2RZHjMRwC+0El3L3KTCGOPpWIJqMoH2c
-         gANMkqA9a9AZdw+z92LhfHbmJ2R+4g8e6Yqy3+8U0urdsLSQUChNVIXCpshGr8t98P
-         3eD/tC3PzPZAqOoiDfBYVsAamJHm1pMQn8MiSbehUcKPNv9UZ3BDQlwRXFG+87OG9Z
-         Cq6DXMkNVbbQg==
+        b=S1EVOo4d0gpi5dXf9hdXwESMyFNXgtWzOI2KakTIC/D8D2fY5mUsyt2iD9PcbhhjQ
+         5o5WVv8t/EeVKQj/740dPEtHfpwxh58ScECst7B89hovwdgj9gXho8PvNUo1R+NmAH
+         4meo5uVzi8SVkuUqEIDRwkr0XqVqsIpxWk3x+9lh2W4fUYQbSjJv2fqGYou8Go65Dn
+         hR+NhIZj6sMi338Z/lnwUZ/ohj1BX/hIxFYdAJxwwVVE/lyG4RWQI8eZNTsp1Xfl9t
+         gCKHyZVyhk1uQ2fOv0k1/YMwEq9/i6f30eq2uGjHwjS/yyuLU/YpMeRAEUYcmFSYNu
+         BS8nN4YWZe4eg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robert Marko <robimarko@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 13/16] arm64: dts: qcom: ipq8074: fix NAND node name
-Date:   Sun,  7 Aug 2022 21:39:10 -0400
-Message-Id: <20220808013914.316709-13-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
+        linux-hwmon@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 14/16] hwmon: (sht15) Fix wrong assumptions in device remove callback
+Date:   Sun,  7 Aug 2022 21:39:11 -0400
+Message-Id: <20220808013914.316709-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013914.316709-1-sashal@kernel.org>
 References: <20220808013914.316709-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,35 +59,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Marko <robimarko@gmail.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit b39961659ffc3c3a9e3d0d43b0476547b5f35d49 ]
+[ Upstream commit 7d4edccc9bbfe1dcdff641343f7b0c6763fbe774 ]
 
-Per schema it should be nand-controller@79b0000 instead of nand@79b0000.
-Fix it to match nand-controller.yaml requirements.
+Taking a lock at the beginning of .remove() doesn't prevent new readers.
+With the existing approach it can happen, that a read occurs just when
+the lock was taken blocking the reader until the lock is released at the
+end of the remove callback which then accessed *data that is already
+freed then.
 
-Signed-off-by: Robert Marko <robimarko@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220621120642.518575-1-robimarko@gmail.com
+To actually fix this problem the hwmon core needs some adaption. Until
+this is implemented take the optimistic approach of assuming that all
+readers are gone after hwmon_device_unregister() and
+sysfs_remove_group() as most other drivers do. (And once the core
+implements that, taking the lock would deadlock.)
+
+So drop the lock, move the reset to after device unregistration to keep
+the device in a workable state until it's deregistered. Also add a error
+message in case the reset fails and return 0 anyhow. (Returning an error
+code, doesn't stop the platform device unregistration and only results
+in a little helpful error message before the devm cleanup handlers are
+called.)
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20220725194344.150098-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq8074.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/sht15.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq8074.dtsi b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-index f48d14cd10a3..bdee07305ce5 100644
---- a/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-+++ b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-@@ -261,7 +261,7 @@ qpic_bam: dma@7984000 {
- 			status = "disabled";
- 		};
+diff --git a/drivers/hwmon/sht15.c b/drivers/hwmon/sht15.c
+index 2be77752cd56..0a4578aae85b 100644
+--- a/drivers/hwmon/sht15.c
++++ b/drivers/hwmon/sht15.c
+@@ -1029,25 +1029,20 @@ static int sht15_probe(struct platform_device *pdev)
+ static int sht15_remove(struct platform_device *pdev)
+ {
+ 	struct sht15_data *data = platform_get_drvdata(pdev);
++	int ret;
  
--		qpic_nand: nand@79b0000 {
-+		qpic_nand: nand-controller@79b0000 {
- 			compatible = "qcom,ipq8074-nand";
- 			reg = <0x79b0000 0x10000>;
- 			#address-cells = <1>;
+-	/*
+-	 * Make sure any reads from the device are done and
+-	 * prevent new ones beginning
+-	 */
+-	mutex_lock(&data->read_lock);
+-	if (sht15_soft_reset(data)) {
+-		mutex_unlock(&data->read_lock);
+-		return -EFAULT;
+-	}
+ 	hwmon_device_unregister(data->hwmon_dev);
+ 	sysfs_remove_group(&pdev->dev.kobj, &sht15_attr_group);
++
++	ret = sht15_soft_reset(data);
++	if (ret)
++		dev_err(&pdev->dev, "Failed to reset device (%pe)\n", ERR_PTR(ret));
++
+ 	if (!IS_ERR(data->reg)) {
+ 		regulator_unregister_notifier(data->reg, &data->nb);
+ 		regulator_disable(data->reg);
+ 	}
+ 
+-	mutex_unlock(&data->read_lock);
+-
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
