@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8075458C033
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:49:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5DF258C03B
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:49:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243161AbiHHBtL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:49:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35608 "EHLO
+        id S243055AbiHHBte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:49:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243165AbiHHBs2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:48:28 -0400
+        with ESMTP id S243047AbiHHBsl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:48:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F277515FC1;
-        Sun,  7 Aug 2022 18:37:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1295717074;
+        Sun,  7 Aug 2022 18:37:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B185760DBB;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3256A60DF3;
+        Mon,  8 Aug 2022 01:37:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9395DC433D7;
         Mon,  8 Aug 2022 01:37:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38ABFC433C1;
-        Mon,  8 Aug 2022 01:37:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922624;
-        bh=FhVTNG+2NCgm7ZoRqLg5i5RITzfyGFyyrNjWQjlN2ug=;
+        s=k20201202; t=1659922625;
+        bh=Shks8rDUt6fwvZCiVNN+z/KX40yACmnhgAaxaywLQ9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vMaqWYdI22uvYVbUUvzGzb4Z+nvlgoFRhdh6TpZKbWUrehC/+nxkGUgy8BazhUVTQ
-         q0fMUeQMXkWxdhLelw/4HvLMGSpezo7/PtCuc+T1ruajDpfP9pqQND5QGj6d8bU85x
-         VSDoEJRaoqE6+HckVO+JqnCrbgp3fApL0oJKlWQIIQS1uW1hnabx/EWs+P6BtMt0I9
-         Kgf0J5VOMlCHAQxNsr53UpNXMbXtgQ6qDoZxjagfcL56qRycFOnZM0qsoveG0rwlx6
-         7fyXRxOZb2Rd3nbCX6syccRZch450n67LhIROKImBjVNfWgad759kjCwO9dfDyyRbP
-         4fdA9tUxKAgrQ==
+        b=HYr8P4BaCn3w3SOw0iUCY9M723S6hmHBHSgkCsU42nuM12zdmyPhji19kmdZTeqtA
+         mvVqyYH2jhqyCYm6MV6X9WmXq66QqWSzy8nsgy5ppJyHB+6Q2g1M77pvY4JkDlVVD7
+         sk9mjdBdFSIRMs2etStGXuJeWl+RjPndfZXLuPkZihUPEXzosl6ElihNKQP5Kp0qo1
+         6UmvCOPEj7G25k9RfzuWDPXaejdknPYGc18XNWLaQKEhv0zbx2CJMUwJmbmebvN5g0
+         tsscraTaoXaRKejoUEVST7P0AOfY7XKwSp3UshBZXXLJDrDJZkiqivbDj/m1DGA/Y8
+         LoGvUV9QXD+Ig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 26/45] ARM: dts: ux500: Fix Gavini accelerometer mounting matrix
-Date:   Sun,  7 Aug 2022 21:35:30 -0400
-Message-Id: <20220808013551.315446-26-sashal@kernel.org>
+Cc:     Guo Mengqi <guomengqi3@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, masahisa.kojima@linaro.org,
+        jaswinder.singh@linaro.org, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 27/45] spi: synquacer: Add missing clk_disable_unprepare()
+Date:   Sun,  7 Aug 2022 21:35:31 -0400
+Message-Id: <20220808013551.315446-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013551.315446-1-sashal@kernel.org>
 References: <20220808013551.315446-1-sashal@kernel.org>
@@ -57,35 +57,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Guo Mengqi <guomengqi3@huawei.com>
 
-[ Upstream commit e24c75f02a81d6ddac0072cbd7a03e799c19d558 ]
+[ Upstream commit 917e43de2a56d9b82576f1cc94748261f1988458 ]
 
-This was fixed wrong so fix it. Now verified by using
-iio-sensor-proxy monitor-sensor test program.
+Add missing clk_disable_unprepare() in synquacer_spi_resume().
 
-Link: https://lore.kernel.org/r/20220611205138.491513-1-linus.walleij@linaro.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Guo Mengqi <guomengqi3@huawei.com>
+Link: https://lore.kernel.org/r/20220624005614.49434-1-guomengqi3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-ux500-samsung-gavini.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spi-synquacer.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/ste-ux500-samsung-gavini.dts b/arch/arm/boot/dts/ste-ux500-samsung-gavini.dts
-index fabc390ccb0c..6c9e812ef03f 100644
---- a/arch/arm/boot/dts/ste-ux500-samsung-gavini.dts
-+++ b/arch/arm/boot/dts/ste-ux500-samsung-gavini.dts
-@@ -502,8 +502,8 @@ i2c-gate {
- 					accelerometer@18 {
- 						compatible = "bosch,bma222e";
- 						reg = <0x18>;
--						mount-matrix = "0", "1", "0",
--							       "-1", "0", "0",
-+						mount-matrix = "0", "-1", "0",
-+							       "1", "0", "0",
- 							       "0", "0", "1";
- 						vddio-supply = <&ab8500_ldo_aux2_reg>; // 1.8V
- 						vdd-supply = <&ab8500_ldo_aux1_reg>; // 3V
+diff --git a/drivers/spi/spi-synquacer.c b/drivers/spi/spi-synquacer.c
+index ea706d9629cb..47cbe73137c2 100644
+--- a/drivers/spi/spi-synquacer.c
++++ b/drivers/spi/spi-synquacer.c
+@@ -783,6 +783,7 @@ static int __maybe_unused synquacer_spi_resume(struct device *dev)
+ 
+ 		ret = synquacer_spi_enable(master);
+ 		if (ret) {
++			clk_disable_unprepare(sspi->clk);
+ 			dev_err(dev, "failed to enable spi (%d)\n", ret);
+ 			return ret;
+ 		}
 -- 
 2.35.1
 
