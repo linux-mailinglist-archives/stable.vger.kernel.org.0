@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5984058BF19
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:36:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F93858BF23
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:36:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242321AbiHHBf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:35:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57856 "EHLO
+        id S242422AbiHHBgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:36:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242317AbiHHBew (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:34:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0839BCA4;
-        Sun,  7 Aug 2022 18:33:04 -0700 (PDT)
+        with ESMTP id S242226AbiHHBfG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:35:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF2C7BC83;
+        Sun,  7 Aug 2022 18:33:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88646B80E09;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4785160DE5;
+        Mon,  8 Aug 2022 01:33:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B19D8C433D6;
         Mon,  8 Aug 2022 01:33:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AA03C433D7;
-        Mon,  8 Aug 2022 01:33:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922383;
-        bh=XBYd5KmOyO7N25HDSPYLqT45ga2LwnRyBjaXX8A/4ks=;
+        s=k20201202; t=1659922384;
+        bh=4aAKBapeGlYr3ggdBm1xQyeoLJA/6rHuTb/O96D0g/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WwPybDkEc+5sXk/AeJlgZAodePyMIngAIn2nJo1ptX60JwoOVkEXpbFAWHSKoBS3J
-         DaYslR949kVn+csGSIkbO1uNQRmLPqm0ykJzoyKBAYWhjLDm8+tbbEXq5JyHap2aGg
-         kcmyaoNhXH/piiAiPQi4cPZPNF8Uvxhst9zHi5EPwWxlSZTz1Imintag8i3f7+hO8V
-         OvVX0XPj6f5djxESIG9aFEU4OXHz8hL5rqIGYVJSLpOjpI/JH902heQvm0RG3EhSPJ
-         AO2+YyBSLfI5fPP4bsWEOfoPDqMLQdMU1BVVJkaxhrKju7Jjb8WhECGCH7EvjM7MLu
-         iitPyRjp30MFA==
+        b=vGCQ6WZinH55Sdso9wk5iBKZek+mq7sEwgIS44NDtn/uq8BfFmrLRd0oNv9w5ZlmU
+         hMRXrjAstGhIpt/9tzJr5YRsPlTWpBsA9P0ribmEfvvdTNHXtWT4BQj/fHDQzia5ru
+         TIsN40Q8Y6NYGDgEONAUbAWjR8c47psCH4Ac2stROFh3tqm6kuAGIqKZAjsE0uS/jv
+         iF6ARwAkg68o7bdoAC6C3KRIkiwie4GWYiBp8WWViaKwKLQMoixidcIDdSvOSFmLOd
+         //EksfcOG6yALudCKI08vzMEBte0ARhihTa1L30mCuapuQQQFAGVqyFECMe6HNySxa
+         Yc8SE3gb3N0Sw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Daniel Drake <drake@endlessos.org>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
         linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 37/58] ACPI: EC: Remove duplicate ThinkPad X1 Carbon 6th entry from DMI quirks
-Date:   Sun,  7 Aug 2022 21:30:55 -0400
-Message-Id: <20220808013118.313965-37-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 38/58] ACPI: EC: Drop the EC_FLAGS_IGNORE_DSDT_GPE quirk
+Date:   Sun,  7 Aug 2022 21:30:56 -0400
+Message-Id: <20220808013118.313965-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013118.313965-1-sashal@kernel.org>
 References: <20220808013118.313965-1-sashal@kernel.org>
@@ -59,37 +60,207 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 0dd6db359e5f206cbf1dd1fd40dd211588cd2725 ]
+[ Upstream commit f7090e0ef360d674f08a22fab90e4e209fb1f658 ]
 
-Somehow the "ThinkPad X1 Carbon 6th" entry ended up twice in the
-struct dmi_system_id acpi_ec_no_wakeup[] array. Remove one of
-the entries.
+It seems that these quirks are no longer necessary since
+commit 69b957c26b32 ("ACPI: EC: Fix possible issues related to EC
+initialization order"), which has fixed this in a generic manner.
+
+There are 3 commits adding DMI entries with this quirk (adding multiple
+DMI entries per commit). 2/3 commits are from before the generic fix.
+
+Which leaves commit 6306f0431914 ("ACPI: EC: Make more Asus laptops
+use ECDT _GPE"), which was committed way after the generic fix.
+But this was just due to slow upstreaming of it. This commit stems
+from Endless from 15 Aug 2017 (committed upstream 20 May 2021):
+https://github.com/endlessm/linux/pull/288
+
+The current code should work fine without this:
+
+ 1. The EC_FLAGS_IGNORE_DSDT_GPE flag is only checked in ec_parse_device(),
+    like this:
+
+	if (boot_ec && boot_ec_is_ecdt && EC_FLAGS_IGNORE_DSDT_GPE) {
+		ec->gpe = boot_ec->gpe;
+	} else {
+		/* parse GPE */
+	}
+
+ 2. ec_parse_device() is only called from acpi_ec_add() and
+    acpi_ec_dsdt_probe()
+
+ 3. acpi_ec_dsdt_probe() starts with:
+
+	if (boot_ec)
+		return;
+
+    so it only calls ec_parse_device() when boot_ec == NULL, meaning that
+    the quirk never triggers for this call. So only the call in
+    acpi_ec_add() matters.
+
+ 4. acpi_ec_add() does the following after the ec_parse_device() call:
+
+	if (boot_ec && ec->command_addr == boot_ec->command_addr &&
+	    ec->data_addr == boot_ec->data_addr &&
+	    !EC_FLAGS_TRUST_DSDT_GPE) {
+		/*
+		 * Trust PNP0C09 namespace location rather than
+		 * ECDT ID. But trust ECDT GPE rather than _GPE
+		 * because of ASUS quirks, so do not change
+		 * boot_ec->gpe to ec->gpe.
+		 */
+		boot_ec->handle = ec->handle;
+		acpi_handle_debug(ec->handle, "duplicated.\n");
+		acpi_ec_free(ec);
+		ec = boot_ec;
+	}
+
+The quirk only matters if boot_ec != NULL and EC_FLAGS_TRUST_DSDT_GPE
+is never set at the same time as EC_FLAGS_IGNORE_DSDT_GPE.
+
+That means that if the addresses match we always enter this if block and
+then only the ec->handle part of the data stored in ec by ec_parse_device()
+is used and the rest is thrown away, after which ec is made to point
+to boot_ec, at which point ec->gpe == boot_ec->gpe, so the same result
+as with the quirk set, independent of the value of the quirk.
+
+Also note the comment in this block which indicates that the gpe result
+from ec_parse_device() is deliberately not taken to deal with buggy
+Asus laptops and all DMI quirks setting EC_FLAGS_IGNORE_DSDT_GPE are for
+Asus laptops.
+
+Based on the above I believe that unless on some quirked laptops
+the ECDT and DSDT EC addresses do not match we can drop the quirk.
+
+I've checked dmesg output to ensure the ECDT and DSDT EC addresses match
+for quirked models using https://linux-hardware.org hw-probe reports.
+
+I've been able to confirm that the addresses match for the following
+models this way: GL702VMK, X505BA, X505BP, X550VXK, X580VD.
+Whereas for the following models I could find any dmesg output:
+FX502VD, FX502VE, X542BA, X542BP.
+
+Note the models without dmesg all were submitted in patches with a batch
+of models and other models from the same batch checkout ok.
+
+This, combined with that all the code adding the quirks was written before
+the generic fix makes me believe that it is safe to remove this quirk now.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Daniel Drake <drake@endlessos.org>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/ec.c | 7 -------
- 1 file changed, 7 deletions(-)
+ drivers/acpi/ec.c | 75 ++++++-----------------------------------------
+ 1 file changed, 9 insertions(+), 66 deletions(-)
 
 diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index a1b871a418f8..f6a022892ee0 100644
+index f6a022892ee0..488c9ec0da0b 100644
 --- a/drivers/acpi/ec.c
 +++ b/drivers/acpi/ec.c
-@@ -2207,13 +2207,6 @@ static const struct dmi_system_id acpi_ec_no_wakeup[] = {
- 			DMI_MATCH(DMI_PRODUCT_FAMILY, "Thinkpad X1 Carbon 6th"),
- 		},
- 	},
--	{
--		.ident = "ThinkPad X1 Carbon 6th",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
--			DMI_MATCH(DMI_PRODUCT_FAMILY, "ThinkPad X1 Carbon 6th"),
--		},
--	},
+@@ -180,7 +180,6 @@ static struct workqueue_struct *ec_wq;
+ static struct workqueue_struct *ec_query_wq;
+ 
+ static int EC_FLAGS_CORRECT_ECDT; /* Needs ECDT port address correction */
+-static int EC_FLAGS_IGNORE_DSDT_GPE; /* Needs ECDT GPE as correction setting */
+ static int EC_FLAGS_TRUST_DSDT_GPE; /* Needs DSDT GPE as correction setting */
+ static int EC_FLAGS_CLEAR_ON_RESUME; /* Needs acpi_ec_clear() on boot/resume */
+ 
+@@ -1407,24 +1406,16 @@ ec_parse_device(acpi_handle handle, u32 Level, void *context, void **retval)
+ 	if (ec->data_addr == 0 || ec->command_addr == 0)
+ 		return AE_OK;
+ 
+-	if (boot_ec && boot_ec_is_ecdt && EC_FLAGS_IGNORE_DSDT_GPE) {
+-		/*
+-		 * Always inherit the GPE number setting from the ECDT
+-		 * EC.
+-		 */
+-		ec->gpe = boot_ec->gpe;
+-	} else {
+-		/* Get GPE bit assignment (EC events). */
+-		/* TODO: Add support for _GPE returning a package */
+-		status = acpi_evaluate_integer(handle, "_GPE", NULL, &tmp);
+-		if (ACPI_SUCCESS(status))
+-			ec->gpe = tmp;
++	/* Get GPE bit assignment (EC events). */
++	/* TODO: Add support for _GPE returning a package */
++	status = acpi_evaluate_integer(handle, "_GPE", NULL, &tmp);
++	if (ACPI_SUCCESS(status))
++		ec->gpe = tmp;
++	/*
++	 * Errors are non-fatal, allowing for ACPI Reduced Hardware
++	 * platforms which use GpioInt instead of GPE.
++	 */
+ 
+-		/*
+-		 * Errors are non-fatal, allowing for ACPI Reduced Hardware
+-		 * platforms which use GpioInt instead of GPE.
+-		 */
+-	}
+ 	/* Use the global lock for all EC transactions? */
+ 	tmp = 0;
+ 	acpi_evaluate_integer(handle, "_GLK", NULL, &tmp);
+@@ -1862,60 +1853,12 @@ static int ec_honor_dsdt_gpe(const struct dmi_system_id *id)
+ 	return 0;
+ }
+ 
+-/*
+- * Some DSDTs contain wrong GPE setting.
+- * Asus FX502VD/VE, GL702VMK, X550VXK, X580VD
+- * https://bugzilla.kernel.org/show_bug.cgi?id=195651
+- */
+-static int ec_honor_ecdt_gpe(const struct dmi_system_id *id)
+-{
+-	pr_debug("Detected system needing ignore DSDT GPE setting.\n");
+-	EC_FLAGS_IGNORE_DSDT_GPE = 1;
+-	return 0;
+-}
+-
+ static const struct dmi_system_id ec_dmi_table[] __initconst = {
  	{
- 		.ident = "ThinkPad X1 Yoga 3rd",
- 		.matches = {
+ 	ec_correct_ecdt, "MSI MS-171F", {
+ 	DMI_MATCH(DMI_SYS_VENDOR, "Micro-Star"),
+ 	DMI_MATCH(DMI_PRODUCT_NAME, "MS-171F"),}, NULL},
+ 	{
+-	ec_honor_ecdt_gpe, "ASUS FX502VD", {
+-	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-	DMI_MATCH(DMI_PRODUCT_NAME, "FX502VD"),}, NULL},
+-	{
+-	ec_honor_ecdt_gpe, "ASUS FX502VE", {
+-	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-	DMI_MATCH(DMI_PRODUCT_NAME, "FX502VE"),}, NULL},
+-	{
+-	ec_honor_ecdt_gpe, "ASUS GL702VMK", {
+-	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-	DMI_MATCH(DMI_PRODUCT_NAME, "GL702VMK"),}, NULL},
+-	{
+-	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X505BA", {
+-	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-	DMI_MATCH(DMI_PRODUCT_NAME, "X505BA"),}, NULL},
+-	{
+-	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X505BP", {
+-	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-	DMI_MATCH(DMI_PRODUCT_NAME, "X505BP"),}, NULL},
+-	{
+-	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X542BA", {
+-	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-	DMI_MATCH(DMI_PRODUCT_NAME, "X542BA"),}, NULL},
+-	{
+-	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X542BP", {
+-	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-	DMI_MATCH(DMI_PRODUCT_NAME, "X542BP"),}, NULL},
+-	{
+-	ec_honor_ecdt_gpe, "ASUS X550VXK", {
+-	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-	DMI_MATCH(DMI_PRODUCT_NAME, "X550VXK"),}, NULL},
+-	{
+-	ec_honor_ecdt_gpe, "ASUS X580VD", {
+-	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-	DMI_MATCH(DMI_PRODUCT_NAME, "X580VD"),}, NULL},
+-	{
+ 	/* https://bugzilla.kernel.org/show_bug.cgi?id=209989 */
+ 	ec_honor_dsdt_gpe, "HP Pavilion Gaming Laptop 15-cx0xxx", {
+ 	DMI_MATCH(DMI_SYS_VENDOR, "HP"),
 -- 
 2.35.1
 
