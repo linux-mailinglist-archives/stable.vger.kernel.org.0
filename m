@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A188B58C11D
+	by mail.lfdr.de (Postfix) with ESMTP id 0EBDB58C11B
 	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:57:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243728AbiHHB5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:57:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49684 "EHLO
+        id S243719AbiHHB5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:57:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243873AbiHHB42 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:56:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E6DE101C4;
-        Sun,  7 Aug 2022 18:39:52 -0700 (PDT)
+        with ESMTP id S243886AbiHHB4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:56:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D7621C93F;
+        Sun,  7 Aug 2022 18:39:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8207B80DCF;
-        Mon,  8 Aug 2022 01:39:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94735C433C1;
-        Mon,  8 Aug 2022 01:39:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4D5EB80E05;
+        Mon,  8 Aug 2022 01:39:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01031C433D6;
+        Mon,  8 Aug 2022 01:39:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922789;
-        bh=5F9RsjFgVNOGiSc2oDB5+Far0a7iC5ApU7VDGncrxM0=;
+        s=k20201202; t=1659922790;
+        bh=bKOMXVn5Qf7CFuGv6kc/zrvEaFQfUTDMxbBHWEk4aqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rip499L8UC10RGHWpHLRb9PiinkKk9LVVJXiwp6H9R8CN87CRRzciaNwshWoVckuS
-         9jtdYTSLad3vEQ66J0UJsxICb6VfILVpHNHXi53jObT11SNkhhPAOmfZaA3dsd+tIx
-         R/B1vyLw2XsU8stm+NDVU0Rm4vWomBrKsYuNXfbL5NvtSvpGHYZVPfHMvNbAaUaz0h
-         /RNrGwgufRxEdqwPngRH3+GPGcNCUNubdydd6FXCD233ot5lSw6bj3ezefKew3Q0Ni
-         GEMr1Ck/zEMcE9RSOOXP9QF4kGZz5WhxnpSPp9KDqlVtxik4NtIlNmYBIAO7Ev/cy0
-         BdXHdwPIfmcwQ==
+        b=YtWwVO+MGjjTykDliOV672OCQUkeFTzYBkJewfkMyFd5JZrzcvC7EZlzww5jaadSQ
+         e+pXCBpp6e42PcVeyBq7dkRSyOcL/c83J0Eh17zE2qOYPF7TzjX38YHG6Y7ridBn0h
+         wUtad8qQcLsqKVBI8RkhwVo/mOXhl37bYjZKwbhSTcmwDI1y2eFHr/FXDRRAVezMd6
+         /kmdyFvib+hswLGIR2xivn28Wpoq+j0gLdyGw1CUcHeO/hH8W4gGTZPZAJIG3yiJRy
+         +U5mJE9c4GGHQA46iwM/deZ6Ih+ToRid5HIpR0rwwNM2Ouv9gwjzOtbek+BlCVZqIX
+         HD1h9m3eHDiHw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?haibinzhang=20=28=E5=BC=A0=E6=B5=B7=E6=96=8C=29?= 
-        <haibinzhang@tencent.com>, hewenliang <hewenliang4@huawei.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        mark.rutland@arm.com, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 02/12] arm64: fix oops in concurrently setting insn_emulation sysctls
-Date:   Sun,  7 Aug 2022 21:39:32 -0400
-Message-Id: <20220808013943.316907-2-sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>,
+        syzbot+d273f7d7f58afd93be48@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, jack@suse.com,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 03/12] ext2: Add more validity checks for inode counts
+Date:   Sun,  7 Aug 2022 21:39:33 -0400
+Message-Id: <20220808013943.316907-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013943.316907-1-sashal@kernel.org>
 References: <20220808013943.316907-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -59,88 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: haibinzhang (张海斌) <haibinzhang@tencent.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit af483947d472eccb79e42059276c4deed76f99a6 ]
+[ Upstream commit fa78f336937240d1bc598db817d638086060e7e9 ]
 
-emulation_proc_handler() changes table->data for proc_dointvec_minmax
-and can generate the following Oops if called concurrently with itself:
+Add checks verifying number of inodes stored in the superblock matches
+the number computed from number of inodes per group. Also verify we have
+at least one block worth of inodes per group. This prevents crashes on
+corrupted filesystems.
 
- | Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
- | Internal error: Oops: 96000006 [#1] SMP
- | Call trace:
- | update_insn_emulation_mode+0xc0/0x148
- | emulation_proc_handler+0x64/0xb8
- | proc_sys_call_handler+0x9c/0xf8
- | proc_sys_write+0x18/0x20
- | __vfs_write+0x20/0x48
- | vfs_write+0xe4/0x1d0
- | ksys_write+0x70/0xf8
- | __arm64_sys_write+0x20/0x28
- | el0_svc_common.constprop.0+0x7c/0x1c0
- | el0_svc_handler+0x2c/0xa0
- | el0_svc+0x8/0x200
-
-To fix this issue, keep the table->data as &insn->current_mode and
-use container_of() to retrieve the insn pointer. Another mutex is
-used to protect against the current_mode update but not for retrieving
-insn_emulation as table->data is no longer changing.
-
-Co-developed-by: hewenliang <hewenliang4@huawei.com>
-Signed-off-by: hewenliang <hewenliang4@huawei.com>
-Signed-off-by: Haibin Zhang <haibinzhang@tencent.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20220128090324.2727688-1-hewenliang4@huawei.com
-Link: https://lore.kernel.org/r/9A004C03-250B-46C5-BF39-782D7551B00E@tencent.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Reported-by: syzbot+d273f7d7f58afd93be48@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/armv8_deprecated.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/ext2/super.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/kernel/armv8_deprecated.c b/arch/arm64/kernel/armv8_deprecated.c
-index 092046704cbc..b82e32daaf66 100644
---- a/arch/arm64/kernel/armv8_deprecated.c
-+++ b/arch/arm64/kernel/armv8_deprecated.c
-@@ -63,6 +63,7 @@ struct insn_emulation {
- static LIST_HEAD(insn_emulation);
- static int nr_insn_emulated __initdata;
- static DEFINE_RAW_SPINLOCK(insn_emulation_lock);
-+static DEFINE_MUTEX(insn_emulation_mutex);
- 
- static void register_emulation_hooks(struct insn_emulation_ops *ops)
- {
-@@ -208,10 +209,10 @@ static int emulation_proc_handler(struct ctl_table *table, int write,
- 				  loff_t *ppos)
- {
- 	int ret = 0;
--	struct insn_emulation *insn = (struct insn_emulation *) table->data;
-+	struct insn_emulation *insn = container_of(table->data, struct insn_emulation, current_mode);
- 	enum insn_emulation_mode prev_mode = insn->current_mode;
- 
--	table->data = &insn->current_mode;
-+	mutex_lock(&insn_emulation_mutex);
- 	ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
- 
- 	if (ret || !write || prev_mode == insn->current_mode)
-@@ -224,7 +225,7 @@ static int emulation_proc_handler(struct ctl_table *table, int write,
- 		update_insn_emulation_mode(insn, INSN_UNDEF);
+diff --git a/fs/ext2/super.c b/fs/ext2/super.c
+index f3d55f1c0ce4..5f7079b65426 100644
+--- a/fs/ext2/super.c
++++ b/fs/ext2/super.c
+@@ -1072,9 +1072,10 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
+ 			sbi->s_frags_per_group);
+ 		goto failed_mount;
  	}
- ret:
--	table->data = insn;
-+	mutex_unlock(&insn_emulation_mutex);
- 	return ret;
- }
- 
-@@ -254,7 +255,7 @@ static void __init register_insn_emulation_sysctl(struct ctl_table *table)
- 		sysctl->maxlen = sizeof(int);
- 
- 		sysctl->procname = insn->ops->name;
--		sysctl->data = insn;
-+		sysctl->data = &insn->current_mode;
- 		sysctl->extra1 = &insn->min;
- 		sysctl->extra2 = &insn->max;
- 		sysctl->proc_handler = emulation_proc_handler;
+-	if (sbi->s_inodes_per_group > sb->s_blocksize * 8) {
++	if (sbi->s_inodes_per_group < sbi->s_inodes_per_block ||
++	    sbi->s_inodes_per_group > sb->s_blocksize * 8) {
+ 		ext2_msg(sb, KERN_ERR,
+-			"error: #inodes per group too big: %lu",
++			"error: invalid #inodes per group: %lu",
+ 			sbi->s_inodes_per_group);
+ 		goto failed_mount;
+ 	}
+@@ -1084,6 +1085,13 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
+ 	sbi->s_groups_count = ((le32_to_cpu(es->s_blocks_count) -
+ 				le32_to_cpu(es->s_first_data_block) - 1)
+ 					/ EXT2_BLOCKS_PER_GROUP(sb)) + 1;
++	if ((u64)sbi->s_groups_count * sbi->s_inodes_per_group !=
++	    le32_to_cpu(es->s_inodes_count)) {
++		ext2_msg(sb, KERN_ERR, "error: invalid #inodes: %u vs computed %llu",
++			 le32_to_cpu(es->s_inodes_count),
++			 (u64)sbi->s_groups_count * sbi->s_inodes_per_group);
++		goto failed_mount;
++	}
+ 	db_count = (sbi->s_groups_count + EXT2_DESC_PER_BLOCK(sb) - 1) /
+ 		   EXT2_DESC_PER_BLOCK(sb);
+ 	sbi->s_group_desc = kmalloc (db_count * sizeof (struct buffer_head *), GFP_KERNEL);
 -- 
 2.35.1
 
