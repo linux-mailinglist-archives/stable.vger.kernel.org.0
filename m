@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9804A58C130
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:57:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79F3F58C103
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:57:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243782AbiHHB5h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:57:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52174 "EHLO
+        id S243594AbiHHB5N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:57:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243822AbiHHB4G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:56:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 690C5FD0B;
-        Sun,  7 Aug 2022 18:39:44 -0700 (PDT)
+        with ESMTP id S243858AbiHHB4V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:56:21 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D35CA1C931;
+        Sun,  7 Aug 2022 18:39:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E482B80DDF;
-        Mon,  8 Aug 2022 01:39:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11956C433D6;
-        Mon,  8 Aug 2022 01:39:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4DC3BCE0AFC;
+        Mon,  8 Aug 2022 01:39:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E7DEC433D7;
+        Mon,  8 Aug 2022 01:39:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922781;
-        bh=FPDq19YmQbyACbhIMdsFfnd/zvD9KE4s0mLFIVXUVOE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jmwPV2acglsSvsZuLYKlN149I5kMtyx5xHxcwQAiozjb1hXD12VZrzf7zF/DPQced
-         DLeqkTcuhUDLI1hX1D4rOz73a8rFrMV3HO136wK3/32gyNTFEy62U15Lp6UeAdUcbX
-         QeyhRPA3/jS9oYdGi0uvCcrBhAvZjflp/gqbiQimm/nt43PnyLbV+3SMHkFrdJuFR8
-         4jxXneIP5ApbWk421pSdUnmE4y3BfZhQmIfyF7oHD5w2TWFhupBkRN83LfGxn8xXbY
-         5v9HqHOiMZAfpIMpDTrgLo2pKFEmUH/ngposuvMmIbnnOoJzdHURm8aZXdub1hbseu
-         0TCJQWpWJTA+A==
+        s=k20201202; t=1659922786;
+        bh=NtEwKMZ/Nfx57WqXVp8dLzBoBoDtiLiAqK5M3OVyZj0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=MUznuMGYRNQThP3HO4Yduan1lYui/V62XK9JnEkHmi2kQxW4k5cc+uBkjXhQnB5Y4
+         0MFgzu5OmnFz4FS+Dknyc2p/madM45fEOw8rQ/g5qprMJa1pLWBD4F+Tq7RvZVdbGe
+         f23ZvgRat8NBrbNfsj74RhfxIOFD0KkCdGEC6IHMULfkDbQgnYuKnsdWpi15wZxapR
+         8ZhXKNFCSS7ozpg64BgZBFBZaAgwJfbsgpTb7+GEi788FYwyJmVtxKCuPoOlCoT+FY
+         U01y/jZYSRliIKQ8IdxsPS/Bd5E1+N80vJMc+kYYTE/K5OQ+CFyoTtN/jIsaCEVrpq
+         CNo28V5eb+ctg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 16/16] selinux: Add boundary check in put_entry()
-Date:   Sun,  7 Aug 2022 21:39:13 -0400
-Message-Id: <20220808013914.316709-16-sashal@kernel.org>
+Cc:     Francis Laniel <flaniel@linux.microsoft.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        catalin.marinas@arm.com, broonie@kernel.org, keescook@chromium.org,
+        rmk+kernel@armlinux.org.uk, mark.rutland@arm.com,
+        christophe.leroy@csgroup.eu, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 01/12] arm64: Do not forget syscall when starting a new thread.
+Date:   Sun,  7 Aug 2022 21:39:31 -0400
+Message-Id: <20220808013943.316907-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220808013914.316709-1-sashal@kernel.org>
-References: <20220808013914.316709-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,33 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Francis Laniel <flaniel@linux.microsoft.com>
 
-[ Upstream commit 15ec76fb29be31df2bccb30fc09875274cba2776 ]
+[ Upstream commit de6921856f99c11d3986c6702d851e1328d4f7f6 ]
 
-Just like next_entry(), boundary check is necessary to prevent memory
-out-of-bound access.
+Enable tracing of the execve*() system calls with the
+syscalls:sys_exit_execve tracepoint by removing the call to
+forget_syscall() when starting a new thread and preserving the value of
+regs->syscallno across exec.
 
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Francis Laniel <flaniel@linux.microsoft.com>
+Link: https://lore.kernel.org/r/20220608162447.666494-2-flaniel@linux.microsoft.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/ss/policydb.h | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/include/asm/processor.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 215f8f30ac5a..2a479785ebd4 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -360,6 +360,8 @@ static inline int put_entry(const void *buf, size_t bytes, int num, struct polic
- {
- 	size_t len = bytes * num;
+diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
+index 9eb95ab19924..8767f9d4ebc6 100644
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -143,8 +143,9 @@ void tls_preserve_current_state(void);
  
-+	if (len > fp->len)
-+		return -EINVAL;
- 	memcpy(fp->data, buf, len);
- 	fp->data += len;
- 	fp->len -= len;
+ static inline void start_thread_common(struct pt_regs *regs, unsigned long pc)
+ {
++	s32 previous_syscall = regs->syscallno;
+ 	memset(regs, 0, sizeof(*regs));
+-	forget_syscall(regs);
++	regs->syscallno = previous_syscall;
+ 	regs->pc = pc;
+ }
+ 
 -- 
 2.35.1
 
