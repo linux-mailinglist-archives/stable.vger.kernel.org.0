@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35EF758C0ED
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:57:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0651858C140
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243540AbiHHB5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:57:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46768 "EHLO
+        id S243821AbiHHB5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:57:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243920AbiHHB4h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:56:37 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FAD0101DD;
-        Sun,  7 Aug 2022 18:39:59 -0700 (PDT)
+        with ESMTP id S243912AbiHHB4f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:56:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC91101E5;
+        Sun,  7 Aug 2022 18:39:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7990BCE0F71;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7077560DF3;
         Mon,  8 Aug 2022 01:39:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F22BDC433C1;
-        Mon,  8 Aug 2022 01:39:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EF2DC433D6;
+        Mon,  8 Aug 2022 01:39:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922795;
-        bh=x599Q0uNqhEXX/zTlqbs0/t9r9wM0qizRo+Y0uYiNVs=;
+        s=k20201202; t=1659922796;
+        bh=Xa6s7LYbZMRUMtcixMwGFLO019BA0YLdj1CCuUTJ8O8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VvCSqYj1BHs/+9OCFqyDWVUvnXtnRovMHVYLuXnKaAU1mq9g0NQsbvj83MzLNaw1L
-         4055+I4DiOTRmWUbat9wa4gtLcp4o3lSNwhR0KnV+7xDufPC5dlOVrXdrbewfneSeG
-         gUQZFbXkdaZs8+4RA6MWESVmLDUIzVsW4zZlAqE/35YMEg0XftGe99N6fmgdAGaKUS
-         SfGGxlKWS2Tzxw+s9+M07q7n/PJ7xMshX5g1/A+RBRj75hcM6f/vUSUux4+M2F5czV
-         pBakJ5/aqr9ztugC6ojYoEfi1mPsU+gENjS17jSbR7rA3w47V2U4w6Z3epPfbJLfPf
-         LUTUJe8L/NbaQ==
+        b=Owmnm62KPWHegWdtwSM3fNwNwNJyARHK+AhZtsYRVr3FPV4uPr6HHwM7d1sDVhe0E
+         yDTBtiO4W7lwy1zX69lnCJQV+0mKB6mYDotc19e15wEpxxVvlZ695gCMVhEUQDWGSK
+         luuBvemxPgr89GgEBX+NUbfs7Y+8Y/z+CZ2K4vCyPILyYD4GRyLE9MYROOc3MeeC+G
+         4oAxsiVUdmzTI7ja04Af26k6JK0WdHB+jzDd+uZvPKOvBTUrnp8YyHcvQyF6lSqM8h
+         ldPDRFvPi1MG6LtBX2D+XVsOtM/B/70KGPeJmnC7f6kjNBD95o01D/lG95uy1he+tB
+         fH2d4Tmjm8zZA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liang He <windhl@126.com>, Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
-        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 07/12] ARM: OMAP2+: display: Fix refcount leak bug
-Date:   Sun,  7 Aug 2022 21:39:37 -0400
-Message-Id: <20220808013943.316907-7-sashal@kernel.org>
+Cc:     Manyi Li <limanyi@uniontech.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 08/12] ACPI: PM: save NVS memory for Lenovo G40-45
+Date:   Sun,  7 Aug 2022 21:39:38 -0400
+Message-Id: <20220808013943.316907-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013943.316907-1-sashal@kernel.org>
 References: <20220808013943.316907-1-sashal@kernel.org>
@@ -56,34 +57,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Manyi Li <limanyi@uniontech.com>
 
-[ Upstream commit 50b87a32a79bca6e275918a711fb8cc55e16d739 ]
+[ Upstream commit 4b7ef7b05afcde44142225c184bf43a0cd9e2178 ]
 
-In omapdss_init_fbdev(), of_find_node_by_name() will return a node
-pointer with refcount incremented. We should use of_node_put() when
-it is not used anymore.
+[821d6f0359b0614792ab8e2fb93b503e25a65079] is to make machines
+produced from 2012 to now not saving NVS region to accelerate S3.
 
-Signed-off-by: Liang He <windhl@126.com>
-Message-Id: <20220617145803.4050918-1-windhl@126.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+But, Lenovo G40-45, a platform released in 2015, still needs NVS memory
+saving during S3. A quirk is introduced for this platform.
+
+Signed-off-by: Manyi Li <limanyi@uniontech.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/display.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/sleep.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
-index 6e7440ef503a..b01b7515b6cc 100644
---- a/arch/arm/mach-omap2/display.c
-+++ b/arch/arm/mach-omap2/display.c
-@@ -218,6 +218,7 @@ static int __init omapdss_init_fbdev(void)
- 	node = of_find_node_by_name(NULL, "omap4_padconf_global");
- 	if (node)
- 		omap4_dsi_mux_syscon = syscon_node_to_regmap(node);
-+	of_node_put(node);
- 
- 	return 0;
- }
+diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
+index 7a0af16f86f2..d341908cbd16 100644
+--- a/drivers/acpi/sleep.c
++++ b/drivers/acpi/sleep.c
+@@ -359,6 +359,14 @@ static const struct dmi_system_id acpisleep_dmi_table[] __initconst = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "80E3"),
+ 		},
+ 	},
++	{
++	.callback = init_nvs_save_s3,
++	.ident = "Lenovo G40-45",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "80E1"),
++		},
++	},
+ 	/*
+ 	 * https://bugzilla.kernel.org/show_bug.cgi?id=196907
+ 	 * Some Dell XPS13 9360 cannot do suspend-to-idle using the Low Power
 -- 
 2.35.1
 
