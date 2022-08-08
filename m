@@ -2,139 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C4ED58BED7
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:33:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CB9758BF61
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:38:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241998AbiHHBdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:33:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58264 "EHLO
+        id S242570AbiHHBio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242068AbiHHBcS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:32:18 -0400
-Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD9E9BC2E;
-        Sun,  7 Aug 2022 18:32:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1659922336; x=1691458336;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=ePe/leNB1O/kP2sUpa4Iv//3RWITAIwumR1lD34h+8Q=;
-  b=hkInb3H3pBFFJAIpuJ4jlHM2SAvG/I21c2IIkMxmlEokOJB9HZWQo7od
-   iyeq3PmMjLJJc9wjJJMTkNw+V6xxYKhwb1v8NyMxHQTjVsDa1qCDsxp6P
-   T9ktE99jbeU+41Y3THbJ9uH43WtaJxEXeP+l1cgXtuD+s49GyLUpp1tw7
-   YFDfk0gwLA2SXPxH6pcIZSMa7D5vgY1+K5Uo2k9IHe8UtfIpa/aDVFwT/
-   RXxBmMyLwbVTDO/Nfu8IuJ65p5X1Oq0qO7/84YN2/JloGBds375HOlyPm
-   GiPYrSfoCOlBBphAZNXZxzsrVOwboAy7bTHgzfegvmgcAHzYNMjs/4Jvb
-   w==;
-X-IronPort-AV: E=Sophos;i="5.93,221,1654531200"; 
-   d="scan'208";a="320180309"
-Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 08 Aug 2022 09:32:16 +0800
-IronPort-SDR: VLovlB3K8O2CZMDS9tp6wOjibBq1CRaRRY2rzPKlzWx8khFgn4SvDLd2isQ3I8Pe4CkU9BncTa
- 83sFbtS+Uzvk+0r3ke4IirDN/NczzrJuXha6wY3j6PcikgE1IkByJt+N3kZySnj5gqmvQIq2MZ
- f2JdN4mDuBP3s/VbnDb440Ll+DzVq+TifUWOGxxDXEWOJqJSuqiwSk282gr/73sRfJc+8qhFeT
- H4pZAcA6lVt3k0wEN+IbP+RMZc1JqXtzyEc2N6vxny/cFOgeYaaSg1E2YdOk+2lZBozbk36IGt
- wu25BCWbfHyxb01+VxflE+1m
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 07 Aug 2022 17:47:57 -0700
-IronPort-SDR: IJwsZcwgR8a5mM6YI59J5YDKMaKH2cVGUAndHCAEWMbY0fiGqVZkV0nBaxgeowDzNxxjoqKyLN
- AvNW2ues3WBS03tHKx9zSwC9GYGwoN12tO0g03TplXIdyFKdpM6zcPfyaQTgNpzuIn0Jpf/Lnh
- f4MAWBQfz2QuYEddNSmy09pxUnEB+SAQnpmVgy5r7+Tug3DEIYeSFCjNZYvnRqib3UpoEbKehb
- KB1K8HrksaKd72Rt4sUiPbtK1+R1UiIUwl4ignM7O0pStzP3Be7+f8XQU4c5lsEbtxpG0hbT0X
- 8ww=
-WDCIronportException: Internal
-Received: from ctl002.ad.shared (HELO naota-xeon.wdc.com) ([10.225.53.129])
-  by uls-op-cesaip01.wdc.com with ESMTP; 07 Aug 2022 18:32:16 -0700
-From:   Naohiro Aota <naohiro.aota@wdc.com>
-To:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
-Cc:     Naohiro Aota <naohiro.aota@wdc.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH STABLE 5.18 3/3] btrfs: zoned: drop optimization of zone finish
-Date:   Mon,  8 Aug 2022 10:32:10 +0900
-Message-Id: <20220808013210.646680-4-naohiro.aota@wdc.com>
+        with ESMTP id S242445AbiHHBiI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:38:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3CB0E099;
+        Sun,  7 Aug 2022 18:33:55 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B242760DE1;
+        Mon,  8 Aug 2022 01:33:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E787C433C1;
+        Mon,  8 Aug 2022 01:33:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1659922434;
+        bh=FWv5uPftX5X9X1NDJjuD0spInpQjykRjrgL+U5sBl1E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=pX9BDYyxAd9JvU3xGyU8/uD6k6j5BWYhBt05dKlW7RIHIRsWH3f7D+TTU7KRBnvhP
+         LciVozSZy+dEp3b+MvKFaFhJvskcIIKSyrOIT84XJUodTMgrC9AHz3GG+Kwm6ICSKH
+         yd8QuSBWwQo4P4d2deSCopN2C23jI/NHG+KmBMRQlFAWXftLrcPMcupvmVcVXtx4xv
+         eLSB8/dZXLsYyAvFy9YHL47Eo9DCH+x+m1KrHJxTBeQdPCClTSBDuZIOJCNBqudk/i
+         GxUDs9g4++KROBZFDiKFXU/NV4xaUw3TtkV+OZjpwF9YOQpFrKEI0NbIAhuglX6INd
+         VXfGHGXskQAog==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Wyes Karny <wyes.karny@amd.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        daniel.lezcano@linaro.org, corbet@lwn.net, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, x86@kernel.org,
+        peterz@infradead.org, chang.seok.bae@intel.com,
+        ebiederm@xmission.com, zhengqi.arch@bytedance.com,
+        linux-pm@vger.kernel.org, linux-doc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 01/53] x86: Handle idle=nomwait cmdline properly for x86_idle
+Date:   Sun,  7 Aug 2022 21:32:56 -0400
+Message-Id: <20220808013350.314757-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220808013210.646680-1-naohiro.aota@wdc.com>
-References: <20220808013210.646680-1-naohiro.aota@wdc.com>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit b3a3b0255797e1d395253366ba24a4cc6c8bdf9c upstream
+From: Wyes Karny <wyes.karny@amd.com>
 
-We have an optimization in do_zone_finish() to send REQ_OP_ZONE_FINISH only
-when necessary, i.e. we don't send REQ_OP_ZONE_FINISH when we assume we
-wrote fully into the zone.
+[ Upstream commit 8bcedb4ce04750e1ccc9a6b6433387f6a9166a56 ]
 
-The assumption is determined by "alloc_offset == capacity". This condition
-won't work if the last ordered extent is canceled due to some errors. In
-that case, we consider the zone is deactivated without sending the finish
-command while it's still active.
+When kernel is booted with idle=nomwait do not use MWAIT as the
+default idle state.
 
-This inconstancy results in activating another block group while we cannot
-really activate the underlying zone, which causes the active zone exceeds
-errors like below.
+If the user boots the kernel with idle=nomwait, it is a clear
+direction to not use mwait as the default idle state.
+However, the current code does not take this into consideration
+while selecting the default idle state on x86.
 
-    BTRFS error (device nvme3n2): allocation failed flags 1, wanted 520192 tree-log 0, relocation: 0
-    nvme3n2: I/O Cmd(0x7d) @ LBA 160432128, 127 blocks, I/O Error (sct 0x1 / sc 0xbd) MORE DNR
-    active zones exceeded error, dev nvme3n2, sector 0 op 0xd:(ZONE_APPEND) flags 0x4800 phys_seg 1 prio class 0
-    nvme3n2: I/O Cmd(0x7d) @ LBA 160432128, 127 blocks, I/O Error (sct 0x1 / sc 0xbd) MORE DNR
-    active zones exceeded error, dev nvme3n2, sector 0 op 0xd:(ZONE_APPEND) flags 0x4800 phys_seg 1 prio class 0
+Fix it by checking for the idle=nomwait boot option in
+prefer_mwait_c1_over_halt().
 
-Fix the issue by removing the optimization for now.
+Also update the documentation around idle=nomwait appropriately.
 
-Fixes: 8376d9e1ed8f ("btrfs: zoned: finish superblock zone once no space left for new SB")
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+[ dhansen: tweak commit message ]
+
+Signed-off-by: Wyes Karny <wyes.karny@amd.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Tested-by: Zhang Rui <rui.zhang@intel.com>
+Link: https://lkml.kernel.org/r/fdc2dc2d0a1bc21c2f53d989ea2d2ee3ccbc0dbe.1654538381.git-series.wyes.karny@amd.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/zoned.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ Documentation/admin-guide/pm/cpuidle.rst | 15 +++++++++------
+ arch/x86/kernel/process.c                |  9 ++++++---
+ 2 files changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
-index 2c0851d94eff..b6b64da3422c 100644
---- a/fs/btrfs/zoned.c
-+++ b/fs/btrfs/zoned.c
-@@ -2039,13 +2039,25 @@ void btrfs_zone_finish_endio(struct btrfs_fs_info *fs_info, u64 logical, u64 len
- 	spin_unlock(&block_group->lock);
+diff --git a/Documentation/admin-guide/pm/cpuidle.rst b/Documentation/admin-guide/pm/cpuidle.rst
+index aec2cd2aaea7..19754beb5a4e 100644
+--- a/Documentation/admin-guide/pm/cpuidle.rst
++++ b/Documentation/admin-guide/pm/cpuidle.rst
+@@ -612,8 +612,8 @@ the ``menu`` governor to be used on the systems that use the ``ladder`` governor
+ by default this way, for example.
  
- 	map = block_group->physical_map;
--	device = map->stripes[0].dev;
--	physical = map->stripes[0].physical;
-+	for (i = 0; i < map->num_stripes; i++) {
-+		int ret;
+ The other kernel command line parameters controlling CPU idle time management
+-described below are only relevant for the *x86* architecture and some of
+-them affect Intel processors only.
++described below are only relevant for the *x86* architecture and references
++to ``intel_idle`` affect Intel processors only.
  
--	if (!device->zone_info->max_active_zones)
--		goto out;
-+		device = map->stripes[i].dev;
-+		physical = map->stripes[i].physical;
+ The *x86* architecture support code recognizes three kernel command line
+ options related to CPU idle time management: ``idle=poll``, ``idle=halt``,
+@@ -635,10 +635,13 @@ idle, so it very well may hurt single-thread computations performance as well as
+ energy-efficiency.  Thus using it for performance reasons may not be a good idea
+ at all.]
  
--	btrfs_dev_clear_active_zone(device, physical);
-+		if (device->zone_info->max_active_zones == 0)
-+			continue;
+-The ``idle=nomwait`` option disables the ``intel_idle`` driver and causes
+-``acpi_idle`` to be used (as long as all of the information needed by it is
+-there in the system's ACPI tables), but it is not allowed to use the
+-``MWAIT`` instruction of the CPUs to ask the hardware to enter idle states.
++The ``idle=nomwait`` option prevents the use of ``MWAIT`` instruction of
++the CPU to enter idle states. When this option is used, the ``acpi_idle``
++driver will use the ``HLT`` instruction instead of ``MWAIT``. On systems
++running Intel processors, this option disables the ``intel_idle`` driver
++and forces the use of the ``acpi_idle`` driver instead. Note that in either
++case, ``acpi_idle`` driver will function only if all the information needed
++by it is in the system's ACPI tables.
+ 
+ In addition to the architecture-level kernel command line options affecting CPU
+ idle time management, there are parameters affecting individual ``CPUIdle``
+diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+index 622dc3673c37..8011536ba5c4 100644
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -824,6 +824,10 @@ static void amd_e400_idle(void)
+  */
+ static int prefer_mwait_c1_over_halt(const struct cpuinfo_x86 *c)
+ {
++	/* User has disallowed the use of MWAIT. Fallback to HALT */
++	if (boot_option_idle_override == IDLE_NOMWAIT)
++		return 0;
 +
-+		ret = blkdev_zone_mgmt(device->bdev, REQ_OP_ZONE_FINISH,
-+				       physical >> SECTOR_SHIFT,
-+				       device->zone_info->zone_size >> SECTOR_SHIFT,
-+				       GFP_NOFS);
-+
-+		if (ret)
-+			return;
-+
-+		btrfs_dev_clear_active_zone(device, physical);
-+	}
+ 	if (c->x86_vendor != X86_VENDOR_INTEL)
+ 		return 0;
  
- 	spin_lock(&fs_info->zone_active_bgs_lock);
- 	ASSERT(!list_empty(&block_group->active_bg_list));
+@@ -932,9 +936,8 @@ static int __init idle_setup(char *str)
+ 	} else if (!strcmp(str, "nomwait")) {
+ 		/*
+ 		 * If the boot option of "idle=nomwait" is added,
+-		 * it means that mwait will be disabled for CPU C2/C3
+-		 * states. In such case it won't touch the variable
+-		 * of boot_option_idle_override.
++		 * it means that mwait will be disabled for CPU C1/C2/C3
++		 * states.
+ 		 */
+ 		boot_option_idle_override = IDLE_NOMWAIT;
+ 	} else
 -- 
 2.35.1
 
