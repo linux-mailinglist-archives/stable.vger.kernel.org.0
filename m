@@ -2,52 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAE6758BFEF
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:44:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEF4058BFF2
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:45:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242613AbiHHBox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:44:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52072 "EHLO
+        id S242983AbiHHBpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:45:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242847AbiHHBnW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:43:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 575F413F08;
-        Sun,  7 Aug 2022 18:36:03 -0700 (PDT)
+        with ESMTP id S242893AbiHHBoA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:44:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5967513F2C;
+        Sun,  7 Aug 2022 18:36:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1D62B80E06;
-        Mon,  8 Aug 2022 01:36:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92DFC433D7;
-        Mon,  8 Aug 2022 01:35:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 543BB60DFF;
+        Mon,  8 Aug 2022 01:36:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CA7BC4347C;
+        Mon,  8 Aug 2022 01:36:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922560;
-        bh=Pir9SmOQsBGR1CQB8AGdZf2HiZDQ5u0vvLJ656/sgb4=;
+        s=k20201202; t=1659922563;
+        bh=m0hTkEbkuaXphWWnC/gxMUIwGj3LqHqY6oqSiCR51TA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nHdPtxF0WMDJywaWudHc6MfpGK65I8kFoBlChJWgLRFcmr1Szz/8eD7icZuscv+Av
-         iyEl1gkPUVSGiQZWNxCUx/kGRTe+1S5GOoF+pMYXqEWNmAeaRct8oqPJNRzkkiRZT6
-         DKx7atvpVS/SJFyydAIArGKBfN80kBYd3BituY5ZNthsykF5KqDda6lC11hThlnzBu
-         hftX7bAGKI/gxe8nCKEBGiE0PLeJZtJp6cIuclKoEy6o/mWZ2PR32C2BJC1xJ4SvPe
-         QbL3N4XUmudAZTNOGQmdENfpIHs/dYVSgm/ymJ4cU/iHApklhyZhGVnz9xVl8ISI0e
-         BCq0+M0Ux6XpA==
+        b=gvJ6Sm3mUE2wqR/XxnJfQ7J16HU1CsHnVsAvoCizf5FPoFcwKOKFls1Xd7RlHxAk2
+         1kmJlLRClpEDuCGtodvsUbBc+rTUAjhmZzNu0CW55FimSTmefsdsRWFvfZiph5nizM
+         eN1sGylAJALEjRxweoaGRBRZdvcD46c+5RMIUE2gHntqYsbowjSscrTvD24g2OxsY+
+         MLzG6GkefhuOY4c/gktFOIAty6yRxArYNQm1qKYl/sWio3NObWMlVLT3QcBtFIUM/V
+         mFBb8VMT7S+uZhKdQzLMspIHDHgArlNESDUAbGQfBqdNQHStffXgW6kQ94zqssJaie
+         atZa9GVk208Mw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
         Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, keescook@chromium.org, paulmck@kernel.org,
-        nathan@kernel.org, jpoimboe@kernel.org, frederic@kernel.org,
-        ebiederm@xmission.com, elver@google.com, mhiramat@kernel.org,
-        ashimida@linux.alibaba.com, samitolvanen@google.com,
-        song@kernel.org
-Subject: [PATCH AUTOSEL 5.15 02/45] arch: make TRACE_IRQFLAGS_NMI_SUPPORT generic
-Date:   Sun,  7 Aug 2022 21:35:06 -0400
-Message-Id: <20220808013551.315446-2-sashal@kernel.org>
+        catalin.marinas@arm.com, mark.rutland@arm.com, hca@linux.ibm.com,
+        Jason@zx2c4.com, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 03/45] arm64: kernel: drop unnecessary PoC cache clean+invalidate
+Date:   Sun,  7 Aug 2022 21:35:07 -0400
+Message-Id: <20220808013551.315446-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013551.315446-1-sashal@kernel.org>
 References: <20220808013551.315446-1-sashal@kernel.org>
@@ -65,92 +58,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 4510bffb4d0246cdcc1f14c7367c026b807a862d ]
+[ Upstream commit 2e945851e26836c0f2d34be3763ddf55870e49fe ]
 
-On most architectures, IRQ flag tracing is disabled in NMI context, and
-architectures need to define and select TRACE_IRQFLAGS_NMI_SUPPORT in
-order to enable this.
+Some early boot code runs before the virtual placement of the kernel is
+finalized, and we used to go back to the very start and recreate the ID
+map along with the page tables describing the virtual kernel mapping,
+and this involved setting some global variables with the caches off.
 
-Commit:
+In order to ensure that global state created by the KASLR code is not
+corrupted by the cache invalidation that occurs in that case, we needed
+to clean those global variables to the PoC explicitly.
 
-  859d069ee1ddd878 ("lockdep: Prepare for NMI IRQ state tracking")
+This is no longer needed now that the ID map is created only once (and
+the associated global variable updates are no longer repeated). So drop
+the cache maintenance that is no longer necessary.
 
-Permitted IRQ flag tracing in NMI context, allowing lockdep to work in
-NMI context where an architecture had suitable entry logic. At the time,
-most architectures did not have such suitable entry logic, and this broke
-lockdep on such architectures. Thus, this was partially disabled in
-commit:
-
-  ed00495333ccc80f ("locking/lockdep: Fix TRACE_IRQFLAGS vs. NMIs")
-
-... with architectures needing to select TRACE_IRQFLAGS_NMI_SUPPORT to
-enable IRQ flag tracing in NMI context.
-
-Currently TRACE_IRQFLAGS_NMI_SUPPORT is defined under
-arch/x86/Kconfig.debug. Move it to arch/Kconfig so architectures can
-select it without having to provide their own definition.
-
-Since the regular TRACE_IRQFLAGS_SUPPORT is selected by
-arch/x86/Kconfig, the select of TRACE_IRQFLAGS_NMI_SUPPORT is moved
-there too.
-
-There should be no functional change as a result of this patch.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20220511131733.4074499-2-mark.rutland@arm.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Link: https://lore.kernel.org/r/20220624150651.1358849-9-ardb@kernel.org
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/Kconfig           | 3 +++
- arch/x86/Kconfig       | 1 +
- arch/x86/Kconfig.debug | 3 ---
- 3 files changed, 4 insertions(+), 3 deletions(-)
+ arch/arm64/kernel/kaslr.c | 11 -----------
+ 1 file changed, 11 deletions(-)
 
-diff --git a/arch/Kconfig b/arch/Kconfig
-index 191589f26b1a..5987363b41c2 100644
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -200,6 +200,9 @@ config HAVE_NMI
- config TRACE_IRQFLAGS_SUPPORT
- 	bool
+diff --git a/arch/arm64/kernel/kaslr.c b/arch/arm64/kernel/kaslr.c
+index 418b2bba1521..d5542666182f 100644
+--- a/arch/arm64/kernel/kaslr.c
++++ b/arch/arm64/kernel/kaslr.c
+@@ -13,7 +13,6 @@
+ #include <linux/pgtable.h>
+ #include <linux/random.h>
  
-+config TRACE_IRQFLAGS_NMI_SUPPORT
-+	bool
-+
- #
- # An arch should select this if it provides all these things:
- #
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index a170cfdae2a7..2db73635c115 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -260,6 +260,7 @@ config X86
- 	select SYSCTL_EXCEPTION_TRACE
- 	select THREAD_INFO_IN_TASK
- 	select TRACE_IRQFLAGS_SUPPORT
-+	select TRACE_IRQFLAGS_NMI_SUPPORT
- 	select USER_STACKTRACE_SUPPORT
- 	select VIRT_TO_BUS
- 	select HAVE_ARCH_KCSAN			if X86_64
-diff --git a/arch/x86/Kconfig.debug b/arch/x86/Kconfig.debug
-index d3a6f74a94bd..d4d6db4dde22 100644
---- a/arch/x86/Kconfig.debug
-+++ b/arch/x86/Kconfig.debug
-@@ -1,8 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
+-#include <asm/cacheflush.h>
+ #include <asm/fixmap.h>
+ #include <asm/kernel-pgtable.h>
+ #include <asm/memory.h>
+@@ -72,9 +71,6 @@ u64 __init kaslr_early_init(void)
+ 	 * we end up running with module randomization disabled.
+ 	 */
+ 	module_alloc_base = (u64)_etext - MODULES_VSIZE;
+-	dcache_clean_inval_poc((unsigned long)&module_alloc_base,
+-			    (unsigned long)&module_alloc_base +
+-				    sizeof(module_alloc_base));
  
--config TRACE_IRQFLAGS_NMI_SUPPORT
--	def_bool y
+ 	/*
+ 	 * Try to map the FDT early. If this fails, we simply bail,
+@@ -174,13 +170,6 @@ u64 __init kaslr_early_init(void)
+ 	module_alloc_base += (module_range * (seed & ((1 << 21) - 1))) >> 21;
+ 	module_alloc_base &= PAGE_MASK;
+ 
+-	dcache_clean_inval_poc((unsigned long)&module_alloc_base,
+-			    (unsigned long)&module_alloc_base +
+-				    sizeof(module_alloc_base));
+-	dcache_clean_inval_poc((unsigned long)&memstart_offset_seed,
+-			    (unsigned long)&memstart_offset_seed +
+-				    sizeof(memstart_offset_seed));
 -
- config EARLY_PRINTK_USB
- 	bool
+ 	return offset;
+ }
  
 -- 
 2.35.1
