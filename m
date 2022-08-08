@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F2CC58C0AB
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:53:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66B8858C098
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:52:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243407AbiHHBxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:53:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38700 "EHLO
+        id S243366AbiHHBwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:52:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243222AbiHHBu3 (ORCPT
+        with ESMTP id S243281AbiHHBu3 (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:50:29 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50765DFDF;
-        Sun,  7 Aug 2022 18:37:41 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64DE6DFE0;
+        Sun,  7 Aug 2022 18:37:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2FAEBCE0F8E;
-        Mon,  8 Aug 2022 01:37:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A3E9C4347C;
-        Mon,  8 Aug 2022 01:37:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8021EB80E10;
+        Mon,  8 Aug 2022 01:37:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDE1EC433D7;
+        Mon,  8 Aug 2022 01:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922657;
-        bh=b9PPvqIUFkRcJBxTYmFhQqFfT0RTP2TTSTI7ENwS18Y=;
+        s=k20201202; t=1659922659;
+        bh=i9A+xun9VuVjc3Fum4H2HyppQpm3IGo9flBEQMDQayY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u1m47u3DT9ibmUaIg45jzkvJkwhoTi+LkbU3WCTkKLho1Mrz5VcelzqfN894vwYE6
-         lbCFKr06rW4MTNTrXwEgwDM5vXHvt3EOsO/9WB8hm9rkhifNTd0HhYE1EamcVSGIxg
-         arLS3Zz2+lUTv7dOOhOfE8rSpH+GwpmU8o5TgcxbuTXXC1K36sskydneZd+zPOoo/y
-         /nQBCjSpBFpoqMv9Vyxl0NS/TlCcp7noQI/Lr2dYhs7bILp9TSu7fi0I5EJNnSkqrh
-         mDi7UC9mZnflC4iWxgBOK76p22jKTjmrG4hESpEVAP/IKZ3kXLA40+ZVSSvSPlIKmC
-         fBMGri6yX/dYA==
+        b=kXPJ1ZRYKStPtqO2rlAjOG9X+6hfmFcPH9EoYc2VDYMi6ZTIXal2iGFS0HMMSdVVT
+         5GVBYuajom3LE8oOnrGGDqTlaYHkPIOIMSPgW27F8fgeJmFvp1l2YQnzLhuu6DgbR0
+         JmgHpjQGsZSGEKSfm5RMmi04rZG4OGYU6YSDZ92YSXbZLf6HnQCXegSLr4AyWV5/h8
+         XkAQ2GxGm2uMj/gqH7qj0bP3DXHRejJfAj3wiiuqyKKiK9WaW0LwuLmXbqBba3nGT6
+         5HkOhd77Rt//Ajy9p/jkjZdIyXSIWEe21ZMlxvbQVtj8z5sVgcqlQRIUFe9JqKM4lY
+         Ww9+fZI2SLnFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, pabeni@redhat.com, imagedong@tencent.com,
-        luiz.von.dentz@intel.com, vasily.averin@linux.dev,
-        jk@codeconstruct.com.au, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 44/45] skbuff: don't mix ubuf_info from different sources
-Date:   Sun,  7 Aug 2022 21:35:48 -0400
-Message-Id: <20220808013551.315446-44-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        kasan-dev@googlegroups.com, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 45/45] kasan: test: Silence GCC 12 warnings
+Date:   Sun,  7 Aug 2022 21:35:49 -0400
+Message-Id: <20220808013551.315446-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013551.315446-1-sashal@kernel.org>
 References: <20220808013551.315446-1-sashal@kernel.org>
@@ -59,35 +60,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 1b4b2b09d4fb451029b112f17d34792e0277aeb2 ]
+[ Upstream commit aaf50b1969d7933a51ea421b11432a7fb90974e3 ]
 
-We should not append MSG_ZEROCOPY requests to skbuff with non
-MSG_ZEROCOPY ubuf_info, they might be not compatible.
+GCC 12 continues to get smarter about array accesses. The KASAN tests
+are expecting to explicitly test out-of-bounds conditions at run-time,
+so hide the variable from GCC, to avoid warnings like:
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+../lib/test_kasan.c: In function 'ksize_uaf':
+../lib/test_kasan.c:790:61: warning: array subscript 120 is outside array bounds of 'void[120]' [-Warray-bounds]
+  790 |         KUNIT_EXPECT_KASAN_FAIL(test, ((volatile char *)ptr)[size]);
+      |                                       ~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+../lib/test_kasan.c:97:9: note: in definition of macro 'KUNIT_EXPECT_KASAN_FAIL'
+   97 |         expression; \
+      |         ^~~~~~~~~~
+
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: kasan-dev@googlegroups.com
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220608214024.1068451-1-keescook@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ lib/test_kasan.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 5ebef94e14dc..891db074981e 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -1213,6 +1213,10 @@ struct ubuf_info *msg_zerocopy_realloc(struct sock *sk, size_t size,
- 		const u32 byte_limit = 1 << 19;		/* limit to a few TSO */
- 		u32 bytelen, next;
+diff --git a/lib/test_kasan.c b/lib/test_kasan.c
+index 8835e0784578..89f444cabd4a 100644
+--- a/lib/test_kasan.c
++++ b/lib/test_kasan.c
+@@ -125,6 +125,7 @@ static void kmalloc_oob_right(struct kunit *test)
+ 	ptr = kmalloc(size, GFP_KERNEL);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
  
-+		/* there might be non MSG_ZEROCOPY users */
-+		if (uarg->callback != msg_zerocopy_callback)
-+			return NULL;
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	/*
+ 	 * An unaligned access past the requested kmalloc size.
+ 	 * Only generic KASAN can precisely detect these.
+@@ -153,6 +154,7 @@ static void kmalloc_oob_left(struct kunit *test)
+ 	ptr = kmalloc(size, GFP_KERNEL);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, *ptr = *(ptr - 1));
+ 	kfree(ptr);
+ }
+@@ -165,6 +167,7 @@ static void kmalloc_node_oob_right(struct kunit *test)
+ 	ptr = kmalloc_node(size, GFP_KERNEL, 0);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ptr[0] = ptr[size]);
+ 	kfree(ptr);
+ }
+@@ -185,6 +188,7 @@ static void kmalloc_pagealloc_oob_right(struct kunit *test)
+ 	ptr = kmalloc(size, GFP_KERNEL);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ptr[size + OOB_TAG_OFF] = 0);
+ 
+ 	kfree(ptr);
+@@ -265,6 +269,7 @@ static void kmalloc_large_oob_right(struct kunit *test)
+ 	ptr = kmalloc(size, GFP_KERNEL);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ptr[size] = 0);
+ 	kfree(ptr);
+ }
+@@ -404,6 +409,8 @@ static void kmalloc_oob_16(struct kunit *test)
+ 	ptr2 = kmalloc(sizeof(*ptr2), GFP_KERNEL);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr2);
+ 
++	OPTIMIZER_HIDE_VAR(ptr1);
++	OPTIMIZER_HIDE_VAR(ptr2);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, *ptr1 = *ptr2);
+ 	kfree(ptr1);
+ 	kfree(ptr2);
+@@ -712,6 +719,8 @@ static void ksize_unpoisons_memory(struct kunit *test)
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 	real_size = ksize(ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
 +
- 		/* realloc only when socket is locked (TCP, UDP cork),
- 		 * so uarg->len and sk_zckey access is serialized
- 		 */
+ 	/* This access shouldn't trigger a KASAN report. */
+ 	ptr[size] = 'x';
+ 
+@@ -734,6 +743,7 @@ static void ksize_uaf(struct kunit *test)
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 	kfree(ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ksize(ptr));
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ((volatile char *)ptr)[0]);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ((volatile char *)ptr)[size]);
 -- 
 2.35.1
 
