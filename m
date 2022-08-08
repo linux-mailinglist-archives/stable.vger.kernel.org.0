@@ -2,208 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68B9458CA8D
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 16:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF23558CAF7
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 17:02:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242545AbiHHOcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Aug 2022 10:32:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58300 "EHLO
+        id S235685AbiHHPCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Aug 2022 11:02:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231475AbiHHOcz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Aug 2022 10:32:55 -0400
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2047.outbound.protection.outlook.com [40.107.100.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F1EA65C2;
-        Mon,  8 Aug 2022 07:32:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kkOBCMd+kMVOPP/gA1nLRW7nc0tY/lpuQWh5viD09jfCB9cwybukACbCXdnI7Wgr1rxkeXxWqwmBMw9pg61bCpxqkiwk8azukwWnevwiUxSv6ovWydYNIPBQaz4o4oCl2FfR0SHxc9huDkU/8RMamkqDzoUw9Ibj9gnGhI0Nw9Gg7Sc6ZERzbGcQ+9VKEEqeLToR8CWMBuZ57Am9AVeupZfmkXgWO8exJYSTcLoSkbaL/TaeEW1rTvUl08hnn+mkOFpcccUf4W4hNH7ZK5ys2y+hGlb8u0a/Ot/2OUyOJZYUkVt6FWjr8Fj9J7QKsujNUkt6Ce2EYiiZku+aIvRonA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=zrbpcEboXfNYdOm4QrGdRpnrUza2rkhM1uramB0oLzU=;
- b=BhYgmLfBbyvLrNETQL0Wo+bsOE0xwYRawpiAwhv+rTtU/OR6+eEbdXrQA3QocN6/aA9tOjZd6tI0vdRL1J4gsD/9JQVFxkfazImPsVHrjAIcbl9B/cThVKscICs54MUsJDZkrU5A3e/locymT21uG0U8qZ3XBU/TKM+I7o1s/gBU6ILBl3NwfDr0eBmqFAVYUdoJ1qOrrizPdrDdJ4GAoX0eukgCFfBQDxj/xxYsgSG8K1zakjhMAH88YAUaNo9ufXhUQYLpkjojhCXm3UenqjGKPOUKRJrka5eQmOSdPXVtahyENwhTW5cO6uk5NOZqZ+WFJZ60fq/rmtCvHo+B+A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=linuxfoundation.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zrbpcEboXfNYdOm4QrGdRpnrUza2rkhM1uramB0oLzU=;
- b=1Sp7sSt0RnfIlNQK5gTSOju+NjVGCSJLMMV7cOxhMShdRZ4ReIwpfARkU+EboJoo30CsYGYInMY1Mvn8m3+/JO0CJ9DpQ3UurOZn/fWizzBdfx/If0PkNtXHUp039jGrVeV3QBY3gZhUjb3NgiEghba3tcE/UZewoinZtz7M9M4=
-Received: from BN0PR04CA0062.namprd04.prod.outlook.com (2603:10b6:408:ea::7)
- by BYAPR12MB3399.namprd12.prod.outlook.com (2603:10b6:a03:ad::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5504.15; Mon, 8 Aug
- 2022 14:32:51 +0000
-Received: from BN8NAM11FT065.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:ea:cafe::56) by BN0PR04CA0062.outlook.office365.com
- (2603:10b6:408:ea::7) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5504.16 via Frontend
- Transport; Mon, 8 Aug 2022 14:32:50 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- BN8NAM11FT065.mail.protection.outlook.com (10.13.177.63) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.5504.14 via Frontend Transport; Mon, 8 Aug 2022 14:32:50 +0000
-Received: from fritz.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.28; Mon, 8 Aug
- 2022 09:32:48 -0500
-From:   Kim Phillips <kim.phillips@amd.com>
-To:     <gregkh@linuxfoundation.org>
-CC:     <andrew.cooper3@citrix.com>, <bp@alien8.de>, <bp@suse.de>,
-        <bpf@vger.kernel.org>, <jpoimboe@redhat.com>,
-        <kim.phillips@amd.com>, <linux-kernel@vger.kernel.org>,
-        <mingo@kernel.org>, <peterz@infradead.org>,
-        <thomas.lendacky@amd.com>, <x86@kernel.org>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v4] x86/bugs: Enable STIBP for IBPB mitigated RetBleed
-Date:   Mon, 8 Aug 2022 09:32:33 -0500
-Message-ID: <20220808143233.14211-1-kim.phillips@amd.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <YvEcSGxAh9qbOxPH@kroah.com>
-References: <YvEcSGxAh9qbOxPH@kroah.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 044f994f-4f58-41bc-c950-08da794adf4f
-X-MS-TrafficTypeDiagnostic: BYAPR12MB3399:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: KYePLO0XS3lUvfmzkDqiRT86hFbF8d1kqmHQZWO8ndfVKna9PVvCfxZax6ucD3VFh/vHjhGSc+RSgFdR5jw14SGGVt3JmCxeZZTvRI/ZaAwOserQgNTDVxHBU/GU0LptlRgSDZF2oVO4KJk/F8Ce1y8LXt59yO/ZgJlL+czbsPAULajSgciPpCfgN4uXYH7GfkLlFqBLw+h5pWj291UhRFDw7FIZ+JaYUK8x83V56/hTl5aTgJfLZAoeRIVN9Az06VfQA6PxtXZ9ye12TbO0jO3jp7KPGeM1to3pn1rN6VJQ+iB2CNCwfKtU0YOpK+Cr8iwrQhm2ApAxGgOdGXJYPYhI7Dchwnu5l8ah6ht0KjedsLPipvyCcpIE8qfjeqoZKHmd5gf9us1DxjWOkZPXR3LcrWv3dH54/dqNJvvxN0GbJvJe+lUdO8ygTSIQsS7ulOJWARogUQOcPtomXJZmXwuyolT+i4McmVafPf3uigbKq0wTwyslSoOF4lbXruJXjiFfp4D1eXx1eV9sUDenKJvGiC54eCociITrWVI5OdXn75VYnWCiKo73+xCywoyLuxMNS47dlANHwFONWHTNVqasvW3dQeJQ3Ksk4/yLNvcwTjRipvbT10iPgU18aXlyCE7/6s1DZKkOO1hHzMeblYFsqqUVgce2tXwjPvwh3ti9mXBxF28vn8xOlL1IEr2j3MDMF0xPrLqfapGzUjahmopksCnUnD55Wlmd4Exp795MBp5tV41gXhFpuJzc3oBG200BHdf9l2Vc5Rt0ars9xhhacsaa133ngAzT+MJLv/q1rVuAkwf7Du77oO0B/rntYCDD8t7tZrMfn95iG1MBjaoCF5Tyf+B88ROt44CzU9S9LF64kONc1C8GeIKR4D3N
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230016)(4636009)(346002)(136003)(376002)(39860400002)(396003)(36840700001)(40470700004)(46966006)(356005)(82740400003)(26005)(40480700001)(478600001)(1076003)(5660300002)(6666004)(2906002)(7696005)(36756003)(81166007)(41300700001)(82310400005)(86362001)(4326008)(44832011)(70206006)(966005)(70586007)(83380400001)(2616005)(8936002)(8676002)(7416002)(36860700001)(6916009)(54906003)(16526019)(40460700003)(336012)(316002)(426003)(47076005)(186003)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Aug 2022 14:32:50.6810
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 044f994f-4f58-41bc-c950-08da794adf4f
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT065.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3399
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S232079AbiHHPCx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Aug 2022 11:02:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4794B853
+        for <stable@vger.kernel.org>; Mon,  8 Aug 2022 08:02:52 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78BC160F67
+        for <stable@vger.kernel.org>; Mon,  8 Aug 2022 15:02:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B246EC433D6;
+        Mon,  8 Aug 2022 15:02:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1659970971;
+        bh=8Hq8azgVaoYiKKUjkRBiRvsfzsg/rKvuzl2A/lbqEWw=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=sYEeW9Rq3UBCb47cm5MjEK+d1orGcYhMFk6Tx/GHsjZIseIr2j7tmMu2hEapb+ZR9
+         20FX8Kz4xR7yApseCAnbRveA6Pi0B7Kro223bs2wPVrZUB/b8o8EGVEZzvk4LsAln5
+         t9hYGnGp+qRwdQy4/XYFybEk4zoeCmxEGlb6x+Eu+BsjbW8IEggp+c82qp1M40r98b
+         GIhc5HFqksYDtP9rUmLr14aaDH2JFqElNbTeOGlGLj/aedujk49djEkbv93QjU0NJh
+         bPWKkBfbVVeedUMb1fCa20yfLbFm+z9Ivr1ko+E6ufOiLfPNRuvw4FlLlRHkxiovyD
+         mWWkyja8ribGw==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=why.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1oL4HJ-001i90-8F;
+        Mon, 08 Aug 2022 16:02:49 +0100
+Date:   Mon, 08 Aug 2022 16:02:48 +0100
+Message-ID: <878rnywzfr.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     james.morse@arm.com
+Cc:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: Re: FAILED: patch "[PATCH] KVM: arm64: Workaround Cortex-A510's single-step and PAC trap" failed to apply to 5.15-stable tree
+In-Reply-To: <164415020456246@kroah.com>
+References: <164415020456246@kroah.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: james.morse@arm.com, stable@vger.kernel.org, gregkh@linuxfoundation.org, will@kernel.org, catalin.marinas@arm.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-AMD's "Technical Guidance for Mitigating Branch Type Confusion,
-Rev. 1.0 2022-07-12" whitepaper, under section 6.1.2 "IBPB On
-Privileged Mode Entry / SMT Safety" says:
+Hi James,
 
-"Similar to the Jmp2Ret mitigation, if the code on the sibling thread
-cannot be trusted, software should set STIBP to 1 or disable SMT to
-ensure SMT safety when using this mitigation."
+It seems that although this patch has made it into 5.16, it never
+reached 5.15. Given that 5.15 is an LTS, it'd be good to have this in.
 
-So, like already being done for retbleed=unret, the also for
-retbleed=ibpb, force STIBP on machines that have it, and report
-its SMT vulnerability status accordingly.
+Is there any chance you could respin this for 5.15?
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
-Fixes: 3ebc17006888 ("x86/bugs: Add retbleed=ibpb")
-Cc: stable@vger.kernel.org # 5.10, 5.15, 5.19
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
----
-v4:  Cc: stable (Greg K-H)
-v3:  "unret and ibpb mitigations" -> "UNRET and IBPB mitigations" (Mingo)
-v2:  Justify and explain STIBP's role with IBPB (Boris)
+Thanks,
 
- .../admin-guide/kernel-parameters.txt         | 20 ++++++++++++++-----
- arch/x86/kernel/cpu/bugs.c                    | 10 ++++++----
- 2 files changed, 21 insertions(+), 9 deletions(-)
+	M.
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index bab2b0bf5988..ed6a19ae0dd6 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -5260,20 +5260,30 @@
- 			Speculative Code Execution with Return Instructions)
- 			vulnerability.
- 
-+			AMD-based UNRET and IBPB mitigations alone do not stop
-+			sibling threads influencing the predictions of other sibling
-+			threads.  For that reason, we use STIBP on processors
-+			that support it, and mitigate SMT on processors that don't.
-+
- 			off          - no mitigation
- 			auto         - automatically select a migitation
- 			auto,nosmt   - automatically select a mitigation,
- 				       disabling SMT if necessary for
- 				       the full mitigation (only on Zen1
- 				       and older without STIBP).
--			ibpb	     - mitigate short speculation windows on
-+			ibpb         - [AMD] Mitigate short speculation windows on
- 				       basic block boundaries too. Safe, highest
--				       perf impact.
--			unret        - force enable untrained return thunks,
-+				       perf impact. It also enables STIBP if
-+				       present.
-+			ibpb,nosmt   - [AMD] Like ibpb, but will disable SMT when STIBP
-+				       is not available. This is the alternative for
-+				       systems which do not have STIBP.
-+			unret        - [AMD] Force enable untrained return thunks,
- 				       only effective on AMD f15h-f17h
- 				       based systems.
--			unret,nosmt  - like unret, will disable SMT when STIBP
--			               is not available.
-+			unret,nosmt  - [AMD] Like unret, but will disable SMT when STIBP
-+				       is not available. This is the alternative for
-+				       systems which do not have STIBP.
- 
- 			Selecting 'auto' will choose a mitigation method at run
- 			time according to the CPU.
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 6761668100b9..d50686ca5870 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -152,7 +152,7 @@ void __init check_bugs(void)
- 	/*
- 	 * spectre_v2_user_select_mitigation() relies on the state set by
- 	 * retbleed_select_mitigation(); specifically the STIBP selection is
--	 * forced for UNRET.
-+	 * forced for UNRET or IBPB.
- 	 */
- 	spectre_v2_user_select_mitigation();
- 	ssb_select_mitigation();
-@@ -1179,7 +1179,8 @@ spectre_v2_user_select_mitigation(void)
- 	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
- 		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
- 
--	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET) {
-+	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET ||
-+	    retbleed_mitigation == RETBLEED_MITIGATION_IBPB) {
- 		if (mode != SPECTRE_V2_USER_STRICT &&
- 		    mode != SPECTRE_V2_USER_STRICT_PREFERRED)
- 			pr_info("Selecting STIBP always-on mode to complement retbleed mitigation\n");
-@@ -2320,10 +2321,11 @@ static ssize_t srbds_show_state(char *buf)
- 
- static ssize_t retbleed_show_state(char *buf)
- {
--	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET) {
-+	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET ||
-+	    retbleed_mitigation == RETBLEED_MITIGATION_IBPB) {
- 	    if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
- 		boot_cpu_data.x86_vendor != X86_VENDOR_HYGON)
--		    return sprintf(buf, "Vulnerable: untrained return thunk on non-Zen uarch\n");
-+		    return sprintf(buf, "Vulnerable: untrained return thunk / IBPB on non-AMD based uarch\n");
- 
- 	    return sprintf(buf, "%s; SMT %s\n",
- 			   retbleed_strings[retbleed_mitigation],
+On Sun, 06 Feb 2022 12:23:24 +0000,
+<gregkh@linuxfoundation.org> wrote:
+> 
+> 
+> The patch below does not apply to the 5.15-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From 1dd498e5e26ad71e3e9130daf72cfb6a693fee03 Mon Sep 17 00:00:00 2001
+> From: James Morse <james.morse@arm.com>
+> Date: Thu, 27 Jan 2022 12:20:52 +0000
+> Subject: [PATCH] KVM: arm64: Workaround Cortex-A510's single-step and PAC trap
+>  errata
+> 
+> Cortex-A510's erratum #2077057 causes SPSR_EL2 to be corrupted when
+> single-stepping authenticated ERET instructions. A single step is
+> expected, but a pointer authentication trap is taken instead. The
+> erratum causes SPSR_EL1 to be copied to SPSR_EL2, which could allow
+> EL1 to cause a return to EL2 with a guest controlled ELR_EL2.
+> 
+> Because the conditions require an ERET into active-not-pending state,
+> this is only a problem for the EL2 when EL2 is stepping EL1. In this case
+> the previous SPSR_EL2 value is preserved in struct kvm_vcpu, and can be
+> restored.
+> 
+> Cc: stable@vger.kernel.org # 53960faf2b73: arm64: Add Cortex-A510 CPU part definition
+> Cc: stable@vger.kernel.org
+> Signed-off-by: James Morse <james.morse@arm.com>
+> [maz: fixup cpucaps ordering]
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Link: https://lore.kernel.org/r/20220127122052.1584324-5-james.morse@arm.com
+> 
+> diff --git a/Documentation/arm64/silicon-errata.rst b/Documentation/arm64/silicon-errata.rst
+> index 0ec7b7f1524b..ea281dd75517 100644
+> --- a/Documentation/arm64/silicon-errata.rst
+> +++ b/Documentation/arm64/silicon-errata.rst
+> @@ -100,6 +100,8 @@ stable kernels.
+>  +----------------+-----------------+-----------------+-----------------------------+
+>  | ARM            | Cortex-A510     | #2051678        | ARM64_ERRATUM_2051678       |
+>  +----------------+-----------------+-----------------+-----------------------------+
+> +| ARM            | Cortex-A510     | #2077057        | ARM64_ERRATUM_2077057       |
+> ++----------------+-----------------+-----------------+-----------------------------+
+>  | ARM            | Cortex-A710     | #2119858        | ARM64_ERRATUM_2119858       |
+>  +----------------+-----------------+-----------------+-----------------------------+
+>  | ARM            | Cortex-A710     | #2054223        | ARM64_ERRATUM_2054223       |
+> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+> index f2b5a4abef21..cbcd42decb2a 100644
+> --- a/arch/arm64/Kconfig
+> +++ b/arch/arm64/Kconfig
+> @@ -680,6 +680,22 @@ config ARM64_ERRATUM_2051678
+>  
+>  	  If unsure, say Y.
+>  
+> +config ARM64_ERRATUM_2077057
+> +	bool "Cortex-A510: 2077057: workaround software-step corrupting SPSR_EL2"
+> +	help
+> +	  This option adds the workaround for ARM Cortex-A510 erratum 2077057.
+> +	  Affected Cortex-A510 may corrupt SPSR_EL2 when the a step exception is
+> +	  expected, but a Pointer Authentication trap is taken instead. The
+> +	  erratum causes SPSR_EL1 to be copied to SPSR_EL2, which could allow
+> +	  EL1 to cause a return to EL2 with a guest controlled ELR_EL2.
+> +
+> +	  This can only happen when EL2 is stepping EL1.
+> +
+> +	  When these conditions occur, the SPSR_EL2 value is unchanged from the
+> +	  previous guest entry, and can be restored from the in-memory copy.
+> +
+> +	  If unsure, say Y.
+> +
+>  config ARM64_ERRATUM_2119858
+>  	bool "Cortex-A710/X2: 2119858: workaround TRBE overwriting trace data in FILL mode"
+>  	default y
+> diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+> index 066098198c24..b217941713a8 100644
+> --- a/arch/arm64/kernel/cpu_errata.c
+> +++ b/arch/arm64/kernel/cpu_errata.c
+> @@ -600,6 +600,14 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+>  		CAP_MIDR_RANGE_LIST(trbe_write_out_of_range_cpus),
+>  	},
+>  #endif
+> +#ifdef CONFIG_ARM64_ERRATUM_2077057
+> +	{
+> +		.desc = "ARM erratum 2077057",
+> +		.capability = ARM64_WORKAROUND_2077057,
+> +		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
+> +		ERRATA_MIDR_REV_RANGE(MIDR_CORTEX_A510, 0, 0, 2),
+> +	},
+> +#endif
+>  #ifdef CONFIG_ARM64_ERRATUM_2064142
+>  	{
+>  		.desc = "ARM erratum 2064142",
+> diff --git a/arch/arm64/kvm/hyp/include/hyp/switch.h b/arch/arm64/kvm/hyp/include/hyp/switch.h
+> index 331dd10821df..701cfb964905 100644
+> --- a/arch/arm64/kvm/hyp/include/hyp/switch.h
+> +++ b/arch/arm64/kvm/hyp/include/hyp/switch.h
+> @@ -402,6 +402,24 @@ static inline bool kvm_hyp_handle_exit(struct kvm_vcpu *vcpu, u64 *exit_code)
+>  	return false;
+>  }
+>  
+> +static inline void synchronize_vcpu_pstate(struct kvm_vcpu *vcpu, u64 *exit_code)
+> +{
+> +	/*
+> +	 * Check for the conditions of Cortex-A510's #2077057. When these occur
+> +	 * SPSR_EL2 can't be trusted, but isn't needed either as it is
+> +	 * unchanged from the value in vcpu_gp_regs(vcpu)->pstate.
+> +	 * Are we single-stepping the guest, and took a PAC exception from the
+> +	 * active-not-pending state?
+> +	 */
+> +	if (cpus_have_final_cap(ARM64_WORKAROUND_2077057)		&&
+> +	    vcpu->guest_debug & KVM_GUESTDBG_SINGLESTEP			&&
+> +	    *vcpu_cpsr(vcpu) & DBG_SPSR_SS				&&
+> +	    ESR_ELx_EC(read_sysreg_el2(SYS_ESR)) == ESR_ELx_EC_PAC)
+> +		write_sysreg_el2(*vcpu_cpsr(vcpu), SYS_SPSR);
+> +
+> +	vcpu->arch.ctxt.regs.pstate = read_sysreg_el2(SYS_SPSR);
+> +}
+> +
+>  /*
+>   * Return true when we were able to fixup the guest exit and should return to
+>   * the guest, false when we should restore the host state and return to the
+> @@ -413,7 +431,7 @@ static inline bool fixup_guest_exit(struct kvm_vcpu *vcpu, u64 *exit_code)
+>  	 * Save PSTATE early so that we can evaluate the vcpu mode
+>  	 * early on.
+>  	 */
+> -	vcpu->arch.ctxt.regs.pstate = read_sysreg_el2(SYS_SPSR);
+> +	synchronize_vcpu_pstate(vcpu, exit_code);
+>  
+>  	/*
+>  	 * Check whether we want to repaint the state one way or
+> diff --git a/arch/arm64/tools/cpucaps b/arch/arm64/tools/cpucaps
+> index e7719e8f18de..9c65b1e25a96 100644
+> --- a/arch/arm64/tools/cpucaps
+> +++ b/arch/arm64/tools/cpucaps
+> @@ -55,9 +55,10 @@ WORKAROUND_1418040
+>  WORKAROUND_1463225
+>  WORKAROUND_1508412
+>  WORKAROUND_1542419
+> -WORKAROUND_2064142
+> -WORKAROUND_2038923
+>  WORKAROUND_1902691
+> +WORKAROUND_2038923
+> +WORKAROUND_2064142
+> +WORKAROUND_2077057
+>  WORKAROUND_TRBE_OVERWRITE_FILL_MODE
+>  WORKAROUND_TSB_FLUSH_FAILURE
+>  WORKAROUND_TRBE_WRITE_OUT_OF_RANGE
+> 
+> 
+
 -- 
-2.34.1
-
+Without deviation from the norm, progress is not possible.
