@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABAF858C127
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:57:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 501DE58C114
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:57:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243670AbiHHB5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:57:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51072 "EHLO
+        id S243679AbiHHB5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:57:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243773AbiHHBz7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:55:59 -0400
+        with ESMTP id S243780AbiHHB4C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:56:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36D091C903;
-        Sun,  7 Aug 2022 18:39:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2CABEE1E;
+        Sun,  7 Aug 2022 18:39:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5AF1B80DCF;
-        Mon,  8 Aug 2022 01:39:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA054C433D7;
-        Mon,  8 Aug 2022 01:39:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 573BAB80E10;
+        Mon,  8 Aug 2022 01:39:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08B45C433C1;
+        Mon,  8 Aug 2022 01:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922763;
-        bh=lu1GMkmK8RvtWHd2cF/5Xh1LkyiYdqalamAn0AjtQsU=;
+        s=k20201202; t=1659922765;
+        bh=XHWCVtSrF+AMjw1APiPb2rOv6uozkaDffbknLY9v3tM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AaKFk2VlWUZXaha2JyGueEdZjwBDzaXWV6TQl+8E43fPzOeweFFVyMEAD5UvbpdQB
-         FcqjuC1Mlj4hyIU6w5NhjiAkbL6dEVPOkpLl5BzMRK64+uOuNRbKqVz/etPSoCDgO/
-         BVCoAInSd+6BZUgHEohohoq1XcTYXVZtMG1HMvH5YHDT15SNzMdjcdjWFvO+tVuc/1
-         X0WH3trKIio3mOIXIpcxhc6NRE32atM66mh54k2/bMBWLs5X0dH+oLrDgjebJJ8dFB
-         Fxf9r9su30BNblOQ3wFMFzHNKPT+sqNKaiiDaTbbAO0etcRYwtOnGedvBu7Ue7Vhy4
-         ps9Zwq7M2BuhA==
+        b=JV55ZzxAhMNj3Cnly02sdRpMq8r+X+BRrUG1Lj/VjKM+OcsILl9iowfvRyY7MODWE
+         f++QmfrdJJq/v5MCyvBiOOjQFD4dA2t0D5TilQZjPZe06j/ovb9F93/Hk1yX0fu/HC
+         fA+fMB7Da9RnvjiIQ85jz7w6oSz2D9UxWW9jsv6btaRpmYA4xQoOYmsuKi09EGrQMz
+         2nNuItM9qYxsotznNZCUs5If8jOR2ljI61yysZ8S+ZRnnfV9r3GiVxuZFgHlaFbE2m
+         cr/uogUSeA/D4FMIwmscl70YlataF0AoaSf3TLxXgBIWv1yz4MqHajfuXmBks5TjpP
+         rQBWe0HOcd3UA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Samuel Holland <samuel@sholland.org>,
-        kernel test robot <lkp@intel.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        tglx@linutronix.de
-Subject: [PATCH AUTOSEL 4.19 04/16] genirq: GENERIC_IRQ_IPI depends on SMP
-Date:   Sun,  7 Aug 2022 21:39:01 -0400
-Message-Id: <20220808013914.316709-4-sashal@kernel.org>
+Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 05/16] ARM: dts: imx6ul: add missing properties for sram
+Date:   Sun,  7 Aug 2022 21:39:02 -0400
+Message-Id: <20220808013914.316709-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013914.316709-1-sashal@kernel.org>
 References: <20220808013914.316709-1-sashal@kernel.org>
@@ -57,49 +58,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 0f5209fee90b4544c58b4278d944425292789967 ]
+[ Upstream commit 5655699cf5cff9f4c4ee703792156bdd05d1addf ]
 
-The generic IPI code depends on the IRQ affinity mask being allocated
-and initialized. This will not be the case if SMP is disabled. Fix up
-the remaining driver that selected GENERIC_IRQ_IPI in a non-SMP config.
+All 3 properties are required by sram.yaml. Fixes the dtbs_check
+warning:
+sram@900000: '#address-cells' is a required property
+sram@900000: '#size-cells' is a required property
+sram@900000: 'ranges' is a required property
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220701200056.46555-3-samuel@sholland.org
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/Kconfig | 2 +-
- kernel/irq/Kconfig      | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6ul.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
-index 9d3812cd668e..85099cff62eb 100644
---- a/drivers/irqchip/Kconfig
-+++ b/drivers/irqchip/Kconfig
-@@ -153,7 +153,7 @@ config IMGPDC_IRQ
- config IRQ_MIPS_CPU
- 	bool
- 	select GENERIC_IRQ_CHIP
--	select GENERIC_IRQ_IPI if SYS_SUPPORTS_MULTITHREADING
-+	select GENERIC_IRQ_IPI if SMP && SYS_SUPPORTS_MULTITHREADING
- 	select IRQ_DOMAIN
- 	select IRQ_DOMAIN_HIERARCHY if GENERIC_IRQ_IPI
- 	select GENERIC_IRQ_EFFECTIVE_AFF_MASK
-diff --git a/kernel/irq/Kconfig b/kernel/irq/Kconfig
-index d532bf0c5a67..81473974b1d5 100644
---- a/kernel/irq/Kconfig
-+++ b/kernel/irq/Kconfig
-@@ -80,6 +80,7 @@ config IRQ_FASTEOI_HIERARCHY_HANDLERS
- # Generic IRQ IPI support
- config GENERIC_IRQ_IPI
- 	bool
-+	depends on SMP
- 	select IRQ_DOMAIN_HIERARCHY
+diff --git a/arch/arm/boot/dts/imx6ul.dtsi b/arch/arm/boot/dts/imx6ul.dtsi
+index adecd6e08468..07850587ee0a 100644
+--- a/arch/arm/boot/dts/imx6ul.dtsi
++++ b/arch/arm/boot/dts/imx6ul.dtsi
+@@ -169,6 +169,9 @@ soc {
+ 		ocram: sram@900000 {
+ 			compatible = "mmio-sram";
+ 			reg = <0x00900000 0x20000>;
++			ranges = <0 0x00900000 0x20000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
+ 		};
  
- # Generic MSI interrupt support
+ 		dma_apbh: dma-apbh@1804000 {
 -- 
 2.35.1
 
