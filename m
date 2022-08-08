@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9786558BF71
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:40:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 598B058BF73
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:40:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242583AbiHHBkE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:40:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41812 "EHLO
+        id S242649AbiHHBkG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:40:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242518AbiHHBjS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:39:18 -0400
+        with ESMTP id S242507AbiHHBjT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:39:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 259841054B;
-        Sun,  7 Aug 2022 18:34:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FB3D101C6;
+        Sun,  7 Aug 2022 18:34:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C5B460E03;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E775E60DF4;
+        Mon,  8 Aug 2022 01:34:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FBD6C433D6;
         Mon,  8 Aug 2022 01:34:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E395EC4314C;
-        Mon,  8 Aug 2022 01:34:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922459;
-        bh=8SMpDs+qLkU3eSZtrCGgQx5CHK2Yl0vTWXKJJG+w0B0=;
+        s=k20201202; t=1659922460;
+        bh=0/Kxnd+QUuc9UVG//nKSwl1HMXqNHbK9ICtv8Ir5lfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XRmv9wpIC+VymHetLppZpWsrjYrp5QoqYSCgP/SzYCJT0/GEyD7DoBwTI5iCJ7AHg
-         61xBMdZY4yzOoLI2XWOAl+OQklcEcMnWTKgb8AufBgYFxIk/ewdDkM+gijmhiFr6TN
-         hhpOAWT/ZB+EK3u7WC0wJQyzdgyE5koOJaALPK+bxbl94w514u8iO/1KheWehZweUU
-         5xqi8lANMzM07EhqRybJLL5sohqxv2FDi+pfePlLRt7ldDHNyyUtqyimJ5xJjXfPH0
-         Y2cIyheXOAoz06UXpgW7nDaS1BUzRM4sLwWZH9utOp8kHYKYXgruqv6mfjYrErWEAk
-         CNzu9bT2IpHPg==
+        b=qIyQ06DEoHAUekO7mBsCA93pfVQ7tHFwuF1dAJOhjOFfKM7TqBIyGVg2TeYBCTHV4
+         eBD5UAPKwvpKWOd+lkJkgawIt2b3TTwAo9Qpnui7489zi/llzg6YQyBFw/hRsPu/bl
+         bItcsgeWrEP3SYttQwBfSyOKWF5kUWC7ek+24XGK6nehRn1LoyNYZr6dYDGLKV87dZ
+         RlZ0IuczBcgNrlZvca46qHAaNTxglm6Wz0bHTBkF5Ut12S+mdeHpyL1MIgC65J89pe
+         iEJLKPZDOp/fsYN3jBI/GgVaPQnR1WDdZp5c4RFO2Is/j7BEQoB5E0RVZB+BvWO2TT
+         TnVexCNaM6ITQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?haibinzhang=20=28=E5=BC=A0=E6=B5=B7=E6=96=8C=29?= 
-        <haibinzhang@tencent.com>, hewenliang <hewenliang4@huawei.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
         Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        mark.rutland@arm.com, ardb@kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 07/53] arm64: fix oops in concurrently setting insn_emulation sysctls
-Date:   Sun,  7 Aug 2022 21:33:02 -0400
-Message-Id: <20220808013350.314757-7-sashal@kernel.org>
+        kasan-dev@googlegroups.com, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.18 08/53] mm: kasan: Ensure the tags are visible before the tag in page->flags
+Date:   Sun,  7 Aug 2022 21:33:03 -0400
+Message-Id: <20220808013350.314757-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013350.314757-1-sashal@kernel.org>
 References: <20220808013350.314757-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -60,88 +59,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: haibinzhang (张海斌) <haibinzhang@tencent.com>
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-[ Upstream commit af483947d472eccb79e42059276c4deed76f99a6 ]
+[ Upstream commit ed0a6d1d973e9763989b44913ae1bd2a5d5d5777 ]
 
-emulation_proc_handler() changes table->data for proc_dointvec_minmax
-and can generate the following Oops if called concurrently with itself:
+__kasan_unpoison_pages() colours the memory with a random tag and stores
+it in page->flags in order to re-create the tagged pointer via
+page_to_virt() later. When the tag from the page->flags is read, ensure
+that the in-memory tags are already visible by re-ordering the
+page_kasan_tag_set() after kasan_unpoison(). The former already has
+barriers in place through try_cmpxchg(). On the reader side, the order
+is ensured by the address dependency between page->flags and the memory
+access.
 
- | Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
- | Internal error: Oops: 96000006 [#1] SMP
- | Call trace:
- | update_insn_emulation_mode+0xc0/0x148
- | emulation_proc_handler+0x64/0xb8
- | proc_sys_call_handler+0x9c/0xf8
- | proc_sys_write+0x18/0x20
- | __vfs_write+0x20/0x48
- | vfs_write+0xe4/0x1d0
- | ksys_write+0x70/0xf8
- | __arm64_sys_write+0x20/0x28
- | el0_svc_common.constprop.0+0x7c/0x1c0
- | el0_svc_handler+0x2c/0xa0
- | el0_svc+0x8/0x200
-
-To fix this issue, keep the table->data as &insn->current_mode and
-use container_of() to retrieve the insn pointer. Another mutex is
-used to protect against the current_mode update but not for retrieving
-insn_emulation as table->data is no longer changing.
-
-Co-developed-by: hewenliang <hewenliang4@huawei.com>
-Signed-off-by: hewenliang <hewenliang4@huawei.com>
-Signed-off-by: Haibin Zhang <haibinzhang@tencent.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20220128090324.2727688-1-hewenliang4@huawei.com
-Link: https://lore.kernel.org/r/9A004C03-250B-46C5-BF39-782D7551B00E@tencent.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Link: https://lore.kernel.org/r/20220610152141.2148929-2-catalin.marinas@arm.com
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/armv8_deprecated.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ mm/kasan/common.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/armv8_deprecated.c b/arch/arm64/kernel/armv8_deprecated.c
-index 6875a16b09d2..fb0e7c7b2e20 100644
---- a/arch/arm64/kernel/armv8_deprecated.c
-+++ b/arch/arm64/kernel/armv8_deprecated.c
-@@ -59,6 +59,7 @@ struct insn_emulation {
- static LIST_HEAD(insn_emulation);
- static int nr_insn_emulated __initdata;
- static DEFINE_RAW_SPINLOCK(insn_emulation_lock);
-+static DEFINE_MUTEX(insn_emulation_mutex);
+diff --git a/mm/kasan/common.c b/mm/kasan/common.c
+index d9079ec11f31..f6b8dc4f354b 100644
+--- a/mm/kasan/common.c
++++ b/mm/kasan/common.c
+@@ -108,9 +108,10 @@ void __kasan_unpoison_pages(struct page *page, unsigned int order, bool init)
+ 		return;
  
- static void register_emulation_hooks(struct insn_emulation_ops *ops)
- {
-@@ -207,10 +208,10 @@ static int emulation_proc_handler(struct ctl_table *table, int write,
- 				  loff_t *ppos)
- {
- 	int ret = 0;
--	struct insn_emulation *insn = (struct insn_emulation *) table->data;
-+	struct insn_emulation *insn = container_of(table->data, struct insn_emulation, current_mode);
- 	enum insn_emulation_mode prev_mode = insn->current_mode;
- 
--	table->data = &insn->current_mode;
-+	mutex_lock(&insn_emulation_mutex);
- 	ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
- 
- 	if (ret || !write || prev_mode == insn->current_mode)
-@@ -223,7 +224,7 @@ static int emulation_proc_handler(struct ctl_table *table, int write,
- 		update_insn_emulation_mode(insn, INSN_UNDEF);
- 	}
- ret:
--	table->data = insn;
-+	mutex_unlock(&insn_emulation_mutex);
- 	return ret;
+ 	tag = kasan_random_tag();
++	kasan_unpoison(set_tag(page_address(page), tag),
++		       PAGE_SIZE << order, init);
+ 	for (i = 0; i < (1 << order); i++)
+ 		page_kasan_tag_set(page + i, tag);
+-	kasan_unpoison(page_address(page), PAGE_SIZE << order, init);
  }
  
-@@ -247,7 +248,7 @@ static void __init register_insn_emulation_sysctl(void)
- 		sysctl->maxlen = sizeof(int);
- 
- 		sysctl->procname = insn->ops->name;
--		sysctl->data = insn;
-+		sysctl->data = &insn->current_mode;
- 		sysctl->extra1 = &insn->min;
- 		sysctl->extra2 = &insn->max;
- 		sysctl->proc_handler = emulation_proc_handler;
+ void __kasan_poison_pages(struct page *page, unsigned int order, bool init)
 -- 
 2.35.1
 
