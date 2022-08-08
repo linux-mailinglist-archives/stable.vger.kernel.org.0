@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DAB258C0DE
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6673558C0E0
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243630AbiHHBzf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243625AbiHHBzf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 7 Aug 2022 21:55:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37638 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243500AbiHHBx6 (ORCPT
+        with ESMTP id S243449AbiHHBx6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:53:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ADD31AF2D;
-        Sun,  7 Aug 2022 18:39:01 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E51F1AF28;
+        Sun,  7 Aug 2022 18:39:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C45FB80DDF;
-        Mon,  8 Aug 2022 01:38:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E3D3C433D6;
-        Mon,  8 Aug 2022 01:38:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2140C60EBD;
+        Mon,  8 Aug 2022 01:39:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5F07C433D7;
+        Mon,  8 Aug 2022 01:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922738;
-        bh=E2WSbuDq4C8F2YgMV7Map4BepoZ8zpRFLXYj2ouMi6k=;
+        s=k20201202; t=1659922739;
+        bh=kCut2OdKbgOGp5VoixaQirlOjNEkb9rjzVzvP+yhMXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJbGuO3OriTtKOtZ3GrV013Dw+jx2xvX5uHCgL1zKaEW0fFDx67q1FCZ2Kswaac8i
-         PgHGvUk9q7oe7Kvg4o2KJbLVY9P+s17xBLf6b1BE39lqfQjoYY+LmKGVFr9TFoR8QH
-         gfoq1iAQvK1OJ9T10mp+kfKpb+9o5fW3RIMWk3BufoIqUanQYviYpK8L4HAWyefQNM
-         PEwk84HoEe4HgN35pIL8XT0YWsOAw1mUV3CIrnJTDNvVcFtuCBlLAOy2eAQi9I5koS
-         nrznxU7+AMpJ0te9mqFLjecWdNH3h63LyRn8gWnTS7Ui/VpgNc0heoiLIoN78JVGYC
-         RWJ9BIWYEfopQ==
+        b=ns8PNVg+IHQDIKvDI0hrQLaMhCqi8mEYhpnxUvap5gLdqZNYUvcOCk/Wf2TFJ57Gy
+         VSmsQ7yTgld6PEP4PPMg94EqQgqWroj6ADYryXk3AZaWn0CVg1w7ABG389uJI+Q21e
+         HwhiU+9FzVn/oPGdmKUsGuWDuujwIWJZzx8Q79ByAv41qo9jlxCP1jkc2mt9ilqyIj
+         9CN+9uXOYxuf2mKtodFvCc5K0+AOCuLHE2LGqpqa1VTO/GV2i1TOofVtH0RuJZMDT3
+         D9VSrqiQofbGMoM3ps9cRV2RPlQ6Ohi6z4tKyiW/5cNepVjzgMd1NKpOylVV2MxCmq
+         vm7xio2ZkwaAg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liang He <windhl@126.com>, Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
-        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 14/23] ARM: OMAP2+: display: Fix refcount leak bug
-Date:   Sun,  7 Aug 2022 21:38:21 -0400
-Message-Id: <20220808013832.316381-14-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 15/23] ACPI: EC: Remove duplicate ThinkPad X1 Carbon 6th entry from DMI quirks
+Date:   Sun,  7 Aug 2022 21:38:22 -0400
+Message-Id: <20220808013832.316381-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013832.316381-1-sashal@kernel.org>
 References: <20220808013832.316381-1-sashal@kernel.org>
@@ -56,34 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 50b87a32a79bca6e275918a711fb8cc55e16d739 ]
+[ Upstream commit 0dd6db359e5f206cbf1dd1fd40dd211588cd2725 ]
 
-In omapdss_init_fbdev(), of_find_node_by_name() will return a node
-pointer with refcount incremented. We should use of_node_put() when
-it is not used anymore.
+Somehow the "ThinkPad X1 Carbon 6th" entry ended up twice in the
+struct dmi_system_id acpi_ec_no_wakeup[] array. Remove one of
+the entries.
 
-Signed-off-by: Liang He <windhl@126.com>
-Message-Id: <20220617145803.4050918-1-windhl@126.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/display.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/ec.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
-index 1bd64f6ba8cf..d3b531d5d920 100644
---- a/arch/arm/mach-omap2/display.c
-+++ b/arch/arm/mach-omap2/display.c
-@@ -211,6 +211,7 @@ static int __init omapdss_init_fbdev(void)
- 	node = of_find_node_by_name(NULL, "omap4_padconf_global");
- 	if (node)
- 		omap4_dsi_mux_syscon = syscon_node_to_regmap(node);
-+	of_node_put(node);
- 
- 	return 0;
- }
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index e5b92958c299..defc5796b508 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -2118,13 +2118,6 @@ static const struct dmi_system_id acpi_ec_no_wakeup[] = {
+ 			DMI_MATCH(DMI_PRODUCT_FAMILY, "Thinkpad X1 Carbon 6th"),
+ 		},
+ 	},
+-	{
+-		.ident = "ThinkPad X1 Carbon 6th",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+-			DMI_MATCH(DMI_PRODUCT_FAMILY, "ThinkPad X1 Carbon 6th"),
+-		},
+-	},
+ 	{
+ 		.ident = "ThinkPad X1 Yoga 3rd",
+ 		.matches = {
 -- 
 2.35.1
 
