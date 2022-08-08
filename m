@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92B8258C05E
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:52:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F2CC58C0AB
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:53:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243212AbiHHBue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:50:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35594 "EHLO
+        id S243407AbiHHBxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:53:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243248AbiHHBtq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:49:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A64186EB;
-        Sun,  7 Aug 2022 18:37:37 -0700 (PDT)
+        with ESMTP id S243222AbiHHBu3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:50:29 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50765DFDF;
+        Sun,  7 Aug 2022 18:37:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 50BCBB80E13;
-        Mon,  8 Aug 2022 01:37:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D98FC433C1;
-        Mon,  8 Aug 2022 01:37:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2FAEBCE0F8E;
+        Mon,  8 Aug 2022 01:37:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A3E9C4347C;
+        Mon,  8 Aug 2022 01:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922654;
-        bh=VJCmYCac8+0GtJU2jX1P9L9/IdytulRpy/aYEWsiEso=;
+        s=k20201202; t=1659922657;
+        bh=b9PPvqIUFkRcJBxTYmFhQqFfT0RTP2TTSTI7ENwS18Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dinTtSQ+oI3TXu+bur5+GOYwmTrt1R/Jwt3hnTKrBkZ/bEfUvUzfSnOYDzirr2ENk
-         h5jrO+9+Aay6LYdOc9AF14zRcfWofTc9v7hjEf0aTGCFZ2Uo3SkM/uDjz1OFDqyKhO
-         xGbEi92GVNR4dXP9TiKdXyGRuCXwKW5Y7gWoGYeaI53b9eUvfFvpwKqHQwuh/rqqhY
-         xbEG06Or/McLTM8UHGmCue/Xt4fhI4lYPQFLUV04BYuyTLd5APi0VVT+zMLW2GcIg7
-         Ed7oUA9kz+XQo1URLeaF/e1kN0qlq6ToWjLMMNhQliW2knmwAeUn8QJZlBYJi10vja
-         gbNYAyXYgRjEg==
+        b=u1m47u3DT9ibmUaIg45jzkvJkwhoTi+LkbU3WCTkKLho1Mrz5VcelzqfN894vwYE6
+         lbCFKr06rW4MTNTrXwEgwDM5vXHvt3EOsO/9WB8hm9rkhifNTd0HhYE1EamcVSGIxg
+         arLS3Zz2+lUTv7dOOhOfE8rSpH+GwpmU8o5TgcxbuTXXC1K36sskydneZd+zPOoo/y
+         /nQBCjSpBFpoqMv9Vyxl0NS/TlCcp7noQI/Lr2dYhs7bILp9TSu7fi0I5EJNnSkqrh
+         mDi7UC9mZnflC4iWxgBOK76p22jKTjmrG4hESpEVAP/IKZ3kXLA40+ZVSSvSPlIKmC
+         fBMGri6yX/dYA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 43/45] selinux: Add boundary check in put_entry()
-Date:   Sun,  7 Aug 2022 21:35:47 -0400
-Message-Id: <20220808013551.315446-43-sashal@kernel.org>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com, imagedong@tencent.com,
+        luiz.von.dentz@intel.com, vasily.averin@linux.dev,
+        jk@codeconstruct.com.au, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 44/45] skbuff: don't mix ubuf_info from different sources
+Date:   Sun,  7 Aug 2022 21:35:48 -0400
+Message-Id: <20220808013551.315446-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013551.315446-1-sashal@kernel.org>
 References: <20220808013551.315446-1-sashal@kernel.org>
@@ -58,33 +59,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 15ec76fb29be31df2bccb30fc09875274cba2776 ]
+[ Upstream commit 1b4b2b09d4fb451029b112f17d34792e0277aeb2 ]
 
-Just like next_entry(), boundary check is necessary to prevent memory
-out-of-bound access.
+We should not append MSG_ZEROCOPY requests to skbuff with non
+MSG_ZEROCOPY ubuf_info, they might be not compatible.
 
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/ss/policydb.h | 2 ++
- 1 file changed, 2 insertions(+)
+ net/core/skbuff.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index c24d4e1063ea..ffc4e7bad205 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -370,6 +370,8 @@ static inline int put_entry(const void *buf, size_t bytes, int num, struct polic
- {
- 	size_t len = bytes * num;
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 5ebef94e14dc..891db074981e 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -1213,6 +1213,10 @@ struct ubuf_info *msg_zerocopy_realloc(struct sock *sk, size_t size,
+ 		const u32 byte_limit = 1 << 19;		/* limit to a few TSO */
+ 		u32 bytelen, next;
  
-+	if (len > fp->len)
-+		return -EINVAL;
- 	memcpy(fp->data, buf, len);
- 	fp->data += len;
- 	fp->len -= len;
++		/* there might be non MSG_ZEROCOPY users */
++		if (uarg->callback != msg_zerocopy_callback)
++			return NULL;
++
+ 		/* realloc only when socket is locked (TCP, UDP cork),
+ 		 * so uarg->len and sk_zckey access is serialized
+ 		 */
 -- 
 2.35.1
 
