@@ -2,50 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB2BC58BFE5
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:44:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAE6758BFEF
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:44:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242756AbiHHBo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:44:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43452 "EHLO
+        id S242613AbiHHBox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:44:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242768AbiHHBmi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:42:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5C70DF59;
-        Sun,  7 Aug 2022 18:35:56 -0700 (PDT)
+        with ESMTP id S242847AbiHHBnW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:43:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 575F413F08;
+        Sun,  7 Aug 2022 18:36:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EAD260DFF;
-        Mon,  8 Aug 2022 01:35:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5C3DC433D6;
-        Mon,  8 Aug 2022 01:35:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1D62B80E06;
+        Mon,  8 Aug 2022 01:36:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92DFC433D7;
+        Mon,  8 Aug 2022 01:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922555;
-        bh=8ShKdM//abOJwn9BoY7nE11m3+dm8Ihcu8SgmPluy/Y=;
-        h=From:To:Cc:Subject:Date:From;
-        b=K7qx8MDljHCJLDpZUlnCIX3W4W2EiBVCkU7Eh2bMzJsasasHDIvda1Gd7Vh04uZFl
-         iPWnZmuS7t7t5QH82iNqg75EaYXyu+6EnywoVOrL8egg+NlUeKDMJY32x9vKdpL3mA
-         dvlAqqBhqlmjf8uK/ztG6WMmbWfA11fdinOSX9f9jGwal8yyq0aJ8uxpLfMxXMjTVU
-         e3c2fy553V4TJAcVT9CkXcCySZRP/Kg3E3ISBTCfEwLMVcy124jI0MaF5enF+5+A0k
-         JnztuoXv2ork5Re/ShcT1CpCey2MczQwCAsTzpCtuar33QhKhA58dz6GWli0F6cApU
-         N8c84PJHSP9FQ==
+        s=k20201202; t=1659922560;
+        bh=Pir9SmOQsBGR1CQB8AGdZf2HiZDQ5u0vvLJ656/sgb4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=nHdPtxF0WMDJywaWudHc6MfpGK65I8kFoBlChJWgLRFcmr1Szz/8eD7icZuscv+Av
+         iyEl1gkPUVSGiQZWNxCUx/kGRTe+1S5GOoF+pMYXqEWNmAeaRct8oqPJNRzkkiRZT6
+         DKx7atvpVS/SJFyydAIArGKBfN80kBYd3BituY5ZNthsykF5KqDda6lC11hThlnzBu
+         hftX7bAGKI/gxe8nCKEBGiE0PLeJZtJp6cIuclKoEy6o/mWZ2PR32C2BJC1xJ4SvPe
+         QbL3N4XUmudAZTNOGQmdENfpIHs/dYVSgm/ymJ4cU/iHApklhyZhGVnz9xVl8ISI0e
+         BCq0+M0Ux6XpA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wyes Karny <wyes.karny@amd.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        daniel.lezcano@linaro.org, corbet@lwn.net, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, x86@kernel.org,
-        peterz@infradead.org, chang.seok.bae@intel.com,
-        ebiederm@xmission.com, zhengqi.arch@bytedance.com,
-        linux-pm@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 01/45] x86: Handle idle=nomwait cmdline properly for x86_idle
-Date:   Sun,  7 Aug 2022 21:35:05 -0400
-Message-Id: <20220808013551.315446-1-sashal@kernel.org>
+Cc:     Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, keescook@chromium.org, paulmck@kernel.org,
+        nathan@kernel.org, jpoimboe@kernel.org, frederic@kernel.org,
+        ebiederm@xmission.com, elver@google.com, mhiramat@kernel.org,
+        ashimida@linux.alibaba.com, samitolvanen@google.com,
+        song@kernel.org
+Subject: [PATCH AUTOSEL 5.15 02/45] arch: make TRACE_IRQFLAGS_NMI_SUPPORT generic
+Date:   Sun,  7 Aug 2022 21:35:06 -0400
+Message-Id: <20220808013551.315446-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220808013551.315446-1-sashal@kernel.org>
+References: <20220808013551.315446-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -60,95 +65,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wyes Karny <wyes.karny@amd.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 8bcedb4ce04750e1ccc9a6b6433387f6a9166a56 ]
+[ Upstream commit 4510bffb4d0246cdcc1f14c7367c026b807a862d ]
 
-When kernel is booted with idle=nomwait do not use MWAIT as the
-default idle state.
+On most architectures, IRQ flag tracing is disabled in NMI context, and
+architectures need to define and select TRACE_IRQFLAGS_NMI_SUPPORT in
+order to enable this.
 
-If the user boots the kernel with idle=nomwait, it is a clear
-direction to not use mwait as the default idle state.
-However, the current code does not take this into consideration
-while selecting the default idle state on x86.
+Commit:
 
-Fix it by checking for the idle=nomwait boot option in
-prefer_mwait_c1_over_halt().
+  859d069ee1ddd878 ("lockdep: Prepare for NMI IRQ state tracking")
 
-Also update the documentation around idle=nomwait appropriately.
+Permitted IRQ flag tracing in NMI context, allowing lockdep to work in
+NMI context where an architecture had suitable entry logic. At the time,
+most architectures did not have such suitable entry logic, and this broke
+lockdep on such architectures. Thus, this was partially disabled in
+commit:
 
-[ dhansen: tweak commit message ]
+  ed00495333ccc80f ("locking/lockdep: Fix TRACE_IRQFLAGS vs. NMIs")
 
-Signed-off-by: Wyes Karny <wyes.karny@amd.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Tested-by: Zhang Rui <rui.zhang@intel.com>
-Link: https://lkml.kernel.org/r/fdc2dc2d0a1bc21c2f53d989ea2d2ee3ccbc0dbe.1654538381.git-series.wyes.karny@amd.com
+... with architectures needing to select TRACE_IRQFLAGS_NMI_SUPPORT to
+enable IRQ flag tracing in NMI context.
+
+Currently TRACE_IRQFLAGS_NMI_SUPPORT is defined under
+arch/x86/Kconfig.debug. Move it to arch/Kconfig so architectures can
+select it without having to provide their own definition.
+
+Since the regular TRACE_IRQFLAGS_SUPPORT is selected by
+arch/x86/Kconfig, the select of TRACE_IRQFLAGS_NMI_SUPPORT is moved
+there too.
+
+There should be no functional change as a result of this patch.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20220511131733.4074499-2-mark.rutland@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/pm/cpuidle.rst | 15 +++++++++------
- arch/x86/kernel/process.c                |  9 ++++++---
- 2 files changed, 15 insertions(+), 9 deletions(-)
+ arch/Kconfig           | 3 +++
+ arch/x86/Kconfig       | 1 +
+ arch/x86/Kconfig.debug | 3 ---
+ 3 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/admin-guide/pm/cpuidle.rst b/Documentation/admin-guide/pm/cpuidle.rst
-index aec2cd2aaea7..19754beb5a4e 100644
---- a/Documentation/admin-guide/pm/cpuidle.rst
-+++ b/Documentation/admin-guide/pm/cpuidle.rst
-@@ -612,8 +612,8 @@ the ``menu`` governor to be used on the systems that use the ``ladder`` governor
- by default this way, for example.
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 191589f26b1a..5987363b41c2 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -200,6 +200,9 @@ config HAVE_NMI
+ config TRACE_IRQFLAGS_SUPPORT
+ 	bool
  
- The other kernel command line parameters controlling CPU idle time management
--described below are only relevant for the *x86* architecture and some of
--them affect Intel processors only.
-+described below are only relevant for the *x86* architecture and references
-+to ``intel_idle`` affect Intel processors only.
- 
- The *x86* architecture support code recognizes three kernel command line
- options related to CPU idle time management: ``idle=poll``, ``idle=halt``,
-@@ -635,10 +635,13 @@ idle, so it very well may hurt single-thread computations performance as well as
- energy-efficiency.  Thus using it for performance reasons may not be a good idea
- at all.]
- 
--The ``idle=nomwait`` option disables the ``intel_idle`` driver and causes
--``acpi_idle`` to be used (as long as all of the information needed by it is
--there in the system's ACPI tables), but it is not allowed to use the
--``MWAIT`` instruction of the CPUs to ask the hardware to enter idle states.
-+The ``idle=nomwait`` option prevents the use of ``MWAIT`` instruction of
-+the CPU to enter idle states. When this option is used, the ``acpi_idle``
-+driver will use the ``HLT`` instruction instead of ``MWAIT``. On systems
-+running Intel processors, this option disables the ``intel_idle`` driver
-+and forces the use of the ``acpi_idle`` driver instead. Note that in either
-+case, ``acpi_idle`` driver will function only if all the information needed
-+by it is in the system's ACPI tables.
- 
- In addition to the architecture-level kernel command line options affecting CPU
- idle time management, there are parameters affecting individual ``CPUIdle``
-diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
-index 8d9d72fc27a2..707376453525 100644
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -805,6 +805,10 @@ static void amd_e400_idle(void)
-  */
- static int prefer_mwait_c1_over_halt(const struct cpuinfo_x86 *c)
- {
-+	/* User has disallowed the use of MWAIT. Fallback to HALT */
-+	if (boot_option_idle_override == IDLE_NOMWAIT)
-+		return 0;
++config TRACE_IRQFLAGS_NMI_SUPPORT
++	bool
 +
- 	if (c->x86_vendor != X86_VENDOR_INTEL)
- 		return 0;
+ #
+ # An arch should select this if it provides all these things:
+ #
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index a170cfdae2a7..2db73635c115 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -260,6 +260,7 @@ config X86
+ 	select SYSCTL_EXCEPTION_TRACE
+ 	select THREAD_INFO_IN_TASK
+ 	select TRACE_IRQFLAGS_SUPPORT
++	select TRACE_IRQFLAGS_NMI_SUPPORT
+ 	select USER_STACKTRACE_SUPPORT
+ 	select VIRT_TO_BUS
+ 	select HAVE_ARCH_KCSAN			if X86_64
+diff --git a/arch/x86/Kconfig.debug b/arch/x86/Kconfig.debug
+index d3a6f74a94bd..d4d6db4dde22 100644
+--- a/arch/x86/Kconfig.debug
++++ b/arch/x86/Kconfig.debug
+@@ -1,8 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
  
-@@ -913,9 +917,8 @@ static int __init idle_setup(char *str)
- 	} else if (!strcmp(str, "nomwait")) {
- 		/*
- 		 * If the boot option of "idle=nomwait" is added,
--		 * it means that mwait will be disabled for CPU C2/C3
--		 * states. In such case it won't touch the variable
--		 * of boot_option_idle_override.
-+		 * it means that mwait will be disabled for CPU C1/C2/C3
-+		 * states.
- 		 */
- 		boot_option_idle_override = IDLE_NOMWAIT;
- 	} else
+-config TRACE_IRQFLAGS_NMI_SUPPORT
+-	def_bool y
+-
+ config EARLY_PRINTK_USB
+ 	bool
+ 
 -- 
 2.35.1
 
