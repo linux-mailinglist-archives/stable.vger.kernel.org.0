@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5731958C0D7
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E05B158C0DB
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:55:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243607AbiHHBzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:55:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46228 "EHLO
+        id S243480AbiHHBzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:55:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243477AbiHHBxq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:53:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 700B41AF07;
+        with ESMTP id S243408AbiHHBxw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:53:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 700551AF06;
         Sun,  7 Aug 2022 18:38:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6CA4B80E19;
-        Mon,  8 Aug 2022 01:38:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78024C4347C;
-        Mon,  8 Aug 2022 01:38:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 81B0760DF3;
+        Mon,  8 Aug 2022 01:38:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E89E0C43140;
+        Mon,  8 Aug 2022 01:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922735;
-        bh=dC24PONPXJI+F/BPqCWosKhiOcyMNYHehVSeuBh/PS4=;
+        s=k20201202; t=1659922736;
+        bh=Dmx4oOnZlzw9wzNSiNks7f7+LAxIbZSjqe1MP8P4Bjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ua06QKFtZBnxmA8aQi+TPxBBmdcYNvZE0ULBVAM4lN2GJG/2xY6/eRG7zqXkuw3aX
-         OB6ctfZuqLC9zyn0Dx/8veDmW5UU1zZCPS/QdbXqcl0J1w+Rf9LgZC/t7ZhtM0uehR
-         hpJ4J09Pz4flFye3EXX82iX8qWPYaOmVnPSWnlDD2lQ1xX8AW8vaZ2AwE5kR4wnMsK
-         XJjTRw/Nw8OteOV+02WkJvmO3zSQrOLO7QxA6d1tlbqC1T76XNtIgr+w+DZuqR2S00
-         iRkFqqqQW9vyErGOPMjrX82qPVdwSx0B2QnAhaTjLu5ouBHomC6Ci4EXvzkJETlo2C
-         10dEHK7jtIlhw==
+        b=nZEaoTyaOx02LB8FdNZggkh2oo/T1MiVMm8fzwgNktU7aez7uw6v1sydJr4wxUz3r
+         Yk80ZUdt0fxd5vz/+hf5UNkS/z+Cnd8Ias6VOQiBTyMjTacFUSyeGhu8OAEv5KoHOA
+         vlLsr8igsDl4xWJHrr1w3iyZ8z1llHKe1GP10rGOyJHqcLSChsaAn0ty6ksnNM2jyh
+         ob//EoX0DpyBXHKlhjyQr8+3m4MiMhvPBRz0qIRCSJ7RDVfPy6TqCi8s3zYfLzltr5
+         XbmJQzEjYmJd7D0ltY4QFOMhBPXjdZZbY6ImDgme7q5BO1o5uKnO+UbxwOmhjl/0ZI
+         vDjjEji5c+SVA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 12/23] ARM: dts: imx6ul: fix qspi node compatible
-Date:   Sun,  7 Aug 2022 21:38:19 -0400
-Message-Id: <20220808013832.316381-12-sashal@kernel.org>
+Cc:     Guo Mengqi <guomengqi3@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, masahisa.kojima@linaro.org,
+        jaswinder.singh@linaro.org, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 13/23] spi: synquacer: Add missing clk_disable_unprepare()
+Date:   Sun,  7 Aug 2022 21:38:20 -0400
+Message-Id: <20220808013832.316381-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013832.316381-1-sashal@kernel.org>
 References: <20220808013832.316381-1-sashal@kernel.org>
@@ -58,40 +57,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Guo Mengqi <guomengqi3@huawei.com>
 
-[ Upstream commit 0c6cf86e1ab433b2d421880fdd9c6e954f404948 ]
+[ Upstream commit 917e43de2a56d9b82576f1cc94748261f1988458 ]
 
-imx6ul is not compatible to imx6sx, both have different erratas.
-Fixes the dt_binding_check warning:
-spi@21e0000: compatible: 'oneOf' conditional failed, one must be fixed:
-['fsl,imx6ul-qspi', 'fsl,imx6sx-qspi'] is too long
-Additional items are not allowed ('fsl,imx6sx-qspi' was unexpected)
-'fsl,imx6ul-qspi' is not one of ['fsl,ls1043a-qspi']
-'fsl,imx6ul-qspi' is not one of ['fsl,imx8mq-qspi']
-'fsl,ls1021a-qspi' was expected
-'fsl,imx7d-qspi' was expected
+Add missing clk_disable_unprepare() in synquacer_spi_resume().
 
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Guo Mengqi <guomengqi3@huawei.com>
+Link: https://lore.kernel.org/r/20220624005614.49434-1-guomengqi3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6ul.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-synquacer.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/imx6ul.dtsi b/arch/arm/boot/dts/imx6ul.dtsi
-index 58671c6e9f31..ae0722b93b9d 100644
---- a/arch/arm/boot/dts/imx6ul.dtsi
-+++ b/arch/arm/boot/dts/imx6ul.dtsi
-@@ -997,7 +997,7 @@ pxp: pxp@21cc000 {
- 			qspi: spi@21e0000 {
- 				#address-cells = <1>;
- 				#size-cells = <0>;
--				compatible = "fsl,imx6ul-qspi", "fsl,imx6sx-qspi";
-+				compatible = "fsl,imx6ul-qspi";
- 				reg = <0x021e0000 0x4000>, <0x60000000 0x10000000>;
- 				reg-names = "QuadSPI", "QuadSPI-memory";
- 				interrupts = <GIC_SPI 107 IRQ_TYPE_LEVEL_HIGH>;
+diff --git a/drivers/spi/spi-synquacer.c b/drivers/spi/spi-synquacer.c
+index 785e7c445123..1e10af6e10a9 100644
+--- a/drivers/spi/spi-synquacer.c
++++ b/drivers/spi/spi-synquacer.c
+@@ -784,6 +784,7 @@ static int __maybe_unused synquacer_spi_resume(struct device *dev)
+ 
+ 		ret = synquacer_spi_enable(master);
+ 		if (ret) {
++			clk_disable_unprepare(sspi->clk);
+ 			dev_err(dev, "failed to enable spi (%d)\n", ret);
+ 			return ret;
+ 		}
 -- 
 2.35.1
 
