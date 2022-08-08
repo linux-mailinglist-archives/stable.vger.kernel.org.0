@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EEE258BEF7
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B65558BEF9
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242036AbiHHBeh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242210AbiHHBeh (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 7 Aug 2022 21:34:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57812 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241924AbiHHBdc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:33:32 -0400
+        with ESMTP id S242134AbiHHBdh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:33:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94648BC1F;
-        Sun,  7 Aug 2022 18:32:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51494DECD;
+        Sun,  7 Aug 2022 18:32:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05CCC60DE1;
-        Mon,  8 Aug 2022 01:32:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D7A0C433B5;
-        Mon,  8 Aug 2022 01:32:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8748F60DE5;
+        Mon,  8 Aug 2022 01:32:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E63BAC43141;
+        Mon,  8 Aug 2022 01:32:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922363;
-        bh=H9BOwCrBvhJ2D/pmVP5DNxKN0ES8c7NcKffve4+d2QI=;
+        s=k20201202; t=1659922364;
+        bh=EixTL5yY3x6DpFjd9mtu7FvtvO6e++FT6rEJn0V1IyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i21v7z52ASlKFBK6g5dB3tvTh89kh2OUl+i/dYGYXuNX6k5fuCZeoBOA1gogUMylZ
-         Epo9WJIA/ietxQX5oppfDqcJTbdrKwLt+DSiSyVB7zyxdEL5ohG94gA73xraJn8BZh
-         rChfrR02hdsQKRmT3MwphwoTZzw62zSD2VOLaEMlfoC37BgXPuyyIazpHSwbwznUDJ
-         ZesQ4vXlfZtuB/9HGSUTNNOkYGsDqMNKRJxqqHBBI9Y7sgdTy1uD6w/J6ITHvbe9Ib
-         7TLcRZsq9xDY1CX8So1j4xitys02CjMyjchktGdPMW1KOgs4AV0VRDCPNcc9W9kahP
-         4oKMdz4tBBx8g==
+        b=pnXdgkmCT7CFQrAtW2eftXZQp3HK3o6/dGvQHl+QZ9JJqMBoivkeKKAh+OBTQMZ9w
+         xKoQ64se7eSxVTBANuZhJRGVXMOx5h8SiJGY2zBOol336KsLGurKxJKAhPMqevb1Hx
+         l/XEaKNOj74XZG570SaXkdR9ksb1Xhok9k6mPg1mc/rTSZ9uEUgrIKrF34Nq9QIan4
+         iBOAEgpFM3+co4G6TqeN+vA1UiaoBmnPXkyZvYDLi+0qkrbATVGwfM7sVobSGBzM+T
+         CAr/kLVcWG0sdeCbs/ZmVzk83EE2cMjAhIyxQzxGko/ompIOs+Zp4ffn8Yf13xIOSZ
+         BLp2BjbYMGMuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
@@ -38,9 +38,9 @@ Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
         Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
         krzysztof.kozlowski+dt@linaro.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.19 25/58] ARM: dts: imx6ul: fix keypad compatible
-Date:   Sun,  7 Aug 2022 21:30:43 -0400
-Message-Id: <20220808013118.313965-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 26/58] ARM: dts: imx6ul: fix csi node compatible
+Date:   Sun,  7 Aug 2022 21:30:44 -0400
+Message-Id: <20220808013118.313965-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013118.313965-1-sashal@kernel.org>
 References: <20220808013118.313965-1-sashal@kernel.org>
@@ -60,16 +60,15 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 7d15e0c9a515494af2e3199741cdac7002928a0e ]
+[ Upstream commit e0aca931a2c7c29c88ebf37f9c3cd045e083483d ]
 
-According to binding, the compatible shall only contain imx6ul and imx21
-compatibles. Fixes the dt_binding_check warning:
-keypad@20b8000: compatible: 'oneOf' conditional failed, one must be fixed:
-['fsl,imx6ul-kpp', 'fsl,imx6q-kpp', 'fsl,imx21-kpp'] is too long
-Additional items are not allowed ('fsl,imx6q-kpp', 'fsl,imx21-kpp' were
-unexpected)
-Additional items are not allowed ('fsl,imx21-kpp' was unexpected)
-'fsl,imx21-kpp' was expected
+"fsl,imx6ul-csi" was never listed as compatible to "fsl,imx7-csi", neither
+in yaml bindings, nor previous txt binding. Remove the imx7 part. Fixes
+the dt schema check warning:
+csi@21c4000: compatible: 'oneOf' conditional failed, one must be fixed:
+['fsl,imx6ul-csi', 'fsl,imx7-csi'] is too long
+Additional items are not allowed ('fsl,imx7-csi' was unexpected)
+'fsl,imx8mm-csi' was expected
 
 Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
@@ -79,18 +78,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm/boot/dts/imx6ul.dtsi b/arch/arm/boot/dts/imx6ul.dtsi
-index 2fcbd9d91521..df8b4ad62418 100644
+index df8b4ad62418..367657a9a99f 100644
 --- a/arch/arm/boot/dts/imx6ul.dtsi
 +++ b/arch/arm/boot/dts/imx6ul.dtsi
-@@ -544,7 +544,7 @@ fec2: ethernet@20b4000 {
+@@ -999,7 +999,7 @@ cpu_speed_grade: speed-grade@10 {
  			};
  
- 			kpp: keypad@20b8000 {
--				compatible = "fsl,imx6ul-kpp", "fsl,imx6q-kpp", "fsl,imx21-kpp";
-+				compatible = "fsl,imx6ul-kpp", "fsl,imx21-kpp";
- 				reg = <0x020b8000 0x4000>;
- 				interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clks IMX6UL_CLK_KPP>;
+ 			csi: csi@21c4000 {
+-				compatible = "fsl,imx6ul-csi", "fsl,imx7-csi";
++				compatible = "fsl,imx6ul-csi";
+ 				reg = <0x021c4000 0x4000>;
+ 				interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>;
+ 				clocks = <&clks IMX6UL_CLK_CSI>;
 -- 
 2.35.1
 
