@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEF4058BFF2
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:45:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7340C58BFFD
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:47:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242983AbiHHBpI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:45:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53608 "EHLO
+        id S242611AbiHHBq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:46:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242893AbiHHBoA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:44:00 -0400
+        with ESMTP id S242770AbiHHBo2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:44:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5967513F2C;
-        Sun,  7 Aug 2022 18:36:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2719113F62;
+        Sun,  7 Aug 2022 18:36:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 543BB60DFF;
-        Mon,  8 Aug 2022 01:36:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CA7BC4347C;
-        Mon,  8 Aug 2022 01:36:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E9B260E73;
+        Mon,  8 Aug 2022 01:36:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20228C433D6;
+        Mon,  8 Aug 2022 01:36:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922563;
-        bh=m0hTkEbkuaXphWWnC/gxMUIwGj3LqHqY6oqSiCR51TA=;
+        s=k20201202; t=1659922572;
+        bh=D/3/eMXKeZu/Nlw850e0ydwzuH7Vnd+YhpqHFcHLHPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gvJ6Sm3mUE2wqR/XxnJfQ7J16HU1CsHnVsAvoCizf5FPoFcwKOKFls1Xd7RlHxAk2
-         1kmJlLRClpEDuCGtodvsUbBc+rTUAjhmZzNu0CW55FimSTmefsdsRWFvfZiph5nizM
-         eN1sGylAJALEjRxweoaGRBRZdvcD46c+5RMIUE2gHntqYsbowjSscrTvD24g2OxsY+
-         MLzG6GkefhuOY4c/gktFOIAty6yRxArYNQm1qKYl/sWio3NObWMlVLT3QcBtFIUM/V
-         mFBb8VMT7S+uZhKdQzLMspIHDHgArlNESDUAbGQfBqdNQHStffXgW6kQ94zqssJaie
-         atZa9GVk208Mw==
+        b=G1D4aNPFb5jJSn7d80HrUsBag9k6ZQ3s4tU0wowT7hesIjgDmojxczs1xFFdP+5VP
+         GDN3F+EYXHJoqo11Ngl7ZJjBg3GvShm8oZT2vxhAkF71YE6/5SGIoChVVXnvvdgptK
+         BsZJGZic8WD6sA6NCeDOCd7wUVQFQ5qFNdX9T/iaiQ0bOgmM+lHzRsUUoZOi7kWqzi
+         kB7GAbWJcwJBasX5FGCrjhu/7DY2LijPXqWr2Vh6wisQmBaS+o+2KU276/xYb4al4e
+         +EqOVH6q5T6IKBmHfMK29dBBR4lPazqDWDJ6QHzq6ttAMj1hvcHbtADekexdxmyT1/
+         ELF45uBMON4Aw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        catalin.marinas@arm.com, mark.rutland@arm.com, hca@linux.ibm.com,
-        Jason@zx2c4.com, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 03/45] arm64: kernel: drop unnecessary PoC cache clean+invalidate
-Date:   Sun,  7 Aug 2022 21:35:07 -0400
-Message-Id: <20220808013551.315446-3-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>, Will Deacon <will@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, catalin.marinas@arm.com,
+        ryabinin.a.a@gmail.com, pasha.tatashin@soleen.com,
+        anshuman.khandual@arm.com, broonie@kernel.org, maz@kernel.org,
+        suzuki.poulose@arm.com, james.morse@arm.com,
+        vladimir.murzin@arm.com, Julia.Lawall@inria.fr,
+        akpm@linux-foundation.org, david@redhat.com,
+        vijayb@linux.microsoft.com, quic_sudaraja@quicinc.com,
+        jianyong.wu@arm.com, rppt@kernel.org,
+        linux-arm-kernel@lists.infradead.org, kasan-dev@googlegroups.com
+Subject: [PATCH AUTOSEL 5.15 04/45] arm64: mm: provide idmap pointer to cpu_replace_ttbr1()
+Date:   Sun,  7 Aug 2022 21:35:08 -0400
+Message-Id: <20220808013551.315446-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013551.315446-1-sashal@kernel.org>
 References: <20220808013551.315446-1-sashal@kernel.org>
@@ -60,66 +65,127 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 2e945851e26836c0f2d34be3763ddf55870e49fe ]
+[ Upstream commit 1682c45b920643cbde31d8a5b7ca7c2be92d6928 ]
 
-Some early boot code runs before the virtual placement of the kernel is
-finalized, and we used to go back to the very start and recreate the ID
-map along with the page tables describing the virtual kernel mapping,
-and this involved setting some global variables with the caches off.
-
-In order to ensure that global state created by the KASLR code is not
-corrupted by the cache invalidation that occurs in that case, we needed
-to clean those global variables to the PoC explicitly.
-
-This is no longer needed now that the ID map is created only once (and
-the associated global variable updates are no longer repeated). So drop
-the cache maintenance that is no longer necessary.
+In preparation for changing the way we initialize the permanent ID map,
+update cpu_replace_ttbr1() so we can use it with the initial ID map as
+well.
 
 Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Link: https://lore.kernel.org/r/20220624150651.1358849-9-ardb@kernel.org
+Link: https://lore.kernel.org/r/20220624150651.1358849-11-ardb@kernel.org
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/kaslr.c | 11 -----------
- 1 file changed, 11 deletions(-)
+ arch/arm64/include/asm/mmu_context.h | 13 +++++++++----
+ arch/arm64/kernel/cpufeature.c       |  2 +-
+ arch/arm64/kernel/suspend.c          |  2 +-
+ arch/arm64/mm/kasan_init.c           |  4 ++--
+ arch/arm64/mm/mmu.c                  |  2 +-
+ 5 files changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm64/kernel/kaslr.c b/arch/arm64/kernel/kaslr.c
-index 418b2bba1521..d5542666182f 100644
---- a/arch/arm64/kernel/kaslr.c
-+++ b/arch/arm64/kernel/kaslr.c
-@@ -13,7 +13,6 @@
- #include <linux/pgtable.h>
- #include <linux/random.h>
- 
--#include <asm/cacheflush.h>
- #include <asm/fixmap.h>
- #include <asm/kernel-pgtable.h>
- #include <asm/memory.h>
-@@ -72,9 +71,6 @@ u64 __init kaslr_early_init(void)
- 	 * we end up running with module randomization disabled.
- 	 */
- 	module_alloc_base = (u64)_etext - MODULES_VSIZE;
--	dcache_clean_inval_poc((unsigned long)&module_alloc_base,
--			    (unsigned long)&module_alloc_base +
--				    sizeof(module_alloc_base));
- 
- 	/*
- 	 * Try to map the FDT early. If this fails, we simply bail,
-@@ -174,13 +170,6 @@ u64 __init kaslr_early_init(void)
- 	module_alloc_base += (module_range * (seed & ((1 << 21) - 1))) >> 21;
- 	module_alloc_base &= PAGE_MASK;
- 
--	dcache_clean_inval_poc((unsigned long)&module_alloc_base,
--			    (unsigned long)&module_alloc_base +
--				    sizeof(module_alloc_base));
--	dcache_clean_inval_poc((unsigned long)&memstart_offset_seed,
--			    (unsigned long)&memstart_offset_seed +
--				    sizeof(memstart_offset_seed));
--
- 	return offset;
+diff --git a/arch/arm64/include/asm/mmu_context.h b/arch/arm64/include/asm/mmu_context.h
+index f4ba93d4ffeb..24ed534bb417 100644
+--- a/arch/arm64/include/asm/mmu_context.h
++++ b/arch/arm64/include/asm/mmu_context.h
+@@ -106,20 +106,25 @@ static inline void cpu_uninstall_idmap(void)
+ 		cpu_switch_mm(mm->pgd, mm);
  }
  
+-static inline void cpu_install_idmap(void)
++static inline void __cpu_install_idmap(pgd_t *idmap)
+ {
+ 	cpu_set_reserved_ttbr0();
+ 	local_flush_tlb_all();
+ 	cpu_set_idmap_tcr_t0sz();
+ 
+-	cpu_switch_mm(lm_alias(idmap_pg_dir), &init_mm);
++	cpu_switch_mm(lm_alias(idmap), &init_mm);
++}
++
++static inline void cpu_install_idmap(void)
++{
++	__cpu_install_idmap(idmap_pg_dir);
+ }
+ 
+ /*
+  * Atomically replaces the active TTBR1_EL1 PGD with a new VA-compatible PGD,
+  * avoiding the possibility of conflicting TLB entries being allocated.
+  */
+-static inline void __nocfi cpu_replace_ttbr1(pgd_t *pgdp)
++static inline void __nocfi cpu_replace_ttbr1(pgd_t *pgdp, pgd_t *idmap)
+ {
+ 	typedef void (ttbr_replace_func)(phys_addr_t);
+ 	extern ttbr_replace_func idmap_cpu_replace_ttbr1;
+@@ -142,7 +147,7 @@ static inline void __nocfi cpu_replace_ttbr1(pgd_t *pgdp)
+ 
+ 	replace_phys = (void *)__pa_symbol(function_nocfi(idmap_cpu_replace_ttbr1));
+ 
+-	cpu_install_idmap();
++	__cpu_install_idmap(idmap);
+ 	replace_phys(ttbr1);
+ 	cpu_uninstall_idmap();
+ }
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index e71c9cfb46e8..e826509823a6 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -3013,7 +3013,7 @@ subsys_initcall_sync(init_32bit_el0_mask);
+ 
+ static void __maybe_unused cpu_enable_cnp(struct arm64_cpu_capabilities const *cap)
+ {
+-	cpu_replace_ttbr1(lm_alias(swapper_pg_dir));
++	cpu_replace_ttbr1(lm_alias(swapper_pg_dir), idmap_pg_dir);
+ }
+ 
+ /*
+diff --git a/arch/arm64/kernel/suspend.c b/arch/arm64/kernel/suspend.c
+index 19ee7c33769d..40bf1551d1ad 100644
+--- a/arch/arm64/kernel/suspend.c
++++ b/arch/arm64/kernel/suspend.c
+@@ -52,7 +52,7 @@ void notrace __cpu_suspend_exit(void)
+ 
+ 	/* Restore CnP bit in TTBR1_EL1 */
+ 	if (system_supports_cnp())
+-		cpu_replace_ttbr1(lm_alias(swapper_pg_dir));
++		cpu_replace_ttbr1(lm_alias(swapper_pg_dir), idmap_pg_dir);
+ 
+ 	/*
+ 	 * PSTATE was not saved over suspend/resume, re-enable any detected
+diff --git a/arch/arm64/mm/kasan_init.c b/arch/arm64/mm/kasan_init.c
+index 61b52a92b8b6..674863348f67 100644
+--- a/arch/arm64/mm/kasan_init.c
++++ b/arch/arm64/mm/kasan_init.c
+@@ -235,7 +235,7 @@ static void __init kasan_init_shadow(void)
+ 	 */
+ 	memcpy(tmp_pg_dir, swapper_pg_dir, sizeof(tmp_pg_dir));
+ 	dsb(ishst);
+-	cpu_replace_ttbr1(lm_alias(tmp_pg_dir));
++	cpu_replace_ttbr1(lm_alias(tmp_pg_dir), idmap_pg_dir);
+ 
+ 	clear_pgds(KASAN_SHADOW_START, KASAN_SHADOW_END);
+ 
+@@ -279,7 +279,7 @@ static void __init kasan_init_shadow(void)
+ 				PAGE_KERNEL_RO));
+ 
+ 	memset(kasan_early_shadow_page, KASAN_SHADOW_INIT, PAGE_SIZE);
+-	cpu_replace_ttbr1(lm_alias(swapper_pg_dir));
++	cpu_replace_ttbr1(lm_alias(swapper_pg_dir), idmap_pg_dir);
+ }
+ 
+ static void __init kasan_init_depth(void)
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index 6680689242df..984f1f503328 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -780,7 +780,7 @@ void __init paging_init(void)
+ 
+ 	pgd_clear_fixmap();
+ 
+-	cpu_replace_ttbr1(lm_alias(swapper_pg_dir));
++	cpu_replace_ttbr1(lm_alias(swapper_pg_dir), idmap_pg_dir);
+ 	init_mm.pgd = swapper_pg_dir;
+ 
+ 	memblock_free(__pa_symbol(init_pg_dir),
 -- 
 2.35.1
 
