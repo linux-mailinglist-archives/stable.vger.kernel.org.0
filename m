@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56F9758BF75
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:40:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DA0D58BF77
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242637AbiHHBk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:40:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43232 "EHLO
+        id S242626AbiHHBkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:40:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242552AbiHHBjl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:39:41 -0400
+        with ESMTP id S242449AbiHHBjn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:39:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE17A10575;
-        Sun,  7 Aug 2022 18:34:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 463A3DEA4;
+        Sun,  7 Aug 2022 18:34:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65025B80E06;
-        Mon,  8 Aug 2022 01:34:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47701C433C1;
-        Mon,  8 Aug 2022 01:34:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E65F6B80881;
+        Mon,  8 Aug 2022 01:34:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EB5AC4347C;
+        Mon,  8 Aug 2022 01:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922464;
-        bh=kgAB+hYMrWL6BRi6aNjlpO/7iXT1hjr5DcRiWNx3nuU=;
+        s=k20201202; t=1659922465;
+        bh=JtrVEr5W6o4PTfK4Bmq8esY7T57/MzFocy7PfA1w1aE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EV6OGTfE0qLk6HTdmB8z+OMn+hyIkfnDyUeXVFZxB87exBYw2/xFHPYUPZHRnoKpY
-         rKZyKuEcouKDmPZ+ism7aBnKaf4cHTJ+e/LrDnd9U2X+ctjyupX359zFvVH5bPIyB1
-         /B49ZwSAwlUMz6Bhm8RNllkycL1UfKg6+RnutW2Iy0M8br3qc0tDf9ajBgoz5r2IbA
-         Sznf89BHdCqJBkc0k+ruH8AhsPuRnFCV/BknVAiLpUK7d/WkD8pyo2VfvJXv8otAg9
-         s3dXP7NMuHZrBp6WHmJ7Ut8YPqUusOOyntRKHfxneGFByyP4w3P3+WC90f7HNBOgIp
-         fTfpcp/NU28Gw==
+        b=WYyIycURzuMnap5flovGBRkJKnfzeZSdCHMxZJs6sOKBsFabdMoXRM7drqwKv5Xqn
+         eDgTB5GNNP1vu9f+2S0uB4Q0OB3rkNiLW629t9OZ1iqRgo2sgGIuhuggIxTEPW4g7x
+         B3Bd7KADlZAvn26fKGu/6X2CY6T63NrvecFgCu3oGHRn5Z+XCXsVAe7KG6S6nN0/zW
+         mk8DUw5TB/cdrYSuV+wksW3WTv/csCrPP/QPYoKneqVHaAeDDG37RfZHTMVM3on33s
+         HmeImyWGlNSmL/zRx2AFr9cuZ+5vu5d77y6sePuITrA2f/De/GY1f5cpaukDUeiFfV
+         bwUIeyToj1r3g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Catalin Marinas <catalin.marinas@arm.com>,
@@ -39,13 +39,10 @@ Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         Peter Collingbourne <pcc@google.com>,
         Vincenzo Frascino <vincenzo.frascino@arm.com>,
         Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        mark.rutland@arm.com, borntraeger@linux.ibm.com,
-        ebiederm@xmission.com, broonie@kernel.org, peterx@redhat.com,
-        alexandru.elisei@arm.com, zhengqi.arch@bytedance.com,
-        linux-arm-kernel@lists.infradead.org, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.18 09/53] mm: kasan: Skip unpoisoning of user pages
-Date:   Sun,  7 Aug 2022 21:33:04 -0400
-Message-Id: <20220808013350.314757-9-sashal@kernel.org>
+        linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.18 10/53] mm: kasan: Skip page unpoisoning only if __GFP_SKIP_KASAN_UNPOISON
+Date:   Sun,  7 Aug 2022 21:33:05 -0400
+Message-Id: <20220808013350.314757-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013350.314757-1-sashal@kernel.org>
 References: <20220808013350.314757-1-sashal@kernel.org>
@@ -65,17 +62,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Catalin Marinas <catalin.marinas@arm.com>
 
-[ Upstream commit 70c248aca9e7efa85a6664d5ab56c17c326c958f ]
+[ Upstream commit 6d05141a393071e104bf5be5ad4d0c79c6dff343 ]
 
-Commit c275c5c6d50a ("kasan: disable freed user page poisoning with HW
-tags") added __GFP_SKIP_KASAN_POISON to GFP_HIGHUSER_MOVABLE. A similar
-argument can be made about unpoisoning, so also add
-__GFP_SKIP_KASAN_UNPOISON to user pages. To ensure the user page is
-still accessible via page_address() without a kasan fault, reset the
-page->flags tag.
-
-With the above changes, there is no need for the arm64
-tag_clear_highpage() to reset the page->flags tag.
+Currently post_alloc_hook() skips the kasan unpoisoning if the tags will
+be zeroed (__GFP_ZEROTAGS) or __GFP_SKIP_KASAN_UNPOISON is passed. Since
+__GFP_ZEROTAGS is now accompanied by __GFP_SKIP_KASAN_UNPOISON, remove
+the extra check.
 
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
@@ -84,71 +76,51 @@ Cc: Peter Collingbourne <pcc@google.com>
 Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
 Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
 Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Link: https://lore.kernel.org/r/20220610152141.2148929-3-catalin.marinas@arm.com
+Link: https://lore.kernel.org/r/20220610152141.2148929-4-catalin.marinas@arm.com
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/fault.c | 1 -
- include/linux/gfp.h   | 2 +-
- mm/page_alloc.c       | 7 +++++--
- 3 files changed, 6 insertions(+), 4 deletions(-)
+ mm/page_alloc.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
-index 77341b160aca..f2f21cd6d43f 100644
---- a/arch/arm64/mm/fault.c
-+++ b/arch/arm64/mm/fault.c
-@@ -926,6 +926,5 @@ struct page *alloc_zeroed_user_highpage_movable(struct vm_area_struct *vma,
- void tag_clear_highpage(struct page *page)
- {
- 	mte_zero_clear_page_tags(page_address(page));
--	page_kasan_tag_reset(page);
- 	set_bit(PG_mte_tagged, &page->flags);
- }
-diff --git a/include/linux/gfp.h b/include/linux/gfp.h
-index 3e3d36fc2109..df0ec30524fb 100644
---- a/include/linux/gfp.h
-+++ b/include/linux/gfp.h
-@@ -348,7 +348,7 @@ struct vm_area_struct;
- #define GFP_DMA32	__GFP_DMA32
- #define GFP_HIGHUSER	(GFP_USER | __GFP_HIGHMEM)
- #define GFP_HIGHUSER_MOVABLE	(GFP_HIGHUSER | __GFP_MOVABLE | \
--			 __GFP_SKIP_KASAN_POISON)
-+			 __GFP_SKIP_KASAN_POISON | __GFP_SKIP_KASAN_UNPOISON)
- #define GFP_TRANSHUGE_LIGHT	((GFP_HIGHUSER_MOVABLE | __GFP_COMP | \
- 			 __GFP_NOMEMALLOC | __GFP_NOWARN) & ~__GFP_RECLAIM)
- #define GFP_TRANSHUGE	(GFP_TRANSHUGE_LIGHT | __GFP_DIRECT_RECLAIM)
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 5ced6cb260ed..edef84efba76 100644
+index edef84efba76..2a894ba742e4 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -2382,6 +2382,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
- 	bool init = !want_init_on_free() && want_init_on_alloc(gfp_flags) &&
- 			!should_skip_init(gfp_flags);
- 	bool init_tags = init && (gfp_flags & __GFP_ZEROTAGS);
-+	int i;
+@@ -2346,7 +2346,7 @@ static inline bool check_new_pcp(struct page *page, unsigned int order)
+ }
+ #endif /* CONFIG_DEBUG_VM */
  
- 	set_page_private(page, 0);
- 	set_page_refcounted(page);
-@@ -2407,8 +2408,6 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
- 	 * should be initialized as well).
+-static inline bool should_skip_kasan_unpoison(gfp_t flags, bool init_tags)
++static inline bool should_skip_kasan_unpoison(gfp_t flags)
+ {
+ 	/* Don't skip if a software KASAN mode is enabled. */
+ 	if (IS_ENABLED(CONFIG_KASAN_GENERIC) ||
+@@ -2358,12 +2358,10 @@ static inline bool should_skip_kasan_unpoison(gfp_t flags, bool init_tags)
+ 		return true;
+ 
+ 	/*
+-	 * With hardware tag-based KASAN enabled, skip if either:
+-	 *
+-	 * 1. Memory tags have already been cleared via tag_clear_highpage().
+-	 * 2. Skipping has been requested via __GFP_SKIP_KASAN_UNPOISON.
++	 * With hardware tag-based KASAN enabled, skip if this has been
++	 * requested via __GFP_SKIP_KASAN_UNPOISON.
  	 */
- 	if (init_tags) {
--		int i;
--
- 		/* Initialize both memory and tags. */
- 		for (i = 0; i != 1 << order; ++i)
- 			tag_clear_highpage(page + i);
-@@ -2423,6 +2422,10 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
- 		/* Note that memory is already initialized by KASAN. */
- 		if (kasan_has_integrated_init())
- 			init = false;
-+	} else {
-+		/* Ensure page_address() dereferencing does not fault. */
-+		for (i = 0; i != 1 << order; ++i)
-+			page_kasan_tag_reset(page + i);
+-	return init_tags || (flags & __GFP_SKIP_KASAN_UNPOISON);
++	return flags & __GFP_SKIP_KASAN_UNPOISON;
+ }
+ 
+ static inline bool should_skip_init(gfp_t flags)
+@@ -2415,7 +2413,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
+ 		/* Note that memory is already initialized by the loop above. */
+ 		init = false;
  	}
- 	/* If memory is still not initialized, do it now. */
- 	if (init)
+-	if (!should_skip_kasan_unpoison(gfp_flags, init_tags)) {
++	if (!should_skip_kasan_unpoison(gfp_flags)) {
+ 		/* Unpoison shadow memory or set memory tags. */
+ 		kasan_unpoison_pages(page, order, init);
+ 
 -- 
 2.35.1
 
