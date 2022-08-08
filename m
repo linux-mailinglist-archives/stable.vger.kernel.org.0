@@ -2,67 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9978E58C4ED
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 10:33:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3950958C53D
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 11:05:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230071AbiHHIdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Aug 2022 04:33:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54128 "EHLO
+        id S234536AbiHHJF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Aug 2022 05:05:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229556AbiHHIdV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Aug 2022 04:33:21 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE6213DE5
-        for <stable@vger.kernel.org>; Mon,  8 Aug 2022 01:33:20 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id z19so7928463plb.1
-        for <stable@vger.kernel.org>; Mon, 08 Aug 2022 01:33:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=K/FYN1zvN+b7oXMhqI+KTbmCOwOgcniR1F6fn5h0uqE=;
-        b=irR/6ac5tunj5439Mcmz9FYik2XzIciquRexhusx3C4KUSXf+KaFue3eOXX7fCl2sr
-         92ZSzDnnPlaeBaUUTLRRX+/9Y9HyPrUaJLl2zB5c7Cum1zYc41E79neu/vBSWq2VEnJq
-         eJV4En66wZYrCe858rm6YsL2aybyOYZQaqySs4k41s9A7MbDXd9QEyPUuKM3wlNc50IZ
-         5TMGNSuI4ZLhRY6FyNxhLTprP2HoHZ9fKiGgSOlTwFRUZfJqYqjVPhJm+Frtdj2l4J1o
-         X6lntQmQMFznC7ZHMEDX7tU8e5+qbE5HRqirN2N2sowqwW9p33JYqc7UPGubtJ4Ycc6u
-         sr7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=K/FYN1zvN+b7oXMhqI+KTbmCOwOgcniR1F6fn5h0uqE=;
-        b=5ao81jlfgEbs7Aj/q/20vDbSLKKFj2rATCw/yNaz5U+QgZKx0mQJ+QFgT0G0+MnlMs
-         /cbxSgsJS2QCdsKvpd/Ya5sliYGKfOj84NwRnGUrOqAWrlX3hThQW+m2Ihq1RPKA0thw
-         coFE0DBExbV7xsRfegWJSdFKmvv/r7x52+5opsETYnVjKMp+Afr4oO/X1nLQv/x9/vgR
-         iAxgJzyP56lraCZ9DsW731ycqeYY+0tKXoUqPW8123B0xbR0Vlqqia0f2Cg1VtFuFpW2
-         x71tgpFdxOrSHnu1/vGy5z5fT75W3m8uCnbSze5X7FHmWpAoYESi0g1PN918UHyd+q58
-         fB+Q==
-X-Gm-Message-State: ACgBeo19RvOGBpIGj4mdnC4U/NI2SQBzU9jWJLOnEd/5NdLthOvQ6pon
-        ZQ9fZF2fqf/qEVwUtQSkPuKqOsW/QRHK769DgDQ=
-X-Google-Smtp-Source: AA6agR7/Wn93iML2qripVxio0a9hXKYaFr59oWn7Ow12rsD5UkMdcoMnUkXIAddQzcinEq5//qOHLbrN7E9YN+RWKIE=
-X-Received: by 2002:a17:903:11d2:b0:167:8a0f:8d33 with SMTP id
- q18-20020a17090311d200b001678a0f8d33mr18007667plh.95.1659947600361; Mon, 08
- Aug 2022 01:33:20 -0700 (PDT)
+        with ESMTP id S233880AbiHHJF0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Aug 2022 05:05:26 -0400
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BE3C5F66;
+        Mon,  8 Aug 2022 02:05:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1659949525; x=1691485525;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=3RSyZs8bPpTGb7akeM8WJGQC1JyjSH4WIuABkHEYcYc=;
+  b=Rl+jl+rgkyBlV4kKU56+r0XkfxpcIKrnWjx2rd3nfr6HgM7ufLBQzMlm
+   4elYn2mhulbFAoMp3pEICVcMLe31waIoZIj7dTEu3PRVWuRreIlExAk8v
+   ppe3+Ymcykbl4e6oYposi8vMiem8vZrrld9lcusdG94NJ205IVp4ptY+2
+   20ZI81CYqqMzJn3sRlNkVmhmHe6N4aVBlq1aHb5vcVGt+JfjgQnsZ4pE6
+   zWYupnzATXftZ1vOV31ldolttlD/gHzjMwzVuqZMVP2f8EpSDLdKHFFuu
+   CuVcjUkr1Bq0FZArgi6vTJGQ10TxvlqJKhRKaFFq04foXQ28yHfThvlE+
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10432"; a="354542111"
+X-IronPort-AV: E=Sophos;i="5.93,221,1654585200"; 
+   d="scan'208";a="354542111"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Aug 2022 02:05:24 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.93,221,1654585200"; 
+   d="scan'208";a="663858497"
+Received: from lkp-server01.sh.intel.com (HELO e0eace57cfef) ([10.239.97.150])
+  by fmsmga008.fm.intel.com with ESMTP; 08 Aug 2022 02:05:21 -0700
+Received: from kbuild by e0eace57cfef with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1oKyhM-000MAw-0C;
+        Mon, 08 Aug 2022 09:05:20 +0000
+Date:   Mon, 8 Aug 2022 17:04:40 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Lu Baolu <baolu.lu@linux.intel.com>, iommu@lists.linux.dev
+Cc:     llvm@lists.linux.dev, kbuild-all@lists.01.org,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Wen Jin <wen.jin@intel.com>, linux-kernel@vger.kernel.org,
+        Lu Baolu <baolu.lu@linux.intel.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/1] iommu/vt-d: Fix kdump kernels boot failure with
+ scalable mode
+Message-ID: <202208081636.6sNc86bT-lkp@intel.com>
+References: <20220808034612.1691470-1-baolu.lu@linux.intel.com>
 MIME-Version: 1.0
-Sender: aklessopessetoki90@gmail.com
-Received: by 2002:a05:7022:6392:b0:42:cb55:150e with HTTP; Mon, 8 Aug 2022
- 01:33:19 -0700 (PDT)
-From:   Kayla Manthey <sgtkaylamanthey612@gmail.com>
-Date:   Mon, 8 Aug 2022 08:33:19 +0000
-X-Google-Sender-Auth: 2seNaYXa--I_y3h6b3SEK_kO9xc
-Message-ID: <CAL_1YZnApvuF=W6Uhk3oC7DP7bemjn5mncTcu=wEjST9=EEDEQ@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220808034612.1691470-1-baolu.lu@linux.intel.com>
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello how are you? I hope you're okay. did you receive my two previous
-emails?  please check and reply me.
+Hi Lu,
+
+I love your patch! Yet something to improve:
+
+[auto build test ERROR on linus/master]
+[also build test ERROR on next-20220808]
+[cannot apply to joro-iommu/next v5.19]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Lu-Baolu/iommu-vt-d-Fix-kdump-kernels-boot-failure-with-scalable-mode/20220808-115156
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git 4e23eeebb2e57f5a28b36221aa776b5a1122dde5
+config: x86_64-randconfig-a011-20220808 (https://download.01.org/0day-ci/archive/20220808/202208081636.6sNc86bT-lkp@intel.com/config)
+compiler: clang version 16.0.0 (https://github.com/llvm/llvm-project 5f1c7e2cc5a3c07cbc2412e851a7283c1841f520)
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/335018299049ac5dc13ff12d320b5952bed7e8f8
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Lu-Baolu/iommu-vt-d-Fix-kdump-kernels-boot-failure-with-scalable-mode/20220808-115156
+        git checkout 335018299049ac5dc13ff12d320b5952bed7e8f8
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash
+
+If you fix the issue, kindly add following tag where applicable
+Reported-by: kernel test robot <lkp@intel.com>
+
+All errors (new ones prefixed by >>):
+
+   In file included from drivers/iommu/intel/dmar.c:33:
+>> drivers/iommu/intel/iommu.h:705:14: error: no member named 'copied_tables' in 'struct intel_iommu'
+           if (!iommu->copied_tables)
+                ~~~~~  ^
+   drivers/iommu/intel/iommu.h:708:51: error: no member named 'copied_tables' in 'struct intel_iommu'
+           return test_bit(((long)bus << 8) | devfn, iommu->copied_tables);
+                                                     ~~~~~  ^
+   include/linux/bitops.h:61:50: note: expanded from macro 'test_bit'
+   #define test_bit(nr, addr)              bitop(_test_bit, nr, addr)
+                                                                ^~~~
+   include/linux/bitops.h:50:37: note: expanded from macro 'bitop'
+             __builtin_constant_p((uintptr_t)(addr) != (uintptr_t)NULL) && \
+                                              ^~~~
+   In file included from drivers/iommu/intel/dmar.c:33:
+   drivers/iommu/intel/iommu.h:708:51: error: no member named 'copied_tables' in 'struct intel_iommu'
+           return test_bit(((long)bus << 8) | devfn, iommu->copied_tables);
+                                                     ~~~~~  ^
+   include/linux/bitops.h:61:50: note: expanded from macro 'test_bit'
+   #define test_bit(nr, addr)              bitop(_test_bit, nr, addr)
+                                                                ^~~~
+   include/linux/bitops.h:51:16: note: expanded from macro 'bitop'
+             (uintptr_t)(addr) != (uintptr_t)NULL &&                       \
+                         ^~~~
+   In file included from drivers/iommu/intel/dmar.c:33:
+   drivers/iommu/intel/iommu.h:708:51: error: no member named 'copied_tables' in 'struct intel_iommu'
+           return test_bit(((long)bus << 8) | devfn, iommu->copied_tables);
+                                                     ~~~~~  ^
+   include/linux/bitops.h:61:50: note: expanded from macro 'test_bit'
+   #define test_bit(nr, addr)              bitop(_test_bit, nr, addr)
+                                                                ^~~~
+   include/linux/bitops.h:52:50: note: expanded from macro 'bitop'
+             __builtin_constant_p(*(const unsigned long *)(addr))) ?       \
+                                                           ^~~~
+   In file included from drivers/iommu/intel/dmar.c:33:
+   drivers/iommu/intel/iommu.h:708:51: error: no member named 'copied_tables' in 'struct intel_iommu'
+           return test_bit(((long)bus << 8) | devfn, iommu->copied_tables);
+                                                     ~~~~~  ^
+   include/linux/bitops.h:61:50: note: expanded from macro 'test_bit'
+   #define test_bit(nr, addr)              bitop(_test_bit, nr, addr)
+                                                                ^~~~
+   include/linux/bitops.h:53:17: note: expanded from macro 'bitop'
+            const##op(nr, addr) : op(nr, addr))
+                          ^~~~
+   In file included from drivers/iommu/intel/dmar.c:33:
+   drivers/iommu/intel/iommu.h:708:51: error: no member named 'copied_tables' in 'struct intel_iommu'
+           return test_bit(((long)bus << 8) | devfn, iommu->copied_tables);
+                                                     ~~~~~  ^
+   include/linux/bitops.h:61:50: note: expanded from macro 'test_bit'
+   #define test_bit(nr, addr)              bitop(_test_bit, nr, addr)
+                                                                ^~~~
+   include/linux/bitops.h:53:32: note: expanded from macro 'bitop'
+            const##op(nr, addr) : op(nr, addr))
+                                         ^~~~
+   6 errors generated.
+
+
+vim +705 drivers/iommu/intel/iommu.h
+
+   702	
+   703	static inline bool context_copied(struct intel_iommu *iommu, u8 bus, u8 devfn)
+   704	{
+ > 705		if (!iommu->copied_tables)
+   706			return false;
+   707	
+   708		return test_bit(((long)bus << 8) | devfn, iommu->copied_tables);
+   709	}
+   710	
+
+-- 
+0-DAY CI Kernel Test Service
+https://01.org/lkp
