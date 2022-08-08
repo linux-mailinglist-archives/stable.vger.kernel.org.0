@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02CD958C08D
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:52:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E252758C0AC
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:53:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243343AbiHHBwi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:52:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38436 "EHLO
+        id S243326AbiHHBxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:53:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243461AbiHHBvB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:51:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B16319281;
-        Sun,  7 Aug 2022 18:38:02 -0700 (PDT)
+        with ESMTP id S243477AbiHHBvD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:51:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5604719291;
+        Sun,  7 Aug 2022 18:38:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1973F60E65;
-        Mon,  8 Aug 2022 01:38:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B01BC4347C;
-        Mon,  8 Aug 2022 01:38:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62A6A60E06;
+        Mon,  8 Aug 2022 01:38:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6C1EC433D6;
+        Mon,  8 Aug 2022 01:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922681;
-        bh=bC4mioEGpy6YJ8y80rAi0DRjq8ciYbvHcfjOXcdJuiU=;
+        s=k20201202; t=1659922682;
+        bh=Bb3Dowe88SgXMAAw/tOPGQ0jkgx64iKxbq65M0Yu5y4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=He7xufsQLfckxdGykRZ4m8Tc0xNrgX1Y7ThLc+j0E97mQ+/1SkUBr6Fa0KMAN/Zs1
-         voQMzuPr6mfFj3dv1wlEWOXGZ42wec6QjFM2RFYV5Ed4r+tK+YDlbJcUpPntJDlxFR
-         ok16XJeIBD+6O43TkOKF5Bq5fyzn/HCzomVwW+vg7BeoJqoRzy6ubjns7swKkoXpvk
-         dqAQn2ktHmwectEWMShi7hlC8y14eOoRY580QJG2d8SKjSFAzHRoy7olNnrGlme9/r
-         OMnpsdXZ4zY7rfCzcC/0QP4w7W3+tHk1D92SVKru6FnJB4gV6caQLEqSIBzbbX1DrU
-         EzaibTNHWZECw==
+        b=Ir6XIf49D692KXc/b26AzJhuo4WsEEHfWOIgowFNHyHQBbbCc4fnRh8zaJyy3iYPU
+         M2JVt61btVSgsogS72I1pGNwCQca/2rDmoRukOEfFpnacAwzqI578RweLz7Jeyh6qR
+         6NMBSq/gmqsVY51OcWXD/Aj2C0oN2u9M1Pe8kOpw1Ej7HIb6ncoObMxQCD/Bh+XpW9
+         wRLGZzhbmwG0SxadI/KqCTI0ECKziU5Yh6L8xF2mtiaX7s/0EEkGQurrpmgG3SCWLM
+         gY1LYZBzlDfmZwUWJfM4TdkGFYrVcJgiMmOEg+NAiLyX8QEv69ASP10yo0sUR8h1DS
+         NLfvFUXgPuuSw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
@@ -38,9 +38,9 @@ Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
         Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
         krzysztof.kozlowski+dt@linaro.org, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 11/29] ARM: dts: imx6ul: change operating-points to uint32-matrix
-Date:   Sun,  7 Aug 2022 21:37:21 -0400
-Message-Id: <20220808013741.316026-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 12/29] ARM: dts: imx6ul: fix keypad compatible
+Date:   Sun,  7 Aug 2022 21:37:22 -0400
+Message-Id: <20220808013741.316026-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013741.316026-1-sashal@kernel.org>
 References: <20220808013741.316026-1-sashal@kernel.org>
@@ -60,59 +60,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit edb67843983bbdf61b4c8c3c50618003d38bb4ae ]
+[ Upstream commit 7d15e0c9a515494af2e3199741cdac7002928a0e ]
 
-operating-points is a uint32-matrix as per opp-v1.yaml. Change it
-accordingly. While at it, change fsl,soc-operating-points as well,
-although there is no bindings file (yet). But they should have the same
-format. Fixes the dt_binding_check warning:
-cpu@0: operating-points:0: [696000, 1275000, 528000, 1175000, 396000,
-1025000, 198000, 950000] is too long
-cpu@0: operating-points:0: Additional items are not allowed (528000,
-1175000, 396000, 1025000, 198000, 950000 were unexpected)
+According to binding, the compatible shall only contain imx6ul and imx21
+compatibles. Fixes the dt_binding_check warning:
+keypad@20b8000: compatible: 'oneOf' conditional failed, one must be fixed:
+['fsl,imx6ul-kpp', 'fsl,imx6q-kpp', 'fsl,imx21-kpp'] is too long
+Additional items are not allowed ('fsl,imx6q-kpp', 'fsl,imx21-kpp' were
+unexpected)
+Additional items are not allowed ('fsl,imx21-kpp' was unexpected)
+'fsl,imx21-kpp' was expected
 
 Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6ul.dtsi | 22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ arch/arm/boot/dts/imx6ul.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm/boot/dts/imx6ul.dtsi b/arch/arm/boot/dts/imx6ul.dtsi
-index 34eccc1db12c..02640c19c1ec 100644
+index 02640c19c1ec..1474985b9908 100644
 --- a/arch/arm/boot/dts/imx6ul.dtsi
 +++ b/arch/arm/boot/dts/imx6ul.dtsi
-@@ -62,20 +62,18 @@ cpu0: cpu@0 {
- 			clock-frequency = <696000000>;
- 			clock-latency = <61036>; /* two CLK32 periods */
- 			#cooling-cells = <2>;
--			operating-points = <
-+			operating-points =
- 				/* kHz	uV */
--				696000	1275000
--				528000	1175000
--				396000	1025000
--				198000	950000
--			>;
--			fsl,soc-operating-points = <
-+				<696000	1275000>,
-+				<528000	1175000>,
-+				<396000	1025000>,
-+				<198000	950000>;
-+			fsl,soc-operating-points =
- 				/* KHz	uV */
--				696000	1275000
--				528000	1175000
--				396000	1175000
--				198000	1175000
--			>;
-+				<696000	1275000>,
-+				<528000	1175000>,
-+				<396000	1175000>,
-+				<198000	1175000>;
- 			clocks = <&clks IMX6UL_CLK_ARM>,
- 				 <&clks IMX6UL_CLK_PLL2_BUS>,
- 				 <&clks IMX6UL_CLK_PLL2_PFD2>,
+@@ -541,7 +541,7 @@ fec2: ethernet@20b4000 {
+ 			};
+ 
+ 			kpp: keypad@20b8000 {
+-				compatible = "fsl,imx6ul-kpp", "fsl,imx6q-kpp", "fsl,imx21-kpp";
++				compatible = "fsl,imx6ul-kpp", "fsl,imx21-kpp";
+ 				reg = <0x020b8000 0x4000>;
+ 				interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>;
+ 				clocks = <&clks IMX6UL_CLK_KPP>;
 -- 
 2.35.1
 
