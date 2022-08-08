@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08D5858C084
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:52:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29D0D58C068
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:52:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243310AbiHHBwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:52:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37898 "EHLO
+        id S243172AbiHHBwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:52:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243569AbiHHBvS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:51:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 149251928C;
-        Sun,  7 Aug 2022 18:38:17 -0700 (PDT)
+        with ESMTP id S243602AbiHHBvY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:51:24 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC0CC193DA;
+        Sun,  7 Aug 2022 18:38:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5B0860EB5;
+        by sin.source.kernel.org (Postfix) with ESMTPS id C564ECE0F71;
+        Mon,  8 Aug 2022 01:38:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 819A2C43144;
         Mon,  8 Aug 2022 01:38:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 647D6C4347C;
-        Mon,  8 Aug 2022 01:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922696;
-        bh=ds1zzvbq0qur9SR47u+/zRAr2kLukBzgTFaWyvYghII=;
+        s=k20201202; t=1659922697;
+        bh=j4raeIPO+v/GVza0FDa/F3rO28yeJBfDMmfX2uRbR4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rbZdbUu2kf/lqO/bXSqoHQY1chggcxOHY6eH0+H5yI0K5mLzlhKUzbAkPstJ6LMSC
-         I9Gfiv6S/qOVZCVl9oykwF4Psi6S/U7B4ZsEpT5pW/x/uYs6EquSP2EiYyny5UFMO7
-         5DNajFIUwuGDxnvKEehg9vtzhQBlvDGJHU028Ak0PV8R4SyaCavneu2m1H8OCp3/S1
-         /ukrRdtPua37mZyPFEXO51cwn2hXJvCC1yataEZbC9wvbv1HsmYolxREj085jkraJI
-         J5WzgL7bU7f8USJmtwYQ9jglzeV1zjQTRdAdSt26E+jChzXJw3p8SROWdTrDzPHeTj
-         31Jp9Go4ppGnw==
+        b=DbYn3nSWMLNVkT9tmqUV11sdtXAwKCrL79Vvz4dl455lAMIjKvBItpfGGnhtBV68U
+         s5phJVeSo1nonCTy3CL2jic76vm/L04wraxwf6mNiAXc44hp6HZ1H87TAum1riDtMI
+         81BAMjf1a4QNRvSCPTVqRqlsO+zBfh4ZSUa5cNfrVUeyk7rT1qLk9pLEM89uVkM6NL
+         foFCacJTxT0lyVTuXX22ma3ebYZHi2G/E/gCTow+b3/323n3uVE9V0/sYTmX0qkFY2
+         mqZC4P+TqceF2FB0RLjTlDQxCTQYni+AuteI3fW8QNY69hy9SXv78BC3q5nkrQXHNf
+         2I5Y7LqRLAg+A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manyi Li <limanyi@uniontech.com>,
+Cc:     huhai <huhai@kylinos.cn>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
         linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 21/29] ACPI: PM: save NVS memory for Lenovo G40-45
-Date:   Sun,  7 Aug 2022 21:37:31 -0400
-Message-Id: <20220808013741.316026-21-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 22/29] ACPI: LPSS: Fix missing check in register_device_clock()
+Date:   Sun,  7 Aug 2022 21:37:32 -0400
+Message-Id: <20220808013741.316026-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013741.316026-1-sashal@kernel.org>
 References: <20220808013741.316026-1-sashal@kernel.org>
@@ -57,42 +57,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manyi Li <limanyi@uniontech.com>
+From: huhai <huhai@kylinos.cn>
 
-[ Upstream commit 4b7ef7b05afcde44142225c184bf43a0cd9e2178 ]
+[ Upstream commit b4f1f61ed5928b1128e60e38d0dffa16966f06dc ]
 
-[821d6f0359b0614792ab8e2fb93b503e25a65079] is to make machines
-produced from 2012 to now not saving NVS region to accelerate S3.
+register_device_clock() misses a check for platform_device_register_simple().
+Add a check to fix it.
 
-But, Lenovo G40-45, a platform released in 2015, still needs NVS memory
-saving during S3. A quirk is introduced for this platform.
-
-Signed-off-by: Manyi Li <limanyi@uniontech.com>
+Signed-off-by: huhai <huhai@kylinos.cn>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/sleep.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/acpi/acpi_lpss.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
-index cfda5720de02..097a5b5f46ab 100644
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -364,6 +364,14 @@ static const struct dmi_system_id acpisleep_dmi_table[] __initconst = {
- 		DMI_MATCH(DMI_PRODUCT_NAME, "80E3"),
- 		},
- 	},
-+	{
-+	.callback = init_nvs_save_s3,
-+	.ident = "Lenovo G40-45",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "80E1"),
-+		},
-+	},
- 	/*
- 	 * ThinkPad X1 Tablet(2016) cannot do suspend-to-idle using
- 	 * the Low Power S0 Idle firmware interface (see
+diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
+index be73974ce449..6ff81027c69d 100644
+--- a/drivers/acpi/acpi_lpss.c
++++ b/drivers/acpi/acpi_lpss.c
+@@ -401,6 +401,9 @@ static int register_device_clock(struct acpi_device *adev,
+ 	if (!lpss_clk_dev)
+ 		lpt_register_clock_device();
+ 
++	if (IS_ERR(lpss_clk_dev))
++		return PTR_ERR(lpss_clk_dev);
++
+ 	clk_data = platform_get_drvdata(lpss_clk_dev);
+ 	if (!clk_data)
+ 		return -ENODEV;
 -- 
 2.35.1
 
