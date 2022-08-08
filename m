@@ -2,94 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8580F58D163
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 02:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 700BB58D279
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 05:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244723AbiHIAed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Aug 2022 20:34:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36774 "EHLO
+        id S232791AbiHIDsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Aug 2022 23:48:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244091AbiHIAeb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Aug 2022 20:34:31 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CAAF19C18
-        for <stable@vger.kernel.org>; Mon,  8 Aug 2022 17:34:29 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id z187so9452283pfb.12
-        for <stable@vger.kernel.org>; Mon, 08 Aug 2022 17:34:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc;
-        bh=6C9ArOHrYaAILM0KZ4kBvP+nUNIqPYA+uHHXGsdeawA=;
-        b=P7WoNvVpS3okL4YI3o5uz9544qztcUEr1d+LExJylyHYHQZklqf4z8S2h44Nc5Rqre
-         qNENlB9cRxxMXJSQLaVPA0ibUYmjuaUJxWHlEQg7XuwMMHiCKjfD800w6HWCWFW97jG/
-         ipFPUBO9QJxq33W2C+jnkG+6srCtqkLKyelalaRu86/MhVjtgfzdbu2VciP74lTDXia9
-         tcw8AMqrymPwqEMiio9pnZkOQSBjcxgOGJcbHeqKSwXLqqqiqfSq/J4xmKGbmk8N1IHN
-         DNkD36mh4S1SoQfCQvhfZ0UTfN6afTiLMOCwOk8MufKvKKOHJeMYrKKHKZ0GG2/hN1yX
-         s3pw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=6C9ArOHrYaAILM0KZ4kBvP+nUNIqPYA+uHHXGsdeawA=;
-        b=pjB/K4Fn1cmITQHKU21xmJSQpb3w1oUMJulzViI3xNL44L/t2Mrys30GQQBRWlG8Ys
-         gj1AMNQgeBZhYI8UNSM9axBDjU4eaEC2F3SP+mv4OH0ZdhWbIQl9Zx5gY0LfzjcICjFz
-         TEs6SQHbGqvsEbLOrm0I1QrwpTZjy6DPcpAXCu7lDCv69V8Y6B5EIVDOX7Aa+pmOki8i
-         Wn2X+UY4Smz4u1fZCw+L0T0RaFNNlq4hOCOitrm07171ydVosx9gP95IHRupzEhoXzLR
-         4mQ49xswbl2ux3nsJnIxsaaMJDj1Xk2FyNiUOi3H0eOLhzKxVZOBVrtLbdl8JZ5w2uKE
-         PIMQ==
-X-Gm-Message-State: ACgBeo1EmDi/zPd9RWIcR5JgWHFLHKyROTLx3Ce6swSRHwNFELufTPh5
-        eaqk367l745Z9YTxjtaRPgbBXQ==
-X-Google-Smtp-Source: AA6agR4Gz5g5vG/l/tZyqtSjI3vc8zXtknoeHx9hIKW+yKI0a0eBaFzsrwCevFsok5EYWzWVjhoKBA==
-X-Received: by 2002:a63:ea11:0:b0:41d:9296:21e6 with SMTP id c17-20020a63ea11000000b0041d929621e6mr4696671pgi.603.1660005268964;
-        Mon, 08 Aug 2022 17:34:28 -0700 (PDT)
-Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
-        by smtp.gmail.com with ESMTPSA id o13-20020a17090a420d00b001f260b1954bsm8740402pjg.13.2022.08.08.17.34.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Aug 2022 17:34:28 -0700 (PDT)
-Date:   Tue, 9 Aug 2022 00:34:24 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Coleman Dietsch <dietschc@csp.edu>
-Cc:     kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H . Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-        skhan@linuxfoundation.org, Pavel Skripkin <paskripkin@gmail.com>,
-        linux-kernel-mentees@lists.linuxfoundation.org,
-        stable@vger.kernel.org,
-        syzbot+e54f930ed78eb0f85281@syzkaller.appspotmail.com
-Subject: Re: [PATCH v3 2/2] KVM: x86/xen: Stop Xen timer before changing IRQ
-Message-ID: <YvGrkII3Sgw/qTeo@google.com>
-References: <20220808190607.323899-2-dietschc@csp.edu>
- <20220808190607.323899-3-dietschc@csp.edu>
+        with ESMTP id S233576AbiHIDrr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Aug 2022 23:47:47 -0400
+X-Greylist: delayed 10129 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 08 Aug 2022 20:46:27 PDT
+Received: from mail.kmm.com.ua (mail.kmm.com.ua [86.111.90.204])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D8B320182
+        for <stable@vger.kernel.org>; Mon,  8 Aug 2022 20:46:26 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.kmm.com.ua (Postfix) with ESMTP id D14E1353B35;
+        Tue,  9 Aug 2022 02:49:21 +0300 (EEST)
+Received: from mail.kmm.com.ua ([127.0.0.1])
+        by localhost (mail.kmm.com.ua [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id 6Tri_FaNGO02; Tue,  9 Aug 2022 02:49:21 +0300 (EEST)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.kmm.com.ua (Postfix) with ESMTP id 86952353B2F;
+        Tue,  9 Aug 2022 02:49:21 +0300 (EEST)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.kmm.com.ua 86952353B2F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kmm.com.ua;
+        s=49BEA8DC-3377-11E9-9804-192150020000; t=1660002561;
+        bh=UKqLOxd1tjWtqLTwqciApkvglgzUJELcSkloqI0zUxo=;
+        h=MIME-Version:To:From:Date:Message-Id;
+        b=UflkXTR+8LkJUB+CtO6EboO/ozht75zYWlDzn4auq0ECvfe4llF8RZv7oUpcRLqlR
+         Q+LKGHXdi1kChh8eQX4+dLQYRm1QtdDHKXobb+Q1FxSg0jU/5JYCAtuuHwD+mdGmGe
+         gNwLZtl5KvK/QYQYgKefeqKs/i+HICWnGZ4m6o561MP7sl/SpKhY58qvEsw05LYtQ5
+         lFYAEu2s5Fn1KeG/VgXZ1um9lT4y2x18LTLvuXUmCeaCVKi1RFQTk3HB4Gzqfy6jEq
+         zMwgc6ybilYDlzMbxFROnmJex5omq7U0VT5QAkof5NTRuuUSuXs/pFNTNqzHl8OA+l
+         f1u2H3iDVZRCw==
+X-Virus-Scanned: amavisd-new at hq.kmm.com.ua
+Received: from mail.kmm.com.ua ([127.0.0.1])
+        by localhost (mail.kmm.com.ua [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id tYn6-eHrtSOW; Tue,  9 Aug 2022 02:49:21 +0300 (EEST)
+Received: from [100.87.234.82] (hq1firewall1_vpn.hq.kmm.com.ua [10.1.100.2])
+        by mail.kmm.com.ua (Postfix) with ESMTPSA id 08C3B353AF9;
+        Tue,  9 Aug 2022 02:49:13 +0300 (EEST)
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220808190607.323899-3-dietschc@csp.edu>
-X-Spam-Status: No, score=-14.5 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: Wichtige Mitteilung; 2.500.000,00 USD
+To:     Recipients <kadry@kmm.com.ua>
+From:   "Kristine Wellenstein" <kadry@kmm.com.ua>
+Date:   Mon, 08 Aug 2022 16:48:48 -0700
+Reply-To: wellensteinfoundation@gmail.com
+Message-Id: <20220808234914.08C3B353AF9@mail.kmm.com.ua>
+X-Spam-Status: Yes, score=7.3 required=5.0 tests=BAYES_99,BAYES_999,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,FSL_HELO_FAKE,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=no autolearn_force=no version=3.4.6
+        FREEMAIL_FORGED_REPLYTO,LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,
+        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Report: *  0.2 BAYES_999 BODY: Bayes spam probability is 99.9 to 100%
+        *      [score: 1.0000]
+        *  3.5 BAYES_99 BODY: Bayes spam probability is 99 to 100%
+        *      [score: 1.0000]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        * -0.0 SPF_HELO_PASS SPF: HELO matches SPF record
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+        *  1.7 MONEY_FREEMAIL_REPTO Lots of money from someone using free
+        *      email?
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 08, 2022, Coleman Dietsch wrote:
-> Stop Xen timer (if it's running) prior to changing the IRQ vector and
-> potentially (re)starting the timer. Changing the IRQ vector while the
-> timer is still running can result in KVM injecting a garbage event, e.g.
-> vm_xen_inject_timer_irqs() could see a non-zero xen.timer_pending from
-> a previous timer but inject the new xen.timer_virq.
-> 
-> Fixes: 536395260582 ("KVM: x86/xen: handle PV timers oneshot mode")
-> Cc: stable@vger.kernel.org
-> Link: https://syzkaller.appspot.com/bug?id=8234a9dfd3aafbf092cc5a7cd9842e3ebc45fc42
-> Reported-by: syzbot+e54f930ed78eb0f85281@syzkaller.appspotmail.com
-> Signed-off-by: Coleman Dietsch <dietschc@csp.edu>
-> ---
+Sehr geehrter E-Mail-Besitzer
 
-Reviewed-by: Sean Christopherson <seanjc@google.com>
+Bitte best=E4tigen Sie den Besitz Ihrer E-Mail. Es wurde nach dem Zufallspr=
+inzip nach einer elektronischen Computer-Spin-Ball-Ziehung ausgew=E4hlt, um=
+ eine Spende von 2.500.000,00 USD von der Kristine Wellenstein Foundation z=
+u erhalten. Senden Sie f=FCr weitere Einzelheiten eine Best=E4tigungs-E-Mai=
+l an wellensteinfoundation@gmail.com
+
+Kristine Wellenstein.
+Gr=FCnder;
+Kristine Wellenstein Stiftung.
