@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A934858C07F
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:52:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0195958C065
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:52:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243284AbiHHBw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:52:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38622 "EHLO
+        id S243123AbiHHBwO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:52:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243280AbiHHBu2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:50:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B386186F1;
+        with ESMTP id S243276AbiHHBu1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:50:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56A53186EF;
         Sun,  7 Aug 2022 18:37:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2AE8B80E0F;
-        Mon,  8 Aug 2022 01:37:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DAD1C43470;
-        Mon,  8 Aug 2022 01:37:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC06060DF5;
+        Mon,  8 Aug 2022 01:37:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7D64C433D6;
+        Mon,  8 Aug 2022 01:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922646;
-        bh=4pNbcfBY7sSXixtKDEXaS8TRXL9OvdOoDNaQXO+z7ao=;
+        s=k20201202; t=1659922648;
+        bh=duFYzGOIIixBva0Q9jgqi225EbafyGawSTxEWc9V+Ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LAO69gcvTHrDDgCxma32yzXotSjVXmuo9IP/Pukxx/CAh4ACOco2rYy5pmWqZvCcP
-         M6d5W5tOdKyOakqvsQefp1xO7LBeWV5NLs3TBFDRs9dkfngpQx14CKIh8IlGFEiaW8
-         NsmHhKtKH17hDNuA3VtG3FlGyYaBclPpYQxGG56CZE7u92uDFcu8BOmHg0Leg+97Md
-         eszwjbE1pfLUfptBj1FOt+GzVcfePmoe+CW2YstcC1CUIT0MpWdiV+OijTUfYKtviu
-         PBTwPfeLS4XUoQLHfl1AEKphYJVM70kxoRY6AXNXLZ9hdEwsHLiwqYd2WjLV10v7CN
-         Ki85UFMN6IRug==
+        b=sEUldoInZfxATDpnr2uS4nGT509D9gb3xPKXKC+ve9F1JZwVrdt12f7wyFTxQttib
+         gQtShY0GLtAdf8GSm5SWU3tN2NJUPQ/PUGd/FlGfA71rolR85bN0bBmxaRrcdP58xi
+         qbNMpTvwvSnwft2H05HbmQTMi0fd63MPY1AAyDqzd6eEZwlfzM0Uxg+DsNBZoc8/YK
+         3cZtlzNRb8dqzrNCBgNPl0MQ7qVxNGwJMR185HSwZlSaHq1LV9akdz0pDXR3QymEcR
+         hLh/aAtYSJyZX8q06YVFT1QNwErtKWmlFaC9r852azHkMPlgJoYOGkDmfFBCDwJcwC
+         OTJeEQbdgzYCQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
-        linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 40/45] hwmon: (sht15) Fix wrong assumptions in device remove callback
-Date:   Sun,  7 Aug 2022 21:35:44 -0400
-Message-Id: <20220808013551.315446-40-sashal@kernel.org>
+Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        pavel@ucw.cz, len.brown@intel.com, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 41/45] PM: hibernate: defer device probing when resuming from hibernation
+Date:   Sun,  7 Aug 2022 21:35:45 -0400
+Message-Id: <20220808013551.315446-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013551.315446-1-sashal@kernel.org>
 References: <20220808013551.315446-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,73 +58,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 7d4edccc9bbfe1dcdff641343f7b0c6763fbe774 ]
+[ Upstream commit 8386c414e27caba8501119948e9551e52b527f59 ]
 
-Taking a lock at the beginning of .remove() doesn't prevent new readers.
-With the existing approach it can happen, that a read occurs just when
-the lock was taken blocking the reader until the lock is released at the
-end of the remove callback which then accessed *data that is already
-freed then.
+syzbot is reporting hung task at misc_open() [1], for there is a race
+window of AB-BA deadlock which involves probe_count variable. Currently
+wait_for_device_probe() from snapshot_open() from misc_open() can sleep
+forever with misc_mtx held if probe_count cannot become 0.
 
-To actually fix this problem the hwmon core needs some adaption. Until
-this is implemented take the optimistic approach of assuming that all
-readers are gone after hwmon_device_unregister() and
-sysfs_remove_group() as most other drivers do. (And once the core
-implements that, taking the lock would deadlock.)
+When a device is probed by hub_event() work function, probe_count is
+incremented before the probe function starts, and probe_count is
+decremented after the probe function completed.
 
-So drop the lock, move the reset to after device unregistration to keep
-the device in a workable state until it's deregistered. Also add a error
-message in case the reset fails and return 0 anyhow. (Returning an error
-code, doesn't stop the platform device unregistration and only results
-in a little helpful error message before the devm cleanup handlers are
-called.)
+There are three cases that can prevent probe_count from dropping to 0.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20220725194344.150098-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+  (a) A device being probed stopped responding (i.e. broken/malicious
+      hardware).
+
+  (b) A process emulating a USB device using /dev/raw-gadget interface
+      stopped responding for some reason.
+
+  (c) New device probe requests keeps coming in before existing device
+      probe requests complete.
+
+The phenomenon syzbot is reporting is (b). A process which is holding
+system_transition_mutex and misc_mtx is waiting for probe_count to become
+0 inside wait_for_device_probe(), but the probe function which is called
+ from hub_event() work function is waiting for the processes which are
+blocked at mutex_lock(&misc_mtx) to respond via /dev/raw-gadget interface.
+
+This patch mitigates (b) by deferring wait_for_device_probe() from
+snapshot_open() to snapshot_write() and snapshot_ioctl(). Please note that
+the possibility of (b) remains as long as any thread which is emulating a
+USB device via /dev/raw-gadget interface can be blocked by uninterruptible
+blocking operations (e.g. mutex_lock()).
+
+Please also note that (a) and (c) are not addressed. Regarding (c), we
+should change the code to wait for only one device which contains the
+image for resuming from hibernation. I don't know how to address (a), for
+use of timeout for wait_for_device_probe() might result in loss of user
+data in the image. Maybe we should require the userland to wait for the
+image device before opening /dev/snapshot interface.
+
+Link: https://syzkaller.appspot.com/bug?extid=358c9ab4c93da7b7238c [1]
+Reported-by: syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/sht15.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+ kernel/power/user.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/sht15.c b/drivers/hwmon/sht15.c
-index 7f4a63959730..ae4d14257a11 100644
---- a/drivers/hwmon/sht15.c
-+++ b/drivers/hwmon/sht15.c
-@@ -1020,25 +1020,20 @@ static int sht15_probe(struct platform_device *pdev)
- static int sht15_remove(struct platform_device *pdev)
- {
- 	struct sht15_data *data = platform_get_drvdata(pdev);
-+	int ret;
+diff --git a/kernel/power/user.c b/kernel/power/user.c
+index 740723bb3885..13cca2e2c2bc 100644
+--- a/kernel/power/user.c
++++ b/kernel/power/user.c
+@@ -26,6 +26,7 @@
  
--	/*
--	 * Make sure any reads from the device are done and
--	 * prevent new ones beginning
--	 */
--	mutex_lock(&data->read_lock);
--	if (sht15_soft_reset(data)) {
--		mutex_unlock(&data->read_lock);
--		return -EFAULT;
--	}
- 	hwmon_device_unregister(data->hwmon_dev);
- 	sysfs_remove_group(&pdev->dev.kobj, &sht15_attr_group);
+ #include "power.h"
+ 
++static bool need_wait;
+ 
+ static struct snapshot_data {
+ 	struct snapshot_handle handle;
+@@ -78,7 +79,7 @@ static int snapshot_open(struct inode *inode, struct file *filp)
+ 		 * Resuming.  We may need to wait for the image device to
+ 		 * appear.
+ 		 */
+-		wait_for_device_probe();
++		need_wait = true;
+ 
+ 		data->swap = -1;
+ 		data->mode = O_WRONLY;
+@@ -168,6 +169,11 @@ static ssize_t snapshot_write(struct file *filp, const char __user *buf,
+ 	ssize_t res;
+ 	loff_t pg_offp = *offp & ~PAGE_MASK;
+ 
++	if (need_wait) {
++		wait_for_device_probe();
++		need_wait = false;
++	}
 +
-+	ret = sht15_soft_reset(data);
-+	if (ret)
-+		dev_err(&pdev->dev, "Failed to reset device (%pe)\n", ERR_PTR(ret));
+ 	lock_system_sleep();
+ 
+ 	data = filp->private_data;
+@@ -244,6 +250,11 @@ static long snapshot_ioctl(struct file *filp, unsigned int cmd,
+ 	loff_t size;
+ 	sector_t offset;
+ 
++	if (need_wait) {
++		wait_for_device_probe();
++		need_wait = false;
++	}
 +
- 	if (!IS_ERR(data->reg)) {
- 		regulator_unregister_notifier(data->reg, &data->nb);
- 		regulator_disable(data->reg);
- 	}
- 
--	mutex_unlock(&data->read_lock);
--
- 	return 0;
- }
- 
+ 	if (_IOC_TYPE(cmd) != SNAPSHOT_IOC_MAGIC)
+ 		return -ENOTTY;
+ 	if (_IOC_NR(cmd) > SNAPSHOT_IOC_MAXNR)
 -- 
 2.35.1
 
