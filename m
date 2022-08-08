@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2382358C123
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:57:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3E3958C128
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:57:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243600AbiHHB53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:57:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52028 "EHLO
+        id S243762AbiHHB5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:57:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243801AbiHHB4E (ORCPT
+        with ESMTP id S243810AbiHHB4E (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:56:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84ABEF5A7;
-        Sun,  7 Aug 2022 18:39:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EB841C90A;
+        Sun,  7 Aug 2022 18:39:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22A4E60EB5;
-        Mon,  8 Aug 2022 01:39:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAAF4C433D6;
-        Mon,  8 Aug 2022 01:39:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C057760DF8;
+        Mon,  8 Aug 2022 01:39:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00568C433D7;
+        Mon,  8 Aug 2022 01:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922774;
-        bh=a6/dzNLnl3+ueGSUXifc4gcmQx39zUiZ4KE3nKIegv8=;
+        s=k20201202; t=1659922776;
+        bh=RSDlD8Uga25bmtLYdSTBMn3lox5GFYwmoLKXqo5AMGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jKXZjYYw5HagTIead86jMRRb6Qg/oJGjSsku+IkHDKPbsbUso0+xtIQ2w76CA6B2/
-         oQa3YiSerwThSE3DbCpyvKecovFUvm7mIXhX6DBpBKZ47HehPZsHyqrXW+q7iT2tlN
-         CXCTe+B6TG/t1hQvtoDT5xtm5vXqr67X1ceUT/ipx1wEBMeOvaiCxuWGNb/MMEdFTr
-         4EghG4yHY/Z5d5x8CdEXAXkxWpZHqAs7j9NIgp5YShSI74OQrspA7dbirDlfr0fTG1
-         T+rmFSDE1zOyPVuio/N4O2tQeGRkgF1o6YD//+HilK4/6XqfXma2xcL10/hX4slCIA
-         /unyEMcoUpE5A==
+        b=olZVpdX1siRj/tcvR/WLVfDm5+y4gnTXUtPssiQHgUdVG9ovTlQfKc5xgL2YVem+5
+         KYQrbJHzcb+L4D2GJpJRPefZk/brpWkWjS1dZY/P10SytMEfA82HpRWEj5+2ss5RDX
+         FSrUe6Se2y/Y4WfqEcGW6tiL9pqu9vfiz/2RZHjMRwC+0El3L3KTCGOPpWIJqMoH2c
+         gANMkqA9a9AZdw+z92LhfHbmJ2R+4g8e6Yqy3+8U0urdsLSQUChNVIXCpshGr8t98P
+         3eD/tC3PzPZAqOoiDfBYVsAamJHm1pMQn8MiSbehUcKPNv9UZ3BDQlwRXFG+87OG9Z
+         Cq6DXMkNVbbQg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     huhai <huhai@kylinos.cn>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 12/16] ACPI: LPSS: Fix missing check in register_device_clock()
-Date:   Sun,  7 Aug 2022 21:39:09 -0400
-Message-Id: <20220808013914.316709-12-sashal@kernel.org>
+Cc:     Robert Marko <robimarko@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 13/16] arm64: dts: qcom: ipq8074: fix NAND node name
+Date:   Sun,  7 Aug 2022 21:39:10 -0400
+Message-Id: <20220808013914.316709-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013914.316709-1-sashal@kernel.org>
 References: <20220808013914.316709-1-sashal@kernel.org>
@@ -57,34 +59,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: huhai <huhai@kylinos.cn>
+From: Robert Marko <robimarko@gmail.com>
 
-[ Upstream commit b4f1f61ed5928b1128e60e38d0dffa16966f06dc ]
+[ Upstream commit b39961659ffc3c3a9e3d0d43b0476547b5f35d49 ]
 
-register_device_clock() misses a check for platform_device_register_simple().
-Add a check to fix it.
+Per schema it should be nand-controller@79b0000 instead of nand@79b0000.
+Fix it to match nand-controller.yaml requirements.
 
-Signed-off-by: huhai <huhai@kylinos.cn>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Robert Marko <robimarko@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220621120642.518575-1-robimarko@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_lpss.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/boot/dts/qcom/ipq8074.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
-index ded6c5c17fd7..144cda7da7ee 100644
---- a/drivers/acpi/acpi_lpss.c
-+++ b/drivers/acpi/acpi_lpss.c
-@@ -401,6 +401,9 @@ static int register_device_clock(struct acpi_device *adev,
- 	if (!lpss_clk_dev)
- 		lpt_register_clock_device();
+diff --git a/arch/arm64/boot/dts/qcom/ipq8074.dtsi b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
+index f48d14cd10a3..bdee07305ce5 100644
+--- a/arch/arm64/boot/dts/qcom/ipq8074.dtsi
++++ b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
+@@ -261,7 +261,7 @@ qpic_bam: dma@7984000 {
+ 			status = "disabled";
+ 		};
  
-+	if (IS_ERR(lpss_clk_dev))
-+		return PTR_ERR(lpss_clk_dev);
-+
- 	clk_data = platform_get_drvdata(lpss_clk_dev);
- 	if (!clk_data)
- 		return -ENODEV;
+-		qpic_nand: nand@79b0000 {
++		qpic_nand: nand-controller@79b0000 {
+ 			compatible = "qcom,ipq8074-nand";
+ 			reg = <0x79b0000 0x10000>;
+ 			#address-cells = <1>;
 -- 
 2.35.1
 
