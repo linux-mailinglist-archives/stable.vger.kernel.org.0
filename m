@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7340C58BFFD
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBF1358C008
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:47:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242611AbiHHBq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:46:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50518 "EHLO
+        id S242880AbiHHBrG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:47:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242770AbiHHBo2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:44:28 -0400
+        with ESMTP id S243047AbiHHBpx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:45:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2719113F62;
-        Sun,  7 Aug 2022 18:36:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB5A013FB9;
+        Sun,  7 Aug 2022 18:36:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E9B260E73;
-        Mon,  8 Aug 2022 01:36:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20228C433D6;
-        Mon,  8 Aug 2022 01:36:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8912F60E06;
+        Mon,  8 Aug 2022 01:36:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99B8EC4314C;
+        Mon,  8 Aug 2022 01:36:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922572;
-        bh=D/3/eMXKeZu/Nlw850e0ydwzuH7Vnd+YhpqHFcHLHPs=;
+        s=k20201202; t=1659922576;
+        bh=M8tgTeIXH/X67VpqjvwYuPRwGg0JWAjfCSGH3QwPtlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1D4aNPFb5jJSn7d80HrUsBag9k6ZQ3s4tU0wowT7hesIjgDmojxczs1xFFdP+5VP
-         GDN3F+EYXHJoqo11Ngl7ZJjBg3GvShm8oZT2vxhAkF71YE6/5SGIoChVVXnvvdgptK
-         BsZJGZic8WD6sA6NCeDOCd7wUVQFQ5qFNdX9T/iaiQ0bOgmM+lHzRsUUoZOi7kWqzi
-         kB7GAbWJcwJBasX5FGCrjhu/7DY2LijPXqWr2Vh6wisQmBaS+o+2KU276/xYb4al4e
-         +EqOVH6q5T6IKBmHfMK29dBBR4lPazqDWDJ6QHzq6ttAMj1hvcHbtADekexdxmyT1/
-         ELF45uBMON4Aw==
+        b=C4HJ53h2qeThYSz1Kvj9bKuz2BB6OD30uGDsiQhv9Ej8KutqQ9ioMndu/jguF9K0q
+         L3Ot2MKHFEYzAhXOlqTWqQvvQX53R8jvyl20NVV2aH3SiCBp/19l6Bwjnevnp6skFq
+         PliwsJDf6Xu2lXSPgodo/qGYuZHsRuK9bYlJRvb11EcnANAbBfbR/goDoAcAksoBFG
+         +EyZYOyaT4CBnfmlK1xxjriARFhOT7hVv6MQNvm77bHMIObsxvcnStFMCgoP169Pas
+         CKMgzVw00rhS29EYviS7xGaT9mEbf4agTKwPVLBPTxlodqTKD1BeDNYQmoZxcjloLY
+         jrd5Q1FXEbarA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ard Biesheuvel <ardb@kernel.org>, Will Deacon <will@kernel.org>,
         Sasha Levin <sashal@kernel.org>, catalin.marinas@arm.com,
-        ryabinin.a.a@gmail.com, pasha.tatashin@soleen.com,
-        anshuman.khandual@arm.com, broonie@kernel.org, maz@kernel.org,
-        suzuki.poulose@arm.com, james.morse@arm.com,
-        vladimir.murzin@arm.com, Julia.Lawall@inria.fr,
-        akpm@linux-foundation.org, david@redhat.com,
-        vijayb@linux.microsoft.com, quic_sudaraja@quicinc.com,
-        jianyong.wu@arm.com, rppt@kernel.org,
-        linux-arm-kernel@lists.infradead.org, kasan-dev@googlegroups.com
-Subject: [PATCH AUTOSEL 5.15 04/45] arm64: mm: provide idmap pointer to cpu_replace_ttbr1()
-Date:   Sun,  7 Aug 2022 21:35:08 -0400
-Message-Id: <20220808013551.315446-4-sashal@kernel.org>
+        hca@linux.ibm.com, mpe@ellerman.id.au, mark.rutland@arm.com,
+        Jason@zx2c4.com, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 05/45] arm64: kaslr: defer initialization to initcall where permitted
+Date:   Sun,  7 Aug 2022 21:35:09 -0400
+Message-Id: <20220808013551.315446-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013551.315446-1-sashal@kernel.org>
 References: <20220808013551.315446-1-sashal@kernel.org>
@@ -65,127 +59,189 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 1682c45b920643cbde31d8a5b7ca7c2be92d6928 ]
+[ Upstream commit fc5a89f75d2aad3e566e030675ac420aee49729c ]
 
-In preparation for changing the way we initialize the permanent ID map,
-update cpu_replace_ttbr1() so we can use it with the initial ID map as
-well.
+The early KASLR init code runs extremely early, and anything that could
+be deferred until later should be. So let's defer the randomization of
+the module region until much later - this also simplifies the
+arithmetic, given that we no longer have to reason about the link time
+vs load time placement of the core kernel explicitly. Also get rid of
+the global status variable, and infer the status reported by the
+diagnostic print from other KASLR related context.
+
+While at it, get rid of the special case for KASAN without
+KASAN_VMALLOC, which never occurs in practice.
 
 Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Link: https://lore.kernel.org/r/20220624150651.1358849-11-ardb@kernel.org
+Link: https://lore.kernel.org/r/20220624150651.1358849-20-ardb@kernel.org
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/mmu_context.h | 13 +++++++++----
- arch/arm64/kernel/cpufeature.c       |  2 +-
- arch/arm64/kernel/suspend.c          |  2 +-
- arch/arm64/mm/kasan_init.c           |  4 ++--
- arch/arm64/mm/mmu.c                  |  2 +-
- 5 files changed, 14 insertions(+), 9 deletions(-)
+ arch/arm64/kernel/kaslr.c | 95 +++++++++++++++++----------------------
+ 1 file changed, 40 insertions(+), 55 deletions(-)
 
-diff --git a/arch/arm64/include/asm/mmu_context.h b/arch/arm64/include/asm/mmu_context.h
-index f4ba93d4ffeb..24ed534bb417 100644
---- a/arch/arm64/include/asm/mmu_context.h
-+++ b/arch/arm64/include/asm/mmu_context.h
-@@ -106,20 +106,25 @@ static inline void cpu_uninstall_idmap(void)
- 		cpu_switch_mm(mm->pgd, mm);
- }
+diff --git a/arch/arm64/kernel/kaslr.c b/arch/arm64/kernel/kaslr.c
+index d5542666182f..3edee81d8ea7 100644
+--- a/arch/arm64/kernel/kaslr.c
++++ b/arch/arm64/kernel/kaslr.c
+@@ -20,14 +20,6 @@
+ #include <asm/sections.h>
+ #include <asm/setup.h>
  
--static inline void cpu_install_idmap(void)
-+static inline void __cpu_install_idmap(pgd_t *idmap)
+-enum kaslr_status {
+-	KASLR_ENABLED,
+-	KASLR_DISABLED_CMDLINE,
+-	KASLR_DISABLED_NO_SEED,
+-	KASLR_DISABLED_FDT_REMAP,
+-};
+-
+-static enum kaslr_status __initdata kaslr_status;
+ u64 __ro_after_init module_alloc_base;
+ u16 __initdata memstart_offset_seed;
+ 
+@@ -63,15 +55,9 @@ struct arm64_ftr_override kaslr_feature_override __initdata;
+ u64 __init kaslr_early_init(void)
  {
- 	cpu_set_reserved_ttbr0();
- 	local_flush_tlb_all();
- 	cpu_set_idmap_tcr_t0sz();
+ 	void *fdt;
+-	u64 seed, offset, mask, module_range;
++	u64 seed, offset, mask;
+ 	unsigned long raw;
  
--	cpu_switch_mm(lm_alias(idmap_pg_dir), &init_mm);
-+	cpu_switch_mm(lm_alias(idmap), &init_mm);
+-	/*
+-	 * Set a reasonable default for module_alloc_base in case
+-	 * we end up running with module randomization disabled.
+-	 */
+-	module_alloc_base = (u64)_etext - MODULES_VSIZE;
+-
+ 	/*
+ 	 * Try to map the FDT early. If this fails, we simply bail,
+ 	 * and proceed with KASLR disabled. We will make another
+@@ -79,7 +65,6 @@ u64 __init kaslr_early_init(void)
+ 	 */
+ 	fdt = get_early_fdt_ptr();
+ 	if (!fdt) {
+-		kaslr_status = KASLR_DISABLED_FDT_REMAP;
+ 		return 0;
+ 	}
+ 
+@@ -93,7 +78,6 @@ u64 __init kaslr_early_init(void)
+ 	 * return 0 if that is the case.
+ 	 */
+ 	if (kaslr_feature_override.val & kaslr_feature_override.mask & 0xf) {
+-		kaslr_status = KASLR_DISABLED_CMDLINE;
+ 		return 0;
+ 	}
+ 
+@@ -106,7 +90,6 @@ u64 __init kaslr_early_init(void)
+ 		seed ^= raw;
+ 
+ 	if (!seed) {
+-		kaslr_status = KASLR_DISABLED_NO_SEED;
+ 		return 0;
+ 	}
+ 
+@@ -126,19 +109,43 @@ u64 __init kaslr_early_init(void)
+ 	/* use the top 16 bits to randomize the linear region */
+ 	memstart_offset_seed = seed >> 48;
+ 
+-	if (!IS_ENABLED(CONFIG_KASAN_VMALLOC) &&
+-	    (IS_ENABLED(CONFIG_KASAN_GENERIC) ||
+-	     IS_ENABLED(CONFIG_KASAN_SW_TAGS)))
+-		/*
+-		 * KASAN without KASAN_VMALLOC does not expect the module region
+-		 * to intersect the vmalloc region, since shadow memory is
+-		 * allocated for each module at load time, whereas the vmalloc
+-		 * region is shadowed by KASAN zero pages. So keep modules
+-		 * out of the vmalloc region if KASAN is enabled without
+-		 * KASAN_VMALLOC, and put the kernel well within 4 GB of the
+-		 * module region.
+-		 */
+-		return offset % SZ_2G;
++	return offset;
 +}
 +
-+static inline void cpu_install_idmap(void)
++static int __init kaslr_init(void)
 +{
-+	__cpu_install_idmap(idmap_pg_dir);
++	u64 module_range;
++	u32 seed;
++
++	/*
++	 * Set a reasonable default for module_alloc_base in case
++	 * we end up running with module randomization disabled.
++	 */
++	module_alloc_base = (u64)_etext - MODULES_VSIZE;
++
++	if (kaslr_feature_override.val & kaslr_feature_override.mask & 0xf) {
++		pr_info("KASLR disabled on command line\n");
++		return 0;
++	}
++
++	if (!kaslr_offset()) {
++		pr_warn("KASLR disabled due to lack of seed\n");
++		return 0;
++	}
++
++	pr_info("KASLR enabled\n");
++
++	/*
++	 * KASAN without KASAN_VMALLOC does not expect the module region to
++	 * intersect the vmalloc region, since shadow memory is allocated for
++	 * each module at load time, whereas the vmalloc region will already be
++	 * shadowed by KASAN zero pages.
++	 */
++	BUILD_BUG_ON((IS_ENABLED(CONFIG_KASAN_GENERIC) ||
++	              IS_ENABLED(CONFIG_KASAN_SW_TAGS)) &&
++		     !IS_ENABLED(CONFIG_KASAN_VMALLOC));
++
++	seed = get_random_u32();
+ 
+ 	if (IS_ENABLED(CONFIG_RANDOMIZE_MODULE_REGION_FULL)) {
+ 		/*
+@@ -150,8 +157,7 @@ u64 __init kaslr_early_init(void)
+ 		 * resolved normally.)
+ 		 */
+ 		module_range = SZ_2G - (u64)(_end - _stext);
+-		module_alloc_base = max((u64)_end + offset - SZ_2G,
+-					(u64)MODULES_VADDR);
++		module_alloc_base = max((u64)_end - SZ_2G, (u64)MODULES_VADDR);
+ 	} else {
+ 		/*
+ 		 * Randomize the module region by setting module_alloc_base to
+@@ -163,33 +169,12 @@ u64 __init kaslr_early_init(void)
+ 		 * when ARM64_MODULE_PLTS is enabled.
+ 		 */
+ 		module_range = MODULES_VSIZE - (u64)(_etext - _stext);
+-		module_alloc_base = (u64)_etext + offset - MODULES_VSIZE;
+ 	}
+ 
+ 	/* use the lower 21 bits to randomize the base of the module region */
+ 	module_alloc_base += (module_range * (seed & ((1 << 21) - 1))) >> 21;
+ 	module_alloc_base &= PAGE_MASK;
+ 
+-	return offset;
+-}
+-
+-static int __init kaslr_init(void)
+-{
+-	switch (kaslr_status) {
+-	case KASLR_ENABLED:
+-		pr_info("KASLR enabled\n");
+-		break;
+-	case KASLR_DISABLED_CMDLINE:
+-		pr_info("KASLR disabled on command line\n");
+-		break;
+-	case KASLR_DISABLED_NO_SEED:
+-		pr_warn("KASLR disabled due to lack of seed\n");
+-		break;
+-	case KASLR_DISABLED_FDT_REMAP:
+-		pr_warn("KASLR disabled due to FDT remapping failure\n");
+-		break;
+-	}
+-
+ 	return 0;
  }
- 
- /*
-  * Atomically replaces the active TTBR1_EL1 PGD with a new VA-compatible PGD,
-  * avoiding the possibility of conflicting TLB entries being allocated.
-  */
--static inline void __nocfi cpu_replace_ttbr1(pgd_t *pgdp)
-+static inline void __nocfi cpu_replace_ttbr1(pgd_t *pgdp, pgd_t *idmap)
- {
- 	typedef void (ttbr_replace_func)(phys_addr_t);
- 	extern ttbr_replace_func idmap_cpu_replace_ttbr1;
-@@ -142,7 +147,7 @@ static inline void __nocfi cpu_replace_ttbr1(pgd_t *pgdp)
- 
- 	replace_phys = (void *)__pa_symbol(function_nocfi(idmap_cpu_replace_ttbr1));
- 
--	cpu_install_idmap();
-+	__cpu_install_idmap(idmap);
- 	replace_phys(ttbr1);
- 	cpu_uninstall_idmap();
- }
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index e71c9cfb46e8..e826509823a6 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -3013,7 +3013,7 @@ subsys_initcall_sync(init_32bit_el0_mask);
- 
- static void __maybe_unused cpu_enable_cnp(struct arm64_cpu_capabilities const *cap)
- {
--	cpu_replace_ttbr1(lm_alias(swapper_pg_dir));
-+	cpu_replace_ttbr1(lm_alias(swapper_pg_dir), idmap_pg_dir);
- }
- 
- /*
-diff --git a/arch/arm64/kernel/suspend.c b/arch/arm64/kernel/suspend.c
-index 19ee7c33769d..40bf1551d1ad 100644
---- a/arch/arm64/kernel/suspend.c
-+++ b/arch/arm64/kernel/suspend.c
-@@ -52,7 +52,7 @@ void notrace __cpu_suspend_exit(void)
- 
- 	/* Restore CnP bit in TTBR1_EL1 */
- 	if (system_supports_cnp())
--		cpu_replace_ttbr1(lm_alias(swapper_pg_dir));
-+		cpu_replace_ttbr1(lm_alias(swapper_pg_dir), idmap_pg_dir);
- 
- 	/*
- 	 * PSTATE was not saved over suspend/resume, re-enable any detected
-diff --git a/arch/arm64/mm/kasan_init.c b/arch/arm64/mm/kasan_init.c
-index 61b52a92b8b6..674863348f67 100644
---- a/arch/arm64/mm/kasan_init.c
-+++ b/arch/arm64/mm/kasan_init.c
-@@ -235,7 +235,7 @@ static void __init kasan_init_shadow(void)
- 	 */
- 	memcpy(tmp_pg_dir, swapper_pg_dir, sizeof(tmp_pg_dir));
- 	dsb(ishst);
--	cpu_replace_ttbr1(lm_alias(tmp_pg_dir));
-+	cpu_replace_ttbr1(lm_alias(tmp_pg_dir), idmap_pg_dir);
- 
- 	clear_pgds(KASAN_SHADOW_START, KASAN_SHADOW_END);
- 
-@@ -279,7 +279,7 @@ static void __init kasan_init_shadow(void)
- 				PAGE_KERNEL_RO));
- 
- 	memset(kasan_early_shadow_page, KASAN_SHADOW_INIT, PAGE_SIZE);
--	cpu_replace_ttbr1(lm_alias(swapper_pg_dir));
-+	cpu_replace_ttbr1(lm_alias(swapper_pg_dir), idmap_pg_dir);
- }
- 
- static void __init kasan_init_depth(void)
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 6680689242df..984f1f503328 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -780,7 +780,7 @@ void __init paging_init(void)
- 
- 	pgd_clear_fixmap();
- 
--	cpu_replace_ttbr1(lm_alias(swapper_pg_dir));
-+	cpu_replace_ttbr1(lm_alias(swapper_pg_dir), idmap_pg_dir);
- 	init_mm.pgd = swapper_pg_dir;
- 
- 	memblock_free(__pa_symbol(init_pg_dir),
+-core_initcall(kaslr_init)
++subsys_initcall(kaslr_init)
 -- 
 2.35.1
 
