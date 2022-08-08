@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBF1358C008
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D9F858C004
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:47:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242880AbiHHBrG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:47:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54100 "EHLO
+        id S235416AbiHHBrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:47:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243047AbiHHBpx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:45:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB5A013FB9;
-        Sun,  7 Aug 2022 18:36:17 -0700 (PDT)
+        with ESMTP id S243106AbiHHBqC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:46:02 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAC7013F81;
+        Sun,  7 Aug 2022 18:36:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8912F60E06;
-        Mon,  8 Aug 2022 01:36:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99B8EC4314C;
-        Mon,  8 Aug 2022 01:36:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CE901CE0F8E;
+        Mon,  8 Aug 2022 01:36:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD094C433C1;
+        Mon,  8 Aug 2022 01:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922576;
-        bh=M8tgTeIXH/X67VpqjvwYuPRwGg0JWAjfCSGH3QwPtlw=;
+        s=k20201202; t=1659922579;
+        bh=1sPZN9zAK9b0nXMwsiefYVa2gH9pSAB6Wy3GSLMBpQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C4HJ53h2qeThYSz1Kvj9bKuz2BB6OD30uGDsiQhv9Ej8KutqQ9ioMndu/jguF9K0q
-         L3Ot2MKHFEYzAhXOlqTWqQvvQX53R8jvyl20NVV2aH3SiCBp/19l6Bwjnevnp6skFq
-         PliwsJDf6Xu2lXSPgodo/qGYuZHsRuK9bYlJRvb11EcnANAbBfbR/goDoAcAksoBFG
-         +EyZYOyaT4CBnfmlK1xxjriARFhOT7hVv6MQNvm77bHMIObsxvcnStFMCgoP169Pas
-         CKMgzVw00rhS29EYviS7xGaT9mEbf4agTKwPVLBPTxlodqTKD1BeDNYQmoZxcjloLY
-         jrd5Q1FXEbarA==
+        b=l3ef8fmZILjmZCiREQwikBJ1y8/sRNok3E5YwxmwztBdou4oNiS63HM8M6Xh7Ht6C
+         /ljFbPAcgrXz7M7vTdToY8dYI/xJmzNSgTx7J4ZhfZ1VFD/b+P9MR8XCbKSwfqCY1Y
+         HfMiv+qf9OAO2C4ptYsQu49IUuPQeC6H7ftoD2FDeOsYuS8/USzM/uw9rqnKvrPXas
+         45V5YXEH/rAsJsuXhcoN1KdjGcAB70ho7S7CD8LsVeTZNDvqm656SsPu+6Sk8tDr0s
+         tHK+6UZFSsOrubce9sZDe4BAvMc2hkOXV9AOjkwJ6LQ0mehPTQIYEmJ/2inT0X8OA/
+         581hPKUvWCKOQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>, Will Deacon <will@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, catalin.marinas@arm.com,
-        hca@linux.ibm.com, mpe@ellerman.id.au, mark.rutland@arm.com,
-        Jason@zx2c4.com, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 05/45] arm64: kaslr: defer initialization to initcall where permitted
-Date:   Sun,  7 Aug 2022 21:35:09 -0400
-Message-Id: <20220808013551.315446-5-sashal@kernel.org>
+Cc:     Francis Laniel <flaniel@linux.microsoft.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        catalin.marinas@arm.com, broonie@kernel.org, keescook@chromium.org,
+        peterz@infradead.org, mark.rutland@arm.com,
+        christophe.leroy@csgroup.eu, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 06/45] arm64: Do not forget syscall when starting a new thread.
+Date:   Sun,  7 Aug 2022 21:35:10 -0400
+Message-Id: <20220808013551.315446-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013551.315446-1-sashal@kernel.org>
 References: <20220808013551.315446-1-sashal@kernel.org>
@@ -57,191 +58,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Francis Laniel <flaniel@linux.microsoft.com>
 
-[ Upstream commit fc5a89f75d2aad3e566e030675ac420aee49729c ]
+[ Upstream commit de6921856f99c11d3986c6702d851e1328d4f7f6 ]
 
-The early KASLR init code runs extremely early, and anything that could
-be deferred until later should be. So let's defer the randomization of
-the module region until much later - this also simplifies the
-arithmetic, given that we no longer have to reason about the link time
-vs load time placement of the core kernel explicitly. Also get rid of
-the global status variable, and infer the status reported by the
-diagnostic print from other KASLR related context.
+Enable tracing of the execve*() system calls with the
+syscalls:sys_exit_execve tracepoint by removing the call to
+forget_syscall() when starting a new thread and preserving the value of
+regs->syscallno across exec.
 
-While at it, get rid of the special case for KASAN without
-KASAN_VMALLOC, which never occurs in practice.
-
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Link: https://lore.kernel.org/r/20220624150651.1358849-20-ardb@kernel.org
+Signed-off-by: Francis Laniel <flaniel@linux.microsoft.com>
+Link: https://lore.kernel.org/r/20220608162447.666494-2-flaniel@linux.microsoft.com
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/kaslr.c | 95 +++++++++++++++++----------------------
- 1 file changed, 40 insertions(+), 55 deletions(-)
+ arch/arm64/include/asm/processor.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/kaslr.c b/arch/arm64/kernel/kaslr.c
-index d5542666182f..3edee81d8ea7 100644
---- a/arch/arm64/kernel/kaslr.c
-+++ b/arch/arm64/kernel/kaslr.c
-@@ -20,14 +20,6 @@
- #include <asm/sections.h>
- #include <asm/setup.h>
+diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
+index 5e73d7f7d1e7..d9bf3d12a2b8 100644
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -204,8 +204,9 @@ void tls_preserve_current_state(void);
  
--enum kaslr_status {
--	KASLR_ENABLED,
--	KASLR_DISABLED_CMDLINE,
--	KASLR_DISABLED_NO_SEED,
--	KASLR_DISABLED_FDT_REMAP,
--};
--
--static enum kaslr_status __initdata kaslr_status;
- u64 __ro_after_init module_alloc_base;
- u16 __initdata memstart_offset_seed;
- 
-@@ -63,15 +55,9 @@ struct arm64_ftr_override kaslr_feature_override __initdata;
- u64 __init kaslr_early_init(void)
+ static inline void start_thread_common(struct pt_regs *regs, unsigned long pc)
  {
- 	void *fdt;
--	u64 seed, offset, mask, module_range;
-+	u64 seed, offset, mask;
- 	unsigned long raw;
++	s32 previous_syscall = regs->syscallno;
+ 	memset(regs, 0, sizeof(*regs));
+-	forget_syscall(regs);
++	regs->syscallno = previous_syscall;
+ 	regs->pc = pc;
  
--	/*
--	 * Set a reasonable default for module_alloc_base in case
--	 * we end up running with module randomization disabled.
--	 */
--	module_alloc_base = (u64)_etext - MODULES_VSIZE;
--
- 	/*
- 	 * Try to map the FDT early. If this fails, we simply bail,
- 	 * and proceed with KASLR disabled. We will make another
-@@ -79,7 +65,6 @@ u64 __init kaslr_early_init(void)
- 	 */
- 	fdt = get_early_fdt_ptr();
- 	if (!fdt) {
--		kaslr_status = KASLR_DISABLED_FDT_REMAP;
- 		return 0;
- 	}
- 
-@@ -93,7 +78,6 @@ u64 __init kaslr_early_init(void)
- 	 * return 0 if that is the case.
- 	 */
- 	if (kaslr_feature_override.val & kaslr_feature_override.mask & 0xf) {
--		kaslr_status = KASLR_DISABLED_CMDLINE;
- 		return 0;
- 	}
- 
-@@ -106,7 +90,6 @@ u64 __init kaslr_early_init(void)
- 		seed ^= raw;
- 
- 	if (!seed) {
--		kaslr_status = KASLR_DISABLED_NO_SEED;
- 		return 0;
- 	}
- 
-@@ -126,19 +109,43 @@ u64 __init kaslr_early_init(void)
- 	/* use the top 16 bits to randomize the linear region */
- 	memstart_offset_seed = seed >> 48;
- 
--	if (!IS_ENABLED(CONFIG_KASAN_VMALLOC) &&
--	    (IS_ENABLED(CONFIG_KASAN_GENERIC) ||
--	     IS_ENABLED(CONFIG_KASAN_SW_TAGS)))
--		/*
--		 * KASAN without KASAN_VMALLOC does not expect the module region
--		 * to intersect the vmalloc region, since shadow memory is
--		 * allocated for each module at load time, whereas the vmalloc
--		 * region is shadowed by KASAN zero pages. So keep modules
--		 * out of the vmalloc region if KASAN is enabled without
--		 * KASAN_VMALLOC, and put the kernel well within 4 GB of the
--		 * module region.
--		 */
--		return offset % SZ_2G;
-+	return offset;
-+}
-+
-+static int __init kaslr_init(void)
-+{
-+	u64 module_range;
-+	u32 seed;
-+
-+	/*
-+	 * Set a reasonable default for module_alloc_base in case
-+	 * we end up running with module randomization disabled.
-+	 */
-+	module_alloc_base = (u64)_etext - MODULES_VSIZE;
-+
-+	if (kaslr_feature_override.val & kaslr_feature_override.mask & 0xf) {
-+		pr_info("KASLR disabled on command line\n");
-+		return 0;
-+	}
-+
-+	if (!kaslr_offset()) {
-+		pr_warn("KASLR disabled due to lack of seed\n");
-+		return 0;
-+	}
-+
-+	pr_info("KASLR enabled\n");
-+
-+	/*
-+	 * KASAN without KASAN_VMALLOC does not expect the module region to
-+	 * intersect the vmalloc region, since shadow memory is allocated for
-+	 * each module at load time, whereas the vmalloc region will already be
-+	 * shadowed by KASAN zero pages.
-+	 */
-+	BUILD_BUG_ON((IS_ENABLED(CONFIG_KASAN_GENERIC) ||
-+	              IS_ENABLED(CONFIG_KASAN_SW_TAGS)) &&
-+		     !IS_ENABLED(CONFIG_KASAN_VMALLOC));
-+
-+	seed = get_random_u32();
- 
- 	if (IS_ENABLED(CONFIG_RANDOMIZE_MODULE_REGION_FULL)) {
- 		/*
-@@ -150,8 +157,7 @@ u64 __init kaslr_early_init(void)
- 		 * resolved normally.)
- 		 */
- 		module_range = SZ_2G - (u64)(_end - _stext);
--		module_alloc_base = max((u64)_end + offset - SZ_2G,
--					(u64)MODULES_VADDR);
-+		module_alloc_base = max((u64)_end - SZ_2G, (u64)MODULES_VADDR);
- 	} else {
- 		/*
- 		 * Randomize the module region by setting module_alloc_base to
-@@ -163,33 +169,12 @@ u64 __init kaslr_early_init(void)
- 		 * when ARM64_MODULE_PLTS is enabled.
- 		 */
- 		module_range = MODULES_VSIZE - (u64)(_etext - _stext);
--		module_alloc_base = (u64)_etext + offset - MODULES_VSIZE;
- 	}
- 
- 	/* use the lower 21 bits to randomize the base of the module region */
- 	module_alloc_base += (module_range * (seed & ((1 << 21) - 1))) >> 21;
- 	module_alloc_base &= PAGE_MASK;
- 
--	return offset;
--}
--
--static int __init kaslr_init(void)
--{
--	switch (kaslr_status) {
--	case KASLR_ENABLED:
--		pr_info("KASLR enabled\n");
--		break;
--	case KASLR_DISABLED_CMDLINE:
--		pr_info("KASLR disabled on command line\n");
--		break;
--	case KASLR_DISABLED_NO_SEED:
--		pr_warn("KASLR disabled due to lack of seed\n");
--		break;
--	case KASLR_DISABLED_FDT_REMAP:
--		pr_warn("KASLR disabled due to FDT remapping failure\n");
--		break;
--	}
--
- 	return 0;
- }
--core_initcall(kaslr_init)
-+subsys_initcall(kaslr_init)
+ 	if (system_uses_irq_prio_masking())
 -- 
 2.35.1
 
