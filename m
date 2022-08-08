@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E05B158C0DB
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:55:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DAB258C0DE
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:55:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243480AbiHHBzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:55:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46470 "EHLO
+        id S243630AbiHHBzf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:55:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243408AbiHHBxw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:53:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 700551AF06;
-        Sun,  7 Aug 2022 18:38:58 -0700 (PDT)
+        with ESMTP id S243500AbiHHBx6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:53:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ADD31AF2D;
+        Sun,  7 Aug 2022 18:39:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81B0760DF3;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C45FB80DDF;
+        Mon,  8 Aug 2022 01:38:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E3D3C433D6;
         Mon,  8 Aug 2022 01:38:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E89E0C43140;
-        Mon,  8 Aug 2022 01:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922736;
-        bh=Dmx4oOnZlzw9wzNSiNks7f7+LAxIbZSjqe1MP8P4Bjw=;
+        s=k20201202; t=1659922738;
+        bh=E2WSbuDq4C8F2YgMV7Map4BepoZ8zpRFLXYj2ouMi6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nZEaoTyaOx02LB8FdNZggkh2oo/T1MiVMm8fzwgNktU7aez7uw6v1sydJr4wxUz3r
-         Yk80ZUdt0fxd5vz/+hf5UNkS/z+Cnd8Ias6VOQiBTyMjTacFUSyeGhu8OAEv5KoHOA
-         vlLsr8igsDl4xWJHrr1w3iyZ8z1llHKe1GP10rGOyJHqcLSChsaAn0ty6ksnNM2jyh
-         ob//EoX0DpyBXHKlhjyQr8+3m4MiMhvPBRz0qIRCSJ7RDVfPy6TqCi8s3zYfLzltr5
-         XbmJQzEjYmJd7D0ltY4QFOMhBPXjdZZbY6ImDgme7q5BO1o5uKnO+UbxwOmhjl/0ZI
-         vDjjEji5c+SVA==
+        b=tJbGuO3OriTtKOtZ3GrV013Dw+jx2xvX5uHCgL1zKaEW0fFDx67q1FCZ2Kswaac8i
+         PgHGvUk9q7oe7Kvg4o2KJbLVY9P+s17xBLf6b1BE39lqfQjoYY+LmKGVFr9TFoR8QH
+         gfoq1iAQvK1OJ9T10mp+kfKpb+9o5fW3RIMWk3BufoIqUanQYviYpK8L4HAWyefQNM
+         PEwk84HoEe4HgN35pIL8XT0YWsOAw1mUV3CIrnJTDNvVcFtuCBlLAOy2eAQi9I5koS
+         nrznxU7+AMpJ0te9mqFLjecWdNH3h63LyRn8gWnTS7Ui/VpgNc0heoiLIoN78JVGYC
+         RWJ9BIWYEfopQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guo Mengqi <guomengqi3@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, masahisa.kojima@linaro.org,
-        jaswinder.singh@linaro.org, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 13/23] spi: synquacer: Add missing clk_disable_unprepare()
-Date:   Sun,  7 Aug 2022 21:38:20 -0400
-Message-Id: <20220808013832.316381-13-sashal@kernel.org>
+Cc:     Liang He <windhl@126.com>, Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 14/23] ARM: OMAP2+: display: Fix refcount leak bug
+Date:   Sun,  7 Aug 2022 21:38:21 -0400
+Message-Id: <20220808013832.316381-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013832.316381-1-sashal@kernel.org>
 References: <20220808013832.316381-1-sashal@kernel.org>
@@ -57,33 +56,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Mengqi <guomengqi3@huawei.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 917e43de2a56d9b82576f1cc94748261f1988458 ]
+[ Upstream commit 50b87a32a79bca6e275918a711fb8cc55e16d739 ]
 
-Add missing clk_disable_unprepare() in synquacer_spi_resume().
+In omapdss_init_fbdev(), of_find_node_by_name() will return a node
+pointer with refcount incremented. We should use of_node_put() when
+it is not used anymore.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Guo Mengqi <guomengqi3@huawei.com>
-Link: https://lore.kernel.org/r/20220624005614.49434-1-guomengqi3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Liang He <windhl@126.com>
+Message-Id: <20220617145803.4050918-1-windhl@126.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-synquacer.c | 1 +
+ arch/arm/mach-omap2/display.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-synquacer.c b/drivers/spi/spi-synquacer.c
-index 785e7c445123..1e10af6e10a9 100644
---- a/drivers/spi/spi-synquacer.c
-+++ b/drivers/spi/spi-synquacer.c
-@@ -784,6 +784,7 @@ static int __maybe_unused synquacer_spi_resume(struct device *dev)
+diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
+index 1bd64f6ba8cf..d3b531d5d920 100644
+--- a/arch/arm/mach-omap2/display.c
++++ b/arch/arm/mach-omap2/display.c
+@@ -211,6 +211,7 @@ static int __init omapdss_init_fbdev(void)
+ 	node = of_find_node_by_name(NULL, "omap4_padconf_global");
+ 	if (node)
+ 		omap4_dsi_mux_syscon = syscon_node_to_regmap(node);
++	of_node_put(node);
  
- 		ret = synquacer_spi_enable(master);
- 		if (ret) {
-+			clk_disable_unprepare(sspi->clk);
- 			dev_err(dev, "failed to enable spi (%d)\n", ret);
- 			return ret;
- 		}
+ 	return 0;
+ }
 -- 
 2.35.1
 
