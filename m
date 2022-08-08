@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FCF858C002
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62C6E58C00B
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:47:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242692AbiHHBrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:47:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51190 "EHLO
+        id S242946AbiHHBrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:47:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243302AbiHHBql (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:46:41 -0400
+        with ESMTP id S243322AbiHHBqn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:46:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44BAD15801;
-        Sun,  7 Aug 2022 18:36:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF67815814;
+        Sun,  7 Aug 2022 18:36:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3206D60DF8;
-        Mon,  8 Aug 2022 01:36:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B493C433C1;
-        Mon,  8 Aug 2022 01:36:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BAD9060DFE;
+        Mon,  8 Aug 2022 01:36:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D995C43158;
+        Mon,  8 Aug 2022 01:36:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922605;
-        bh=tlYfuCCunAyT5uz5g0QWhNMt3m8wdPVPvDnImF6KnSk=;
+        s=k20201202; t=1659922607;
+        bh=UkgRBGRGiND0e5vjUxLk3kZH+BsEyc38Jo903maH+RY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MzrUEGU2/+8/HOdmwqgXvY85CDiLp0q/qHkcxAsH0gk9p+/esl4kp+2ZZx3Thmuxw
-         TLLNHhco4QNUxLC/dlsAM2kZurvouuZ5+BjPaKRO+7SrLE0nSsDvN8p7JMmVWJG/EF
-         LBQAbYNGShO+WOfreWy7ADjI72Dvyol/kO6pryo7dJw96NGDvNPMBWiLGmObKkd/KH
-         SegLzK7l4gld8K4L9LKUYF5A28TYClafntDnOh4MkWcmz9X+2kKT715Upe2ej9VOk2
-         28eeexPJEg4G30L3YTae8jv4v74PB2nqHlZkprPVJiSv6Za1d42Nq98OkMJYa+6yED
-         VrYsoOF+BvWwA==
+        b=ohfQK8rE9NHrW9aXfXrfUJhpvvhwFf6o3vgEhpfFDt0owidoD/Txe6+lNnQcb/T/3
+         1IgVZZDFuCRJNChiiSUDFYF3x91tkO6KbbRcqJ//oekob5bKHb8t2cA61niBC+kgrc
+         oX88I77FHVejhUofYsstUvGB/BK8etTP0F1JeoXH6y3Eowc6tBusq6SC160nsouycW
+         Izy729Eo/Is/v5b1MnM9LGEGcQRKTsaeGwYHe4MS2P7iokyPkGe5pa23cgiMVf4Oa+
+         t0sT0ghpuoHwzbfiBrOFcGB5xnSsrGnwAMvPKZgnYaFXIzcTAHQ1+mx5oBFRuZYxpF
+         EkpYpRLLOkhVA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Keeping <john@metanate.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        juri.lelli@redhat.com, vincent.guittot@linaro.org
-Subject: [PATCH AUTOSEL 5.15 15/45] sched/core: Always flush pending blk_plug
-Date:   Sun,  7 Aug 2022 21:35:19 -0400
-Message-Id: <20220808013551.315446-15-sashal@kernel.org>
+Cc:     William Dean <williamsukatube@163.com>,
+        Hacash Robot <hacashRobot@santino.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        tsbogend@alpha.franken.de, fancer.lancer@gmail.com,
+        tglx@linutronix.de, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 16/45] irqchip/mips-gic: Check the return value of ioremap() in gic_of_init()
+Date:   Sun,  7 Aug 2022 21:35:20 -0400
+Message-Id: <20220808013551.315446-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013551.315446-1-sashal@kernel.org>
 References: <20220808013551.315446-1-sashal@kernel.org>
@@ -58,152 +58,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Keeping <john@metanate.com>
+From: William Dean <williamsukatube@163.com>
 
-[ Upstream commit 401e4963bf45c800e3e9ea0d3a0289d738005fd4 ]
+[ Upstream commit 71349cc85e5930dce78ed87084dee098eba24b59 ]
 
-With CONFIG_PREEMPT_RT, it is possible to hit a deadlock between two
-normal priority tasks (SCHED_OTHER, nice level zero):
+The function ioremap() in gic_of_init() can fail, so
+its return value should be checked.
 
-	INFO: task kworker/u8:0:8 blocked for more than 491 seconds.
-	      Not tainted 5.15.49-rt46 #1
-	"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-	task:kworker/u8:0    state:D stack:    0 pid:    8 ppid:     2 flags:0x00000000
-	Workqueue: writeback wb_workfn (flush-7:0)
-	[<c08a3a10>] (__schedule) from [<c08a3d84>] (schedule+0xdc/0x134)
-	[<c08a3d84>] (schedule) from [<c08a65a0>] (rt_mutex_slowlock_block.constprop.0+0xb8/0x174)
-	[<c08a65a0>] (rt_mutex_slowlock_block.constprop.0) from [<c08a6708>]
-	+(rt_mutex_slowlock.constprop.0+0xac/0x174)
-	[<c08a6708>] (rt_mutex_slowlock.constprop.0) from [<c0374d60>] (fat_write_inode+0x34/0x54)
-	[<c0374d60>] (fat_write_inode) from [<c0297304>] (__writeback_single_inode+0x354/0x3ec)
-	[<c0297304>] (__writeback_single_inode) from [<c0297998>] (writeback_sb_inodes+0x250/0x45c)
-	[<c0297998>] (writeback_sb_inodes) from [<c0297c20>] (__writeback_inodes_wb+0x7c/0xb8)
-	[<c0297c20>] (__writeback_inodes_wb) from [<c0297f24>] (wb_writeback+0x2c8/0x2e4)
-	[<c0297f24>] (wb_writeback) from [<c0298c40>] (wb_workfn+0x1a4/0x3e4)
-	[<c0298c40>] (wb_workfn) from [<c0138ab8>] (process_one_work+0x1fc/0x32c)
-	[<c0138ab8>] (process_one_work) from [<c0139120>] (worker_thread+0x22c/0x2d8)
-	[<c0139120>] (worker_thread) from [<c013e6e0>] (kthread+0x16c/0x178)
-	[<c013e6e0>] (kthread) from [<c01000fc>] (ret_from_fork+0x14/0x38)
-	Exception stack(0xc10e3fb0 to 0xc10e3ff8)
-	3fa0:                                     00000000 00000000 00000000 00000000
-	3fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-	3fe0: 00000000 00000000 00000000 00000000 00000013 00000000
-
-	INFO: task tar:2083 blocked for more than 491 seconds.
-	      Not tainted 5.15.49-rt46 #1
-	"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-	task:tar             state:D stack:    0 pid: 2083 ppid:  2082 flags:0x00000000
-	[<c08a3a10>] (__schedule) from [<c08a3d84>] (schedule+0xdc/0x134)
-	[<c08a3d84>] (schedule) from [<c08a41b0>] (io_schedule+0x14/0x24)
-	[<c08a41b0>] (io_schedule) from [<c08a455c>] (bit_wait_io+0xc/0x30)
-	[<c08a455c>] (bit_wait_io) from [<c08a441c>] (__wait_on_bit_lock+0x54/0xa8)
-	[<c08a441c>] (__wait_on_bit_lock) from [<c08a44f4>] (out_of_line_wait_on_bit_lock+0x84/0xb0)
-	[<c08a44f4>] (out_of_line_wait_on_bit_lock) from [<c0371fb0>] (fat_mirror_bhs+0xa0/0x144)
-	[<c0371fb0>] (fat_mirror_bhs) from [<c0372a68>] (fat_alloc_clusters+0x138/0x2a4)
-	[<c0372a68>] (fat_alloc_clusters) from [<c0370b14>] (fat_alloc_new_dir+0x34/0x250)
-	[<c0370b14>] (fat_alloc_new_dir) from [<c03787c0>] (vfat_mkdir+0x58/0x148)
-	[<c03787c0>] (vfat_mkdir) from [<c0277b60>] (vfs_mkdir+0x68/0x98)
-	[<c0277b60>] (vfs_mkdir) from [<c027b484>] (do_mkdirat+0xb0/0xec)
-	[<c027b484>] (do_mkdirat) from [<c0100060>] (ret_fast_syscall+0x0/0x1c)
-	Exception stack(0xc2e1bfa8 to 0xc2e1bff0)
-	bfa0:                   01ee42f0 01ee4208 01ee42f0 000041ed 00000000 00004000
-	bfc0: 01ee42f0 01ee4208 00000000 00000027 01ee4302 00000004 000dcb00 01ee4190
-	bfe0: 000dc368 bed11924 0006d4b0 b6ebddfc
-
-Here the kworker is waiting on msdos_sb_info::s_lock which is held by
-tar which is in turn waiting for a buffer which is locked waiting to be
-flushed, but this operation is plugged in the kworker.
-
-The lock is a normal struct mutex, so tsk_is_pi_blocked() will always
-return false on !RT and thus the behaviour changes for RT.
-
-It seems that the intent here is to skip blk_flush_plug() in the case
-where a non-preemptible lock (such as a spinlock) has been converted to
-a rtmutex on RT, which is the case covered by the SM_RTLOCK_WAIT
-schedule flag.  But sched_submit_work() is only called from schedule()
-which is never called in this scenario, so the check can simply be
-deleted.
-
-Looking at the history of the -rt patchset, in fact this change was
-present from v5.9.1-rt20 until being dropped in v5.13-rt1 as it was part
-of a larger patch [1] most of which was replaced by commit b4bfa3fcfe3b
-("sched/core: Rework the __schedule() preempt argument").
-
-As described in [1]:
-
-   The schedule process must distinguish between blocking on a regular
-   sleeping lock (rwsem and mutex) and a RT-only sleeping lock (spinlock
-   and rwlock):
-   - rwsem and mutex must flush block requests (blk_schedule_flush_plug())
-     even if blocked on a lock. This can not deadlock because this also
-     happens for non-RT.
-     There should be a warning if the scheduling point is within a RCU read
-     section.
-
-   - spinlock and rwlock must not flush block requests. This will deadlock
-     if the callback attempts to acquire a lock which is already acquired.
-     Similarly to being preempted, there should be no warning if the
-     scheduling point is within a RCU read section.
-
-and with the tsk_is_pi_blocked() in the scheduler path, we hit the first
-issue.
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/rt/linux-rt-devel.git/tree/patches/0022-locking-rtmutex-Use-custom-scheduling-function-for-s.patch?h=linux-5.10.y-rt-patches
-
-Signed-off-by: John Keeping <john@metanate.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Link: https://lkml.kernel.org/r/20220708162702.1758865-1-john@metanate.com
+Reported-by: Hacash Robot <hacashRobot@santino.com>
+Signed-off-by: William Dean <williamsukatube@163.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220723100128.2964304-1-williamsukatube@163.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sched/rt.h | 8 --------
- kernel/sched/core.c      | 8 ++++++--
- 2 files changed, 6 insertions(+), 10 deletions(-)
+ drivers/irqchip/irq-mips-gic.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/linux/sched/rt.h b/include/linux/sched/rt.h
-index e5af028c08b4..994c25640e15 100644
---- a/include/linux/sched/rt.h
-+++ b/include/linux/sched/rt.h
-@@ -39,20 +39,12 @@ static inline struct task_struct *rt_mutex_get_top_task(struct task_struct *p)
- }
- extern void rt_mutex_setprio(struct task_struct *p, struct task_struct *pi_task);
- extern void rt_mutex_adjust_pi(struct task_struct *p);
--static inline bool tsk_is_pi_blocked(struct task_struct *tsk)
--{
--	return tsk->pi_blocked_on != NULL;
--}
- #else
- static inline struct task_struct *rt_mutex_get_top_task(struct task_struct *task)
- {
- 	return NULL;
- }
- # define rt_mutex_adjust_pi(p)		do { } while (0)
--static inline bool tsk_is_pi_blocked(struct task_struct *tsk)
--{
--	return false;
--}
- #endif
- 
- extern void normalize_rt_tasks(void);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index b89ca5c83143..012c037da58a 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6379,8 +6379,12 @@ static inline void sched_submit_work(struct task_struct *tsk)
- 		preempt_enable_no_resched();
+diff --git a/drivers/irqchip/irq-mips-gic.c b/drivers/irqchip/irq-mips-gic.c
+index f03f47ffea1e..d815285f1efe 100644
+--- a/drivers/irqchip/irq-mips-gic.c
++++ b/drivers/irqchip/irq-mips-gic.c
+@@ -767,6 +767,10 @@ static int __init gic_of_init(struct device_node *node,
  	}
  
--	if (tsk_is_pi_blocked(tsk))
--		return;
-+	/*
-+	 * spinlock and rwlock must not flush block requests.  This will
-+	 * deadlock if the callback attempts to acquire a lock which is
-+	 * already acquired.
-+	 */
-+	SCHED_WARN_ON(current->__state & TASK_RTLOCK_WAIT);
+ 	mips_gic_base = ioremap(gic_base, gic_len);
++	if (!mips_gic_base) {
++		pr_err("Failed to ioremap gic_base\n");
++		return -ENOMEM;
++	}
  
- 	/*
- 	 * If we are going to sleep and we have plugged IO queued,
+ 	gicconfig = read_gic_config();
+ 	gic_shared_intrs = gicconfig & GIC_CONFIG_NUMINTERRUPTS;
 -- 
 2.35.1
 
