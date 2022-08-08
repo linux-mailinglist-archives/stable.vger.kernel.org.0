@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EBDB58C11B
-	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2701258C12D
+	for <lists+stable@lfdr.de>; Mon,  8 Aug 2022 03:57:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243719AbiHHB5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Aug 2022 21:57:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45152 "EHLO
+        id S243777AbiHHB5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Aug 2022 21:57:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243886AbiHHB4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:56:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D7621C93F;
-        Sun,  7 Aug 2022 18:39:53 -0700 (PDT)
+        with ESMTP id S243879AbiHHB43 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Aug 2022 21:56:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11EE01C93E;
+        Sun,  7 Aug 2022 18:39:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4D5EB80E05;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88E6460EC2;
+        Mon,  8 Aug 2022 01:39:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EBB0C433B5;
         Mon,  8 Aug 2022 01:39:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01031C433D6;
-        Mon,  8 Aug 2022 01:39:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922790;
-        bh=bKOMXVn5Qf7CFuGv6kc/zrvEaFQfUTDMxbBHWEk4aqI=;
+        s=k20201202; t=1659922792;
+        bh=KAH9CtYQ7V3naadWU1SjFlH5I6IWKEV/i6WuneECtvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YtWwVO+MGjjTykDliOV672OCQUkeFTzYBkJewfkMyFd5JZrzcvC7EZlzww5jaadSQ
-         e+pXCBpp6e42PcVeyBq7dkRSyOcL/c83J0Eh17zE2qOYPF7TzjX38YHG6Y7ridBn0h
-         wUtad8qQcLsqKVBI8RkhwVo/mOXhl37bYjZKwbhSTcmwDI1y2eFHr/FXDRRAVezMd6
-         /kmdyFvib+hswLGIR2xivn28Wpoq+j0gLdyGw1CUcHeO/hH8W4gGTZPZAJIG3yiJRy
-         +U5mJE9c4GGHQA46iwM/deZ6Ih+ToRid5HIpR0rwwNM2Ouv9gwjzOtbek+BlCVZqIX
-         HD1h9m3eHDiHw==
+        b=HvfwMg96CCtdkHOzZR3YDCXCX3DnwC2Dtltj1qLHNZ7rLjoJG1IJUHblOHCCKVhBl
+         Q8igKJpARXg76CQ6Rgme6SZVmo3SimX4dYI+I8FOepi6+e+i6bMrj2HecirhVQKl4C
+         V5Duv87DknEQ4rfRwzoArvd7F89oQ0LACXveL5hg2Y9Bwhymfi5rZ9q5EtT0LA40Dt
+         Vu/INrsR0xIS71rPlz66TTMAVP+X76VuG9eGNI0vjOqlCGTquq6jIqMILB3qYzwT8s
+         DeA9gpTSl1GJ1/dVSLPnL7aUYTFlBNdONnX7W1iN8b0dbsTQnNWfESGzzM5dfilj+W
+         Xwqui7H+evKhQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>,
-        syzbot+d273f7d7f58afd93be48@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>, jack@suse.com,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 03/12] ext2: Add more validity checks for inode counts
-Date:   Sun,  7 Aug 2022 21:39:33 -0400
-Message-Id: <20220808013943.316907-3-sashal@kernel.org>
+Cc:     Samuel Holland <samuel@sholland.org>,
+        kernel test robot <lkp@intel.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        tglx@linutronix.de
+Subject: [PATCH AUTOSEL 4.14 04/12] genirq: GENERIC_IRQ_IPI depends on SMP
+Date:   Sun,  7 Aug 2022 21:39:34 -0400
+Message-Id: <20220808013943.316907-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220808013943.316907-1-sashal@kernel.org>
 References: <20220808013943.316907-1-sashal@kernel.org>
@@ -57,53 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit fa78f336937240d1bc598db817d638086060e7e9 ]
+[ Upstream commit 0f5209fee90b4544c58b4278d944425292789967 ]
 
-Add checks verifying number of inodes stored in the superblock matches
-the number computed from number of inodes per group. Also verify we have
-at least one block worth of inodes per group. This prevents crashes on
-corrupted filesystems.
+The generic IPI code depends on the IRQ affinity mask being allocated
+and initialized. This will not be the case if SMP is disabled. Fix up
+the remaining driver that selected GENERIC_IRQ_IPI in a non-SMP config.
 
-Reported-by: syzbot+d273f7d7f58afd93be48@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220701200056.46555-3-samuel@sholland.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext2/super.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/irqchip/Kconfig | 2 +-
+ kernel/irq/Kconfig      | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext2/super.c b/fs/ext2/super.c
-index f3d55f1c0ce4..5f7079b65426 100644
---- a/fs/ext2/super.c
-+++ b/fs/ext2/super.c
-@@ -1072,9 +1072,10 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
- 			sbi->s_frags_per_group);
- 		goto failed_mount;
- 	}
--	if (sbi->s_inodes_per_group > sb->s_blocksize * 8) {
-+	if (sbi->s_inodes_per_group < sbi->s_inodes_per_block ||
-+	    sbi->s_inodes_per_group > sb->s_blocksize * 8) {
- 		ext2_msg(sb, KERN_ERR,
--			"error: #inodes per group too big: %lu",
-+			"error: invalid #inodes per group: %lu",
- 			sbi->s_inodes_per_group);
- 		goto failed_mount;
- 	}
-@@ -1084,6 +1085,13 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
- 	sbi->s_groups_count = ((le32_to_cpu(es->s_blocks_count) -
- 				le32_to_cpu(es->s_first_data_block) - 1)
- 					/ EXT2_BLOCKS_PER_GROUP(sb)) + 1;
-+	if ((u64)sbi->s_groups_count * sbi->s_inodes_per_group !=
-+	    le32_to_cpu(es->s_inodes_count)) {
-+		ext2_msg(sb, KERN_ERR, "error: invalid #inodes: %u vs computed %llu",
-+			 le32_to_cpu(es->s_inodes_count),
-+			 (u64)sbi->s_groups_count * sbi->s_inodes_per_group);
-+		goto failed_mount;
-+	}
- 	db_count = (sbi->s_groups_count + EXT2_DESC_PER_BLOCK(sb) - 1) /
- 		   EXT2_DESC_PER_BLOCK(sb);
- 	sbi->s_group_desc = kmalloc (db_count * sizeof (struct buffer_head *), GFP_KERNEL);
+diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
+index 9d8a1dd2e2c2..602602d7017b 100644
+--- a/drivers/irqchip/Kconfig
++++ b/drivers/irqchip/Kconfig
+@@ -138,7 +138,7 @@ config IMGPDC_IRQ
+ config IRQ_MIPS_CPU
+ 	bool
+ 	select GENERIC_IRQ_CHIP
+-	select GENERIC_IRQ_IPI if SYS_SUPPORTS_MULTITHREADING
++	select GENERIC_IRQ_IPI if SMP && SYS_SUPPORTS_MULTITHREADING
+ 	select IRQ_DOMAIN
+ 	select IRQ_DOMAIN_HIERARCHY if GENERIC_IRQ_IPI
+ 	select GENERIC_IRQ_EFFECTIVE_AFF_MASK
+diff --git a/kernel/irq/Kconfig b/kernel/irq/Kconfig
+index 779d858da2b3..94fb3ad9e275 100644
+--- a/kernel/irq/Kconfig
++++ b/kernel/irq/Kconfig
+@@ -80,6 +80,7 @@ config IRQ_FASTEOI_HIERARCHY_HANDLERS
+ # Generic IRQ IPI support
+ config GENERIC_IRQ_IPI
+ 	bool
++	depends on SMP
+ 	select IRQ_DOMAIN_HIERARCHY
+ 
+ # Generic MSI interrupt support
 -- 
 2.35.1
 
