@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30B4A58DE3B
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:13:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 863A958DE7B
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:19:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345392AbiHISMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:12:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57668 "EHLO
+        id S1345544AbiHISTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:19:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345987AbiHISMH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:12:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA51A32C;
-        Tue,  9 Aug 2022 11:05:12 -0700 (PDT)
+        with ESMTP id S1346741AbiHISRf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:17:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D57282ED4F;
+        Tue,  9 Aug 2022 11:06:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B87461139;
-        Tue,  9 Aug 2022 18:05:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74DCBC433B5;
-        Tue,  9 Aug 2022 18:05:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A62FCB8188F;
+        Tue,  9 Aug 2022 18:06:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC6BC433C1;
+        Tue,  9 Aug 2022 18:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068308;
-        bh=Du+LfgidnyUZQYmLnNKvCIdplUELRrxtwIDyhwydf1w=;
+        s=korg; t=1660068384;
+        bh=mqbC7bVhIM0dnxYNVzszPMiYzv0AKKldGP1tDyqt/kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKqV7p74prUtXw2hybko4cx71BtsKc84SGD+8/EGR7ko4zmivNIt4lw6g0Tvi4ao3
-         WVUpJhjtAA+PhVHHvCq0O2R8pzeT5kZPSnzMvPBocIm+Wnf6G5MjohD7fqy5gmdM1Q
-         inptmYEcEmAPvEL+E+uHX/ycDoueEs9mbw5bmIJI=
+        b=G04DlaKk5aKiV38CAoLzgjFBvDH4mTSob9yKXD1cc9HydSy5J9AOjakGjSj/keXSI
+         lWnrdQC9cGGsgQO5wuQPjg1yEErfHRkw7owo0RfNRjFJroqrrESHLlNGqK6Y+iwIvb
+         NtyeE89nIK9NM7dM3IY6wr6sB44ramnX2nGKrZrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
-        Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.15 16/30] arm64: set UXN on swapper page tables
+        stable@vger.kernel.org,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Seth Forshee <sforshee@digitalocean.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 12/35] entry/kvm: Exit to user mode when TIF_NOTIFY_SIGNAL is set
 Date:   Tue,  9 Aug 2022 20:00:41 +0200
-Message-Id: <20220809175514.891266119@linuxfoundation.org>
+Message-Id: <20220809175515.512110504@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175514.276643253@linuxfoundation.org>
-References: <20220809175514.276643253@linuxfoundation.org>
+In-Reply-To: <20220809175515.046484486@linuxfoundation.org>
+References: <20220809175515.046484486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +57,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Collingbourne <pcc@google.com>
+From: Seth Forshee <sforshee@digitalocean.com>
 
-[ This issue was fixed upstream by accident in c3cee924bd85 ("arm64:
-  head: cover entire kernel image in initial ID map") as part of a
-  large refactoring of the arm64 boot flow. This simple fix is therefore
-  preferred for -stable backporting ]
+[ Upstream commit 3e684903a8574ffc9475fdf13c4780a7adb506ad ]
 
-On a system that implements FEAT_EPAN, read/write access to the idmap
-is denied because UXN is not set on the swapper PTEs. As a result,
-idmap_kpti_install_ng_mappings panics the kernel when accessing
-__idmap_kpti_flag. Fix it by setting UXN on these PTEs.
+A livepatch transition may stall indefinitely when a kvm vCPU is heavily
+loaded. To the host, the vCPU task is a user thread which is spending a
+very long time in the ioctl(KVM_RUN) syscall. During livepatch
+transition, set_notify_signal() will be called on such tasks to
+interrupt the syscall so that the task can be transitioned. This
+interrupts guest execution, but when xfer_to_guest_mode_work() sees that
+TIF_NOTIFY_SIGNAL is set but not TIF_SIGPENDING it concludes that an
+exit to user mode is unnecessary, and guest execution is resumed without
+transitioning the task for the livepatch.
 
-Fixes: 18107f8a2df6 ("arm64: Support execute-only permissions with Enhanced PAN")
-Cc: <stable@vger.kernel.org> # 5.15
-Link: https://linux-review.googlesource.com/id/Ic452fa4b4f74753e54f71e61027e7222a0fae1b1
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Acked-by: Will Deacon <will@kernel.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20220719234909.1398992-1-pcc@google.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This handling of TIF_NOTIFY_SIGNAL is incorrect, as set_notify_signal()
+is expected to break tasks out of interruptible kernel loops and cause
+them to return to userspace. Change xfer_to_guest_mode_work() to handle
+TIF_NOTIFY_SIGNAL the same as TIF_SIGPENDING, signaling to the vCPU run
+loop that an exit to userpsace is needed. Any pending task_work will be
+run when get_signal() is called from exit_to_user_mode_loop(), so there
+is no longer any need to run task work from xfer_to_guest_mode_work().
+
+Suggested-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Seth Forshee <sforshee@digitalocean.com>
+Message-Id: <20220504180840.2907296-1-sforshee@digitalocean.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/kernel-pgtable.h |    4 ++--
- arch/arm64/kernel/head.S                |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ kernel/entry/kvm.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/arch/arm64/include/asm/kernel-pgtable.h
-+++ b/arch/arm64/include/asm/kernel-pgtable.h
-@@ -103,8 +103,8 @@
- /*
-  * Initial memory map attributes.
-  */
--#define SWAPPER_PTE_FLAGS	(PTE_TYPE_PAGE | PTE_AF | PTE_SHARED)
--#define SWAPPER_PMD_FLAGS	(PMD_TYPE_SECT | PMD_SECT_AF | PMD_SECT_S)
-+#define SWAPPER_PTE_FLAGS	(PTE_TYPE_PAGE | PTE_AF | PTE_SHARED | PTE_UXN)
-+#define SWAPPER_PMD_FLAGS	(PMD_TYPE_SECT | PMD_SECT_AF | PMD_SECT_S | PMD_SECT_UXN)
+diff --git a/kernel/entry/kvm.c b/kernel/entry/kvm.c
+index 9d09f489b60e..2e0f75bcb7fd 100644
+--- a/kernel/entry/kvm.c
++++ b/kernel/entry/kvm.c
+@@ -9,12 +9,6 @@ static int xfer_to_guest_mode_work(struct kvm_vcpu *vcpu, unsigned long ti_work)
+ 		int ret;
  
- #if ARM64_KERNEL_USES_PMD_MAPS
- #define SWAPPER_MM_MMUFLAGS	(PMD_ATTRINDX(MT_NORMAL) | SWAPPER_PMD_FLAGS)
---- a/arch/arm64/kernel/head.S
-+++ b/arch/arm64/kernel/head.S
-@@ -285,7 +285,7 @@ SYM_FUNC_START_LOCAL(__create_page_table
- 	subs	x1, x1, #64
- 	b.ne	1b
- 
--	mov	x7, SWAPPER_MM_MMUFLAGS
-+	mov_q	x7, SWAPPER_MM_MMUFLAGS
- 
- 	/*
- 	 * Create the identity mapping.
+ 		if (ti_work & (_TIF_SIGPENDING | _TIF_NOTIFY_SIGNAL)) {
+-			clear_notify_signal();
+-			if (task_work_pending(current))
+-				task_work_run();
+-		}
+-
+-		if (ti_work & _TIF_SIGPENDING) {
+ 			kvm_handle_signal_exit(vcpu);
+ 			return -EINTR;
+ 		}
+-- 
+2.35.1
+
 
 
