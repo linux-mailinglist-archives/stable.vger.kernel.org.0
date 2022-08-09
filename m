@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4134D58DDF9
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:08:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6EED58DE2A
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:12:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344971AbiHISIT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:08:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43230 "EHLO
+        id S245411AbiHISMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:12:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344977AbiHISHs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:07:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCCA02873B;
-        Tue,  9 Aug 2022 11:03:21 -0700 (PDT)
+        with ESMTP id S1345788AbiHISLo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:11:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86DCF2AC7C;
+        Tue,  9 Aug 2022 11:04:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A99061083;
-        Tue,  9 Aug 2022 18:03:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87563C43470;
-        Tue,  9 Aug 2022 18:03:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B17F76113A;
+        Tue,  9 Aug 2022 18:04:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDAC6C433C1;
+        Tue,  9 Aug 2022 18:04:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068200;
-        bh=VD83UgiWufcDQMx6LODuf28lgLU0KcghxVGdBDnS4P0=;
+        s=korg; t=1660068278;
+        bh=tgQRxVvf3DgTp6QivUr5kqVoMh/0T6Ohp9Fs32BqAng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fn5lRlwgI721pFN6J3ICkXDbZXwJu4GZViHqU0avlcxDprjZouMu2uZ7ib+A9wJZj
-         4I/sX5EU47iSRBot+hv4lhMguoHrHNE6OAY5Dy2ug2UnKKeP+qJF16nA67lpzsn1xu
-         w1c3QxGsgit+VnudGG8j9+iVrjzxE+uf4PKWu2Ko=
+        b=APbERdyqhPT3KEf45g2Ac3AhiNQb5bSjIznE8rEqK9aQ7hJMf7IuYpaynG3EuCP1u
+         7+HFcgKRocUDgVG0kmx05IkIfvo4OYdJ8bcJJOCXX9SrMRTYMjghUxL9HJp5KjA6iv
+         Y+Ids3qRltreVqiSDOoqIdqwquL3TD+2Zij8wwog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 07/15] bpf: Test_verifier, #70 error message updates for 32-bit right shift
+        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.10 07/23] ACPI: video: Force backlight native for some TongFang devices
 Date:   Tue,  9 Aug 2022 20:00:25 +0200
-Message-Id: <20220809175510.564956957@linuxfoundation.org>
+Message-Id: <20220809175513.140905374@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175510.312431319@linuxfoundation.org>
-References: <20220809175510.312431319@linuxfoundation.org>
+In-Reply-To: <20220809175512.853274191@linuxfoundation.org>
+References: <20220809175512.853274191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,150 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Werner Sembach <wse@tuxedocomputers.com>
 
-commit aa131ed44ae1d76637f0dbec33cfcf9115af9bc3 upstream.
+commit c752089f7cf5b5800c6ace4cdd1a8351ee78a598 upstream.
 
-After changes to add update_reg_bounds after ALU ops and adding ALU32
-bounds tracking the error message is changed in the 32-bit right shift
-tests.
+The TongFang PF5PU1G, PF4NU1F, PF5NU1G, and PF5LUXG/TUXEDO BA15 Gen10,
+Pulse 14/15 Gen1, and Pulse 15 Gen2 have the same problem as the Clevo
+NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2:
+They have a working native and video interface. However the default
+detection mechanism first registers the video interface before
+unregistering it again and switching to the native interface during boot.
+This results in a dangling SBIOS request for backlight change for some
+reason, causing the backlight to switch to ~2% once per boot on the first
+power cord connect or disconnect event. Setting the native interface
+explicitly circumvents this buggy behaviour by avoiding the unregistering
+process.
 
-Test "#70/u bounds check after 32-bit right shift with 64-bit input FAIL"
-now fails with,
-
-Unexpected error message!
-	EXP: R0 invalid mem access
-	RES: func#0 @0
-
-7: (b7) r1 = 2
-8: R0_w=map_value(id=0,off=0,ks=8,vs=8,imm=0) R1_w=invP2 R10=fp0 fp-8_w=mmmmmmmm
-8: (67) r1 <<= 31
-9: R0_w=map_value(id=0,off=0,ks=8,vs=8,imm=0) R1_w=invP4294967296 R10=fp0 fp-8_w=mmmmmmmm
-9: (74) w1 >>= 31
-10: R0_w=map_value(id=0,off=0,ks=8,vs=8,imm=0) R1_w=invP0 R10=fp0 fp-8_w=mmmmmmmm
-10: (14) w1 -= 2
-11: R0_w=map_value(id=0,off=0,ks=8,vs=8,imm=0) R1_w=invP4294967294 R10=fp0 fp-8_w=mmmmmmmm
-11: (0f) r0 += r1
-math between map_value pointer and 4294967294 is not allowed
-
-And test "#70/p bounds check after 32-bit right shift with 64-bit input
-FAIL" now fails with,
-
-Unexpected error message!
-	EXP: R0 invalid mem access
-	RES: func#0 @0
-
-7: (b7) r1 = 2
-8: R0_w=map_value(id=0,off=0,ks=8,vs=8,imm=0) R1_w=inv2 R10=fp0 fp-8_w=mmmmmmmm
-8: (67) r1 <<= 31
-9: R0_w=map_value(id=0,off=0,ks=8,vs=8,imm=0) R1_w=inv4294967296 R10=fp0 fp-8_w=mmmmmmmm
-9: (74) w1 >>= 31
-10: R0_w=map_value(id=0,off=0,ks=8,vs=8,imm=0) R1_w=inv0 R10=fp0 fp-8_w=mmmmmmmm
-10: (14) w1 -= 2
-11: R0_w=map_value(id=0,off=0,ks=8,vs=8,imm=0) R1_w=inv4294967294 R10=fp0 fp-8_w=mmmmmmmm
-11: (0f) r0 += r1
-last_idx 11 first_idx 0
-regs=2 stack=0 before 10: (14) w1 -= 2
-regs=2 stack=0 before 9: (74) w1 >>= 31
-regs=2 stack=0 before 8: (67) r1 <<= 31
-regs=2 stack=0 before 7: (b7) r1 = 2
-math between map_value pointer and 4294967294 is not allowed
-
-Before this series we did not trip the "math between map_value pointer..."
-error because check_reg_sane_offset is never called in
-adjust_ptr_min_max_vals(). Instead we have a register state that looks
-like this at line 11*,
-
-11: R0_w=map_value(id=0,off=0,ks=8,vs=8,
-                   smin_value=0,smax_value=0,
-                   umin_value=0,umax_value=0,
-                   var_off=(0x0; 0x0))
-    R1_w=invP(id=0,
-              smin_value=0,smax_value=4294967295,
-              umin_value=0,umax_value=4294967295,
-              var_off=(0xfffffffe; 0x0))
-    R10=fp(id=0,off=0,
-           smin_value=0,smax_value=0,
-           umin_value=0,umax_value=0,
-           var_off=(0x0; 0x0)) fp-8_w=mmmmmmmm
-11: (0f) r0 += r1
-
-In R1 'smin_val != smax_val' yet we have a tnum_const as seen
-by 'var_off(0xfffffffe; 0x0))' with a 0x0 mask. So we hit this check
-in adjust_ptr_min_max_vals()
-
- if ((known && (smin_val != smax_val || umin_val != umax_val)) ||
-      smin_val > smax_val || umin_val > umax_val) {
-       /* Taint dst register if offset had invalid bounds derived from
-        * e.g. dead branches.
-        */
-       __mark_reg_unknown(env, dst_reg);
-       return 0;
- }
-
-So we don't throw an error here and instead only throw an error
-later in the verification when the memory access is made.
-
-The root cause in verifier without alu32 bounds tracking is having
-'umin_value = 0' and 'umax_value = U64_MAX' from BPF_SUB which we set
-when 'umin_value < umax_val' here,
-
- if (dst_reg->umin_value < umax_val) {
-    /* Overflow possible, we know nothing */
-    dst_reg->umin_value = 0;
-    dst_reg->umax_value = U64_MAX;
- } else { ...}
-
-Later in adjust_calar_min_max_vals we previously did a
-coerce_reg_to_size() which will clamp the U64_MAX to U32_MAX by
-truncating to 32bits. But either way without a call to update_reg_bounds
-the less precise bounds tracking will fall out of the alu op
-verification.
-
-After latest changes we now exit adjust_scalar_min_max_vals with the
-more precise umin value, due to zero extension propogating bounds from
-alu32 bounds into alu64 bounds and then calling update_reg_bounds.
-This then causes the verifier to trigger an earlier error and we get
-the error in the output above.
-
-This patch updates tests to reflect new error message.
-
-* I have a local patch to print entire verifier state regardless if we
- believe it is a constant so we can get a full picture of the state.
- Usually if tnum_is_const() then bounds are also smin=smax, etc. but
- this is not always true and is a bit subtle. Being able to see these
- states helps understand dataflow imo. Let me know if we want something
- similar upstream.
-
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/158507161475.15666.3061518385241144063.stgit@john-Precision-5820-Tower
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: All applicable <stable@vger.kernel.org>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/verifier/bounds.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/acpi/video_detect.c |   51 +++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 50 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/bpf/verifier/bounds.c
-+++ b/tools/testing/selftests/bpf/verifier/bounds.c
-@@ -411,16 +411,14 @@
- 	BPF_ALU32_IMM(BPF_RSH, BPF_REG_1, 31),
- 	/* r1 = 0xffff'fffe (NOT 0!) */
- 	BPF_ALU32_IMM(BPF_SUB, BPF_REG_1, 2),
--	/* computes OOB pointer */
-+	/* error on computing OOB pointer */
- 	BPF_ALU64_REG(BPF_ADD, BPF_REG_0, BPF_REG_1),
--	/* OOB access */
--	BPF_LDX_MEM(BPF_B, BPF_REG_0, BPF_REG_0, 0),
- 	/* exit */
- 	BPF_MOV64_IMM(BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -484,7 +484,56 @@ static const struct dmi_system_id video_
+ 		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
+ 		},
  	},
- 	.fixup_map_hash_8b = { 3 },
--	.errstr = "R0 invalid mem access",
-+	.errstr = "math between map_value pointer and 4294967294 is not allowed",
- 	.result = REJECT,
- },
- {
+-
++	/*
++	 * The TongFang PF5PU1G, PF4NU1F, PF5NU1G, and PF5LUXG/TUXEDO BA15 Gen10,
++	 * Pulse 14/15 Gen1, and Pulse 15 Gen2 have the same problem as the Clevo
++	 * NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2. See the description
++	 * above.
++	 */
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF5PU1G",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "PF5PU1G"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF4NU1F",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "PF4NU1F"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF4NU1F",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "PULSE1401"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF5NU1G",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "PF5NU1G"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF5NU1G",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "PULSE1501"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF5LUXG",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "PF5LUXG"),
++		},
++	},
+ 	/*
+ 	 * Desktops which falsely report a backlight and which our heuristics
+ 	 * for this do not catch.
 
 
