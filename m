@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C234758DDB5
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:04:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CEBF58DDBB
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344633AbiHISET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:04:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34710 "EHLO
+        id S245755AbiHISEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:04:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344532AbiHISDk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:03:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7391D275E9;
-        Tue,  9 Aug 2022 11:02:05 -0700 (PDT)
+        with ESMTP id S245360AbiHISED (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:04:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDB3FC20;
+        Tue,  9 Aug 2022 11:02:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5575261012;
-        Tue,  9 Aug 2022 18:02:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92CC4C433D7;
-        Tue,  9 Aug 2022 18:02:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E8ECB8171F;
+        Tue,  9 Aug 2022 18:02:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 574E8C433B5;
+        Tue,  9 Aug 2022 18:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068125;
-        bh=Rk+9dz2pOvI01ubf5O3Bj2SDe/szN9eGPeK/+iP1tN0=;
+        s=korg; t=1660068127;
+        bh=ftSdrVIZmrXKAF+/QR73NejNX3j9SCskn0iE+E2C5xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nEz2DYwEFp+R74lHD7c82fRuS+8aLSL6BoAT0EGSm6rP1+UQ1ZFsUOTPaajp7P5iJ
-         U3O81yDnFTJk6qWWg3kaScAHJox1QNwpIGGJ9hZiXzOCAEJ5e4SuzAaujj/SF2eMpj
-         A2WxtC9/E0f1IyBVISQFVkEzmmbu+HetxWkfGEX8=
+        b=OD3N3RKuasvdljQw2OwuWqhpmV6/4mV3y+MZM6VQIoMC6f7NLbq6bdADmproEeDNf
+         VDqrwAqUZ21b2MHJO1xhQIzkELRAuRowWwaz7oabH883mV327KvzI585dkl14+P8/8
+         8g9kVgW1AoVhzDwjm67log0RjV6TPNFuLfnbfDRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Domingo Dirutigliano <pwnzer0tt1@proton.me>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Chang Rui <changruinj@gmail.com>,
+        Fangrui Song <maskray@google.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 23/32] netfilter: nf_queue: do not allow packet truncation below transport header offset
-Date:   Tue,  9 Aug 2022 20:00:14 +0200
-Message-Id: <20220809175513.816660088@linuxfoundation.org>
+Subject: [PATCH 4.19 24/32] perf symbol: Correct address for bss symbols
+Date:   Tue,  9 Aug 2022 20:00:15 +0200
+Message-Id: <20220809175513.847092052@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220809175513.082573955@linuxfoundation.org>
 References: <20220809175513.082573955@linuxfoundation.org>
@@ -56,50 +62,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 99a63d36cb3ed5ca3aa6fcb64cffbeaf3b0fb164 ]
+[ Upstream commit 2d86612aacb7805f72873691a2644d7279ed0630 ]
 
-Domingo Dirutigliano and Nicola Guerrera report kernel panic when
-sending nf_queue verdict with 1-byte nfta_payload attribute.
+When using 'perf mem' and 'perf c2c', an issue is observed that tool
+reports the wrong offset for global data symbols.  This is a common
+issue on both x86 and Arm64 platforms.
 
-The IP/IPv6 stack pulls the IP(v6) header from the packet after the
-input hook.
+Let's see an example, for a test program, below is the disassembly for
+its .bss section which is dumped with objdump:
 
-If user truncates the packet below the header size, this skb_pull() will
-result in a malformed skb (skb->len < 0).
+  ...
 
-Fixes: 7af4cc3fa158 ("[NETFILTER]: Add "nfnetlink_queue" netfilter queue handler over nfnetlink")
-Reported-by: Domingo Dirutigliano <pwnzer0tt1@proton.me>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Reviewed-by: Pablo Neira Ayuso <pablo@netfilter.org>
+  Disassembly of section .bss:
+
+  0000000000004040 <completed.0>:
+  	...
+
+  0000000000004080 <buf1>:
+  	...
+
+  00000000000040c0 <buf2>:
+  	...
+
+  0000000000004100 <thread>:
+  	...
+
+First we used 'perf mem record' to run the test program and then used
+'perf --debug verbose=4 mem report' to observe what's the symbol info
+for 'buf1' and 'buf2' structures.
+
+  # ./perf mem record -e ldlat-loads,ldlat-stores -- false_sharing.exe 8
+  # ./perf --debug verbose=4 mem report
+    ...
+    dso__load_sym_internal: adjusting symbol: st_value: 0x40c0 sh_addr: 0x4040 sh_offset: 0x3028
+    symbol__new: buf2 0x30a8-0x30e8
+    ...
+    dso__load_sym_internal: adjusting symbol: st_value: 0x4080 sh_addr: 0x4040 sh_offset: 0x3028
+    symbol__new: buf1 0x3068-0x30a8
+    ...
+
+The perf tool relies on libelf to parse symbols, in executable and
+shared object files, 'st_value' holds a virtual address; 'sh_addr' is
+the address at which section's first byte should reside in memory, and
+'sh_offset' is the byte offset from the beginning of the file to the
+first byte in the section.  The perf tool uses below formula to convert
+a symbol's memory address to a file address:
+
+  file_address = st_value - sh_addr + sh_offset
+                    ^
+                    ` Memory address
+
+We can see the final adjusted address ranges for buf1 and buf2 are
+[0x30a8-0x30e8) and [0x3068-0x30a8) respectively, apparently this is
+incorrect, in the code, the structure for 'buf1' and 'buf2' specifies
+compiler attribute with 64-byte alignment.
+
+The problem happens for 'sh_offset', libelf returns it as 0x3028 which
+is not 64-byte aligned, combining with disassembly, it's likely libelf
+doesn't respect the alignment for .bss section, therefore, it doesn't
+return the aligned value for 'sh_offset'.
+
+Suggested by Fangrui Song, ELF file contains program header which
+contains PT_LOAD segments, the fields p_vaddr and p_offset in PT_LOAD
+segments contain the execution info.  A better choice for converting
+memory address to file address is using the formula:
+
+  file_address = st_value - p_vaddr + p_offset
+
+This patch introduces elf_read_program_header() which returns the
+program header based on the passed 'st_value', then it uses the formula
+above to calculate the symbol file address; and the debugging log is
+updated respectively.
+
+After applying the change:
+
+  # ./perf --debug verbose=4 mem report
+    ...
+    dso__load_sym_internal: adjusting symbol: st_value: 0x40c0 p_vaddr: 0x3d28 p_offset: 0x2d28
+    symbol__new: buf2 0x30c0-0x3100
+    ...
+    dso__load_sym_internal: adjusting symbol: st_value: 0x4080 p_vaddr: 0x3d28 p_offset: 0x2d28
+    symbol__new: buf1 0x3080-0x30c0
+    ...
+
+Fixes: f17e04afaff84b5c ("perf report: Fix ELF symbol parsing")
+Reported-by: Chang Rui <changruinj@gmail.com>
+Suggested-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220724060013.171050-2-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nfnetlink_queue.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ tools/perf/util/symbol-elf.c | 45 ++++++++++++++++++++++++++++++++----
+ 1 file changed, 41 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
-index a5aff2834bd6..cd496b074a71 100644
---- a/net/netfilter/nfnetlink_queue.c
-+++ b/net/netfilter/nfnetlink_queue.c
-@@ -850,11 +850,16 @@ nfqnl_enqueue_packet(struct nf_queue_entry *entry, unsigned int queuenum)
+diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
+index 166c621e0223..bd33d6613929 100644
+--- a/tools/perf/util/symbol-elf.c
++++ b/tools/perf/util/symbol-elf.c
+@@ -201,6 +201,33 @@ Elf_Scn *elf_section_by_name(Elf *elf, GElf_Ehdr *ep,
+ 	return NULL;
  }
  
- static int
--nfqnl_mangle(void *data, int data_len, struct nf_queue_entry *e, int diff)
-+nfqnl_mangle(void *data, unsigned int data_len, struct nf_queue_entry *e, int diff)
++static int elf_read_program_header(Elf *elf, u64 vaddr, GElf_Phdr *phdr)
++{
++	size_t i, phdrnum;
++	u64 sz;
++
++	if (elf_getphdrnum(elf, &phdrnum))
++		return -1;
++
++	for (i = 0; i < phdrnum; i++) {
++		if (gelf_getphdr(elf, i, phdr) == NULL)
++			return -1;
++
++		if (phdr->p_type != PT_LOAD)
++			continue;
++
++		sz = max(phdr->p_memsz, phdr->p_filesz);
++		if (!sz)
++			continue;
++
++		if (vaddr >= phdr->p_vaddr && (vaddr < phdr->p_vaddr + sz))
++			return 0;
++	}
++
++	/* Not found any valid program header */
++	return -1;
++}
++
+ static bool want_demangle(bool is_kernel_sym)
  {
- 	struct sk_buff *nskb;
+ 	return is_kernel_sym ? symbol_conf.demangle_kernel : symbol_conf.demangle;
+@@ -1063,6 +1090,7 @@ int dso__load_sym(struct dso *dso, struct map *map, struct symsrc *syms_ss,
+ 					sym.st_value);
+ 			used_opd = true;
+ 		}
++
+ 		/*
+ 		 * When loading symbols in a data mapping, ABS symbols (which
+ 		 * has a value of SHN_ABS in its st_shndx) failed at
+@@ -1099,11 +1127,20 @@ int dso__load_sym(struct dso *dso, struct map *map, struct symsrc *syms_ss,
+ 				goto out_elf_end;
+ 		} else if ((used_opd && runtime_ss->adjust_symbols) ||
+ 			   (!used_opd && syms_ss->adjust_symbols)) {
++			GElf_Phdr phdr;
++
++			if (elf_read_program_header(syms_ss->elf,
++						    (u64)sym.st_value, &phdr)) {
++				pr_warning("%s: failed to find program header for "
++					   "symbol: %s st_value: %#" PRIx64 "\n",
++					   __func__, elf_name, (u64)sym.st_value);
++				continue;
++			}
+ 			pr_debug4("%s: adjusting symbol: st_value: %#" PRIx64 " "
+-				  "sh_addr: %#" PRIx64 " sh_offset: %#" PRIx64 "\n", __func__,
+-				  (u64)sym.st_value, (u64)shdr.sh_addr,
+-				  (u64)shdr.sh_offset);
+-			sym.st_value -= shdr.sh_addr - shdr.sh_offset;
++				  "p_vaddr: %#" PRIx64 " p_offset: %#" PRIx64 "\n",
++				  __func__, (u64)sym.st_value, (u64)phdr.p_vaddr,
++				  (u64)phdr.p_offset);
++			sym.st_value -= phdr.p_vaddr - phdr.p_offset;
+ 		}
  
- 	if (diff < 0) {
-+		unsigned int min_len = skb_transport_offset(e->skb);
-+
-+		if (data_len < min_len)
-+			return -EINVAL;
-+
- 		if (pskb_trim(e->skb, data_len))
- 			return -ENOMEM;
- 	} else if (diff > 0) {
+ 		demangled = demangle_sym(dso, kmodule, elf_name);
 -- 
 2.35.1
 
