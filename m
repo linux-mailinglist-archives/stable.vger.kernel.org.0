@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8683758DE07
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:09:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A6558DE98
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:19:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345121AbiHISJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:09:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51948 "EHLO
+        id S1345946AbiHISTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:19:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345069AbiHISIn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:08:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE4792613C;
-        Tue,  9 Aug 2022 11:03:37 -0700 (PDT)
+        with ESMTP id S1347002AbiHISSN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:18:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54EF32F02E;
+        Tue,  9 Aug 2022 11:07:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DBA761118;
-        Tue,  9 Aug 2022 18:03:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E767AC43470;
-        Tue,  9 Aug 2022 18:03:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0C9DB818C2;
+        Tue,  9 Aug 2022 18:06:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA8F9C433C1;
+        Tue,  9 Aug 2022 18:06:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068217;
-        bh=HZjsLh9G/XseI4c+wAmiE/T9/sW2B0EUIKAtM7s2Wyk=;
+        s=korg; t=1660068398;
+        bh=aGyKQPkfCYyDbbGaZ0fkMiRh36HetKAwNQbREqd4pEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dUiS6DWR8seUhj39Yb3c6FfiGqNBfv4Q96eJMuEoR5mTM6bPhhavNTdNd1Pmy4hCn
-         QldTQ3lE9MYerpZFQNG2ASTHLF2T6W8Cg7aWRs9bgyCR7C4DaOo7wq8cp1zfH/BIbn
-         YFLHsokwItyDqQJrIZlX1qzimqBtAIxY0LSWFRu8=
+        b=XAeiId7xSLOZWRBadoyutw8twlV35K4+cBEddEm3wxDUyJQu1O3eDS8pJZtpuBG5Q
+         J/FR7jAk2dM543SeBV/iY548nzWP5Yhhs3WgB1IaMZ8wGebUzjjec10Q5jEkhRiNmO
+         2EksnTNxVBYsIzHOBoHA5YEVhM5K5nbbcPfeKDaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.4 15/15] x86/speculation: Add LFENCE to RSB fill sequence
-Date:   Tue,  9 Aug 2022 20:00:33 +0200
-Message-Id: <20220809175510.849644425@linuxfoundation.org>
+        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.18 05/35] ACPI: video: Shortening quirk list by identifying Clevo by board_name only
+Date:   Tue,  9 Aug 2022 20:00:34 +0200
+Message-Id: <20220809175515.270042778@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175510.312431319@linuxfoundation.org>
-References: <20220809175510.312431319@linuxfoundation.org>
+In-Reply-To: <20220809175515.046484486@linuxfoundation.org>
+References: <20220809175515.046484486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Werner Sembach <wse@tuxedocomputers.com>
 
-commit ba6e31af2be96c4d0536f2152ed6f7b6c11bca47 upstream.
+commit f0341e67b3782603737f7788e71bd3530012a4f4 upstream.
 
-RSB fill sequence does not have any protection for miss-prediction of
-conditional branch at the end of the sequence. CPU can speculatively
-execute code immediately after the sequence, while RSB filling hasn't
-completed yet.
+Taking a recent change in the i8042 quirklist to this one: Clevo
+board_names are somewhat unique, and if not: The generic Board_-/Sys_Vendor
+string "Notebook" doesn't help much anyway. So identifying the devices just
+by the board_name helps keeping the list significantly shorter and might
+even hit more devices requiring the fix.
 
-  #define __FILL_RETURN_BUFFER(reg, nr, sp)	\
-  	mov	$(nr/2), reg;			\
-  771:						\
-  	call	772f;				\
-  773:	/* speculation trap */			\
-  	pause;					\
-  	lfence;					\
-  	jmp	773b;				\
-  772:						\
-  	call	774f;				\
-  775:	/* speculation trap */			\
-  	pause;					\
-  	lfence;					\
-  	jmp	775b;				\
-  774:						\
-  	dec	reg;				\
-  	jnz	771b;  <----- CPU can miss-predict here.				\
-  	add	$(BITS_PER_LONG/8) * nr, sp;
-
-Before RSB is filled, RETs that come in program order after this macro
-can be executed speculatively, making them vulnerable to RSB-based
-attacks.
-
-Mitigate it by adding an LFENCE after the conditional branch to prevent
-speculation while RSB is being filled.
-
-Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Fixes: c844d22fe0c0 ("ACPI: video: Force backlight native for Clevo NL5xRU and NL5xNU")
+Cc: All applicable <stable@vger.kernel.org>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/nospec-branch.h |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/acpi/video_detect.c |   34 ----------------------------------
+ 1 file changed, 34 deletions(-)
 
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -61,7 +61,9 @@
- 774:						\
- 	dec	reg;				\
- 	jnz	771b;				\
--	add	$(BITS_PER_LONG/8) * nr, sp;
-+	add	$(BITS_PER_LONG/8) * nr, sp;	\
-+	/* barrier for jnz misprediction */	\
-+	lfence;
- 
- #define __ISSUE_UNBALANCED_RET_GUARD(sp)	\
- 	call	881f;				\
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -430,23 +430,6 @@ static const struct dmi_system_id video_
+ 	.callback = video_detect_force_native,
+ 	.ident = "Clevo NL5xRU",
+ 	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
+-		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
+-		},
+-	},
+-	{
+-	.callback = video_detect_force_native,
+-	.ident = "Clevo NL5xRU",
+-	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
+-		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
+-		},
+-	},
+-	{
+-	.callback = video_detect_force_native,
+-	.ident = "Clevo NL5xRU",
+-	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
+ 		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
+ 		},
+ 	},
+@@ -470,23 +453,6 @@ static const struct dmi_system_id video_
+ 	.callback = video_detect_force_native,
+ 	.ident = "Clevo NL5xNU",
+ 	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
+-		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
+-		},
+-	},
+-	{
+-	.callback = video_detect_force_native,
+-	.ident = "Clevo NL5xNU",
+-	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
+-		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
+-		},
+-	},
+-	{
+-	.callback = video_detect_force_native,
+-	.ident = "Clevo NL5xNU",
+-	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
+ 		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
+ 		},
+ 	},
 
 
