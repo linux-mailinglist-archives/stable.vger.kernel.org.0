@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A65D858DE94
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8683758DE07
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:09:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343809AbiHISTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:19:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44282 "EHLO
+        id S1345121AbiHISJR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:09:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346881AbiHISR4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:17:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA62E2F016;
-        Tue,  9 Aug 2022 11:07:06 -0700 (PDT)
+        with ESMTP id S1345069AbiHISIn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:08:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE4792613C;
+        Tue,  9 Aug 2022 11:03:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4140B81890;
-        Tue,  9 Aug 2022 18:06:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 399FDC433B5;
-        Tue,  9 Aug 2022 18:06:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DBA761118;
+        Tue,  9 Aug 2022 18:03:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E767AC43470;
+        Tue,  9 Aug 2022 18:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068395;
-        bh=u4lI2lMYiinJQmQwYUWckHKjbNmaK8/9yZABUkeTu6g=;
+        s=korg; t=1660068217;
+        bh=HZjsLh9G/XseI4c+wAmiE/T9/sW2B0EUIKAtM7s2Wyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cOAt6xZQJKQa3reEws0BTxxFSg8JgvWa+yaeUtdvVe3+Y7x4cjEaBmMICEy5SKfBt
-         IcDtMNGlNZG7BH8K6MInRnhjb3qoYC016Q3GVML3oCzQBGq8B6UE1ynfUXxWO43DL7
-         ttcNhogWhAV8FGErlf1BRqAz/96Q6WvEUFRG2FYA=
+        b=dUiS6DWR8seUhj39Yb3c6FfiGqNBfv4Q96eJMuEoR5mTM6bPhhavNTdNd1Pmy4hCn
+         QldTQ3lE9MYerpZFQNG2ASTHLF2T6W8Cg7aWRs9bgyCR7C4DaOo7wq8cp1zfH/BIbn
+         YFLHsokwItyDqQJrIZlX1qzimqBtAIxY0LSWFRu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.18 04/35] ACPI: video: Force backlight native for some TongFang devices
+        stable@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.4 15/15] x86/speculation: Add LFENCE to RSB fill sequence
 Date:   Tue,  9 Aug 2022 20:00:33 +0200
-Message-Id: <20220809175515.223731007@linuxfoundation.org>
+Message-Id: <20220809175510.849644425@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175515.046484486@linuxfoundation.org>
-References: <20220809175515.046484486@linuxfoundation.org>
+In-Reply-To: <20220809175510.312431319@linuxfoundation.org>
+References: <20220809175510.312431319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,90 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit c752089f7cf5b5800c6ace4cdd1a8351ee78a598 upstream.
+commit ba6e31af2be96c4d0536f2152ed6f7b6c11bca47 upstream.
 
-The TongFang PF5PU1G, PF4NU1F, PF5NU1G, and PF5LUXG/TUXEDO BA15 Gen10,
-Pulse 14/15 Gen1, and Pulse 15 Gen2 have the same problem as the Clevo
-NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2:
-They have a working native and video interface. However the default
-detection mechanism first registers the video interface before
-unregistering it again and switching to the native interface during boot.
-This results in a dangling SBIOS request for backlight change for some
-reason, causing the backlight to switch to ~2% once per boot on the first
-power cord connect or disconnect event. Setting the native interface
-explicitly circumvents this buggy behaviour by avoiding the unregistering
-process.
+RSB fill sequence does not have any protection for miss-prediction of
+conditional branch at the end of the sequence. CPU can speculatively
+execute code immediately after the sequence, while RSB filling hasn't
+completed yet.
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Cc: All applicable <stable@vger.kernel.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+  #define __FILL_RETURN_BUFFER(reg, nr, sp)	\
+  	mov	$(nr/2), reg;			\
+  771:						\
+  	call	772f;				\
+  773:	/* speculation trap */			\
+  	pause;					\
+  	lfence;					\
+  	jmp	773b;				\
+  772:						\
+  	call	774f;				\
+  775:	/* speculation trap */			\
+  	pause;					\
+  	lfence;					\
+  	jmp	775b;				\
+  774:						\
+  	dec	reg;				\
+  	jnz	771b;  <----- CPU can miss-predict here.				\
+  	add	$(BITS_PER_LONG/8) * nr, sp;
+
+Before RSB is filled, RETs that come in program order after this macro
+can be executed speculatively, making them vulnerable to RSB-based
+attacks.
+
+Mitigate it by adding an LFENCE after the conditional branch to prevent
+speculation while RSB is being filled.
+
+Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/video_detect.c |   51 +++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 50 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/nospec-branch.h |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -490,7 +490,56 @@ static const struct dmi_system_id video_
- 		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
- 		},
- 	},
--
-+	/*
-+	 * The TongFang PF5PU1G, PF4NU1F, PF5NU1G, and PF5LUXG/TUXEDO BA15 Gen10,
-+	 * Pulse 14/15 Gen1, and Pulse 15 Gen2 have the same problem as the Clevo
-+	 * NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2. See the description
-+	 * above.
-+	 */
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang PF5PU1G",
-+	.matches = {
-+		DMI_MATCH(DMI_BOARD_NAME, "PF5PU1G"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang PF4NU1F",
-+	.matches = {
-+		DMI_MATCH(DMI_BOARD_NAME, "PF4NU1F"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang PF4NU1F",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "PULSE1401"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang PF5NU1G",
-+	.matches = {
-+		DMI_MATCH(DMI_BOARD_NAME, "PF5NU1G"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang PF5NU1G",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "PULSE1501"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang PF5LUXG",
-+	.matches = {
-+		DMI_MATCH(DMI_BOARD_NAME, "PF5LUXG"),
-+		},
-+	},
- 	/*
- 	 * Desktops which falsely report a backlight and which our heuristics
- 	 * for this do not catch.
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -61,7 +61,9 @@
+ 774:						\
+ 	dec	reg;				\
+ 	jnz	771b;				\
+-	add	$(BITS_PER_LONG/8) * nr, sp;
++	add	$(BITS_PER_LONG/8) * nr, sp;	\
++	/* barrier for jnz misprediction */	\
++	lfence;
+ 
+ #define __ISSUE_UNBALANCED_RET_GUARD(sp)	\
+ 	call	881f;				\
 
 
