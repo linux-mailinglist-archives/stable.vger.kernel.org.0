@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B20D58DF18
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:33:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53E7358DF1C
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:33:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344048AbiHISdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:33:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45604 "EHLO
+        id S1344209AbiHISdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:33:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346821AbiHISbw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:31:52 -0400
+        with ESMTP id S1347026AbiHIScE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:32:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37F353A482;
-        Tue,  9 Aug 2022 11:11:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F21513A4A1;
+        Tue,  9 Aug 2022 11:11:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8CFEEB81A46;
-        Tue,  9 Aug 2022 18:08:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C686AC433C1;
-        Tue,  9 Aug 2022 18:08:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5AB82B81A56;
+        Tue,  9 Aug 2022 18:08:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5F46C43470;
+        Tue,  9 Aug 2022 18:08:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068515;
-        bh=88X8nhzWU6v3dPzYu8Ud/D7E6d62Be5TEhlcLhlicjA=;
+        s=korg; t=1660068518;
+        bh=Gma4brlJO/hAIoIZvLRhHvOu2qhqISNK1CQvoY+Gmw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQWZk1h9qZdIvH23vCGT+eWKpayvn7uGlZ3taPP0kkj0dO8kCrHPHwHm2R4GrUBv8
-         1lUNPhZcIxN7afmodmUsuXf4DiE2fexFOPyzQcKMsMtDbztevwIDKxN/2T8P9W4nOI
-         nrIIpPG8T2sjTA3Tzj6UG7Z1Eary3ARfkBLKV6qA=
+        b=tnR0FoQbdzo5Zq+tnzx0P+BH06/fOMpWKkGcZoCi2LVgs/8llcMh5kUoGBOZwvIlP
+         +8epZmp+bKxL88Bht14/VFsLdci2zfJ5n8IV64GudSuWUeSj2sQF66JVdEjDJl9zW4
+         XOUhOyJN4Ohcd5NB668yd2VJ44OuhqeSE63d1E1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.19 13/21] Bluetooth: btusb: Add support of IMC Networks PID 0x3568
-Date:   Tue,  9 Aug 2022 20:01:05 +0200
-Message-Id: <20220809175513.753206060@linuxfoundation.org>
+        stable@vger.kernel.org, Hilda Wu <hildawu@realtek.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 5.19 14/21] Bluetooth: btusb: Add Realtek RTL8852C support ID 0x04CA:0x4007
+Date:   Tue,  9 Aug 2022 20:01:06 +0200
+Message-Id: <20220809175513.783743214@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220809175513.345597655@linuxfoundation.org>
 References: <20220809175513.345597655@linuxfoundation.org>
@@ -53,48 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Ma <aaron.ma@canonical.com>
+From: Hilda Wu <hildawu@realtek.com>
 
-commit c69ecb0ea4c96b8b191cbaa0b420222a37867655 upstream.
+commit c379c96cc221767af9688a5d4758a78eea30883a upstream.
 
-It is 13d3:3568 for MediaTek MT7922 USB Bluetooth chip.
+Add the support ID(0x04CA, 0x4007) to usb_device_id table for
+Realtek RTL8852C.
 
-T:  Bus=03 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  2 Spd=480 MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=13d3 ProdID=3568 Rev=01.00
-S:  Manufacturer=MediaTek Inc.
-S:  Product=Wireless_Device
-S:  SerialNumber=...
-C:  #Ifs= 3 Cfg#= 1 Atr=e0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=125us
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:  If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+The device info from /sys/kernel/debug/usb/devices as below.
+
+T:  Bus=03 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=04ca ProdID=4007 Rev= 0.00
+S:  Manufacturer=Realtek
+S:  Product=Bluetooth Radio
+S:  SerialNumber=00e04c000001
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
 E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
 E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-I:  If#= 2 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=(none)
-E:  Ad=0a(O) Atr=03(Int.) MxPS=  64 Ivl=125us
-E:  Ad=8a(I) Atr=03(Int.) MxPS=  64 Ivl=125us
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
 
-Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Hilda Wu <hildawu@realtek.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btusb.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/bluetooth/btusb.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
 --- a/drivers/bluetooth/btusb.c
 +++ b/drivers/bluetooth/btusb.c
-@@ -477,6 +477,9 @@ static const struct usb_device_id blackl
- 	{ USB_DEVICE(0x0489, 0xe0d9), .driver_info = BTUSB_MEDIATEK |
- 						     BTUSB_WIDEBAND_SPEECH |
- 						     BTUSB_VALID_LE_STATES },
-+	{ USB_DEVICE(0x13d3, 0x3568), .driver_info = BTUSB_MEDIATEK |
-+						     BTUSB_WIDEBAND_SPEECH |
-+						     BTUSB_VALID_LE_STATES },
+@@ -427,6 +427,10 @@ static const struct usb_device_id blackl
+ 	{ USB_DEVICE(0x04ca, 0x4006), .driver_info = BTUSB_REALTEK |
+ 						     BTUSB_WIDEBAND_SPEECH },
  
- 	/* Additional Realtek 8723AE Bluetooth devices */
- 	{ USB_DEVICE(0x0930, 0x021d), .driver_info = BTUSB_REALTEK },
++	/* Realtek 8852CE Bluetooth devices */
++	{ USB_DEVICE(0x04ca, 0x4007), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
++
+ 	/* Realtek Bluetooth devices */
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(0x0bda, 0xe0, 0x01, 0x01),
+ 	  .driver_info = BTUSB_REALTEK },
 
 
