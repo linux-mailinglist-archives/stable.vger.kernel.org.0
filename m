@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05C5158E11C
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 22:31:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B143F58E14F
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 22:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231494AbiHIUbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 16:31:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52728 "EHLO
+        id S241130AbiHIUqC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 16:46:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343783AbiHIUau (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 16:30:50 -0400
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D27DA22C
-        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 13:30:48 -0700 (PDT)
-Received: by mail-ej1-x62b.google.com with SMTP id j8so24197131ejx.9
-        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 13:30:48 -0700 (PDT)
+        with ESMTP id S1343783AbiHIUpi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 16:45:38 -0400
+Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 146E6AE53
+        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 13:45:32 -0700 (PDT)
+Received: by mail-lf1-x12a.google.com with SMTP id bq11so18610404lfb.5
+        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 13:45:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linux-foundation.org; s=google;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc;
-        bh=SGeHWpS8KXCNe1fs123Ae1bZ4jHY7XPArBiSK195qHo=;
-        b=diZ72ruOeFCCt/uKAyC4hFEGjST0bkVVYN2Yxf3d0zX/HotIMYgB0uLJgA4xp6aHl1
-         b/YZNcRaInm3BeLB5q6B+tIq7+Cr7Jg7X2XQ5MJ95vhSXGcwq90tjIn+warmeDgCniS1
-         CMV4iqB9gpLMcU5qcvguZuHFhANUGStypzYYQ=
+        bh=0Qy02k6+Ajv4Ag2mivoqOXtUuUF/P/EOzfJ1STVBz2M=;
+        b=CG4Dw1M9UdPqZpV8B0sI5Fkw+fAHw9yeykPb4+HjQ5x2t6jF4FoQ1T90PopQrzs3T7
+         BTLRToS9FGiKCaENH9YkBqYwuHt/P0qOdBwajxJreFpIUwgyaakUxHw2sm+eVOF3liYK
+         aYKET9RkISdjZA3h9TtIFRIhmNKbirx0ITCsk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc;
-        bh=SGeHWpS8KXCNe1fs123Ae1bZ4jHY7XPArBiSK195qHo=;
-        b=XUc+J2PF7V4aHh0VFH3juIO27kAeWFOrVHAtqOFDDhQyE2xMGcInf2iqqACGFXzRDt
-         iYZav5BCcPTKq+MxaQJUBb3vF9Ky0/4Ov0CQxyKwaPqJ5DohY0BpmgEiHc6XjMsOLh2/
-         d+lWYpO7rZ3kxYAuEhxNAvm96UbQccdURmIL1W0xN2IZQe733z+lmRGmbfl4sw74N23d
-         SSbflWHcIbxeOC4UiR87iPtkHuRoKhMtsVqWDculUJXh0SvF1432TyfW6VvukzPglXXu
-         cWL0ECSi3zytr3OyAHUVwiNJ7TGZbUR+mqis29sHw27UN6n5Akw5egR+RVIvOav8iSQg
-         aMiw==
-X-Gm-Message-State: ACgBeo0L1NwDDGDyemWvrEkxXllBcsFYVcrQ/fGU4qX92+GJ/0/hSPzs
-        KOWZWzuwbZucDD2RuPCa8HzDhiNueKaL+dximQQ=
-X-Google-Smtp-Source: AA6agR7kvOq9iGCZToIuVOlTWB1jtHgr9G7Y2sz4M3V1WoxVmq/mhh6jI2nY7BSMeku7QUPN3QCUrA==
-X-Received: by 2002:a17:906:5a4f:b0:730:825a:d860 with SMTP id my15-20020a1709065a4f00b00730825ad860mr17547550ejc.143.1660077047469;
-        Tue, 09 Aug 2022 13:30:47 -0700 (PDT)
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com. [209.85.128.44])
-        by smtp.gmail.com with ESMTPSA id mf3-20020a1709071a4300b0072af2460cd6sm1502299ejc.30.2022.08.09.13.30.45
+        bh=0Qy02k6+Ajv4Ag2mivoqOXtUuUF/P/EOzfJ1STVBz2M=;
+        b=W6HU+2gY9ealaHhV0EbstWkmXv9/an6FwjaBkCVOg00A/zmfySoDQi0zJuAS83fXhm
+         HEbnijWbwroPRiTe48u0gvp47muKUJFAaQGPZs3pvmNi4OZQ+EDRcA7vX1IKGnD1W5sB
+         S/UOf/nyXCcxADmJq0uViS6vY3l0dVakcuHmvsPWJ8aHebHwvFxpqMKeijmtAXCiTCfB
+         wyFJ1kizTnR+SMMFSkajNB060TDJwNkNJBeZe3U6whQJm1rWI1YyosWOE71yDbY5OJuv
+         UgUKE2GNgx7im9UViqQwyIeTdyKFJmcwUSA5SRS1noikeF8E3nBTyq9ceM0sHDd3mpnO
+         y6/g==
+X-Gm-Message-State: ACgBeo02B8FEczSA93O2jciwoVQsmOUkVXh2KdddNgGHhxs4rezqc/v6
+        himBCq4PZZQ2Lcf4RWS0KOrxmAnNPcJU2+dfQxQ=
+X-Google-Smtp-Source: AA6agR6Ci2ag2QzpSPLUQPrADOYeXRua8Y3WGVqZQkKwLuCUN6DnBWYdWbpz0peeiww6twGzKOrNWA==
+X-Received: by 2002:a19:7717:0:b0:48a:eae8:35d with SMTP id s23-20020a197717000000b0048aeae8035dmr9077426lfc.276.1660077930090;
+        Tue, 09 Aug 2022 13:45:30 -0700 (PDT)
+Received: from mail-lf1-f52.google.com (mail-lf1-f52.google.com. [209.85.167.52])
+        by smtp.gmail.com with ESMTPSA id v21-20020a2e9f55000000b0025e2ff06c19sm99149ljk.50.2022.08.09.13.45.29
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Aug 2022 13:30:47 -0700 (PDT)
-Received: by mail-wm1-f44.google.com with SMTP id ay12so4010852wmb.1
-        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 13:30:45 -0700 (PDT)
-X-Received: by 2002:a05:600c:4ed0:b0:3a3:3ef3:c8d1 with SMTP id
- g16-20020a05600c4ed000b003a33ef3c8d1mr130608wmq.154.1660077044845; Tue, 09
- Aug 2022 13:30:44 -0700 (PDT)
+        Tue, 09 Aug 2022 13:45:29 -0700 (PDT)
+Received: by mail-lf1-f52.google.com with SMTP id r17so18535322lfm.11
+        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 13:45:29 -0700 (PDT)
+X-Received: by 2002:a5d:638b:0:b0:220:6e1a:8794 with SMTP id
+ p11-20020a5d638b000000b002206e1a8794mr15548804wru.193.1660077527286; Tue, 09
+ Aug 2022 13:38:47 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220808073232.8808-1-david@redhat.com> <CAHk-=wgsDOz5MfYYS9mE7PvFn4kLhTFdBwXvN6HCEsw1kvJnRQ@mail.gmail.com>
  <91e18a2f-c93d-00b8-7c1b-6d8493c3b2d5@redhat.com> <CAHk-=whg0ddey-LqFAPfZJDXHMjaHJNojAV3q17yvjc6W8QRvQ@mail.gmail.com>
- <c096cc82-60b4-9e75-06ad-156461292941@redhat.com>
-In-Reply-To: <c096cc82-60b4-9e75-06ad-156461292941@redhat.com>
+ <c096cc82-60b4-9e75-06ad-156461292941@redhat.com> <CAHk-=wh1q7ZSWhDWOyqmVawqjq55sUVkn8ASjE_b2VOcE1vFaA@mail.gmail.com>
+In-Reply-To: <CAHk-=wh1q7ZSWhDWOyqmVawqjq55sUVkn8ASjE_b2VOcE1vFaA@mail.gmail.com>
 From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 9 Aug 2022 13:30:28 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wh1q7ZSWhDWOyqmVawqjq55sUVkn8ASjE_b2VOcE1vFaA@mail.gmail.com>
-Message-ID: <CAHk-=wh1q7ZSWhDWOyqmVawqjq55sUVkn8ASjE_b2VOcE1vFaA@mail.gmail.com>
+Date:   Tue, 9 Aug 2022 13:38:30 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wi_PfZ1_8pjMmRftiq1dshheTFnctEwRt8PZMGndCisdA@mail.gmail.com>
+Message-ID: <CAHk-=wi_PfZ1_8pjMmRftiq1dshheTFnctEwRt8PZMGndCisdA@mail.gmail.com>
 Subject: Re: [PATCH v1] mm/gup: fix FOLL_FORCE COW security issue and remove FOLL_COW
 To:     David Hildenbrand <david@redhat.com>
 Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
@@ -82,37 +82,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 9, 2022 at 1:20 PM David Hildenbrand <david@redhat.com> wrote:
+On Tue, Aug 9, 2022 at 1:30 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> IIUC VM_MAYSHARE is always set in a MAP_SHARED mapping, but for file
-> mappings we only set VM_SHARED if the file allows for writes
+> And here we are, 30 years later, and it still does that, but it leaves
+> the VM_MAYSHARE flag so that /proc/<pid>/maps can show that it's a
+> shared mapping.
 
-Heh.
+.. thinking about it, we end up still having some things that this helps.
 
-This is a horrific hack, and probably should go away.
+For example, because we clear the VM_SHARED flags for read-only shared
+mappings, they don't end up going through mapping_{un}map_writable(),
+and don't update i_mmap_writable, and don't cause issues with
+mapping_deny_writable() or mapping_writably_mapped().
 
-Yeah, we have that
+So it ends up actually having random small semantic details due to
+those almost three decades of history.
 
-                        if (!(file->f_mode & FMODE_WRITE))
-                                vm_flags &= ~(VM_MAYWRITE | VM_SHARED);
+I'm sure there are other odd pieces like that.
 
-
-but I think that's _entirely_ historical.
-
-Long long ago, in a galaxy far away, we didn't handle shared mmap()
-very well. In fact, we used to not handle it at all.
-
-But nntpd would use write() to update the spool file, adn them read it
-through a shared mmap.
-
-And since our mmap() *was* coherent with people doing write() system
-calls, but didn't handle actual dirty shared mmap, what Linux used to
-do was to just say "Oh, you want a read-only shared file mmap? I can
-do that - I'll just downgrade it to a read-only _private_ mapping, and
-it actually ends up with the same semantics".
-
-And here we are, 30 years later, and it still does that, but it leaves
-the VM_MAYSHARE flag so that /proc/<pid>/maps can show that it's a
-shared mapping.
-
-                 Linus
+                  Linus
