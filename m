@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4156158DCD5
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 19:09:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51C1158DCE4
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 19:13:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245319AbiHIRJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 13:09:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50766 "EHLO
+        id S245156AbiHIRNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 13:13:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245220AbiHIRJC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 13:09:02 -0400
-Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F0E423BDF;
-        Tue,  9 Aug 2022 10:09:01 -0700 (PDT)
-Received: from localhost.localdomain (1.general.cascardo.us.vpn [10.172.70.58])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        with ESMTP id S245225AbiHIRM7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 13:12:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C0F524BFB
+        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 10:12:58 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id E41443F100;
-        Tue,  9 Aug 2022 17:08:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1660064940;
-        bh=ze03xbUn78LgfJuUNKBQC8X3WibtV+sxEkKu8Gimsms=;
-        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
-        b=EhmyyTKZ/QJB9cIsfZFTVMaOrn3p4V6YsWSI4GrzMgFS1hCxx+Fs/wyIKYzYewgYV
-         aDifqbzhUlzANm+/3pVTMtLlC6fWEe9kYWJCj8c1TVNOiH/zu+uXfAeFpXM5P+6x+C
-         xAOAzfIWZMIeVGAHSpYyPPs7LRD8dOKnELXMHE+Nzc9Dur0CW+rDUt0oHVfKtowElX
-         Hzn5d2t58IluQi7KaM0baIgiAyshflezDnUHkP1TJWprlDX0x36eFK3FuDrTrKgzFR
-         UxwjlyEfg3kZeVTr7tTcRdWw/Vt7FBnjzGu+1V9W3D0rXJYpLc3TKT8yJT/DzVUzc8
-         XzHJSw126s7GQ==
-From:   Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Eric Biederman <ebiederm@xmission.com>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
-Subject: [PATCH] posix-cpu-timers: Cleanup CPU timers before freeing them during exec
-Date:   Tue,  9 Aug 2022 14:07:51 -0300
-Message-Id: <20220809170751.164716-1-cascardo@canonical.com>
-X-Mailer: git-send-email 2.34.1
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 223FB60F64
+        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 17:12:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E8E3C433C1;
+        Tue,  9 Aug 2022 17:12:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1660065177;
+        bh=RRQd5DnR/jfIumdGwshHWO7SVRUG01mE4P24qcdJquE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=uSQeBb3ig/wVm4wHJYmDg9Q9maJCNA2wdilhVlYcP+ZASj8a1P4o/E/vSQaUjVCoG
+         ABYs1F1XJ8fZI2do4BwrB76/guCypXOBw2S829PnrZTFtUrTRvgalM6VfJqr5ZC0gG
+         hT3Mu4/AtTvZVYMlyjFLa2jF1E8j0VIheU0siweQ=
+Date:   Tue, 9 Aug 2022 19:12:54 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Michael Bestas <mkbestas@gmail.com>
+Cc:     stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Will Deacon <will@kernel.org>
+Subject: Re: [PATCH] arm64: map FDT as RW for early_init_dt_scan()
+Message-ID: <YvKVlhUZ2I1omy5S@kroah.com>
+References: <20220809145624.1819905-1-mkbestas@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220809145624.1819905-1-mkbestas@gmail.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -51,44 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 55e8c8eb2c7b ("posix-cpu-timers: Store a reference to a pid not a
-task") started looking up tasks by PID when deleting a CPU timer.
+On Tue, Aug 09, 2022 at 05:56:24PM +0300, Michael Bestas wrote:
+> From: Hsin-Yi Wang <hsinyi@chromium.org>
+> 
+> commit e112b032a72c78f15d0c803c5dc6be444c2e6c66 upstream.
+> 
+> Currently in arm64, FDT is mapped to RO before it's passed to
+> early_init_dt_scan(). However, there might be some codes
+> (eg. commit "fdt: add support for rng-seed") that need to modify FDT
+> during init. Map FDT to RO after early fixups are done.
+> 
+> Cc: stable@vger.kernel.org # 4.9+
+> Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+> Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+> Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
+> Signed-off-by: Will Deacon <will@kernel.org>
+> [mkbestas: fixed trivial conflicts for 4.9 backport]
+> Signed-off-by: Michael Bestas <mkbestas@gmail.com>
+> ---
+>  arch/arm64/include/asm/mmu.h |  2 +-
+>  arch/arm64/kernel/kaslr.c    |  5 +----
+>  arch/arm64/kernel/setup.c    |  9 ++++++++-
+>  arch/arm64/mm/mmu.c          | 15 +--------------
+>  4 files changed, 11 insertions(+), 20 deletions(-)
 
-When a non-leader thread calls execve, it will switch PIDs with the leader
-process. Then, as it calls exit_itimers, posix_cpu_timer_del cannot find
-the task because the timer still points out to the old PID.
+What about 4.14.y and newer?
 
-That means that armed timers won't be disarmed, that is, they won't be
-removed from the timerqueue_list. exit_itimers will still release their
-memory, and when that list is later processed, it leads to a
-use-after-free.
+thanks,
 
-Clean up the timers from the de-threaded task before freeing them. This
-prevents a reported use-after-free.
-
-Fixes: 55e8c8eb2c7b ("posix-cpu-timers: Store a reference to a pid not a task")
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: <stable@vger.kernel.org>
----
- fs/exec.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/fs/exec.c b/fs/exec.c
-index 778123259e42..1c6b477dad69 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1301,6 +1301,9 @@ int begin_new_exec(struct linux_binprm * bprm)
- 	bprm->mm = NULL;
- 
- #ifdef CONFIG_POSIX_TIMERS
-+	spin_lock_irq(&me->sighand->siglock);
-+	posix_cpu_timers_exit(me);
-+	spin_unlock_irq(&me->sighand->siglock);
- 	exit_itimers(me);
- 	flush_itimer_signals();
- #endif
--- 
-2.34.1
-
+greg k-h
