@@ -2,69 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD8D658E018
+	by mail.lfdr.de (Postfix) with ESMTP id 02E4358E016
 	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 21:21:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245408AbiHITVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 15:21:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53856 "EHLO
+        id S245309AbiHITVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 15:21:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346488AbiHITU6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 15:20:58 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 495AF29A
-        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 12:20:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660072846;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=H8h4Jng7BDnvUHW4yaisoTMe84LTGwEUPKezp1k3H30=;
-        b=J0kGOSKXC3bYfAiCQnGXAybxgW0RoKD4wECnKh1Y4qT7E7HY/yf8+uGohOAhCZYjNhVQ+g
-        HSs5D7esNxJIp4Bp++PIL9YVCz9qF4KgPu+N3u0ecqqA1dh/6HxnJ2hbPSFVyKqHEm3+3O
-        61LIAuLfsvkMkAreNxG1NOchDO2q1ws=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-607-o1XuWq0VM7yACX5wMGE_Bw-1; Tue, 09 Aug 2022 15:20:45 -0400
-X-MC-Unique: o1XuWq0VM7yACX5wMGE_Bw-1
-Received: by mail-wm1-f71.google.com with SMTP id a17-20020a05600c349100b003a545125f6eso2997380wmq.4
-        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 12:20:45 -0700 (PDT)
+        with ESMTP id S1347080AbiHITVm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 15:21:42 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3D5DA8
+        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 12:21:40 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id tl27so23959464ejc.1
+        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 12:21:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=r+avV5S2drX7G/TFGfNe00g1z/YAKwkOT5Ou5nsHkJY=;
+        b=ZIX4nAvOOGcWp15i8uPfVmKtbEGBXCGgBiIwHpC5nNIUBi7Iq5HzVNS9BhUcgOter0
+         Oz2pZJ2RXavV4TVExYGzNgrX3BkQJjqumwDM/WFjxr12SCHjp9H48+PjlxSz0os95unt
+         CPUV9XF+R7aEo6gt5l06ltaPKhdqQRG3D3AK8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:organization:from
-         :references:cc:to:content-language:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc;
-        bh=H8h4Jng7BDnvUHW4yaisoTMe84LTGwEUPKezp1k3H30=;
-        b=06j2WfLe5/gj5qUbyRK3jYQlPYm4LM9Efy51zEo7m4+UIMEo1Tzao0vtKSIyWd5QHL
-         6DUjN4isgylkWsoDHioKinNwM/R0aXFzNMKdNaGBmJ3a506YfJq9MAhqkaTUEp3OJhEN
-         KiliNhu8HhFlL8tAlCbIWo/2BbgJxpIXhPrhjT89NyQc0uQLA6Dm8Iwfd1bFVRlpZHqz
-         5qmRmX6dqEBAteGx9rF9QKiqxs/OAs9Kq+wBMIXnwKYP+IMHTZ1woLCnzP49fuXXSrfC
-         nVvNY64upFTkz2vyXK4vBJocelxTEIAprMPL4OPVh4grpoQiHEQGWXhVw4ZjYD81AjFq
-         xIFg==
-X-Gm-Message-State: ACgBeo0L7Jsxzo0kP8Lijy1EizpsyHZPAjnIfelYQViSAym8ifgAizCR
-        92ZAz+pRIprenqr+qWh4KbDrY1hxV15X/yK+zmpsW9r7QybA9dhOSi9W65kOYeDpYmsjrUg4hmL
-        pMUj8sQp/pQgJ4p1D
-X-Received: by 2002:a1c:ed05:0:b0:3a2:ebae:c5e7 with SMTP id l5-20020a1ced05000000b003a2ebaec5e7mr15510wmh.78.1660072844097;
-        Tue, 09 Aug 2022 12:20:44 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR4LubkX0tuGA9aKXvqxL9u6Pg1ZLUrPaG3+BlBR8O2coLYRUWNXjx9DEti7PhyhEHYDH5631w==
-X-Received: by 2002:a1c:ed05:0:b0:3a2:ebae:c5e7 with SMTP id l5-20020a1ced05000000b003a2ebaec5e7mr15496wmh.78.1660072843868;
-        Tue, 09 Aug 2022 12:20:43 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c705:3700:aed2:a0f8:c270:7f30? (p200300cbc7053700aed2a0f8c2707f30.dip0.t-ipconnect.de. [2003:cb:c705:3700:aed2:a0f8:c270:7f30])
-        by smtp.gmail.com with ESMTPSA id q25-20020a1ce919000000b003a32251c3f0sm17052196wmc.33.2022.08.09.12.20.43
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=r+avV5S2drX7G/TFGfNe00g1z/YAKwkOT5Ou5nsHkJY=;
+        b=E02MlfUnlbHrEWYWdYLxNPoWdHYRnPiBAa5+vJkEhMQ9LIvmHjiNmhYXd+us1vOJVx
+         MclUZWbd0bqk+KLwOiWud8iGqaia203k8yWjxUsLs7lQdxCy5zPZ1+YR+e+GhGHfBPbk
+         KBDZ5sHGIOfWo7i9S71+CDkrUuFQluSOJ5K1gsAJN1a/gAihybytjH7GSiX95TZcvRw9
+         WjPG/VzifunbqoTwEFHln8j+qmaKrajDM9a/mL1lcV6bQwcNjbfP2WXr2RMIocNfT2Om
+         wRJABBME1SAuHg+YyHEVIjDjO7MkSCuqOC0SNGFsNcqESvWfhTINVDzIAKDqfyhc7zIA
+         bIFQ==
+X-Gm-Message-State: ACgBeo1jotiDCoZwvmThwhdHoiwZKhqHpfX2Cfyx759zWU9DcaivaoaY
+        jecDRvnxaUYNq1Uwo0n6oeYNAValh8h03AoxBaA=
+X-Google-Smtp-Source: AA6agR7OjLy5LRGl4sXXtOiPzkQ3enR6m6QHQG2q4EXdneEqxE6F3GY++Ah16E+PnE4XOIuelQsrWw==
+X-Received: by 2002:a17:907:72c8:b0:731:6d1:13f9 with SMTP id du8-20020a17090772c800b0073106d113f9mr13575925ejc.550.1660072898953;
+        Tue, 09 Aug 2022 12:21:38 -0700 (PDT)
+Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com. [209.85.221.42])
+        by smtp.gmail.com with ESMTPSA id mb11-20020a170906eb0b00b0072f4f4dc038sm1433657ejb.42.2022.08.09.12.21.34
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Aug 2022 12:20:43 -0700 (PDT)
-Message-ID: <5593cbb7-eb29-82f0-490e-dd72ceafff9b@redhat.com>
-Date:   Tue, 9 Aug 2022 21:20:42 +0200
+        Tue, 09 Aug 2022 12:21:36 -0700 (PDT)
+Received: by mail-wr1-f42.google.com with SMTP id q30so15334389wra.11
+        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 12:21:34 -0700 (PDT)
+X-Received: by 2002:a5d:638b:0:b0:220:6e1a:8794 with SMTP id
+ p11-20020a5d638b000000b002206e1a8794mr15428277wru.193.1660072893720; Tue, 09
+ Aug 2022 12:21:33 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Content-Language: en-US
-To:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+References: <20220808073232.8808-1-david@redhat.com> <CAHk-=wiEAH+ojSpAgx_Ep=NKPWHU8AdO3V56BXcCsU97oYJ1EA@mail.gmail.com>
+ <1a48d71d-41ee-bf39-80d2-0102f4fe9ccb@redhat.com> <CAHk-=wg40EAZofO16Eviaj7mfqDhZ2gVEbvfsMf6gYzspRjYvw@mail.gmail.com>
+ <YvKwhrjnFQJ7trT1@nvidia.com>
+In-Reply-To: <YvKwhrjnFQJ7trT1@nvidia.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 9 Aug 2022 12:21:17 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wgF7K2gSSpy=m_=K3Nov4zaceUX9puQf1TjkTJLA2XC_g@mail.gmail.com>
+Message-ID: <CAHk-=wgF7K2gSSpy=m_=K3Nov4zaceUX9puQf1TjkTJLA2XC_g@mail.gmail.com>
+Subject: Re: [PATCH v1] mm/gup: fix FOLL_FORCE COW security issue and remove FOLL_COW
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Axel Rasmussen <axelrasmussen@google.com>,
         Peter Xu <peterx@redhat.com>, Hugh Dickins <hughd@google.com>,
@@ -72,60 +71,73 @@ Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
         Matthew Wilcox <willy@infradead.org>,
         Vlastimil Babka <vbabka@suse.cz>,
         John Hubbard <jhubbard@nvidia.com>
-References: <20220808073232.8808-1-david@redhat.com>
- <CAHk-=wi81ujYGP0gmyy2kDke_ExL742Lo_hLepGjCa8mS81A7w@mail.gmail.com>
- <YvKsBUuwLNlHwhnE@nvidia.com>
- <CAHk-=wjh3wkhQWN8BHFUT6t52kfNMcRd+1JczD4Sgp_q11w8eA@mail.gmail.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH v1] mm/gup: fix FOLL_FORCE COW security issue and remove
- FOLL_COW
-In-Reply-To: <CAHk-=wjh3wkhQWN8BHFUT6t52kfNMcRd+1JczD4Sgp_q11w8eA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 09.08.22 21:07, Linus Torvalds wrote:
-> On Tue, Aug 9, 2022 at 11:48 AM Jason Gunthorpe <jgg@nvidia.com> wrote:
->>
->> It is because of all this madness with COW.
-> 
-> Yes, yes, but we have the proper long-term pinning now with
-> PG_anon_exclusive, and it actually gets the pinning right not just
-> over COW, but even over a fork - which that early write never did.
-> 
-> David, I thought all of that got properly merged? Is there something
-> still missing?
+On Tue, Aug 9, 2022 at 12:09 PM Jason Gunthorpe <jgg@nvidia.com> wrote:
+>
+>  Since BUG_ON crashes the machine and Linus says that crashing the
+>  machine is bad, WARN_ON will also crash the machine if you set the
+>  panic_on_warn parameter, so it is also bad, thus we shouldn't use
+>  anything.
 
-The only thing to get R/O longterm pins in MAP_PRIVATE correct that's
-missing is that we have to break COW when taking a R/O longterm pin when
-*not* finding an anon page inside a private mapping. Regarding anon
-pages I am not aware of issues (due to PG_anon_exclusive).
+If you set 'panic_on_warn' you get to keep both pieces when something breaks.
 
-If anybody here wants to stare at a webpage, the following commit
-explains the rough idea for MAP_PRIVATE:
+The thing is, there are people who *do* want to stop immediately when
+something goes wrong in the kernel.
 
-https://github.com/davidhildenbrand/linux/commit/cd7989fb76d2513c86f01e6f7a74415eee5d3150
+Anybody doing large-scale virtualization presumably has all the
+infrastructure to get debug info out of the virtual environment.
 
-Once we have that in place, we can mostly get rid of
-FOLL_FORCE|FOLL_WRITE for R/O longterm pins. There are some corner cases
-though that need some additional thought which i am still working on.
-FS-handled COW in MAP_SHARED mappings is just nasty (hello DAX).
+And people who run controlled loads in big server machine setups and
+have a MIS department to manage said machines typically also prefer
+for a machine to just crash over continuing.
 
-(the wrong use of FOLL_GET instead of FOLL_PIN for O_DIRECT and friends
-still persists, but that's a different thing to handle and it's only
-problematic with concurrent fork() IIRC)
+So in those situations, a dead machine is still a dead machine, but
+you get the information out, and panic_on_warn is fine, because panic
+and reboot is fine.
 
--- 
-Thanks,
+And yes, that's actually a fairly common case. Things like syzkaller
+etc *wants* to abort on the first warning, because that's kind of the
+point.
 
-David / dhildenb
+But while that kind of virtualized automation machinery is very very
+common, and is a big deal, it's by no means the only deal, and the
+most important thing to the point where nothing else matters.
 
+And if you are *not* in a farm, and if you are *not* using
+virtualization, a dead machine is literally a useless brick. Nobody
+has serial lines on individual machines any more. In most cases, the
+hardware literally doesn't even exist any more.
+
+So in that situation, you really cannot afford to take the approach of
+"just kill the machine". If you are on a laptop and are doing power
+management code, you generally cannot do that in a virtual
+environment, and you already have enough problems with suspend and
+resume being hard to debug, without people also going "oh, let's just
+BUG_ON() and kill the machine".
+
+Because the other side of that "we have a lot of machine farms doing
+automated testing" is that those machine farms do not generally find a
+lot of the exciting cases.
+
+Almost every single merge window, I end up having to bisect and report
+an oops or a WARN_ON(), because I actually run on real hardware. And
+said problem was never seen in linux-next.
+
+So we have two very different cases: the "virtual machine with good
+logging where a dead machine is fine" - use 'panic_on_warn'. And the
+actual real hardware with real drivers, running real loads by users.
+
+Both are valid. But the second case means that BUG_ON() is basically
+_never_ valid.
+
+              Linus
