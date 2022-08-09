@@ -2,64 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9169758E0F9
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 22:21:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5BA558E102
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 22:23:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345090AbiHIUVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 16:21:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44864 "EHLO
+        id S244953AbiHIUX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 16:23:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345887AbiHIUU6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 16:20:58 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 564B726576
-        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 13:20:55 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id dc19so24104935ejb.12
-        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 13:20:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=DGKHHAUwuZfCazjxcNKKHUT7rJIi8ll9zTOb4y7hCUc=;
-        b=WEfpeEZLySvke8oWrURAvNB0cuhg5p2fhHNFSr8Ptu4Bkc8DH9B5yKXXkiA0f8ZSUv
-         Wk+tTMhRbTpst7yfa9aNELS/+G+R2Y1Y3t1e8NW7tW/W29tb/gDh8ah0vHJT8w/US+Z4
-         v7PoDdCm6NLn1YJYubR0e9eymGioz29VRHsSE=
+        with ESMTP id S237427AbiHIUX4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 16:23:56 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 073471EEF1
+        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 13:23:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1660076633;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ks5e3vG8/bg6ecSj9dekO7KiLf2ruNOcJnb5Pq8KV1g=;
+        b=G7i6KRDVmDhDlvLYDV+YmRKbcSSN366qhLou1T/9Hw758g12LesiFTUMshWQxdHWuEGaCK
+        EdRW5Sm5thzb6VCz4crHiytCBiPFjPU//em5XWRXbbYfgEVGfZXWbgM4ZoZ22DxS8a0ULL
+        Wxz6nXwn9mzEgizgfywrhGh6OjIPyFw=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-606-Z0Nl3zCFNnm0yqC-2cRqgw-1; Tue, 09 Aug 2022 16:23:51 -0400
+X-MC-Unique: Z0Nl3zCFNnm0yqC-2cRqgw-1
+Received: by mail-wm1-f72.google.com with SMTP id h62-20020a1c2141000000b003a4f57eaeaaso1229376wmh.8
+        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 13:23:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=DGKHHAUwuZfCazjxcNKKHUT7rJIi8ll9zTOb4y7hCUc=;
-        b=UFbUuZK+NauFYP8k8d2ctR7u7IusBgrRqHOoMqDlxOrNkg1C/Jha4w8GsoanEILss8
-         mk6qugFwrR/gbMPJaAeGPYEKY0RCdaiy1HqeiTtZDuaIV63RRV2C/sK1OAjA09+Mb3Az
-         9pjMOGLhTKkn5CKROGbdejuUdkbr6dgxaDukQ385QJejK2EkhDpsjHMpQbWoHuISVDoj
-         YdRYs2ffmoI7abwzHNmDdb6EaD8laL59ZiKaM1gluoEsMFUhdb8IRB4zSms+4/aHdzdR
-         kPCVPxPU8Catvk3w/1q60stez4ASwjpHGslREYfSPzuwGSE+bSOT18lzLkWOMt5B9hsC
-         PHww==
-X-Gm-Message-State: ACgBeo2zxKEc44oOs1oBzwVUs7U8oUNw1A3SBrRz+D+ksNm0MOpduPIm
-        NVCTnTGTTWFVkB7WhCw/u3acFc6IsISpGWZ7Ih8=
-X-Google-Smtp-Source: AA6agR4VI/TZJDpwRbk/ATevBa8vttF1zPURRsxVnss+Q1cp+FOEiJtYNyvXMpNAmqq136kbsfbCbg==
-X-Received: by 2002:a17:906:6a10:b0:730:e9bd:1110 with SMTP id qw16-20020a1709066a1000b00730e9bd1110mr15740318ejc.88.1660076453694;
-        Tue, 09 Aug 2022 13:20:53 -0700 (PDT)
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com. [209.85.221.51])
-        by smtp.gmail.com with ESMTPSA id v18-20020a170906293200b0073022b796a7sm1500482ejd.93.2022.08.09.13.20.52
-        for <stable@vger.kernel.org>
+        h=content-transfer-encoding:in-reply-to:organization:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc;
+        bh=ks5e3vG8/bg6ecSj9dekO7KiLf2ruNOcJnb5Pq8KV1g=;
+        b=2dXhZTId0hNONLJgHzueCJaCtF4ZRfR08JBpvBWM+Eme4xa/GdMPDC4OLiglspEf1y
+         ZK+EZIu7ssHjNZIOdd8CgvDANK6u0j/j7JeI9d0U9kSJMET4wPjSkxRS89so+COQ/PZO
+         wevtncDQS6TRFaKj3Ezp4X72/sp8cEQEsWOQq2BangSpdjQnF1DBK7rhzY8LumxxS4dl
+         BQa5BHvfvVf6vvYh5dDO3/DV+GJsPhuwqEJdyIUNesuandraRfciyL6VxKYx5jZS2mn5
+         pqrFL1kPQiryU+1qSUMaWp3aOZmQ/kzgJEgBUdsE0Z8KOUnn+ZucXXmUCXw66zt7JWlO
+         5nAQ==
+X-Gm-Message-State: ACgBeo2XqJFwNq3Guas0CxI3BR9PwfGMJlN/qmP0cW9YkeTdfUbt2ro+
+        Pz/+QsxsaPXLFIZBuELYGI9AAwV2wBNXH+ykSZqHTySr5cVVAt6Easvqb6Mt6a1YyQAD3pzb/7i
+        Xg5fxqxQ/vpcch847
+X-Received: by 2002:a7b:c003:0:b0:39c:5642:e415 with SMTP id c3-20020a7bc003000000b0039c5642e415mr103191wmb.111.1660076630662;
+        Tue, 09 Aug 2022 13:23:50 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR5MME3AJynexSREakjc/wtM1ePCr1r4osXSZ1oZmWn8F0r7gEvOHDAhoGVLa2hTVXuiIT2gIQ==
+X-Received: by 2002:a7b:c003:0:b0:39c:5642:e415 with SMTP id c3-20020a7bc003000000b0039c5642e415mr103178wmb.111.1660076630387;
+        Tue, 09 Aug 2022 13:23:50 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c705:3700:aed2:a0f8:c270:7f30? (p200300cbc7053700aed2a0f8c2707f30.dip0.t-ipconnect.de. [2003:cb:c705:3700:aed2:a0f8:c270:7f30])
+        by smtp.gmail.com with ESMTPSA id q11-20020a5d658b000000b0021e4bc9edbfsm11591467wru.112.2022.08.09.13.23.49
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Aug 2022 13:20:52 -0700 (PDT)
-Received: by mail-wr1-f51.google.com with SMTP id bv3so15509384wrb.5
-        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 13:20:52 -0700 (PDT)
-X-Received: by 2002:a5d:6248:0:b0:222:cd3b:94c8 with SMTP id
- m8-20020a5d6248000000b00222cd3b94c8mr7137394wrv.97.1660076452117; Tue, 09 Aug
- 2022 13:20:52 -0700 (PDT)
+        Tue, 09 Aug 2022 13:23:50 -0700 (PDT)
+Message-ID: <915e2f40-b94a-cef4-7aa7-a402e93dae68@redhat.com>
+Date:   Tue, 9 Aug 2022 22:23:49 +0200
 MIME-Version: 1.0
-References: <20220808073232.8808-1-david@redhat.com> <CAHk-=wgsDOz5MfYYS9mE7PvFn4kLhTFdBwXvN6HCEsw1kvJnRQ@mail.gmail.com>
- <91e18a2f-c93d-00b8-7c1b-6d8493c3b2d5@redhat.com> <CAHk-=whg0ddey-LqFAPfZJDXHMjaHJNojAV3q17yvjc6W8QRvQ@mail.gmail.com>
-In-Reply-To: <CAHk-=whg0ddey-LqFAPfZJDXHMjaHJNojAV3q17yvjc6W8QRvQ@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 9 Aug 2022 13:20:36 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wgYAy5ho0Wqx+eri_+a5apYU1Th826UScE7rZRiyhPcGA@mail.gmail.com>
-Message-ID: <CAHk-=wgYAy5ho0Wqx+eri_+a5apYU1Th826UScE7rZRiyhPcGA@mail.gmail.com>
-Subject: Re: [PATCH v1] mm/gup: fix FOLL_FORCE COW security issue and remove FOLL_COW
-To:     David Hildenbrand <david@redhat.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v1] mm/gup: fix FOLL_FORCE COW security issue and remove
+ FOLL_COW
+Content-Language: en-US
+To:     Linus Torvalds <torvalds@linux-foundation.org>
 Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
         stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -70,26 +74,56 @@ Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
         Vlastimil Babka <vbabka@suse.cz>,
         John Hubbard <jhubbard@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+References: <20220808073232.8808-1-david@redhat.com>
+ <CAHk-=wgsDOz5MfYYS9mE7PvFn4kLhTFdBwXvN6HCEsw1kvJnRQ@mail.gmail.com>
+ <91e18a2f-c93d-00b8-7c1b-6d8493c3b2d5@redhat.com>
+ <CAHk-=whg0ddey-LqFAPfZJDXHMjaHJNojAV3q17yvjc6W8QRvQ@mail.gmail.com>
+ <CAHk-=wgYAy5ho0Wqx+eri_+a5apYU1Th826UScE7rZRiyhPcGA@mail.gmail.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <CAHk-=wgYAy5ho0Wqx+eri_+a5apYU1Th826UScE7rZRiyhPcGA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 9, 2022 at 1:14 PM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> But as there are two bits, I'm sure somebody ends up touching one and
-> not the other.
+On 09.08.22 22:20, Linus Torvalds wrote:
+> On Tue, Aug 9, 2022 at 1:14 PM Linus Torvalds
+> <torvalds@linux-foundation.org> wrote:
+>>
+>> But as there are two bits, I'm sure somebody ends up touching one and
+>> not the other.
+> 
+> Ugh. The nommu code certainly does odd things here. That just looks wrong.
+> 
+> And the hugetlb code does something horrible too, but never *sets* it,
+> so it looks like some odd subset of VM_SHARED.
 
-Ugh. The nommu code certainly does odd things here. That just looks wrong.
+mm/mmap.c:do_mmap() contains the magic bit
 
-And the hugetlb code does something horrible too, but never *sets* it,
-so it looks like some odd subset of VM_SHARED.
+switch (flags & MAP_TYPE) {
+case MAP_SHARED:
+...
+case MAP_SHARED_VALIDATE:
+...
+vm_flags |= VM_SHARED | VM_MAYSHARE;
+if (!(file->f_mode & FMODE_WRITE))
+	vm_flags &= ~(VM_MAYWRITE | VM_SHARED);
+fallthrough;
 
-                 Linus
+
+VM_SHARED semantics are confusing.
+
+
+-- 
+Thanks,
+
+David / dhildenb
+
