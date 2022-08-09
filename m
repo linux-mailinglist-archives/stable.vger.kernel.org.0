@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10AD858DDA2
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:03:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2985C58DDD5
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:06:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245325AbiHISDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:03:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34696 "EHLO
+        id S1344753AbiHISGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:06:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343501AbiHISCu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:02:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA05626110;
-        Tue,  9 Aug 2022 11:01:31 -0700 (PDT)
+        with ESMTP id S1344781AbiHISFq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:05:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E14E27FC8;
+        Tue,  9 Aug 2022 11:02:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E0EEB816EC;
-        Tue,  9 Aug 2022 18:01:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4FABC433D6;
-        Tue,  9 Aug 2022 18:01:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FE6861012;
+        Tue,  9 Aug 2022 18:02:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79B7FC433C1;
+        Tue,  9 Aug 2022 18:02:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068091;
-        bh=K/+z6RtiqdIGnLZ1gtlrGutH0ZaIuy+G3NLRTJq9AYA=;
+        s=korg; t=1660068158;
+        bh=OSOCjuKU/rjuKloGep42br5G+ar+oQ9cJvsuobfhIu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=azgY44G7ups9UT8kZLIOATI1omjjSCU0cXV+9d5PDWOKenMKkWCj19JU4eq0j1fdq
-         BOf8Nv1+20QhUlLCuvT9MkocR+NassIy1dSm5VWz5Zt0PegUwu9WcMGidWdHD9kHT5
-         N5fz2TMvgc2S3OO8DaP5dKCEsWGnA+vMUC6GsZKE=
+        b=YMlURqaX9fb5A35KpMfbJYMiqW0pF4QZg5FbH1mGmafm2Ez7khawVJCdsPU/2ctyQ
+         G+BJkvTiJGJIVAAjr9ocXFz9N4RDjc97U4EOuq8qP7iMxR3lDNW4G0YBjvdYLwCxgS
+         qCoCqw9lw9fdu52wVu0PRiXz6lAoN4ksmPK7nNLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a8430774139ec3ab7176@syzkaller.appspotmail.com,
-        Ayushman Dutta <ayudutta@amazon.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        David Ahern <dsahern@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 11/32] net: ping6: Fix memleak in ipv6_renew_options().
-Date:   Tue,  9 Aug 2022 20:00:02 +0200
-Message-Id: <20220809175513.451194988@linuxfoundation.org>
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 12/32] igmp: Fix data-races around sysctl_igmp_qrv.
+Date:   Tue,  9 Aug 2022 20:00:03 +0200
+Message-Id: <20220809175513.482217787@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220809175513.082573955@linuxfoundation.org>
 References: <20220809175513.082573955@linuxfoundation.org>
@@ -60,103 +56,125 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit e27326009a3d247b831eda38878c777f6f4eb3d1 upstream.
+[ Upstream commit 8ebcc62c738f68688ee7c6fec2efe5bc6d3d7e60 ]
 
-When we close ping6 sockets, some resources are left unfreed because
-pingv6_prot is missing sk->sk_prot->destroy().  As reported by
-syzbot [0], just three syscalls leak 96 bytes and easily cause OOM.
+While reading sysctl_igmp_qrv, it can be changed concurrently.
+Thus, we need to add READ_ONCE() to its readers.
 
-    struct ipv6_sr_hdr *hdr;
-    char data[24] = {0};
-    int fd;
+This test can be packed into a helper, so such changes will be in the
+follow-up series after net is merged into net-next.
 
-    hdr = (struct ipv6_sr_hdr *)data;
-    hdr->hdrlen = 2;
-    hdr->type = IPV6_SRCRT_TYPE_4;
+  qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
 
-    fd = socket(AF_INET6, SOCK_DGRAM, NEXTHDR_ICMP);
-    setsockopt(fd, IPPROTO_IPV6, IPV6_RTHDR, data, 24);
-    close(fd);
-
-To fix memory leaks, let's add a destroy function.
-
-Note the socket() syscall checks if the GID is within the range of
-net.ipv4.ping_group_range.  The default value is [1, 0] so that no
-GID meets the condition (1 <= GID <= 0).  Thus, the local DoS does
-not succeed until we change the default value.  However, at least
-Ubuntu/Fedora/RHEL loosen it.
-
-    $ cat /usr/lib/sysctl.d/50-default.conf
-    ...
-    -net.ipv4.ping_group_range = 0 2147483647
-
-Also, there could be another path reported with these options, and
-some of them require CAP_NET_RAW.
-
-  setsockopt
-      IPV6_ADDRFORM (inet6_sk(sk)->pktoptions)
-      IPV6_RECVPATHMTU (inet6_sk(sk)->rxpmtu)
-      IPV6_HOPOPTS (inet6_sk(sk)->opt)
-      IPV6_RTHDRDSTOPTS (inet6_sk(sk)->opt)
-      IPV6_RTHDR (inet6_sk(sk)->opt)
-      IPV6_DSTOPTS (inet6_sk(sk)->opt)
-      IPV6_2292PKTOPTIONS (inet6_sk(sk)->opt)
-
-  getsockopt
-      IPV6_FLOWLABEL_MGR (inet6_sk(sk)->ipv6_fl_list)
-
-For the record, I left a different splat with syzbot's one.
-
-  unreferenced object 0xffff888006270c60 (size 96):
-    comm "repro2", pid 231, jiffies 4294696626 (age 13.118s)
-    hex dump (first 32 bytes):
-      01 00 00 00 44 00 00 00 00 00 00 00 00 00 00 00  ....D...........
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<00000000f6bc7ea9>] sock_kmalloc (net/core/sock.c:2564 net/core/sock.c:2554)
-      [<000000006d699550>] do_ipv6_setsockopt.constprop.0 (net/ipv6/ipv6_sockglue.c:715)
-      [<00000000c3c3b1f5>] ipv6_setsockopt (net/ipv6/ipv6_sockglue.c:1024)
-      [<000000007096a025>] __sys_setsockopt (net/socket.c:2254)
-      [<000000003a8ff47b>] __x64_sys_setsockopt (net/socket.c:2265 net/socket.c:2262 net/socket.c:2262)
-      [<000000007c409dcb>] do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-      [<00000000e939c4a9>] entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-
-[0]: https://syzkaller.appspot.com/bug?extid=a8430774139ec3ab7176
-
-Fixes: 6d0bfe226116 ("net: ipv6: Add IPv6 support to the ping socket.")
-Reported-by: syzbot+a8430774139ec3ab7176@syzkaller.appspotmail.com
-Reported-by: Ayushman Dutta <ayudutta@amazon.com>
+Fixes: a9fe8e29945d ("ipv4: implement igmp_qrv sysctl to tune igmp robustness variable")
 Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220728012220.46918-1-kuniyu@amazon.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ping.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/ipv4/igmp.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
---- a/net/ipv6/ping.c
-+++ b/net/ipv6/ping.c
-@@ -27,6 +27,11 @@
- #include <linux/proc_fs.h>
- #include <net/ping.h>
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index b831825f234f..a08acb54b6b0 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -831,7 +831,7 @@ static void igmp_ifc_event(struct in_device *in_dev)
+ 	struct net *net = dev_net(in_dev->dev);
+ 	if (IGMP_V1_SEEN(in_dev) || IGMP_V2_SEEN(in_dev))
+ 		return;
+-	WRITE_ONCE(in_dev->mr_ifc_count, in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv);
++	WRITE_ONCE(in_dev->mr_ifc_count, in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv));
+ 	igmp_ifc_start_timer(in_dev, 1);
+ }
  
-+static void ping_v6_destroy(struct sock *sk)
-+{
-+	inet6_destroy_sock(sk);
-+}
-+
- /* Compatibility glue so we can support IPv6 when it's compiled as a module */
- static int dummy_ipv6_recv_error(struct sock *sk, struct msghdr *msg, int len,
- 				 int *addr_len)
-@@ -170,6 +175,7 @@ struct proto pingv6_prot = {
- 	.owner =	THIS_MODULE,
- 	.init =		ping_init_sock,
- 	.close =	ping_close,
-+	.destroy =	ping_v6_destroy,
- 	.connect =	ip6_datagram_connect_v6_only,
- 	.disconnect =	__udp_disconnect,
- 	.setsockopt =	ipv6_setsockopt,
+@@ -1013,7 +1013,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
+ 		 * received value was zero, use the default or statically
+ 		 * configured value.
+ 		 */
+-		in_dev->mr_qrv = ih3->qrv ?: net->ipv4.sysctl_igmp_qrv;
++		in_dev->mr_qrv = ih3->qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 		in_dev->mr_qi = IGMPV3_QQIC(ih3->qqic)*HZ ?: IGMP_QUERY_INTERVAL;
+ 
+ 		/* RFC3376, 8.3. Query Response Interval:
+@@ -1192,7 +1192,7 @@ static void igmpv3_add_delrec(struct in_device *in_dev, struct ip_mc_list *im)
+ 	pmc->interface = im->interface;
+ 	in_dev_hold(in_dev);
+ 	pmc->multiaddr = im->multiaddr;
+-	pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++	pmc->crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 	pmc->sfmode = im->sfmode;
+ 	if (pmc->sfmode == MCAST_INCLUDE) {
+ 		struct ip_sf_list *psf;
+@@ -1243,9 +1243,11 @@ static void igmpv3_del_delrec(struct in_device *in_dev, struct ip_mc_list *im)
+ 			swap(im->tomb, pmc->tomb);
+ 			swap(im->sources, pmc->sources);
+ 			for (psf = im->sources; psf; psf = psf->sf_next)
+-				psf->sf_crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++				psf->sf_crcount = in_dev->mr_qrv ?:
++					READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 		} else {
+-			im->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++			im->crcount = in_dev->mr_qrv ?:
++				READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 		}
+ 		in_dev_put(pmc->interface);
+ 		kfree_pmc(pmc);
+@@ -1347,7 +1349,7 @@ static void igmp_group_added(struct ip_mc_list *im)
+ 	if (in_dev->dead)
+ 		return;
+ 
+-	im->unsolicit_count = net->ipv4.sysctl_igmp_qrv;
++	im->unsolicit_count = READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 	if (IGMP_V1_SEEN(in_dev) || IGMP_V2_SEEN(in_dev)) {
+ 		spin_lock_bh(&im->lock);
+ 		igmp_start_timer(im, IGMP_INITIAL_REPORT_DELAY);
+@@ -1361,7 +1363,7 @@ static void igmp_group_added(struct ip_mc_list *im)
+ 	 * IN() to IN(A).
+ 	 */
+ 	if (im->sfmode == MCAST_EXCLUDE)
+-		im->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++		im->crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 
+ 	igmp_ifc_event(in_dev);
+ #endif
+@@ -1769,7 +1771,7 @@ static void ip_mc_reset(struct in_device *in_dev)
+ 
+ 	in_dev->mr_qi = IGMP_QUERY_INTERVAL;
+ 	in_dev->mr_qri = IGMP_QUERY_RESPONSE_INTERVAL;
+-	in_dev->mr_qrv = net->ipv4.sysctl_igmp_qrv;
++	in_dev->mr_qrv = READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ }
+ #else
+ static void ip_mc_reset(struct in_device *in_dev)
+@@ -1903,7 +1905,7 @@ static int ip_mc_del1_src(struct ip_mc_list *pmc, int sfmode,
+ #ifdef CONFIG_IP_MULTICAST
+ 		if (psf->sf_oldin &&
+ 		    !IGMP_V1_SEEN(in_dev) && !IGMP_V2_SEEN(in_dev)) {
+-			psf->sf_crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++			psf->sf_crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 			psf->sf_next = pmc->tomb;
+ 			pmc->tomb = psf;
+ 			rv = 1;
+@@ -1967,7 +1969,7 @@ static int ip_mc_del_src(struct in_device *in_dev, __be32 *pmca, int sfmode,
+ 		/* filter mode change */
+ 		pmc->sfmode = MCAST_INCLUDE;
+ #ifdef CONFIG_IP_MULTICAST
+-		pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++		pmc->crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 		WRITE_ONCE(in_dev->mr_ifc_count, pmc->crcount);
+ 		for (psf = pmc->sources; psf; psf = psf->sf_next)
+ 			psf->sf_crcount = 0;
+@@ -2146,7 +2148,7 @@ static int ip_mc_add_src(struct in_device *in_dev, __be32 *pmca, int sfmode,
+ #ifdef CONFIG_IP_MULTICAST
+ 		/* else no filters; keep old mode for reports */
+ 
+-		pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++		pmc->crcount = in_dev->mr_qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+ 		WRITE_ONCE(in_dev->mr_ifc_count, pmc->crcount);
+ 		for (psf = pmc->sources; psf; psf = psf->sf_next)
+ 			psf->sf_crcount = 0;
+-- 
+2.35.1
+
 
 
