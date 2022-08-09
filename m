@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E444658DE45
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 489D958DE46
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:13:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343680AbiHISNA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:13:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57636 "EHLO
+        id S1345408AbiHISNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:13:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245369AbiHISMV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:12:21 -0400
+        with ESMTP id S245310AbiHISMX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:12:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 248A12B27B;
-        Tue,  9 Aug 2022 11:05:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAFB32BB11;
+        Tue,  9 Aug 2022 11:05:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D39661189;
-        Tue,  9 Aug 2022 18:05:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA022C433D7;
-        Tue,  9 Aug 2022 18:05:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9894D6119E;
+        Tue,  9 Aug 2022 18:05:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2A21C433D7;
+        Tue,  9 Aug 2022 18:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068314;
-        bh=vZ7Im04awsHRPqEbh22pLYuPaaUYojdqPrSXhw8iomo=;
+        s=korg; t=1660068317;
+        bh=BX35b+r4zsQoztcqLpFxKseQW33NkBN5iCEIZWBi8PQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ct3SoKMqUi82/rylSHyW5ZdaQ583HduMl7yPGONiD/EdNNZx9GksZbFEmdUpV6NqH
-         jSWUEU3A/w1/dYcQwpaFI4NC8IhKMqoMgelPm8GhOWtm+iKxuSA+bCjjHcBE/VivAF
-         ZyOEeDnRVCcRzf2MIqeRMpOR/btHOYiNrQhQoBYw=
+        b=SV2HavKk5C3gCv9hH/Alm7hSX9v+EmBA/eQSamiFlaK00dy/t7Zr8XfPc5B/VWCqD
+         7IQgGzNjxgyplwe71DCPpoXq6gsiv4sYKN90zDmX4tTCK3aYslZ5eQn6cBSS4xc8eZ
+         543xIdPP/Eqb15Q8Pdi/yoSwaUHK1/GHFzMkOVDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 18/30] btrfs: zoned: fix critical section of relocation inode writeback
-Date:   Tue,  9 Aug 2022 20:00:43 +0200
-Message-Id: <20220809175514.969002576@linuxfoundation.org>
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.15 19/30] Bluetooth: hci_bcm: Add BCM4349B1 variant
+Date:   Tue,  9 Aug 2022 20:00:44 +0200
+Message-Id: <20220809175515.008778653@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220809175514.276643253@linuxfoundation.org>
 References: <20220809175514.276643253@linuxfoundation.org>
@@ -55,46 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-commit 19ab78ca86981e0e1e73036fb73a508731a7c078 upstream.
+commit 4f17c2b6694d0c4098f33b07ee3a696976940aa5 upstream.
 
-We use btrfs_zoned_data_reloc_{lock,unlock} to allow only one process to
-write out to the relocation inode. That critical section must include all
-the IO submission for the inode. However, flush_write_bio() in
-extent_writepages() is out of the critical section, causing an IO
-submission outside of the lock. This leads to an out of the order IO
-submission and fail the relocation process.
+The BCM4349B1, aka CYW/BCM89359, is a WiFi+BT chip and its Bluetooth
+portion can be controlled over serial.
 
-Fix it by extending the critical section.
+Two subversions are added for the chip, because ROM firmware reports
+002.002.013 (at least for the chips I have here), while depending on
+patchram firmware revision, either 002.002.013 or 002.002.014 is
+reported.
 
-Fixes: 35156d852762 ("btrfs: zoned: only allow one process to add pages to a relocation inode")
-CC: stable@vger.kernel.org # 5.16+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent_io.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bluetooth/btbcm.c   |    2 ++
+ drivers/bluetooth/hci_bcm.c |    1 +
+ 2 files changed, 3 insertions(+)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -5152,13 +5152,14 @@ int extent_writepages(struct address_spa
- 	 */
- 	btrfs_zoned_data_reloc_lock(BTRFS_I(inode));
- 	ret = extent_write_cache_pages(mapping, wbc, &epd);
--	btrfs_zoned_data_reloc_unlock(BTRFS_I(inode));
- 	ASSERT(ret <= 0);
- 	if (ret < 0) {
-+		btrfs_zoned_data_reloc_unlock(BTRFS_I(inode));
- 		end_write_bio(&epd, ret);
- 		return ret;
- 	}
- 	ret = flush_write_bio(&epd);
-+	btrfs_zoned_data_reloc_unlock(BTRFS_I(inode));
- 	return ret;
- }
- 
+--- a/drivers/bluetooth/btbcm.c
++++ b/drivers/bluetooth/btbcm.c
+@@ -453,6 +453,8 @@ static const struct bcm_subver_table bcm
+ 	{ 0x6606, "BCM4345C5"	},	/* 003.006.006 */
+ 	{ 0x230f, "BCM4356A2"	},	/* 001.003.015 */
+ 	{ 0x220e, "BCM20702A1"  },	/* 001.002.014 */
++	{ 0x420d, "BCM4349B1"	},	/* 002.002.013 */
++	{ 0x420e, "BCM4349B1"	},	/* 002.002.014 */
+ 	{ 0x4217, "BCM4329B1"   },	/* 002.002.023 */
+ 	{ 0x6106, "BCM4359C0"	},	/* 003.001.006 */
+ 	{ 0x4106, "BCM4335A0"	},	/* 002.001.006 */
+--- a/drivers/bluetooth/hci_bcm.c
++++ b/drivers/bluetooth/hci_bcm.c
+@@ -1515,6 +1515,7 @@ static const struct of_device_id bcm_blu
+ 	{ .compatible = "brcm,bcm4345c5" },
+ 	{ .compatible = "brcm,bcm4330-bt" },
+ 	{ .compatible = "brcm,bcm43438-bt", .data = &bcm43438_device_data },
++	{ .compatible = "brcm,bcm4349-bt", .data = &bcm43438_device_data },
+ 	{ .compatible = "brcm,bcm43540-bt", .data = &bcm4354_device_data },
+ 	{ .compatible = "brcm,bcm4335a0" },
+ 	{ },
 
 
