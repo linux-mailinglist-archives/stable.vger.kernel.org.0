@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A73FE58DE2B
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:12:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83CD358DE93
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:19:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345316AbiHISMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:12:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57588 "EHLO
+        id S1345860AbiHISTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:19:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345840AbiHISLt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:11:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6180626AF8;
-        Tue,  9 Aug 2022 11:05:01 -0700 (PDT)
+        with ESMTP id S1346565AbiHISRJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:17:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 404822E691;
+        Tue,  9 Aug 2022 11:06:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BFDD6111F;
-        Tue,  9 Aug 2022 18:05:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ABF4C433D6;
-        Tue,  9 Aug 2022 18:04:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18CD5B818C9;
+        Tue,  9 Aug 2022 18:06:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67F3DC433D7;
+        Tue,  9 Aug 2022 18:06:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068300;
-        bh=UinAzkFxj+BLJyuf4XCMytJV/KED8ZQPD9DVBguyrlg=;
+        s=korg; t=1660068375;
+        bh=Hw4pzzLd0H6uAutoVrmjO0vf0SfnwAPU/bjzRGD23m8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hbd8ggkKTjOXdzM2SOkIZk3yP2Kntl1O+MOXy0eKGLovkXMZfsKax1ienghKQcS56
-         k1NejTb1Ir3dcI7GgoL881P2PvVQ4+IIO/h5mcYUh4DUjLG8ZI6yZKVzTYjAoqC3Hm
-         SvlR4K+BVJIkkhTnmH521n+VnP6TxSNAPalsSMSQ=
+        b=EUINnB7pTBUYBOGDmi7LyrU273Qs4WXjemDo5lYfQ6fm5go8qSToulVECC0dRGtsm
+         oqmasT/LJdjcqV5eBkAMtPneM6u/j7CLfDNS9zXGu12F+kAy+ITZZui8t6QjDpAM9H
+         0qomcptbwSDWJer5L81q4go9rLVkzAcnku0nJwd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        Vlastimil Babka <vbabka@suse.cz>
-Subject: [PATCH 5.15 05/30] tools/vm/slabinfo: Handle files in debugfs
+        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.18 01/35] x86/speculation: Make all RETbleed mitigations 64-bit only
 Date:   Tue,  9 Aug 2022 20:00:30 +0200
-Message-Id: <20220809175514.480552640@linuxfoundation.org>
+Message-Id: <20220809175515.095853601@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175514.276643253@linuxfoundation.org>
-References: <20220809175514.276643253@linuxfoundation.org>
+In-Reply-To: <20220809175515.046484486@linuxfoundation.org>
+References: <20220809175515.046484486@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,75 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stéphane Graber <stgraber@ubuntu.com>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-commit 0c7e0d699ef1430d7f4cf12b4b1d097af58b5515 upstream.
+commit b648ab487f31bc4c38941bc770ea97fe394304bb upstream.
 
-Commit 64dd68497be76 relocated and renamed the alloc_calls and
-free_calls files from /sys/kernel/slab/NAME/*_calls over to
-/sys/kernel/debug/slab/NAME/*_calls but didn't update the slabinfo tool
-with the new location.
+The mitigations for RETBleed are currently ineffective on x86_32 since
+entry_32.S does not use the required macros.  However, for an x86_32
+target, the kconfig symbols for them are still enabled by default and
+/sys/devices/system/cpu/vulnerabilities/retbleed will wrongly report
+that mitigations are in place.
 
-This change will now have slabinfo look at the new location (and filenames)
-with a fallback to the prior files.
+Make all of these symbols depend on X86_64, and only enable RETHUNK by
+default on X86_64.
 
-Fixes: 64dd68497be76 ("mm: slub: move sysfs slab alloc/free interfaces to debugfs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stéphane Graber <stgraber@ubuntu.com>
-Tested-by: Stéphane Graber <stgraber@ubuntu.com>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Fixes: f43b9876e857 ("x86/retbleed: Add fine grained Kconfig knobs")
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/YtwSR3NNsWp1ohfV@decadent.org.uk
+[bwh: Backported to 5.10/5.15/5.18: adjust context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/vm/slabinfo.c |   26 ++++++++++++++++++++++++--
- 1 file changed, 24 insertions(+), 2 deletions(-)
+ arch/x86/Kconfig |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/tools/vm/slabinfo.c
-+++ b/tools/vm/slabinfo.c
-@@ -233,6 +233,24 @@ static unsigned long read_slab_obj(struc
- 	return l;
- }
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -2469,7 +2469,7 @@ config RETPOLINE
+ config RETHUNK
+ 	bool "Enable return-thunks"
+ 	depends on RETPOLINE && CC_HAS_RETURN_THUNK
+-	default y
++	default y if X86_64
+ 	help
+ 	  Compile the kernel with the return-thunks compiler option to guard
+ 	  against kernel-to-user data leaks by avoiding return speculation.
+@@ -2478,21 +2478,21 @@ config RETHUNK
  
-+static unsigned long read_debug_slab_obj(struct slabinfo *s, const char *name)
-+{
-+	char x[128];
-+	FILE *f;
-+	size_t l;
-+
-+	snprintf(x, 128, "/sys/kernel/debug/slab/%s/%s", s->name, name);
-+	f = fopen(x, "r");
-+	if (!f) {
-+		buffer[0] = 0;
-+		l = 0;
-+	} else {
-+		l = fread(buffer, 1, sizeof(buffer), f);
-+		buffer[l] = 0;
-+		fclose(f);
-+	}
-+	return l;
-+}
+ config CPU_UNRET_ENTRY
+ 	bool "Enable UNRET on kernel entry"
+-	depends on CPU_SUP_AMD && RETHUNK
++	depends on CPU_SUP_AMD && RETHUNK && X86_64
+ 	default y
+ 	help
+ 	  Compile the kernel with support for the retbleed=unret mitigation.
  
- /*
-  * Put a size string together
-@@ -409,14 +427,18 @@ static void show_tracking(struct slabinf
- {
- 	printf("\n%s: Kernel object allocation\n", s->name);
- 	printf("-----------------------------------------------------------------------\n");
--	if (read_slab_obj(s, "alloc_calls"))
-+	if (read_debug_slab_obj(s, "alloc_traces"))
-+		printf("%s", buffer);
-+	else if (read_slab_obj(s, "alloc_calls"))
- 		printf("%s", buffer);
- 	else
- 		printf("No Data\n");
+ config CPU_IBPB_ENTRY
+ 	bool "Enable IBPB on kernel entry"
+-	depends on CPU_SUP_AMD
++	depends on CPU_SUP_AMD && X86_64
+ 	default y
+ 	help
+ 	  Compile the kernel with support for the retbleed=ibpb mitigation.
  
- 	printf("\n%s: Kernel object freeing\n", s->name);
- 	printf("------------------------------------------------------------------------\n");
--	if (read_slab_obj(s, "free_calls"))
-+	if (read_debug_slab_obj(s, "free_traces"))
-+		printf("%s", buffer);
-+	else if (read_slab_obj(s, "free_calls"))
- 		printf("%s", buffer);
- 	else
- 		printf("No Data\n");
+ config CPU_IBRS_ENTRY
+ 	bool "Enable IBRS on kernel entry"
+-	depends on CPU_SUP_INTEL
++	depends on CPU_SUP_INTEL && X86_64
+ 	default y
+ 	help
+ 	  Compile the kernel with support for the spectre_v2=ibrs mitigation.
 
 
