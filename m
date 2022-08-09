@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7005858DEFE
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13BAF58DF03
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:29:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344081AbiHIS3J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:29:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38292 "EHLO
+        id S233564AbiHIS3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:29:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347630AbiHIS1c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:27:32 -0400
+        with ESMTP id S238010AbiHIS1g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:27:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CC1C2A241;
-        Tue,  9 Aug 2022 11:10:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D49F2656A;
+        Tue,  9 Aug 2022 11:10:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEAF0B81919;
-        Tue,  9 Aug 2022 18:08:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F5CEC433B5;
-        Tue,  9 Aug 2022 18:08:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A19BFB8191E;
+        Tue,  9 Aug 2022 18:08:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBF4FC433D7;
+        Tue,  9 Aug 2022 18:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068487;
-        bh=aS6kC7/UR/+s4cEQ6IbqOtahiGkvu5P7CX0AzJ/IWIM=;
+        s=korg; t=1660068490;
+        bh=jDWLxdfLb0UfgoWC21cxL2t9XM8NGIBroBhN1wxTcp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hODm+WBOEiojscPOmrmPSZ5xJc2mA+nabE98myb8SMOB4YZ+/D8cA1ehnikyNgojz
-         yMyWFHDC4YdlV1eedh7ziTdn3jF5ZSFGFAjxvKPq0Y3Wcod9Lobq+yfAGk7o4/CMPl
-         cqWCDxrm253qrnXWcVLiGIT7jF5G3YXcTi39CW2A=
+        b=2WQ+8gZH7cMauaerHMh0NB8S5o7pB/9ppo/Sc0cH2kTv0IO43dCQEXjSGUn9wxM/p
+         QIEp4NKHVdrCz7Mqtos89yvERE9fhAi2iJTisNc0dzK6GCoxzvoaAAC9Auu6obcjko
+         p1wT13/x+SE8yNQOmmQz9UbLqXHgOxAnyYXIoUtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.19 05/21] ACPI: APEI: Better fix to avoid spamming the console with old error logs
-Date:   Tue,  9 Aug 2022 20:00:57 +0200
-Message-Id: <20220809175513.512663161@linuxfoundation.org>
+        stable@vger.kernel.org, GUO Zihua <guozihua@huawei.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Will Deacon <will@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.19 06/21] crypto: arm64/poly1305 - fix a read out-of-bound
+Date:   Tue,  9 Aug 2022 20:00:58 +0200
+Message-Id: <20220809175513.542421012@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220809175513.345597655@linuxfoundation.org>
 References: <20220809175513.345597655@linuxfoundation.org>
@@ -53,105 +55,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: GUO Zihua <guozihua@huawei.com>
 
-commit c3481b6b75b4797657838f44028fd28226ab48e0 upstream.
+commit 7ae19d422c7da84b5f13bc08b98bd737a08d3a53 upstream.
 
-The fix in commit 3f8dec116210 ("ACPI/APEI: Limit printable size of BERT
-table data") does not work as intended on systems where the BIOS has a
-fixed size block of memory for the BERT table, relying on s/w to quit
-when it finds a record with estatus->block_status == 0. On these systems
-all errors are suppressed because the check:
+A kasan error was reported during fuzzing:
 
-	if (region_len < ACPI_BERT_PRINT_MAX_LEN)
+BUG: KASAN: slab-out-of-bounds in neon_poly1305_blocks.constprop.0+0x1b4/0x250 [poly1305_neon]
+Read of size 4 at addr ffff0010e293f010 by task syz-executor.5/1646715
+CPU: 4 PID: 1646715 Comm: syz-executor.5 Kdump: loaded Not tainted 5.10.0.aarch64 #1
+Hardware name: Huawei TaiShan 2280 /BC11SPCD, BIOS 1.59 01/31/2019
+Call trace:
+ dump_backtrace+0x0/0x394
+ show_stack+0x34/0x4c arch/arm64/kernel/stacktrace.c:196
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x158/0x1e4 lib/dump_stack.c:118
+ print_address_description.constprop.0+0x68/0x204 mm/kasan/report.c:387
+ __kasan_report+0xe0/0x140 mm/kasan/report.c:547
+ kasan_report+0x44/0xe0 mm/kasan/report.c:564
+ check_memory_region_inline mm/kasan/generic.c:187 [inline]
+ __asan_load4+0x94/0xd0 mm/kasan/generic.c:252
+ neon_poly1305_blocks.constprop.0+0x1b4/0x250 [poly1305_neon]
+ neon_poly1305_do_update+0x6c/0x15c [poly1305_neon]
+ neon_poly1305_update+0x9c/0x1c4 [poly1305_neon]
+ crypto_shash_update crypto/shash.c:131 [inline]
+ shash_finup_unaligned+0x84/0x15c crypto/shash.c:179
+ crypto_shash_finup+0x8c/0x140 crypto/shash.c:193
+ shash_digest_unaligned+0xb8/0xe4 crypto/shash.c:201
+ crypto_shash_digest+0xa4/0xfc crypto/shash.c:217
+ crypto_shash_tfm_digest+0xb4/0x150 crypto/shash.c:229
+ essiv_skcipher_setkey+0x164/0x200 [essiv]
+ crypto_skcipher_setkey+0xb0/0x160 crypto/skcipher.c:612
+ skcipher_setkey+0x3c/0x50 crypto/algif_skcipher.c:305
+ alg_setkey+0x114/0x2a0 crypto/af_alg.c:220
+ alg_setsockopt+0x19c/0x210 crypto/af_alg.c:253
+ __sys_setsockopt+0x190/0x2e0 net/socket.c:2123
+ __do_sys_setsockopt net/socket.c:2134 [inline]
+ __se_sys_setsockopt net/socket.c:2131 [inline]
+ __arm64_sys_setsockopt+0x78/0x94 net/socket.c:2131
+ __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
+ invoke_syscall+0x64/0x100 arch/arm64/kernel/syscall.c:48
+ el0_svc_common.constprop.0+0x220/0x230 arch/arm64/kernel/syscall.c:155
+ do_el0_svc+0xb4/0xd4 arch/arm64/kernel/syscall.c:217
+ el0_svc+0x24/0x3c arch/arm64/kernel/entry-common.c:353
+ el0_sync_handler+0x160/0x164 arch/arm64/kernel/entry-common.c:369
+ el0_sync+0x160/0x180 arch/arm64/kernel/entry.S:683
 
-always fails.
+This error can be reproduced by the following code compiled as ko on a
+system with kasan enabled:
 
-New scheme skips individual CPER records that are too large, and also
-limits the total number of records that will be printed to 5.
+#include <linux/module.h>
+#include <linux/crypto.h>
+#include <crypto/hash.h>
+#include <crypto/poly1305.h>
 
-Fixes: 3f8dec116210 ("ACPI/APEI: Limit printable size of BERT table data")
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+char test_data[] = "\x00\x01\x02\x03\x04\x05\x06\x07"
+                   "\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
+                   "\x10\x11\x12\x13\x14\x15\x16\x17"
+                   "\x18\x19\x1a\x1b\x1c\x1d\x1e";
+
+int init(void)
+{
+        struct crypto_shash *tfm = NULL;
+        char *data = NULL, *out = NULL;
+
+        tfm = crypto_alloc_shash("poly1305", 0, 0);
+        data = kmalloc(POLY1305_KEY_SIZE - 1, GFP_KERNEL);
+        out = kmalloc(POLY1305_DIGEST_SIZE, GFP_KERNEL);
+        memcpy(data, test_data, POLY1305_KEY_SIZE - 1);
+        crypto_shash_tfm_digest(tfm, data, POLY1305_KEY_SIZE - 1, out);
+
+        kfree(data);
+        kfree(out);
+        return 0;
+}
+
+void deinit(void)
+{
+}
+
+module_init(init)
+module_exit(deinit)
+MODULE_LICENSE("GPL");
+
+The root cause of the bug sits in neon_poly1305_blocks. The logic
+neon_poly1305_blocks() performed is that if it was called with both s[]
+and r[] uninitialized, it will first try to initialize them with the
+data from the first "block" that it believed to be 32 bytes in length.
+First 16 bytes are used as the key and the next 16 bytes for s[]. This
+would lead to the aforementioned read out-of-bound. However, after
+calling poly1305_init_arch(), only 16 bytes were deducted from the input
+and s[] is initialized yet again with the following 16 bytes. The second
+initialization of s[] is certainly redundent which indicates that the
+first initialization should be for r[] only.
+
+This patch fixes the issue by calling poly1305_init_arm64() instead of
+poly1305_init_arch(). This is also the implementation for the same
+algorithm on arm platform.
+
+Fixes: f569ca164751 ("crypto: arm64/poly1305 - incorporate OpenSSL/CRYPTOGAMS NEON implementation")
+Cc: stable@vger.kernel.org
+Signed-off-by: GUO Zihua <guozihua@huawei.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/apei/bert.c |   31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ arch/arm64/crypto/poly1305-glue.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/apei/bert.c
-+++ b/drivers/acpi/apei/bert.c
-@@ -29,16 +29,26 @@
- 
- #undef pr_fmt
- #define pr_fmt(fmt) "BERT: " fmt
-+
-+#define ACPI_BERT_PRINT_MAX_RECORDS 5
- #define ACPI_BERT_PRINT_MAX_LEN 1024
- 
- static int bert_disable;
- 
-+/*
-+ * Print "all" the error records in the BERT table, but avoid huge spam to
-+ * the console if the BIOS included oversize records, or too many records.
-+ * Skipping some records here does not lose anything because the full
-+ * data is available to user tools in:
-+ *	/sys/firmware/acpi/tables/data/BERT
-+ */
- static void __init bert_print_all(struct acpi_bert_region *region,
- 				  unsigned int region_len)
+--- a/arch/arm64/crypto/poly1305-glue.c
++++ b/arch/arm64/crypto/poly1305-glue.c
+@@ -52,7 +52,7 @@ static void neon_poly1305_blocks(struct
  {
- 	struct acpi_hest_generic_status *estatus =
- 		(struct acpi_hest_generic_status *)region;
- 	int remain = region_len;
-+	int printed = 0, skipped = 0;
- 	u32 estatus_len;
- 
- 	while (remain >= sizeof(struct acpi_bert_region)) {
-@@ -46,24 +56,26 @@ static void __init bert_print_all(struct
- 		if (remain < estatus_len) {
- 			pr_err(FW_BUG "Truncated status block (length: %u).\n",
- 			       estatus_len);
--			return;
-+			break;
- 		}
- 
- 		/* No more error records. */
- 		if (!estatus->block_status)
--			return;
-+			break;
- 
- 		if (cper_estatus_check(estatus)) {
- 			pr_err(FW_BUG "Invalid error record.\n");
--			return;
-+			break;
- 		}
- 
--		pr_info_once("Error records from previous boot:\n");
--		if (region_len < ACPI_BERT_PRINT_MAX_LEN)
-+		if (estatus_len < ACPI_BERT_PRINT_MAX_LEN &&
-+		    printed < ACPI_BERT_PRINT_MAX_RECORDS) {
-+			pr_info_once("Error records from previous boot:\n");
- 			cper_estatus_print(KERN_INFO HW_ERR, estatus);
--		else
--			pr_info_once("Max print length exceeded, table data is available at:\n"
--				     "/sys/firmware/acpi/tables/data/BERT");
-+			printed++;
-+		} else {
-+			skipped++;
-+		}
- 
- 		/*
- 		 * Because the boot error source is "one-time polled" type,
-@@ -75,6 +87,9 @@ static void __init bert_print_all(struct
- 		estatus = (void *)estatus + estatus_len;
- 		remain -= estatus_len;
- 	}
-+
-+	if (skipped)
-+		pr_info(HW_ERR "Skipped %d error records\n", skipped);
- }
- 
- static int __init setup_bert_disable(char *str)
+ 	if (unlikely(!dctx->sset)) {
+ 		if (!dctx->rset) {
+-			poly1305_init_arch(dctx, src);
++			poly1305_init_arm64(&dctx->h, src);
+ 			src += POLY1305_BLOCK_SIZE;
+ 			len -= POLY1305_BLOCK_SIZE;
+ 			dctx->rset = 1;
 
 
