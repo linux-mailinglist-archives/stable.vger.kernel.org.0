@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5205458DE2C
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:12:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 027AA58DDE2
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:07:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345356AbiHISMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:12:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54514 "EHLO
+        id S1344884AbiHISHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:07:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345148AbiHISKE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:10:04 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 003DB2A27D;
-        Tue,  9 Aug 2022 11:04:03 -0700 (PDT)
+        with ESMTP id S1344236AbiHISGh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:06:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3098626112;
+        Tue,  9 Aug 2022 11:02:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A643CCE18C6;
-        Tue,  9 Aug 2022 18:04:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6C5BC433B5;
-        Tue,  9 Aug 2022 18:03:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5D48B816A0;
+        Tue,  9 Aug 2022 18:02:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5BF5C43470;
+        Tue,  9 Aug 2022 18:02:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068239;
-        bh=cYQNhOoTlCgWZwWP7xAPmvtSkECzdZg+hySvuD5gb4U=;
-        h=From:To:Cc:Subject:Date:From;
-        b=aVFc+7CDs5cDNMvhEKR2+d6kMKmim4Clm52b35qnE5RbR5jXirtRE+EsRvjehIZjB
-         QQegZKsOmy5pWtGpCF2/aATELDl/6p9pm7DeCgJbtODljYvdAta66CNFE9UKBWZzGE
-         btdUnE6YlgNkCU4LyKR5099+SFV/ghNLDbPnCtxs=
+        s=korg; t=1660068175;
+        bh=LVK7Kh2hdJ0k8iNs9K6078HDnZHYovn17rMstcfj3g8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=H8g9RPkDXycdXE/gfOj3bfWIPae1cnQfmD8CFFPw3hlVd/p912O9PoOsg/IVPdubX
+         ppAukz80vz3OVXyTc01nZkwCJsT+PGJnKjnZfz2y/7Fr4GJC92CyPVporaOygWDouA
+         G0yku1xq5Vzpfe8zGAFDnRIajag5Dri/tdY76wXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.10 00/23] 5.10.136-rc1 review
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
+        Sumit Saxena <sumit.saxena@broadcom.com>,
+        Kashyap Desai <kashyap.desai@broadcom.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Ewan Milne <emilne@redhat.com>, Long Li <longli@microsoft.com>,
+        John Garry <john.garry@huawei.com>,
+        "chenxiang (M)" <chenxiang66@hisilicon.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Yu Kuai <yukuai3@huawei.com>
+Subject: [PATCH 4.19 27/32] scsi: core: Fix race between handling STS_RESOURCE and completion
 Date:   Tue,  9 Aug 2022 20:00:18 +0200
-Message-Id: <20220809175512.853274191@linuxfoundation.org>
+Message-Id: <20220809175513.938731002@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-MIME-Version: 1.0
+In-Reply-To: <20220809175513.082573955@linuxfoundation.org>
+References: <20220809175513.082573955@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.136-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.10.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.10.136-rc1
-X-KernelTest-Deadline: 2022-08-11T17:55+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,132 +61,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.10.136 release.
-There are 23 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Ming Lei <ming.lei@redhat.com>
 
-Responses should be made by Thu, 11 Aug 2022 17:55:02 +0000.
-Anything received after that time might be too late.
+commit 673235f915318ced5d7ec4b2bfd8cb909e6a4a55 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.136-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-and the diffstat can be found below.
+When queuing I/O request to LLD, STS_RESOURCE may be returned because:
 
-thanks,
+ - Host is in recovery or blocked
 
-greg k-h
+ - Target queue throttling or target is blocked
 
--------------
-Pseudo-Shortlog of commits:
+ - LLD rejection
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.10.136-rc1
+In these scenarios BLK_STS_DEV_RESOURCE is returned to the block layer to
+avoid an unnecessary re-run of the queue. However, all of the requests
+queued to this SCSI device may complete immediately after reading
+'sdev->device_busy' and BLK_STS_DEV_RESOURCE is returned to block layer. In
+that case the current I/O won't get a chance to get queued since it is
+invisible at that time for both scsi_run_queue_async() and blk-mq's
+RESTART.
 
-Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-    x86/speculation: Add LFENCE to RSB fill sequence
+Fix the issue by not returning BLK_STS_DEV_RESOURCE in this situation.
 
-Daniel Sneddon <daniel.sneddon@linux.intel.com>
-    x86/speculation: Add RSB VM Exit protections
+Link: https://lore.kernel.org/r/20201202100419.525144-1-ming.lei@redhat.com
+Fixes: 86ff7c2a80cd ("blk-mq: introduce BLK_STS_DEV_RESOURCE")
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Sumit Saxena <sumit.saxena@broadcom.com>
+Cc: Kashyap Desai <kashyap.desai@broadcom.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Ewan Milne <emilne@redhat.com>
+Cc: Long Li <longli@microsoft.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Tested-by: "chenxiang (M)" <chenxiang66@hisilicon.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/scsi/scsi_lib.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Ning Qiang <sohu0106@126.com>
-    macintosh/adb: fix oob read in do_adb_query() function
-
-Hilda Wu <hildawu@realtek.com>
-    Bluetooth: btusb: Add Realtek RTL8852C support ID 0x13D3:0x3586
-
-Hilda Wu <hildawu@realtek.com>
-    Bluetooth: btusb: Add Realtek RTL8852C support ID 0x13D3:0x3587
-
-Hilda Wu <hildawu@realtek.com>
-    Bluetooth: btusb: Add Realtek RTL8852C support ID 0x0CB8:0xC558
-
-Hilda Wu <hildawu@realtek.com>
-    Bluetooth: btusb: Add Realtek RTL8852C support ID 0x04C5:0x1675
-
-Hilda Wu <hildawu@realtek.com>
-    Bluetooth: btusb: Add Realtek RTL8852C support ID 0x04CA:0x4007
-
-Aaron Ma <aaron.ma@canonical.com>
-    Bluetooth: btusb: Add support of IMC Networks PID 0x3568
-
-Hakan Jansson <hakan.jansson@infineon.com>
-    Bluetooth: hci_bcm: Add DT compatible for CYW55572
-
-Ahmad Fatoum <a.fatoum@pengutronix.de>
-    Bluetooth: hci_bcm: Add BCM4349B1 variant
-
-Raghavendra Rao Ananta <rananta@google.com>
-    selftests: KVM: Handle compiler optimizations in ucall
-
-Dmitry Klochkov <kdmitry556@gmail.com>
-    tools/kvm_stat: fix display of error when multiple processes are found
-
-GUO Zihua <guozihua@huawei.com>
-    crypto: arm64/poly1305 - fix a read out-of-bound
-
-Tony Luck <tony.luck@intel.com>
-    ACPI: APEI: Better fix to avoid spamming the console with old error logs
-
-Werner Sembach <wse@tuxedocomputers.com>
-    ACPI: video: Shortening quirk list by identifying Clevo by board_name only
-
-Werner Sembach <wse@tuxedocomputers.com>
-    ACPI: video: Force backlight native for some TongFang devices
-
-George Kennedy <george.kennedy@oracle.com>
-    tun: avoid double free in tun_free_netdev
-
-Jakub Sitnicki <jakub@cloudflare.com>
-    selftests/bpf: Check dst_port only on the client socket
-
-Jakub Sitnicki <jakub@cloudflare.com>
-    selftests/bpf: Extend verifier and bpf_sock tests for dst_port loads
-
-Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-    ath9k_htc: fix NULL pointer dereference at ath9k_htc_tx_get_packet()
-
-Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-    ath9k_htc: fix NULL pointer dereference at ath9k_htc_rxep()
-
-Ben Hutchings <ben@decadent.org.uk>
-    x86/speculation: Make all RETbleed mitigations 64-bit only
-
-
--------------
-
-Diffstat:
-
- Documentation/admin-guide/hw-vuln/spectre.rst      |   8 ++
- Makefile                                           |   4 +-
- arch/arm64/crypto/poly1305-glue.c                  |   2 +-
- arch/x86/Kconfig                                   |   8 +-
- arch/x86/include/asm/cpufeatures.h                 |   2 +
- arch/x86/include/asm/msr-index.h                   |   4 +
- arch/x86/include/asm/nospec-branch.h               |  21 +++-
- arch/x86/kernel/cpu/bugs.c                         |  86 +++++++++++-----
- arch/x86/kernel/cpu/common.c                       |  12 ++-
- arch/x86/kvm/vmx/vmenter.S                         |   8 +-
- drivers/acpi/apei/bert.c                           |  31 ++++--
- drivers/acpi/video_detect.c                        |  55 ++++++----
- drivers/bluetooth/btbcm.c                          |   2 +
- drivers/bluetooth/btusb.c                          |  15 +++
- drivers/bluetooth/hci_bcm.c                        |   2 +
- drivers/macintosh/adb.c                            |   2 +-
- drivers/net/tun.c                                  | 114 +++++++++++----------
- drivers/net/wireless/ath/ath9k/htc.h               |   2 +
- drivers/net/wireless/ath/ath9k/htc_drv_txrx.c      |  13 +++
- drivers/net/wireless/ath/ath9k/wmi.c               |   4 +
- tools/arch/x86/include/asm/cpufeatures.h           |   1 +
- tools/arch/x86/include/asm/msr-index.h             |   4 +
- tools/include/uapi/linux/bpf.h                     |   3 +-
- tools/kvm/kvm_stat/kvm_stat                        |   3 +-
- .../testing/selftests/bpf/prog_tests/sock_fields.c |  60 +++++++----
- .../testing/selftests/bpf/progs/test_sock_fields.c |  45 ++++++++
- tools/testing/selftests/bpf/verifier/sock.c        |  81 ++++++++++++++-
- tools/testing/selftests/kvm/lib/aarch64/ucall.c    |   9 +-
- 28 files changed, 451 insertions(+), 150 deletions(-)
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -2157,8 +2157,7 @@ out_put_budget:
+ 	case BLK_STS_OK:
+ 		break;
+ 	case BLK_STS_RESOURCE:
+-		if (atomic_read(&sdev->device_busy) ||
+-		    scsi_device_blocked(sdev))
++		if (scsi_device_blocked(sdev))
+ 			ret = BLK_STS_DEV_RESOURCE;
+ 		break;
+ 	default:
 
 
