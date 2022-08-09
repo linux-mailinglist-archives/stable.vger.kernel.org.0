@@ -2,141 +2,381 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F50E58E144
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 22:42:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4496458E164
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 22:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245677AbiHIUmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 16:42:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60532 "EHLO
+        id S229620AbiHIU5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 16:57:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245467AbiHIUmN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 16:42:13 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 38DC321241
-        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 13:42:12 -0700 (PDT)
+        with ESMTP id S229535AbiHIU4w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 16:56:52 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D838728E2C
+        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 13:56:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660077731;
+        s=mimecast20190719; t=1660078610;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Ft7/3/k2/7AI7wRPnrTn6/PiafTIMMMl8iv+c+g4UYE=;
-        b=IY3Wit7kTqhT8vEKCwrb0bLv7/Go35qyu7exwVof1F8D06EDYchjlLcFdZW/25GT+LSSq2
-        +1ukq3Scl2cbLV49AWFXdDQxS42XKvbHXSnkC9OWnK0M43AhnJRN1RjelZ/P7hW5M3DCXr
-        fMAl3KVIwChBYUYuv+6bB88LlfTXOuE=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=YPW7WSZwNqfcUmKDcbIBl+U+BgE4HJhiPQB8MWlP5go=;
+        b=ZnM/yjAlgqEluf7//72xFdwaI0pc2xp62TNIO/9xdjlfrDsNN+c5DJE2md2tjUNH/CFcbn
+        WzUfl4kxdIdUjDTu5i560WkrrP4PTYXiU/ayHp0Xekte6q99DP9s/ro4IpbXN0qWuhul6B
+        /ewrb+KLVTqk4HWvpu3erXaSTftWEhw=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-207-YnJSvX-BNNO5pnki-61cBA-1; Tue, 09 Aug 2022 16:42:09 -0400
-X-MC-Unique: YnJSvX-BNNO5pnki-61cBA-1
-Received: by mail-wr1-f71.google.com with SMTP id t12-20020adfba4c000000b0021e7440666bso2023591wrg.22
-        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 13:42:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc;
-        bh=Ft7/3/k2/7AI7wRPnrTn6/PiafTIMMMl8iv+c+g4UYE=;
-        b=Exg8tYR8lKKY41NUvIp4WbszBqygohVnZH41n2VCqOpalwBKBxfyKZ9ZvmfciLUIFu
-         UMPl3eX+g4D07sCJLL7w7RiXl+7VlOF+ob2qdNqUrSPBnwY+TSelDHLGdKGEscrFMk+k
-         7NsMUAIRa7fx99971dptQpzKdOocQY9ShVa2MWJrVqlefq1jxLiQ56ZwbJKiaROCop+Y
-         csvYj6md817oAjPmU4sLlOXx6np1zcXmHLD1bRXBqG3x94Irf+2paoypmlXfmW2bBx69
-         eQA4b9Fu/dJM6MrDGs2v4QPIahR1VwVMV7dlmgnP7sM+LQHzspca72ppS9j9A/fPK27X
-         5puQ==
-X-Gm-Message-State: ACgBeo23fn7/0NNaQtkal8aa/DZAZjeVOT46WKlq0GT8hdqi3OCFdX7s
-        zZ/Ip5J6WDEJ8MyNy1awEUtinah5nyeWez64tJiC4a3kpIKXwgDUSse+CTjTkuI2Z+6UnX4Pisa
-        GvFWgjfD48KlLaO5D
-X-Received: by 2002:a05:6000:1f0e:b0:221:6d6f:5c7e with SMTP id bv14-20020a0560001f0e00b002216d6f5c7emr13477460wrb.256.1660077727993;
-        Tue, 09 Aug 2022 13:42:07 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR4iIiC6hStqy3Z4Hjcgi0BBwQ7RRcz3zdqmXKR+jrTcF24Ep9h2BTpKi9m93Ywx/SPxAehwzQ==
-X-Received: by 2002:a05:6000:1f0e:b0:221:6d6f:5c7e with SMTP id bv14-20020a0560001f0e00b002216d6f5c7emr13477446wrb.256.1660077727693;
-        Tue, 09 Aug 2022 13:42:07 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c705:3700:aed2:a0f8:c270:7f30? (p200300cbc7053700aed2a0f8c2707f30.dip0.t-ipconnect.de. [2003:cb:c705:3700:aed2:a0f8:c270:7f30])
-        by smtp.gmail.com with ESMTPSA id r27-20020adfa15b000000b0021d70a871cbsm14650710wrr.32.2022.08.09.13.42.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Aug 2022 13:42:07 -0700 (PDT)
-Message-ID: <13f149cc-6535-8b50-04de-70437a679826@redhat.com>
-Date:   Tue, 9 Aug 2022 22:42:06 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v1] mm/gup: fix FOLL_FORCE COW security issue and remove
- FOLL_COW
-Content-Language: en-US
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ us-mta-226-UyNNquqDNTqkDce6iW1Fng-1; Tue, 09 Aug 2022 16:56:46 -0400
+X-MC-Unique: UyNNquqDNTqkDce6iW1Fng-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 55A2D29A9D2A;
+        Tue,  9 Aug 2022 20:56:45 +0000 (UTC)
+Received: from t480s.fritz.box (unknown [10.39.192.116])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D2D541415124;
+        Tue,  9 Aug 2022 20:56:41 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Axel Rasmussen <axelrasmussen@google.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
         Peter Xu <peterx@redhat.com>, Hugh Dickins <hughd@google.com>,
         Andrea Arcangeli <aarcange@redhat.com>,
         Matthew Wilcox <willy@infradead.org>,
         Vlastimil Babka <vbabka@suse.cz>,
         John Hubbard <jhubbard@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>
-References: <20220808073232.8808-1-david@redhat.com>
- <CAHk-=wgsDOz5MfYYS9mE7PvFn4kLhTFdBwXvN6HCEsw1kvJnRQ@mail.gmail.com>
- <91e18a2f-c93d-00b8-7c1b-6d8493c3b2d5@redhat.com>
- <CAHk-=whg0ddey-LqFAPfZJDXHMjaHJNojAV3q17yvjc6W8QRvQ@mail.gmail.com>
- <c096cc82-60b4-9e75-06ad-156461292941@redhat.com>
- <CAHk-=wh1q7ZSWhDWOyqmVawqjq55sUVkn8ASjE_b2VOcE1vFaA@mail.gmail.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <CAHk-=wh1q7ZSWhDWOyqmVawqjq55sUVkn8ASjE_b2VOcE1vFaA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Subject: [PATCH v2] mm/gup: fix FOLL_FORCE COW security issue and remove FOLL_COW
+Date:   Tue,  9 Aug 2022 22:56:40 +0200
+Message-Id: <20220809205640.70916-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.7
+X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 09.08.22 22:30, Linus Torvalds wrote:
-> On Tue, Aug 9, 2022 at 1:20 PM David Hildenbrand <david@redhat.com> wrote:
->>
->> IIUC VM_MAYSHARE is always set in a MAP_SHARED mapping, but for file
->> mappings we only set VM_SHARED if the file allows for writes
-> 
-> Heh.
-> 
-> This is a horrific hack, and probably should go away.
-> 
-> Yeah, we have that
-> 
->                         if (!(file->f_mode & FMODE_WRITE))
->                                 vm_flags &= ~(VM_MAYWRITE | VM_SHARED);
-> 
-> 
-> but I think that's _entirely_ historical.
-> 
-> Long long ago, in a galaxy far away, we didn't handle shared mmap()
-> very well. In fact, we used to not handle it at all.
-> 
-> But nntpd would use write() to update the spool file, adn them read it
-> through a shared mmap.
-> 
-> And since our mmap() *was* coherent with people doing write() system
-> calls, but didn't handle actual dirty shared mmap, what Linux used to
-> do was to just say "Oh, you want a read-only shared file mmap? I can
-> do that - I'll just downgrade it to a read-only _private_ mapping, and
-> it actually ends up with the same semantics".
-> 
-> And here we are, 30 years later, and it still does that, but it leaves
-> the VM_MAYSHARE flag so that /proc/<pid>/maps can show that it's a
-> shared mapping.
+Ever since the Dirty COW (CVE-2016-5195) security issue happened, we know
+that FOLL_FORCE can be possibly dangerous, especially if there are races
+that can be exploited by user space.
 
-I was suspecting that this code is full of legacy :)
+Right now, it would be sufficient to have some code that sets a PTE of
+a R/O-mapped shared page dirty, in order for it to erroneously become
+writable by FOLL_FORCE. The implications of setting a write-protected PTE
+dirty might not be immediately obvious to everyone.
 
-What would make sense to me is to just have VM_SHARED and make it
-correspond to MAP_SHARED, that would at least confuse me less. Once I
-have some spare cycles I'll see how easy that might be to achieve.
+And in fact ever since commit 9ae0f87d009c ("mm/shmem: unconditionally set
+pte dirty in mfill_atomic_install_pte"), we can use UFFDIO_CONTINUE to map
+a shmem page R/O while marking the pte dirty. This can be used by
+unprivileged user space to modify tmpfs/shmem file content even if the user
+does not have write permissions to the file, and to bypass memfd write
+sealing -- Dirty COW restricted to tmpfs/shmem (CVE-2022-2590).
 
+To fix such security issues for good, the insight is that we really only
+need that fancy retry logic (FOLL_COW) for COW mappings that are not
+writable (!VM_WRITE). And in a COW mapping, we really only broke COW if
+we have an exclusive anonymous page mapped. If we have something else
+mapped, or the mapped anonymous page might be shared (!PageAnonExclusive),
+we have to trigger a write fault to break COW. If we don't find an
+exclusive anonymous page when we retry, we have to trigger COW breaking
+once again because something intervened.
+
+Let's move away from this mandatory-retry + dirty handling and rely on
+our PageAnonExclusive() flag for making a similar decision, to use the
+same COW logic as in other kernel parts here as well. In case we stumble
+over a PTE in a COW mapping that does not map an exclusive anonymous page,
+COW was not properly broken and we have to trigger a fake write-fault to
+break COW.
+
+Just like we do in can_change_pte_writable() added via
+commit 64fe24a3e05e ("mm/mprotect: try avoiding write faults for exclusive
+anonymous pages when changing protection") and commit 76aefad628aa
+("mm/mprotect: fix soft-dirty check in can_change_pte_writable()"), take
+care of softdirty and uffd-wp manually.
+
+For example, a write() via /proc/self/mem to a uffd-wp-protected range has
+to fail instead of silently granting write access and bypassing the
+userspace fault handler. Note that FOLL_FORCE is not only used for debug
+access, but also triggered by applications without debug intentions, for
+example, when pinning pages via RDMA.
+
+This fixes CVE-2022-2590. Note that only x86_64 and aarch64 are
+affected, because only those support CONFIG_HAVE_ARCH_USERFAULTFD_MINOR.
+
+Fortunately, FOLL_COW is no longer required to handle FOLL_FORCE. So
+let's just get rid of it.
+
+Thanks to Nadav Amit for pointing out that the pte_dirty() check in
+FOLL_FORCE code is problematic and might be exploitable.
+
+Note 1: We don't check for the PTE being dirty because it doesn't matter
+	for making a "was COWed" decision anymore, and whoever modifies the
+	page has to set the page dirty either way.
+
+Note 2: Kernels before extended uffd-wp support and before
+	PageAnonExclusive (< 5.19) can simply revert the problematic
+	commit instead and be safe regarding UFFDIO_CONTINUE. A backport to
+	v5.19 requires minor adjustments due to lack of
+	vma_soft_dirty_enabled().
+
+Fixes: 9ae0f87d009c ("mm/shmem: unconditionally set pte dirty in mfill_atomic_install_pte")
+Cc: <stable@vger.kernel.org> # 5.16+
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+
+v1 -> v2:
+- Make the code easier to digest and even more error prone by performing
+  more explicit checks, just failing gracefully and adding better comments.
+- Avoid introducing new VM_BUG_ON().
+- Mention Nadav's participation in the description
+- Mention that we can bypass memfd write sealing
+
+---
+ include/linux/mm.h |  1 -
+ mm/gup.c           | 68 +++++++++++++++++++++++++++++++---------------
+ mm/huge_memory.c   | 64 +++++++++++++++++++++++++++++--------------
+ 3 files changed, 89 insertions(+), 44 deletions(-)
+
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 18e01474cf6b..2222ed598112 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2885,7 +2885,6 @@ struct page *follow_page(struct vm_area_struct *vma, unsigned long address,
+ #define FOLL_MIGRATION	0x400	/* wait for page to replace migration entry */
+ #define FOLL_TRIED	0x800	/* a retry, previous pass started an IO */
+ #define FOLL_REMOTE	0x2000	/* we are working on non-current tsk/mm */
+-#define FOLL_COW	0x4000	/* internal GUP flag */
+ #define FOLL_ANON	0x8000	/* don't do file mappings */
+ #define FOLL_LONGTERM	0x10000	/* mapping lifetime is indefinite: see below */
+ #define FOLL_SPLIT_PMD	0x20000	/* split huge pmd before returning */
+diff --git a/mm/gup.c b/mm/gup.c
+index 732825157430..5abdaf487460 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -478,14 +478,42 @@ static int follow_pfn_pte(struct vm_area_struct *vma, unsigned long address,
+ 	return -EEXIST;
+ }
+ 
+-/*
+- * FOLL_FORCE can write to even unwritable pte's, but only
+- * after we've gone through a COW cycle and they are dirty.
+- */
+-static inline bool can_follow_write_pte(pte_t pte, unsigned int flags)
++/* FOLL_FORCE can write to even unwritable PTEs in COW mappings. */
++static inline bool can_follow_write_pte(pte_t pte, struct page *page,
++					struct vm_area_struct *vma,
++					unsigned int flags)
+ {
+-	return pte_write(pte) ||
+-		((flags & FOLL_FORCE) && (flags & FOLL_COW) && pte_dirty(pte));
++	/* If the pte is writable, we can write to the page. */
++	if (pte_write(pte))
++		return true;
++
++	/* Maybe FOLL_FORCE is set to override it? */
++	if (!(flags & FOLL_FORCE))
++		return false;
++
++	/* But FOLL_FORCE has no effect on shared mappings */
++	if (vma->vm_flags & (VM_MAYSHARE | VM_SHARED))
++		return false;
++
++	/* ... or read-only private ones */
++	if (!(vma->vm_flags & VM_MAYWRITE))
++		return false;
++
++	/* ... or already writable ones that just need to take a write fault */
++	if (vma->vm_flags & VM_WRITE)
++		return false;
++
++	/*
++	 * See can_change_pte_writable(): we broke COW and could map the page
++	 * writable if we have an exclusive anonymous page ...
++	 */
++	if (!page || !PageAnon(page) || !PageAnonExclusive(page))
++		return false;
++
++	/* ... and a write-fault isn't required for other reasons. */
++	if (vma_soft_dirty_enabled(vma) && !pte_soft_dirty(pte))
++		return false;
++	return !userfaultfd_pte_wp(vma, pte);
+ }
+ 
+ static struct page *follow_page_pte(struct vm_area_struct *vma,
+@@ -528,12 +556,19 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
+ 	}
+ 	if ((flags & FOLL_NUMA) && pte_protnone(pte))
+ 		goto no_page;
+-	if ((flags & FOLL_WRITE) && !can_follow_write_pte(pte, flags)) {
+-		pte_unmap_unlock(ptep, ptl);
+-		return NULL;
+-	}
+ 
+ 	page = vm_normal_page(vma, address, pte);
++
++	/*
++	 * We only care about anon pages in can_follow_write_pte() and don't
++	 * have to worry about pte_devmap() because they are never anon.
++	 */
++	if ((flags & FOLL_WRITE) &&
++	    !can_follow_write_pte(pte, page, vma, flags)) {
++		page = NULL;
++		goto out;
++	}
++
+ 	if (!page && pte_devmap(pte) && (flags & (FOLL_GET | FOLL_PIN))) {
+ 		/*
+ 		 * Only return device mapping pages in the FOLL_GET or FOLL_PIN
+@@ -986,17 +1021,6 @@ static int faultin_page(struct vm_area_struct *vma,
+ 		return -EBUSY;
+ 	}
+ 
+-	/*
+-	 * The VM_FAULT_WRITE bit tells us that do_wp_page has broken COW when
+-	 * necessary, even if maybe_mkwrite decided not to set pte_write. We
+-	 * can thus safely do subsequent page lookups as if they were reads.
+-	 * But only do so when looping for pte_write is futile: in some cases
+-	 * userspace may also be wanting to write to the gotten user page,
+-	 * which a read fault here might prevent (a readonly page might get
+-	 * reCOWed by userspace write).
+-	 */
+-	if ((ret & VM_FAULT_WRITE) && !(vma->vm_flags & VM_WRITE))
+-		*flags |= FOLL_COW;
+ 	return 0;
+ }
+ 
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 8a7c1b344abe..e9414ee57c5b 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1040,12 +1040,6 @@ struct page *follow_devmap_pmd(struct vm_area_struct *vma, unsigned long addr,
+ 
+ 	assert_spin_locked(pmd_lockptr(mm, pmd));
+ 
+-	/*
+-	 * When we COW a devmap PMD entry, we split it into PTEs, so we should
+-	 * not be in this function with `flags & FOLL_COW` set.
+-	 */
+-	WARN_ONCE(flags & FOLL_COW, "mm: In follow_devmap_pmd with FOLL_COW set");
+-
+ 	/* FOLL_GET and FOLL_PIN are mutually exclusive. */
+ 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
+ 			 (FOLL_PIN | FOLL_GET)))
+@@ -1395,14 +1389,42 @@ vm_fault_t do_huge_pmd_wp_page(struct vm_fault *vmf)
+ 	return VM_FAULT_FALLBACK;
+ }
+ 
+-/*
+- * FOLL_FORCE can write to even unwritable pmd's, but only
+- * after we've gone through a COW cycle and they are dirty.
+- */
+-static inline bool can_follow_write_pmd(pmd_t pmd, unsigned int flags)
++/* FOLL_FORCE can write to even unwritable PMDs in COW mappings. */
++static inline bool can_follow_write_pmd(pmd_t pmd, struct page *page,
++					struct vm_area_struct *vma,
++					unsigned int flags)
+ {
+-	return pmd_write(pmd) ||
+-	       ((flags & FOLL_FORCE) && (flags & FOLL_COW) && pmd_dirty(pmd));
++	/* If the pmd is writable, we can write to the page. */
++	if (pmd_write(pmd))
++		return true;
++
++	/* Maybe FOLL_FORCE is set to override it? */
++	if (!(flags & FOLL_FORCE))
++		return false;
++
++	/* But FOLL_FORCE has no effect on shared mappings */
++	if (vma->vm_flags & (VM_MAYSHARE | VM_SHARED))
++		return false;
++
++	/* ... or read-only private ones */
++	if (!(vma->vm_flags & VM_MAYWRITE))
++		return false;
++
++	/* ... or already writable ones that just need to take a write fault */
++	if (vma->vm_flags & VM_WRITE)
++		return false;
++
++	/*
++	 * See can_change_pte_writable(): we broke COW and could map the page
++	 * writable if we have an exclusive anonymous page ...
++	 */
++	if (!page || !PageAnon(page) || !PageAnonExclusive(page))
++		return false;
++
++	/* ... and a write-fault isn't required for other reasons. */
++	if (vma_soft_dirty_enabled(vma) && !pmd_soft_dirty(pmd))
++		return false;
++	return !userfaultfd_huge_pmd_wp(vma, pmd);
+ }
+ 
+ struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
+@@ -1411,12 +1433,16 @@ struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
+ 				   unsigned int flags)
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+-	struct page *page = NULL;
++	struct page *page;
+ 
+ 	assert_spin_locked(pmd_lockptr(mm, pmd));
+ 
+-	if (flags & FOLL_WRITE && !can_follow_write_pmd(*pmd, flags))
+-		goto out;
++	page = pmd_page(*pmd);
++	VM_BUG_ON_PAGE(!PageHead(page) && !is_zone_device_page(page), page);
++
++	if ((flags & FOLL_WRITE) &&
++	    !can_follow_write_pmd(*pmd, page, vma, flags))
++		return NULL;
+ 
+ 	/* Avoid dumping huge zero page */
+ 	if ((flags & FOLL_DUMP) && is_huge_zero_pmd(*pmd))
+@@ -1424,10 +1450,7 @@ struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
+ 
+ 	/* Full NUMA hinting faults to serialise migration in fault paths */
+ 	if ((flags & FOLL_NUMA) && pmd_protnone(*pmd))
+-		goto out;
+-
+-	page = pmd_page(*pmd);
+-	VM_BUG_ON_PAGE(!PageHead(page) && !is_zone_device_page(page), page);
++		return NULL;
+ 
+ 	if (!pmd_write(*pmd) && gup_must_unshare(flags, page))
+ 		return ERR_PTR(-EMLINK);
+@@ -1444,7 +1467,6 @@ struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
+ 	page += (addr & ~HPAGE_PMD_MASK) >> PAGE_SHIFT;
+ 	VM_BUG_ON_PAGE(!PageCompound(page) && !is_zone_device_page(page), page);
+ 
+-out:
+ 	return page;
+ }
+ 
+
+base-commit: 1612c382ffbdf1f673caec76502b1c00e6d35363
 -- 
-Thanks,
-
-David / dhildenb
+2.35.3
 
