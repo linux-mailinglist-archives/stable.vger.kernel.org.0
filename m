@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF67F58DE8A
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:19:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CECE58DE2D
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:12:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345801AbiHISTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:19:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48256 "EHLO
+        id S1345336AbiHISMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:12:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347049AbiHISSU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:18:20 -0400
+        with ESMTP id S1345091AbiHISKK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:10:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7860E2F3A2;
-        Tue,  9 Aug 2022 11:07:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1134275D5;
+        Tue,  9 Aug 2022 11:04:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B20FB818EC;
-        Tue,  9 Aug 2022 18:06:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C282BC433D6;
-        Tue,  9 Aug 2022 18:06:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87351B817C0;
+        Tue,  9 Aug 2022 18:04:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 925CBC433D7;
+        Tue,  9 Aug 2022 18:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068401;
-        bh=aS6kC7/UR/+s4cEQ6IbqOtahiGkvu5P7CX0AzJ/IWIM=;
+        s=korg; t=1660068245;
+        bh=eW52gjMH3KL6P6+f7+B4DNeczuIij+bxaE/1TYLnkms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KQ9lv3fUflTGCqwLRYIHGDPsvsh2/dU3/hNfDvFWFfxVQC/uXYgj8mB8Lue/sjth1
-         a0rtm3zaqd2IEXnXyLpFoqa3wNISwZpSWbAX7tqZ4VcZbDXe6D+K6RtmukCad/jf2+
-         GoYm+2nALGdKKZ6E7sQsP5SOdHQdAuNmsLTyXlb4=
+        b=AZdplGjD7tHriq554NeqA8Wjt8UVvFqmDHvFzouUbHipvzb7kkX04kCcYF+Gq0mU0
+         Gcra2AvkvvP2FeoHQ4XJhXqDfoKwTAiar+ZdGSztB8MMurqXzsKbaCXUaXfaFGzbwT
+         Sk8H7bVZ5acYw41JItE4D3pj7CeA+ieXEU2OxT8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.18 06/35] ACPI: APEI: Better fix to avoid spamming the console with old error logs
+        stable@vger.kernel.org, Hilda Wu <hildawu@realtek.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 5.10 17/23] Bluetooth: btusb: Add Realtek RTL8852C support ID 0x04C5:0x1675
 Date:   Tue,  9 Aug 2022 20:00:35 +0200
-Message-Id: <20220809175515.299942787@linuxfoundation.org>
+Message-Id: <20220809175513.461563370@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175515.046484486@linuxfoundation.org>
-References: <20220809175515.046484486@linuxfoundation.org>
+In-Reply-To: <20220809175512.853274191@linuxfoundation.org>
+References: <20220809175512.853274191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,105 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: Hilda Wu <hildawu@realtek.com>
 
-commit c3481b6b75b4797657838f44028fd28226ab48e0 upstream.
+commit 893fa8bc9952a36fb682ee12f0a994b5817a36d2 upstream.
 
-The fix in commit 3f8dec116210 ("ACPI/APEI: Limit printable size of BERT
-table data") does not work as intended on systems where the BIOS has a
-fixed size block of memory for the BERT table, relying on s/w to quit
-when it finds a record with estatus->block_status == 0. On these systems
-all errors are suppressed because the check:
+Add the support ID(0x04c5, 0x1675) to usb_device_id table for
+Realtek RTL8852C.
 
-	if (region_len < ACPI_BERT_PRINT_MAX_LEN)
+The device info from /sys/kernel/debug/usb/devices as below.
 
-always fails.
+T:  Bus=03 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=04c5 ProdID=1675 Rev= 0.00
+S:  Manufacturer=Realtek
+S:  Product=Bluetooth Radio
+S:  SerialNumber=00e04c000001
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
 
-New scheme skips individual CPER records that are too large, and also
-limits the total number of records that will be printed to 5.
-
-Fixes: 3f8dec116210 ("ACPI/APEI: Limit printable size of BERT table data")
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Hilda Wu <hildawu@realtek.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/apei/bert.c |   31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ drivers/bluetooth/btusb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/acpi/apei/bert.c
-+++ b/drivers/acpi/apei/bert.c
-@@ -29,16 +29,26 @@
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -402,6 +402,8 @@ static const struct usb_device_id blackl
+ 	/* Realtek 8852CE Bluetooth devices */
+ 	{ USB_DEVICE(0x04ca, 0x4007), .driver_info = BTUSB_REALTEK |
+ 						     BTUSB_WIDEBAND_SPEECH },
++	{ USB_DEVICE(0x04c5, 0x1675), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
  
- #undef pr_fmt
- #define pr_fmt(fmt) "BERT: " fmt
-+
-+#define ACPI_BERT_PRINT_MAX_RECORDS 5
- #define ACPI_BERT_PRINT_MAX_LEN 1024
- 
- static int bert_disable;
- 
-+/*
-+ * Print "all" the error records in the BERT table, but avoid huge spam to
-+ * the console if the BIOS included oversize records, or too many records.
-+ * Skipping some records here does not lose anything because the full
-+ * data is available to user tools in:
-+ *	/sys/firmware/acpi/tables/data/BERT
-+ */
- static void __init bert_print_all(struct acpi_bert_region *region,
- 				  unsigned int region_len)
- {
- 	struct acpi_hest_generic_status *estatus =
- 		(struct acpi_hest_generic_status *)region;
- 	int remain = region_len;
-+	int printed = 0, skipped = 0;
- 	u32 estatus_len;
- 
- 	while (remain >= sizeof(struct acpi_bert_region)) {
-@@ -46,24 +56,26 @@ static void __init bert_print_all(struct
- 		if (remain < estatus_len) {
- 			pr_err(FW_BUG "Truncated status block (length: %u).\n",
- 			       estatus_len);
--			return;
-+			break;
- 		}
- 
- 		/* No more error records. */
- 		if (!estatus->block_status)
--			return;
-+			break;
- 
- 		if (cper_estatus_check(estatus)) {
- 			pr_err(FW_BUG "Invalid error record.\n");
--			return;
-+			break;
- 		}
- 
--		pr_info_once("Error records from previous boot:\n");
--		if (region_len < ACPI_BERT_PRINT_MAX_LEN)
-+		if (estatus_len < ACPI_BERT_PRINT_MAX_LEN &&
-+		    printed < ACPI_BERT_PRINT_MAX_RECORDS) {
-+			pr_info_once("Error records from previous boot:\n");
- 			cper_estatus_print(KERN_INFO HW_ERR, estatus);
--		else
--			pr_info_once("Max print length exceeded, table data is available at:\n"
--				     "/sys/firmware/acpi/tables/data/BERT");
-+			printed++;
-+		} else {
-+			skipped++;
-+		}
- 
- 		/*
- 		 * Because the boot error source is "one-time polled" type,
-@@ -75,6 +87,9 @@ static void __init bert_print_all(struct
- 		estatus = (void *)estatus + estatus_len;
- 		remain -= estatus_len;
- 	}
-+
-+	if (skipped)
-+		pr_info(HW_ERR "Skipped %d error records\n", skipped);
- }
- 
- static int __init setup_bert_disable(char *str)
+ 	/* Realtek Bluetooth devices */
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(0x0bda, 0xe0, 0x01, 0x01),
 
 
