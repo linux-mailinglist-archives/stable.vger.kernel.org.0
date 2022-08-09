@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70F1E58DE9A
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:19:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 822EA58DE8B
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:19:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345968AbiHISTj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:19:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42932 "EHLO
+        id S1345827AbiHISTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:19:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345603AbiHISOf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:14:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E91602C65A;
-        Tue,  9 Aug 2022 11:05:40 -0700 (PDT)
+        with ESMTP id S1346728AbiHISRa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:17:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7955727FE2;
+        Tue,  9 Aug 2022 11:06:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14FD661199;
-        Tue,  9 Aug 2022 18:05:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24073C4347C;
-        Tue,  9 Aug 2022 18:05:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2ED7661001;
+        Tue,  9 Aug 2022 18:06:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C584C43470;
+        Tue,  9 Aug 2022 18:06:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068336;
-        bh=cAL7cSlopyAfoe9ePy3AVZXWDpqa/7WVl3RSZd8S3bI=;
+        s=korg; t=1660068409;
+        bh=lhDlPIwIg8u55QCmC20qTz4SHPQXU5/TWaQnXw4U9yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vk0Ucg8OtVw49aA23NRbgSSpBldsQF1ew0xT1b3otzxxg2Kfbq97AAw71ZXfU60P0
-         +kvX/aAauTyD/OyC+CRy9JEeCtTCiuzVQCuPBoTHTBVprN99ptr1jK9DrDM6dVQx9S
-         1YY+zCrEBohj+mDlM/qejYZJ0JALoxDrQRoAZfwU=
+        b=08eoEfF3BjtrNX6wskkugQjCB75MinXeXe0DgdWOu+zh97LNKAxd7ptcx+tCjSDhE
+         Z/1u3KY9TKG1FJ5YG16hROgf7T1AkwH0s2/ziOJ1XW2qSmp6eMqTSPdX2lNFBIDrp1
+         DTgEHE/Q7wRF1PjaqzhyOdqFKIaX8FJI372ItqKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Klochkov <kdmitry556@gmail.com>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 13/30] tools/kvm_stat: fix display of error when multiple processes are found
+Subject: [PATCH 5.18 09/35] KVM: x86: do not set st->preempted when going back to user space
 Date:   Tue,  9 Aug 2022 20:00:38 +0200
-Message-Id: <20220809175514.781731540@linuxfoundation.org>
+Message-Id: <20220809175515.412581840@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175514.276643253@linuxfoundation.org>
-References: <20220809175514.276643253@linuxfoundation.org>
+In-Reply-To: <20220809175515.046484486@linuxfoundation.org>
+References: <20220809175515.046484486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Klochkov <kdmitry556@gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit 933b5f9f98da29af646b51b36a0753692908ef64 ]
+[ Upstream commit 54aa83c90198e68eee8b0850c749bc70efb548da ]
 
-Instead of printing an error message, kvm_stat script fails when we
-restrict statistics to a guest by its name and there are multiple guests
-with such name:
+Similar to the Xen path, only change the vCPU's reported state if the vCPU
+was actually preempted.  The reason for KVM's behavior is that for example
+optimistic spinning might not be a good idea if the guest is doing repeated
+exits to userspace; however, it is confusing and unlikely to make a difference,
+because well-tuned guests will hardly ever exit KVM_RUN in the first place.
 
-  # kvm_stat -g my_vm
-  Traceback (most recent call last):
-    File "/usr/bin/kvm_stat", line 1819, in <module>
-      main()
-    File "/usr/bin/kvm_stat", line 1779, in main
-      options = get_options()
-    File "/usr/bin/kvm_stat", line 1718, in get_options
-      options = argparser.parse_args()
-    File "/usr/lib64/python3.10/argparse.py", line 1825, in parse_args
-      args, argv = self.parse_known_args(args, namespace)
-    File "/usr/lib64/python3.10/argparse.py", line 1858, in parse_known_args
-      namespace, args = self._parse_known_args(args, namespace)
-    File "/usr/lib64/python3.10/argparse.py", line 2067, in _parse_known_args
-      start_index = consume_optional(start_index)
-    File "/usr/lib64/python3.10/argparse.py", line 2007, in consume_optional
-      take_action(action, args, option_string)
-    File "/usr/lib64/python3.10/argparse.py", line 1935, in take_action
-      action(self, namespace, argument_values, option_string)
-    File "/usr/bin/kvm_stat", line 1649, in __call__
-      ' to specify the desired pid'.format(" ".join(pids)))
-  TypeError: sequence item 0: expected str instance, int found
-
-To avoid this, it's needed to convert pids int values to strings before
-pass them to join().
-
-Signed-off-by: Dmitry Klochkov <kdmitry556@gmail.com>
-Message-Id: <20220614121141.160689-1-kdmitry556@gmail.com>
+Suggested-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/kvm/kvm_stat/kvm_stat | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kvm/x86.c | 26 ++++++++++++++------------
+ arch/x86/kvm/xen.h |  6 ++++--
+ 2 files changed, 18 insertions(+), 14 deletions(-)
 
-diff --git a/tools/kvm/kvm_stat/kvm_stat b/tools/kvm/kvm_stat/kvm_stat
-index 5a5bd74f55bd..9c366b3a676d 100755
---- a/tools/kvm/kvm_stat/kvm_stat
-+++ b/tools/kvm/kvm_stat/kvm_stat
-@@ -1646,7 +1646,8 @@ Press any other key to refresh statistics immediately.
-                          .format(values))
-             if len(pids) > 1:
-                 sys.exit('Error: Multiple processes found (pids: {}). Use "-p"'
--                         ' to specify the desired pid'.format(" ".join(pids)))
-+                         ' to specify the desired pid'
-+                         .format(" ".join(map(str, pids))))
-             namespace.pid = pids[0]
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index df74ec51c7f3..91d887fd10ab 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -4651,19 +4651,21 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+ {
+ 	int idx;
  
-     argparser = argparse.ArgumentParser(description=description_text,
+-	if (vcpu->preempted && !vcpu->arch.guest_state_protected)
+-		vcpu->arch.preempted_in_kernel = !static_call(kvm_x86_get_cpl)(vcpu);
++	if (vcpu->preempted) {
++		if (!vcpu->arch.guest_state_protected)
++			vcpu->arch.preempted_in_kernel = !static_call(kvm_x86_get_cpl)(vcpu);
+ 
+-	/*
+-	 * Take the srcu lock as memslots will be accessed to check the gfn
+-	 * cache generation against the memslots generation.
+-	 */
+-	idx = srcu_read_lock(&vcpu->kvm->srcu);
+-	if (kvm_xen_msr_enabled(vcpu->kvm))
+-		kvm_xen_runstate_set_preempted(vcpu);
+-	else
+-		kvm_steal_time_set_preempted(vcpu);
+-	srcu_read_unlock(&vcpu->kvm->srcu, idx);
++		/*
++		 * Take the srcu lock as memslots will be accessed to check the gfn
++		 * cache generation against the memslots generation.
++		 */
++		idx = srcu_read_lock(&vcpu->kvm->srcu);
++		if (kvm_xen_msr_enabled(vcpu->kvm))
++			kvm_xen_runstate_set_preempted(vcpu);
++		else
++			kvm_steal_time_set_preempted(vcpu);
++		srcu_read_unlock(&vcpu->kvm->srcu, idx);
++	}
+ 
+ 	static_call(kvm_x86_vcpu_put)(vcpu);
+ 	vcpu->arch.last_host_tsc = rdtsc();
+diff --git a/arch/x86/kvm/xen.h b/arch/x86/kvm/xen.h
+index adbcc9ed59db..fda1413f8af9 100644
+--- a/arch/x86/kvm/xen.h
++++ b/arch/x86/kvm/xen.h
+@@ -103,8 +103,10 @@ static inline void kvm_xen_runstate_set_preempted(struct kvm_vcpu *vcpu)
+ 	 * behalf of the vCPU. Only if the VMM does actually block
+ 	 * does it need to enter RUNSTATE_blocked.
+ 	 */
+-	if (vcpu->preempted)
+-		kvm_xen_update_runstate_guest(vcpu, RUNSTATE_runnable);
++	if (WARN_ON_ONCE(!vcpu->preempted))
++		return;
++
++	kvm_xen_update_runstate_guest(vcpu, RUNSTATE_runnable);
+ }
+ 
+ /* 32-bit compatibility definitions, also used natively in 32-bit build */
 -- 
 2.35.1
 
