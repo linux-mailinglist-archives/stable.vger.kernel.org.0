@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6504358DDDB
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C220158DDE8
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:07:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343499AbiHISGw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:06:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43632 "EHLO
+        id S1344928AbiHISHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:07:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244954AbiHISFz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:05:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F4C27FE9;
-        Tue,  9 Aug 2022 11:02:45 -0700 (PDT)
+        with ESMTP id S1344853AbiHISG4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:06:56 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 361FB2611B;
+        Tue,  9 Aug 2022 11:03:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DA2761052;
-        Tue,  9 Aug 2022 18:02:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 170AAC433D6;
-        Tue,  9 Aug 2022 18:02:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A23F7CE18A6;
+        Tue,  9 Aug 2022 18:03:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D66E6C433D7;
+        Tue,  9 Aug 2022 18:03:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068164;
-        bh=yXd7a1cUrnNABJJH7d5iVOcQbSOFbG5yvXQbf4pNum4=;
+        s=korg; t=1660068181;
+        bh=t6omEt3IXRTOqFA+8zsUIm7gKxitv9ZMWRIYZ/i/uR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M6b1uFbtfVngQ7uyU1KkFJAqJO8New8VgJumSqFidUMX+aKipL9gtfq03uTgQT2v5
-         fS62WDe3Rk+Ag6ajw6azF7mS6CxlPMcvZOWtY3uwco/hEi/KFHCEoIS8Nm6ZICSPPp
-         8QM0lStdmudWNb3IPoWgN9SWemIQ1U61yhhtBbeQ=
+        b=bV8b7VwwtcldX63Hw6JKShsr9hbe45zk787KQ4uKeFv0lSIMjGV4//LlCAuq1NSgG
+         NZ9gffEXU3E7COY1c0YApJJgvmq5/YwyABUPNi5bRQ2q0dOwpXvlEOJU3SIx//eI9h
+         yV+dtdb5f722jK7xo0LmTdgaqgGlTVEKiKygTlzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
         Hans de Goede <hdegoede@redhat.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.19 29/32] ACPI: video: Shortening quirk list by identifying Clevo by board_name only
+Subject: [PATCH 5.4 02/15] ACPI: video: Force backlight native for some TongFang devices
 Date:   Tue,  9 Aug 2022 20:00:20 +0200
-Message-Id: <20220809175513.999483881@linuxfoundation.org>
+Message-Id: <20220809175510.391904671@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175513.082573955@linuxfoundation.org>
-References: <20220809175513.082573955@linuxfoundation.org>
+In-Reply-To: <20220809175510.312431319@linuxfoundation.org>
+References: <20220809175510.312431319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,73 +56,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Werner Sembach <wse@tuxedocomputers.com>
 
-commit f0341e67b3782603737f7788e71bd3530012a4f4 upstream.
+commit c752089f7cf5b5800c6ace4cdd1a8351ee78a598 upstream.
 
-Taking a recent change in the i8042 quirklist to this one: Clevo
-board_names are somewhat unique, and if not: The generic Board_-/Sys_Vendor
-string "Notebook" doesn't help much anyway. So identifying the devices just
-by the board_name helps keeping the list significantly shorter and might
-even hit more devices requiring the fix.
+The TongFang PF5PU1G, PF4NU1F, PF5NU1G, and PF5LUXG/TUXEDO BA15 Gen10,
+Pulse 14/15 Gen1, and Pulse 15 Gen2 have the same problem as the Clevo
+NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2:
+They have a working native and video interface. However the default
+detection mechanism first registers the video interface before
+unregistering it again and switching to the native interface during boot.
+This results in a dangling SBIOS request for backlight change for some
+reason, causing the backlight to switch to ~2% once per boot on the first
+power cord connect or disconnect event. Setting the native interface
+explicitly circumvents this buggy behaviour by avoiding the unregistering
+process.
 
 Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Fixes: c844d22fe0c0 ("ACPI: video: Force backlight native for Clevo NL5xRU and NL5xNU")
 Cc: All applicable <stable@vger.kernel.org>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/video_detect.c |   34 ----------------------------------
- 1 file changed, 34 deletions(-)
+ drivers/acpi/video_detect.c |   51 +++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 50 insertions(+), 1 deletion(-)
 
 --- a/drivers/acpi/video_detect.c
 +++ b/drivers/acpi/video_detect.c
-@@ -371,23 +371,6 @@ static const struct dmi_system_id video_
- 	.callback = video_detect_force_native,
- 	.ident = "Clevo NL5xRU",
- 	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
--		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
--		},
--	},
--	{
--	.callback = video_detect_force_native,
--	.ident = "Clevo NL5xRU",
--	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
--		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
--		},
--	},
--	{
--	.callback = video_detect_force_native,
--	.ident = "Clevo NL5xRU",
--	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
- 		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
- 		},
- 	},
-@@ -411,23 +394,6 @@ static const struct dmi_system_id video_
- 	.callback = video_detect_force_native,
- 	.ident = "Clevo NL5xNU",
- 	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
--		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
--		},
--	},
--	{
--	.callback = video_detect_force_native,
--	.ident = "Clevo NL5xNU",
--	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
--		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
--		},
--	},
--	{
--	.callback = video_detect_force_native,
--	.ident = "Clevo NL5xNU",
--	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
+@@ -447,7 +447,56 @@ static const struct dmi_system_id video_
  		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
  		},
  	},
+-
++	/*
++	 * The TongFang PF5PU1G, PF4NU1F, PF5NU1G, and PF5LUXG/TUXEDO BA15 Gen10,
++	 * Pulse 14/15 Gen1, and Pulse 15 Gen2 have the same problem as the Clevo
++	 * NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2. See the description
++	 * above.
++	 */
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF5PU1G",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "PF5PU1G"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF4NU1F",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "PF4NU1F"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF4NU1F",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "PULSE1401"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF5NU1G",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "PF5NU1G"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF5NU1G",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "PULSE1501"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF5LUXG",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "PF5LUXG"),
++		},
++	},
+ 	/*
+ 	 * Desktops which falsely report a backlight and which our heuristics
+ 	 * for this do not catch.
 
 
