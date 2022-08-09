@@ -2,74 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FE5F58DFEB
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 21:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E2758DFFC
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 21:15:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345485AbiHITM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 15:12:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43448 "EHLO
+        id S245728AbiHITPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 15:15:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346470AbiHITLK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 15:11:10 -0400
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99BA432F
-        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 12:00:04 -0700 (PDT)
-Received: by mail-ed1-x532.google.com with SMTP id f22so16273268edc.7
-        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 12:00:04 -0700 (PDT)
+        with ESMTP id S1345733AbiHITPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 15:15:00 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF75421814
+        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 12:07:59 -0700 (PDT)
+Received: by mail-ej1-x634.google.com with SMTP id gk3so23840852ejb.8
+        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 12:07:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linux-foundation.org; s=google;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc;
-        bh=VVV8GGpoeLc6+MwlCT0V9dvKeeRB3XD+JQNEfU5zFB4=;
-        b=XS74q4C+R/RkerpK/v956xeICTISjlZPR7ZGmhz92t1i3i7F2m/3inQg+aj3m+m6dr
-         M77s0vBeprURuoen9lVmJrVsTNMEMY6A9xIYseaKhApwnfZEJpAmNH7oRlfDEbFcQVug
-         aYGLct1cvKUeJSKUfVfOlQcwDiMP9ep2ky3lI=
+        bh=vMeWdqqUKrZihbEodx8DwkpktZOsjqJwuhJAUzg6EtM=;
+        b=fsrqe+6vo9uENLGFyCV6+pgoTqjKv1mEg1PRj6og2Ud/MBa8diFjRhLhNp/FTkemmU
+         vUWMlyD0tpPtsXxRgtuml1g7Ab5JSwvzh4+5oeiGYZVt4iAWoilXnit41pgP1cvRktE8
+         SjaI6/b5+Nxv18jobwJDWK6xFLulMWU2a18Qs=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc;
-        bh=VVV8GGpoeLc6+MwlCT0V9dvKeeRB3XD+JQNEfU5zFB4=;
-        b=Jo2PN06AflDH5b0WWZR3/ulTivLiZmmJE1znnyoF8MVtjoNbT/roI4gys6Sg9HyyvO
-         8r05QGV1DaN0p9cqicn7O4CFmi5kuamIk1ryfcAiWddJNIeJHcK/gZyJlpgUgLeC8rDj
-         YzOUOD+qP57dob2Od3XDvABNuYju+u7ihPrmHZz7nnwnwJGrCZiodawIePXLwm9KXA+i
-         k+qWZPrxaxiIe5OYzAMSUV46Dx+0sz+W2crIsfQ93Hi0R0moAB62U5sYu8eVMsqrEw7O
-         rfrFKSId+QFEp0gCzcBp4VDF4RMmr4RWwRwzJrk4z2QBSSR5P6NM7ACvGMfbWquDwfnE
-         hy/A==
-X-Gm-Message-State: ACgBeo1gip+tU3LX/UQoFvbZ98Ug/u61N82b0xWGjmXv3k1LX2vBha3L
-        J7wQBV0pFMQ+1n1aFAzt4vlsJaGaNqVdUcibHIw=
-X-Google-Smtp-Source: AA6agR6aklXYy0i3EpFhdRXo0vwQMzIjiduZduJSR4TnUcHtoBmpm4MIOIldqPu7cQt3NlbvyWNHoQ==
-X-Received: by 2002:a05:6402:2d1:b0:43c:bb20:71bf with SMTP id b17-20020a05640202d100b0043cbb2071bfmr22941038edx.59.1660071602952;
-        Tue, 09 Aug 2022 12:00:02 -0700 (PDT)
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com. [209.85.221.42])
-        by smtp.gmail.com with ESMTPSA id us11-20020a170906bfcb00b00730538b7cf1sm1434324ejb.75.2022.08.09.12.00.02
+        bh=vMeWdqqUKrZihbEodx8DwkpktZOsjqJwuhJAUzg6EtM=;
+        b=0GndmqWTzBVVOkgeW1n3cxk5nvx7w9bAy8aZ5NKsAIZLeCk1DeFcWQ7Z27Wy4FguKc
+         MjuBeehCDoj6a3dASBi8K/ZU1jzYZ6Lcg16mI3+ZTaGbIfE6oTdLuwwFaMzQ5zlN23C6
+         SBudGALwgC0vVxdE40b/O4SgVav3/pgji0vvowsAFVp4myOSPOPM7JzTZahqAKCs5gLT
+         5KJcWYYeUwH7XY0w+/Hk+oVTWUtKkxAzl/Ys2i0FIAztlAZwS6w+TupWmFYTp141gb+a
+         XPQ343r/W2dsqIQQaggOVCPqXKyZtyOKVBiU/aYOtuEhu29Xw8idMByqtni49VN0yvbB
+         JjtQ==
+X-Gm-Message-State: ACgBeo0bMc1tIto3VSKh5EESGHohWZgu5dtw2Vp7tSFUhr4wVpkB7gr+
+        1qqB+9m45c9wPUGup9c7VMZ+NXYuP6Pvtgk058c=
+X-Google-Smtp-Source: AA6agR6i9mRDwgG6W44GRceHU70FM/7LsnGFvTFkUhNPbGy2lHFZ+3FbGO7IoLjeTI+xQ0AIev0XLw==
+X-Received: by 2002:a17:907:94d2:b0:730:87c1:e86c with SMTP id dn18-20020a17090794d200b0073087c1e86cmr17948394ejc.129.1660072078215;
+        Tue, 09 Aug 2022 12:07:58 -0700 (PDT)
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com. [209.85.128.45])
+        by smtp.gmail.com with ESMTPSA id da13-20020a056402176d00b00442b388c743sm132619edb.14.2022.08.09.12.07.48
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Aug 2022 12:00:02 -0700 (PDT)
-Received: by mail-wr1-f42.google.com with SMTP id q30so15277385wra.11
-        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 12:00:02 -0700 (PDT)
-X-Received: by 2002:a5d:56cf:0:b0:21e:ce64:afe7 with SMTP id
- m15-20020a5d56cf000000b0021ece64afe7mr14879214wrw.281.1660071601819; Tue, 09
- Aug 2022 12:00:01 -0700 (PDT)
+        Tue, 09 Aug 2022 12:07:51 -0700 (PDT)
+Received: by mail-wm1-f45.google.com with SMTP id s11-20020a1cf20b000000b003a52a0945e8so4505664wmc.1
+        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 12:07:48 -0700 (PDT)
+X-Received: by 2002:a05:600c:1d94:b0:3a4:ffd9:bb4a with SMTP id
+ p20-20020a05600c1d9400b003a4ffd9bb4amr16389223wms.8.1660072067208; Tue, 09
+ Aug 2022 12:07:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220808073232.8808-1-david@redhat.com> <CAHk-=wiEAH+ojSpAgx_Ep=NKPWHU8AdO3V56BXcCsU97oYJ1EA@mail.gmail.com>
- <1a48d71d-41ee-bf39-80d2-0102f4fe9ccb@redhat.com>
-In-Reply-To: <1a48d71d-41ee-bf39-80d2-0102f4fe9ccb@redhat.com>
+References: <20220808073232.8808-1-david@redhat.com> <CAHk-=wi81ujYGP0gmyy2kDke_ExL742Lo_hLepGjCa8mS81A7w@mail.gmail.com>
+ <YvKsBUuwLNlHwhnE@nvidia.com>
+In-Reply-To: <YvKsBUuwLNlHwhnE@nvidia.com>
 From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 9 Aug 2022 11:59:45 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wg40EAZofO16Eviaj7mfqDhZ2gVEbvfsMf6gYzspRjYvw@mail.gmail.com>
-Message-ID: <CAHk-=wg40EAZofO16Eviaj7mfqDhZ2gVEbvfsMf6gYzspRjYvw@mail.gmail.com>
+Date:   Tue, 9 Aug 2022 12:07:31 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjh3wkhQWN8BHFUT6t52kfNMcRd+1JczD4Sgp_q11w8eA@mail.gmail.com>
+Message-ID: <CAHk-=wjh3wkhQWN8BHFUT6t52kfNMcRd+1JczD4Sgp_q11w8eA@mail.gmail.com>
 Subject: Re: [PATCH v1] mm/gup: fix FOLL_FORCE COW security issue and remove FOLL_COW
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Axel Rasmussen <axelrasmussen@google.com>,
         Peter Xu <peterx@redhat.com>, Hugh Dickins <hughd@google.com>,
         Andrea Arcangeli <aarcange@redhat.com>,
         Matthew Wilcox <willy@infradead.org>,
         Vlastimil Babka <vbabka@suse.cz>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
+        John Hubbard <jhubbard@nvidia.com>
 Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
@@ -81,45 +81,15 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 9, 2022 at 11:45 AM David Hildenbrand <david@redhat.com> wrote:
+On Tue, Aug 9, 2022 at 11:48 AM Jason Gunthorpe <jgg@nvidia.com> wrote:
 >
-> I totally agree with BUG_ON ... but if I get talked to in all-caps on a
-> Thursday evening and feel like I just touched the forbidden fruit, I
-> have to ask for details about VM_BUG_ON nowadays.
->
-> VM_BUG_ON is only active with CONFIG_DEBUG_VM. ... which indicated some
-> kind of debugging at least to me. I *know* that Fedora enables it and I
-> *know* that this will make Fedora crash.
+> It is because of all this madness with COW.
 
-No.
+Yes, yes, but we have the proper long-term pinning now with
+PG_anon_exclusive, and it actually gets the pinning right not just
+over COW, but even over a fork - which that early write never did.
 
-VM_BUG_ON() has the exact same semantics as BUG_ON. It is literally no
-different, the only difference is "we can make the code smaller
-because these are less important".
+David, I thought all of that got properly merged? Is there something
+still missing?
 
-The only possible case where BUG_ON can validly be used is "I have
-some fundamental data corruption and cannot possibly return an error".
-
-This kind of "I don't think this can happen" is _never_ an excuse for it.
-
-Honestly, 99% of our existing BUG_ON() ones are completely bogus, and
-left-over debug code that wasn't removed because they never triggered.
-I've several times considered just using a coccinelle script to remove
-every single BUG_ON() (and VM_BUG_ON()) as simply bogus. Because they
-are pure noise.
-
-I just tried to find a valid BUG_ON() that would make me go "yeah,
-that's actually worth it", and couldn't really find one. Yeah, there
-are several ones in the scheduler that make me go "ok, if that
-triggers, the machine is dead anyway", so in that sense there are
-certainly BUG_ON()s that don't _hurt_.
-
-But as a very good approximation, the rule is "absolutely no new
-BUG_ON() calls _ever_". Because I really cannot see a single case
-where "proper error handling and WARN_ON_ONCE()" isn't the right
-thing.
-
-Now, that said, there is one very valid sub-form of BUG_ON():
-BUILD_BUG_ON() is absolutely 100% fine.
-
-                Linus
+                     Linus
