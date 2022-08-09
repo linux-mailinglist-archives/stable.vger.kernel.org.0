@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21DE158DE63
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:14:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F27F358DE22
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345636AbiHISOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:14:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57746 "EHLO
+        id S1345277AbiHISMb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:12:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345391AbiHISMl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:12:41 -0400
+        with ESMTP id S1345254AbiHISK3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:10:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15C572C11E;
-        Tue,  9 Aug 2022 11:05:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E2B0275EB;
+        Tue,  9 Aug 2022 11:04:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE707B8171E;
-        Tue,  9 Aug 2022 18:05:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DDBAC4347C;
-        Tue,  9 Aug 2022 18:05:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B95E8B8171C;
+        Tue,  9 Aug 2022 18:04:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FCDAC4314E;
+        Tue,  9 Aug 2022 18:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068333;
-        bh=IBCeAButYsRtNeRmHz0Nr8ebRIHdO/EQ3qn0BXhofwY=;
+        s=korg; t=1660068250;
+        bh=ZENkNZWm12mLtait5Y7wG4VmunHF0lXznbG1QQXzbK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LFx3fZAOYEr8n6dnq3aqpjE1+4dOHbDvqEVD62enCRrNG/9YETa4HfifbTznrUE68
-         S5raZac2Blan5but8El5NJALyxqpGec6xhTUCx/H0KsdNIB+UheKGFe/ZsVygXUMbM
-         b0Htx/KCzPqRmHWyBnByoVQG9LVhJI/fkiwsgltI=
+        b=tDmRQ0k5lWTxke87T4oLwlxlSHT2eXaaY6DLBMu2vkq15t+5XjSoZelm0cvTwujiZ
+         E1fgz1n0lLHmdiGiEuf+2JzOxc05joWKpsZ4XMVKDa5NxObVnqk3erO1mRCvh8jB36
+         JYYoDwun70p/PmavKxIgeHAAsmShXIRqNUFr1IrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 12/30] KVM: selftests: Make hyperv_clock selftest more stable
+        stable@vger.kernel.org, Hilda Wu <hildawu@realtek.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 5.10 19/23] Bluetooth: btusb: Add Realtek RTL8852C support ID 0x13D3:0x3587
 Date:   Tue,  9 Aug 2022 20:00:37 +0200
-Message-Id: <20220809175514.746631465@linuxfoundation.org>
+Message-Id: <20220809175513.520826783@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175514.276643253@linuxfoundation.org>
-References: <20220809175514.276643253@linuxfoundation.org>
+In-Reply-To: <20220809175512.853274191@linuxfoundation.org>
+References: <20220809175512.853274191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,75 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Hilda Wu <hildawu@realtek.com>
 
-[ Upstream commit eae260be3a0111a28fe95923e117a55dddec0384 ]
+commit 8f0054dd29373cd877db87751c143610561d549d upstream.
 
-hyperv_clock doesn't always give a stable test result, especially with
-AMD CPUs. The test compares Hyper-V MSR clocksource (acquired either
-with rdmsr() from within the guest or KVM_GET_MSRS from the host)
-against rdtsc(). To increase the accuracy, increase the measured delay
-(done with nop loop) by two orders of magnitude and take the mean rdtsc()
-value before and after rdmsr()/KVM_GET_MSRS.
+Add the support ID(0x13D3, 0x3587) to usb_device_id table for
+Realtek RTL8852C.
 
-Reported-by: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Tested-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20220601144322.1968742-1-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The device info from /sys/kernel/debug/usb/devices as below.
+
+T:  Bus=03 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=13d3 ProdID=3587 Rev= 0.00
+S:  Manufacturer=Realtek
+S:  Product=Bluetooth Radio
+S:  SerialNumber=00e04c000001
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+
+Signed-off-by: Hilda Wu <hildawu@realtek.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/kvm/x86_64/hyperv_clock.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/bluetooth/btusb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/kvm/x86_64/hyperv_clock.c b/tools/testing/selftests/kvm/x86_64/hyperv_clock.c
-index e0b2bb1339b1..3330fb183c68 100644
---- a/tools/testing/selftests/kvm/x86_64/hyperv_clock.c
-+++ b/tools/testing/selftests/kvm/x86_64/hyperv_clock.c
-@@ -44,7 +44,7 @@ static inline void nop_loop(void)
- {
- 	int i;
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -406,6 +406,8 @@ static const struct usb_device_id blackl
+ 						     BTUSB_WIDEBAND_SPEECH },
+ 	{ USB_DEVICE(0x0cb8, 0xc558), .driver_info = BTUSB_REALTEK |
+ 						     BTUSB_WIDEBAND_SPEECH },
++	{ USB_DEVICE(0x13d3, 0x3587), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
  
--	for (i = 0; i < 1000000; i++)
-+	for (i = 0; i < 100000000; i++)
- 		asm volatile("nop");
- }
- 
-@@ -56,12 +56,14 @@ static inline void check_tsc_msr_rdtsc(void)
- 	tsc_freq = rdmsr(HV_X64_MSR_TSC_FREQUENCY);
- 	GUEST_ASSERT(tsc_freq > 0);
- 
--	/* First, check MSR-based clocksource */
-+	/* For increased accuracy, take mean rdtsc() before and afrer rdmsr() */
- 	r1 = rdtsc();
- 	t1 = rdmsr(HV_X64_MSR_TIME_REF_COUNT);
-+	r1 = (r1 + rdtsc()) / 2;
- 	nop_loop();
- 	r2 = rdtsc();
- 	t2 = rdmsr(HV_X64_MSR_TIME_REF_COUNT);
-+	r2 = (r2 + rdtsc()) / 2;
- 
- 	GUEST_ASSERT(r2 > r1 && t2 > t1);
- 
-@@ -181,12 +183,14 @@ static void host_check_tsc_msr_rdtsc(struct kvm_vm *vm)
- 	tsc_freq = vcpu_get_msr(vm, VCPU_ID, HV_X64_MSR_TSC_FREQUENCY);
- 	TEST_ASSERT(tsc_freq > 0, "TSC frequency must be nonzero");
- 
--	/* First, check MSR-based clocksource */
-+	/* For increased accuracy, take mean rdtsc() before and afrer ioctl */
- 	r1 = rdtsc();
- 	t1 = vcpu_get_msr(vm, VCPU_ID, HV_X64_MSR_TIME_REF_COUNT);
-+	r1 = (r1 + rdtsc()) / 2;
- 	nop_loop();
- 	r2 = rdtsc();
- 	t2 = vcpu_get_msr(vm, VCPU_ID, HV_X64_MSR_TIME_REF_COUNT);
-+	r2 = (r2 + rdtsc()) / 2;
- 
- 	TEST_ASSERT(t2 > t1, "Time reference MSR is not monotonic (%ld <= %ld)", t1, t2);
- 
--- 
-2.35.1
-
+ 	/* Realtek Bluetooth devices */
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(0x0bda, 0xe0, 0x01, 0x01),
 
 
