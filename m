@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 027AA58DDE2
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:07:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B39158DE03
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344884AbiHISHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:07:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44224 "EHLO
+        id S1345080AbiHISJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:09:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344236AbiHISGh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:06:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3098626112;
-        Tue,  9 Aug 2022 11:02:56 -0700 (PDT)
+        with ESMTP id S1345038AbiHISIf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:08:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5232926556;
+        Tue,  9 Aug 2022 11:03:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5D48B816A0;
-        Tue,  9 Aug 2022 18:02:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5BF5C43470;
-        Tue,  9 Aug 2022 18:02:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED61261118;
+        Tue,  9 Aug 2022 18:03:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65754C433D6;
+        Tue,  9 Aug 2022 18:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068175;
-        bh=LVK7Kh2hdJ0k8iNs9K6078HDnZHYovn17rMstcfj3g8=;
+        s=korg; t=1660068211;
+        bh=pKGNa/7akYFG3JtPthS6ZvcLNCEiB9Sy7wDPP9iBe9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8g9RPkDXycdXE/gfOj3bfWIPae1cnQfmD8CFFPw3hlVd/p912O9PoOsg/IVPdubX
-         ppAukz80vz3OVXyTc01nZkwCJsT+PGJnKjnZfz2y/7Fr4GJC92CyPVporaOygWDouA
-         G0yku1xq5Vzpfe8zGAFDnRIajag5Dri/tdY76wXg=
+        b=kIoBIRM2vJt5HIwz3YVbC1oJzmOlrq+5zT5rE0PoX16wLphOHQCVVmJb8hSkhADgY
+         tLAFXGw67t3Vd9ZSUlpSQk/ZlA8ss+oN7SZ8ZchIn5FItusu40g9TbZUjJ/Z/Ga1R+
+         Js/ExIdCsIROrjLOkpaSL/fFk4yiu0WUKR8WgOf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
-        Sumit Saxena <sumit.saxena@broadcom.com>,
-        Kashyap Desai <kashyap.desai@broadcom.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Ewan Milne <emilne@redhat.com>, Long Li <longli@microsoft.com>,
-        John Garry <john.garry@huawei.com>,
-        "chenxiang (M)" <chenxiang66@hisilicon.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Yu Kuai <yukuai3@huawei.com>
-Subject: [PATCH 4.19 27/32] scsi: core: Fix race between handling STS_RESOURCE and completion
-Date:   Tue,  9 Aug 2022 20:00:18 +0200
-Message-Id: <20220809175513.938731002@linuxfoundation.org>
+        stable@vger.kernel.org, David Collins <quic_collinsd@quicinc.com>,
+        Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Subject: [PATCH 5.4 01/15] thermal: Fix NULL pointer dereferences in of_thermal_ functions
+Date:   Tue,  9 Aug 2022 20:00:19 +0200
+Message-Id: <20220809175510.361664166@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175513.082573955@linuxfoundation.org>
-References: <20220809175513.082573955@linuxfoundation.org>
+In-Reply-To: <20220809175510.312431319@linuxfoundation.org>
+References: <20220809175510.312431319@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -61,57 +58,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
 
-commit 673235f915318ced5d7ec4b2bfd8cb909e6a4a55 upstream.
+commit 96cfe05051fd8543cdedd6807ec59a0e6c409195 upstream.
 
-When queuing I/O request to LLD, STS_RESOURCE may be returned because:
+of_parse_thermal_zones() parses the thermal-zones node and registers a
+thermal_zone device for each subnode. However, if a thermal zone is
+consuming a thermal sensor and that thermal sensor device hasn't probed
+yet, an attempt to set trip_point_*_temp for that thermal zone device
+can cause a NULL pointer dereference. Fix it.
 
- - Host is in recovery or blocked
+ console:/sys/class/thermal/thermal_zone87 # echo 120000 > trip_point_0_temp
+ ...
+ Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
+ ...
+ Call trace:
+  of_thermal_set_trip_temp+0x40/0xc4
+  trip_point_temp_store+0xc0/0x1dc
+  dev_attr_store+0x38/0x88
+  sysfs_kf_write+0x64/0xc0
+  kernfs_fop_write_iter+0x108/0x1d0
+  vfs_write+0x2f4/0x368
+  ksys_write+0x7c/0xec
+  __arm64_sys_write+0x20/0x30
+  el0_svc_common.llvm.7279915941325364641+0xbc/0x1bc
+  do_el0_svc+0x28/0xa0
+  el0_svc+0x14/0x24
+  el0_sync_handler+0x88/0xec
+  el0_sync+0x1c0/0x200
 
- - Target queue throttling or target is blocked
+While at it, fix the possible NULL pointer dereference in other
+functions as well: of_thermal_get_temp(), of_thermal_set_emul_temp(),
+of_thermal_get_trend().
 
- - LLD rejection
-
-In these scenarios BLK_STS_DEV_RESOURCE is returned to the block layer to
-avoid an unnecessary re-run of the queue. However, all of the requests
-queued to this SCSI device may complete immediately after reading
-'sdev->device_busy' and BLK_STS_DEV_RESOURCE is returned to block layer. In
-that case the current I/O won't get a chance to get queued since it is
-invisible at that time for both scsi_run_queue_async() and blk-mq's
-RESTART.
-
-Fix the issue by not returning BLK_STS_DEV_RESOURCE in this situation.
-
-Link: https://lore.kernel.org/r/20201202100419.525144-1-ming.lei@redhat.com
-Fixes: 86ff7c2a80cd ("blk-mq: introduce BLK_STS_DEV_RESOURCE")
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Sumit Saxena <sumit.saxena@broadcom.com>
-Cc: Kashyap Desai <kashyap.desai@broadcom.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Ewan Milne <emilne@redhat.com>
-Cc: Long Li <longli@microsoft.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Tested-by: "chenxiang (M)" <chenxiang66@hisilicon.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Suggested-by: David Collins <quic_collinsd@quicinc.com>
+Signed-off-by: Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
+Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_lib.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/thermal/of-thermal.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -2157,8 +2157,7 @@ out_put_budget:
- 	case BLK_STS_OK:
- 		break;
- 	case BLK_STS_RESOURCE:
--		if (atomic_read(&sdev->device_busy) ||
--		    scsi_device_blocked(sdev))
-+		if (scsi_device_blocked(sdev))
- 			ret = BLK_STS_DEV_RESOURCE;
- 		break;
- 	default:
+--- a/drivers/thermal/of-thermal.c
++++ b/drivers/thermal/of-thermal.c
+@@ -91,7 +91,7 @@ static int of_thermal_get_temp(struct th
+ {
+ 	struct __thermal_zone *data = tz->devdata;
+ 
+-	if (!data->ops->get_temp)
++	if (!data->ops || !data->ops->get_temp)
+ 		return -EINVAL;
+ 
+ 	return data->ops->get_temp(data->sensor_data, temp);
+@@ -188,6 +188,9 @@ static int of_thermal_set_emul_temp(stru
+ {
+ 	struct __thermal_zone *data = tz->devdata;
+ 
++	if (!data->ops || !data->ops->set_emul_temp)
++		return -EINVAL;
++
+ 	return data->ops->set_emul_temp(data->sensor_data, temp);
+ }
+ 
+@@ -196,7 +199,7 @@ static int of_thermal_get_trend(struct t
+ {
+ 	struct __thermal_zone *data = tz->devdata;
+ 
+-	if (!data->ops->get_trend)
++	if (!data->ops || !data->ops->get_trend)
+ 		return -EINVAL;
+ 
+ 	return data->ops->get_trend(data->sensor_data, trip, trend);
+@@ -336,7 +339,7 @@ static int of_thermal_set_trip_temp(stru
+ 	if (trip >= data->ntrips || trip < 0)
+ 		return -EDOM;
+ 
+-	if (data->ops->set_trip_temp) {
++	if (data->ops && data->ops->set_trip_temp) {
+ 		int ret;
+ 
+ 		ret = data->ops->set_trip_temp(data->sensor_data, trip, temp);
 
 
