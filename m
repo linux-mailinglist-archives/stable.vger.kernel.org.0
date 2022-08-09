@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D9EB58DCB9
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 19:03:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0357158DCC0
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 19:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245227AbiHIRDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 13:03:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43592 "EHLO
+        id S245388AbiHIREY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 13:04:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245543AbiHIRDW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 13:03:22 -0400
+        with ESMTP id S245344AbiHIREM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 13:04:12 -0400
 Received: from smtp-relay-canonical-1.canonical.com (smtp-relay-canonical-1.canonical.com [185.125.188.121])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF8D36419;
-        Tue,  9 Aug 2022 10:03:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C80EB2EA;
+        Tue,  9 Aug 2022 10:04:11 -0700 (PDT)
 Received: from localhost.localdomain (1.general.cascardo.us.vpn [10.172.70.58])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id EE7C03FF8B;
-        Tue,  9 Aug 2022 17:03:15 +0000 (UTC)
+        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id A5A9D402AF;
+        Tue,  9 Aug 2022 17:04:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1660064598;
-        bh=1FKd8/tRO5YMlNLcXeoLkbA2mShkCMgv9jcbuwAARG4=;
-        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
-        b=rkgutzWYdEQfzLbFqbPP2w4BVgVga7uRg1+0uNO8mAptRLwoDcoVOmjZCtChPP8+1
-         hZQAsFrZxke9Be40u1hecqtDFsrm7ptQ3OCIww08pdB/CYqRPyUnX9gIUnhbxaW4de
-         sKfWmmsknEsdOu1MU4qBKdLWNqIPVpO4f7jg6U3+xGIjp7MHEcc8EF0xRMRL5biXit
-         nVAcGW21bWAYk3IUT4SHKCrCoR7RtpsI/Wo0hg5fhO1jJ/BmDyaOrm8pKvqKkOMEfD
-         J9QK+g/KpEfnwHUbGcL49IJSxYk60whMhF+ehteQxOi52o1VpCdbkRVgfRfX+oI6HO
-         AqUmHNkZNUKtg==
+        s=20210705; t=1660064650;
+        bh=2KIyslzA71NE4KrtGvjYhMEp3DbKFTnFSf4c5Wj723o=;
+        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+         MIME-Version;
+        b=m96RTTzrX/dtdWQNlYeHi4ZEbZ5pCTkRTlqVItX7rQsZMm4P8VJvExdeaSGy/i/ts
+         /cqmLMv7eyankDwefaZSTX9QbsFIde920CEBDFqOQS4K0ftMFkWOFIIObMYfWXngRl
+         E08oVgmwGIL4/k/LgcSWJkNStW2NyPnynMIrK1o9Q2xjwT8uWr9okWpSlDtKEt1+kp
+         Xak2is64n7t9eI05RrFUFNoxPo9/Sddb8xgiVEZlsX2kUlnY1sNZrBEFooatDpUU4q
+         vshC3R92pw0BvEbAdkReJ/DcOSn+Paegr9/6rt/tKGqh+XQo7hZUR+4Rd9EE9EPOca
+         oeufQnc7RAuOg==
 From:   Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 To:     netfilter-devel@vger.kernel.org
 Cc:     pablo@netfilter.org, kadlec@netfilter.org, fw@strlen.de,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
         stable@vger.kernel.org
-Subject: [PATCH 1/3] netfilter: nf_tables: do not allow SET_ID to refer to another table
-Date:   Tue,  9 Aug 2022 14:01:46 -0300
-Message-Id: <20220809170148.164591-1-cascardo@canonical.com>
+Subject: [PATCH 2/3] netfilter: nf_tables: do not allow CHAIN_ID to refer to another table
+Date:   Tue,  9 Aug 2022 14:01:47 -0300
+Message-Id: <20220809170148.164591-2-cascardo@canonical.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220809170148.164591-1-cascardo@canonical.com>
+References: <20220809170148.164591-1-cascardo@canonical.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -51,54 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When doing lookups for sets on the same batch by using its ID, a set from a
-different table can be used.
+When doing lookups for chains on the same batch by using its ID, a chain
+from a different table can be used. If a rule is added to a table but
+refers to a chain in a different table, it will be linked to the chain in
+table2, but would have expressions referring to objects in table1.
 
-Then, when the table is removed, a reference to the set may be kept after
-the set is freed, leading to a potential use-after-free.
+Then, when table1 is removed, the rule will not be removed as its linked to
+a chain in table2. When expressions in the rule are processed or removed,
+that will lead to a use-after-free.
 
-When looking for sets by ID, use the table that was used for the lookup by
-name, and only return sets belonging to that same table.
+When looking for chains by ID, use the table that was used for the lookup
+by name, and only return chains belonging to that same table.
 
-This fixes CVE-2022-2586, also reported as ZDI-CAN-17470.
-
-Reported-by: Team Orca of Sea Security (@seasecresponse)
-Fixes: 958bee14d071 ("netfilter: nf_tables: use new transaction infrastructure to handle sets")
+Fixes: 837830a4b439 ("netfilter: nf_tables: add NFTA_RULE_CHAIN_ID attribute")
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Cc: <stable@vger.kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/netfilter/nf_tables_api.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 9f976b11d896..86fae065f1d2 100644
+index 86fae065f1d2..ae59784db9aa 100644
 --- a/net/netfilter/nf_tables_api.c
 +++ b/net/netfilter/nf_tables_api.c
-@@ -3842,6 +3842,7 @@ static struct nft_set *nft_set_lookup_byhandle(const struct nft_table *table,
+@@ -2472,6 +2472,7 @@ static int nf_tables_updchain(struct nft_ctx *ctx, u8 genmask, u8 policy,
  }
  
- static struct nft_set *nft_set_lookup_byid(const struct net *net,
-+					   const struct nft_table *table,
- 					   const struct nlattr *nla, u8 genmask)
+ static struct nft_chain *nft_chain_lookup_byid(const struct net *net,
++					       const struct nft_table *table,
+ 					       const struct nlattr *nla)
  {
  	struct nftables_pernet *nft_net = nft_pernet(net);
-@@ -3853,6 +3854,7 @@ static struct nft_set *nft_set_lookup_byid(const struct net *net,
- 			struct nft_set *set = nft_trans_set(trans);
+@@ -2482,6 +2483,7 @@ static struct nft_chain *nft_chain_lookup_byid(const struct net *net,
+ 		struct nft_chain *chain = trans->ctx.chain;
  
- 			if (id == nft_trans_set_id(trans) &&
-+			    set->table == table &&
- 			    nft_active_genmask(set, genmask))
- 				return set;
- 		}
-@@ -3873,7 +3875,7 @@ struct nft_set *nft_set_lookup_global(const struct net *net,
- 		if (!nla_set_id)
- 			return set;
- 
--		set = nft_set_lookup_byid(net, nla_set_id, genmask);
-+		set = nft_set_lookup_byid(net, table, nla_set_id, genmask);
+ 		if (trans->msg_type == NFT_MSG_NEWCHAIN &&
++		    chain->table == table &&
+ 		    id == nft_trans_chain_id(trans))
+ 			return chain;
  	}
- 	return set;
- }
+@@ -3417,7 +3419,7 @@ static int nf_tables_newrule(struct sk_buff *skb, const struct nfnl_info *info,
+ 			return -EOPNOTSUPP;
+ 
+ 	} else if (nla[NFTA_RULE_CHAIN_ID]) {
+-		chain = nft_chain_lookup_byid(net, nla[NFTA_RULE_CHAIN_ID]);
++		chain = nft_chain_lookup_byid(net, table, nla[NFTA_RULE_CHAIN_ID]);
+ 		if (IS_ERR(chain)) {
+ 			NL_SET_BAD_ATTR(extack, nla[NFTA_RULE_CHAIN_ID]);
+ 			return PTR_ERR(chain);
+@@ -9607,7 +9609,7 @@ static int nft_verdict_init(const struct nft_ctx *ctx, struct nft_data *data,
+ 						 tb[NFTA_VERDICT_CHAIN],
+ 						 genmask);
+ 		} else if (tb[NFTA_VERDICT_CHAIN_ID]) {
+-			chain = nft_chain_lookup_byid(ctx->net,
++			chain = nft_chain_lookup_byid(ctx->net, ctx->table,
+ 						      tb[NFTA_VERDICT_CHAIN_ID]);
+ 			if (IS_ERR(chain))
+ 				return PTR_ERR(chain);
 -- 
 2.34.1
 
