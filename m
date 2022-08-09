@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B16E58DE0B
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:09:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6504358DDDB
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344226AbiHISJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:09:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50840 "EHLO
+        id S1343499AbiHISGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:06:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344972AbiHISI7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:08:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E37A2981B;
-        Tue,  9 Aug 2022 11:03:43 -0700 (PDT)
+        with ESMTP id S244954AbiHISFz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:05:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F4C27FE9;
+        Tue,  9 Aug 2022 11:02:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E48476106F;
-        Tue,  9 Aug 2022 18:03:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E179C433B5;
-        Tue,  9 Aug 2022 18:03:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DA2761052;
+        Tue,  9 Aug 2022 18:02:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 170AAC433D6;
+        Tue,  9 Aug 2022 18:02:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068222;
-        bh=x6psJ7LnYWkeLisaH69Ll7JK/AHmEfENqgj0YKrNKPY=;
+        s=korg; t=1660068164;
+        bh=yXd7a1cUrnNABJJH7d5iVOcQbSOFbG5yvXQbf4pNum4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DblCSFGMjMA54tHgEqET+L42H7q035O+ei8bAAc+ZNEgy1nl/3cvwZINLIzJuZJMl
-         xGkhKA2c+Ib/9hbdlURsKxm+NWV9uZ314QnOo8BsG8v33bv8oPhQyfwnjBUi/RtHT4
-         X1e5pES8Nic5J3kfne/BC+u1iXdj5KeNYFzHGyCI=
+        b=M6b1uFbtfVngQ7uyU1KkFJAqJO8New8VgJumSqFidUMX+aKipL9gtfq03uTgQT2v5
+         fS62WDe3Rk+Ag6ajw6azF7mS6CxlPMcvZOWtY3uwco/hEi/KFHCEoIS8Nm6ZICSPPp
+         8QM0lStdmudWNb3IPoWgN9SWemIQ1U61yhhtBbeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.10 01/23] x86/speculation: Make all RETbleed mitigations 64-bit only
-Date:   Tue,  9 Aug 2022 20:00:19 +0200
-Message-Id: <20220809175512.910488320@linuxfoundation.org>
+        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.19 29/32] ACPI: video: Shortening quirk list by identifying Clevo by board_name only
+Date:   Tue,  9 Aug 2022 20:00:20 +0200
+Message-Id: <20220809175513.999483881@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175512.853274191@linuxfoundation.org>
-References: <20220809175512.853274191@linuxfoundation.org>
+In-Reply-To: <20220809175513.082573955@linuxfoundation.org>
+References: <20220809175513.082573955@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,66 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Werner Sembach <wse@tuxedocomputers.com>
 
-commit b648ab487f31bc4c38941bc770ea97fe394304bb upstream.
+commit f0341e67b3782603737f7788e71bd3530012a4f4 upstream.
 
-The mitigations for RETBleed are currently ineffective on x86_32 since
-entry_32.S does not use the required macros.  However, for an x86_32
-target, the kconfig symbols for them are still enabled by default and
-/sys/devices/system/cpu/vulnerabilities/retbleed will wrongly report
-that mitigations are in place.
+Taking a recent change in the i8042 quirklist to this one: Clevo
+board_names are somewhat unique, and if not: The generic Board_-/Sys_Vendor
+string "Notebook" doesn't help much anyway. So identifying the devices just
+by the board_name helps keeping the list significantly shorter and might
+even hit more devices requiring the fix.
 
-Make all of these symbols depend on X86_64, and only enable RETHUNK by
-default on X86_64.
-
-Fixes: f43b9876e857 ("x86/retbleed: Add fine grained Kconfig knobs")
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YtwSR3NNsWp1ohfV@decadent.org.uk
-[bwh: Backported to 5.10/5.15/5.18: adjust context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Fixes: c844d22fe0c0 ("ACPI: video: Force backlight native for Clevo NL5xRU and NL5xNU")
+Cc: All applicable <stable@vger.kernel.org>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/Kconfig |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/acpi/video_detect.c |   34 ----------------------------------
+ 1 file changed, 34 deletions(-)
 
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -2447,7 +2447,7 @@ config RETPOLINE
- config RETHUNK
- 	bool "Enable return-thunks"
- 	depends on RETPOLINE && CC_HAS_RETURN_THUNK
--	default y
-+	default y if X86_64
- 	help
- 	  Compile the kernel with the return-thunks compiler option to guard
- 	  against kernel-to-user data leaks by avoiding return speculation.
-@@ -2456,21 +2456,21 @@ config RETHUNK
- 
- config CPU_UNRET_ENTRY
- 	bool "Enable UNRET on kernel entry"
--	depends on CPU_SUP_AMD && RETHUNK
-+	depends on CPU_SUP_AMD && RETHUNK && X86_64
- 	default y
- 	help
- 	  Compile the kernel with support for the retbleed=unret mitigation.
- 
- config CPU_IBPB_ENTRY
- 	bool "Enable IBPB on kernel entry"
--	depends on CPU_SUP_AMD
-+	depends on CPU_SUP_AMD && X86_64
- 	default y
- 	help
- 	  Compile the kernel with support for the retbleed=ibpb mitigation.
- 
- config CPU_IBRS_ENTRY
- 	bool "Enable IBRS on kernel entry"
--	depends on CPU_SUP_INTEL
-+	depends on CPU_SUP_INTEL && X86_64
- 	default y
- 	help
- 	  Compile the kernel with support for the spectre_v2=ibrs mitigation.
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -371,23 +371,6 @@ static const struct dmi_system_id video_
+ 	.callback = video_detect_force_native,
+ 	.ident = "Clevo NL5xRU",
+ 	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
+-		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
+-		},
+-	},
+-	{
+-	.callback = video_detect_force_native,
+-	.ident = "Clevo NL5xRU",
+-	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
+-		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
+-		},
+-	},
+-	{
+-	.callback = video_detect_force_native,
+-	.ident = "Clevo NL5xRU",
+-	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
+ 		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
+ 		},
+ 	},
+@@ -411,23 +394,6 @@ static const struct dmi_system_id video_
+ 	.callback = video_detect_force_native,
+ 	.ident = "Clevo NL5xNU",
+ 	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
+-		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
+-		},
+-	},
+-	{
+-	.callback = video_detect_force_native,
+-	.ident = "Clevo NL5xNU",
+-	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
+-		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
+-		},
+-	},
+-	{
+-	.callback = video_detect_force_native,
+-	.ident = "Clevo NL5xNU",
+-	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
+ 		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
+ 		},
+ 	},
 
 
