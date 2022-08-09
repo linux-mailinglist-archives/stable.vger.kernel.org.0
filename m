@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF44658DE4A
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:13:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF4D258DE7E
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:19:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343935AbiHISNE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:13:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58420 "EHLO
+        id S1345481AbiHISS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:18:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343605AbiHISM0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:12:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB3322714B;
-        Tue,  9 Aug 2022 11:05:27 -0700 (PDT)
+        with ESMTP id S1346576AbiHISRK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:17:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 191E927FD2;
+        Tue,  9 Aug 2022 11:06:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF11E61197;
-        Tue,  9 Aug 2022 18:05:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 575ACC433D6;
-        Tue,  9 Aug 2022 18:05:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3512EB817C2;
+        Tue,  9 Aug 2022 18:06:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A981C433D7;
+        Tue,  9 Aug 2022 18:06:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068319;
-        bh=07XILznEZOuoja2cV7Gdt4pByEIi41K1htggnTTPuIY=;
+        s=korg; t=1660068373;
+        bh=Taysnb1prxfCv9T/91n/QGNd8Cyr03FyNjTTbZNsz2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=la4+KLKdo7q6vNYa+aUM7i1ZPsXWhW0fR2rIGX5mD0YtTsb6xImU4pKDXZiKw1xd9
-         fmnBPPSMMJqW6WcVQ1ARalHzQmSG6qlCxjQLKKe47eNdw6eSR4ZSuqx2UGw8ddpPCs
-         YYWw90O67X02K7+EoiKE0Nk98GlPXSKiGzMU8HSo=
+        b=eKCFs+93KJl+uiowDDnTTyoBW3QeO42ChJl9TEFiByIl8ERVLklMAMFSU4iRkURUD
+         77ekejkgZImv1bXUZ03alQnL7PrEJP6weM4/MJeWgwFq5E1Rxa3H1IPsPAllMVJ8OR
+         K/OoxhMgMpkjOP5JL41Ku+qwIOON5S3XodLokQd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hakan Jansson <hakan.jansson@infineon.com>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Linus Walleij <linus.walleij@linaro.org>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 5.15 20/30] Bluetooth: hci_bcm: Add DT compatible for CYW55572
-Date:   Tue,  9 Aug 2022 20:00:45 +0200
-Message-Id: <20220809175515.049047795@linuxfoundation.org>
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.15 21/30] dt-bindings: bluetooth: broadcom: Add BCM4349B1 DT binding
+Date:   Tue,  9 Aug 2022 20:00:46 +0200
+Message-Id: <20220809175515.081187045@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220809175514.276643253@linuxfoundation.org>
 References: <20220809175514.276643253@linuxfoundation.org>
@@ -54,29 +56,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hakan Jansson <hakan.jansson@infineon.com>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-commit f8cad62002a7699fd05a23b558b980b5a77defe0 upstream.
+commit 88b65887aa1b76cd8649a97824fb9904c1d79254 upstream.
 
-CYW55572 is a Wi-Fi + Bluetooth combo device from Infineon.
+The BCM4349B1, aka CYW/BCM89359, is a WiFi+BT chip and its Bluetooth
+portion can be controlled over serial.
+Extend the binding with its DT compatible.
 
-Signed-off-by: Hakan Jansson <hakan.jansson@infineon.com>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/hci_bcm.c |    1 +
+ Documentation/devicetree/bindings/net/broadcom-bluetooth.yaml |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/bluetooth/hci_bcm.c
-+++ b/drivers/bluetooth/hci_bcm.c
-@@ -1518,6 +1518,7 @@ static const struct of_device_id bcm_blu
- 	{ .compatible = "brcm,bcm4349-bt", .data = &bcm43438_device_data },
- 	{ .compatible = "brcm,bcm43540-bt", .data = &bcm4354_device_data },
- 	{ .compatible = "brcm,bcm4335a0" },
-+	{ .compatible = "infineon,cyw55572-bt" },
- 	{ },
- };
- MODULE_DEVICE_TABLE(of, bcm_bluetooth_of_match);
+--- a/Documentation/devicetree/bindings/net/broadcom-bluetooth.yaml
++++ b/Documentation/devicetree/bindings/net/broadcom-bluetooth.yaml
+@@ -23,6 +23,7 @@ properties:
+       - brcm,bcm4345c5
+       - brcm,bcm43540-bt
+       - brcm,bcm4335a0
++      - brcm,bcm4349-bt
+ 
+   shutdown-gpios:
+     maxItems: 1
 
 
