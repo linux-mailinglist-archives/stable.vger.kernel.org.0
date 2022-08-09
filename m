@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C23BC58DE42
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:13:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3E358DDFD
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:08:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345402AbiHISMz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:12:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57330 "EHLO
+        id S237621AbiHISIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:08:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345304AbiHISKr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:10:47 -0400
+        with ESMTP id S1344994AbiHISIK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:08:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 864512A429;
-        Tue,  9 Aug 2022 11:04:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 590E82613E;
+        Tue,  9 Aug 2022 11:03:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E73661070;
-        Tue,  9 Aug 2022 18:04:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BFEAC433D7;
-        Tue,  9 Aug 2022 18:04:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D223F61093;
+        Tue,  9 Aug 2022 18:03:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEEBFC433D7;
+        Tue,  9 Aug 2022 18:03:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068255;
-        bh=aS6kC7/UR/+s4cEQ6IbqOtahiGkvu5P7CX0AzJ/IWIM=;
+        s=korg; t=1660068206;
+        bh=YBvfBbszxwM2YDmgbdZdi1jQjeZ8yxndTPd1WQuhB0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4Dq/Fv/FA/36WfBT0+Zm0Dlz7o3Oa0B95jUoBeEO/wYGjzsJn2y8uSo42YhzOeXo
-         tCf5w4rfG8rI1albAn1ZxKBEw1soUcp3iOl3VG3bibi3Jmr2ZUsYGFsUKdv6lmb8iV
-         CHaZFuLMMc8u24rgym2x6ZlKTbg4Hj8v9N2jg9r0=
+        b=Xb8zW8XwVo+33TuKiGM5EnaCEojrjDi3AJ1QoUnmYFMy8KM9tc7JpvA8gHAuOdC+J
+         ek6JdUt6ApLvxYY7Ok7j/O3K6gXUQ+rc3J1/k6I9lqhkD5uGYNvJy1+7ssnUCXrwIC
+         pSMk3vL0X0YnLhBraZS9qOA85o6/6/pkC7+MNFQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 09/23] ACPI: APEI: Better fix to avoid spamming the console with old error logs
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 09/15] selftests/bpf: Fix "dubious pointer arithmetic" test
 Date:   Tue,  9 Aug 2022 20:00:27 +0200
-Message-Id: <20220809175513.207066218@linuxfoundation.org>
+Message-Id: <20220809175510.632483620@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175512.853274191@linuxfoundation.org>
-References: <20220809175512.853274191@linuxfoundation.org>
+In-Reply-To: <20220809175510.312431319@linuxfoundation.org>
+References: <20220809175510.312431319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,105 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
 
-commit c3481b6b75b4797657838f44028fd28226ab48e0 upstream.
+commit 3615bdf6d9b19db12b1589861609b4f1c6a8d303 upstream.
 
-The fix in commit 3f8dec116210 ("ACPI/APEI: Limit printable size of BERT
-table data") does not work as intended on systems where the BIOS has a
-fixed size block of memory for the BERT table, relying on s/w to quit
-when it finds a record with estatus->block_status == 0. On these systems
-all errors are suppressed because the check:
+The verifier trace changed following a bugfix. After checking the 64-bit
+sign, only the upper bit mask is known, not bit 31. Update the test
+accordingly.
 
-	if (region_len < ACPI_BERT_PRINT_MAX_LEN)
-
-always fails.
-
-New scheme skips individual CPER records that are too large, and also
-limits the total number of records that will be printed to 5.
-
-Fixes: 3f8dec116210 ("ACPI/APEI: Limit printable size of BERT table data")
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/apei/bert.c |   31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ tools/testing/selftests/bpf/test_align.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/acpi/apei/bert.c
-+++ b/drivers/acpi/apei/bert.c
-@@ -29,16 +29,26 @@
- 
- #undef pr_fmt
- #define pr_fmt(fmt) "BERT: " fmt
-+
-+#define ACPI_BERT_PRINT_MAX_RECORDS 5
- #define ACPI_BERT_PRINT_MAX_LEN 1024
- 
- static int bert_disable;
- 
-+/*
-+ * Print "all" the error records in the BERT table, but avoid huge spam to
-+ * the console if the BIOS included oversize records, or too many records.
-+ * Skipping some records here does not lose anything because the full
-+ * data is available to user tools in:
-+ *	/sys/firmware/acpi/tables/data/BERT
-+ */
- static void __init bert_print_all(struct acpi_bert_region *region,
- 				  unsigned int region_len)
- {
- 	struct acpi_hest_generic_status *estatus =
- 		(struct acpi_hest_generic_status *)region;
- 	int remain = region_len;
-+	int printed = 0, skipped = 0;
- 	u32 estatus_len;
- 
- 	while (remain >= sizeof(struct acpi_bert_region)) {
-@@ -46,24 +56,26 @@ static void __init bert_print_all(struct
- 		if (remain < estatus_len) {
- 			pr_err(FW_BUG "Truncated status block (length: %u).\n",
- 			       estatus_len);
--			return;
-+			break;
+--- a/tools/testing/selftests/bpf/test_align.c
++++ b/tools/testing/selftests/bpf/test_align.c
+@@ -475,10 +475,10 @@ static struct bpf_align_test tests[] = {
+ 			 */
+ 			{7, "R5_w=inv(id=0,smin_value=-9223372036854775806,smax_value=9223372036854775806,umin_value=2,umax_value=18446744073709551614,var_off=(0x2; 0xfffffffffffffffc)"},
+ 			/* Checked s>=0 */
+-			{9, "R5=inv(id=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
++			{9, "R5=inv(id=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
+ 			/* packet pointer + nonnegative (4n+2) */
+-			{11, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
+-			{13, "R4_w=pkt(id=1,off=4,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
++			{11, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
++			{13, "R4_w=pkt(id=1,off=4,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
+ 			/* NET_IP_ALIGN + (4n+2) == (4n), alignment is fine.
+ 			 * We checked the bounds, but it might have been able
+ 			 * to overflow if the packet pointer started in the
+@@ -486,7 +486,7 @@ static struct bpf_align_test tests[] = {
+ 			 * So we did not get a 'range' on R6, and the access
+ 			 * attempt will fail.
+ 			 */
+-			{15, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
++			{15, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
  		}
- 
- 		/* No more error records. */
- 		if (!estatus->block_status)
--			return;
-+			break;
- 
- 		if (cper_estatus_check(estatus)) {
- 			pr_err(FW_BUG "Invalid error record.\n");
--			return;
-+			break;
- 		}
- 
--		pr_info_once("Error records from previous boot:\n");
--		if (region_len < ACPI_BERT_PRINT_MAX_LEN)
-+		if (estatus_len < ACPI_BERT_PRINT_MAX_LEN &&
-+		    printed < ACPI_BERT_PRINT_MAX_RECORDS) {
-+			pr_info_once("Error records from previous boot:\n");
- 			cper_estatus_print(KERN_INFO HW_ERR, estatus);
--		else
--			pr_info_once("Max print length exceeded, table data is available at:\n"
--				     "/sys/firmware/acpi/tables/data/BERT");
-+			printed++;
-+		} else {
-+			skipped++;
-+		}
- 
- 		/*
- 		 * Because the boot error source is "one-time polled" type,
-@@ -75,6 +87,9 @@ static void __init bert_print_all(struct
- 		estatus = (void *)estatus + estatus_len;
- 		remain -= estatus_len;
- 	}
-+
-+	if (skipped)
-+		pr_info(HW_ERR "Skipped %d error records\n", skipped);
- }
- 
- static int __init setup_bert_disable(char *str)
+ 	},
+ 	{
 
 
