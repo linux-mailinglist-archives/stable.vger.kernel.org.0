@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1C0758DE28
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:12:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E28758DE01
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:09:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345261AbiHISMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:12:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58306 "EHLO
+        id S1344994AbiHISI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:08:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345401AbiHISK5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:10:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 771C82A70E;
-        Tue,  9 Aug 2022 11:04:19 -0700 (PDT)
+        with ESMTP id S1345019AbiHISIT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:08:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 813482654A;
+        Tue,  9 Aug 2022 11:03:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 37DF06110F;
-        Tue,  9 Aug 2022 18:04:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4494FC433C1;
-        Tue,  9 Aug 2022 18:04:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3473961117;
+        Tue,  9 Aug 2022 18:03:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E346C43140;
+        Tue,  9 Aug 2022 18:03:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068258;
-        bh=jDWLxdfLb0UfgoWC21cxL2t9XM8NGIBroBhN1wxTcp4=;
+        s=korg; t=1660068209;
+        bh=LijSy99pzpSg1iIzbzqZJpsUfznU587YrJg1vozHGAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qOnzakVYKwONXl4VFhcEiugUeg0BwAyvgpo2gRXiJif49LtK5LkMED8HeqkQ0wdPZ
-         NGdrJT1BiGihbleWXa4HrQcStEiFyuAMIforvcinVA88x3IQG+p7zcpRpdicsw2dyf
-         nmERWi5/rHuk2pmCCPUdHebaHNTghk7AemFB2pdE=
+        b=Y2IFXe+wiLiLAG/FQ+SC8OGSHEq48QT5UfD9SjlcUUbdqhLZbb2UkWtLIaXlfXMZ4
+         7b0VTsWatDSG2/omx7w3qAh82QC5VBn05Pz8tO1frxZE3s37yJMiN4jsylYeriRTV/
+         X/ekL0ELDwUL6qRL2lwamaDreWOZehO0ei3VkOU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, GUO Zihua <guozihua@huawei.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Will Deacon <will@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.10 10/23] crypto: arm64/poly1305 - fix a read out-of-bound
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 10/15] KVM: Dont null dereference ops->destroy
 Date:   Tue,  9 Aug 2022 20:00:28 +0200
-Message-Id: <20220809175513.242413601@linuxfoundation.org>
+Message-Id: <20220809175510.664673759@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175512.853274191@linuxfoundation.org>
-References: <20220809175512.853274191@linuxfoundation.org>
+In-Reply-To: <20220809175510.312431319@linuxfoundation.org>
+References: <20220809175510.312431319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,125 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GUO Zihua <guozihua@huawei.com>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit 7ae19d422c7da84b5f13bc08b98bd737a08d3a53 upstream.
+[ Upstream commit e8bc2427018826e02add7b0ed0fc625a60390ae5 ]
 
-A kasan error was reported during fuzzing:
+A KVM device cleanup happens in either of two callbacks:
+1) destroy() which is called when the VM is being destroyed;
+2) release() which is called when a device fd is closed.
 
-BUG: KASAN: slab-out-of-bounds in neon_poly1305_blocks.constprop.0+0x1b4/0x250 [poly1305_neon]
-Read of size 4 at addr ffff0010e293f010 by task syz-executor.5/1646715
-CPU: 4 PID: 1646715 Comm: syz-executor.5 Kdump: loaded Not tainted 5.10.0.aarch64 #1
-Hardware name: Huawei TaiShan 2280 /BC11SPCD, BIOS 1.59 01/31/2019
-Call trace:
- dump_backtrace+0x0/0x394
- show_stack+0x34/0x4c arch/arm64/kernel/stacktrace.c:196
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x158/0x1e4 lib/dump_stack.c:118
- print_address_description.constprop.0+0x68/0x204 mm/kasan/report.c:387
- __kasan_report+0xe0/0x140 mm/kasan/report.c:547
- kasan_report+0x44/0xe0 mm/kasan/report.c:564
- check_memory_region_inline mm/kasan/generic.c:187 [inline]
- __asan_load4+0x94/0xd0 mm/kasan/generic.c:252
- neon_poly1305_blocks.constprop.0+0x1b4/0x250 [poly1305_neon]
- neon_poly1305_do_update+0x6c/0x15c [poly1305_neon]
- neon_poly1305_update+0x9c/0x1c4 [poly1305_neon]
- crypto_shash_update crypto/shash.c:131 [inline]
- shash_finup_unaligned+0x84/0x15c crypto/shash.c:179
- crypto_shash_finup+0x8c/0x140 crypto/shash.c:193
- shash_digest_unaligned+0xb8/0xe4 crypto/shash.c:201
- crypto_shash_digest+0xa4/0xfc crypto/shash.c:217
- crypto_shash_tfm_digest+0xb4/0x150 crypto/shash.c:229
- essiv_skcipher_setkey+0x164/0x200 [essiv]
- crypto_skcipher_setkey+0xb0/0x160 crypto/skcipher.c:612
- skcipher_setkey+0x3c/0x50 crypto/algif_skcipher.c:305
- alg_setkey+0x114/0x2a0 crypto/af_alg.c:220
- alg_setsockopt+0x19c/0x210 crypto/af_alg.c:253
- __sys_setsockopt+0x190/0x2e0 net/socket.c:2123
- __do_sys_setsockopt net/socket.c:2134 [inline]
- __se_sys_setsockopt net/socket.c:2131 [inline]
- __arm64_sys_setsockopt+0x78/0x94 net/socket.c:2131
- __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
- invoke_syscall+0x64/0x100 arch/arm64/kernel/syscall.c:48
- el0_svc_common.constprop.0+0x220/0x230 arch/arm64/kernel/syscall.c:155
- do_el0_svc+0xb4/0xd4 arch/arm64/kernel/syscall.c:217
- el0_svc+0x24/0x3c arch/arm64/kernel/entry-common.c:353
- el0_sync_handler+0x160/0x164 arch/arm64/kernel/entry-common.c:369
- el0_sync+0x160/0x180 arch/arm64/kernel/entry.S:683
+Most KVM devices use 1) but Book3s's interrupt controller KVM devices
+(XICS, XIVE, XIVE-native) use 2) as they need to close and reopen during
+the machine execution. The error handling in kvm_ioctl_create_device()
+assumes destroy() is always defined which leads to NULL dereference as
+discovered by Syzkaller.
 
-This error can be reproduced by the following code compiled as ko on a
-system with kasan enabled:
+This adds a checks for destroy!=NULL and adds a missing release().
 
-#include <linux/module.h>
-#include <linux/crypto.h>
-#include <crypto/hash.h>
-#include <crypto/poly1305.h>
+This is not changing kvm_destroy_devices() as devices with defined
+release() should have been removed from the KVM devices list by then.
 
-char test_data[] = "\x00\x01\x02\x03\x04\x05\x06\x07"
-                   "\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
-                   "\x10\x11\x12\x13\x14\x15\x16\x17"
-                   "\x18\x19\x1a\x1b\x1c\x1d\x1e";
-
-int init(void)
-{
-        struct crypto_shash *tfm = NULL;
-        char *data = NULL, *out = NULL;
-
-        tfm = crypto_alloc_shash("poly1305", 0, 0);
-        data = kmalloc(POLY1305_KEY_SIZE - 1, GFP_KERNEL);
-        out = kmalloc(POLY1305_DIGEST_SIZE, GFP_KERNEL);
-        memcpy(data, test_data, POLY1305_KEY_SIZE - 1);
-        crypto_shash_tfm_digest(tfm, data, POLY1305_KEY_SIZE - 1, out);
-
-        kfree(data);
-        kfree(out);
-        return 0;
-}
-
-void deinit(void)
-{
-}
-
-module_init(init)
-module_exit(deinit)
-MODULE_LICENSE("GPL");
-
-The root cause of the bug sits in neon_poly1305_blocks. The logic
-neon_poly1305_blocks() performed is that if it was called with both s[]
-and r[] uninitialized, it will first try to initialize them with the
-data from the first "block" that it believed to be 32 bytes in length.
-First 16 bytes are used as the key and the next 16 bytes for s[]. This
-would lead to the aforementioned read out-of-bound. However, after
-calling poly1305_init_arch(), only 16 bytes were deducted from the input
-and s[] is initialized yet again with the following 16 bytes. The second
-initialization of s[] is certainly redundent which indicates that the
-first initialization should be for r[] only.
-
-This patch fixes the issue by calling poly1305_init_arm64() instead of
-poly1305_init_arch(). This is also the implementation for the same
-algorithm on arm platform.
-
-Fixes: f569ca164751 ("crypto: arm64/poly1305 - incorporate OpenSSL/CRYPTOGAMS NEON implementation")
-Cc: stable@vger.kernel.org
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/crypto/poly1305-glue.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ virt/kvm/kvm_main.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/crypto/poly1305-glue.c
-+++ b/arch/arm64/crypto/poly1305-glue.c
-@@ -52,7 +52,7 @@ static void neon_poly1305_blocks(struct
- {
- 	if (unlikely(!dctx->sset)) {
- 		if (!dctx->rset) {
--			poly1305_init_arch(dctx, src);
-+			poly1305_init_arm64(&dctx->h, src);
- 			src += POLY1305_BLOCK_SIZE;
- 			len -= POLY1305_BLOCK_SIZE;
- 			dctx->rset = 1;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 287444e52ccf..4b445dddb798 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -3329,8 +3329,11 @@ static int kvm_ioctl_create_device(struct kvm *kvm,
+ 		kvm_put_kvm(kvm);
+ 		mutex_lock(&kvm->lock);
+ 		list_del(&dev->vm_node);
++		if (ops->release)
++			ops->release(dev);
+ 		mutex_unlock(&kvm->lock);
+-		ops->destroy(dev);
++		if (ops->destroy)
++			ops->destroy(dev);
+ 		return ret;
+ 	}
+ 
+-- 
+2.35.1
+
 
 
