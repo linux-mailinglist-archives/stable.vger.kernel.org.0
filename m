@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C16FB58DEAF
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:23:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 783E058DE97
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:19:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245712AbiHISW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:22:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51002 "EHLO
+        id S1345925AbiHISTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:19:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346206AbiHISU5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:20:57 -0400
+        with ESMTP id S1346489AbiHISRA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:17:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9486130F49;
-        Tue,  9 Aug 2022 11:07:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CE8927166;
+        Tue,  9 Aug 2022 11:06:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AE42B81913;
-        Tue,  9 Aug 2022 18:07:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83509C433D7;
-        Tue,  9 Aug 2022 18:07:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7565EB81897;
+        Tue,  9 Aug 2022 18:06:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C29CAC43470;
+        Tue,  9 Aug 2022 18:06:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068420;
-        bh=HTT+0szE6QFagNjHa5lguAMblNs0baFDZDBvsdoAhl8=;
+        s=korg; t=1660068370;
+        bh=Aj/qrZaVX0QhpzS2MUF/ANJF5hHr2wjbfHO7Xx3sWUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GeTcCw0O45ndAUa0yyl6UXUGSbEMqQb4o54HVG0+FpAh/8nFCwVCHtCrT/NLQIOfq
-         k+CmTqAU2E6McEPaKWEW0qUBQ7ftjYbwG0A/nhp5A1URYjvl3cju1gDivjmlCy3LhY
-         rvohSPvMnecMkkVjl3Y9y+C2V28J6NkQ8xXZUVQQ=
+        b=BybEbpQsBZjjybtY9mzzUXaemx7Dk6kLvwSFWROOS2nd98FG8D50m9Nzant9pSlJw
+         ulVaqB01M4hHrKbX7UaXtdao1nx/q7qU1/oFno9lLSRTG9oKHriG1G6aQ2l/9p8Tv3
+         G2jMKN3VA9N7sZJaeoz9HOmRBvi++4naVaUT9CEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hakan Jansson <hakan.jansson@infineon.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 5.18 25/35] Bluetooth: hci_bcm: Add DT compatible for CYW55572
-Date:   Tue,  9 Aug 2022 20:00:54 +0200
-Message-Id: <20220809175515.983312516@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Daniel Sneddon <daniel.sneddon@linux.intel.com>
+Subject: [PATCH 5.15 30/30] x86/speculation: Add LFENCE to RSB fill sequence
+Date:   Tue,  9 Aug 2022 20:00:55 +0200
+Message-Id: <20220809175515.409415857@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175515.046484486@linuxfoundation.org>
-References: <20220809175515.046484486@linuxfoundation.org>
+In-Reply-To: <20220809175514.276643253@linuxfoundation.org>
+References: <20220809175514.276643253@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,29 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hakan Jansson <hakan.jansson@infineon.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit f8cad62002a7699fd05a23b558b980b5a77defe0 upstream.
+commit ba6e31af2be96c4d0536f2152ed6f7b6c11bca47 upstream.
 
-CYW55572 is a Wi-Fi + Bluetooth combo device from Infineon.
+RSB fill sequence does not have any protection for miss-prediction of
+conditional branch at the end of the sequence. CPU can speculatively
+execute code immediately after the sequence, while RSB filling hasn't
+completed yet.
 
-Signed-off-by: Hakan Jansson <hakan.jansson@infineon.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+  #define __FILL_RETURN_BUFFER(reg, nr, sp)       \
+          mov     $(nr/2), reg;                   \
+  771:                                            \
+          ANNOTATE_INTRA_FUNCTION_CALL;           \
+          call    772f;                           \
+  773:    /* speculation trap */                  \
+          UNWIND_HINT_EMPTY;                      \
+          pause;                                  \
+          lfence;                                 \
+          jmp     773b;                           \
+  772:                                            \
+          ANNOTATE_INTRA_FUNCTION_CALL;           \
+          call    774f;                           \
+  775:    /* speculation trap */                  \
+          UNWIND_HINT_EMPTY;                      \
+          pause;                                  \
+          lfence;                                 \
+          jmp     775b;                           \
+  774:                                            \
+          add     $(BITS_PER_LONG/8) * 2, sp;     \
+          dec     reg;                            \
+          jnz     771b;        <----- CPU can miss-predict here.
+
+Before RSB is filled, RETs that come in program order after this macro
+can be executed speculatively, making them vulnerable to RSB-based
+attacks.
+
+Mitigate it by adding an LFENCE after the conditional branch to prevent
+speculation while RSB is being filled.
+
+Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Daniel Sneddon <daniel.sneddon@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/hci_bcm.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/include/asm/nospec-branch.h |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/bluetooth/hci_bcm.c
-+++ b/drivers/bluetooth/hci_bcm.c
-@@ -1547,6 +1547,7 @@ static const struct of_device_id bcm_blu
- 	{ .compatible = "brcm,bcm4349-bt", .data = &bcm43438_device_data },
- 	{ .compatible = "brcm,bcm43540-bt", .data = &bcm4354_device_data },
- 	{ .compatible = "brcm,bcm4335a0" },
-+	{ .compatible = "infineon,cyw55572-bt" },
- 	{ },
- };
- MODULE_DEVICE_TABLE(of, bcm_bluetooth_of_match);
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -60,7 +60,9 @@
+ 774:						\
+ 	add	$(BITS_PER_LONG/8) * 2, sp;	\
+ 	dec	reg;				\
+-	jnz	771b;
++	jnz	771b;				\
++	/* barrier for jnz misprediction */	\
++	lfence;
+ 
+ #ifdef __ASSEMBLY__
+ 
 
 
