@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E92FE58DED4
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:24:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E444658DE45
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:13:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244994AbiHISYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:24:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54092 "EHLO
+        id S1343680AbiHISNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:13:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245720AbiHISWq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:22:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33DD732058;
-        Tue,  9 Aug 2022 11:08:48 -0700 (PDT)
+        with ESMTP id S245369AbiHISMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:12:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 248A12B27B;
+        Tue,  9 Aug 2022 11:05:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2EDC3B818C9;
-        Tue,  9 Aug 2022 18:07:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77044C433D7;
-        Tue,  9 Aug 2022 18:07:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D39661189;
+        Tue,  9 Aug 2022 18:05:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA022C433D7;
+        Tue,  9 Aug 2022 18:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068451;
-        bh=u9PreAMLfAZXPuhQcBjbpBtRZ/5+dZ+KdUmxs9Nagbk=;
+        s=korg; t=1660068314;
+        bh=vZ7Im04awsHRPqEbh22pLYuPaaUYojdqPrSXhw8iomo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wTTGWX0VU+cfqabt/vVcy48wvWLR2oV8DJorN+yrW2tBFtDplopKiocwUAdh3d/vu
-         3ACRM5UOszyKVIkqKv9FlITnoNTWUF36FvlwR2XlEfHSh6eWKTxGsDzdGqydG2bq7Q
-         C5IQrYH+fSFUDFsl3/RoZyZl+sW0Lohb3L/Luq34=
+        b=ct3SoKMqUi82/rylSHyW5ZdaQ583HduMl7yPGONiD/EdNNZx9GksZbFEmdUpV6NqH
+         jSWUEU3A/w1/dYcQwpaFI4NC8IhKMqoMgelPm8GhOWtm+iKxuSA+bCjjHcBE/VivAF
+         ZyOEeDnRVCcRzf2MIqeRMpOR/btHOYiNrQhQoBYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 14/35] KVM: x86: disable preemption around the call to kvm_arch_vcpu_{un|}blocking
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 18/30] btrfs: zoned: fix critical section of relocation inode writeback
 Date:   Tue,  9 Aug 2022 20:00:43 +0200
-Message-Id: <20220809175515.577225397@linuxfoundation.org>
+Message-Id: <20220809175514.969002576@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175515.046484486@linuxfoundation.org>
-References: <20220809175515.046484486@linuxfoundation.org>
+In-Reply-To: <20220809175514.276643253@linuxfoundation.org>
+References: <20220809175514.276643253@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-[ Upstream commit 18869f26df1a11ed11031dfb7392bc7d774062e8 ]
+commit 19ab78ca86981e0e1e73036fb73a508731a7c078 upstream.
 
-On SVM, if preemption happens right after the call to finish_rcuwait
-but before call to kvm_arch_vcpu_unblocking on SVM/AVIC, it itself
-will re-enable AVIC, and then we will try to re-enable it again
-in kvm_arch_vcpu_unblocking which will lead to a warning
-in __avic_vcpu_load.
+We use btrfs_zoned_data_reloc_{lock,unlock} to allow only one process to
+write out to the relocation inode. That critical section must include all
+the IO submission for the inode. However, flush_write_bio() in
+extent_writepages() is out of the critical section, causing an IO
+submission outside of the lock. This leads to an out of the order IO
+submission and fail the relocation process.
 
-The same problem can happen if the vCPU is preempted right after the call
-to kvm_arch_vcpu_blocking but before the call to prepare_to_rcuwait
-and in this case, we will end up with AVIC enabled during sleep -
-Ooops.
+Fix it by extending the critical section.
 
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20220606180829.102503-7-mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 35156d852762 ("btrfs: zoned: only allow one process to add pages to a relocation inode")
+CC: stable@vger.kernel.org # 5.16+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/kvm_main.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/btrfs/extent_io.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 24cb37d19c63..7f1d19689701 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -3327,9 +3327,11 @@ bool kvm_vcpu_block(struct kvm_vcpu *vcpu)
- 
- 	vcpu->stat.generic.blocking = 1;
- 
-+	preempt_disable();
- 	kvm_arch_vcpu_blocking(vcpu);
--
- 	prepare_to_rcuwait(wait);
-+	preempt_enable();
-+
- 	for (;;) {
- 		set_current_state(TASK_INTERRUPTIBLE);
- 
-@@ -3339,9 +3341,11 @@ bool kvm_vcpu_block(struct kvm_vcpu *vcpu)
- 		waited = true;
- 		schedule();
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -5152,13 +5152,14 @@ int extent_writepages(struct address_spa
+ 	 */
+ 	btrfs_zoned_data_reloc_lock(BTRFS_I(inode));
+ 	ret = extent_write_cache_pages(mapping, wbc, &epd);
+-	btrfs_zoned_data_reloc_unlock(BTRFS_I(inode));
+ 	ASSERT(ret <= 0);
+ 	if (ret < 0) {
++		btrfs_zoned_data_reloc_unlock(BTRFS_I(inode));
+ 		end_write_bio(&epd, ret);
+ 		return ret;
  	}
--	finish_rcuwait(wait);
+ 	ret = flush_write_bio(&epd);
++	btrfs_zoned_data_reloc_unlock(BTRFS_I(inode));
+ 	return ret;
+ }
  
-+	preempt_disable();
-+	finish_rcuwait(wait);
- 	kvm_arch_vcpu_unblocking(vcpu);
-+	preempt_enable();
- 
- 	vcpu->stat.generic.blocking = 0;
- 
--- 
-2.35.1
-
 
 
