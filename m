@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D3E358DDFD
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:08:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E79E058DE2E
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:12:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237621AbiHISIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:08:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42664 "EHLO
+        id S1345297AbiHISMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:12:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344994AbiHISIK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:08:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 590E82613E;
-        Tue,  9 Aug 2022 11:03:27 -0700 (PDT)
+        with ESMTP id S1345798AbiHISLp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:11:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A2982AE3C;
+        Tue,  9 Aug 2022 11:04:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D223F61093;
-        Tue,  9 Aug 2022 18:03:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEEBFC433D7;
-        Tue,  9 Aug 2022 18:03:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91FE96109E;
+        Tue,  9 Aug 2022 18:04:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 984A1C433C1;
+        Tue,  9 Aug 2022 18:04:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068206;
-        bh=YBvfBbszxwM2YDmgbdZdi1jQjeZ8yxndTPd1WQuhB0o=;
+        s=korg; t=1660068295;
+        bh=eTqp+mS2QGd6/HOEequo25/mWWN1lPw0MY+Bc27lKjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xb8zW8XwVo+33TuKiGM5EnaCEojrjDi3AJ1QoUnmYFMy8KM9tc7JpvA8gHAuOdC+J
-         ek6JdUt6ApLvxYY7Ok7j/O3K6gXUQ+rc3J1/k6I9lqhkD5uGYNvJy1+7ssnUCXrwIC
-         pSMk3vL0X0YnLhBraZS9qOA85o6/6/pkC7+MNFQg=
+        b=xzuhbOllUMf+3TfGvj3qsbjSCcjsFmszE2J/Qh5aY0WpwX/ooF6dnViKXA2wxVmEO
+         IJJ+fZZerFZcyHdpNOvoVYjmejLWzepNsmf2EMqxYygN8uRKcJqJmCCqqirk5rnqs1
+         MVRz+qbjV6XTt0ajc9tbC6KocaBSLBgg9HrmXMGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>,
         Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 09/15] selftests/bpf: Fix "dubious pointer arithmetic" test
-Date:   Tue,  9 Aug 2022 20:00:27 +0200
-Message-Id: <20220809175510.632483620@linuxfoundation.org>
+Subject: [PATCH 5.15 03/30] selftests/bpf: Check dst_port only on the client socket
+Date:   Tue,  9 Aug 2022 20:00:28 +0200
+Message-Id: <20220809175514.383072069@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175510.312431319@linuxfoundation.org>
-References: <20220809175510.312431319@linuxfoundation.org>
+In-Reply-To: <20220809175514.276643253@linuxfoundation.org>
+References: <20220809175514.276643253@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-commit 3615bdf6d9b19db12b1589861609b4f1c6a8d303 upstream.
+commit 2d2202ba858c112b03f84d546e260c61425831a1 upstream.
 
-The verifier trace changed following a bugfix. After checking the 64-bit
-sign, only the upper bit mask is known, not bit 31. Update the test
-accordingly.
+cgroup_skb/egress programs which sock_fields test installs process packets
+flying in both directions, from the client to the server, and in reverse
+direction.
 
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Recently added dst_port check relies on the fact that destination
+port (remote peer port) of the socket which sends the packet is known ahead
+of time. This holds true only for the client socket, which connects to the
+known server port.
+
+Filter out any traffic that is not egressing from the client socket in the
+BPF program that tests reading the dst_port.
+
+Fixes: 8f50f16ff39d ("selftests/bpf: Extend verifier and bpf_sock tests for dst_port loads")
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20220317113920.1068535-3-jakub@cloudflare.com
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/test_align.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/testing/selftests/bpf/progs/test_sock_fields.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/tools/testing/selftests/bpf/test_align.c
-+++ b/tools/testing/selftests/bpf/test_align.c
-@@ -475,10 +475,10 @@ static struct bpf_align_test tests[] = {
- 			 */
- 			{7, "R5_w=inv(id=0,smin_value=-9223372036854775806,smax_value=9223372036854775806,umin_value=2,umax_value=18446744073709551614,var_off=(0x2; 0xfffffffffffffffc)"},
- 			/* Checked s>=0 */
--			{9, "R5=inv(id=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
-+			{9, "R5=inv(id=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
- 			/* packet pointer + nonnegative (4n+2) */
--			{11, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
--			{13, "R4_w=pkt(id=1,off=4,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
-+			{11, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
-+			{13, "R4_w=pkt(id=1,off=4,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
- 			/* NET_IP_ALIGN + (4n+2) == (4n), alignment is fine.
- 			 * We checked the bounds, but it might have been able
- 			 * to overflow if the packet pointer started in the
-@@ -486,7 +486,7 @@ static struct bpf_align_test tests[] = {
- 			 * So we did not get a 'range' on R6, and the access
- 			 * attempt will fail.
- 			 */
--			{15, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
-+			{15, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
- 		}
- 	},
- 	{
+--- a/tools/testing/selftests/bpf/progs/test_sock_fields.c
++++ b/tools/testing/selftests/bpf/progs/test_sock_fields.c
+@@ -281,6 +281,10 @@ int read_sk_dst_port(struct __sk_buff *s
+ 	if (!sk)
+ 		RET_LOG();
+ 
++	/* Ignore everything but the SYN from the client socket */
++	if (sk->state != BPF_TCP_SYN_SENT)
++		return CG_OK;
++
+ 	if (!sk_dst_port__load_word(sk))
+ 		RET_LOG();
+ 	if (!sk_dst_port__load_half(sk))
 
 
