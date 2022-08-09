@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A6558DE98
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:19:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4134758DE1D
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:12:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345946AbiHISTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:19:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41916 "EHLO
+        id S1344643AbiHISM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:12:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347002AbiHISSN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:18:13 -0400
+        with ESMTP id S1345618AbiHISLW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:11:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54EF32F02E;
-        Tue,  9 Aug 2022 11:07:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4D1927B04;
+        Tue,  9 Aug 2022 11:04:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0C9DB818C2;
-        Tue,  9 Aug 2022 18:06:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA8F9C433C1;
-        Tue,  9 Aug 2022 18:06:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C340FB817BF;
+        Tue,  9 Aug 2022 18:04:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E10D1C43140;
+        Tue,  9 Aug 2022 18:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068398;
-        bh=aGyKQPkfCYyDbbGaZ0fkMiRh36HetKAwNQbREqd4pEQ=;
+        s=korg; t=1660068275;
+        bh=J+es1R0tmHFrd3LGUS5CJCAMMjcFDc+TrglxdGgC9iQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XAeiId7xSLOZWRBadoyutw8twlV35K4+cBEddEm3wxDUyJQu1O3eDS8pJZtpuBG5Q
-         J/FR7jAk2dM543SeBV/iY548nzWP5Yhhs3WgB1IaMZ8wGebUzjjec10Q5jEkhRiNmO
-         2EksnTNxVBYsIzHOBoHA5YEVhM5K5nbbcPfeKDaE=
+        b=U4wLHsxxNwYT78zlIIWZrZZj3FT438zURUDqXOX8l42bPrLZq2zu9vf1PtObPReFn
+         ILWn0+yKvNEynttbckbcwlOUf336ofYze7Rf8JGkn811HJ5Oq9fiEr6WvqBT3DTVdG
+         Fu3a55tCQNBr5pQCivaey28rNeT4a9hiOiFO482U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.18 05/35] ACPI: video: Shortening quirk list by identifying Clevo by board_name only
+        stable@vger.kernel.org, Hilda Wu <hildawu@realtek.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 5.10 16/23] Bluetooth: btusb: Add Realtek RTL8852C support ID 0x04CA:0x4007
 Date:   Tue,  9 Aug 2022 20:00:34 +0200
-Message-Id: <20220809175515.270042778@linuxfoundation.org>
+Message-Id: <20220809175513.430922798@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175515.046484486@linuxfoundation.org>
-References: <20220809175515.046484486@linuxfoundation.org>
+In-Reply-To: <20220809175512.853274191@linuxfoundation.org>
+References: <20220809175512.853274191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Hilda Wu <hildawu@realtek.com>
 
-commit f0341e67b3782603737f7788e71bd3530012a4f4 upstream.
+commit c379c96cc221767af9688a5d4758a78eea30883a upstream.
 
-Taking a recent change in the i8042 quirklist to this one: Clevo
-board_names are somewhat unique, and if not: The generic Board_-/Sys_Vendor
-string "Notebook" doesn't help much anyway. So identifying the devices just
-by the board_name helps keeping the list significantly shorter and might
-even hit more devices requiring the fix.
+Add the support ID(0x04CA, 0x4007) to usb_device_id table for
+Realtek RTL8852C.
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Fixes: c844d22fe0c0 ("ACPI: video: Force backlight native for Clevo NL5xRU and NL5xNU")
-Cc: All applicable <stable@vger.kernel.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The device info from /sys/kernel/debug/usb/devices as below.
+
+T:  Bus=03 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=04ca ProdID=4007 Rev= 0.00
+S:  Manufacturer=Realtek
+S:  Product=Bluetooth Radio
+S:  SerialNumber=00e04c000001
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+
+Signed-off-by: Hilda Wu <hildawu@realtek.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/video_detect.c |   34 ----------------------------------
- 1 file changed, 34 deletions(-)
+ drivers/bluetooth/btusb.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -430,23 +430,6 @@ static const struct dmi_system_id video_
- 	.callback = video_detect_force_native,
- 	.ident = "Clevo NL5xRU",
- 	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
--		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
--		},
--	},
--	{
--	.callback = video_detect_force_native,
--	.ident = "Clevo NL5xRU",
--	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
--		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
--		},
--	},
--	{
--	.callback = video_detect_force_native,
--	.ident = "Clevo NL5xRU",
--	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
- 		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
- 		},
- 	},
-@@ -470,23 +453,6 @@ static const struct dmi_system_id video_
- 	.callback = video_detect_force_native,
- 	.ident = "Clevo NL5xNU",
- 	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
--		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
--		},
--	},
--	{
--	.callback = video_detect_force_native,
--	.ident = "Clevo NL5xNU",
--	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
--		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
--		},
--	},
--	{
--	.callback = video_detect_force_native,
--	.ident = "Clevo NL5xNU",
--	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
- 		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
- 		},
- 	},
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -399,6 +399,10 @@ static const struct usb_device_id blackl
+ 	{ USB_DEVICE(0x0bda, 0xc822), .driver_info = BTUSB_REALTEK |
+ 						     BTUSB_WIDEBAND_SPEECH },
+ 
++	/* Realtek 8852CE Bluetooth devices */
++	{ USB_DEVICE(0x04ca, 0x4007), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
++
+ 	/* Realtek Bluetooth devices */
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(0x0bda, 0xe0, 0x01, 0x01),
+ 	  .driver_info = BTUSB_REALTEK },
 
 
