@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C80C58DF0C
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:30:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B835158DEDB
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345267AbiHISaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:30:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38292 "EHLO
+        id S1344685AbiHISZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:25:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344078AbiHIS3I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:29:08 -0400
+        with ESMTP id S1343984AbiHISYR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:24:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7C11E0DB;
-        Tue,  9 Aug 2022 11:10:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 346B2326E4;
+        Tue,  9 Aug 2022 11:08:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 563DAB81A28;
-        Tue,  9 Aug 2022 18:08:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2BD6C433D7;
-        Tue,  9 Aug 2022 18:08:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FA7FB818A6;
+        Tue,  9 Aug 2022 18:07:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA708C433B5;
+        Tue,  9 Aug 2022 18:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068493;
-        bh=/r/vSlJypZ8OUr7CvbZM/sbsoGVTzCnQS+HjWsLDgjY=;
+        s=korg; t=1660068457;
+        bh=7Ho4AkDkIrwPpDOrcmHB2PFQcaeUG0/d0k5VAxr7MrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rBfgcNoa3iQFeT7mPOhhuP+QbxJiFw1dHazNTflclnbQZTIwFIQ5T8pzqRBz1JSwv
-         rOisqjkWB3xQ/AVAeVZX1tEpbWy/khL5iz3ZszTrVFe5hUSy/EgJ7ZDKpdv/BNKIN1
-         lLQ9czxz+kFJMnwN/pXXFe0zxvonl/pqUH48FLts=
+        b=D4d88PkHS+c5NexDJalSLIcRKD/3BgXcsZYnN1X0CsrodptFSNn0wNzzDZ3uioyNv
+         AhJ1aRL3/zuhx0EkCtnGSaiE24nNEaIhIzoZggqOR85BhhV3VcSkyUZ1k0tO5/NJTQ
+         YlZqjxqJRA7NusfmuX1H2fyGiTeg9Oo+5gSmHdog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.19 07/21] ata: sata_mv: Fixes expected number of resources now IRQs are gone
+        stable@vger.kernel.org, Hilda Wu <hildawu@realtek.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 5.18 30/35] Bluetooth: btusb: Add Realtek RTL8852C support ID 0x0CB8:0xC558
 Date:   Tue,  9 Aug 2022 20:00:59 +0200
-Message-Id: <20220809175513.573942177@linuxfoundation.org>
+Message-Id: <20220809175516.181509561@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175513.345597655@linuxfoundation.org>
-References: <20220809175513.345597655@linuxfoundation.org>
+In-Reply-To: <20220809175515.046484486@linuxfoundation.org>
+References: <20220809175515.046484486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Lunn <andrew@lunn.ch>
+From: Hilda Wu <hildawu@realtek.com>
 
-commit b3b2bec9646eb1d3f43c85f6d0d2211d6f8af42b upstream.
+commit 5b75ee37ebb73f58468d4cca172434324af203f1 upstream.
 
-The commit a1a2b7125e10 ("of/platform: Drop static setup of IRQ
-resource from DT core") stopped IRQ resources being available as
-platform resources. This broke the sanity check for the expected
-number of resources in the Marvell SATA driver which expected two
-resources, the IO memory and the interrupt.
+Add the support ID(0x0CB8, 0xC558) to usb_device_id table for
+Realtek RTL8852C.
 
-Change the sanity check to only expect the IO memory.
+The device info from /sys/kernel/debug/usb/devices as below.
 
-Cc: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Fixes: a1a2b7125e10 ("of/platform: Drop static setup of IRQ resource from DT core")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+T:  Bus=03 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=0cb8 ProdID=c558 Rev= 0.00
+S:  Manufacturer=Realtek
+S:  Product=Bluetooth Radio
+S:  SerialNumber=00e04c000001
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+
+Signed-off-by: Hilda Wu <hildawu@realtek.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/sata_mv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bluetooth/btusb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/ata/sata_mv.c
-+++ b/drivers/ata/sata_mv.c
-@@ -4057,7 +4057,7 @@ static int mv_platform_probe(struct plat
- 	/*
- 	 * Simple resource validation ..
- 	 */
--	if (unlikely(pdev->num_resources != 2)) {
-+	if (unlikely(pdev->num_resources != 1)) {
- 		dev_err(&pdev->dev, "invalid number of resources\n");
- 		return -EINVAL;
- 	}
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -427,6 +427,8 @@ static const struct usb_device_id blackl
+ 						     BTUSB_WIDEBAND_SPEECH },
+ 	{ USB_DEVICE(0x04c5, 0x1675), .driver_info = BTUSB_REALTEK |
+ 						     BTUSB_WIDEBAND_SPEECH },
++	{ USB_DEVICE(0x0cb8, 0xc558), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
+ 
+ 	/* Realtek Bluetooth devices */
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(0x0bda, 0xe0, 0x01, 0x01),
 
 
