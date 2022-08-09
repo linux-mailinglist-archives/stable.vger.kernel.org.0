@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A39158DE64
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:14:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF67F58DE8A
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:19:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345650AbiHISOs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:14:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57852 "EHLO
+        id S1345801AbiHISTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:19:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343688AbiHISNB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:13:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 940072BB25;
-        Tue,  9 Aug 2022 11:05:35 -0700 (PDT)
+        with ESMTP id S1347049AbiHISSU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:18:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7860E2F3A2;
+        Tue,  9 Aug 2022 11:07:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B91A66113C;
-        Tue,  9 Aug 2022 18:05:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C065CC433D7;
-        Tue,  9 Aug 2022 18:05:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B20FB818EC;
+        Tue,  9 Aug 2022 18:06:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C282BC433D6;
+        Tue,  9 Aug 2022 18:06:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660068328;
-        bh=j3y7x8GsGU/kcL43icQAuSIg0dwz50tksU+02MZn9tY=;
+        s=korg; t=1660068401;
+        bh=aS6kC7/UR/+s4cEQ6IbqOtahiGkvu5P7CX0AzJ/IWIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wdwgQX4kdheDpCCADXseu4u8dcSGzEY907/FtCrySa+3r5Xxdhz+AI54IildPgU8K
-         Ixp70ORA3eKBfdwY0wauun61bkkyih0EPCuUeCFCkpyhbrAZ0pqPs8VQOqmfKzT+2I
-         l81HbAlbQ08xwaWYhbFlSoprhl/W9EW83FJcmfiU=
+        b=KQ9lv3fUflTGCqwLRYIHGDPsvsh2/dU3/hNfDvFWFfxVQC/uXYgj8mB8Lue/sjth1
+         a0rtm3zaqd2IEXnXyLpFoqa3wNISwZpSWbAX7tqZ4VcZbDXe6D+K6RtmukCad/jf2+
+         GoYm+2nALGdKKZ6E7sQsP5SOdHQdAuNmsLTyXlb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 10/30] KVM: x86: do not report a vCPU as preempted outside instruction boundaries
+        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.18 06/35] ACPI: APEI: Better fix to avoid spamming the console with old error logs
 Date:   Tue,  9 Aug 2022 20:00:35 +0200
-Message-Id: <20220809175514.673972015@linuxfoundation.org>
+Message-Id: <20220809175515.299942787@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220809175514.276643253@linuxfoundation.org>
-References: <20220809175514.276643253@linuxfoundation.org>
+In-Reply-To: <20220809175515.046484486@linuxfoundation.org>
+References: <20220809175515.046484486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,135 +53,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Tony Luck <tony.luck@intel.com>
 
-[ Upstream commit 6cd88243c7e03845a450795e134b488fc2afb736 ]
+commit c3481b6b75b4797657838f44028fd28226ab48e0 upstream.
 
-If a vCPU is outside guest mode and is scheduled out, it might be in the
-process of making a memory access.  A problem occurs if another vCPU uses
-the PV TLB flush feature during the period when the vCPU is scheduled
-out, and a virtual address has already been translated but has not yet
-been accessed, because this is equivalent to using a stale TLB entry.
+The fix in commit 3f8dec116210 ("ACPI/APEI: Limit printable size of BERT
+table data") does not work as intended on systems where the BIOS has a
+fixed size block of memory for the BERT table, relying on s/w to quit
+when it finds a record with estatus->block_status == 0. On these systems
+all errors are suppressed because the check:
 
-To avoid this, only report a vCPU as preempted if sure that the guest
-is at an instruction boundary.  A rescheduling request will be delivered
-to the host physical CPU as an external interrupt, so for simplicity
-consider any vmexit *not* instruction boundary except for external
-interrupts.
+	if (region_len < ACPI_BERT_PRINT_MAX_LEN)
 
-It would in principle be okay to report the vCPU as preempted also
-if it is sleeping in kvm_vcpu_block(): a TLB flush IPI will incur the
-vmentry/vmexit overhead unnecessarily, and optimistic spinning is
-also unlikely to succeed.  However, leave it for later because right
-now kvm_vcpu_check_block() is doing memory accesses.  Even
-though the TLB flush issue only applies to virtual memory address,
-it's very much preferrable to be conservative.
+always fails.
 
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+New scheme skips individual CPER records that are too large, and also
+limits the total number of records that will be printed to 5.
+
+Fixes: 3f8dec116210 ("ACPI/APEI: Limit printable size of BERT table data")
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/kvm_host.h |  3 +++
- arch/x86/kvm/svm/svm.c          |  2 ++
- arch/x86/kvm/vmx/vmx.c          |  1 +
- arch/x86/kvm/x86.c              | 22 ++++++++++++++++++++++
- 4 files changed, 28 insertions(+)
+ drivers/acpi/apei/bert.c |   31 +++++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 49d814b2a341..a35f5e23fc2a 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -642,6 +642,7 @@ struct kvm_vcpu_arch {
- 	u64 ia32_misc_enable_msr;
- 	u64 smbase;
- 	u64 smi_count;
-+	bool at_instruction_boundary;
- 	bool tpr_access_reporting;
- 	bool xsaves_enabled;
- 	u64 ia32_xss;
-@@ -1271,6 +1272,8 @@ struct kvm_vcpu_stat {
- 	u64 nested_run;
- 	u64 directed_yield_attempted;
- 	u64 directed_yield_successful;
-+	u64 preemption_reported;
-+	u64 preemption_other;
- 	u64 guest_mode;
- };
+--- a/drivers/acpi/apei/bert.c
++++ b/drivers/acpi/apei/bert.c
+@@ -29,16 +29,26 @@
  
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 26f2da1590ed..5b51156712f7 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -4263,6 +4263,8 @@ static int svm_check_intercept(struct kvm_vcpu *vcpu,
- 
- static void svm_handle_exit_irqoff(struct kvm_vcpu *vcpu)
- {
-+	if (to_svm(vcpu)->vmcb->control.exit_code == SVM_EXIT_INTR)
-+		vcpu->arch.at_instruction_boundary = true;
- }
- 
- static void svm_sched_in(struct kvm_vcpu *vcpu, int cpu)
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index a236104fc743..359292767e17 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6471,6 +6471,7 @@ static void handle_external_interrupt_irqoff(struct kvm_vcpu *vcpu)
- 		return;
- 
- 	handle_interrupt_nmi_irqoff(vcpu, gate_offset(desc));
-+	vcpu->arch.at_instruction_boundary = true;
- }
- 
- static void vmx_handle_exit_irqoff(struct kvm_vcpu *vcpu)
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index bd410926fda5..b2436796e03c 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -277,6 +277,8 @@ const struct _kvm_stats_desc kvm_vcpu_stats_desc[] = {
- 	STATS_DESC_COUNTER(VCPU, nested_run),
- 	STATS_DESC_COUNTER(VCPU, directed_yield_attempted),
- 	STATS_DESC_COUNTER(VCPU, directed_yield_successful),
-+	STATS_DESC_COUNTER(VCPU, preemption_reported),
-+	STATS_DESC_COUNTER(VCPU, preemption_other),
- 	STATS_DESC_ICOUNTER(VCPU, guest_mode)
- };
- 
-@@ -4371,6 +4373,19 @@ static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
- 	struct kvm_memslots *slots;
- 	static const u8 preempted = KVM_VCPU_PREEMPTED;
- 
-+	/*
-+	 * The vCPU can be marked preempted if and only if the VM-Exit was on
-+	 * an instruction boundary and will not trigger guest emulation of any
-+	 * kind (see vcpu_run).  Vendor specific code controls (conservatively)
-+	 * when this is true, for example allowing the vCPU to be marked
-+	 * preempted if and only if the VM-Exit was due to a host interrupt.
-+	 */
-+	if (!vcpu->arch.at_instruction_boundary) {
-+		vcpu->stat.preemption_other++;
-+		return;
-+	}
+ #undef pr_fmt
+ #define pr_fmt(fmt) "BERT: " fmt
 +
-+	vcpu->stat.preemption_reported++;
- 	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
- 		return;
++#define ACPI_BERT_PRINT_MAX_RECORDS 5
+ #define ACPI_BERT_PRINT_MAX_LEN 1024
  
-@@ -9934,6 +9949,13 @@ static int vcpu_run(struct kvm_vcpu *vcpu)
- 	vcpu->arch.l1tf_flush_l1d = true;
+ static int bert_disable;
  
- 	for (;;) {
-+		/*
-+		 * If another guest vCPU requests a PV TLB flush in the middle
-+		 * of instruction emulation, the rest of the emulation could
-+		 * use a stale page translation. Assume that any code after
-+		 * this point can start executing an instruction.
-+		 */
-+		vcpu->arch.at_instruction_boundary = false;
- 		if (kvm_vcpu_running(vcpu)) {
- 			r = vcpu_enter_guest(vcpu);
- 		} else {
--- 
-2.35.1
-
++/*
++ * Print "all" the error records in the BERT table, but avoid huge spam to
++ * the console if the BIOS included oversize records, or too many records.
++ * Skipping some records here does not lose anything because the full
++ * data is available to user tools in:
++ *	/sys/firmware/acpi/tables/data/BERT
++ */
+ static void __init bert_print_all(struct acpi_bert_region *region,
+ 				  unsigned int region_len)
+ {
+ 	struct acpi_hest_generic_status *estatus =
+ 		(struct acpi_hest_generic_status *)region;
+ 	int remain = region_len;
++	int printed = 0, skipped = 0;
+ 	u32 estatus_len;
+ 
+ 	while (remain >= sizeof(struct acpi_bert_region)) {
+@@ -46,24 +56,26 @@ static void __init bert_print_all(struct
+ 		if (remain < estatus_len) {
+ 			pr_err(FW_BUG "Truncated status block (length: %u).\n",
+ 			       estatus_len);
+-			return;
++			break;
+ 		}
+ 
+ 		/* No more error records. */
+ 		if (!estatus->block_status)
+-			return;
++			break;
+ 
+ 		if (cper_estatus_check(estatus)) {
+ 			pr_err(FW_BUG "Invalid error record.\n");
+-			return;
++			break;
+ 		}
+ 
+-		pr_info_once("Error records from previous boot:\n");
+-		if (region_len < ACPI_BERT_PRINT_MAX_LEN)
++		if (estatus_len < ACPI_BERT_PRINT_MAX_LEN &&
++		    printed < ACPI_BERT_PRINT_MAX_RECORDS) {
++			pr_info_once("Error records from previous boot:\n");
+ 			cper_estatus_print(KERN_INFO HW_ERR, estatus);
+-		else
+-			pr_info_once("Max print length exceeded, table data is available at:\n"
+-				     "/sys/firmware/acpi/tables/data/BERT");
++			printed++;
++		} else {
++			skipped++;
++		}
+ 
+ 		/*
+ 		 * Because the boot error source is "one-time polled" type,
+@@ -75,6 +87,9 @@ static void __init bert_print_all(struct
+ 		estatus = (void *)estatus + estatus_len;
+ 		remain -= estatus_len;
+ 	}
++
++	if (skipped)
++		pr_info(HW_ERR "Skipped %d error records\n", skipped);
+ }
+ 
+ static int __init setup_bert_disable(char *str)
 
 
