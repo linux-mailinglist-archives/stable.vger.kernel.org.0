@@ -2,71 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEE1758DF20
-	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:33:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A67D658DF46
+	for <lists+stable@lfdr.de>; Tue,  9 Aug 2022 20:43:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344804AbiHISdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Aug 2022 14:33:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45392 "EHLO
+        id S1344408AbiHISnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Aug 2022 14:43:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347650AbiHIScu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:32:50 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C562AC59
-        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 11:11:43 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id j15so15214845wrr.2
-        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 11:11:42 -0700 (PDT)
+        with ESMTP id S245692AbiHISnA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Aug 2022 14:43:00 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EECF27FE6
+        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 11:18:40 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id z20so14251031edb.9
+        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 11:18:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc;
-        bh=OA5rxybRJg7FBgf7LcP36+eMhTBI9ViMllg0iTpVE1U=;
-        b=SqSKnyDHdAgOHQuINF02AaJ85ikEU0UhoXbIiaaa/2/Qn3OKfXZNE0rgBR2kEMrVlD
-         AyF2/TSeV6w3v6RfEnNZH/rsFNRFuGORnIZkooXu7eK8kgB8A5PbPKFFCpiWVBjWLr4P
-         NBYUbjBGWQ0urF7kbSjYa7rVdaPPFM8BdTlF+OI+yB/7Yjz/0X6I1mPzbeL/oYEcYAe4
-         XtU1YFpttwrntLChhmV9VOU+SUMTtIC5eyzcOBGHgRnFq1ib2WAILut44zzwPgWqx+g4
-         gUosOVhNqtAIGu7CJF0aC1f+2NfM9E7x9tmdYzPcDxtwWNcGWYjKMm1di3628JdvT/0m
-         kYig==
+         :message-id:date:subject:cc:to:from:from:to:cc;
+        bh=84/r2kjt0BJMekeYeQ77BY29KzxyLybs6RfEESK+qPI=;
+        b=J8+U8EA7SF5sCR6LUu2gmHOOndwyu68HjL4TE5JCsV2MQWoJOIU/7RJUQldtv9u7Iy
+         5alUWdmu/AQN/GXjTho9scPaTzSqjahNbZ57mYsYNQQCdg6042c+WyJB3dZF7tGsi60f
+         YKKxlt/6Zggh0JeJQsKkExDPQZrCdMOXdfTIgTO4h9SvEgByZ0HmJwfL+6NNOEviIg1y
+         mmdYFn0OLGlheeIoMs4yuP+L/nu4ei2mVpzoqCzanmt0S80QySlMgZBaK2kgyJHzcMtn
+         ant2AAenZ2n0r+zNllRTw160XVIxO4p4Ehl9wmQpEeVKOU32L8NNdWYvslJIJ+9gtWO+
+         ZR2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=OA5rxybRJg7FBgf7LcP36+eMhTBI9ViMllg0iTpVE1U=;
-        b=5kcSxlqE68hGrbcwoQcQLkw3vEVKKEYKWZ0Lx32g2Q5y3A4+v2gCCBTr0oTFNk3DWM
-         8W9jrjc8EoXvwkw140s5+bLArIkP0a3AJ2kkTi5Y8hG7vtKvXuRZWFgZEIpa5Rz+CJr1
-         a6WPNR6IOHwySKbbPOuPXD2salFWMt0Lh6AWeyS7GJWIBbhU7aQLKxCBLcyBJwejlkKA
-         48tOsiot9RgqAjE+GraK5QMh/4JRIgBhU7hXA/+cxKuaEvMC/x2+S3kQEicKfAUT2dwr
-         z6CdpBq+Q7tlgx3KoLaIZrhUvzndlSVH92XLekLorZLZChsc55CrTYPXVNfOfiq9i23D
-         cQwA==
-X-Gm-Message-State: ACgBeo3/nMh0RW7Vjxy+QbOcJB7CRaQSJSjJyon0yHnEvFlwQj+j2DID
-        Qyoe4laMY/+cQ7QG6ALc68LDOJNBYbHO3cRk
-X-Google-Smtp-Source: AA6agR6vnbD1A+vsI+ENBUzpnhSWi2++vwmooKAIs9TxHb37PIv0BB++vS506o+9jcFg2fxu3TkBew==
-X-Received: by 2002:a5d:48c8:0:b0:21e:5134:c78c with SMTP id p8-20020a5d48c8000000b0021e5134c78cmr14828323wrs.233.1660068701544;
-        Tue, 09 Aug 2022 11:11:41 -0700 (PDT)
-Received: from kraken (109-178-233-54.pat.ren.cosmote.net. [109.178.233.54])
-        by smtp.gmail.com with ESMTPSA id p1-20020a5d48c1000000b0021e6277bc50sm16900720wrs.36.2022.08.09.11.11.39
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
+        bh=84/r2kjt0BJMekeYeQ77BY29KzxyLybs6RfEESK+qPI=;
+        b=v3Ckup6/mJmcH95HU1RYDqkhlv2j59wMg2e9xvjmY+NFjTUB8YrFzDhGIqxQXTxB5M
+         7h9eEAkm6RCOVO0KYYti3nYose+QLqnXXM6IfIqGEWDdVysJ4U/6f0ETmXIkCR5eaEqV
+         9hFA7E43G82geDWCJaKWbzLXPz5VuwI61qF+XAyjsIY9n4UIBEm7e29jvEyTLUztWfRk
+         txwIDEFjiGDyY7GgNsQb70eLgtI9dWdX969Dx7Lq0s5R5ZunMJEHTtpN+A8xWqtWLbk6
+         d8PyPn6mtfhDYcH5NX9uMjfLlh5aJvZHSROfSCjPKAblSRvOzPgRwecFmQaKLNsPCQcC
+         1uaA==
+X-Gm-Message-State: ACgBeo1JVpere3tFd4MRUa4PblPHMfjvoW19KB9rdllpGXT/4NkXUk0x
+        cxEkQ13BIvZeLMflxBeI5Oo=
+X-Google-Smtp-Source: AA6agR5Wktfsx0DLag0YDckFSUsSp3LklAn4f+SH2tYvfFhK5qHOplVLQmBAvMMI3VWOlMrIrDVQ0A==
+X-Received: by 2002:a05:6402:34c3:b0:43d:d8d7:a328 with SMTP id w3-20020a05640234c300b0043dd8d7a328mr23351975edc.297.1660069118991;
+        Tue, 09 Aug 2022 11:18:38 -0700 (PDT)
+Received: from localhost.localdomain (109-178-233-54.pat.ren.cosmote.net. [109.178.233.54])
+        by smtp.gmail.com with ESMTPSA id u19-20020aa7db93000000b0043bbb3535d6sm6318694edt.66.2022.08.09.11.18.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Aug 2022 11:11:41 -0700 (PDT)
-Date:   Tue, 9 Aug 2022 21:11:20 +0300
+        Tue, 09 Aug 2022 11:18:38 -0700 (PDT)
 From:   Michael Bestas <mkbestas@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Will Deacon <will@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     hsinyi@chromium.org, mkbestas@gmail.com, rppt@linux.ibm.com,
+        stable@vger.kernel.org, swboyd@chromium.org, will@kernel.org
 Subject: Re: [PATCH] arm64: map FDT as RW for early_init_dt_scan()
-Message-ID: <20220809210520.7ea395c9@kraken>
+Date:   Tue,  9 Aug 2022 21:17:53 +0300
+Message-Id: <20220809181753.2556152-1-mkbestas@gmail.com>
+X-Mailer: git-send-email 2.37.1
 In-Reply-To: <YvKVlhUZ2I1omy5S@kroah.com>
-References: <20220809145624.1819905-1-mkbestas@gmail.com>
- <YvKVlhUZ2I1omy5S@kroah.com>
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
+References: <YvKVlhUZ2I1omy5S@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=0.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        RCVD_IN_DNSWL_NONE,SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -80,7 +76,7 @@ Greg KH <gregkh@linuxfoundation.org> wrote:
 > 
 > thanks,
 > 
-> greg k-h
+> greg k-h  
 
 This patch should be required on all stable kernels that got commit
 "fdt: add support for rng-seed", however I have not tested it.
@@ -90,6 +86,9 @@ https://android-review.googlesource.com/c/kernel/common/+/1238592
 
 Without this patch, Google Pixel 3/3a fails at a very early boot
 stage after merging v4.9.320+ due to the random backport.
+
+Sorry if I messed something up with the emails, this is the first
+time I submit something to a mailing list.
 
 Thanks,
 
