@@ -2,111 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CD5E58E99F
-	for <lists+stable@lfdr.de>; Wed, 10 Aug 2022 11:29:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C902058E9C0
+	for <lists+stable@lfdr.de>; Wed, 10 Aug 2022 11:38:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229771AbiHJJ3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Aug 2022 05:29:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55172 "EHLO
+        id S232159AbiHJJiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Aug 2022 05:38:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232096AbiHJJ3H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Aug 2022 05:29:07 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C288B6B650
-        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 02:29:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660123744;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=cYlVavV3CJNDmR/k23+nnTOqqc22cvfzjUUlVxgKawU=;
-        b=VST4oFlF9bHb71OO0hPH1Ey8qI6kOu4nkyggi7JQnAzrhvaRYQuVtAUM0+vdFpY9hRoTGj
-        2ss7KSg7vMUh2T8fSLKfSPVdsbqZ7eKkGUg0OtRcgK9aj4UBSsuG9K+YnltK7Jw1McIQrY
-        jbfpUKdxCXxWT4v/4XmN2Jrl/YaWpzE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-497-BS_OAcgpOi-3MGHGsUFHjw-1; Wed, 10 Aug 2022 05:29:03 -0400
-X-MC-Unique: BS_OAcgpOi-3MGHGsUFHjw-1
-Received: by mail-wr1-f72.google.com with SMTP id e21-20020adf9bd5000000b002207a51b7feso2191936wrc.10
-        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 02:29:03 -0700 (PDT)
+        with ESMTP id S231644AbiHJJiu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Aug 2022 05:38:50 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2451F6EF02
+        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 02:38:49 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id k26so26695608ejx.5
+        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 02:38:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=Rpc1heuT2lTdf2haoFSyi9HX+0SVlsyo53PGOFGRe2g=;
+        b=wlEvESgHc817iRkxJfikIheDgY6KLfBZ1yb8op9fkFoU54F7nSPdfh7KvCPFsJEfEW
+         kngon2s5Wy8qUSYjbS7+izRz2SC73YrUkoXlRluIAKOnWAryWeF89b37VsVodWphoO4l
+         luWlnpJ8j+M16+HKwK4vb4mY0ntQtVjI1T5/VfG7L0OXZ1jLUaXEaFxT0xXo5QZpnEuS
+         3aOsJxCT4MoeEl7QM/ZrS86xZ6EQD63Z0hvFJ1ExhPoVj8DV4BjM1XgZwz1eC2Cw7PMH
+         SFO4IXplFb/ekV0vBAuZF4c2pUtHX0iIFwRn3fYXMecnQ3YMKzyBSy/ugBnkrE827rZR
+         y3hQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc;
-        bh=cYlVavV3CJNDmR/k23+nnTOqqc22cvfzjUUlVxgKawU=;
-        b=q/M9DJCdw2jSbzUcu7O0pMbXDa7BLhIDA6iCIJKmCDulglbD6JHl1ZyzAax+PYoj5d
-         9NvOfzwo9pmwFL8r6eEx+0KmO0evEsH/nFrj1sm78N6s4ODjuv421imeV4ESjcTMkxZS
-         Sm9djIEZwyObeyVU4BzEMl4XSQ5cz4ZwN4Cm845p4Osu/qCsysmPDRIbBC1xXlrA10g9
-         tiq/kE37jHOuAPvaEVxPc+gbK9RUbJjQND1LJpaPJm64UdoG7NbUo8+M9mUCa7Dk+2/2
-         6yNCzKVSEvi+UDEPxytcysQQfAeJqo7LgKHBm4KIer2lJyH2VaqQ5Oz2XD722Hjfy/YS
-         FZ0A==
-X-Gm-Message-State: ACgBeo1yf4NKG2wYClv2vls0GZl9wMYZFGVfoAIODHNKQeJ3JkI7k7lS
-        r/7921TMqluXSMwVrqbDVyi9m8lF1gMb5iQOmcWppeIpszZBLdTYs5mMNbJiGUI5ZGCEdmesSqr
-        /yhRqQya4Vt/ibIzf
-X-Received: by 2002:a05:600c:5125:b0:3a4:f57b:d34c with SMTP id o37-20020a05600c512500b003a4f57bd34cmr1796440wms.193.1660123742438;
-        Wed, 10 Aug 2022 02:29:02 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR5Ow3GCEx+75VtQ8c5nEXiLi3RCfkdiTsOt80b5J4UMof9inMEunF/B0LrI+KlpZGPls9w9Ow==
-X-Received: by 2002:a05:600c:5125:b0:3a4:f57b:d34c with SMTP id o37-20020a05600c512500b003a4f57bd34cmr1796424wms.193.1660123742178;
-        Wed, 10 Aug 2022 02:29:02 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c707:1600:a3ce:b459:ef57:7b93? (p200300cbc7071600a3ceb459ef577b93.dip0.t-ipconnect.de. [2003:cb:c707:1600:a3ce:b459:ef57:7b93])
-        by smtp.gmail.com with ESMTPSA id u13-20020a5d514d000000b0021d7ad6b9fdsm15792376wrt.57.2022.08.10.02.29.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 10 Aug 2022 02:29:01 -0700 (PDT)
-Message-ID: <40b78cfd-c43a-8624-cd1e-8680a081a10d@redhat.com>
-Date:   Wed, 10 Aug 2022 11:29:01 +0200
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=Rpc1heuT2lTdf2haoFSyi9HX+0SVlsyo53PGOFGRe2g=;
+        b=55JP9Scvwp/Xhf7Jakv1z+Hojzh/3Mf1T1fHlneqYz3O1qErapavtwJVSh5SF1fOik
+         KRDjhqffRqttLdpFfc6Zfk7FC0NP1erV6GsMDNzb7o8SQn2mZhlv+VgbqOESgmZkqfvG
+         iopZGpwD+vrMcqVIKrMhM8cpd2LMXXth93P/MGpiObDqPCLQ6JeR6QVxQFXRxVlC5bGf
+         uEBphBJtPNrsd4eMXXgOeOynQvjc0Uhq0DxUjrSwfmjHDJOHkQvyh/Fr+7qZvqtNCrzV
+         5VgThUQEiLsN1y+hpQnHIL5lK0qwetDQRB2sbuF2RNN06EaGDC+kVOXWbssXFqrnreyQ
+         dgtA==
+X-Gm-Message-State: ACgBeo3fXYqeCciGggIpOUZ61H9kwOQccLBaa1bgUSGu2qJxJt1SPeEh
+        Te0q5heGwb4uzhBrb3UO6jBQ0oSCEKQg1ZQ7h8TR5w==
+X-Google-Smtp-Source: AA6agR7hUlP3cvvlEctjDrH/fvmLzvB9gYRrnFXynBOi5/OrP/CJeV01JulZEGnfXXdDJJWhBvCJiY0nyNvUFm5E6PA=
+X-Received: by 2002:a17:907:86ac:b0:731:5180:8aa0 with SMTP id
+ qa44-20020a17090786ac00b0073151808aa0mr10541617ejc.366.1660124327536; Wed, 10
+ Aug 2022 02:38:47 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v1 1/2] mm/hugetlb: fix hugetlb not supporting
- write-notify
-Content-Language: en-US
-To:     Peter Xu <peterx@redhat.com>
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Peter Feiner <pfeiner@google.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        stable@vger.kernel.org
-References: <20220805110329.80540-1-david@redhat.com>
- <20220805110329.80540-2-david@redhat.com> <Yu1eCsMqa641zj5C@xz-m1.local>
- <Yu1gHnpKRZBhSTZB@monkey> <c2a3b903-099c-4b79-6923-8b288d404c51@redhat.com>
- <Yu1ie559zt8VvDc1@monkey> <73050e64-e40f-0c94-be96-316d1e8d5f3b@redhat.com>
- <Yu2CI4wGLHCjMSWm@monkey> <Yu2kK6s8m8NLDjuV@xz-m1.local>
- <36bcc1f5-40e9-2d2b-3e94-18994bf62ca4@redhat.com>
- <YvFjww9AX/BuHdSn@xz-m1.local>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <YvFjww9AX/BuHdSn@xz-m1.local>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20220809175513.082573955@linuxfoundation.org>
+In-Reply-To: <20220809175513.082573955@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 10 Aug 2022 15:08:36 +0530
+Message-ID: <CA+G9fYtb4o4uxuxO1QYpBrGfse76z_rbz1yh1cStK0fhUu9DZQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/32] 4.19.255-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08.08.22 21:28, Peter Xu wrote:
-> On Mon, Aug 08, 2022 at 06:36:58PM +0200, David Hildenbrand wrote:
->> Well, because the write-fault handler as is cannot deal with
->> write-faults in shared mappings. It cannot possibly work or ever have
->> worked.
-> 
-> Trivially - maybe drop the word "require" in "Hugetlb does not
-> require/support writenotify"?
-> 
+On Tue, 9 Aug 2022 at 23:32, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.255 release.
+> There are 32 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 11 Aug 2022 17:55:02 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.255-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Sure, can do.
+Results from Linaro's test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
--- 
-Thanks,
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-David / dhildenb
+NOTE:
+Following warnings were noticed on arm64 and arm
 
+WARNING: modpost: Found 1 section mismatch(es).
+To see full details build your kernel with:
+'make CONFIG_DEBUG_SECTION_MISMATCH=y'
+aarch64-linux-gnu-ld: warning: -z norelro ignored
+aarch64-linux-gnu-ld: warning: .tmp_vmlinux1 has a LOAD segment with
+RWX permissions
+aarch64-linux-gnu-ld: warning: -z norelro ignored
+aarch64-linux-gnu-ld: warning: .tmp_vmlinux2 has a LOAD segment with
+RWX permissions
+aarch64-linux-gnu-ld: warning: -z norelro ignored
+aarch64-linux-gnu-ld: warning: vmlinux has a LOAD segment with RWX permissions
+
+This was reported on earlier stable rc reviews
+ref:
+https://lore.kernel.org/lkml/CA+G9fYuxx3wdLXiKhYAPEs-g6uxPn-OsyaiHQOvjuegVEShgMg@mail.gmail.com/
+
+## Build
+* kernel: 4.19.255-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.19.y
+* git commit: 02c6011ece11c67e9ec89b3d3e0c25cff42b3ea0
+* git describe: v4.19.254-33-g02c6011ece11
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19.254-33-g02c6011ece11
+
+## No test Regressions (compared to v4.19.253-63-gf68ffa0f9e2a)
+
+## No metric Regressions (compared to v4.19.253-63-gf68ffa0f9e2a)
+
+## No test Fixes (compared to v4.19.253-63-gf68ffa0f9e2a)
+
+## No Metric Fixes (compared to v4.19.253-63-gf68ffa0f9e2a)
+
+## Test result summary
+total: 66365, pass: 57931, fail: 287, skip: 7425, xfail: 722
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 291 total, 286 passed, 5 failed
+* arm64: 58 total, 57 passed, 1 failed
+* i386: 26 total, 25 passed, 1 failed
+* mips: 35 total, 35 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 54 total, 54 passed, 0 failed
+* s390: 12 total, 12 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 52 total, 51 passed, 1 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
