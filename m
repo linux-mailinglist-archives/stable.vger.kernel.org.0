@@ -2,125 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75C9558EE0A
-	for <lists+stable@lfdr.de>; Wed, 10 Aug 2022 16:16:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B2258EE12
+	for <lists+stable@lfdr.de>; Wed, 10 Aug 2022 16:18:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232408AbiHJOQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Aug 2022 10:16:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53332 "EHLO
+        id S232008AbiHJOSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Aug 2022 10:18:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232260AbiHJOQF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Aug 2022 10:16:05 -0400
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3BD8606AC;
-        Wed, 10 Aug 2022 07:16:04 -0700 (PDT)
-Received: by mail-wm1-x32a.google.com with SMTP id k17so1007897wmr.2;
-        Wed, 10 Aug 2022 07:16:04 -0700 (PDT)
+        with ESMTP id S229501AbiHJOSA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Aug 2022 10:18:00 -0400
+Received: from mail-oa1-x36.google.com (mail-oa1-x36.google.com [IPv6:2001:4860:4864:20::36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1544972876
+        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 07:17:58 -0700 (PDT)
+Received: by mail-oa1-x36.google.com with SMTP id 586e51a60fabf-10cf9f5b500so17975157fac.2
+        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 07:17:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc;
-        bh=yJTJeBH5eeBX44c6u9JN3IXpz+84tiTBfFtmfUlzynY=;
-        b=oVEhjsE1xaUL6CNE1ZYzJmvscAV8O3UV7s84oAlp+Be/ONAQF6B08sw4st1cvSORKz
-         X8oNphFqB0ViE2R1MSVL7MdJ1vJM2bNBarPspuXKRcLvngEb3uY6dUcOdQ8DbCvr6JEo
-         wJ3Aaf9larVJXVtTIztuQLdqRScvynu4zNzCwqqYO4QJDZHg3jfSRcBvBzrf+wRpiELQ
-         EQHx15qwXdV3lEsQREbGkuur9vgsR1HCU3o2OC2dr5ghO8C5vd4jPbX/v/0OUNRvA0m6
-         mEtRTjEo28HWt3Y7M3CRnIZCA15tCntyGAqjSBzFPictamrw/pkgDKDtDB/HdzvRFUuU
-         sNFQ==
+        d=linuxtx.org; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc;
+        bh=aLbFUlGFxratZwVvqyKdINnxG6W9VgbuCyf2C3Yr28o=;
+        b=h9IxXV/InGN8vO34EJQcwzBtQSN+sI8COLJgVOhVYaaXwaxFYA7G1nkVrb0CET53Ul
+         14AEsDOlYSsolAEa0PoOdzcKUDEFBFQPIztw86mKYuG9NaCFAsFMi3CnEL3MuNKXdp73
+         Tm3ZI+Sep57ObzNbbf6z3yZZjy+wuhSlpzids=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=yJTJeBH5eeBX44c6u9JN3IXpz+84tiTBfFtmfUlzynY=;
-        b=ashnc1pH45jK+zTMdS6/SPhxIerOuN6DK7c+R/XIU3jXTBiTyiMkeMl1iGDQ/quNOf
-         UYeV9Icrg5ACWiMPcRdmnV93/isLWeoPra8nA0Sc8csDjaQyOt2wLOfSLT/7I1G4B4/l
-         s2DD/FopAaER4FoAkaFbokoi/zUy9KLV8e0g20M+jD5kCRVm5OQ368QXj15/vDctM23B
-         Ox1bwQmhQ/ez9WphJ2LGaocNgRfnjgiUc5pcjljOhYOVuEhm3LIAgQ7IUg4wqNf2uqlT
-         nRAvCFq69miRDLrq63U0S9GVcqh+uIyrmqw8Qe4++Kr9Qf6SpOnCzmk7y1fDFmAaAnbT
-         NODQ==
-X-Gm-Message-State: ACgBeo0dmDFhJvPCsvwF6G/3V0enuOFhz0pRAESq7yGofEHlN58hXw8R
-        oBLwXc2qyLF/FRm0LGrtTHBNFMjY7m0=
-X-Google-Smtp-Source: AA6agR7XFjoYEgACthjIx/gtejcteZhlFex/qI3X7AHTeQZneGRpdphjNmE3Q5rbG6kUBBzc0F5urQ==
-X-Received: by 2002:a05:600c:a41:b0:39c:1512:98bd with SMTP id c1-20020a05600c0a4100b0039c151298bdmr2666051wmq.88.1660140963213;
-        Wed, 10 Aug 2022 07:16:03 -0700 (PDT)
-Received: from localhost.localdomain ([77.137.66.49])
-        by smtp.gmail.com with ESMTPSA id x13-20020adfdccd000000b0021d65675583sm16902969wrm.52.2022.08.10.07.16.01
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc;
+        bh=aLbFUlGFxratZwVvqyKdINnxG6W9VgbuCyf2C3Yr28o=;
+        b=xUeGjA6bytNAsam9fsHaAijujvss7+6p+mZ8LU3vUR9/h1fjU1K8wygvRK9cpsQf0F
+         DgVwHGsDIel+dN1LKYARltpJZgjLQ5KgrEoCZTrTsMTWS2iUjwVGCBhKxGnd0lELb0Ml
+         o72TkY1FYYJVwqz+ArX9zy9QCvyTE7hDpbEFI6EcU2M1JHrAOHhSz5wwqBhCP4htFddd
+         KxxJFvCxNCPkJMSvjf/i4g0cjZ00g6MAkFEXBOZqyJuCRxtwDFqIwOghGubj2i+4kR7L
+         83CKhYFCb85TzzxS9kJtTkcFC0nkZKmv8wNAa0sNAYfLmrrM+X868mFHJJ04AhYfaWr1
+         hI/A==
+X-Gm-Message-State: ACgBeo2oPIDKQBO26Nd9EipuBV5tVF0EHCyME2sWufrWEr2g0dVvceJ2
+        xgyLY2FmgAb3Vdt5VK9coChqFQ==
+X-Google-Smtp-Source: AA6agR4vts6CzXsb3tJwgh/SJvCYXoI1Mq5loN4pZ3z7ZS0hpWeCu5I9XQ4HwjBOowhwtdECj6fAAA==
+X-Received: by 2002:a05:6870:c58b:b0:10b:d21d:ad5e with SMTP id ba11-20020a056870c58b00b0010bd21dad5emr1551174oab.287.1660141077335;
+        Wed, 10 Aug 2022 07:17:57 -0700 (PDT)
+Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
+        by smtp.gmail.com with ESMTPSA id f63-20020a9d03c5000000b00636dd66b24dsm695583otf.42.2022.08.10.07.17.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Aug 2022 07:16:02 -0700 (PDT)
-From:   Amir Goldstein <amir73il@gmail.com>
+        Wed, 10 Aug 2022 07:17:56 -0700 (PDT)
+Sender: Justin Forbes <jmforbes@linuxtx.org>
+Date:   Wed, 10 Aug 2022 09:17:54 -0500
+From:   Justin Forbes <jforbes@fedoraproject.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        "Darrick J . Wong" <djwong@kernel.org>,
-        Leah Rumancik <leah.rumancik@gmail.com>,
-        Chandan Babu R <chandan.babu@oracle.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Adam Manzanares <a.manzanares@samsung.com>,
-        linux-xfs@vger.kernel.org, stable@vger.kernel.org,
-        Dave Chinner <dchinner@redhat.com>
-Subject: [PATCH 5.10 v2 3/3] xfs: fix I_DONTCACHE
-Date:   Wed, 10 Aug 2022 16:15:52 +0200
-Message-Id: <20220810141552.168763-4-amir73il@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220810141552.168763-1-amir73il@gmail.com>
-References: <20220810141552.168763-1-amir73il@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.18 00/35] 5.18.17-rc1 review
+Message-ID: <YvO+Eui1TScY5a3+@fedora64.linuxtx.org>
+References: <20220809175515.046484486@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220809175515.046484486@linuxfoundation.org>
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+On Tue, Aug 09, 2022 at 08:00:29PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.18.17 release.
+> There are 35 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 11 Aug 2022 17:55:02 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.17-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-commit f38a032b165d812b0ba8378a5cd237c0888ff65f upstream.
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-Yup, the VFS hoist broke it, and nobody noticed. Bulkstat workloads
-make it clear that it doesn't work as it should.
-
-Fixes: dae2f8ed7992 ("fs: Lift XFS_IDONTCACHE to the VFS layer")
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
----
- fs/xfs/xfs_icache.c | 3 ++-
- fs/xfs/xfs_iops.c   | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/fs/xfs/xfs_icache.c b/fs/xfs/xfs_icache.c
-index deb99300d171..e69a08ed7de4 100644
---- a/fs/xfs/xfs_icache.c
-+++ b/fs/xfs/xfs_icache.c
-@@ -47,8 +47,9 @@ xfs_inode_alloc(
- 		return NULL;
- 	}
- 
--	/* VFS doesn't initialise i_mode! */
-+	/* VFS doesn't initialise i_mode or i_state! */
- 	VFS_I(ip)->i_mode = 0;
-+	VFS_I(ip)->i_state = 0;
- 
- 	XFS_STATS_INC(mp, vn_active);
- 	ASSERT(atomic_read(&ip->i_pincount) == 0);
-diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
-index b7f7b31a77d5..6a3026e78a9b 100644
---- a/fs/xfs/xfs_iops.c
-+++ b/fs/xfs/xfs_iops.c
-@@ -1328,7 +1328,7 @@ xfs_setup_inode(
- 	gfp_t			gfp_mask;
- 
- 	inode->i_ino = ip->i_ino;
--	inode->i_state = I_NEW;
-+	inode->i_state |= I_NEW;
- 
- 	inode_sb_list_add(inode);
- 	/* make the inode look hashed for the writeback code */
--- 
-2.25.1
-
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
