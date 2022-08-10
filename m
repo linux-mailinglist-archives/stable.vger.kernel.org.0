@@ -2,99 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA9E58EA08
-	for <lists+stable@lfdr.de>; Wed, 10 Aug 2022 11:49:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6085158EA87
+	for <lists+stable@lfdr.de>; Wed, 10 Aug 2022 12:39:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229969AbiHJJt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Aug 2022 05:49:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54800 "EHLO
+        id S231367AbiHJKjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Aug 2022 06:39:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229868AbiHJJt1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Aug 2022 05:49:27 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5B5B61DA6
-        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 02:49:25 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id b4so14217461pji.4
-        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 02:49:25 -0700 (PDT)
+        with ESMTP id S231373AbiHJKju (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Aug 2022 06:39:50 -0400
+Received: from mail-io1-xd2f.google.com (mail-io1-xd2f.google.com [IPv6:2607:f8b0:4864:20::d2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F7917E303
+        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 03:39:49 -0700 (PDT)
+Received: by mail-io1-xd2f.google.com with SMTP id r5so11768666iod.10
+        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 03:39:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=heitbaum.com; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc;
-        bh=L9x7qMrdSv/1wGcarUtleKFhAaRLeutGdrlwPnar7sc=;
-        b=kFi3CyUKLvlytYERKFW0I2aDqRjirN1sZzeKUHmZnAax6a50F6ZMCZlY1NRr2iFsBO
-         nTd4coKEOCNSfZU0U24AICfljEiGmXWNobm+7Eu0DPTzmgrBWUW30fpvFQieSOBQF/kz
-         lPbV4RR9kpSHO1sMqwgCYV+B2vGvNr3ZWBMPc=
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:from:to:cc;
+        bh=2te+YOLOSvIbf1P44CshbYr6tZq0kyrnNrRQW3VLo40=;
+        b=bMLn18D3kEex09M2jB+UvTRqQHrd9NTICJr1UtlrJKK5rM3m8qYWa7GdvLLa52YMBf
+         AMRqcxeZj4tExdoTsNYrNAE6Tyzsh0WyV4oS0hb78YtHlj27oKaSjTb/VmNb9OMdEc4N
+         9OT4ROywlDu2/GTHS9eYT9ukog+nIPiQHSgymXp7Sfo62kxK3RcPYJekXBF8Mqe+6/7l
+         KBJJPsL92gBueh0vc57+KNOeSvU4ZoM2XRWtTCxbOx/GGVr4Xtvsh6IlfGVNdyPYiLCc
+         BmWzssf7ThyffTghUjRuGUw4iDKz5TSh4tWfqWU2h6vLPjreUl2fyJagOBJYUXqDZI/7
+         u29g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=L9x7qMrdSv/1wGcarUtleKFhAaRLeutGdrlwPnar7sc=;
-        b=utFHmAA2ziRVxuzI6v5hK8SOHOnZib9Ho6hFHiPfoBG5B4ULHk6Ho6pHFoPAqki0p6
-         Rep5TdqiDOS7trjoYKpNLCb4cXUEaizi6ohE2kuG7LCOxD7H8E9DkgwF2JOz7KGV3dum
-         4Gq0s5QTADjNhL6J+hbAV+qImaN3EnscMAOVWhmMcc0eVFSCXDICh5kqYi4vQ88yGwFv
-         Pw9o4kN7Hs4QzsHs2ZNeF+MS/mIIKc2eWolkGoKUBPB3RLbCjFRnOqNEVrA2M2bnJITu
-         pUtdArSL6rhfF+GjqEOvJSUqVp2Z2RbICFAHiy5qqqVCY5xKSBKzZR7nsIN82HYUx1Ol
-         NhRg==
-X-Gm-Message-State: ACgBeo0pWrSJN+ydvhGiW25/WFicdEFFM7aVKmXqVgwv1yNhfHLAuZUX
-        zrapYmhyziSpj/mICy11F2qPoA==
-X-Google-Smtp-Source: AA6agR6wworkHximCc8qqj2fO9G9aj/eSYic7cFWhlJ+wSdHjgYZtAqDBMfJ8h9Ej8TDM0i8Yji7MA==
-X-Received: by 2002:a17:902:c941:b0:16e:fe88:99e5 with SMTP id i1-20020a170902c94100b0016efe8899e5mr27788437pla.38.1660124965226;
-        Wed, 10 Aug 2022 02:49:25 -0700 (PDT)
-Received: from 0d2831aaf7e6 ([203.220.223.63])
-        by smtp.gmail.com with ESMTPSA id y13-20020a1709027c8d00b0016ed52b79besm12228483pll.271.2022.08.10.02.49.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Aug 2022 02:49:24 -0700 (PDT)
-Date:   Wed, 10 Aug 2022 09:49:16 +0000
-From:   Rudi Heitbaum <rudi@heitbaum.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.10 00/23] 5.10.136-rc1 review
-Message-ID: <20220810094916.GA109@0d2831aaf7e6>
-References: <20220809175512.853274191@linuxfoundation.org>
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=2te+YOLOSvIbf1P44CshbYr6tZq0kyrnNrRQW3VLo40=;
+        b=5fBCuudILhTzxKY6BJS0jwMxhO7lVQaQPNMNZRxxDC7LVdARmvBDrXTZl5RqNKYn14
+         yi+8ygRxIkcBbR8xah0QtJm4v4V+iUQ7x16edN+bQQ5Am7tbZ3qOmXbDqQLxdra+CIoM
+         hUPta0OP1H4YrMKczvU2PxvzUCXTSFO2sZunonZlK6BrddBnKPOxRr4VLi6+lKCa9622
+         5fOaJ26Uh7to510R+whhgUn0tUriewWkH648iZyKisz169pZsViRKrXu6a08pLOoW4mn
+         073NCiJUPzRF+s0kPoPNIdZcHP73qR6mHKhqIOjUDfiiqhFG2CL7RnStIpaPwbzy/SPl
+         3w1A==
+X-Gm-Message-State: ACgBeo2yeZOeuHF+hfjQUIhXANz0hiYE3k760FqphtY/GDo2OkndTwQg
+        oBgYD+gQraW+cBK84azywUiS2CftfJubgWbsXy4=
+X-Google-Smtp-Source: AA6agR4JPKE5uqPmnTgbcJS5p+Is7tW71v04xR7Z1VcIUsg1NqZghg9QgssaG3xqx/RD7ODJGHIxY++YjRXYF9grQ5g=
+X-Received: by 2002:a6b:ba84:0:b0:67b:d73d:b15b with SMTP id
+ k126-20020a6bba84000000b0067bd73db15bmr11290796iof.33.1660127989094; Wed, 10
+ Aug 2022 03:39:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220809175512.853274191@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Received: by 2002:a05:6638:1a95:b0:342:e995:7290 with HTTP; Wed, 10 Aug 2022
+ 03:39:48 -0700 (PDT)
+Reply-To: georgebrown0004@gmail.com
+From:   george brown <joeakaba00@gmail.com>
+Date:   Wed, 10 Aug 2022 12:39:48 +0200
+Message-ID: <CAEoXQLxAX=Q32ZNhRs2khRtfSgyHCE16U_Y+egdz0p7QRGgEeg@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=4.5 required=5.0 tests=BAYES_40,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 09, 2022 at 08:00:18PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.136 release.
-> There are 23 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 11 Aug 2022 17:55:02 +0000.
-> Anything received after that time might be too late.
-
-Hi Greg,
-
-5.10.136-rc1 tested.
-
-Run tested on:
-- Intel Skylake x86_64 (nuc6 i5-6260U)
-
-In addition - build tested for:
-- Allwinner A64
-- Allwinner H3
-- Allwinner H5
-- Allwinner H6
-- Rockchip RK3288
-- Rockchip RK3328
-- Rockchip RK3399pro
-
-Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
---
-Rudi
+0JfQtNGA0LDQstC+DQoNCtCc0L7RmNC1INC40LzQtSDRmNC1INCP0L7RgNGfINCR0YDQsNGD0L0g
+0Lgg0L/QviDQt9Cw0L3QuNC80LDRmtGDINGB0LDQvCDQsNC00LLQvtC60LDRgi4g0JbQtdC70LjQ
+vCDQtNCwINGC0Lgg0L/QvtC90YPQtNC40LwNCtC90LDRmNCx0LvQuNC20Lgg0YDQvtGS0LDRhtC4
+INC80L7QsyDQutC70LjRmNC10L3RgtCwLiDQndCw0YHQu9C10ZLRg9GY0LXRgtC1INGB0YPQvNGD
+ICg4LDUg0LzQuNC70LjQvtC90LAg0LTQvtC70LDRgNCwKQ0K0LTQvtC70LDRgNCwINC60L7RmNC4
+INGY0LUg0LzQvtGYINC60LvQuNGY0LXQvdGCINC+0YHRgtCw0LLQuNC+INGDINCx0LDQvdGG0Lgg
+0L/RgNC1INC90LXQs9C+INGI0YLQviDRmNC1INGD0LzRgNC+Lg0KDQrQnNC+0Zgg0LrQu9C40ZjQ
+tdC90YIg0ZjQtSDQtNGA0LbQsNCy0ZnQsNC90LjQvSDQstCw0YjQtSDQt9C10LzRmdC1INC60L7R
+mNC4INGY0LUg0L/QvtCz0LjQvdGD0L4g0YMg0YHQsNC+0LHRgNCw0ZvQsNGY0L3QvtGYDQrQvdC1
+0YHRgNC10ZvQuCDRgdCwINGB0LLQvtGY0L7QvCDRgdGD0L/RgNGD0LPQvtC8Lg0K0Lgg0ZjQtdC0
+0LjQvdC4INGB0LjQvS4g0ZjQsCDRm9GDINC40LzQsNGC0Lgg0L/RgNCw0LLQviDQvdCwIDUwJSDQ
+vtC0INGD0LrRg9C/0L3QvtCzINGE0L7QvdC00LAsINC00L7QuiA1MCUNCtCR0YPQtNC4INC30LAg
+0YLQtdCx0LUNCtCa0L7QvdGC0LDQutGC0LjRgNCw0ZjRgtC1INC80L7RmNGDINC/0YDQuNCy0LDR
+gtC90YMg0LUt0L/QvtGI0YLRgyDQt9CwINCy0LjRiNC1INC40L3RhNC+0YDQvNCw0YbQuNGY0LA6
+DQrQs9C10L7RgNCz0LXQsdGA0L7QstC9MDAwNEDQs9C80LDQuNC7LtGG0L7QvA0KDQrQpdCy0LDQ
+u9CwINCy0LDQvCDQv9GD0L3QviDRg9C90LDQv9GA0LXQtCwNCtCzLiDQj9C+0YDRnyDQkdGA0LDR
+g9C9LA0K
