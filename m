@@ -2,71 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 910EA58EEB6
-	for <lists+stable@lfdr.de>; Wed, 10 Aug 2022 16:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 301D458EF6E
+	for <lists+stable@lfdr.de>; Wed, 10 Aug 2022 17:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231286AbiHJOq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Aug 2022 10:46:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59634 "EHLO
+        id S233218AbiHJP2b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Aug 2022 11:28:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232845AbiHJOqu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Aug 2022 10:46:50 -0400
-Received: from mail-il1-x133.google.com (mail-il1-x133.google.com [IPv6:2607:f8b0:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A2E161100
-        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 07:46:47 -0700 (PDT)
-Received: by mail-il1-x133.google.com with SMTP id d4so8388378ilc.8
-        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 07:46:47 -0700 (PDT)
+        with ESMTP id S233167AbiHJP2b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Aug 2022 11:28:31 -0400
+Received: from mail-oa1-x31.google.com (mail-oa1-x31.google.com [IPv6:2001:4860:4864:20::31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 679CD78225
+        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 08:28:30 -0700 (PDT)
+Received: by mail-oa1-x31.google.com with SMTP id 586e51a60fabf-1168e046c85so8381373fac.13
+        for <stable@vger.kernel.org>; Wed, 10 Aug 2022 08:28:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=content-transfer-encoding:content-language:in-reply-to:mime-version
-         :user-agent:date:message-id:from:references:cc:to:subject:from:to:cc;
-        bh=SfFZHHAcVd+kOmri6C0f7K4Tf+tdshtHftrDLHABmA4=;
-        b=J72rCbJ2B3TF3kdYJCO1d9Uiq+lSco5cMBpKqasua9iBVVrR68eIAoltXfk7jtDeGy
-         EFoPlxQTAiXLcpomqoJVd0v+PA28h3GnXDnmHatIwcDyuyVez1rDd2/9G+FDaoPoSHY5
-         H8oBWlXxkcK2AxPlMxuVliYEe1G5SI5ulnD3s=
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=JGlVYKOhE0vnUO2uJlfhRsy2OU4tbrDN/YlwAH68OlA=;
+        b=d2fByg4d4eWVNrjXbt7g4Wnpbdp3QlMHivfhSOsmfJdN3rtz5lmLEO5bcHPCmK3cpB
+         02kToal3VgfEsfmOaLaRvnfN9L3rJ3wXLUufbO8HUeN1GIdMNHpMvsdElrmMhugkAmdb
+         jiW6UT1XCjR1pOsWvCytvweTFn8nQx/PD5Cbbij1xOT97r8zic6tzSQ2ZuIQXPi34yq2
+         sH+p9VshI6HOGNRXY+qjvf3SXQ1osQajxi9ZYHHeocGeuMvARfifKe1XRCAxgdN+DFQU
+         WXV3p1uSXOscr27zdt+drJp1QlF7LK9OdsUu3386/BVFdtNWnPq1r5HPLRzmi7Yq7xKM
+         cDKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:content-language:in-reply-to:mime-version
-         :user-agent:date:message-id:from:references:cc:to:subject
-         :x-gm-message-state:from:to:cc;
-        bh=SfFZHHAcVd+kOmri6C0f7K4Tf+tdshtHftrDLHABmA4=;
-        b=gF9199nwCkbLKo+DnYhl0uhQ9O/MnwpS8vxi2hjX3kYr/KPy1xQuW+Bzvsvig3e87T
-         sjN46t9hV0I/X5dNmufDJDuvyBiMsfIsWZWXS9O+zNZDJbtB1BsALQcxlXz324i4IjqF
-         A2BpdFLhZw4Zo+ghprI0K6F72rgQzrGO7IcdWu2S7YnfcAN6irQHzHKp9cMYfJ+m9+hf
-         NQy3iDUfiQkPwN04OZGhGuUoLht3DoQbPVxyVRYKvevkh71mQW7x80zwCZYDKpgiwr92
-         /Psagqk/VgFTUYK7zvagFmw7UxiIVGR696Q/1dNfKJrVEWbgRo0MXjp6/HZw66gB5Kvi
-         tIwA==
-X-Gm-Message-State: ACgBeo06Bwjee9CjR86HZkYZg6u71KI64lPHolHBiVujgd6lmgWjRWQU
-        bFcmy9DOAYPeLlsKk67Pwyphvg==
-X-Google-Smtp-Source: AA6agR78OS6so0+UPA0bin3J9DLGfKxCm0U6SKg7TKrC8hM1dIoOyyq+fXan6DDHqgVKJGeoMGhhhw==
-X-Received: by 2002:a92:c26d:0:b0:2de:bfd7:17e with SMTP id h13-20020a92c26d000000b002debfd7017emr12872921ild.156.1660142806505;
-        Wed, 10 Aug 2022 07:46:46 -0700 (PDT)
-Received: from [192.168.1.128] ([38.15.45.1])
-        by smtp.gmail.com with ESMTPSA id q4-20020a056638040400b003429e0ae7b6sm7471795jap.125.2022.08.10.07.46.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 10 Aug 2022 07:46:46 -0700 (PDT)
-Subject: Re: [PATCH 4.19 00/32] 4.19.255-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20220809175513.082573955@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <573b83ee-0f91-043e-4e66-9ed2c2a91e3d@linuxfoundation.org>
-Date:   Wed, 10 Aug 2022 08:46:45 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=JGlVYKOhE0vnUO2uJlfhRsy2OU4tbrDN/YlwAH68OlA=;
+        b=gxF81OzwYPVK3SfxiVQtiQ7IT/UI4RS35I8yRsm01SgGckt/Y2tcVNSYC9HcpGuIZE
+         XYsgTxpo8g4Sga7WaqA9rigomZESc30U8DNa4v+eoTUZLxGJc/02i5b5BsH68pCQ0gje
+         q2E33os6ixiAiCZsCiqD/H05dE1vD12zu/TU5GTeC61IUzxg5hEBJvN0vlTGYfPF+omS
+         jyBQbeC96+uac2UZiJztHCLxmLqssrQ5AFXk79FKDA5nTiKTeR7ytZULkKuEMRvvtA2y
+         pqqlR9ULQyQlIQKLzRyGTw5ST/7B0DwmAuGDOadB4NOE1YefdVBpFNusEdzF+3dR1otS
+         s26Q==
+X-Gm-Message-State: ACgBeo1i3htYpd5auisrqde0SkBF/J4XDLQQVSWkjdvKBPbmNwp1lKAd
+        g3cyJEGy2xKfLk7GG6CA4mWnsip5q6hvfhCx3us0htT4
+X-Google-Smtp-Source: AA6agR72B/i2Sv+68Dtoh6o4c2bgP4iHsBtHCLZLHB7+iUfaZkhkEa0Cnr9ALp5db2cvfBULM6Dx1pJYMsVVsRxXVy0=
+X-Received: by 2002:a05:6870:3398:b0:113:7f43:d0e9 with SMTP id
+ w24-20020a056870339800b001137f43d0e9mr1643409oae.33.1660145309696; Wed, 10
+ Aug 2022 08:28:29 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20220809175513.082573955@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+References: <20220719185659.2068735-1-alexander.deucher@amd.com>
+In-Reply-To: <20220719185659.2068735-1-alexander.deucher@amd.com>
+From:   Alex Deucher <alexdeucher@gmail.com>
+Date:   Wed, 10 Aug 2022 11:28:18 -0400
+Message-ID: <CADnq5_MkB8xKHZxVsiXfWPA-QuVrrNCNXF=ScrYAPjNbAH36LA@mail.gmail.com>
+Subject: Re: [PATCH] drm/amdgpu: fix check in fbdev init
+To:     Alex Deucher <alexander.deucher@amd.com>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, hgoffin@amazon.com,
+        amd-gfx@lists.freedesktop.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -75,29 +66,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/9/22 11:59 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.255 release.
-> There are 32 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 11 Aug 2022 17:55:02 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.255-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Tue, Jul 19, 2022 at 2:57 PM Alex Deucher <alexander.deucher@amd.com> wrote:
+>
+> The new vkms virtual display code is atomic so there is
+> no need to call drm_helper_disable_unused_functions()
+> when it is enabled.  Doing so can result in a segfault.
+> When the driver switched from the old virtual display code
+> to the new atomic virtual display code, it was missed that
+> we enable virtual display unconditionally under SR-IOV
+> so the checks here missed that case.  Add the missing
+> check for SR-IOV.
+>
+> There is no equivalent of this patch for Linus' tree
+> because the relevant code no longer exists.  This patch
+> is only relevant to kernels 5.15 and 5.16.
+>
+> Fixes: 84ec374bd580 ("drm/amdgpu: create amdgpu_vkms (v4)")
+> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> Cc: stable@vger.kernel.org # 5.15.x
+> Cc: hgoffin@amazon.com
 
-Compiled and booted on my test system. No dmesg regressions.
+Hi Greg,
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+Is there any chance this can get applied?  It fixes a regression on
+5.15 and 5.16.
 
-thanks,
--- Shuah
+Thanks,
+
+Alex
+
+> ---
+>  drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
+> index cd0acbea75da..d58ab9deb028 100644
+> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
+> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
+> @@ -341,7 +341,8 @@ int amdgpu_fbdev_init(struct amdgpu_device *adev)
+>         }
+>
+>         /* disable all the possible outputs/crtcs before entering KMS mode */
+> -       if (!amdgpu_device_has_dc_support(adev) && !amdgpu_virtual_display)
+> +       if (!amdgpu_device_has_dc_support(adev) && !amdgpu_virtual_display &&
+> +           !amdgpu_sriov_vf(adev))
+>                 drm_helper_disable_unused_functions(adev_to_drm(adev));
+>
+>         drm_fb_helper_initial_config(&rfbdev->helper, bpp_sel);
+> --
+> 2.35.3
+>
