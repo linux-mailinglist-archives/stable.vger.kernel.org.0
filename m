@@ -2,177 +2,219 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EC7558E737
-	for <lists+stable@lfdr.de>; Wed, 10 Aug 2022 08:16:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BECA758E793
+	for <lists+stable@lfdr.de>; Wed, 10 Aug 2022 09:06:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230168AbiHJGQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Aug 2022 02:16:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53082 "EHLO
+        id S231217AbiHJHGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Aug 2022 03:06:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231411AbiHJGQn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Aug 2022 02:16:43 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A5D365576
-        for <stable@vger.kernel.org>; Tue,  9 Aug 2022 23:16:42 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id x21so17762383edd.3
-        for <stable@vger.kernel.org>; Tue, 09 Aug 2022 23:16:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=ifqcMNgVyZIcs1Y0FmGPTKuFLhWkVB6lCLmVgx28/qg=;
-        b=wOnviD9udZL+xDTvmKmNEZnbwA8h032MGvWiviO4cpf7Wi5qwVKs0lVMY5Bdi3xyEA
-         PvYUd4QL3WqKl/+izyqN/JX+hYlmAnNjbdfOBgmtUUlA+/y276RrEO96CscN//pe7wxi
-         iINYpvvaa7EIPcxEUfpRMO3Pb10VOEo4qYtX/NP/sws0y6r63bJsj3Hx/wdghmEJM7Wm
-         S1A8TKDzUwReIIPOwu+7Vt8KOLRkLgEdkGNDEDXRTDPdjmfzC3CsPzu3Fa2aLACP2mVE
-         xOu6+HkghjJQtYLExFpIHRFojdqlPczOeDZWwlM2MkUzreRfeWTsFRMeIgSrFUJNcQIS
-         3NsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=ifqcMNgVyZIcs1Y0FmGPTKuFLhWkVB6lCLmVgx28/qg=;
-        b=Wr3gSzFbQ+gjx0jnRwNpAGzfhBRLLQsnMHKRgzsogeowefle2b4aA8yPV0dctZHg5X
-         iddsaOz8nKV9SRmmwqXTsMqOkdupCXdaEKhryd66wV2soRkvmPESu1YAXbzogjGuFMQu
-         9729wQNQJXnfIVVZlLCIjofIrHozPgDzK4PShJu/2J/e54PQQ1lV3Ol3e7zS1wejmxGr
-         o+IyJFK/j6IvouDi6GmlIkiNPAF02v5CvhcUQ7tR62jCneCt8f8YNH3kpKzJ834zK0u4
-         2Obqj2Y1oVdI6dmExcgCcBCALwJW9Tf5tQEAwazK5QMRzBxBhvPXaeS0iK7XlVQyPEdy
-         fITw==
-X-Gm-Message-State: ACgBeo3I9qjHrBGNKwxI5DfcYuENh9LN8ZC+aHBhPugvVpuig/6/axug
-        eA2eJpiFSnmsf46Z0xj2VzYGgomZaems0qAnwRliGg==
-X-Google-Smtp-Source: AA6agR4z9L7CWMTfKtA+eGb27rhb/Ii1ePdFpwVieqBxwzEi/OoluNnriuk+Xx+yPCh7tNb0x64YhiRT5GFGGy5dqoY=
-X-Received: by 2002:aa7:c70d:0:b0:440:432a:5f9e with SMTP id
- i13-20020aa7c70d000000b00440432a5f9emr18608206edq.110.1660112200803; Tue, 09
- Aug 2022 23:16:40 -0700 (PDT)
+        with ESMTP id S230119AbiHJHGN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Aug 2022 03:06:13 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC22F51430;
+        Wed, 10 Aug 2022 00:06:11 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 68C2D5C5A8;
+        Wed, 10 Aug 2022 07:06:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1660115170; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=XYYdg938pZFGIHomB2WfGo+4YOhGS3k381ReP5/S6hw=;
+        b=GzLNNCw9dsfPi7hFV0zS8GFz+Hd7t3vqkztGxn37iFWRd5yCQdnDk5lsCBZvl6qf/HiBP/
+        0MAb47yaBXygwa3KSinYagPQlg19295p42BS+ikpAsZU/PfrWJfObPbeYwAQUi9kuxVoua
+        4dKGFzsWTyy/thuhF2J3PaAvzFRF+ik=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1660115170;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=XYYdg938pZFGIHomB2WfGo+4YOhGS3k381ReP5/S6hw=;
+        b=wGpHg8ugvmIPiFSntIDzRSfkaXF7QqgUdzaIvPVo4TqdHDoF75+dtHvzffsFaibPdkxUsr
+        BkuvtLixWRhm2OAQ==
+Received: from localhost.localdomain (unknown [10.100.201.122])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id B7EBB2C226;
+        Wed, 10 Aug 2022 07:06:09 +0000 (UTC)
+From:   Jiri Slaby <jslaby@suse.cz>
+To:     akpm@linux-foundation.org
+Cc:     linux-kernel@vger.kernel.org, jack@suse.com,
+        adilger.kernel@dilger.ca, tytso@mit.edu,
+        Jiri Slaby <jslaby@suse.cz>, stable@vger.kernel.org,
+        Minchan Kim <minchan@kernel.org>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Alexey Romanov <avromanov@sberdevices.ru>,
+        Dmitry Rokosov <ddrokosov@sberdevices.ru>,
+        Lukas Czerner <lczerner@redhat.com>,
+        Ext4 Developers List <linux-ext4@vger.kernel.org>
+Subject: [PATCH] Revert "zram: remove double compression logic"
+Date:   Wed, 10 Aug 2022 09:06:09 +0200
+Message-Id: <20220810070609.14402-1-jslaby@suse.cz>
+X-Mailer: git-send-email 2.37.1
+In-Reply-To: <YvJKwCXewHmuWGdh@google.com>
+References: <YvJKwCXewHmuWGdh@google.com>
 MIME-Version: 1.0
-References: <20220809175515.046484486@linuxfoundation.org>
-In-Reply-To: <20220809175515.046484486@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 10 Aug 2022 11:46:29 +0530
-Message-ID: <CA+G9fYs_yMc0vU0iNkNDJm0AesjKvwS+gTDQXRvYi2jMP19q3g@mail.gmail.com>
-Subject: Re: [PATCH 5.18 00/35] 5.18.17-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 9 Aug 2022 at 23:36, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.18.17 release.
-> There are 35 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 11 Aug 2022 17:55:02 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.17-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+This reverts commit e7be8d1dd983156bbdd22c0319b71119a8fbb697 as it
+causes zram failures. It does not revert cleanly, PTR_ERR handling was
+introduced in the meantime. This is handled by appropriate IS_ERR.
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+When under memory pressure, zs_malloc() can fail. Before the above
+commit, the allocation was retried with direct reclaim enabled
+(GFP_NOIO). After the commit, it is not -- only __GFP_KSWAPD_RECLAIM is
+tried.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+So when the failure occurs under memory pressure, the overlaying
+filesystem such as ext2 (mounted by ext4 module in this case) can emit
+failures, making the (file)system unusable:
+  EXT4-fs warning (device zram0): ext4_end_bio:343: I/O error 10 writing to inode 16386 starting block 159744)
+  Buffer I/O error on device zram0, logical block 159744
 
-## Build
-* kernel: 5.18.17-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.18.y
-* git commit: 732bf05a92abae4d0d6c3aca109cbc5bb0ffdb25
-* git describe: v5.18.16-36-g732bf05a92ab
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.18.y/build/v5.18.16-36-g732bf05a92ab
+With direct reclaim, memory is really reclaimed and allocation succeeds,
+eventually. In the worst case, the oom killer is invoked, which is
+proper outcome if user sets up zram too large (in comparison to
+available RAM).
 
-## No test regressions (compared to v5.18.16)
+This very diff doesn't apply to 5.19 (stable) cleanly (see PTR_ERR note
+above). Use revert of e7be8d1dd983 directly.
 
-## No metric regressions (compared to v5.18.16)
+Link: https://bugzilla.suse.com/show_bug.cgi?id=1202203
+Fixes: e7be8d1dd983 ("zram: remove double compression logic")
+Cc: stable@vger.kernel.org # 5.19
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Nitin Gupta <ngupta@vflare.org>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Alexey Romanov <avromanov@sberdevices.ru>
+Cc: Dmitry Rokosov <ddrokosov@sberdevices.ru>
+Cc: Lukas Czerner <lczerner@redhat.com>
+Cc: Ext4 Developers List <linux-ext4@vger.kernel.org>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+---
+ drivers/block/zram/zram_drv.c | 42 ++++++++++++++++++++++++++---------
+ drivers/block/zram/zram_drv.h |  1 +
+ 2 files changed, 33 insertions(+), 10 deletions(-)
 
-## No test fixes (compared to v5.18.16)
-
-## No metric fixes (compared to v5.18.16)
-
-## Test result summary
-total: 133738, pass: 119625, fail: 846, skip: 12384, xfail: 883
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 301 total, 301 passed, 0 failed
-* arm64: 62 total, 60 passed, 2 failed
-* i386: 52 total, 50 passed, 2 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 60 total, 54 passed, 6 failed
-* riscv: 27 total, 22 passed, 5 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 55 total, 53 passed, 2 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
+diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
+index 92cb929a45b7..226ea76cc819 100644
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -1146,14 +1146,15 @@ static ssize_t bd_stat_show(struct device *dev,
+ static ssize_t debug_stat_show(struct device *dev,
+ 		struct device_attribute *attr, char *buf)
+ {
+-	int version = 2;
++	int version = 1;
+ 	struct zram *zram = dev_to_zram(dev);
+ 	ssize_t ret;
+ 
+ 	down_read(&zram->init_lock);
+ 	ret = scnprintf(buf, PAGE_SIZE,
+-			"version: %d\n%8llu\n",
++			"version: %d\n%8llu %8llu\n",
+ 			version,
++			(u64)atomic64_read(&zram->stats.writestall),
+ 			(u64)atomic64_read(&zram->stats.miss_free));
+ 	up_read(&zram->init_lock);
+ 
+@@ -1351,7 +1352,7 @@ static int __zram_bvec_write(struct zram *zram, struct bio_vec *bvec,
+ {
+ 	int ret = 0;
+ 	unsigned long alloced_pages;
+-	unsigned long handle = 0;
++	unsigned long handle = -ENOMEM;
+ 	unsigned int comp_len = 0;
+ 	void *src, *dst, *mem;
+ 	struct zcomp_strm *zstrm;
+@@ -1369,6 +1370,7 @@ static int __zram_bvec_write(struct zram *zram, struct bio_vec *bvec,
+ 	}
+ 	kunmap_atomic(mem);
+ 
++compress_again:
+ 	zstrm = zcomp_stream_get(zram->comp);
+ 	src = kmap_atomic(page);
+ 	ret = zcomp_compress(zstrm, src, &comp_len);
+@@ -1377,20 +1379,39 @@ static int __zram_bvec_write(struct zram *zram, struct bio_vec *bvec,
+ 	if (unlikely(ret)) {
+ 		zcomp_stream_put(zram->comp);
+ 		pr_err("Compression failed! err=%d\n", ret);
++		zs_free(zram->mem_pool, handle);
+ 		return ret;
+ 	}
+ 
+ 	if (comp_len >= huge_class_size)
+ 		comp_len = PAGE_SIZE;
+-
+-	handle = zs_malloc(zram->mem_pool, comp_len,
+-			__GFP_KSWAPD_RECLAIM |
+-			__GFP_NOWARN |
+-			__GFP_HIGHMEM |
+-			__GFP_MOVABLE);
+-
++	/*
++	 * handle allocation has 2 paths:
++	 * a) fast path is executed with preemption disabled (for
++	 *  per-cpu streams) and has __GFP_DIRECT_RECLAIM bit clear,
++	 *  since we can't sleep;
++	 * b) slow path enables preemption and attempts to allocate
++	 *  the page with __GFP_DIRECT_RECLAIM bit set. we have to
++	 *  put per-cpu compression stream and, thus, to re-do
++	 *  the compression once handle is allocated.
++	 *
++	 * if we have a 'non-null' handle here then we are coming
++	 * from the slow path and handle has already been allocated.
++	 */
++	if (IS_ERR((void *)handle))
++		handle = zs_malloc(zram->mem_pool, comp_len,
++				__GFP_KSWAPD_RECLAIM |
++				__GFP_NOWARN |
++				__GFP_HIGHMEM |
++				__GFP_MOVABLE);
+ 	if (IS_ERR((void *)handle)) {
+ 		zcomp_stream_put(zram->comp);
++		atomic64_inc(&zram->stats.writestall);
++		handle = zs_malloc(zram->mem_pool, comp_len,
++				GFP_NOIO | __GFP_HIGHMEM |
++				__GFP_MOVABLE);
++		if (!IS_ERR((void *)handle))
++			goto compress_again;
+ 		return PTR_ERR((void *)handle);
+ 	}
+ 
+@@ -1948,6 +1969,7 @@ static int zram_add(void)
+ 	if (ZRAM_LOGICAL_BLOCK_SIZE == PAGE_SIZE)
+ 		blk_queue_max_write_zeroes_sectors(zram->disk->queue, UINT_MAX);
+ 
++	blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, zram->disk->queue);
+ 	ret = device_add_disk(NULL, zram->disk, zram_disk_groups);
+ 	if (ret)
+ 		goto out_cleanup_disk;
+diff --git a/drivers/block/zram/zram_drv.h b/drivers/block/zram/zram_drv.h
+index 158c91e54850..80c3b43b4828 100644
+--- a/drivers/block/zram/zram_drv.h
++++ b/drivers/block/zram/zram_drv.h
+@@ -81,6 +81,7 @@ struct zram_stats {
+ 	atomic64_t huge_pages_since;	/* no. of huge pages since zram set up */
+ 	atomic64_t pages_stored;	/* no. of pages currently stored */
+ 	atomic_long_t max_used_pages;	/* no. of maximum pages stored */
++	atomic64_t writestall;		/* no. of write slow paths */
+ 	atomic64_t miss_free;		/* no. of missed free */
+ #ifdef	CONFIG_ZRAM_WRITEBACK
+ 	atomic64_t bd_count;		/* no. of pages in backing device */
 -- 
-Linaro LKFT
-https://lkft.linaro.org
+2.37.1
+
