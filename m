@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A45E5901A1
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E3BF5901AC
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237102AbiHKP5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:57:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48206 "EHLO
+        id S237111AbiHKP5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:57:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237090AbiHKPzn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:55:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE09498D16;
-        Thu, 11 Aug 2022 08:46:39 -0700 (PDT)
+        with ESMTP id S237134AbiHKPzt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:55:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08E8C98D1C;
+        Thu, 11 Aug 2022 08:46:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0459B82162;
-        Thu, 11 Aug 2022 15:46:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F702C433C1;
-        Thu, 11 Aug 2022 15:46:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8345616DD;
+        Thu, 11 Aug 2022 15:46:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C6A2C433D7;
+        Thu, 11 Aug 2022 15:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232796;
-        bh=ab1NpgsRg6Rc2IpZcFwYvCfoLl4CqmgM/POgnNTq2rg=;
+        s=k20201202; t=1660232799;
+        bh=JA5jE552whOpwIh8D7G53fLsA4DC4GfqgNq/8kF8PUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rT54BLhUjOHAEJht+EEF805sP5zdTaLlHwbEZLFFeiOpY0eToKw9zVy0p48KJSWTM
-         hqwOh2vY4Wko0VCb+qXUz3SRUiBAkM4LP1toYdSVK0huY/gsCEoOCtuaGYj0wHsfe/
-         GnMwCmnqUh19i9I+kZBiyA4VKgKiDN2YZFdP1/OQnaLnIB+QBe/XdqkpafQRHE7ts0
-         B4ls6gvGhsEpVyvY6T/v7PPBo2ll/DxopSaiYBdXXUklQ7649DDZKmimnJEzob8Kkm
-         rPctO0roG4EyDafM6qO3w0JN72mLVAaOMxYP7iUmETWDImfclG7EQHTiwkMAV6MAZo
-         GpFvR5JAM8wJg==
+        b=luTp5/IKEpHaMX9x0pYoUJo2BjJcbyFzJUizQFOnxe0HyDrol7PBLdwKyodHjvhTs
+         ChY2kNWBOHUGzyUwz2a+TrLLvARjixApmQktJlnYY46rxEw55e0fepcfTewG2MFBrU
+         zZzQRsHPcA4iRw0Qzlxd42MhYU35GxktEEnlgvd/RNs0m+D4ec/ZFetRFRWdT0knzB
+         lWl73hlkgnf2UjTq6wj4Tbk1gSAclUiOpBlWx9XAOP27LS1JR44n4vIEQ4ULJISpXz
+         cyg8I2AkFzUM6wlaHjuEPgWC15yvdSzbPHX87UcIRiAhzlAgBB/jDaWKykDQEOlb2U
+         rUGNfZstJaikQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Zqiang <qiang1.zhang@intel.com>,
@@ -38,9 +38,9 @@ Cc:     Zqiang <qiang1.zhang@intel.com>,
         Sasha Levin <sashal@kernel.org>, dave@stgolabs.net,
         josh@joshtriplett.org, frederic@kernel.org,
         quic_neeraju@quicinc.com, rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 38/93] rcuscale: Fix smp_processor_id()-in-preemptible warnings
-Date:   Thu, 11 Aug 2022 11:41:32 -0400
-Message-Id: <20220811154237.1531313-38-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 39/93] refscale: Convert test_lock spinlock to raw_spinlock
+Date:   Thu, 11 Aug 2022 11:41:33 -0400
+Message-Id: <20220811154237.1531313-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -60,57 +60,100 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zqiang <qiang1.zhang@intel.com>
 
-[ Upstream commit 92366810644d5675043c792abb70eaf974a77384 ]
+[ Upstream commit 7bf336fb8dac718febb7bf4fe79e1be0c5e4a631 ]
 
-Systems built with CONFIG_DEBUG_PREEMPT=y can trigger the following
-BUG while running the rcuscale performance test:
+In kernels built with CONFIG_PREEMPT_RT=y, spinlocks are replaced by
+rt_mutex, which can sleep.  This means that acquiring a non-raw spinlock
+in a critical section where preemption is disabled can trigger the
+following BUG:
 
-BUG: using smp_processor_id() in preemptible [00000000] code: rcu_scale_write/69
-CPU: 0 PID: 66 Comm: rcu_scale_write Not tainted 5.18.0-rc7-next-20220517-yoctodev-standard+
-caller is debug_smp_processor_id+0x17/0x20
+BUG: scheduling while atomic: ref_scale_reade/76/0x00000002
+Preemption disabled at:
+ref_lock_section+0x16/0x80
 Call Trace:
 <TASK>
-dump_stack_lvl+0x49/0x5e
+dump_stack_lvl+0x5b/0x82
 dump_stack+0x10/0x12
-check_preemption_disabled+0xdf/0xf0
-debug_smp_processor_id+0x17/0x20
-rcu_scale_writer+0x2b5/0x580
-kthread+0x177/0x1b0
+__schedule_bug.cold+0x9c/0xad
+__schedule+0x839/0xc00
+schedule_rtlock+0x22/0x40
+rtlock_slowlock_locked+0x460/0x1350
+rt_spin_lock+0x61/0xe0
+ref_lock_section+0x29/0x80
+rcu_scale_one_reader+0x52/0x60
+ref_scale_reader+0x28d/0x490
+kthread+0x128/0x150
 ret_from_fork+0x22/0x30
 </TASK>
 
-Reproduction method:
-runqemu kvm slirp nographic qemuparams="-m 4096 -smp 8" bootparams="isolcpus=2,3
-nohz_full=2,3 rcu_nocbs=2,3 rcutree.dump_tree=1 rcuscale.shutdown=false
-rcuscale.gp_async=true" -d
-
-The problem is that the rcu_scale_writer() kthreads fail to set the
-PF_NO_SETAFFINITY flags, which causes is_percpu_thread() to assume
-that the kthread's affinity might change at any time, thus the BUG
-noted above.
-
-This commit therefore causes rcu_scale_writer() to set PF_NO_SETAFFINITY
-in its kthread's ->flags field, thus preventing this BUG.
+This commit therefore converts spinlock to raw_spinlock.
 
 Signed-off-by: Zqiang <qiang1.zhang@intel.com>
 Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/rcuscale.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/rcu/refscale.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/rcu/rcuscale.c b/kernel/rcu/rcuscale.c
-index 5e4f1f83d38e..fefaeda87de1 100644
---- a/kernel/rcu/rcuscale.c
-+++ b/kernel/rcu/rcuscale.c
-@@ -399,6 +399,7 @@ rcu_scale_writer(void *arg)
- 	VERBOSE_SCALEOUT_STRING("rcu_scale_writer task started");
- 	WARN_ON(!wdpp);
- 	set_cpus_allowed_ptr(current, cpumask_of(me % nr_cpu_ids));
-+	current->flags |= PF_NO_SETAFFINITY;
- 	sched_set_fifo_low(current);
+diff --git a/kernel/rcu/refscale.c b/kernel/rcu/refscale.c
+index 5489ff7f478e..12ee5fd6404e 100644
+--- a/kernel/rcu/refscale.c
++++ b/kernel/rcu/refscale.c
+@@ -365,7 +365,7 @@ static struct ref_scale_ops rwsem_ops = {
+ };
  
- 	if (holdoff)
+ // Definitions for global spinlock
+-static DEFINE_SPINLOCK(test_lock);
++static DEFINE_RAW_SPINLOCK(test_lock);
+ 
+ static void ref_lock_section(const int nloops)
+ {
+@@ -373,8 +373,8 @@ static void ref_lock_section(const int nloops)
+ 
+ 	preempt_disable();
+ 	for (i = nloops; i >= 0; i--) {
+-		spin_lock(&test_lock);
+-		spin_unlock(&test_lock);
++		raw_spin_lock(&test_lock);
++		raw_spin_unlock(&test_lock);
+ 	}
+ 	preempt_enable();
+ }
+@@ -385,9 +385,9 @@ static void ref_lock_delay_section(const int nloops, const int udl, const int nd
+ 
+ 	preempt_disable();
+ 	for (i = nloops; i >= 0; i--) {
+-		spin_lock(&test_lock);
++		raw_spin_lock(&test_lock);
+ 		un_delay(udl, ndl);
+-		spin_unlock(&test_lock);
++		raw_spin_unlock(&test_lock);
+ 	}
+ 	preempt_enable();
+ }
+@@ -407,8 +407,8 @@ static void ref_lock_irq_section(const int nloops)
+ 
+ 	preempt_disable();
+ 	for (i = nloops; i >= 0; i--) {
+-		spin_lock_irqsave(&test_lock, flags);
+-		spin_unlock_irqrestore(&test_lock, flags);
++		raw_spin_lock_irqsave(&test_lock, flags);
++		raw_spin_unlock_irqrestore(&test_lock, flags);
+ 	}
+ 	preempt_enable();
+ }
+@@ -420,9 +420,9 @@ static void ref_lock_irq_delay_section(const int nloops, const int udl, const in
+ 
+ 	preempt_disable();
+ 	for (i = nloops; i >= 0; i--) {
+-		spin_lock_irqsave(&test_lock, flags);
++		raw_spin_lock_irqsave(&test_lock, flags);
+ 		un_delay(udl, ndl);
+-		spin_unlock_irqrestore(&test_lock, flags);
++		raw_spin_unlock_irqrestore(&test_lock, flags);
+ 	}
+ 	preempt_enable();
+ }
 -- 
 2.35.1
 
