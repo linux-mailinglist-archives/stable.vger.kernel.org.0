@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C4AD590194
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A45E5901A1
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236694AbiHKP51 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:57:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46156 "EHLO
+        id S237102AbiHKP5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:57:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237104AbiHKPzp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:55:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAEB774DE9;
-        Thu, 11 Aug 2022 08:46:35 -0700 (PDT)
+        with ESMTP id S237090AbiHKPzn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:55:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE09498D16;
+        Thu, 11 Aug 2022 08:46:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A730A616DE;
-        Thu, 11 Aug 2022 15:46:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B65FAC433D6;
-        Thu, 11 Aug 2022 15:46:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0459B82162;
+        Thu, 11 Aug 2022 15:46:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F702C433C1;
+        Thu, 11 Aug 2022 15:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232794;
-        bh=BqLuHpm7mQrAY/0hhdZ0D6Jp3muwgvEOfDT3tY/2MBQ=;
+        s=k20201202; t=1660232796;
+        bh=ab1NpgsRg6Rc2IpZcFwYvCfoLl4CqmgM/POgnNTq2rg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rhu7iSYbgyCc5/2gxboCaCpIcf9xp17rwv1Q6laMJC9momTQ8mQnfKE/MUZU2WMFv
-         oVi1Ugwdl7LeUC66HyqlY0Drm33PGFCCukGBU/hxnH0amH4RkvZKKSwPtySyzD3pUQ
-         DbGVv94JlkY9oJNWghTEkyP8ayD03PtK8vVbTX7OdsBDYda469SzV+zZMku8DVRenq
-         vlZZ0S0DCj1xm5eDqZgBWeYV7Riwn9jCJHy0W0I9LiIcYOsdihLjjuSXEv6SpAAnsO
-         87+IdWtOPNREsU/sSUiuZmuxEDeA9Sxh8je9qCaEWGq6zkRBttQzDU3sVJofyN1hCU
-         X+8fpDgphp3HQ==
+        b=rT54BLhUjOHAEJht+EEF805sP5zdTaLlHwbEZLFFeiOpY0eToKw9zVy0p48KJSWTM
+         hqwOh2vY4Wko0VCb+qXUz3SRUiBAkM4LP1toYdSVK0huY/gsCEoOCtuaGYj0wHsfe/
+         GnMwCmnqUh19i9I+kZBiyA4VKgKiDN2YZFdP1/OQnaLnIB+QBe/XdqkpafQRHE7ts0
+         B4ls6gvGhsEpVyvY6T/v7PPBo2ll/DxopSaiYBdXXUklQ7649DDZKmimnJEzob8Kkm
+         rPctO0roG4EyDafM6qO3w0JN72mLVAaOMxYP7iUmETWDImfclG7EQHTiwkMAV6MAZo
+         GpFvR5JAM8wJg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Zqiang <qiang1.zhang@intel.com>,
@@ -38,9 +38,9 @@ Cc:     Zqiang <qiang1.zhang@intel.com>,
         Sasha Levin <sashal@kernel.org>, dave@stgolabs.net,
         josh@joshtriplett.org, frederic@kernel.org,
         quic_neeraju@quicinc.com, rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 37/93] rcutorture: Fix memory leak in rcu_test_debug_objects()
-Date:   Thu, 11 Aug 2022 11:41:31 -0400
-Message-Id: <20220811154237.1531313-37-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 38/93] rcuscale: Fix smp_processor_id()-in-preemptible warnings
+Date:   Thu, 11 Aug 2022 11:41:32 -0400
+Message-Id: <20220811154237.1531313-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -60,45 +60,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zqiang <qiang1.zhang@intel.com>
 
-[ Upstream commit 98ea20328786372cbbc90c601be168f5fe1f8845 ]
+[ Upstream commit 92366810644d5675043c792abb70eaf974a77384 ]
 
-The kernel memory leak detector located the following:
+Systems built with CONFIG_DEBUG_PREEMPT=y can trigger the following
+BUG while running the rcuscale performance test:
 
-unreferenced object 0xffff95d941135b50 (size 16):
-  comm "swapper/0", pid 1, jiffies 4294667610 (age 1367.451s)
-  hex dump (first 16 bytes):
-    f0 c6 c2 bd d9 95 ff ff 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000bc81d9b1>] kmem_cache_alloc_trace+0x2f6/0x500
-    [<00000000d28be229>] rcu_torture_init+0x1235/0x1354
-    [<0000000032c3acd9>] do_one_initcall+0x51/0x210
-    [<000000003c117727>] kernel_init_freeable+0x205/0x259
-    [<000000003961f965>] kernel_init+0x1a/0x120
-    [<000000001998f890>] ret_from_fork+0x22/0x30
+BUG: using smp_processor_id() in preemptible [00000000] code: rcu_scale_write/69
+CPU: 0 PID: 66 Comm: rcu_scale_write Not tainted 5.18.0-rc7-next-20220517-yoctodev-standard+
+caller is debug_smp_processor_id+0x17/0x20
+Call Trace:
+<TASK>
+dump_stack_lvl+0x49/0x5e
+dump_stack+0x10/0x12
+check_preemption_disabled+0xdf/0xf0
+debug_smp_processor_id+0x17/0x20
+rcu_scale_writer+0x2b5/0x580
+kthread+0x177/0x1b0
+ret_from_fork+0x22/0x30
+</TASK>
 
-This is caused by the rcu_test_debug_objects() function allocating an
-rcu_head structure, then failing to free it.  This commit therefore adds
-the needed kfree() after the last use of this structure.
+Reproduction method:
+runqemu kvm slirp nographic qemuparams="-m 4096 -smp 8" bootparams="isolcpus=2,3
+nohz_full=2,3 rcu_nocbs=2,3 rcutree.dump_tree=1 rcuscale.shutdown=false
+rcuscale.gp_async=true" -d
+
+The problem is that the rcu_scale_writer() kthreads fail to set the
+PF_NO_SETAFFINITY flags, which causes is_percpu_thread() to assume
+that the kthread's affinity might change at any time, thus the BUG
+noted above.
+
+This commit therefore causes rcu_scale_writer() to set PF_NO_SETAFFINITY
+in its kthread's ->flags field, thus preventing this BUG.
 
 Signed-off-by: Zqiang <qiang1.zhang@intel.com>
 Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/rcutorture.c | 1 +
+ kernel/rcu/rcuscale.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
-index 55d049c39608..4df46bede467 100644
---- a/kernel/rcu/rcutorture.c
-+++ b/kernel/rcu/rcutorture.c
-@@ -3074,6 +3074,7 @@ static void rcu_test_debug_objects(void)
- 	pr_alert("%s: WARN: Duplicate call_rcu() test complete.\n", KBUILD_MODNAME);
- 	destroy_rcu_head_on_stack(&rh1);
- 	destroy_rcu_head_on_stack(&rh2);
-+	kfree(rhp);
- #else /* #ifdef CONFIG_DEBUG_OBJECTS_RCU_HEAD */
- 	pr_alert("%s: !CONFIG_DEBUG_OBJECTS_RCU_HEAD, not testing duplicate call_rcu()\n", KBUILD_MODNAME);
- #endif /* #else #ifdef CONFIG_DEBUG_OBJECTS_RCU_HEAD */
+diff --git a/kernel/rcu/rcuscale.c b/kernel/rcu/rcuscale.c
+index 5e4f1f83d38e..fefaeda87de1 100644
+--- a/kernel/rcu/rcuscale.c
++++ b/kernel/rcu/rcuscale.c
+@@ -399,6 +399,7 @@ rcu_scale_writer(void *arg)
+ 	VERBOSE_SCALEOUT_STRING("rcu_scale_writer task started");
+ 	WARN_ON(!wdpp);
+ 	set_cpus_allowed_ptr(current, cpumask_of(me % nr_cpu_ids));
++	current->flags |= PF_NO_SETAFFINITY;
+ 	sched_set_fifo_low(current);
+ 
+ 	if (holdoff)
 -- 
 2.35.1
 
