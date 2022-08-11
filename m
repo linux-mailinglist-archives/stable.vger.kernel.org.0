@@ -2,163 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6557959008D
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:44:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEFAA590129
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:52:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236452AbiHKPou (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:44:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43444 "EHLO
+        id S236672AbiHKPv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:51:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235890AbiHKPo3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:44:29 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9897B97D74;
-        Thu, 11 Aug 2022 08:38:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=c9jy1FRoWDsKM8RjpmwsY2VJ+BYnw6ep0EpYoANfAJw=; b=YBAcWpulO9c6x5CEL4s3LeKI9Y
-        IJdtgdOtg//j6T7rZSL8tkHXqdwcMu4HkYZvzhgFLNKO3iXsD3RSg3eRmlc3omGnkWLNbuaSfKg+A
-        rjx55IsQtJGh+O6MBNYVoPB9zxsT/7lDEmPwD5XvvbRi+4QD/m10FST1LL3BC17EMBMm4Hy4gb7CF
-        TSTltq4kHj7qCtUKJ2XRyVHEZb3ng9MWMsL5ityCzIPROMEmZnDjAK7MrF3WA67nmWKWMbDItGZtr
-        XliOd0oAxdljJdEt81w+04vbnMrSjOlDsqKYEyK9eUQjUPlqHjtdHDAXsu1Z9tgR9rb8tRaoG1Hkt
-        pe7ul6UQ==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:33750)
-        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1oMAGf-0007v3-E9; Thu, 11 Aug 2022 16:38:41 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1oMAGV-0008VW-Gp; Thu, 11 Aug 2022 16:38:31 +0100
-Date:   Thu, 11 Aug 2022 16:38:31 +0100
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ong Boon Leong <boon.leong.ong@intel.com>,
-        kernel test robot <lkp@intel.com>,
-        "David S . Miller" <davem@davemloft.net>, olteanv@gmail.com,
-        andrew@lunn.ch, vivien.didelot@gmail.com, f.fainelli@gmail.com,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        Jose.Abreu@synopsys.com, hkallweit1@gmail.com,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.19 028/105] net: make xpcs_do_config to accept
- advertising for pcs-xpcs and sja1105
-Message-ID: <YvUid/JRA4s/S9Cr@shell.armlinux.org.uk>
-References: <20220811152851.1520029-1-sashal@kernel.org>
- <20220811152851.1520029-28-sashal@kernel.org>
+        with ESMTP id S237006AbiHKPvB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:51:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 081D5979EF;
+        Thu, 11 Aug 2022 08:42:44 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98B4C616C2;
+        Thu, 11 Aug 2022 15:42:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 661CBC433D7;
+        Thu, 11 Aug 2022 15:42:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1660232563;
+        bh=xQmukVhejqSSvaIVDFsfMkvhcUx1mL0PI7bqN3mEXus=;
+        h=From:To:Cc:Subject:Date:From;
+        b=d4CXwt1cqNnn59qi82DeBc3VC6j8uMAsfvf/RUV7u+XJFVp2hwcQnaFYQBmdMwGuT
+         ens8eCyDYDXi8U8k87Vada0Xw3uTiSdnzYkRl92HPw0ioYnFpsJ54zgG4LXGVuxb6h
+         l6ICuYjJju0rLx554ZelyWN/htQLON4TlmMxs4IDH3PzoiEvqgUoBxKRIfE1Posy3E
+         s41U0vjlXMf64y9jlAqO3DsCsLBcjQ+nL4hGtLAXCxxpCSCccShBN42anIUXK0zsqo
+         nu6ybCyKpZ6z4M9qXVmqKj/6BQXHltGqB1Ta+2jJpaGybdU431cD4zUwipW+ImqYST
+         InHqQ2dm0O0Zw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Javier Martinez Canillas <javierm@redhat.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>, daniel@ffwll.ch,
+        deller@gmx.de, tzimmermann@suse.de, sam@ravnborg.org,
+        alexander.deucher@amd.com, deng.changcheng@zte.com.cn,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.18 01/93] fbdev: Restart conflicting fb removal loop when unregistering devices
+Date:   Thu, 11 Aug 2022 11:40:55 -0400
+Message-Id: <20220811154237.1531313-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220811152851.1520029-28-sashal@kernel.org>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-Why are the stable kernels picking up this development commit? I don't
-see you picking up the commits that actually make use of this new
-parameter.
+[ Upstream commit 3367aa7d74d240261de2543ddb35531ccad9d884 ]
 
-Maybe stable folk can tell me which of the rules listed in
-Documentation/process/stable-kernel-rules.rst that this patch conforms
-with that makes it eligable for stable kernels. Thanks.
+Drivers that want to remove registered conflicting framebuffers prior to
+register their own framebuffer, call to remove_conflicting_framebuffers().
 
-Russell.
+This function takes the registration_lock mutex, to prevent a race when
+drivers register framebuffer devices. But if a conflicting framebuffer
+device is found, the underlaying platform device is unregistered and this
+will lead to the platform driver .remove callback to be called. Which in
+turn will call to unregister_framebuffer() that takes the same lock.
 
-On Thu, Aug 11, 2022 at 11:27:12AM -0400, Sasha Levin wrote:
-> From: Ong Boon Leong <boon.leong.ong@intel.com>
-> 
-> [ Upstream commit fa9c562f9735d24c3253747eb21f3f0c0f6de48e ]
-> 
-> xpcs_config() has 'advertising' input that is required for C37 1000BASE-X
-> AN in later patch series. So, we prepare xpcs_do_config() for it.
-> 
-> For sja1105, xpcs_do_config() is used for xpcs configuration without
-> depending on advertising input, so set to NULL.
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/net/dsa/sja1105/sja1105_main.c | 2 +-
->  drivers/net/pcs/pcs-xpcs.c             | 6 +++---
->  include/linux/pcs/pcs-xpcs.h           | 2 +-
->  3 files changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
-> index 698c7d1fb45c..b03d0d0c3dbf 100644
-> --- a/drivers/net/dsa/sja1105/sja1105_main.c
-> +++ b/drivers/net/dsa/sja1105/sja1105_main.c
-> @@ -2330,7 +2330,7 @@ int sja1105_static_config_reload(struct sja1105_private *priv,
->  		else
->  			mode = MLO_AN_PHY;
->  
-> -		rc = xpcs_do_config(xpcs, priv->phy_mode[i], mode);
-> +		rc = xpcs_do_config(xpcs, priv->phy_mode[i], mode, NULL);
->  		if (rc < 0)
->  			goto out;
->  
-> diff --git a/drivers/net/pcs/pcs-xpcs.c b/drivers/net/pcs/pcs-xpcs.c
-> index d25fbb9caeba..b17908a0b27c 100644
-> --- a/drivers/net/pcs/pcs-xpcs.c
-> +++ b/drivers/net/pcs/pcs-xpcs.c
-> @@ -795,7 +795,7 @@ static int xpcs_config_2500basex(struct dw_xpcs *xpcs)
->  }
->  
->  int xpcs_do_config(struct dw_xpcs *xpcs, phy_interface_t interface,
-> -		   unsigned int mode)
-> +		   unsigned int mode, const unsigned long *advertising)
->  {
->  	const struct xpcs_compat *compat;
->  	int ret;
-> @@ -843,7 +843,7 @@ static int xpcs_config(struct phylink_pcs *pcs, unsigned int mode,
->  {
->  	struct dw_xpcs *xpcs = phylink_pcs_to_xpcs(pcs);
->  
-> -	return xpcs_do_config(xpcs, interface, mode);
-> +	return xpcs_do_config(xpcs, interface, mode, advertising);
->  }
->  
->  static int xpcs_get_state_c73(struct dw_xpcs *xpcs,
-> @@ -864,7 +864,7 @@ static int xpcs_get_state_c73(struct dw_xpcs *xpcs,
->  
->  		state->link = 0;
->  
-> -		return xpcs_do_config(xpcs, state->interface, MLO_AN_INBAND);
-> +		return xpcs_do_config(xpcs, state->interface, MLO_AN_INBAND, NULL);
->  	}
->  
->  	if (state->an_enabled && xpcs_aneg_done_c73(xpcs, state, compat)) {
-> diff --git a/include/linux/pcs/pcs-xpcs.h b/include/linux/pcs/pcs-xpcs.h
-> index 266eb26fb029..37eb97cc2283 100644
-> --- a/include/linux/pcs/pcs-xpcs.h
-> +++ b/include/linux/pcs/pcs-xpcs.h
-> @@ -30,7 +30,7 @@ int xpcs_get_an_mode(struct dw_xpcs *xpcs, phy_interface_t interface);
->  void xpcs_link_up(struct phylink_pcs *pcs, unsigned int mode,
->  		  phy_interface_t interface, int speed, int duplex);
->  int xpcs_do_config(struct dw_xpcs *xpcs, phy_interface_t interface,
-> -		   unsigned int mode);
-> +		   unsigned int mode, const unsigned long *advertising);
->  void xpcs_get_interfaces(struct dw_xpcs *xpcs, unsigned long *interfaces);
->  int xpcs_config_eee(struct dw_xpcs *xpcs, int mult_fact_100ns,
->  		    int enable);
-> -- 
-> 2.35.1
-> 
-> 
+To prevent this, a struct fb_info.forced_out field was used as indication
+to unregister_framebuffer() whether the mutex has to be grabbed or not.
 
+But this could be unsafe, since the fbdev core is making assumptions about
+what drivers may or may not do in their .remove callbacks. Allowing to run
+these callbacks with the registration_lock held can cause deadlocks, since
+the fbdev core has no control over what drivers do in their removal path.
+
+A better solution is to drop the lock before platform_device_unregister(),
+so unregister_framebuffer() can take it when called from the fbdev driver.
+The lock is acquired again after the device has been unregistered and at
+this point the removal loop can be restarted.
+
+Since the conflicting framebuffer device has already been removed, the
+loop would just finish when no more conflicting framebuffers are found.
+
+Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220511113039.1252432-1-javierm@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/video/fbdev/core/fbmem.c | 22 +++++++++++++++-------
+ include/linux/fb.h               |  1 -
+ 2 files changed, 15 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
+index 643383d74edc..82880f59ba67 100644
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1566,6 +1566,7 @@ static void do_remove_conflicting_framebuffers(struct apertures_struct *a,
+ {
+ 	int i;
+ 
++restart_removal:
+ 	/* check all firmware fbs and kick off if the base addr overlaps */
+ 	for_each_registered_fb(i) {
+ 		struct apertures_struct *gen_aper;
+@@ -1600,12 +1601,23 @@ static void do_remove_conflicting_framebuffers(struct apertures_struct *a,
+ 				 */
+ 				do_unregister_framebuffer(registered_fb[i]);
+ 			} else if (dev_is_platform(device)) {
+-				registered_fb[i]->forced_out = true;
++				/*
++				 * Drop the lock because if the device is unregistered, its
++				 * driver will call to unregister_framebuffer(), that takes
++				 * this lock.
++				 */
++				mutex_unlock(&registration_lock);
+ 				platform_device_unregister(to_platform_device(device));
++				mutex_lock(&registration_lock);
+ 			} else {
+ 				pr_warn("fb%d: cannot remove device\n", i);
+ 				do_unregister_framebuffer(registered_fb[i]);
+ 			}
++			/*
++			 * Restart the removal loop now that the device has been
++			 * unregistered and its associated framebuffer gone.
++			 */
++			goto restart_removal;
+ 		}
+ 	}
+ }
+@@ -1946,13 +1958,9 @@ EXPORT_SYMBOL(register_framebuffer);
+ void
+ unregister_framebuffer(struct fb_info *fb_info)
+ {
+-	bool forced_out = fb_info->forced_out;
+-
+-	if (!forced_out)
+-		mutex_lock(&registration_lock);
++	mutex_lock(&registration_lock);
+ 	do_unregister_framebuffer(fb_info);
+-	if (!forced_out)
+-		mutex_unlock(&registration_lock);
++	mutex_unlock(&registration_lock);
+ }
+ EXPORT_SYMBOL(unregister_framebuffer);
+ 
+diff --git a/include/linux/fb.h b/include/linux/fb.h
+index 9a77ab615c36..ae399d3ea4f9 100644
+--- a/include/linux/fb.h
++++ b/include/linux/fb.h
+@@ -503,7 +503,6 @@ struct fb_info {
+ 	} *apertures;
+ 
+ 	bool skip_vt_switch; /* no VT switch on suspend/resume required */
+-	bool forced_out; /* set when being removed by another driver */
+ };
+ 
+ static inline struct apertures_struct *alloc_apertures(unsigned int max_num) {
 -- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+2.35.1
+
