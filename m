@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 833055900BC
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:47:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB8785900DD
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236517AbiHKPrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:47:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51324 "EHLO
+        id S236620AbiHKPrk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:47:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236804AbiHKPqU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:46:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 620756BD73;
-        Thu, 11 Aug 2022 08:40:44 -0700 (PDT)
+        with ESMTP id S236817AbiHKPqV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:46:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F3AB792CC;
+        Thu, 11 Aug 2022 08:40:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA5FA616CA;
-        Thu, 11 Aug 2022 15:40:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91652C433B5;
-        Thu, 11 Aug 2022 15:40:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 117AEB82123;
+        Thu, 11 Aug 2022 15:40:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3A9AC433C1;
+        Thu, 11 Aug 2022 15:40:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232443;
-        bh=dfGDc5y7t1OJDZv5DDOhjgv3vAFicA7oBOPSO6VEFVg=;
+        s=k20201202; t=1660232445;
+        bh=7F4iQuSJJ0mLfpgwzKRLbI7Q2lZgvFXyXN65Y3imF9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mY3Tlk4NEVVsXEvT3zripS6bqnGImRdl9Ez3uV3+VNTZTWvpEqsNe+VvaRcWU4H+T
-         5hj+THrGQh5LEcU3cmEgzGvwnsWn3swl2rVBIfqF+Tma2spwMSuEsso09CPskcFiWf
-         p02mVpVljepDhXUoAbtGTGJMttIaG4WCFr0M44x4qe3uO5qfB7fLhykb1nxq6OlHFr
-         ZnaCoVl6IYTRKPpSogxVtiOF5sJ7p1ow9/T8BPA/ExWBATrPzg+/vLyvxGvDWDGykF
-         STH2pqzRr3a6yFIbcS404ZZWtpFsf+MsLwVncFdfA4VaiYGHpliG+qImJYL3jCSFV9
-         YvlzQwIgkWFug==
+        b=UPh86ZovxPZTTV1wbNLRRuvoqua/6Ph5w4kjKoFcD0OXKSWsqL1TcwdSLD4I2xYig
+         tixua5PbxDQy8WwKT4pWvJ86vrYB3I06e6XlmF4jn0/H0CJQeEEzLAFfGtPJUp6Hv5
+         VgeqP6N03Ej2cUEsz7JhdiaG9u+f6/n9YCyuLFw8SOz1NOhj/1xwq+BJiCnWLuukzi
+         lfkeDGt/R17vSLFwFVRlftKBkusRjzOPLcpejFCCK6FzGmuw3QAX4+UxVpfTcvZl2a
+         zv5IKPY/NBUcvlkqEtFlpEEBe788iHG0gs9kkAWus9XRaeKL/h28nFDZylD6noDfEh
+         GW81szo572iJg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?=C5=81ukasz=20Spintzyk?= <lukasz.spintzyk@synaptics.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 080/105] net/cdc_ncm: Increase NTB max RX/TX values to 64kb
-Date:   Thu, 11 Aug 2022 11:28:04 -0400
-Message-Id: <20220811152851.1520029-80-sashal@kernel.org>
+Cc:     Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>, johan.hedberg@gmail.com,
+        luiz.dentz@gmail.com, linux-bluetooth@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 081/105] Bluetooth: hci_bcm: Add BCM4349B1 variant
+Date:   Thu, 11 Aug 2022 11:28:05 -0400
+Message-Id: <20220811152851.1520029-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,80 +58,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Łukasz Spintzyk <lukasz.spintzyk@synaptics.com>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-[ Upstream commit 5588d628027092e66195097bdf6835ddf64418b3 ]
+[ Upstream commit 4f17c2b6694d0c4098f33b07ee3a696976940aa5 ]
 
-DisplayLink ethernet devices require NTB buffers larger then 32kb
-in order to run with highest performance.
+The BCM4349B1, aka CYW/BCM89359, is a WiFi+BT chip and its Bluetooth
+portion can be controlled over serial.
 
-This patch is changing upper limit of the rx and tx buffers.
-Those buffers are initialized with CDC_NCM_NTB_DEF_SIZE_RX and
-CDC_NCM_NTB_DEF_SIZE_TX which is 16kb so by default no device is
-affected by increased limit.
+Two subversions are added for the chip, because ROM firmware reports
+002.002.013 (at least for the chips I have here), while depending on
+patchram firmware revision, either 002.002.013 or 002.002.014 is
+reported.
 
-Rx and tx buffer is increased under two conditions:
- - Device need to advertise that it supports higher buffer size in
-   dwNtbMaxInMaxSize and dwNtbMaxOutMaxSize.
- - cdc_ncm/rx_max and cdc_ncm/tx_max driver parameters must be adjusted
-   with udev rule or ethtool.
-
-Summary of testing and performance results:
-Tests were performed on following devices:
- - DisplayLink DL-3xxx family device
- - DisplayLink DL-6xxx family device
- - ASUS USB-C2500 2.5G USB3 ethernet adapter
- - Plugable USB3 1G USB3 ethernet adapter
- - EDIMAX EU-4307 USB-C ethernet adapter
- - Dell DBQBCBC064 USB-C ethernet adapter
-
-Performance measurements were done with:
- - iperf3 between two linux boxes
- - http://openspeedtest.com/ instance running on local test machine
-
-Insights from tests results:
- - All except one from third party usb adapters were not affected by
-   increased buffer size to their advertised dwNtbOutMaxSize and
-   dwNtbInMaxSize.
-   Devices were generally reaching 912-940Mbps both download and upload.
-
-   Only EDIMAX adapter experienced decreased download size from
-   929Mbps to 827Mbps with iper3, with openspeedtest decrease was from
-   968Mbps to 886Mbps.
-
- - DisplayLink DL-3xxx family devices experienced performance increase
-   with iperf3 download from 300Mbps to 870Mbps and
-   upload from 782Mbps to 844Mbps.
-   With openspeedtest download increased from 556Mbps to 873Mbps
-   and upload from 727Mbps to 973Mbps
-
- - DiplayLink DL-6xxx family devices are not affected by
-   increased buffer size.
-
-Signed-off-by: Łukasz Spintzyk <lukasz.spintzyk@synaptics.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20220720060518.541-2-lukasz.spintzyk@synaptics.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/usb/cdc_ncm.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/bluetooth/btbcm.c   | 2 ++
+ drivers/bluetooth/hci_bcm.c | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/include/linux/usb/cdc_ncm.h b/include/linux/usb/cdc_ncm.h
-index f7cb3ddce7fb..2d207cb4837d 100644
---- a/include/linux/usb/cdc_ncm.h
-+++ b/include/linux/usb/cdc_ncm.h
-@@ -53,8 +53,8 @@
- #define USB_CDC_NCM_NDP32_LENGTH_MIN		0x20
- 
- /* Maximum NTB length */
--#define	CDC_NCM_NTB_MAX_SIZE_TX			32768	/* bytes */
--#define	CDC_NCM_NTB_MAX_SIZE_RX			32768	/* bytes */
-+#define	CDC_NCM_NTB_MAX_SIZE_TX			65536	/* bytes */
-+#define	CDC_NCM_NTB_MAX_SIZE_RX			65536	/* bytes */
- 
- /* Initial NTB length */
- #define	CDC_NCM_NTB_DEF_SIZE_TX			16384	/* bytes */
+diff --git a/drivers/bluetooth/btbcm.c b/drivers/bluetooth/btbcm.c
+index 76fbb046bdbe..c9cda681c691 100644
+--- a/drivers/bluetooth/btbcm.c
++++ b/drivers/bluetooth/btbcm.c
+@@ -454,6 +454,8 @@ static const struct bcm_subver_table bcm_uart_subver_table[] = {
+ 	{ 0x6606, "BCM4345C5"	},	/* 003.006.006 */
+ 	{ 0x230f, "BCM4356A2"	},	/* 001.003.015 */
+ 	{ 0x220e, "BCM20702A1"  },	/* 001.002.014 */
++	{ 0x420d, "BCM4349B1"	},	/* 002.002.013 */
++	{ 0x420e, "BCM4349B1"	},	/* 002.002.014 */
+ 	{ 0x4217, "BCM4329B1"   },	/* 002.002.023 */
+ 	{ 0x6106, "BCM4359C0"	},	/* 003.001.006 */
+ 	{ 0x4106, "BCM4335A0"	},	/* 002.001.006 */
+diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
+index 785f445dd60d..d0a6f9ff4e08 100644
+--- a/drivers/bluetooth/hci_bcm.c
++++ b/drivers/bluetooth/hci_bcm.c
+@@ -1544,6 +1544,7 @@ static const struct of_device_id bcm_bluetooth_of_match[] = {
+ 	{ .compatible = "brcm,bcm43430a0-bt" },
+ 	{ .compatible = "brcm,bcm43430a1-bt" },
+ 	{ .compatible = "brcm,bcm43438-bt", .data = &bcm43438_device_data },
++	{ .compatible = "brcm,bcm4349-bt", .data = &bcm43438_device_data },
+ 	{ .compatible = "brcm,bcm43540-bt", .data = &bcm4354_device_data },
+ 	{ .compatible = "brcm,bcm4335a0" },
+ 	{ },
 -- 
 2.35.1
 
