@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAF7359043E
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:48:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFAC8590499
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:48:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238654AbiHKQha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:37:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38430 "EHLO
+        id S238708AbiHKQh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:37:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238602AbiHKQfm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:35:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D39C2C2EBB;
-        Thu, 11 Aug 2022 09:11:23 -0700 (PDT)
+        with ESMTP id S239020AbiHKQgL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:36:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44442760FF;
+        Thu, 11 Aug 2022 09:11:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6ABE2B821AC;
-        Thu, 11 Aug 2022 16:11:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6825C433C1;
-        Thu, 11 Aug 2022 16:11:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1735B82123;
+        Thu, 11 Aug 2022 16:11:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FDD1C433C1;
+        Thu, 11 Aug 2022 16:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660234280;
-        bh=+wEY6MyJpAk+oWZwmhBzn9A3V3W1GM+AX+a4XqCu/mI=;
+        s=k20201202; t=1660234291;
+        bh=O9KBh+JEHKvSn8aaofSPCI6UL1Cfbf9hwmI6B2XVZeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMAv2lc3f2BRszjCtt4qa0C/7D2uk04C+Psci1xZaCGRBJYET0FQAuggGi4QbkcgJ
-         OeLtd1jPViXqT8GQGnh0OypIpnmPoLm6iiu3ZdWGIYvVyYi+B8UzzAtJFjIKfTuKyC
-         /+bYwbtUoTxRqrbvhBN2DEXIFHuREY1zrUd8mBwonIYeW1eD+d5mckprlPlSPGu5kO
-         Aq6JAhj4UFQxt3uVbk1zIN5ECu/hZtfTmV2T8mVzfZDXgVtD9M+hyHvDSt1kWr62pK
-         Q4t8dqfZF0RvPMRvfwwgRFRT+Ca34qJ3MAkOqvp40sc41Y0Yqpt2LwSHgdqRZrAMWZ
-         i2+gcMXXCX29g==
+        b=h7/O9stSUAF9XNaPnv8PGc5ltbCBsnLa5QkEhz7yMWU3PQrK12VClpy/40W72Et0x
+         eEH743JBApwd+Amb/zBVoJjRaf8ZQ6er+iEuC+hiG0N/xT0pIBvMexVjIsBpa0abv5
+         EQyTXFS5TiIbo6MrNwxuBkIdeL8TGXqJT99HPqTSQIvA0MKUpn3tKAr9Z9pkg0660k
+         w7YXGPZcIdY4yCk5u1eIB9d/B2aqoH8um5cMpeU/W/A07NcWzvMdPXV+mqkzibQyLl
+         zfavYa7u32Nby7VvfwY4mMGnhqNm/vWTtckVMIEtVcUTMNvY41nOk5soaMZ/ERx8In
+         1ZwWMLvjmxt/g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Dave Airlie <airlied@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kherbst@redhat.com,
-        lyude@redhat.com, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 09/14] drm/nouveau/nvkm: use list_add_tail() when building object tree
-Date:   Thu, 11 Aug 2022 12:10:38 -0400
-Message-Id: <20220811161050.1543183-9-sashal@kernel.org>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>, wg@grandegger.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, mailhol.vincent@wanadoo.fr,
+        stefan.maetje@esd.eu, socketcan@hartkopp.net,
+        linux-can@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 10/14] can: sja1000: Add Quirk for RZ/N1 SJA1000 CAN controller
+Date:   Thu, 11 Aug 2022 12:10:39 -0400
+Message-Id: <20220811161050.1543183-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811161050.1543183-1-sashal@kernel.org>
 References: <20220811161050.1543183-1-sashal@kernel.org>
@@ -57,37 +60,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit 61c1f340bc809a1ca1e3c8794207a91cde1a7c78 ]
+[ Upstream commit 2d99bfbf3386962692dcccd73931cb0db07a1a43 ]
 
-Fixes resume from hibernate failing on (at least) TU102, where cursor
-channel init failed due to being performed before the core channel.
+As per Chapter 6.5.16 of the RZ/N1 Peripheral Manual, The SJA1000
+CAN controller does not support Clock Divider Register compared to
+the reference Philips SJA1000 device.
 
-Not solid idea why suspend-to-ram worked, but, presumably HW being in
-an entirely clean state has something to do with it.
+This patch adds a device quirk to handle this difference.
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Dave Airlie <airlied@redhat.com>
-Signed-off-by: Dave Airlie <airlied@redhat.com>
+Link: https://lore.kernel.org/all/20220710115248.190280-4-biju.das.jz@bp.renesas.com
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/core/ioctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/sja1000/sja1000.c | 8 +++++---
+ drivers/net/can/sja1000/sja1000.h | 3 ++-
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/core/ioctl.c b/drivers/gpu/drm/nouveau/nvkm/core/ioctl.c
-index be19bbe56bba..bb57df290f63 100644
---- a/drivers/gpu/drm/nouveau/nvkm/core/ioctl.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/core/ioctl.c
-@@ -128,7 +128,7 @@ nvkm_ioctl_new(struct nvkm_client *client,
- 	if (ret == 0) {
- 		ret = nvkm_object_init(object);
- 		if (ret == 0) {
--			list_add(&object->head, &parent->tree);
-+			list_add_tail(&object->head, &parent->tree);
- 			if (nvkm_object_insert(object)) {
- 				client->data = object;
- 				return 0;
+diff --git a/drivers/net/can/sja1000/sja1000.c b/drivers/net/can/sja1000/sja1000.c
+index 9f107798f904..ae0ca0ab371f 100644
+--- a/drivers/net/can/sja1000/sja1000.c
++++ b/drivers/net/can/sja1000/sja1000.c
+@@ -184,8 +184,9 @@ static void chipset_init(struct net_device *dev)
+ {
+ 	struct sja1000_priv *priv = netdev_priv(dev);
+ 
+-	/* set clock divider and output control register */
+-	priv->write_reg(priv, SJA1000_CDR, priv->cdr | CDR_PELICAN);
++	if (!(priv->flags & SJA1000_QUIRK_NO_CDR_REG))
++		/* set clock divider and output control register */
++		priv->write_reg(priv, SJA1000_CDR, priv->cdr | CDR_PELICAN);
+ 
+ 	/* set acceptance filter (accept all) */
+ 	priv->write_reg(priv, SJA1000_ACCC0, 0x00);
+@@ -210,7 +211,8 @@ static void sja1000_start(struct net_device *dev)
+ 		set_reset_mode(dev);
+ 
+ 	/* Initialize chip if uninitialized at this stage */
+-	if (!(priv->read_reg(priv, SJA1000_CDR) & CDR_PELICAN))
++	if (!(priv->flags & SJA1000_QUIRK_NO_CDR_REG ||
++	      priv->read_reg(priv, SJA1000_CDR) & CDR_PELICAN))
+ 		chipset_init(dev);
+ 
+ 	/* Clear error counters and error code capture */
+diff --git a/drivers/net/can/sja1000/sja1000.h b/drivers/net/can/sja1000/sja1000.h
+index 9d46398f8154..7f736f1df547 100644
+--- a/drivers/net/can/sja1000/sja1000.h
++++ b/drivers/net/can/sja1000/sja1000.h
+@@ -145,7 +145,8 @@
+ /*
+  * Flags for sja1000priv.flags
+  */
+-#define SJA1000_CUSTOM_IRQ_HANDLER 0x1
++#define SJA1000_CUSTOM_IRQ_HANDLER	BIT(0)
++#define SJA1000_QUIRK_NO_CDR_REG	BIT(1)
+ 
+ /*
+  * SJA1000 private data structure
 -- 
 2.35.1
 
