@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8509590323
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:21:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1804359031E
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237628AbiHKQTo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:19:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58226 "EHLO
+        id S237704AbiHKQTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:19:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237633AbiHKQSv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:18:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A424962DF;
-        Thu, 11 Aug 2022 09:01:00 -0700 (PDT)
+        with ESMTP id S237656AbiHKQTK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:19:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F367162E6;
+        Thu, 11 Aug 2022 09:01:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64668B82166;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BB9661378;
+        Thu, 11 Aug 2022 16:01:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B889C433C1;
         Thu, 11 Aug 2022 16:00:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36660C433B5;
-        Thu, 11 Aug 2022 16:00:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660233658;
-        bh=o19kBgzOZ6Nf2Slumy4yFLH0CGl+Wyk7gAV0NC4RciQ=;
+        s=k20201202; t=1660233660;
+        bh=wQR9s/VQQPijBHdXtI7MNdoBuUGNEH4y6cKNmJa4ml4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2B9CyTXnXRsKPDlq5hV77Rq3fwSlo0iV/huazhGYeiOqIsnqnM8dsiNj7er3qmvO
-         u7TYq6BvjIxX1r/SiDzjOVUaAjPyzT3UmTNlOm63tuKqPVebVeb8rYUTmPAxOK9HA8
-         daEg57C9mLXT5QxTonUctHkfpUd/OT/TP7HMcXgKgsPqq5g2WGroTAckchzuhqZyUr
-         7yMRQFxFNhh611PUcGbjwVbZnGC/K265zf0lE91ijsUZBCVB39J3ATPlTSVLNoP3u/
-         tVVpqyPvXYVTipLIH0XDbvvNmOc2v3Wp4l82QQdeqmlyTpp23/nYSOfMq7qpm3EBX6
-         uKdiVjrSXzv/Q==
+        b=C5n9ypf3O25gzRMzNp2fj/joQMa1Bj69Enz6pnOY8GFPZZawbdrJIS5FrQUmGQrjy
+         UkOMLrbSR/YXEf70BiqsznkaRTBXrJkmOa/12ELonpwJfbJ5mEhPnAEs70U7OU0eZG
+         C+sfv7MEW40XlgZXHz975CP/8KuFG0Vhyq/qcB6TnsZ94I3+0esXToJgTA6yvwyB1H
+         sVIsKzmldeNMcMtz+wL1ngfjgJ6D54N3INpdsdxI5pHqkqgbWstq5/tZvXknv/Mvxd
+         hkeLI9zyncBB37usGbcG7VDcrhVWgbKc5aj0Hm59dP2coQiDchXoFNhOnfxRxO7lbJ
+         +zOzMnODryeQA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gautam <gautammenghani201@gmail.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 39/69] kselftests: Enable the echo command to print newlines in Makefile
-Date:   Thu, 11 Aug 2022 11:55:48 -0400
-Message-Id: <20220811155632.1536867-39-sashal@kernel.org>
+Cc:     Sam Edwards <cfsworks@gmail.com>, Sam Edwards <CFSworks@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        yoshfuji@linux-ipv6.org, dsahern@kernel.org, edumazet@google.com,
+        kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 40/69] ipv6/addrconf: fix timing bug in tempaddr regen
+Date:   Thu, 11 Aug 2022 11:55:49 -0400
+Message-Id: <20220811155632.1536867-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811155632.1536867-1-sashal@kernel.org>
 References: <20220811155632.1536867-1-sashal@kernel.org>
@@ -57,39 +58,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gautam <gautammenghani201@gmail.com>
+From: Sam Edwards <cfsworks@gmail.com>
 
-[ Upstream commit 3297a4df805d4263506b6dfec4d1bbeff8862dd8 ]
+[ Upstream commit 778964f2fdf05e5d2e6ca9bc3f450b3db454ba9c ]
 
-In the install section of the main Makefile of kselftests, the echo
-command is used with -n flag, which disables the printing of new line
-due to which the output contains "\n" chars as follows:
+The addrconf_verify_rtnl() function uses a big if/elseif/elseif/... block
+to categorize each address by what type of attention it needs.  An
+about-to-expire (RFC 4941) temporary address is one such category, but the
+previous elseif branch catches addresses that have already run out their
+prefered_lft.  This means that if addrconf_verify_rtnl() fails to run in
+the necessary time window (i.e. REGEN_ADVANCE time units before the end of
+the prefered_lft), the temporary address will never be regenerated, and no
+temporary addresses will be available until each one's valid_lft runs out
+and manage_tempaddrs() begins anew.
 
-  Emit Tests for alsa\nSkipping non-existent dir: arm64
-  Emit Tests for breakpoints\nEmit Tests for capabilities\n
+Fix this by moving the entire temporary address regeneration case out of
+that block.  That block is supposed to implement the "destructive" part of
+an address's lifecycle, and regenerating a fresh temporary address is not,
+semantically speaking, actually tied to any particular lifecycle stage.
+The age test is also changed from `age >= prefered_lft - regen_advance`
+to `age + regen_advance >= prefered_lft` instead, to ensure no underflow
+occurs if the system administrator increases the regen_advance to a value
+greater than the already-set prefered_lft.
 
-This patch fixes the above bug by using the -e flag.
+Note that this does not fix the problem of addrconf_verify_rtnl() sometimes
+not running in time, resulting in the race condition described in RFC 4941
+section 3.4 - it only ensures that the address is regenerated.  Fixing THAT
+problem may require either using jiffies instead of seconds for all time
+arithmetic here, or always rounding up when regen_advance is converted to
+seconds.
 
-Signed-off-by: Gautam <gautammenghani201@gmail.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sam Edwards <CFSworks@gmail.com>
+Link: https://lore.kernel.org/r/20220623181103.7033-1-CFSworks@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/addrconf.c | 62 ++++++++++++++++++++++++---------------------
+ 1 file changed, 33 insertions(+), 29 deletions(-)
 
-diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
-index 14206d1d1efe..5fe0bd7e05d8 100644
---- a/tools/testing/selftests/Makefile
-+++ b/tools/testing/selftests/Makefile
-@@ -235,7 +235,7 @@ ifdef INSTALL_PATH
- 	for TARGET in $(TARGETS); do \
- 		BUILD_TARGET=$$BUILD/$$TARGET;	\
- 		[ ! -d $(INSTALL_PATH)/$$TARGET ] && echo "Skipping non-existent dir: $$TARGET" && continue; \
--		echo -n "Emit Tests for $$TARGET\n"; \
-+		echo -ne "Emit Tests for $$TARGET\n"; \
- 		$(MAKE) -s --no-print-directory OUTPUT=$$BUILD_TARGET COLLECTION=$$TARGET \
- 			-C $$TARGET emit_tests >> $(TEST_LIST); \
- 	done;
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 6dcf034835ec..1f1b24d75104 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -4532,6 +4532,39 @@ static void addrconf_verify_rtnl(void)
+ 			/* We try to batch several events at once. */
+ 			age = (now - ifp->tstamp + ADDRCONF_TIMER_FUZZ_MINUS) / HZ;
+ 
++			if ((ifp->flags&IFA_F_TEMPORARY) &&
++			    !(ifp->flags&IFA_F_TENTATIVE) &&
++			    ifp->prefered_lft != INFINITY_LIFE_TIME &&
++			    !ifp->regen_count && ifp->ifpub) {
++				/* This is a non-regenerated temporary addr. */
++
++				unsigned long regen_advance = ifp->idev->cnf.regen_max_retry *
++					ifp->idev->cnf.dad_transmits *
++					max(NEIGH_VAR(ifp->idev->nd_parms, RETRANS_TIME), HZ/100) / HZ;
++
++				if (age + regen_advance >= ifp->prefered_lft) {
++					struct inet6_ifaddr *ifpub = ifp->ifpub;
++					if (time_before(ifp->tstamp + ifp->prefered_lft * HZ, next))
++						next = ifp->tstamp + ifp->prefered_lft * HZ;
++
++					ifp->regen_count++;
++					in6_ifa_hold(ifp);
++					in6_ifa_hold(ifpub);
++					spin_unlock(&ifp->lock);
++
++					spin_lock(&ifpub->lock);
++					ifpub->regen_count = 0;
++					spin_unlock(&ifpub->lock);
++					rcu_read_unlock_bh();
++					ipv6_create_tempaddr(ifpub, true);
++					in6_ifa_put(ifpub);
++					in6_ifa_put(ifp);
++					rcu_read_lock_bh();
++					goto restart;
++				} else if (time_before(ifp->tstamp + ifp->prefered_lft * HZ - regen_advance * HZ, next))
++					next = ifp->tstamp + ifp->prefered_lft * HZ - regen_advance * HZ;
++			}
++
+ 			if (ifp->valid_lft != INFINITY_LIFE_TIME &&
+ 			    age >= ifp->valid_lft) {
+ 				spin_unlock(&ifp->lock);
+@@ -4565,35 +4598,6 @@ static void addrconf_verify_rtnl(void)
+ 					in6_ifa_put(ifp);
+ 					goto restart;
+ 				}
+-			} else if ((ifp->flags&IFA_F_TEMPORARY) &&
+-				   !(ifp->flags&IFA_F_TENTATIVE)) {
+-				unsigned long regen_advance = ifp->idev->cnf.regen_max_retry *
+-					ifp->idev->cnf.dad_transmits *
+-					max(NEIGH_VAR(ifp->idev->nd_parms, RETRANS_TIME), HZ/100) / HZ;
+-
+-				if (age >= ifp->prefered_lft - regen_advance) {
+-					struct inet6_ifaddr *ifpub = ifp->ifpub;
+-					if (time_before(ifp->tstamp + ifp->prefered_lft * HZ, next))
+-						next = ifp->tstamp + ifp->prefered_lft * HZ;
+-					if (!ifp->regen_count && ifpub) {
+-						ifp->regen_count++;
+-						in6_ifa_hold(ifp);
+-						in6_ifa_hold(ifpub);
+-						spin_unlock(&ifp->lock);
+-
+-						spin_lock(&ifpub->lock);
+-						ifpub->regen_count = 0;
+-						spin_unlock(&ifpub->lock);
+-						rcu_read_unlock_bh();
+-						ipv6_create_tempaddr(ifpub, true);
+-						in6_ifa_put(ifpub);
+-						in6_ifa_put(ifp);
+-						rcu_read_lock_bh();
+-						goto restart;
+-					}
+-				} else if (time_before(ifp->tstamp + ifp->prefered_lft * HZ - regen_advance * HZ, next))
+-					next = ifp->tstamp + ifp->prefered_lft * HZ - regen_advance * HZ;
+-				spin_unlock(&ifp->lock);
+ 			} else {
+ 				/* ifp->prefered_lft <= ifp->valid_lft */
+ 				if (time_before(ifp->tstamp + ifp->prefered_lft * HZ, next))
 -- 
 2.35.1
 
