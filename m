@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C1D858FB7A
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 13:38:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17AF258FB7C
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 13:38:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234922AbiHKLi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 07:38:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42136 "EHLO
+        id S234948AbiHKLij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 07:38:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234929AbiHKLi1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 07:38:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12D4D6069A;
-        Thu, 11 Aug 2022 04:38:26 -0700 (PDT)
+        with ESMTP id S234970AbiHKLii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 07:38:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB6D74BD32;
+        Thu, 11 Aug 2022 04:38:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0B32612CD;
-        Thu, 11 Aug 2022 11:38:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3B47C433D7;
-        Thu, 11 Aug 2022 11:38:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79AC0B82060;
+        Thu, 11 Aug 2022 11:38:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E38DC433D6;
+        Thu, 11 Aug 2022 11:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660217905;
-        bh=yARjn/HjbZsThUt1LQoeyfu/Y3PzCm7SMoHLC8IjpHI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=TvwtII5T9gFiTh1/pQVvAYwZvmKKMHyyQMjCrGZlIMZ1XJed+0FKbsCuwsMrqKAEc
-         h83FJeXXfoIvMOCeq/s2FYoMptyWk/BpxI8FSXclEgZmADXIZI+YU8ZeIrBMUehOHQ
-         3cq3EIqNW+8bxYgmmC5FkhNAort3gRhHUUB4dA1c=
+        s=korg; t=1660217913;
+        bh=eI/iJTop2p8OUpGIYQxhq3kwwYL6CDgUgtS1UCVFbQY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=bEp7hr37LOpLJWgIAqgSviupPf0UC73bTS1Be7/tO5j2DjCuCM0n7WCLDp+eyRMN/
+         1wV3DIC1i8Xi6vgYDpPh3XJ7Iplxx2585ICtj45mkLU+pvWB8X+290WZK3w+Wc2HR+
+         2Hlz1vuj+9dc8WRHD6hsKvPN3G/ChSvbjdGB4qdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.19.1
-Date:   Thu, 11 Aug 2022 13:38:21 +0200
-Message-Id: <166021787318847@kroah.com>
+Subject: Re: Linux 5.19.1
+Date:   Thu, 11 Aug 2022 13:38:22 +0200
+Message-Id: <1660217873129186@kroah.com>
 X-Mailer: git-send-email 2.37.1
+In-Reply-To: <166021787318847@kroah.com>
+References: <166021787318847@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -50,100 +51,757 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.19.1 kernel.
-
-All users of the 5.19 kernel series must upgrade.
-
-The updated 5.19.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.19.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Documentation/admin-guide/hw-vuln/spectre.rst                 |    8 
- Documentation/devicetree/bindings/net/broadcom-bluetooth.yaml |    1 
- Makefile                                                      |    2 
- arch/arm64/crypto/poly1305-glue.c                             |    2 
- arch/arm64/include/asm/kernel-pgtable.h                       |    4 
- arch/arm64/kernel/head.S                                      |    2 
- arch/x86/include/asm/cpufeatures.h                            |    2 
- arch/x86/include/asm/msr-index.h                              |    4 
- arch/x86/include/asm/nospec-branch.h                          |   21 ++
- arch/x86/kernel/cpu/bugs.c                                    |   86 +++++++---
- arch/x86/kernel/cpu/common.c                                  |   12 +
- arch/x86/kvm/vmx/vmenter.S                                    |    8 
- block/blk-ioc.c                                               |    2 
- block/ioprio.c                                                |    4 
- drivers/acpi/apei/bert.c                                      |   31 ++-
- drivers/acpi/video_detect.c                                   |   55 ++++--
- drivers/ata/sata_mv.c                                         |    2 
- drivers/bluetooth/btbcm.c                                     |    2 
- drivers/bluetooth/btusb.c                                     |   15 +
- drivers/bluetooth/hci_bcm.c                                   |    2 
- drivers/bluetooth/hci_qca.c                                   |    2 
- drivers/macintosh/adb.c                                       |    2 
- include/linux/ioprio.h                                        |    2 
- tools/arch/x86/include/asm/cpufeatures.h                      |    1 
- tools/arch/x86/include/asm/msr-index.h                        |    4 
- tools/vm/slabinfo.c                                           |   26 ++-
- 26 files changed, 231 insertions(+), 71 deletions(-)
-
-Aaron Ma (1):
-      Bluetooth: btusb: Add support of IMC Networks PID 0x3568
-
-Ahmad Fatoum (2):
-      Bluetooth: hci_bcm: Add BCM4349B1 variant
-      dt-bindings: bluetooth: broadcom: Add BCM4349B1 DT binding
-
-Andrew Lunn (1):
-      ata: sata_mv: Fixes expected number of resources now IRQs are gone
-
-Daniel Sneddon (1):
-      x86/speculation: Add RSB VM Exit protections
-
-GUO Zihua (1):
-      crypto: arm64/poly1305 - fix a read out-of-bound
-
-Greg Kroah-Hartman (1):
-      Linux 5.19.1
-
-Hakan Jansson (1):
-      Bluetooth: hci_bcm: Add DT compatible for CYW55572
-
-Hilda Wu (5):
-      Bluetooth: btusb: Add Realtek RTL8852C support ID 0x04CA:0x4007
-      Bluetooth: btusb: Add Realtek RTL8852C support ID 0x04C5:0x1675
-      Bluetooth: btusb: Add Realtek RTL8852C support ID 0x0CB8:0xC558
-      Bluetooth: btusb: Add Realtek RTL8852C support ID 0x13D3:0x3587
-      Bluetooth: btusb: Add Realtek RTL8852C support ID 0x13D3:0x3586
-
-Jan Kara (1):
-      block: fix default IO priority handling again
-
-Ning Qiang (1):
-      macintosh/adb: fix oob read in do_adb_query() function
-
-Pawan Gupta (1):
-      x86/speculation: Add LFENCE to RSB fill sequence
-
-Peter Collingbourne (1):
-      arm64: set UXN on swapper page tables
-
-Sai Teja Aluvala (1):
-      Bluetooth: hci_qca: Return wakeup for qca_wakeup
-
-Stéphane Graber (1):
-      tools/vm/slabinfo: Handle files in debugfs
-
-Tony Luck (1):
-      ACPI: APEI: Better fix to avoid spamming the console with old error logs
-
-Werner Sembach (2):
-      ACPI: video: Force backlight native for some TongFang devices
-      ACPI: video: Shortening quirk list by identifying Clevo by board_name only
-
+diff --git a/Documentation/admin-guide/hw-vuln/spectre.rst b/Documentation/admin-guide/hw-vuln/spectre.rst
+index 9e9556826450..2ce2a38cdd55 100644
+--- a/Documentation/admin-guide/hw-vuln/spectre.rst
++++ b/Documentation/admin-guide/hw-vuln/spectre.rst
+@@ -422,6 +422,14 @@ The possible values in this file are:
+   'RSB filling'   Protection of RSB on context switch enabled
+   =============   ===========================================
+ 
++  - EIBRS Post-barrier Return Stack Buffer (PBRSB) protection status:
++
++  ===========================  =======================================================
++  'PBRSB-eIBRS: SW sequence'   CPU is affected and protection of RSB on VMEXIT enabled
++  'PBRSB-eIBRS: Vulnerable'    CPU is vulnerable
++  'PBRSB-eIBRS: Not affected'  CPU is not affected by PBRSB
++  ===========================  =======================================================
++
+ Full mitigation might require a microcode update from the CPU
+ vendor. When the necessary microcode is not available, the kernel will
+ report vulnerability.
+diff --git a/Documentation/devicetree/bindings/net/broadcom-bluetooth.yaml b/Documentation/devicetree/bindings/net/broadcom-bluetooth.yaml
+index 5aac094fd217..58ecafc1b7f9 100644
+--- a/Documentation/devicetree/bindings/net/broadcom-bluetooth.yaml
++++ b/Documentation/devicetree/bindings/net/broadcom-bluetooth.yaml
+@@ -23,6 +23,7 @@ properties:
+       - brcm,bcm4345c5
+       - brcm,bcm43540-bt
+       - brcm,bcm4335a0
++      - brcm,bcm4349-bt
+ 
+   shutdown-gpios:
+     maxItems: 1
+diff --git a/Makefile b/Makefile
+index df92892325ae..3acb329035eb 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 19
+-SUBLEVEL = 0
++SUBLEVEL = 1
+ EXTRAVERSION =
+ NAME = Superb Owl
+ 
+diff --git a/arch/arm64/crypto/poly1305-glue.c b/arch/arm64/crypto/poly1305-glue.c
+index 9c3d86e397bf..1fae18ba11ed 100644
+--- a/arch/arm64/crypto/poly1305-glue.c
++++ b/arch/arm64/crypto/poly1305-glue.c
+@@ -52,7 +52,7 @@ static void neon_poly1305_blocks(struct poly1305_desc_ctx *dctx, const u8 *src,
+ {
+ 	if (unlikely(!dctx->sset)) {
+ 		if (!dctx->rset) {
+-			poly1305_init_arch(dctx, src);
++			poly1305_init_arm64(&dctx->h, src);
+ 			src += POLY1305_BLOCK_SIZE;
+ 			len -= POLY1305_BLOCK_SIZE;
+ 			dctx->rset = 1;
+diff --git a/arch/arm64/include/asm/kernel-pgtable.h b/arch/arm64/include/asm/kernel-pgtable.h
+index 96dc0f7da258..a971d462f531 100644
+--- a/arch/arm64/include/asm/kernel-pgtable.h
++++ b/arch/arm64/include/asm/kernel-pgtable.h
+@@ -103,8 +103,8 @@
+ /*
+  * Initial memory map attributes.
+  */
+-#define SWAPPER_PTE_FLAGS	(PTE_TYPE_PAGE | PTE_AF | PTE_SHARED)
+-#define SWAPPER_PMD_FLAGS	(PMD_TYPE_SECT | PMD_SECT_AF | PMD_SECT_S)
++#define SWAPPER_PTE_FLAGS	(PTE_TYPE_PAGE | PTE_AF | PTE_SHARED | PTE_UXN)
++#define SWAPPER_PMD_FLAGS	(PMD_TYPE_SECT | PMD_SECT_AF | PMD_SECT_S | PMD_SECT_UXN)
+ 
+ #if ARM64_KERNEL_USES_PMD_MAPS
+ #define SWAPPER_MM_MMUFLAGS	(PMD_ATTRINDX(MT_NORMAL) | SWAPPER_PMD_FLAGS)
+diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
+index 6a98f1a38c29..8a93a0a7489b 100644
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -285,7 +285,7 @@ SYM_FUNC_START_LOCAL(__create_page_tables)
+ 	subs	x1, x1, #64
+ 	b.ne	1b
+ 
+-	mov	x7, SWAPPER_MM_MMUFLAGS
++	mov_q	x7, SWAPPER_MM_MMUFLAGS
+ 
+ 	/*
+ 	 * Create the identity mapping.
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index a77b915d36a8..ede8990f3e41 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -303,6 +303,7 @@
+ #define X86_FEATURE_RETHUNK		(11*32+14) /* "" Use REturn THUNK */
+ #define X86_FEATURE_UNRET		(11*32+15) /* "" AMD BTB untrain return */
+ #define X86_FEATURE_USE_IBPB_FW		(11*32+16) /* "" Use IBPB during runtime firmware calls */
++#define X86_FEATURE_RSB_VMEXIT_LITE	(11*32+17) /* "" Fill RSB on VM exit when EIBRS is enabled */
+ 
+ /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
+ #define X86_FEATURE_AVX_VNNI		(12*32+ 4) /* AVX VNNI instructions */
+@@ -456,5 +457,6 @@
+ #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
+ #define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
+ #define X86_BUG_RETBLEED		X86_BUG(26) /* CPU is affected by RETBleed */
++#define X86_BUG_EIBRS_PBRSB		X86_BUG(27) /* EIBRS is vulnerable to Post Barrier RSB Predictions */
+ 
+ #endif /* _ASM_X86_CPUFEATURES_H */
+diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
+index cc615be27a54..e057e039173c 100644
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -150,6 +150,10 @@
+ 						 * are restricted to targets in
+ 						 * kernel.
+ 						 */
++#define ARCH_CAP_PBRSB_NO		BIT(24)	/*
++						 * Not susceptible to Post-Barrier
++						 * Return Stack Buffer Predictions.
++						 */
+ 
+ #define MSR_IA32_FLUSH_CMD		0x0000010b
+ #define L1D_FLUSH			BIT(0)	/*
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index 38a3e86e665e..d3a3cc6772ee 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -60,7 +60,9 @@
+ 774:						\
+ 	add	$(BITS_PER_LONG/8) * 2, sp;	\
+ 	dec	reg;				\
+-	jnz	771b;
++	jnz	771b;				\
++	/* barrier for jnz misprediction */	\
++	lfence;
+ 
+ #ifdef __ASSEMBLY__
+ 
+@@ -118,13 +120,28 @@
+ #endif
+ .endm
+ 
++.macro ISSUE_UNBALANCED_RET_GUARD
++	ANNOTATE_INTRA_FUNCTION_CALL
++	call .Lunbalanced_ret_guard_\@
++	int3
++.Lunbalanced_ret_guard_\@:
++	add $(BITS_PER_LONG/8), %_ASM_SP
++	lfence
++.endm
++
+  /*
+   * A simpler FILL_RETURN_BUFFER macro. Don't make people use the CPP
+   * monstrosity above, manually.
+   */
+-.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req
++.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2
++.ifb \ftr2
+ 	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
++.else
++	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", "", \ftr, "jmp .Lunbalanced_\@", \ftr2
++.endif
+ 	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
++.Lunbalanced_\@:
++	ISSUE_UNBALANCED_RET_GUARD
+ .Lskip_rsb_\@:
+ .endm
+ 
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index 6761668100b9..9f7e751b91df 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1335,6 +1335,53 @@ static void __init spec_ctrl_disable_kernel_rrsba(void)
+ 	}
+ }
+ 
++static void __init spectre_v2_determine_rsb_fill_type_at_vmexit(enum spectre_v2_mitigation mode)
++{
++	/*
++	 * Similar to context switches, there are two types of RSB attacks
++	 * after VM exit:
++	 *
++	 * 1) RSB underflow
++	 *
++	 * 2) Poisoned RSB entry
++	 *
++	 * When retpoline is enabled, both are mitigated by filling/clearing
++	 * the RSB.
++	 *
++	 * When IBRS is enabled, while #1 would be mitigated by the IBRS branch
++	 * prediction isolation protections, RSB still needs to be cleared
++	 * because of #2.  Note that SMEP provides no protection here, unlike
++	 * user-space-poisoned RSB entries.
++	 *
++	 * eIBRS should protect against RSB poisoning, but if the EIBRS_PBRSB
++	 * bug is present then a LITE version of RSB protection is required,
++	 * just a single call needs to retire before a RET is executed.
++	 */
++	switch (mode) {
++	case SPECTRE_V2_NONE:
++		return;
++
++	case SPECTRE_V2_EIBRS_LFENCE:
++	case SPECTRE_V2_EIBRS:
++		if (boot_cpu_has_bug(X86_BUG_EIBRS_PBRSB)) {
++			setup_force_cpu_cap(X86_FEATURE_RSB_VMEXIT_LITE);
++			pr_info("Spectre v2 / PBRSB-eIBRS: Retire a single CALL on VMEXIT\n");
++		}
++		return;
++
++	case SPECTRE_V2_EIBRS_RETPOLINE:
++	case SPECTRE_V2_RETPOLINE:
++	case SPECTRE_V2_LFENCE:
++	case SPECTRE_V2_IBRS:
++		setup_force_cpu_cap(X86_FEATURE_RSB_VMEXIT);
++		pr_info("Spectre v2 / SpectreRSB : Filling RSB on VMEXIT\n");
++		return;
++	}
++
++	pr_warn_once("Unknown Spectre v2 mode, disabling RSB mitigation at VM exit");
++	dump_stack();
++}
++
+ static void __init spectre_v2_select_mitigation(void)
+ {
+ 	enum spectre_v2_mitigation_cmd cmd = spectre_v2_parse_cmdline();
+@@ -1485,28 +1532,7 @@ static void __init spectre_v2_select_mitigation(void)
+ 	setup_force_cpu_cap(X86_FEATURE_RSB_CTXSW);
+ 	pr_info("Spectre v2 / SpectreRSB mitigation: Filling RSB on context switch\n");
+ 
+-	/*
+-	 * Similar to context switches, there are two types of RSB attacks
+-	 * after vmexit:
+-	 *
+-	 * 1) RSB underflow
+-	 *
+-	 * 2) Poisoned RSB entry
+-	 *
+-	 * When retpoline is enabled, both are mitigated by filling/clearing
+-	 * the RSB.
+-	 *
+-	 * When IBRS is enabled, while #1 would be mitigated by the IBRS branch
+-	 * prediction isolation protections, RSB still needs to be cleared
+-	 * because of #2.  Note that SMEP provides no protection here, unlike
+-	 * user-space-poisoned RSB entries.
+-	 *
+-	 * eIBRS, on the other hand, has RSB-poisoning protections, so it
+-	 * doesn't need RSB clearing after vmexit.
+-	 */
+-	if (boot_cpu_has(X86_FEATURE_RETPOLINE) ||
+-	    boot_cpu_has(X86_FEATURE_KERNEL_IBRS))
+-		setup_force_cpu_cap(X86_FEATURE_RSB_VMEXIT);
++	spectre_v2_determine_rsb_fill_type_at_vmexit(mode);
+ 
+ 	/*
+ 	 * Retpoline protects the kernel, but doesn't protect firmware.  IBRS
+@@ -2292,6 +2318,19 @@ static char *ibpb_state(void)
+ 	return "";
+ }
+ 
++static char *pbrsb_eibrs_state(void)
++{
++	if (boot_cpu_has_bug(X86_BUG_EIBRS_PBRSB)) {
++		if (boot_cpu_has(X86_FEATURE_RSB_VMEXIT_LITE) ||
++		    boot_cpu_has(X86_FEATURE_RSB_VMEXIT))
++			return ", PBRSB-eIBRS: SW sequence";
++		else
++			return ", PBRSB-eIBRS: Vulnerable";
++	} else {
++		return ", PBRSB-eIBRS: Not affected";
++	}
++}
++
+ static ssize_t spectre_v2_show_state(char *buf)
+ {
+ 	if (spectre_v2_enabled == SPECTRE_V2_LFENCE)
+@@ -2304,12 +2343,13 @@ static ssize_t spectre_v2_show_state(char *buf)
+ 	    spectre_v2_enabled == SPECTRE_V2_EIBRS_LFENCE)
+ 		return sprintf(buf, "Vulnerable: eIBRS+LFENCE with unprivileged eBPF and SMT\n");
+ 
+-	return sprintf(buf, "%s%s%s%s%s%s\n",
++	return sprintf(buf, "%s%s%s%s%s%s%s\n",
+ 		       spectre_v2_strings[spectre_v2_enabled],
+ 		       ibpb_state(),
+ 		       boot_cpu_has(X86_FEATURE_USE_IBRS_FW) ? ", IBRS_FW" : "",
+ 		       stibp_state(),
+ 		       boot_cpu_has(X86_FEATURE_RSB_CTXSW) ? ", RSB filling" : "",
++		       pbrsb_eibrs_state(),
+ 		       spectre_v2_module_string());
+ }
+ 
+diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+index 736262a76a12..64a73f415f03 100644
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1135,6 +1135,7 @@ static void identify_cpu_without_cpuid(struct cpuinfo_x86 *c)
+ #define NO_SWAPGS		BIT(6)
+ #define NO_ITLB_MULTIHIT	BIT(7)
+ #define NO_SPECTRE_V2		BIT(8)
++#define NO_EIBRS_PBRSB		BIT(9)
+ 
+ #define VULNWL(vendor, family, model, whitelist)	\
+ 	X86_MATCH_VENDOR_FAM_MODEL(vendor, family, model, whitelist)
+@@ -1177,7 +1178,7 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
+ 
+ 	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
+ 	VULNWL_INTEL(ATOM_GOLDMONT_D,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
+-	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT),
++	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_EIBRS_PBRSB),
+ 
+ 	/*
+ 	 * Technically, swapgs isn't serializing on AMD (despite it previously
+@@ -1187,7 +1188,9 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
+ 	 * good enough for our purposes.
+ 	 */
+ 
+-	VULNWL_INTEL(ATOM_TREMONT_D,		NO_ITLB_MULTIHIT),
++	VULNWL_INTEL(ATOM_TREMONT,		NO_EIBRS_PBRSB),
++	VULNWL_INTEL(ATOM_TREMONT_L,		NO_EIBRS_PBRSB),
++	VULNWL_INTEL(ATOM_TREMONT_D,		NO_ITLB_MULTIHIT | NO_EIBRS_PBRSB),
+ 
+ 	/* AMD Family 0xf - 0x12 */
+ 	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
+@@ -1365,6 +1368,11 @@ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
+ 			setup_force_cpu_bug(X86_BUG_RETBLEED);
+ 	}
+ 
++	if (cpu_has(c, X86_FEATURE_IBRS_ENHANCED) &&
++	    !cpu_matches(cpu_vuln_whitelist, NO_EIBRS_PBRSB) &&
++	    !(ia32_cap & ARCH_CAP_PBRSB_NO))
++		setup_force_cpu_bug(X86_BUG_EIBRS_PBRSB);
++
+ 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
+ 		return;
+ 
+diff --git a/arch/x86/kvm/vmx/vmenter.S b/arch/x86/kvm/vmx/vmenter.S
+index 4182c7ffc909..6de96b943804 100644
+--- a/arch/x86/kvm/vmx/vmenter.S
++++ b/arch/x86/kvm/vmx/vmenter.S
+@@ -227,11 +227,13 @@ SYM_INNER_LABEL(vmx_vmexit, SYM_L_GLOBAL)
+ 	 * entries and (in some cases) RSB underflow.
+ 	 *
+ 	 * eIBRS has its own protection against poisoned RSB, so it doesn't
+-	 * need the RSB filling sequence.  But it does need to be enabled
+-	 * before the first unbalanced RET.
++	 * need the RSB filling sequence.  But it does need to be enabled, and a
++	 * single call to retire, before the first unbalanced RET.
+          */
+ 
+-	FILL_RETURN_BUFFER %_ASM_CX, RSB_CLEAR_LOOPS, X86_FEATURE_RSB_VMEXIT
++	FILL_RETURN_BUFFER %_ASM_CX, RSB_CLEAR_LOOPS, X86_FEATURE_RSB_VMEXIT,\
++			   X86_FEATURE_RSB_VMEXIT_LITE
++
+ 
+ 	pop %_ASM_ARG2	/* @flags */
+ 	pop %_ASM_ARG1	/* @vmx */
+diff --git a/block/blk-ioc.c b/block/blk-ioc.c
+index df9cfe4ca532..63fc02042408 100644
+--- a/block/blk-ioc.c
++++ b/block/blk-ioc.c
+@@ -247,6 +247,8 @@ static struct io_context *alloc_io_context(gfp_t gfp_flags, int node)
+ 	INIT_HLIST_HEAD(&ioc->icq_list);
+ 	INIT_WORK(&ioc->release_work, ioc_release_fn);
+ #endif
++	ioc->ioprio = IOPRIO_DEFAULT;
++
+ 	return ioc;
+ }
+ 
+diff --git a/block/ioprio.c b/block/ioprio.c
+index 2fe068fcaad5..2a34cbca18ae 100644
+--- a/block/ioprio.c
++++ b/block/ioprio.c
+@@ -157,9 +157,9 @@ static int get_task_ioprio(struct task_struct *p)
+ int ioprio_best(unsigned short aprio, unsigned short bprio)
+ {
+ 	if (!ioprio_valid(aprio))
+-		aprio = IOPRIO_DEFAULT;
++		aprio = IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, IOPRIO_BE_NORM);
+ 	if (!ioprio_valid(bprio))
+-		bprio = IOPRIO_DEFAULT;
++		bprio = IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, IOPRIO_BE_NORM);
+ 
+ 	return min(aprio, bprio);
+ }
+diff --git a/drivers/acpi/apei/bert.c b/drivers/acpi/apei/bert.c
+index 598fd19b65fa..45973aa6e06d 100644
+--- a/drivers/acpi/apei/bert.c
++++ b/drivers/acpi/apei/bert.c
+@@ -29,16 +29,26 @@
+ 
+ #undef pr_fmt
+ #define pr_fmt(fmt) "BERT: " fmt
++
++#define ACPI_BERT_PRINT_MAX_RECORDS 5
+ #define ACPI_BERT_PRINT_MAX_LEN 1024
+ 
+ static int bert_disable;
+ 
++/*
++ * Print "all" the error records in the BERT table, but avoid huge spam to
++ * the console if the BIOS included oversize records, or too many records.
++ * Skipping some records here does not lose anything because the full
++ * data is available to user tools in:
++ *	/sys/firmware/acpi/tables/data/BERT
++ */
+ static void __init bert_print_all(struct acpi_bert_region *region,
+ 				  unsigned int region_len)
+ {
+ 	struct acpi_hest_generic_status *estatus =
+ 		(struct acpi_hest_generic_status *)region;
+ 	int remain = region_len;
++	int printed = 0, skipped = 0;
+ 	u32 estatus_len;
+ 
+ 	while (remain >= sizeof(struct acpi_bert_region)) {
+@@ -46,24 +56,26 @@ static void __init bert_print_all(struct acpi_bert_region *region,
+ 		if (remain < estatus_len) {
+ 			pr_err(FW_BUG "Truncated status block (length: %u).\n",
+ 			       estatus_len);
+-			return;
++			break;
+ 		}
+ 
+ 		/* No more error records. */
+ 		if (!estatus->block_status)
+-			return;
++			break;
+ 
+ 		if (cper_estatus_check(estatus)) {
+ 			pr_err(FW_BUG "Invalid error record.\n");
+-			return;
++			break;
+ 		}
+ 
+-		pr_info_once("Error records from previous boot:\n");
+-		if (region_len < ACPI_BERT_PRINT_MAX_LEN)
++		if (estatus_len < ACPI_BERT_PRINT_MAX_LEN &&
++		    printed < ACPI_BERT_PRINT_MAX_RECORDS) {
++			pr_info_once("Error records from previous boot:\n");
+ 			cper_estatus_print(KERN_INFO HW_ERR, estatus);
+-		else
+-			pr_info_once("Max print length exceeded, table data is available at:\n"
+-				     "/sys/firmware/acpi/tables/data/BERT");
++			printed++;
++		} else {
++			skipped++;
++		}
+ 
+ 		/*
+ 		 * Because the boot error source is "one-time polled" type,
+@@ -75,6 +87,9 @@ static void __init bert_print_all(struct acpi_bert_region *region,
+ 		estatus = (void *)estatus + estatus_len;
+ 		remain -= estatus_len;
+ 	}
++
++	if (skipped)
++		pr_info(HW_ERR "Skipped %d error records\n", skipped);
+ }
+ 
+ static int __init setup_bert_disable(char *str)
+diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
+index becc198e4c22..6615f59ab7fd 100644
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -430,7 +430,6 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+ 	.callback = video_detect_force_native,
+ 	.ident = "Clevo NL5xRU",
+ 	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
+ 		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
+ 		},
+ 	},
+@@ -438,59 +437,75 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+ 	.callback = video_detect_force_native,
+ 	.ident = "Clevo NL5xRU",
+ 	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
+-		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "AURA1501"),
+ 		},
+ 	},
+ 	{
+ 	.callback = video_detect_force_native,
+ 	.ident = "Clevo NL5xRU",
+ 	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
+-		DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "EDUBOOK1502"),
+ 		},
+ 	},
+ 	{
+ 	.callback = video_detect_force_native,
+-	.ident = "Clevo NL5xRU",
++	.ident = "Clevo NL5xNU",
+ 	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
+-		DMI_MATCH(DMI_BOARD_NAME, "AURA1501"),
++		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
+ 		},
+ 	},
++	/*
++	 * The TongFang PF5PU1G, PF4NU1F, PF5NU1G, and PF5LUXG/TUXEDO BA15 Gen10,
++	 * Pulse 14/15 Gen1, and Pulse 15 Gen2 have the same problem as the Clevo
++	 * NL5xRU and NL5xNU/TUXEDO Aura 15 Gen1 and Gen2. See the description
++	 * above.
++	 */
+ 	{
+ 	.callback = video_detect_force_native,
+-	.ident = "Clevo NL5xRU",
++	.ident = "TongFang PF5PU1G",
+ 	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
+-		DMI_MATCH(DMI_BOARD_NAME, "EDUBOOK1502"),
++		DMI_MATCH(DMI_BOARD_NAME, "PF5PU1G"),
+ 		},
+ 	},
+ 	{
+ 	.callback = video_detect_force_native,
+-	.ident = "Clevo NL5xNU",
++	.ident = "TongFang PF4NU1F",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "PF4NU1F"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF4NU1F",
+ 	.matches = {
+ 		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
+-		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
++		DMI_MATCH(DMI_BOARD_NAME, "PULSE1401"),
+ 		},
+ 	},
+ 	{
+ 	.callback = video_detect_force_native,
+-	.ident = "Clevo NL5xNU",
++	.ident = "TongFang PF5NU1G",
+ 	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
+-		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
++		DMI_MATCH(DMI_BOARD_NAME, "PF5NU1G"),
+ 		},
+ 	},
+ 	{
+ 	.callback = video_detect_force_native,
+-	.ident = "Clevo NL5xNU",
++	.ident = "TongFang PF5NU1G",
+ 	.matches = {
+-		DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
+-		DMI_MATCH(DMI_BOARD_NAME, "NL5xNU"),
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "PULSE1501"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang PF5LUXG",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "PF5LUXG"),
+ 		},
+ 	},
+-
+ 	/*
+ 	 * Desktops which falsely report a backlight and which our heuristics
+ 	 * for this do not catch.
+diff --git a/drivers/ata/sata_mv.c b/drivers/ata/sata_mv.c
+index de5bd02cad44..e3cff01201b8 100644
+--- a/drivers/ata/sata_mv.c
++++ b/drivers/ata/sata_mv.c
+@@ -4057,7 +4057,7 @@ static int mv_platform_probe(struct platform_device *pdev)
+ 	/*
+ 	 * Simple resource validation ..
+ 	 */
+-	if (unlikely(pdev->num_resources != 2)) {
++	if (unlikely(pdev->num_resources != 1)) {
+ 		dev_err(&pdev->dev, "invalid number of resources\n");
+ 		return -EINVAL;
+ 	}
+diff --git a/drivers/bluetooth/btbcm.c b/drivers/bluetooth/btbcm.c
+index 76fbb046bdbe..c9cda681c691 100644
+--- a/drivers/bluetooth/btbcm.c
++++ b/drivers/bluetooth/btbcm.c
+@@ -454,6 +454,8 @@ static const struct bcm_subver_table bcm_uart_subver_table[] = {
+ 	{ 0x6606, "BCM4345C5"	},	/* 003.006.006 */
+ 	{ 0x230f, "BCM4356A2"	},	/* 001.003.015 */
+ 	{ 0x220e, "BCM20702A1"  },	/* 001.002.014 */
++	{ 0x420d, "BCM4349B1"	},	/* 002.002.013 */
++	{ 0x420e, "BCM4349B1"	},	/* 002.002.014 */
+ 	{ 0x4217, "BCM4329B1"   },	/* 002.002.023 */
+ 	{ 0x6106, "BCM4359C0"	},	/* 003.001.006 */
+ 	{ 0x4106, "BCM4335A0"	},	/* 002.001.006 */
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index e25fcd49db70..aaba2d737178 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -427,6 +427,18 @@ static const struct usb_device_id blacklist_table[] = {
+ 	{ USB_DEVICE(0x04ca, 0x4006), .driver_info = BTUSB_REALTEK |
+ 						     BTUSB_WIDEBAND_SPEECH },
+ 
++	/* Realtek 8852CE Bluetooth devices */
++	{ USB_DEVICE(0x04ca, 0x4007), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
++	{ USB_DEVICE(0x04c5, 0x1675), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
++	{ USB_DEVICE(0x0cb8, 0xc558), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
++	{ USB_DEVICE(0x13d3, 0x3587), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
++	{ USB_DEVICE(0x13d3, 0x3586), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
++
+ 	/* Realtek Bluetooth devices */
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(0x0bda, 0xe0, 0x01, 0x01),
+ 	  .driver_info = BTUSB_REALTEK },
+@@ -477,6 +489,9 @@ static const struct usb_device_id blacklist_table[] = {
+ 	{ USB_DEVICE(0x0489, 0xe0d9), .driver_info = BTUSB_MEDIATEK |
+ 						     BTUSB_WIDEBAND_SPEECH |
+ 						     BTUSB_VALID_LE_STATES },
++	{ USB_DEVICE(0x13d3, 0x3568), .driver_info = BTUSB_MEDIATEK |
++						     BTUSB_WIDEBAND_SPEECH |
++						     BTUSB_VALID_LE_STATES },
+ 
+ 	/* Additional Realtek 8723AE Bluetooth devices */
+ 	{ USB_DEVICE(0x0930, 0x021d), .driver_info = BTUSB_REALTEK },
+diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
+index 785f445dd60d..49bed66b8c84 100644
+--- a/drivers/bluetooth/hci_bcm.c
++++ b/drivers/bluetooth/hci_bcm.c
+@@ -1544,8 +1544,10 @@ static const struct of_device_id bcm_bluetooth_of_match[] = {
+ 	{ .compatible = "brcm,bcm43430a0-bt" },
+ 	{ .compatible = "brcm,bcm43430a1-bt" },
+ 	{ .compatible = "brcm,bcm43438-bt", .data = &bcm43438_device_data },
++	{ .compatible = "brcm,bcm4349-bt", .data = &bcm43438_device_data },
+ 	{ .compatible = "brcm,bcm43540-bt", .data = &bcm4354_device_data },
+ 	{ .compatible = "brcm,bcm4335a0" },
++	{ .compatible = "infineon,cyw55572-bt" },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(of, bcm_bluetooth_of_match);
+diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
+index eab34e24d944..8df11016fd51 100644
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -1588,7 +1588,7 @@ static bool qca_wakeup(struct hci_dev *hdev)
+ 	wakeup = device_may_wakeup(hu->serdev->ctrl->dev.parent);
+ 	bt_dev_dbg(hu->hdev, "wakeup status : %d", wakeup);
+ 
+-	return !wakeup;
++	return wakeup;
+ }
+ 
+ static int qca_regulator_init(struct hci_uart *hu)
+diff --git a/drivers/macintosh/adb.c b/drivers/macintosh/adb.c
+index 439fab4eaa85..1bbb9ca08d40 100644
+--- a/drivers/macintosh/adb.c
++++ b/drivers/macintosh/adb.c
+@@ -647,7 +647,7 @@ do_adb_query(struct adb_request *req)
+ 
+ 	switch(req->data[1]) {
+ 	case ADB_QUERY_GETDEVINFO:
+-		if (req->nbytes < 3)
++		if (req->nbytes < 3 || req->data[2] >= 16)
+ 			break;
+ 		mutex_lock(&adb_handler_mutex);
+ 		req->reply[0] = adb_handler[req->data[2]].original_address;
+diff --git a/include/linux/ioprio.h b/include/linux/ioprio.h
+index 3f53bc27a19b..3d088a88f832 100644
+--- a/include/linux/ioprio.h
++++ b/include/linux/ioprio.h
+@@ -11,7 +11,7 @@
+ /*
+  * Default IO priority.
+  */
+-#define IOPRIO_DEFAULT	IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, IOPRIO_BE_NORM)
++#define IOPRIO_DEFAULT	IOPRIO_PRIO_VALUE(IOPRIO_CLASS_NONE, 0)
+ 
+ /*
+  * Check that a priority value has a valid class.
+diff --git a/tools/arch/x86/include/asm/cpufeatures.h b/tools/arch/x86/include/asm/cpufeatures.h
+index a77b915d36a8..8323ac5b7eee 100644
+--- a/tools/arch/x86/include/asm/cpufeatures.h
++++ b/tools/arch/x86/include/asm/cpufeatures.h
+@@ -303,6 +303,7 @@
+ #define X86_FEATURE_RETHUNK		(11*32+14) /* "" Use REturn THUNK */
+ #define X86_FEATURE_UNRET		(11*32+15) /* "" AMD BTB untrain return */
+ #define X86_FEATURE_USE_IBPB_FW		(11*32+16) /* "" Use IBPB during runtime firmware calls */
++#define X86_FEATURE_RSB_VMEXIT_LITE	(11*32+17) /* "" Fill RSB on VM-Exit when EIBRS is enabled */
+ 
+ /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
+ #define X86_FEATURE_AVX_VNNI		(12*32+ 4) /* AVX VNNI instructions */
+diff --git a/tools/arch/x86/include/asm/msr-index.h b/tools/arch/x86/include/asm/msr-index.h
+index cc615be27a54..e057e039173c 100644
+--- a/tools/arch/x86/include/asm/msr-index.h
++++ b/tools/arch/x86/include/asm/msr-index.h
+@@ -150,6 +150,10 @@
+ 						 * are restricted to targets in
+ 						 * kernel.
+ 						 */
++#define ARCH_CAP_PBRSB_NO		BIT(24)	/*
++						 * Not susceptible to Post-Barrier
++						 * Return Stack Buffer Predictions.
++						 */
+ 
+ #define MSR_IA32_FLUSH_CMD		0x0000010b
+ #define L1D_FLUSH			BIT(0)	/*
+diff --git a/tools/vm/slabinfo.c b/tools/vm/slabinfo.c
+index 9b68658b6bb8..5b98f3ee58a5 100644
+--- a/tools/vm/slabinfo.c
++++ b/tools/vm/slabinfo.c
+@@ -233,6 +233,24 @@ static unsigned long read_slab_obj(struct slabinfo *s, const char *name)
+ 	return l;
+ }
+ 
++static unsigned long read_debug_slab_obj(struct slabinfo *s, const char *name)
++{
++	char x[128];
++	FILE *f;
++	size_t l;
++
++	snprintf(x, 128, "/sys/kernel/debug/slab/%s/%s", s->name, name);
++	f = fopen(x, "r");
++	if (!f) {
++		buffer[0] = 0;
++		l = 0;
++	} else {
++		l = fread(buffer, 1, sizeof(buffer), f);
++		buffer[l] = 0;
++		fclose(f);
++	}
++	return l;
++}
+ 
+ /*
+  * Put a size string together
+@@ -409,14 +427,18 @@ static void show_tracking(struct slabinfo *s)
+ {
+ 	printf("\n%s: Kernel object allocation\n", s->name);
+ 	printf("-----------------------------------------------------------------------\n");
+-	if (read_slab_obj(s, "alloc_calls"))
++	if (read_debug_slab_obj(s, "alloc_traces"))
++		printf("%s", buffer);
++	else if (read_slab_obj(s, "alloc_calls"))
+ 		printf("%s", buffer);
+ 	else
+ 		printf("No Data\n");
+ 
+ 	printf("\n%s: Kernel object freeing\n", s->name);
+ 	printf("------------------------------------------------------------------------\n");
+-	if (read_slab_obj(s, "free_calls"))
++	if (read_debug_slab_obj(s, "free_traces"))
++		printf("%s", buffer);
++	else if (read_slab_obj(s, "free_calls"))
+ 		printf("%s", buffer);
+ 	else
+ 		printf("No Data\n");
