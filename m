@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6442B5904F8
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:49:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0093590426
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:48:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238340AbiHKQc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:32:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59546 "EHLO
+        id S238492AbiHKQce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:32:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238711AbiHKQbD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:31:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA652B81D6;
-        Thu, 11 Aug 2022 09:09:54 -0700 (PDT)
+        with ESMTP id S238792AbiHKQbN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:31:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FCA5B81F8;
+        Thu, 11 Aug 2022 09:09:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 063AD6137B;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 128A66141C;
+        Thu, 11 Aug 2022 16:09:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66D07C433C1;
         Thu, 11 Aug 2022 16:09:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60D42C433D7;
-        Thu, 11 Aug 2022 16:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660234193;
-        bh=ffimnvJVit0Fcg4L295RnW58dCDMi4o1Jun9ClMnSQ4=;
+        s=k20201202; t=1660234195;
+        bh=yl0xHkcESV7NTyfRvJaAPC4xYMup5ytE1fDcH4xEmw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXIwHui1GAqc9/fYz0GU5tws5ibIGYOdFlrpeOdSpDMO3BgsFWtKbA1D+bCKfPUJ1
-         X5V6tA4OTyRm4JCYzr9Lvs2BGZZX+cmUtiEHkfrQC8k3x1Z3lsyJie3QlQVfo4YCFu
-         09+g6ctgiStGyfhIzEUtwRCBwU//v/THb6frWVqskKecticbVeN3o2LT8aZSbOGk46
-         wP0zbgmx64c/SN3+zrYRVeGnnIp2aopH4kO8mq7WsIu5J0Ddyi41cjTdlhNGoazS4l
-         9tS+u5Oew63EF/1jfnrsOmVliSA42oa5W1/47dGvNqiep0LcycfXbNUWY2BOnNTmlj
-         ORae83SU7jsrQ==
+        b=Ongw9yAQVb5u0jTBYLcngSFPOZWOT/deZl8HLRfmURamJ2LnTxD5GBA0xpzZveHHy
+         oSBMYfpb26DmKkdaquKfmJM7wbwo+S50nZqf3eynlG7rBLeowV4TrgtJHGmsuGMnLa
+         9DBR9XiAZNYiAa4s6TFtGdfc9IMQP1fBhQ37tHMZBbL6Bkr+rAyeGqhW2TdRjdFdpe
+         LWnozOTUHya85nVW1p/npOQy1Dfv7mAUmdFBGn3sl+tdzxwDi7u78hh48BuJf2O1an
+         qRRgz8BT/vdxuNZF9BQnRefzRd/bREX72bAyNsFSq4gtR/qDRcWwNK5H9tdPUOPhYN
+         7ToW733VzgFBg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>,
@@ -38,9 +38,9 @@ Cc:     Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>,
         Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
         Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 02/14] drm/radeon: integer overflow in radeon_mode_dumb_create()
-Date:   Thu, 11 Aug 2022 12:09:30 -0400
-Message-Id: <20220811160948.1542842-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 03/14] drm/radeon: Initialize fences array entries in radeon_sa_bo_next_hole
+Date:   Thu, 11 Aug 2022 12:09:31 -0400
+Message-Id: <20220811160948.1542842-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811160948.1542842-1-sashal@kernel.org>
 References: <20220811160948.1542842-1-sashal@kernel.org>
@@ -60,36 +60,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
 
-[ Upstream commit feb54650bae25f2a2adfc493e3e254e7c27a3fba ]
+[ Upstream commit 0381ac3ca2e727d4dfb7264d9416a8ba6bb6c18b ]
 
-Similar to the handling of amdgpu_mode_dumb_create in commit 54ef0b5461c0
-("drm/amdgpu: integer overflow in amdgpu_mode_dumb_create()"),
+Similar to the handling of amdgpu_sa_bo_next_hole in commit 6a15f3ff19a8
+("drm/amdgpu: Initialize fences array entries in amdgpu_sa_bo_next_hole"),
 we thought a patch might be needed here as well.
 
-args->size is a u64.  arg->pitch and args->height are u32.  The
-multiplication will overflow instead of using the high 32 bits as
-intended.
+The entries were only initialized once in radeon_sa_bo_new. If a fence
+wasn't signalled yet in the first radeon_sa_bo_next_hole call, but then
+got signalled before a later radeon_sa_bo_next_hole call, it could
+destroy the fence but leave its pointer in the array, resulting in
+use-after-free in radeon_sa_bo_new.
 
 Signed-off-by: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_gem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/radeon/radeon_sa.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_gem.c b/drivers/gpu/drm/radeon/radeon_gem.c
-index 27d8e7dd2d06..733d9ff08c62 100644
---- a/drivers/gpu/drm/radeon/radeon_gem.c
-+++ b/drivers/gpu/drm/radeon/radeon_gem.c
-@@ -750,7 +750,7 @@ int radeon_mode_dumb_create(struct drm_file *file_priv,
+diff --git a/drivers/gpu/drm/radeon/radeon_sa.c b/drivers/gpu/drm/radeon/radeon_sa.c
+index 197b157b73d0..0cb6eeb77b5f 100644
+--- a/drivers/gpu/drm/radeon/radeon_sa.c
++++ b/drivers/gpu/drm/radeon/radeon_sa.c
+@@ -267,6 +267,8 @@ static bool radeon_sa_bo_next_hole(struct radeon_sa_manager *sa_manager,
+ 	for (i = 0; i < RADEON_NUM_RINGS; ++i) {
+ 		struct radeon_sa_bo *sa_bo;
  
- 	args->pitch = radeon_align_pitch(rdev, args->width,
- 					 DIV_ROUND_UP(args->bpp, 8), 0);
--	args->size = args->pitch * args->height;
-+	args->size = (u64)args->pitch * args->height;
- 	args->size = ALIGN(args->size, PAGE_SIZE);
++		fences[i] = NULL;
++
+ 		if (list_empty(&sa_manager->flist[i])) {
+ 			continue;
+ 		}
+@@ -332,10 +334,8 @@ int radeon_sa_bo_new(struct radeon_device *rdev,
  
- 	r = radeon_gem_object_create(rdev, args->size, 0,
+ 	spin_lock(&sa_manager->wq.lock);
+ 	do {
+-		for (i = 0; i < RADEON_NUM_RINGS; ++i) {
+-			fences[i] = NULL;
++		for (i = 0; i < RADEON_NUM_RINGS; ++i)
+ 			tries[i] = 0;
+-		}
+ 
+ 		do {
+ 			radeon_sa_bo_try_free(sa_manager);
 -- 
 2.35.1
 
