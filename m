@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 801DC5907BD
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 23:06:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A5A85907E0
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 23:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236318AbiHKVGN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 17:06:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41000 "EHLO
+        id S236535AbiHKVJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 17:09:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236270AbiHKVGL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 17:06:11 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2F71A78BED
-        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 14:06:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660251969;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+LAQ3UWyhcCOdQwv4ps8HwWuKgNTwvufANeP1Ktgs0w=;
-        b=Xx9amVxFHP9UwLDm2678bCcPdTo0Oans9S6m406+jzvs9rc0pBVzduwaCDx0kwY0jhLeXT
-        eIF7T1QskGe/+5kILeu7kIHLW9IiGDKU95bwdXHSN8qn/H4uQgBRAFOlrZGd480mkZ5R/S
-        nHXg1ZbL6jwKGO0NGEz/t0ytSb7SjeE=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-124-MZ3uhukuNoGJY9QJMice3w-1; Thu, 11 Aug 2022 17:06:08 -0400
-X-MC-Unique: MZ3uhukuNoGJY9QJMice3w-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A51B7800124;
-        Thu, 11 Aug 2022 21:06:07 +0000 (UTC)
-Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 79F78492C3B;
-        Thu, 11 Aug 2022 21:06:07 +0000 (UTC)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     seanjc@google.com, mlevitsk@redhat.com, vkuznets@redhat.com,
+        with ESMTP id S235097AbiHKVJ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 17:09:27 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DC5A1D34
+        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 14:08:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1660252112; x=1691788112;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=VNi1/5JGKDD2w03JIs2UoFJvnRyEt00JKmBug4Ih8IE=;
+  b=nnnlQ6FrFC86rdwD/fw7e7hR32Uc3NTk2EVslYISwYUr+spOIo1mGqFF
+   w5mEKgR96hhjjGg/ndjYTH/1Yi7FvhOM/srpXbdf1k/eocdin7vFB1NQx
+   LR0l06RmRTWjv+3CHQ1k87HY9xFoJtU/0PLBKCiePLWeQl65BEisbUryn
+   MQuj0/6LscERv2kg9GYToXi+LxFr0dbeuKV8xpOvYjZV8m/+WStmI+gfn
+   KwG/n1DKxGMxuUzhLYe6Lbj1vMXlU7z49PP4Jq6+OZgsIFNFaYUvd75Bc
+   +ekOz9BphtE+Qh5sBy4CsoFVrJ6LQsp1fw7Q43Rky1O5LSFePeavTWfKr
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10436"; a="353203347"
+X-IronPort-AV: E=Sophos;i="5.93,230,1654585200"; 
+   d="scan'208";a="353203347"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2022 14:08:31 -0700
+X-IronPort-AV: E=Sophos;i="5.93,230,1654585200"; 
+   d="scan'208";a="708768758"
+Received: from valcore-skull-1.fm.intel.com ([10.1.27.19])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2022 14:08:31 -0700
+From:   Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     dri-devel@lists.freedesktop.org,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Matthew Brost <matthew.brost@intel.com>,
+        John Harrison <john.c.harrison@intel.com>,
         stable@vger.kernel.org
-Subject: [PATCH v2 7/9] KVM: nVMX: Make an event request when pending an MTF nested VM-Exit
-Date:   Thu, 11 Aug 2022 17:06:03 -0400
-Message-Id: <20220811210605.402337-8-pbonzini@redhat.com>
-In-Reply-To: <20220811210605.402337-1-pbonzini@redhat.com>
-References: <20220811210605.402337-1-pbonzini@redhat.com>
+Subject: [PATCH] drm/i915/guc: clear stalled request after a reset
+Date:   Thu, 11 Aug 2022 14:08:12 -0700
+Message-Id: <20220811210812.3239621-1-daniele.ceraolospurio@intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
-X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -60,45 +59,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+If the GuC CTs are full and we need to stall the request submission
+while waiting for space, we save the stalled request and where the stall
+occurred; when the CTs have space again we pick up the request submission
+from where we left off.
 
-Set KVM_REQ_EVENT when MTF becomes pending to ensure that KVM will run
-through inject_pending_event() and thus vmx_check_nested_events() prior
-to re-entering the guest.
+If a full GT reset occurs, the state of all contexts is cleared and all
+non-guilty requests are unsubmitted, therefore we need to restart the
+stalled request submission from scratch. To make sure that we do so,
+clear the saved request after a reset.
 
-MTF currently works by virtue of KVM's hack that calls
-kvm_check_nested_events() from kvm_vcpu_running(), but that hack will
-be removed in the near future.  Until that call is removed, the patch
-introduces no functional change.
+Fixes note: the patch that introduced the bug is in 5.15, but no
+officially supported platform had GuC submission enabled by default
+in that kernel, so the backport to that particular version (and only
+that one) can potentially be skipped.
 
-Fixes: 5ef8acbdd687 ("KVM: nVMX: Emulate MTF when performing instruction emulation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 925dc1cf58ed ("drm/i915/guc: Implement GuC submission tasklet")
+Signed-off-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Cc: Matthew Brost <matthew.brost@intel.com>
+Cc: John Harrison <john.c.harrison@intel.com>
+Cc: <stable@vger.kernel.org> # v5.15+
 ---
- arch/x86/kvm/vmx/vmx.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index d7f8331d6f7e..940c0c0f8281 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -1660,10 +1660,12 @@ static void vmx_update_emulated_instruction(struct kvm_vcpu *vcpu)
- 	 */
- 	if (nested_cpu_has_mtf(vmcs12) &&
- 	    (!vcpu->arch.exception.pending ||
--	     vcpu->arch.exception.nr == DB_VECTOR))
-+	     vcpu->arch.exception.nr == DB_VECTOR)) {
- 		vmx->nested.mtf_pending = true;
--	else
-+		kvm_make_request(KVM_REQ_EVENT, vcpu);
-+	} else {
- 		vmx->nested.mtf_pending = false;
-+	}
- }
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+index 0d17da77e787..0d56b615bf78 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+@@ -4002,6 +4002,13 @@ static inline void guc_init_lrc_mapping(struct intel_guc *guc)
+ 	/* make sure all descriptors are clean... */
+ 	xa_destroy(&guc->context_lookup);
  
- static int vmx_skip_emulated_instruction(struct kvm_vcpu *vcpu)
++	/*
++	 * A reset might have occurred while we had a pending stalled request,
++	 * so make sure we clean that up.
++	 */
++	guc->stalled_request = NULL;
++	guc->submission_stall_reason = STALL_NONE;
++
+ 	/*
+ 	 * Some contexts might have been pinned before we enabled GuC
+ 	 * submission, so we need to add them to the GuC bookeeping.
 -- 
-2.31.1
-
+2.25.1
 
