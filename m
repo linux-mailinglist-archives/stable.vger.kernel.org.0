@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6E5359023C
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:07:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 598B159023E
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:07:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236672AbiHKQHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:07:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39378 "EHLO
+        id S237186AbiHKQHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:07:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236519AbiHKQGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:06:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD1DAB9FB4;
-        Thu, 11 Aug 2022 08:53:30 -0700 (PDT)
+        with ESMTP id S237189AbiHKQHC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:07:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F69B9FBA;
+        Thu, 11 Aug 2022 08:53:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1979960F3D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 13B2C60EFC;
+        Thu, 11 Aug 2022 15:53:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 002E2C433D7;
         Thu, 11 Aug 2022 15:53:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06948C433D6;
-        Thu, 11 Aug 2022 15:53:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660233209;
-        bh=4FXxmeamZE/+Ek8SymR31JLl1PEr4R8InY2NDrVuePw=;
+        s=k20201202; t=1660233212;
+        bh=tuICkkyQ8w71W7i+ebqOjAq16EamJM626zkFcOZCpYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rS7Ea1eDOyg5Bt8svTq/kkofZdAIa6syM7FbiD93IytzU/j23nXmq9MkB24m0jTp7
-         aqSiyV5GRIQkUdGl0XfFJRiwmF8AEJgOTPEaJO8I1avIabsdsMGiMoLETiCAZmPHgf
-         88w3AeZ4ehci30B6pmfp5q3Garg1ATst0UncmQqtx8VBdiZB5X44/jEsT9rIRMm+rR
-         bNHvUaHGbG/ty4e8IT28ii1IAH3xeJgETtsaZfL5JCG+t5B4XE+6Ztvr2cEpMHJmoj
-         xjnAKe1B5WrJqXz79IPUgUMs6XvRB4JWIMGbbNsuyBFXabXE2AofXmGKNTNDfllgMn
-         B1AqvsrUC4hEA==
+        b=bzgSUqdLizdsqgymIinonxrn/Zb5PDc+KCU+ikhh/0K4j3dvsc4qVZwpCInLDoDfl
+         iE+8v2TZyn6aJdMeMq3BVSoNKs0g5J4Fyr70NJqcRGNIo/QkdoSb+0LzRhJJCChZ6P
+         dg4mNun7Kajg1+iNumgXgCwkBigAHBUPeT6IcP0OomalUcKh4pKberx9RC/rjNq8qJ
+         1VVPbZbFr40Tq8qnv/r2wc9U++4SZwrs5N13WruiQhquDlwPq1dRTxG/jDrJA3u/gF
+         DboKEFB+XkDQ5/dEqQc9fNxdy2Lz9Y5ghojbx7lPVLWOqlFlYlKHnDUMloZrYQq8pQ
+         l454mrbyEr+fw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     lin cao <lin.cao@amd.com>, Jingwen Chen <Jingwen.Chen2@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, evan.quan@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, lijo.lazar@amd.com, guchun.chen@amd.com,
-        luben.tuikov@amd.com, sathishkumar.sundararaju@amd.com,
-        danijel.slivka@amd.com, Mohammadzafar.ziya@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.18 67/93] drm/amdgpu: Call trace info was found in dmesg when loading amdgpu
-Date:   Thu, 11 Aug 2022 11:42:01 -0400
-Message-Id: <20220811154237.1531313-67-sashal@kernel.org>
+Cc:     Moshe Shemesh <moshe@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 68/93] net: devlink: avoid false DEADLOCK warning reported by lockdep
+Date:   Thu, 11 Aug 2022 11:42:02 -0400
+Message-Id: <20220811154237.1531313-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -61,44 +57,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: lin cao <lin.cao@amd.com>
+From: Moshe Shemesh <moshe@nvidia.com>
 
-[ Upstream commit 748262eb400e809aa13e3485f4983c3db3d0ebb3 ]
+[ Upstream commit e26fde2f5befad0951fe6345403616bf51e901be ]
 
-In the case of SRIOV, the register smnMp1_PMI_3_FIFO will get an invalid
-value which will cause the "shift out of bound". In Ubuntu22.04, this
-issue will be checked an related call trace will be reported in dmesg.
+Add a lock_class_key per devlink instance to avoid DEADLOCK warning by
+lockdep, while locking more than one devlink instance in driver code,
+for example in opening VFs flow.
 
-Signed-off-by: lin cao <lin.cao@amd.com>
-Reviewed-by: Jingwen Chen <Jingwen.Chen2@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Kernel log:
+[  101.433802] ============================================
+[  101.433803] WARNING: possible recursive locking detected
+[  101.433810] 5.19.0-rc1+ #35 Not tainted
+[  101.433812] --------------------------------------------
+[  101.433813] bash/892 is trying to acquire lock:
+[  101.433815] ffff888127bfc2f8 (&devlink->lock){+.+.}-{3:3}, at: probe_one+0x3c/0x690 [mlx5_core]
+[  101.433909]
+               but task is already holding lock:
+[  101.433910] ffff888118f4c2f8 (&devlink->lock){+.+.}-{3:3}, at: mlx5_core_sriov_configure+0x62/0x280 [mlx5_core]
+[  101.433989]
+               other info that might help us debug this:
+[  101.433990]  Possible unsafe locking scenario:
+
+[  101.433991]        CPU0
+[  101.433991]        ----
+[  101.433992]   lock(&devlink->lock);
+[  101.433993]   lock(&devlink->lock);
+[  101.433995]
+                *** DEADLOCK ***
+
+[  101.433996]  May be due to missing lock nesting notation
+
+[  101.433996] 6 locks held by bash/892:
+[  101.433998]  #0: ffff88810eb50448 (sb_writers#3){.+.+}-{0:0}, at: ksys_write+0xf3/0x1d0
+[  101.434009]  #1: ffff888114777c88 (&of->mutex){+.+.}-{3:3}, at: kernfs_fop_write_iter+0x20d/0x520
+[  101.434017]  #2: ffff888102b58660 (kn->active#231){.+.+}-{0:0}, at: kernfs_fop_write_iter+0x230/0x520
+[  101.434023]  #3: ffff888102d70198 (&dev->mutex){....}-{3:3}, at: sriov_numvfs_store+0x132/0x310
+[  101.434031]  #4: ffff888118f4c2f8 (&devlink->lock){+.+.}-{3:3}, at: mlx5_core_sriov_configure+0x62/0x280 [mlx5_core]
+[  101.434108]  #5: ffff88812adce198 (&dev->mutex){....}-{3:3}, at: __device_attach+0x76/0x430
+[  101.434116]
+               stack backtrace:
+[  101.434118] CPU: 5 PID: 892 Comm: bash Not tainted 5.19.0-rc1+ #35
+[  101.434120] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+[  101.434130] Call Trace:
+[  101.434133]  <TASK>
+[  101.434135]  dump_stack_lvl+0x57/0x7d
+[  101.434145]  __lock_acquire.cold+0x1df/0x3e7
+[  101.434151]  ? register_lock_class+0x1880/0x1880
+[  101.434157]  lock_acquire+0x1c1/0x550
+[  101.434160]  ? probe_one+0x3c/0x690 [mlx5_core]
+[  101.434229]  ? lockdep_hardirqs_on_prepare+0x400/0x400
+[  101.434232]  ? __xa_alloc+0x1ed/0x2d0
+[  101.434236]  ? ksys_write+0xf3/0x1d0
+[  101.434239]  __mutex_lock+0x12c/0x14b0
+[  101.434243]  ? probe_one+0x3c/0x690 [mlx5_core]
+[  101.434312]  ? probe_one+0x3c/0x690 [mlx5_core]
+[  101.434380]  ? devlink_alloc_ns+0x11b/0x910
+[  101.434385]  ? mutex_lock_io_nested+0x1320/0x1320
+[  101.434388]  ? lockdep_init_map_type+0x21a/0x7d0
+[  101.434391]  ? lockdep_init_map_type+0x21a/0x7d0
+[  101.434393]  ? __init_swait_queue_head+0x70/0xd0
+[  101.434397]  probe_one+0x3c/0x690 [mlx5_core]
+[  101.434467]  pci_device_probe+0x1b4/0x480
+[  101.434471]  really_probe+0x1e0/0xaa0
+[  101.434474]  __driver_probe_device+0x219/0x480
+[  101.434478]  driver_probe_device+0x49/0x130
+[  101.434481]  __device_attach_driver+0x1b8/0x280
+[  101.434484]  ? driver_allows_async_probing+0x140/0x140
+[  101.434487]  bus_for_each_drv+0x123/0x1a0
+[  101.434489]  ? bus_for_each_dev+0x1a0/0x1a0
+[  101.434491]  ? lockdep_hardirqs_on_prepare+0x286/0x400
+[  101.434494]  ? trace_hardirqs_on+0x2d/0x100
+[  101.434498]  __device_attach+0x1a3/0x430
+[  101.434501]  ? device_driver_attach+0x1e0/0x1e0
+[  101.434503]  ? pci_bridge_d3_possible+0x1e0/0x1e0
+[  101.434506]  ? pci_create_resource_files+0xeb/0x190
+[  101.434511]  pci_bus_add_device+0x6c/0xa0
+[  101.434514]  pci_iov_add_virtfn+0x9e4/0xe00
+[  101.434517]  ? trace_hardirqs_on+0x2d/0x100
+[  101.434521]  sriov_enable+0x64a/0xca0
+[  101.434524]  ? pcibios_sriov_disable+0x10/0x10
+[  101.434528]  mlx5_core_sriov_configure+0xab/0x280 [mlx5_core]
+[  101.434602]  sriov_numvfs_store+0x20a/0x310
+[  101.434605]  ? sriov_totalvfs_show+0xc0/0xc0
+[  101.434608]  ? sysfs_file_ops+0x170/0x170
+[  101.434611]  ? sysfs_file_ops+0x117/0x170
+[  101.434614]  ? sysfs_file_ops+0x170/0x170
+[  101.434616]  kernfs_fop_write_iter+0x348/0x520
+[  101.434619]  new_sync_write+0x2e5/0x520
+[  101.434621]  ? new_sync_read+0x520/0x520
+[  101.434624]  ? lock_acquire+0x1c1/0x550
+[  101.434626]  ? lockdep_hardirqs_on_prepare+0x400/0x400
+[  101.434630]  vfs_write+0x5cb/0x8d0
+[  101.434633]  ksys_write+0xf3/0x1d0
+[  101.434635]  ? __x64_sys_read+0xb0/0xb0
+[  101.434638]  ? lockdep_hardirqs_on_prepare+0x286/0x400
+[  101.434640]  ? syscall_enter_from_user_mode+0x1d/0x50
+[  101.434643]  do_syscall_64+0x3d/0x90
+[  101.434647]  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+[  101.434650] RIP: 0033:0x7f5ff536b2f7
+[  101.434658] Code: 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f
+1f 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f
+05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
+[  101.434661] RSP: 002b:00007ffd9ea85d58 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+[  101.434664] RAX: ffffffffffffffda RBX: 0000000000000002 RCX: 00007f5ff536b2f7
+[  101.434666] RDX: 0000000000000002 RSI: 000055c4c279e230 RDI: 0000000000000001
+[  101.434668] RBP: 000055c4c279e230 R08: 000000000000000a R09: 0000000000000001
+[  101.434669] R10: 000055c4c283cbf0 R11: 0000000000000246 R12: 0000000000000002
+[  101.434670] R13: 00007f5ff543d500 R14: 0000000000000002 R15: 00007f5ff543d700
+[  101.434673]  </TASK>
+
+Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/core/devlink.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-index 7a1e225fb823..971a9712fa63 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-@@ -758,6 +758,7 @@ static void sienna_cichlid_stb_init(struct smu_context *smu);
+diff --git a/net/core/devlink.c b/net/core/devlink.c
+index aeca13b6e57b..2c665396a707 100644
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -64,6 +64,7 @@ struct devlink {
+ 	 * port, sb, dpipe, resource, params, region, traps and more.
+ 	 */
+ 	struct mutex lock;
++	struct lock_class_key lock_key;
+ 	u8 reload_failed:1;
+ 	refcount_t refcount;
+ 	struct completion comp;
+@@ -9052,7 +9053,9 @@ struct devlink *devlink_alloc_ns(const struct devlink_ops *ops,
+ 	INIT_LIST_HEAD(&devlink->trap_list);
+ 	INIT_LIST_HEAD(&devlink->trap_group_list);
+ 	INIT_LIST_HEAD(&devlink->trap_policer_list);
++	lockdep_register_key(&devlink->lock_key);
+ 	mutex_init(&devlink->lock);
++	lockdep_set_class(&devlink->lock, &devlink->lock_key);
+ 	mutex_init(&devlink->reporters_lock);
+ 	refcount_set(&devlink->refcount, 1);
+ 	init_completion(&devlink->comp);
+@@ -9193,6 +9196,7 @@ void devlink_free(struct devlink *devlink)
  
- static int sienna_cichlid_init_smc_tables(struct smu_context *smu)
- {
-+	struct amdgpu_device *adev = smu->adev;
- 	int ret = 0;
- 
- 	ret = sienna_cichlid_tables_init(smu);
-@@ -768,7 +769,8 @@ static int sienna_cichlid_init_smc_tables(struct smu_context *smu)
- 	if (ret)
- 		return ret;
- 
--	sienna_cichlid_stb_init(smu);
-+	if (!amdgpu_sriov_vf(adev))
-+		sienna_cichlid_stb_init(smu);
- 
- 	return smu_v11_0_init_smc_tables(smu);
- }
+ 	mutex_destroy(&devlink->reporters_lock);
+ 	mutex_destroy(&devlink->lock);
++	lockdep_unregister_key(&devlink->lock_key);
+ 	WARN_ON(!list_empty(&devlink->trap_policer_list));
+ 	WARN_ON(!list_empty(&devlink->trap_group_list));
+ 	WARN_ON(!list_empty(&devlink->trap_list));
 -- 
 2.35.1
 
