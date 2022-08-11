@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7763F59032A
+	by mail.lfdr.de (Postfix) with ESMTP id EF6D959032B
 	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:21:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237441AbiHKQVS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237542AbiHKQVS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 11 Aug 2022 12:21:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60828 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237596AbiHKQUF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:20:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F81A0251;
-        Thu, 11 Aug 2022 09:02:00 -0700 (PDT)
+        with ESMTP id S237716AbiHKQUH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:20:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89E97AB199;
+        Thu, 11 Aug 2022 09:02:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D40566133D;
-        Thu, 11 Aug 2022 16:01:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F483C433C1;
-        Thu, 11 Aug 2022 16:01:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 10570612FC;
+        Thu, 11 Aug 2022 16:02:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 779D1C433D7;
+        Thu, 11 Aug 2022 16:02:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660233719;
-        bh=6sRasSLSlcwEFv1YfjylIL2Tv62U0qLVFef2gp8bkIk=;
+        s=k20201202; t=1660233721;
+        bh=/NfsTPynIzJ7q1vtVPX0fnJ6BQE75dnJVQ0W0eNTezM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NcH8Eq/5cWh/Xid1kq7La8I+4I3cMj2ofW+yQ0SWVgDg7fepwD2fJ0EoRpvCfxTSS
-         BA546IHcppCjZADDSCYK+oPt/nIYCIBlsuEW44yyF2AhFrgAZrrOP9Y9bovecjLsUx
-         3d0+g49OI4arcAvsfuLXxAJpzD0//8g/8NfRZdAfOOViD/PSfIAbAzM1DylwqkTSl8
-         9NFd9VZ+0bnrigU1wt6szsfXVvBrMkq1SziKVeFI2utW6A0n9nG/pFh3x8gmNT2AAb
-         rTqpuGdokppcYKgPmCdS9gdNfR8fvgCrmL4wxZrxYw9KyRBNyU7ueaUp27VISCID7n
-         Jj1WK9vCdLY1A==
+        b=f/4ly/XjQ3AhQW3PoPmgECBIAonXWiMEx0/0VxglqyLr5wzrjps9At6y1IIPlm2Ux
+         jmpu2PIxlrqQGgZFDH5XQ93DQ9Spw94aTw+sYfb0KgEkPj4DUyWbkSzHmjHVAxEVE9
+         pao4djiAa2BAtc5m841jM0b/CWOMqYri/4XnkgIXO8fXrCULLkkNHLXewa2nWZfMpF
+         BXjyvqYgU0lGYQ8K62EzQyexo2oOLnorP8zD1Stwr1UndlP8pXch5j5qZVQ5vATANO
+         dmvl/NIyclBFN1bJJDntThouxX39SElPlJIjWXJu84oggFDWacoe28sjpejY9cBQx9
+         nSK3qhHMGa86w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        Breno Leitao <leitao@debian.org>,
-        Sasha Levin <sashal@kernel.org>, nayna@linux.ibm.com,
-        pfsmorigo@gmail.com, mpe@ellerman.id.au, davem@davemloft.net,
-        linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.15 48/69] crypto: vmx - Fix warning on p8_ghash_alg
-Date:   Thu, 11 Aug 2022 11:55:57 -0400
-Message-Id: <20220811155632.1536867-48-sashal@kernel.org>
+Cc:     James Hilliard <james.hilliard1@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
+        daniel@iogearbox.net, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 49/69] libbpf: Disable SEC pragma macro on GCC
+Date:   Thu, 11 Aug 2022 11:55:58 -0400
+Message-Id: <20220811155632.1536867-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811155632.1536867-1-sashal@kernel.org>
 References: <20220811155632.1536867-1-sashal@kernel.org>
@@ -58,34 +57,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-[ Upstream commit cc8166bfc829043020b5cc3b7cdba02a17d03b6d ]
+[ Upstream commit 18410251f66aee7e82234073ce6656ca20a732a9 ]
 
-The compiler complains that p8_ghash_alg isn't declared which is
-because the header file aesp8-ppc.h isn't included in ghash.c.
-This patch fixes the warning.
+It seems the gcc preprocessor breaks with pragmas when surrounding
+__attribute__.
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Acked-by: Breno Leitao <leitao@debian.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Disable these pragmas on GCC due to upstream bugs see:
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=55578
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90400
+
+Fixes errors like:
+error: expected identifier or '(' before '#pragma'
+  106 | SEC("cgroup/bind6")
+      | ^~~
+
+error: expected '=', ',', ';', 'asm' or '__attribute__' before '#pragma'
+  114 | char _license[] SEC("license") = "GPL";
+      | ^~~
+
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220706111839.1247911-1-james.hilliard1@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/vmx/ghash.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/lib/bpf/bpf_helpers.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/crypto/vmx/ghash.c b/drivers/crypto/vmx/ghash.c
-index 5bc5710a6de0..77eca20bc7ac 100644
---- a/drivers/crypto/vmx/ghash.c
-+++ b/drivers/crypto/vmx/ghash.c
-@@ -23,6 +23,7 @@
- #include <crypto/internal/hash.h>
- #include <crypto/internal/simd.h>
- #include <crypto/b128ops.h>
-+#include "aesp8-ppc.h"
+diff --git a/tools/lib/bpf/bpf_helpers.h b/tools/lib/bpf/bpf_helpers.h
+index b9987c3efa3c..409b85d1cbd0 100644
+--- a/tools/lib/bpf/bpf_helpers.h
++++ b/tools/lib/bpf/bpf_helpers.h
+@@ -30,12 +30,25 @@
+  * To allow use of SEC() with externs (e.g., for extern .maps declarations),
+  * make sure __attribute__((unused)) doesn't trigger compilation warning.
+  */
++#if __GNUC__ && !__clang__
++
++/*
++ * Pragma macros are broken on GCC
++ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=55578
++ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90400
++ */
++#define SEC(name) __attribute__((section(name), used))
++
++#else
++
+ #define SEC(name) \
+ 	_Pragma("GCC diagnostic push")					    \
+ 	_Pragma("GCC diagnostic ignored \"-Wignored-attributes\"")	    \
+ 	__attribute__((section(name), used))				    \
+ 	_Pragma("GCC diagnostic pop")					    \
  
- void gcm_init_p8(u128 htable[16], const u64 Xi[2]);
- void gcm_gmult_p8(u64 Xi[2], const u128 htable[16]);
++#endif
++
+ /* Avoid 'linux/stddef.h' definition of '__always_inline'. */
+ #undef __always_inline
+ #define __always_inline inline __attribute__((always_inline))
 -- 
 2.35.1
 
