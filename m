@@ -2,55 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B63D55902D2
+	by mail.lfdr.de (Postfix) with ESMTP id 196665902D0
 	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:17:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236012AbiHKQOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:14:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47282 "EHLO
+        id S234693AbiHKQOg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:14:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237610AbiHKQN5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:13:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FB55A7AAD;
-        Thu, 11 Aug 2022 08:58:22 -0700 (PDT)
+        with ESMTP id S237632AbiHKQOB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:14:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7244A8940;
+        Thu, 11 Aug 2022 08:58:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4038561314;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BE9CB82150;
+        Thu, 11 Aug 2022 15:58:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0C03C4347C;
         Thu, 11 Aug 2022 15:58:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51362C433C1;
-        Thu, 11 Aug 2022 15:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660233500;
-        bh=8Myev9smzDO6wceoQaCZC6wvjvR99FJRyWFah5m9Sc8=;
+        s=k20201202; t=1660233503;
+        bh=rKfMoZpCSGwTFApD1r5V6DXQYPSK3aPvsKFU7+ULJSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fEezJ1DS8Ii73KNSZPPT2cDaNn//uZ5vvvhJdHmJMo9izEcPxg9zRUfklrzxDfGVr
-         TEpgFV+BpbeC7g7ADz1soaCZnuwLujWoWnXeP1SDrQr3bs5O/ro3DQFXzg2FxHUr8X
-         hcBOGl4Mvm+cJf9mdzGT75ZTTy8WUECN7ik2MXy7xsIBcLwdF/acZq1RrzdfLFR4Mm
-         CigYd+QPFiupSU48nyzsULEi/eP6qIT6nNCWqVtoYtu+qQBJHXEXeoYpz1YVU9CBbW
-         wNOfE/N+wjTZYWyVzYhzJ4zHRkIfhmTm2dwQ07/S1LBHSDdr1CfuuCzf9w7OJNMBHf
-         ngGq6O6zObN+A==
+        b=YUWlXrD/YWfF5aRIp7PchbwU4zwS7uvtNlGbPa/30u2UdW0pw6Si6T954bft5tE91
+         HP0Kt8ica62OmnQ9dt2kaAZiVHmFp5Rmv6IOZpaFJbr97/1S9gGtJOB6f3aUWgRoxb
+         YRUSjVxxJudIeke48JFQbaYDarPg1TdITioRrhQL++IZQsdRNthgtjf/4iXfVP702x
+         vwjJBuN8vbHbjbPMWSqxfNQsi5lefcbLuk3UexJHfnf84YP6c7qir71iCZrrstLicQ
+         /hT0gReLSCpXmJUcIQGNsH7Jz5WNtQ6JmSiLb+E3ord9sE25SwH6HSMbwzeDNYps2S
+         FQr4W6iLEA12Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Duncan Ma <duncan.ma@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Hansen Dsouza <Hansen.Dsouza@amd.com>,
-        Hamza Mahfooz <hamza.mahfooz@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
+Cc:     Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, Aric.Cyr@amd.com, Jun.Lei@amd.com,
-        Anthony.Koo@amd.com, wenjing.liu@amd.com, Yi-Ling.Chen2@amd.com,
-        mwen@igalia.com, Jimmy.Kizito@amd.com, Jerry.Zuo@amd.com,
-        gabe.teeger@amd.com, Sungjoon.Kim@amd.com, isabbasso@riseup.net,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 15/69] drm/amd/display: Fix dpp dto for disabled pipes
-Date:   Thu, 11 Aug 2022 11:55:24 -0400
-Message-Id: <20220811155632.1536867-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 16/69] drm/radeon: integer overflow in radeon_mode_dumb_create()
+Date:   Thu, 11 Aug 2022 11:55:25 -0400
+Message-Id: <20220811155632.1536867-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811155632.1536867-1-sashal@kernel.org>
 References: <20220811155632.1536867-1-sashal@kernel.org>
@@ -68,53 +58,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duncan Ma <duncan.ma@amd.com>
+From: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
 
-[ Upstream commit d4965c53b95d7533dfc2309d2fc25838bd33220e ]
+[ Upstream commit feb54650bae25f2a2adfc493e3e254e7c27a3fba ]
 
-[Why]
-When switching from 1 pipe to 4to1 mpc combine,
-DppDtoClk aren't enabled for the disabled pipes
-pior to programming the pipes. Upon optimizing
-bandwidth, DppDto are enabled causing intermittent
-underflow.
+Similar to the handling of amdgpu_mode_dumb_create in commit 54ef0b5461c0
+("drm/amdgpu: integer overflow in amdgpu_mode_dumb_create()"),
+we thought a patch might be needed here as well.
 
-[How]
-Update dppclk dto whenever pipe are flagged to
-enable.
+args->size is a u64.  arg->pitch and args->height are u32.  The
+multiplication will overflow instead of using the high 32 bits as
+intended.
 
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Reviewed-by: Hansen Dsouza <Hansen.Dsouza@amd.com>
-Acked-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
-Signed-off-by: Duncan Ma <duncan.ma@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/radeon/radeon_gem.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index 9f8d7f92300b..3c7229befaaa 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -1405,11 +1405,15 @@ static void dcn20_update_dchubp_dpp(
- 	struct hubp *hubp = pipe_ctx->plane_res.hubp;
- 	struct dpp *dpp = pipe_ctx->plane_res.dpp;
- 	struct dc_plane_state *plane_state = pipe_ctx->plane_state;
-+	struct dccg *dccg = dc->res_pool->dccg;
- 	bool viewport_changed = false;
+diff --git a/drivers/gpu/drm/radeon/radeon_gem.c b/drivers/gpu/drm/radeon/radeon_gem.c
+index a36a4f2c76b0..774fabde21c3 100644
+--- a/drivers/gpu/drm/radeon/radeon_gem.c
++++ b/drivers/gpu/drm/radeon/radeon_gem.c
+@@ -829,7 +829,7 @@ int radeon_mode_dumb_create(struct drm_file *file_priv,
  
- 	if (pipe_ctx->update_flags.bits.dppclk)
- 		dpp->funcs->dpp_dppclk_control(dpp, false, true);
+ 	args->pitch = radeon_align_pitch(rdev, args->width,
+ 					 DIV_ROUND_UP(args->bpp, 8), 0);
+-	args->size = args->pitch * args->height;
++	args->size = (u64)args->pitch * args->height;
+ 	args->size = ALIGN(args->size, PAGE_SIZE);
  
-+	if (pipe_ctx->update_flags.bits.enable)
-+		dccg->funcs->update_dpp_dto(dccg, dpp->inst, pipe_ctx->plane_res.bw.dppclk_khz);
-+
- 	/* TODO: Need input parameter to tell current DCHUB pipe tie to which OTG
- 	 * VTG is within DCHUBBUB which is commond block share by each pipe HUBP.
- 	 * VTG is 1:1 mapping with OTG. Each pipe HUBP will select which VTG
+ 	r = radeon_gem_object_create(rdev, args->size, 0,
 -- 
 2.35.1
 
