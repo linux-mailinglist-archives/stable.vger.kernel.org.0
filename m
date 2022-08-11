@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 779CC590017
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:38:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB17358FFFA
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:37:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235966AbiHKPgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:36:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59164 "EHLO
+        id S236043AbiHKPgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:36:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236134AbiHKPfp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:35:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60DD59C8EF;
-        Thu, 11 Aug 2022 08:33:01 -0700 (PDT)
+        with ESMTP id S236166AbiHKPft (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:35:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39F2495694;
+        Thu, 11 Aug 2022 08:33:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B99326163B;
-        Thu, 11 Aug 2022 15:33:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9AECC433D6;
-        Thu, 11 Aug 2022 15:32:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D38C6B8215E;
+        Thu, 11 Aug 2022 15:33:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 783F5C43143;
+        Thu, 11 Aug 2022 15:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660231980;
-        bh=Ob3k6zGV4eWNH8S7mZX7RHuUHllbUnxwd+j4it+VYlw=;
+        s=k20201202; t=1660231982;
+        bh=bWvzs2w/pecxPdGiIW5Iev5BBayKp3/bjEtwqUiA+6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B4yY7uJxA9bFNn6yZCdnZe7372Z/Todwp1NSCS3INBiFx+D1RLUBH+K/pinfKDXDS
-         PcUW/0lCdAk3iwmMPCt9DKQonBd7UsJE+c4EsPRJvPQiPWO4iLXrKYrtJTpOFNK6FR
-         TmsT9KwoBTW378X37dE0Pwm485IJ7q+6kLdNHKvFTedosURO9YzX7zPv47wHIz+vHz
-         xoaEi22lXf1/9H0dOPsu3m0aOB8Fs/CW0hBWIHaTKsngupa9zBhiWIKSkgVc9HD/q+
-         f1o03s8JF1OvkNqsotx/WJZOjR0VR/JZQfYmnvQPJjoUskIAzS5U5y9QjtDLH6MovF
-         MvO9iIh+twsPw==
+        b=SaoG5AfJj0YPoPZF6niXX/U2N2Guoz+P0zx5THR1Oj82U+7hfuApZKigBzSg8f3Bw
+         StkqYa2jrWtPntFh8Qhop/BsCtTVC+vdNSNQyKxutobeZpsseBcsMV8dEQe0rvL6sp
+         Zcl4XyodVQgnSwgOKtGtiERZaFsw+2J9T+JER4FM3ObzKHZ4mJwZj9RTRS5YmVdGS1
+         PzS6H/vEcBT69Fb4curzV/jxmaUdNV0wVuHdYu7uXDU4npV/Te8gRMcUf+q+4S2Cho
+         oYtT+3Rzrshb8xNtNIzAqnNLRwG5YAJ0rcZixqLOiThdxwHbFaqr0JKTl+Y9jVOcYQ
+         S6ADdvJ6zzFpQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Vanek <jirivanek1@gmail.com>,
-        Vinay Simha BN <simhavcs@gmail.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, andrzej.hajda@intel.com,
-        narmstrong@baylibre.com, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 038/105] drm/bridge/tc358775: Fix DSI clock division for vsync delay calculation
-Date:   Thu, 11 Aug 2022 11:27:22 -0400
-Message-Id: <20220811152851.1520029-38-sashal@kernel.org>
+Cc:     Delyan Kratunov <delyank@fb.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, rostedt@goodmis.org,
+        mingo@redhat.com, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 039/105] uprobe: gate bpf call behind BPF_EVENTS
+Date:   Thu, 11 Aug 2022 11:27:23 -0400
+Message-Id: <20220811152851.1520029-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
@@ -59,39 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Vanek <jirivanek1@gmail.com>
+From: Delyan Kratunov <delyank@fb.com>
 
-[ Upstream commit 993a87917c2af59efb0ee1ce43c878ca8790ba1c ]
+[ Upstream commit aca80dd95e20f1fa0daa212afc83c9fa0ad239e5 ]
 
-Use the same PCLK divide option (divide DSI clock to generate pixel clock)
-which is set to LVDS Configuration Register (LVCFG) also for a VSync delay
-calculation. Without this change an auxiliary variable could underflow
-during the calculation for some dual-link LVDS panels and then calculated
-VSync delay is wrong. This leads to a shifted picture on a panel.
+The call into bpf from uprobes needs to be gated now that it doesn't use
+the trace_events.h helpers.
 
-Tested-by: Jiri Vanek <jirivanek1@gmail.com>
-Signed-off-by: Jiri Vanek <jirivanek1@gmail.com>
-Reviewed-by: Vinay Simha BN <simhavcs@gmail.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220615222221.1501-3-jirivanek1@gmail.com
+Randy found this as a randconfig build failure on linux-next [1].
+
+  [1]: https://lore.kernel.org/linux-next/2de99180-7d55-2fdf-134d-33198c27cc58@infradead.org/
+
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Delyan Kratunov <delyank@fb.com>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/cb8bfbbcde87ed5d811227a393ef4925f2aadb7b.camel@fb.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/tc358775.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace_uprobe.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/tc358775.c b/drivers/gpu/drm/bridge/tc358775.c
-index 62a7ef352daa..dd18be95207b 100644
---- a/drivers/gpu/drm/bridge/tc358775.c
-+++ b/drivers/gpu/drm/bridge/tc358775.c
-@@ -429,7 +429,7 @@ static void tc_bridge_enable(struct drm_bridge *bridge)
- 		val = TC358775_VPCTRL_MSF(1);
+diff --git a/kernel/trace/trace_uprobe.c b/kernel/trace/trace_uprobe.c
+index c3dc4f859a6b..687520c675fd 100644
+--- a/kernel/trace/trace_uprobe.c
++++ b/kernel/trace/trace_uprobe.c
+@@ -1342,6 +1342,7 @@ static void __uprobe_perf_func(struct trace_uprobe *tu,
+ 	int size, esize;
+ 	int rctx;
  
- 	dsiclk = mode->crtc_clock * 3 * tc->bpc / tc->num_dsi_lanes / 1000;
--	clkdiv = dsiclk / DIVIDE_BY_3 * tc->lvds_link;
-+	clkdiv = dsiclk / (tc->lvds_link == DUAL_LINK ? DIVIDE_BY_6 : DIVIDE_BY_3);
- 	byteclk = dsiclk / 4;
- 	t1 = hactive * (tc->bpc * 3 / 8) / tc->num_dsi_lanes;
- 	t2 = ((100000 / clkdiv)) * (hactive + hback_porch + hsync_len + hfront_porch) / 1000;
++#ifdef CONFIG_BPF_EVENTS
+ 	if (bpf_prog_array_valid(call)) {
+ 		u32 ret;
+ 
+@@ -1351,6 +1352,7 @@ static void __uprobe_perf_func(struct trace_uprobe *tu,
+ 		if (!ret)
+ 			return;
+ 	}
++#endif /* CONFIG_BPF_EVENTS */
+ 
+ 	esize = SIZEOF_TRACE_ENTRY(is_ret_probe(tu));
+ 
 -- 
 2.35.1
 
