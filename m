@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B0AF5900EE
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:48:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59C045900E9
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:48:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236673AbiHKPrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:47:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51426 "EHLO
+        id S235922AbiHKPrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:47:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236832AbiHKPqX (ORCPT
+        with ESMTP id S236831AbiHKPqX (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:46:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E180481689;
-        Thu, 11 Aug 2022 08:41:00 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E0D832EE;
+        Thu, 11 Aug 2022 08:41:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96C65B82165;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52E94616CF;
+        Thu, 11 Aug 2022 15:41:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A109FC433B5;
         Thu, 11 Aug 2022 15:40:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F28BC433D6;
-        Thu, 11 Aug 2022 15:40:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232458;
-        bh=ZwCCf4M4BhQG3d5wIP7toS4k0WBnqNEynTPkLh0le1k=;
+        s=k20201202; t=1660232460;
+        bh=vq/WTahCdt6OsZzbqDWCYNt3jglxlfkumLa9I9uSH8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rGDqm7K9Gqs/YCkzkUjZOrINuQA+EhFP+95qhT2yjx4jcKas9Nxix2oUCp+D7nJ2m
-         bhKZ572c78CGTMX5je1YNe82p080pxwspk8T6HXjUXvBlCDK5gqWsaZ+C8Jhm/Ai4k
-         z9ouUhtLva5QXH3npJoCESX1s2G1cxWhzlbOON9l7QZoOsrd8b55OG1a/HSggcMtNK
-         hWGPDpVOgATwJ2vnUT84vsLe2YRU7aPZOlPgFzcICPdKhymi5yYcR2UXIfXACSABc3
-         mmNtL2fj5v9kiQ+6QIXuDDTuRp3fR5DHNuViqj4dfR6ZetG4JEnT5RHB5b8zvslkc5
-         ATOIoQwB14GXQ==
+        b=JIE5S2HgBF/KHt5NkbzqHeDtEHzW3P4SsNJ8ByMUlS0P+pLfFyMQufGMc+DwLNQ8V
+         5KiLuR/n57oU7yL2kYDcdfDTnc5QTaCUmHX4kEae4x4mFK9ckyARcKqXr35BN9GIis
+         OAWuPuXsjxblxgFY4PF9hiI8myF+AekfqyATkx0u2sPx3EGZvQgfAJlxU8uy9h8/Yx
+         7rR5ZlhFNgWwMDz3voTtouy+cadB86Ut2eWPrgJmciL3af4/NqF2sBkpVTzJMHMzOF
+         y38F0B3knb41ew/UsY/qA7cE6VSBjiVlgVRXKBzcZy3pUCh9D/X8tP0YBuhPCNhYv8
+         z4ZyHwhdgtLjg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Zijun Hu <quic_zijuhu@quicinc.com>,
@@ -38,9 +38,9 @@ Cc:     Zijun Hu <quic_zijuhu@quicinc.com>,
         Sasha Levin <sashal@kernel.org>, marcel@holtmann.org,
         johan.hedberg@gmail.com, luiz.dentz@gmail.com,
         linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 086/105] Bluetooth: btusb: Remove HCI_QUIRK_BROKEN_ERR_DATA_REPORTING for QCA
-Date:   Thu, 11 Aug 2022 11:28:10 -0400
-Message-Id: <20220811152851.1520029-86-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 087/105] Bluetooth: btusb: Remove HCI_QUIRK_BROKEN_ERR_DATA_REPORTING for fake CSR
+Date:   Thu, 11 Aug 2022 11:28:11 -0400
+Message-Id: <20220811152851.1520029-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
@@ -60,43 +60,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zijun Hu <quic_zijuhu@quicinc.com>
 
-[ Upstream commit 1172c59f451f524a14bac5e7b047781883dfe441 ]
+[ Upstream commit e168f690087735ad12604ee6ee2db1b93e323072 ]
 
 Core driver addtionally checks LMP feature bit "Erroneous Data Reporting"
 instead of quirk HCI_QUIRK_BROKEN_ERR_DATA_REPORTING to decide if HCI
 commands HCI_Read|Write_Default_Erroneous_Data_Reporting are broken, so
-remove this unnecessary quirk for QCA controllers.
-
-The reason why these two HCI commands are broken for QCA controllers is
-that feature "Erroneous Data Reporting" is not enabled by their firmware
-as shown by below log:
-
-@ RAW Open: hcitool (privileged) version 2.22
-< HCI Command: Read Local Supported Commands (0x04|0x0002) plen 0
-> HCI Event: Command Complete (0x0e) plen 68
-  Read Local Supported Commands (0x04|0x0002) ncmd 1
-    Status: Success (0x00)
-    Commands: 288 entries
-......
-      Read Default Erroneous Data Reporting (Octet 18 - Bit 2)
-      Write Default Erroneous Data Reporting (Octet 18 - Bit 3)
-......
-
-< HCI Command: Read Default Erroneous Data Reporting (0x03|0x005a) plen 0
-> HCI Event: Command Complete (0x0e) plen 4
-  Read Default Erroneous Data Reporting (0x03|0x005a) ncmd 1
-    Status: Unknown HCI Command (0x01)
-
-< HCI Command: Read Local Supported Features (0x04|0x0003) plen 0
-> HCI Event: Command Complete (0x0e) plen 12
-  Read Local Supported Features (0x04|0x0003) ncmd 1
-    Status: Success (0x00)
-    Features: 0xff 0xfe 0x0f 0xfe 0xd8 0x3f 0x5b 0x87
-      3 slot packets
-......
+remove this unnecessary quirk for fake CSR controllers.
 
 Signed-off-by: Zijun Hu <quic_zijuhu@quicinc.com>
-Tested-by: Zijun Hu <quic_zijuhu@quicinc.com>
 Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -104,17 +75,17 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 deletion(-)
 
 diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index d5da862fabaf..53deca7b86c9 100644
+index 53deca7b86c9..ad27119334fb 100644
 --- a/drivers/bluetooth/btusb.c
 +++ b/drivers/bluetooth/btusb.c
-@@ -3352,7 +3352,6 @@ static int btusb_setup_qca(struct hci_dev *hdev)
- 	 * work with the likes of HSP/HFP mSBC.
- 	 */
- 	set_bit(HCI_QUIRK_BROKEN_ENHANCED_SETUP_SYNC_CONN, &hdev->quirks);
--	set_bit(HCI_QUIRK_BROKEN_ERR_DATA_REPORTING, &hdev->quirks);
+@@ -2069,7 +2069,6 @@ static int btusb_setup_csr(struct hci_dev *hdev)
+ 		 * without these the controller will lock up.
+ 		 */
+ 		set_bit(HCI_QUIRK_BROKEN_STORED_LINK_KEY, &hdev->quirks);
+-		set_bit(HCI_QUIRK_BROKEN_ERR_DATA_REPORTING, &hdev->quirks);
+ 		set_bit(HCI_QUIRK_BROKEN_FILTER_CLEAR_ALL, &hdev->quirks);
+ 		set_bit(HCI_QUIRK_NO_SUSPEND_NOTIFIER, &hdev->quirks);
  
- 	return 0;
- }
 -- 
 2.35.1
 
