@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5B33590078
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:43:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AB11590079
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235999AbiHKPlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:41:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41128 "EHLO
+        id S236065AbiHKPlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:41:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236431AbiHKPkp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:40:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 153F999264;
-        Thu, 11 Aug 2022 08:36:21 -0700 (PDT)
+        with ESMTP id S236497AbiHKPkw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:40:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E696979DC;
+        Thu, 11 Aug 2022 08:36:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D7FB61620;
-        Thu, 11 Aug 2022 15:36:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09A9EC433D7;
-        Thu, 11 Aug 2022 15:36:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4815EB82150;
+        Thu, 11 Aug 2022 15:36:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E8B7C43470;
+        Thu, 11 Aug 2022 15:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232180;
-        bh=bhhV4Nhie3v1Rww2WwGnEWmY1+nfvJttYCbx1pBQg5w=;
+        s=k20201202; t=1660232183;
+        bh=k6nO4fjfTkhtJ138HaiEUBSacWXxEDdivO/PIUq8etQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ccvGX/wxyPPvj1YwOWf4pAC5GCVAyFgAo9XIAyss3meGX1vv4YhEpKdkVm9l1dbwr
-         RQewJIyDqkiP4HUQ/7XzCm1oc9z2VkNQMMESf4fcXfmVFBF1QxWDqxuysjIkwqHiOw
-         Cv60k7FOvRtOFOHFMi3bBgbl3NgaPUuj0X0CKPXTb0a1c+giGBABkVDE72lrDTfNRd
-         x77pS+SzcUpdEH8+axHxhbrAphrePvAXgsK2rY+aFkkD8kbI+vPNRX9J4yYtcEBxAS
-         63Xky8aJFqBzhtYH8yiTASFq0Fg072Jr+tv911dXOflBuPkiy0s+GnwiRx5JSZTmT4
-         ILOujizD1JxFQ==
+        b=EDtuGe1Ns6N/K10//tHoX/rQS/5qgyllJ13q8jpo7X7ISeHwjQ5GNS891StyovsCs
+         QwzHiWFom2hJugdsxn0eCg3ztNqWCcbb7OjV5h52pYz9nzP/yET7Sj3XTIXnPKyewn
+         MRfviGR9jvZO4/saa5P8UE+WeY+H9GxnC2Vl/UUUI6hCp7+ciaarJuAD9EKNqjK/Lq
+         WK++gxQiDrUDzXoJRWVNhFLGhUBv3inIn45i4n8oRjKXCSWGZDvX1eYVEs2z7VXqiA
+         C+prbR0VGgostFXApK4wz4VWTGOkEtv1Owt1pHjGmdEekpIcBE+NVZB3oDZw8sAyTS
+         V5xttWi4evFRQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hariprasad Kelam <hkelam@marvell.com>,
-        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, lcherian@marvell.com,
-        gakula@marvell.com, jerinj@marvell.com, sbhatta@marvell.com,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 066/105] octeontx2-af: Don't reset previous pfc config
-Date:   Thu, 11 Aug 2022 11:27:50 -0400
-Message-Id: <20220811152851.1520029-66-sashal@kernel.org>
+Cc:     James Hilliard <james.hilliard1@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
+        daniel@iogearbox.net, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 067/105] libbpf: Disable SEC pragma macro on GCC
+Date:   Thu, 11 Aug 2022 11:27:51 -0400
+Message-Id: <20220811152851.1520029-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
@@ -60,150 +57,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hariprasad Kelam <hkelam@marvell.com>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-[ Upstream commit 8e1514579246ddc36ba0b860fc8bdd03be085aee ]
+[ Upstream commit 18410251f66aee7e82234073ce6656ca20a732a9 ]
 
-Current implementation is such that driver first resets the
-existing PFC config before applying new pfc configuration.
-This creates a problem like once PF or VFs requests PFC config
-previous pfc config by other PFVfs is getting reset.
+It seems the gcc preprocessor breaks with pragmas when surrounding
+__attribute__.
 
-This patch fixes the problem by removing unnecessary resetting
-of PFC config. Also configure Pause quanta value to smaller as
-current value is too high.
+Disable these pragmas on GCC due to upstream bugs see:
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=55578
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90400
 
-Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
-Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes errors like:
+error: expected identifier or '(' before '#pragma'
+  106 | SEC("cgroup/bind6")
+      | ^~~
+
+error: expected '=', ',', ';', 'asm' or '__attribute__' before '#pragma'
+  114 | char _license[] SEC("license") = "GPL";
+      | ^~~
+
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220706111839.1247911-1-james.hilliard1@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/marvell/octeontx2/af/cgx.c    | 15 +++++++++++----
- .../net/ethernet/marvell/octeontx2/af/rpm.c    | 18 +++++++++++-------
- .../net/ethernet/marvell/octeontx2/af/rpm.h    |  3 +--
- 3 files changed, 23 insertions(+), 13 deletions(-)
+ tools/lib/bpf/bpf_helpers.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/cgx.c b/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
-index 25491edc35ce..931a1a7ebf76 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
-@@ -847,6 +847,11 @@ static void cgx_lmac_pause_frm_config(void *cgxd, int lmac_id, bool enable)
- 	cfg |= CGX_CMR_RX_OVR_BP_EN(lmac_id);
- 	cfg &= ~CGX_CMR_RX_OVR_BP_BP(lmac_id);
- 	cgx_write(cgx, 0, CGXX_CMR_RX_OVR_BP, cfg);
+diff --git a/tools/lib/bpf/bpf_helpers.h b/tools/lib/bpf/bpf_helpers.h
+index fb04eaf367f1..7349b16b8e2f 100644
+--- a/tools/lib/bpf/bpf_helpers.h
++++ b/tools/lib/bpf/bpf_helpers.h
+@@ -22,12 +22,25 @@
+  * To allow use of SEC() with externs (e.g., for extern .maps declarations),
+  * make sure __attribute__((unused)) doesn't trigger compilation warning.
+  */
++#if __GNUC__ && !__clang__
 +
-+	/* Disable all PFC classes by default */
-+	cfg = cgx_read(cgx, lmac_id, CGXX_SMUX_CBFC_CTL);
-+	cfg = FIELD_SET(CGX_PFC_CLASS_MASK, 0, cfg);
-+	cgx_write(cgx, lmac_id, CGXX_SMUX_CBFC_CTL, cfg);
- }
- 
- int verify_lmac_fc_cfg(void *cgxd, int lmac_id, u8 tx_pause, u8 rx_pause,
-@@ -899,6 +904,7 @@ int cgx_lmac_pfc_config(void *cgxd, int lmac_id, u8 tx_pause,
- 		return 0;
- 
- 	cfg = cgx_read(cgx, lmac_id, CGXX_SMUX_CBFC_CTL);
-+	pfc_en |= FIELD_GET(CGX_PFC_CLASS_MASK, cfg);
- 
- 	if (rx_pause) {
- 		cfg |= (CGXX_SMUX_CBFC_CTL_RX_EN |
-@@ -910,12 +916,13 @@ int cgx_lmac_pfc_config(void *cgxd, int lmac_id, u8 tx_pause,
- 			CGXX_SMUX_CBFC_CTL_DRP_EN);
- 	}
- 
--	if (tx_pause)
-+	if (tx_pause) {
- 		cfg |= CGXX_SMUX_CBFC_CTL_TX_EN;
--	else
-+		cfg = FIELD_SET(CGX_PFC_CLASS_MASK, pfc_en, cfg);
-+	} else {
- 		cfg &= ~CGXX_SMUX_CBFC_CTL_TX_EN;
--
--	cfg = FIELD_SET(CGX_PFC_CLASS_MASK, pfc_en, cfg);
-+		cfg = FIELD_SET(CGX_PFC_CLASS_MASK, 0, cfg);
-+	}
- 
- 	cgx_write(cgx, lmac_id, CGXX_SMUX_CBFC_CTL, cfg);
- 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rpm.c b/drivers/net/ethernet/marvell/octeontx2/af/rpm.c
-index 47e83d7a5804..05666922a45b 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rpm.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rpm.c
-@@ -276,6 +276,11 @@ void rpm_lmac_pause_frm_config(void *rpmd, int lmac_id, bool enable)
- 	cfg = rpm_read(rpm, lmac_id, RPMX_MTI_MAC100X_COMMAND_CONFIG);
- 	cfg |= RPMX_MTI_MAC100X_COMMAND_CONFIG_TX_P_DISABLE;
- 	rpm_write(rpm, lmac_id, RPMX_MTI_MAC100X_COMMAND_CONFIG, cfg);
++/*
++ * Pragma macros are broken on GCC
++ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=55578
++ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90400
++ */
++#define SEC(name) __attribute__((section(name), used))
 +
-+	/* Disable all PFC classes */
-+	cfg = rpm_read(rpm, lmac_id, RPMX_CMRX_PRT_CBFC_CTL);
-+	cfg = FIELD_SET(RPM_PFC_CLASS_MASK, 0, cfg);
-+	rpm_write(rpm, lmac_id, RPMX_CMRX_PRT_CBFC_CTL, cfg);
- }
++#else
++
+ #define SEC(name) \
+ 	_Pragma("GCC diagnostic push")					    \
+ 	_Pragma("GCC diagnostic ignored \"-Wignored-attributes\"")	    \
+ 	__attribute__((section(name), used))				    \
+ 	_Pragma("GCC diagnostic pop")					    \
  
- int rpm_get_rx_stats(void *rpmd, int lmac_id, int idx, u64 *rx_stat)
-@@ -387,15 +392,14 @@ void rpm_lmac_ptp_config(void *rpmd, int lmac_id, bool enable)
- int rpm_lmac_pfc_config(void *rpmd, int lmac_id, u8 tx_pause, u8 rx_pause, u16 pfc_en)
- {
- 	rpm_t *rpm = rpmd;
--	u64 cfg;
-+	u64 cfg, class_en;
- 
- 	if (!is_lmac_valid(rpm, lmac_id))
- 		return -ENODEV;
- 
--	/* reset PFC class quanta and threshold */
--	rpm_cfg_pfc_quanta_thresh(rpm, lmac_id, 0xffff, false);
--
- 	cfg = rpm_read(rpm, lmac_id, RPMX_MTI_MAC100X_COMMAND_CONFIG);
-+	class_en = rpm_read(rpm, lmac_id, RPMX_CMRX_PRT_CBFC_CTL);
-+	pfc_en |= FIELD_GET(RPM_PFC_CLASS_MASK, class_en);
- 
- 	if (rx_pause) {
- 		cfg &= ~(RPMX_MTI_MAC100X_COMMAND_CONFIG_RX_P_DISABLE |
-@@ -410,9 +414,11 @@ int rpm_lmac_pfc_config(void *rpmd, int lmac_id, u8 tx_pause, u8 rx_pause, u16 p
- 	if (tx_pause) {
- 		rpm_cfg_pfc_quanta_thresh(rpm, lmac_id, pfc_en, true);
- 		cfg &= ~RPMX_MTI_MAC100X_COMMAND_CONFIG_TX_P_DISABLE;
-+		class_en = FIELD_SET(RPM_PFC_CLASS_MASK, pfc_en, class_en);
- 	} else {
- 		rpm_cfg_pfc_quanta_thresh(rpm, lmac_id, 0xfff, false);
- 		cfg |= RPMX_MTI_MAC100X_COMMAND_CONFIG_TX_P_DISABLE;
-+		class_en = FIELD_SET(RPM_PFC_CLASS_MASK, 0, class_en);
- 	}
- 
- 	if (!rx_pause && !tx_pause)
-@@ -422,9 +428,7 @@ int rpm_lmac_pfc_config(void *rpmd, int lmac_id, u8 tx_pause, u8 rx_pause, u16 p
- 
- 	rpm_write(rpm, lmac_id, RPMX_MTI_MAC100X_COMMAND_CONFIG, cfg);
- 
--	cfg = rpm_read(rpm, lmac_id, RPMX_CMRX_PRT_CBFC_CTL);
--	cfg = FIELD_SET(RPM_PFC_CLASS_MASK, pfc_en, cfg);
--	rpm_write(rpm, lmac_id, RPMX_CMRX_PRT_CBFC_CTL, cfg);
-+	rpm_write(rpm, lmac_id, RPMX_CMRX_PRT_CBFC_CTL, class_en);
- 
- 	return 0;
- }
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rpm.h b/drivers/net/ethernet/marvell/octeontx2/af/rpm.h
-index 9ab8d49dd180..8205f2626f61 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rpm.h
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rpm.h
-@@ -48,7 +48,6 @@
- #define RPMX_MTI_MAC100X_CL1011_QUANTA_THRESH		0x8130
- #define RPMX_MTI_MAC100X_CL1213_QUANTA_THRESH		0x8138
- #define RPMX_MTI_MAC100X_CL1415_QUANTA_THRESH		0x8140
--#define RPM_DEFAULT_PAUSE_TIME			0xFFFF
- #define RPMX_CMR_RX_OVR_BP		0x4120
- #define RPMX_CMR_RX_OVR_BP_EN(x)	BIT_ULL((x) + 8)
- #define RPMX_CMR_RX_OVR_BP_BP(x)	BIT_ULL((x) + 4)
-@@ -70,7 +69,7 @@
- #define RPMX_MTI_MAC100X_COMMAND_CONFIG_PAUSE_FWD              BIT_ULL(7)
- #define RPMX_MTI_MAC100X_CL01_PAUSE_QUANTA              0x80A8
- #define RPMX_MTI_MAC100X_CL89_PAUSE_QUANTA		0x8108
--#define RPM_DEFAULT_PAUSE_TIME                          0xFFFF
-+#define RPM_DEFAULT_PAUSE_TIME                          0x7FF
- 
- /* Function Declarations */
- int rpm_get_nr_lmacs(void *rpmd);
++#endif
++
+ /* Avoid 'linux/stddef.h' definition of '__always_inline'. */
+ #undef __always_inline
+ #define __always_inline inline __attribute__((always_inline))
 -- 
 2.35.1
 
