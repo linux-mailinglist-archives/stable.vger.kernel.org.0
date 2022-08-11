@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9DA158FF7D
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:30:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F407C58FF96
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:32:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235807AbiHKPaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:30:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48142 "EHLO
+        id S235805AbiHKPbE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:31:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235746AbiHKP3p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:29:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBCE796747;
-        Thu, 11 Aug 2022 08:29:33 -0700 (PDT)
+        with ESMTP id S235896AbiHKPak (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:30:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF692956B1;
+        Thu, 11 Aug 2022 08:29:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E350615CE;
-        Thu, 11 Aug 2022 15:29:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82044C433C1;
-        Thu, 11 Aug 2022 15:29:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9ED58B82151;
+        Thu, 11 Aug 2022 15:29:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7824CC433C1;
+        Thu, 11 Aug 2022 15:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660231771;
-        bh=Qein4jotMuYQonx6x2QvIt87OKd3haE8/BzXpAt4ElE=;
+        s=k20201202; t=1660231794;
+        bh=Kcc3+GretIhBYyl20guPmg+/oLg7fqLFLFv/C9EO0YQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIPm7BDZGqiBOor68IqUoGXq5F7LkFpiUTi8F2K/8XK1CmqRxQMukLk4iJohM8d40
-         R0eD0dW5vSxNOMjwy7uyMN8O6G/RBeBpwLlpgDByoqXmiAwujHsE1fw4EGsSl6pT17
-         fxg1nGrBit1fZy2o1QFc3eJGZND+wb4p0b0O5d+ZEEgpCkvnP5w+F+iaqhjNi/UR7m
-         60dNzqUh5j/n0rxmvoJAzTZMTqs6BaoW1OpEky1iQjlJUxw+w6DpZjb4CZDjnh6uXu
-         PsbJ1MT64Zhe/uHWUNqY69T+abni3F8ukvzzZiKemYq0XU1D5homtxJ0kNrV/6QR4Z
-         Ug0qZNsdUxW6Q==
+        b=Hs4VMhDiZ19LEMbkWDz5wXNhS/p6wQfWq1poc2wdPVNXrEGLjcqRh2fRWcYhL6KWy
+         APFm79+dgg1CZVNKHdajF7XVl31fLNdUh8EA0dUJpJoSMH+m5dbz1nAShoUQeAK1l+
+         DzHNIoPWYPSrwRSCDGTOtDv2OsmfY59yhlgkj+Y+IejP+0F93RGyr9UR+33lVywZVE
+         pwmUTDNZ7Jvca/CLtJU+YvTYHOfuLrpWQLzM+XCkyYikogArjrsonzHW1qLgxSyFQH
+         QR7Ldlip4cH1IMaJx8L1/YfDbmykk4zgH5tYzEHnOiSdCKa6BFNRTY2rhnIt00Goom
+         469HxeeEAAPvA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Yufen <wangyufen@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
-        bpf@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 010/105] bpf, sockmap: Fix sk->sk_forward_alloc warn_on in sk_stream_kill_queues
-Date:   Thu, 11 Aug 2022 11:26:54 -0400
-Message-Id: <20220811152851.1520029-10-sashal@kernel.org>
+Cc:     David Zhang <dingchen.zhang@amd.com>, Leo Li <sunpeng.li@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
+        daniel@ffwll.ch, Jerry.Zuo@amd.com, nicholas.kazlauskas@amd.com,
+        mikita.lipski@amd.com, Jimmy.Kizito@amd.com, dale.zhao@amd.com,
+        wenjing.liu@amd.com, Anthony.Koo@amd.com,
+        agustin.gutierrez@amd.com, Anson.Jacob@amd.com, po-tchen@amd.com,
+        rdunlap@infradead.org, dharati.shah@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 011/105] drm/amd/display: fix system hang when PSR exits
+Date:   Thu, 11 Aug 2022 11:26:55 -0400
+Message-Id: <20220811152851.1520029-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
@@ -62,133 +64,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: David Zhang <dingchen.zhang@amd.com>
 
-[ Upstream commit d8616ee2affcff37c5d315310da557a694a3303d ]
+[ Upstream commit 6cc5c77300afbb285c4f41e04f3435ae3c484c40 ]
 
-During TCP sockmap redirect pressure test, the following warning is triggered:
+[why]
+When DC driver send PSR exit dmub command to DMUB FW, it might not
+wait until PSR exit. Then it may hit the following deadlock situation.
+1. DC driver send HW LOCK command to DMUB FW due to frame update
+2. DMUB FW Set the HW lock
+3. DMUB execute PSR exit sequence and stuck at polling DPG Pending
+register due to the HW Lock is set
+4. DC driver ask DMUB FW to unlock HW lock, but DMUB FW is polling
+DPG pending register
 
-WARNING: CPU: 3 PID: 2145 at net/core/stream.c:205 sk_stream_kill_queues+0xbc/0xd0
-CPU: 3 PID: 2145 Comm: iperf Kdump: loaded Tainted: G        W         5.10.0+ #9
-Call Trace:
- inet_csk_destroy_sock+0x55/0x110
- inet_csk_listen_stop+0xbb/0x380
- tcp_close+0x41b/0x480
- inet_release+0x42/0x80
- __sock_release+0x3d/0xa0
- sock_close+0x11/0x20
- __fput+0x9d/0x240
- task_work_run+0x62/0x90
- exit_to_user_mode_prepare+0x110/0x120
- syscall_exit_to_user_mode+0x27/0x190
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[how]
+The reason why DC driver doesn't wait until PSR exit is because some of
+the PSR state machine state is not update the dc driver. So when DC
+driver read back the PSR state, it take the state for PSR inactive.
 
-The reason we observed is that:
-
-When the listener is closing, a connection may have completed the three-way
-handshake but not accepted, and the client has sent some packets. The child
-sks in accept queue release by inet_child_forget()->inet_csk_destroy_sock(),
-but psocks of child sks have not released.
-
-To fix, add sock_map_destroy to release psocks.
-
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20220524075311.649153-1-wangyufen@huawei.com
+Signed-off-by: David Zhang <dingchen.zhang@amd.com>
+Acked-by: Leo Li <sunpeng.li@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bpf.h   |  1 +
- include/linux/skmsg.h |  1 +
- net/core/skmsg.c      |  1 +
- net/core/sock_map.c   | 23 +++++++++++++++++++++++
- net/ipv4/tcp_bpf.c    |  1 +
- 5 files changed, 27 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dc_types.h     |  7 +++++++
+ drivers/gpu/drm/amd/display/dc/dce/dmub_psr.c | 16 ++++++++++++++++
+ 2 files changed, 23 insertions(+)
 
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index 2b914a56a2c5..8e6092d0ea95 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -2104,6 +2104,7 @@ int sock_map_bpf_prog_query(const union bpf_attr *attr,
- 			    union bpf_attr __user *uattr);
+diff --git a/drivers/gpu/drm/amd/display/dc/dc_types.h b/drivers/gpu/drm/amd/display/dc/dc_types.h
+index 2ba9f528c0fe..f1f11b3c205f 100644
+--- a/drivers/gpu/drm/amd/display/dc/dc_types.h
++++ b/drivers/gpu/drm/amd/display/dc/dc_types.h
+@@ -657,10 +657,17 @@ enum dc_psr_state {
+ 	PSR_STATE4b,
+ 	PSR_STATE4c,
+ 	PSR_STATE4d,
++	PSR_STATE4_FULL_FRAME,
++	PSR_STATE4a_FULL_FRAME,
++	PSR_STATE4b_FULL_FRAME,
++	PSR_STATE4c_FULL_FRAME,
++	PSR_STATE4_FULL_FRAME_POWERUP,
+ 	PSR_STATE5,
+ 	PSR_STATE5a,
+ 	PSR_STATE5b,
+ 	PSR_STATE5c,
++	PSR_STATE_HWLOCK_MGR,
++	PSR_STATE_POLLVUPDATE,
+ 	PSR_STATE_INVALID = 0xFF
+ };
  
- void sock_map_unhash(struct sock *sk);
-+void sock_map_destroy(struct sock *sk);
- void sock_map_close(struct sock *sk, long timeout);
- #else
- static inline int bpf_prog_offload_init(struct bpf_prog *prog,
-diff --git a/include/linux/skmsg.h b/include/linux/skmsg.h
-index c5a2d6f50f25..153b6dec9b6a 100644
---- a/include/linux/skmsg.h
-+++ b/include/linux/skmsg.h
-@@ -95,6 +95,7 @@ struct sk_psock {
- 	spinlock_t			link_lock;
- 	refcount_t			refcnt;
- 	void (*saved_unhash)(struct sock *sk);
-+	void (*saved_destroy)(struct sock *sk);
- 	void (*saved_close)(struct sock *sk, long timeout);
- 	void (*saved_write_space)(struct sock *sk);
- 	void (*saved_data_ready)(struct sock *sk);
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index b0fcd0200e84..fc69154bbc88 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -720,6 +720,7 @@ struct sk_psock *sk_psock_init(struct sock *sk, int node)
- 	psock->eval = __SK_NONE;
- 	psock->sk_proto = prot;
- 	psock->saved_unhash = prot->unhash;
-+	psock->saved_destroy = prot->destroy;
- 	psock->saved_close = prot->close;
- 	psock->saved_write_space = sk->sk_write_space;
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dmub_psr.c b/drivers/gpu/drm/amd/display/dc/dce/dmub_psr.c
+index 1d4f0c45b536..f941aa107dc6 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dmub_psr.c
++++ b/drivers/gpu/drm/amd/display/dc/dce/dmub_psr.c
+@@ -74,6 +74,22 @@ static enum dc_psr_state convert_psr_state(uint32_t raw_state)
+ 		state = PSR_STATE5b;
+ 	else if (raw_state == 0x53)
+ 		state = PSR_STATE5c;
++	else if (raw_state == 0x4A)
++		state = PSR_STATE4_FULL_FRAME;
++	else if (raw_state == 0x4B)
++		state = PSR_STATE4a_FULL_FRAME;
++	else if (raw_state == 0x4C)
++		state = PSR_STATE4b_FULL_FRAME;
++	else if (raw_state == 0x4D)
++		state = PSR_STATE4c_FULL_FRAME;
++	else if (raw_state == 0x4E)
++		state = PSR_STATE4_FULL_FRAME_POWERUP;
++	else if (raw_state == 0x60)
++		state = PSR_STATE_HWLOCK_MGR;
++	else if (raw_state == 0x61)
++		state = PSR_STATE_POLLVUPDATE;
++	else
++		state = PSR_STATE_INVALID;
  
-diff --git a/net/core/sock_map.c b/net/core/sock_map.c
-index 81d4b4756a02..9f08ccfaf6da 100644
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -1561,6 +1561,29 @@ void sock_map_unhash(struct sock *sk)
+ 	return state;
  }
- EXPORT_SYMBOL_GPL(sock_map_unhash);
- 
-+void sock_map_destroy(struct sock *sk)
-+{
-+	void (*saved_destroy)(struct sock *sk);
-+	struct sk_psock *psock;
-+
-+	rcu_read_lock();
-+	psock = sk_psock_get(sk);
-+	if (unlikely(!psock)) {
-+		rcu_read_unlock();
-+		if (sk->sk_prot->destroy)
-+			sk->sk_prot->destroy(sk);
-+		return;
-+	}
-+
-+	saved_destroy = psock->saved_destroy;
-+	sock_map_remove_links(sk, psock);
-+	rcu_read_unlock();
-+	sk_psock_stop(psock, true);
-+	sk_psock_put(sk, psock);
-+	saved_destroy(sk);
-+}
-+EXPORT_SYMBOL_GPL(sock_map_destroy);
-+
- void sock_map_close(struct sock *sk, long timeout)
- {
- 	void (*saved_close)(struct sock *sk, long timeout);
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 0d3f68bb51c0..a1626afe87a1 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -540,6 +540,7 @@ static void tcp_bpf_rebuild_protos(struct proto prot[TCP_BPF_NUM_CFGS],
- 				   struct proto *base)
- {
- 	prot[TCP_BPF_BASE]			= *base;
-+	prot[TCP_BPF_BASE].destroy		= sock_map_destroy;
- 	prot[TCP_BPF_BASE].close		= sock_map_close;
- 	prot[TCP_BPF_BASE].recvmsg		= tcp_bpf_recvmsg;
- 	prot[TCP_BPF_BASE].sock_is_readable	= sk_msg_is_readable;
 -- 
 2.35.1
 
