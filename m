@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3295E5904C6
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:49:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 115B15904DF
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:49:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238003AbiHKQcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:32:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57656 "EHLO
+        id S238459AbiHKQca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:32:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238504AbiHKQaF (ORCPT
+        with ESMTP id S238505AbiHKQaF (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:30:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BC4CB56EC;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9914DB56EF;
         Thu, 11 Aug 2022 09:09:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8FDCB821AD;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36E816144D;
+        Thu, 11 Aug 2022 16:09:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A4E5C433B5;
         Thu, 11 Aug 2022 16:09:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6613C433C1;
-        Thu, 11 Aug 2022 16:09:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660234171;
-        bh=gc6u3kLKnq5R+c/Wa6E6LECxoOL7urAtXXWQLpvW4V8=;
+        s=k20201202; t=1660234173;
+        bh=MmYKNfMEFjoJY8J/61fcKI9hw6iqnOw64iIDCkSxvlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+mDqsa27i13zh0XOujud6elhrrq8zmhA4SZAdjGOXM0TvDV9qNL2I76iWGWj0OUx
-         mXtF+GrfeQtx9JNwv8F587wPi4Xoj3WWi7GTvZkw9IXiIejln943isS5iwx8Sksgv3
-         c/F8zJLHlmKUvD1NuzeqWHwI2b7xOgZoOzgqABgt0lnPMtpi83ztxkuikIe2TeP0bO
-         t4hfWNKhpWnzHwGuxxov973NqwTKgsjyM6RTsB9Ba25QgGkeMHEm8+lQLX1Bh7cidr
-         CDeGaXzwOvMykfO4JM+5eIShAEna9OweWsZLnLd5mp9bKQNqYxTbdB188KEScquz0T
-         c5tVKBQI8B/Xw==
+        b=CHXacPQ+hbRsQ9kUOE8RgElRTQELSPAs9xHUUWYvY2UzP+e0oBJBgSDFvsW8wMngD
+         lv/oeByXUAcW4/d4IBb1Tg7bdZByFrqBDBmcYOlXMatxgv6j3h45eVclb3sdpNtemc
+         w4ppfN49tAjqv75lNioobCeg7s1MJxCs1UCYY9/FeZrJIbbj89GzGvXw3wOvW7/JV/
+         p2Uj7Av20obGIHV03iVERH4zd3wUQ7dymJqD1+gKQkj/IX1LCwRixki2VwJPCdpuFV
+         3f0W4LV8NXg0OhWCksSZ++cmcKp62BDHR74MKe9W4Jhn+wDXu3KNVTQe3urZFJpSvb
+         +fQZK1u0crAVw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?=C5=81ukasz=20Spintzyk?= <lukasz.spintzyk@synaptics.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 20/25] net/cdc_ncm: Increase NTB max RX/TX values to 64kb
-Date:   Thu, 11 Aug 2022 12:08:15 -0400
-Message-Id: <20220811160826.1541971-20-sashal@kernel.org>
+Cc:     Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>,
+        Zeal Robot <zealci@zte.com.cn>,
+        Minghao Chi <chi.minghao@zte.com.cn>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>, johan.hedberg@gmail.com,
+        luiz.dentz@gmail.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 21/25] Bluetooth: use memset avoid memory leaks
+Date:   Thu, 11 Aug 2022 12:08:16 -0400
+Message-Id: <20220811160826.1541971-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811160826.1541971-1-sashal@kernel.org>
 References: <20220811160826.1541971-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,80 +61,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Łukasz Spintzyk <lukasz.spintzyk@synaptics.com>
+From: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
 
-[ Upstream commit 5588d628027092e66195097bdf6835ddf64418b3 ]
+[ Upstream commit d3715b2333e9a21692ba16ef8645eda584a9515d ]
 
-DisplayLink ethernet devices require NTB buffers larger then 32kb
-in order to run with highest performance.
+Use memset to initialize structs to prevent memory leaks
+in l2cap_ecred_connect
 
-This patch is changing upper limit of the rx and tx buffers.
-Those buffers are initialized with CDC_NCM_NTB_DEF_SIZE_RX and
-CDC_NCM_NTB_DEF_SIZE_TX which is 16kb so by default no device is
-affected by increased limit.
-
-Rx and tx buffer is increased under two conditions:
- - Device need to advertise that it supports higher buffer size in
-   dwNtbMaxInMaxSize and dwNtbMaxOutMaxSize.
- - cdc_ncm/rx_max and cdc_ncm/tx_max driver parameters must be adjusted
-   with udev rule or ethtool.
-
-Summary of testing and performance results:
-Tests were performed on following devices:
- - DisplayLink DL-3xxx family device
- - DisplayLink DL-6xxx family device
- - ASUS USB-C2500 2.5G USB3 ethernet adapter
- - Plugable USB3 1G USB3 ethernet adapter
- - EDIMAX EU-4307 USB-C ethernet adapter
- - Dell DBQBCBC064 USB-C ethernet adapter
-
-Performance measurements were done with:
- - iperf3 between two linux boxes
- - http://openspeedtest.com/ instance running on local test machine
-
-Insights from tests results:
- - All except one from third party usb adapters were not affected by
-   increased buffer size to their advertised dwNtbOutMaxSize and
-   dwNtbInMaxSize.
-   Devices were generally reaching 912-940Mbps both download and upload.
-
-   Only EDIMAX adapter experienced decreased download size from
-   929Mbps to 827Mbps with iper3, with openspeedtest decrease was from
-   968Mbps to 886Mbps.
-
- - DisplayLink DL-3xxx family devices experienced performance increase
-   with iperf3 download from 300Mbps to 870Mbps and
-   upload from 782Mbps to 844Mbps.
-   With openspeedtest download increased from 556Mbps to 873Mbps
-   and upload from 727Mbps to 973Mbps
-
- - DiplayLink DL-6xxx family devices are not affected by
-   increased buffer size.
-
-Signed-off-by: Łukasz Spintzyk <lukasz.spintzyk@synaptics.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20220720060518.541-2-lukasz.spintzyk@synaptics.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Minghao Chi (CGEL ZTE) <chi.minghao@zte.com.cn>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/usb/cdc_ncm.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bluetooth/l2cap_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/usb/cdc_ncm.h b/include/linux/usb/cdc_ncm.h
-index 1646c06989df..78cc32168640 100644
---- a/include/linux/usb/cdc_ncm.h
-+++ b/include/linux/usb/cdc_ncm.h
-@@ -50,8 +50,8 @@
- #define USB_CDC_NCM_NDP16_LENGTH_MIN		0x10
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 959a16b13303..aef4d172c0d5 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -1298,6 +1298,7 @@ static void l2cap_le_connect(struct l2cap_chan *chan)
  
- /* Maximum NTB length */
--#define	CDC_NCM_NTB_MAX_SIZE_TX			32768	/* bytes */
--#define	CDC_NCM_NTB_MAX_SIZE_RX			32768	/* bytes */
-+#define	CDC_NCM_NTB_MAX_SIZE_TX			65536	/* bytes */
-+#define	CDC_NCM_NTB_MAX_SIZE_RX			65536	/* bytes */
+ 	l2cap_le_flowctl_init(chan, 0);
  
- /* Initial NTB length */
- #define	CDC_NCM_NTB_DEF_SIZE_TX			16384	/* bytes */
++	memset(&req, 0, sizeof(req));
+ 	req.psm     = chan->psm;
+ 	req.scid    = cpu_to_le16(chan->scid);
+ 	req.mtu     = cpu_to_le16(chan->imtu);
 -- 
 2.35.1
 
