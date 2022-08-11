@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A3A1590007
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:37:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A302259001A
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:38:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236049AbiHKPhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:37:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58300 "EHLO
+        id S236186AbiHKPhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:37:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235992AbiHKPhD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:37:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3CA998C96;
-        Thu, 11 Aug 2022 08:33:31 -0700 (PDT)
+        with ESMTP id S236235AbiHKPha (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:37:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C5F198CB8;
+        Thu, 11 Aug 2022 08:33:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9280F6162D;
-        Thu, 11 Aug 2022 15:33:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1E73C433C1;
-        Thu, 11 Aug 2022 15:33:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DBC6B82160;
+        Thu, 11 Aug 2022 15:33:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8010AC433D7;
+        Thu, 11 Aug 2022 15:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232010;
-        bh=4ESsXl8rexzcWZTYWvPGXzFYiesziOJPORgwOzpzmFk=;
+        s=k20201202; t=1660232012;
+        bh=QAMyQ7TtC5clwhU+ZhDJUtEIO92newKmfdyvarN1nDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bVnVLib9+PFYwX4EoDm51odEBQTOYyiAAD/xady8bY+JcqUTuA29mR+dJqxKTn0wA
-         3flFytMw5KqiGe4uqD2v54BjbuMN98ud0INkA/YqGspSJ0wNNrgfzPymL0sxIvML2C
-         YF2dQc09Z5azKHX7c1BDbfkZaApX0QLrW0d7GKdLLEzApObRI+hb/asJpioveCs7JO
-         y7pWQzRtm1ezH6o7+fv4D8P0ho0exw7/lCxZhoZAnAW/1WsTRol9d9qb4Bw+BuNTSf
-         jZt873V9nt4MTMSK5M+SxXop+QGAiA1vvAUdELaa3EnPLU7EZYwszbmo4l1mtZ0MtH
-         KtAyAEMK+lehQ==
+        b=rOTDY1paGPom0sraDpnI3FX8hGmjieJD/zA7JDqBnxny8YT+trQJmO2r8/Fi5n6UH
+         aHTB8tJlJmAHLucbVk2SzyK7jMMYsJrf/N8PoNjbWnVL41JOdlM9m5HrLes0AWYPJt
+         0klRXKQTkZSq0+GPrIoEnrsXfjoSzZhLkHt2/Nmhai4GzvGTMZVozyGMHr+S9D9Fm1
+         TIvQjDW4Az75t3Z30ttlFihVjCtB0KdfW5uKgpJXlVPujzoN2GwDPKpF8ZENRWwLgD
+         P0WdIYjsyp945e54gI/nzO1HZMg9QtohvemDgTvi5Cv7XMRUOWORxaGvsHLlOAJ0fr
+         vNoOpiByDwanA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Darren Powell <darren.powell@amd.com>,
-        Kenneth Feng <kenneth.feng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, evan.quan@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, lijo.lazar@amd.com, Hawking.Zhang@amd.com,
-        guchun.chen@amd.com, kevin1.wang@amd.com, lang.yu@amd.com,
-        luben.tuikov@amd.com, Stanley.Yang@amd.com, tao.zhou1@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 045/105] amdgpu/pm: Fix possible array out-of-bounds if SCLK levels != 2
-Date:   Thu, 11 Aug 2022 11:27:29 -0400
-Message-Id: <20220811152851.1520029-45-sashal@kernel.org>
+Cc:     KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>,
+        kernel test robot <lkp@intel.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>, airlied@redhat.com,
+        airlied@linux.ie, daniel@ffwll.ch, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 046/105] drm/ast: Fixed the casting issue reported by sparse
+Date:   Thu, 11 Aug 2022 11:27:30 -0400
+Message-Id: <20220811152851.1520029-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
@@ -62,114 +58,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darren Powell <darren.powell@amd.com>
+From: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
 
-[ Upstream commit ceb180361e3851007547c55035cd1de03f108f75 ]
+[ Upstream commit 232b95ba4e83ca0a77f19fc772ccc6581051e5cc ]
 
- [v2]
-simplified fix after Lijo's feedback
- removed clocks.num_levels from calculation of loop count
-   removed unsafe accesses to shim table freq_values
- retained corner case output only min,now if
-   clocks.num_levels == 1 && now > min
+V1:
+1.Fixed sparse:cast truncates bits form constant value ()cast
+  truncates bits from constant value (ffffffffffffff00 becomes 0)
 
- [v1]
-added a check to populate and use SCLK shim table freq_values only
-   if using dpm_level == AMD_DPM_FORCED_LEVEL_MANUAL or
-                         AMD_DPM_FORCED_LEVEL_PERF_DETERMINISM
-removed clocks.num_levels from calculation of shim table size
-removed unsafe accesses to shim table freq_values
-   output gfx_table values if using other dpm levels
-added check for freq_match when using freq_values for when now == min_clk
-
-== Test ==
-LOGFILE=aldebaran-sclk.test.log
-AMDGPU_PCI_ADDR=`lspci -nn | grep "VGA\|Display" | cut -d " " -f 1`
-AMDGPU_HWMON=`ls -la /sys/class/hwmon | grep $AMDGPU_PCI_ADDR | awk '{print $9}'`
-HWMON_DIR=/sys/class/hwmon/${AMDGPU_HWMON}
-
-lspci -nn | grep "VGA\|Display"  > $LOGFILE
-FILES="pp_od_clk_voltage
-pp_dpm_sclk"
-
-for f in $FILES
-do
-  echo === $f === >> $LOGFILE
-  cat $HWMON_DIR/device/$f >> $LOGFILE
-done
-cat $LOGFILE
-
-Signed-off-by: Darren Powell <darren.powell@amd.com>
-Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220623083116.35365-1-kuohsiang_chou@aspeedtech.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/pm/swsmu/smu13/aldebaran_ppt.c    | 34 +++++++------------
- 1 file changed, 12 insertions(+), 22 deletions(-)
+ drivers/gpu/drm/ast/ast_dp.c  | 10 +++++-----
+ drivers/gpu/drm/ast/ast_drv.h |  2 +-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
-index fb130409309c..f6ff7942e1b7 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
-@@ -739,7 +739,7 @@ static int aldebaran_print_clk_levels(struct smu_context *smu,
- 	struct smu_13_0_dpm_table *single_dpm_table;
- 	struct smu_dpm_context *smu_dpm = &smu->smu_dpm;
- 	struct smu_13_0_dpm_context *dpm_context = NULL;
--	uint32_t display_levels;
-+	int display_levels;
- 	uint32_t freq_values[3] = {0};
- 	uint32_t min_clk, max_clk;
+diff --git a/drivers/gpu/drm/ast/ast_dp.c b/drivers/gpu/drm/ast/ast_dp.c
+index f573d582407e..56483860306b 100644
+--- a/drivers/gpu/drm/ast/ast_dp.c
++++ b/drivers/gpu/drm/ast/ast_dp.c
+@@ -34,7 +34,7 @@ int ast_astdp_read_edid(struct drm_device *dev, u8 *ediddata)
+ 		 * CRE4[7:0]: Read-Pointer for EDID (Unit: 4bytes); valid range: 0~64
+ 		 */
+ 		ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE4,
+-					(u8) ~ASTDP_EDID_READ_POINTER_MASK, (u8) i);
++				       ASTDP_AND_CLEAR_MASK, (u8)i);
+ 		j = 0;
  
-@@ -771,7 +771,7 @@ static int aldebaran_print_clk_levels(struct smu_context *smu,
- 			return ret;
- 		}
+ 		/*
+@@ -274,8 +274,8 @@ void ast_dp_set_mode(struct drm_crtc *crtc, struct ast_vbios_mode_info *vbios_mo
+ 	 * CRE1[7:0]: MISC1 (default: 0x00)
+ 	 * CRE2[7:0]: video format index (0x00 ~ 0x20 or 0x40 ~ 0x50)
+ 	 */
+-	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE0, (u8) ~ASTDP_CLEAR_MASK,
+-				ASTDP_MISC0_24bpp);
+-	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE1, (u8) ~ASTDP_CLEAR_MASK, ASTDP_MISC1);
+-	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE2, (u8) ~ASTDP_CLEAR_MASK, ModeIdx);
++	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE0, ASTDP_AND_CLEAR_MASK,
++			       ASTDP_MISC0_24bpp);
++	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE1, ASTDP_AND_CLEAR_MASK, ASTDP_MISC1);
++	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE2, ASTDP_AND_CLEAR_MASK, ModeIdx);
+ }
+diff --git a/drivers/gpu/drm/ast/ast_drv.h b/drivers/gpu/drm/ast/ast_drv.h
+index a34db4380f68..2e44b971c3a6 100644
+--- a/drivers/gpu/drm/ast/ast_drv.h
++++ b/drivers/gpu/drm/ast/ast_drv.h
+@@ -433,7 +433,7 @@ int ast_mode_config_init(struct ast_private *ast);
+  */
+ #define ASTDP_MISC0_24bpp			BIT(5)
+ #define ASTDP_MISC1				0
+-#define ASTDP_CLEAR_MASK			GENMASK(7, 0)
++#define ASTDP_AND_CLEAR_MASK		0x00
  
--		display_levels = clocks.num_levels;
-+		display_levels = (clocks.num_levels == 1) ? 1 : 2;
- 
- 		min_clk = pstate_table->gfxclk_pstate.curr.min;
- 		max_clk = pstate_table->gfxclk_pstate.curr.max;
-@@ -781,30 +781,20 @@ static int aldebaran_print_clk_levels(struct smu_context *smu,
- 
- 		/* fine-grained dpm has only 2 levels */
- 		if (now > min_clk && now < max_clk) {
--			display_levels = clocks.num_levels + 1;
-+			display_levels++;
- 			freq_values[2] = max_clk;
- 			freq_values[1] = now;
- 		}
- 
--		/*
--		 * For DPM disabled case, there will be only one clock level.
--		 * And it's safe to assume that is always the current clock.
--		 */
--		if (display_levels == clocks.num_levels) {
--			for (i = 0; i < clocks.num_levels; i++)
--				size += sysfs_emit_at(buf, size, "%d: %uMhz %s\n", i,
--					freq_values[i],
--					(clocks.num_levels == 1) ?
--						"*" :
--						(aldebaran_freqs_in_same_level(
--							 freq_values[i], now) ?
--							 "*" :
--							 ""));
--		} else {
--			for (i = 0; i < display_levels; i++)
--				size += sysfs_emit_at(buf, size, "%d: %uMhz %s\n", i,
--						freq_values[i], i == 1 ? "*" : "");
--		}
-+		for (i = 0; i < display_levels; i++)
-+			size += sysfs_emit_at(buf, size, "%d: %uMhz %s\n", i,
-+				freq_values[i],
-+				(display_levels == 1) ?
-+					"*" :
-+					(aldebaran_freqs_in_same_level(
-+						 freq_values[i], now) ?
-+						 "*" :
-+						 ""));
- 
- 		break;
- 
+ /*
+  * ASTDP resoultion table:
 -- 
 2.35.1
 
