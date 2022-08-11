@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6C4F5900FF
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:48:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F1AF590116
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:52:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236491AbiHKPsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:48:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51584 "EHLO
+        id S236555AbiHKPsh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:48:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236487AbiHKPqb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:46:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2625B7E82A;
-        Thu, 11 Aug 2022 08:41:16 -0700 (PDT)
+        with ESMTP id S236552AbiHKPqs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:46:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76165979C8;
+        Thu, 11 Aug 2022 08:41:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B248861634;
-        Thu, 11 Aug 2022 15:41:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D10DDC433B5;
-        Thu, 11 Aug 2022 15:41:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0ABC0B82128;
+        Thu, 11 Aug 2022 15:41:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8BB7C433C1;
+        Thu, 11 Aug 2022 15:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232475;
-        bh=WVuZfz8VgtoHhI8op1ASuHj/Mtm0UN0UEcjFv78yres=;
+        s=k20201202; t=1660232477;
+        bh=LUk1ubcV+Xs5kdplnQ3qwUHkWfVeb33sR4aXFbkGBSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sF8a8kSDVfOUnyIQY8ryOskxhbAtvZlJkcaA484LSlgnSEkSsLfgKfcMdeLfdz3NP
-         rHxMbD0nv0VM9CfUeQbhKt8DCkd6VHeV11ues8+PjsN5/uQ9hTFHY4GKYPLh3LIXEh
-         3PFmpHuJplaf79dNNKVTqcteIhsuz02GZA0893Y4LmO59xDtJNJyVx7xcwZGlJ9ILI
-         8xZuZVI/T4KT5nvWKjgw98a2udvfenNb2fcFWg4BrBvlPBBBtsVWSas2oRgq0TPTuF
-         eq6k643N1kWgXxE4nsE1dli9ImbmVpHXVeEq/EyF0WIIL6IjSHqLNLZV4lU4+/0xhD
-         Nk1dAdRM1Q4/g==
+        b=FB0KzDFpMRGSPSPwJXAT8D/t655c3ues+KuGacPNJ2qjwXxwANZpSTvWLp8JKGObZ
+         UKWqNSe0K0sP4rpndQQXBFp5w6ljRGfrex7wqnBgw4020jmzE8iUAk5w1+17jO0y0w
+         mfex7A0A84VEz98y55ZoFeUChNcO3h5OpLz+RjRymKOtWSkPsiqGwM5Qa+hEq3Nvgo
+         jG5lfITO8bio05eEV5EduKfzNh9x/Xk4/xwo46Mwc49qL5BEJv7YYy/EkIFgQ0eQfj
+         4rwBkDmKmjX7/t8UjZOBW5WmxmUXSmgAKZD3ZyNFZ9i07EUbhhy32snJ1kxN8FVOTM
+         JpbndP4Na4tQg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 092/105] drm/amdkfd: Process notifier release callback don't take mutex
-Date:   Thu, 11 Aug 2022 11:28:16 -0400
-Message-Id: <20220811152851.1520029-92-sashal@kernel.org>
+Cc:     Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, clm@fb.com,
+        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 093/105] btrfs: output mirror number for bad metadata
+Date:   Thu, 11 Aug 2022 11:28:17 -0400
+Message-Id: <20220811152851.1520029-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
@@ -59,105 +56,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 74097f9fd2f5ebdae04fcba59da345386415cbf3 ]
+[ Upstream commit 8f0ed7d4e7bd87c9207a59d6d887777f632a5ed5 ]
 
-Move process queues cleanup to deferred work kfd_process_wq_release, to
-avoid potential deadlock circular locking warning:
+When handling a real world transid mismatch image, it's hard to know
+which copy is corrupted, as the error messages just look like this:
 
- WARNING: possible circular locking dependency detected
-               the existing dependency chain (in reverse order) is:
-      -> #2
-        ((work_completion)(&svms->deferred_list_work)){+.+.}-{0:0}:
-        __flush_work+0x343/0x4a0
-        svm_range_list_lock_and_flush_work+0x39/0xc0
-        svm_range_set_attr+0xe8/0x1080 [amdgpu]
-        kfd_ioctl+0x19b/0x600 [amdgpu]
-        __x64_sys_ioctl+0x81/0xb0
-        do_syscall_64+0x34/0x80
-        entry_SYSCALL_64_after_hwframe+0x44/0xae
+  BTRFS warning (device dm-3): checksum verify failed on 30408704 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
+  BTRFS warning (device dm-3): checksum verify failed on 30408704 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
+  BTRFS warning (device dm-3): checksum verify failed on 30408704 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
+  BTRFS warning (device dm-3): checksum verify failed on 30408704 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
 
-      -> #1 (&info->lock#2){+.+.}-{3:3}:
-        __mutex_lock+0xa4/0x940
-        amdgpu_amdkfd_gpuvm_acquire_process_vm+0x2e3/0x590
-        kfd_process_device_init_vm+0x61/0x200 [amdgpu]
-        kfd_ioctl_acquire_vm+0x83/0xb0 [amdgpu]
-        kfd_ioctl+0x19b/0x600 [amdgpu]
-        __x64_sys_ioctl+0x81/0xb0
-        do_syscall_64+0x34/0x80
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
+We don't even know if the retry is caused by btrfs or the VFS retry.
 
-      -> #0 (&process->mutex){+.+.}-{3:3}:
-        __lock_acquire+0x1365/0x23d0
-        lock_acquire+0xc9/0x2e0
-        __mutex_lock+0xa4/0x940
-        kfd_process_notifier_release+0x96/0xe0 [amdgpu]
-        __mmu_notifier_release+0x94/0x210
-        exit_mmap+0x35/0x1f0
-        mmput+0x63/0x120
-        svm_range_deferred_list_work+0x177/0x2c0 [amdgpu]
-        process_one_work+0x2a4/0x600
-        worker_thread+0x39/0x3e0
-        kthread+0x16d/0x1a0
+To make things a little easier to read, add mirror number for all
+related tree block read errors.
 
-  Possible unsafe locking scenario:
+So the above messages would look like this:
 
-      CPU0                    CPU1
-        ----                    ----
-   lock((work_completion)(&svms->deferred_list_work));
-                                lock(&info->lock#2);
-             lock((work_completion)(&svms->deferred_list_work));
-   lock(&process->mutex);
+  BTRFS warning (device dm-3): checksum verify failed on logical 30408704 mirror 1 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
+  BTRFS warning (device dm-3): checksum verify failed on logical 30408704 mirror 2 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
+  BTRFS warning (device dm-3): checksum verify failed on logical 30408704 mirror 1 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
+  BTRFS warning (device dm-3): checksum verify failed on logical 30408704 mirror 2 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
 
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+[ update messages, add "logical" ]
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_process.c | 21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+ fs/btrfs/disk-io.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_process.c b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-index b8b185e242d3..9ad293fb95af 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-@@ -1114,6 +1114,15 @@ static void kfd_process_wq_release(struct work_struct *work)
- 	struct kfd_process *p = container_of(work, struct kfd_process,
- 					     release_work);
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index de440ebf5648..b9f335252113 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -256,8 +256,8 @@ static int verify_parent_transid(struct extent_io_tree *io_tree,
+ 		goto out;
+ 	}
+ 	btrfs_err_rl(eb->fs_info,
+-		"parent transid verify failed on %llu wanted %llu found %llu",
+-			eb->start,
++"parent transid verify failed on logical %llu mirror %u wanted %llu found %llu",
++			eb->start, eb->read_mirror,
+ 			parent_transid, btrfs_header_generation(eb));
+ 	ret = 1;
+ 	clear_extent_buffer_uptodate(eb);
+@@ -587,21 +587,23 @@ static int validate_extent_buffer(struct extent_buffer *eb)
  
-+	kfd_process_dequeue_from_all_devices(p);
-+	pqm_uninit(&p->pqm);
-+
-+	/* Signal the eviction fence after user mode queues are
-+	 * destroyed. This allows any BOs to be freed without
-+	 * triggering pointless evictions or waiting for fences.
-+	 */
-+	dma_fence_signal(p->ef);
-+
- 	kfd_process_remove_sysfs(p);
- 	kfd_iommu_unbind_process(p);
+ 	found_start = btrfs_header_bytenr(eb);
+ 	if (found_start != eb->start) {
+-		btrfs_err_rl(fs_info, "bad tree block start, want %llu have %llu",
+-			     eb->start, found_start);
++		btrfs_err_rl(fs_info,
++			"bad tree block start, mirror %u want %llu have %llu",
++			     eb->read_mirror, eb->start, found_start);
+ 		ret = -EIO;
+ 		goto out;
+ 	}
+ 	if (check_tree_block_fsid(eb)) {
+-		btrfs_err_rl(fs_info, "bad fsid on block %llu",
+-			     eb->start);
++		btrfs_err_rl(fs_info, "bad fsid on logical %llu mirror %u",
++			     eb->start, eb->read_mirror);
+ 		ret = -EIO;
+ 		goto out;
+ 	}
+ 	found_level = btrfs_header_level(eb);
+ 	if (found_level >= BTRFS_MAX_LEVEL) {
+-		btrfs_err(fs_info, "bad tree block level %d on %llu",
+-			  (int)btrfs_header_level(eb), eb->start);
++		btrfs_err(fs_info,
++			"bad tree block level, mirror %u level %d on logical %llu",
++			eb->read_mirror, btrfs_header_level(eb), eb->start);
+ 		ret = -EIO;
+ 		goto out;
+ 	}
+@@ -612,8 +614,8 @@ static int validate_extent_buffer(struct extent_buffer *eb)
  
-@@ -1178,20 +1187,8 @@ static void kfd_process_notifier_release(struct mmu_notifier *mn,
- 	cancel_delayed_work_sync(&p->eviction_work);
- 	cancel_delayed_work_sync(&p->restore_work);
- 
--	mutex_lock(&p->mutex);
--
--	kfd_process_dequeue_from_all_devices(p);
--	pqm_uninit(&p->pqm);
--
- 	/* Indicate to other users that MM is no longer valid */
- 	p->mm = NULL;
--	/* Signal the eviction fence after user mode queues are
--	 * destroyed. This allows any BOs to be freed without
--	 * triggering pointless evictions or waiting for fences.
--	 */
--	dma_fence_signal(p->ef);
--
--	mutex_unlock(&p->mutex);
- 
- 	mmu_notifier_put(&p->mmu_notifier);
+ 	if (memcmp(result, header_csum, csum_size) != 0) {
+ 		btrfs_warn_rl(fs_info,
+-	"checksum verify failed on %llu wanted " CSUM_FMT " found " CSUM_FMT " level %d",
+-			      eb->start,
++"checksum verify failed on logical %llu mirror %u wanted " CSUM_FMT " found " CSUM_FMT " level %d",
++			      eb->start, eb->read_mirror,
+ 			      CSUM_FMT_VALUE(csum_size, header_csum),
+ 			      CSUM_FMT_VALUE(csum_size, result),
+ 			      btrfs_header_level(eb));
+@@ -638,8 +640,8 @@ static int validate_extent_buffer(struct extent_buffer *eb)
+ 		set_extent_buffer_uptodate(eb);
+ 	else
+ 		btrfs_err(fs_info,
+-			  "block=%llu read time tree block corruption detected",
+-			  eb->start);
++		"read time tree block corruption detected on logical %llu mirror %u",
++			  eb->start, eb->read_mirror);
+ out:
+ 	return ret;
  }
 -- 
 2.35.1
