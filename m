@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8E205902F5
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:18:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2AB35902F2
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:18:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236030AbiHKQOE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235577AbiHKQOE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 11 Aug 2022 12:14:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47072 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236303AbiHKQNF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:13:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FAB0A8CCF;
-        Thu, 11 Aug 2022 08:57:47 -0700 (PDT)
+        with ESMTP id S237427AbiHKQNo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:13:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 011E9A6C20;
+        Thu, 11 Aug 2022 08:58:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D57261316;
-        Thu, 11 Aug 2022 15:57:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97065C433D6;
-        Thu, 11 Aug 2022 15:57:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFA7561314;
+        Thu, 11 Aug 2022 15:58:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1859C433D7;
+        Thu, 11 Aug 2022 15:57:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660233466;
-        bh=X4UDxapG/J4HmTp8WINo7LOgxjjfKDLoP8kY1Tp1qxo=;
+        s=k20201202; t=1660233480;
+        bh=X2xHlDHY1Fr1Z7sQK/iMZPVVFKKWUW/n7OcahAnI+ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cTfw0Xe+yWyd8ZWjKXKgjLuaupukUMNU3LQNZJ9K7wKZ9f449SOBavOMFcmX54SzI
-         /whPJ5rXG62COGTtQCADTBlhTx7y/IHgORXeApQ7sT8trRoHGyW5AoDRJE635U9Qig
-         Kp3TeSedQ7pTJZHUh1v24bpue+ZnQuTkk6PXtpV8TPH182BBcGZniFo6zTvk7OVfhY
-         NLs8EmTGA/HErMKn0c8dvzU3p8AxoVTbmyOe4DK6ifyXy5Ct0S39Ngk1PZqbN5KvDw
-         SXE0Yijz1DQJBmCqLnqlWAA1fh6spfFq0Qi09JU3ULJjkLJff62ISfFyqqSiH8rMRO
-         JHpgf6+pNC4pg==
+        b=fJL4VorRAXoDK+UAUx3mreu+SksNWqZdMBreUmIGD0h8P+BttmQFGhtyQKUS9DOlB
+         YC+wqFIONqDAfhrof3MjbGh2aKMAOXsiqvZb5dEq1gLevx7xAEhZvvRnDJLAZSta/4
+         jnSwRqnkcyYTmLblYYPdJ42i3UCC+vZQgh5aO3wC5OtzGln38x33oK96aaM+ZU3i0i
+         1arx596U87fN5IM7icNqXqRxWOrbF3QwUQB4Ja+XuCLD8tCFwXDxjDuJl3NsKdxBN6
+         YcJPVpmCKNxmn5m5HWEBL1ineR2rnc9ty0Qtjl0ka8HbCRz7Q3K61XaDTer9C6U/hu
+         qIiS180tqY/cA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Zhang <dingchen.zhang@amd.com>, Leo Li <sunpeng.li@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
+Cc:     Wayne Lin <Wayne.Lin@amd.com>, Hersen Wu <hersenwu@amd.com>,
+        Hamza Mahfooz <hamza.mahfooz@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, Rodrigo.Siqueira@amd.com,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
         christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, Jerry.Zuo@amd.com, nicholas.kazlauskas@amd.com,
-        mikita.lipski@amd.com, dale.zhao@amd.com, wenjing.liu@amd.com,
-        Anthony.Koo@amd.com, agustin.gutierrez@amd.com,
-        Anson.Jacob@amd.com, po-tchen@amd.com, rdunlap@infradead.org,
+        daniel@ffwll.ch, Roman.Li@amd.com, Jerry.Zuo@amd.com,
+        tzimmermann@suse.de, nicholas.kazlauskas@amd.com,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 11/69] drm/amd/display: fix system hang when PSR exits
-Date:   Thu, 11 Aug 2022 11:55:20 -0400
-Message-Id: <20220811155632.1536867-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 12/69] drm/amd/display: Detect dpcd_rev when hotplug mst monitor
+Date:   Thu, 11 Aug 2022 11:55:21 -0400
+Message-Id: <20220811155632.1536867-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811155632.1536867-1-sashal@kernel.org>
 References: <20220811155632.1536867-1-sashal@kernel.org>
@@ -63,84 +63,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Zhang <dingchen.zhang@amd.com>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-[ Upstream commit 6cc5c77300afbb285c4f41e04f3435ae3c484c40 ]
+[ Upstream commit 453b0016a054df0f442fda8a145b97a33816cab9 ]
 
-[why]
-When DC driver send PSR exit dmub command to DMUB FW, it might not
-wait until PSR exit. Then it may hit the following deadlock situation.
-1. DC driver send HW LOCK command to DMUB FW due to frame update
-2. DMUB FW Set the HW lock
-3. DMUB execute PSR exit sequence and stuck at polling DPG Pending
-register due to the HW Lock is set
-4. DC driver ask DMUB FW to unlock HW lock, but DMUB FW is polling
-DPG pending register
+[Why]
+Once mst topology is constructed, later on new connected monitors
+are reported to source by CSN message. Within CSN, there is no
+carried info of DPCD_REV comparing to LINK_ADDRESS reply. As the
+result, we might leave some ports connected to DP but without DPCD
+revision number which will affect us determining the capability of
+the DP Rx.
 
-[how]
-The reason why DC driver doesn't wait until PSR exit is because some of
-the PSR state machine state is not update the dc driver. So when DC
-driver read back the PSR state, it take the state for PSR inactive.
+[How]
+Send out remote DPCD read when the port's dpcd_rev is 0x0 in
+detect_ctx(). Firstly, read out the value from DPCD 0x2200. If the
+return value is 0x0, it's likely the DP1.2 DP Rx then we reques
+revision from DPCD 0x0 again.
 
-Signed-off-by: David Zhang <dingchen.zhang@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Reviewed-by: Hersen Wu <hersenwu@amd.com>
+Acked-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dc_types.h     |  7 +++++++
- drivers/gpu/drm/amd/display/dc/dce/dmub_psr.c | 16 ++++++++++++++++
- 2 files changed, 23 insertions(+)
+ .../display/amdgpu_dm/amdgpu_dm_mst_types.c   | 38 ++++++++++++++++++-
+ 1 file changed, 37 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dc_types.h b/drivers/gpu/drm/amd/display/dc/dc_types.h
-index c1532930169b..ac8442f6f4da 100644
---- a/drivers/gpu/drm/amd/display/dc/dc_types.h
-+++ b/drivers/gpu/drm/amd/display/dc/dc_types.h
-@@ -639,10 +639,17 @@ enum dc_psr_state {
- 	PSR_STATE4b,
- 	PSR_STATE4c,
- 	PSR_STATE4d,
-+	PSR_STATE4_FULL_FRAME,
-+	PSR_STATE4a_FULL_FRAME,
-+	PSR_STATE4b_FULL_FRAME,
-+	PSR_STATE4c_FULL_FRAME,
-+	PSR_STATE4_FULL_FRAME_POWERUP,
- 	PSR_STATE5,
- 	PSR_STATE5a,
- 	PSR_STATE5b,
- 	PSR_STATE5c,
-+	PSR_STATE_HWLOCK_MGR,
-+	PSR_STATE_POLLVUPDATE,
- 	PSR_STATE_INVALID = 0xFF
- };
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
+index 652cf108b3c2..424f4cfc0e04 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
+@@ -335,12 +335,48 @@ dm_dp_mst_detect(struct drm_connector *connector,
+ {
+ 	struct amdgpu_dm_connector *aconnector = to_amdgpu_dm_connector(connector);
+ 	struct amdgpu_dm_connector *master = aconnector->mst_port;
++	struct drm_dp_mst_port *port = aconnector->port;
++	int connection_status;
  
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dmub_psr.c b/drivers/gpu/drm/amd/display/dc/dce/dmub_psr.c
-index aa8403bc4c83..0dac025f8f02 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dmub_psr.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dmub_psr.c
-@@ -72,6 +72,22 @@ static enum dc_psr_state convert_psr_state(uint32_t raw_state)
- 		state = PSR_STATE5b;
- 	else if (raw_state == 0x53)
- 		state = PSR_STATE5c;
-+	else if (raw_state == 0x4A)
-+		state = PSR_STATE4_FULL_FRAME;
-+	else if (raw_state == 0x4B)
-+		state = PSR_STATE4a_FULL_FRAME;
-+	else if (raw_state == 0x4C)
-+		state = PSR_STATE4b_FULL_FRAME;
-+	else if (raw_state == 0x4D)
-+		state = PSR_STATE4c_FULL_FRAME;
-+	else if (raw_state == 0x4E)
-+		state = PSR_STATE4_FULL_FRAME_POWERUP;
-+	else if (raw_state == 0x60)
-+		state = PSR_STATE_HWLOCK_MGR;
-+	else if (raw_state == 0x61)
-+		state = PSR_STATE_POLLVUPDATE;
-+	else
-+		state = PSR_STATE_INVALID;
+ 	if (drm_connector_is_unregistered(connector))
+ 		return connector_status_disconnected;
  
- 	return state;
+-	return drm_dp_mst_detect_port(connector, ctx, &master->mst_mgr,
++	connection_status = drm_dp_mst_detect_port(connector, ctx, &master->mst_mgr,
+ 				      aconnector->port);
++
++	if (port->pdt != DP_PEER_DEVICE_NONE && !port->dpcd_rev) {
++		uint8_t dpcd_rev;
++		int ret;
++
++		ret = drm_dp_dpcd_readb(&port->aux, DP_DP13_DPCD_REV, &dpcd_rev);
++
++		if (ret == 1) {
++			port->dpcd_rev = dpcd_rev;
++
++			/* Could be DP1.2 DP Rx case*/
++			if (!dpcd_rev) {
++				ret = drm_dp_dpcd_readb(&port->aux, DP_DPCD_REV, &dpcd_rev);
++
++				if (ret == 1)
++					port->dpcd_rev = dpcd_rev;
++			}
++
++			if (!dpcd_rev)
++				DRM_DEBUG_KMS("Can't decide DPCD revision number!");
++		}
++
++		/*
++		 * Could be legacy sink, logical port etc on DP1.2.
++		 * Will get Nack under these cases when issue remote
++		 * DPCD read.
++		 */
++		if (ret != 1)
++			DRM_DEBUG_KMS("Can't access DPCD");
++	} else if (port->pdt == DP_PEER_DEVICE_NONE) {
++		port->dpcd_rev = 0;
++	}
++
++	return connection_status;
  }
+ 
+ static int dm_dp_mst_atomic_check(struct drm_connector *connector,
 -- 
 2.35.1
 
