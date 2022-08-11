@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA566590065
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:43:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAD8D59007E
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:43:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235861AbiHKPlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:41:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43262 "EHLO
+        id S236215AbiHKPlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:41:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236302AbiHKPkg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:40:36 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6A26832EE;
-        Thu, 11 Aug 2022 08:36:14 -0700 (PDT)
+        with ESMTP id S236379AbiHKPkh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:40:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0D538A6E2;
+        Thu, 11 Aug 2022 08:36:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0C259CE223C;
-        Thu, 11 Aug 2022 15:36:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92B76C433D6;
-        Thu, 11 Aug 2022 15:36:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B990B6164A;
+        Thu, 11 Aug 2022 15:36:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F19DC433B5;
+        Thu, 11 Aug 2022 15:36:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232171;
-        bh=qsShld15yanExGZz6tj+YI1xZMgoDwaENHBqd2mx4bU=;
+        s=k20201202; t=1660232174;
+        bh=3WO1X/r96fVsa2TO+JzUldSo6EvsERimnvGpjqkZ4pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cNcphdIWAXT6nB9wNAJsYoUHgHVt1MefuabHLfxkfhrw/sFEl4ZLBaKY3AoFZ03Re
-         jNOjUzJGanUK4FD7+xgNU7zXYAQcih+CgovFXqFDiG96GLShQsreEKnS0z/cFwRih2
-         dHV0CCwxy+pVLUuBkysoKi5RkgucPD4GQ89qcyUkFLe0umlmLExUGaqOcjAfE4F1/Y
-         zZls0lo6AL1C6K0RUBpjUgrBRNjGmkJkkvskq1QYpf3vW2dJxmcei55uFLEY3X/xF9
-         3JJ+8jvddfuPipdM90NjxQpUbuepAQn6GfaZl2anEE9drFZTYrj6Bjrdw9+qa5NEuF
-         fRM8/nJXYXuGg==
+        b=nuO4RWeN8Z6N8ieq5f8QWfzCrdoZHUb5nbW9p50BWnSyPO1dMhee1Uddvh4XA8kua
+         r/rdUD+Ih4AP4ut46ecTE3uOh5gbAHHbRda/+HKZ5IsSX7U5A8mmjKrcIyA7PrM0IE
+         PKLO4mWyC03tXvy5EARJ8DWb3lp4cB7F405XUV5jHKad9ZjAguorilqU86YwlMHZFu
+         LWNUqDwMnz4nUqhpXMWb7/xGEYrOzGsigIFsCWLh1OCNfwbOkjMxLGh7gzDl/Vf5fW
+         k8dRcCTH7HNEMSwmu1BOu1e/SNul8/DVFX21NpUtPSvo/EOSLLKSpFrJCFXndeO9fP
+         gmH46MqmZubEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Sasha Levin <sashal@kernel.org>, linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 063/105] scripts: sphinx-pre-install: fix venv version check logic
-Date:   Thu, 11 Aug 2022 11:27:47 -0400
-Message-Id: <20220811152851.1520029-63-sashal@kernel.org>
+Cc:     xinhui pan <xinhui.pan@amd.com>, Philip Yang <Philip.Yang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, Felix.Kuehling@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
+        daniel@ffwll.ch, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 064/105] drm/amdgpu: Fix one list corruption when create queue fails
+Date:   Thu, 11 Aug 2022 11:27:48 -0400
+Message-Id: <20220811152851.1520029-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
@@ -56,69 +59,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab@kernel.org>
+From: xinhui pan <xinhui.pan@amd.com>
 
-[ Upstream commit 7c2d45a347c7933cbe0efff14fe96adeb13fd761 ]
+[ Upstream commit cc3cb791f19ad0c4f951f38c98aa513b042ab329 ]
 
-The logic which checks if the venv version is good enough
-but was not activated is broken: it is checking against
-the wrong val, making it to recommend to re-create a venv
-every time. Fix it.
+Queue would be freed when create_queue_cpsch fails
+So lets do queue cleanup otherwise various list and memory issues
+happen.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Link: https://lore.kernel.org/r/afe01b7863fd655986d84ace8948f3d7aede796d.1656756450.git.mchehab@kernel.org
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+Reviewed-by: Philip Yang <Philip.Yang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/sphinx-pre-install | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/scripts/sphinx-pre-install b/scripts/sphinx-pre-install
-index f126ecbb0494..ae8c49734899 100755
---- a/scripts/sphinx-pre-install
-+++ b/scripts/sphinx-pre-install
-@@ -741,7 +741,7 @@ sub recommend_sphinx_upgrade()
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+index e017b4240472..06417c7abca4 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+@@ -1666,14 +1666,13 @@ static int create_queue_cpsch(struct device_queue_manager *dqm, struct queue *q,
+ 	if (q->properties.is_active) {
+ 		increment_queue_count(dqm, qpd, q);
  
- 	# Get the highest version from sphinx_*/bin/sphinx-build and the
- 	# corresponding command to activate the venv/virtenv
--	$activate_cmd = get_virtenv();
-+	($activate_cmd, $venv_ver) = get_virtenv();
- 
- 	# Store the highest version from Sphinx existing virtualenvs
- 	if (($activate_cmd ne "") && ($venv_ver gt $cur_version)) {
-@@ -759,10 +759,14 @@ sub recommend_sphinx_upgrade()
- 	# Either there are already a virtual env or a new one should be created
- 	$need_pip = 1;
- 
-+	return if (!$latest_avail_ver);
-+
- 	# Return if the reason is due to an upgrade or not
- 	if ($latest_avail_ver lt $rec_version) {
- 		$rec_sphinx_upgrade = 1;
- 	}
-+
-+	return $latest_avail_ver;
- }
- 
- #
-@@ -820,7 +824,7 @@ sub recommend_sphinx_version($)
+-		if (!dqm->dev->shared_resources.enable_mes) {
++		if (!dqm->dev->shared_resources.enable_mes)
+ 			retval = execute_queues_cpsch(dqm,
+-					     KFD_UNMAP_QUEUES_FILTER_DYNAMIC_QUEUES, 0);
+-		} else {
++					KFD_UNMAP_QUEUES_FILTER_DYNAMIC_QUEUES, 0);
++		else
+ 			retval = add_queue_mes(dqm, q, qpd);
+-			if (retval)
+-				goto cleanup_queue;
+-		}
++		if (retval)
++			goto cleanup_queue;
  	}
  
- 	# Suggest newer versions if current ones are too old
--	if ($latest_avail_ver && $cur_version ge $min_version) {
-+	if ($latest_avail_ver && $latest_avail_ver ge $min_version) {
- 		# If there's a good enough version, ask the user to enable it
- 		if ($latest_avail_ver ge $rec_version) {
- 			printf "\nNeed to activate Sphinx (version $latest_avail_ver) on virtualenv with:\n";
-@@ -897,7 +901,7 @@ sub check_needs()
- 		}
- 	}
- 
--	recommend_sphinx_upgrade();
-+	my $venv_ver = recommend_sphinx_upgrade();
- 
- 	my $virtualenv_cmd;
- 
+ 	/*
 -- 
 2.35.1
 
