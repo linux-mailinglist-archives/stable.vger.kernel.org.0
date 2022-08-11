@@ -2,40 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A75E5590373
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:28:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E6295903B7
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:28:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237966AbiHKQW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:22:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60898 "EHLO
+        id S237823AbiHKQXo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:23:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238060AbiHKQVO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:21:14 -0400
+        with ESMTP id S237828AbiHKQX1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:23:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8406B275E
-        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 09:03:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97257A1A64;
+        Thu, 11 Aug 2022 09:04:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63E4160F39
-        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 16:03:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18612C433B5;
-        Thu, 11 Aug 2022 16:03:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660233822;
-        bh=5t2Sq/dR8L6vnuKXCjsKYqWUw/bMJrzb3oBdi4yBqcU=;
-        h=Subject:To:Cc:From:Date:From;
-        b=kLw7+QEm+3r9svIM2Sn/Nzjw5rJ3+Syl0eDCjaq1tXiAs7tIW5lNWoKU7GLYEz3m2
-         0UprpAoj/i5XstjxYnAja1vVKGdFeEoULvMWk9i9KBOlC8zJOEzNQLuTfYbkwpYFRK
-         3UY+u/n0q1voDKisU5esgL7OB0RjzxEWLGBNtIKg=
-Subject: FAILED: patch "[PATCH] powerpc/powernv/kvm: Use darn for H_RANDOM on Power9" failed to apply to 4.9-stable tree
-To:     Jason@zx2c4.com, mpe@ellerman.id.au, sachinp@linux.ibm.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 11 Aug 2022 18:03:21 +0200
-Message-ID: <16602338017748@kroah.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1769D61387;
+        Thu, 11 Aug 2022 16:04:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A5F5C433C1;
+        Thu, 11 Aug 2022 16:04:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1660233865;
+        bh=36Vjumv8zm0S5llrP/VnziETVKJWEBAa33/Ys+v9Rm4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=i2MpTLwttoY3lgwSezHWaKHsaa2yposzEpfP41Pgf+MHJm8DyDoAhWceYfjHex87/
+         NE/RqOSr1IGTgTiOkXcVwsbpMWQefKjVcUAnBKYajFfgsC316x41PCedktNBd11yMk
+         IvFgrY1jvqGotLXaOSVFLX5klB0sZFI/YTesPNZ2xBdIDX8aqeqk025z77OpkxM5+g
+         RsSwKT1Fh4pQHJOHsk6Zz3dLuRW8AS3CwruG7xTMga7ne+lGi7bXmm2I1LtvTolrZW
+         CCCFiJFrlhza1ZbAr3skibHNincs0CAd4Vekf9k9hrkxGfmt/MDpfay6YJfhPRbxry
+         Xq2bGjqL0gBsQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Borislav Petkov <bp@suse.de>, Randy Dunlap <rdunlap@infradead.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        dri-devel@lists.freedesktop.org,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 01/46] drm/r128: Fix undefined behavior due to shift overflowing the constant
+Date:   Thu, 11 Aug 2022 12:03:25 -0400
+Message-Id: <20220811160421.1539956-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -47,148 +59,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Borislav Petkov <bp@suse.de>
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+[ Upstream commit 6556551f8848f98eff356c8aacae42c8dd65b2df ]
 
-thanks,
+Fix:
 
-greg k-h
+  drivers/gpu/drm/r128/r128_cce.c: In function ‘r128_do_init_cce’:
+  drivers/gpu/drm/r128/r128_cce.c:417:2: error: case label does not reduce to an integer constant
+    case R128_PM4_64BM_64VCBM_64INDBM:
+    ^~~~
+  drivers/gpu/drm/r128/r128_cce.c:418:2: error: case label does not reduce to an integer constant
+    case R128_PM4_64PIO_64VCPIO_64INDPIO:
+    ^~~~
 
------------------- original commit in Linus's tree ------------------
+See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
+details as to why it triggers with older gccs only.
 
-From 7ef3d06f1bc4a5e62273726f3dc2bd258ae1c71f Mon Sep 17 00:00:00 2001
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Thu, 28 Jul 2022 00:32:18 +1000
-Subject: [PATCH] powerpc/powernv/kvm: Use darn for H_RANDOM on Power9
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: dri-devel@lists.freedesktop.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220405151517.29753-5-bp@alien8.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/r128/r128_drv.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-The existing logic in KVM to support guests calling H_RANDOM only works
-on Power8, because it looks for an RNG in the device tree, but on Power9
-we just use darn.
-
-In addition the existing code needs to work in real mode, so we have the
-special cased powernv_get_random_real_mode() to deal with that.
-
-Instead just have KVM call ppc_md.get_random_seed(), and do the real
-mode check inside of there, that way we use whatever RNG is available,
-including darn on Power9.
-
-Fixes: e928e9cb3601 ("KVM: PPC: Book3S HV: Add fast real-mode H_RANDOM implementation.")
-Cc: stable@vger.kernel.org # v4.1+
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Tested-by: Sachin Sant <sachinp@linux.ibm.com>
-[mpe: Rebase on previous commit, update change log appropriately]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220727143219.2684192-2-mpe@ellerman.id.au
-
-diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
-index 9a53e29680f4..258174304904 100644
---- a/arch/powerpc/include/asm/archrandom.h
-+++ b/arch/powerpc/include/asm/archrandom.h
-@@ -38,12 +38,7 @@ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
- #endif /* CONFIG_ARCH_RANDOM */
+diff --git a/drivers/gpu/drm/r128/r128_drv.h b/drivers/gpu/drm/r128/r128_drv.h
+index 8b256123cf2b..eb5080615ad4 100644
+--- a/drivers/gpu/drm/r128/r128_drv.h
++++ b/drivers/gpu/drm/r128/r128_drv.h
+@@ -300,8 +300,8 @@ extern long r128_compat_ioctl(struct file *filp, unsigned int cmd,
+ #	define R128_PM4_64PIO_128INDBM		(5  << 28)
+ #	define R128_PM4_64BM_128INDBM		(6  << 28)
+ #	define R128_PM4_64PIO_64VCBM_64INDBM	(7  << 28)
+-#	define R128_PM4_64BM_64VCBM_64INDBM	(8  << 28)
+-#	define R128_PM4_64PIO_64VCPIO_64INDPIO	(15 << 28)
++#	define R128_PM4_64BM_64VCBM_64INDBM	(8U  << 28)
++#	define R128_PM4_64PIO_64VCPIO_64INDPIO	(15U << 28)
+ #	define R128_PM4_BUFFER_CNTL_NOUPDATE	(1  << 27)
  
- #ifdef CONFIG_PPC_POWERNV
--int powernv_hwrng_present(void);
- int powernv_get_random_long(unsigned long *v);
--int powernv_get_random_real_mode(unsigned long *v);
--#else
--static inline int powernv_hwrng_present(void) { return 0; }
--static inline int powernv_get_random_real_mode(unsigned long *v) { return 0; }
- #endif
- 
- #endif /* _ASM_POWERPC_ARCHRANDOM_H */
-diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
-index 88a8f6473c4e..3abaef5f9ac2 100644
---- a/arch/powerpc/kvm/book3s_hv_builtin.c
-+++ b/arch/powerpc/kvm/book3s_hv_builtin.c
-@@ -19,7 +19,7 @@
- #include <asm/interrupt.h>
- #include <asm/kvm_ppc.h>
- #include <asm/kvm_book3s.h>
--#include <asm/archrandom.h>
-+#include <asm/machdep.h>
- #include <asm/xics.h>
- #include <asm/xive.h>
- #include <asm/dbell.h>
-@@ -176,13 +176,14 @@ EXPORT_SYMBOL_GPL(kvmppc_hcall_impl_hv_realmode);
- 
- int kvmppc_hwrng_present(void)
- {
--	return powernv_hwrng_present();
-+	return ppc_md.get_random_seed != NULL;
- }
- EXPORT_SYMBOL_GPL(kvmppc_hwrng_present);
- 
- long kvmppc_rm_h_random(struct kvm_vcpu *vcpu)
- {
--	if (powernv_get_random_real_mode(&vcpu->arch.regs.gpr[4]))
-+	if (ppc_md.get_random_seed &&
-+	    ppc_md.get_random_seed(&vcpu->arch.regs.gpr[4]))
- 		return H_SUCCESS;
- 
- 	return H_HARDWARE;
-diff --git a/arch/powerpc/platforms/powernv/rng.c b/arch/powerpc/platforms/powernv/rng.c
-index 2287c9cd0cd5..d19305292e1e 100644
---- a/arch/powerpc/platforms/powernv/rng.c
-+++ b/arch/powerpc/platforms/powernv/rng.c
-@@ -29,15 +29,6 @@ struct powernv_rng {
- 
- static DEFINE_PER_CPU(struct powernv_rng *, powernv_rng);
- 
--int powernv_hwrng_present(void)
--{
--	struct powernv_rng *rng;
--
--	rng = get_cpu_var(powernv_rng);
--	put_cpu_var(rng);
--	return rng != NULL;
--}
--
- static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
- {
- 	unsigned long parity;
-@@ -58,19 +49,6 @@ static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
- 	return val;
- }
- 
--int powernv_get_random_real_mode(unsigned long *v)
--{
--	struct powernv_rng *rng;
--
--	rng = raw_cpu_read(powernv_rng);
--	if (!rng)
--		return 0;
--
--	*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
--
--	return 1;
--}
--
- static int powernv_get_random_darn(unsigned long *v)
- {
- 	unsigned long val;
-@@ -107,12 +85,14 @@ int powernv_get_random_long(unsigned long *v)
- {
- 	struct powernv_rng *rng;
- 
--	rng = get_cpu_var(powernv_rng);
--
--	*v = rng_whiten(rng, in_be64(rng->regs));
--
--	put_cpu_var(rng);
--
-+	if (mfmsr() & MSR_DR) {
-+		rng = get_cpu_var(powernv_rng);
-+		*v = rng_whiten(rng, in_be64(rng->regs));
-+		put_cpu_var(rng);
-+	} else {
-+		rng = raw_cpu_read(powernv_rng);
-+		*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
-+	}
- 	return 1;
- }
- EXPORT_SYMBOL_GPL(powernv_get_random_long);
+ #define R128_PM4_BUFFER_WM_CNTL		0x0708
+-- 
+2.35.1
 
