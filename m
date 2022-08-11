@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A302259001A
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:38:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9355759001F
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:38:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236186AbiHKPhw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:37:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58838 "EHLO
+        id S236251AbiHKPh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:37:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236235AbiHKPha (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:37:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C5F198CB8;
-        Thu, 11 Aug 2022 08:33:36 -0700 (PDT)
+        with ESMTP id S235807AbiHKPhi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:37:38 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2194D98C8E;
+        Thu, 11 Aug 2022 08:33:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0DBC6B82160;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 704C8CE2251;
+        Thu, 11 Aug 2022 15:33:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EB29C433C1;
         Thu, 11 Aug 2022 15:33:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8010AC433D7;
-        Thu, 11 Aug 2022 15:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232012;
-        bh=QAMyQ7TtC5clwhU+ZhDJUtEIO92newKmfdyvarN1nDg=;
+        s=k20201202; t=1660232015;
+        bh=YbP9ChO/K+7SMUXeYPgcaet4O69I6m639FXRxjesmJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rOTDY1paGPom0sraDpnI3FX8hGmjieJD/zA7JDqBnxny8YT+trQJmO2r8/Fi5n6UH
-         aHTB8tJlJmAHLucbVk2SzyK7jMMYsJrf/N8PoNjbWnVL41JOdlM9m5HrLes0AWYPJt
-         0klRXKQTkZSq0+GPrIoEnrsXfjoSzZhLkHt2/Nmhai4GzvGTMZVozyGMHr+S9D9Fm1
-         TIvQjDW4Az75t3Z30ttlFihVjCtB0KdfW5uKgpJXlVPujzoN2GwDPKpF8ZENRWwLgD
-         P0WdIYjsyp945e54gI/nzO1HZMg9QtohvemDgTvi5Cv7XMRUOWORxaGvsHLlOAJ0fr
-         vNoOpiByDwanA==
+        b=MZNA3Kn4sZPAPZgyI3bHfU5l92+X2XVjPfqDraPC0+Tc0YW1lQQJ8G8FaCSwOglyo
+         rcvuD9vaPL/fEke8mBxUJtGxpulXygVXco2RmtiH+t3xWGlr4UYAeH8wJ+xfxWZWBS
+         5gyLQ97OrFAn8zzpdCgmNREmm8HFjDSeQ2/ahmLxXV+N/1wt6yB49eN3+w+Bk+Baqw
+         Hwn4YnYviAFKv7F469uK5MpPOqxXtNvhf/e7YawViYwGSTZ7FFOYmYQEnZAyy1LxrO
+         xfPhTHgOf9KqCqy5rxZ+Mpz3rwLsStUVVMt4gLAK1grQFhzlBhAG9GJ2as9yNF7ax+
+         fUOpiNHrC01Ng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>,
-        kernel test robot <lkp@intel.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sasha Levin <sashal@kernel.org>, airlied@redhat.com,
-        airlied@linux.ie, daniel@ffwll.ch, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 046/105] drm/ast: Fixed the casting issue reported by sparse
-Date:   Thu, 11 Aug 2022 11:27:30 -0400
-Message-Id: <20220811152851.1520029-46-sashal@kernel.org>
+Cc:     Justin Green <greenjustin@chromium.org>,
+        Andres Calderon Jaramillo <andrescj@chromium.org>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, tiffany.lin@mediatek.com,
+        andrew-ct.chen@mediatek.com, matthias.bgg@gmail.com,
+        linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.19 047/105] media: mediatek: vcodec: return EINVAL if plane is too small
+Date:   Thu, 11 Aug 2022 11:27:31 -0400
+Message-Id: <20220811152851.1520029-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
@@ -58,63 +62,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
+From: Justin Green <greenjustin@chromium.org>
 
-[ Upstream commit 232b95ba4e83ca0a77f19fc772ccc6581051e5cc ]
+[ Upstream commit f5caaa47f55fa742f1a230e5b4258c139e223c74 ]
 
-V1:
-1.Fixed sparse:cast truncates bits form constant value ()cast
-  truncates bits from constant value (ffffffffffffff00 becomes 0)
+Modify vb2ops_vdec_buf_prepare to return EINVAL if the size of the plane
+is less than the size of the image. Currently we just log an error and
+return 0 anyway, which may cause a buffer overrun bug.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220623083116.35365-1-kuohsiang_chou@aspeedtech.com
+Signed-off-by: Justin Green <greenjustin@chromium.org>
+Suggested-by: Andres Calderon Jaramillo <andrescj@chromium.org>
+Reviewed-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ast/ast_dp.c  | 10 +++++-----
- drivers/gpu/drm/ast/ast_drv.h |  2 +-
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/ast/ast_dp.c b/drivers/gpu/drm/ast/ast_dp.c
-index f573d582407e..56483860306b 100644
---- a/drivers/gpu/drm/ast/ast_dp.c
-+++ b/drivers/gpu/drm/ast/ast_dp.c
-@@ -34,7 +34,7 @@ int ast_astdp_read_edid(struct drm_device *dev, u8 *ediddata)
- 		 * CRE4[7:0]: Read-Pointer for EDID (Unit: 4bytes); valid range: 0~64
- 		 */
- 		ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE4,
--					(u8) ~ASTDP_EDID_READ_POINTER_MASK, (u8) i);
-+				       ASTDP_AND_CLEAR_MASK, (u8)i);
- 		j = 0;
- 
- 		/*
-@@ -274,8 +274,8 @@ void ast_dp_set_mode(struct drm_crtc *crtc, struct ast_vbios_mode_info *vbios_mo
- 	 * CRE1[7:0]: MISC1 (default: 0x00)
- 	 * CRE2[7:0]: video format index (0x00 ~ 0x20 or 0x40 ~ 0x50)
- 	 */
--	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE0, (u8) ~ASTDP_CLEAR_MASK,
--				ASTDP_MISC0_24bpp);
--	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE1, (u8) ~ASTDP_CLEAR_MASK, ASTDP_MISC1);
--	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE2, (u8) ~ASTDP_CLEAR_MASK, ModeIdx);
-+	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE0, ASTDP_AND_CLEAR_MASK,
-+			       ASTDP_MISC0_24bpp);
-+	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE1, ASTDP_AND_CLEAR_MASK, ASTDP_MISC1);
-+	ast_set_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xE2, ASTDP_AND_CLEAR_MASK, ModeIdx);
- }
-diff --git a/drivers/gpu/drm/ast/ast_drv.h b/drivers/gpu/drm/ast/ast_drv.h
-index a34db4380f68..2e44b971c3a6 100644
---- a/drivers/gpu/drm/ast/ast_drv.h
-+++ b/drivers/gpu/drm/ast/ast_drv.h
-@@ -433,7 +433,7 @@ int ast_mode_config_init(struct ast_private *ast);
-  */
- #define ASTDP_MISC0_24bpp			BIT(5)
- #define ASTDP_MISC1				0
--#define ASTDP_CLEAR_MASK			GENMASK(7, 0)
-+#define ASTDP_AND_CLEAR_MASK		0x00
- 
- /*
-  * ASTDP resoultion table:
+diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
+index 52e5d36aa912..191e13344c53 100644
+--- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
++++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
+@@ -735,6 +735,7 @@ int vb2ops_vdec_buf_prepare(struct vb2_buffer *vb)
+ 			mtk_v4l2_err("data will not fit into plane %d (%lu < %d)",
+ 				i, vb2_plane_size(vb, i),
+ 				q_data->sizeimage[i]);
++			return -EINVAL;
+ 		}
+ 		if (!V4L2_TYPE_IS_OUTPUT(vb->type))
+ 			vb2_set_plane_payload(vb, i, q_data->sizeimage[i]);
 -- 
 2.35.1
 
