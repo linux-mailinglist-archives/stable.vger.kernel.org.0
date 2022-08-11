@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2AB8590488
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:48:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC3315904BB
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:48:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238651AbiHKQc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:32:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57378 "EHLO
+        id S238724AbiHKQdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:33:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239120AbiHKQcA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:32:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 866DE1F603;
-        Thu, 11 Aug 2022 09:10:35 -0700 (PDT)
+        with ESMTP id S239141AbiHKQcE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:32:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C300205C1;
+        Thu, 11 Aug 2022 09:10:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A8D76145E;
-        Thu, 11 Aug 2022 16:10:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 644BFC433D7;
-        Thu, 11 Aug 2022 16:10:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78881B821A0;
+        Thu, 11 Aug 2022 16:10:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F92C433C1;
+        Thu, 11 Aug 2022 16:10:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660234234;
-        bh=O9KBh+JEHKvSn8aaofSPCI6UL1Cfbf9hwmI6B2XVZeQ=;
+        s=k20201202; t=1660234236;
+        bh=gc6u3kLKnq5R+c/Wa6E6LECxoOL7urAtXXWQLpvW4V8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i2uI2xBmkMkFL/17mJ3cPxazZH238oyDZU6IHcvF3KwgqlWGzL3mSAOxa8GbWSJnh
-         fB5Z2gae4qSCvw2QYaqJnbwAZXfcRdpONuDSwSWwhV6gY1oDmwusbXKD3LPwOUH4Sn
-         Zxkoz72kCJ8GvI4FFQ25rLnvlhYqcjOQqiUUJYhBT4D9oMvaje85vHQ5C7hga+cwpR
-         DHTuYnIsGZ3a7pf0joNYt/Jqh0MUgWxDs/eWFA+azWZv3tYAeT4xf2WH10UxLeRf7S
-         NkhzbWmaiwoWwlpTK/85cILfFbNErMnFw0LO0c1A3Zl50366P41Z0w4FQEUiYnTABQ
-         yJmNY7C8b0j3w==
+        b=P67L5rXBGoqVcNoTTJJ+P14HLQb5zH+NNUB0TJmGQ+sY4Dxoqz/o+xJmXmhlm8JIC
+         Wy34RonXUpCcHAG1+RIZ2xSZaasr8bFnlRQqPNZsCPRRHNm21tOk6GWSxZG1EAEecE
+         /QFUea+DJWnZndLzsqYj7jn3o2nYJff35BpDw1sgjyni8SJt06uMJguEpSgeeaL8rg
+         w03HKDirWscEeXAoNGahJ34lerw7lgJvGI5GlGzgxFr/LcM2ge9zZIwbrtdyW9wLZB
+         y2ExWzTCxHT7PbV8Sq0gqSe0RIrpINy1qXGIDKDquyszAmMPeUZv4/QQxYWdcRD9jO
+         0x6bTUNXdFm6w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>, wg@grandegger.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, mailhol.vincent@wanadoo.fr,
-        stefan.maetje@esd.eu, socketcan@hartkopp.net,
-        linux-can@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 10/14] can: sja1000: Add Quirk for RZ/N1 SJA1000 CAN controller
-Date:   Thu, 11 Aug 2022 12:09:38 -0400
-Message-Id: <20220811160948.1542842-10-sashal@kernel.org>
+Cc:     =?UTF-8?q?=C5=81ukasz=20Spintzyk?= <lukasz.spintzyk@synaptics.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 11/14] net/cdc_ncm: Increase NTB max RX/TX values to 64kb
+Date:   Thu, 11 Aug 2022 12:09:39 -0400
+Message-Id: <20220811160948.1542842-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811160948.1542842-1-sashal@kernel.org>
 References: <20220811160948.1542842-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,65 +58,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Łukasz Spintzyk <lukasz.spintzyk@synaptics.com>
 
-[ Upstream commit 2d99bfbf3386962692dcccd73931cb0db07a1a43 ]
+[ Upstream commit 5588d628027092e66195097bdf6835ddf64418b3 ]
 
-As per Chapter 6.5.16 of the RZ/N1 Peripheral Manual, The SJA1000
-CAN controller does not support Clock Divider Register compared to
-the reference Philips SJA1000 device.
+DisplayLink ethernet devices require NTB buffers larger then 32kb
+in order to run with highest performance.
 
-This patch adds a device quirk to handle this difference.
+This patch is changing upper limit of the rx and tx buffers.
+Those buffers are initialized with CDC_NCM_NTB_DEF_SIZE_RX and
+CDC_NCM_NTB_DEF_SIZE_TX which is 16kb so by default no device is
+affected by increased limit.
 
-Link: https://lore.kernel.org/all/20220710115248.190280-4-biju.das.jz@bp.renesas.com
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Rx and tx buffer is increased under two conditions:
+ - Device need to advertise that it supports higher buffer size in
+   dwNtbMaxInMaxSize and dwNtbMaxOutMaxSize.
+ - cdc_ncm/rx_max and cdc_ncm/tx_max driver parameters must be adjusted
+   with udev rule or ethtool.
+
+Summary of testing and performance results:
+Tests were performed on following devices:
+ - DisplayLink DL-3xxx family device
+ - DisplayLink DL-6xxx family device
+ - ASUS USB-C2500 2.5G USB3 ethernet adapter
+ - Plugable USB3 1G USB3 ethernet adapter
+ - EDIMAX EU-4307 USB-C ethernet adapter
+ - Dell DBQBCBC064 USB-C ethernet adapter
+
+Performance measurements were done with:
+ - iperf3 between two linux boxes
+ - http://openspeedtest.com/ instance running on local test machine
+
+Insights from tests results:
+ - All except one from third party usb adapters were not affected by
+   increased buffer size to their advertised dwNtbOutMaxSize and
+   dwNtbInMaxSize.
+   Devices were generally reaching 912-940Mbps both download and upload.
+
+   Only EDIMAX adapter experienced decreased download size from
+   929Mbps to 827Mbps with iper3, with openspeedtest decrease was from
+   968Mbps to 886Mbps.
+
+ - DisplayLink DL-3xxx family devices experienced performance increase
+   with iperf3 download from 300Mbps to 870Mbps and
+   upload from 782Mbps to 844Mbps.
+   With openspeedtest download increased from 556Mbps to 873Mbps
+   and upload from 727Mbps to 973Mbps
+
+ - DiplayLink DL-6xxx family devices are not affected by
+   increased buffer size.
+
+Signed-off-by: Łukasz Spintzyk <lukasz.spintzyk@synaptics.com>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220720060518.541-2-lukasz.spintzyk@synaptics.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/sja1000/sja1000.c | 8 +++++---
- drivers/net/can/sja1000/sja1000.h | 3 ++-
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ include/linux/usb/cdc_ncm.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/can/sja1000/sja1000.c b/drivers/net/can/sja1000/sja1000.c
-index 9f107798f904..ae0ca0ab371f 100644
---- a/drivers/net/can/sja1000/sja1000.c
-+++ b/drivers/net/can/sja1000/sja1000.c
-@@ -184,8 +184,9 @@ static void chipset_init(struct net_device *dev)
- {
- 	struct sja1000_priv *priv = netdev_priv(dev);
+diff --git a/include/linux/usb/cdc_ncm.h b/include/linux/usb/cdc_ncm.h
+index 1646c06989df..78cc32168640 100644
+--- a/include/linux/usb/cdc_ncm.h
++++ b/include/linux/usb/cdc_ncm.h
+@@ -50,8 +50,8 @@
+ #define USB_CDC_NCM_NDP16_LENGTH_MIN		0x10
  
--	/* set clock divider and output control register */
--	priv->write_reg(priv, SJA1000_CDR, priv->cdr | CDR_PELICAN);
-+	if (!(priv->flags & SJA1000_QUIRK_NO_CDR_REG))
-+		/* set clock divider and output control register */
-+		priv->write_reg(priv, SJA1000_CDR, priv->cdr | CDR_PELICAN);
+ /* Maximum NTB length */
+-#define	CDC_NCM_NTB_MAX_SIZE_TX			32768	/* bytes */
+-#define	CDC_NCM_NTB_MAX_SIZE_RX			32768	/* bytes */
++#define	CDC_NCM_NTB_MAX_SIZE_TX			65536	/* bytes */
++#define	CDC_NCM_NTB_MAX_SIZE_RX			65536	/* bytes */
  
- 	/* set acceptance filter (accept all) */
- 	priv->write_reg(priv, SJA1000_ACCC0, 0x00);
-@@ -210,7 +211,8 @@ static void sja1000_start(struct net_device *dev)
- 		set_reset_mode(dev);
- 
- 	/* Initialize chip if uninitialized at this stage */
--	if (!(priv->read_reg(priv, SJA1000_CDR) & CDR_PELICAN))
-+	if (!(priv->flags & SJA1000_QUIRK_NO_CDR_REG ||
-+	      priv->read_reg(priv, SJA1000_CDR) & CDR_PELICAN))
- 		chipset_init(dev);
- 
- 	/* Clear error counters and error code capture */
-diff --git a/drivers/net/can/sja1000/sja1000.h b/drivers/net/can/sja1000/sja1000.h
-index 9d46398f8154..7f736f1df547 100644
---- a/drivers/net/can/sja1000/sja1000.h
-+++ b/drivers/net/can/sja1000/sja1000.h
-@@ -145,7 +145,8 @@
- /*
-  * Flags for sja1000priv.flags
-  */
--#define SJA1000_CUSTOM_IRQ_HANDLER 0x1
-+#define SJA1000_CUSTOM_IRQ_HANDLER	BIT(0)
-+#define SJA1000_QUIRK_NO_CDR_REG	BIT(1)
- 
- /*
-  * SJA1000 private data structure
+ /* Initial NTB length */
+ #define	CDC_NCM_NTB_DEF_SIZE_TX			16384	/* bytes */
 -- 
 2.35.1
 
