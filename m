@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42B9E5903FF
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:29:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54079590402
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:29:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238288AbiHKQ3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:29:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42976 "EHLO
+        id S238362AbiHKQ3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:29:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238306AbiHKQ1F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:27:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 663CF9F192;
-        Thu, 11 Aug 2022 09:08:30 -0700 (PDT)
+        with ESMTP id S238129AbiHKQ1V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:27:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89C729F763;
+        Thu, 11 Aug 2022 09:08:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05168612F0;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F8AAB821AF;
+        Thu, 11 Aug 2022 16:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37178C433B5;
         Thu, 11 Aug 2022 16:08:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C4A9C433C1;
-        Thu, 11 Aug 2022 16:08:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660234109;
-        bh=45+YsP0xL7+ZOaRuNdItW2YXHQez1xUpc1k9kr6omPM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=O3wmqHEbzZ2QwvMmXXyA1SDqkhoNZ+ocjNkkPs5bNwoH5GLxuBe7AeYG+Sz3bZqsf
-         9e+QxyR5gwbZk/hx1NwAPUXugUW15s3UdzkaMP70vmROx79lDv8Y6y+9aipv/kS3sc
-         Ee1jb+jmPpF1y+jEyPYo9uEjAqib87yRhAPl9H6R2oeZm9IkUewrUiZcbEqDckQwEd
-         1+dO8D8P7PctXGyBDy3ygDuEZOjZwv0ipkPwt88+kbzBhSVPZeiFGylQ4way/QQXy3
-         zqHNzYVmSxYDHc3fncCq7dMPtFlfIFdL16FkwCEywolhbVkth/YsqYontJE8Siw+P8
-         BPwIowxssd1Kw==
+        s=k20201202; t=1660234111;
+        bh=W+lt4UsgxFtSwNLW8MAynTH2Z1I3/gnm3K/icSV2Mnc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=rDG8b7OOzZNrY/qncEFwXna9KD7v8+VFUAKleAaCNSLwCzRukiQuviOu+uFNKsoa4
+         7n9MAx1HDQQBZsz7RPvWGwGbVtzjeo379eLq9Er/kfM6gDjqdHPoQmNdWbV5RKX/Qi
+         qEUru7q/6bN4klmunqvotryfo8yI0SzSabqeyVUoMQd0Zne6BGrHn0L01BdEesa5js
+         10nno68WLBmzChPUdwgE8JSrIseVH5L33RhBtLl1yxRAR9Aykes9062Bl1Fhhv02OB
+         NDXZedp9eCPvNzzeVbw4mCtxrwpzPq4zrgTKM/qHL9IWTvjeNp3T1ziGY2zsZVCpio
+         GfGoqzakjnE3w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Borislav Petkov <bp@suse.de>, Randy Dunlap <rdunlap@infradead.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        dri-devel@lists.freedesktop.org,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 01/25] drm/r128: Fix undefined behavior due to shift overflowing the constant
-Date:   Thu, 11 Aug 2022 12:07:56 -0400
-Message-Id: <20220811160826.1541971-1-sashal@kernel.org>
+Cc:     Sergey Ryazanov <ryazanov.s.a@gmail.com>,
+        Zhijun You <hujy652@gmail.com>,
+        Vasanthakumar Thiagarajan <vthiagar@qti.qualcomm.com>,
+        John Crispin <john@phrozen.org>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 02/25] ath10k: htt_tx: do not interpret Eth frames as WiFi
+Date:   Thu, 11 Aug 2022 12:07:57 -0400
+Message-Id: <20220811160826.1541971-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220811160826.1541971-1-sashal@kernel.org>
+References: <20220811160826.1541971-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,51 +62,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Sergey Ryazanov <ryazanov.s.a@gmail.com>
 
-[ Upstream commit 6556551f8848f98eff356c8aacae42c8dd65b2df ]
+[ Upstream commit 70f119fb82af7f7417dc659faf02c91e1f853739 ]
 
-Fix:
+The xmit path for the Ethernet encapsulated frames become more or less
+usable since d740d8fd2439 ("ath10k: unify tx mode and dispatch"). This
+change reorganize the xmit path in a manageable way to properly support
+various tx modes, but misses that the Ethernet encapsulated frame is a
+special case. We do not have an IEEE 802.11 header at the begining of
+them. But the HTT Tx handler still interprets first bytes of each frame
+as an IEEE 802.11 Frame Control field.
 
-  drivers/gpu/drm/r128/r128_cce.c: In function ‘r128_do_init_cce’:
-  drivers/gpu/drm/r128/r128_cce.c:417:2: error: case label does not reduce to an integer constant
-    case R128_PM4_64BM_64VCBM_64INDBM:
-    ^~~~
-  drivers/gpu/drm/r128/r128_cce.c:418:2: error: case label does not reduce to an integer constant
-    case R128_PM4_64PIO_64VCPIO_64INDPIO:
-    ^~~~
+Than this code was copied by e62ee5c381c5 ("ath10k: Add support for
+htt_data_tx_desc_64 descriptor") and a2097d6444c3 ("ath10k: htt: High
+latency TX support") to another handlers. In fact the issue in the high
+latency (HL) handler was introduced by 83ac260151e7 ("ath10k: add mic
+bytes for pmf management packet").
 
-See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
-details as to why it triggers with older gccs only.
+Ethernet encapsulated frame tx mode stay unused until 75d85fd9993c
+("ath10k: introduce basic tdls functionality") started using it for TDLS
+frames to avoid key selection issue in some firmwares.
 
-Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: dri-devel@lists.freedesktop.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220405151517.29753-5-bp@alien8.de
+Trying to interpret the begining of an Ethernet encapsulated frame as an
+IEEE 802.11 header was not hurt us noticeably since we need to meet two
+conditions: (1) xmit should be performed towards a TDLS peer, and (2)
+the TDLS peer should have a specific OUI part of its MAC address. Looks
+like that the rareness in TDLS communications of OUIs that can be
+interpreted as an 802.11 management frame saves users from facing this
+issue earlier.
+
+Improve Ethernet tx mode support in the HTT Tx handler by avoiding
+interpreting its first bytes as an IEEE 802.11 header. While at it, make
+the ieee80211_hdr variable local to the code block that is guarded by
+!is_eth check. In this way, we clarify in which cases a frame can be
+interpreted as IEEE 802.11, and saves us from similar issues in the
+future.
+
+Credits: this change as part of xmit encapsulation offloading support
+was originally made by QCA and then submitted for inclusion by John
+Crispin [1]. But the whole work was not accepted due to the lack of a
+part for 64-bits descriptors [2]. Zhijun You then pointed this out to me
+in a reply to my initial RFC patch series. And I made this slightly
+reworked version that covered all the HTT Tx handler variants.
+
+1. https://lore.kernel.org/all/20191216092207.31032-1-john@phrozen.org/
+2. https://patchwork.kernel.org/project/linux-wireless/patch/20191216092207.31032-1-john@phrozen.org/
+
+Reported-by: Zhijun You <hujy652@gmail.com>
+Signed-off-by: Vasanthakumar Thiagarajan <vthiagar@qti.qualcomm.com>
+Signed-off-by: John Crispin <john@phrozen.org>
+Signed-off-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220516032519.29831-3-ryazanov.s.a@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/r128/r128_drv.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath10k/htt_tx.c | 61 ++++++++++++++----------
+ 1 file changed, 35 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/gpu/drm/r128/r128_drv.h b/drivers/gpu/drm/r128/r128_drv.h
-index ba8c30ed91d1..9a9f2279408b 100644
---- a/drivers/gpu/drm/r128/r128_drv.h
-+++ b/drivers/gpu/drm/r128/r128_drv.h
-@@ -299,8 +299,8 @@ extern long r128_compat_ioctl(struct file *filp, unsigned int cmd,
- #	define R128_PM4_64PIO_128INDBM		(5  << 28)
- #	define R128_PM4_64BM_128INDBM		(6  << 28)
- #	define R128_PM4_64PIO_64VCBM_64INDBM	(7  << 28)
--#	define R128_PM4_64BM_64VCBM_64INDBM	(8  << 28)
--#	define R128_PM4_64PIO_64VCPIO_64INDPIO	(15 << 28)
-+#	define R128_PM4_64BM_64VCBM_64INDBM	(8U  << 28)
-+#	define R128_PM4_64PIO_64VCPIO_64INDPIO	(15U << 28)
- #	define R128_PM4_BUFFER_CNTL_NOUPDATE	(1  << 27)
+diff --git a/drivers/net/wireless/ath/ath10k/htt_tx.c b/drivers/net/wireless/ath/ath10k/htt_tx.c
+index f73ed1044390..dac1b202cfb9 100644
+--- a/drivers/net/wireless/ath/ath10k/htt_tx.c
++++ b/drivers/net/wireless/ath/ath10k/htt_tx.c
+@@ -1245,7 +1245,6 @@ static int ath10k_htt_tx_hl(struct ath10k_htt *htt, enum ath10k_hw_txrx_mode txm
+ 	struct ath10k *ar = htt->ar;
+ 	int res, data_len;
+ 	struct htt_cmd_hdr *cmd_hdr;
+-	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)msdu->data;
+ 	struct htt_data_tx_desc *tx_desc;
+ 	struct ath10k_skb_cb *skb_cb = ATH10K_SKB_CB(msdu);
+ 	struct sk_buff *tmp_skb;
+@@ -1256,11 +1255,15 @@ static int ath10k_htt_tx_hl(struct ath10k_htt *htt, enum ath10k_hw_txrx_mode txm
+ 	u16 flags1 = 0;
+ 	u16 msdu_id = 0;
  
- #define R128_PM4_BUFFER_WM_CNTL		0x0708
+-	if ((ieee80211_is_action(hdr->frame_control) ||
+-	     ieee80211_is_deauth(hdr->frame_control) ||
+-	     ieee80211_is_disassoc(hdr->frame_control)) &&
+-	     ieee80211_has_protected(hdr->frame_control)) {
+-		skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
++	if (!is_eth) {
++		struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)msdu->data;
++
++		if ((ieee80211_is_action(hdr->frame_control) ||
++		     ieee80211_is_deauth(hdr->frame_control) ||
++		     ieee80211_is_disassoc(hdr->frame_control)) &&
++		     ieee80211_has_protected(hdr->frame_control)) {
++			skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
++		}
+ 	}
+ 
+ 	data_len = msdu->len;
+@@ -1354,7 +1357,6 @@ static int ath10k_htt_tx_32(struct ath10k_htt *htt,
+ {
+ 	struct ath10k *ar = htt->ar;
+ 	struct device *dev = ar->dev;
+-	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)msdu->data;
+ 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(msdu);
+ 	struct ath10k_skb_cb *skb_cb = ATH10K_SKB_CB(msdu);
+ 	struct ath10k_hif_sg_item sg_items[2];
+@@ -1386,15 +1388,19 @@ static int ath10k_htt_tx_32(struct ath10k_htt *htt,
+ 	txbuf_paddr = htt->txbuf.paddr +
+ 		      (sizeof(struct ath10k_htt_txbuf_32) * msdu_id);
+ 
+-	if ((ieee80211_is_action(hdr->frame_control) ||
+-	     ieee80211_is_deauth(hdr->frame_control) ||
+-	     ieee80211_is_disassoc(hdr->frame_control)) &&
+-	     ieee80211_has_protected(hdr->frame_control)) {
+-		skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
+-	} else if (!(skb_cb->flags & ATH10K_SKB_F_NO_HWCRYPT) &&
+-		   txmode == ATH10K_HW_TXRX_RAW &&
+-		   ieee80211_has_protected(hdr->frame_control)) {
+-		skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
++	if (!is_eth) {
++		struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)msdu->data;
++
++		if ((ieee80211_is_action(hdr->frame_control) ||
++		     ieee80211_is_deauth(hdr->frame_control) ||
++		     ieee80211_is_disassoc(hdr->frame_control)) &&
++		     ieee80211_has_protected(hdr->frame_control)) {
++			skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
++		} else if (!(skb_cb->flags & ATH10K_SKB_F_NO_HWCRYPT) &&
++			   txmode == ATH10K_HW_TXRX_RAW &&
++			   ieee80211_has_protected(hdr->frame_control)) {
++			skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
++		}
+ 	}
+ 
+ 	skb_cb->paddr = dma_map_single(dev, msdu->data, msdu->len,
+@@ -1556,7 +1562,6 @@ static int ath10k_htt_tx_64(struct ath10k_htt *htt,
+ {
+ 	struct ath10k *ar = htt->ar;
+ 	struct device *dev = ar->dev;
+-	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)msdu->data;
+ 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(msdu);
+ 	struct ath10k_skb_cb *skb_cb = ATH10K_SKB_CB(msdu);
+ 	struct ath10k_hif_sg_item sg_items[2];
+@@ -1588,15 +1593,19 @@ static int ath10k_htt_tx_64(struct ath10k_htt *htt,
+ 	txbuf_paddr = htt->txbuf.paddr +
+ 		      (sizeof(struct ath10k_htt_txbuf_64) * msdu_id);
+ 
+-	if ((ieee80211_is_action(hdr->frame_control) ||
+-	     ieee80211_is_deauth(hdr->frame_control) ||
+-	     ieee80211_is_disassoc(hdr->frame_control)) &&
+-	     ieee80211_has_protected(hdr->frame_control)) {
+-		skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
+-	} else if (!(skb_cb->flags & ATH10K_SKB_F_NO_HWCRYPT) &&
+-		   txmode == ATH10K_HW_TXRX_RAW &&
+-		   ieee80211_has_protected(hdr->frame_control)) {
+-		skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
++	if (!is_eth) {
++		struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)msdu->data;
++
++		if ((ieee80211_is_action(hdr->frame_control) ||
++		     ieee80211_is_deauth(hdr->frame_control) ||
++		     ieee80211_is_disassoc(hdr->frame_control)) &&
++		     ieee80211_has_protected(hdr->frame_control)) {
++			skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
++		} else if (!(skb_cb->flags & ATH10K_SKB_F_NO_HWCRYPT) &&
++			   txmode == ATH10K_HW_TXRX_RAW &&
++			   ieee80211_has_protected(hdr->frame_control)) {
++			skb_put(msdu, IEEE80211_CCMP_MIC_LEN);
++		}
+ 	}
+ 
+ 	skb_cb->paddr = dma_map_single(dev, msdu->data, msdu->len,
 -- 
 2.35.1
 
