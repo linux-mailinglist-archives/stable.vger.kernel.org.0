@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FD7559020C
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:05:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7B8E590210
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:05:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236673AbiHKQDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:03:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58630 "EHLO
+        id S237291AbiHKQDv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:03:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236555AbiHKQDG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:03:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A88C840BFA;
-        Thu, 11 Aug 2022 08:50:15 -0700 (PDT)
+        with ESMTP id S237200AbiHKQDR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:03:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD704883FA;
+        Thu, 11 Aug 2022 08:50:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5065860EFD;
-        Thu, 11 Aug 2022 15:49:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A363FC433D7;
-        Thu, 11 Aug 2022 15:49:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61B85B82150;
+        Thu, 11 Aug 2022 15:49:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A88DFC433C1;
+        Thu, 11 Aug 2022 15:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232992;
-        bh=Zdu0pGnp+BN7k6SBK11UDmJyAeMoemju4zLntExZYlI=;
+        s=k20201202; t=1660232998;
+        bh=mMH6qpaC9VMovi109PGok2WfrbsocmL7vKDlSBoj8bY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=meSYX2SRBmuCLzVlIART2SvlRWqjT22D5DwE+HksGDNclirh2TaLoDZlJlxmZqXYj
-         cQ6H/nDlvnudPGCFR1mN60uDTx81E6f88sPcZ4SYTS2LKqfYr/yN5fxa+9Z25eLQHI
-         LHCIRlIWdteAr0ttzXANWgo7absk7xbURVhEa8ccuk5GFmsVnQzgc1KLzlNWJRDllo
-         WvLXZP4JiBV2lV3G+cQUMzgakbu/wEBvYVIE5v44pgIezZQQv21DKUSN/251AwsGBj
-         Goz6iB+PMcqZzStAEMjXgl56Dswf29b4t4u0wR0BF+vAiWhUezVcscfCB97nz7cdvm
-         S4+rijcxc3tTA==
+        b=Aooe246DNixh8RJAMv4vvN54GADn1mQOaB1/EaeB36Y+Qt18HtBkq5qIcNH1AFXU3
+         hYmsgRc1sMJpykIaGizV/K9RqhjdhM3orbSTQ/TljZRVjzTGNZCUMXVyLhOFNUnOMw
+         kvSy0tzovu8DErI1jps9LF7vY4HYs8s4M1p/8Htsv+CWYXO4Odjvx/79O3Nbq0FisY
+         X1r4Q+zo7ykTKrp6hC3jmGp1owU1ozQlVY6aphz/kUzAMxolsoS0TFw+b37+HXjbfX
+         3R3CTLyHKGTD581Daqy76H47iPA765+avwCL53htHxxj69VXZxsPUsOTDNx8eImyHn
+         D/9kZpH6gsyvw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Hilliard <james.hilliard1@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
-        daniel@iogearbox.net, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 60/93] libbpf: Disable SEC pragma macro on GCC
-Date:   Thu, 11 Aug 2022 11:41:54 -0400
-Message-Id: <20220811154237.1531313-60-sashal@kernel.org>
+Cc:     Yafang Shao <laoar.shao@gmail.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Shakeel Butt <shakeelb@google.com>, NeilBrown <neilb@suse.de>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, daniel@iogearbox.net,
+        davem@davemloft.net, kuba@kernel.org, hawk@kernel.org,
+        john.fastabend@gmail.com, andrii@kernel.org, martin.lau@linux.dev,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 61/93] bpf: Make non-preallocated allocation low priority
+Date:   Thu, 11 Aug 2022 11:41:55 -0400
+Message-Id: <20220811154237.1531313-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -57,64 +61,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Yafang Shao <laoar.shao@gmail.com>
 
-[ Upstream commit 18410251f66aee7e82234073ce6656ca20a732a9 ]
+[ Upstream commit ace2bee839e08df324cb320763258dfd72e6120e ]
 
-It seems the gcc preprocessor breaks with pragmas when surrounding
-__attribute__.
+GFP_ATOMIC doesn't cooperate well with memcg pressure so far, especially
+if we allocate too much GFP_ATOMIC memory. For example, when we set the
+memcg limit to limit a non-preallocated bpf memory, the GFP_ATOMIC can
+easily break the memcg limit by force charge. So it is very dangerous to
+use GFP_ATOMIC in non-preallocated case. One way to make it safe is to
+remove __GFP_HIGH from GFP_ATOMIC, IOW, use (__GFP_ATOMIC |
+__GFP_KSWAPD_RECLAIM) instead, then it will be limited if we allocate
+too much memory. There's a plan to completely remove __GFP_ATOMIC in the
+mm side[1], so let's use GFP_NOWAIT instead.
 
-Disable these pragmas on GCC due to upstream bugs see:
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=55578
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90400
+We introduced BPF_F_NO_PREALLOC is because full map pre-allocation is
+too memory expensive for some cases. That means removing __GFP_HIGH
+doesn't break the rule of BPF_F_NO_PREALLOC, but has the same goal with
+it-avoiding issues caused by too much memory. So let's remove it.
 
-Fixes errors like:
-error: expected identifier or '(' before '#pragma'
-  106 | SEC("cgroup/bind6")
-      | ^~~
+This fix can also apply to other run-time allocations, for example, the
+allocation in lpm trie, local storage and devmap. So let fix it
+consistently over the bpf code
 
-error: expected '=', ',', ';', 'asm' or '__attribute__' before '#pragma'
-  114 | char _license[] SEC("license") = "GPL";
-      | ^~~
+It also fixes a typo in the comment.
 
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220706111839.1247911-1-james.hilliard1@gmail.com
+[1]. https://lore.kernel.org/linux-mm/163712397076.13692.4727608274002939094@noble.neil.brown.name/
+
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: NeilBrown <neilb@suse.de>
+Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Link: https://lore.kernel.org/r/20220709154457.57379-2-laoar.shao@gmail.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/bpf_helpers.h | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ kernel/bpf/devmap.c        | 2 +-
+ kernel/bpf/hashtab.c       | 6 +++---
+ kernel/bpf/local_storage.c | 2 +-
+ kernel/bpf/lpm_trie.c      | 2 +-
+ 4 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/tools/lib/bpf/bpf_helpers.h b/tools/lib/bpf/bpf_helpers.h
-index 44df982d2a5c..e1ba0f3bb1ff 100644
---- a/tools/lib/bpf/bpf_helpers.h
-+++ b/tools/lib/bpf/bpf_helpers.h
-@@ -22,12 +22,25 @@
-  * To allow use of SEC() with externs (e.g., for extern .maps declarations),
-  * make sure __attribute__((unused)) doesn't trigger compilation warning.
-  */
-+#if __GNUC__ && !__clang__
-+
-+/*
-+ * Pragma macros are broken on GCC
-+ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=55578
-+ * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90400
-+ */
-+#define SEC(name) __attribute__((section(name), used))
-+
-+#else
-+
- #define SEC(name) \
- 	_Pragma("GCC diagnostic push")					    \
- 	_Pragma("GCC diagnostic ignored \"-Wignored-attributes\"")	    \
- 	__attribute__((section(name), used))				    \
- 	_Pragma("GCC diagnostic pop")					    \
+diff --git a/kernel/bpf/devmap.c b/kernel/bpf/devmap.c
+index 038f6d7a83e4..bdb8ccab4be2 100644
+--- a/kernel/bpf/devmap.c
++++ b/kernel/bpf/devmap.c
+@@ -844,7 +844,7 @@ static struct bpf_dtab_netdev *__dev_map_alloc_node(struct net *net,
+ 	struct bpf_dtab_netdev *dev;
  
-+#endif
-+
- /* Avoid 'linux/stddef.h' definition of '__always_inline'. */
- #undef __always_inline
- #define __always_inline inline __attribute__((always_inline))
+ 	dev = bpf_map_kmalloc_node(&dtab->map, sizeof(*dev),
+-				   GFP_ATOMIC | __GFP_NOWARN,
++				   GFP_NOWAIT | __GFP_NOWARN,
+ 				   dtab->map.numa_node);
+ 	if (!dev)
+ 		return ERR_PTR(-ENOMEM);
+diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
+index 65877967f414..f8b5a4a86827 100644
+--- a/kernel/bpf/hashtab.c
++++ b/kernel/bpf/hashtab.c
+@@ -60,7 +60,7 @@
+  *
+  * As regular device interrupt handlers and soft interrupts are forced into
+  * thread context, the existing code which does
+- *   spin_lock*(); alloc(GPF_ATOMIC); spin_unlock*();
++ *   spin_lock*(); alloc(GFP_ATOMIC); spin_unlock*();
+  * just works.
+  *
+  * In theory the BPF locks could be converted to regular spinlocks as well,
+@@ -955,7 +955,7 @@ static struct htab_elem *alloc_htab_elem(struct bpf_htab *htab, void *key,
+ 				goto dec_count;
+ 			}
+ 		l_new = bpf_map_kmalloc_node(&htab->map, htab->elem_size,
+-					     GFP_ATOMIC | __GFP_NOWARN,
++					     GFP_NOWAIT | __GFP_NOWARN,
+ 					     htab->map.numa_node);
+ 		if (!l_new) {
+ 			l_new = ERR_PTR(-ENOMEM);
+@@ -973,7 +973,7 @@ static struct htab_elem *alloc_htab_elem(struct bpf_htab *htab, void *key,
+ 		} else {
+ 			/* alloc_percpu zero-fills */
+ 			pptr = bpf_map_alloc_percpu(&htab->map, size, 8,
+-						    GFP_ATOMIC | __GFP_NOWARN);
++						    GFP_NOWAIT | __GFP_NOWARN);
+ 			if (!pptr) {
+ 				kfree(l_new);
+ 				l_new = ERR_PTR(-ENOMEM);
+diff --git a/kernel/bpf/local_storage.c b/kernel/bpf/local_storage.c
+index 497916060ac7..ba6716903816 100644
+--- a/kernel/bpf/local_storage.c
++++ b/kernel/bpf/local_storage.c
+@@ -164,7 +164,7 @@ static int cgroup_storage_update_elem(struct bpf_map *map, void *key,
+ 	}
+ 
+ 	new = bpf_map_kmalloc_node(map, struct_size(new, data, map->value_size),
+-				   __GFP_ZERO | GFP_ATOMIC | __GFP_NOWARN,
++				   __GFP_ZERO | GFP_NOWAIT | __GFP_NOWARN,
+ 				   map->numa_node);
+ 	if (!new)
+ 		return -ENOMEM;
+diff --git a/kernel/bpf/lpm_trie.c b/kernel/bpf/lpm_trie.c
+index 5763cc7ac4f1..f0b3e1552923 100644
+--- a/kernel/bpf/lpm_trie.c
++++ b/kernel/bpf/lpm_trie.c
+@@ -284,7 +284,7 @@ static struct lpm_trie_node *lpm_trie_node_alloc(const struct lpm_trie *trie,
+ 	if (value)
+ 		size += trie->map.value_size;
+ 
+-	node = bpf_map_kmalloc_node(&trie->map, size, GFP_ATOMIC | __GFP_NOWARN,
++	node = bpf_map_kmalloc_node(&trie->map, size, GFP_NOWAIT | __GFP_NOWARN,
+ 				    trie->map.numa_node);
+ 	if (!node)
+ 		return NULL;
 -- 
 2.35.1
 
