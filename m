@@ -2,206 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC590590729
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 21:58:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C69BD59078F
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 22:50:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232166AbiHKT6g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 15:58:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37698 "EHLO
+        id S235024AbiHKUub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 16:50:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236018AbiHKT6f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 15:58:35 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 094809A97E
-        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 12:58:35 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id e8-20020a17090a280800b001f2fef7886eso6101118pjd.3
-        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 12:58:35 -0700 (PDT)
+        with ESMTP id S229591AbiHKUu3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 16:50:29 -0400
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C54FB840
+        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 13:50:28 -0700 (PDT)
+Received: by mail-ed1-x52a.google.com with SMTP id z20so22502652edb.9
+        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 13:50:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc;
-        bh=7yTKgwa26Uf+to7iNGHu44Hc80YBWJhgR/xJswFgTCw=;
-        b=yPmwSlM94RWsR1n18FBox5WSFCuD/B2aKEUhS5gErTbaxkSlta2CSOhrpZ/Hdaq0U+
-         Zj6/qXyTD703qsP9D5h9EErYxlJeWM6UrBxqSsJLBcjIliq9oPglf1K/KimiotDQwSsR
-         TQNwBlJnPMoD5a+bhr4JF4x90LMJp/txnBYyuVHtIwfVo+eEVj9aRjuSnd5BEdnUCdYc
-         DO4JTK++nlf6dwl97jOgMHkosJfK963kZrqrDTAWY9+sSuWIhs2rg2mJF+ZNwGgksOJC
-         t8LunYxxK06NvW+H2Z04tbHMQodT89CmCseBfRO42k1bjzUg4I5PapLViYVa6Lf9g+uq
-         RTkg==
+        d=linux-foundation.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=e1x0MTjrSOgrGHOWzAckTlqNox//QChLMoeIA7WfW2k=;
+        b=UM5HmGuT0UAQsAFcoKMwyI8nZDiKol+BUXRUdnq8zJ4U+h7fJJGG0ljyHZKPGxHQIk
+         QymPhO/p9bi/puHLK5lylYclq9Aedf/pFx6fK9vFtGJUUdpVEoBktF+S4XqGMofgQAbc
+         IguFfv3HIUbZTLU8zWkXKHsX/D2250fzoKz1k=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc;
-        bh=7yTKgwa26Uf+to7iNGHu44Hc80YBWJhgR/xJswFgTCw=;
-        b=iJlfPt3ajzzcioEwyOHua3U52v9vi8hryZHVmRn+61N0z3mNv4VPmCfci65KsQbx5M
-         eRyq9ruq6QAYBr332Ha73RGkgmJdSd8K3yaQtv3WLqs5LMWLo8JWthmU/kiYiKUPJ5MQ
-         tOUo5bTkR8VeHuyDlISRuL3ATrqMf4R9yK1qRYTXEybG3etjUIxZOXfG573a8DeB67x/
-         j0plBAuKkceEUgaKu1S/VUKzWAlLhDwLElmdUCU9aZEdPrxGhQI7Jo3SW7PeFYt617vY
-         LzhoSLGp+44KslGgajf30CpVoJ5LmHz7KbDhSHEcEsa3Z17Sxn55zd0a/bx7Jz5V2lCV
-         1byQ==
-X-Gm-Message-State: ACgBeo1NHiXwka1XMkav8w6FKMNPFP3HYvWTSbSk7pDJbt3GmoKnBWJn
-        uuTMfGMdhwus2a5wniD3tb4NQ5wRjtH719RvKKk=
-X-Google-Smtp-Source: AA6agR4VD27Lxh5nvWJPYRoBocfJwkHYloXCU5jEszil3x1diEfY2R5tlP34zGu5uvAtl6Lj2FN+oQ==
-X-Received: by 2002:a17:903:31c9:b0:16c:3024:69c4 with SMTP id v9-20020a17090331c900b0016c302469c4mr660788ple.81.1660247914384;
-        Thu, 11 Aug 2022 12:58:34 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m2-20020a6545c2000000b0041d59062108sm139552pgr.9.2022.08.11.12.58.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Aug 2022 12:58:33 -0700 (PDT)
-Message-ID: <62f55f69.650a0220.c088e.03c3@mx.google.com>
-Date:   Thu, 11 Aug 2022 12:58:33 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=e1x0MTjrSOgrGHOWzAckTlqNox//QChLMoeIA7WfW2k=;
+        b=BwD9d5VzU/4E63/NUZLziaSVmS6hSvwl5Fiixc47XmSOaQbw1bpb8ukgBlS0lC8b/t
+         zfHTLxfkuClaTPmZEEqPQwW6FIFlhyrRCe5ubLpeLYGsLT+hJfi88zgXrkMdjpCKIj6B
+         VGE/ariTKmfLJix71vZpgPlHReJ/2+vQjFEBJ1h575jRC1l1jh4ybte59Uc7wYySJ9NG
+         /cRHHGD43ka5DoJSvEKvdNk3YZhAeRNbdz23B65kXCLR7NuYUSqZiaz82W7DHXpliY2+
+         SbmgXjuZBbRkP8R8zue3bT3e45uGjSxmh6GDbt2dT8K61UJwxsdgs/2QuoyAsv5H9Bii
+         MQ2A==
+X-Gm-Message-State: ACgBeo1jDu/J8d3gH5OC1Ye6Vra6BgUsO9AneGFGkcu4VvynqY4SOvwH
+        JPZcVS8yI7EWTfJeerxTRvJXZP996gziUJKz
+X-Google-Smtp-Source: AA6agR7qTY9338yiRVpT+e2zE0SSjCCSgb9dF+eHS4UNQ7fdvi6e2Lvt4TtwkzMxe9qwizwKBpNOeg==
+X-Received: by 2002:aa7:c30c:0:b0:440:a189:541d with SMTP id l12-20020aa7c30c000000b00440a189541dmr831072edq.64.1660251026719;
+        Thu, 11 Aug 2022 13:50:26 -0700 (PDT)
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com. [209.85.128.54])
+        by smtp.gmail.com with ESMTPSA id h26-20020a17090619da00b00734bfab4d59sm52995ejd.170.2022.08.11.13.50.26
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 11 Aug 2022 13:50:26 -0700 (PDT)
+Received: by mail-wm1-f54.google.com with SMTP id v5so10011181wmj.0
+        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 13:50:26 -0700 (PDT)
+X-Received: by 2002:a05:600c:4ed0:b0:3a3:3ef3:c8d1 with SMTP id
+ g16-20020a05600c4ed000b003a33ef3c8d1mr6769254wmq.154.1660250605443; Thu, 11
+ Aug 2022 13:43:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.60-19-g530fdb4b7da61
-Subject: stable-rc/queue/5.15 baseline: 142 runs,
- 3 regressions (v5.15.60-19-g530fdb4b7da61)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220808073232.8808-1-david@redhat.com> <CAHk-=wiEAH+ojSpAgx_Ep=NKPWHU8AdO3V56BXcCsU97oYJ1EA@mail.gmail.com>
+ <1a48d71d-41ee-bf39-80d2-0102f4fe9ccb@redhat.com> <CAHk-=wg40EAZofO16Eviaj7mfqDhZ2gVEbvfsMf6gYzspRjYvw@mail.gmail.com>
+ <YvSsKcAXISmshtHo@gmail.com>
+In-Reply-To: <YvSsKcAXISmshtHo@gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 11 Aug 2022 13:43:09 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wgqW6zQcAW4i-ARJ8KNZZjw6tP3nn0QimyTWO=j+ZKsLA@mail.gmail.com>
+Message-ID: <CAHk-=wgqW6zQcAW4i-ARJ8KNZZjw6tP3nn0QimyTWO=j+ZKsLA@mail.gmail.com>
+Subject: Re: [PATCH] sched/all: Change BUG_ON() instances to WARN_ON()
+To:     Ingo Molnar <mingo@kernel.org>
+Cc:     David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Peter Xu <peterx@redhat.com>, Hugh Dickins <hughd@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Mel Gorman <mgorman@suse.de>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 142 runs, 3 regressions (v5.15.60-19-g530fdb=
-4b7da61)
+On Thu, Aug 11, 2022 at 12:13 AM Ingo Molnar <mingo@kernel.org> wrote:
+>
+> By using a WARN_ON() we at least give the user a chance to report
+> any bugs triggered here - instead of getting silent hangs.
+>
+> None of these WARN_ON()s are supposed to trigger, ever - so we ignore
+> cases where a NULL check is done via a BUG_ON() and we let a NULL
+> pointer through after a WARN_ON().
 
-Regressions Summary
--------------------
+May I suggest going one step further, and making these WARN_ON_ONCE() instead.
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-bcm2711-rpi-4-b      | arm64 | lab-collabora | gcc-10   | defconfig        =
-   | 1          =
+From personal experience, once some scheduler bug (or task struct
+corruption) happens, ti often *keeps* happening, and the logs just
+fill up with more and more data, to the point where you lose sight of
+the original report (and the machine can even get unusable just from
+the logging).
 
-beagle-xm            | arm   | lab-baylibre  | gcc-10   | omap2plus_defconf=
-ig | 1          =
+WARN_ON_ONCE() can help that situation.
 
-meson-g12b-odroid-n2 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
-   | 1          =
+Now, obviously
 
+ (a) WARN_ON_ONCE *can* also result in less information, and maybe
+there are situations where having more - possibly different - cases of
+the same thing triggering could be useful.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.60-19-g530fdb4b7da61/plan/baseline/
+ (b) WARN_ON_ONCE historically generated a bit bigger code than
+WARN_ON simply due to the extra "did this already trigger" check.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.60-19-g530fdb4b7da61
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      530fdb4b7da613398d67b7649f63f897aed18648 =
+I *think* (b) is no longer true, and it's just a flag these days, but
+I didn't actually check.
 
+so it's not like there aren't potential downsides, but in general I
+think the sanest and most natural thing is to have BUG_ON() translate
+to WARN_ON_ONCE().
 
+For the "reboot-on-warn" people, it ends up being the same thing. And
+for the rest of us, the "give me *one* warning" can end up making the
+reporting a lot easier.
 
-Test Regressions
----------------- =
+Obviously, with the "this never actually happens", the whole "once or
+many times" is kind of moot. But if it never happens at all, to the
+point where it doesn't even add a chance of helping debugging, maybe
+the whole test should be removed entirely...
 
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-bcm2711-rpi-4-b      | arm64 | lab-collabora | gcc-10   | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f531731f02d1cf64daf072
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.60-=
-19-g530fdb4b7da61/arm64/defconfig/gcc-10/lab-collabora/baseline-bcm2711-rpi=
--4-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.60-=
-19-g530fdb4b7da61/arm64/defconfig/gcc-10/lab-collabora/baseline-bcm2711-rpi=
--4-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f531731f02d1cf64daf=
-073
-        new failure (last pass: v5.15.59-15-g9e86d04b098c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-beagle-xm            | arm   | lab-baylibre  | gcc-10   | omap2plus_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f52951e42429cc1ddaf05f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.60-=
-19-g530fdb4b7da61/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.60-=
-19-g530fdb4b7da61/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f52951e42429cc1ddaf=
-060
-        failing since 133 days (last pass: v5.15.31-2-g57d4301e22c2, first =
-fail: v5.15.31-3-g4ae45332eb9c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-g12b-odroid-n2 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f530db358b2d9077daf09f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.60-=
-19-g530fdb4b7da61/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-g12b-o=
-droid-n2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.60-=
-19-g530fdb4b7da61/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-g12b-o=
-droid-n2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f530db358b2d9077daf=
-0a0
-        new failure (last pass: v5.15.59-15-g9e86d04b098c) =
-
- =20
+           Linus
