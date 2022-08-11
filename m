@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD172590177
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE1B25901C3
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237082AbiHKP7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:59:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49424 "EHLO
+        id S237195AbiHKP65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:58:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237088AbiHKP5c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:57:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45ADAB421;
-        Thu, 11 Aug 2022 08:47:56 -0700 (PDT)
+        with ESMTP id S237736AbiHKP5R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:57:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2FF0A8CCE;
+        Thu, 11 Aug 2022 08:47:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 23099616E4;
-        Thu, 11 Aug 2022 15:47:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBBFCC43141;
-        Thu, 11 Aug 2022 15:47:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 892AF616FC;
+        Thu, 11 Aug 2022 15:47:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23A5AC433D6;
+        Thu, 11 Aug 2022 15:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232857;
-        bh=zijP+AVIy0dgvEkwWHz9o8PrQqVQPjAw+9yR4pEOzbM=;
+        s=k20201202; t=1660232860;
+        bh=HpKYO8yLmNOnjoqfb463aByInJcdMtKBZ4sTMxhP3BM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jBaHwIvSOW5kizlLDxOX/blNZOFkdESSyg6PCezWXHsZqkT++07mT0XhqzKdoCjqz
-         ilyNh6wFM5Ax/+pq9sBNrTXafK2tpZEMpupkgs5n/cRxvll8rCEPd5AGIt074+r7va
-         HxP037RZJOQNms1Vl+F4MmYKl06DgbygPBr5KdL8BYEYFiSWlPG2W1V8P6Ks94dgcz
-         HXE9r1OonEqPG/MOG8QxiiMkAziTwUL4KBToTNhNxV41Zt26Tns3sjUbqqD0cJNq9W
-         SMZI/WowcZweEmjGA7xRg3OG8XbcugUYM1jqFcLQ12vnp/v2aOiY/PuNlr1Zn8DbLt
-         lINhLyb3/KVFg==
+        b=UxrWkqzS72exw4cmH8dG0b27ZGaPtuTBmzIQ12sYT5wVFvjBuvyLa2JJn5cRh2y/Y
+         ldZvo5MP9jIxUxmeia27xQolsshBBVIf+cELpm6XJ+gkFWhoQiBhSpWSJkpGC25lU/
+         QgrzytfS6j4bGWQb09UX/s2QWuhxMZHcofJE/kj6M9HBRuogLomxEfejGRoZ0Cd3w/
+         TeDvBqpGLHfZh3cbNJYh9ZbJf08hk+l0QtBQXaoZOegWOodOaS2P2/MU+KLS4yv/b5
+         GXB6ZoYxBoeo2Il61iwpaBEcbhzm24Zfl6zGePYAtn1ZHeCVceYalwtdZX28SQR2x2
+         MRkb+2tT5AFOg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Reaver <me@davidreaver.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org
-Subject: [PATCH AUTOSEL 5.18 49/93] scripts: get_feat.pl: use /usr/bin/env to find perl
-Date:   Thu, 11 Aug 2022 11:41:43 -0400
-Message-Id: <20220811154237.1531313-49-sashal@kernel.org>
+Cc:     Shijith Thotton <sthotton@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, sgoutham@marvell.com,
+        lcherian@marvell.com, gakula@marvell.com, jerinj@marvell.com,
+        hkelam@marvell.com, sbhatta@marvell.com, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 50/93] octeontx2-af: fix operand size in bitwise operation
+Date:   Thu, 11 Aug 2022 11:41:44 -0400
+Message-Id: <20220811154237.1531313-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -56,33 +59,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Reaver <me@davidreaver.com>
+From: Shijith Thotton <sthotton@marvell.com>
 
-[ Upstream commit 2bc6430884d5ee0e30ae18652d31f821d8e9ec32 ]
+[ Upstream commit b14056914357beee6a84f6ff1b9195f4659fab9d ]
 
-I tried running `make pdfdocs` on NixOS, but it failed because
-get_feat.pl uses a shebang line with /usr/bin/perl, and that file path
-doesn't exist on NixOS. Using the more portable /usr/bin/env perl fixes
-the problem.
+Made size of operands same in bitwise operations.
 
-Signed-off-by: David Reaver <me@davidreaver.com>
-Link: https://lore.kernel.org/r/20220625211548.1200198-1-me@davidreaver.com
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+The patch fixes the klocwork issue, operands in a bitwise operation have
+different size at line 375 and 483.
+
+Signed-off-by: Shijith Thotton <sthotton@marvell.com>
+Link: https://lore.kernel.org/r/f4fba33fe4f89b420b4da11d51255e7cc6ea1dbf.1656586269.git.sthotton@marvell.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/get_feat.pl | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/get_feat.pl b/scripts/get_feat.pl
-index 76cfb96b59b6..5c5397eeb237 100755
---- a/scripts/get_feat.pl
-+++ b/scripts/get_feat.pl
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
- # SPDX-License-Identifier: GPL-2.0
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c
+index a9da85e418a4..38bbae5d9ae0 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cpt.c
+@@ -17,7 +17,7 @@
+ #define	PCI_DEVID_OTX2_CPT10K_PF 0xA0F2
  
- use strict;
+ /* Length of initial context fetch in 128 byte words */
+-#define CPT_CTX_ILEN    2
++#define CPT_CTX_ILEN    2ULL
+ 
+ #define cpt_get_eng_sts(e_min, e_max, rsp, etype)                   \
+ ({                                                                  \
+@@ -480,7 +480,7 @@ static int cpt_inline_ipsec_cfg_inbound(struct rvu *rvu, int blkaddr, u8 cptlf,
+ 	 */
+ 	if (!is_rvu_otx2(rvu)) {
+ 		val = (ilog2(NIX_CHAN_CPT_X2P_MASK + 1) << 16);
+-		val |= rvu->hw->cpt_chan_base;
++		val |= (u64)rvu->hw->cpt_chan_base;
+ 
+ 		rvu_write64(rvu, blkaddr, CPT_AF_X2PX_LINK_CFG(0), val);
+ 		rvu_write64(rvu, blkaddr, CPT_AF_X2PX_LINK_CFG(1), val);
 -- 
 2.35.1
 
