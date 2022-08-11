@@ -2,48 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE0AF590069
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62531590097
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:45:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236194AbiHKPlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:41:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41522 "EHLO
+        id S236447AbiHKPpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:45:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236647AbiHKPlN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:41:13 -0400
+        with ESMTP id S236450AbiHKPot (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:44:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30ADAA220F;
-        Thu, 11 Aug 2022 08:36:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54278A0639;
+        Thu, 11 Aug 2022 08:39:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F296B82157;
-        Thu, 11 Aug 2022 15:36:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B72B7C433C1;
-        Thu, 11 Aug 2022 15:36:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0DDDB82123;
+        Thu, 11 Aug 2022 15:39:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93189C433C1;
+        Thu, 11 Aug 2022 15:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232199;
-        bh=rzdAzLrpMW9Jg5EEs7PVdTHeceWVECVmu/G0Pm4ZQys=;
+        s=k20201202; t=1660232340;
+        bh=7ryKt3BvDv8KyfJYLeaDSvJJFnVL4177BFp4TNwqe/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NHCdKlaLZDol8+/Og7id1JN2+Nrq3fQWV2QSh90hYUwwRxtUIcNoJ9t0gypgBMfwa
-         N8ibRl6ItyGtauQCB9J67nD5axUrrmGkB26RXTtxStc/Oonv4RFhVDKtWKRDxBuFwL
-         D0g3ZeXbS+SDL987jvgCwI/exV6zG4MHVlZzYODGTFUwSAciwir5u5v3+xB4QlGkQi
-         oCzXEGG/MRX4wr0wkUIkO/+OvXyI0W5zW+XbBsn7KvCCeBjavgYTacska0w9Pm8LJ7
-         qs1WPNTBw5KLrm3k9U0tnciZ1Jo8I9YFx5T0+8a+WWDB4lytYPtkXcyo6twl5Gfa3U
-         cAmkTihPbB8TA==
+        b=EatQvS4a/p1Za8mUpLLsmd0LAXAW2f24ONwRmMb5EvZyjxnKniSQ2GiV/Rv3G+cK8
+         /x7VCljiRjWXTBAbh0VRks5AccoqrB3VsW49KLu4Z/rEKqlywmhzF/IfiLsby5ZLdV
+         h0wn0S2Ph3Cwv2CdClEKDfrpyBYTlGke7BKRxMEeqmeCg7PailE5wnsxR1L4SXrnUX
+         gMzCF0HzmLKpcfYZ5HKvk77NqaFjqz/DU2fsgq2zdi8MuO+NrPtji8087zXkHIn1fn
+         1FNygqH8miT2ND7kllWhBjjD9Wu+DQWhy56YqMQlGvwGa80tbIg+vMvE1UvifYdL9w
+         gdee6Zd1z71Zw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Dave Airlie <airlied@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kherbst@redhat.com,
-        lyude@redhat.com, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.19 069/105] drm/nouveau/nvkm: use list_add_tail() when building object tree
-Date:   Thu, 11 Aug 2022 11:27:53 -0400
-Message-Id: <20220811152851.1520029-69-sashal@kernel.org>
+Cc:     Alex Deucher <alexander.deucher@amd.com>,
+        Guchun Chen <guchun.chen@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Sasha Levin <sashal@kernel.org>, Xinhui.Pan@amd.com,
+        airlied@linux.ie, daniel@ffwll.ch, charlene.liu@amd.com,
+        zhan.liu@amd.com, harry.wentland@amd.com, HaoPing.Liu@amd.com,
+        jun.lei@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.19 070/105] drm/amdgpu: fix file permissions on some files
+Date:   Thu, 11 Aug 2022 11:27:54 -0400
+Message-Id: <20220811152851.1520029-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,37 +62,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit 61c1f340bc809a1ca1e3c8794207a91cde1a7c78 ]
+[ Upstream commit 0a94608f0f7de9b1135ffea3546afe68eafef57f ]
 
-Fixes resume from hibernate failing on (at least) TU102, where cursor
-channel init failed due to being performed before the core channel.
+Drop execute.
 
-Not solid idea why suspend-to-ram worked, but, presumably HW being in
-an entirely clean state has something to do with it.
-
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Dave Airlie <airlied@redhat.com>
-Signed-off-by: Dave Airlie <airlied@redhat.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2085
+Reviewed-by: Guchun Chen <guchun.chen@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/core/ioctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/include/asic_reg/clk/clk_11_0_1_offset.h   | 0
+ drivers/gpu/drm/amd/include/asic_reg/clk/clk_11_0_1_sh_mask.h  | 0
+ drivers/gpu/drm/amd/include/asic_reg/dcn/dcn_2_0_3_offset.h    | 0
+ drivers/gpu/drm/amd/include/asic_reg/dcn/dcn_2_0_3_sh_mask.h   | 0
+ drivers/gpu/drm/amd/include/asic_reg/dpcs/dpcs_2_0_3_offset.h  | 0
+ drivers/gpu/drm/amd/include/asic_reg/dpcs/dpcs_2_0_3_sh_mask.h | 0
+ 6 files changed, 0 insertions(+), 0 deletions(-)
+ mode change 100755 => 100644 drivers/gpu/drm/amd/include/asic_reg/clk/clk_11_0_1_offset.h
+ mode change 100755 => 100644 drivers/gpu/drm/amd/include/asic_reg/clk/clk_11_0_1_sh_mask.h
+ mode change 100755 => 100644 drivers/gpu/drm/amd/include/asic_reg/dcn/dcn_2_0_3_offset.h
+ mode change 100755 => 100644 drivers/gpu/drm/amd/include/asic_reg/dcn/dcn_2_0_3_sh_mask.h
+ mode change 100755 => 100644 drivers/gpu/drm/amd/include/asic_reg/dpcs/dpcs_2_0_3_offset.h
+ mode change 100755 => 100644 drivers/gpu/drm/amd/include/asic_reg/dpcs/dpcs_2_0_3_sh_mask.h
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/core/ioctl.c b/drivers/gpu/drm/nouveau/nvkm/core/ioctl.c
-index 735cb6816f10..06b2f675f5da 100644
---- a/drivers/gpu/drm/nouveau/nvkm/core/ioctl.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/core/ioctl.c
-@@ -128,7 +128,7 @@ nvkm_ioctl_new(struct nvkm_client *client,
- 	if (ret == 0) {
- 		ret = nvkm_object_init(object);
- 		if (ret == 0) {
--			list_add(&object->head, &parent->tree);
-+			list_add_tail(&object->head, &parent->tree);
- 			if (nvkm_object_insert(object)) {
- 				client->data = object;
- 				return 0;
+diff --git a/drivers/gpu/drm/amd/include/asic_reg/clk/clk_11_0_1_offset.h b/drivers/gpu/drm/amd/include/asic_reg/clk/clk_11_0_1_offset.h
+old mode 100755
+new mode 100644
+diff --git a/drivers/gpu/drm/amd/include/asic_reg/clk/clk_11_0_1_sh_mask.h b/drivers/gpu/drm/amd/include/asic_reg/clk/clk_11_0_1_sh_mask.h
+old mode 100755
+new mode 100644
+diff --git a/drivers/gpu/drm/amd/include/asic_reg/dcn/dcn_2_0_3_offset.h b/drivers/gpu/drm/amd/include/asic_reg/dcn/dcn_2_0_3_offset.h
+old mode 100755
+new mode 100644
+diff --git a/drivers/gpu/drm/amd/include/asic_reg/dcn/dcn_2_0_3_sh_mask.h b/drivers/gpu/drm/amd/include/asic_reg/dcn/dcn_2_0_3_sh_mask.h
+old mode 100755
+new mode 100644
+diff --git a/drivers/gpu/drm/amd/include/asic_reg/dpcs/dpcs_2_0_3_offset.h b/drivers/gpu/drm/amd/include/asic_reg/dpcs/dpcs_2_0_3_offset.h
+old mode 100755
+new mode 100644
+diff --git a/drivers/gpu/drm/amd/include/asic_reg/dpcs/dpcs_2_0_3_sh_mask.h b/drivers/gpu/drm/amd/include/asic_reg/dpcs/dpcs_2_0_3_sh_mask.h
+old mode 100755
+new mode 100644
 -- 
 2.35.1
 
