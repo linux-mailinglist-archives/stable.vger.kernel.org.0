@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 224CB5900B8
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:47:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB9995900CC
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:47:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236450AbiHKPqa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:46:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43180 "EHLO
+        id S235966AbiHKPq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:46:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236248AbiHKPpT (ORCPT
+        with ESMTP id S236339AbiHKPpT (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:45:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12E1785AB2;
-        Thu, 11 Aug 2022 08:39:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E5DA9568D;
+        Thu, 11 Aug 2022 08:39:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A44896165E;
-        Thu, 11 Aug 2022 15:39:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDEBFC433C1;
-        Thu, 11 Aug 2022 15:39:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF95F6148F;
+        Thu, 11 Aug 2022 15:39:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34CC3C43140;
+        Thu, 11 Aug 2022 15:39:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232374;
-        bh=zhl/sG1HuGjIn4wKTaffZ5Mcx2QihFUIsjJoG8g1RQY=;
+        s=k20201202; t=1660232376;
+        bh=uBbdPrkQnNq5sVsrdMiCei9SdKxa/e8fnHqBZoUb4Oc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UtJqpKPV1Y0Y/BKPSJtuoHVtXCroX0faV43F8wadjADoxN/GQ4rRHQK5YZwPNyCwn
-         z+nmhpc7WTRuUgpdhi9CCg6BT/a/C6OsqCCVceebFuFZv0aB/1DCC33gAUT1AJ+rIC
-         y6jmyDZA3dt44e1C7tsqMdbJCxyaO6cf6UHRUJD6Wyk400ysocPy1sHmeWnumLpxGa
-         0q6RyA0RE3UWawwMFdekDul3niD7XDh15Hp+W4JsqnY6WFEjQzhEedlUsdWpLbY3CD
-         WuQPHEigZYC6NifZ+aECGtJUjC23ZZJcts/e8tw63t49I8b3CH8bE2QcBARG6jM7s0
-         8hRyTwACgzYog==
+        b=dR6v0jW+ORGDJDdxE0+y1hsQ9u2yp+r2tTq6rCrulcCOPSHFkn5UowPz95ow93REb
+         veYgFwrQ4wyMKRr08eIl0+BjQGGWw44hiqFWgo3GL1PbzKma5h5nLWuzxPD4LTUPuN
+         82wsL/nFtMG/JMb9wkff59WVbcT73R7uBYQew3l5jYPdMBqgwy6q/vKgJYQNY9qXF3
+         9cY40Bmxh0QS4d6dX89mbcljGyhw/ISF19GyzpiM5YEf1gCQGZMcHObeg4LLy7Q/Kx
+         2t0Jn0WM+jBLNnlgwRl2YbyQiVapSTVbd7qPOO5RA8YouDN/1C42X1/TV0r8X/MBqH
+         oPcyUJMQsYOUQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Dooks <ben.dooks@sifive.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
-        martin.lau@linux.dev, ast@kernel.org, daniel@iogearbox.net,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 073/105] bpf: Fix check against plain integer v 'NULL'
-Date:   Thu, 11 Aug 2022 11:27:57 -0400
-Message-Id: <20220811152851.1520029-73-sashal@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Dafna Hirschfeld <dafna@fastmail.com>,
+        Paul Elder <paul.elder@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, heiko@sntech.de,
+        linux-media@vger.kernel.org, linux-rockchip@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.19 074/105] media: rkisp1: Disable runtime PM in probe error path
+Date:   Thu, 11 Aug 2022 11:27:58 -0400
+Message-Id: <20220811152851.1520029-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
@@ -58,45 +60,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Dooks <ben.dooks@sifive.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit a2a5580fcbf808e7c2310e4959b62f9d2157fdb6 ]
+[ Upstream commit 13c9810281f8b24af9b7712cd84a1fce61843e93 ]
 
-When checking with sparse, btf_show_type_value() is causing a
-warning about checking integer vs NULL when the macro is passed
-a pointer, due to the 'value != 0' check. Stop sparse complaining
-about any type-casting by adding a cast to the typeof(value).
+If the v4l2_device_register() call fails, runtime PM is left enabled.
+Fix it.
 
-This fixes the following sparse warnings:
-
-kernel/bpf/btf.c:2579:17: warning: Using plain integer as NULL pointer
-kernel/bpf/btf.c:2581:17: warning: Using plain integer as NULL pointer
-kernel/bpf/btf.c:3407:17: warning: Using plain integer as NULL pointer
-kernel/bpf/btf.c:3758:9: warning: Using plain integer as NULL pointer
-
-Signed-off-by: Ben Dooks <ben.dooks@sifive.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20220714100322.260467-1-ben.dooks@sifive.com
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Dafna Hirschfeld <dafna@fastmail.com>
+Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/btf.c | 3 ++-
+ drivers/media/platform/rockchip/rkisp1/rkisp1-dev.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index eb12d4f705cc..9a6e5f71bbd2 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -1108,7 +1108,8 @@ __printf(2, 3) static void btf_show(struct btf_show *show, const char *fmt, ...)
-  */
- #define btf_show_type_value(show, fmt, value)				       \
- 	do {								       \
--		if ((value) != 0 || (show->flags & BTF_SHOW_ZERO) ||	       \
-+		if ((value) != (__typeof__(value))0 ||			       \
-+		    (show->flags & BTF_SHOW_ZERO) ||			       \
- 		    show->state.depth == 0) {				       \
- 			btf_show(show, "%s%s" fmt "%s%s",		       \
- 				 btf_show_indent(show),			       \
+diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-dev.c b/drivers/media/platform/rockchip/rkisp1/rkisp1-dev.c
+index 3f5cfa7eb937..471226d95dbf 100644
+--- a/drivers/media/platform/rockchip/rkisp1/rkisp1-dev.c
++++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-dev.c
+@@ -552,7 +552,7 @@ static int rkisp1_probe(struct platform_device *pdev)
+ 
+ 	ret = v4l2_device_register(rkisp1->dev, &rkisp1->v4l2_dev);
+ 	if (ret)
+-		return ret;
++		goto err_pm_runtime_disable;
+ 
+ 	ret = media_device_register(&rkisp1->media_dev);
+ 	if (ret) {
+@@ -572,6 +572,7 @@ static int rkisp1_probe(struct platform_device *pdev)
+ 	media_device_unregister(&rkisp1->media_dev);
+ err_unreg_v4l2_dev:
+ 	v4l2_device_unregister(&rkisp1->v4l2_dev);
++err_pm_runtime_disable:
+ 	pm_runtime_disable(&pdev->dev);
+ 	return ret;
+ }
 -- 
 2.35.1
 
