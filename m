@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B3FE590358
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:22:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0897059035E
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237834AbiHKQVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:21:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38776 "EHLO
+        id S237869AbiHKQVs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:21:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237996AbiHKQVJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:21:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AF5C1AD92
-        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 09:03:32 -0700 (PDT)
+        with ESMTP id S238012AbiHKQVK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:21:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 826D058B64
+        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 09:03:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D88DCB82182
-        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 16:03:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30535C433C1;
-        Thu, 11 Aug 2022 16:03:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 274F3B8219F
+        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 16:03:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B648C43142;
+        Thu, 11 Aug 2022 16:03:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660233809;
-        bh=WXpXsAkwQmPOKhoiZ5rmp75By5KTLbbMujub3bOvCRk=;
+        s=korg; t=1660233812;
+        bh=hZxm+CnuA5+H9kTGm1dM1knAzKoXOHA9ZFho9vrng90=;
         h=Subject:To:Cc:From:Date:From;
-        b=zz2B7AQrtlbNFbe74CFQBWav+BsBANpMglpk1q26cAwSiV4WsRHxPtRspi5XU8AbF
-         Bz/O6wpZxSQbscI1PglKPnYxzcDH137n57+KKRzujQn/sEJOsq6Q+qyRAo7uZ308a5
-         f+Fg5ptxP1ZbF++rwSl6tl6pWj0mA1o9BjgDxTNQ=
-Subject: FAILED: patch "[PATCH] powerpc/powernv/kvm: Use darn for H_RANDOM on Power9" failed to apply to 5.4-stable tree
+        b=2G7qrRpCtXsXB+srGXtwQXGjLl0phFs6DWSFFcxeAd5nXcX1oNbImDjqMNo0lFDzW
+         Cm7r3bd3ly38rfcdr4rHQYHsuPr0oFnUaImP6F+xXPEGXrs7WTFPpPLdcmpRnU4Wa8
+         KpQBeu6f4j4pJo7EL7MusTdMFqGJ0xRVX83VjfgU=
+Subject: FAILED: patch "[PATCH] powerpc/powernv/kvm: Use darn for H_RANDOM on Power9" failed to apply to 5.10-stable tree
 To:     Jason@zx2c4.com, mpe@ellerman.id.au, sachinp@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 11 Aug 2022 18:03:18 +0200
-Message-ID: <1660233798253217@kroah.com>
+Message-ID: <166023379879224@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
