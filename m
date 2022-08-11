@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB8785900DD
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:47:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5BB85900E0
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236620AbiHKPrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:47:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51338 "EHLO
+        id S236628AbiHKPrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:47:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236817AbiHKPqV (ORCPT
+        with ESMTP id S236819AbiHKPqV (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:46:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F3AB792CC;
-        Thu, 11 Aug 2022 08:40:48 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E51EA79A7E;
+        Thu, 11 Aug 2022 08:40:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 117AEB82123;
-        Thu, 11 Aug 2022 15:40:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3A9AC433C1;
-        Thu, 11 Aug 2022 15:40:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FF03B82156;
+        Thu, 11 Aug 2022 15:40:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5581C433B5;
+        Thu, 11 Aug 2022 15:40:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232445;
-        bh=7F4iQuSJJ0mLfpgwzKRLbI7Q2lZgvFXyXN65Y3imF9w=;
+        s=k20201202; t=1660232448;
+        bh=xd2PSARypbXlsiv+xUlqcCkvCp6QI2mZBUuB/PH+cSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPh86ZovxPZTTV1wbNLRRuvoqua/6Ph5w4kjKoFcD0OXKSWsqL1TcwdSLD4I2xYig
-         tixua5PbxDQy8WwKT4pWvJ86vrYB3I06e6XlmF4jn0/H0CJQeEEzLAFfGtPJUp6Hv5
-         VgeqP6N03Ej2cUEsz7JhdiaG9u+f6/n9YCyuLFw8SOz1NOhj/1xwq+BJiCnWLuukzi
-         lfkeDGt/R17vSLFwFVRlftKBkusRjzOPLcpejFCCK6FzGmuw3QAX4+UxVpfTcvZl2a
-         zv5IKPY/NBUcvlkqEtFlpEEBe788iHG0gs9kkAWus9XRaeKL/h28nFDZylD6noDfEh
-         GW81szo572iJg==
+        b=lAhWCiGRhSS3SVqevME9vqLbuiU2UPFbWwR6Y/ajIuCkOlsEi2b+HuyItFA/wlkDm
+         5y97/uDEQ0weplTi+FqftkAlRd/yaBpk2VEtLcjiuWX1m11f71hxCf/SGyYol6kRJe
+         oaXlg1NmRcVmZBH0zXuMWde80B90uL52AXLGyamdMTcQ0Ak2uZZKDpz0EMQb5Ilj51
+         a8lVAZLKv+BqslBLXU0+MFPETY20y+BszdM/aheP2H/s/hjdN4m6QTADZ2XHgeawTS
+         HB6RBnhjqiGOgRuXE95HQSQ05LCQ0lWCOJd/vPoCRmr8Gl4IRtC4hV1woRtDhg7/4b
+         yBZW1088PjnBQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
+Cc:     Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>, johan.hedberg@gmail.com,
-        luiz.dentz@gmail.com, linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 081/105] Bluetooth: hci_bcm: Add BCM4349B1 variant
-Date:   Thu, 11 Aug 2022 11:28:05 -0400
-Message-Id: <20220811152851.1520029-81-sashal@kernel.org>
+        luiz.dentz@gmail.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 082/105] Bluetooth: use memset avoid memory leaks
+Date:   Thu, 11 Aug 2022 11:28:06 -0400
+Message-Id: <20220811152851.1520029-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
@@ -58,52 +59,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
 
-[ Upstream commit 4f17c2b6694d0c4098f33b07ee3a696976940aa5 ]
+[ Upstream commit a5133fe87ed827ce94084eecb7830a6d451ef55c ]
 
-The BCM4349B1, aka CYW/BCM89359, is a WiFi+BT chip and its Bluetooth
-portion can be controlled over serial.
+Similar to the handling of l2cap_ecred_connect in commit d3715b2333e9
+("Bluetooth: use memset avoid memory leaks"), we thought a patch
+might be needed here as well.
 
-Two subversions are added for the chip, because ROM firmware reports
-002.002.013 (at least for the chips I have here), while depending on
-patchram firmware revision, either 002.002.013 or 002.002.014 is
-reported.
+Use memset to initialize structs to prevent memory leaks
+in l2cap_le_connect
 
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btbcm.c   | 2 ++
- drivers/bluetooth/hci_bcm.c | 1 +
- 2 files changed, 3 insertions(+)
+ net/bluetooth/l2cap_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/bluetooth/btbcm.c b/drivers/bluetooth/btbcm.c
-index 76fbb046bdbe..c9cda681c691 100644
---- a/drivers/bluetooth/btbcm.c
-+++ b/drivers/bluetooth/btbcm.c
-@@ -454,6 +454,8 @@ static const struct bcm_subver_table bcm_uart_subver_table[] = {
- 	{ 0x6606, "BCM4345C5"	},	/* 003.006.006 */
- 	{ 0x230f, "BCM4356A2"	},	/* 001.003.015 */
- 	{ 0x220e, "BCM20702A1"  },	/* 001.002.014 */
-+	{ 0x420d, "BCM4349B1"	},	/* 002.002.013 */
-+	{ 0x420e, "BCM4349B1"	},	/* 002.002.014 */
- 	{ 0x4217, "BCM4329B1"   },	/* 002.002.023 */
- 	{ 0x6106, "BCM4359C0"	},	/* 003.001.006 */
- 	{ 0x4106, "BCM4335A0"	},	/* 002.001.006 */
-diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
-index 785f445dd60d..d0a6f9ff4e08 100644
---- a/drivers/bluetooth/hci_bcm.c
-+++ b/drivers/bluetooth/hci_bcm.c
-@@ -1544,6 +1544,7 @@ static const struct of_device_id bcm_bluetooth_of_match[] = {
- 	{ .compatible = "brcm,bcm43430a0-bt" },
- 	{ .compatible = "brcm,bcm43430a1-bt" },
- 	{ .compatible = "brcm,bcm43438-bt", .data = &bcm43438_device_data },
-+	{ .compatible = "brcm,bcm4349-bt", .data = &bcm43438_device_data },
- 	{ .compatible = "brcm,bcm43540-bt", .data = &bcm4354_device_data },
- 	{ .compatible = "brcm,bcm4335a0" },
- 	{ },
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 52668662ae8d..77c0aac14539 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -1392,6 +1392,7 @@ static void l2cap_le_connect(struct l2cap_chan *chan)
+ 
+ 	l2cap_le_flowctl_init(chan, 0);
+ 
++	memset(&req, 0, sizeof(req));
+ 	req.psm     = chan->psm;
+ 	req.scid    = cpu_to_le16(chan->scid);
+ 	req.mtu     = cpu_to_le16(chan->imtu);
 -- 
 2.35.1
 
