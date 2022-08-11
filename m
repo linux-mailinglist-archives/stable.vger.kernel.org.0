@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 170D35901CF
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:01:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C95335901AB
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236996AbiHKP52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:57:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35300 "EHLO
+        id S237105AbiHKP5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:57:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236567AbiHKPzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:55:09 -0400
+        with ESMTP id S237012AbiHKPzP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:55:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FC4F8C46E;
-        Thu, 11 Aug 2022 08:46:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EA6995E4C;
+        Thu, 11 Aug 2022 08:46:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A15C61633;
-        Thu, 11 Aug 2022 15:46:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0D98C433D6;
-        Thu, 11 Aug 2022 15:46:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CFCB616F4;
+        Thu, 11 Aug 2022 15:46:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78AE5C433C1;
+        Thu, 11 Aug 2022 15:46:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232784;
-        bh=DCDfHfUjK28zcHTqoWDOHHNlJEDMzVX9PjsSbjAHoH8=;
+        s=k20201202; t=1660232788;
+        bh=cEAsVg0Acc+hjGpatOmTCRsm4X/W/HIkiV10ng5PMCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ppn6xhnrknWKvBXPHQfGQKk+pizBHy1Ur52eDjAabf1shMqXXZOWgvqnSWPNJwntH
-         MOtvDBwQCJS0wON/3NExX2eqscEAo3tqcv3HiUR9Z9oUEZjUFg1L1YmFNkT0zuDtSm
-         y5GQXbZesd4NGqszGHT6i/pDevVKrNWJ4y0bxfOUzSi+4wQ6Y/9FgkYUwCerGSkcnt
-         xkOd88v00pZbdLvNw8OViYpb4lPAsyVpUoth2uigCCGvDK6ll9ScDqDzI94rjYWBk/
-         G5E/dsnJQJahcYNLsLBL/iD/ym8W73xWE5xNUjsT5xkewhqSGaegeDBs0bv32glQf1
-         3HE5Q48evdZUQ==
+        b=iRnd+bZU3MrFSTKm/OK9z48ksdn8Uea/2ujfK1160KyzYvZMfDYAWoOJnGRdjX3zb
+         JiGFl36kiEJ9Z6in0/pXAzTtHKJYihPrVNX7yR4S7BeLuE+sKImK6Ef4jGNQ5Ei6zU
+         kyKcwGDGFc8tu3j7afroSJXB9zKcCWoFk2v+mgLax504WCkamX2ffJCi2nkDWkDoMh
+         x8Hk0H/YwlUUfrgpl9TqEM94NYKXblCLTEKVTRs8gxu/AuraeKnFTZ3P8xBd2TDRmJ
+         iXLPo2VyvCkPKDKApG1KmKSer640jfc0XDdoEWGIhZQIBY02rMGmtL8mEI1JdjhTL6
+         0oSwYJE+6snXQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
-        frederic@kernel.org, quic_neeraju@quicinc.com,
-        josh@joshtriplett.org, rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 34/93] rcu: Apply noinstr to rcu_idle_enter() and rcu_idle_exit()
-Date:   Thu, 11 Aug 2022 11:41:28 -0400
-Message-Id: <20220811154237.1531313-34-sashal@kernel.org>
+Cc:     Jiri Vanek <jirivanek1@gmail.com>,
+        Vinay Simha BN <simhavcs@gmail.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, andrzej.hajda@intel.com,
+        narmstrong@baylibre.com, airlied@linux.ie, daniel@ffwll.ch,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.18 35/93] drm/bridge/tc358775: Fix DSI clock division for vsync delay calculation
+Date:   Thu, 11 Aug 2022 11:41:29 -0400
+Message-Id: <20220811154237.1531313-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -60,86 +59,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Paul E. McKenney" <paulmck@kernel.org>
+From: Jiri Vanek <jirivanek1@gmail.com>
 
-[ Upstream commit ed4ae5eff4b38797607cbdd80da394149110fb37 ]
+[ Upstream commit 993a87917c2af59efb0ee1ce43c878ca8790ba1c ]
 
-This commit applies the "noinstr" tag to the rcu_idle_enter() and
-rcu_idle_exit() functions, which are invoked from portions of the idle
-loop that cannot be instrumented.  These tags require reworking the
-rcu_eqs_enter() and rcu_eqs_exit() functions that these two functions
-invoke in order to cause them to use normal assertions rather than
-lockdep.  In addition, within rcu_idle_exit(), the raw versions of
-local_irq_save() and local_irq_restore() are used, again to avoid issues
-with lockdep in uninstrumented code.
+Use the same PCLK divide option (divide DSI clock to generate pixel clock)
+which is set to LVDS Configuration Register (LVCFG) also for a VSync delay
+calculation. Without this change an auxiliary variable could underflow
+during the calculation for some dual-link LVDS panels and then calculated
+VSync delay is wrong. This leads to a shifted picture on a panel.
 
-This patch is based in part on an earlier patch by Jiri Olsa, discussions
-with Peter Zijlstra and Frederic Weisbecker, earlier changes by Thomas
-Gleixner, and off-list discussions with Yonghong Song.
-
-Link: https://lore.kernel.org/lkml/20220515203653.4039075-1-jolsa@kernel.org/
-Reported-by: Jiri Olsa <jolsa@kernel.org>
-Reported-by: Alexei Starovoitov <ast@kernel.org>
-Reported-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Reviewed-by: Yonghong Song <yhs@fb.com>
+Tested-by: Jiri Vanek <jirivanek1@gmail.com>
+Signed-off-by: Jiri Vanek <jirivanek1@gmail.com>
+Reviewed-by: Vinay Simha BN <simhavcs@gmail.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220615222221.1501-3-jirivanek1@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/bridge/tc358775.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index a4b8189455d5..eb22b43e9ef9 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -631,8 +631,8 @@ static noinstr void rcu_eqs_enter(bool user)
- 		return;
- 	}
+diff --git a/drivers/gpu/drm/bridge/tc358775.c b/drivers/gpu/drm/bridge/tc358775.c
+index 695af3badcc7..0cc047d2a8a1 100644
+--- a/drivers/gpu/drm/bridge/tc358775.c
++++ b/drivers/gpu/drm/bridge/tc358775.c
+@@ -429,7 +429,7 @@ static void tc_bridge_enable(struct drm_bridge *bridge)
+ 		val = TC358775_VPCTRL_MSF(1);
  
--	lockdep_assert_irqs_disabled();
- 	instrumentation_begin();
-+	lockdep_assert_irqs_disabled();
- 	trace_rcu_dyntick(TPS("Start"), rdp->dynticks_nesting, 0, atomic_read(&rdp->dynticks));
- 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !user && !is_idle_task(current));
- 	rcu_preempt_deferred_qs(current);
-@@ -659,9 +659,9 @@ static noinstr void rcu_eqs_enter(bool user)
-  * If you add or remove a call to rcu_idle_enter(), be sure to test with
-  * CONFIG_RCU_EQS_DEBUG=y.
-  */
--void rcu_idle_enter(void)
-+void noinstr rcu_idle_enter(void)
- {
--	lockdep_assert_irqs_disabled();
-+	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !raw_irqs_disabled());
- 	rcu_eqs_enter(false);
- }
- EXPORT_SYMBOL_GPL(rcu_idle_enter);
-@@ -861,7 +861,7 @@ static void noinstr rcu_eqs_exit(bool user)
- 	struct rcu_data *rdp;
- 	long oldval;
- 
--	lockdep_assert_irqs_disabled();
-+	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !raw_irqs_disabled());
- 	rdp = this_cpu_ptr(&rcu_data);
- 	oldval = rdp->dynticks_nesting;
- 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && oldval < 0);
-@@ -896,13 +896,13 @@ static void noinstr rcu_eqs_exit(bool user)
-  * If you add or remove a call to rcu_idle_exit(), be sure to test with
-  * CONFIG_RCU_EQS_DEBUG=y.
-  */
--void rcu_idle_exit(void)
-+void noinstr rcu_idle_exit(void)
- {
- 	unsigned long flags;
- 
--	local_irq_save(flags);
-+	raw_local_irq_save(flags);
- 	rcu_eqs_exit(false);
--	local_irq_restore(flags);
-+	raw_local_irq_restore(flags);
- }
- EXPORT_SYMBOL_GPL(rcu_idle_exit);
- 
+ 	dsiclk = mode->crtc_clock * 3 * tc->bpc / tc->num_dsi_lanes / 1000;
+-	clkdiv = dsiclk / DIVIDE_BY_3 * tc->lvds_link;
++	clkdiv = dsiclk / (tc->lvds_link == DUAL_LINK ? DIVIDE_BY_6 : DIVIDE_BY_3);
+ 	byteclk = dsiclk / 4;
+ 	t1 = hactive * (tc->bpc * 3 / 8) / tc->num_dsi_lanes;
+ 	t2 = ((100000 / clkdiv)) * (hactive + hback_porch + hsync_len + hfront_porch) / 1000;
 -- 
 2.35.1
 
