@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F87A5902EA
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:17:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61933590288
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235892AbiHKQRg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:17:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38408 "EHLO
+        id S235399AbiHKQKx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:10:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237329AbiHKQJ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:09:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A12558169C;
-        Thu, 11 Aug 2022 08:55:10 -0700 (PDT)
+        with ESMTP id S236176AbiHKQKE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:10:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 051DDF2D;
+        Thu, 11 Aug 2022 08:55:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2FA5CB82160;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95EBC612BF;
+        Thu, 11 Aug 2022 15:55:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E96AC433D6;
         Thu, 11 Aug 2022 15:55:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5FB9C43140;
-        Thu, 11 Aug 2022 15:55:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660233307;
-        bh=bqPGJ5Dm4D36jRvAbgbottlTKaFNf2a47HkQBsJcex0=;
+        s=k20201202; t=1660233311;
+        bh=9DyU2OUNIXlnp/IMSrdvrogl4JUXt2JFXlz4ErufCU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NoCbGOVluZCFW6VlKo649GnwdcNUceBP032LhzPnriz1GYB6TE3UB3oVPyhdUMtdG
-         jxy3vbDNdzCDG4d1QkEFZxILVFlVkLYc0L0pFGGhubOxXaRkhiBUbpa4KVtkPdXkuj
-         E8im6SZJEJaH3emncp6hEORY7RxoK0IYhTeuuni0evrYGTl3bAjCHAJQ+yl0ICI2uy
-         p4ejrKtrggfI/4N/ndj/qR9A0taS80ekTHt8hMoGGrM4vJ8PfmkFX9AOJw+fPtCI+W
-         02Sf8jgAwlkvM/AQ4qQx3de3gfku9AiRWkU1+PouaxaxYgHWr9KZI5gTkG8KVu6fOQ
-         1PSGjrCTkae4Q==
+        b=lNeeMXzVTR8C8jmR28Whl/kJh0eRAJk7UCd0NNEQExmpV9Uy304KKN1ya64YQuaIh
+         qt+G9UkoT4uH1412EwIJ9E20GH9TS7sHiRyllfZ1kcAkI58gT0R7fFSJE1A4YYBbGQ
+         VlQzbrFzDjuIFYbEWLdUblzMrE3wmYAMuZmXZt4CmyBRgdg39jxq/B+YmDDO20O5VX
+         uzd1H/tPS8Wor4EI3zkTBwnCoikRoppa/z1p6QjIPcFf2Q4Si6b2egDaSTo/hB4SP0
+         XfWPcv4bk50P//ahB69JykV8ah4PjVsnptarrj+bzwz/pFfHb7m6USG9FQyXJ4rr9H
+         gTV0XvKsM9oVg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, clm@fb.com,
-        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 84/93] btrfs: output mirror number for bad metadata
-Date:   Thu, 11 Aug 2022 11:42:18 -0400
-Message-Id: <20220811154237.1531313-84-sashal@kernel.org>
+Cc:     Christian Marangi <ansuelsmth@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, peppe.cavallaro@st.com,
+        alexandre.torgue@foss.st.com, joabreu@synopsys.com,
+        davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
+        mcoquelin.stm32@gmail.com, netdev@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.18 85/93] net: ethernet: stmicro: stmmac: first disable all queues and disconnect in release
+Date:   Thu, 11 Aug 2022 11:42:19 -0400
+Message-Id: <20220811154237.1531313-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -56,106 +61,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Christian Marangi <ansuelsmth@gmail.com>
 
-[ Upstream commit 8f0ed7d4e7bd87c9207a59d6d887777f632a5ed5 ]
+[ Upstream commit 7028471edb646bfc532fec0973e50e784cdcb7c6 ]
 
-When handling a real world transid mismatch image, it's hard to know
-which copy is corrupted, as the error messages just look like this:
+Disable all queues and disconnect before tx_disable in stmmac_release to
+prevent a corner case where packet may be still queued at the same time
+tx_disable is called resulting in kernel panic if some packet still has
+to be processed.
 
-  BTRFS warning (device dm-3): checksum verify failed on 30408704 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
-  BTRFS warning (device dm-3): checksum verify failed on 30408704 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
-  BTRFS warning (device dm-3): checksum verify failed on 30408704 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
-  BTRFS warning (device dm-3): checksum verify failed on 30408704 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
-
-We don't even know if the retry is caused by btrfs or the VFS retry.
-
-To make things a little easier to read, add mirror number for all
-related tree block read errors.
-
-So the above messages would look like this:
-
-  BTRFS warning (device dm-3): checksum verify failed on logical 30408704 mirror 1 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
-  BTRFS warning (device dm-3): checksum verify failed on logical 30408704 mirror 2 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
-  BTRFS warning (device dm-3): checksum verify failed on logical 30408704 mirror 1 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
-  BTRFS warning (device dm-3): checksum verify failed on logical 30408704 mirror 2 wanted 0xcdcdcdcd found 0x3c0adc8e level 0
-
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-[ update messages, add "logical" ]
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index 6f30413ed9a9..1f2eef5d1a08 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -256,8 +256,8 @@ static int verify_parent_transid(struct extent_io_tree *io_tree,
- 		goto out;
- 	}
- 	btrfs_err_rl(eb->fs_info,
--		"parent transid verify failed on %llu wanted %llu found %llu",
--			eb->start,
-+"parent transid verify failed on logical %llu mirror %u wanted %llu found %llu",
-+			eb->start, eb->read_mirror,
- 			parent_transid, btrfs_header_generation(eb));
- 	ret = 1;
- 	clear_extent_buffer_uptodate(eb);
-@@ -587,21 +587,23 @@ static int validate_extent_buffer(struct extent_buffer *eb)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 98c4abbcd469..fd3671f1bad0 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3766,8 +3766,6 @@ static int stmmac_release(struct net_device *dev)
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+ 	u32 chan;
  
- 	found_start = btrfs_header_bytenr(eb);
- 	if (found_start != eb->start) {
--		btrfs_err_rl(fs_info, "bad tree block start, want %llu have %llu",
--			     eb->start, found_start);
-+		btrfs_err_rl(fs_info,
-+			"bad tree block start, mirror %u want %llu have %llu",
-+			     eb->read_mirror, eb->start, found_start);
- 		ret = -EIO;
- 		goto out;
- 	}
- 	if (check_tree_block_fsid(eb)) {
--		btrfs_err_rl(fs_info, "bad fsid on block %llu",
--			     eb->start);
-+		btrfs_err_rl(fs_info, "bad fsid on logical %llu mirror %u",
-+			     eb->start, eb->read_mirror);
- 		ret = -EIO;
- 		goto out;
- 	}
- 	found_level = btrfs_header_level(eb);
- 	if (found_level >= BTRFS_MAX_LEVEL) {
--		btrfs_err(fs_info, "bad tree block level %d on %llu",
--			  (int)btrfs_header_level(eb), eb->start);
-+		btrfs_err(fs_info,
-+			"bad tree block level, mirror %u level %d on logical %llu",
-+			eb->read_mirror, btrfs_header_level(eb), eb->start);
- 		ret = -EIO;
- 		goto out;
- 	}
-@@ -612,8 +614,8 @@ static int validate_extent_buffer(struct extent_buffer *eb)
+-	netif_tx_disable(dev);
+-
+ 	if (device_may_wakeup(priv->device))
+ 		phylink_speed_down(priv->phylink, false);
+ 	/* Stop and disconnect the PHY */
+@@ -3779,6 +3777,8 @@ static int stmmac_release(struct net_device *dev)
+ 	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
+ 		hrtimer_cancel(&priv->tx_queue[chan].txtimer);
  
- 	if (memcmp(result, header_csum, csum_size) != 0) {
- 		btrfs_warn_rl(fs_info,
--	"checksum verify failed on %llu wanted " CSUM_FMT " found " CSUM_FMT " level %d",
--			      eb->start,
-+"checksum verify failed on logical %llu mirror %u wanted " CSUM_FMT " found " CSUM_FMT " level %d",
-+			      eb->start, eb->read_mirror,
- 			      CSUM_FMT_VALUE(csum_size, header_csum),
- 			      CSUM_FMT_VALUE(csum_size, result),
- 			      btrfs_header_level(eb));
-@@ -638,8 +640,8 @@ static int validate_extent_buffer(struct extent_buffer *eb)
- 		set_extent_buffer_uptodate(eb);
- 	else
- 		btrfs_err(fs_info,
--			  "block=%llu read time tree block corruption detected",
--			  eb->start);
-+		"read time tree block corruption detected on logical %llu mirror %u",
-+			  eb->start, eb->read_mirror);
- out:
- 	return ret;
- }
++	netif_tx_disable(dev);
++
+ 	/* Free the IRQ lines */
+ 	stmmac_free_irq(dev, REQ_IRQ_ERR_ALL, 0);
+ 
 -- 
 2.35.1
 
