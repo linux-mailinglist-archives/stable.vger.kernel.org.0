@@ -2,45 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FA5B5901A6
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40FA55901BA
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237144AbiHKP5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:57:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47620 "EHLO
+        id S237124AbiHKP5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:57:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237442AbiHKP4c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:56:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 084DFA3458;
-        Thu, 11 Aug 2022 08:47:16 -0700 (PDT)
+        with ESMTP id S237570AbiHKP4x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:56:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68415A8328;
+        Thu, 11 Aug 2022 08:47:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25983616FC;
-        Thu, 11 Aug 2022 15:47:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C1FCC433D7;
-        Thu, 11 Aug 2022 15:47:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6066BB82123;
+        Thu, 11 Aug 2022 15:47:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D042C433C1;
+        Thu, 11 Aug 2022 15:47:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232832;
-        bh=TRK0SsbIr+CcxNg4PjQwwhHSoMWYlCPSyyU57xOdhxY=;
+        s=k20201202; t=1660232846;
+        bh=7qVD5RzjjIj20icR2AXiT1GDasC4l434DxJV+E2gjQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ogiZmUqRU8Sh3g0KWaqdQcNZNUIhQiqwLoVIdgPzpXtqSkLiizH4GJPkBOPFhJI1B
-         Fh1dwPOZoVGuzfQswV7dE7A0B69oditi6QS5fx8piBMuXDXPQsbDr3kN1EIewEMXIB
-         qE7wTh0JZoDJWsnIkRlOR/bwQThEawV2HIcZBfBxX/rU5KEFQ59H3MSM3i2Y53lpKE
-         Mg2mxVYfTtsL1H3Eh7jr0ip4NBtB63+O/0EQMxOWqbRpQ9/KfFtxY0RWDQFSj5SodH
-         G+bwb/jvF6Jhu27zOxIQcFQAmGkVP1poi0WzJRK5SbbDPRLCh5EwK6jQNJC3L66xeF
-         CQVbxgQ9zB8qA==
+        b=S6vUjENhhpwtEBH3px7DYfTrZKy994R6QsxcTVq9Qf76vrakx4d8mbrgMJIdwqn0c
+         YoYtD1nQElqFaGCJPHldHwbTIhsqUACnRAHmx7dZ5GnqNwENEDpXLuK58K/v68Fe5D
+         sUhm81JFSHAjp9NWi3uB3/2yjvjlqCoIaIpc/KUrcxHMXSet8qCuUMmt1tx4QcC3yc
+         DYFi501jlDFtwCKszLTPcPQosW+yVWDzn5TbCWdDBXstrpoh+U83jtQA0FfaX2wMZQ
+         Znj5YyuuZbvdXoorktJJpzXq2DsLS05uIDU1GQHvt1wqM536EEmQvuf7R6mvrjcZ8s
+         K+mRTzzYvEAoQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sam Edwards <cfsworks@gmail.com>, Sam Edwards <CFSworks@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        yoshfuji@linux-ipv6.org, dsahern@kernel.org, edumazet@google.com,
-        kuba@kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 46/93] ipv6/addrconf: fix timing bug in tempaddr regen
-Date:   Thu, 11 Aug 2022 11:41:40 -0400
-Message-Id: <20220811154237.1531313-46-sashal@kernel.org>
+Cc:     Rahul Kumar <rahul.kumar1@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, sunpeng.li@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
+        daniel@ffwll.ch, Anthony.Koo@amd.com, Aric.Cyr@amd.com,
+        alex.hung@amd.com, Yi-Ling.Chen2@amd.com, Roman.Li@amd.com,
+        mwen@igalia.com, hanghong.ma@amd.com, Jerry.Zuo@amd.com,
+        agustin.gutierrez@amd.com, dale.zhao@amd.com, isabbasso@riseup.net,
+        Sungjoon.Kim@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.18 47/93] drm/amdgpu/display/dc: Fix null pointer exception
+Date:   Thu, 11 Aug 2022 11:41:41 -0400
+Message-Id: <20220811154237.1531313-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -58,124 +65,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Edwards <cfsworks@gmail.com>
+From: Rahul Kumar <rahul.kumar1@amd.com>
 
-[ Upstream commit 778964f2fdf05e5d2e6ca9bc3f450b3db454ba9c ]
+[ Upstream commit 1c4dae3e4639540fb567e570cc56a3c292afb6fe ]
 
-The addrconf_verify_rtnl() function uses a big if/elseif/elseif/... block
-to categorize each address by what type of attention it needs.  An
-about-to-expire (RFC 4941) temporary address is one such category, but the
-previous elseif branch catches addresses that have already run out their
-prefered_lft.  This means that if addrconf_verify_rtnl() fails to run in
-the necessary time window (i.e. REGEN_ADVANCE time units before the end of
-the prefered_lft), the temporary address will never be regenerated, and no
-temporary addresses will be available until each one's valid_lft runs out
-and manage_tempaddrs() begins anew.
+We observed hard hang due to NULL derefrence This issue is seen after
+running system all the time after two or three days
 
-Fix this by moving the entire temporary address regeneration case out of
-that block.  That block is supposed to implement the "destructive" part of
-an address's lifecycle, and regenerating a fresh temporary address is not,
-semantically speaking, actually tied to any particular lifecycle stage.
-The age test is also changed from `age >= prefered_lft - regen_advance`
-to `age + regen_advance >= prefered_lft` instead, to ensure no underflow
-occurs if the system administrator increases the regen_advance to a value
-greater than the already-set prefered_lft.
+struct dc *dc = plane_state->ctx->dc; Randomly in long run we found
+plane_state or plane_state->ctx is found NULL which causes exception.
 
-Note that this does not fix the problem of addrconf_verify_rtnl() sometimes
-not running in time, resulting in the race condition described in RFC 4941
-section 3.4 - it only ensures that the address is regenerated.  Fixing THAT
-problem may require either using jiffies instead of seconds for all time
-arithmetic here, or always rounding up when regen_advance is converted to
-seconds.
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+PF: supervisor read access in kernel mode
+PF: error_code(0x0000) - not-present page
+PGD 1dc7f2067 P4D 1dc7f2067 PUD 222c75067 PMD 0
+Oops: 0000 [#1] SMP NOPTI
+CPU: 5 PID: 29855 Comm: kworker/u16:4 ...
+...
+Workqueue: events_unbound commit_work [drm_kms_helper]
+RIP: 0010:dcn10_update_pending_status+0x1f/0xee [amdgpu]
+Code: 41 5f c3 0f 1f 44 00 00 b0 01 c3 0f 1f 44 00 00 41 55 41 54 55 53 48 8b 1f 4c 8b af f8 00 00 00 48 8b 83 88 03 00 00 48 85 db <4c> 8b 20 0f 84 bf 00 00 00 48 89 fd 48 8b bf b8 00 00 00 48 8b 07
+RSP: 0018:ffff942941997ab8 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: ffff8d7fd98d2000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff8d7e3e87c708 RDI: ffff8d7f2d8c0690
+RBP: ffff8d7f2d8c0000 R08: ffff942941997a34 R09: 00000000ffffffff
+R10: 0000000000005000 R11: 00000000000000f0 R12: ffff8d7f2d8c0690
+R13: ffff8d8035a41680 R14: 00000000000186a0 R15: ffff8d7f2d8c1dd8
+FS:  0000000000000000(0000) GS:ffff8d8037340000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000000 CR3: 0000000148030000 CR4: 00000000003406e0
+Call Trace:
+ dc_commit_state+0x6a2/0x7f0 [amdgpu]
+ amdgpu_dm_atomic_commit_tail+0x460/0x19bb [amdgpu]
 
-Signed-off-by: Sam Edwards <CFSworks@gmail.com>
-Link: https://lore.kernel.org/r/20220623181103.7033-1-CFSworks@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Tested-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Rahul Kumar <rahul.kumar1@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/addrconf.c | 62 ++++++++++++++++++++++++---------------------
- 1 file changed, 33 insertions(+), 29 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 3b47c901c832..01e3900dd2f8 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -4522,6 +4522,39 @@ static void addrconf_verify_rtnl(struct net *net)
- 			/* We try to batch several events at once. */
- 			age = (now - ifp->tstamp + ADDRCONF_TIMER_FUZZ_MINUS) / HZ;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+index 83fbea2df410..b12a46c4e872 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+@@ -3205,7 +3205,7 @@ void dcn10_update_pending_status(struct pipe_ctx *pipe_ctx)
+ 	struct dc_plane_state *plane_state = pipe_ctx->plane_state;
+ 	struct timing_generator *tg = pipe_ctx->stream_res.tg;
+ 	bool flip_pending;
+-	struct dc *dc = plane_state->ctx->dc;
++	struct dc *dc = pipe_ctx->stream->ctx->dc;
  
-+			if ((ifp->flags&IFA_F_TEMPORARY) &&
-+			    !(ifp->flags&IFA_F_TENTATIVE) &&
-+			    ifp->prefered_lft != INFINITY_LIFE_TIME &&
-+			    !ifp->regen_count && ifp->ifpub) {
-+				/* This is a non-regenerated temporary addr. */
-+
-+				unsigned long regen_advance = ifp->idev->cnf.regen_max_retry *
-+					ifp->idev->cnf.dad_transmits *
-+					max(NEIGH_VAR(ifp->idev->nd_parms, RETRANS_TIME), HZ/100) / HZ;
-+
-+				if (age + regen_advance >= ifp->prefered_lft) {
-+					struct inet6_ifaddr *ifpub = ifp->ifpub;
-+					if (time_before(ifp->tstamp + ifp->prefered_lft * HZ, next))
-+						next = ifp->tstamp + ifp->prefered_lft * HZ;
-+
-+					ifp->regen_count++;
-+					in6_ifa_hold(ifp);
-+					in6_ifa_hold(ifpub);
-+					spin_unlock(&ifp->lock);
-+
-+					spin_lock(&ifpub->lock);
-+					ifpub->regen_count = 0;
-+					spin_unlock(&ifpub->lock);
-+					rcu_read_unlock_bh();
-+					ipv6_create_tempaddr(ifpub, true);
-+					in6_ifa_put(ifpub);
-+					in6_ifa_put(ifp);
-+					rcu_read_lock_bh();
-+					goto restart;
-+				} else if (time_before(ifp->tstamp + ifp->prefered_lft * HZ - regen_advance * HZ, next))
-+					next = ifp->tstamp + ifp->prefered_lft * HZ - regen_advance * HZ;
-+			}
-+
- 			if (ifp->valid_lft != INFINITY_LIFE_TIME &&
- 			    age >= ifp->valid_lft) {
- 				spin_unlock(&ifp->lock);
-@@ -4555,35 +4588,6 @@ static void addrconf_verify_rtnl(struct net *net)
- 					in6_ifa_put(ifp);
- 					goto restart;
- 				}
--			} else if ((ifp->flags&IFA_F_TEMPORARY) &&
--				   !(ifp->flags&IFA_F_TENTATIVE)) {
--				unsigned long regen_advance = ifp->idev->cnf.regen_max_retry *
--					ifp->idev->cnf.dad_transmits *
--					max(NEIGH_VAR(ifp->idev->nd_parms, RETRANS_TIME), HZ/100) / HZ;
--
--				if (age >= ifp->prefered_lft - regen_advance) {
--					struct inet6_ifaddr *ifpub = ifp->ifpub;
--					if (time_before(ifp->tstamp + ifp->prefered_lft * HZ, next))
--						next = ifp->tstamp + ifp->prefered_lft * HZ;
--					if (!ifp->regen_count && ifpub) {
--						ifp->regen_count++;
--						in6_ifa_hold(ifp);
--						in6_ifa_hold(ifpub);
--						spin_unlock(&ifp->lock);
--
--						spin_lock(&ifpub->lock);
--						ifpub->regen_count = 0;
--						spin_unlock(&ifpub->lock);
--						rcu_read_unlock_bh();
--						ipv6_create_tempaddr(ifpub, true);
--						in6_ifa_put(ifpub);
--						in6_ifa_put(ifp);
--						rcu_read_lock_bh();
--						goto restart;
--					}
--				} else if (time_before(ifp->tstamp + ifp->prefered_lft * HZ - regen_advance * HZ, next))
--					next = ifp->tstamp + ifp->prefered_lft * HZ - regen_advance * HZ;
--				spin_unlock(&ifp->lock);
- 			} else {
- 				/* ifp->prefered_lft <= ifp->valid_lft */
- 				if (time_before(ifp->tstamp + ifp->prefered_lft * HZ, next))
+ 	if (plane_state == NULL)
+ 		return;
 -- 
 2.35.1
 
