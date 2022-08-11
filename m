@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68992590326
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:21:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06BDE59033C
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237606AbiHKQVU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:21:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58558 "EHLO
+        id S237661AbiHKQVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:21:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237515AbiHKQUT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:20:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 945FAAEDAE;
-        Thu, 11 Aug 2022 09:02:14 -0700 (PDT)
+        with ESMTP id S235638AbiHKQUV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:20:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2A6FAEDB3;
+        Thu, 11 Aug 2022 09:02:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31F9F6137B;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78418B82182;
+        Thu, 11 Aug 2022 16:02:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF56DC433C1;
         Thu, 11 Aug 2022 16:02:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56BEEC433C1;
-        Thu, 11 Aug 2022 16:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660233733;
-        bh=rzdAzLrpMW9Jg5EEs7PVdTHeceWVECVmu/G0Pm4ZQys=;
+        s=k20201202; t=1660233736;
+        bh=XlGk8IX1wN1ZNzCe5TFWky6S5v+Ns8c93X8nxKeGupM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RHvTKGfMpySWi8ryWhZOTQlGwVeWna+zwzLCVJCWzuqVOOD7BHoEmLltJt9GEBsNQ
-         EOzQmQDtAnFoEg3TbQjj3/7lBNj31oX4EDaVbacMCEjSXdyjDSDU8kO0X/MQcG678D
-         EzL7YvFhP62Ox4dfZIP9Ht8BcIE73sbUJQ/52Ch2uL8XmksHGqeFsWWAnaRAS/Aa8j
-         UAmweXZP5lBdictYwpnBjrri1ypG/1GCRb0m+sYEQ5WP9ethoY3DKh/6Lcs4giUrFr
-         OwuQOBLK+XWlHnmPGUhhMtj7VWfoFRoBEx7g97v1RcR7pUwtbEzH000e3/3NFY4P5S
-         5+encPizWfj8A==
+        b=Nlm9VIMedcYvTwV7LB/0Mmuggn6mYl0lTa4n0MnhhgtHgN+TRLNZ6DKcuPpL8RlsO
+         0waF5XoTCL7M/ivNXr98kq8XwqHXXDi/xSYWU6Z2fxCyoiTv9NnXjCFWY6MiBtQMkX
+         V0DD+W1gwJfhNpVR1v5fFX+YnUv+FJWY4HggmCW5nKWDv4+YV86dDhd8FWU/EDP/eX
+         QeULCXew9MhxDBcBCht7X+40+tVcBir4jj82vhScGC4vBGjO8zsPx5XBQv5EISHnnc
+         twqBdgGcbkn4l5Erav6e5aAbZYmyJFTVui1t3EqSZS4cTrHMhkIAyZRG4bV8A8QinW
+         Odrya82zSDxuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Dave Airlie <airlied@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kherbst@redhat.com,
-        lyude@redhat.com, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 50/69] drm/nouveau/nvkm: use list_add_tail() when building object tree
-Date:   Thu, 11 Aug 2022 11:55:59 -0400
-Message-Id: <20220811155632.1536867-50-sashal@kernel.org>
+Cc:     Yuan Can <yuancan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, gilad@benyossef.com,
+        davem@davemloft.net, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 51/69] crypto: ccree - Add missing clk_disable_unprepare() in cc_pm_resume()
+Date:   Thu, 11 Aug 2022 11:56:00 -0400
+Message-Id: <20220811155632.1536867-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811155632.1536867-1-sashal@kernel.org>
 References: <20220811155632.1536867-1-sashal@kernel.org>
@@ -57,37 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 61c1f340bc809a1ca1e3c8794207a91cde1a7c78 ]
+[ Upstream commit 30fb034361ff1b9bfc569b2d8d66b544ea3eb18f ]
 
-Fixes resume from hibernate failing on (at least) TU102, where cursor
-channel init failed due to being performed before the core channel.
+Add clk_disable_unprepare() on error path in cc_pm_resume().
 
-Not solid idea why suspend-to-ram worked, but, presumably HW being in
-an entirely clean state has something to do with it.
-
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Dave Airlie <airlied@redhat.com>
-Signed-off-by: Dave Airlie <airlied@redhat.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/core/ioctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/ccree/cc_pm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/core/ioctl.c b/drivers/gpu/drm/nouveau/nvkm/core/ioctl.c
-index 735cb6816f10..06b2f675f5da 100644
---- a/drivers/gpu/drm/nouveau/nvkm/core/ioctl.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/core/ioctl.c
-@@ -128,7 +128,7 @@ nvkm_ioctl_new(struct nvkm_client *client,
- 	if (ret == 0) {
- 		ret = nvkm_object_init(object);
- 		if (ret == 0) {
--			list_add(&object->head, &parent->tree);
-+			list_add_tail(&object->head, &parent->tree);
- 			if (nvkm_object_insert(object)) {
- 				client->data = object;
- 				return 0;
+diff --git a/drivers/crypto/ccree/cc_pm.c b/drivers/crypto/ccree/cc_pm.c
+index d5421b0c6831..6124fbbbed94 100644
+--- a/drivers/crypto/ccree/cc_pm.c
++++ b/drivers/crypto/ccree/cc_pm.c
+@@ -41,6 +41,7 @@ static int cc_pm_resume(struct device *dev)
+ 	/* wait for Cryptocell reset completion */
+ 	if (!cc_wait_for_reset_completion(drvdata)) {
+ 		dev_err(dev, "Cryptocell reset not completed");
++		clk_disable_unprepare(drvdata->clk);
+ 		return -EBUSY;
+ 	}
+ 
+@@ -48,6 +49,7 @@ static int cc_pm_resume(struct device *dev)
+ 	rc = init_cc_regs(drvdata);
+ 	if (rc) {
+ 		dev_err(dev, "init_cc_regs (%x)\n", rc);
++		clk_disable_unprepare(drvdata->clk);
+ 		return rc;
+ 	}
+ 	/* check if tee fips error occurred during power down */
 -- 
 2.35.1
 
