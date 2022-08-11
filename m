@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBA1058FD3E
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 15:18:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5781E58FD4B
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 15:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234638AbiHKNSY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 09:18:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59712 "EHLO
+        id S234723AbiHKNWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 09:22:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234050AbiHKNSX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 09:18:23 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22BD77D7B1
-        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 06:18:21 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id y141so16454589pfb.7
-        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 06:18:21 -0700 (PDT)
+        with ESMTP id S234050AbiHKNWF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 09:22:05 -0400
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E69E81696
+        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 06:22:03 -0700 (PDT)
+Received: by mail-pl1-x62f.google.com with SMTP id x23so16901197pll.7
+        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 06:22:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc;
-        bh=/VvvWSFQ4s25IGkqD+qVZp/wEmlUYQ5bCIRUo8WsiSg=;
-        b=KOhNwUGZOeAZK/FmcXyC15rSeLYb9FCjGxOcE6bOyCbh+LP6bdhUUnGO9CrJGptKyf
-         cLdKxMIM5Jor7s5AzpNN6UMAAfjvnrRdl2fuYrt/l6U+ThjJV+YdXhSs9KFROn120XKX
-         mfSWtPmrNoSPp/qzJJIvbCOy3u0REzYjj1kWw8CQIooSYQE8Sidrhrvbkl/MHRh2Z0qn
-         e0KNHJN1GYWnt8iBsG6wtbTPiCd3ZviDmK4T0xngEYI5EvXyP6Iy+EjCqZPWH6X/LEcv
-         Jy8NsIMt2kAvWandPsOlvEZyaCInUOqCr8F2wlZ7X4ozNTFg6r2TVg6uNWAtZJRNN0OO
-         NBIA==
+        bh=N9r5RAaA1un/dEi2BGNr44M/7pFC7bRwGk010/UHGB4=;
+        b=Ie84KqAVVUZ/hm16f5pD2e4Y1LdEixXbsRjmg7XSnBI0mv8+Pn36OMIHVJ+lesiTzL
+         UmA1rlwtYxxjK4hw7BOFTQF0gu7b2FUkWNZ6vxwFNVGAemPT3uSm5iyiYLOiTi3PxBGZ
+         Whiu7+YxTIn2JiH9Xrr3QWCB3P9rtE8iP8h/lBs94LT3f+KhMtS2HK73vip5X1KrYnnX
+         dhP7uYx0F5JdHGF60ydEmP4zw7ESw2YiwurOIzbA+dxds4iTNmeZ5X0zESX8O+FrwKdi
+         KryD55E634VPJqlPX6HZeZ0ibzhevGLkxMhFWOE6c+5KJuylPQfecMImg7lsHb8p8oIc
+         QeqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc;
-        bh=/VvvWSFQ4s25IGkqD+qVZp/wEmlUYQ5bCIRUo8WsiSg=;
-        b=0rIQwWMglnUYGVqXnNqer943Q1g2lNZuR3eTYKmifOCaxy1THonQFJ8TH97WQwHm3W
-         AjWnKRGOhoMF6MCEp3/rmLvynnAp23rsj79yQuu4qERaQebW0eiQI5XtvfezJsd/s84b
-         pWTM/bUAiPtokUvZtS0POaepKiwF/L6ZdhOHHsCt5afhpyppWp/TgU43L9cZXK/d3QQs
-         KHzqe82SnC+ZT8A6vddZXLnpypDWI2Roj1XuFV9+1KWr31KfjVCD08mLl7tub8g5jH6A
-         xcDX95fxDsnJzIfPVzSJP3T1hQhlfAQ2UjT3kpzxYvxswm0+mhT64SWzw/Vx4DSjUNg7
-         vBHA==
-X-Gm-Message-State: ACgBeo10o9R4lc6vhOmd85EQPJUL/V8N90ORaufezyi7esiH0AOQ2ZwP
-        eTjzXZm9dnnwBnl0RNlMaSvX3vx3sLoZ9T9Ja9g=
-X-Google-Smtp-Source: AA6agR5kD41CdoVumLRKSjSQp94Z3xRnvvcwdwq3TsabdI55WQyR11e299HQ6wYtnIHIeSW5928xvg==
-X-Received: by 2002:a05:6a00:3408:b0:52f:9dd0:4b21 with SMTP id cn8-20020a056a00340800b0052f9dd04b21mr13166004pfb.39.1660223900064;
-        Thu, 11 Aug 2022 06:18:20 -0700 (PDT)
+        bh=N9r5RAaA1un/dEi2BGNr44M/7pFC7bRwGk010/UHGB4=;
+        b=OTvWJKkgZXw7MqIzJzQyKgtRpDYoU/NpoDVCXCSC+gz6ND7JL/LGO3crlqEY6+u0yD
+         WflcRKgryvNJqmsUfl5+vkcIc6fspYO/vzQyHCzvhlIbX73iZTDEagj10Axnzvh/gH1m
+         nrig3JInOazxrmbyJIFZ/7dxcpyZHUm6O+iwJ2Uqs7Ccv7zdPOSA1vWjsimbzF8I3uRv
+         KVyn5o7NTi4XMUxnTwkE5kd3pAJt6lAAXTOATOmi3Alxzdpw1JYJ/M2cPfDrA4OwzNM0
+         8PT53/dxIOKdKt6/zOZSgjRGqIRRFM57jqt0+IJg4FweSpiQVgZXxIr6lfTGQ6b3BKex
+         ylcg==
+X-Gm-Message-State: ACgBeo3bgBohQ/4f1o6rPQccrN9J9TX4Fd8qRTysqo8OUe129M6WaW+Y
+        LHZvOy1Gpil/HxStKcT+JoMGzoTjgs5PqtYop4U=
+X-Google-Smtp-Source: AA6agR6cPu5EJVvH0jWS10T1r2y59FnVq0syQF4NrDV0HRRatg4PTGrT4sOQWrTfvwXH1/NB3Bf4Bg==
+X-Received: by 2002:a17:902:a416:b0:16d:4cff:269c with SMTP id p22-20020a170902a41600b0016d4cff269cmr32206030plq.5.1660224121943;
+        Thu, 11 Aug 2022 06:22:01 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d6-20020a170902654600b0016a3f9e4865sm14892057pln.148.2022.08.11.06.18.18
+        by smtp.gmail.com with ESMTPSA id ix2-20020a170902f80200b0016ee328fd61sm14761681plb.198.2022.08.11.06.21.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Aug 2022 06:18:19 -0700 (PDT)
-Message-ID: <62f5019b.170a0220.ae5f4.9d8d@mx.google.com>
-Date:   Thu, 11 Aug 2022 06:18:19 -0700 (PDT)
+        Thu, 11 Aug 2022 06:22:00 -0700 (PDT)
+Message-ID: <62f50278.170a0220.4e023.9b08@mx.google.com>
+Date:   Thu, 11 Aug 2022 06:22:00 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.10.y
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v5.10.135-23-g1480d9920b563
-Subject: stable-rc/queue/5.10 build: 174 builds: 3 failed, 171 passed, 4 errors,
- 10 warnings (v5.10.135-23-g1480d9920b563)
+X-Kernelci-Kernel: v5.10.136
+Subject: stable/linux-5.10.y build: 178 builds: 3 failed, 175 passed, 4 errors,
+ 10 warnings (v5.10.136)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,18 +70,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 build: 174 builds: 3 failed, 171 passed, 4 errors, 10 =
-warnings (v5.10.135-23-g1480d9920b563)
+stable/linux-5.10.y build: 178 builds: 3 failed, 175 passed, 4 errors, 10 w=
+arnings (v5.10.136)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-0/kernel/v5.10.135-23-g1480d9920b563/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.10.y/k=
+ernel/v5.10.136/
 
-Tree: stable-rc
-Branch: queue/5.10
-Git Describe: v5.10.135-23-g1480d9920b563
-Git Commit: 1480d9920b5636d86f9fcf80fb44e595b7165396
+Tree: stable
+Branch: linux-5.10.y
+Git Describe: v5.10.136
+Git Commit: 6eae1503ddf94b4c3581092d566b17ed12d80f20
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
+e.git
 Built: 7 unique architectures
 
 Build Failures Detected:
@@ -164,18 +164,13 @@ check will be entirely skipped.
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -229,11 +224,6 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
 badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -279,6 +269,11 @@ cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 
 ---------------------------------------------------------------------------=
 -----
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
@@ -311,6 +306,11 @@ ion mismatches
 -----
 corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
+
+---------------------------------------------------------------------------=
+-----
+cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -381,6 +381,11 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
+ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
 efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
@@ -441,6 +446,11 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
 haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -472,11 +482,6 @@ ion mismatches
 ---------------------------------------------------------------------------=
 -----
 imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
 ---------------------------------------------------------------------------=
@@ -533,6 +538,11 @@ ction mismatches
 -----
 jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -620,11 +630,6 @@ gs, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
 maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
@@ -647,6 +652,11 @@ maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 -----
 milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
  0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -677,6 +687,11 @@ on mismatches
 -----
 multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -720,6 +735,11 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
+nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 0 section mismatches
 
@@ -750,6 +770,11 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
 oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
@@ -762,11 +787,6 @@ tion mismatches
 -----
 pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -919,6 +939,16 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
 spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
@@ -974,6 +1004,11 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
@@ -981,11 +1016,6 @@ tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 -----
 tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1014,11 +1044,6 @@ vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 
 ---------------------------------------------------------------------------=
 -----
-versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
 vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
@@ -1036,11 +1061,6 @@ on mismatches
 -----
 vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
