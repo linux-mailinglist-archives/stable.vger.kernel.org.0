@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1FD45903C1
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C182D590376
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:28:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237333AbiHKQ0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:26:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38558 "EHLO
+        id S238147AbiHKQ0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:26:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237936AbiHKQZA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:25:00 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B745C275E4;
+        with ESMTP id S237933AbiHKQY7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:24:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61FE92AE1C;
         Thu, 11 Aug 2022 09:06:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1316ECE22B2;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F22B8612F4;
         Thu, 11 Aug 2022 16:06:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A731C43140;
-        Thu, 11 Aug 2022 16:06:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CF4CC433D6;
+        Thu, 11 Aug 2022 16:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660233994;
-        bh=4Pd9YhMtbhmuj5NoQ6MMg43/eFwj/qfS0d/cqdREFS8=;
+        s=k20201202; t=1660233996;
+        bh=1k0g9Lhh2lfOxoM8zP7AtYUnS9VWBbR9RZcMDRlaSPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tiwe1RASNYITWokLvoz5F2g8tGVO5xo+gZNZ4Czo8r0cT0IWHV0gAb3NLTLa/KJOr
-         B1m0WBoyzcpt8nNxGmnRxjSt5XCpHrvoKNvGPReHorzFRPJbkRybCe1wRE+HVb+HgG
-         0vbqL5xvhSXpkbiHCNvfx/Er95IQ75Ch8Ms/RWNOU/+yvRlV8boahNIGP3qRo6F9t1
-         GnMpVOi1m/5qmW4XUyniBKwc9+OunevNkKsf68cMDk2t/bAA5d4eLwOyTkfRvG41P3
-         RJwQZM13v2DkRBRAaRM1dMG07hFmZkSDQw89xjWORuML2Dq/7PAfVfrD/z3GDjnhID
-         ZD0sR7Xt7zXPQ==
+        b=svyixU7en3i00Vs3MK6/eYRiduLI2pSYdH7eeTi170NddSwqQpuCSZySZBkCA6S5s
+         IsFae/tb1o8TfGCPAo91urPluXmT6LEIuopCzIwWnOhYzjPgPL28E7Ra6K6hB+l5BR
+         Sd+vWVtPWmb8JFI24BGBg8JFMMTjKdZ0n/Sy9kk9oPvXxIhoO6Xz7tv1h6RaLOODc0
+         8iaCEnYJq0OB33y1VG4XOBDKx6cMb70ZYm2URrel2gN8/slL3gVKAS9pha1JQhNEEX
+         cFRYMt2RYmRigNfuzuZj21apbNahZ3xJOueknylxemwi768YmeNxv9YVXSaE6eCc/1
+         nYwWn6CKKEDUg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eugen Hristev <eugen.hristev@microchip.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, nicolas.ferre@microchip.com,
-        alexandre.belloni@bootlin.com, claudiu.beznea@microchip.com,
-        linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 26/46] media: atmel: atmel-isc-base: allow wb ctrls to be changed when isc is not configured
-Date:   Thu, 11 Aug 2022 12:03:50 -0400
-Message-Id: <20220811160421.1539956-26-sashal@kernel.org>
+Cc:     Gautam <gautammenghani201@gmail.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 27/46] kselftests: Enable the echo command to print newlines in Makefile
+Date:   Thu, 11 Aug 2022 12:03:51 -0400
+Message-Id: <20220811160421.1539956-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811160421.1539956-1-sashal@kernel.org>
 References: <20220811160421.1539956-1-sashal@kernel.org>
@@ -59,66 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Gautam <gautammenghani201@gmail.com>
 
-[ Upstream commit aa63c5eaf7f7d2d3a4b1cc5782e7151b8ae3079f ]
+[ Upstream commit 3297a4df805d4263506b6dfec4d1bbeff8862dd8 ]
 
-When attempting to change the white balance (WB) ctrls before starting
-streaming, e.g.:
+In the install section of the main Makefile of kselftests, the echo
+command is used with -n flag, which disables the printing of new line
+due to which the output contains "\n" chars as follows:
 
- # v4l2-ctl -L
+  Emit Tests for alsa\nSkipping non-existent dir: arm64
+  Emit Tests for breakpoints\nEmit Tests for capabilities\n
 
-User Controls
-..
-            blue_component_gain 0x009819c1 (int)    : min=0 max=8191 step=1 default=512 value=512 flags=slider
-..
- # v4l2-ctl --set-ctrl=blue_component_gain=500
- # v4l2-ctl -L
-..
-            blue_component_gain 0x009819c1 (int)    : min=0 max=8191 step=1 default=512 value=500 flags=slider
-..
+This patch fixes the above bug by using the -e flag.
 
-These will not be written to the internal data struct and will not be
-written to the WB hardware module.
-Thus, after starting streaming, they will be reset to default:
-
- # v4l2-ctl -L
-..
-            blue_component_gain 0x009819c1 (int)    : min=0 max=8191 step=1 default=512 value=512 flags=slider
-..
-
-It does not make much sense to not be able to configure the WB controls
-at all times. Even if the sensor would not be RAW Bayer (and in this case the
-WB module is unavailable), the user could configure the ISC itself, as the
-ISC should not care about the sensor format.
-Thus, when WB module is available (if the sensor changes format e.g.) it will
-be already configured as be user's desires.
-In consequence, remove the check in isc_s_awb_ctrl that will return if ISC
-does not know the sensor format.
-
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Gautam <gautammenghani201@gmail.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/atmel/atmel-isc-base.c | 4 ----
- 1 file changed, 4 deletions(-)
+ tools/testing/selftests/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/atmel/atmel-isc-base.c b/drivers/media/platform/atmel/atmel-isc-base.c
-index fe3ec8d0eaee..5364ec24947c 100644
---- a/drivers/media/platform/atmel/atmel-isc-base.c
-+++ b/drivers/media/platform/atmel/atmel-isc-base.c
-@@ -1915,10 +1915,6 @@ static int isc_s_awb_ctrl(struct v4l2_ctrl *ctrl)
- 		else
- 			ctrls->awb = ISC_WB_NONE;
- 
--		/* we did not configure ISC yet */
--		if (!isc->config.sd_format)
--			break;
--
- 		/* configure the controls with new values from v4l2 */
- 		if (ctrl->cluster[ISC_CTRL_R_GAIN]->is_new)
- 			ctrls->gain[ISC_HIS_CFG_MODE_R] = isc->r_gain_ctrl->val;
+diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
+index d9c283503159..a90eacec83ee 100644
+--- a/tools/testing/selftests/Makefile
++++ b/tools/testing/selftests/Makefile
+@@ -233,7 +233,7 @@ ifdef INSTALL_PATH
+ 	for TARGET in $(TARGETS); do \
+ 		BUILD_TARGET=$$BUILD/$$TARGET;	\
+ 		[ ! -d $(INSTALL_PATH)/$$TARGET ] && echo "Skipping non-existent dir: $$TARGET" && continue; \
+-		echo -n "Emit Tests for $$TARGET\n"; \
++		echo -ne "Emit Tests for $$TARGET\n"; \
+ 		$(MAKE) -s --no-print-directory OUTPUT=$$BUILD_TARGET COLLECTION=$$TARGET \
+ 			-C $$TARGET emit_tests >> $(TEST_LIST); \
+ 	done;
 -- 
 2.35.1
 
