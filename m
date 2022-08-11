@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7554459007D
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:43:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5B33590078
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:43:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236129AbiHKPlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:41:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41938 "EHLO
+        id S235999AbiHKPlm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:41:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236416AbiHKPkn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:40:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE74698A74;
-        Thu, 11 Aug 2022 08:36:19 -0700 (PDT)
+        with ESMTP id S236431AbiHKPkp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:40:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 153F999264;
+        Thu, 11 Aug 2022 08:36:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36584B82157;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D7FB61620;
+        Thu, 11 Aug 2022 15:36:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09A9EC433D7;
         Thu, 11 Aug 2022 15:36:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAA78C433C1;
-        Thu, 11 Aug 2022 15:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232177;
-        bh=6sRasSLSlcwEFv1YfjylIL2Tv62U0qLVFef2gp8bkIk=;
+        s=k20201202; t=1660232180;
+        bh=bhhV4Nhie3v1Rww2WwGnEWmY1+nfvJttYCbx1pBQg5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uvmXfE3yzDQ2z8xa2isrxo6r4DxPTOj3152u8+zQTqxCwRM0fPwgzocJGpeFIodzX
-         O/ZziC2Ph1FI43IhU/YambZpzDp8IFkWh/JZbtuzrRoCWRxRCFfIiPh3DAg2rqMMmc
-         J2XUtC7R6LMFtyZlp0ryigONVyZC23D7+Zwchiw9yfBrHLHx/3jls5lWdWpwo2rmVQ
-         IaifRdqZV0RS9pcupmsCw8ay39HWHz4JCuRggSg4tyLzDIlFRq1Ta5YT2K7tNcN0RA
-         NCKOgB9T2W6BL3oHQ/TLppDPlUBkuMQBtVdRAIXEMQhFnILx5V4TM9IAUXKm3Es4Sl
-         RpfYH+LzEoBBQ==
+        b=ccvGX/wxyPPvj1YwOWf4pAC5GCVAyFgAo9XIAyss3meGX1vv4YhEpKdkVm9l1dbwr
+         RQewJIyDqkiP4HUQ/7XzCm1oc9z2VkNQMMESf4fcXfmVFBF1QxWDqxuysjIkwqHiOw
+         Cv60k7FOvRtOFOHFMi3bBgbl3NgaPUuj0X0CKPXTb0a1c+giGBABkVDE72lrDTfNRd
+         x77pS+SzcUpdEH8+axHxhbrAphrePvAXgsK2rY+aFkkD8kbI+vPNRX9J4yYtcEBxAS
+         63Xky8aJFqBzhtYH8yiTASFq0Fg072Jr+tv911dXOflBuPkiy0s+GnwiRx5JSZTmT4
+         ILOujizD1JxFQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        Breno Leitao <leitao@debian.org>,
-        Sasha Levin <sashal@kernel.org>, nayna@linux.ibm.com,
-        pfsmorigo@gmail.com, mpe@ellerman.id.au, davem@davemloft.net,
-        linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.19 065/105] crypto: vmx - Fix warning on p8_ghash_alg
-Date:   Thu, 11 Aug 2022 11:27:49 -0400
-Message-Id: <20220811152851.1520029-65-sashal@kernel.org>
+Cc:     Hariprasad Kelam <hkelam@marvell.com>,
+        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, lcherian@marvell.com,
+        gakula@marvell.com, jerinj@marvell.com, sbhatta@marvell.com,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 066/105] octeontx2-af: Don't reset previous pfc config
+Date:   Thu, 11 Aug 2022 11:27:50 -0400
+Message-Id: <20220811152851.1520029-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
@@ -58,34 +60,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Hariprasad Kelam <hkelam@marvell.com>
 
-[ Upstream commit cc8166bfc829043020b5cc3b7cdba02a17d03b6d ]
+[ Upstream commit 8e1514579246ddc36ba0b860fc8bdd03be085aee ]
 
-The compiler complains that p8_ghash_alg isn't declared which is
-because the header file aesp8-ppc.h isn't included in ghash.c.
-This patch fixes the warning.
+Current implementation is such that driver first resets the
+existing PFC config before applying new pfc configuration.
+This creates a problem like once PF or VFs requests PFC config
+previous pfc config by other PFVfs is getting reset.
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Acked-by: Breno Leitao <leitao@debian.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This patch fixes the problem by removing unnecessary resetting
+of PFC config. Also configure Pause quanta value to smaller as
+current value is too high.
+
+Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
+Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/vmx/ghash.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../net/ethernet/marvell/octeontx2/af/cgx.c    | 15 +++++++++++----
+ .../net/ethernet/marvell/octeontx2/af/rpm.c    | 18 +++++++++++-------
+ .../net/ethernet/marvell/octeontx2/af/rpm.h    |  3 +--
+ 3 files changed, 23 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/crypto/vmx/ghash.c b/drivers/crypto/vmx/ghash.c
-index 5bc5710a6de0..77eca20bc7ac 100644
---- a/drivers/crypto/vmx/ghash.c
-+++ b/drivers/crypto/vmx/ghash.c
-@@ -23,6 +23,7 @@
- #include <crypto/internal/hash.h>
- #include <crypto/internal/simd.h>
- #include <crypto/b128ops.h>
-+#include "aesp8-ppc.h"
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/cgx.c b/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
+index 25491edc35ce..931a1a7ebf76 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
+@@ -847,6 +847,11 @@ static void cgx_lmac_pause_frm_config(void *cgxd, int lmac_id, bool enable)
+ 	cfg |= CGX_CMR_RX_OVR_BP_EN(lmac_id);
+ 	cfg &= ~CGX_CMR_RX_OVR_BP_BP(lmac_id);
+ 	cgx_write(cgx, 0, CGXX_CMR_RX_OVR_BP, cfg);
++
++	/* Disable all PFC classes by default */
++	cfg = cgx_read(cgx, lmac_id, CGXX_SMUX_CBFC_CTL);
++	cfg = FIELD_SET(CGX_PFC_CLASS_MASK, 0, cfg);
++	cgx_write(cgx, lmac_id, CGXX_SMUX_CBFC_CTL, cfg);
+ }
  
- void gcm_init_p8(u128 htable[16], const u64 Xi[2]);
- void gcm_gmult_p8(u64 Xi[2], const u128 htable[16]);
+ int verify_lmac_fc_cfg(void *cgxd, int lmac_id, u8 tx_pause, u8 rx_pause,
+@@ -899,6 +904,7 @@ int cgx_lmac_pfc_config(void *cgxd, int lmac_id, u8 tx_pause,
+ 		return 0;
+ 
+ 	cfg = cgx_read(cgx, lmac_id, CGXX_SMUX_CBFC_CTL);
++	pfc_en |= FIELD_GET(CGX_PFC_CLASS_MASK, cfg);
+ 
+ 	if (rx_pause) {
+ 		cfg |= (CGXX_SMUX_CBFC_CTL_RX_EN |
+@@ -910,12 +916,13 @@ int cgx_lmac_pfc_config(void *cgxd, int lmac_id, u8 tx_pause,
+ 			CGXX_SMUX_CBFC_CTL_DRP_EN);
+ 	}
+ 
+-	if (tx_pause)
++	if (tx_pause) {
+ 		cfg |= CGXX_SMUX_CBFC_CTL_TX_EN;
+-	else
++		cfg = FIELD_SET(CGX_PFC_CLASS_MASK, pfc_en, cfg);
++	} else {
+ 		cfg &= ~CGXX_SMUX_CBFC_CTL_TX_EN;
+-
+-	cfg = FIELD_SET(CGX_PFC_CLASS_MASK, pfc_en, cfg);
++		cfg = FIELD_SET(CGX_PFC_CLASS_MASK, 0, cfg);
++	}
+ 
+ 	cgx_write(cgx, lmac_id, CGXX_SMUX_CBFC_CTL, cfg);
+ 
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rpm.c b/drivers/net/ethernet/marvell/octeontx2/af/rpm.c
+index 47e83d7a5804..05666922a45b 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rpm.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rpm.c
+@@ -276,6 +276,11 @@ void rpm_lmac_pause_frm_config(void *rpmd, int lmac_id, bool enable)
+ 	cfg = rpm_read(rpm, lmac_id, RPMX_MTI_MAC100X_COMMAND_CONFIG);
+ 	cfg |= RPMX_MTI_MAC100X_COMMAND_CONFIG_TX_P_DISABLE;
+ 	rpm_write(rpm, lmac_id, RPMX_MTI_MAC100X_COMMAND_CONFIG, cfg);
++
++	/* Disable all PFC classes */
++	cfg = rpm_read(rpm, lmac_id, RPMX_CMRX_PRT_CBFC_CTL);
++	cfg = FIELD_SET(RPM_PFC_CLASS_MASK, 0, cfg);
++	rpm_write(rpm, lmac_id, RPMX_CMRX_PRT_CBFC_CTL, cfg);
+ }
+ 
+ int rpm_get_rx_stats(void *rpmd, int lmac_id, int idx, u64 *rx_stat)
+@@ -387,15 +392,14 @@ void rpm_lmac_ptp_config(void *rpmd, int lmac_id, bool enable)
+ int rpm_lmac_pfc_config(void *rpmd, int lmac_id, u8 tx_pause, u8 rx_pause, u16 pfc_en)
+ {
+ 	rpm_t *rpm = rpmd;
+-	u64 cfg;
++	u64 cfg, class_en;
+ 
+ 	if (!is_lmac_valid(rpm, lmac_id))
+ 		return -ENODEV;
+ 
+-	/* reset PFC class quanta and threshold */
+-	rpm_cfg_pfc_quanta_thresh(rpm, lmac_id, 0xffff, false);
+-
+ 	cfg = rpm_read(rpm, lmac_id, RPMX_MTI_MAC100X_COMMAND_CONFIG);
++	class_en = rpm_read(rpm, lmac_id, RPMX_CMRX_PRT_CBFC_CTL);
++	pfc_en |= FIELD_GET(RPM_PFC_CLASS_MASK, class_en);
+ 
+ 	if (rx_pause) {
+ 		cfg &= ~(RPMX_MTI_MAC100X_COMMAND_CONFIG_RX_P_DISABLE |
+@@ -410,9 +414,11 @@ int rpm_lmac_pfc_config(void *rpmd, int lmac_id, u8 tx_pause, u8 rx_pause, u16 p
+ 	if (tx_pause) {
+ 		rpm_cfg_pfc_quanta_thresh(rpm, lmac_id, pfc_en, true);
+ 		cfg &= ~RPMX_MTI_MAC100X_COMMAND_CONFIG_TX_P_DISABLE;
++		class_en = FIELD_SET(RPM_PFC_CLASS_MASK, pfc_en, class_en);
+ 	} else {
+ 		rpm_cfg_pfc_quanta_thresh(rpm, lmac_id, 0xfff, false);
+ 		cfg |= RPMX_MTI_MAC100X_COMMAND_CONFIG_TX_P_DISABLE;
++		class_en = FIELD_SET(RPM_PFC_CLASS_MASK, 0, class_en);
+ 	}
+ 
+ 	if (!rx_pause && !tx_pause)
+@@ -422,9 +428,7 @@ int rpm_lmac_pfc_config(void *rpmd, int lmac_id, u8 tx_pause, u8 rx_pause, u16 p
+ 
+ 	rpm_write(rpm, lmac_id, RPMX_MTI_MAC100X_COMMAND_CONFIG, cfg);
+ 
+-	cfg = rpm_read(rpm, lmac_id, RPMX_CMRX_PRT_CBFC_CTL);
+-	cfg = FIELD_SET(RPM_PFC_CLASS_MASK, pfc_en, cfg);
+-	rpm_write(rpm, lmac_id, RPMX_CMRX_PRT_CBFC_CTL, cfg);
++	rpm_write(rpm, lmac_id, RPMX_CMRX_PRT_CBFC_CTL, class_en);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rpm.h b/drivers/net/ethernet/marvell/octeontx2/af/rpm.h
+index 9ab8d49dd180..8205f2626f61 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rpm.h
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rpm.h
+@@ -48,7 +48,6 @@
+ #define RPMX_MTI_MAC100X_CL1011_QUANTA_THRESH		0x8130
+ #define RPMX_MTI_MAC100X_CL1213_QUANTA_THRESH		0x8138
+ #define RPMX_MTI_MAC100X_CL1415_QUANTA_THRESH		0x8140
+-#define RPM_DEFAULT_PAUSE_TIME			0xFFFF
+ #define RPMX_CMR_RX_OVR_BP		0x4120
+ #define RPMX_CMR_RX_OVR_BP_EN(x)	BIT_ULL((x) + 8)
+ #define RPMX_CMR_RX_OVR_BP_BP(x)	BIT_ULL((x) + 4)
+@@ -70,7 +69,7 @@
+ #define RPMX_MTI_MAC100X_COMMAND_CONFIG_PAUSE_FWD              BIT_ULL(7)
+ #define RPMX_MTI_MAC100X_CL01_PAUSE_QUANTA              0x80A8
+ #define RPMX_MTI_MAC100X_CL89_PAUSE_QUANTA		0x8108
+-#define RPM_DEFAULT_PAUSE_TIME                          0xFFFF
++#define RPM_DEFAULT_PAUSE_TIME                          0x7FF
+ 
+ /* Function Declarations */
+ int rpm_get_nr_lmacs(void *rpmd);
 -- 
 2.35.1
 
