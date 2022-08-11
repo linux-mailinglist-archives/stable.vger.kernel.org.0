@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 488695901C4
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 687545901CB
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236961AbiHKP51 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:57:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35266 "EHLO
+        id S237095AbiHKP5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:57:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236984AbiHKPzH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:55:07 -0400
+        with ESMTP id S236939AbiHKPzI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:55:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E5A9606BE;
-        Thu, 11 Aug 2022 08:46:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 418DEDEE1;
+        Thu, 11 Aug 2022 08:46:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CA38616DD;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D410D616DD;
+        Thu, 11 Aug 2022 15:46:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09614C433D6;
         Thu, 11 Aug 2022 15:46:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8996AC433C1;
-        Thu, 11 Aug 2022 15:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232778;
-        bh=+swndNcso2VMvw6qiI+KLuZ0dfE4W3c+gUqq1fw8uOQ=;
+        s=k20201202; t=1660232781;
+        bh=j4a/PfP+pRSpIzjqaSM4Hx3iCpAMQApk+tKDdQNUBqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDa4EwZGi7UtqamVHo8m8+trrnDdSXhoKQgczXJihUIY0gaZLbdtQRu07rEBsEebQ
-         ToyMWR9oWOOhnP3SWgfK+txOgD4AMK5wzs51yPkTSJhEdjm6KZmRazD9Cje7n4SXwT
-         VNYLbvdpt27ZfQPqeD4qn6f2y23E6nQIyZN+FgS70eX1A2JFRd6Ld05L4Ew9tqWaEl
-         TbR+b9rHCCDUKewgowvGU8XeMagSK6sO6+S7Gk27Ul9kvMw2KTzIvZPgnxXNjCfTnJ
-         TRcug5DNCkTiK1SeqsTMypuyIroTnNZ90GibzqdxCft4sBfvUOXOCgXLv61S5XWOb6
-         ncCE/H6Hqd9sQ==
+        b=A9e5wDQZTvmFwezgjutAHRkc/FYwHSm+ZRyWxbomrqiDpK9Y9toJYNdqMMRDvRpzw
+         pRUorvXAdBGxEIYMNYhQhHDnbPXTwvBCODAehF5MzEUYnU/+k5BTJ6G85Xu/BuwB0J
+         s/9iORaGPbBczwOpplyfAcdFoRu6Gzw9ajWqUWVJV3R8DwunqYaiPe/pqrbzVi82Md
+         zk4+WFbi3uTAMP77PRwYZdXCqgjpL65QTmxv+wY//TJFeivlC2IkrNy1m/7bt0P4zO
+         7JEcmH+ImX7e0r9tfeg8EHB6KtyjcI3I0XbsrzkGQzItLQA4x2EGayffB419BB2iWQ
+         W7kNi7ZlH8Vsg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Neukum <oneukum@suse.com>,
+Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
+        syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, crope@iki.fi,
+        Sasha Levin <sashal@kernel.org>, isely@pobox.com,
         linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 32/93] media: airspy: respect the DMA coherency rules
-Date:   Thu, 11 Aug 2022 11:41:26 -0400
-Message-Id: <20220811154237.1531313-32-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 33/93] media: pvrusb2: fix memory leak in pvr_probe
+Date:   Thu, 11 Aug 2022 11:41:27 -0400
+Message-Id: <20220811154237.1531313-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -58,84 +59,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit ca9dc8d06ab64543a6a31adac5003349c5671218 ]
+[ Upstream commit 945a9a8e448b65bec055d37eba58f711b39f66f0 ]
 
-If we want to avoid memory corruption
-on incoherent architectures, buffers for DMA
-must not reside
-- on the stack
-- embedded within other structures
+The error handling code in pvr2_hdw_create forgets to unregister the
+v4l2 device. When pvr2_hdw_create returns back to pvr2_context_create,
+it calls pvr2_context_destroy to destroy context, but mp->hdw is NULL,
+which leads to that pvr2_hdw_destroy directly returns.
 
-Allocate them separately.
+Fix this by adding v4l2_device_unregister to decrease the refcount of
+usb interface.
 
-v2: fix uninitialized return value
-
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/airspy/airspy.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/usb/airspy/airspy.c b/drivers/media/usb/airspy/airspy.c
-index d568452618d1..240a7cc56777 100644
---- a/drivers/media/usb/airspy/airspy.c
-+++ b/drivers/media/usb/airspy/airspy.c
-@@ -123,7 +123,7 @@ struct airspy {
- 
- 	/* USB control message buffer */
- 	#define BUF_SIZE 128
--	u8 buf[BUF_SIZE];
-+	u8 *buf;
- 
- 	/* Current configuration */
- 	unsigned int f_adc;
-@@ -856,6 +856,7 @@ static void airspy_video_release(struct v4l2_device *v)
- 
- 	v4l2_ctrl_handler_free(&s->hdl);
- 	v4l2_device_unregister(&s->v4l2_dev);
-+	kfree(s->buf);
- 	kfree(s);
- }
- 
-@@ -963,7 +964,10 @@ static int airspy_probe(struct usb_interface *intf,
- {
- 	struct airspy *s;
- 	int ret;
--	u8 u8tmp, buf[BUF_SIZE];
-+	u8 u8tmp, *buf;
-+
-+	buf = NULL;
-+	ret = -ENOMEM;
- 
- 	s = kzalloc(sizeof(struct airspy), GFP_KERNEL);
- 	if (s == NULL) {
-@@ -971,6 +975,13 @@ static int airspy_probe(struct usb_interface *intf,
- 		return -ENOMEM;
- 	}
- 
-+	s->buf = kzalloc(BUF_SIZE, GFP_KERNEL);
-+	if (!s->buf)
-+		goto err_free_mem;
-+	buf = kzalloc(BUF_SIZE, GFP_KERNEL);
-+	if (!buf)
-+		goto err_free_mem;
-+
- 	mutex_init(&s->v4l2_lock);
- 	mutex_init(&s->vb_queue_lock);
- 	spin_lock_init(&s->queued_bufs_lock);
-@@ -1068,6 +1079,8 @@ static int airspy_probe(struct usb_interface *intf,
- 	v4l2_ctrl_handler_free(&s->hdl);
- 	v4l2_device_unregister(&s->v4l2_dev);
- err_free_mem:
-+	kfree(buf);
-+	kfree(s->buf);
- 	kfree(s);
- 	return ret;
- }
+diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+index a9666373af6b..92d6db1ad00f 100644
+--- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
++++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+@@ -2610,6 +2610,7 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
+ 		del_timer_sync(&hdw->encoder_run_timer);
+ 		del_timer_sync(&hdw->encoder_wait_timer);
+ 		flush_work(&hdw->workpoll);
++		v4l2_device_unregister(&hdw->v4l2_dev);
+ 		usb_free_urb(hdw->ctl_read_urb);
+ 		usb_free_urb(hdw->ctl_write_urb);
+ 		kfree(hdw->ctl_read_buffer);
 -- 
 2.35.1
 
