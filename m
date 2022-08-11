@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80F8B5901C8
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C4AD590194
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237080AbiHKP5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:57:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45500 "EHLO
+        id S236694AbiHKP51 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:57:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237050AbiHKPzT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:55:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C54897509;
-        Thu, 11 Aug 2022 08:46:34 -0700 (PDT)
+        with ESMTP id S237104AbiHKPzp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:55:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAEB774DE9;
+        Thu, 11 Aug 2022 08:46:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6DE0AB82160;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A730A616DE;
+        Thu, 11 Aug 2022 15:46:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B65FAC433D6;
         Thu, 11 Aug 2022 15:46:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 930EDC433D6;
-        Thu, 11 Aug 2022 15:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232791;
-        bh=M8+2Regi7w11f9Fs6t96nrt3QoC76Pn7bK09bq3NUaE=;
+        s=k20201202; t=1660232794;
+        bh=BqLuHpm7mQrAY/0hhdZ0D6Jp3muwgvEOfDT3tY/2MBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m1+Cl5Ja9fRPv5qdcfiNj772cLsun9n2vfkvuXqLHXnDEPKysUkZA41huzA3XcAZl
-         dXSBZo+GObH9dRx0nlLyvr0JRzstZ1wNJ++xdzzF1kqQJ0iLB8ztmxhOLUJ+/lvUkg
-         9YohzlJ2LKHPcsIhwIj0Mc8Zta8GOvoBHrB5gU9ox6/xJCxZVQ++w4STmvT9yXr+ct
-         s2OE0HJS3MFDtrMONUzaROSnBa97JNsU71y8C3xvL+bNGRCip3uy07i7zExBwrp0bQ
-         LSmkqHAPOYyX6sIaFw6/tQ/ZXaGNwprrTZrVDdxetOmfQ3yelnB6c9zYiGhqyaNGIn
-         UnKz5p0i9WV3Q==
+        b=Rhu7iSYbgyCc5/2gxboCaCpIcf9xp17rwv1Q6laMJC9momTQ8mQnfKE/MUZU2WMFv
+         oVi1Ugwdl7LeUC66HyqlY0Drm33PGFCCukGBU/hxnH0amH4RkvZKKSwPtySyzD3pUQ
+         DbGVv94JlkY9oJNWghTEkyP8ayD03PtK8vVbTX7OdsBDYda469SzV+zZMku8DVRenq
+         vlZZ0S0DCj1xm5eDqZgBWeYV7Riwn9jCJHy0W0I9LiIcYOsdihLjjuSXEv6SpAAnsO
+         87+IdWtOPNREsU/sSUiuZmuxEDeA9Sxh8je9qCaEWGq6zkRBttQzDU3sVJofyN1hCU
+         X+8fpDgphp3HQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Delyan Kratunov <delyank@fb.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, rostedt@goodmis.org,
-        mingo@redhat.com, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 36/93] uprobe: gate bpf call behind BPF_EVENTS
-Date:   Thu, 11 Aug 2022 11:41:30 -0400
-Message-Id: <20220811154237.1531313-36-sashal@kernel.org>
+Cc:     Zqiang <qiang1.zhang@intel.com>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, dave@stgolabs.net,
+        josh@joshtriplett.org, frederic@kernel.org,
+        quic_neeraju@quicinc.com, rcu@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 37/93] rcutorture: Fix memory leak in rcu_test_debug_objects()
+Date:   Thu, 11 Aug 2022 11:41:31 -0400
+Message-Id: <20220811154237.1531313-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -58,48 +58,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Delyan Kratunov <delyank@fb.com>
+From: Zqiang <qiang1.zhang@intel.com>
 
-[ Upstream commit aca80dd95e20f1fa0daa212afc83c9fa0ad239e5 ]
+[ Upstream commit 98ea20328786372cbbc90c601be168f5fe1f8845 ]
 
-The call into bpf from uprobes needs to be gated now that it doesn't use
-the trace_events.h helpers.
+The kernel memory leak detector located the following:
 
-Randy found this as a randconfig build failure on linux-next [1].
+unreferenced object 0xffff95d941135b50 (size 16):
+  comm "swapper/0", pid 1, jiffies 4294667610 (age 1367.451s)
+  hex dump (first 16 bytes):
+    f0 c6 c2 bd d9 95 ff ff 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000bc81d9b1>] kmem_cache_alloc_trace+0x2f6/0x500
+    [<00000000d28be229>] rcu_torture_init+0x1235/0x1354
+    [<0000000032c3acd9>] do_one_initcall+0x51/0x210
+    [<000000003c117727>] kernel_init_freeable+0x205/0x259
+    [<000000003961f965>] kernel_init+0x1a/0x120
+    [<000000001998f890>] ret_from_fork+0x22/0x30
 
-  [1]: https://lore.kernel.org/linux-next/2de99180-7d55-2fdf-134d-33198c27cc58@infradead.org/
+This is caused by the rcu_test_debug_objects() function allocating an
+rcu_head structure, then failing to free it.  This commit therefore adds
+the needed kfree() after the last use of this structure.
 
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Delyan Kratunov <delyank@fb.com>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/cb8bfbbcde87ed5d811227a393ef4925f2aadb7b.camel@fb.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Zqiang <qiang1.zhang@intel.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_uprobe.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/rcu/rcutorture.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/trace/trace_uprobe.c b/kernel/trace/trace_uprobe.c
-index 9711589273cd..c3937c935239 100644
---- a/kernel/trace/trace_uprobe.c
-+++ b/kernel/trace/trace_uprobe.c
-@@ -1343,6 +1343,7 @@ static void __uprobe_perf_func(struct trace_uprobe *tu,
- 	int size, esize;
- 	int rctx;
- 
-+#ifdef CONFIG_BPF_EVENTS
- 	if (bpf_prog_array_valid(call)) {
- 		u32 ret;
- 
-@@ -1352,6 +1353,7 @@ static void __uprobe_perf_func(struct trace_uprobe *tu,
- 		if (!ret)
- 			return;
- 	}
-+#endif /* CONFIG_BPF_EVENTS */
- 
- 	esize = SIZEOF_TRACE_ENTRY(is_ret_probe(tu));
- 
+diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
+index 55d049c39608..4df46bede467 100644
+--- a/kernel/rcu/rcutorture.c
++++ b/kernel/rcu/rcutorture.c
+@@ -3074,6 +3074,7 @@ static void rcu_test_debug_objects(void)
+ 	pr_alert("%s: WARN: Duplicate call_rcu() test complete.\n", KBUILD_MODNAME);
+ 	destroy_rcu_head_on_stack(&rh1);
+ 	destroy_rcu_head_on_stack(&rh2);
++	kfree(rhp);
+ #else /* #ifdef CONFIG_DEBUG_OBJECTS_RCU_HEAD */
+ 	pr_alert("%s: !CONFIG_DEBUG_OBJECTS_RCU_HEAD, not testing duplicate call_rcu()\n", KBUILD_MODNAME);
+ #endif /* #else #ifdef CONFIG_DEBUG_OBJECTS_RCU_HEAD */
 -- 
 2.35.1
 
