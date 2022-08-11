@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06BDE59033C
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:21:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A80F6590338
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237661AbiHKQVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:21:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58566 "EHLO
+        id S237663AbiHKQVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:21:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235638AbiHKQUV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:20:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2A6FAEDB3;
-        Thu, 11 Aug 2022 09:02:18 -0700 (PDT)
+        with ESMTP id S237521AbiHKQUW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:20:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C27CAEDB4;
+        Thu, 11 Aug 2022 09:02:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78418B82182;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3868E61380;
+        Thu, 11 Aug 2022 16:02:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76C2CC433B5;
         Thu, 11 Aug 2022 16:02:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF56DC433C1;
-        Thu, 11 Aug 2022 16:02:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660233736;
-        bh=XlGk8IX1wN1ZNzCe5TFWky6S5v+Ns8c93X8nxKeGupM=;
+        s=k20201202; t=1660233738;
+        bh=Zu6ijkkJgaNWsevWxt6/GR63axzBMS3cxG1chMQKBkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nlm9VIMedcYvTwV7LB/0Mmuggn6mYl0lTa4n0MnhhgtHgN+TRLNZ6DKcuPpL8RlsO
-         0waF5XoTCL7M/ivNXr98kq8XwqHXXDi/xSYWU6Z2fxCyoiTv9NnXjCFWY6MiBtQMkX
-         V0DD+W1gwJfhNpVR1v5fFX+YnUv+FJWY4HggmCW5nKWDv4+YV86dDhd8FWU/EDP/eX
-         QeULCXew9MhxDBcBCht7X+40+tVcBir4jj82vhScGC4vBGjO8zsPx5XBQv5EISHnnc
-         twqBdgGcbkn4l5Erav6e5aAbZYmyJFTVui1t3EqSZS4cTrHMhkIAyZRG4bV8A8QinW
-         Odrya82zSDxuQ==
+        b=p/lGnwCokrdINPmu5iUKXYA2EIoNYCYNd4bpHXjvN/hk+iVCS6uTy+qE2eK/Vc8tj
+         O71jAgHUJuSNWfQjG4weqK6iQFiJSaud2BjXQnhPtcZ7BZweAyrFv9hFWuTqJVMhyx
+         MTNDGDq+JRYzINTuIR1Cpq2HaiCpw8sh46S2BQqJ/f1asTt7Lv7bpwK+TNzrHtAXZY
+         qe/LMrNzMWgqOuzW7G2ZErg+/wea/AxtRJB8uK31uPrXGsfVWMD13ZMrIcP9k3+Ljr
+         UsQWGZMOsS6fYsTsFcwf95iQeDKVO+DEIIlY8Ra3rgVnyhqAyqS0qSOdIreWDuTf1t
+         LdRwDspnEoYjQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yuan Can <yuancan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, gilad@benyossef.com,
-        davem@davemloft.net, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 51/69] crypto: ccree - Add missing clk_disable_unprepare() in cc_pm_resume()
-Date:   Thu, 11 Aug 2022 11:56:00 -0400
-Message-Id: <20220811155632.1536867-51-sashal@kernel.org>
+Cc:     Ben Dooks <ben.dooks@sifive.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
+        martin.lau@linux.dev, ast@kernel.org, daniel@iogearbox.net,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 52/69] bpf: Fix check against plain integer v 'NULL'
+Date:   Thu, 11 Aug 2022 11:56:01 -0400
+Message-Id: <20220811155632.1536867-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811155632.1536867-1-sashal@kernel.org>
 References: <20220811155632.1536867-1-sashal@kernel.org>
@@ -57,40 +58,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Ben Dooks <ben.dooks@sifive.com>
 
-[ Upstream commit 30fb034361ff1b9bfc569b2d8d66b544ea3eb18f ]
+[ Upstream commit a2a5580fcbf808e7c2310e4959b62f9d2157fdb6 ]
 
-Add clk_disable_unprepare() on error path in cc_pm_resume().
+When checking with sparse, btf_show_type_value() is causing a
+warning about checking integer vs NULL when the macro is passed
+a pointer, due to the 'value != 0' check. Stop sparse complaining
+about any type-casting by adding a cast to the typeof(value).
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This fixes the following sparse warnings:
+
+kernel/bpf/btf.c:2579:17: warning: Using plain integer as NULL pointer
+kernel/bpf/btf.c:2581:17: warning: Using plain integer as NULL pointer
+kernel/bpf/btf.c:3407:17: warning: Using plain integer as NULL pointer
+kernel/bpf/btf.c:3758:9: warning: Using plain integer as NULL pointer
+
+Signed-off-by: Ben Dooks <ben.dooks@sifive.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20220714100322.260467-1-ben.dooks@sifive.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccree/cc_pm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/bpf/btf.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/ccree/cc_pm.c b/drivers/crypto/ccree/cc_pm.c
-index d5421b0c6831..6124fbbbed94 100644
---- a/drivers/crypto/ccree/cc_pm.c
-+++ b/drivers/crypto/ccree/cc_pm.c
-@@ -41,6 +41,7 @@ static int cc_pm_resume(struct device *dev)
- 	/* wait for Cryptocell reset completion */
- 	if (!cc_wait_for_reset_completion(drvdata)) {
- 		dev_err(dev, "Cryptocell reset not completed");
-+		clk_disable_unprepare(drvdata->clk);
- 		return -EBUSY;
- 	}
- 
-@@ -48,6 +49,7 @@ static int cc_pm_resume(struct device *dev)
- 	rc = init_cc_regs(drvdata);
- 	if (rc) {
- 		dev_err(dev, "init_cc_regs (%x)\n", rc);
-+		clk_disable_unprepare(drvdata->clk);
- 		return rc;
- 	}
- 	/* check if tee fips error occurred during power down */
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index 3cfba41a0829..cf89c99d4f28 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -1013,7 +1013,8 @@ __printf(2, 3) static void btf_show(struct btf_show *show, const char *fmt, ...)
+  */
+ #define btf_show_type_value(show, fmt, value)				       \
+ 	do {								       \
+-		if ((value) != 0 || (show->flags & BTF_SHOW_ZERO) ||	       \
++		if ((value) != (__typeof__(value))0 ||			       \
++		    (show->flags & BTF_SHOW_ZERO) ||			       \
+ 		    show->state.depth == 0) {				       \
+ 			btf_show(show, "%s%s" fmt "%s%s",		       \
+ 				 btf_show_indent(show),			       \
 -- 
 2.35.1
 
