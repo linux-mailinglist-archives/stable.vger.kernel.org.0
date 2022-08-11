@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F7B85904EF
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:49:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57AAB5904F2
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238702AbiHKQfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:35:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57656 "EHLO
+        id S238927AbiHKQhi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:37:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238711AbiHKQdS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:33:18 -0400
+        with ESMTP id S238900AbiHKQd4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:33:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86696BB02C;
-        Thu, 11 Aug 2022 09:11:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7102777560;
+        Thu, 11 Aug 2022 09:11:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B281FB821BA;
-        Thu, 11 Aug 2022 16:10:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45026C433C1;
-        Thu, 11 Aug 2022 16:10:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8B72B821B0;
+        Thu, 11 Aug 2022 16:11:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41ECFC433D7;
+        Thu, 11 Aug 2022 16:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660234257;
-        bh=yl0xHkcESV7NTyfRvJaAPC4xYMup5ytE1fDcH4xEmw4=;
+        s=k20201202; t=1660234264;
+        bh=OO8x2+4a0MfU5R0wgHThLSWrI2dTRD1AshgT6xMLU4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZsf+Qk+S666bLuy3lmVFklbYDSuDLX2nbmrWGEW3xTu5+Uqcp/p/2whe4DT+od0c
-         u71u8T0sCZyKTkTPWBo8SIiLvbD07/+q6xRDPBulthKhi4KEFnbCM/aR4K2DQvajdR
-         OOo1UJ5Os7/UxWzbS44b2xVSfi8MfxuDoodHCI2TXfPbu2IkpQInjCyftnrHWLr9M5
-         CyY0qZdjEPtALbGL0/jUZRtlEiYyvKhkD36wV4pQnIsRYWHwQclcEOIycTlYcMpDPN
-         mH87JMTFDdieA0t0ww8W5wL2/33aPfPDwLAyVKRk3/te6NJq0sCXMwtg5GDPRRlk9n
-         /lC9PPbGoe1eA==
+        b=qVGaNIRhDk8juL8OwnowrMCi3U+tsQg+VQza0eENgHsCsblclCXD18UVuPTgKIr8+
+         ZGOFDZBxubpWgvZJ78kNFmUtm1IovGymaZFsixsPIlDXcU4wQz6EarnP03cqf0Uk5/
+         bHx2sQ0fsqL3EXhzJdW6RgrmGfw8p+1dhfV9oej6qdJ6We4Zn9/ZFzGPmdSQDJz5VR
+         zgX2+rpXN6v1u2LTTD0WgAwTf2hy+r+Le+M6Lp58mL87n16cZS/y9LuluJnE6jpUo6
+         f+5npj4C8VlAobbaTLxDfYbwleYrXRp8MUTSb73Gf1lrqUKqfWkpktpIfmap+5oxY+
+         Q7d+gwjjFEpCg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 03/14] drm/radeon: Initialize fences array entries in radeon_sa_bo_next_hole
-Date:   Thu, 11 Aug 2022 12:10:32 -0400
-Message-Id: <20220811161050.1543183-3-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, johan@kernel.org,
+        prabhakar.mahadev-lad.rj@bp.renesas.com,
+        laurent.pinchart@ideasonboard.com, cai.huoqing@linux.dev,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 04/14] media: davinci: vpif: add missing of_node_put() in vpif_probe()
+Date:   Thu, 11 Aug 2022 12:10:33 -0400
+Message-Id: <20220811161050.1543183-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811161050.1543183-1-sashal@kernel.org>
 References: <20220811161050.1543183-1-sashal@kernel.org>
@@ -58,52 +61,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 0381ac3ca2e727d4dfb7264d9416a8ba6bb6c18b ]
+[ Upstream commit bb45f5433f23cf103ba29c9692ee553e061f2cb4 ]
 
-Similar to the handling of amdgpu_sa_bo_next_hole in commit 6a15f3ff19a8
-("drm/amdgpu: Initialize fences array entries in amdgpu_sa_bo_next_hole"),
-we thought a patch might be needed here as well.
+of_graph_get_next_endpoint() returns an 'endpoint' node pointer
+with refcount incremented. The refcount should be decremented
+before returning from vpif_probe().
 
-The entries were only initialized once in radeon_sa_bo_new. If a fence
-wasn't signalled yet in the first radeon_sa_bo_next_hole call, but then
-got signalled before a later radeon_sa_bo_next_hole call, it could
-destroy the fence but leave its pointer in the array, resulting in
-use-after-free in radeon_sa_bo_new.
-
-Signed-off-by: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_sa.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/platform/davinci/vpif.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_sa.c b/drivers/gpu/drm/radeon/radeon_sa.c
-index 197b157b73d0..0cb6eeb77b5f 100644
---- a/drivers/gpu/drm/radeon/radeon_sa.c
-+++ b/drivers/gpu/drm/radeon/radeon_sa.c
-@@ -267,6 +267,8 @@ static bool radeon_sa_bo_next_hole(struct radeon_sa_manager *sa_manager,
- 	for (i = 0; i < RADEON_NUM_RINGS; ++i) {
- 		struct radeon_sa_bo *sa_bo;
+diff --git a/drivers/media/platform/davinci/vpif.c b/drivers/media/platform/davinci/vpif.c
+index 4ac0893282f5..a46316f5467b 100644
+--- a/drivers/media/platform/davinci/vpif.c
++++ b/drivers/media/platform/davinci/vpif.c
+@@ -449,6 +449,7 @@ static int vpif_probe(struct platform_device *pdev)
+ 					      endpoint);
+ 	if (!endpoint)
+ 		return 0;
++	of_node_put(endpoint);
  
-+		fences[i] = NULL;
-+
- 		if (list_empty(&sa_manager->flist[i])) {
- 			continue;
- 		}
-@@ -332,10 +334,8 @@ int radeon_sa_bo_new(struct radeon_device *rdev,
- 
- 	spin_lock(&sa_manager->wq.lock);
- 	do {
--		for (i = 0; i < RADEON_NUM_RINGS; ++i) {
--			fences[i] = NULL;
-+		for (i = 0; i < RADEON_NUM_RINGS; ++i)
- 			tries[i] = 0;
--		}
- 
- 		do {
- 			radeon_sa_bo_try_free(sa_manager);
+ 	/*
+ 	 * For DT platforms, manually create platform_devices for
 -- 
 2.35.1
 
