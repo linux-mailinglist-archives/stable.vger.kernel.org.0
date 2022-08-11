@@ -2,51 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 357345903C2
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:28:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 678EB590396
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:28:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237958AbiHKQZA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:25:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44940 "EHLO
+        id S238095AbiHKQZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:25:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237955AbiHKQXu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:23:50 -0400
+        with ESMTP id S238003AbiHKQYM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:24:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C7531836A;
-        Thu, 11 Aug 2022 09:05:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9D871A833;
+        Thu, 11 Aug 2022 09:05:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8B69B821AC;
-        Thu, 11 Aug 2022 16:05:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96F46C433D6;
-        Thu, 11 Aug 2022 16:05:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D4BCB821AD;
+        Thu, 11 Aug 2022 16:05:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C798EC433D6;
+        Thu, 11 Aug 2022 16:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660233927;
-        bh=/6hxT/F8vjxIc+5EJcIBW6dkGMsqBNBiHNTut1lnhOs=;
+        s=k20201202; t=1660233944;
+        bh=y2IrkiMugo1Km5Q7lyHBt53yMDZvh7y5Xn/R7V2EW3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jn5fQkHXGu5ouL5yghllmvOxOEGsrGyJAl6djAmrbFXP6U0NTVCvjcG8gsoJ0+CVv
-         o1F2RaatmHAaU7QX/8rUdP5t1EYvHJ0chsE/ZHAcKJYV4xSOa5FId890kK9uIsZcn9
-         us+bH9JElL6d9KtdPDuaiwPlHhtcMiVxnmJ4sjyfKT6zVmrlvEDeEPAhULcHSuw4C/
-         +8VJHxXAH5/9MUgHBNHSMX2KaITRdqukeTa4WlXZnUMiJ+PcOMq2KeKotPuec4rOzc
-         VQimFQp9cCia4VB9GHGTFTPq+81tmX+Dpj4CIPSd7S+nkFS/znXzupbp21bBVHHewP
-         tSEYWu0Z0DBAw==
+        b=SgKO+TLpXvawc8P6w/uLWu6WX8GKBQQ6ZEnw0D+Uwm/dpHBRCaw096lOQosXdomKG
+         bZ7n5f3yuVgehTI/X+nmkbxE3mKCJfpE2kBsBeIVh+M0Jp77+l4kDECoX+b0rbY648
+         ZAtu6tqvVgKRTTKgCjuH9iZbmi75wb62lvn9v15E0j06ASkRmWXQfgpSRUkMMSvo7H
+         VZn6MRv2VZl0KfsvhBz/sZMo5c9cy2RpUeErzh6zEUVOwMuNhCkbBqnCAA5pqhq1j1
+         gBMwak0Pap+BRl4bwhra4ei/NOU51FQ0/9waW1KG6fp6Tnr+JLxctRdr9CINPqbYE/
+         XcTgxT+VsInFw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shah Dharati <dharshah@amd.com>,
-        Hansen Dsouza <Hansen.Dsouza@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Hamza Mahfooz <hamza.mahfooz@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 14/46] drm/amd/display: Fix monitor flash issue
-Date:   Thu, 11 Aug 2022 12:03:38 -0400
-Message-Id: <20220811160421.1539956-14-sashal@kernel.org>
+Cc:     Petr Machata <petrm@nvidia.com>, Amit Cohen <amcohen@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        danieller@nvidia.com, kuba@kernel.org, netdev@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 15/46] selftests: mlxsw: resource_scale: Allow skipping a test
+Date:   Thu, 11 Aug 2022 12:03:39 -0400
+Message-Id: <20220811160421.1539956-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811160421.1539956-1-sashal@kernel.org>
 References: <20220811160421.1539956-1-sashal@kernel.org>
@@ -64,41 +59,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shah Dharati <dharshah@amd.com>
+From: Petr Machata <petrm@nvidia.com>
 
-[ Upstream commit b840b64bc8ed3fc46f6d6aa7f97c43862a33bea5 ]
+[ Upstream commit 8cad339db339a39cb82b1188e4be4070a433abac ]
 
-[Why & How]
-For a some specific monitors, when connected on boot or hot plug,
-monitor flash for 1/2 seconds can happen during first HDCP query
-operation. Ading some delay in the init sequence for these monitors
-fixes the issue, so it is implemented as monitor specific patch.
+The scale tests are currently testing two things: that some number of
+instances of a given resource can actually be created; and that when an
+attempt is made to create more than the supported amount, the failures are
+noted and handled gracefully.
 
-Co-authored-by: Shah Dharati <dharshah@amd.com>
-Reviewed-by: Hansen Dsouza <Hansen.Dsouza@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
-Signed-off-by: Shah Dharati <dharshah@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Sometimes the scale test depends on more than one resource. In particular,
+a following patch will add a RIF counter scale test, which depends on the
+number of RIF counters that can be bound, and also on the number of RIFs
+that can be created.
+
+When the test is limited by the auxiliary resource and not by the primary
+one, there's no point trying to run the overflow test, because it would be
+testing exhaustion of the wrong resource.
+
+To support this use case, when the $test_get_target yields 0, skip the test
+instead.
+
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Reviewed-by: Amit Cohen <amcohen@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/modules/hdcp/hdcp2_transition.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../selftests/drivers/net/mlxsw/spectrum-2/resource_scale.sh | 5 +++++
+ .../selftests/drivers/net/mlxsw/spectrum/resource_scale.sh   | 4 ++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/hdcp/hdcp2_transition.c b/drivers/gpu/drm/amd/display/modules/hdcp/hdcp2_transition.c
-index e738c7ae66ec..73bf38f513be 100644
---- a/drivers/gpu/drm/amd/display/modules/hdcp/hdcp2_transition.c
-+++ b/drivers/gpu/drm/amd/display/modules/hdcp/hdcp2_transition.c
-@@ -524,7 +524,7 @@ enum mod_hdcp_status mod_hdcp_hdcp2_dp_transition(struct mod_hdcp *hdcp,
- 			set_watchdog_in_ms(hdcp, 3000, output);
- 			set_state_id(hdcp, output, D2_A6_WAIT_FOR_RX_ID_LIST);
- 		} else {
--			callback_in_ms(0, output);
-+			callback_in_ms(1, output);
- 			set_state_id(hdcp, output, D2_SEND_CONTENT_STREAM_TYPE);
- 		}
- 		break;
+diff --git a/tools/testing/selftests/drivers/net/mlxsw/spectrum-2/resource_scale.sh b/tools/testing/selftests/drivers/net/mlxsw/spectrum-2/resource_scale.sh
+index d7cf33a3f18d..ce2b4074ea77 100755
+--- a/tools/testing/selftests/drivers/net/mlxsw/spectrum-2/resource_scale.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/spectrum-2/resource_scale.sh
+@@ -38,6 +38,11 @@ for current_test in ${TESTS:-$ALL_TESTS}; do
+ 	for should_fail in 0 1; do
+ 		RET=0
+ 		target=$(${current_test}_get_target "$should_fail")
++		if ((target == 0)); then
++			log_test_skip "'$current_test' should_fail=$should_fail test"
++			continue
++		fi
++
+ 		${current_test}_setup_prepare
+ 		setup_wait $num_netifs
+ 		${current_test}_test "$target" "$should_fail"
+diff --git a/tools/testing/selftests/drivers/net/mlxsw/spectrum/resource_scale.sh b/tools/testing/selftests/drivers/net/mlxsw/spectrum/resource_scale.sh
+index 43f662401bc3..23438d527f6f 100755
+--- a/tools/testing/selftests/drivers/net/mlxsw/spectrum/resource_scale.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/spectrum/resource_scale.sh
+@@ -40,6 +40,10 @@ for current_test in ${TESTS:-$ALL_TESTS}; do
+ 		for should_fail in 0 1; do
+ 			RET=0
+ 			target=$(${current_test}_get_target "$should_fail")
++			if ((target == 0)); then
++				log_test_skip "'$current_test' [$profile] should_fail=$should_fail test"
++				continue
++			fi
+ 			${current_test}_setup_prepare
+ 			setup_wait $num_netifs
+ 			${current_test}_test "$target" "$should_fail"
 -- 
 2.35.1
 
