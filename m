@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98EC25901BE
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD172590177
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237143AbiHKP5o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:57:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48230 "EHLO
+        id S237082AbiHKP7e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:59:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237596AbiHKP45 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:56:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85D1EA8CC0;
-        Thu, 11 Aug 2022 08:47:32 -0700 (PDT)
+        with ESMTP id S237088AbiHKP5c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:57:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45ADAB421;
+        Thu, 11 Aug 2022 08:47:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9315B82166;
-        Thu, 11 Aug 2022 15:47:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FE0FC433C1;
-        Thu, 11 Aug 2022 15:47:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23099616E4;
+        Thu, 11 Aug 2022 15:47:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBBFCC43141;
+        Thu, 11 Aug 2022 15:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232848;
-        bh=yBJ2y8HCNBKPJMYF4B5gcb9bH4TcIwSHkzdudjGSQPo=;
+        s=k20201202; t=1660232857;
+        bh=zijP+AVIy0dgvEkwWHz9o8PrQqVQPjAw+9yR4pEOzbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abBzRSFB+ieSu9X/v4jkihXd9vEPAd28hIFpeMiZpRj7SEmNvCdj3UC9Zu8JbYTQ9
-         qgNKnO4646skhiEFtUQPJo1gdPw+wuUBgPTOAiR9qoDsHclRnX78BhvxShr5HlOek+
-         U1ZwRPInyHrsf1i9u/OPmBF1yIu3Z/KER7+d0k+g34CDjl0vmlHhzlRPECvlwCzk27
-         N/XlWbDcmNHVJ2bzp5yqo+ZSp410zMWKi3E3xLViCgDiTa2aPnFoGrDN0D9orbhK/i
-         Jc8+X3piTlhEjnMEDFBvEsmsvohtHHcVNzy1BnQlnr2BAD3g1UL6asBQ8frRli14k/
-         DM/cD2P8UkydA==
+        b=jBaHwIvSOW5kizlLDxOX/blNZOFkdESSyg6PCezWXHsZqkT++07mT0XhqzKdoCjqz
+         ilyNh6wFM5Ax/+pq9sBNrTXafK2tpZEMpupkgs5n/cRxvll8rCEPd5AGIt074+r7va
+         HxP037RZJOQNms1Vl+F4MmYKl06DgbygPBr5KdL8BYEYFiSWlPG2W1V8P6Ks94dgcz
+         HXE9r1OonEqPG/MOG8QxiiMkAziTwUL4KBToTNhNxV41Zt26Tns3sjUbqqD0cJNq9W
+         SMZI/WowcZweEmjGA7xRg3OG8XbcugUYM1jqFcLQ12vnp/v2aOiY/PuNlr1Zn8DbLt
+         lINhLyb3/KVFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, daniel@iogearbox.net,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 48/93] libbpf: fix up few libbpf.map problems
-Date:   Thu, 11 Aug 2022 11:41:42 -0400
-Message-Id: <20220811154237.1531313-48-sashal@kernel.org>
+Cc:     David Reaver <me@davidreaver.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org
+Subject: [PATCH AUTOSEL 5.18 49/93] scripts: get_feat.pl: use /usr/bin/env to find perl
+Date:   Thu, 11 Aug 2022 11:41:43 -0400
+Message-Id: <20220811154237.1531313-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -57,54 +56,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: David Reaver <me@davidreaver.com>
 
-[ Upstream commit ab9a5a05dc480f8994eddd31093a8920b08ee71d ]
+[ Upstream commit 2bc6430884d5ee0e30ae18652d31f821d8e9ec32 ]
 
-Seems like we missed to add 2 APIs to libbpf.map and another API was
-misspelled. Fix it in libbpf.map.
+I tried running `make pdfdocs` on NixOS, but it failed because
+get_feat.pl uses a shebang line with /usr/bin/perl, and that file path
+doesn't exist on NixOS. Using the more portable /usr/bin/env perl fixes
+the problem.
 
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/r/20220627211527.2245459-16-andrii@kernel.org
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: David Reaver <me@davidreaver.com>
+Link: https://lore.kernel.org/r/20220625211548.1200198-1-me@davidreaver.com
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.map      | 3 ++-
- tools/lib/bpf/libbpf_legacy.h | 4 ++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ scripts/get_feat.pl | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/libbpf.map b/tools/lib/bpf/libbpf.map
-index dd35ee58bfaa..d2476c1aee8c 100644
---- a/tools/lib/bpf/libbpf.map
-+++ b/tools/lib/bpf/libbpf.map
-@@ -434,10 +434,11 @@ LIBBPF_0.7.0 {
- 		bpf_xdp_detach;
- 		bpf_xdp_query;
- 		bpf_xdp_query_id;
-+		btf_ext__raw_data;
- 		libbpf_probe_bpf_helper;
- 		libbpf_probe_bpf_map_type;
- 		libbpf_probe_bpf_prog_type;
--		libbpf_set_memlock_rlim_max;
-+		libbpf_set_memlock_rlim;
- } LIBBPF_0.6.0;
+diff --git a/scripts/get_feat.pl b/scripts/get_feat.pl
+index 76cfb96b59b6..5c5397eeb237 100755
+--- a/scripts/get_feat.pl
++++ b/scripts/get_feat.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
+ # SPDX-License-Identifier: GPL-2.0
  
- LIBBPF_0.8.0 {
-diff --git a/tools/lib/bpf/libbpf_legacy.h b/tools/lib/bpf/libbpf_legacy.h
-index d7bcbd01f66f..a3503c02e4a9 100644
---- a/tools/lib/bpf/libbpf_legacy.h
-+++ b/tools/lib/bpf/libbpf_legacy.h
-@@ -71,8 +71,8 @@ enum libbpf_strict_mode {
- 	 * first BPF program or map creation operation. This is done only if
- 	 * kernel is too old to support memcg-based memory accounting for BPF
- 	 * subsystem. By default, RLIMIT_MEMLOCK limit is set to RLIM_INFINITY,
--	 * but it can be overriden with libbpf_set_memlock_rlim_max() API.
--	 * Note that libbpf_set_memlock_rlim_max() needs to be called before
-+	 * but it can be overriden with libbpf_set_memlock_rlim() API.
-+	 * Note that libbpf_set_memlock_rlim() needs to be called before
- 	 * the very first bpf_prog_load(), bpf_map_create() or bpf_object__load()
- 	 * operation.
- 	 */
+ use strict;
 -- 
 2.35.1
 
