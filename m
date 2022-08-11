@@ -2,72 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D71CF58FA3B
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 11:46:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DDAE58FA46
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 11:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233931AbiHKJqN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 05:46:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54822 "EHLO
+        id S229594AbiHKJvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 05:51:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233918AbiHKJqM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 05:46:12 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDE5679A45
-        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 02:46:11 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id a7so32592042ejp.2
-        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 02:46:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc;
-        bh=OQNphwbiHSRws0r1N3cNdIZbJN9PzBvq15y9hAVAZLM=;
-        b=G0jmwzUmF71V4BqUX1ricsw73AfcWfWApDGEl6S3XFH7HbNf6hBPqtIijkRA1XrRRi
-         sn6W/BuwHy+ywe++tNmdHogBQjxujcboEZSjSBB3EdtvbFnjGaI+dmDfj99DaU6NXBTI
-         RgSoIMnS22wZisQM0d/HsnAmX34Nq/j/ThvtJmFhM9Ibu1d3km4DElOD6OUVpuH/EYeb
-         CiRF9aSxzQolp71aGFZRZIJY+WsKL2+TvHymgyW3cSFemQoNhjkKhw6nBTvjy2Og++fb
-         cMUe0GxsfTGmaaR4saSHAXgb5/aQ0723oFGkvEXgtPTwwxavXchuN6Ka/dq8S9UzlNRf
-         0rKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc;
-        bh=OQNphwbiHSRws0r1N3cNdIZbJN9PzBvq15y9hAVAZLM=;
-        b=JJ7pWq+vJsdI16GMcZgW3+7zize3+v+fvOLSbIMUeUMMesU+Q6kJ7krZeCYWryKl/T
-         5NGTWcFagSZAaIZQDSIO4PG0afL6cadxR9I7hZFMgkjKbLe/1sHDK2J8HA3UQgSGqn5D
-         ADwiXLWqF2S6qg6qqeK/snoHgPXburZigyuUihIUwbo9qQsMAf0CUD5wVaEcKk+5iUE6
-         zhiDDfvRziTI4hOBEGsiLikt0JKHhFYbZplzlCM9bUjAOEvo0D5ATpcpLHFm2pHiD5Of
-         MP3B8pO1l4BbXtcvbxtKD3TCPtPFt5B5hIcOYam/zxqcd9eQkW6gqRbxhlq6SmBfg1tN
-         ch8w==
-X-Gm-Message-State: ACgBeo3bQIuhiyKUhka6Ty+METhAhfP1fVVXjRF+wbrF/Y93EMmTqeyF
-        L2DJtq6mF93Zr32BOpKtbu3F3iy1LxE=
-X-Google-Smtp-Source: AA6agR4T7JtHOBibfJvi8mWd4IaxMICLkTixoEb13akVoYbE13JgJaCljoumYA5FORlQ1znG1OXvZQ==
-X-Received: by 2002:a17:907:2672:b0:734:a952:439a with SMTP id ci18-20020a170907267200b00734a952439amr1620954ejc.539.1660211170447;
-        Thu, 11 Aug 2022 02:46:10 -0700 (PDT)
-Received: from ?IPV6:2003:f6:af09:a700:e423:d3e6:c12e:483e? (p200300f6af09a700e423d3e6c12e483e.dip0.t-ipconnect.de. [2003:f6:af09:a700:e423:d3e6:c12e:483e])
-        by smtp.gmail.com with ESMTPSA id p19-20020a170906785300b007305d408b3dsm3327288ejm.78.2022.08.11.02.46.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 11 Aug 2022 02:46:09 -0700 (PDT)
-Message-ID: <7769a909-9054-3215-dd3e-00bfb822d003@gmail.com>
-Date:   Thu, 11 Aug 2022 11:46:09 +0200
+        with ESMTP id S229540AbiHKJvW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 05:51:22 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C61429083C;
+        Thu, 11 Aug 2022 02:51:21 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 725355CA97;
+        Thu, 11 Aug 2022 09:51:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1660211480; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Pyi5tXCgIAAgTmbe0E04qpY0ZJ3iN840sWWOgFE8VFM=;
+        b=tQgcztYLQ6urrHpS46l3l420QtP6Gjra/CECoScv2ZlNAJdBAWabMsrQCdf5ZHXL//WDH8
+        fVhmeWQHaIstFmSAjYR61EaOR+ly0UcbGIiFOrtcMVAYz1OYkgJkDfmtHA+T/+364Ga0zU
+        NJEwjU9XvxTA+n/51xNNGTqusFO0lAA=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 52BB81342A;
+        Thu, 11 Aug 2022 09:51:20 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id bKdEERjR9GKqeQAAMHmgww
+        (envelope-from <mhocko@suse.com>); Thu, 11 Aug 2022 09:51:20 +0000
+Date:   Thu, 11 Aug 2022 11:51:19 +0200
+From:   Michal Hocko <mhocko@suse.com>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        john.p.donnelly@oracle.com, david@redhat.com, bhe@redhat.com
+Subject: Re: + dma-pool-do-not-complain-if-dma-pool-is-not-allocated.patch
+ added to mm-hotfixes-unstable branch
+Message-ID: <YvTRFxkmSuDAyVdI@dhcp22.suse.cz>
+References: <20220810013308.5E23AC433C1@smtp.kernel.org>
+ <20220810140030.GA24195@lst.de>
+ <YvP9YITH0RpgpblG@dhcp22.suse.cz>
+ <20220811092911.GA22246@lst.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 4.9 0/1] selinux: drop super_block backpointer from
- superblock_security_struct
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-References: <20220808115922.331003-1-theflamefire89@gmail.com>
- <YvEPfSBGdBV0ZohA@kroah.com>
-From:   Alexander Grund <theflamefire89@gmail.com>
-In-Reply-To: <YvEPfSBGdBV0ZohA@kroah.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220811092911.GA22246@lst.de>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,24 +64,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08.08.22 15:28, Greg KH wrote:
-> But, we only take patches that actually do something.  This one doesn't
-> do anything at all, and has no measurable performance or bugfix that I
-> can determine at all.
+On Thu 11-08-22 11:29:11, Christoph Hellwig wrote:
+> This is what I think should solve your problem properly:
+> 
+> http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dma-pool-sizing
 
-Isn't "doing less" also worth the patch?
-I mean this patch removes a superflous pointer of the superblock struct
-making the kernel use less memory.
-It also saves a code line and operation during init and removes the
-(somewhat hidden in syntax) superflous indirect access (and hence memory read)
-of a pointer already available (likely even in a register) during get/set_mnt_opts.
+http://git.infradead.org/users/hch/misc.git/commit/a29d77929bf4fc563657b29da1506a12ad0f4610
 
-Of course the effect here is small but I think cleanups are always good to avoid
-a "death by a thousand cuts" scenario, i.e. that even small things help.
++unsigned long __init nr_pages_per_zone(int zone_index)
++{
++       return arch_zone_highest_possible_pfn[zone_index] -
++               arch_zone_lowest_possible_pfn[zone_index];
++}
++
 
-But of course you may disagree, just wanted to provide my reasoning especially
-as you wrote earlier that deleting code is always good and I thought this
-patch fits that.
+this will not consider any gaps in the zone. We have zone_managed_pages
+which tells you how many pages there are in the zone which have been
+provided to the page allocator which seems like something that would fit
+better. And it is also much better than basing it on the global amount
+of memory which just doesn't make much sens for constrained zones
 
-Thanks,
-Alex
+Except that it will not work for this case as
++static unsigned long calculate_pool_size(unsigned long zone_pages)
++{
++       unsigned long nr_pages = min_t(unsigned long,
++                                      zone_pages / (SZ_1G / SZ_128K),
++                                      MAX_ORDER_NR_PAGES);
++
++       return max_t(unsigned long, nr_pages << PAGE_SHIFT, SZ_128K);
++}
+
+this will return 128kB, correct?
+
++               atomic_pool_dma = __dma_atomic_pool_init(
++                               calculate_pool_size(nr_zone_dma_pages),
++                               GFP_DMA);
+
+The DMA zone still has 126kB of usable memory. I think what you
+want/need to do something like
+	pool_size = calculate_pool_size(nr_zone_dma_pages);
+	do {
+		atomic_pool_dma = __dma_atomic_pool_init(pool_size),
+			GFP_DMA | __GFP_NOWARN);
+		if (atomic_pool_dma) {
+			break;
+		pool_size /= 2;
+	} while (pool_size > PAGE_SZIE);
+	if (!atomic_pool_dma)
+		print_something_useful;
+
+Another option would be to consider NR_FREE_PAGES of the zone but that
+would be inherently racy.
+-- 
+Michal Hocko
+SUSE Labs
