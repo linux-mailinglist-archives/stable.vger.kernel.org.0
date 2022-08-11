@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3628759043F
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:48:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0013D5904D4
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:49:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238101AbiHKQeP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:34:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59578 "EHLO
+        id S239008AbiHKQea (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:34:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236088AbiHKQcV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:32:21 -0400
+        with ESMTP id S238526AbiHKQch (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:32:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F65424BD8;
-        Thu, 11 Aug 2022 09:10:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 745D971732;
+        Thu, 11 Aug 2022 09:10:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C01F06133D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D49F96146C;
+        Thu, 11 Aug 2022 16:10:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DAE9C433B5;
         Thu, 11 Aug 2022 16:10:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FEB4C433C1;
-        Thu, 11 Aug 2022 16:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660234253;
-        bh=hNnG/QF449VVgko0ZeoXmHgr1IPIPHXrWVvntaAq3ww=;
-        h=From:To:Cc:Subject:Date:From;
-        b=C+0IIqK4gfhLAavO8tSqO9oGIR1nugAnWas7AUoDcnH+b4brVTINJvbQOqjFUpVYW
-         rFMTDTbTDEt4zYbbiorxkvfZkzmmQmCoAV0vut5oBVps7iQ1D7upR29Q/1QtTd7OEK
-         SfVzwfHYVvEYUhQuVTgZBwUcuTqbIPkuuRveNnQM2pJBHseCTpxGMw2b2QWA2LQHn7
-         O+nRJeLx5BkqgHQkCUiXSTuwvB/7skcIi+qKaXCP+lOHlGVrXkh+rM596oyZMWfzas
-         xNIOepsfzt6iygEKjSEu0C1J8sp7tF1dU4NpgSbFj6YNVfeLW+jJHGlTyKlw4bn2NU
-         K+rTN+bT5CYXQ==
+        s=k20201202; t=1660234255;
+        bh=xwtCnK1qVdKBIvDhrnlhmpj2FjfF2cVUAB5V4KxWS+o=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=VcXJqUd/2H9kVpXNHgTZqb9lNmLvy+VWV62NP6oF7KRyBzIoHfJCNcK/kGuq5vBZ5
+         3zrxVRGXBELLNShFnZA+PiYRNpcVulRj+oL0DVZm5kH3KSGbaND+hJGfmtpCQiSDVz
+         fv/H/05s2mve4xw+FYqDsNLyC2UtzWFjKVEQec+nC2LjV+QUMD/WQj0oGccF35C+/Q
+         RQRB+rNZaaBTqLNurE0Qoc6gUL4kQ/Yg0zpYIx4NUMOHZC5qepjlacWmvgW8nIF5Rb
+         htvDWGrTkOoyrEMR5PGExaQQWdvO3daamylCf4gvC9AOT0Gs71MDoyzcQBINh0sxqS
+         m8FzJ0zZbBQOg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Borislav Petkov <bp@suse.de>, Randy Dunlap <rdunlap@infradead.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
+Cc:     Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>,
         Alex Deucher <alexander.deucher@amd.com>,
-        dri-devel@lists.freedesktop.org,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 01/14] drm/r128: Fix undefined behavior due to shift overflowing the constant
-Date:   Thu, 11 Aug 2022 12:10:30 -0400
-Message-Id: <20220811161050.1543183-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 02/14] drm/radeon: integer overflow in radeon_mode_dumb_create()
+Date:   Thu, 11 Aug 2022 12:10:31 -0400
+Message-Id: <20220811161050.1543183-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220811161050.1543183-1-sashal@kernel.org>
+References: <20220811161050.1543183-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,51 +58,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
 
-[ Upstream commit 6556551f8848f98eff356c8aacae42c8dd65b2df ]
+[ Upstream commit feb54650bae25f2a2adfc493e3e254e7c27a3fba ]
 
-Fix:
+Similar to the handling of amdgpu_mode_dumb_create in commit 54ef0b5461c0
+("drm/amdgpu: integer overflow in amdgpu_mode_dumb_create()"),
+we thought a patch might be needed here as well.
 
-  drivers/gpu/drm/r128/r128_cce.c: In function ‘r128_do_init_cce’:
-  drivers/gpu/drm/r128/r128_cce.c:417:2: error: case label does not reduce to an integer constant
-    case R128_PM4_64BM_64VCBM_64INDBM:
-    ^~~~
-  drivers/gpu/drm/r128/r128_cce.c:418:2: error: case label does not reduce to an integer constant
-    case R128_PM4_64PIO_64VCPIO_64INDPIO:
-    ^~~~
+args->size is a u64.  arg->pitch and args->height are u32.  The
+multiplication will overflow instead of using the high 32 bits as
+intended.
 
-See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
-details as to why it triggers with older gccs only.
-
-Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: dri-devel@lists.freedesktop.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220405151517.29753-5-bp@alien8.de
+Signed-off-by: Xiaohui Zhang <xiaohuizhang@ruc.edu.cn>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/r128/r128_drv.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/radeon/radeon_gem.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/r128/r128_drv.h b/drivers/gpu/drm/r128/r128_drv.h
-index 09143b840482..6553a855a176 100644
---- a/drivers/gpu/drm/r128/r128_drv.h
-+++ b/drivers/gpu/drm/r128/r128_drv.h
-@@ -289,8 +289,8 @@ extern long r128_compat_ioctl(struct file *filp, unsigned int cmd,
- #	define R128_PM4_64PIO_128INDBM		(5  << 28)
- #	define R128_PM4_64BM_128INDBM		(6  << 28)
- #	define R128_PM4_64PIO_64VCBM_64INDBM	(7  << 28)
--#	define R128_PM4_64BM_64VCBM_64INDBM	(8  << 28)
--#	define R128_PM4_64PIO_64VCPIO_64INDPIO	(15 << 28)
-+#	define R128_PM4_64BM_64VCBM_64INDBM	(8U  << 28)
-+#	define R128_PM4_64PIO_64VCPIO_64INDPIO	(15U << 28)
- #	define R128_PM4_BUFFER_CNTL_NOUPDATE	(1  << 27)
+diff --git a/drivers/gpu/drm/radeon/radeon_gem.c b/drivers/gpu/drm/radeon/radeon_gem.c
+index ac467b80edc7..18a914752a32 100644
+--- a/drivers/gpu/drm/radeon/radeon_gem.c
++++ b/drivers/gpu/drm/radeon/radeon_gem.c
+@@ -749,7 +749,7 @@ int radeon_mode_dumb_create(struct drm_file *file_priv,
  
- #define R128_PM4_BUFFER_WM_CNTL		0x0708
+ 	args->pitch = radeon_align_pitch(rdev, args->width,
+ 					 DIV_ROUND_UP(args->bpp, 8), 0);
+-	args->size = args->pitch * args->height;
++	args->size = (u64)args->pitch * args->height;
+ 	args->size = ALIGN(args->size, PAGE_SIZE);
+ 
+ 	r = radeon_gem_object_create(rdev, args->size, 0,
 -- 
 2.35.1
 
