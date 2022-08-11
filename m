@@ -2,47 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 696BD59033A
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:21:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 612B1590345
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:21:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237672AbiHKQVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:21:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58588 "EHLO
+        id S237757AbiHKQV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:21:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237609AbiHKQUW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:20:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77B91AEDBC;
-        Thu, 11 Aug 2022 09:02:22 -0700 (PDT)
+        with ESMTP id S237802AbiHKQUn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:20:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7D5BB0282;
+        Thu, 11 Aug 2022 09:02:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02E846137C;
-        Thu, 11 Aug 2022 16:02:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01C33C433D6;
-        Thu, 11 Aug 2022 16:02:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 747F6B82164;
+        Thu, 11 Aug 2022 16:02:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50962C433C1;
+        Thu, 11 Aug 2022 16:02:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660233741;
-        bh=BV8jj4uDtRkShNpde69E+aTS/tFXYjqy6nYKYoj5vrs=;
+        s=k20201202; t=1660233769;
+        bh=1N7OyOx1yVVL2u9zaIZYW6oPcLahlVzCguz0rlI/ZjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8GU+AZK72+70tPLCON3fNdIHBnIFzv7jfaQ1wDfwdBQtnMBAI34ljr14tlQGcJsj
-         TuAr/rY/UjfMq/v4L0duEa+GFZlKS1iAVtOkaWXLneZHITlM2oMjM2S7xStw5tYwGd
-         Zq3z8I3iAs6A0k0qps4Or+nuShJ1MuZEiN9l85ShIAoG7vlR1QZwhg2sgrh/JUQD3J
-         +pgyxoyO2B16HixQbcTMXDaL+Ur50BUtV8YBNyI5syvjqB24x7vzbx+Xs6E7hsW5dY
-         Ercx/sGTfdmwgxwHGGMjoFUmCbpR2eQt4Le9V+dA6X3y1a5Uwc9oiOTYy5SElRet0h
-         GLFy+iTHk8Ylw==
+        b=iCbQd4gW2xA0gWXZHrkIs1IE1RxJSp2TUlaRE6q1hZZ+iOGj9xlqRofs6kMs3Fy6v
+         jKWKKO/RuCAStmgpCTgrWOv6l/+6UmFY1Hm2kWwfgE/Zda7mjjBX+IQvmM2qU2fUHE
+         UlxEK76E+UdYOAE9g6rDOCY1xrJS3T3CoglrLgeLx3NbPYW5Ym9HlIkBuUEk8M5rw4
+         fel1H7JqFJlHmVLA1T/gbQmNu7IoikJo0lpzNaPv3pTvlvVAX5yPhGl8ttxtXWLN4k
+         YqWtpBx5ovUm3e/TQCj9N9MZdgF9QGooV2YXZAG4V2XQ03xu2bYe34d33sJVEyV/Yz
+         62pJDk/PK3eLQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Dafna Hirschfeld <dafna@fastmail.com>,
-        Paul Elder <paul.elder@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, heiko@sntech.de,
-        linux-media@vger.kernel.org, linux-rockchip@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 53/69] media: rkisp1: Disable runtime PM in probe error path
-Date:   Thu, 11 Aug 2022 11:56:02 -0400
-Message-Id: <20220811155632.1536867-53-sashal@kernel.org>
+Cc:     Zhengchao Shao <shaozhengchao@huawei.com>,
+        syzbot+7a12909485b94426aceb@syzkaller.appspotmail.com,
+        Stanislav Fomichev <sdf@google.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, daniel@iogearbox.net,
+        andrii@kernel.org, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, imagedong@tencent.com,
+        dsahern@kernel.org, kafai@fb.com, talalahmad@google.com,
+        keescook@chromium.org, asml.silence@gmail.com,
+        bigeasy@linutronix.de, petrm@nvidia.com, bpf@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 54/69] bpf: Don't redirect packets with invalid pkt_len
+Date:   Thu, 11 Aug 2022 11:56:03 -0400
+Message-Id: <20220811155632.1536867-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811155632.1536867-1-sashal@kernel.org>
 References: <20220811155632.1536867-1-sashal@kernel.org>
@@ -60,43 +64,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 13c9810281f8b24af9b7712cd84a1fce61843e93 ]
+[ Upstream commit fd1894224407c484f652ad456e1ce423e89bb3eb ]
 
-If the v4l2_device_register() call fails, runtime PM is left enabled.
-Fix it.
+Syzbot found an issue [1]: fq_codel_drop() try to drop a flow whitout any
+skbs, that is, the flow->head is null.
+The root cause, as the [2] says, is because that bpf_prog_test_run_skb()
+run a bpf prog which redirects empty skbs.
+So we should determine whether the length of the packet modified by bpf
+prog or others like bpf_prog_test is valid before forwarding it directly.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Dafna Hirschfeld <dafna@fastmail.com>
-Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+LINK: [1] https://syzkaller.appspot.com/bug?id=0b84da80c2917757915afa89f7738a9d16ec96c5
+LINK: [2] https://www.spinics.net/lists/netdev/msg777503.html
+
+Reported-by: syzbot+7a12909485b94426aceb@syzkaller.appspotmail.com
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20220715115559.139691-1-shaozhengchao@huawei.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rockchip/rkisp1/rkisp1-dev.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/skbuff.h | 8 ++++++++
+ net/bpf/test_run.c     | 3 +++
+ net/core/dev.c         | 1 +
+ 3 files changed, 12 insertions(+)
 
-diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-dev.c b/drivers/media/platform/rockchip/rkisp1/rkisp1-dev.c
-index 560f928c3752..79cfa99f2a64 100644
---- a/drivers/media/platform/rockchip/rkisp1/rkisp1-dev.c
-+++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-dev.c
-@@ -514,7 +514,7 @@ static int rkisp1_probe(struct platform_device *pdev)
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index cbd719e5329a..ae598ed86b50 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -2328,6 +2328,14 @@ static inline void skb_set_tail_pointer(struct sk_buff *skb, const int offset)
  
- 	ret = v4l2_device_register(rkisp1->dev, &rkisp1->v4l2_dev);
- 	if (ret)
--		return ret;
-+		goto err_pm_runtime_disable;
+ #endif /* NET_SKBUFF_DATA_USES_OFFSET */
  
- 	ret = media_device_register(&rkisp1->media_dev);
- 	if (ret) {
-@@ -534,6 +534,7 @@ static int rkisp1_probe(struct platform_device *pdev)
- 	media_device_unregister(&rkisp1->media_dev);
- err_unreg_v4l2_dev:
- 	v4l2_device_unregister(&rkisp1->v4l2_dev);
-+err_pm_runtime_disable:
- 	pm_runtime_disable(&pdev->dev);
- 	return ret;
- }
++static inline void skb_assert_len(struct sk_buff *skb)
++{
++#ifdef CONFIG_DEBUG_NET
++	if (WARN_ONCE(!skb->len, "%s\n", __func__))
++		DO_ONCE_LITE(skb_dump, KERN_ERR, skb, false);
++#endif /* CONFIG_DEBUG_NET */
++}
++
+ /*
+  *	Add data to an sk_buff
+  */
+diff --git a/net/bpf/test_run.c b/net/bpf/test_run.c
+index 655ee0e2de86..a9fb16b9c735 100644
+--- a/net/bpf/test_run.c
++++ b/net/bpf/test_run.c
+@@ -469,6 +469,9 @@ static int convert___skb_to_skb(struct sk_buff *skb, struct __sk_buff *__skb)
+ {
+ 	struct qdisc_skb_cb *cb = (struct qdisc_skb_cb *)skb->cb;
+ 
++	if (!skb->len)
++		return -EINVAL;
++
+ 	if (!__skb)
+ 		return 0;
+ 
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 12b1811cb488..89a7528dfce2 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4147,6 +4147,7 @@ static int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev)
+ 	bool again = false;
+ 
+ 	skb_reset_mac_header(skb);
++	skb_assert_len(skb);
+ 
+ 	if (unlikely(skb_shinfo(skb)->tx_flags & SKBTX_SCHED_TSTAMP))
+ 		__skb_tstamp_tx(skb, NULL, NULL, skb->sk, SCM_TSTAMP_SCHED);
 -- 
 2.35.1
 
