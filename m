@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC3CC5901B6
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7702F59017B
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236825AbiHKPww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:52:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35054 "EHLO
+        id S236870AbiHKPwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:52:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236843AbiHKPv5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:51:57 -0400
+        with ESMTP id S236878AbiHKPwQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:52:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46B5999B68;
-        Thu, 11 Aug 2022 08:44:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 385E89DFB3;
+        Thu, 11 Aug 2022 08:44:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EAD0BB82128;
-        Thu, 11 Aug 2022 15:44:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD98EC433D6;
-        Thu, 11 Aug 2022 15:43:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74157B82156;
+        Thu, 11 Aug 2022 15:44:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23204C433C1;
+        Thu, 11 Aug 2022 15:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232641;
-        bh=oWt4bHA0SKEbzA6rHRAU0Mg9sn9j7BULLOUuu1JNWrY=;
+        s=k20201202; t=1660232644;
+        bh=zy+RadlHKf4+6wfk/N//I1iIxx7CK8Pr5EdABxD750Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sbXkOZgNER6M/ag9mM8sml0QtIWR3lt9pkXDkY5Foyj97AUElHmkyHZT+ESI7QAy3
-         ekpyOxiyojHStgNolhO3L4nDtqLcUVGxAG2yuLoLeiSwKvH+L1YzagEXvytvYhcDQU
-         HPk2UUKa/6H9ukR2FCnfoRgIw5Hc6WzRBbiZ1F6hMwwWrrQRlxQ/Spgpm9nMzMfsRu
-         ga8LiXzA4lkiXVykPnjy3Tb6e2CnKnnfqVDYk3Bg1VV9rMd+bzWl5AVmgu96LWQMB8
-         MeEQdoFaXcIEzCIcu1gidBMvnQUOwMin2q7RpuWIK82kU2IlJLoY/Sr6V6qw9aWyhe
-         ctvHO4U7vzqHQ==
+        b=jGZHlYWN5aBWIEK/HM6aPSpJGoOZq02ulHqCK0aLqM3K/xoJcyU4+MYmInPL3m1IK
+         N9e0P8KReVldyIiozcyqo+6R4ia2QSpJJlBpa0gUAqwO9gnia1HrCDDlTSuF1zPghN
+         mWGRgKO3uDbBaXIccOmszCesmLVpHW0GqUZIXm1CzL19MktF9eCegv1q5QehsBsM6O
+         IvkZrB75/X5cE8QSYuGWagEM6oXfmM7WzlNwOm4CX4hFMq2q+e0pZBggz04f1uVO9X
+         UpGvosCrP4HRvFtgPrRIiAlNyf0OVDXedtvnGOgstErwCe4EKD0AdJXFwoU2/HYgHa
+         9ydHaG+nWGD0g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Douglas Anderson <dianders@chromium.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Sean Paul <seanpaul@chromium.org>,
-        Sasha Levin <sashal@kernel.org>,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.18 13/93] drm/probe-helper: Default to 640x480 if no EDID on DP
-Date:   Thu, 11 Aug 2022 11:41:07 -0400
-Message-Id: <20220811154237.1531313-13-sashal@kernel.org>
+Cc:     Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andrii@kernel.org>,
+        Dave Marchevsky <davemarchevsky@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, daniel@iogearbox.net,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 14/93] libbpf: Fix an error in 64bit relocation value computation
+Date:   Thu, 11 Aug 2022 11:41:08 -0400
+Message-Id: <20220811154237.1531313-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -62,81 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit fae7d186403ee5a9375ec75938e0de99718e066a ]
+[ Upstream commit b58b2b3a31228bd9aaed9b96e9452dafd0d46024 ]
 
-If we're unable to read the EDID for a display because it's corrupt /
-bogus / invalid then we'll add a set of standard modes for the
-display. Since we have no true information about the connected
-display, these modes are essentially guesses but better than nothing.
-At the moment, none of the modes returned is marked as preferred, but
-the modes are sorted such that the higher resolution modes are listed
-first.
+Currently, the 64bit relocation value in the instruction
+is computed as follows:
+  __u64 imm = insn[0].imm + ((__u64)insn[1].imm << 32)
 
-When userspace sees these modes presented by the kernel it needs to
-figure out which one to pick. At least one userspace, ChromeOS [1]
-seems to use the rules (which seem pretty reasonable):
-1. Try to pick the first mode marked as preferred.
-2. Try to pick the mode which matches the first detailed timing
-   descriptor in the EDID.
-3. If no modes were marked as preferred then pick the first mode.
+Suppose insn[0].imm = -1 (0xffffffff) and insn[1].imm = 1.
+With the above computation, insn[0].imm will first sign-extend
+to 64bit -1 (0xffffffffFFFFFFFF) and then add 0x1FFFFFFFF,
+producing incorrect value 0xFFFFFFFF. The correct value
+should be 0x1FFFFFFFF.
 
-Unfortunately, userspace's rules combined with what the kernel is
-doing causes us to fail section 4.2.2.6 (EDID Corruption Detection) of
-the DP 1.4a Link CTS. That test case says that, while it's OK to allow
-some implementation-specific fall-back modes if the EDID is bad that
-userspace should _default_ to 640x480.
+Changing insn[0].imm to __u32 first will prevent 64bit sign
+extension and fix the issue. Merging high and low 32bit values
+also changed from '+' to '|' to be consistent with other
+similar occurences in kernel and libbpf.
 
-Let's fix this by marking 640x480 as default for DP in the no-EDID
-case.
-
-NOTES:
-- In the discussion around v3 of this patch [2] there was talk about
-  solving this in userspace and I even implemented a patch that would
-  have solved this for ChromeOS, but then the discussion turned back
-  to solving this in the kernel.
-- Also in the discussion of v3 [2] it was requested to limit this
-  change to just DP since folks were worried that it would break some
-  subtle corner case on VGA or HDMI.
-
-[1] https://source.chromium.org/chromium/chromium/src/+/a051f741d0a15caff2251301efe081c30e0f4a96:ui/ozone/platform/drm/common/drm_util.cc;l=488
-[2] https://lore.kernel.org/r/20220513130533.v3.1.I31ec454f8d4ffce51a7708a8092f8a6f9c929092@changeid
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Acked-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220601112302.v4.1.I31ec454f8d4ffce51a7708a8092f8a6f9c929092@changeid
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Dave Marchevsky <davemarchevsky@fb.com>
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/r/20220607062610.3717378-1-yhs@fb.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_probe_helper.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ tools/lib/bpf/relo_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_probe_helper.c b/drivers/gpu/drm/drm_probe_helper.c
-index 682359512996..2c7902b16321 100644
---- a/drivers/gpu/drm/drm_probe_helper.c
-+++ b/drivers/gpu/drm/drm_probe_helper.c
-@@ -516,8 +516,17 @@ int drm_helper_probe_single_connector_modes(struct drm_connector *connector,
- 		count = drm_add_override_edid_modes(connector);
+diff --git a/tools/lib/bpf/relo_core.c b/tools/lib/bpf/relo_core.c
+index f946f23eab20..80862906df3f 100644
+--- a/tools/lib/bpf/relo_core.c
++++ b/tools/lib/bpf/relo_core.c
+@@ -1025,7 +1025,7 @@ int bpf_core_patch_insn(const char *prog_name, struct bpf_insn *insn,
+ 			return -EINVAL;
+ 		}
  
- 	if (count == 0 && (connector->status == connector_status_connected ||
--			   connector->status == connector_status_unknown))
-+			   connector->status == connector_status_unknown)) {
- 		count = drm_add_modes_noedid(connector, 1024, 768);
-+
-+		/*
-+		 * Section 4.2.2.6 (EDID Corruption Detection) of the DP 1.4a
-+		 * Link CTS specifies that 640x480 (the official "failsafe"
-+		 * mode) needs to be the default if there's no EDID.
-+		 */
-+		if (connector->connector_type == DRM_MODE_CONNECTOR_DisplayPort)
-+			drm_set_preferred_mode(connector, 640, 480);
-+	}
- 	count += drm_helper_probe_add_cmdline_mode(connector);
- 	if (count == 0)
- 		goto prune;
+-		imm = insn[0].imm + ((__u64)insn[1].imm << 32);
++		imm = (__u32)insn[0].imm | ((__u64)insn[1].imm << 32);
+ 		if (res->validate && imm != orig_val) {
+ 			pr_warn("prog '%s': relo #%d: unexpected insn #%d (LDIMM64) value: got %llu, exp %u -> %u\n",
+ 				prog_name, relo_idx,
 -- 
 2.35.1
 
