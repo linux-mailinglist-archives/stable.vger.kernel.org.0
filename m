@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FDDD590476
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:48:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3628759043F
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:48:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238889AbiHKQd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:33:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59408 "EHLO
+        id S238101AbiHKQeP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:34:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239199AbiHKQcP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:32:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FD32625F;
-        Thu, 11 Aug 2022 09:10:44 -0700 (PDT)
+        with ESMTP id S236088AbiHKQcV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:32:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F65424BD8;
+        Thu, 11 Aug 2022 09:10:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF8CFB821B0;
-        Thu, 11 Aug 2022 16:10:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0992C43141;
-        Thu, 11 Aug 2022 16:10:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C01F06133D;
+        Thu, 11 Aug 2022 16:10:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FEB4C433C1;
+        Thu, 11 Aug 2022 16:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660234241;
-        bh=YrOK6aktqDuP785lh37qZa+7sVi7/Y7Vh8j+5PrfHGY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sjOnz4c/96mOMMKbr4ACFGJ4jJlUhNpVvaUh/IxIB+3kWdVo8TvnxbKNMM6dAub3V
-         dVw59iKa8/3WcATG8y6ROz/zfdh3NNrogQXuAJZG8OsHVcvveZWVR+jZGhHndldENG
-         NZ2jLpiy0cf0MM2zvtjSDJ5AC8BR88pk3TfdvO0A/6ykM0w3/PJvEN7X7MOhlvQAzI
-         Qg/Fu7uu+IY/AIqw44B/WEYmMMgJ1neiw/y+IuQm8vuyk7vIMeyKFqi/m+AzqXP/NB
-         b0ve4xlYJdAtSKIR3+vCDTeXVdi0nxpw6JCaHOyEkJZmX3al0xsp18mnNzPS0hwR1M
-         K8EiKcW3InBWg==
+        s=k20201202; t=1660234253;
+        bh=hNnG/QF449VVgko0ZeoXmHgr1IPIPHXrWVvntaAq3ww=;
+        h=From:To:Cc:Subject:Date:From;
+        b=C+0IIqK4gfhLAavO8tSqO9oGIR1nugAnWas7AUoDcnH+b4brVTINJvbQOqjFUpVYW
+         rFMTDTbTDEt4zYbbiorxkvfZkzmmQmCoAV0vut5oBVps7iQ1D7upR29Q/1QtTd7OEK
+         SfVzwfHYVvEYUhQuVTgZBwUcuTqbIPkuuRveNnQM2pJBHseCTpxGMw2b2QWA2LQHn7
+         O+nRJeLx5BkqgHQkCUiXSTuwvB/7skcIi+qKaXCP+lOHlGVrXkh+rM596oyZMWfzas
+         xNIOepsfzt6iygEKjSEu0C1J8sp7tF1dU4NpgSbFj6YNVfeLW+jJHGlTyKlw4bn2NU
+         K+rTN+bT5CYXQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Oleg.Karfich@wago.com, Thomas Gleixner <tglx@linutronix.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 14/14] fs/dcache: Disable preemption on i_dir_seq write side on PREEMPT_RT
-Date:   Thu, 11 Aug 2022 12:09:42 -0400
-Message-Id: <20220811160948.1542842-14-sashal@kernel.org>
+Cc:     Borislav Petkov <bp@suse.de>, Randy Dunlap <rdunlap@infradead.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        dri-devel@lists.freedesktop.org,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 01/14] drm/r128: Fix undefined behavior due to shift overflowing the constant
+Date:   Thu, 11 Aug 2022 12:10:30 -0400
+Message-Id: <20220811161050.1543183-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220811160948.1542842-1-sashal@kernel.org>
-References: <20220811160948.1542842-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,69 +59,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit cf634d540a29018e8d69ab1befb7e08182bc6594 ]
+[ Upstream commit 6556551f8848f98eff356c8aacae42c8dd65b2df ]
 
-i_dir_seq is a sequence counter with a lock which is represented by the
-lowest bit. The writer atomically updates the counter which ensures that it
-can be modified by only one writer at a time. This requires preemption to
-be disabled across the write side critical section.
+Fix:
 
-On !PREEMPT_RT kernels this is implicit by the caller acquiring
-dentry::lock. On PREEMPT_RT kernels spin_lock() does not disable preemption
-which means that a preempting writer or reader would live lock. It's
-therefore required to disable preemption explicitly.
+  drivers/gpu/drm/r128/r128_cce.c: In function ‘r128_do_init_cce’:
+  drivers/gpu/drm/r128/r128_cce.c:417:2: error: case label does not reduce to an integer constant
+    case R128_PM4_64BM_64VCBM_64INDBM:
+    ^~~~
+  drivers/gpu/drm/r128/r128_cce.c:418:2: error: case label does not reduce to an integer constant
+    case R128_PM4_64PIO_64VCPIO_64INDPIO:
+    ^~~~
 
-An alternative solution would be to replace i_dir_seq with a seqlock_t for
-PREEMPT_RT, but that comes with its own set of problems due to arbitrary
-lock nesting. A pure sequence count with an associated spinlock is not
-possible because the locks held by the caller are not necessarily related.
+See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
+details as to why it triggers with older gccs only.
 
-As the critical section is small, disabling preemption is a sensible
-solution.
-
-Reported-by: Oleg.Karfich@wago.com
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Link: https://lkml.kernel.org/r/20220613140712.77932-2-bigeasy@linutronix.de
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: dri-devel@lists.freedesktop.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220405151517.29753-5-bp@alien8.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dcache.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/r128/r128_drv.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/dcache.c b/fs/dcache.c
-index 1e9f4dd94e6c..6f6a972ea20c 100644
---- a/fs/dcache.c
-+++ b/fs/dcache.c
-@@ -2406,7 +2406,15 @@ EXPORT_SYMBOL(d_rehash);
+diff --git a/drivers/gpu/drm/r128/r128_drv.h b/drivers/gpu/drm/r128/r128_drv.h
+index 09143b840482..6553a855a176 100644
+--- a/drivers/gpu/drm/r128/r128_drv.h
++++ b/drivers/gpu/drm/r128/r128_drv.h
+@@ -289,8 +289,8 @@ extern long r128_compat_ioctl(struct file *filp, unsigned int cmd,
+ #	define R128_PM4_64PIO_128INDBM		(5  << 28)
+ #	define R128_PM4_64BM_128INDBM		(6  << 28)
+ #	define R128_PM4_64PIO_64VCBM_64INDBM	(7  << 28)
+-#	define R128_PM4_64BM_64VCBM_64INDBM	(8  << 28)
+-#	define R128_PM4_64PIO_64VCPIO_64INDPIO	(15 << 28)
++#	define R128_PM4_64BM_64VCBM_64INDBM	(8U  << 28)
++#	define R128_PM4_64PIO_64VCPIO_64INDPIO	(15U << 28)
+ #	define R128_PM4_BUFFER_CNTL_NOUPDATE	(1  << 27)
  
- static inline unsigned start_dir_add(struct inode *dir)
- {
--
-+	/*
-+	 * The caller holds a spinlock (dentry::d_lock). On !PREEMPT_RT
-+	 * kernels spin_lock() implicitly disables preemption, but not on
-+	 * PREEMPT_RT.  So for RT it has to be done explicitly to protect
-+	 * the sequence count write side critical section against a reader
-+	 * or another writer preempting, which would result in a live lock.
-+	 */
-+	if (IS_ENABLED(CONFIG_PREEMPT_RT))
-+		preempt_disable();
- 	for (;;) {
- 		unsigned n = dir->i_dir_seq;
- 		if (!(n & 1) && cmpxchg(&dir->i_dir_seq, n, n + 1) == n)
-@@ -2418,6 +2426,8 @@ static inline unsigned start_dir_add(struct inode *dir)
- static inline void end_dir_add(struct inode *dir, unsigned n)
- {
- 	smp_store_release(&dir->i_dir_seq, n + 2);
-+	if (IS_ENABLED(CONFIG_PREEMPT_RT))
-+		preempt_enable();
- }
- 
- static void d_wait_lookup(struct dentry *dentry)
+ #define R128_PM4_BUFFER_WM_CNTL		0x0708
 -- 
 2.35.1
 
