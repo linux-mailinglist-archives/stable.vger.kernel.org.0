@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84F6D5904BF
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:48:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F1A3590428
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:48:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238335AbiHKQaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:30:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50094 "EHLO
+        id S238293AbiHKQaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:30:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238298AbiHKQ3H (ORCPT
+        with ESMTP id S238318AbiHKQ3H (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:29:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B3EBA026C;
-        Thu, 11 Aug 2022 09:08:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3740A0274;
+        Thu, 11 Aug 2022 09:08:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA47761387;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61E6961387;
+        Thu, 11 Aug 2022 16:08:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6C82C4347C;
         Thu, 11 Aug 2022 16:08:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F0B9C433C1;
-        Thu, 11 Aug 2022 16:08:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660234134;
-        bh=b9vydUeT0JqTI6RERQsvHrzo2RiZ9O0jZRKGF77Y+Io=;
+        s=k20201202; t=1660234135;
+        bh=Qx+jzvtlK8DzpdoUViq1Gbkdtw2PnWDV8WXlS3mdriE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oiSqXEM2mYBNq846G8CcxdBhtlEF96Gl5MpMvb9flE+1w5UnQfSFhrd3C51hKj4WK
-         5ByV5gKFJksSuKLF6NSC02Z/gmYDli4XXM/5Tlk4k2/yS4Qek3xLJzl/tzrnboggVi
-         0/8aSxHqxv9AATwYXE5U9RimggSNPsYK8976k2Z8sBf0VC6K5z0xoNgtaQHZneta87
-         HxpdArbhLJwgQW4ymwTQwsvc9XgsldhuM8Vsc+eiw6OJZWsQu/vTBzmHHv71virpDR
-         ClE3qqlG00uAIgWpNTK6GGLfslUd7yVIy0VR/RigbBCTEBcAXszzUqK9UUK94REtqQ
-         QzPexcAkB2/yg==
+        b=LFcuGphYw+n3Yfeiu+xGb2WEMlbdEi99sg0219zGKJn73gXpIPMOPsgLMDUesHTsi
+         pZbQTt3K1w/B3YFAfsWoIqYluisKGTttdyKGsRXL3wZYYZCjQ2sBDTDa+9mzZwq67m
+         hUVPu+JWgtMhnGj7MjlpjvpcK+wqBnHVck9u0zI/zZ0Spu7wrcePD9wMJzd7KUbyZz
+         97rlJI3nvJ+D5HReN7+4G1WO4RlP8alOnbUD+VscYnBnXadpJ/2Z/e/aa6HMLV828o
+         d6TK4/YKpMBk1y5/dpfc23dAloeq63Mo3YpPmRci5F9ZFD/C0waXbRnsZ+kAlSiwYv
+         zStRKqrc5Yo4g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, isely@pobox.com,
-        linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 13/25] media: pvrusb2: fix memory leak in pvr_probe
-Date:   Thu, 11 Aug 2022 12:08:08 -0400
-Message-Id: <20220811160826.1541971-13-sashal@kernel.org>
+Cc:     Amit Cohen <amcohen@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, petrm@nvidia.com,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 14/25] mlxsw: cmd: Increase 'config_profile.flood_mode' length
+Date:   Thu, 11 Aug 2022 12:08:09 -0400
+Message-Id: <20220811160826.1541971-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811160826.1541971-1-sashal@kernel.org>
 References: <20220811160826.1541971-1-sashal@kernel.org>
@@ -59,39 +58,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Amit Cohen <amcohen@nvidia.com>
 
-[ Upstream commit 945a9a8e448b65bec055d37eba58f711b39f66f0 ]
+[ Upstream commit 89df3c6261f271c550f120b5ccf4d9c5132e870c ]
 
-The error handling code in pvr2_hdw_create forgets to unregister the
-v4l2 device. When pvr2_hdw_create returns back to pvr2_context_create,
-it calls pvr2_context_destroy to destroy context, but mp->hdw is NULL,
-which leads to that pvr2_hdw_destroy directly returns.
+Currently, the length of 'config_profile.flood_mode' is defined as 2
+bits, while the correct length is 3 bits.
 
-Fix this by adding v4l2_device_unregister to decrease the refcount of
-usb interface.
+As preparation for unified bridge model, which will use the whole field
+length, fix it and increase the field to the correct size.
 
-Reported-by: syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Amit Cohen <amcohen@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlxsw/cmd.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-index 11e7fcfc3f19..d101fa8d61bb 100644
---- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-@@ -2611,6 +2611,7 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
- 		del_timer_sync(&hdw->encoder_run_timer);
- 		del_timer_sync(&hdw->encoder_wait_timer);
- 		flush_work(&hdw->workpoll);
-+		v4l2_device_unregister(&hdw->v4l2_dev);
- 		usb_free_urb(hdw->ctl_read_urb);
- 		usb_free_urb(hdw->ctl_write_urb);
- 		kfree(hdw->ctl_read_buffer);
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/cmd.h b/drivers/net/ethernet/mellanox/mlxsw/cmd.h
+index 5ffdfb532cb7..b72aa4862cfd 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/cmd.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/cmd.h
+@@ -722,7 +722,7 @@ MLXSW_ITEM32(cmd_mbox, config_profile, max_vid_flood_tables, 0x30, 8, 4);
+  * max_fid_offset_flood_tables indicates the number of FID-offset tables.
+  * max_fid_flood_tables indicates the number of per-FID tables.
+  */
+-MLXSW_ITEM32(cmd_mbox, config_profile, flood_mode, 0x30, 0, 2);
++MLXSW_ITEM32(cmd_mbox, config_profile, flood_mode, 0x30, 0, 3);
+ 
+ /* cmd_mbox_config_profile_max_fid_offset_flood_tables
+  * Maximum number of FID-offset flooding tables.
 -- 
 2.35.1
 
