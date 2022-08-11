@@ -2,52 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40FA55901BA
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98EC25901BE
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237124AbiHKP5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:57:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48114 "EHLO
+        id S237143AbiHKP5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:57:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237570AbiHKP4x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:56:53 -0400
+        with ESMTP id S237596AbiHKP45 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:56:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68415A8328;
-        Thu, 11 Aug 2022 08:47:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85D1EA8CC0;
+        Thu, 11 Aug 2022 08:47:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6066BB82123;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9315B82166;
+        Thu, 11 Aug 2022 15:47:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FE0FC433C1;
         Thu, 11 Aug 2022 15:47:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D042C433C1;
-        Thu, 11 Aug 2022 15:47:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232846;
-        bh=7qVD5RzjjIj20icR2AXiT1GDasC4l434DxJV+E2gjQo=;
+        s=k20201202; t=1660232848;
+        bh=yBJ2y8HCNBKPJMYF4B5gcb9bH4TcIwSHkzdudjGSQPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6vUjENhhpwtEBH3px7DYfTrZKy994R6QsxcTVq9Qf76vrakx4d8mbrgMJIdwqn0c
-         YoYtD1nQElqFaGCJPHldHwbTIhsqUACnRAHmx7dZ5GnqNwENEDpXLuK58K/v68Fe5D
-         sUhm81JFSHAjp9NWi3uB3/2yjvjlqCoIaIpc/KUrcxHMXSet8qCuUMmt1tx4QcC3yc
-         DYFi501jlDFtwCKszLTPcPQosW+yVWDzn5TbCWdDBXstrpoh+U83jtQA0FfaX2wMZQ
-         Znj5YyuuZbvdXoorktJJpzXq2DsLS05uIDU1GQHvt1wqM536EEmQvuf7R6mvrjcZ8s
-         K+mRTzzYvEAoQ==
+        b=abBzRSFB+ieSu9X/v4jkihXd9vEPAd28hIFpeMiZpRj7SEmNvCdj3UC9Zu8JbYTQ9
+         qgNKnO4646skhiEFtUQPJo1gdPw+wuUBgPTOAiR9qoDsHclRnX78BhvxShr5HlOek+
+         U1ZwRPInyHrsf1i9u/OPmBF1yIu3Z/KER7+d0k+g34CDjl0vmlHhzlRPECvlwCzk27
+         N/XlWbDcmNHVJ2bzp5yqo+ZSp410zMWKi3E3xLViCgDiTa2aPnFoGrDN0D9orbhK/i
+         Jc8+X3piTlhEjnMEDFBvEsmsvohtHHcVNzy1BnQlnr2BAD3g1UL6asBQ8frRli14k/
+         DM/cD2P8UkydA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rahul Kumar <rahul.kumar1@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, sunpeng.li@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, Anthony.Koo@amd.com, Aric.Cyr@amd.com,
-        alex.hung@amd.com, Yi-Ling.Chen2@amd.com, Roman.Li@amd.com,
-        mwen@igalia.com, hanghong.ma@amd.com, Jerry.Zuo@amd.com,
-        agustin.gutierrez@amd.com, dale.zhao@amd.com, isabbasso@riseup.net,
-        Sungjoon.Kim@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.18 47/93] drm/amdgpu/display/dc: Fix null pointer exception
-Date:   Thu, 11 Aug 2022 11:41:41 -0400
-Message-Id: <20220811154237.1531313-47-sashal@kernel.org>
+Cc:     Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, daniel@iogearbox.net,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 48/93] libbpf: fix up few libbpf.map problems
+Date:   Thu, 11 Aug 2022 11:41:42 -0400
+Message-Id: <20220811154237.1531313-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -65,61 +57,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Kumar <rahul.kumar1@amd.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 1c4dae3e4639540fb567e570cc56a3c292afb6fe ]
+[ Upstream commit ab9a5a05dc480f8994eddd31093a8920b08ee71d ]
 
-We observed hard hang due to NULL derefrence This issue is seen after
-running system all the time after two or three days
+Seems like we missed to add 2 APIs to libbpf.map and another API was
+misspelled. Fix it in libbpf.map.
 
-struct dc *dc = plane_state->ctx->dc; Randomly in long run we found
-plane_state or plane_state->ctx is found NULL which causes exception.
-
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-PF: supervisor read access in kernel mode
-PF: error_code(0x0000) - not-present page
-PGD 1dc7f2067 P4D 1dc7f2067 PUD 222c75067 PMD 0
-Oops: 0000 [#1] SMP NOPTI
-CPU: 5 PID: 29855 Comm: kworker/u16:4 ...
-...
-Workqueue: events_unbound commit_work [drm_kms_helper]
-RIP: 0010:dcn10_update_pending_status+0x1f/0xee [amdgpu]
-Code: 41 5f c3 0f 1f 44 00 00 b0 01 c3 0f 1f 44 00 00 41 55 41 54 55 53 48 8b 1f 4c 8b af f8 00 00 00 48 8b 83 88 03 00 00 48 85 db <4c> 8b 20 0f 84 bf 00 00 00 48 89 fd 48 8b bf b8 00 00 00 48 8b 07
-RSP: 0018:ffff942941997ab8 EFLAGS: 00010286
-RAX: 0000000000000000 RBX: ffff8d7fd98d2000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffff8d7e3e87c708 RDI: ffff8d7f2d8c0690
-RBP: ffff8d7f2d8c0000 R08: ffff942941997a34 R09: 00000000ffffffff
-R10: 0000000000005000 R11: 00000000000000f0 R12: ffff8d7f2d8c0690
-R13: ffff8d8035a41680 R14: 00000000000186a0 R15: ffff8d7f2d8c1dd8
-FS:  0000000000000000(0000) GS:ffff8d8037340000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000000 CR3: 0000000148030000 CR4: 00000000003406e0
-Call Trace:
- dc_commit_state+0x6a2/0x7f0 [amdgpu]
- amdgpu_dm_atomic_commit_tail+0x460/0x19bb [amdgpu]
-
-Tested-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Rahul Kumar <rahul.kumar1@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/r/20220627211527.2245459-16-andrii@kernel.org
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/bpf/libbpf.map      | 3 ++-
+ tools/lib/bpf/libbpf_legacy.h | 4 ++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-index 83fbea2df410..b12a46c4e872 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-@@ -3205,7 +3205,7 @@ void dcn10_update_pending_status(struct pipe_ctx *pipe_ctx)
- 	struct dc_plane_state *plane_state = pipe_ctx->plane_state;
- 	struct timing_generator *tg = pipe_ctx->stream_res.tg;
- 	bool flip_pending;
--	struct dc *dc = plane_state->ctx->dc;
-+	struct dc *dc = pipe_ctx->stream->ctx->dc;
+diff --git a/tools/lib/bpf/libbpf.map b/tools/lib/bpf/libbpf.map
+index dd35ee58bfaa..d2476c1aee8c 100644
+--- a/tools/lib/bpf/libbpf.map
++++ b/tools/lib/bpf/libbpf.map
+@@ -434,10 +434,11 @@ LIBBPF_0.7.0 {
+ 		bpf_xdp_detach;
+ 		bpf_xdp_query;
+ 		bpf_xdp_query_id;
++		btf_ext__raw_data;
+ 		libbpf_probe_bpf_helper;
+ 		libbpf_probe_bpf_map_type;
+ 		libbpf_probe_bpf_prog_type;
+-		libbpf_set_memlock_rlim_max;
++		libbpf_set_memlock_rlim;
+ } LIBBPF_0.6.0;
  
- 	if (plane_state == NULL)
- 		return;
+ LIBBPF_0.8.0 {
+diff --git a/tools/lib/bpf/libbpf_legacy.h b/tools/lib/bpf/libbpf_legacy.h
+index d7bcbd01f66f..a3503c02e4a9 100644
+--- a/tools/lib/bpf/libbpf_legacy.h
++++ b/tools/lib/bpf/libbpf_legacy.h
+@@ -71,8 +71,8 @@ enum libbpf_strict_mode {
+ 	 * first BPF program or map creation operation. This is done only if
+ 	 * kernel is too old to support memcg-based memory accounting for BPF
+ 	 * subsystem. By default, RLIMIT_MEMLOCK limit is set to RLIM_INFINITY,
+-	 * but it can be overriden with libbpf_set_memlock_rlim_max() API.
+-	 * Note that libbpf_set_memlock_rlim_max() needs to be called before
++	 * but it can be overriden with libbpf_set_memlock_rlim() API.
++	 * Note that libbpf_set_memlock_rlim() needs to be called before
+ 	 * the very first bpf_prog_load(), bpf_map_create() or bpf_object__load()
+ 	 * operation.
+ 	 */
 -- 
 2.35.1
 
