@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C442590004
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:37:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBA79590012
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235937AbiHKPgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235909AbiHKPgG (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 11 Aug 2022 11:36:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59516 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235462AbiHKPfZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:35:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E61749C8D4;
-        Thu, 11 Aug 2022 08:32:53 -0700 (PDT)
+        with ESMTP id S236088AbiHKPf3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:35:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E2409925A;
+        Thu, 11 Aug 2022 08:32:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFD71B82167;
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7406B82168;
+        Thu, 11 Aug 2022 15:32:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15744C433D6;
         Thu, 11 Aug 2022 15:32:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 854FEC433D7;
-        Thu, 11 Aug 2022 15:32:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660231970;
-        bh=j4a/PfP+pRSpIzjqaSM4Hx3iCpAMQApk+tKDdQNUBqI=;
+        s=k20201202; t=1660231973;
+        bh=owvKDXizFCEdAgXs7T2Sko6/6Jb9ujIiikjKrAcPITk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SAZwgyQ03ocJ/NZg6lBrBrVpNFXPTkj5ARyp9BkhkJfT0oQw9LGObXSTeVUReUEg1
-         3MpLXhlFN7UAiAwaDsAJqnq3rc9kb76TUyA0kaJL1Yk3Dnm7YdU+i3Iv6I0xmlUIrw
-         81IVNjh2PB7AyNhjFTxyz/Guaq+ww60Th0uUegN32SpbWX+2ty7IRt6bxN+Acx7Dk/
-         hiJ9wcfYl53QgDUMPVoZBnuERVmSJYwLZerxibw/D9uAi4IrVkbKON4CpVqfR5JOEb
-         RMiqToLTKEmrglBMl7IS1rCMyfVOds91iT8pdAOFJkcMYvvgP98udA995nwyZm6ePX
-         hBgk8rxLLtNxg==
+        b=UTDIJ9fqU2pnDfVJZQFB4/+NPee1+rG36m4S6LXEstKtnaIhxrY7M2nKQbZhsyIxS
+         2Tn2gZqCRwHIu0ViWhEEAI3dqdmB9fNFHlIUHWvxMoqSs1QF+zxai+bjaR61W6vI/8
+         72YMxzDsemJVA2njIOl/M0mNgK8nvw86SsuIupQc29WdyAcQUS3RjtLuhqQQyfh9Uh
+         1a63NZ81xB3OHxO1j/mOn6f4TsR3TpKVoj8kkYnKVPslsxtlYM9AQmmO3lEkidMmZt
+         OIq/Tt4ZTl2ulVRZWs+lAeubV09XgWSJ93S99frA2G7ANY7zOyprTl5wmRdGb6DROo
+         P2kUiTjLgi4Mg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, isely@pobox.com,
-        linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 034/105] media: pvrusb2: fix memory leak in pvr_probe
-Date:   Thu, 11 Aug 2022 11:27:18 -0400
-Message-Id: <20220811152851.1520029-34-sashal@kernel.org>
+Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
+        frederic@kernel.org, quic_neeraju@quicinc.com,
+        josh@joshtriplett.org, rcu@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 035/105] rcu: Apply noinstr to rcu_idle_enter() and rcu_idle_exit()
+Date:   Thu, 11 Aug 2022 11:27:19 -0400
+Message-Id: <20220811152851.1520029-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
@@ -59,39 +60,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: "Paul E. McKenney" <paulmck@kernel.org>
 
-[ Upstream commit 945a9a8e448b65bec055d37eba58f711b39f66f0 ]
+[ Upstream commit ed4ae5eff4b38797607cbdd80da394149110fb37 ]
 
-The error handling code in pvr2_hdw_create forgets to unregister the
-v4l2 device. When pvr2_hdw_create returns back to pvr2_context_create,
-it calls pvr2_context_destroy to destroy context, but mp->hdw is NULL,
-which leads to that pvr2_hdw_destroy directly returns.
+This commit applies the "noinstr" tag to the rcu_idle_enter() and
+rcu_idle_exit() functions, which are invoked from portions of the idle
+loop that cannot be instrumented.  These tags require reworking the
+rcu_eqs_enter() and rcu_eqs_exit() functions that these two functions
+invoke in order to cause them to use normal assertions rather than
+lockdep.  In addition, within rcu_idle_exit(), the raw versions of
+local_irq_save() and local_irq_restore() are used, again to avoid issues
+with lockdep in uninstrumented code.
 
-Fix this by adding v4l2_device_unregister to decrease the refcount of
-usb interface.
+This patch is based in part on an earlier patch by Jiri Olsa, discussions
+with Peter Zijlstra and Frederic Weisbecker, earlier changes by Thomas
+Gleixner, and off-list discussions with Yonghong Song.
 
-Reported-by: syzbot+77b432d57c4791183ed4@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Link: https://lore.kernel.org/lkml/20220515203653.4039075-1-jolsa@kernel.org/
+Reported-by: Jiri Olsa <jolsa@kernel.org>
+Reported-by: Alexei Starovoitov <ast@kernel.org>
+Reported-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Reviewed-by: Yonghong Song <yhs@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/rcu/tree.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-index a9666373af6b..92d6db1ad00f 100644
---- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-@@ -2610,6 +2610,7 @@ struct pvr2_hdw *pvr2_hdw_create(struct usb_interface *intf,
- 		del_timer_sync(&hdw->encoder_run_timer);
- 		del_timer_sync(&hdw->encoder_wait_timer);
- 		flush_work(&hdw->workpoll);
-+		v4l2_device_unregister(&hdw->v4l2_dev);
- 		usb_free_urb(hdw->ctl_read_urb);
- 		usb_free_urb(hdw->ctl_write_urb);
- 		kfree(hdw->ctl_read_buffer);
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index c25ba442044a..9a5edab5558c 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -631,8 +631,8 @@ static noinstr void rcu_eqs_enter(bool user)
+ 		return;
+ 	}
+ 
+-	lockdep_assert_irqs_disabled();
+ 	instrumentation_begin();
++	lockdep_assert_irqs_disabled();
+ 	trace_rcu_dyntick(TPS("Start"), rdp->dynticks_nesting, 0, atomic_read(&rdp->dynticks));
+ 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !user && !is_idle_task(current));
+ 	rcu_preempt_deferred_qs(current);
+@@ -659,9 +659,9 @@ static noinstr void rcu_eqs_enter(bool user)
+  * If you add or remove a call to rcu_idle_enter(), be sure to test with
+  * CONFIG_RCU_EQS_DEBUG=y.
+  */
+-void rcu_idle_enter(void)
++void noinstr rcu_idle_enter(void)
+ {
+-	lockdep_assert_irqs_disabled();
++	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !raw_irqs_disabled());
+ 	rcu_eqs_enter(false);
+ }
+ EXPORT_SYMBOL_GPL(rcu_idle_enter);
+@@ -861,7 +861,7 @@ static void noinstr rcu_eqs_exit(bool user)
+ 	struct rcu_data *rdp;
+ 	long oldval;
+ 
+-	lockdep_assert_irqs_disabled();
++	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !raw_irqs_disabled());
+ 	rdp = this_cpu_ptr(&rcu_data);
+ 	oldval = rdp->dynticks_nesting;
+ 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && oldval < 0);
+@@ -896,13 +896,13 @@ static void noinstr rcu_eqs_exit(bool user)
+  * If you add or remove a call to rcu_idle_exit(), be sure to test with
+  * CONFIG_RCU_EQS_DEBUG=y.
+  */
+-void rcu_idle_exit(void)
++void noinstr rcu_idle_exit(void)
+ {
+ 	unsigned long flags;
+ 
+-	local_irq_save(flags);
++	raw_local_irq_save(flags);
+ 	rcu_eqs_exit(false);
+-	local_irq_restore(flags);
++	raw_local_irq_restore(flags);
+ }
+ EXPORT_SYMBOL_GPL(rcu_idle_exit);
+ 
 -- 
 2.35.1
 
