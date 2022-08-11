@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE6875904D1
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:49:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C016F5904DC
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:49:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238465AbiHKQ36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:29:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44936 "EHLO
+        id S238475AbiHKQ37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:29:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238268AbiHKQ2b (ORCPT
+        with ESMTP id S238275AbiHKQ2b (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:28:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B02E745046;
-        Thu, 11 Aug 2022 09:08:48 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DCC745068;
+        Thu, 11 Aug 2022 09:08:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CC3FB821AC;
-        Thu, 11 Aug 2022 16:08:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B83BC433D7;
-        Thu, 11 Aug 2022 16:08:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1B6D61426;
+        Thu, 11 Aug 2022 16:08:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EB9AC433D6;
+        Thu, 11 Aug 2022 16:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660234126;
-        bh=w+/KY4vgCyqRiS6PUmLxZ/y/Ie+TtAymsWfEEdfKwz0=;
+        s=k20201202; t=1660234131;
+        bh=SGTpKFtvpWTeRk3mipvgbkhMbS+YsOcmKS0+1nJgO9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gb40/fxAHqcGVFLQAqvSMSklzdrGLC6FArcZWXNJR3g9WaiCZ1g2/FOv391Sy9BsL
-         9MBxUR4E5iTD32M0MvIZ4WCtfpKlbhceq39szp1cuCS2pGG6HZ2OIMr97KijOBRo98
-         dN65vjLSnT9xD4Z9Jo3KtBl4CT7uNYaUalSwdkf+vLM5CmBP58Wap/lvvdpeDwoqd/
-         Tm6vGmed42PWCZAJqBH55hf+m1K8Xf5Rev1hrlCiePLsTLGwQL4aBj+AAEmxxa4k75
-         zGCGjbJowPKLlXrLWVUbFN3i3wR9qdCaDriWtuzL6vKmKvypO2hjrO61eFkKwjmKZp
-         NuHnwD7eVZ4Hw==
+        b=XC7QrVaw3DzuKXslv80NB7vkMzQTEL3/GoGeCTPRi7ib3rm2Dt2IBAmlhrqnFx/s2
+         y9fohqXzeXNM9Ws+nZ+O1t7s6z7XlULHzuWJXsvOKzKWIdkyMCfJHkfta14R3K4oEY
+         CMPh5h9ndnpvlThgoZFQgxoh16rUa83OMP8exWMJRVfyVTJX4hUmJUMfkyyuchNnya
+         PXLwYa4aNRCbPNJCmGv8O/2q27AN9K7FO7/a6PmHxsQUD/7DnYOtBzkLLVsjtP3xgW
+         uK3n0y3yZ2qsbi1lrZrokKptZNPni89i+CV/32rsi03vv7xbthnmayWElwkU2MC0IJ
+         QAsgg9zExir7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Saeed Mahameed <saeedm@nvidia.com>,
-        Michael Guralnik <michaelgur@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 10/25] net/mlx5: Add HW definitions of vport debug counters
-Date:   Thu, 11 Aug 2022 12:08:05 -0400
-Message-Id: <20220811160826.1541971-10-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, johan@kernel.org,
+        prabhakar.mahadev-lad.rj@bp.renesas.com, cai.huoqing@linux.dev,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 11/25] media: davinci: vpif: add missing of_node_put() in vpif_probe()
+Date:   Thu, 11 Aug 2022 12:08:06 -0400
+Message-Id: <20220811160826.1541971-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811160826.1541971-1-sashal@kernel.org>
 References: <20220811160826.1541971-1-sashal@kernel.org>
@@ -57,90 +60,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saeed Mahameed <saeedm@nvidia.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 3e94e61bd44d90070dcda53b647fdc826097ef26 ]
+[ Upstream commit bb45f5433f23cf103ba29c9692ee553e061f2cb4 ]
 
-total_q_under_processor_handle - number of queues in error state due to an
-async error or errored command.
+of_graph_get_next_endpoint() returns an 'endpoint' node pointer
+with refcount incremented. The refcount should be decremented
+before returning from vpif_probe().
 
-send_queue_priority_update_flow - number of QP/SQ priority/SL update
-events.
-
-cq_overrun - number of times CQ entered an error state due to an
-overflow.
-
-async_eq_overrun -number of time an EQ mapped to async events was
-overrun.
-
-comp_eq_overrun - number of time an EQ mapped to completion events was
-overrun.
-
-quota_exceeded_command - number of commands issued and failed due to quota
-exceeded.
-
-invalid_command - number of commands issued and failed dues to any reason
-other than quota exceeded.
-
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Michael Guralnik <michaelgur@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mlx5/mlx5_ifc.h | 23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ drivers/media/platform/davinci/vpif.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
-index 031022e32635..e132609c3269 100644
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -1188,7 +1188,8 @@ struct mlx5_ifc_cmd_hca_cap_bits {
+diff --git a/drivers/media/platform/davinci/vpif.c b/drivers/media/platform/davinci/vpif.c
+index e7e8eba048ac..a05fbb367d3a 100644
+--- a/drivers/media/platform/davinci/vpif.c
++++ b/drivers/media/platform/davinci/vpif.c
+@@ -450,6 +450,7 @@ static int vpif_probe(struct platform_device *pdev)
+ 					      endpoint);
+ 	if (!endpoint)
+ 		return 0;
++	of_node_put(endpoint);
  
- 	u8         reserved_at_120[0xa];
- 	u8         log_max_ra_req_dc[0x6];
--	u8         reserved_at_130[0xa];
-+	u8         reserved_at_130[0x9];
-+	u8         vnic_env_cq_overrun[0x1];
- 	u8         log_max_ra_res_dc[0x6];
- 
- 	u8         reserved_at_140[0xa];
-@@ -1367,7 +1368,11 @@ struct mlx5_ifc_cmd_hca_cap_bits {
- 	u8         nic_receive_steering_discard[0x1];
- 	u8         receive_discard_vport_down[0x1];
- 	u8         transmit_discard_vport_down[0x1];
--	u8         reserved_at_343[0x5];
-+	u8         eq_overrun_count[0x1];
-+	u8         reserved_at_344[0x1];
-+	u8         invalid_command_count[0x1];
-+	u8         quota_exceeded_count[0x1];
-+	u8         reserved_at_347[0x1];
- 	u8         log_max_flow_counter_bulk[0x8];
- 	u8         max_flow_counter_15_0[0x10];
- 
-@@ -2890,11 +2895,21 @@ struct mlx5_ifc_vnic_diagnostic_statistics_bits {
- 
- 	u8         transmit_discard_vport_down[0x40];
- 
--	u8         reserved_at_140[0xa0];
-+	u8         async_eq_overrun[0x20];
-+
-+	u8         comp_eq_overrun[0x20];
-+
-+	u8         reserved_at_180[0x20];
-+
-+	u8         invalid_command[0x20];
-+
-+	u8         quota_exceeded_command[0x20];
- 
- 	u8         internal_rq_out_of_buffer[0x20];
- 
--	u8         reserved_at_200[0xe00];
-+	u8         cq_overrun[0x20];
-+
-+	u8         reserved_at_220[0xde0];
- };
- 
- struct mlx5_ifc_traffic_counter_bits {
+ 	/*
+ 	 * For DT platforms, manually create platform_devices for
 -- 
 2.35.1
 
