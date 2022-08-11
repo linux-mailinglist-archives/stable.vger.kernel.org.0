@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF4FD58FF53
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:29:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C18158FF5E
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 17:29:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235351AbiHKP3T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:29:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47020 "EHLO
+        id S235755AbiHKP3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:29:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235708AbiHKP3P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:29:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89F6692F57;
-        Thu, 11 Aug 2022 08:29:14 -0700 (PDT)
+        with ESMTP id S235721AbiHKP3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:29:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54A3194EF3;
+        Thu, 11 Aug 2022 08:29:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3137FB82157;
-        Thu, 11 Aug 2022 15:29:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2D6CC43470;
-        Thu, 11 Aug 2022 15:29:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF67C615BB;
+        Thu, 11 Aug 2022 15:29:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6E47C433D6;
+        Thu, 11 Aug 2022 15:29:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660231752;
-        bh=ZrVVdqJ1lXbKlPTTe/MiF2IuGjRwNIlSt/ErmVMx+tA=;
+        s=k20201202; t=1660231754;
+        bh=S+9wRYp0p0oEdN+PIYmEdODlGUmWCcf3Hu8qY0WNB1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g0d4Sukdx57W5vYnuAd3ExcTdQwFbz2L6+7ibgM3pCM9djIC1tb2xNxzZsy7/eh8F
-         9N7+HPWrXc2qooiawXLfTcL1NNRKKO8kdipJeoAWSLN8O/pAqJk9gRdvpZtozDImny
-         UqbpMo+ufTWv9tjcRhzWJvcR9ux4Tsq3+G9yw6s+Jsu+rxfQ34NSvFWuIrKjtB1XlC
-         38jAKE9xOxZcXR0L2z5QnJIP+J4kbWfSlDL8eDeb9MJn6gUyuWJUtEJsdwWvkamirQ
-         nzavdxCLGezYTnluAEBBMPCu+NfZpfyKyYlWxj+VDnEVBlLK2dLsKP0B6e+3J9RWMv
-         Llkl8GAJRipNQ==
+        b=beFc+aUBnZ4HQEc63LsqLGmIRz+tIOngEcXobVpyUsP9KFRtXaXrOVkU08b2atpr5
+         oW2mwoAnMGpK12iFnPt81dOTCNjsDSWGAfDCrJfU89+NFC0Tr+O0VX3Ves1/XR9Hok
+         a/HfDHxz00B+9+r5VPQjHylDUq6a3tPNSFl3He7UiS0KKJXe8dbfCE8gWJoImBLp9L
+         N/a1wpoNNVUKHN/sNXZAhtbImp8Tlkr1ox06tp6di0mSO/gdYI2HyoywEMzmr8IyvX
+         0aPXyu6vNF2lg7nqnKLjbf14IA3r8SGgZCVDQzfrLKUL/ugnY871YILS6ZaIBzKy5p
+         VtmaJJXtyly9A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxime Bizon <mbizon@freebox.fr>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 004/105] ath10k: fix misreported tx bandwidth for 160Mhz
-Date:   Thu, 11 Aug 2022 11:26:48 -0400
-Message-Id: <20220811152851.1520029-4-sashal@kernel.org>
+Cc:     Mark Menzynski <mmenzyns@redhat.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Lyude Paul <lyude@redhat.com>, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 005/105] drm/nouveau: clear output poll workers before nouveau_fbcon_destroy()
+Date:   Thu, 11 Aug 2022 11:26:49 -0400
+Message-Id: <20220811152851.1520029-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811152851.1520029-1-sashal@kernel.org>
 References: <20220811152851.1520029-1-sashal@kernel.org>
@@ -59,39 +60,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Bizon <mbizon@freebox.fr>
+From: Mark Menzynski <mmenzyns@redhat.com>
 
-[ Upstream commit 75a7062e533e309a9ca0812c69f3ac3cefadb8b1 ]
+[ Upstream commit 6b03816f869529393b37d03e5d75b68f7365a7a4 ]
 
-Because of this missing switch case, 160Mhz transmit was reported as
-20Mhz, leading to wrong airtime calculation and AQL limiting max
-throughput.
+Resources needed for output poll workers are destroyed in
+nouveau_fbcon_fini() before output poll workers are cleared in
+nouveau_display_fini(). This means there is a time between fbcon_fini()
+and display_fini(), where if output poll happens, it crashes.
 
-Tested-on: QCA9984 hw2.0 PCI 10.4-3.10-00047
+This patch introduces another output poll clearing before fbcon
+resources are destroyed.
 
-Signed-off-by: Maxime Bizon <mbizon@freebox.fr>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/cd2735a40da7f4fcc5323e3fca3775e7b5402ece.camel@freebox.fr
+BUG: KASAN: use-after-free in
+__drm_fb_helper_initial_config_and_unlock.cold+0x1f3/0x291
+[drm_kms_helper]
+
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Karol Herbst <kherbst@redhat.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org
+Cc: nouveau@lists.freedesktop.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Mark Menzynski <mmenzyns@redhat.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220523113541.10562-1-mmenzyns@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/htt_rx.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/nouveau/nouveau_fbcon.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath10k/htt_rx.c b/drivers/net/wireless/ath/ath10k/htt_rx.c
-index 771252dd6d4e..e8727c0b0171 100644
---- a/drivers/net/wireless/ath/ath10k/htt_rx.c
-+++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
-@@ -3884,6 +3884,10 @@ ath10k_update_per_peer_tx_stats(struct ath10k *ar,
- 		arsta->tx_info.status.rates[0].flags |=
- 				IEEE80211_TX_RC_80_MHZ_WIDTH;
- 		break;
-+	case RATE_INFO_BW_160:
-+		arsta->tx_info.status.rates[0].flags |=
-+				IEEE80211_TX_RC_160_MHZ_WIDTH;
-+		break;
- 	}
+diff --git a/drivers/gpu/drm/nouveau/nouveau_fbcon.c b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+index 4f9b3aa5deda..5226323e55d3 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_fbcon.c
++++ b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+@@ -39,6 +39,7 @@
  
- 	if (peer_stats->succ_pkts) {
+ #include <drm/drm_crtc.h>
+ #include <drm/drm_crtc_helper.h>
++#include <drm/drm_probe_helper.h>
+ #include <drm/drm_fb_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_atomic.h>
+@@ -605,6 +606,7 @@ nouveau_fbcon_fini(struct drm_device *dev)
+ 	if (!drm->fbcon)
+ 		return;
+ 
++	drm_kms_helper_poll_fini(dev);
+ 	nouveau_fbcon_accel_fini(dev);
+ 	nouveau_fbcon_destroy(dev, drm->fbcon);
+ 	kfree(drm->fbcon);
 -- 
 2.35.1
 
