@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57AAB5904F2
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:49:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 381C9590489
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:48:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238927AbiHKQhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:37:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43400 "EHLO
+        id S236088AbiHKQhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:37:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238900AbiHKQd4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:33:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7102777560;
-        Thu, 11 Aug 2022 09:11:07 -0700 (PDT)
+        with ESMTP id S238916AbiHKQd5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:33:57 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F899BC134;
+        Thu, 11 Aug 2022 09:11:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8B72B821B0;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 884F8CE22A8;
+        Thu, 11 Aug 2022 16:11:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2525EC433C1;
         Thu, 11 Aug 2022 16:11:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41ECFC433D7;
-        Thu, 11 Aug 2022 16:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660234264;
-        bh=OO8x2+4a0MfU5R0wgHThLSWrI2dTRD1AshgT6xMLU4A=;
+        s=k20201202; t=1660234266;
+        bh=Xpr/rnGQQaHG9dOD8BYDruHGXokuH1u2GU461YavMCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qVGaNIRhDk8juL8OwnowrMCi3U+tsQg+VQza0eENgHsCsblclCXD18UVuPTgKIr8+
-         ZGOFDZBxubpWgvZJ78kNFmUtm1IovGymaZFsixsPIlDXcU4wQz6EarnP03cqf0Uk5/
-         bHx2sQ0fsqL3EXhzJdW6RgrmGfw8p+1dhfV9oej6qdJ6We4Zn9/ZFzGPmdSQDJz5VR
-         zgX2+rpXN6v1u2LTTD0WgAwTf2hy+r+Le+M6Lp58mL87n16cZS/y9LuluJnE6jpUo6
-         f+5npj4C8VlAobbaTLxDfYbwleYrXRp8MUTSb73Gf1lrqUKqfWkpktpIfmap+5oxY+
-         Q7d+gwjjFEpCg==
+        b=u1QxK7KXv4lQanwmw+cXa5pa1TJ3XWcsOl3JqWQjYxl2n7ZI+Dr1h/YTMi6m1cTzN
+         eeGcsnpsNMCrGmtxHUbz5gKDnviI9jFFrK7HQS/QQUMnGqJiQF4zAQmqFCRebr53X2
+         TmuW0el1fOMYZtnT9kg33CtqbaUdcjDDUjiSS0HYftc6oem5vs+s+ibdn/8dwy70W0
+         zc9hutBq2VxJzB87ODom1Nx1rxIEeMLRoV/IKsVQQKYWjPJvgQEVso33l17V0NmD6w
+         e4BWMQSnWKaIKyjDir2WjVlA31qG8S+zqCr+25Aji6GcwlkZRLxZF2WN2WrdbFirt8
+         Y7nPoY8IsjHKA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
+Cc:     Oliver Neukum <oneukum@suse.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, johan@kernel.org,
-        prabhakar.mahadev-lad.rj@bp.renesas.com,
-        laurent.pinchart@ideasonboard.com, cai.huoqing@linux.dev,
+        Sasha Levin <sashal@kernel.org>, crope@iki.fi,
         linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 04/14] media: davinci: vpif: add missing of_node_put() in vpif_probe()
-Date:   Thu, 11 Aug 2022 12:10:33 -0400
-Message-Id: <20220811161050.1543183-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 05/14] media: airspy: respect the DMA coherency rules
+Date:   Thu, 11 Aug 2022 12:10:34 -0400
+Message-Id: <20220811161050.1543183-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811161050.1543183-1-sashal@kernel.org>
 References: <20220811161050.1543183-1-sashal@kernel.org>
@@ -61,35 +58,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit bb45f5433f23cf103ba29c9692ee553e061f2cb4 ]
+[ Upstream commit ca9dc8d06ab64543a6a31adac5003349c5671218 ]
 
-of_graph_get_next_endpoint() returns an 'endpoint' node pointer
-with refcount incremented. The refcount should be decremented
-before returning from vpif_probe().
+If we want to avoid memory corruption
+on incoherent architectures, buffers for DMA
+must not reside
+- on the stack
+- embedded within other structures
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Allocate them separately.
+
+v2: fix uninitialized return value
+
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/davinci/vpif.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/airspy/airspy.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/davinci/vpif.c b/drivers/media/platform/davinci/vpif.c
-index 4ac0893282f5..a46316f5467b 100644
---- a/drivers/media/platform/davinci/vpif.c
-+++ b/drivers/media/platform/davinci/vpif.c
-@@ -449,6 +449,7 @@ static int vpif_probe(struct platform_device *pdev)
- 					      endpoint);
- 	if (!endpoint)
- 		return 0;
-+	of_node_put(endpoint);
+diff --git a/drivers/media/usb/airspy/airspy.c b/drivers/media/usb/airspy/airspy.c
+index e70c9e2f3798..681753934948 100644
+--- a/drivers/media/usb/airspy/airspy.c
++++ b/drivers/media/usb/airspy/airspy.c
+@@ -134,7 +134,7 @@ struct airspy {
  
- 	/*
- 	 * For DT platforms, manually create platform_devices for
+ 	/* USB control message buffer */
+ 	#define BUF_SIZE 128
+-	u8 buf[BUF_SIZE];
++	u8 *buf;
+ 
+ 	/* Current configuration */
+ 	unsigned int f_adc;
+@@ -872,6 +872,7 @@ static void airspy_video_release(struct v4l2_device *v)
+ 
+ 	v4l2_ctrl_handler_free(&s->hdl);
+ 	v4l2_device_unregister(&s->v4l2_dev);
++	kfree(s->buf);
+ 	kfree(s);
+ }
+ 
+@@ -979,7 +980,10 @@ static int airspy_probe(struct usb_interface *intf,
+ {
+ 	struct airspy *s;
+ 	int ret;
+-	u8 u8tmp, buf[BUF_SIZE];
++	u8 u8tmp, *buf;
++
++	buf = NULL;
++	ret = -ENOMEM;
+ 
+ 	s = kzalloc(sizeof(struct airspy), GFP_KERNEL);
+ 	if (s == NULL) {
+@@ -987,6 +991,13 @@ static int airspy_probe(struct usb_interface *intf,
+ 		return -ENOMEM;
+ 	}
+ 
++	s->buf = kzalloc(BUF_SIZE, GFP_KERNEL);
++	if (!s->buf)
++		goto err_free_mem;
++	buf = kzalloc(BUF_SIZE, GFP_KERNEL);
++	if (!buf)
++		goto err_free_mem;
++
+ 	mutex_init(&s->v4l2_lock);
+ 	mutex_init(&s->vb_queue_lock);
+ 	spin_lock_init(&s->queued_bufs_lock);
+@@ -1082,6 +1093,8 @@ static int airspy_probe(struct usb_interface *intf,
+ 	v4l2_ctrl_handler_free(&s->hdl);
+ 	v4l2_device_unregister(&s->v4l2_dev);
+ err_free_mem:
++	kfree(buf);
++	kfree(s->buf);
+ 	kfree(s);
+ 	return ret;
+ }
 -- 
 2.35.1
 
