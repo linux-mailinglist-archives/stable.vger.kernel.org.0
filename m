@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AFDF590341
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:21:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D761F590355
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:22:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237717AbiHKQV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:21:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60816 "EHLO
+        id S237800AbiHKQVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:21:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237746AbiHKQUh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:20:37 -0400
+        with ESMTP id S237754AbiHKQUi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:20:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0C8DAFADE
-        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 09:02:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2267198A4B
+        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 09:02:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 919C6B82156
-        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 16:02:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEDA7C433D6;
-        Thu, 11 Aug 2022 16:02:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9C26B82144
+        for <stable@vger.kernel.org>; Thu, 11 Aug 2022 16:02:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27DE9C433D6;
+        Thu, 11 Aug 2022 16:02:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660233756;
-        bh=P0A57pfDkSuAFntDXoOGxkIO6LM4eBNmZ/XkEMeN4LQ=;
+        s=korg; t=1660233759;
+        bh=AD6PQmxQ6IiteoOdvgDEPNarRyXW3Sly3mJDzwlWI3s=;
         h=Subject:To:Cc:From:Date:From;
-        b=UhHNFhkhIcL5VMUXK/KIuv7ER1bAP4qKHh5hhc0viXV2S0UBIAg9TwMIRFb3ARl6f
-         YzdAEkAxHiCfdl/I9303GvWK4yon0BlLHUxZq5vX7nT/TC3ctFpdlmPfh42S1tZyc6
-         fdt73dPeqo4QH9pm3I0HCzfX6bbVWnKl/1I8Bg6U=
-Subject: FAILED: patch "[PATCH] powerpc/powernv/kvm: Use darn for H_RANDOM on Power9" failed to apply to options-stable tree
+        b=bov2N/eAqY2tvRyRzbM3oiHnqjfHg7WC+c1OC1Cr6Cs0upr4VkRm0hTxvau1sv3Om
+         SpHwl3sM62RBhY7uZHDTtcK3F7P9iFNwpjw52Gw2bKZ7l4CQY1WygCzH9HinLx2ywJ
+         5N3gKMgvxhu2txBW6E+2NuuQWbtLyutszHcHcqbM=
+Subject: FAILED: patch "[PATCH] powerpc/powernv/kvm: Use darn for H_RANDOM on Power9" failed to apply to see-stable tree
 To:     Jason@zx2c4.com, mpe@ellerman.id.au, sachinp@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 11 Aug 2022 18:02:22 +0200
-Message-ID: <1660233742174241@kroah.com>
+Date:   Thu, 11 Aug 2022 18:02:23 +0200
+Message-ID: <1660233743131123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the options-stable tree.
+The patch below does not apply to the see-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
