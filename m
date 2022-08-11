@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2AB35902F2
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:18:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 271475902E9
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:17:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235577AbiHKQOE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:14:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48880 "EHLO
+        id S235916AbiHKQOF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:14:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237427AbiHKQNo (ORCPT
+        with ESMTP id S237504AbiHKQNo (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:13:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 011E9A6C20;
-        Thu, 11 Aug 2022 08:58:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA5EDA6C27;
+        Thu, 11 Aug 2022 08:58:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFA7561314;
-        Thu, 11 Aug 2022 15:58:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1859C433D7;
-        Thu, 11 Aug 2022 15:57:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F03656131C;
+        Thu, 11 Aug 2022 15:58:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE089C433D6;
+        Thu, 11 Aug 2022 15:58:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660233480;
-        bh=X2xHlDHY1Fr1Z7sQK/iMZPVVFKKWUW/n7OcahAnI+ac=;
+        s=k20201202; t=1660233483;
+        bh=Q6cEvCQogad5obOLyjdkBq6p4e5f1lTJBgUIsspWqhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fJL4VorRAXoDK+UAUx3mreu+SksNWqZdMBreUmIGD0h8P+BttmQFGhtyQKUS9DOlB
-         YC+wqFIONqDAfhrof3MjbGh2aKMAOXsiqvZb5dEq1gLevx7xAEhZvvRnDJLAZSta/4
-         jnSwRqnkcyYTmLblYYPdJ42i3UCC+vZQgh5aO3wC5OtzGln38x33oK96aaM+ZU3i0i
-         1arx596U87fN5IM7icNqXqRxWOrbF3QwUQB4Ja+XuCLD8tCFwXDxjDuJl3NsKdxBN6
-         YcJPVpmCKNxmn5m5HWEBL1ineR2rnc9ty0Qtjl0ka8HbCRz7Q3K61XaDTer9C6U/hu
-         qIiS180tqY/cA==
+        b=b5mM25Pj67/WqCf293Rc85X2+uUdPlF1PF3SFzUB96dzebj4xzQe55D3RNMBCYSBW
+         h+KNbG/YD1zGedXqAQoN2naSWhwsw0iYFY8/uvH2OFU/tNRAUOJOcs+CJqYE+xyvT5
+         0560MUzvAEx/PH/UHDIAM1HD2LX5TK3RsMnmnGVCWopUD3YSGTHKQYNp+5hwGyiMzr
+         9zGdXRyHFqcpjDL2yjbkTD7PNkW0SoJIG3CERWdJmN7fRvWNj32Nx1DgqAYiAEV7kj
+         Jx3de3wUVi790QtEMydH5sPBitB5lhfGKaPquTZjPS124IEACiUQWB2HuoDhdJ+I5I
+         ZWlpFdrKBkfWw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wayne Lin <Wayne.Lin@amd.com>, Hersen Wu <hersenwu@amd.com>,
-        Hamza Mahfooz <hamza.mahfooz@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, Roman.Li@amd.com, Jerry.Zuo@amd.com,
-        tzimmermann@suse.de, nicholas.kazlauskas@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 12/69] drm/amd/display: Detect dpcd_rev when hotplug mst monitor
-Date:   Thu, 11 Aug 2022 11:55:21 -0400
-Message-Id: <20220811155632.1536867-12-sashal@kernel.org>
+Cc:     Douglas Anderson <dianders@chromium.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Sean Paul <seanpaul@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 13/69] drm/probe-helper: Default to 640x480 if no EDID on DP
+Date:   Thu, 11 Aug 2022 11:55:22 -0400
+Message-Id: <20220811155632.1536867-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811155632.1536867-1-sashal@kernel.org>
 References: <20220811155632.1536867-1-sashal@kernel.org>
@@ -63,88 +62,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Lin <Wayne.Lin@amd.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 453b0016a054df0f442fda8a145b97a33816cab9 ]
+[ Upstream commit fae7d186403ee5a9375ec75938e0de99718e066a ]
 
-[Why]
-Once mst topology is constructed, later on new connected monitors
-are reported to source by CSN message. Within CSN, there is no
-carried info of DPCD_REV comparing to LINK_ADDRESS reply. As the
-result, we might leave some ports connected to DP but without DPCD
-revision number which will affect us determining the capability of
-the DP Rx.
+If we're unable to read the EDID for a display because it's corrupt /
+bogus / invalid then we'll add a set of standard modes for the
+display. Since we have no true information about the connected
+display, these modes are essentially guesses but better than nothing.
+At the moment, none of the modes returned is marked as preferred, but
+the modes are sorted such that the higher resolution modes are listed
+first.
 
-[How]
-Send out remote DPCD read when the port's dpcd_rev is 0x0 in
-detect_ctx(). Firstly, read out the value from DPCD 0x2200. If the
-return value is 0x0, it's likely the DP1.2 DP Rx then we reques
-revision from DPCD 0x0 again.
+When userspace sees these modes presented by the kernel it needs to
+figure out which one to pick. At least one userspace, ChromeOS [1]
+seems to use the rules (which seem pretty reasonable):
+1. Try to pick the first mode marked as preferred.
+2. Try to pick the mode which matches the first detailed timing
+   descriptor in the EDID.
+3. If no modes were marked as preferred then pick the first mode.
 
-Reviewed-by: Hersen Wu <hersenwu@amd.com>
-Acked-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Unfortunately, userspace's rules combined with what the kernel is
+doing causes us to fail section 4.2.2.6 (EDID Corruption Detection) of
+the DP 1.4a Link CTS. That test case says that, while it's OK to allow
+some implementation-specific fall-back modes if the EDID is bad that
+userspace should _default_ to 640x480.
+
+Let's fix this by marking 640x480 as default for DP in the no-EDID
+case.
+
+NOTES:
+- In the discussion around v3 of this patch [2] there was talk about
+  solving this in userspace and I even implemented a patch that would
+  have solved this for ChromeOS, but then the discussion turned back
+  to solving this in the kernel.
+- Also in the discussion of v3 [2] it was requested to limit this
+  change to just DP since folks were worried that it would break some
+  subtle corner case on VGA or HDMI.
+
+[1] https://source.chromium.org/chromium/chromium/src/+/a051f741d0a15caff2251301efe081c30e0f4a96:ui/ozone/platform/drm/common/drm_util.cc;l=488
+[2] https://lore.kernel.org/r/20220513130533.v3.1.I31ec454f8d4ffce51a7708a8092f8a6f9c929092@changeid
+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Acked-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Sean Paul <seanpaul@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220601112302.v4.1.I31ec454f8d4ffce51a7708a8092f8a6f9c929092@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../display/amdgpu_dm/amdgpu_dm_mst_types.c   | 38 ++++++++++++++++++-
- 1 file changed, 37 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_probe_helper.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
-index 652cf108b3c2..424f4cfc0e04 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
-@@ -335,12 +335,48 @@ dm_dp_mst_detect(struct drm_connector *connector,
- {
- 	struct amdgpu_dm_connector *aconnector = to_amdgpu_dm_connector(connector);
- 	struct amdgpu_dm_connector *master = aconnector->mst_port;
-+	struct drm_dp_mst_port *port = aconnector->port;
-+	int connection_status;
+diff --git a/drivers/gpu/drm/drm_probe_helper.c b/drivers/gpu/drm/drm_probe_helper.c
+index 5606bca3caa8..86a5be9a5b17 100644
+--- a/drivers/gpu/drm/drm_probe_helper.c
++++ b/drivers/gpu/drm/drm_probe_helper.c
+@@ -516,8 +516,17 @@ int drm_helper_probe_single_connector_modes(struct drm_connector *connector,
+ 		count = drm_add_override_edid_modes(connector);
  
- 	if (drm_connector_is_unregistered(connector))
- 		return connector_status_disconnected;
- 
--	return drm_dp_mst_detect_port(connector, ctx, &master->mst_mgr,
-+	connection_status = drm_dp_mst_detect_port(connector, ctx, &master->mst_mgr,
- 				      aconnector->port);
-+
-+	if (port->pdt != DP_PEER_DEVICE_NONE && !port->dpcd_rev) {
-+		uint8_t dpcd_rev;
-+		int ret;
-+
-+		ret = drm_dp_dpcd_readb(&port->aux, DP_DP13_DPCD_REV, &dpcd_rev);
-+
-+		if (ret == 1) {
-+			port->dpcd_rev = dpcd_rev;
-+
-+			/* Could be DP1.2 DP Rx case*/
-+			if (!dpcd_rev) {
-+				ret = drm_dp_dpcd_readb(&port->aux, DP_DPCD_REV, &dpcd_rev);
-+
-+				if (ret == 1)
-+					port->dpcd_rev = dpcd_rev;
-+			}
-+
-+			if (!dpcd_rev)
-+				DRM_DEBUG_KMS("Can't decide DPCD revision number!");
-+		}
+ 	if (count == 0 && (connector->status == connector_status_connected ||
+-			   connector->status == connector_status_unknown))
++			   connector->status == connector_status_unknown)) {
+ 		count = drm_add_modes_noedid(connector, 1024, 768);
 +
 +		/*
-+		 * Could be legacy sink, logical port etc on DP1.2.
-+		 * Will get Nack under these cases when issue remote
-+		 * DPCD read.
++		 * Section 4.2.2.6 (EDID Corruption Detection) of the DP 1.4a
++		 * Link CTS specifies that 640x480 (the official "failsafe"
++		 * mode) needs to be the default if there's no EDID.
 +		 */
-+		if (ret != 1)
-+			DRM_DEBUG_KMS("Can't access DPCD");
-+	} else if (port->pdt == DP_PEER_DEVICE_NONE) {
-+		port->dpcd_rev = 0;
++		if (connector->connector_type == DRM_MODE_CONNECTOR_DisplayPort)
++			drm_set_preferred_mode(connector, 640, 480);
 +	}
-+
-+	return connection_status;
- }
- 
- static int dm_dp_mst_atomic_check(struct drm_connector *connector,
+ 	count += drm_helper_probe_add_cmdline_mode(connector);
+ 	if (count == 0)
+ 		goto prune;
 -- 
 2.35.1
 
