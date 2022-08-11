@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC3315904BB
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:48:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68930590436
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:48:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238724AbiHKQdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:33:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57628 "EHLO
+        id S238760AbiHKQdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:33:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239141AbiHKQcE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:32:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C300205C1;
-        Thu, 11 Aug 2022 09:10:38 -0700 (PDT)
+        with ESMTP id S239161AbiHKQcG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:32:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D10571F607;
+        Thu, 11 Aug 2022 09:10:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78881B821A0;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2108B6141C;
+        Thu, 11 Aug 2022 16:10:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 513A4C433D7;
         Thu, 11 Aug 2022 16:10:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F92C433C1;
-        Thu, 11 Aug 2022 16:10:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660234236;
-        bh=gc6u3kLKnq5R+c/Wa6E6LECxoOL7urAtXXWQLpvW4V8=;
+        s=k20201202; t=1660234238;
+        bh=cuELR775QdGlYh0X9aGx2dI7+ENiTWaA3FYXQ7YC858=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P67L5rXBGoqVcNoTTJJ+P14HLQb5zH+NNUB0TJmGQ+sY4Dxoqz/o+xJmXmhlm8JIC
-         Wy34RonXUpCcHAG1+RIZ2xSZaasr8bFnlRQqPNZsCPRRHNm21tOk6GWSxZG1EAEecE
-         /QFUea+DJWnZndLzsqYj7jn3o2nYJff35BpDw1sgjyni8SJt06uMJguEpSgeeaL8rg
-         w03HKDirWscEeXAoNGahJ34lerw7lgJvGI5GlGzgxFr/LcM2ge9zZIwbrtdyW9wLZB
-         y2ExWzTCxHT7PbV8Sq0gqSe0RIrpINy1qXGIDKDquyszAmMPeUZv4/QQxYWdcRD9jO
-         0x6bTUNXdFm6w==
+        b=hSSfSLM23HD8RfcLKmyPDWC/xWzAxWhjPs1pHIEpHnfCk2Lb+PazGZr23BQOh4yzl
+         AkpBZdgH1XST8XYn6uxsoS6feQFhX0HaZHSFaVymXVyM5lcgbvGlj7eNl6CnZR4GY8
+         p04ayDpp5DOSvFFEorBCR37oimdqa3J9rUwPso4ZGM0ucOy6qhUgvwJ/nJDj5U7g/0
+         dxp3VR4Il6qZJ/oB2sCQraE63rUYq9mVgp2bY/meZn0mUBqnvJeuk2e4Xn6YvQB3Zy
+         b1GipZBiF8Dj0RkshiaoPjWzob0XMhb4yZ2E4xLdRW9HxqG1wzNRkgzql6yirpEV8H
+         P9Ri9hPIIcO/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?=C5=81ukasz=20Spintzyk?= <lukasz.spintzyk@synaptics.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 11/14] net/cdc_ncm: Increase NTB max RX/TX values to 64kb
-Date:   Thu, 11 Aug 2022 12:09:39 -0400
-Message-Id: <20220811160948.1542842-11-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>, Kalle Valo <kvalo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, Jes.Sorensen@gmail.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 12/14] wifi: rtl8xxxu: Fix the error handling of the probe function
+Date:   Thu, 11 Aug 2022 12:09:40 -0400
+Message-Id: <20220811160948.1542842-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811160948.1542842-1-sashal@kernel.org>
 References: <20220811160948.1542842-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,80 +58,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Łukasz Spintzyk <lukasz.spintzyk@synaptics.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 5588d628027092e66195097bdf6835ddf64418b3 ]
+[ Upstream commit 13876f2a087ad352bf640a7a0a4a4229ea6e9e4f ]
 
-DisplayLink ethernet devices require NTB buffers larger then 32kb
-in order to run with highest performance.
+When the driver fails at ieee80211_alloc_hw() at the probe time, the
+driver will free the 'hw' which is not allocated, causing a bug.
 
-This patch is changing upper limit of the rx and tx buffers.
-Those buffers are initialized with CDC_NCM_NTB_DEF_SIZE_RX and
-CDC_NCM_NTB_DEF_SIZE_TX which is 16kb so by default no device is
-affected by increased limit.
+The following log can reveal it:
 
-Rx and tx buffer is increased under two conditions:
- - Device need to advertise that it supports higher buffer size in
-   dwNtbMaxInMaxSize and dwNtbMaxOutMaxSize.
- - cdc_ncm/rx_max and cdc_ncm/tx_max driver parameters must be adjusted
-   with udev rule or ethtool.
+[   15.981294] BUG: KASAN: user-memory-access in mutex_is_locked+0xe/0x40
+[   15.981558] Read of size 8 at addr 0000000000001ab0 by task modprobe/373
+[   15.982583] Call Trace:
+[   15.984282]  ieee80211_free_hw+0x22/0x390
+[   15.984446]  rtl8xxxu_probe+0x3a1/0xab30 [rtl8xxxu]
 
-Summary of testing and performance results:
-Tests were performed on following devices:
- - DisplayLink DL-3xxx family device
- - DisplayLink DL-6xxx family device
- - ASUS USB-C2500 2.5G USB3 ethernet adapter
- - Plugable USB3 1G USB3 ethernet adapter
- - EDIMAX EU-4307 USB-C ethernet adapter
- - Dell DBQBCBC064 USB-C ethernet adapter
+Fix the bug by changing the order of the error handling.
 
-Performance measurements were done with:
- - iperf3 between two linux boxes
- - http://openspeedtest.com/ instance running on local test machine
-
-Insights from tests results:
- - All except one from third party usb adapters were not affected by
-   increased buffer size to their advertised dwNtbOutMaxSize and
-   dwNtbInMaxSize.
-   Devices were generally reaching 912-940Mbps both download and upload.
-
-   Only EDIMAX adapter experienced decreased download size from
-   929Mbps to 827Mbps with iper3, with openspeedtest decrease was from
-   968Mbps to 886Mbps.
-
- - DisplayLink DL-3xxx family devices experienced performance increase
-   with iperf3 download from 300Mbps to 870Mbps and
-   upload from 782Mbps to 844Mbps.
-   With openspeedtest download increased from 556Mbps to 873Mbps
-   and upload from 727Mbps to 973Mbps
-
- - DiplayLink DL-6xxx family devices are not affected by
-   increased buffer size.
-
-Signed-off-by: Łukasz Spintzyk <lukasz.spintzyk@synaptics.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20220720060518.541-2-lukasz.spintzyk@synaptics.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220716130444.2950690-1-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/usb/cdc_ncm.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 21 ++++++++++---------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/include/linux/usb/cdc_ncm.h b/include/linux/usb/cdc_ncm.h
-index 1646c06989df..78cc32168640 100644
---- a/include/linux/usb/cdc_ncm.h
-+++ b/include/linux/usb/cdc_ncm.h
-@@ -50,8 +50,8 @@
- #define USB_CDC_NCM_NDP16_LENGTH_MIN		0x10
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index b80cff96dea1..6c01ec172183 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -6055,7 +6055,7 @@ static int rtl8xxxu_probe(struct usb_interface *interface,
+ 	if (!hw) {
+ 		ret = -ENOMEM;
+ 		priv = NULL;
+-		goto exit;
++		goto err_put_dev;
+ 	}
  
- /* Maximum NTB length */
--#define	CDC_NCM_NTB_MAX_SIZE_TX			32768	/* bytes */
--#define	CDC_NCM_NTB_MAX_SIZE_RX			32768	/* bytes */
-+#define	CDC_NCM_NTB_MAX_SIZE_TX			65536	/* bytes */
-+#define	CDC_NCM_NTB_MAX_SIZE_RX			65536	/* bytes */
+ 	priv = hw->priv;
+@@ -6074,24 +6074,24 @@ static int rtl8xxxu_probe(struct usb_interface *interface,
  
- /* Initial NTB length */
- #define	CDC_NCM_NTB_DEF_SIZE_TX			16384	/* bytes */
+ 	ret = rtl8xxxu_parse_usb(priv, interface);
+ 	if (ret)
+-		goto exit;
++		goto err_set_intfdata;
+ 
+ 	ret = rtl8xxxu_identify_chip(priv);
+ 	if (ret) {
+ 		dev_err(&udev->dev, "Fatal - failed to identify chip\n");
+-		goto exit;
++		goto err_set_intfdata;
+ 	}
+ 
+ 	ret = rtl8xxxu_read_efuse(priv);
+ 	if (ret) {
+ 		dev_err(&udev->dev, "Fatal - failed to read EFuse\n");
+-		goto exit;
++		goto err_set_intfdata;
+ 	}
+ 
+ 	ret = priv->fops->parse_efuse(priv);
+ 	if (ret) {
+ 		dev_err(&udev->dev, "Fatal - failed to parse EFuse\n");
+-		goto exit;
++		goto err_set_intfdata;
+ 	}
+ 
+ 	rtl8xxxu_print_chipinfo(priv);
+@@ -6099,12 +6099,12 @@ static int rtl8xxxu_probe(struct usb_interface *interface,
+ 	ret = priv->fops->load_firmware(priv);
+ 	if (ret) {
+ 		dev_err(&udev->dev, "Fatal - failed to load firmware\n");
+-		goto exit;
++		goto err_set_intfdata;
+ 	}
+ 
+ 	ret = rtl8xxxu_init_device(hw);
+ 	if (ret)
+-		goto exit;
++		goto err_set_intfdata;
+ 
+ 	hw->wiphy->max_scan_ssids = 1;
+ 	hw->wiphy->max_scan_ie_len = IEEE80211_MAX_DATA_LEN;
+@@ -6154,12 +6154,12 @@ static int rtl8xxxu_probe(struct usb_interface *interface,
+ 	if (ret) {
+ 		dev_err(&udev->dev, "%s: Failed to register: %i\n",
+ 			__func__, ret);
+-		goto exit;
++		goto err_set_intfdata;
+ 	}
+ 
+ 	return 0;
+ 
+-exit:
++err_set_intfdata:
+ 	usb_set_intfdata(interface, NULL);
+ 
+ 	if (priv) {
+@@ -6167,9 +6167,10 @@ static int rtl8xxxu_probe(struct usb_interface *interface,
+ 		mutex_destroy(&priv->usb_buf_mutex);
+ 		mutex_destroy(&priv->h2c_mutex);
+ 	}
+-	usb_put_dev(udev);
+ 
+ 	ieee80211_free_hw(hw);
++err_put_dev:
++	usb_put_dev(udev);
+ 
+ 	return ret;
+ }
 -- 
 2.35.1
 
