@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5E25590192
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C945901AE
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:00:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236745AbiHKP5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 11:57:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49056 "EHLO
+        id S237115AbiHKP5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 11:57:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237355AbiHKP4U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:56:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D59A6A0609;
-        Thu, 11 Aug 2022 08:47:07 -0700 (PDT)
+        with ESMTP id S237383AbiHKP4X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 11:56:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE08A0634;
+        Thu, 11 Aug 2022 08:47:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6A7E616E4;
-        Thu, 11 Aug 2022 15:47:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA0D5C43470;
-        Thu, 11 Aug 2022 15:47:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A867B8216A;
+        Thu, 11 Aug 2022 15:47:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D5D0C433D7;
+        Thu, 11 Aug 2022 15:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660232824;
-        bh=OeMg4a/pR6P2uG64JhkuHV+oop0WsQ1wlASz8/VVvbk=;
+        s=k20201202; t=1660232827;
+        bh=xizQ1FcyAgy3xUVeDsDcPWFhWdEEzYl0CwRjLQCek1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m7rDuQoUsOF3KJFog53YzH0/C0V0XmYBKV4aZzaYkvTKn6ET8qffterarGUS7T3q6
-         03OREh1nTrHC6bE7A5oWqAuv6SpnZNpQ4E7MtgNQRUlXTMOMbmvBAiksIB873T5vJD
-         A2uQ7jKwxwqEDxbE52M/1RY5n6Ox6lyLOZbiB7m1TB6IeR9gxGPKNc8nPHH/RtAreK
-         8+82JA3+G5lTq/cYsDRQ2k0I/uuKkKYfbGIItI4n7vtM7AOO4f71mdOMwOP6Y3lYU4
-         voc3cUJ1kfelWid4ITgu6KwYDSxOpSQTfJ8pGtWANuloU5z+KKYWO1f515fitjlLAz
-         7zJgJIYzgv3ow==
+        b=SlOhIodFFLKhRJVzGBo/DNKEUOS0UD6S9ZYVsBEmhjiB+q76NQrjq3Xc6i9GDsaHj
+         9AUzDPZQUldRqH6uDAhk5Bi2Dh0qAUHsvUxdrX+LhSfx7jPzrXoFRGGjY6xURAj/Zu
+         6Ewx8Q9mz/c8Nu4r+ewfLovOrIGyCNLsor4rpLWTEgGVQfWWiejtLusH5JZmJkdhN4
+         6wOB9vQ30savbr1xVKV6ZfAnXUgTNz1psRFWZn6N8iZAgNZCuKpc21UVKsblesAkK/
+         CCEY8pi0UGdQedXQvG/dcRdp6npFxmGMOQBPSoHTWDeTbVeUBxoSMzjrvONj7XpMxj
+         4m+cHn5UkmVpQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eugen Hristev <eugen.hristev@microchip.com>,
+Cc:     Hirokazu Honda <hiroh@chromium.org>,
+        Irui Wang <irui.wang@mediatek.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, nicolas.ferre@microchip.com,
-        alexandre.belloni@bootlin.com, claudiu.beznea@microchip.com,
-        linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 43/93] media: atmel: atmel-isc-base: allow wb ctrls to be changed when isc is not configured
-Date:   Thu, 11 Aug 2022 11:41:37 -0400
-Message-Id: <20220811154237.1531313-43-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, tiffany.lin@mediatek.com,
+        andrew-ct.chen@mediatek.com, matthias.bgg@gmail.com,
+        linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.18 44/93] media: mediatek: vcodec: Report supported bitrate modes
+Date:   Thu, 11 Aug 2022 11:41:38 -0400
+Message-Id: <20220811154237.1531313-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811154237.1531313-1-sashal@kernel.org>
 References: <20220811154237.1531313-1-sashal@kernel.org>
@@ -59,66 +61,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Hirokazu Honda <hiroh@chromium.org>
 
-[ Upstream commit aa63c5eaf7f7d2d3a4b1cc5782e7151b8ae3079f ]
+[ Upstream commit d8e8aa866ed8636fd6c1017c3d9453eab2922496 ]
 
-When attempting to change the white balance (WB) ctrls before starting
-streaming, e.g.:
+The media driver supports constant bitrate mode only.
+The supported rate control mode is reported through querymenu() and
+s_ctrl() fails if non constant bitrate mode (e.g. VBR) is requested.
 
- # v4l2-ctl -L
-
-User Controls
-..
-            blue_component_gain 0x009819c1 (int)    : min=0 max=8191 step=1 default=512 value=512 flags=slider
-..
- # v4l2-ctl --set-ctrl=blue_component_gain=500
- # v4l2-ctl -L
-..
-            blue_component_gain 0x009819c1 (int)    : min=0 max=8191 step=1 default=512 value=500 flags=slider
-..
-
-These will not be written to the internal data struct and will not be
-written to the WB hardware module.
-Thus, after starting streaming, they will be reset to default:
-
- # v4l2-ctl -L
-..
-            blue_component_gain 0x009819c1 (int)    : min=0 max=8191 step=1 default=512 value=512 flags=slider
-..
-
-It does not make much sense to not be able to configure the WB controls
-at all times. Even if the sensor would not be RAW Bayer (and in this case the
-WB module is unavailable), the user could configure the ISC itself, as the
-ISC should not care about the sensor format.
-Thus, when WB module is available (if the sensor changes format e.g.) it will
-be already configured as be user's desires.
-In consequence, remove the check in isc_s_awb_ctrl that will return if ISC
-does not know the sensor format.
-
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Signed-off-by: Hirokazu Honda <hiroh@chromium.org>
+Reviewed-by: Irui Wang <irui.wang@mediatek.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/atmel/atmel-isc-base.c | 4 ----
- 1 file changed, 4 deletions(-)
+ .../media/platform/mediatek/vcodec/mtk_vcodec_enc.c   | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/media/platform/atmel/atmel-isc-base.c b/drivers/media/platform/atmel/atmel-isc-base.c
-index db15770d5b88..968b505f40e8 100644
---- a/drivers/media/platform/atmel/atmel-isc-base.c
-+++ b/drivers/media/platform/atmel/atmel-isc-base.c
-@@ -1509,10 +1509,6 @@ static int isc_s_awb_ctrl(struct v4l2_ctrl *ctrl)
- 		else
- 			ctrls->awb = ISC_WB_NONE;
+diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_enc.c b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_enc.c
+index c21367038c34..98d451ce2545 100644
+--- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_enc.c
++++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_enc.c
+@@ -50,6 +50,14 @@ static int vidioc_venc_s_ctrl(struct v4l2_ctrl *ctrl)
+ 	int ret = 0;
  
--		/* we did not configure ISC yet */
--		if (!isc->config.sd_format)
--			break;
--
- 		/* configure the controls with new values from v4l2 */
- 		if (ctrl->cluster[ISC_CTRL_R_GAIN]->is_new)
- 			ctrls->gain[ISC_HIS_CFG_MODE_R] = isc->r_gain_ctrl->val;
+ 	switch (ctrl->id) {
++	case V4L2_CID_MPEG_VIDEO_BITRATE_MODE:
++		mtk_v4l2_debug(2, "V4L2_CID_MPEG_VIDEO_BITRATE_MODE val= %d",
++			       ctrl->val);
++		if (ctrl->val != V4L2_MPEG_VIDEO_BITRATE_MODE_CBR) {
++			mtk_v4l2_err("Unsupported bitrate mode =%d", ctrl->val);
++			ret = -EINVAL;
++		}
++		break;
+ 	case V4L2_CID_MPEG_VIDEO_BITRATE:
+ 		mtk_v4l2_debug(2, "V4L2_CID_MPEG_VIDEO_BITRATE val = %d",
+ 			       ctrl->val);
+@@ -1373,6 +1381,9 @@ int mtk_vcodec_enc_ctrls_setup(struct mtk_vcodec_ctx *ctx)
+ 			       0, V4L2_MPEG_VIDEO_H264_LEVEL_4_0);
+ 	v4l2_ctrl_new_std_menu(handler, ops, V4L2_CID_MPEG_VIDEO_VP8_PROFILE,
+ 			       V4L2_MPEG_VIDEO_VP8_PROFILE_0, 0, V4L2_MPEG_VIDEO_VP8_PROFILE_0);
++	v4l2_ctrl_new_std_menu(handler, ops, V4L2_CID_MPEG_VIDEO_BITRATE_MODE,
++			       V4L2_MPEG_VIDEO_BITRATE_MODE_CBR,
++			       0, V4L2_MPEG_VIDEO_BITRATE_MODE_CBR);
+ 
+ 
+ 	if (handler->error) {
 -- 
 2.35.1
 
