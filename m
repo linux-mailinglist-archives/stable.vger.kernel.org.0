@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19DBE590395
-	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:28:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CE5D5903AC
+	for <lists+stable@lfdr.de>; Thu, 11 Aug 2022 18:28:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238103AbiHKQZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Aug 2022 12:25:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38684 "EHLO
+        id S238109AbiHKQZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Aug 2022 12:25:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237286AbiHKQYN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:24:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C8481ADBE;
-        Thu, 11 Aug 2022 09:05:56 -0700 (PDT)
+        with ESMTP id S236302AbiHKQYY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Aug 2022 12:24:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDF5B1AF0F;
+        Thu, 11 Aug 2022 09:06:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA71161389;
-        Thu, 11 Aug 2022 16:05:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A6D6C433C1;
-        Thu, 11 Aug 2022 16:05:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B02061314;
+        Thu, 11 Aug 2022 16:06:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A70ABC433D6;
+        Thu, 11 Aug 2022 16:06:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660233955;
-        bh=sMCoGwx3j52PMPFrFem1QLrD5gYbjRYcYBHVmozZMPQ=;
+        s=k20201202; t=1660233965;
+        bh=jh7/nyhbIHPwfHrGCpEFUSstRyRjNoXbPF/AeZEz3To=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nkf/phViPAdQ/w3gThE8AVrPrvxl2uSq7HkERuZye8YgKOg3S3qO6ZkUof0Njarm6
-         0AQxi67ycxdBIIXpbjNnfhl0BcE2+pHi3NbCY3cnYJLNB8fHLMv9HtPiPI2zjjqTWL
-         J7y8nyqhfSuTDsq4jrQr9mTl1k+deeGodaYdy3FPC/kIphzrCOI5LA/mkktHyZj/Kr
-         +dHr8pJjDs2YsQQ5RMAaGHWpoKtUkv0CK3UWfCIeS5w6tktwFhAyvO2qb5VjveR3ya
-         QHPrbPnS432LWoKvuRDJwMJkDJAQdb9NPrbFe/bpKvaLJr9f92de9jg5AthfVZ2v7P
-         gjREjf3bzVT1g==
+        b=SanVL3z1N4z3oWnu4JoUkcOxX4Es2MaLogmPcyEX0FkXheupFeb22hjVFEL4qOdCs
+         SHZB//xjEgONRpJgmEwSw2rz9so+oXGUxH/pyE60X19XKtW4t+VR8Ft7de1tCZh7Qx
+         c27L5J0MQJzR21omUPaBuCFy+5DPD0wu0BWvmEILF9aQ7hdFLB2S0hlf/nGE6StqHg
+         fJGkUyAbIP+ornGep0UQNDQeE+ITs6qokLTW3iM+H4H3yw07RUKO7pOuinDmhomyuS
+         5G1iHlWOKByXv12sw82ezXxpSsJxY+ude3lMAOiw/Pdbc2Bthx4x1qZt1Y0dGKA7Rz
+         IM8lRr5IZlENQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, andrew@lunn.ch,
-        vivien.didelot@gmail.com, f.fainelli@gmail.com, olteanv@gmail.com,
-        davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
-        linux@rempel-privat.de, rmk+kernel@armlinux.org.uk,
-        sean.anderson@seco.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 16/46] net: dsa: ar9331: fix potential dead lock on mdio access
-Date:   Thu, 11 Aug 2022 12:03:40 -0400
-Message-Id: <20220811160421.1539956-16-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, johan@kernel.org,
+        prabhakar.mahadev-lad.rj@bp.renesas.com, cai.huoqing@linux.dev,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 17/46] media: davinci: vpif: add missing of_node_put() in vpif_probe()
+Date:   Thu, 11 Aug 2022 12:03:41 -0400
+Message-Id: <20220811160421.1539956-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220811160421.1539956-1-sashal@kernel.org>
 References: <20220811160421.1539956-1-sashal@kernel.org>
@@ -60,250 +60,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 7a49f2193063b7db60a964fc26774275a4c964cd ]
+[ Upstream commit bb45f5433f23cf103ba29c9692ee553e061f2cb4 ]
 
-Rework MDIO locking to avoid potential  circular locking:
+of_graph_get_next_endpoint() returns an 'endpoint' node pointer
+with refcount incremented. The refcount should be decremented
+before returning from vpif_probe().
 
- WARNING: possible circular locking dependency detected
- 5.19.0-rc1-ar9331-00017-g3ab364c7c48c #5 Not tainted
- ------------------------------------------------------
- kworker/u2:4/68 is trying to acquire lock:
- 81f3c83c (ar9331:1005:(&ar9331_mdio_regmap_config)->lock){+.+.}-{4:4}, at: regmap_write+0x50/0x8c
-
- but task is already holding lock:
- 81f60494 (&bus->mdio_lock){+.+.}-{4:4}, at: mdiobus_read+0x40/0x78
-
- which lock already depends on the new lock.
-
- the existing dependency chain (in reverse order) is:
-
- -> #1 (&bus->mdio_lock){+.+.}-{4:4}:
-        lock_acquire+0x2d4/0x360
-        __mutex_lock+0xf8/0x384
-        mutex_lock_nested+0x2c/0x38
-        mdiobus_write+0x44/0x80
-        ar9331_sw_bus_write+0x50/0xe4
-        _regmap_raw_write_impl+0x604/0x724
-        _regmap_bus_raw_write+0x9c/0xb4
-        _regmap_write+0xdc/0x1a0
-        _regmap_update_bits+0xf4/0x118
-        _regmap_select_page+0x108/0x138
-        _regmap_raw_read+0x25c/0x288
-        _regmap_bus_read+0x60/0x98
-        _regmap_read+0xd4/0x1b0
-        _regmap_update_bits+0xc4/0x118
-        regmap_update_bits_base+0x64/0x8c
-        ar9331_sw_irq_bus_sync_unlock+0x40/0x6c
-        __irq_set_handler+0x7c/0xac
-        ar9331_sw_irq_map+0x48/0x7c
-        irq_domain_associate+0x174/0x208
-        irq_create_mapping_affinity+0x1a8/0x230
-        ar9331_sw_probe+0x22c/0x388
-        mdio_probe+0x44/0x70
-        really_probe+0x200/0x424
-        __driver_probe_device+0x290/0x298
-        driver_probe_device+0x54/0xe4
-        __device_attach_driver+0xe4/0x130
-        bus_for_each_drv+0xb4/0xd8
-        __device_attach+0x104/0x1a4
-        bus_probe_device+0x48/0xc4
-        device_add+0x600/0x800
-        mdio_device_register+0x68/0xa0
-        of_mdiobus_register+0x2bc/0x3c4
-        ag71xx_probe+0x6e4/0x984
-        platform_probe+0x78/0xd0
-        really_probe+0x200/0x424
-        __driver_probe_device+0x290/0x298
-        driver_probe_device+0x54/0xe4
-        __driver_attach+0x17c/0x190
-        bus_for_each_dev+0x8c/0xd0
-        bus_add_driver+0x110/0x228
-        driver_register+0xe4/0x12c
-        do_one_initcall+0x104/0x2a0
-        kernel_init_freeable+0x250/0x288
-        kernel_init+0x34/0x130
-        ret_from_kernel_thread+0x14/0x1c
-
- -> #0 (ar9331:1005:(&ar9331_mdio_regmap_config)->lock){+.+.}-{4:4}:
-        check_noncircular+0x88/0xc0
-        __lock_acquire+0x10bc/0x18bc
-        lock_acquire+0x2d4/0x360
-        __mutex_lock+0xf8/0x384
-        mutex_lock_nested+0x2c/0x38
-        regmap_write+0x50/0x8c
-        ar9331_sw_mbus_read+0x74/0x1b8
-        __mdiobus_read+0x90/0xec
-        mdiobus_read+0x50/0x78
-        get_phy_device+0xa0/0x18c
-        fwnode_mdiobus_register_phy+0x120/0x1d4
-        of_mdiobus_register+0x244/0x3c4
-        devm_of_mdiobus_register+0xe8/0x100
-        ar9331_sw_setup+0x16c/0x3a0
-        dsa_register_switch+0x7dc/0xcc0
-        ar9331_sw_probe+0x370/0x388
-        mdio_probe+0x44/0x70
-        really_probe+0x200/0x424
-        __driver_probe_device+0x290/0x298
-        driver_probe_device+0x54/0xe4
-        __device_attach_driver+0xe4/0x130
-        bus_for_each_drv+0xb4/0xd8
-        __device_attach+0x104/0x1a4
-        bus_probe_device+0x48/0xc4
-        deferred_probe_work_func+0xf0/0x10c
-        process_one_work+0x314/0x4d4
-        worker_thread+0x2a4/0x354
-        kthread+0x134/0x13c
-        ret_from_kernel_thread+0x14/0x1c
-
- other info that might help us debug this:
-
-  Possible unsafe locking scenario:
-
-        CPU0                    CPU1
-        ----                    ----
-   lock(&bus->mdio_lock);
-                                lock(ar9331:1005:(&ar9331_mdio_regmap_config)->lock);
-                                lock(&bus->mdio_lock);
-   lock(ar9331:1005:(&ar9331_mdio_regmap_config)->lock);
-
-  *** DEADLOCK ***
-
- 5 locks held by kworker/u2:4/68:
-  #0: 81c04eb4 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x1e4/0x4d4
-  #1: 81f0de78 (deferred_probe_work){+.+.}-{0:0}, at: process_one_work+0x1e4/0x4d4
-  #2: 81f0a880 (&dev->mutex){....}-{4:4}, at: __device_attach+0x40/0x1a4
-  #3: 80c8aee0 (dsa2_mutex){+.+.}-{4:4}, at: dsa_register_switch+0x5c/0xcc0
-  #4: 81f60494 (&bus->mdio_lock){+.+.}-{4:4}, at: mdiobus_read+0x40/0x78
-
- stack backtrace:
- CPU: 0 PID: 68 Comm: kworker/u2:4 Not tainted 5.19.0-rc1-ar9331-00017-g3ab364c7c48c #5
- Workqueue: events_unbound deferred_probe_work_func
- Stack : 00000056 800d4638 81f0d64c 00000004 00000018 00000000 80a20000 80a20000
-         80937590 81ef3858 81f0d760 3913578a 00000005 8045e824 81f0d600 a8db84cc
-         00000000 00000000 80937590 00000a44 00000000 00000002 00000001 ffffffff
-         81f0d6a4 80982d7c 0000000f 20202020 80a20000 00000001 80937590 81ef3858
-         81f0d760 3913578a 00000005 00000005 00000000 03bd0000 00000000 80e00000
-         ...
- Call Trace:
- [<80069db0>] show_stack+0x94/0x130
- [<8045e824>] dump_stack_lvl+0x54/0x8c
- [<800c7fac>] check_noncircular+0x88/0xc0
- [<800ca068>] __lock_acquire+0x10bc/0x18bc
- [<800cb478>] lock_acquire+0x2d4/0x360
- [<807b84c4>] __mutex_lock+0xf8/0x384
- [<807b877c>] mutex_lock_nested+0x2c/0x38
- [<804ea640>] regmap_write+0x50/0x8c
- [<80501e38>] ar9331_sw_mbus_read+0x74/0x1b8
- [<804fe9a0>] __mdiobus_read+0x90/0xec
- [<804feac4>] mdiobus_read+0x50/0x78
- [<804fcf74>] get_phy_device+0xa0/0x18c
- [<804ffeb4>] fwnode_mdiobus_register_phy+0x120/0x1d4
- [<805004f0>] of_mdiobus_register+0x244/0x3c4
- [<804f0c50>] devm_of_mdiobus_register+0xe8/0x100
- [<805017a0>] ar9331_sw_setup+0x16c/0x3a0
- [<807355c8>] dsa_register_switch+0x7dc/0xcc0
- [<80501468>] ar9331_sw_probe+0x370/0x388
- [<804ff0c0>] mdio_probe+0x44/0x70
- [<804d1848>] really_probe+0x200/0x424
- [<804d1cfc>] __driver_probe_device+0x290/0x298
- [<804d1d58>] driver_probe_device+0x54/0xe4
- [<804d2298>] __device_attach_driver+0xe4/0x130
- [<804cf048>] bus_for_each_drv+0xb4/0xd8
- [<804d200c>] __device_attach+0x104/0x1a4
- [<804d026c>] bus_probe_device+0x48/0xc4
- [<804d108c>] deferred_probe_work_func+0xf0/0x10c
- [<800a0ffc>] process_one_work+0x314/0x4d4
- [<800a17fc>] worker_thread+0x2a4/0x354
- [<800a9a54>] kthread+0x134/0x13c
- [<8006306c>] ret_from_kernel_thread+0x14/0x1c
-[
-
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/r/20220616112550.877118-1-o.rempel@pengutronix.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/qca/ar9331.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/media/platform/davinci/vpif.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/dsa/qca/ar9331.c b/drivers/net/dsa/qca/ar9331.c
-index c33bdcf7efc5..59114ecfe555 100644
---- a/drivers/net/dsa/qca/ar9331.c
-+++ b/drivers/net/dsa/qca/ar9331.c
-@@ -626,7 +626,7 @@ static int __ar9331_mdio_write(struct mii_bus *sbus, u8 mode, u16 reg, u16 val)
- 		FIELD_GET(AR9331_SW_LOW_ADDR_PHY, reg);
- 	r = FIELD_GET(AR9331_SW_LOW_ADDR_REG, reg);
- 
--	return mdiobus_write(sbus, p, r, val);
-+	return __mdiobus_write(sbus, p, r, val);
- }
- 
- static int __ar9331_mdio_read(struct mii_bus *sbus, u16 reg)
-@@ -637,7 +637,7 @@ static int __ar9331_mdio_read(struct mii_bus *sbus, u16 reg)
- 		FIELD_GET(AR9331_SW_LOW_ADDR_PHY, reg);
- 	r = FIELD_GET(AR9331_SW_LOW_ADDR_REG, reg);
- 
--	return mdiobus_read(sbus, p, r);
-+	return __mdiobus_read(sbus, p, r);
- }
- 
- static int ar9331_mdio_read(void *ctx, const void *reg_buf, size_t reg_len,
-@@ -657,6 +657,8 @@ static int ar9331_mdio_read(void *ctx, const void *reg_buf, size_t reg_len,
+diff --git a/drivers/media/platform/davinci/vpif.c b/drivers/media/platform/davinci/vpif.c
+index ee610daf90a3..7e64b3f85b53 100644
+--- a/drivers/media/platform/davinci/vpif.c
++++ b/drivers/media/platform/davinci/vpif.c
+@@ -451,6 +451,7 @@ static int vpif_probe(struct platform_device *pdev)
+ 					      endpoint);
+ 	if (!endpoint)
  		return 0;
- 	}
++	of_node_put(endpoint);
  
-+	mutex_lock_nested(&sbus->mdio_lock, MDIO_MUTEX_NESTED);
-+
- 	ret = __ar9331_mdio_read(sbus, reg);
- 	if (ret < 0)
- 		goto error;
-@@ -668,9 +670,13 @@ static int ar9331_mdio_read(void *ctx, const void *reg_buf, size_t reg_len,
- 
- 	*(u32 *)val_buf |= ret << 16;
- 
-+	mutex_unlock(&sbus->mdio_lock);
-+
- 	return 0;
- error:
-+	mutex_unlock(&sbus->mdio_lock);
- 	dev_err_ratelimited(&sbus->dev, "Bus error. Failed to read register.\n");
-+
- 	return ret;
- }
- 
-@@ -680,12 +686,15 @@ static int ar9331_mdio_write(void *ctx, u32 reg, u32 val)
- 	struct mii_bus *sbus = priv->sbus;
- 	int ret;
- 
-+	mutex_lock_nested(&sbus->mdio_lock, MDIO_MUTEX_NESTED);
- 	if (reg == AR9331_SW_REG_PAGE) {
- 		ret = __ar9331_mdio_write(sbus, AR9331_SW_MDIO_PHY_MODE_PAGE,
- 					  0, val);
- 		if (ret < 0)
- 			goto error;
- 
-+		mutex_unlock(&sbus->mdio_lock);
-+
- 		return 0;
- 	}
- 
-@@ -705,10 +714,14 @@ static int ar9331_mdio_write(void *ctx, u32 reg, u32 val)
- 	if (ret < 0)
- 		goto error;
- 
-+	mutex_unlock(&sbus->mdio_lock);
-+
- 	return 0;
- 
- error:
-+	mutex_unlock(&sbus->mdio_lock);
- 	dev_err_ratelimited(&sbus->dev, "Bus error. Failed to write register.\n");
-+
- 	return ret;
- }
- 
+ 	/*
+ 	 * For DT platforms, manually create platform_devices for
 -- 
 2.35.1
 
