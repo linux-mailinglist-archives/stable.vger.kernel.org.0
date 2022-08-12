@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32465591227
-	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 16:26:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F05F2591229
+	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 16:28:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237839AbiHLO0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Aug 2022 10:26:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47568 "EHLO
+        id S237898AbiHLO2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Aug 2022 10:28:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229664AbiHLO0l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 10:26:41 -0400
+        with ESMTP id S229664AbiHLO2I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 10:28:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA34782864
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 07:26:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9681982861
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 07:28:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 654896010C
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 14:26:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B981C433D6;
-        Fri, 12 Aug 2022 14:26:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38B1160BC2
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 14:28:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 359C0C433C1;
+        Fri, 12 Aug 2022 14:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660314399;
-        bh=wv0mjywGUBeZKBFe33hGkiCW9oG3y3eVsokL7cvOb+M=;
+        s=korg; t=1660314486;
+        bh=dEQvhFYIkZhG36Q8xw+6r9tPq0kh2Rw4CwmgrwqD5lE=;
         h=Subject:To:Cc:From:Date:From;
-        b=R9fEpR/1lxyH6N+POLciDJ8wQEAfjbBkPUd1W4rtbJ+NZchsegoB3Ffy7qsNjGE76
-         CVrE1agImVyLSjs190p7DdtfkBr9rT1bCse1lRK53tlOqib17wPM0NrqPAiYrdhqBI
-         OOL1GEqnICRWQUekbJ28gnSjk7nZiQNLcyZ/adzE=
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Let userspace set nVMX MSR to any _host_ supported" failed to apply to 4.9-stable tree
-To:     seanjc@google.com, dmatlack@google.com, pbonzini@redhat.com
+        b=AbYo/dd/ejqRsZoaCMeSZBH327gP0Dsq1loZ0hjXsWBXsYi2Jl/sLFe6K+26TI5Cc
+         IfEN9cWMZG/oQK4brBec31jQMkIwg1AQ0Yf6HLb/Yd1L9NZghRjghJfuXUuy81hmWU
+         LE/8Yaoq+/ZIrk7KFo/x/DIRC7iqGWnPK8bpFNuE=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Inject #UD if VMXON is attempted with incompatible" failed to apply to 5.10-stable tree
+To:     seanjc@google.com, ercli@ucdavis.edu, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 12 Aug 2022 16:26:29 +0200
-Message-ID: <166031438956143@kroah.com>
+Date:   Fri, 12 Aug 2022 16:28:03 +0200
+Message-ID: <1660314483114137@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,174 +59,74 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f8ae08f9789ad59d318ea75b570caa454aceda81 Mon Sep 17 00:00:00 2001
+From c7d855c2aff2d511fd60ee2e356134c4fb394799 Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <seanjc@google.com>
-Date: Tue, 7 Jun 2022 21:35:54 +0000
-Subject: [PATCH] KVM: nVMX: Let userspace set nVMX MSR to any _host_ supported
- value
+Date: Tue, 7 Jun 2022 21:35:52 +0000
+Subject: [PATCH] KVM: nVMX: Inject #UD if VMXON is attempted with incompatible
+ CR0/CR4
 
-Restrict the nVMX MSRs based on KVM's config, not based on the guest's
-current config.  Using the guest's config to audit the new config
-prevents userspace from restoring the original config (KVM's config) if
-at any point in the past the guest's config was restricted in any way.
+Inject a #UD if L1 attempts VMXON with a CR0 or CR4 that is disallowed
+per the associated nested VMX MSRs' fixed0/1 settings.  KVM cannot rely
+on hardware to perform the checks, even for the few checks that have
+higher priority than VM-Exit, as (a) KVM may have forced CR0/CR4 bits in
+hardware while running the guest, (b) there may incompatible CR0/CR4 bits
+that have lower priority than VM-Exit, e.g. CR0.NE, and (c) userspace may
+have further restricted the allowed CR0/CR4 values by manipulating the
+guest's nested VMX MSRs.
 
-Fixes: 62cc6b9dc61e ("KVM: nVMX: support restore of VMX capability MSRs")
+Note, despite a very strong desire to throw shade at Jim, commit
+70f3aac964ae ("kvm: nVMX: Remove superfluous VMX instruction fault checks")
+is not to blame for the buggy behavior (though the comment...).  That
+commit only removed the CR0.PE, EFLAGS.VM, and COMPATIBILITY mode checks
+(though it did erroneously drop the CPL check, but that has already been
+remedied).  KVM may force CR0.PE=1, but will do so only when also
+forcing EFLAGS.VM=1 to emulate Real Mode, i.e. hardware will still #UD.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216033
+Fixes: ec378aeef9df ("KVM: nVMX: Implement VMXON and VMXOFF")
+Reported-by: Eric Li <ercli@ucdavis.edu>
 Cc: stable@vger.kernel.org
-Cc: David Matlack <dmatlack@google.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220607213604.3346000-6-seanjc@google.com>
+Message-Id: <20220607213604.3346000-4-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
 diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 1e760994d207..c1c85fd75d42 100644
+index bfa366938c49..9c3350545b09 100644
 --- a/arch/x86/kvm/vmx/nested.c
 +++ b/arch/x86/kvm/vmx/nested.c
-@@ -1224,7 +1224,7 @@ static int vmx_restore_vmx_basic(struct vcpu_vmx *vmx, u64 data)
- 		BIT_ULL(49) | BIT_ULL(54) | BIT_ULL(55) |
- 		/* reserved */
- 		BIT_ULL(31) | GENMASK_ULL(47, 45) | GENMASK_ULL(63, 56);
--	u64 vmx_basic = vmx->nested.msrs.basic;
-+	u64 vmx_basic = vmcs_config.nested.basic;
- 
- 	if (!is_bitwise_subset(vmx_basic, data, feature_and_reserved))
- 		return -EINVAL;
-@@ -1247,36 +1247,42 @@ static int vmx_restore_vmx_basic(struct vcpu_vmx *vmx, u64 data)
- 	return 0;
- }
- 
--static int
--vmx_restore_control_msr(struct vcpu_vmx *vmx, u32 msr_index, u64 data)
-+static void vmx_get_control_msr(struct nested_vmx_msrs *msrs, u32 msr_index,
-+				u32 **low, u32 **high)
- {
--	u64 supported;
--	u32 *lowp, *highp;
--
- 	switch (msr_index) {
- 	case MSR_IA32_VMX_TRUE_PINBASED_CTLS:
--		lowp = &vmx->nested.msrs.pinbased_ctls_low;
--		highp = &vmx->nested.msrs.pinbased_ctls_high;
-+		*low = &msrs->pinbased_ctls_low;
-+		*high = &msrs->pinbased_ctls_high;
- 		break;
- 	case MSR_IA32_VMX_TRUE_PROCBASED_CTLS:
--		lowp = &vmx->nested.msrs.procbased_ctls_low;
--		highp = &vmx->nested.msrs.procbased_ctls_high;
-+		*low = &msrs->procbased_ctls_low;
-+		*high = &msrs->procbased_ctls_high;
- 		break;
- 	case MSR_IA32_VMX_TRUE_EXIT_CTLS:
--		lowp = &vmx->nested.msrs.exit_ctls_low;
--		highp = &vmx->nested.msrs.exit_ctls_high;
-+		*low = &msrs->exit_ctls_low;
-+		*high = &msrs->exit_ctls_high;
- 		break;
- 	case MSR_IA32_VMX_TRUE_ENTRY_CTLS:
--		lowp = &vmx->nested.msrs.entry_ctls_low;
--		highp = &vmx->nested.msrs.entry_ctls_high;
-+		*low = &msrs->entry_ctls_low;
-+		*high = &msrs->entry_ctls_high;
- 		break;
- 	case MSR_IA32_VMX_PROCBASED_CTLS2:
--		lowp = &vmx->nested.msrs.secondary_ctls_low;
--		highp = &vmx->nested.msrs.secondary_ctls_high;
-+		*low = &msrs->secondary_ctls_low;
-+		*high = &msrs->secondary_ctls_high;
- 		break;
- 	default:
- 		BUG();
- 	}
-+}
-+
-+static int
-+vmx_restore_control_msr(struct vcpu_vmx *vmx, u32 msr_index, u64 data)
-+{
-+	u32 *lowp, *highp;
-+	u64 supported;
-+
-+	vmx_get_control_msr(&vmcs_config.nested, msr_index, &lowp, &highp);
- 
- 	supported = vmx_control_msr(*lowp, *highp);
- 
-@@ -1288,6 +1294,7 @@ vmx_restore_control_msr(struct vcpu_vmx *vmx, u32 msr_index, u64 data)
- 	if (!is_bitwise_subset(supported, data, GENMASK_ULL(63, 32)))
- 		return -EINVAL;
- 
-+	vmx_get_control_msr(&vmx->nested.msrs, msr_index, &lowp, &highp);
- 	*lowp = data;
- 	*highp = data >> 32;
- 	return 0;
-@@ -1301,10 +1308,8 @@ static int vmx_restore_vmx_misc(struct vcpu_vmx *vmx, u64 data)
- 		BIT_ULL(28) | BIT_ULL(29) | BIT_ULL(30) |
- 		/* reserved */
- 		GENMASK_ULL(13, 9) | BIT_ULL(31);
--	u64 vmx_misc;
--
--	vmx_misc = vmx_control_msr(vmx->nested.msrs.misc_low,
--				   vmx->nested.msrs.misc_high);
-+	u64 vmx_misc = vmx_control_msr(vmcs_config.nested.misc_low,
-+				       vmcs_config.nested.misc_high);
- 
- 	if (!is_bitwise_subset(vmx_misc, data, feature_and_reserved_bits))
- 		return -EINVAL;
-@@ -1332,10 +1337,8 @@ static int vmx_restore_vmx_misc(struct vcpu_vmx *vmx, u64 data)
- 
- static int vmx_restore_vmx_ept_vpid_cap(struct vcpu_vmx *vmx, u64 data)
- {
--	u64 vmx_ept_vpid_cap;
--
--	vmx_ept_vpid_cap = vmx_control_msr(vmx->nested.msrs.ept_caps,
--					   vmx->nested.msrs.vpid_caps);
-+	u64 vmx_ept_vpid_cap = vmx_control_msr(vmcs_config.nested.ept_caps,
-+					       vmcs_config.nested.vpid_caps);
- 
- 	/* Every bit is either reserved or a feature bit. */
- 	if (!is_bitwise_subset(vmx_ept_vpid_cap, data, -1ULL))
-@@ -1346,20 +1349,21 @@ static int vmx_restore_vmx_ept_vpid_cap(struct vcpu_vmx *vmx, u64 data)
- 	return 0;
- }
- 
--static int vmx_restore_fixed0_msr(struct vcpu_vmx *vmx, u32 msr_index, u64 data)
-+static u64 *vmx_get_fixed0_msr(struct nested_vmx_msrs *msrs, u32 msr_index)
- {
--	u64 *msr;
--
- 	switch (msr_index) {
- 	case MSR_IA32_VMX_CR0_FIXED0:
--		msr = &vmx->nested.msrs.cr0_fixed0;
--		break;
-+		return &msrs->cr0_fixed0;
- 	case MSR_IA32_VMX_CR4_FIXED0:
--		msr = &vmx->nested.msrs.cr4_fixed0;
--		break;
-+		return &msrs->cr4_fixed0;
- 	default:
- 		BUG();
- 	}
-+}
-+
-+static int vmx_restore_fixed0_msr(struct vcpu_vmx *vmx, u32 msr_index, u64 data)
-+{
-+	const u64 *msr = vmx_get_fixed0_msr(&vmcs_config.nested, msr_index);
+@@ -4952,20 +4952,25 @@ static int handle_vmon(struct kvm_vcpu *vcpu)
+ 		| FEAT_CTL_VMX_ENABLED_OUTSIDE_SMX;
  
  	/*
- 	 * 1 bits (which indicates bits which "must-be-1" during VMX operation)
-@@ -1368,7 +1372,7 @@ static int vmx_restore_fixed0_msr(struct vcpu_vmx *vmx, u32 msr_index, u64 data)
- 	if (!is_bitwise_subset(data, *msr, -1ULL))
- 		return -EINVAL;
+-	 * The Intel VMX Instruction Reference lists a bunch of bits that are
+-	 * prerequisite to running VMXON, most notably cr4.VMXE must be set to
+-	 * 1 (see vmx_is_valid_cr4() for when we allow the guest to set this).
+-	 * Otherwise, we should fail with #UD.  But most faulting conditions
+-	 * have already been checked by hardware, prior to the VM-exit for
+-	 * VMXON.  We do test guest cr4.VMXE because processor CR4 always has
+-	 * that bit set to 1 in non-root mode.
++	 * Note, KVM cannot rely on hardware to perform the CR0/CR4 #UD checks
++	 * that have higher priority than VM-Exit (see Intel SDM's pseudocode
++	 * for VMXON), as KVM must load valid CR0/CR4 values into hardware while
++	 * running the guest, i.e. KVM needs to check the _guest_ values.
++	 *
++	 * Rely on hardware for the other two pre-VM-Exit checks, !VM86 and
++	 * !COMPATIBILITY modes.  KVM may run the guest in VM86 to emulate Real
++	 * Mode, but KVM will never take the guest out of those modes.
+ 	 */
+-	if (!kvm_read_cr4_bits(vcpu, X86_CR4_VMXE)) {
++	if (!nested_host_cr0_valid(vcpu, kvm_read_cr0(vcpu)) ||
++	    !nested_host_cr4_valid(vcpu, kvm_read_cr4(vcpu))) {
+ 		kvm_queue_exception(vcpu, UD_VECTOR);
+ 		return 1;
+ 	}
  
--	*msr = data;
-+	*vmx_get_fixed0_msr(&vmx->nested.msrs, msr_index) = data;
- 	return 0;
- }
- 
-@@ -1429,7 +1433,7 @@ int vmx_set_vmx_msr(struct kvm_vcpu *vcpu, u32 msr_index, u64 data)
- 		vmx->nested.msrs.vmcs_enum = data;
- 		return 0;
- 	case MSR_IA32_VMX_VMFUNC:
--		if (data & ~vmx->nested.msrs.vmfunc_controls)
-+		if (data & ~vmcs_config.nested.vmfunc_controls)
- 			return -EINVAL;
- 		vmx->nested.msrs.vmfunc_controls = data;
- 		return 0;
+-	/* CPL=0 must be checked manually. */
++	/*
++	 * CPL=0 and all other checks that are lower priority than VM-Exit must
++	 * be checked manually.
++	 */
+ 	if (vmx_get_cpl(vcpu)) {
+ 		kvm_inject_gp(vcpu, 0);
+ 		return 1;
 
