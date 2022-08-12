@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFD6159125D
-	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 16:38:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69ABB59125E
+	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 16:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238787AbiHLOih (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Aug 2022 10:38:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60346 "EHLO
+        id S238816AbiHLOjK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Aug 2022 10:39:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238539AbiHLOif (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 10:38:35 -0400
+        with ESMTP id S238539AbiHLOjI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 10:39:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E730AB07F
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 07:38:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBEE598583
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 07:39:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EDAF60B3C
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 14:38:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7ACCC433C1;
-        Fri, 12 Aug 2022 14:38:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 708B360E9B
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 14:39:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74160C433C1;
+        Fri, 12 Aug 2022 14:39:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660315114;
-        bh=AiYAIVTm0Rl/WfyzTpg3mElCqcQOYAk3i0og2h6eWvo=;
+        s=korg; t=1660315146;
+        bh=Lh4nTHjr7YgLPTVrfQ2A79ceBz948CmY5xYbPF7PBMw=;
         h=Subject:To:Cc:From:Date:From;
-        b=1yCxo3KJuzJYoFdDXDb6f7zoQNBeF9QsbnbB5Ht4sAssH5LBLutWOfWD37cTS8Njt
-         77pRku5qEJ8kPceJPjMP3AggK/FZChb9VojRWAYmuSEXpu0SM68NXPo/3iq2DXJWGo
-         GFPsjRGZvlEtiKEETgIIVOLW2iniTMdlAsaLT6+4=
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Account for KVM reserved CR4 bits in consistency" failed to apply to 5.10-stable tree
+        b=V4Q1qb85rOrNyQ3CElN63gpzYgV+yx5EkuLoHxlkD+0oi9lFkVjIVsR8UmOAr9UR8
+         IIw8bYJwt7vdX+wwRw87xLmKXxtyh7XeK1g+S5Cd88kIm+wGec1HWmuJHjKtQ30dsx
+         wnB8ydszG2iCrhjMcOHNscS7dTKrWLblZWvrBawc=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Attempt to load PERF_GLOBAL_CTRL on nVMX xfer iff" failed to apply to 5.10-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 12 Aug 2022 16:38:31 +0200
-Message-ID: <1660315111235132@kroah.com>
+Date:   Fri, 12 Aug 2022 16:39:04 +0200
+Message-ID: <16603151442639@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,44 +59,71 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ca58f3aa53d165afe4ab74c755bc2f6d168617ac Mon Sep 17 00:00:00 2001
+From 4496a6f9b45e8cd83343ad86a3984d614e22cf54 Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <seanjc@google.com>
-Date: Tue, 7 Jun 2022 21:35:51 +0000
-Subject: [PATCH] KVM: nVMX: Account for KVM reserved CR4 bits in consistency
- checks
+Date: Fri, 22 Jul 2022 22:44:08 +0000
+Subject: [PATCH] KVM: nVMX: Attempt to load PERF_GLOBAL_CTRL on nVMX xfer iff
+ it exists
 
-Check that the guest (L2) and host (L1) CR4 values that would be loaded
-by nested VM-Enter and VM-Exit respectively are valid with respect to
-KVM's (L0 host) allowed CR4 bits.  Failure to check KVM reserved bits
-would allow L1 to load an illegal CR4 (or trigger hardware VM-Fail or
-failed VM-Entry) by massaging guest CPUID to allow features that are not
-supported by KVM.  Amusingly, KVM itself is an accomplice in its doom, as
-KVM adjusts L1's MSR_IA32_VMX_CR4_FIXED1 to allow L1 to enable bits for
-L2 based on L1's CPUID model.
+Attempt to load PERF_GLOBAL_CTRL during nested VM-Enter/VM-Exit if and
+only if the MSR exists (according to the guest vCPU model).  KVM has very
+misguided handling of VM_{ENTRY,EXIT}_LOAD_IA32_PERF_GLOBAL_CTRL and
+attempts to force the nVMX MSR settings to match the vPMU model, i.e. to
+hide/expose the control based on whether or not the MSR exists from the
+guest's perspective.
 
-Note, although nested_{guest,host}_cr4_valid() are _currently_ used if
-and only if the vCPU is post-VMXON (nested.vmxon == true), that may not
-be true in the future, e.g. emulating VMXON has a bug where it doesn't
-check the allowed/required CR0/CR4 bits.
+KVM's modifications fail to handle the scenario where the vPMU is hidden
+from the guest _after_ being exposed to the guest, e.g. by userspace
+doing multiple KVM_SET_CPUID2 calls, which is allowed if done before any
+KVM_RUN.  nested_vmx_pmu_refresh() is called if and only if there's a
+recognized vPMU, i.e. KVM will leave the bits in the allow state and then
+ultimately reject the MSR load and WARN.
 
+KVM should not force the VMX MSRs in the first place.  KVM taking control
+of the MSRs was a misguided attempt at mimicking what commit 5f76f6f5ff96
+("KVM: nVMX: Do not expose MPX VMX controls when guest MPX disabled",
+2018-10-01) did for MPX.  However, the MPX commit was a workaround for
+another KVM bug and not something that should be imitated (and it should
+never been done in the first place).
+
+In other words, KVM's ABI _should_ be that userspace has full control
+over the MSRs, at which point triggering the WARN that loading the MSR
+must not fail is trivial.
+
+The intent of the WARN is still valid; KVM has consistency checks to
+ensure that vmcs12->{guest,host}_ia32_perf_global_ctrl is valid.  The
+problem is that '0' must be considered a valid value at all times, and so
+the simple/obvious solution is to just not actually load the MSR when it
+does not exist.  It is userspace's responsibility to provide a sane vCPU
+model, i.e. KVM is well within its ABI and Intel's VMX architecture to
+skip the loads if the MSR does not exist.
+
+Fixes: 03a8871add95 ("KVM: nVMX: Expose load IA32_PERF_GLOBAL_CTRL VM-{Entry,Exit} control")
 Cc: stable@vger.kernel.org
-Fixes: 3899152ccbf4 ("KVM: nVMX: fix checks on CR{0,4} during virtual VMX operation")
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220607213604.3346000-3-seanjc@google.com>
+Message-Id: <20220722224409.1336532-5-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/vmx/nested.h b/arch/x86/kvm/vmx/nested.h
-index c92cea0b8ccc..129ae4e01f7c 100644
---- a/arch/x86/kvm/vmx/nested.h
-+++ b/arch/x86/kvm/vmx/nested.h
-@@ -281,7 +281,8 @@ static inline bool nested_cr4_valid(struct kvm_vcpu *vcpu, unsigned long val)
- 	u64 fixed0 = to_vmx(vcpu)->nested.msrs.cr4_fixed0;
- 	u64 fixed1 = to_vmx(vcpu)->nested.msrs.cr4_fixed1;
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index c1c85fd75d42..819cfd926954 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -2623,6 +2623,7 @@ static int prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
+ 	}
  
--	return fixed_bits_valid(val, fixed0, fixed1);
-+	return fixed_bits_valid(val, fixed0, fixed1) &&
-+	       __kvm_is_valid_cr4(vcpu, val);
- }
+ 	if ((vmcs12->vm_entry_controls & VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL) &&
++	    intel_pmu_has_perf_global_ctrl(vcpu_to_pmu(vcpu)) &&
+ 	    WARN_ON_ONCE(kvm_set_msr(vcpu, MSR_CORE_PERF_GLOBAL_CTRL,
+ 				     vmcs12->guest_ia32_perf_global_ctrl))) {
+ 		*entry_failure_code = ENTRY_FAIL_DEFAULT;
+@@ -4333,7 +4334,8 @@ static void load_vmcs12_host_state(struct kvm_vcpu *vcpu,
+ 		vmcs_write64(GUEST_IA32_PAT, vmcs12->host_ia32_pat);
+ 		vcpu->arch.pat = vmcs12->host_ia32_pat;
+ 	}
+-	if (vmcs12->vm_exit_controls & VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL)
++	if ((vmcs12->vm_exit_controls & VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL) &&
++	    intel_pmu_has_perf_global_ctrl(vcpu_to_pmu(vcpu)))
+ 		WARN_ON_ONCE(kvm_set_msr(vcpu, MSR_CORE_PERF_GLOBAL_CTRL,
+ 					 vmcs12->host_ia32_perf_global_ctrl));
  
- /* No difference in the restrictions on guest and host CR4 in VMX operation. */
 
