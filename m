@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A679859122E
-	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 16:29:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CA8D591231
+	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 16:30:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238236AbiHLO3J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Aug 2022 10:29:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48332 "EHLO
+        id S234155AbiHLOaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Aug 2022 10:30:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238152AbiHLO3I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 10:29:08 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8993782872
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 07:29:07 -0700 (PDT)
+        with ESMTP id S237982AbiHLOas (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 10:30:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FE3619C15
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 07:30:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B90E3CE256D
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 14:29:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82E1BC433D6;
-        Fri, 12 Aug 2022 14:29:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F331A60B3D
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 14:30:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02591C433D6;
+        Fri, 12 Aug 2022 14:30:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660314543;
-        bh=uYT3Il+sLbfkf9FdH7MQoCUbYkE6PENo4ZrEAp5aLRE=;
+        s=korg; t=1660314646;
+        bh=3VfdKHIiH48SucKSFcJLfyumAfxy6/HLQDyzeYpFNLw=;
         h=Subject:To:Cc:From:Date:From;
-        b=Fb2jcK4RUNf7Iwdhip+DFGih2RqUDMTOORAYFmhL/u3kfWt1UDe2u59D4haP6tjqk
-         OSeuTviIM5jCTEDkVslm+ZNikYvKrVn8xCLKUap7yc2TN490bjvkWc5OaZzD4Nwzj4
-         n1Qr4EMkyjBoPWUcaeSIOov/dNn9z8C8/QyzHADk=
-Subject: FAILED: patch "[PATCH] KVM: x86: Set error code to segment selector on LLDT/LTR" failed to apply to 4.9-stable tree
-To:     seanjc@google.com, mlevitsk@redhat.com
+        b=Ow94OgnPv5mOUG+ITPLMyez/CrM3Np+Zw8F7x8pqzLIvdZ8F1wWKvX/+2EGLJxBbN
+         nu8IJ1H8wXj6V1OfJGAte5bP48zp+cJkVbp4FEB3s0yYvapMfDOqMnAtUXH/+2gcAM
+         C6Hj5QILycyVYF44PUN2+1BuAucFy4lw7Qh07lpc=
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Treat NX as a valid SPTE bit for NPT" failed to apply to 5.18-stable tree
+To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 12 Aug 2022 16:29:01 +0200
-Message-ID: <1660314541111120@kroah.com>
+Date:   Fri, 12 Aug 2022 16:30:43 +0200
+Message-ID: <1660314643107121@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,40 +59,63 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2626206963ace9e8bf92b6eea5ff78dd674c555c Mon Sep 17 00:00:00 2001
+From 6c6ab524cfae0799e55c82b2c1d61f1af0156f8d Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <seanjc@google.com>
-Date: Mon, 11 Jul 2022 23:27:49 +0000
-Subject: [PATCH] KVM: x86: Set error code to segment selector on LLDT/LTR
- non-canonical #GP
+Date: Sat, 23 Jul 2022 01:30:29 +0000
+Subject: [PATCH] KVM: x86/mmu: Treat NX as a valid SPTE bit for NPT
 
-When injecting a #GP on LLDT/LTR due to a non-canonical LDT/TSS base, set
-the error code to the selector.  Intel SDM's says nothing about the #GP,
-but AMD's APM explicitly states that both LLDT and LTR set the error code
-to the selector, not zero.
+Treat the NX bit as valid when using NPT, as KVM will set the NX bit when
+the NX huge page mitigation is enabled (mindblowing) and trigger the WARN
+that fires on reserved SPTE bits being set.
 
-Note, a non-canonical memory operand on LLDT/LTR does generate a #GP(0),
-but the KVM code in question is specific to the base from the descriptor.
+KVM has required NX support for SVM since commit b26a71a1a5b9 ("KVM: SVM:
+Refuse to load kvm_amd if NX support is not available") for exactly this
+reason, but apparently it never occurred to anyone to actually test NPT
+with the mitigation enabled.
 
-Fixes: e37a75a13cda ("KVM: x86: Emulator ignores LDTR/TR extended base on LLDT/LTR")
+  ------------[ cut here ]------------
+  spte = 0x800000018a600ee7, level = 2, rsvd bits = 0x800f0000001fe000
+  WARNING: CPU: 152 PID: 15966 at arch/x86/kvm/mmu/spte.c:215 make_spte+0x327/0x340 [kvm]
+  Hardware name: Google, Inc. Arcadia_IT_80/Arcadia_IT_80, BIOS 10.48.0 01/27/2022
+  RIP: 0010:make_spte+0x327/0x340 [kvm]
+  Call Trace:
+   <TASK>
+   tdp_mmu_map_handle_target_level+0xc3/0x230 [kvm]
+   kvm_tdp_mmu_map+0x343/0x3b0 [kvm]
+   direct_page_fault+0x1ae/0x2a0 [kvm]
+   kvm_tdp_page_fault+0x7d/0x90 [kvm]
+   kvm_mmu_page_fault+0xfb/0x2e0 [kvm]
+   npf_interception+0x55/0x90 [kvm_amd]
+   svm_invoke_exit_handler+0x31/0xf0 [kvm_amd]
+   svm_handle_exit+0xf6/0x1d0 [kvm_amd]
+   vcpu_enter_guest+0xb6d/0xee0 [kvm]
+   ? kvm_pmu_trigger_event+0x6d/0x230 [kvm]
+   vcpu_run+0x65/0x2c0 [kvm]
+   kvm_arch_vcpu_ioctl_run+0x355/0x610 [kvm]
+   kvm_vcpu_ioctl+0x551/0x610 [kvm]
+   __se_sys_ioctl+0x77/0xc0
+   __x64_sys_ioctl+0x1d/0x20
+   do_syscall_64+0x44/0xa0
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+   </TASK>
+  ---[ end trace 0000000000000000 ]---
+
 Cc: stable@vger.kernel.org
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20220711232750.1092012-3-seanjc@google.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220723013029.1753623-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
-index 09e4b67b881f..bd9e9c5627d0 100644
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -1736,8 +1736,8 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
- 		if (ret != X86EMUL_CONTINUE)
- 			return ret;
- 		if (emul_is_noncanonical_address(get_desc_base(&seg_desc) |
--				((u64)base3 << 32), ctxt))
--			return emulate_gp(ctxt, 0);
-+						 ((u64)base3 << 32), ctxt))
-+			return emulate_gp(ctxt, err_code);
- 	}
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 8e477333a263..3e1317325e1f 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -4735,7 +4735,7 @@ reset_tdp_shadow_zero_bits_mask(struct kvm_mmu *context)
  
- 	if (seg == VCPU_SREG_TR) {
+ 	if (boot_cpu_is_amd())
+ 		__reset_rsvds_bits_mask(shadow_zero_check, reserved_hpa_bits(),
+-					context->root_role.level, false,
++					context->root_role.level, true,
+ 					boot_cpu_has(X86_FEATURE_GBPAGES),
+ 					false, true);
+ 	else
 
