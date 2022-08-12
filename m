@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D547591263
-	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 16:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23F545912F0
+	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 17:31:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237451AbiHLOlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Aug 2022 10:41:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34684 "EHLO
+        id S235618AbiHLPbE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Aug 2022 11:31:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236346AbiHLOlY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 10:41:24 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2A5E98C89
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 07:41:22 -0700 (PDT)
+        with ESMTP id S239100AbiHLPbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 11:31:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD094E0F5
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 08:31:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EBB98CE2574
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 14:41:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6CF0C433D6;
-        Fri, 12 Aug 2022 14:41:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18AF06149D
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 15:31:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2207CC433D6;
+        Fri, 12 Aug 2022 15:30:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660315278;
-        bh=KN9RDcI3akAmp7w6lDuAmRdckSUvk6zSSRnd9jJfwkc=;
+        s=korg; t=1660318260;
+        bh=T+j9r+WyDro1Bf2Bp5CWRIr47dUhn6gE8R9N1BB8Zjk=;
         h=Subject:To:Cc:From:Date:From;
-        b=ivcevQ3sgCW0MdOOKZms6ju0BtfndVGcKQZarjl1stdfthv1hkwCz2HKLyiR8nn/P
-         t7qlC1Z8/kfpl6CutagVG1NHp2NkuEFCvxQ51QFEwDaG/Y/WgWOIy92HGshi0JimQW
-         MY2XlCrhZUcFDm+H9D8Syhz4/hMgIu16z53seEeo=
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Attempt to load PERF_GLOBAL_CTRL on nVMX xfer iff" failed to apply to 5.19-stable tree
-To:     seanjc@google.com, pbonzini@redhat.com
+        b=DkStjBoKFD4Wqyx6DG8kxlUVgkGWPgmCe9P5wYqTGb+MQC4/50Trn+g7drMsRLNzE
+         4zCYd+Lz5vdROlFYlSaT1RqTrgAra289/mGI2YcbnyrJqcfIlBfOtQc9pOhWKLaqSO
+         0zC2XtGSGqz5ci0vqLssCd45qsrw88DNBPUTVY30=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Always enable TSC scaling for L2 when it was" failed to apply to 5.19-stable tree
+To:     vkuznets@redhat.com, mlevitsk@redhat.com, seanjc@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 12 Aug 2022 16:41:15 +0200
-Message-ID: <1660315275123213@kroah.com>
+Date:   Fri, 12 Aug 2022 17:30:57 +0200
+Message-ID: <166031825722176@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,71 +59,42 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4496a6f9b45e8cd83343ad86a3984d614e22cf54 Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Fri, 22 Jul 2022 22:44:08 +0000
-Subject: [PATCH] KVM: nVMX: Attempt to load PERF_GLOBAL_CTRL on nVMX xfer iff
- it exists
+From 156b9d76e8822f2956c15029acf2d4b171502f3a Mon Sep 17 00:00:00 2001
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+Date: Tue, 12 Jul 2022 15:50:09 +0200
+Subject: [PATCH] KVM: nVMX: Always enable TSC scaling for L2 when it was
+ enabled for L1
 
-Attempt to load PERF_GLOBAL_CTRL during nested VM-Enter/VM-Exit if and
-only if the MSR exists (according to the guest vCPU model).  KVM has very
-misguided handling of VM_{ENTRY,EXIT}_LOAD_IA32_PERF_GLOBAL_CTRL and
-attempts to force the nVMX MSR settings to match the vPMU model, i.e. to
-hide/expose the control based on whether or not the MSR exists from the
-guest's perspective.
+Windows 10/11 guests with Hyper-V role (WSL2) enabled are observed to
+hang upon boot or shortly after when a non-default TSC frequency was
+set for L1. The issue is observed on a host where TSC scaling is
+supported. The problem appears to be that Windows doesn't use TSC
+scaling for its guests, even when the feature is advertised, and KVM
+filters SECONDARY_EXEC_TSC_SCALING out when creating L2 controls from
+L1's VMCS. This leads to L2 running with the default frequency (matching
+host's) while L1 is running with an altered one.
 
-KVM's modifications fail to handle the scenario where the vPMU is hidden
-from the guest _after_ being exposed to the guest, e.g. by userspace
-doing multiple KVM_SET_CPUID2 calls, which is allowed if done before any
-KVM_RUN.  nested_vmx_pmu_refresh() is called if and only if there's a
-recognized vPMU, i.e. KVM will leave the bits in the allow state and then
-ultimately reject the MSR load and WARN.
+Keep SECONDARY_EXEC_TSC_SCALING in secondary exec controls for L2 when
+it was set for L1. TSC_MULTIPLIER is already correctly computed and
+written by prepare_vmcs02().
 
-KVM should not force the VMX MSRs in the first place.  KVM taking control
-of the MSRs was a misguided attempt at mimicking what commit 5f76f6f5ff96
-("KVM: nVMX: Do not expose MPX VMX controls when guest MPX disabled",
-2018-10-01) did for MPX.  However, the MPX commit was a workaround for
-another KVM bug and not something that should be imitated (and it should
-never been done in the first place).
-
-In other words, KVM's ABI _should_ be that userspace has full control
-over the MSRs, at which point triggering the WARN that loading the MSR
-must not fail is trivial.
-
-The intent of the WARN is still valid; KVM has consistency checks to
-ensure that vmcs12->{guest,host}_ia32_perf_global_ctrl is valid.  The
-problem is that '0' must be considered a valid value at all times, and so
-the simple/obvious solution is to just not actually load the MSR when it
-does not exist.  It is userspace's responsibility to provide a sane vCPU
-model, i.e. KVM is well within its ABI and Intel's VMX architecture to
-skip the loads if the MSR does not exist.
-
-Fixes: 03a8871add95 ("KVM: nVMX: Expose load IA32_PERF_GLOBAL_CTRL VM-{Entry,Exit} control")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Fixes: d041b5ea93352b ("KVM: nVMX: Enable nested TSC scaling")
 Cc: stable@vger.kernel.org
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Link: https://lore.kernel.org/r/20220712135009.952805-1-vkuznets@redhat.com
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220722224409.1336532-5-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
 diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index c1c85fd75d42..819cfd926954 100644
+index 778f82015f03..bfa366938c49 100644
 --- a/arch/x86/kvm/vmx/nested.c
 +++ b/arch/x86/kvm/vmx/nested.c
-@@ -2623,6 +2623,7 @@ static int prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
- 	}
+@@ -2284,7 +2284,6 @@ static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct loaded_vmcs *vmcs0
+ 				  SECONDARY_EXEC_VIRTUAL_INTR_DELIVERY |
+ 				  SECONDARY_EXEC_APIC_REGISTER_VIRT |
+ 				  SECONDARY_EXEC_ENABLE_VMFUNC |
+-				  SECONDARY_EXEC_TSC_SCALING |
+ 				  SECONDARY_EXEC_DESC);
  
- 	if ((vmcs12->vm_entry_controls & VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL) &&
-+	    intel_pmu_has_perf_global_ctrl(vcpu_to_pmu(vcpu)) &&
- 	    WARN_ON_ONCE(kvm_set_msr(vcpu, MSR_CORE_PERF_GLOBAL_CTRL,
- 				     vmcs12->guest_ia32_perf_global_ctrl))) {
- 		*entry_failure_code = ENTRY_FAIL_DEFAULT;
-@@ -4333,7 +4334,8 @@ static void load_vmcs12_host_state(struct kvm_vcpu *vcpu,
- 		vmcs_write64(GUEST_IA32_PAT, vmcs12->host_ia32_pat);
- 		vcpu->arch.pat = vmcs12->host_ia32_pat;
- 	}
--	if (vmcs12->vm_exit_controls & VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL)
-+	if ((vmcs12->vm_exit_controls & VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL) &&
-+	    intel_pmu_has_perf_global_ctrl(vcpu_to_pmu(vcpu)))
- 		WARN_ON_ONCE(kvm_set_msr(vcpu, MSR_CORE_PERF_GLOBAL_CTRL,
- 					 vmcs12->host_ia32_perf_global_ctrl));
- 
+ 		if (nested_cpu_has(vmcs12,
 
