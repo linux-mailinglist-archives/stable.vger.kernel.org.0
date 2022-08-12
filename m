@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C4A259130C
+	by mail.lfdr.de (Postfix) with ESMTP id 88E0B59130D
 	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 17:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237856AbiHLPdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Aug 2022 11:33:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56268 "EHLO
+        id S236892AbiHLPdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Aug 2022 11:33:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235144AbiHLPdJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 11:33:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73EAE491F8
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 08:33:08 -0700 (PDT)
+        with ESMTP id S237689AbiHLPdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 11:33:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C56285A83
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 08:33:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12F47614AB
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 15:33:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F8D9C433C1;
-        Fri, 12 Aug 2022 15:33:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BB49B82463
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 15:33:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C36F7C433C1;
+        Fri, 12 Aug 2022 15:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660318387;
-        bh=eb84HEIAS5WQAqzOVdIsbDH9lPSrIBaKv6WI2Ylx6U0=;
+        s=korg; t=1660318390;
+        bh=SMzkfx7wooIUocB2mHLlUe83lEBc2eC9IeXsiAg54eI=;
         h=Subject:To:Cc:From:Date:From;
-        b=FJGJY1j3+wvJNytV0+Q5QPqbFzz3EYfN7jdKfvCgVqzoqrbjleczRbqXOkwfL0Fo/
-         mwqi6/B2d3DimLXEul7WWWssbJkH9tX+rssdqboX7Ib0wZlqm+vzI4n/eOgizPh0+Z
-         8HoVglp1LrNSF38DYhKtsrp6YPQvZEd/shxz43vo=
-Subject: FAILED: patch "[PATCH] KVM: VMX: Mark all PERF_GLOBAL_(OVF)_CTRL bits reserved if" failed to apply to 4.9-stable tree
+        b=SZ88UJErfGMTIGyQszbRjdcRrc6QGgxuk8Z1tQjmLYt+wlSEXtNPZ9SO2UnqN4hQD
+         GTr+m961SMHzgoMov9Wk99k4yNZB2Te1RxfXS2sYvMDZ62j9hu6gcF1WKt2tnS6avi
+         yayFM4L7VD2XfwTBMM8jPpAVkmA2n1DgVfG74Sjw=
+Subject: FAILED: patch "[PATCH] KVM: VMX: Mark all PERF_GLOBAL_(OVF)_CTRL bits reserved if" failed to apply to 4.14-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 12 Aug 2022 17:32:45 +0200
-Message-ID: <16603183655690@kroah.com>
+Message-ID: <16603183658289@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
