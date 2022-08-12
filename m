@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4DDA591312
-	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 17:33:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 852B4591315
+	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 17:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236581AbiHLPd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Aug 2022 11:33:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56718 "EHLO
+        id S237689AbiHLPde (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Aug 2022 11:33:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235144AbiHLPd1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 11:33:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F418182855
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 08:33:26 -0700 (PDT)
+        with ESMTP id S237281AbiHLPdd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 11:33:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56AF581B32
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 08:33:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A32D3B8237D
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 15:33:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00232C433D6;
-        Fri, 12 Aug 2022 15:33:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FF9BB8246E
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 15:33:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69B1EC43141;
+        Fri, 12 Aug 2022 15:33:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660318404;
-        bh=D7gw8v7pIhtf0xoAIDY1ieeH5ZhcE66ZIlc1nuOqgzA=;
+        s=korg; t=1660318409;
+        bh=1zF8kcLga5xdEGfoUqdkym7KfMeKT9oCikBw/X+DZhg=;
         h=Subject:To:Cc:From:Date:From;
-        b=ByO6wgLra9WDwUHatinokooOcLtM9d1v8frvvrHuIRL+GJO66ZJlc5tHLHodCtHIz
-         2/97vrbNhZM9OrB+oaJIAtx9ecbsFqlqHwxZEwH4T2a/1SWtEAKrZ216zQCKMM5Ddl
-         76i4eSl8JdZ0COLLR5ErA1AJm1qjlKje5nSbjDhM=
-Subject: FAILED: patch "[PATCH] KVM: VMX: Add helper to check if the guest PMU has" failed to apply to 5.10-stable tree
+        b=bQto1OnA0JnHWAD50bcYf0yfsgYi9QIUNT2USLLACIWh1D/3lzk5E42gj7UkC+ped
+         5dXjTvX999V+vT5UqNq8ndiUnTd7KW215c5GZ9+Ke+iQYjLnEb8SLBp1tZdyrK3DZV
+         c/zr+XoKyfrZR6n1txnEyWgZ1FWnSTpYLTpvZCB8=
+Subject: FAILED: patch "[PATCH] KVM: VMX: Add helper to check if the guest PMU has" failed to apply to 4.19-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 12 Aug 2022 17:32:53 +0200
-Message-ID: <16603183737394@kroah.com>
+Date:   Fri, 12 Aug 2022 17:32:54 +0200
+Message-ID: <16603183742962@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
