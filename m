@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88E0B59130D
-	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 17:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93B8759130A
+	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 17:33:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236892AbiHLPdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Aug 2022 11:33:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56446 "EHLO
+        id S235957AbiHLPdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Aug 2022 11:33:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237689AbiHLPdP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 11:33:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C56285A83
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 08:33:13 -0700 (PDT)
+        with ESMTP id S237707AbiHLPdQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 11:33:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E65C8286B
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 08:33:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7BB49B82463
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 15:33:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C36F7C433C1;
-        Fri, 12 Aug 2022 15:33:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3185614D6
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 15:33:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D088FC433D6;
+        Fri, 12 Aug 2022 15:33:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660318390;
-        bh=SMzkfx7wooIUocB2mHLlUe83lEBc2eC9IeXsiAg54eI=;
+        s=korg; t=1660318393;
+        bh=6HLG7BZiJwhs9HPQqc9s6t51vKVRf0bNkxtgADF507k=;
         h=Subject:To:Cc:From:Date:From;
-        b=SZ88UJErfGMTIGyQszbRjdcRrc6QGgxuk8Z1tQjmLYt+wlSEXtNPZ9SO2UnqN4hQD
-         GTr+m961SMHzgoMov9Wk99k4yNZB2Te1RxfXS2sYvMDZ62j9hu6gcF1WKt2tnS6avi
-         yayFM4L7VD2XfwTBMM8jPpAVkmA2n1DgVfG74Sjw=
-Subject: FAILED: patch "[PATCH] KVM: VMX: Mark all PERF_GLOBAL_(OVF)_CTRL bits reserved if" failed to apply to 4.14-stable tree
+        b=SbSWpzJQfvFAC0ax40ZLW60RreiV2OQTMtyyMe6ToonXQcRsjR6yfwoJrh3FK0zRt
+         hKLE7iEw913o0enRLcD+Hvxbaq3uNEFrNDTzuPyetSZEwFHoQY4615vOFnXjdui9s2
+         Tr5DKXXSkfD9NSzwyzT8wbQwz6qO4IG8HiEU2UP0=
+Subject: FAILED: patch "[PATCH] KVM: VMX: Add helper to check if the guest PMU has" failed to apply to 5.19-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 12 Aug 2022 17:32:45 +0200
-Message-ID: <16603183658289@kroah.com>
+Date:   Fri, 12 Aug 2022 17:32:51 +0200
+Message-ID: <166031837125366@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,36 +59,66 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 93255bf92939d948bc86d81c6bb70bb0fecc5db1 Mon Sep 17 00:00:00 2001
+From b663f0b5f3d665c261256d1f76e98f077c6e56af Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <seanjc@google.com>
-Date: Fri, 22 Jul 2022 22:44:06 +0000
-Subject: [PATCH] KVM: VMX: Mark all PERF_GLOBAL_(OVF)_CTRL bits reserved if
- there's no vPMU
+Date: Fri, 22 Jul 2022 22:44:07 +0000
+Subject: [PATCH] KVM: VMX: Add helper to check if the guest PMU has
+ PERF_GLOBAL_CTRL
 
-Mark all MSR_CORE_PERF_GLOBAL_CTRL and MSR_CORE_PERF_GLOBAL_OVF_CTRL bits
-as reserved if there is no guest vPMU.  The nVMX VM-Entry consistency
-checks do not check for a valid vPMU prior to consuming the masks via
-kvm_valid_perf_global_ctrl(), i.e. may incorrectly allow a non-zero mask
-to be loaded via VM-Enter or VM-Exit (well, attempted to be loaded, the
-actual MSR load will be rejected by intel_is_valid_msr()).
+Add a helper to check of the guest PMU has PERF_GLOBAL_CTRL, which is
+unintuitive _and_ diverges from Intel's architecturally defined behavior.
+Even worse, KVM currently implements the check using two different (but
+equivalent) checks, _and_ there has been at least one attempt to add a
+_third_ flavor.
 
-Fixes: f5132b01386b ("KVM: Expose a version 2 architectural PMU to a guests")
 Cc: stable@vger.kernel.org
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220722224409.1336532-3-seanjc@google.com>
+Message-Id: <20220722224409.1336532-4-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
 diff --git a/arch/x86/kvm/vmx/pmu_intel.c b/arch/x86/kvm/vmx/pmu_intel.c
-index 4bc098fbec31..6e355c5d2f40 100644
+index 6e355c5d2f40..78f2800fd850 100644
 --- a/arch/x86/kvm/vmx/pmu_intel.c
 +++ b/arch/x86/kvm/vmx/pmu_intel.c
-@@ -527,6 +527,8 @@ static void intel_pmu_refresh(struct kvm_vcpu *vcpu)
- 	pmu->version = 0;
- 	pmu->reserved_bits = 0xffffffff00200000ull;
- 	pmu->raw_event_mask = X86_RAW_EVENT_MASK;
-+	pmu->global_ctrl_mask = ~0ull;
-+	pmu->global_ovf_ctrl_mask = ~0ull;
- 	pmu->fixed_ctr_ctrl_mask = ~0ull;
- 	pmu->pebs_enable_mask = ~0ull;
- 	pmu->pebs_data_cfg_mask = ~0ull;
+@@ -111,7 +111,7 @@ static bool intel_pmc_is_enabled(struct kvm_pmc *pmc)
+ {
+ 	struct kvm_pmu *pmu = pmc_to_pmu(pmc);
+ 
+-	if (pmu->version < 2)
++	if (!intel_pmu_has_perf_global_ctrl(pmu))
+ 		return true;
+ 
+ 	return test_bit(pmc->idx, (unsigned long *)&pmu->global_ctrl);
+@@ -207,7 +207,7 @@ static bool intel_is_valid_msr(struct kvm_vcpu *vcpu, u32 msr)
+ 	case MSR_CORE_PERF_GLOBAL_STATUS:
+ 	case MSR_CORE_PERF_GLOBAL_CTRL:
+ 	case MSR_CORE_PERF_GLOBAL_OVF_CTRL:
+-		ret = pmu->version > 1;
++		return intel_pmu_has_perf_global_ctrl(pmu);
+ 		break;
+ 	case MSR_IA32_PEBS_ENABLE:
+ 		ret = vcpu_get_perf_capabilities(vcpu) & PERF_CAP_PEBS_FORMAT;
+diff --git a/arch/x86/kvm/vmx/vmx.h b/arch/x86/kvm/vmx/vmx.h
+index 286c88e285ea..2a0b94e0fda7 100644
+--- a/arch/x86/kvm/vmx/vmx.h
++++ b/arch/x86/kvm/vmx/vmx.h
+@@ -91,6 +91,18 @@ union vmx_exit_reason {
+ 	u32 full;
+ };
+ 
++static inline bool intel_pmu_has_perf_global_ctrl(struct kvm_pmu *pmu)
++{
++	/*
++	 * Architecturally, Intel's SDM states that IA32_PERF_GLOBAL_CTRL is
++	 * supported if "CPUID.0AH: EAX[7:0] > 0", i.e. if the PMU version is
++	 * greater than zero.  However, KVM only exposes and emulates the MSR
++	 * to/for the guest if the guest PMU supports at least "Architectural
++	 * Performance Monitoring Version 2".
++	 */
++	return pmu->version > 1;
++}
++
+ #define vcpu_to_lbr_desc(vcpu) (&to_vmx(vcpu)->lbr_desc)
+ #define vcpu_to_lbr_records(vcpu) (&to_vmx(vcpu)->lbr_desc.records)
+ 
 
