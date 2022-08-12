@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E4CB59122B
-	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 16:28:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31A0259122D
+	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 16:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238100AbiHLO2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Aug 2022 10:28:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48054 "EHLO
+        id S238173AbiHLO2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Aug 2022 10:28:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238152AbiHLO2R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 10:28:17 -0400
+        with ESMTP id S238152AbiHLO2U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 10:28:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50ECC82872
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 07:28:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C06F18287B
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 07:28:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E28EE60B3C
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 14:28:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECE3BC433D6;
-        Fri, 12 Aug 2022 14:28:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B1166010C
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 14:28:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69B6AC433D6;
+        Fri, 12 Aug 2022 14:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660314495;
-        bh=slZdTJGay5CggT5V/RATx5ZWWRU8UwBv0MxU1UFzCz8=;
+        s=korg; t=1660314498;
+        bh=GOGfcjn0XEGOszdqcP75/6tT6sBFe586+ZnPr720XYs=;
         h=Subject:To:Cc:From:Date:From;
-        b=pA959o11yUy41vUjmJdXOmONQHm/w54aR0MG+M++AqTPCJOutrUkrCG4HOsoJgtu6
-         GtfHUpyGk6o+3UChUktgX/NJr25Pc2z3O9D9q7h3w7yubiEbSRDBo+HBeFSMvU6n6j
-         1emB4CJ7y0VqvTYCJsdBigG/8Vpxi0r1sKruFsls=
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Inject #UD if VMXON is attempted with incompatible" failed to apply to 4.14-stable tree
+        b=K1REJ6bs5NGjF0OIcCSIrEQQgickinDHP6WLAVycy+wdI7uZi6pp6oRcUJIKja7uH
+         AosZ9DCucZeA+4IufMIRk5jdKc31hQtzm6fYQFfWnS5j0ZlCJe3Q8WlLiMMXlErVrj
+         azLzVyTTv8G+UCSCTP5J7vC3dbzhgI1oelVg3jgs=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Inject #UD if VMXON is attempted with incompatible" failed to apply to 4.9-stable tree
 To:     seanjc@google.com, ercli@ucdavis.edu, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 12 Aug 2022 16:28:06 +0200
-Message-ID: <166031448618489@kroah.com>
+Date:   Fri, 12 Aug 2022 16:28:08 +0200
+Message-ID: <166031448894245@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
