@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD891591232
-	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 16:31:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49B4959124E
+	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 16:34:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235618AbiHLObB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Aug 2022 10:31:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49854 "EHLO
+        id S238539AbiHLOer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Aug 2022 10:34:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234317AbiHLObA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 10:31:00 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 893611B7A2
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 07:30:58 -0700 (PDT)
+        with ESMTP id S238576AbiHLOeo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 10:34:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D08DAB07B
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 07:34:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id ED5F7CE2568
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 14:30:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3BEBC433C1;
-        Fri, 12 Aug 2022 14:30:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB3BB60C80
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 14:34:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0F43C433B5;
+        Fri, 12 Aug 2022 14:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660314655;
-        bh=IAyO8vktE/amkXH35qPNQ4QIOdqfM+D/X98C+XCcBHY=;
+        s=korg; t=1660314882;
+        bh=hDOrYmctF45mSla4v4mL48gkDfeSNQ4/iCtKRRC/sEw=;
         h=Subject:To:Cc:From:Date:From;
-        b=1mn2t2QPOZcU/SPJN4zikggDKQkWAJNZC0S9npTDo/gkH0WjY2kWLhZDpha1HMxWQ
-         JIzTV2CRdfqEIH+5+RMoGgK3OPx0SGBt4te8PyManEbNFruw8cqwfvxPu73lpBk9H8
-         E9u0Bcxvb2hxhJdZlt9tacvnAAy+0XR1kWvPlLXs=
-Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Treat NX as a valid SPTE bit for NPT" failed to apply to 5.15-stable tree
+        b=BUau6oNA8O53s74WPhJKpMTDAV/ME2zXswKTfWB6YjCTDqiMWdlDpJdkedhS+oNkj
+         mZ3NGyotsPALxy2SSxpkw3FL3yPUnnsn6qNjhCYMy2Y2kpVfAOBArR238BRzOTl2H8
+         cCeWtT1hBhMVk+FrIWGx/VydaQ+h9IcidnLW5xNk=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Account for KVM reserved CR4 bits in consistency" failed to apply to 4.14-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 12 Aug 2022 16:30:44 +0200
-Message-ID: <1660314644138207@kroah.com>
+Date:   Fri, 12 Aug 2022 16:34:39 +0200
+Message-ID: <16603148792242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,63 +59,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6c6ab524cfae0799e55c82b2c1d61f1af0156f8d Mon Sep 17 00:00:00 2001
+From ca58f3aa53d165afe4ab74c755bc2f6d168617ac Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <seanjc@google.com>
-Date: Sat, 23 Jul 2022 01:30:29 +0000
-Subject: [PATCH] KVM: x86/mmu: Treat NX as a valid SPTE bit for NPT
+Date: Tue, 7 Jun 2022 21:35:51 +0000
+Subject: [PATCH] KVM: nVMX: Account for KVM reserved CR4 bits in consistency
+ checks
 
-Treat the NX bit as valid when using NPT, as KVM will set the NX bit when
-the NX huge page mitigation is enabled (mindblowing) and trigger the WARN
-that fires on reserved SPTE bits being set.
+Check that the guest (L2) and host (L1) CR4 values that would be loaded
+by nested VM-Enter and VM-Exit respectively are valid with respect to
+KVM's (L0 host) allowed CR4 bits.  Failure to check KVM reserved bits
+would allow L1 to load an illegal CR4 (or trigger hardware VM-Fail or
+failed VM-Entry) by massaging guest CPUID to allow features that are not
+supported by KVM.  Amusingly, KVM itself is an accomplice in its doom, as
+KVM adjusts L1's MSR_IA32_VMX_CR4_FIXED1 to allow L1 to enable bits for
+L2 based on L1's CPUID model.
 
-KVM has required NX support for SVM since commit b26a71a1a5b9 ("KVM: SVM:
-Refuse to load kvm_amd if NX support is not available") for exactly this
-reason, but apparently it never occurred to anyone to actually test NPT
-with the mitigation enabled.
-
-  ------------[ cut here ]------------
-  spte = 0x800000018a600ee7, level = 2, rsvd bits = 0x800f0000001fe000
-  WARNING: CPU: 152 PID: 15966 at arch/x86/kvm/mmu/spte.c:215 make_spte+0x327/0x340 [kvm]
-  Hardware name: Google, Inc. Arcadia_IT_80/Arcadia_IT_80, BIOS 10.48.0 01/27/2022
-  RIP: 0010:make_spte+0x327/0x340 [kvm]
-  Call Trace:
-   <TASK>
-   tdp_mmu_map_handle_target_level+0xc3/0x230 [kvm]
-   kvm_tdp_mmu_map+0x343/0x3b0 [kvm]
-   direct_page_fault+0x1ae/0x2a0 [kvm]
-   kvm_tdp_page_fault+0x7d/0x90 [kvm]
-   kvm_mmu_page_fault+0xfb/0x2e0 [kvm]
-   npf_interception+0x55/0x90 [kvm_amd]
-   svm_invoke_exit_handler+0x31/0xf0 [kvm_amd]
-   svm_handle_exit+0xf6/0x1d0 [kvm_amd]
-   vcpu_enter_guest+0xb6d/0xee0 [kvm]
-   ? kvm_pmu_trigger_event+0x6d/0x230 [kvm]
-   vcpu_run+0x65/0x2c0 [kvm]
-   kvm_arch_vcpu_ioctl_run+0x355/0x610 [kvm]
-   kvm_vcpu_ioctl+0x551/0x610 [kvm]
-   __se_sys_ioctl+0x77/0xc0
-   __x64_sys_ioctl+0x1d/0x20
-   do_syscall_64+0x44/0xa0
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-   </TASK>
-  ---[ end trace 0000000000000000 ]---
+Note, although nested_{guest,host}_cr4_valid() are _currently_ used if
+and only if the vCPU is post-VMXON (nested.vmxon == true), that may not
+be true in the future, e.g. emulating VMXON has a bug where it doesn't
+check the allowed/required CR0/CR4 bits.
 
 Cc: stable@vger.kernel.org
+Fixes: 3899152ccbf4 ("KVM: nVMX: fix checks on CR{0,4} during virtual VMX operation")
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220723013029.1753623-1-seanjc@google.com>
+Message-Id: <20220607213604.3346000-3-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 8e477333a263..3e1317325e1f 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -4735,7 +4735,7 @@ reset_tdp_shadow_zero_bits_mask(struct kvm_mmu *context)
+diff --git a/arch/x86/kvm/vmx/nested.h b/arch/x86/kvm/vmx/nested.h
+index c92cea0b8ccc..129ae4e01f7c 100644
+--- a/arch/x86/kvm/vmx/nested.h
++++ b/arch/x86/kvm/vmx/nested.h
+@@ -281,7 +281,8 @@ static inline bool nested_cr4_valid(struct kvm_vcpu *vcpu, unsigned long val)
+ 	u64 fixed0 = to_vmx(vcpu)->nested.msrs.cr4_fixed0;
+ 	u64 fixed1 = to_vmx(vcpu)->nested.msrs.cr4_fixed1;
  
- 	if (boot_cpu_is_amd())
- 		__reset_rsvds_bits_mask(shadow_zero_check, reserved_hpa_bits(),
--					context->root_role.level, false,
-+					context->root_role.level, true,
- 					boot_cpu_has(X86_FEATURE_GBPAGES),
- 					false, true);
- 	else
+-	return fixed_bits_valid(val, fixed0, fixed1);
++	return fixed_bits_valid(val, fixed0, fixed1) &&
++	       __kvm_is_valid_cr4(vcpu, val);
+ }
+ 
+ /* No difference in the restrictions on guest and host CR4 in VMX operation. */
 
