@@ -2,78 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F190590CF3
-	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 09:54:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D19C0590CF2
+	for <lists+stable@lfdr.de>; Fri, 12 Aug 2022 09:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235784AbiHLHyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237672AbiHLHyY (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 12 Aug 2022 03:54:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58416 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237671AbiHLHyX (ORCPT
+        with ESMTP id S235784AbiHLHyX (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 03:54:23 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2F0ADA721F
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 00:54:23 -0700 (PDT)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7851EA7225
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 00:54:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660290862;
+        s=mimecast20190719; t=1660290861;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=akh8K+q2Y7AdbJqXd4NiJ1T8Umr8lrSqKLXi8A4uVWg=;
-        b=KFZVuivL6jz8+bBfGh9yvLJYGcLzsJf0ssxAKjVa4wp/6x4X6q+HLiJqJtobXI5GGlo4LP
-        sMDavvNdMfoisIDa25q9j1vHTIjJKJzpp1aMTe+diC++WRAJ1LkaIzdweunJ3oU+w46PFy
-        CEfRyQDAjflWMzDwT7jAvxdMFUJjIXk=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=DWx2NoTz8YKZGUsJCzDtAAh8o7YhEmSWzOd2b2DX02o=;
+        b=Ofyzfv46SMe7k+ca7xhUv6YVXC2w4kV/dTxueHDJAk6/H0JR38fF/xl7FDmYuMMWpU8IzB
+        p+K0TazLWMrY+KVMykjcD4WGJnqsnLBiHD8wh5tRDqNJ7Yb4LRZ88X06XICIxiCTr2hu2p
+        H3UYi2Opk6xaCAAGKZ8sxHkv0rtDqsk=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-640-hAEVO_HONwqXr5XFvPqmdg-1; Fri, 12 Aug 2022 03:54:21 -0400
-X-MC-Unique: hAEVO_HONwqXr5XFvPqmdg-1
-Received: by mail-ed1-f72.google.com with SMTP id z6-20020a05640240c600b0043e1d52fd98so172791edb.22
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 00:54:21 -0700 (PDT)
+ us-mta-561-obikkoKLMt68Zits2gTDjA-1; Fri, 12 Aug 2022 03:54:20 -0400
+X-MC-Unique: obikkoKLMt68Zits2gTDjA-1
+Received: by mail-ed1-f71.google.com with SMTP id r12-20020a05640251cc00b00440647ec649so174457edd.21
+        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 00:54:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc;
-        bh=akh8K+q2Y7AdbJqXd4NiJ1T8Umr8lrSqKLXi8A4uVWg=;
-        b=51Yo6zOGedvqCM86wAB4HZZNrT1J9dlk8yj+kxcWNjYK5mt79e/hSjGkJmxCFYHNMp
-         zaTWvznvF2YrMTCRqY344Zsq3V+jjDTdicVvklxS3WplvZUbEN4jbmGaqyfjHLAQ/PmQ
-         clqs8n2S5rHYDOfim8+gof2C5myg1i+D+XhE4QbIm8jEJPuv9NQ1SYeyFXb0R2dg8bZ1
-         A2PFaxJFBpz7qLjxoBAKfaw0TpKpzvT04T1yggsthzocIriC0XRy3zpjJ8WZrFu/QJZI
-         w24aZxh4+bKPk0vjNToLOJmzviF8F9rz45Yi6fQ1p5IpUrfn4HvPrUechiy2SR76nKcf
-         wPdg==
-X-Gm-Message-State: ACgBeo2RQvsvSHlVwQC05wQkYPgmQfzGT6axiQoxYJBcX7sGImVviUuy
-        AZzvSr5AHpCoLW8Wbr0jd0+05o3EiaBTdOjzIZ6fQesVMEKt951Fv3gNb54+S5qg1n8lZN6LrOx
-        2agaSrdQP9acbbQqD
-X-Received: by 2002:a17:907:168d:b0:731:67eb:b608 with SMTP id hc13-20020a170907168d00b0073167ebb608mr1827922ejc.518.1660290859509;
+        bh=DWx2NoTz8YKZGUsJCzDtAAh8o7YhEmSWzOd2b2DX02o=;
+        b=QlFLcm6vVo79rZg5BRLKqk34EFZr6BjJpqZZY5kcNjKSLWA72tj1EqatH88Ef4s5cB
+         lPWi5q/hmEXjXFOWCZfvACJFbMzBcFjbBz4/NeTPnwMbx+KYCXbEshxGfTEqI1tomMV3
+         Fmh9owbqOpAIson2+S/tmmkHGQa3z8laMTJ9ZGM1xTUp/ErfKLxl1gnBGa3TSM3PKcE9
+         p4Ho/VP8ufMBAr9dsNDHnQOYQ7oou4dxUHru7lcWt7EjUawVyzDOVn3cVemV6WTqJtr/
+         SdBpMiZ3Q4DnsnPpKB4oFoHGcqqi5uY9NoO0BiOBhdrJRsI4aDBACXA/Nt1gX21EVfnh
+         hiXA==
+X-Gm-Message-State: ACgBeo0JooOoVqlfBlslDzEsUWxQLPBSMYt4+2sdzzr5dtOGtY9hv9Jy
+        SeYezRXmcIw/CX8u7Cji8QfGJfPZWRSXYu/G2mOhsjLJElEnL3mtgI/b860U+XHcuXpT1t8O7nV
+        QuWoJw9yl6xHEl8wY
+X-Received: by 2002:a17:906:8a44:b0:730:9d18:17b5 with SMTP id gx4-20020a1709068a4400b007309d1817b5mr1899177ejc.378.1660290859145;
         Fri, 12 Aug 2022 00:54:19 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR6zjCcWWSihcINsoc9IuK+cXwE7eV3yGR98LpFIRODHbT1L2M2BArDiKdMXhjR0xW783yzHnw==
-X-Received: by 2002:a17:907:168d:b0:731:67eb:b608 with SMTP id hc13-20020a170907168d00b0073167ebb608mr1827916ejc.518.1660290859306;
-        Fri, 12 Aug 2022 00:54:19 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR69cZqtIT0+5fS0uq8Hg2fxp3BKmHpBqtqR6BlevMTPPxxHzJnsI2fgOiUn64XjsDzMXVMIgg==
+X-Received: by 2002:a17:906:8a44:b0:730:9d18:17b5 with SMTP id gx4-20020a1709068a4400b007309d1817b5mr1899162ejc.378.1660290858880;
+        Fri, 12 Aug 2022 00:54:18 -0700 (PDT)
 Received: from [192.168.10.81] ([93.56.169.144])
-        by smtp.googlemail.com with ESMTPSA id ck6-20020a170906c44600b0071cbc7487e1sm517327ejb.69.2022.08.12.00.54.18
+        by smtp.googlemail.com with ESMTPSA id n17-20020aa7db51000000b0043bc4b28464sm942080edt.34.2022.08.12.00.54.18
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
         Fri, 12 Aug 2022 00:54:18 -0700 (PDT)
-Message-ID: <3aadcb3a-5cbc-ef2d-06b3-93371da0f85f@redhat.com>
-Date:   Fri, 12 Aug 2022 09:54:14 +0200
+Message-ID: <5a5dffae-260b-2a3e-53ac-5d748cb7e9d4@redhat.com>
+Date:   Fri, 12 Aug 2022 09:54:17 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.12.0
-Subject: Re: [PATCH 4.19 1/3] KVM: Add infrastructure and macro to mark VM as
- bugged
+Subject: Re: [PATCH 4.19 2/3] KVM: x86: Check lapic_in_kernel() before
+ attempting to set a SynIC irq
 Content-Language: en-US
 To:     Stefan Ghinea <stefan.ghinea@windriver.com>, stable@vger.kernel.org
-Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
-        Isaku Yamahata <isaku.yamahata@intel.com>
+Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>
 References: <20220810202625.32529-1-stefan.ghinea@windriver.com>
+ <20220810202625.32529-2-stefan.ghinea@windriver.com>
 From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <20220810202625.32529-1-stefan.ghinea@windriver.com>
+In-Reply-To: <20220810202625.32529-2-stefan.ghinea@windriver.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -82,131 +82,42 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On 8/10/22 22:26, Stefan Ghinea wrote:
-> From: Sean Christopherson <sean.j.christopherson@intel.com>
+> From: Vitaly Kuznetsov <vkuznets@redhat.com>
 > 
-> commit 0b8f11737cffc1a406d1134b58687abc29d76b52 upstream
+> commit 7ec37d1cbe17d8189d9562178d8b29167fe1c31a upstream
 > 
-> Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-> Signed-off-by: Isaku Yamahata <isaku.yamahata@intel.com>
-> Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
-> Message-Id: <3a0998645c328bf0895f1290e61821b70f048549.1625186503.git.isaku.yamahata@intel.com>
+> When KVM_CAP_HYPERV_SYNIC{,2} is activated, KVM already checks for
+> irqchip_in_kernel() so normally SynIC irqs should never be set. It is,
+> however,  possible for a misbehaving VMM to write to SYNIC/STIMER MSRs
+> causing erroneous behavior.
+> 
+> The immediate issue being fixed is that kvm_irq_delivery_to_apic()
+> (kvm_irq_delivery_to_apic_fast()) crashes when called with
+> 'irq.shorthand = APIC_DEST_SELF' and 'src == NULL'.
+> 
+> Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+> Message-Id: <20220325132140.25650-2-vkuznets@redhat.com>
+> Cc: stable@vger.kernel.org
 > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> [SG: Adjusted context for kernel version 4.19]
 > Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
 > ---
->   include/linux/kvm_host.h | 28 +++++++++++++++++++++++++++-
->   virt/kvm/kvm_main.c      | 10 +++++-----
->   2 files changed, 32 insertions(+), 6 deletions(-)
+>   arch/x86/kvm/hyperv.c | 3 +++
+>   1 file changed, 3 insertions(+)
 > 
-> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-> index 827f70ce0b49..4f96aef4e8b8 100644
-> --- a/include/linux/kvm_host.h
-> +++ b/include/linux/kvm_host.h
-> @@ -128,6 +128,7 @@ static inline bool is_error_page(struct page *page)
->   #define KVM_REQ_MMU_RELOAD        (1 | KVM_REQUEST_WAIT | KVM_REQUEST_NO_WAKEUP)
->   #define KVM_REQ_PENDING_TIMER     2
->   #define KVM_REQ_UNHALT            3
-> +#define KVM_REQ_VM_BUGGED         (4 | KVM_REQUEST_WAIT | KVM_REQUEST_NO_WAKEUP)
->   #define KVM_REQUEST_ARCH_BASE     8
+> diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
+> index ca5a6c3f8c91..2047edb5ff74 100644
+> --- a/arch/x86/kvm/hyperv.c
+> +++ b/arch/x86/kvm/hyperv.c
+> @@ -341,6 +341,9 @@ static int synic_set_irq(struct kvm_vcpu_hv_synic *synic, u32 sint)
+>   	struct kvm_lapic_irq irq;
+>   	int ret, vector;
 >   
->   #define KVM_ARCH_REQ_FLAGS(nr, flags) ({ \
-> @@ -482,6 +483,7 @@ struct kvm {
->   	struct srcu_struct srcu;
->   	struct srcu_struct irq_srcu;
->   	pid_t userspace_pid;
-> +	bool vm_bugged;
->   };
->   
->   #define kvm_err(fmt, ...) \
-> @@ -510,6 +512,31 @@ struct kvm {
->   #define vcpu_err(vcpu, fmt, ...)					\
->   	kvm_err("vcpu%i " fmt, (vcpu)->vcpu_id, ## __VA_ARGS__)
->   
-> +bool kvm_make_all_cpus_request(struct kvm *kvm, unsigned int req);
-> +static inline void kvm_vm_bugged(struct kvm *kvm)
-> +{
-> +	kvm->vm_bugged = true;
-> +	kvm_make_all_cpus_request(kvm, KVM_REQ_VM_BUGGED);
-> +}
+> +	if (KVM_BUG_ON(!lapic_in_kernel(vcpu), vcpu->kvm))
+> +		return -EINVAL;
 > +
-> +#define KVM_BUG(cond, kvm, fmt...)				\
-> +({								\
-> +	int __ret = (cond);					\
-> +								\
-> +	if (WARN_ONCE(__ret && !(kvm)->vm_bugged, fmt))		\
-> +		kvm_vm_bugged(kvm);				\
-> +	unlikely(__ret);					\
-> +})
-> +
-> +#define KVM_BUG_ON(cond, kvm)					\
-> +({								\
-> +	int __ret = (cond);					\
-> +								\
-> +	if (WARN_ON_ONCE(__ret && !(kvm)->vm_bugged))		\
-> +		kvm_vm_bugged(kvm);				\
-> +	unlikely(__ret);					\
-> +})
-> +
->   static inline struct kvm_io_bus *kvm_get_bus(struct kvm *kvm, enum kvm_bus idx)
->   {
->   	return srcu_dereference_check(kvm->buses[idx], &kvm->srcu,
-> @@ -770,7 +797,6 @@ void kvm_reload_remote_mmus(struct kvm *kvm);
+>   	if (sint >= ARRAY_SIZE(synic->sint))
+>   		return -EINVAL;
 >   
->   bool kvm_make_vcpus_request_mask(struct kvm *kvm, unsigned int req,
->   				 unsigned long *vcpu_bitmap, cpumask_var_t tmp);
-> -bool kvm_make_all_cpus_request(struct kvm *kvm, unsigned int req);
->   
->   long kvm_arch_dev_ioctl(struct file *filp,
->   			unsigned int ioctl, unsigned long arg);
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 3d45ce134227..6f9c0060a3e5 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -2820,7 +2820,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
->   	struct kvm_fpu *fpu = NULL;
->   	struct kvm_sregs *kvm_sregs = NULL;
->   
-> -	if (vcpu->kvm->mm != current->mm)
-> +	if (vcpu->kvm->mm != current->mm || vcpu->kvm->vm_bugged)
->   		return -EIO;
->   
->   	if (unlikely(_IOC_TYPE(ioctl) != KVMIO))
-> @@ -3026,7 +3026,7 @@ static long kvm_vcpu_compat_ioctl(struct file *filp,
->   	void __user *argp = compat_ptr(arg);
->   	int r;
->   
-> -	if (vcpu->kvm->mm != current->mm)
-> +	if (vcpu->kvm->mm != current->mm || vcpu->kvm->vm_bugged)
->   		return -EIO;
->   
->   	switch (ioctl) {
-> @@ -3081,7 +3081,7 @@ static long kvm_device_ioctl(struct file *filp, unsigned int ioctl,
->   {
->   	struct kvm_device *dev = filp->private_data;
->   
-> -	if (dev->kvm->mm != current->mm)
-> +	if (dev->kvm->mm != current->mm || dev->kvm->vm_bugged)
->   		return -EIO;
->   
->   	switch (ioctl) {
-> @@ -3244,7 +3244,7 @@ static long kvm_vm_ioctl(struct file *filp,
->   	void __user *argp = (void __user *)arg;
->   	int r;
->   
-> -	if (kvm->mm != current->mm)
-> +	if (kvm->mm != current->mm || kvm->vm_bugged)
->   		return -EIO;
->   	switch (ioctl) {
->   	case KVM_CREATE_VCPU:
-> @@ -3422,7 +3422,7 @@ static long kvm_vm_compat_ioctl(struct file *filp,
->   	struct kvm *kvm = filp->private_data;
->   	int r;
->   
-> -	if (kvm->mm != current->mm)
-> +	if (kvm->mm != current->mm || kvm->vm_bugged)
->   		return -EIO;
->   	switch (ioctl) {
->   	case KVM_GET_DIRTY_LOG: {
 
 Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 
