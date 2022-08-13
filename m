@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83EAC591AF8
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D0E591AFA
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:30:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239610AbiHMO3C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 10:29:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50942 "EHLO
+        id S237698AbiHMOaB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 10:30:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239419AbiHMO3C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:29:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C54527B2D
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:29:01 -0700 (PDT)
+        with ESMTP id S239390AbiHMOaA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:30:00 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C72527CC5
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:29:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C34FB801BB
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:29:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 548DFC433C1;
-        Sat, 13 Aug 2022 14:28:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E3F47CE069F
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:29:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C86B7C433D7;
+        Sat, 13 Aug 2022 14:29:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660400938;
-        bh=GuDHkzrCLK3pwqygLhX7CSnGkI3GWYwFNIVBX3yYovM=;
+        s=korg; t=1660400996;
+        bh=yNZ/B+l43mUI/mpA27gQ+bpJhk2430Jra03DVwYZF1U=;
         h=Subject:To:Cc:From:Date:From;
-        b=Cv1Ko13IsKuI9thwugQoeMwUqIHPkYWcdNcDxLQz4E6b1sxSSDPJPgHc3aN21qvKh
-         Tikji0+osxJubHULj2gmPCVwdVK+czTA4ASYuVbsG0jGWQI1zFsgZV92DiTufcjYFq
-         NKg9p7YaZhjytEaA7u3L0K8+QFIEeSGJbkQc8rkY=
-Subject: FAILED: patch "[PATCH] md-raid: destroy the bitmap after destroying the thread" failed to apply to 4.14-stable tree
-To:     mpatocka@redhat.com, axboe@kernel.dk, song@kernel.org
+        b=eNEM8h56WNyNonvdeiSIgjg8HFRbC2tvi+GP6+SbXtVDMtbpsGfGOhjC6lUCU44ZI
+         54M2HZCCwZTgNt0kztttm4kQjwM8wNi3LIU8G3A05DleExX+LJBZXcqZ6SB34yX+uq
+         TU7cklaYNIi84YUjfZOHhtW07GC23rsFJvN/W+fs=
+Subject: FAILED: patch "[PATCH] mbcache: add functions to delete entry if unused" failed to apply to 4.9-stable tree
+To:     jack@suse.cz, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 16:28:53 +0200
-Message-ID: <16604009335920@kroah.com>
+Date:   Sat, 13 Aug 2022 16:29:53 +0200
+Message-ID: <1660400993215253@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,HEXHASH_WORD,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,127 +59,147 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e151db8ecfb019b7da31d076130a794574c89f6f Mon Sep 17 00:00:00 2001
-From: Mikulas Patocka <mpatocka@redhat.com>
-Date: Sun, 24 Jul 2022 14:26:12 -0400
-Subject: [PATCH] md-raid: destroy the bitmap after destroying the thread
+From 3dc96bba65f53daa217f0a8f43edad145286a8f5 Mon Sep 17 00:00:00 2001
+From: Jan Kara <jack@suse.cz>
+Date: Tue, 12 Jul 2022 12:54:21 +0200
+Subject: [PATCH] mbcache: add functions to delete entry if unused
 
-When we ran the lvm test "shell/integrity-blocksize-3.sh" on a kernel with
-kasan, we got failure in write_page.
+Add function mb_cache_entry_delete_or_get() to delete mbcache entry if
+it is unused and also add a function to wait for entry to become unused
+- mb_cache_entry_wait_unused(). We do not share code between the two
+deleting function as one of them will go away soon.
 
-The reason for the failure is that md_bitmap_destroy is called before
-destroying the thread and the thread may be waiting in the function
-write_page for the bio to complete. When the thread finishes waiting, it
-executes "if (test_bit(BITMAP_WRITE_ERROR, &bitmap->flags))", which
-triggers the kasan warning.
+CC: stable@vger.kernel.org
+Fixes: 82939d7999df ("ext4: convert to mbcache2")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220712105436.32204-2-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 
-Note that the commit 48df498daf62 that caused this bug claims that it is
-neede for md-cluster, you should check md-cluster and possibly find
-another bugfix for it.
-
-BUG: KASAN: use-after-free in write_page+0x18d/0x680 [md_mod]
-Read of size 8 at addr ffff889162030c78 by task mdX_raid1/5539
-
-CPU: 10 PID: 5539 Comm: mdX_raid1 Not tainted 5.19.0-rc2 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0x34/0x44
- print_report.cold+0x45/0x57a
- ? __lock_text_start+0x18/0x18
- ? write_page+0x18d/0x680 [md_mod]
- kasan_report+0xa8/0xe0
- ? write_page+0x18d/0x680 [md_mod]
- kasan_check_range+0x13f/0x180
- write_page+0x18d/0x680 [md_mod]
- ? super_sync+0x4d5/0x560 [dm_raid]
- ? md_bitmap_file_kick+0xa0/0xa0 [md_mod]
- ? rs_set_dev_and_array_sectors+0x2e0/0x2e0 [dm_raid]
- ? mutex_trylock+0x120/0x120
- ? preempt_count_add+0x6b/0xc0
- ? preempt_count_sub+0xf/0xc0
- md_update_sb+0x707/0xe40 [md_mod]
- md_reap_sync_thread+0x1b2/0x4a0 [md_mod]
- md_check_recovery+0x533/0x960 [md_mod]
- raid1d+0xc8/0x2a20 [raid1]
- ? var_wake_function+0xe0/0xe0
- ? psi_group_change+0x411/0x500
- ? preempt_count_sub+0xf/0xc0
- ? _raw_spin_lock_irqsave+0x78/0xc0
- ? __lock_text_start+0x18/0x18
- ? raid1_end_read_request+0x2a0/0x2a0 [raid1]
- ? preempt_count_sub+0xf/0xc0
- ? _raw_spin_unlock_irqrestore+0x19/0x40
- ? del_timer_sync+0xa9/0x100
- ? try_to_del_timer_sync+0xc0/0xc0
- ? _raw_spin_lock_irqsave+0x78/0xc0
- ? __lock_text_start+0x18/0x18
- ? __list_del_entry_valid+0x68/0xa0
- ? finish_wait+0xa3/0x100
- md_thread+0x161/0x260 [md_mod]
- ? unregister_md_personality+0xa0/0xa0 [md_mod]
- ? _raw_spin_lock_irqsave+0x78/0xc0
- ? prepare_to_wait_event+0x2c0/0x2c0
- ? unregister_md_personality+0xa0/0xa0 [md_mod]
- kthread+0x148/0x180
- ? kthread_complete_and_exit+0x20/0x20
- ret_from_fork+0x1f/0x30
- </TASK>
-
-Allocated by task 5522:
- kasan_save_stack+0x1e/0x40
- __kasan_kmalloc+0x80/0xa0
- md_bitmap_create+0xa8/0xe80 [md_mod]
- md_run+0x777/0x1300 [md_mod]
- raid_ctr+0x249c/0x4a30 [dm_raid]
- dm_table_add_target+0x2b0/0x620 [dm_mod]
- table_load+0x1c8/0x400 [dm_mod]
- ctl_ioctl+0x29e/0x560 [dm_mod]
- dm_compat_ctl_ioctl+0x7/0x20 [dm_mod]
- __do_compat_sys_ioctl+0xfa/0x160
- do_syscall_64+0x90/0xc0
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Freed by task 5680:
- kasan_save_stack+0x1e/0x40
- kasan_set_track+0x21/0x40
- kasan_set_free_info+0x20/0x40
- __kasan_slab_free+0xf7/0x140
- kfree+0x80/0x240
- md_bitmap_free+0x1c3/0x280 [md_mod]
- __md_stop+0x21/0x120 [md_mod]
- md_stop+0x9/0x40 [md_mod]
- raid_dtr+0x1b/0x40 [dm_raid]
- dm_table_destroy+0x98/0x1e0 [dm_mod]
- __dm_destroy+0x199/0x360 [dm_mod]
- dev_remove+0x10c/0x160 [dm_mod]
- ctl_ioctl+0x29e/0x560 [dm_mod]
- dm_compat_ctl_ioctl+0x7/0x20 [dm_mod]
- __do_compat_sys_ioctl+0xfa/0x160
- do_syscall_64+0x90/0xc0
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 48df498daf62 ("md: move bitmap_destroy to the beginning of __md_stop")
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 6e82df21623d..35b895813c88 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -6238,11 +6238,11 @@ static void mddev_detach(struct mddev *mddev)
- static void __md_stop(struct mddev *mddev)
+diff --git a/fs/mbcache.c b/fs/mbcache.c
+index cfc28129fb6f..2010bc80a3f2 100644
+--- a/fs/mbcache.c
++++ b/fs/mbcache.c
+@@ -11,7 +11,7 @@
+ /*
+  * Mbcache is a simple key-value store. Keys need not be unique, however
+  * key-value pairs are expected to be unique (we use this fact in
+- * mb_cache_entry_delete()).
++ * mb_cache_entry_delete_or_get()).
+  *
+  * Ext2 and ext4 use this cache for deduplication of extended attribute blocks.
+  * Ext4 also uses it for deduplication of xattr values stored in inodes.
+@@ -125,6 +125,19 @@ void __mb_cache_entry_free(struct mb_cache_entry *entry)
+ }
+ EXPORT_SYMBOL(__mb_cache_entry_free);
+ 
++/*
++ * mb_cache_entry_wait_unused - wait to be the last user of the entry
++ *
++ * @entry - entry to work on
++ *
++ * Wait to be the last user of the entry.
++ */
++void mb_cache_entry_wait_unused(struct mb_cache_entry *entry)
++{
++	wait_var_event(&entry->e_refcnt, atomic_read(&entry->e_refcnt) <= 3);
++}
++EXPORT_SYMBOL(mb_cache_entry_wait_unused);
++
+ static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
+ 					   struct mb_cache_entry *entry,
+ 					   u32 key)
+@@ -217,7 +230,7 @@ struct mb_cache_entry *mb_cache_entry_get(struct mb_cache *cache, u32 key,
+ }
+ EXPORT_SYMBOL(mb_cache_entry_get);
+ 
+-/* mb_cache_entry_delete - remove a cache entry
++/* mb_cache_entry_delete - try to remove a cache entry
+  * @cache - cache we work with
+  * @key - key
+  * @value - value
+@@ -254,6 +267,55 @@ void mb_cache_entry_delete(struct mb_cache *cache, u32 key, u64 value)
+ }
+ EXPORT_SYMBOL(mb_cache_entry_delete);
+ 
++/* mb_cache_entry_delete_or_get - remove a cache entry if it has no users
++ * @cache - cache we work with
++ * @key - key
++ * @value - value
++ *
++ * Remove entry from cache @cache with key @key and value @value. The removal
++ * happens only if the entry is unused. The function returns NULL in case the
++ * entry was successfully removed or there's no entry in cache. Otherwise the
++ * function grabs reference of the entry that we failed to delete because it
++ * still has users and return it.
++ */
++struct mb_cache_entry *mb_cache_entry_delete_or_get(struct mb_cache *cache,
++						    u32 key, u64 value)
++{
++	struct hlist_bl_node *node;
++	struct hlist_bl_head *head;
++	struct mb_cache_entry *entry;
++
++	head = mb_cache_entry_head(cache, key);
++	hlist_bl_lock(head);
++	hlist_bl_for_each_entry(entry, node, head, e_hash_list) {
++		if (entry->e_key == key && entry->e_value == value) {
++			if (atomic_read(&entry->e_refcnt) > 2) {
++				atomic_inc(&entry->e_refcnt);
++				hlist_bl_unlock(head);
++				return entry;
++			}
++			/* We keep hash list reference to keep entry alive */
++			hlist_bl_del_init(&entry->e_hash_list);
++			hlist_bl_unlock(head);
++			spin_lock(&cache->c_list_lock);
++			if (!list_empty(&entry->e_list)) {
++				list_del_init(&entry->e_list);
++				if (!WARN_ONCE(cache->c_entry_count == 0,
++		"mbcache: attempt to decrement c_entry_count past zero"))
++					cache->c_entry_count--;
++				atomic_dec(&entry->e_refcnt);
++			}
++			spin_unlock(&cache->c_list_lock);
++			mb_cache_entry_put(cache, entry);
++			return NULL;
++		}
++	}
++	hlist_bl_unlock(head);
++
++	return NULL;
++}
++EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
++
+ /* mb_cache_entry_touch - cache entry got used
+  * @cache - cache the entry belongs to
+  * @entry - entry that got used
+diff --git a/include/linux/mbcache.h b/include/linux/mbcache.h
+index 20f1e3ff6013..8eca7f25c432 100644
+--- a/include/linux/mbcache.h
++++ b/include/linux/mbcache.h
+@@ -30,15 +30,23 @@ void mb_cache_destroy(struct mb_cache *cache);
+ int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
+ 			  u64 value, bool reusable);
+ void __mb_cache_entry_free(struct mb_cache_entry *entry);
++void mb_cache_entry_wait_unused(struct mb_cache_entry *entry);
+ static inline int mb_cache_entry_put(struct mb_cache *cache,
+ 				     struct mb_cache_entry *entry)
  {
- 	struct md_personality *pers = mddev->pers;
--	md_bitmap_destroy(mddev);
- 	mddev_detach(mddev);
- 	/* Ensure ->event_work is done */
- 	if (mddev->event_work.func)
- 		flush_workqueue(md_misc_wq);
-+	md_bitmap_destroy(mddev);
- 	spin_lock(&mddev->lock);
- 	mddev->pers = NULL;
- 	spin_unlock(&mddev->lock);
+-	if (!atomic_dec_and_test(&entry->e_refcnt))
++	unsigned int cnt = atomic_dec_return(&entry->e_refcnt);
++
++	if (cnt > 0) {
++		if (cnt <= 3)
++			wake_up_var(&entry->e_refcnt);
+ 		return 0;
++	}
+ 	__mb_cache_entry_free(entry);
+ 	return 1;
+ }
+ 
++struct mb_cache_entry *mb_cache_entry_delete_or_get(struct mb_cache *cache,
++						    u32 key, u64 value);
+ void mb_cache_entry_delete(struct mb_cache *cache, u32 key, u64 value);
+ struct mb_cache_entry *mb_cache_entry_get(struct mb_cache *cache, u32 key,
+ 					  u64 value);
 
