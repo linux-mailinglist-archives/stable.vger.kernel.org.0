@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AEF9591A81
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 15:14:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCA65591A83
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 15:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239447AbiHMNOF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 09:14:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51740 "EHLO
+        id S239462AbiHMNPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 09:15:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239434AbiHMNOE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 09:14:04 -0400
+        with ESMTP id S239451AbiHMNPe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 09:15:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BADFA2656B;
-        Sat, 13 Aug 2022 06:14:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B1981E3C3
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 06:15:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 646B5B80159;
-        Sat, 13 Aug 2022 13:14:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A76FEC433D6;
-        Sat, 13 Aug 2022 13:14:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6C97B80108
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 13:15:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F809C433D7;
+        Sat, 13 Aug 2022 13:15:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660396441;
-        bh=pyBTfDJT/lzSB4wz3O54NGZ8NRWMsTek/dYlSGUw/2A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=IIPmNlT4y8HJVdAEXEayExAQHvG6G33QzLJZgUoqTCL4FccIPmaDZzJVXmkZ9KoIo
-         P5kYgnbpfQttPNhwFg1aPg2t61OaZMPZwqLy3R6C1jhK4nl2x094LrV1Bb/MAUj8Hm
-         1f34QyXj5k7Mjxds9n8lWw1PoBHdYq0P1EscRWkw=
-Date:   Sat, 13 Aug 2022 15:13:58 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Qu Wenruo <wqu@suse.com>
-Cc:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH STABLE 5.18 0/2] btrfs: raid56 backports to reduce
- destructive RMW
-Message-ID: <Yvejlr1Nds8wtyKj@kroah.com>
-References: <cover.1659600630.git.wqu@suse.com>
- <YvESBmvjMqIXvqjp@kroah.com>
+        s=korg; t=1660396529;
+        bh=TOumKwax7+NggfadkAau2q9oeMPS7x9wkY68MMrJwkw=;
+        h=Subject:To:Cc:From:Date:From;
+        b=KkBkvL6TA76G+V/kUyXxST752hXgF3sklIQPodnZctGhm6y26vkJFZ1tSJghEgtm0
+         a7vyStfO9bYlrfTEmC7BHqPsaK8Dj82eRrLSEQrj+8toVnM8tZX4vbO41osXOyjbuU
+         2pLLO1azctw8QYYS3YYow1N1VyQDXo3VMb2UPSOQ=
+Subject: FAILED: patch "[PATCH] btrfs: reject log replay if there is unsupported RO compat" failed to apply to 5.10-stable tree
+To:     wqu@suse.com, dsterba@suse.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 13 Aug 2022 15:15:26 +0200
+Message-ID: <166039652619826@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YvESBmvjMqIXvqjp@kroah.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -51,22 +47,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 08, 2022 at 03:39:18PM +0200, Greg KH wrote:
-> On Thu, Aug 04, 2022 at 04:10:57PM +0800, Qu Wenruo wrote:
-> > Hi Greg and Sasha,
-> > 
-> > This two patches are backports for v5.18 branch.
-> 
-> I also need these for the 5.19.y branch if we were to take them into
-> 5.18.y as you do not want anyone to suffer a regression when moving to
-> the newer kernel release.
-> 
-> So I'll wait for those to be sent before taking any of these.
 
-I've dropped all of these btrfs backports from my "to review" queue now.
-Please fix them all up, get the needed acks, and then resend them and I
-will be glad to reconsider them at that point in time.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From dc4d31684974d140250f3ee612c3f0cab13b3146 Mon Sep 17 00:00:00 2001
+From: Qu Wenruo <wqu@suse.com>
+Date: Tue, 7 Jun 2022 19:48:24 +0800
+Subject: [PATCH] btrfs: reject log replay if there is unsupported RO compat
+ flag
+
+[BUG]
+If we have a btrfs image with dirty log, along with an unsupported RO
+compatible flag:
+
+log_root		30474240
+...
+compat_flags		0x0
+compat_ro_flags		0x40000003
+			( FREE_SPACE_TREE |
+			  FREE_SPACE_TREE_VALID |
+			  unknown flag: 0x40000000 )
+
+Then even if we can only mount it RO, we will still cause metadata
+update for log replay:
+
+  BTRFS info (device dm-1): flagging fs with big metadata feature
+  BTRFS info (device dm-1): using free space tree
+  BTRFS info (device dm-1): has skinny extents
+  BTRFS info (device dm-1): start tree-log replay
+
+This is definitely against RO compact flag requirement.
+
+[CAUSE]
+RO compact flag only forces us to do RO mount, but we will still do log
+replay for plain RO mount.
+
+Thus this will result us to do log replay and update metadata.
+
+This can be very problematic for new RO compat flag, for example older
+kernel can not understand v2 cache, and if we allow metadata update on
+RO mount and invalidate/corrupt v2 cache.
+
+[FIX]
+Just reject the mount unless rescue=nologreplay is provided:
+
+  BTRFS error (device dm-1): cannot replay dirty log with unsupport optional features (0x40000000), try rescue=nologreplay instead
+
+We don't want to set rescue=nologreply directly, as this would make the
+end user to read the old data, and cause confusion.
+
+Since the such case is really rare, we're mostly fine to just reject the
+mount with an error message, which also includes the proper workaround.
+
+CC: stable@vger.kernel.org #4.9+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index ed1d92b370db..32b88a227734 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3556,6 +3556,20 @@ int __cold open_ctree(struct super_block *sb, struct btrfs_fs_devices *fs_device
+ 		err = -EINVAL;
+ 		goto fail_alloc;
+ 	}
++	/*
++	 * We have unsupported RO compat features, although RO mounted, we
++	 * should not cause any metadata write, including log replay.
++	 * Or we could screw up whatever the new feature requires.
++	 */
++	if (unlikely(features && btrfs_super_log_root(disk_super) &&
++		     !btrfs_test_opt(fs_info, NOLOGREPLAY))) {
++		btrfs_err(fs_info,
++"cannot replay dirty log with unsupported compat_ro features (0x%llx), try rescue=nologreplay",
++			  features);
++		err = -EINVAL;
++		goto fail_alloc;
++	}
++
+ 
+ 	if (sectorsize < PAGE_SIZE) {
+ 		struct btrfs_subpage_info *subpage_info;
+
