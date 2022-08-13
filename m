@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 456425919A2
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 11:35:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 138DA5919AB
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 11:39:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234046AbiHMJff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 05:35:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57108 "EHLO
+        id S238927AbiHMJjE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 05:39:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238886AbiHMJfd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 05:35:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F346618384
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 02:35:32 -0700 (PDT)
+        with ESMTP id S234046AbiHMJjE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 05:39:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28B02422C6
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 02:39:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90E7360C3F
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 09:35:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F655C433D7;
-        Sat, 13 Aug 2022 09:35:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB452B81164
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 09:39:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F4AEC433D7;
+        Sat, 13 Aug 2022 09:38:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660383332;
-        bh=vDwA7U4ILjCYyhGYvc8v2tBrZ4RY6reG4+uHEK7ADPM=;
+        s=korg; t=1660383540;
+        bh=5s8BXUcjAEH86Rhke+HX1/rYFm6kpXfsNNNekfGheo0=;
         h=Subject:To:Cc:From:Date:From;
-        b=fLZM/vnVa56lSxZoelTlY076NeHCvgGmXTdbcXKGk+qajhRGprKc3UGMetnc4uIkY
-         5yasXano5mq3HI1SLduc2w9X/OFJchI/0p8fW3xtVtSFlYUZ78kfHR6WV7ZSVQW0Qg
-         yydlnU+Z/pdAQ9uFx9TC84sZLKlSiz2KgB23jkLA=
-Subject: FAILED: patch "[PATCH] usbnet: smsc95xx: Fix deadlock on runtime resume" failed to apply to 4.9-stable tree
-To:     lukas@wunner.de, andre.edich@microchip.com, davem@davemloft.net
+        b=HTPUrBWqsbj8OZx51W5/wi2NNW1Sfz7qv8+iFbESB3bavjVndV4niuf5FpJntf/5P
+         u/ulHVHIqejtX0Rx3rnmiA+IhPUG16Glk+tk/eycIaLbnsnb4oZSt2e/Vpn8wn0XyP
+         e2Ul0NmhiK7wyOllLfMjgasxXfoNeV69lAK/LFFo=
+Subject: FAILED: patch "[PATCH] fix short copy handling in copy_mc_pipe_to_iter()" failed to apply to 5.4-stable tree
+To:     viro@zeniv.linux.org.uk, brauner@kernel.org, jlayton@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 11:35:08 +0200
-Message-ID: <1660383308160146@kroah.com>
+Date:   Sat, 13 Aug 2022 11:38:48 +0200
+Message-ID: <1660383528232133@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,186 +59,81 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7b960c967f2aa01ab8f45c5a0bd78e754cffdeee Mon Sep 17 00:00:00 2001
-From: Lukas Wunner <lukas@wunner.de>
-Date: Fri, 1 Jul 2022 22:47:51 +0200
-Subject: [PATCH] usbnet: smsc95xx: Fix deadlock on runtime resume
+From c3497fd009ef2c59eea60d21c3ac22de3585ed7d Mon Sep 17 00:00:00 2001
+From: Al Viro <viro@zeniv.linux.org.uk>
+Date: Sun, 12 Jun 2022 19:50:29 -0400
+Subject: [PATCH] fix short copy handling in copy_mc_pipe_to_iter()
 
-Commit 05b35e7eb9a1 ("smsc95xx: add phylib support") amended
-smsc95xx_resume() to call phy_init_hw().  That function waits for the
-device to runtime resume even though it is placed in the runtime resume
-path, causing a deadlock.
+Unlike other copying operations on ITER_PIPE, copy_mc_to_iter() can
+result in a short copy.  In that case we need to trim the unused
+buffers, as well as the length of partially filled one - it's not
+enough to set ->head, ->iov_offset and ->count to reflect how
+much had we copied.  Not hard to fix, fortunately...
 
-The problem is that phy_init_hw() calls down to smsc95xx_mdiobus_read(),
-which never uses the _nopm variant of usbnet_read_cmd().
+I'd put a helper (pipe_discard_from(pipe, head)) into pipe_fs_i.h,
+rather than iov_iter.c - it has nothing to do with iov_iter and
+having it will allow us to avoid an ugly kludge in fs/splice.c.
+We could put it into lib/iov_iter.c for now and move it later,
+but I don't see the point going that way...
 
-Commit b4df480f68ae ("usbnet: smsc95xx: add reset_resume function with
-reset operation") causes a similar deadlock on resume if the device was
-already runtime suspended when entering system sleep:
+Cc: stable@kernel.org # 4.19+
+Fixes: ca146f6f091e "lib/iov_iter: Fix pipe handling in _copy_to_iter_mcsafe()"
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-That's because the commit introduced smsc95xx_reset_resume(), which
-calls down to smsc95xx_reset(), which neglects to use _nopm accessors.
-
-Fix by auto-detecting whether a device access is performed by the
-suspend/resume task_struct and use the _nopm variant if so.  This works
-because the PM core guarantees that suspend/resume callbacks are run in
-task context.
-
-Stacktrace for posterity:
-
-  INFO: task kworker/2:1:49 blocked for more than 122 seconds.
-  Workqueue: usb_hub_wq hub_event
-  schedule
-  rpm_resume
-  __pm_runtime_resume
-  usb_autopm_get_interface
-  usbnet_read_cmd
-  __smsc95xx_read_reg
-  __smsc95xx_phy_wait_not_busy
-  __smsc95xx_mdio_read
-  smsc95xx_mdiobus_read
-  __mdiobus_read
-  mdiobus_read
-  smsc_phy_reset
-  phy_init_hw
-  smsc95xx_resume
-  usb_resume_interface
-  usb_resume_both
-  usb_runtime_resume
-  __rpm_callback
-  rpm_callback
-  rpm_resume
-  __pm_runtime_resume
-  usb_autoresume_device
-  hub_event
-  process_one_work
-
-Fixes: b4df480f68ae ("usbnet: smsc95xx: add reset_resume function with reset operation")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v3.16+
-Cc: Andre Edich <andre.edich@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index 35110814ba22..0316c80c3fc4 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -71,6 +71,7 @@ struct smsc95xx_priv {
- 	struct fwnode_handle *irqfwnode;
- 	struct mii_bus *mdiobus;
- 	struct phy_device *phydev;
-+	struct task_struct *pm_task;
- };
- 
- static bool turbo_mode = true;
-@@ -80,13 +81,14 @@ MODULE_PARM_DESC(turbo_mode, "Enable multiple frames per Rx transaction");
- static int __must_check __smsc95xx_read_reg(struct usbnet *dev, u32 index,
- 					    u32 *data, int in_pm)
- {
-+	struct smsc95xx_priv *pdata = dev->driver_priv;
- 	u32 buf;
- 	int ret;
- 	int (*fn)(struct usbnet *, u8, u8, u16, u16, void *, u16);
- 
- 	BUG_ON(!dev);
- 
--	if (!in_pm)
-+	if (current != pdata->pm_task)
- 		fn = usbnet_read_cmd;
- 	else
- 		fn = usbnet_read_cmd_nopm;
-@@ -110,13 +112,14 @@ static int __must_check __smsc95xx_read_reg(struct usbnet *dev, u32 index,
- static int __must_check __smsc95xx_write_reg(struct usbnet *dev, u32 index,
- 					     u32 data, int in_pm)
- {
-+	struct smsc95xx_priv *pdata = dev->driver_priv;
- 	u32 buf;
- 	int ret;
- 	int (*fn)(struct usbnet *, u8, u8, u16, u16, const void *, u16);
- 
- 	BUG_ON(!dev);
- 
--	if (!in_pm)
-+	if (current != pdata->pm_task)
- 		fn = usbnet_write_cmd;
- 	else
- 		fn = usbnet_write_cmd_nopm;
-@@ -1490,9 +1493,12 @@ static int smsc95xx_suspend(struct usb_interface *intf, pm_message_t message)
- 	u32 val, link_up;
- 	int ret;
- 
-+	pdata->pm_task = current;
-+
- 	ret = usbnet_suspend(intf, message);
- 	if (ret < 0) {
- 		netdev_warn(dev->net, "usbnet_suspend error\n");
-+		pdata->pm_task = NULL;
- 		return ret;
- 	}
- 
-@@ -1732,6 +1738,7 @@ static int smsc95xx_suspend(struct usb_interface *intf, pm_message_t message)
- 	if (ret && PMSG_IS_AUTO(message))
- 		usbnet_resume(intf);
- 
-+	pdata->pm_task = NULL;
- 	return ret;
+diff --git a/include/linux/pipe_fs_i.h b/include/linux/pipe_fs_i.h
+index cb0fd633a610..4ea496924106 100644
+--- a/include/linux/pipe_fs_i.h
++++ b/include/linux/pipe_fs_i.h
+@@ -229,6 +229,15 @@ static inline bool pipe_buf_try_steal(struct pipe_inode_info *pipe,
+ 	return buf->ops->try_steal(pipe, buf);
  }
  
-@@ -1752,29 +1759,31 @@ static int smsc95xx_resume(struct usb_interface *intf)
- 	/* do this first to ensure it's cleared even in error case */
- 	pdata->suspend_flags = 0;
- 
-+	pdata->pm_task = current;
++static inline void pipe_discard_from(struct pipe_inode_info *pipe,
++		unsigned int old_head)
++{
++	unsigned int mask = pipe->ring_size - 1;
 +
- 	if (suspend_flags & SUSPEND_ALLMODES) {
- 		/* clear wake-up sources */
- 		ret = smsc95xx_read_reg_nopm(dev, WUCSR, &val);
- 		if (ret < 0)
--			return ret;
-+			goto done;
++	while (pipe->head > old_head)
++		pipe_buf_release(pipe, &pipe->bufs[--pipe->head & mask]);
++}
++
+ /* Differs from PIPE_BUF in that PIPE_SIZE is the length of the actual
+    memory allocation, whereas PIPE_BUF makes atomicity guarantees.  */
+ #define PIPE_SIZE		PAGE_SIZE
+diff --git a/lib/iov_iter.c b/lib/iov_iter.c
+index 0b64695ab632..2bf20b48a04a 100644
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -689,6 +689,7 @@ static size_t copy_mc_pipe_to_iter(const void *addr, size_t bytes,
+ 	struct pipe_inode_info *pipe = i->pipe;
+ 	unsigned int p_mask = pipe->ring_size - 1;
+ 	unsigned int i_head;
++	unsigned int valid = pipe->head;
+ 	size_t n, off, xfer = 0;
  
- 		val &= ~(WUCSR_WAKE_EN_ | WUCSR_MPEN_);
- 
- 		ret = smsc95xx_write_reg_nopm(dev, WUCSR, val);
- 		if (ret < 0)
--			return ret;
-+			goto done;
- 
- 		/* clear wake-up status */
- 		ret = smsc95xx_read_reg_nopm(dev, PM_CTRL, &val);
- 		if (ret < 0)
--			return ret;
-+			goto done;
- 
- 		val &= ~PM_CTL_WOL_EN_;
- 		val |= PM_CTL_WUPS_;
- 
- 		ret = smsc95xx_write_reg_nopm(dev, PM_CTRL, val);
- 		if (ret < 0)
--			return ret;
-+			goto done;
- 	}
- 
- 	phy_init_hw(pdata->phydev);
-@@ -1783,15 +1792,20 @@ static int smsc95xx_resume(struct usb_interface *intf)
- 	if (ret < 0)
- 		netdev_warn(dev->net, "usbnet_resume error\n");
- 
-+done:
-+	pdata->pm_task = NULL;
- 	return ret;
- }
- 
- static int smsc95xx_reset_resume(struct usb_interface *intf)
- {
- 	struct usbnet *dev = usb_get_intfdata(intf);
-+	struct smsc95xx_priv *pdata = dev->driver_priv;
- 	int ret;
- 
-+	pdata->pm_task = current;
- 	ret = smsc95xx_reset(dev);
-+	pdata->pm_task = NULL;
- 	if (ret < 0)
- 		return ret;
- 
+ 	if (!sanity(i))
+@@ -702,11 +703,17 @@ static size_t copy_mc_pipe_to_iter(const void *addr, size_t bytes,
+ 		rem = copy_mc_to_kernel(p + off, addr + xfer, chunk);
+ 		chunk -= rem;
+ 		kunmap_local(p);
+-		i->head = i_head;
+-		i->iov_offset = off + chunk;
+-		xfer += chunk;
+-		if (rem)
++		if (chunk) {
++			i->head = i_head;
++			i->iov_offset = off + chunk;
++			xfer += chunk;
++			valid = i_head + 1;
++		}
++		if (rem) {
++			pipe->bufs[i_head & p_mask].len -= rem;
++			pipe_discard_from(pipe, valid);
+ 			break;
++		}
+ 		n -= chunk;
+ 		off = 0;
+ 		i_head++;
 
