@@ -2,194 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBAC9591A75
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 15:06:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0E8F591A77
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 15:10:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234725AbiHMNGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 09:06:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45342 "EHLO
+        id S234725AbiHMNKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 09:10:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231698AbiHMNGB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 09:06:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8843FF64
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 06:06:00 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24CC760D2F
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 13:06:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31C59C433C1;
-        Sat, 13 Aug 2022 13:05:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660395959;
-        bh=YieeWYHrFDzhvLYAnkqqGX+05Qp9yDI1RPwZlP3AAP8=;
-        h=Subject:To:Cc:From:Date:From;
-        b=Id8gShDQlRD4O3Lovn4WtLFJsTElB+c9yoxRRh+h1Xbd2zVX7ms2J8nuGM0qeAlhh
-         cNRunFSNZzEMdDLGRWuB3aIVd8b9MB8Iwg5jNptMp3eLv3akiyI4yKDNuUOklluWts
-         JyW7XTSCKtFq9EIRqzLo40CoFpz9wMVgASbb10WU=
-Subject: FAILED: patch "[PATCH] bpf: Fix KASAN use-after-free Read in compute_effective_progs" failed to apply to 5.10-stable tree
-To:     tadeusz.struk@linaro.org, andrii@kernel.org,
-        stable@vger.kernel.org,
-        syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 15:05:57 +0200
-Message-ID: <1660395957671@kroah.com>
+        with ESMTP id S231698AbiHMNKJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 09:10:09 -0400
+Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23B8A20F65
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 06:10:05 -0700 (PDT)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 78D965C0046;
+        Sat, 13 Aug 2022 09:10:02 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Sat, 13 Aug 2022 09:10:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm1; t=1660396202; x=1660482602; bh=LhZpg/BSMq
+        WRSJy3rXF4PDjn/GRXX04px6n1SJsjtnI=; b=OuIHnCShJ6v0Vrdx4KSOZI5zLU
+        WCIPdVIseCJpCanGjT301SGw3foHdk+pWk7K1yTE02Y5zRCuVPIbSUB0DX3dnjJb
+        B2YPAS/uooel/e3bTt0JwIrG9fCZQvCBZOppxjCG4KjOPxoCzPHIPlE4ZwOWfPcb
+        FRQ/RFJUQgtf++oQZpmN1tJwbdEyJBBL0LsGOd0aK0S5UJosHclMc6PmQ3VCb5ub
+        fJCBdBKS+f2cp9AwaTfYSVOS+qAXv/4LEOB9rVqq9cT0zlfdIMNUtAcZZ++QKWvB
+        Lx0D7wQ5ytIom+u/5KlFX+J0/favDwSRd7Ka33hM41DLmxHxzqcquPkF8e+Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; t=1660396202; x=1660482602; bh=LhZpg/BSMqWRSJy3rXF4PDjn/GRX
+        X04px6n1SJsjtnI=; b=2Fid6fYBPkQKjSA6RwLrXofsyZaAathhsFvZbYHC5Gsv
+        TlWHlDBK0uCAbdFZokM76KtY2+GIFQA/NqtRVDx2PmVxJHZXRxGcpmklIftm2Yvt
+        K7xOupb0/WvtuMtJDa9TLqQ4bKtQKxQJiyRj4UQqtCdLdlP7Fh9OgPqN3SmgpJ/l
+        KykNGeLD/p6iQzOCgJCUP0ROeGMHdFoejeWm8uFXGOw+lIv/nt+ykC/ZwQRL0F8I
+        CTI8eOyuMJgjHmO0JJBBMdfEjfSn919v+4TBo2uRpjYYcrdChE/3GuoQ0ueLhobR
+        0f/98kmOP7PyzbRy5YsHhZ0nkn2EKgWQXs/0O0x++w==
+X-ME-Sender: <xms:qqL3YkKLUdi3toXZSg4sdsA5CDzArOuY1RLBs0Gnc929yDtWKuRlJA>
+    <xme:qqL3YkKzo0I7NX6z1Owafo2grkVQ3BDJn1C1VauGC1oRniflz4WkkNx0iAdj6K_Yg
+    wJ2JNN1cQ5FEA>
+X-ME-Received: <xmr:qqL3Ykv3-OagNqHUtFDbmKV_D8S1YO3a097mu1WiGD4eLLqQZ7wizVRDsuPPS1jxHdiv0868kCNVWkAIno1UApfsozD7kD6c>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrvdegkedgiedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepheegvd
+    evvdeljeeugfdtudduhfekledtiefhveejkeejuefhtdeufefhgfehkeetnecuvehluhhs
+    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    hhrdgtohhm
+X-ME-Proxy: <xmx:qqL3YhYZNk7AY7EZtuVn1jhW-BRuOnuQ7xKnixSLSG6oz8WCPRRl-w>
+    <xmx:qqL3YrY2HljM1IUBr9TCjbVBpGEfqCUQzRNDDGND9nw-MltB19mVPQ>
+    <xmx:qqL3YtBrs26yDMLXUFF2m3lSYU_j7PrHKdZai1nlwYQhYBums7Um1A>
+    <xmx:qqL3YpNI0PzCQhOhpMi-8mjxnAyyiSzolOFu0gzj10EkEqW7m3Srvg>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
+ 13 Aug 2022 09:10:01 -0400 (EDT)
+Date:   Sat, 13 Aug 2022 15:09:59 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Quentin Monnet <quentin@isovalent.com>
+Cc:     stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 4.9] bpf: fix overflow in prog accounting
+Message-ID: <Yveip6bBQ71zq1WL@kroah.com>
+References: <20220812092211.14446-1-quentin@isovalent.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220812092211.14446-1-quentin@isovalent.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Aug 12, 2022 at 10:22:11AM +0100, Quentin Monnet wrote:
+> From: Daniel Borkmann <daniel@iogearbox.net>
+> 
+> [ Upstream commit 5ccb071e97fbd9ffe623a0d3977cc6d013bee93c ]
+> 
+> Commit aaac3ba95e4c ("bpf: charge user for creation of BPF maps and
+> programs") made a wrong assumption of charging against prog->pages.
+> Unlike map->pages, prog->pages are still subject to change when we
+> need to expand the program through bpf_prog_realloc().
+> 
+> This can for example happen during verification stage when we need to
+> expand and rewrite parts of the program. Should the required space
+> cross a page boundary, then prog->pages is not the same anymore as
+> its original value that we used to bpf_prog_charge_memlock() on. Thus,
+> we'll hit a wrap-around during bpf_prog_uncharge_memlock() when prog
+> is freed eventually. I noticed this that despite having unlimited
+> memlock, programs suddenly refused to load with EPERM error due to
+> insufficient memlock.
+> 
+> There are two ways to fix this issue. One would be to add a cached
+> variable to struct bpf_prog that takes a snapshot of prog->pages at the
+> time of charging. The other approach is to also account for resizes. I
+> chose to go with the latter for a couple of reasons: i) We want accounting
+> rather to be more accurate instead of further fooling limits, ii) adding
+> yet another page counter on struct bpf_prog would also be a waste just
+> for this purpose. We also do want to charge as early as possible to
+> avoid going into the verifier just to find out later on that we crossed
+> limits. The only place that needs to be fixed is bpf_prog_realloc(),
+> since only here we expand the program, so we try to account for the
+> needed delta and should we fail, call-sites check for outcome anyway.
+> On cBPF to eBPF migrations, we don't grab a reference to the user as
+> they are charged differently. With that in place, my test case worked
+> fine.
+> 
+> Fixes: aaac3ba95e4c ("bpf: charge user for creation of BPF maps and programs")
+> Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+> Acked-by: Alexei Starovoitov <ast@kernel.org>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> [Quentin: backport to 4.9: Adjust context in bpf.h ]
+> Signed-off-by: Quentin Monnet <quentin@isovalent.com>
+> ---
+> This fix was merged in Linux 4.10 but never backported to 4.9. The
+> overflow has been occurring regularly when running Cilium's CI tests on
+> kernel 4.9, so I would like to submit this patch for consideration to
+> the 4.9 stable branch.
+> 
+> The initial patch applied with a minor conflict on include/linux/bpf.h,
+> due to unprivileged_ebpf_enabled() backported in 6481835a9a5b
+> ("x86/speculation: Include unprivileged eBPF status in Spectre v2
+> mitigation reporting")
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 4c46091ee985ae84c60c5e95055d779fcd291d87 Mon Sep 17 00:00:00 2001
-From: Tadeusz Struk <tadeusz.struk@linaro.org>
-Date: Tue, 17 May 2022 11:04:20 -0700
-Subject: [PATCH] bpf: Fix KASAN use-after-free Read in compute_effective_progs
-
-Syzbot found a Use After Free bug in compute_effective_progs().
-The reproducer creates a number of BPF links, and causes a fault
-injected alloc to fail, while calling bpf_link_detach on them.
-Link detach triggers the link to be freed by bpf_link_free(),
-which calls __cgroup_bpf_detach() and update_effective_progs().
-If the memory allocation in this function fails, the function restores
-the pointer to the bpf_cgroup_link on the cgroup list, but the memory
-gets freed just after it returns. After this, every subsequent call to
-update_effective_progs() causes this already deallocated pointer to be
-dereferenced in prog_list_length(), and triggers KASAN UAF error.
-
-To fix this issue don't preserve the pointer to the prog or link in the
-list, but remove it and replace it with a dummy prog without shrinking
-the table. The subsequent call to __cgroup_bpf_detach() or
-__cgroup_bpf_detach() will correct it.
-
-Fixes: af6eea57437a ("bpf: Implement bpf_link-based cgroup BPF program attachment")
-Reported-by: <syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com>
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://syzkaller.appspot.com/bug?id=8ebf179a95c2a2670f7cf1ba62429ec044369db4
-Link: https://lore.kernel.org/bpf/20220517180420.87954-1-tadeusz.struk@linaro.org
-
-diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
-index afb414b26d01..7a394f7c205c 100644
---- a/kernel/bpf/cgroup.c
-+++ b/kernel/bpf/cgroup.c
-@@ -720,6 +720,60 @@ static struct bpf_prog_list *find_detach_entry(struct list_head *progs,
- 	return ERR_PTR(-ENOENT);
- }
- 
-+/**
-+ * purge_effective_progs() - After compute_effective_progs fails to alloc new
-+ *                           cgrp->bpf.inactive table we can recover by
-+ *                           recomputing the array in place.
-+ *
-+ * @cgrp: The cgroup which descendants to travers
-+ * @prog: A program to detach or NULL
-+ * @link: A link to detach or NULL
-+ * @atype: Type of detach operation
-+ */
-+static void purge_effective_progs(struct cgroup *cgrp, struct bpf_prog *prog,
-+				  struct bpf_cgroup_link *link,
-+				  enum cgroup_bpf_attach_type atype)
-+{
-+	struct cgroup_subsys_state *css;
-+	struct bpf_prog_array *progs;
-+	struct bpf_prog_list *pl;
-+	struct list_head *head;
-+	struct cgroup *cg;
-+	int pos;
-+
-+	/* recompute effective prog array in place */
-+	css_for_each_descendant_pre(css, &cgrp->self) {
-+		struct cgroup *desc = container_of(css, struct cgroup, self);
-+
-+		if (percpu_ref_is_zero(&desc->bpf.refcnt))
-+			continue;
-+
-+		/* find position of link or prog in effective progs array */
-+		for (pos = 0, cg = desc; cg; cg = cgroup_parent(cg)) {
-+			if (pos && !(cg->bpf.flags[atype] & BPF_F_ALLOW_MULTI))
-+				continue;
-+
-+			head = &cg->bpf.progs[atype];
-+			list_for_each_entry(pl, head, node) {
-+				if (!prog_list_prog(pl))
-+					continue;
-+				if (pl->prog == prog && pl->link == link)
-+					goto found;
-+				pos++;
-+			}
-+		}
-+found:
-+		BUG_ON(!cg);
-+		progs = rcu_dereference_protected(
-+				desc->bpf.effective[atype],
-+				lockdep_is_held(&cgroup_mutex));
-+
-+		/* Remove the program from the array */
-+		WARN_ONCE(bpf_prog_array_delete_safe_at(progs, pos),
-+			  "Failed to purge a prog from array at index %d", pos);
-+	}
-+}
-+
- /**
-  * __cgroup_bpf_detach() - Detach the program or link from a cgroup, and
-  *                         propagate the change to descendants
-@@ -739,7 +793,6 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
- 	struct bpf_prog_list *pl;
- 	struct list_head *progs;
- 	u32 flags;
--	int err;
- 
- 	atype = to_cgroup_bpf_attach_type(type);
- 	if (atype < 0)
-@@ -761,9 +814,12 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
- 	pl->prog = NULL;
- 	pl->link = NULL;
- 
--	err = update_effective_progs(cgrp, atype);
--	if (err)
--		goto cleanup;
-+	if (update_effective_progs(cgrp, atype)) {
-+		/* if update effective array failed replace the prog with a dummy prog*/
-+		pl->prog = old_prog;
-+		pl->link = link;
-+		purge_effective_progs(cgrp, old_prog, link, atype);
-+	}
- 
- 	/* now can actually delete it from this cgroup list */
- 	list_del(&pl->node);
-@@ -775,12 +831,6 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
- 		bpf_prog_put(old_prog);
- 	static_branch_dec(&cgroup_bpf_enabled_key[atype]);
- 	return 0;
--
--cleanup:
--	/* restore back prog or link */
--	pl->prog = old_prog;
--	pl->link = link;
--	return err;
- }
- 
- static int cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
-
