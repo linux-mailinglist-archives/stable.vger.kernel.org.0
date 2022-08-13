@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DD49591B1F
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:47:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D111D591B20
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:47:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239646AbiHMOr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 10:47:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41860 "EHLO
+        id S239649AbiHMOrc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 10:47:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239471AbiHMOr1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:47:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DF83AE62
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:47:26 -0700 (PDT)
+        with ESMTP id S239471AbiHMOrb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:47:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFBE3AE61
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:47:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1713B8055F
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:47:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49D18C433D6;
-        Sat, 13 Aug 2022 14:47:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D04160E75
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:47:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 594F1C433D6;
+        Sat, 13 Aug 2022 14:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660402043;
-        bh=Jt08XCULf3xaOTnyahcUPSswzvDlbio0a4+92rD+s1I=;
+        s=korg; t=1660402049;
+        bh=hfV9yPRcctSgd9/P+YcAfnM5uKYGcmwhns8kEoGgsok=;
         h=Subject:To:Cc:From:Date:From;
-        b=KJ9gTDa3bhPrCZZ+foF0BqF1m1p7HDGhfY9HjA5DbbMsHU2QgBR8Iig4gyq5GX+5M
-         YT8jSeHqaCAEj3vgqei/zxcFgPUtL5v8pLVKzqkXl3V7jbvGWkrA7Bszr10AN1CJ/J
-         TEjnjjOPvrKDhmoDXYrBT/pYFlqaCiFAme2oI6J8=
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: refactor dwc3_repare_one_trb" failed to apply to 4.14-stable tree
+        b=u20m6ATbozTdi6heoCA3mdhBsFX0m9wCE7M118MTJWCifoA+HZ9sLuqgTWxzMDj0p
+         uZjp76ypmBQ8DZMV6p5friRRwC6vUtgUE8xO5uPTPEgQTqcGPti1RjS06LgvJJyAHb
+         xwytsRU4Y2e7R/v22sfDe2BUCoxIxH/TF2YaAzD4=
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: fix high speed multiplier setting" failed to apply to 5.4-stable tree
 To:     m.grzeschik@pengutronix.de, gregkh@linuxfoundation.org,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 16:47:08 +0200
-Message-ID: <1660402028191133@kroah.com>
+Date:   Sat, 13 Aug 2022 16:47:27 +0200
+Message-ID: <16604020478850@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,144 +60,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 23385cec5f354794dadced7f28c31da7ae3eb54c Mon Sep 17 00:00:00 2001
+From 8affe37c525d800a2628c4ecfaed13b77dc5634a Mon Sep 17 00:00:00 2001
 From: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Date: Mon, 4 Jul 2022 16:18:11 +0200
-Subject: [PATCH] usb: dwc3: gadget: refactor dwc3_repare_one_trb
+Date: Mon, 4 Jul 2022 16:18:12 +0200
+Subject: [PATCH] usb: dwc3: gadget: fix high speed multiplier setting
 
-The function __dwc3_prepare_one_trb has many parameters. Since it is
-only used in dwc3_prepare_one_trb there is no point in keeping the
-function. We merge both functions and get rid of the big list of
-parameters.
+For High-Speed Transfers the prepare_one_trb function is calculating the
+multiplier setting for the trb based on the length parameter of the trb
+currently prepared. This assumption is wrong. For trbs with a sg list,
+the length of the actual request has to be taken instead.
 
 Fixes: 40d829fb2ec6 ("usb: dwc3: gadget: Correct ISOC DATA PIDs for short packets")
 Cc: stable <stable@kernel.org>
 Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Link: https://lore.kernel.org/r/20220704141812.1532306-2-m.grzeschik@pengutronix.de
+Link: https://lore.kernel.org/r/20220704141812.1532306-3-m.grzeschik@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index a944c7a6c83a..dcd8fc209ccd 100644
+index dcd8fc209ccd..4366c45c28cf 100644
 --- a/drivers/usb/dwc3/gadget.c
 +++ b/drivers/usb/dwc3/gadget.c
-@@ -1183,17 +1183,49 @@ static u32 dwc3_calc_trbs_left(struct dwc3_ep *dep)
- 	return trbs_left;
- }
- 
--static void __dwc3_prepare_one_trb(struct dwc3_ep *dep, struct dwc3_trb *trb,
--		dma_addr_t dma, unsigned int length, unsigned int chain,
--		unsigned int node, unsigned int stream_id,
--		unsigned int short_not_ok, unsigned int no_interrupt,
--		unsigned int is_last, bool must_interrupt)
-+/**
-+ * dwc3_prepare_one_trb - setup one TRB from one request
-+ * @dep: endpoint for which this request is prepared
-+ * @req: dwc3_request pointer
-+ * @trb_length: buffer size of the TRB
-+ * @chain: should this TRB be chained to the next?
-+ * @node: only for isochronous endpoints. First TRB needs different type.
-+ * @use_bounce_buffer: set to use bounce buffer
-+ * @must_interrupt: set to interrupt on TRB completion
-+ */
-+static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
-+		struct dwc3_request *req, unsigned int trb_length,
-+		unsigned int chain, unsigned int node, bool use_bounce_buffer,
-+		bool must_interrupt)
- {
-+	struct dwc3_trb		*trb;
-+	dma_addr_t		dma;
-+	unsigned int		stream_id = req->request.stream_id;
-+	unsigned int		short_not_ok = req->request.short_not_ok;
-+	unsigned int		no_interrupt = req->request.no_interrupt;
-+	unsigned int		is_last = req->request.is_last;
- 	struct dwc3		*dwc = dep->dwc;
- 	struct usb_gadget	*gadget = dwc->gadget;
- 	enum usb_device_speed	speed = gadget->speed;
- 
--	trb->size = DWC3_TRB_SIZE_LENGTH(length);
-+	if (use_bounce_buffer)
-+		dma = dep->dwc->bounce_addr;
-+	else if (req->request.num_sgs > 0)
-+		dma = sg_dma_address(req->start_sg);
-+	else
-+		dma = req->request.dma;
-+
-+	trb = &dep->trb_pool[dep->trb_enqueue];
-+
-+	if (!req->trb) {
-+		dwc3_gadget_move_started_request(req);
-+		req->trb = trb;
-+		req->trb_dma = dwc3_trb_dma_offset(dep, trb);
-+	}
-+
-+	req->num_trbs++;
-+
-+	trb->size = DWC3_TRB_SIZE_LENGTH(trb_length);
- 	trb->bpl = lower_32_bits(dma);
- 	trb->bph = upper_32_bits(dma);
- 
-@@ -1233,10 +1265,10 @@ static void __dwc3_prepare_one_trb(struct dwc3_ep *dep, struct dwc3_trb *trb,
+@@ -1265,10 +1265,10 @@ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
  				unsigned int mult = 2;
  				unsigned int maxp = usb_endpoint_maxp(ep->desc);
  
--				if (length <= (2 * maxp))
-+				if (trb_length <= (2 * maxp))
+-				if (trb_length <= (2 * maxp))
++				if (req->request.length <= (2 * maxp))
  					mult--;
  
--				if (length <= maxp)
-+				if (trb_length <= maxp)
+-				if (trb_length <= maxp)
++				if (req->request.length <= maxp)
  					mult--;
  
  				trb->size |= DWC3_TRB_SIZE_PCM1(mult);
-@@ -1310,50 +1342,6 @@ static void __dwc3_prepare_one_trb(struct dwc3_ep *dep, struct dwc3_trb *trb,
- 	trace_dwc3_prepare_trb(dep, trb);
- }
- 
--/**
-- * dwc3_prepare_one_trb - setup one TRB from one request
-- * @dep: endpoint for which this request is prepared
-- * @req: dwc3_request pointer
-- * @trb_length: buffer size of the TRB
-- * @chain: should this TRB be chained to the next?
-- * @node: only for isochronous endpoints. First TRB needs different type.
-- * @use_bounce_buffer: set to use bounce buffer
-- * @must_interrupt: set to interrupt on TRB completion
-- */
--static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
--		struct dwc3_request *req, unsigned int trb_length,
--		unsigned int chain, unsigned int node, bool use_bounce_buffer,
--		bool must_interrupt)
--{
--	struct dwc3_trb		*trb;
--	dma_addr_t		dma;
--	unsigned int		stream_id = req->request.stream_id;
--	unsigned int		short_not_ok = req->request.short_not_ok;
--	unsigned int		no_interrupt = req->request.no_interrupt;
--	unsigned int		is_last = req->request.is_last;
--
--	if (use_bounce_buffer)
--		dma = dep->dwc->bounce_addr;
--	else if (req->request.num_sgs > 0)
--		dma = sg_dma_address(req->start_sg);
--	else
--		dma = req->request.dma;
--
--	trb = &dep->trb_pool[dep->trb_enqueue];
--
--	if (!req->trb) {
--		dwc3_gadget_move_started_request(req);
--		req->trb = trb;
--		req->trb_dma = dwc3_trb_dma_offset(dep, trb);
--	}
--
--	req->num_trbs++;
--
--	__dwc3_prepare_one_trb(dep, trb, dma, trb_length, chain, node,
--			stream_id, short_not_ok, no_interrupt, is_last,
--			must_interrupt);
--}
--
- static bool dwc3_needs_extra_trb(struct dwc3_ep *dep, struct dwc3_request *req)
- {
- 	unsigned int maxp = usb_endpoint_maxp(dep->endpoint.desc);
 
