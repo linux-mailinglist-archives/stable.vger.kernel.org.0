@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8044B591B08
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:36:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCEC3591B0B
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:37:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239653AbiHMOf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 10:35:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57558 "EHLO
+        id S239682AbiHMOhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 10:37:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239661AbiHMOft (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:35:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9048D31DE5
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:35:48 -0700 (PDT)
+        with ESMTP id S239678AbiHMOhT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:37:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD07732D8C
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:37:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49997B802BE
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:35:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD8B0C433C1;
-        Sat, 13 Aug 2022 14:35:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 73AC3B802C3
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:37:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB75FC433D7;
+        Sat, 13 Aug 2022 14:37:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660401346;
-        bh=877wnx7a+5JTHWGUVLYR8cUXNhfWLLZi3Ejrafd+5xY=;
+        s=korg; t=1660401434;
+        bh=TU0Ur2splD3As3igTJM2KPyuZWd1mszUfi0z28KZ5ng=;
         h=Subject:To:Cc:From:Date:From;
-        b=omwBT9qke1Ljhk68ce4LZM3bKpIMBIjnFanHO4ofR8GgqtehJUwRhn8Z586CNW3+N
-         SsVoEz46qi4nEFpExU8DB+EfBhCtS6AymBEfZxv7Ae5c6BWIaV7d4jbYW1gZ3d80kS
-         /0TgKxQyCavp49KKSimWt5PZtjzppTWIsdqhCX/8=
-Subject: FAILED: patch "[PATCH] serial: mvebu-uart: uart2 error bits clearing" failed to apply to 4.14-stable tree
-To:     nhadke@marvell.com, gregkh@linuxfoundation.org, nadavh@marvell.com,
-        pali@kernel.org, yi.guo@cavium.com
+        b=O3hDw1SnahxAGTdGCI0wCkjvGuqtaN3rCoZ/LB90wQomURbWzx9xAYKqu+xOWB/Rc
+         ahrWPoTX1vX95BLEtE0DaXjLkNVuKNqxyS3rV64AbevCJni1amjr/RQolU9unjwDKf
+         JSkmN/K4HLdnMU5tK27u43sA5C1uS/p6LqtXeKk8=
+Subject: FAILED: patch "[PATCH] mbcache: add functions to delete entry if unused" failed to apply to 4.14-stable tree
+To:     jack@suse.cz, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 16:35:35 +0200
-Message-ID: <166040133521165@kroah.com>
+Date:   Sat, 13 Aug 2022 16:36:31 +0200
+Message-ID: <166040139153175@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -60,52 +59,147 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a7209541239e5dd44d981289e5f9059222d40fd1 Mon Sep 17 00:00:00 2001
-From: Narendra Hadke <nhadke@marvell.com>
-Date: Tue, 26 Jul 2022 11:12:21 +0200
-Subject: [PATCH] serial: mvebu-uart: uart2 error bits clearing
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 3dc96bba65f53daa217f0a8f43edad145286a8f5 Mon Sep 17 00:00:00 2001
+From: Jan Kara <jack@suse.cz>
+Date: Tue, 12 Jul 2022 12:54:21 +0200
+Subject: [PATCH] mbcache: add functions to delete entry if unused
 
-For mvebu uart2, error bits are not cleared on buffer read.
-This causes interrupt loop and system hang.
+Add function mb_cache_entry_delete_or_get() to delete mbcache entry if
+it is unused and also add a function to wait for entry to become unused
+- mb_cache_entry_wait_unused(). We do not share code between the two
+deleting function as one of them will go away soon.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Yi Guo <yi.guo@cavium.com>
-Reviewed-by: Nadav Haklai <nadavh@marvell.com>
-Signed-off-by: Narendra Hadke <nhadke@marvell.com>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20220726091221.12358-1-pali@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: stable@vger.kernel.org
+Fixes: 82939d7999df ("ext4: convert to mbcache2")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220712105436.32204-2-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 
-diff --git a/drivers/tty/serial/mvebu-uart.c b/drivers/tty/serial/mvebu-uart.c
-index 0429c2a54290..ff61a8d00014 100644
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -265,6 +265,7 @@ static void mvebu_uart_rx_chars(struct uart_port *port, unsigned int status)
- 	struct tty_port *tport = &port->state->port;
- 	unsigned char ch = 0;
- 	char flag = 0;
-+	int ret;
+diff --git a/fs/mbcache.c b/fs/mbcache.c
+index cfc28129fb6f..2010bc80a3f2 100644
+--- a/fs/mbcache.c
++++ b/fs/mbcache.c
+@@ -11,7 +11,7 @@
+ /*
+  * Mbcache is a simple key-value store. Keys need not be unique, however
+  * key-value pairs are expected to be unique (we use this fact in
+- * mb_cache_entry_delete()).
++ * mb_cache_entry_delete_or_get()).
+  *
+  * Ext2 and ext4 use this cache for deduplication of extended attribute blocks.
+  * Ext4 also uses it for deduplication of xattr values stored in inodes.
+@@ -125,6 +125,19 @@ void __mb_cache_entry_free(struct mb_cache_entry *entry)
+ }
+ EXPORT_SYMBOL(__mb_cache_entry_free);
  
- 	do {
- 		if (status & STAT_RX_RDY(port)) {
-@@ -277,6 +278,16 @@ static void mvebu_uart_rx_chars(struct uart_port *port, unsigned int status)
- 				port->icount.parity++;
- 		}
- 
-+		/*
-+		 * For UART2, error bits are not cleared on buffer read.
-+		 * This causes interrupt loop and system hang.
-+		 */
-+		if (IS_EXTENDED(port) && (status & STAT_BRK_ERR)) {
-+			ret = readl(port->membase + UART_STAT);
-+			ret |= STAT_BRK_ERR;
-+			writel(ret, port->membase + UART_STAT);
-+		}
++/*
++ * mb_cache_entry_wait_unused - wait to be the last user of the entry
++ *
++ * @entry - entry to work on
++ *
++ * Wait to be the last user of the entry.
++ */
++void mb_cache_entry_wait_unused(struct mb_cache_entry *entry)
++{
++	wait_var_event(&entry->e_refcnt, atomic_read(&entry->e_refcnt) <= 3);
++}
++EXPORT_SYMBOL(mb_cache_entry_wait_unused);
 +
- 		if (status & STAT_BRK_DET) {
- 			port->icount.brk++;
- 			status &= ~(STAT_FRM_ERR | STAT_PAR_ERR);
+ static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
+ 					   struct mb_cache_entry *entry,
+ 					   u32 key)
+@@ -217,7 +230,7 @@ struct mb_cache_entry *mb_cache_entry_get(struct mb_cache *cache, u32 key,
+ }
+ EXPORT_SYMBOL(mb_cache_entry_get);
+ 
+-/* mb_cache_entry_delete - remove a cache entry
++/* mb_cache_entry_delete - try to remove a cache entry
+  * @cache - cache we work with
+  * @key - key
+  * @value - value
+@@ -254,6 +267,55 @@ void mb_cache_entry_delete(struct mb_cache *cache, u32 key, u64 value)
+ }
+ EXPORT_SYMBOL(mb_cache_entry_delete);
+ 
++/* mb_cache_entry_delete_or_get - remove a cache entry if it has no users
++ * @cache - cache we work with
++ * @key - key
++ * @value - value
++ *
++ * Remove entry from cache @cache with key @key and value @value. The removal
++ * happens only if the entry is unused. The function returns NULL in case the
++ * entry was successfully removed or there's no entry in cache. Otherwise the
++ * function grabs reference of the entry that we failed to delete because it
++ * still has users and return it.
++ */
++struct mb_cache_entry *mb_cache_entry_delete_or_get(struct mb_cache *cache,
++						    u32 key, u64 value)
++{
++	struct hlist_bl_node *node;
++	struct hlist_bl_head *head;
++	struct mb_cache_entry *entry;
++
++	head = mb_cache_entry_head(cache, key);
++	hlist_bl_lock(head);
++	hlist_bl_for_each_entry(entry, node, head, e_hash_list) {
++		if (entry->e_key == key && entry->e_value == value) {
++			if (atomic_read(&entry->e_refcnt) > 2) {
++				atomic_inc(&entry->e_refcnt);
++				hlist_bl_unlock(head);
++				return entry;
++			}
++			/* We keep hash list reference to keep entry alive */
++			hlist_bl_del_init(&entry->e_hash_list);
++			hlist_bl_unlock(head);
++			spin_lock(&cache->c_list_lock);
++			if (!list_empty(&entry->e_list)) {
++				list_del_init(&entry->e_list);
++				if (!WARN_ONCE(cache->c_entry_count == 0,
++		"mbcache: attempt to decrement c_entry_count past zero"))
++					cache->c_entry_count--;
++				atomic_dec(&entry->e_refcnt);
++			}
++			spin_unlock(&cache->c_list_lock);
++			mb_cache_entry_put(cache, entry);
++			return NULL;
++		}
++	}
++	hlist_bl_unlock(head);
++
++	return NULL;
++}
++EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
++
+ /* mb_cache_entry_touch - cache entry got used
+  * @cache - cache the entry belongs to
+  * @entry - entry that got used
+diff --git a/include/linux/mbcache.h b/include/linux/mbcache.h
+index 20f1e3ff6013..8eca7f25c432 100644
+--- a/include/linux/mbcache.h
++++ b/include/linux/mbcache.h
+@@ -30,15 +30,23 @@ void mb_cache_destroy(struct mb_cache *cache);
+ int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
+ 			  u64 value, bool reusable);
+ void __mb_cache_entry_free(struct mb_cache_entry *entry);
++void mb_cache_entry_wait_unused(struct mb_cache_entry *entry);
+ static inline int mb_cache_entry_put(struct mb_cache *cache,
+ 				     struct mb_cache_entry *entry)
+ {
+-	if (!atomic_dec_and_test(&entry->e_refcnt))
++	unsigned int cnt = atomic_dec_return(&entry->e_refcnt);
++
++	if (cnt > 0) {
++		if (cnt <= 3)
++			wake_up_var(&entry->e_refcnt);
+ 		return 0;
++	}
+ 	__mb_cache_entry_free(entry);
+ 	return 1;
+ }
+ 
++struct mb_cache_entry *mb_cache_entry_delete_or_get(struct mb_cache *cache,
++						    u32 key, u64 value);
+ void mb_cache_entry_delete(struct mb_cache *cache, u32 key, u64 value);
+ struct mb_cache_entry *mb_cache_entry_get(struct mb_cache *cache, u32 key,
+ 					  u64 value);
 
