@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 849BF591A40
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:48:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56F27591A42
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:48:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239466AbiHMMs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 08:48:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59368 "EHLO
+        id S239419AbiHMMse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 08:48:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239464AbiHMMsZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:48:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 435E313F4F
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:48:25 -0700 (PDT)
+        with ESMTP id S239469AbiHMMsd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:48:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F87413F4F
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:48:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D427860D32
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:48:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7EFFC433C1;
-        Sat, 13 Aug 2022 12:48:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09336B8015B
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:48:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 500CAC433C1;
+        Sat, 13 Aug 2022 12:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660394904;
-        bh=U4mmTDlhxnBpkvNK0rZ0KiG3fbdIYGwQrM0yQAbUalQ=;
+        s=korg; t=1660394909;
+        bh=wEqg/nWUMagoAhV6kLf7VUYU4krE/f7G8skKl39diT0=;
         h=Subject:To:Cc:From:Date:From;
-        b=XcNi0fLWjOCMpiSSSqvKq8bM41W3l0frzYA6UK5r3jUZ3j3x7KpDLnx2dUWoKROdJ
-         Ox3VS3PsXD0RremmNJqwMgcfqO0jp0o4biIH4mwtHbJAWNaAEcrKFRpA8DrpTkrcVk
-         SdLUxkvrRJ2bnaaZfExcbZVdzO+Ae9JVHEAVs074=
-Subject: FAILED: patch "[PATCH] drm/i915: Implement w/a 22010492432 for adl-s" failed to apply to 5.10-stable tree
-To:     ville.syrjala@linux.intel.com, matthew.d.roper@intel.com
+        b=xFX1L8uiWqT4i9amYzBPaHbSWKaacVDfQLlXjyT1tiIHXGY5T4Ss8CRWIn6uY3YZj
+         q1KBp/JQqfBDv0rWp0IVbaDaDNYKEQahfbWgdXQdnz8rht1e1RdraMdb6E6wDJzjfP
+         dx8eittj+jBpxYEmmAhLrSNbGMCKiMcU4N5eDWy8=
+Subject: FAILED: patch "[PATCH] drm/i915: Individualize fences before adding to dma_resv obj" failed to apply to 5.19-stable tree
+To:     nirmoy.das@intel.com, andrzej.hajda@intel.com,
+        matthew.auld@intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 14:48:03 +0200
-Message-ID: <166039488344207@kroah.com>
+Date:   Sat, 13 Aug 2022 14:48:17 +0200
+Message-ID: <166039489722145@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,42 +60,123 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d36bdd77b9e6aa7f5cb7b0f11ebbab8e5febf10b Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
-Date: Mon, 13 Jun 2022 23:14:39 +0300
-Subject: [PATCH] drm/i915: Implement w/a 22010492432 for adl-s
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 420a07b841d03f6a436d8c06571c69aa5c783897 Mon Sep 17 00:00:00 2001
+From: Nirmoy Das <nirmoy.das@intel.com>
+Date: Wed, 25 May 2022 11:59:55 +0200
+Subject: [PATCH] drm/i915: Individualize fences before adding to dma_resv obj
 
-adl-s needs the combo PLL DCO fraction w/a as well.
-Gets us slightly more accurate clock out of the PLL.
+_i915_vma_move_to_active() can receive > 1 fences for
+multiple batch buffers submission. Because dma_resv_add_fence()
+can only accept one fence at a time, change _i915_vma_move_to_active()
+to be aware of multiple fences so that it can add individual
+fences to the dma resv object.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220613201439.23341-1-ville.syrjala@linux.intel.com
-Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
+v6: fix multi-line comment.
+v5: remove double fence reservation for batch VMAs.
+v4: Reserve fences for composite_fence on multi-batch contexts and
+    also reserve fence slots to composite_fence for each VMAs.
+v3: dma_resv_reserve_fences is not cumulative so pass num_fences.
+v2: make sure to reserve enough fence slots before adding.
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dpll_mgr.c b/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-index 64708e874b13..982e5b945680 100644
---- a/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-+++ b/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-@@ -2459,7 +2459,7 @@ static void icl_wrpll_params_populate(struct skl_wrpll_params *params,
- }
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/5614
+Fixes: 544460c33821 ("drm/i915: Multi-BB execbuf")
+Cc: <stable@vger.kernel.org> # v5.16+
+Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220525095955.15371-1-nirmoy.das@intel.com
+
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+index c326bd2b444f..30fe847c6664 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+@@ -999,7 +999,8 @@ static int eb_validate_vmas(struct i915_execbuffer *eb)
+ 			}
+ 		}
  
- /*
-- * Display WA #22010492432: ehl, tgl, adl-p
-+ * Display WA #22010492432: ehl, tgl, adl-s, adl-p
-  * Program half of the nominal DCO divider fraction value.
+-		err = dma_resv_reserve_fences(vma->obj->base.resv, 1);
++		/* Reserve enough slots to accommodate composite fences */
++		err = dma_resv_reserve_fences(vma->obj->base.resv, eb->num_batches);
+ 		if (err)
+ 			return err;
+ 
+diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
+index 4f6db539571a..0bffb70b3c5f 100644
+--- a/drivers/gpu/drm/i915/i915_vma.c
++++ b/drivers/gpu/drm/i915/i915_vma.c
+@@ -23,6 +23,7 @@
   */
- static bool
-@@ -2467,7 +2467,7 @@ ehl_combo_pll_div_frac_wa_needed(struct drm_i915_private *i915)
- {
- 	return ((IS_PLATFORM(i915, INTEL_ELKHARTLAKE) &&
- 		 IS_JSL_EHL_DISPLAY_STEP(i915, STEP_B0, STEP_FOREVER)) ||
--		 IS_TIGERLAKE(i915) || IS_ALDERLAKE_P(i915)) &&
-+		 IS_TIGERLAKE(i915) || IS_ALDERLAKE_S(i915) || IS_ALDERLAKE_P(i915)) &&
- 		 i915->dpll.ref_clks.nssc == 38400;
- }
  
+ #include <linux/sched/mm.h>
++#include <linux/dma-fence-array.h>
+ #include <drm/drm_gem.h>
+ 
+ #include "display/intel_frontbuffer.h"
+@@ -1823,6 +1824,21 @@ int _i915_vma_move_to_active(struct i915_vma *vma,
+ 	if (unlikely(err))
+ 		return err;
+ 
++	/*
++	 * Reserve fences slot early to prevent an allocation after preparing
++	 * the workload and associating fences with dma_resv.
++	 */
++	if (fence && !(flags & __EXEC_OBJECT_NO_RESERVE)) {
++		struct dma_fence *curr;
++		int idx;
++
++		dma_fence_array_for_each(curr, idx, fence)
++			;
++		err = dma_resv_reserve_fences(vma->obj->base.resv, idx);
++		if (unlikely(err))
++			return err;
++	}
++
+ 	if (flags & EXEC_OBJECT_WRITE) {
+ 		struct intel_frontbuffer *front;
+ 
+@@ -1832,31 +1848,23 @@ int _i915_vma_move_to_active(struct i915_vma *vma,
+ 				i915_active_add_request(&front->write, rq);
+ 			intel_frontbuffer_put(front);
+ 		}
++	}
+ 
+-		if (!(flags & __EXEC_OBJECT_NO_RESERVE)) {
+-			err = dma_resv_reserve_fences(vma->obj->base.resv, 1);
+-			if (unlikely(err))
+-				return err;
+-		}
++	if (fence) {
++		struct dma_fence *curr;
++		enum dma_resv_usage usage;
++		int idx;
+ 
+-		if (fence) {
+-			dma_resv_add_fence(vma->obj->base.resv, fence,
+-					   DMA_RESV_USAGE_WRITE);
++		obj->read_domains = 0;
++		if (flags & EXEC_OBJECT_WRITE) {
++			usage = DMA_RESV_USAGE_WRITE;
+ 			obj->write_domain = I915_GEM_DOMAIN_RENDER;
+-			obj->read_domains = 0;
+-		}
+-	} else {
+-		if (!(flags & __EXEC_OBJECT_NO_RESERVE)) {
+-			err = dma_resv_reserve_fences(vma->obj->base.resv, 1);
+-			if (unlikely(err))
+-				return err;
++		} else {
++			usage = DMA_RESV_USAGE_READ;
+ 		}
+ 
+-		if (fence) {
+-			dma_resv_add_fence(vma->obj->base.resv, fence,
+-					   DMA_RESV_USAGE_READ);
+-			obj->write_domain = 0;
+-		}
++		dma_fence_array_for_each(curr, idx, fence)
++			dma_resv_add_fence(vma->obj->base.resv, curr, usage);
+ 	}
+ 
+ 	if (flags & EXEC_OBJECT_NEEDS_FENCE && vma->fence)
 
