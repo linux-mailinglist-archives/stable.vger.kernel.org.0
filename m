@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59D32591A59
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:51:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2AE591A5A
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238945AbiHMMvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 08:51:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34426 "EHLO
+        id S230519AbiHMMvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 08:51:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230519AbiHMMvi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:51:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F23A8140E3
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:51:36 -0700 (PDT)
+        with ESMTP id S239073AbiHMMvp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:51:45 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2358914D38
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:51:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5205B8015A
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:51:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1272BC433C1;
-        Sat, 13 Aug 2022 12:51:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B5956CE0025
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:51:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF2ECC433C1;
+        Sat, 13 Aug 2022 12:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660395094;
-        bh=/Da0uPctchax356W1SYjEQbNo1WPMNMSHz5tFdR2q2s=;
+        s=korg; t=1660395099;
+        bh=Uo+C122sHW/sfOSASXjsLdz5rWxlbihovEj1Q0husV8=;
         h=Subject:To:Cc:From:Date:From;
-        b=pdU+QwAhiTwHwB6lDTAK/1v09TVVnmixkB52vBZXHgeN8w2Ch0ERwBGRPyE/Jo0HD
-         6YkSSYZLRInHYM8Bv3xtrJyWFPhQButhwBqr1fYA8faUh0r8dXGEMQHhOjjL3CYRIg
-         tvYzMS3ED1MrKv1y64UOEUo6S/koVqrFfxVsQuGk=
-Subject: FAILED: patch "[PATCH] drm/scheduler: Don't kill jobs in interrupt context" failed to apply to 5.18-stable tree
-To:     dmitry.osipenko@collabora.com, andrey.grodzovsky@amd.com
+        b=1BUnb7HnTpUFtE8S3GNzpBofhK3ybVNpUoeO5P4VYGpHdbfR+jpmDlGuyFRn4tJ3Z
+         kK9MMI+BgHwki0Kr+OzWo3vIPDQwLdWbvzS/T8JARY/t6vHjEvw1vEvzIDVnw9+Erh
+         J/zDaznxCz6wQkOD4BzdTKJ6/LqNZHX6YdZlGm2w=
+Subject: FAILED: patch "[PATCH] drm/dp/mst: Read the extended DPCD capabilities during system" failed to apply to 5.18-stable tree
+To:     imre.deak@intel.com, jani.nikula@intel.com, lyude@redhat.com,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 14:51:19 +0200
-Message-ID: <166039507947125@kroah.com>
+Date:   Sat, 13 Aug 2022 14:51:36 +0200
+Message-ID: <1660395096239162@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,67 +60,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7d64c40a7d96190d9d06e240305389e025295916 Mon Sep 17 00:00:00 2001
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Date: Tue, 12 Apr 2022 01:15:36 +0300
-Subject: [PATCH] drm/scheduler: Don't kill jobs in interrupt context
+From 7a710a8bc909313951eb9252d8419924c771d7c2 Mon Sep 17 00:00:00 2001
+From: Imre Deak <imre.deak@intel.com>
+Date: Tue, 14 Jun 2022 12:45:37 +0300
+Subject: [PATCH] drm/dp/mst: Read the extended DPCD capabilities during system
+ resume
 
-Interrupt context can't sleep. Drivers like Panfrost and MSM are taking
-mutex when job is released, and thus, that code can sleep. This results
-into "BUG: scheduling while atomic" if locks are contented while job is
-freed. There is no good reason for releasing scheduler's jobs in IRQ
-context, hence use normal context to fix the trouble.
+The WD22TB4 Thunderbolt dock at least will revert its DP_MAX_LINK_RATE
+from HBR3 to HBR2 after system suspend/resume if the DP_DP13_DPCD_REV
+registers are not read subsequently also as required.
 
-Cc: stable@vger.kernel.org
-Fixes: 542cff7893a3 ("drm/sched: Avoid lockdep spalt on killing a processes")
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220411221536.283312-1-dmitry.osipenko@collabora.com
+Fix this by reading DP_DP13_DPCD_REV registers as well, matching what is
+done during connector detection. While at it also fix up the same call
+in drm_dp_mst_dump_topology().
 
-diff --git a/drivers/gpu/drm/scheduler/sched_entity.c b/drivers/gpu/drm/scheduler/sched_entity.c
-index 191c56064f19..6b25b2f4f5a3 100644
---- a/drivers/gpu/drm/scheduler/sched_entity.c
-+++ b/drivers/gpu/drm/scheduler/sched_entity.c
-@@ -190,7 +190,7 @@ long drm_sched_entity_flush(struct drm_sched_entity *entity, long timeout)
- }
- EXPORT_SYMBOL(drm_sched_entity_flush);
+Cc: Lyude Paul <lyude@redhat.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/5292
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Cc: <stable@vger.kernel.org> # v5.14+
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220614094537.885472-1-imre.deak@intel.com
+
+diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+index 9aa2c20904e3..93651bc9a02c 100644
+--- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+@@ -3860,9 +3860,7 @@ int drm_dp_mst_topology_mgr_resume(struct drm_dp_mst_topology_mgr *mgr,
+ 	if (!mgr->mst_primary)
+ 		goto out_fail;
  
--static void drm_sched_entity_kill_jobs_irq_work(struct irq_work *wrk)
-+static void drm_sched_entity_kill_jobs_work(struct work_struct *wrk)
- {
- 	struct drm_sched_job *job = container_of(wrk, typeof(*job), work);
+-	ret = drm_dp_dpcd_read(mgr->aux, DP_DPCD_REV, mgr->dpcd,
+-			       DP_RECEIVER_CAP_SIZE);
+-	if (ret != DP_RECEIVER_CAP_SIZE) {
++	if (drm_dp_read_dpcd_caps(mgr->aux, mgr->dpcd) < 0) {
+ 		drm_dbg_kms(mgr->dev, "dpcd read failed - undocked during suspend?\n");
+ 		goto out_fail;
+ 	}
+@@ -4910,8 +4908,7 @@ void drm_dp_mst_dump_topology(struct seq_file *m,
+ 		u8 buf[DP_PAYLOAD_TABLE_SIZE];
+ 		int ret;
  
-@@ -207,8 +207,8 @@ static void drm_sched_entity_kill_jobs_cb(struct dma_fence *f,
- 	struct drm_sched_job *job = container_of(cb, struct drm_sched_job,
- 						 finish_cb);
- 
--	init_irq_work(&job->work, drm_sched_entity_kill_jobs_irq_work);
--	irq_work_queue(&job->work);
-+	INIT_WORK(&job->work, drm_sched_entity_kill_jobs_work);
-+	schedule_work(&job->work);
- }
- 
- static struct dma_fence *
-diff --git a/include/drm/gpu_scheduler.h b/include/drm/gpu_scheduler.h
-index 0fca8f38bee4..addb135eeea6 100644
---- a/include/drm/gpu_scheduler.h
-+++ b/include/drm/gpu_scheduler.h
-@@ -28,7 +28,7 @@
- #include <linux/dma-fence.h>
- #include <linux/completion.h>
- #include <linux/xarray.h>
--#include <linux/irq_work.h>
-+#include <linux/workqueue.h>
- 
- #define MAX_WAIT_SCHED_ENTITY_Q_EMPTY msecs_to_jiffies(1000)
- 
-@@ -295,7 +295,7 @@ struct drm_sched_job {
- 	 */
- 	union {
- 		struct dma_fence_cb		finish_cb;
--		struct irq_work 		work;
-+		struct work_struct 		work;
- 	};
- 
- 	uint64_t			id;
+-		ret = drm_dp_dpcd_read(mgr->aux, DP_DPCD_REV, buf, DP_RECEIVER_CAP_SIZE);
+-		if (ret) {
++		if (drm_dp_read_dpcd_caps(mgr->aux, buf) < 0) {
+ 			seq_printf(m, "dpcd read failed\n");
+ 			goto out;
+ 		}
 
