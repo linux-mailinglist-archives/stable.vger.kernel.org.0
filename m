@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24F18591B18
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:45:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8914E591B16
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238617AbiHMOpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 10:45:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40130 "EHLO
+        id S239450AbiHMOpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 10:45:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239663AbiHMOpu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:45:50 -0400
+        with ESMTP id S239670AbiHMOpx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:45:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D223A63A2
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:45:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB036405
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:45:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BAE160EB8
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:45:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74FC0C433D6;
-        Sat, 13 Aug 2022 14:45:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2518860E8E
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:45:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35277C433D6;
+        Sat, 13 Aug 2022 14:45:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660401948;
-        bh=YZawYLJZqCWCaUkfLc1h4izZzj03vw5Uw5Yuk539LUc=;
+        s=korg; t=1660401951;
+        bh=2C0FKa/sWot39/ZV3YMsotLVon7qqE8ra+rUVD76JA8=;
         h=Subject:To:Cc:From:Date:From;
-        b=r8D9catqeczLq0tZUMbNZ56SuR3ODMxespBoBb6W1x4QSLVcr3QE81UDsjqUkba9Y
-         Lnd6EWTz4+MBh8boA7oSO+EDXI7C7kK2VFJl/Mfy1wcHiIkVFNxxh+PIQDnuR8PRkJ
-         s9OBOqoF6U4RN8Qwp21VLDDy9SU7nXctoquRyIaQ=
-Subject: FAILED: patch "[PATCH] Revert "net: usb: ax88179_178a needs FLAG_SEND_ZLP"" failed to apply to 5.4-stable tree
+        b=Uz2dNake0RKBWei56ij6mQ2WeQaKYdgdIjUTLzCqqVDBo4FeeCLlr8hCN9XMoNexR
+         Ie20VRB2VMyyr2a+OAZVWYpsBTCZYiavYVY/Ia1qaTXbtR+OUyMr32/AMa8m50YBx/
+         8I13U8blD8aJyij1gw/kJ8Te9y+J1AtRZGgH4s8I=
+Subject: FAILED: patch "[PATCH] Revert "net: usb: ax88179_178a needs FLAG_SEND_ZLP"" failed to apply to 5.10-stable tree
 To:     joalonsof@gmail.com, davem@davemloft.net, ronald.wahl@raritan.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 13 Aug 2022 16:45:44 +0200
-Message-ID: <1660401944223151@kroah.com>
+Message-ID: <1660401944134188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
