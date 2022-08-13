@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66BF8591A30
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:47:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87089591A31
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:47:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239450AbiHMMrS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 08:47:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58776 "EHLO
+        id S232003AbiHMMrW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 08:47:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232003AbiHMMrR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:47:17 -0400
+        with ESMTP id S239234AbiHMMrV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:47:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2281113F4B
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:47:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B6813F50
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:47:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B445660D32
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:47:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC51BC433C1;
-        Sat, 13 Aug 2022 12:47:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26A1660D45
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:47:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3089BC433C1;
+        Sat, 13 Aug 2022 12:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660394836;
-        bh=x9nFzb2ujvOBtRtYigyERB0X7vAadtH2HwBX+yBmi/U=;
+        s=korg; t=1660394839;
+        bh=NnxTxcVjAEHoSugL/mEJ2z9Sznje01gQWw3XbH8eiKo=;
         h=Subject:To:Cc:From:Date:From;
-        b=t7u9blMTXLP9PNz01wnJoeiToheDlMIcj8SoAYgAx7GVoqxvAMxIFWae/TlcLW0hZ
-         e1PWdF5/aNlGQUkz+W8uvioa4LTeAzyNKUR83iO5W5e3YIOKLqk8UODqlKruMvic8l
-         qBYFTg0PdHoH9RfpzBDd9s8VeCc15J4sV7AWIxIo=
-Subject: FAILED: patch "[PATCH] drm/i915/dsi: fix VBT send packet port selection for ICL+" failed to apply to 5.19-stable tree
+        b=oJm8VKmIIqtgefXrW5FgoaumUtI6k7Zein6ijABc7KkAZSGCcaln5KlslBts/W202
+         Zv4Hetn08LZcMqw+a9YESmeNmPvpUNN+jnACV+hLe9tNwMoxuTfKakKVp8NWLZm69W
+         bqp+AizkYKYoHVNsrPpuuOaAlRnlCEnLpDOEUhuQ=
+Subject: FAILED: patch "[PATCH] drm/i915/dsi: fix VBT send packet port selection for ICL+" failed to apply to 5.18-stable tree
 To:     jani.nikula@intel.com, ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 14:47:13 +0200
-Message-ID: <166039483340159@kroah.com>
+Date:   Sat, 13 Aug 2022 14:47:14 +0200
+Message-ID: <166039483427211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
