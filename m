@@ -2,44 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CC5C5919AC
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 11:39:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AC285919DD
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 12:36:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234046AbiHMJjG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 05:39:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60442 "EHLO
+        id S239247AbiHMKgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 06:36:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238949AbiHMJjF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 05:39:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 038F9422C6
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 02:39:05 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94B3760C80
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 09:39:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37018C433C1;
-        Sat, 13 Aug 2022 09:39:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660383544;
-        bh=Fat5+4vQ1BfjKVIt1gLnlYGOyNwerUvVyGX8XQTCWL0=;
-        h=Subject:To:Cc:From:Date:From;
-        b=gIa/B9ZY4zNqpauKLPr+lS5C5qBkL/uH+DogeV29TF1Nozg3tzX//EIAaF/V0o01G
-         Y+6s+IqRSuzlu4E42r8/lv5CJxyHT5H8fii7CE+NKlh8gUQvesRYAvnokyodALIMUV
-         +SaHTOcAunFqkYyXYqSbYiMvCK87dXYhp1qEsXW8=
-Subject: FAILED: patch "[PATCH] fix short copy handling in copy_mc_pipe_to_iter()" failed to apply to 4.19-stable tree
-To:     viro@zeniv.linux.org.uk, brauner@kernel.org, jlayton@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 11:38:49 +0200
-Message-ID: <1660383529201193@kroah.com>
+        with ESMTP id S229507AbiHMKgh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 06:36:37 -0400
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DDF42558D
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 03:36:32 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id j7so3629300wrh.3
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 03:36:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:sender:mime-version:from:to:cc;
+        bh=vwc1tV8Ry3FVM0TaYJR/4PhponsWadPCew47j77/g5s=;
+        b=pIvyuoVodWdgNpfNoGhdcPSOLv/v6+q6jH3rejCDzzggnmbJW0m+2+Hh36+R7LbzQq
+         1VBgfunXdFiOFZeoE8l5PkccOY6xaUYlVBYvi/B+JJqzQSoGeRIe4z/yiwUwBrqxZr7z
+         8uJpu0j4ORN7c/4CVCqW1ze32KjiW0QDXW1075k8PB6Cb1jbfjjhVGwAyjK4CWCF/grg
+         NEuUnL648mZ9gFdEJQP6eqRVd46MB5YxTFpQvzBsp+BBABKxkdB1gPRQK/tAbmK/cWpJ
+         AaMDQDrjOTX073f7c1rckRm+aQIxGqHo2Y8cYCbFOc8jraq3A9lF93ap8vL0dVyrTuIT
+         ccYw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=to:subject:message-id:date:from:sender:mime-version
+         :x-gm-message-state:from:to:cc;
+        bh=vwc1tV8Ry3FVM0TaYJR/4PhponsWadPCew47j77/g5s=;
+        b=RZsMs2jOHDFKbHQouPkrTdxPwpDyW4DQMx/Snxw1qewN7XzutsAp0WZGluU2OOgKcl
+         lAVopYCTQ/i4ILFPrWz8cgCtPZo5dECqGKc+BT6dfH4jCbugp3FsVt6Xqr0xLs+DKzYy
+         0bU+JVyjqSly75LAzEYgxxoqt2T2kZ/FpOdIczHR9Zqh4NJO1QYxy7rgK4HwHd3pEVYy
+         zVlV3iuXwsorI77hH/mpsd0cKQtL1+oIo2PlBpHn+xPD4x6323Nxc6C/X0MhG031n+Ul
+         ZeYq+i0iS708LrAd0D6UZeEamjXdY5He+HxT6W/zIXXiAGym5XD2eIg6ywLQJfJMwe/J
+         ZoHQ==
+X-Gm-Message-State: ACgBeo0F5slUxn5uESmjyJoOIdrg+Vs+lD7ghWRAewpv2cUYBFY+IbyR
+        E3DuaD0JrbRDgOL3EkKKUx8rHX19KX8m0E+ln0M=
+X-Google-Smtp-Source: AA6agR4uTyuCdm1lZi0JwKtDL7+m0WreKxvRiMhcbE2hcdMyqI9H4qIX4wwgHNlvnZYxtnycL/pCj2/JzOY/mxg2D5U=
+X-Received: by 2002:a05:6000:184c:b0:223:2c8b:c43c with SMTP id
+ c12-20020a056000184c00b002232c8bc43cmr4250652wri.16.1660386991038; Sat, 13
+ Aug 2022 03:36:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Sender: unura67@gmail.com
+Received: by 2002:a05:6020:9894:b0:1f2:84f5:10e9 with HTTP; Sat, 13 Aug 2022
+ 03:36:30 -0700 (PDT)
+From:   "Mrs. Margaret Christopher" <mrsmargaretchristopher01@gmail.com>
+Date:   Sat, 13 Aug 2022 03:36:30 -0700
+X-Google-Sender-Auth: Fxa8LR7dH0vd0jIJTK7wb_5tklg
+Message-ID: <CAOuvuUHjRjvv_yJwKAUN=_5jPsYZ-eb4ZW8eO6DTM7gLw25jYg@mail.gmail.com>
+Subject: Humanitarian Project For Less Privileged.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_HK_NAME_FM_MR_MRS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,93 +65,17 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+-- 
+Hello Dear
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+  Am a dying woman here in the hospital, i was diagnose as a
+Coronavirus patient over 2 months ago. I am A business woman who is
+dealing with Gold Exportation, I Am 59 year old from USA California i
+have a charitable and unfufilling  project that am about to handover
+to you, if you are interested to know more about this project please reply me.
 
-thanks,
+ Hope to hear from you
 
-greg k-h
+Best Regard
 
------------------- original commit in Linus's tree ------------------
-
-From c3497fd009ef2c59eea60d21c3ac22de3585ed7d Mon Sep 17 00:00:00 2001
-From: Al Viro <viro@zeniv.linux.org.uk>
-Date: Sun, 12 Jun 2022 19:50:29 -0400
-Subject: [PATCH] fix short copy handling in copy_mc_pipe_to_iter()
-
-Unlike other copying operations on ITER_PIPE, copy_mc_to_iter() can
-result in a short copy.  In that case we need to trim the unused
-buffers, as well as the length of partially filled one - it's not
-enough to set ->head, ->iov_offset and ->count to reflect how
-much had we copied.  Not hard to fix, fortunately...
-
-I'd put a helper (pipe_discard_from(pipe, head)) into pipe_fs_i.h,
-rather than iov_iter.c - it has nothing to do with iov_iter and
-having it will allow us to avoid an ugly kludge in fs/splice.c.
-We could put it into lib/iov_iter.c for now and move it later,
-but I don't see the point going that way...
-
-Cc: stable@kernel.org # 4.19+
-Fixes: ca146f6f091e "lib/iov_iter: Fix pipe handling in _copy_to_iter_mcsafe()"
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-
-diff --git a/include/linux/pipe_fs_i.h b/include/linux/pipe_fs_i.h
-index cb0fd633a610..4ea496924106 100644
---- a/include/linux/pipe_fs_i.h
-+++ b/include/linux/pipe_fs_i.h
-@@ -229,6 +229,15 @@ static inline bool pipe_buf_try_steal(struct pipe_inode_info *pipe,
- 	return buf->ops->try_steal(pipe, buf);
- }
- 
-+static inline void pipe_discard_from(struct pipe_inode_info *pipe,
-+		unsigned int old_head)
-+{
-+	unsigned int mask = pipe->ring_size - 1;
-+
-+	while (pipe->head > old_head)
-+		pipe_buf_release(pipe, &pipe->bufs[--pipe->head & mask]);
-+}
-+
- /* Differs from PIPE_BUF in that PIPE_SIZE is the length of the actual
-    memory allocation, whereas PIPE_BUF makes atomicity guarantees.  */
- #define PIPE_SIZE		PAGE_SIZE
-diff --git a/lib/iov_iter.c b/lib/iov_iter.c
-index 0b64695ab632..2bf20b48a04a 100644
---- a/lib/iov_iter.c
-+++ b/lib/iov_iter.c
-@@ -689,6 +689,7 @@ static size_t copy_mc_pipe_to_iter(const void *addr, size_t bytes,
- 	struct pipe_inode_info *pipe = i->pipe;
- 	unsigned int p_mask = pipe->ring_size - 1;
- 	unsigned int i_head;
-+	unsigned int valid = pipe->head;
- 	size_t n, off, xfer = 0;
- 
- 	if (!sanity(i))
-@@ -702,11 +703,17 @@ static size_t copy_mc_pipe_to_iter(const void *addr, size_t bytes,
- 		rem = copy_mc_to_kernel(p + off, addr + xfer, chunk);
- 		chunk -= rem;
- 		kunmap_local(p);
--		i->head = i_head;
--		i->iov_offset = off + chunk;
--		xfer += chunk;
--		if (rem)
-+		if (chunk) {
-+			i->head = i_head;
-+			i->iov_offset = off + chunk;
-+			xfer += chunk;
-+			valid = i_head + 1;
-+		}
-+		if (rem) {
-+			pipe->bufs[i_head & p_mask].len -= rem;
-+			pipe_discard_from(pipe, valid);
- 			break;
-+		}
- 		n -= chunk;
- 		off = 0;
- 		i_head++;
-
+Mrs. Christopher
