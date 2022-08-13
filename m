@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE12B591A43
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:48:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBED1591A45
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:48:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239469AbiHMMsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 08:48:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59462 "EHLO
+        id S239472AbiHMMso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 08:48:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239471AbiHMMse (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:48:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CCF613F50
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:48:33 -0700 (PDT)
+        with ESMTP id S239474AbiHMMsn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:48:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF67613F50
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:48:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0966960D2F
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:48:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17526C433D6;
-        Sat, 13 Aug 2022 12:48:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95283B80186
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:48:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3AE2C433C1;
+        Sat, 13 Aug 2022 12:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660394912;
-        bh=b9SA6u8sMtlaOLW/Q/64M3SHhC65IfhrvSW+jzQBv4k=;
+        s=korg; t=1660394919;
+        bh=s5vW1oeHE3za11pG7ccff8gLWvpD7rNFsz97XHqbsFE=;
         h=Subject:To:Cc:From:Date:From;
-        b=HUKGXB2KLRw8v7aQozkcGTnnJprgMMJITRypb8ghUm89wb3nr7OqJn+92QMObenw3
-         XF5lUVXUL7FHZwIWx1DjoYT/6GsByzbAm3dc3MUoOIhhw6Jrwsz8OQq1FAJS0/tdtw
-         RNPP7w3CdBb+EnN7rnNHj2NmBZxOoHvArkQIzmW8=
-Subject: FAILED: patch "[PATCH] drm/i915: Individualize fences before adding to dma_resv obj" failed to apply to 5.18-stable tree
-To:     nirmoy.das@intel.com, andrzej.hajda@intel.com,
-        matthew.auld@intel.com, stable@vger.kernel.org
+        b=zVGNKY3LrDfYUfzDmsW2/poYttM687t5Y9OrCU02jiyixE9KqkryurGoKp8WDUeaP
+         dXf+T+a3pvHezbgnum8HhU+Z2ROpkvIc46JhMPT7QEmSdea0KXzP1ScOwAWxzhCM92
+         f2rw8+YEXoOrb4LN4tysomqVsuDpcccWnRsTmbW8=
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Serialize TLB invalidates with GT resets" failed to apply to 5.18-stable tree
+To:     chris.p.wilson@intel.com, andi.shyti@linux.intel.com,
+        mchehab@kernel.org, rodrigo.vivi@intel.com,
+        thomas.hellstrom@linux.intel.com, tvrtko.ursulin@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 14:48:18 +0200
-Message-ID: <166039489820627@kroah.com>
+Date:   Sat, 13 Aug 2022 14:48:34 +0200
+Message-ID: <166039491412443@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -60,123 +61,67 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 420a07b841d03f6a436d8c06571c69aa5c783897 Mon Sep 17 00:00:00 2001
-From: Nirmoy Das <nirmoy.das@intel.com>
-Date: Wed, 25 May 2022 11:59:55 +0200
-Subject: [PATCH] drm/i915: Individualize fences before adding to dma_resv obj
+From 33da97894758737895e90c909f16786052680ef4 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris.p.wilson@intel.com>
+Date: Tue, 12 Jul 2022 16:21:33 +0100
+Subject: [PATCH] drm/i915/gt: Serialize TLB invalidates with GT resets
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-_i915_vma_move_to_active() can receive > 1 fences for
-multiple batch buffers submission. Because dma_resv_add_fence()
-can only accept one fence at a time, change _i915_vma_move_to_active()
-to be aware of multiple fences so that it can add individual
-fences to the dma resv object.
+Avoid trying to invalidate the TLB in the middle of performing an
+engine reset, as this may result in the reset timing out. Currently,
+the TLB invalidate is only serialised by its own mutex, forgoing the
+uncore lock, but we can take the uncore->lock as well to serialise
+the mmio access, thereby serialising with the GDRST.
 
-v6: fix multi-line comment.
-v5: remove double fence reservation for batch VMAs.
-v4: Reserve fences for composite_fence on multi-batch contexts and
-    also reserve fence slots to composite_fence for each VMAs.
-v3: dma_resv_reserve_fences is not cumulative so pass num_fences.
-v2: make sure to reserve enough fence slots before adding.
+Tested on a NUC5i7RYB, BIOS RYBDWi35.86A.0380.2019.0517.1530 with
+i915 selftest/hangcheck.
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/5614
-Fixes: 544460c33821 ("drm/i915: Multi-BB execbuf")
-Cc: <stable@vger.kernel.org> # v5.16+
-Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220525095955.15371-1-nirmoy.das@intel.com
+Cc: stable@vger.kernel.org  # v4.4 and upper
+Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
+Reported-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Tested-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reviewed-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
+Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1e59a7c45dd919a530256b9ac721ac6ea86c0677.1657639152.git.mchehab@kernel.org
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-index c326bd2b444f..30fe847c6664 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -999,7 +999,8 @@ static int eb_validate_vmas(struct i915_execbuffer *eb)
- 			}
- 		}
+diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
+index 8da3314bb6bf..68c2b0d8f187 100644
+--- a/drivers/gpu/drm/i915/gt/intel_gt.c
++++ b/drivers/gpu/drm/i915/gt/intel_gt.c
+@@ -952,6 +952,20 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
+ 	mutex_lock(&gt->tlb_invalidate_lock);
+ 	intel_uncore_forcewake_get(uncore, FORCEWAKE_ALL);
  
--		err = dma_resv_reserve_fences(vma->obj->base.resv, 1);
-+		/* Reserve enough slots to accommodate composite fences */
-+		err = dma_resv_reserve_fences(vma->obj->base.resv, eb->num_batches);
- 		if (err)
- 			return err;
- 
-diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
-index 4f6db539571a..0bffb70b3c5f 100644
---- a/drivers/gpu/drm/i915/i915_vma.c
-+++ b/drivers/gpu/drm/i915/i915_vma.c
-@@ -23,6 +23,7 @@
-  */
- 
- #include <linux/sched/mm.h>
-+#include <linux/dma-fence-array.h>
- #include <drm/drm_gem.h>
- 
- #include "display/intel_frontbuffer.h"
-@@ -1823,6 +1824,21 @@ int _i915_vma_move_to_active(struct i915_vma *vma,
- 	if (unlikely(err))
- 		return err;
- 
-+	/*
-+	 * Reserve fences slot early to prevent an allocation after preparing
-+	 * the workload and associating fences with dma_resv.
-+	 */
-+	if (fence && !(flags & __EXEC_OBJECT_NO_RESERVE)) {
-+		struct dma_fence *curr;
-+		int idx;
++	spin_lock_irq(&uncore->lock); /* serialise invalidate with GT reset */
 +
-+		dma_fence_array_for_each(curr, idx, fence)
-+			;
-+		err = dma_resv_reserve_fences(vma->obj->base.resv, idx);
-+		if (unlikely(err))
-+			return err;
++	for_each_engine(engine, gt, id) {
++		struct reg_and_bit rb;
++
++		rb = get_reg_and_bit(engine, regs == gen8_regs, regs, num);
++		if (!i915_mmio_reg_offset(rb.reg))
++			continue;
++
++		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
 +	}
 +
- 	if (flags & EXEC_OBJECT_WRITE) {
- 		struct intel_frontbuffer *front;
++	spin_unlock_irq(&uncore->lock);
++
+ 	for_each_engine(engine, gt, id) {
+ 		/*
+ 		 * HW architecture suggest typical invalidation time at 40us,
+@@ -966,7 +980,6 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
+ 		if (!i915_mmio_reg_offset(rb.reg))
+ 			continue;
  
-@@ -1832,31 +1848,23 @@ int _i915_vma_move_to_active(struct i915_vma *vma,
- 				i915_active_add_request(&front->write, rq);
- 			intel_frontbuffer_put(front);
- 		}
-+	}
- 
--		if (!(flags & __EXEC_OBJECT_NO_RESERVE)) {
--			err = dma_resv_reserve_fences(vma->obj->base.resv, 1);
--			if (unlikely(err))
--				return err;
--		}
-+	if (fence) {
-+		struct dma_fence *curr;
-+		enum dma_resv_usage usage;
-+		int idx;
- 
--		if (fence) {
--			dma_resv_add_fence(vma->obj->base.resv, fence,
--					   DMA_RESV_USAGE_WRITE);
-+		obj->read_domains = 0;
-+		if (flags & EXEC_OBJECT_WRITE) {
-+			usage = DMA_RESV_USAGE_WRITE;
- 			obj->write_domain = I915_GEM_DOMAIN_RENDER;
--			obj->read_domains = 0;
--		}
--	} else {
--		if (!(flags & __EXEC_OBJECT_NO_RESERVE)) {
--			err = dma_resv_reserve_fences(vma->obj->base.resv, 1);
--			if (unlikely(err))
--				return err;
-+		} else {
-+			usage = DMA_RESV_USAGE_READ;
- 		}
- 
--		if (fence) {
--			dma_resv_add_fence(vma->obj->base.resv, fence,
--					   DMA_RESV_USAGE_READ);
--			obj->write_domain = 0;
--		}
-+		dma_fence_array_for_each(curr, idx, fence)
-+			dma_resv_add_fence(vma->obj->base.resv, curr, usage);
- 	}
- 
- 	if (flags & EXEC_OBJECT_NEEDS_FENCE && vma->fence)
+-		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
+ 		if (__intel_wait_for_register_fw(uncore,
+ 						 rb.reg, rb.bit, 0,
+ 						 timeout_us, timeout_ms,
 
