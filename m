@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C127591A99
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 15:27:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C35B0591A9B
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 15:28:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239471AbiHMN1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 09:27:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34030 "EHLO
+        id S239464AbiHMN2B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 09:28:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239466AbiHMN1H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 09:27:07 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 124FC45041
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 06:27:06 -0700 (PDT)
+        with ESMTP id S239463AbiHMN2B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 09:28:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 633525A3F6
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 06:28:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 72D5BCE06B2
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 13:27:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C75AC433C1;
-        Sat, 13 Aug 2022 13:27:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F16A860DDC
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 13:27:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0379EC433D6;
+        Sat, 13 Aug 2022 13:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660397222;
-        bh=ZLcrlSbEtpJXKO7nfROwsT+CEJpDcGaKfpW+HJ0O0EU=;
+        s=korg; t=1660397279;
+        bh=Il0krGzQGe6pIlivImYXuqDKrhAnMco+Yi0uekDBpcc=;
         h=Subject:To:Cc:From:Date:From;
-        b=gEcgJm6A9qDkpPTo1lqzxZmdrOaFKtuUKAU0jLCoYQ5WpLYkqXTV/D9FdBVzpH+Yr
-         49oHS8j8KEVjPWdPbKffgVGcT2GRHL39ZR95bPeMJbX+tATW/t/AwMjGMvDAX56cWQ
-         Fg/EFhWEdFI9WG9AvwFnI/7RECiwj3RI7soEiZGM=
-Subject: FAILED: patch "[PATCH] scsi: sg: Allow waiting for commands to complete on removed" failed to apply to 4.9-stable tree
-To:     tonyb@cybernetics.com, dgilbert@interlog.com,
-        martin.petersen@oracle.com, stable@vger.kernel.org
+        b=YO+Q74Gpf8dbGQc9DLHBwi0ipu3AyA6aDgVfyBx0+mIJMjQgXYkWVVU3we1tMlK0c
+         FSXAZmUsmSO919Ij0WyqvOqBIfVM1jsUoKrHwb4VXvOr1KCMdPjPFZEsFPzhdRM+lm
+         Fq/oAGhX40B6a3xcqrItWOiEtGKrOSJzjA2t5Tpo=
+Subject: WTF: patch "[PATCH] scsi: qla2xxx: Update manufacturer details" was seriously submitted to be applied to the 5.19-stable tree?
+To:     bhazarika@marvell.com, himanshu.madhani@oracle.com,
+        martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 15:26:54 +0200
-Message-ID: <166039721415252@kroah.com>
+Date:   Sat, 13 Aug 2022 15:27:57 +0200
+Message-ID: <16603972763674@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,11 +48,15 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The patch below was submitted to be applied to the 5.19-stable tree.
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I fail to see how this patch meets the stable kernel rules as found at
+Documentation/process/stable-kernel-rules.rst.
+
+I could be totally wrong, and if so, please respond to 
+<stable@vger.kernel.org> and let me know why this patch should be
+applied.  Otherwise, it is now dropped from my patch queues, never to be
+seen again.
 
 thanks,
 
@@ -60,141 +64,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3455607fd7be10b449f5135c00dc306b85dc0d21 Mon Sep 17 00:00:00 2001
-From: Tony Battersby <tonyb@cybernetics.com>
-Date: Mon, 11 Jul 2022 10:51:32 -0400
-Subject: [PATCH] scsi: sg: Allow waiting for commands to complete on removed
- device
+From 1ccad27716ecad1fd58c35e579bedb81fa5e1ad5 Mon Sep 17 00:00:00 2001
+From: Bikash Hazarika <bhazarika@marvell.com>
+Date: Tue, 12 Jul 2022 22:20:44 -0700
+Subject: [PATCH] scsi: qla2xxx: Update manufacturer details
 
-When a SCSI device is removed while in active use, currently sg will
-immediately return -ENODEV on any attempt to wait for active commands that
-were sent before the removal.  This is problematic for commands that use
-SG_FLAG_DIRECT_IO since the data buffer may still be in use by the kernel
-when userspace frees or reuses it after getting ENODEV, leading to
-corrupted userspace memory (in the case of READ-type commands) or corrupted
-data being sent to the device (in the case of WRITE-type commands).  This
-has been seen in practice when logging out of a iscsi_tcp session, where
-the iSCSI driver may still be processing commands after the device has been
-marked for removal.
+Update manufacturer details to indicate Marvell Semiconductors.
 
-Change the policy to allow userspace to wait for active sg commands even
-when the device is being removed.  Return -ENODEV only when there are no
-more responses to read.
-
-Link: https://lore.kernel.org/r/5ebea46f-fe83-2d0b-233d-d0dcb362dd0a@cybernetics.com
-Cc: <stable@vger.kernel.org>
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: Tony Battersby <tonyb@cybernetics.com>
+Link: https://lore.kernel.org/r/20220713052045.10683-10-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Bikash Hazarika <bhazarika@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-diff --git a/drivers/scsi/sg.c b/drivers/scsi/sg.c
-index 118c7b4a8af2..340b050ad28d 100644
---- a/drivers/scsi/sg.c
-+++ b/drivers/scsi/sg.c
-@@ -195,7 +195,7 @@ static void sg_link_reserve(Sg_fd * sfp, Sg_request * srp, int size);
- static void sg_unlink_reserve(Sg_fd * sfp, Sg_request * srp);
- static Sg_fd *sg_add_sfp(Sg_device * sdp);
- static void sg_remove_sfp(struct kref *);
--static Sg_request *sg_get_rq_mark(Sg_fd * sfp, int pack_id);
-+static Sg_request *sg_get_rq_mark(Sg_fd * sfp, int pack_id, bool *busy);
- static Sg_request *sg_add_request(Sg_fd * sfp);
- static int sg_remove_request(Sg_fd * sfp, Sg_request * srp);
- static Sg_device *sg_get_dev(int dev);
-@@ -444,6 +444,7 @@ sg_read(struct file *filp, char __user *buf, size_t count, loff_t * ppos)
- 	Sg_fd *sfp;
- 	Sg_request *srp;
- 	int req_pack_id = -1;
-+	bool busy;
- 	sg_io_hdr_t *hp;
- 	struct sg_header *old_hdr;
- 	int retval;
-@@ -466,20 +467,16 @@ sg_read(struct file *filp, char __user *buf, size_t count, loff_t * ppos)
- 	if (retval)
- 		return retval;
+diff --git a/drivers/scsi/qla2xxx/qla_def.h b/drivers/scsi/qla2xxx/qla_def.h
+index 91c8fedc8ffa..3ec6a200942e 100644
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -78,7 +78,7 @@ typedef union {
+ #include "qla_nvme.h"
+ #define QLA2XXX_DRIVER_NAME	"qla2xxx"
+ #define QLA2XXX_APIDEV		"ql2xapidev"
+-#define QLA2XXX_MANUFACTURER	"QLogic Corporation"
++#define QLA2XXX_MANUFACTURER	"Marvell Semiconductor, Inc."
  
--	srp = sg_get_rq_mark(sfp, req_pack_id);
-+	srp = sg_get_rq_mark(sfp, req_pack_id, &busy);
- 	if (!srp) {		/* now wait on packet to arrive */
--		if (atomic_read(&sdp->detaching))
--			return -ENODEV;
- 		if (filp->f_flags & O_NONBLOCK)
- 			return -EAGAIN;
- 		retval = wait_event_interruptible(sfp->read_wait,
--			(atomic_read(&sdp->detaching) ||
--			(srp = sg_get_rq_mark(sfp, req_pack_id))));
--		if (atomic_read(&sdp->detaching))
--			return -ENODEV;
--		if (retval)
--			/* -ERESTARTSYS as signal hit process */
--			return retval;
-+			((srp = sg_get_rq_mark(sfp, req_pack_id, &busy)) ||
-+			(!busy && atomic_read(&sdp->detaching))));
-+		if (!srp)
-+			/* signal or detaching */
-+			return retval ? retval : -ENODEV;
- 	}
- 	if (srp->header.interface_id != '\0')
- 		return sg_new_read(sfp, buf, count, srp);
-@@ -940,9 +937,7 @@ sg_ioctl_common(struct file *filp, Sg_device *sdp, Sg_fd *sfp,
- 		if (result < 0)
- 			return result;
- 		result = wait_event_interruptible(sfp->read_wait,
--			(srp_done(sfp, srp) || atomic_read(&sdp->detaching)));
--		if (atomic_read(&sdp->detaching))
--			return -ENODEV;
-+			srp_done(sfp, srp));
- 		write_lock_irq(&sfp->rq_list_lock);
- 		if (srp->done) {
- 			srp->done = 2;
-@@ -2079,19 +2074,28 @@ sg_unlink_reserve(Sg_fd * sfp, Sg_request * srp)
- }
- 
- static Sg_request *
--sg_get_rq_mark(Sg_fd * sfp, int pack_id)
-+sg_get_rq_mark(Sg_fd * sfp, int pack_id, bool *busy)
- {
- 	Sg_request *resp;
- 	unsigned long iflags;
- 
-+	*busy = false;
- 	write_lock_irqsave(&sfp->rq_list_lock, iflags);
- 	list_for_each_entry(resp, &sfp->rq_list, entry) {
--		/* look for requests that are ready + not SG_IO owned */
--		if ((1 == resp->done) && (!resp->sg_io_owned) &&
-+		/* look for requests that are not SG_IO owned */
-+		if ((!resp->sg_io_owned) &&
- 		    ((-1 == pack_id) || (resp->header.pack_id == pack_id))) {
--			resp->done = 2;	/* guard against other readers */
--			write_unlock_irqrestore(&sfp->rq_list_lock, iflags);
--			return resp;
-+			switch (resp->done) {
-+			case 0: /* request active */
-+				*busy = true;
-+				break;
-+			case 1: /* request done; response ready to return */
-+				resp->done = 2;	/* guard against other readers */
-+				write_unlock_irqrestore(&sfp->rq_list_lock, iflags);
-+				return resp;
-+			case 2: /* response already being returned */
-+				break;
-+			}
- 		}
- 	}
- 	write_unlock_irqrestore(&sfp->rq_list_lock, iflags);
-@@ -2145,6 +2149,15 @@ sg_remove_request(Sg_fd * sfp, Sg_request * srp)
- 		res = 1;
- 	}
- 	write_unlock_irqrestore(&sfp->rq_list_lock, iflags);
-+
-+	/*
-+	 * If the device is detaching, wakeup any readers in case we just
-+	 * removed the last response, which would leave nothing for them to
-+	 * return other than -ENODEV.
-+	 */
-+	if (unlikely(atomic_read(&sfp->parentdp->detaching)))
-+		wake_up_interruptible_all(&sfp->read_wait);
-+
- 	return res;
- }
- 
+ /*
+  * We have MAILBOX_REGISTER_COUNT sized arrays in a few places,
+diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
+index 7ca734337000..64ab070b8716 100644
+--- a/drivers/scsi/qla2xxx/qla_gs.c
++++ b/drivers/scsi/qla2xxx/qla_gs.c
+@@ -1616,7 +1616,7 @@ qla2x00_hba_attributes(scsi_qla_host_t *vha, void *entries,
+ 	eiter->type = cpu_to_be16(FDMI_HBA_MANUFACTURER);
+ 	alen = scnprintf(
+ 		eiter->a.manufacturer, sizeof(eiter->a.manufacturer),
+-		"%s", "QLogic Corporation");
++		"%s", QLA2XXX_MANUFACTURER);
+ 	alen += FDMI_ATTR_ALIGNMENT(alen);
+ 	alen += FDMI_ATTR_TYPELEN(eiter);
+ 	eiter->len = cpu_to_be16(alen);
 
