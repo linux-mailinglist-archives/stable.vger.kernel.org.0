@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8241759199D
+	by mail.lfdr.de (Postfix) with ESMTP id 38E6359199C
 	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 11:35:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235278AbiHMJfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238659AbiHMJfR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 13 Aug 2022 05:35:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56118 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234046AbiHMJfQ (ORCPT
+        with ESMTP id S235278AbiHMJfQ (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 05:35:16 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13487C79
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22B8FC7B
         for <stable@vger.kernel.org>; Sat, 13 Aug 2022 02:35:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C7F87CE0185
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 09:35:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79DE1C433D7;
-        Sat, 13 Aug 2022 09:35:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84D0960C67
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 09:35:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E07EC433D7;
+        Sat, 13 Aug 2022 09:35:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660383310;
-        bh=1N4jOmTuYuM/tCbmHxwGpbnRHlRpR6EwENLOOFTkCJ4=;
+        s=korg; t=1660383313;
+        bh=6pyRZ0Al8mjN/ekY8tOF7q1fs9bluMKccSz0vmpQOaw=;
         h=Subject:To:Cc:From:Date:From;
-        b=J58Qm3zS79TRO8DrdudVooQe3yPOmgOkPfyWX9IOEqPDmKMFOtwKJsKZLeiClkCS2
-         GLme1rWz6Dw2MPhRXRw8pRCs5u6l4n96X74b1pPB3NgxbBLUuThu9Az6LjdJOWn2rH
-         xcmnRvoJgHGUfbecDUXc4Dij6noEdL/M409poqjU=
-Subject: FAILED: patch "[PATCH] usbnet: smsc95xx: Fix deadlock on runtime resume" failed to apply to 5.18-stable tree
+        b=ZSydSBsYdJwOYQNt7uLUciuZwcoxK2jU9f62OOXyb9RKnHdsjhNSEqfAW6T3mZ/50
+         6ZjLNbP/2fyginDjv+5Rwww5xq6LWrEScS2mXvuUErvuXlEg2Hbd2etXNHSpwCqmYY
+         x9Um86eCj5fi5IscDPtcTPnuJtUrikljehHODfBo=
+Subject: FAILED: patch "[PATCH] usbnet: smsc95xx: Fix deadlock on runtime resume" failed to apply to 5.15-stable tree
 To:     lukas@wunner.de, andre.edich@microchip.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 11:35:00 +0200
-Message-ID: <1660383300141102@kroah.com>
+Date:   Sat, 13 Aug 2022 11:35:02 +0200
+Message-ID: <1660383302137181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.18-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
