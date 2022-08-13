@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77860591A90
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 15:23:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E2AD591A91
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 15:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239447AbiHMNX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 09:23:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59516 "EHLO
+        id S239451AbiHMNZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 09:25:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235278AbiHMNX1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 09:23:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7429F3AB09
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 06:23:26 -0700 (PDT)
+        with ESMTP id S235278AbiHMNZ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 09:25:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A42D51D33E
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 06:25:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1166260D2F
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 13:23:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2155BC433D6;
-        Sat, 13 Aug 2022 13:23:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B3D3B800E2
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 13:25:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8513BC433D6;
+        Sat, 13 Aug 2022 13:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660397005;
-        bh=EOITiVyJ40+NYuW/SRDm6Rc+VQ6n+zmYdeklOXdF1mQ=;
+        s=korg; t=1660397121;
+        bh=luLUOaWY+0ErZEF9Gsv7uKpEYEgjFIbY3sUJyKdZFRk=;
         h=Subject:To:Cc:From:Date:From;
-        b=UuFuQwbFwMCrE8/rdNTakqci4aoTTO6Ne4JOr6/UqDD5Kyfe0RmyelD6ivrD08b0N
-         Tf5RZ+6PTFDIqI7SmorEnPx+v4vrLCg8RUlI8fXxZ8Xh/9diFRToF8lQVbUVdi4/w5
-         e2kGS5RgW49EgmSrU8J6d6n7qY0eh6mytR/LS/vQ=
-Subject: FAILED: patch "[PATCH] um: seed rng using host OS rng" failed to apply to 5.10-stable tree
-To:     Jason@zx2c4.com, anton.ivanov@cambridgegreys.com,
-        johannes@sipsolutions.net
+        b=N2FT7kw1XtyfQQYqQrNVbmGvu0xr0Rt5rIQQwZBIscwGmZ1CquAmIELP0sL2+X173
+         BWTqMn2pGKDyjmWAoxAaS0V6JREZ88jS1qe8cJwjigWxus2SgQMF+9VWbtmsLYA+W4
+         h46PNlJUWFyQwTyKh8V166Ba0s2VD6qYPhbYXcQw=
+Subject: FAILED: patch "[PATCH] io_uring: optimize io_uring_task layout" failed to apply to 5.19-stable tree
+To:     asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 15:23:23 +0200
-Message-ID: <16603970031068@kroah.com>
+Date:   Sat, 13 Aug 2022 15:25:19 +0200
+Message-ID: <1660397119234113@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,152 +59,62 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0b9ba6135d7f18b82f3d8bebb55ded725ba88e0e Mon Sep 17 00:00:00 2001
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Wed, 13 Jul 2022 01:12:21 +0200
-Subject: [PATCH] um: seed rng using host OS rng
+From 4a0fef62788b69df09267c8e3f3f11d4bb9d50e7 Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Mon, 20 Jun 2022 15:27:35 +0100
+Subject: [PATCH] io_uring: optimize io_uring_task layout
 
-UML generally does not provide access to special CPU instructions like
-RDRAND, and execution tends to be rather deterministic, with no real
-hardware interrupts, making good randomness really very hard, if not
-all together impossible. Not only is this a security eyebrow raiser, but
-it's also quite annoying when trying to do various pieces of UML-based
-automation that takes a long time to boot, if ever.
+task_work bits of io_uring_task are split into two cache lines causing
+extra cache bouncing, place them into a separate cache line. Also move
+the most used submission path fields closer together, so there are hot.
 
-Fix this by trivially calling getrandom() in the host and using that
-seed as "bootloader randomness", which initializes the rng immediately
-at UML boot.
+Cc: stable@vger.kernel.org # 5.15+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-The old behavior can be restored the same way as on any other arch, by
-way of CONFIG_TRUST_BOOTLOADER_RANDOMNESS=n or
-random.trust_bootloader=0. So seen from that perspective, this just
-makes UML act like other archs, which is positive in its own right.
-
-Additionally, wire up arch_get_random_{int,long}() in the same way, so
-that reseeds can also make use of the host RNG, controllable by
-CONFIG_TRUST_CPU_RANDOMNESS and random.trust_cpu, per usual.
-
-Cc: stable@vger.kernel.org
-Acked-by: Johannes Berg <johannes@sipsolutions.net>
-Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-
-diff --git a/arch/um/include/asm/archrandom.h b/arch/um/include/asm/archrandom.h
-new file mode 100644
-index 000000000000..2f24cb96391d
---- /dev/null
-+++ b/arch/um/include/asm/archrandom.h
-@@ -0,0 +1,30 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __ASM_UM_ARCHRANDOM_H__
-+#define __ASM_UM_ARCHRANDOM_H__
-+
-+#include <linux/types.h>
-+
-+/* This is from <os.h>, but better not to #include that in a global header here. */
-+ssize_t os_getrandom(void *buf, size_t len, unsigned int flags);
-+
-+static inline bool __must_check arch_get_random_long(unsigned long *v)
-+{
-+	return os_getrandom(v, sizeof(*v), 0) == sizeof(*v);
-+}
-+
-+static inline bool __must_check arch_get_random_int(unsigned int *v)
-+{
-+	return os_getrandom(v, sizeof(*v), 0) == sizeof(*v);
-+}
-+
-+static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
-+{
-+	return false;
-+}
-+
-+static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
-+{
-+	return false;
-+}
-+
-+#endif
-diff --git a/arch/um/include/shared/os.h b/arch/um/include/shared/os.h
-index fafde1d5416e..0df646c6651e 100644
---- a/arch/um/include/shared/os.h
-+++ b/arch/um/include/shared/os.h
-@@ -11,6 +11,12 @@
- #include <irq_user.h>
- #include <longjmp.h>
- #include <mm_id.h>
-+/* This is to get size_t */
-+#ifndef __UM_HOST__
-+#include <linux/types.h>
-+#else
-+#include <sys/types.h>
-+#endif
+diff --git a/io_uring/tctx.h b/io_uring/tctx.h
+index dde82ce4d8e2..dead0ed00429 100644
+--- a/io_uring/tctx.h
++++ b/io_uring/tctx.h
+@@ -7,22 +7,24 @@
  
- #define CATCH_EINTR(expr) while ((errno = 0, ((expr) < 0)) && (errno == EINTR))
- 
-@@ -243,6 +249,7 @@ extern void stack_protections(unsigned long address);
- extern int raw(int fd);
- extern void setup_machinename(char *machine_out);
- extern void setup_hostinfo(char *buf, int len);
-+extern ssize_t os_getrandom(void *buf, size_t len, unsigned int flags);
- extern void os_dump_core(void) __attribute__ ((noreturn));
- extern void um_early_printk(const char *s, unsigned int n);
- extern void os_fix_helper_signals(void);
-diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
-index 0760e24f2eba..74f3efd96bd4 100644
---- a/arch/um/kernel/um_arch.c
-+++ b/arch/um/kernel/um_arch.c
-@@ -16,6 +16,7 @@
- #include <linux/sched/task.h>
- #include <linux/kmsg_dump.h>
- #include <linux/suspend.h>
-+#include <linux/random.h>
- 
- #include <asm/processor.h>
- #include <asm/cpufeature.h>
-@@ -406,6 +407,8 @@ int __init __weak read_initrd(void)
- 
- void __init setup_arch(char **cmdline_p)
- {
-+	u8 rng_seed[32];
+ struct io_uring_task {
+ 	/* submission side */
+-	int			cached_refs;
+-	struct xarray		xa;
+-	struct wait_queue_head	wait;
+-	const struct io_ring_ctx *last;
+-	struct io_wq		*io_wq;
+-	struct percpu_counter	inflight;
+-	atomic_t		inflight_tracked;
+-	atomic_t		in_idle;
+-
+-	spinlock_t		task_lock;
+-	struct io_wq_work_list	task_list;
+-	struct io_wq_work_list	prio_task_list;
+-	struct callback_head	task_work;
+-	bool			task_running;
+-
+-	struct file		*registered_rings[IO_RINGFD_REG_MAX];
++	int				cached_refs;
++	const struct io_ring_ctx 	*last;
++	struct io_wq			*io_wq;
++	struct file			*registered_rings[IO_RINGFD_REG_MAX];
 +
- 	stack_protections((unsigned long) &init_thread_info);
- 	setup_physmem(uml_physmem, uml_reserved, physmem_size, highmem);
- 	mem_total_pages(physmem_size, iomem_size, highmem);
-@@ -416,6 +419,11 @@ void __init setup_arch(char **cmdline_p)
- 	strlcpy(boot_command_line, command_line, COMMAND_LINE_SIZE);
- 	*cmdline_p = command_line;
- 	setup_hostinfo(host_info, sizeof host_info);
++	struct xarray			xa;
++	struct wait_queue_head		wait;
++	atomic_t			in_idle;
++	atomic_t			inflight_tracked;
++	struct percpu_counter		inflight;
 +
-+	if (os_getrandom(rng_seed, sizeof(rng_seed), 0) == sizeof(rng_seed)) {
-+		add_bootloader_randomness(rng_seed, sizeof(rng_seed));
-+		memzero_explicit(rng_seed, sizeof(rng_seed));
-+	}
- }
++	struct { /* task_work */
++		spinlock_t		task_lock;
++		bool			task_running;
++		struct io_wq_work_list	task_list;
++		struct io_wq_work_list	prio_task_list;
++		struct callback_head	task_work;
++	} ____cacheline_aligned_in_smp;
+ };
  
- void __init check_bugs(void)
-diff --git a/arch/um/os-Linux/util.c b/arch/um/os-Linux/util.c
-index 41297ec404bf..fc0f2a9dee5a 100644
---- a/arch/um/os-Linux/util.c
-+++ b/arch/um/os-Linux/util.c
-@@ -14,6 +14,7 @@
- #include <sys/wait.h>
- #include <sys/mman.h>
- #include <sys/utsname.h>
-+#include <sys/random.h>
- #include <init.h>
- #include <os.h>
- 
-@@ -96,6 +97,11 @@ static inline void __attribute__ ((noreturn)) uml_abort(void)
- 			exit(127);
- }
- 
-+ssize_t os_getrandom(void *buf, size_t len, unsigned int flags)
-+{
-+	return getrandom(buf, len, flags);
-+}
-+
- /*
-  * UML helper threads must not handle SIGWINCH/INT/TERM
-  */
+ struct io_tctx_node {
 
