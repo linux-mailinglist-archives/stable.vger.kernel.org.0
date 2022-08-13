@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA88B591A35
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:47:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63C75591A36
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:47:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239449AbiHMMrd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 08:47:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58910 "EHLO
+        id S239412AbiHMMry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 08:47:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239234AbiHMMrc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:47:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7DDB13F50
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:47:31 -0700 (PDT)
+        with ESMTP id S239234AbiHMMrx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:47:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2BCF13F4B
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:47:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C64F609D0
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:47:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AAC2C433D6;
-        Sat, 13 Aug 2022 12:47:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58639B8013C
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:47:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 970E2C433C1;
+        Sat, 13 Aug 2022 12:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660394850;
-        bh=OLwwbTLfoo+R0ZYziWlw5PH1GbuX/WsBi5SCzrTAz94=;
+        s=korg; t=1660394870;
+        bh=VthpT0/7FlKWzcKnxMacZJttdLzzTU5QC1AVsGgEsYE=;
         h=Subject:To:Cc:From:Date:From;
-        b=xFTsBjN8BmqpnYvWxgnC2mGYRuzQ7VZZmtD9AH2WoTGj6/QGfE79Gt2AgkW17DY9a
-         ERae0W1KCaUQZU0xiifV5PO6maIXLkIFO77g0aQA2iQtwmMGAXm2SHk5hO+6RdUeco
-         85MDavbIl6zckWnM7WpSr87LWjB8XgY2t3rjPCd8=
-Subject: FAILED: patch "[PATCH] drm/i915/dsi: fix VBT send packet port selection for ICL+" failed to apply to 4.19-stable tree
-To:     jani.nikula@intel.com, ville.syrjala@linux.intel.com
+        b=Xc9zw/K8VGmmY8K7E9F9FZam7Wx2G/EWPxCPfSaJhlBijiCeFMbjsCAJMpDKPtEuc
+         aJElldIBhkE5gzvsYBRi4mFx2IwMv0vicrVSQctMyjH+HhfCeiQtVIoXId4Em2kOx5
+         8s+HrSMLtuJ9vvkixId890/Nqg4XxQOOTR0Ikbso=
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Serialize GRDOM access between multiple engine" failed to apply to 5.19-stable tree
+To:     chris@chris-wilson.co.uk, andi.shyti@intel.com,
+        andrzej.hajda@intel.com, mchehab@kernel.org,
+        mika.kuoppala@linux.intel.com, rodrigo.vivi@intel.com,
+        thomas.hellstrom@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 14:47:18 +0200
-Message-ID: <1660394838246212@kroah.com>
+Date:   Sat, 13 Aug 2022 14:47:47 +0200
+Message-ID: <16603948676512@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,88 +62,116 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 08c59dde71b73a0ac94e3ed2d431345b01f20485 Mon Sep 17 00:00:00 2001
-From: Jani Nikula <jani.nikula@intel.com>
-Date: Fri, 20 May 2022 12:46:00 +0300
-Subject: [PATCH] drm/i915/dsi: fix VBT send packet port selection for ICL+
+From 336561a914fc0c6f1218228718f633b31b7af1c3 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Tue, 12 Jul 2022 16:21:32 +0100
+Subject: [PATCH] drm/i915/gt: Serialize GRDOM access between multiple engine
+ resets
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The VBT send packet port selection was never updated for ICL+ where the
-2nd link is on port B instead of port C as in VLV+ DSI.
+Don't allow two engines to be reset in parallel, as they would both
+try to select a reset bit (and send requests to common registers)
+and wait on that register, at the same time. Serialize control of
+the reset requests/acks using the uncore->lock, which will also ensure
+that no other GT state changes at the same time as the actual reset.
 
-First, single link DSI needs to use the configured port instead of
-relying on the VBT sequence block port. Remove the hard-coded port C
-check here and make it generic. For reference, see commit f915084edc5a
-("drm/i915: Changes related to the sequence port no for") for the
-original VLV specific fix.
+Cc: stable@vger.kernel.org # v4.4 and upper
+Reported-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Acked-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Reviewed-by: Andi Shyti <andi.shyti@intel.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/e0a2d894e77aed7c2e36b0d1abdc7dbac3011729.1657639152.git.mchehab@kernel.org
 
-Second, the sequence block port number is either 0 or 1, where 1
-indicates the 2nd link. Remove the hard-coded port C here for 2nd
-link. (This could be a "find second set bit" on DSI ports, but just
-check the two possible options.)
-
-Third, sanity check the result with a warning to avoid a NULL pointer
-dereference.
-
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/5984
-Cc: stable@vger.kernel.org # v4.19+
-Cc: Ville Syrjala <ville.syrjala@linux.intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220520094600.2066945-1-jani.nikula@intel.com
-
-diff --git a/drivers/gpu/drm/i915/display/intel_dsi_vbt.c b/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
-index f370e9c4350d..dd24aef925f2 100644
---- a/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
-+++ b/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
-@@ -125,9 +125,25 @@ struct i2c_adapter_lookup {
- #define  ICL_GPIO_DDPA_CTRLCLK_2	8
- #define  ICL_GPIO_DDPA_CTRLDATA_2	9
- 
--static enum port intel_dsi_seq_port_to_port(u8 port)
-+static enum port intel_dsi_seq_port_to_port(struct intel_dsi *intel_dsi,
-+					    u8 seq_port)
- {
--	return port ? PORT_C : PORT_A;
-+	/*
-+	 * If single link DSI is being used on any port, the VBT sequence block
-+	 * send packet apparently always has 0 for the port. Just use the port
-+	 * we have configured, and ignore the sequence block port.
-+	 */
-+	if (hweight8(intel_dsi->ports) == 1)
-+		return ffs(intel_dsi->ports) - 1;
-+
-+	if (seq_port) {
-+		if (intel_dsi->ports & PORT_B)
-+			return PORT_B;
-+		else if (intel_dsi->ports & PORT_C)
-+			return PORT_C;
-+	}
-+
-+	return PORT_A;
+diff --git a/drivers/gpu/drm/i915/gt/intel_reset.c b/drivers/gpu/drm/i915/gt/intel_reset.c
+index a5338c3fde7a..c68d36fb5bbd 100644
+--- a/drivers/gpu/drm/i915/gt/intel_reset.c
++++ b/drivers/gpu/drm/i915/gt/intel_reset.c
+@@ -300,9 +300,9 @@ static int gen6_hw_domain_reset(struct intel_gt *gt, u32 hw_domain_mask)
+ 	return err;
  }
  
- static const u8 *mipi_exec_send_packet(struct intel_dsi *intel_dsi,
-@@ -149,15 +165,10 @@ static const u8 *mipi_exec_send_packet(struct intel_dsi *intel_dsi,
+-static int gen6_reset_engines(struct intel_gt *gt,
+-			      intel_engine_mask_t engine_mask,
+-			      unsigned int retry)
++static int __gen6_reset_engines(struct intel_gt *gt,
++				intel_engine_mask_t engine_mask,
++				unsigned int retry)
+ {
+ 	struct intel_engine_cs *engine;
+ 	u32 hw_mask;
+@@ -321,6 +321,20 @@ static int gen6_reset_engines(struct intel_gt *gt,
+ 	return gen6_hw_domain_reset(gt, hw_mask);
+ }
  
- 	seq_port = (flags >> MIPI_PORT_SHIFT) & 3;
- 
--	/* For DSI single link on Port A & C, the seq_port value which is
--	 * parsed from Sequence Block#53 of VBT has been set to 0
--	 * Now, read/write of packets for the DSI single link on Port A and
--	 * Port C will based on the DVO port from VBT block 2.
--	 */
--	if (intel_dsi->ports == (1 << PORT_C))
--		port = PORT_C;
--	else
--		port = intel_dsi_seq_port_to_port(seq_port);
-+	port = intel_dsi_seq_port_to_port(intel_dsi, seq_port);
++static int gen6_reset_engines(struct intel_gt *gt,
++			      intel_engine_mask_t engine_mask,
++			      unsigned int retry)
++{
++	unsigned long flags;
++	int ret;
 +
-+	if (drm_WARN_ON(&dev_priv->drm, !intel_dsi->dsi_hosts[port]))
-+		goto out;
++	spin_lock_irqsave(&gt->uncore->lock, flags);
++	ret = __gen6_reset_engines(gt, engine_mask, retry);
++	spin_unlock_irqrestore(&gt->uncore->lock, flags);
++
++	return ret;
++}
++
+ static struct intel_engine_cs *find_sfc_paired_vecs_engine(struct intel_engine_cs *engine)
+ {
+ 	int vecs_id;
+@@ -487,9 +501,9 @@ static void gen11_unlock_sfc(struct intel_engine_cs *engine)
+ 	rmw_clear_fw(uncore, sfc_lock.lock_reg, sfc_lock.lock_bit);
+ }
  
- 	dsi_device = intel_dsi->dsi_hosts[port]->device;
- 	if (!dsi_device) {
+-static int gen11_reset_engines(struct intel_gt *gt,
+-			       intel_engine_mask_t engine_mask,
+-			       unsigned int retry)
++static int __gen11_reset_engines(struct intel_gt *gt,
++				 intel_engine_mask_t engine_mask,
++				 unsigned int retry)
+ {
+ 	struct intel_engine_cs *engine;
+ 	intel_engine_mask_t tmp;
+@@ -583,8 +597,11 @@ static int gen8_reset_engines(struct intel_gt *gt,
+ 	struct intel_engine_cs *engine;
+ 	const bool reset_non_ready = retry >= 1;
+ 	intel_engine_mask_t tmp;
++	unsigned long flags;
+ 	int ret;
+ 
++	spin_lock_irqsave(&gt->uncore->lock, flags);
++
+ 	for_each_engine_masked(engine, gt, engine_mask, tmp) {
+ 		ret = gen8_engine_reset_prepare(engine);
+ 		if (ret && !reset_non_ready)
+@@ -612,17 +629,19 @@ static int gen8_reset_engines(struct intel_gt *gt,
+ 	 * This is best effort, so ignore any error from the initial reset.
+ 	 */
+ 	if (IS_DG2(gt->i915) && engine_mask == ALL_ENGINES)
+-		gen11_reset_engines(gt, gt->info.engine_mask, 0);
++		__gen11_reset_engines(gt, gt->info.engine_mask, 0);
+ 
+ 	if (GRAPHICS_VER(gt->i915) >= 11)
+-		ret = gen11_reset_engines(gt, engine_mask, retry);
++		ret = __gen11_reset_engines(gt, engine_mask, retry);
+ 	else
+-		ret = gen6_reset_engines(gt, engine_mask, retry);
++		ret = __gen6_reset_engines(gt, engine_mask, retry);
+ 
+ skip_reset:
+ 	for_each_engine_masked(engine, gt, engine_mask, tmp)
+ 		gen8_engine_reset_cancel(engine);
+ 
++	spin_unlock_irqrestore(&gt->uncore->lock, flags);
++
+ 	return ret;
+ }
+ 
 
