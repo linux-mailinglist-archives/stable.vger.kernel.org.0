@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E337591D16
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 01:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 214AB591D1D
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 01:11:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229555AbiHMXBP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 19:01:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47904 "EHLO
+        id S229735AbiHMXLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 19:11:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229565AbiHMXBO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 19:01:14 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D15C618B2C
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 16:01:11 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id o5-20020a17090a3d4500b001ef76490983so3879301pjf.2
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 16:01:11 -0700 (PDT)
+        with ESMTP id S229500AbiHMXLl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 19:11:41 -0400
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBCA780531
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 16:11:38 -0700 (PDT)
+Received: by mail-pg1-x52a.google.com with SMTP id 12so3705420pga.1
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 16:11:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc;
-        bh=pkSAMYar3S6f1bpkS6caUS7lBl6voT7fLD8MsigjayM=;
-        b=7N7bZ8LUlluuu+9Du2TlHg//SWBwxbuakV8V9xTM8BC7nwicBQfht540NV1F9SGk7e
-         CT9+kweGe+gbPBiZFhdhtCvIuht6wcei/pEHu17SgILxaxXHul2EgOsH6PghZcIazSZD
-         /ALArz7DCgJdGjA/T8cXzxOhR9v8PqIwwlEIjE/U2e9tNot9ftmNYrsFzAzMYPU/pN+0
-         bg4gshxgAs+nzWgi+Ji5FjzJx2uHxBqbOF3Ow2TGidJ+luN6FAxERWld6AiuVplP1hXt
-         7pZ2FF9Be7i1GL2F6M6gDDJdn1m3TE9z+ybLavCnKh74X5ElP08eNtQtxYW7sAzVD9nQ
-         +y1A==
+        bh=PFVFlpQUM1AW9aEK2fRmYpJMuOElfflUE+XHoLy1TFc=;
+        b=7iynl1pvQyf+adtvtXUYdU4/GytABwzUgmaz779ikFNlEXZhZMLNhgnjN2jTWnJbOk
+         2As3ORIoAwqOBRalpBuTMb/5ErVn+ciLIiXB4+ENH8LC2MnkTj0B7aWeI1YFQ3iMalT5
+         A8PI1K+bwSuOTveQVIrBVS4n1OnVQHnigUovMt1euf525kl7Q/xSq2WJLvDxQmsuVYq+
+         R6R7rbVBXADzLN2uw2o7xhcbCxPmfvTZ+qhboDampbbW5fk34oDWET3KGp99x8g0XdtH
+         Hsv72bDezOXeRP6EzbRphDny8V+dRDFMfd58AMXN4rVLrD/FJMhynkOj+aRJ7UymzMur
+         yCcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc;
-        bh=pkSAMYar3S6f1bpkS6caUS7lBl6voT7fLD8MsigjayM=;
-        b=pzYg4nYVRWOYovUd6A7DX7qTfqs4jSviqZOpoR8Nhn1UOgfCLuHyOG9qenj4jjW6tS
-         XDFNVWb9sfwiaB+udDDpovW9j3o8XwqEJNAkZvRNkD1nrhUwsjtJ1F18qYcBftYXRuRN
-         E9MAvC2PLhpUuHEKPebgUWVAhqtCkWpPKU7QhocBocKlj1APNxAJ2Ykqk2PdoyFHq1y5
-         XJIhxF/I7IpD67HFrQBEL8Ay3hHftbYc2Ew7zeB8xd6p+aoMsP1ZnB+6wbTYyO2F+089
-         Gg8X2sSUIr3dgv5xa9Mfsu6gI0Sr/e42L5LvlhNbwiGfW1zfUSOgkIRchTqouP5I8qxb
-         YVyQ==
-X-Gm-Message-State: ACgBeo2kteVRkDNdK3GwQcDwcf/34Zq66tY+xC2YZsltbx935miBr2Lj
-        DYJwF7uIqj4LZ8WeANCF0gmTFawjFvWZ/LEv
-X-Google-Smtp-Source: AA6agR69B4Z6sUZ3dQxMqNKzzQxQblks91wPgxzvuk6ubBPhlIbcbqvIVpgJFMFpfW2tZenAkVihvQ==
-X-Received: by 2002:a17:902:f711:b0:170:9e3c:1540 with SMTP id h17-20020a170902f71100b001709e3c1540mr9943195plo.22.1660431671003;
-        Sat, 13 Aug 2022 16:01:11 -0700 (PDT)
+        bh=PFVFlpQUM1AW9aEK2fRmYpJMuOElfflUE+XHoLy1TFc=;
+        b=12Mgf/hLZqv3Lk2zewdKF09Ig4gPAbuW9b9J6oY5ApTRarv5k0KsP1NnKa8HcA/wWT
+         5734cvY9Q6sqJtOi5UyMV01PPxu8eJ+VkjEK0bYg6aKoYWQZw03i6YQTsrL8Q8rzvEac
+         bBgSNmPvyA5tHGguJsJ9JUeIb1vNsuu/pVyzyZNgQ7b/vnaC2pP4CmeMwBVyAWuKQ/aq
+         zu7VDzltvBvwY27Q7isGuYnvArWigMkR5FJrgWSVm3tFiWQwTd/IEprHZj2z/4v02WpN
+         lsmHeuBjzFiXC5mE/oNKQbDEdWc2ZGfptAF/ZHqjRcWaMCPCsixzksD585zmOdKcpv9T
+         uhXw==
+X-Gm-Message-State: ACgBeo3LqguE7SZHTpg5oIRq2QJrW22ZxcjaUpEHt5cgTXar1+pClIi6
+        U/lfOnrSQnp1GuTuepz1aiSwMkfSFSzqW27u
+X-Google-Smtp-Source: AA6agR7Cxs1RPiNS/O9JDZ3XqD//+qayJLaePvjoeRS4OcEDAJnpTGXJkOmNiz6Y9sbIFSYc6kglNA==
+X-Received: by 2002:a05:6a00:174b:b0:52f:c4d1:d12d with SMTP id j11-20020a056a00174b00b0052fc4d1d12dmr9664357pfc.41.1660432297558;
+        Sat, 13 Aug 2022 16:11:37 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i16-20020a170902c95000b0016f85feae65sm4276194pla.87.2022.08.13.16.01.10
+        by smtp.gmail.com with ESMTPSA id ij1-20020a170902ab4100b0016f1ef2cd44sm4226879plb.154.2022.08.13.16.11.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 13 Aug 2022 16:01:10 -0700 (PDT)
-Message-ID: <62f82d36.170a0220.254a9.6c3e@mx.google.com>
-Date:   Sat, 13 Aug 2022 16:01:10 -0700 (PDT)
+        Sat, 13 Aug 2022 16:11:37 -0700 (PDT)
+Message-ID: <62f82fa9.170a0220.c87f4.74ff@mx.google.com>
+Date:   Sat, 13 Aug 2022 16:11:37 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.18
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.18.17-134-g620d3eac5bbd1
-Subject: stable-rc/queue/5.18 baseline: 93 runs,
- 22 regressions (v5.18.17-134-g620d3eac5bbd1)
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Report-Type: build
+X-Kernelci-Kernel: v4.9.325-47-g7d3b26af8e686
+Subject: stable-rc/queue/4.9 build: 182 builds: 51 failed, 131 passed,
+ 63 errors, 34 warnings (v4.9.325-47-g7d3b26af8e686)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,822 +70,1515 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.18 baseline: 93 runs, 22 regressions (v5.18.17-134-g620d3=
-eac5bbd1)
-
-Regressions Summary
--------------------
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-at91sam9g20ek               | arm  | lab-broonie     | gcc-10   | at91_dt_d=
-efconfig  | 1          =
-
-cubietruck                  | arm  | lab-baylibre    | gcc-10   | sunxi_def=
-config    | 1          =
-
-imx6dl-riotboard            | arm  | lab-pengutronix | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-imx6q-sabrelite             | arm  | lab-collabora   | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-imx6qp-wandboard-revd1      | arm  | lab-pengutronix | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-imx6sx-sdb                  | arm  | lab-nxp         | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-imx6ul-14x14-evk            | arm  | lab-nxp         | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-imx6ul-pico-hobbit          | arm  | lab-pengutronix | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-imx7d-sdb                   | arm  | lab-nxp         | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-imx7ulp-evk                 | arm  | lab-nxp         | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-jetson-tk1                  | arm  | lab-baylibre    | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-odroid-xu3                  | arm  | lab-collabora   | gcc-10   | exynos_de=
-fconfig   | 1          =
-
-odroid-xu3                  | arm  | lab-collabora   | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-rk3288-rock2-square         | arm  | lab-collabora   | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-sun4i-a10-olinuxino-lime    | arm  | lab-baylibre    | gcc-10   | sunxi_def=
-config    | 1          =
-
-sun5i-a13-olinuxino-micro   | arm  | lab-baylibre    | gcc-10   | sunxi_def=
-config    | 1          =
-
-sun7i-a20-cubieboard2       | arm  | lab-baylibre    | gcc-10   | sunxi_def=
-config    | 1          =
-
-sun7i-a20-cubieboard2       | arm  | lab-clabbe      | gcc-10   | sunxi_def=
-config    | 1          =
-
-sun8i-a33-olinuxino         | arm  | lab-clabbe      | gcc-10   | sunxi_def=
-config    | 1          =
-
-sun8i-h2-plus-orangepi-r1   | arm  | lab-baylibre    | gcc-10   | sunxi_def=
-config    | 1          =
-
-sun8i-h2-plus-orangepi-zero | arm  | lab-baylibre    | gcc-10   | sunxi_def=
-config    | 1          =
-
-sun8i-h3-orangepi-pc        | arm  | lab-clabbe      | gcc-10   | sunxi_def=
-config    | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.18/ker=
-nel/v5.18.17-134-g620d3eac5bbd1/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.18
-  Describe: v5.18.17-134-g620d3eac5bbd1
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      620d3eac5bbd1142f7ea482c816a4ffd537a26eb =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-at91sam9g20ek               | arm  | lab-broonie     | gcc-10   | at91_dt_d=
-efconfig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7f851d133c46c71daf071
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: at91_dt_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sa=
-m9g20ek.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sa=
-m9g20ek.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7f851d133c46c71daf=
-072
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-cubietruck                  | arm  | lab-baylibre    | gcc-10   | sunxi_def=
-config    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7f86fac2677ec09daf071
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sunxi_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-cubietr=
-uck.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-cubietr=
-uck.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7f86fac2677ec09daf=
-072
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-imx6dl-riotboard            | arm  | lab-pengutronix | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7fc004bd4b97af5daf065
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-i=
-mx6dl-riotboard.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-i=
-mx6dl-riotboard.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7fc004bd4b97af5daf=
-066
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-imx6q-sabrelite             | arm  | lab-collabora   | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7fa7c2eeb30d243daf058
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-imx=
-6q-sabrelite.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-imx=
-6q-sabrelite.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7fa7c2eeb30d243daf=
-059
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-imx6qp-wandboard-revd1      | arm  | lab-pengutronix | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7fa98176922cc35daf06d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-i=
-mx6qp-wandboard-revd1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-i=
-mx6qp-wandboard-revd1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7fa98176922cc35daf=
-06e
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-imx6sx-sdb                  | arm  | lab-nxp         | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7faf26d2470ca81daf076
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx6sx-sd=
-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx6sx-sd=
-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7faf26d2470ca81daf=
-077
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-imx6ul-14x14-evk            | arm  | lab-nxp         | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7fadeb00e240a85daf088
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx6ul-14=
-x14-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx6ul-14=
-x14-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7fadeb00e240a85daf=
-089
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-imx6ul-pico-hobbit          | arm  | lab-pengutronix | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7fc01c1190b2ea4daf064
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-i=
-mx6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-i=
-mx6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7fc01c1190b2ea4daf=
-065
-        failing since 38 days (last pass: v5.18.9-96-g91cfa3d0b94d, first f=
-ail: v5.18.9-102-ga6b8287ea0b9) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-imx7d-sdb                   | arm  | lab-nxp         | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7fae1f33321bacddaf056
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7d-sdb=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7d-sdb=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7fae1f33321bacddaf=
-057
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-imx7ulp-evk                 | arm  | lab-nxp         | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7fae26d2470ca81daf057
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
-vk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
-vk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7fae26d2470ca81daf=
-058
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-jetson-tk1                  | arm  | lab-baylibre    | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7fa8caf54f810addaf08e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jets=
-on-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jets=
-on-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7fa8caf54f810addaf=
-08f
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-odroid-xu3                  | arm  | lab-collabora   | gcc-10   | exynos_de=
-fconfig   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7fb306d2470ca81daf09d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: exynos_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/exynos_defconfig/gcc-10/lab-collabora/baseline-odroi=
-d-xu3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/exynos_defconfig/gcc-10/lab-collabora/baseline-odroi=
-d-xu3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7fb306d2470ca81daf=
-09e
-        new failure (last pass: v5.18.17-41-g6a725335d402d) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-odroid-xu3                  | arm  | lab-collabora   | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7fdece720a75ea1daf056
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-odr=
-oid-xu3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-odr=
-oid-xu3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7fdece720a75ea1daf=
-057
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-rk3288-rock2-square         | arm  | lab-collabora   | gcc-10   | multi_v7_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7fbe4eed2ced88bdaf0d2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk3=
-288-rock2-square.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk3=
-288-rock2-square.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7fbe4eed2ced88bdaf=
-0d3
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-sun4i-a10-olinuxino-lime    | arm  | lab-baylibre    | gcc-10   | sunxi_def=
-config    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7faff6d2470ca81daf079
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sunxi_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-sun4i-a=
-10-olinuxino-lime.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-sun4i-a=
-10-olinuxino-lime.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7faff6d2470ca81daf=
-07a
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-sun5i-a13-olinuxino-micro   | arm  | lab-baylibre    | gcc-10   | sunxi_def=
-config    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7f87e736e43db74daf083
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sunxi_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-sun5i-a=
-13-olinuxino-micro.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-sun5i-a=
-13-olinuxino-micro.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7f87e736e43db74daf=
-084
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-sun7i-a20-cubieboard2       | arm  | lab-baylibre    | gcc-10   | sunxi_def=
-config    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7f870736e43db74daf070
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sunxi_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-sun7i-a=
-20-cubieboard2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-sun7i-a=
-20-cubieboard2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7f870736e43db74daf=
-071
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-sun7i-a20-cubieboard2       | arm  | lab-clabbe      | gcc-10   | sunxi_def=
-config    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7f872ac2677ec09daf077
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sunxi_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-clabbe/baseline-sun7i-a20=
--cubieboard2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-clabbe/baseline-sun7i-a20=
--cubieboard2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7f872ac2677ec09daf=
-078
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-sun8i-a33-olinuxino         | arm  | lab-clabbe      | gcc-10   | sunxi_def=
-config    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7f85eac2677ec09daf057
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sunxi_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-clabbe/baseline-sun8i-a33=
--olinuxino.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-clabbe/baseline-sun8i-a33=
--olinuxino.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7f85eac2677ec09daf=
-058
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-sun8i-h2-plus-orangepi-r1   | arm  | lab-baylibre    | gcc-10   | sunxi_def=
-config    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7f87f736e43db74daf087
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sunxi_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-sun8i-h=
-2-plus-orangepi-r1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-sun8i-h=
-2-plus-orangepi-r1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7f87f736e43db74daf=
-088
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-sun8i-h2-plus-orangepi-zero | arm  | lab-baylibre    | gcc-10   | sunxi_def=
-config    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7f881736e43db74daf08d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sunxi_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-sun8i-h=
-2-plus-orangepi-zero.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-baylibre/baseline-sun8i-h=
-2-plus-orangepi-zero.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7f881736e43db74daf=
-08e
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =
-
-
-
-platform                    | arch | lab             | compiler | defconfig=
-          | regressions
-----------------------------+------+-----------------+----------+----------=
-----------+------------
-sun8i-h3-orangepi-pc        | arm  | lab-clabbe      | gcc-10   | sunxi_def=
-config    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62f7f9b239172c7350daf0bf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sunxi_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-clabbe/baseline-sun8i-h3-=
-orangepi-pc.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
-134-g620d3eac5bbd1/arm/sunxi_defconfig/gcc-10/lab-clabbe/baseline-sun8i-h3-=
-orangepi-pc.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62f7f9b239172c7350daf=
-0c0
-        new failure (last pass: v5.18.17-55-g185ae35b285f0) =
-
- =20
+stable-rc/queue/4.9 build: 182 builds: 51 failed, 131 passed, 63 errors, 34=
+ warnings (v4.9.325-47-g7d3b26af8e686)
+
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
+/kernel/v4.9.325-47-g7d3b26af8e686/
+
+Tree: stable-rc
+Branch: queue/4.9
+Git Describe: v4.9.325-47-g7d3b26af8e686
+Git Commit: 7d3b26af8e686de5c41195805dd21d62d3dd1a12
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 6 unique architectures
+
+Build Failures Detected:
+
+arm:
+    acs5k_defconfig: (gcc-10) FAIL
+    at91_dt_defconfig: (gcc-10) FAIL
+    axm55xx_defconfig: (gcc-10) FAIL
+    cm_x2xx_defconfig: (gcc-10) FAIL
+    dove_defconfig: (gcc-10) FAIL
+    ebsa110_defconfig: (gcc-10) FAIL
+    exynos_defconfig: (gcc-10) FAIL
+    footbridge_defconfig: (gcc-10) FAIL
+    imx_v6_v7_defconfig: (gcc-10) FAIL
+    integrator_defconfig: (gcc-10) FAIL
+    iop13xx_defconfig: (gcc-10) FAIL
+    iop32x_defconfig: (gcc-10) FAIL
+    iop33x_defconfig: (gcc-10) FAIL
+    ixp4xx_defconfig: (gcc-10) FAIL
+    keystone_defconfig: (gcc-10) FAIL
+    ks8695_defconfig: (gcc-10) FAIL
+    lpd270_defconfig: (gcc-10) FAIL
+    mainstone_defconfig: (gcc-10) FAIL
+    mmp2_defconfig: (gcc-10) FAIL
+    multi_v5_defconfig: (gcc-10) FAIL
+    mv78xx0_defconfig: (gcc-10) FAIL
+    mvebu_v5_defconfig: (gcc-10) FAIL
+    mvebu_v7_defconfig: (gcc-10) FAIL
+    netwinder_defconfig: (gcc-10) FAIL
+    nhk8815_defconfig: (gcc-10) FAIL
+    omap1_defconfig: (gcc-10) FAIL
+    orion5x_defconfig: (gcc-10) FAIL
+    pcm027_defconfig: (gcc-10) FAIL
+    pleb_defconfig: (gcc-10) FAIL
+    pxa168_defconfig: (gcc-10) FAIL
+    pxa255-idp_defconfig: (gcc-10) FAIL
+    pxa3xx_defconfig: (gcc-10) FAIL
+    pxa910_defconfig: (gcc-10) FAIL
+    pxa_defconfig: (gcc-10) FAIL
+    raumfeld_defconfig: (gcc-10) FAIL
+    realview_defconfig: (gcc-10) FAIL
+    rpc_defconfig: (gcc-10) FAIL
+    shmobile_defconfig: (gcc-10) FAIL
+    spear13xx_defconfig: (gcc-10) FAIL
+    spear3xx_defconfig: (gcc-10) FAIL
+    spear6xx_defconfig: (gcc-10) FAIL
+    sunxi_defconfig: (gcc-10) FAIL
+    tegra_defconfig: (gcc-10) FAIL
+    u8500_defconfig: (gcc-10) FAIL
+    versatile_defconfig: (gcc-10) FAIL
+    vexpress_defconfig: (gcc-10) FAIL
+    viper_defconfig: (gcc-10) FAIL
+    vt8500_v6_v7_defconfig: (gcc-10) FAIL
+
+mips:
+    ip27_defconfig: (gcc-10) FAIL
+    ip28_defconfig: (gcc-10) FAIL
+    malta_qemu_32r6_defconfig: (gcc-10) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+
+arm64:
+
+arm:
+    acs5k_defconfig (gcc-10): 1 error
+    at91_dt_defconfig (gcc-10): 2 errors
+    axm55xx_defconfig (gcc-10): 1 error
+    cm_x2xx_defconfig (gcc-10): 1 error
+    dove_defconfig (gcc-10): 1 error
+    ebsa110_defconfig (gcc-10): 9 errors
+    exynos_defconfig (gcc-10): 1 error
+    footbridge_defconfig (gcc-10): 1 error
+    imx_v6_v7_defconfig (gcc-10): 3 errors
+    integrator_defconfig (gcc-10): 1 error
+    iop13xx_defconfig (gcc-10): 1 error
+    iop32x_defconfig (gcc-10): 1 error
+    iop33x_defconfig (gcc-10): 1 error
+    ixp4xx_defconfig (gcc-10): 1 error
+    keystone_defconfig (gcc-10): 1 error
+    ks8695_defconfig (gcc-10): 1 error
+    lpd270_defconfig (gcc-10): 1 error
+    mainstone_defconfig (gcc-10): 1 error
+    mini2440_defconfig (gcc-10): 1 warning
+    mmp2_defconfig (gcc-10): 1 error
+    multi_v5_defconfig (gcc-10): 2 errors
+    mv78xx0_defconfig (gcc-10): 1 error
+    mvebu_v5_defconfig (gcc-10): 1 error
+    mvebu_v7_defconfig (gcc-10): 1 error
+    netwinder_defconfig (gcc-10): 1 error
+    nhk8815_defconfig (gcc-10): 1 error
+    omap1_defconfig (gcc-10): 1 error, 1 warning
+    orion5x_defconfig (gcc-10): 1 error
+    pcm027_defconfig (gcc-10): 1 error
+    pleb_defconfig (gcc-10): 1 error
+    pxa168_defconfig (gcc-10): 1 error
+    pxa255-idp_defconfig (gcc-10): 1 error
+    pxa3xx_defconfig (gcc-10): 1 error
+    pxa910_defconfig (gcc-10): 1 error
+    pxa_defconfig (gcc-10): 1 error
+    raumfeld_defconfig (gcc-10): 1 error
+    realview_defconfig (gcc-10): 1 error
+    rpc_defconfig (gcc-10): 2 errors
+    s3c2410_defconfig (gcc-10): 1 warning
+    shmobile_defconfig (gcc-10): 2 errors
+    spear13xx_defconfig (gcc-10): 1 error
+    spear3xx_defconfig (gcc-10): 1 error
+    spear6xx_defconfig (gcc-10): 1 error
+    sunxi_defconfig (gcc-10): 1 error
+    tegra_defconfig (gcc-10): 2 errors
+    u8500_defconfig (gcc-10): 1 error
+    versatile_defconfig (gcc-10): 1 error
+    vexpress_defconfig (gcc-10): 1 error
+    viper_defconfig (gcc-10): 1 error
+    vt8500_v6_v7_defconfig (gcc-10): 1 error
+
+i386:
+    allnoconfig (gcc-10): 3 warnings
+    i386_defconfig (gcc-10): 3 warnings
+    tinyconfig (gcc-10): 3 warnings
+
+mips:
+    mtx1_defconfig (gcc-10): 3 warnings
+
+x86_64:
+    allnoconfig (gcc-10): 5 warnings
+    tinyconfig (gcc-10): 4 warnings
+    x86_64_defconfig (gcc-10): 5 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 5 warnings
+
+Errors summary:
+
+    15   arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
+smsc/built-in.o has EABI version 5, but target drivers/net/ethernet/built-i=
+n.o has EABI version 0
+    13   arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built=
+-in.o has EABI version 5, but target drivers/gpu/built-in.o has EABI versio=
+n 0
+    5    arm-linux-gnueabihf-ld: error: drivers/gpu/vga/built-in.o uses VFP=
+ instructions, whereas drivers/gpu/built-in.o does not
+    4    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/smsc/built-in.=
+o uses VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+    3    arm-linux-gnueabihf-ld: error: source object drivers/media/v4l2-co=
+re/built-in.o has EABI version 5, but target drivers/media/built-in.o has E=
+ABI version 0
+    2    arm-linux-gnueabihf-ld: error: source object drivers/media/platfor=
+m/built-in.o has EABI version 5, but target drivers/media/built-in.o has EA=
+BI version 0
+    2    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/stmicro/built-=
+in.o uses VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+    1    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
+via/built-in.o has EABI version 5, but target drivers/net/ethernet/built-in=
+.o has EABI version 0
+    1    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
+renesas/built-in.o has EABI version 5, but target drivers/net/ethernet/buil=
+t-in.o has EABI version 0
+    1    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
+marvell/built-in.o has EABI version 5, but target drivers/net/ethernet/buil=
+t-in.o has EABI version 0
+    1    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
+freescale/built-in.o has EABI version 5, but target drivers/net/ethernet/bu=
+ilt-in.o has EABI version 0
+    1    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
+cirrus/built-in.o has EABI version 5, but target drivers/net/ethernet/built=
+-in.o has EABI version 0
+    1    arm-linux-gnueabihf-ld: error: source object drivers/misc/vexpress=
+-syscfg.o has EABI version 5, but target drivers/misc/built-in.o has EABI v=
+ersion 0
+    1    arm-linux-gnueabihf-ld: error: source object drivers/media/usb/bui=
+lt-in.o has EABI version 5, but target drivers/media/built-in.o has EABI ve=
+rsion 0
+    1    arm-linux-gnueabihf-ld: error: source object drivers/media/rc/buil=
+t-in.o has EABI version 5, but target drivers/media/built-in.o has EABI ver=
+sion 0
+    1    arm-linux-gnueabihf-ld: error: drivers/watchdog/built-in.o uses VF=
+P instructions, whereas drivers/built-in.o does not
+    1    arm-linux-gnueabihf-ld: error: drivers/tty/built-in.o uses VFP ins=
+tructions, whereas drivers/built-in.o does not
+    1    arm-linux-gnueabihf-ld: error: drivers/rtc/built-in.o uses VFP ins=
+tructions, whereas drivers/built-in.o does not
+    1    arm-linux-gnueabihf-ld: error: drivers/parport/built-in.o uses VFP=
+ instructions, whereas drivers/built-in.o does not
+    1    arm-linux-gnueabihf-ld: error: drivers/net/built-in.o uses VFP ins=
+tructions, whereas drivers/built-in.o does not
+    1    arm-linux-gnueabihf-ld: error: drivers/hwmon/built-in.o uses VFP i=
+nstructions, whereas drivers/built-in.o does not
+    1    arm-linux-gnueabihf-ld: error: drivers/char/built-in.o uses VFP in=
+structions, whereas drivers/built-in.o does not
+    1    arm-linux-gnueabihf-ld: error: drivers/block/built-in.o uses VFP i=
+nstructions, whereas drivers/built-in.o does not
+    1    arm-linux-gnueabihf-ld: error: drivers/base/built-in.o uses VFP in=
+structions, whereas drivers/built-in.o does not
+    1    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    1    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+h=3D=E2=80=99
+
+Warnings summary:
+
+    7    ld: warning: creating DT_TEXTREL in a PIE
+    7    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic su=
+ffix given and no register operands; using default for `btr'
+    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+d-only section `.head.text'
+    4    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
+    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+d-only section `.head.text'
+    3    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic su=
+ffix given and no register operands; using default for `btr'
+    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    2    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c2=
+4xx_uart_dt_match=E2=80=99 assumed to have one element
+    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    1    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpi=
+o_match=E2=80=99 assumed to have one element
+
+Section mismatches summary:
+
+    9    WARNING: modpost: Found 1 section mismatch(es).
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
+ has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
+mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/media/v4l2-core/bu=
+ilt-in.o has EABI version 5, but target drivers/media/built-in.o has EABI v=
+ersion 0
+    arm-linux-gnueabihf-ld: error: source object drivers/media/platform/bui=
+lt-in.o has EABI version 5, but target drivers/media/built-in.o has EABI ve=
+rsion 0
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
+ has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
+ has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
+ings, 0 section mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
+ has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-10) =E2=80=94 FAIL, 9 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: drivers/tty/built-in.o uses VFP instruct=
+ions, whereas drivers/built-in.o does not
+    arm-linux-gnueabihf-ld: error: drivers/char/built-in.o uses VFP instruc=
+tions, whereas drivers/built-in.o does not
+    arm-linux-gnueabihf-ld: error: drivers/parport/built-in.o uses VFP inst=
+ructions, whereas drivers/built-in.o does not
+    arm-linux-gnueabihf-ld: error: drivers/base/built-in.o uses VFP instruc=
+tions, whereas drivers/built-in.o does not
+    arm-linux-gnueabihf-ld: error: drivers/block/built-in.o uses VFP instru=
+ctions, whereas drivers/built-in.o does not
+    arm-linux-gnueabihf-ld: error: drivers/net/built-in.o uses VFP instruct=
+ions, whereas drivers/built-in.o does not
+    arm-linux-gnueabihf-ld: error: drivers/rtc/built-in.o uses VFP instruct=
+ions, whereas drivers/built-in.o does not
+    arm-linux-gnueabihf-ld: error: drivers/hwmon/built-in.o uses VFP instru=
+ctions, whereas drivers/built-in.o does not
+    arm-linux-gnueabihf-ld: error: drivers/watchdog/built-in.o uses VFP ins=
+tructions, whereas drivers/built-in.o does not
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: drivers/gpu/vga/built-in.o uses VFP inst=
+ructions, whereas drivers/gpu/built-in.o does not
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/cirru=
+s/built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o=
+ has EABI version 0
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/frees=
+cale/built-in.o has EABI version 5, but target drivers/net/ethernet/built-i=
+n.o has EABI version 0
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
+ has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+iop13xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: drivers/gpu/vga/built-in.o uses VFP inst=
+ructions, whereas drivers/gpu/built-in.o does not
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: drivers/gpu/vga/built-in.o uses VFP inst=
+ructions, whereas drivers/gpu/built-in.o does not
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: drivers/gpu/vga/built-in.o uses VFP inst=
+ructions, whereas drivers/gpu/built-in.o does not
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
+ has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
+ has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
+ has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/smsc/built-in.o use=
+s VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/smsc/built-in.o use=
+s VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+gs, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnin=
+gs, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/media/v4l2-core/bu=
+ilt-in.o has EABI version 5, but target drivers/media/built-in.o has EABI v=
+ersion 0
+    arm-linux-gnueabihf-ld: error: source object drivers/media/platform/bui=
+lt-in.o has EABI version 5, but target drivers/media/built-in.o has EABI ve=
+rsion 0
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
+ has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
+ has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
+ has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: drivers/gpu/vga/built-in.o uses VFP inst=
+ructions, whereas drivers/gpu/built-in.o does not
+
+---------------------------------------------------------------------------=
+-----
+netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+Warnings:
+    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpio_mat=
+ch=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/marve=
+ll/built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.=
+o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/smsc/built-in.o use=
+s VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/smsc/built-in.o use=
+s VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
+ has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+raumfeld_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/renes=
+as/built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.=
+o has EABI version 0
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
+ has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/stmicro/built-in.o =
+uses VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/stmicro/built-in.o =
+uses VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/media/rc/built-in.=
+o has EABI version 5, but target drivers/media/built-in.o has EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/media/v4l2-core/bu=
+ilt-in.o has EABI version 5, but target drivers/media/built-in.o has EABI v=
+ersion 0
+    arm-linux-gnueabihf-ld: error: source object drivers/media/usb/built-in=
+.o has EABI version 5, but target drivers/media/built-in.o has EABI version=
+ 0
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+ mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/misc/vexpress-sysc=
+fg.o has EABI version 5, but target drivers/misc/built-in.o has EABI versio=
+n 0
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
+built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
+as EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/via/b=
+uilt-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o ha=
+s EABI version 0
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
+5 warnings, 0 section mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+zebu_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+zebu_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---
+For more info write to <info@kernelci.org>
