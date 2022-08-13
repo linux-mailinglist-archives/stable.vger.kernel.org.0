@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D5E4591A6A
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:54:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEE7A591A6D
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:56:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239184AbiHMMyG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 08:54:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35876 "EHLO
+        id S239304AbiHMM4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 08:56:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230127AbiHMMyF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:54:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 285E714D39
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:54:05 -0700 (PDT)
+        with ESMTP id S230127AbiHMMz7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:55:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C54BA17075
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:55:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8A9160CA4
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:54:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C81ABC433D6;
-        Sat, 13 Aug 2022 12:54:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EE9460B89
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:55:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D7B4C433D6;
+        Sat, 13 Aug 2022 12:55:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660395244;
-        bh=mgibr+qk2QwYcspomNeb7+/dGBxmSfvbnT5CnwtL47U=;
-        h=Subject:To:Cc:From:Date:From;
-        b=2XodSVBhBIkxl/pk7C0Cx+clKTkKDTIQBj+TzDQBkEztf7aeQaM1HVREjYA9vxCay
-         g2agIfQWgCQg+dKUfc1c5YYjDyGqYNYUCz/58v78xtfpzEf2jWjviQP1525Kdrr+DB
-         Ogj3Ll889+7H0UPBwId9KP6dEseKDmdF7svttek8=
-Subject: FAILED: patch "[PATCH] drm/amd/display: Only use depth 36 bpp linebuffers on DCN" failed to apply to 5.15-stable tree
-To:     mario.kleiner.de@gmail.com, alexander.deucher@amd.com,
-        harry.wentland@amd.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 14:53:52 +0200
-Message-ID: <1660395232647@kroah.com>
+        s=korg; t=1660395357;
+        bh=jvqn0fx244qzYOS4iDFSsnziEQCpWTTwSxEuG/P5ctA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rlmehEoE9xF7f8y+2RsnNaDFwIWvIF362w4qz3z+r1Rb5nPZKewRSkBm6puW+F5NU
+         6pdVYBV9+7RdMoSBcn0MOwNFotreYGu7vo+wjPXcVITsX9Mc33RmgcIZ44hNZuO6n0
+         yWW2AjkfPzO9lYAfVVChIAG+1nU2R+utcqqMwkWw=
+Date:   Sat, 13 Aug 2022 14:55:55 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Alex Deucher <alexdeucher@gmail.com>
+Cc:     Alex Deucher <alexander.deucher@amd.com>, stable@vger.kernel.org,
+        hgoffin@amazon.com, amd-gfx@lists.freedesktop.org
+Subject: Re: [PATCH] drm/amdgpu: fix check in fbdev init
+Message-ID: <YvefW7SSPvTVr07y@kroah.com>
+References: <20220719185659.2068735-1-alexander.deucher@amd.com>
+ <CADnq5_MkB8xKHZxVsiXfWPA-QuVrrNCNXF=ScrYAPjNbAH36LA@mail.gmail.com>
+ <YvPQ6MBF6V5FUEHF@kroah.com>
+ <CADnq5_OtXNALuQwsp-yShKxsyZTnfhheSuf9UqfRkbtm9GddiA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CADnq5_OtXNALuQwsp-yShKxsyZTnfhheSuf9UqfRkbtm9GddiA@mail.gmail.com>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -48,73 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Aug 10, 2022 at 11:39:39AM -0400, Alex Deucher wrote:
+> On Wed, Aug 10, 2022 at 11:38 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Wed, Aug 10, 2022 at 11:28:18AM -0400, Alex Deucher wrote:
+> > > On Tue, Jul 19, 2022 at 2:57 PM Alex Deucher <alexander.deucher@amd.com> wrote:
+> > > >
+> > > > The new vkms virtual display code is atomic so there is
+> > > > no need to call drm_helper_disable_unused_functions()
+> > > > when it is enabled.  Doing so can result in a segfault.
+> > > > When the driver switched from the old virtual display code
+> > > > to the new atomic virtual display code, it was missed that
+> > > > we enable virtual display unconditionally under SR-IOV
+> > > > so the checks here missed that case.  Add the missing
+> > > > check for SR-IOV.
+> > > >
+> > > > There is no equivalent of this patch for Linus' tree
+> > > > because the relevant code no longer exists.  This patch
+> > > > is only relevant to kernels 5.15 and 5.16.
+> > > >
+> > > > Fixes: 84ec374bd580 ("drm/amdgpu: create amdgpu_vkms (v4)")
+> > > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> > > > Cc: stable@vger.kernel.org # 5.15.x
+> > > > Cc: hgoffin@amazon.com
+> > >
+> > > Hi Greg,
+> > >
+> > > Is there any chance this can get applied?  It fixes a regression on
+> > > 5.15 and 5.16.
+> >
+> > Ah, missed this as it was not obvious that this was a not-upstream
+> > commit at all, sorry.
+> >
+> > I'll dig it out of lore.kernel.org and queue it up for the next round of
+> > releases, but note, this is our "busy time" with many patches marked for
+> > stable.
+> >
+> > Oh and 5.16 is long end-of-life, nothing anyone can do there, and no one
+> > should be using that kernel version anymore, so no issues there.
+> 
+> Thanks Greg.  Much appreciated.
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Sorry for the delay, now queued up.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From cb50813998b5aed924323b1b46471e8c60b26692 Mon Sep 17 00:00:00 2001
-From: Mario Kleiner <mario.kleiner.de@gmail.com>
-Date: Mon, 11 Jul 2022 19:39:28 +0200
-Subject: [PATCH] drm/amd/display: Only use depth 36 bpp linebuffers on DCN
- display engines.
-
-Various DCE versions had trouble with 36 bpp lb depth, requiring fixes,
-last time in commit 353ca0fa5630 ("drm/amd/display: Fix 10bit 4K display
-on CIK GPUs") for DCE-8. So far >= DCE-11.2 was considered ok, but now I
-found out that on DCE-11.2 it causes dithering when there shouldn't be
-any, so identity pixel passthrough with identity gamma LUTs doesn't work
-when it should. This breaks various important neuroscience applications,
-as reported to me by scientific users of Polaris cards under Ubuntu 22.04
-with Linux 5.15, and confirmed by testing it myself on DCE-11.2.
-
-Lets only use depth 36 for DCN engines, where my testing showed that it
-is both necessary for high color precision output, e.g., RGBA16 fb's,
-and not harmful, as far as more than one year in real-world use showed.
-
-DCE engines seem to work fine for high precision output at 30 bpp, so
-this ("famous last words") depth 30 should hopefully fix all known problems
-without introducing new ones.
-
-Successfully retested on DCE-11.2 Polaris and DCN-1.0 Raven Ridge on
-top of Linux 5.19.0-rc2 + drm-next.
-
-Fixes: 353ca0fa5630 ("drm/amd/display: Fix 10bit 4K display on CIK GPUs")
-Signed-off-by: Mario Kleiner <mario.kleiner.de@gmail.com>
-Tested-by: Mario Kleiner <mario.kleiner.de@gmail.com>
-Cc: stable@vger.kernel.org # 5.14.0
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index 2a701c583332..e33df231e9d2 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -1156,12 +1156,13 @@ bool resource_build_scaling_params(struct pipe_ctx *pipe_ctx)
- 	 * on certain displays, such as the Sharp 4k. 36bpp is needed
- 	 * to support SURFACE_PIXEL_FORMAT_GRPH_ARGB16161616 and
- 	 * SURFACE_PIXEL_FORMAT_GRPH_ABGR16161616 with actual > 10 bpc
--	 * precision on at least DCN display engines. However, at least
--	 * Carrizo with DCE_VERSION_11_0 does not like 36 bpp lb depth,
--	 * so use only 30 bpp on DCE_VERSION_11_0. Testing with DCE 11.2 and 8.3
--	 * did not show such problems, so this seems to be the exception.
-+	 * precision on DCN display engines, but apparently not for DCE, as
-+	 * far as testing on DCE-11.2 and DCE-8 showed. Various DCE parts have
-+	 * problems: Carrizo with DCE_VERSION_11_0 does not like 36 bpp lb depth,
-+	 * neither do DCE-8 at 4k resolution, or DCE-11.2 (broken identify pixel
-+	 * passthrough). Therefore only use 36 bpp on DCN where it is actually needed.
- 	 */
--	if (plane_state->ctx->dce_version > DCE_VERSION_11_0)
-+	if (plane_state->ctx->dce_version > DCE_VERSION_MAX)
- 		pipe_ctx->plane_res.scl_data.lb_params.depth = LB_PIXEL_DEPTH_36BPP;
- 	else
- 		pipe_ctx->plane_res.scl_data.lb_params.depth = LB_PIXEL_DEPTH_30BPP;
-
