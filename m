@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42754591A2D
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:47:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02A5F591A2F
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:47:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239051AbiHMMrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 08:47:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58606 "EHLO
+        id S239418AbiHMMrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 08:47:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232003AbiHMMrI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:47:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E33FD13F03
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:47:06 -0700 (PDT)
+        with ESMTP id S232003AbiHMMrN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:47:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5426613F40
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:47:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BBB7B80108
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:47:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BDE4C433D6;
-        Sat, 13 Aug 2022 12:47:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07CCDB8015A
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:47:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64D28C433C1;
+        Sat, 13 Aug 2022 12:47:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660394824;
-        bh=wF3hZY7714+orMr1bg6JuNe0GZxhfAaXIlelwdm6SUU=;
+        s=korg; t=1660394829;
+        bh=FP6VIjN4naYKx5pnCsmY0chO6gayq1egj+n6cAjUBR8=;
         h=Subject:To:Cc:From:Date:From;
-        b=Jk9Vfui/PQG+DproB3WSnzaDieScAse9pq2GMZ7QOvMDLd2BtNEFNypLrtToVLYru
-         xNqwavBuvlyypmf8asg4SEFnP4NcCqww+f2Tqd0VV8Tvw3z+68rj3zbcS9hbgchRY8
-         L39/+yR7jVYYrZityjJdoyCleZ2FVrfCfsPwc1f4=
-Subject: FAILED: patch "[PATCH] drm/i915/dmc: Add MMIO range restrictions" failed to apply to 5.15-stable tree
+        b=pGCem5KMcHoyt9ywNWzLQWbj6Q2XneqQ0lXGYjWYUtBJYUG/xGZucknSbdNqnL2Ro
+         57drVSI9+GhsF1glKvO74Mpu6qXCJywbglXNn8TH/nmMiXUtaJ7Lfip/OZgeu2zCl6
+         A1PezgYlObyMekZIonTgvJtJVIQDOIyznxfTbOMQ=
+Subject: FAILED: patch "[PATCH] drm/i915/dmc: Add MMIO range restrictions" failed to apply to 5.10-stable tree
 To:     anusha.srivatsa@intel.com, lucas.demarchi@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 14:46:54 +0200
-Message-ID: <166039481412622@kroah.com>
+Date:   Sat, 13 Aug 2022 14:46:55 +0200
+Message-ID: <1660394815188166@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
