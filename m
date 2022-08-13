@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EFD8591B3F
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 17:14:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 485F3591B40
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 17:14:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239622AbiHMPO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 11:14:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60048 "EHLO
+        id S239504AbiHMPOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 11:14:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239504AbiHMPO2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 11:14:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C196513D1E
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 08:14:26 -0700 (PDT)
+        with ESMTP id S239634AbiHMPOd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 11:14:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4200913D36
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 08:14:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DEE860EBD
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 15:14:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 509F7C433D6;
-        Sat, 13 Aug 2022 15:14:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9483B80686
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 15:14:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BEC5C433C1;
+        Sat, 13 Aug 2022 15:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660403665;
-        bh=RVUudq+rpapEwesTU7tKSytV2IPXAMk3eVtUCSdQ0ks=;
+        s=korg; t=1660403668;
+        bh=XvAzBuDFA2jpR7lNZ/ZQhtr6IHy2XjvLIRdACItLoXw=;
         h=Subject:To:Cc:From:Date:From;
-        b=vNxib5uyRAh/2wFeSjsmLubBDH60UzyeQfupstkthGWqAdOWIvLzYNefXmKCirjz7
-         1pkfki4xezm1ZEPvbVR1L3uDSWBk807VXrdkv1KcKndJXgDNi1ZIPIEp8N8aMU/LI6
-         ttroOLb+YXFrdUrynTE4dR2eBanwyL50YE4/W1Zw=
-Subject: FAILED: patch "[PATCH] netfilter: nf_tables: upfront validation of data via" failed to apply to 5.15-stable tree
+        b=cB/3qewCOx0ILW304Vrw1zpT8oOglyMuvckLC68pSzmc8CAdeoRHNezcgecCAwx69
+         SwELGlNwbaj1MQOntUUIJvWiSYj4dNeJTHcqBGBx7oVXxmTXgIdUSAUGm3E6937m+W
+         jB2qH1cAf44EPcpc77cFV3vfT/GhMXfl8djhRDOI=
+Subject: FAILED: patch "[PATCH] netfilter: nf_tables: upfront validation of data via" failed to apply to 5.4-stable tree
 To:     pablo@netfilter.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 17:14:18 +0200
-Message-ID: <1660403658135129@kroah.com>
+Date:   Sat, 13 Aug 2022 17:14:19 +0200
+Message-ID: <166040365994146@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
