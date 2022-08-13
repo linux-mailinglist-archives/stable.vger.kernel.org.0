@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6ACD591A8F
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 15:22:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77860591A90
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 15:23:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239238AbiHMNWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 09:22:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59194 "EHLO
+        id S239447AbiHMNX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 09:23:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235278AbiHMNWt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 09:22:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E65EF37F96
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 06:22:48 -0700 (PDT)
+        with ESMTP id S235278AbiHMNX1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 09:23:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7429F3AB09
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 06:23:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C18860DD3
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 13:22:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85E7CC433D6;
-        Sat, 13 Aug 2022 13:22:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1166260D2F
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 13:23:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2155BC433D6;
+        Sat, 13 Aug 2022 13:23:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660396967;
-        bh=PZYD2dJRjoT2uCkrh91vJ5R7Uo06tJycfGF7/PhJTSE=;
+        s=korg; t=1660397005;
+        bh=EOITiVyJ40+NYuW/SRDm6Rc+VQ6n+zmYdeklOXdF1mQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ye/wPkDeMEXJgopW60ELgddUbxnY+MlZl5EmnHIbBrTIXxCTHqGKmwUr6jl5pEauF
-         irMbib30MyQjLsx0Zey7SsGS/kN2EbudKzxy+kJEf0vzLk7nA/LlaFw08XlhUW59qg
-         abKlEp+glSiumrsFqT2YM4w0l2TvEJ/M8/0kNs5s=
-Subject: FAILED: patch "[PATCH] mtd: core: check partition before dereference" failed to apply to 5.19-stable tree
-To:     penguin-kernel@I-love.SAKURA.ne.jp, oliver.sang@intel.com,
-        richard@nod.at,
-        syzbot+fe013f55a2814a9e8cfd@syzkaller.appspotmail.com
+        b=UuFuQwbFwMCrE8/rdNTakqci4aoTTO6Ne4JOr6/UqDD5Kyfe0RmyelD6ivrD08b0N
+         Tf5RZ+6PTFDIqI7SmorEnPx+v4vrLCg8RUlI8fXxZ8Xh/9diFRToF8lQVbUVdi4/w5
+         e2kGS5RgW49EgmSrU8J6d6n7qY0eh6mytR/LS/vQ=
+Subject: FAILED: patch "[PATCH] um: seed rng using host OS rng" failed to apply to 5.10-stable tree
+To:     Jason@zx2c4.com, anton.ivanov@cambridgegreys.com,
+        johannes@sipsolutions.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 15:22:45 +0200
-Message-ID: <16603969654870@kroah.com>
+Date:   Sat, 13 Aug 2022 15:23:23 +0200
+Message-ID: <16603970031068@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,33 +60,152 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7ec4cdb321738d44ae5d405e7b6ac73dfbf99caa Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Date: Mon, 25 Jul 2022 22:49:25 +0900
-Subject: [PATCH] mtd: core: check partition before dereference
+From 0b9ba6135d7f18b82f3d8bebb55ded725ba88e0e Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Wed, 13 Jul 2022 01:12:21 +0200
+Subject: [PATCH] um: seed rng using host OS rng
 
-syzbot is reporting NULL pointer dereference at mtd_check_of_node() [1],
-for mtdram test device (CONFIG_MTD_MTDRAM) is not partition.
+UML generally does not provide access to special CPU instructions like
+RDRAND, and execution tends to be rather deterministic, with no real
+hardware interrupts, making good randomness really very hard, if not
+all together impossible. Not only is this a security eyebrow raiser, but
+it's also quite annoying when trying to do various pieces of UML-based
+automation that takes a long time to boot, if ever.
 
-Link: https://syzkaller.appspot.com/bug?extid=fe013f55a2814a9e8cfd [1]
-Reported-by: syzbot <syzbot+fe013f55a2814a9e8cfd@syzkaller.appspotmail.com>
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Fixes: ad9b10d1eaada169 ("mtd: core: introduce of support for dynamic partitions")
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-CC: stable@vger.kernel.org
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fix this by trivially calling getrandom() in the host and using that
+seed as "bootloader randomness", which initializes the rng immediately
+at UML boot.
 
-diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
-index 6fafea80fd98..a9b8be9f40dc 100644
---- a/drivers/mtd/mtdcore.c
-+++ b/drivers/mtd/mtdcore.c
-@@ -559,6 +559,8 @@ static void mtd_check_of_node(struct mtd_info *mtd)
- 		return;
+The old behavior can be restored the same way as on any other arch, by
+way of CONFIG_TRUST_BOOTLOADER_RANDOMNESS=n or
+random.trust_bootloader=0. So seen from that perspective, this just
+makes UML act like other archs, which is positive in its own right.
+
+Additionally, wire up arch_get_random_{int,long}() in the same way, so
+that reseeds can also make use of the host RNG, controllable by
+CONFIG_TRUST_CPU_RANDOMNESS and random.trust_cpu, per usual.
+
+Cc: stable@vger.kernel.org
+Acked-by: Johannes Berg <johannes@sipsolutions.net>
+Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+
+diff --git a/arch/um/include/asm/archrandom.h b/arch/um/include/asm/archrandom.h
+new file mode 100644
+index 000000000000..2f24cb96391d
+--- /dev/null
++++ b/arch/um/include/asm/archrandom.h
+@@ -0,0 +1,30 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __ASM_UM_ARCHRANDOM_H__
++#define __ASM_UM_ARCHRANDOM_H__
++
++#include <linux/types.h>
++
++/* This is from <os.h>, but better not to #include that in a global header here. */
++ssize_t os_getrandom(void *buf, size_t len, unsigned int flags);
++
++static inline bool __must_check arch_get_random_long(unsigned long *v)
++{
++	return os_getrandom(v, sizeof(*v), 0) == sizeof(*v);
++}
++
++static inline bool __must_check arch_get_random_int(unsigned int *v)
++{
++	return os_getrandom(v, sizeof(*v), 0) == sizeof(*v);
++}
++
++static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
++{
++	return false;
++}
++
++static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
++{
++	return false;
++}
++
++#endif
+diff --git a/arch/um/include/shared/os.h b/arch/um/include/shared/os.h
+index fafde1d5416e..0df646c6651e 100644
+--- a/arch/um/include/shared/os.h
++++ b/arch/um/include/shared/os.h
+@@ -11,6 +11,12 @@
+ #include <irq_user.h>
+ #include <longjmp.h>
+ #include <mm_id.h>
++/* This is to get size_t */
++#ifndef __UM_HOST__
++#include <linux/types.h>
++#else
++#include <sys/types.h>
++#endif
  
- 	/* Check if a partitions node exist */
-+	if (!mtd_is_partition(mtd))
-+		return;
- 	parent = mtd->parent;
- 	parent_dn = dev_of_node(&parent->dev);
- 	if (!parent_dn)
+ #define CATCH_EINTR(expr) while ((errno = 0, ((expr) < 0)) && (errno == EINTR))
+ 
+@@ -243,6 +249,7 @@ extern void stack_protections(unsigned long address);
+ extern int raw(int fd);
+ extern void setup_machinename(char *machine_out);
+ extern void setup_hostinfo(char *buf, int len);
++extern ssize_t os_getrandom(void *buf, size_t len, unsigned int flags);
+ extern void os_dump_core(void) __attribute__ ((noreturn));
+ extern void um_early_printk(const char *s, unsigned int n);
+ extern void os_fix_helper_signals(void);
+diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
+index 0760e24f2eba..74f3efd96bd4 100644
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -16,6 +16,7 @@
+ #include <linux/sched/task.h>
+ #include <linux/kmsg_dump.h>
+ #include <linux/suspend.h>
++#include <linux/random.h>
+ 
+ #include <asm/processor.h>
+ #include <asm/cpufeature.h>
+@@ -406,6 +407,8 @@ int __init __weak read_initrd(void)
+ 
+ void __init setup_arch(char **cmdline_p)
+ {
++	u8 rng_seed[32];
++
+ 	stack_protections((unsigned long) &init_thread_info);
+ 	setup_physmem(uml_physmem, uml_reserved, physmem_size, highmem);
+ 	mem_total_pages(physmem_size, iomem_size, highmem);
+@@ -416,6 +419,11 @@ void __init setup_arch(char **cmdline_p)
+ 	strlcpy(boot_command_line, command_line, COMMAND_LINE_SIZE);
+ 	*cmdline_p = command_line;
+ 	setup_hostinfo(host_info, sizeof host_info);
++
++	if (os_getrandom(rng_seed, sizeof(rng_seed), 0) == sizeof(rng_seed)) {
++		add_bootloader_randomness(rng_seed, sizeof(rng_seed));
++		memzero_explicit(rng_seed, sizeof(rng_seed));
++	}
+ }
+ 
+ void __init check_bugs(void)
+diff --git a/arch/um/os-Linux/util.c b/arch/um/os-Linux/util.c
+index 41297ec404bf..fc0f2a9dee5a 100644
+--- a/arch/um/os-Linux/util.c
++++ b/arch/um/os-Linux/util.c
+@@ -14,6 +14,7 @@
+ #include <sys/wait.h>
+ #include <sys/mman.h>
+ #include <sys/utsname.h>
++#include <sys/random.h>
+ #include <init.h>
+ #include <os.h>
+ 
+@@ -96,6 +97,11 @@ static inline void __attribute__ ((noreturn)) uml_abort(void)
+ 			exit(127);
+ }
+ 
++ssize_t os_getrandom(void *buf, size_t len, unsigned int flags)
++{
++	return getrandom(buf, len, flags);
++}
++
+ /*
+  * UML helper threads must not handle SIGWINCH/INT/TERM
+  */
 
