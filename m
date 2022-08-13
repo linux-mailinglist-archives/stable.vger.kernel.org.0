@@ -2,170 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E19259176E
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 00:52:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 819935918F0
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 07:51:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236818AbiHLWwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Aug 2022 18:52:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34218 "EHLO
+        id S235029AbiHMFvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 01:51:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229966AbiHLWwD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Aug 2022 18:52:03 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73BCB8E0E0
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 15:52:02 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id ha11so2223640pjb.2
-        for <stable@vger.kernel.org>; Fri, 12 Aug 2022 15:52:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc;
-        bh=Uu6qgWExl/3WvS+Feg4OYBga+utgxjmS2Xx6CBjMOGY=;
-        b=1I/YfYcZTSbXxLbbOtwsKBKi8zZLb5g2MpzBeRWFT6a/+EXLJ5xwAjPXHYw3qLFtWY
-         Q6LalK4FciZzZeeLbrcXVPkIbhZq45KTcwgh1bnJ3RZQv0JkxU8FD6+k2bwUp2Y10r1P
-         DW25ZqS6wixUbf9x1kMpWdYkRJe8pL0y1M2WZzgNxYGiCUR2VhJbX/sS+mrtCmS9eddQ
-         XrUQOkutbyGjXLW8xiTCunnDoWBP/bKFeIeNpYuc0jy3I9UtF3ljFHdJp6NFRExIdGzO
-         9jgc2vf+LTs97KdySqZ36hnD3TbDbT9zPcPH0YR4aw1wf4+wIIghIYUrPr3JAP2h+YC5
-         nN8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc;
-        bh=Uu6qgWExl/3WvS+Feg4OYBga+utgxjmS2Xx6CBjMOGY=;
-        b=B6jWRKlpz0se20s04WX5jJ+kBDhPb7MhMQyIIcAcs6Kt9wEnVTiB8KvDDRX+N8Xwhp
-         MGEcC0dDLkUPBlkwCRcUdsxxXJdTHLxetnXt9tlab5OhGhH3zn6VPqqPevXEIE6Xq/lt
-         NIFpeBOL43dextvuU7+z755Gn4/5423sFnCZb49Z0eyJpzEzvpaUu8ZsZ+c6fZYkwM2N
-         e/Rk74GV3pPuGgjrp5CXAUgeltLBY0hP4S+BOrADRfPZXc0V4iQmE/f313hi6w1lSnvl
-         iiCK7MUs7zIyuo1NASieStqNn5VO3EF6nx1+Qbv5uY4GT7HwRdYO4kZVUsmMw+wNgR4S
-         pu/g==
-X-Gm-Message-State: ACgBeo2JmH3ECjzXifa0/SFtv0UYnXAQrkGUdAs+fFrje0Sac2WV4adL
-        sK55XjpfJCIbtAxCVKaTPpXD4SkNaypMYC5G
-X-Google-Smtp-Source: AA6agR6f5bsyEPpm2lvDAPxu5mY2p8FWVctE3kZ2h4ROl1UnACalfRtVvgSoPYUS3s/m8LVd2rbaMA==
-X-Received: by 2002:a17:902:efc3:b0:16f:1153:c509 with SMTP id ja3-20020a170902efc300b0016f1153c509mr6036561plb.41.1660344721762;
-        Fri, 12 Aug 2022 15:52:01 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x185-20020a6263c2000000b0052dc3796cbfsm2119917pfb.75.2022.08.12.15.52.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Aug 2022 15:52:01 -0700 (PDT)
-Message-ID: <62f6d991.620a0220.19a7f.3f97@mx.google.com>
-Date:   Fri, 12 Aug 2022 15:52:01 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.60-34-gdab49837d475c
-Subject: stable-rc/queue/5.15 baseline: 162 runs,
- 2 regressions (v5.15.60-34-gdab49837d475c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S230147AbiHMFvD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 01:51:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E5DE2A25C;
+        Fri, 12 Aug 2022 22:51:02 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9331260B65;
+        Sat, 13 Aug 2022 05:51:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5332C433D6;
+        Sat, 13 Aug 2022 05:51:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1660369860;
+        bh=/7idZltHoaXgPj6kbHC4EzHt58RVfbgCqwFY4JVNE+Q=;
+        h=Date:To:From:Subject:From;
+        b=DM0Lhr/fu7DehAu5ln7WKnOREYa0ngQGJfBdA1kYxK1vEtCDRqFqrbuhOwkKxWTIC
+         jDgGHEpnEmF3I7me7l4WgncDz4rR2dUFgKXI8zUIRQ70zrHqyoYjoDiTojooxYREPO
+         c66oitDSxERXWRJF/b4hT/LYPGlwcTHgGCK2b8Rc=
+Date:   Fri, 12 Aug 2022 22:50:59 -0700
+To:     mm-commits@vger.kernel.org, wangnan0@huawei.com,
+        stable@vger.kernel.org, naveen.n.rao@linux.ibm.com,
+        mhiramat@kernel.org, kuni1840@gmail.com, davem@davemloft.net,
+        ayudutta@amazon.com, anil.s.keshavamurthy@intel.com,
+        kuniyu@amazon.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + kprobes-dont-call-disarm_kprobe-for-disabled-kprobes.patch added to mm-hotfixes-unstable branch
+Message-Id: <20220813055100.C5332C433D6@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 162 runs, 2 regressions (v5.15.60-34-gdab498=
-37d475c)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: kprobes: don't call disarm_kprobe() for disabled kprobes.
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     kprobes-dont-call-disarm_kprobe-for-disabled-kprobes.patch
 
-platform      | arch | lab          | compiler | defconfig           | regr=
-essions
---------------+------+--------------+----------+---------------------+-----=
--------
-at91sam9g20ek | arm  | lab-broonie  | gcc-10   | multi_v5_defconfig  | 1   =
-       =
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/kprobes-dont-call-disarm_kprobe-for-disabled-kprobes.patch
 
-beagle-xm     | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1   =
-       =
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.60-34-gdab49837d475c/plan/baseline/
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.60-34-gdab49837d475c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      dab49837d475cbebc5a4ae154bf089a3947427a7 =
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
 
+------------------------------------------------------
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
+Subject: kprobes: don't call disarm_kprobe() for disabled kprobes.
+Date: Fri, 12 Aug 2022 19:05:09 -0700
 
+The assumption in __disable_kprobe() is wrong, and it could try to disarm
+an already disarmed kprobe and fire the WARN_ONCE() below. [0]  We can
+easily reproduce this issue.
 
-Test Regressions
----------------- =
+1. Write 0 to /sys/kernel/debug/kprobes/enabled.
 
+  # echo 0 > /sys/kernel/debug/kprobes/enabled
 
+2. Run execsnoop.  At this time, one kprobe is disabled.
 
-platform      | arch | lab          | compiler | defconfig           | regr=
-essions
---------------+------+--------------+----------+---------------------+-----=
--------
-at91sam9g20ek | arm  | lab-broonie  | gcc-10   | multi_v5_defconfig  | 1   =
-       =
+  # /usr/share/bcc/tools/execsnoop &
+  [1] 2460
+  PCOMM            PID    PPID   RET ARGS
 
+  # cat /sys/kernel/debug/kprobes/list
+  ffffffff91345650  r  __x64_sys_execve+0x0    [FTRACE]
+  ffffffff91345650  k  __x64_sys_execve+0x0    [DISABLED][FTRACE]
 
-  Details:     https://kernelci.org/test/plan/id/62f6a46b1656c1a50adaf102
+3. Write 1 to /sys/kernel/debug/kprobes/enabled, which changes
+   kprobes_all_disarmed to false but does not arm the disabled kprobe.
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v5_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.60-=
-34-gdab49837d475c/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sa=
-m9g20ek.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.60-=
-34-gdab49837d475c/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sa=
-m9g20ek.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
+  # echo 1 > /sys/kernel/debug/kprobes/enabled
 
+  # cat /sys/kernel/debug/kprobes/list
+  ffffffff91345650  r  __x64_sys_execve+0x0    [FTRACE]
+  ffffffff91345650  k  __x64_sys_execve+0x0    [DISABLED][FTRACE]
 
+4. Kill execsnoop, when __disable_kprobe() calls disarm_kprobe() for the
+   disabled kprobe and hits the WARN_ONCE() in __disarm_kprobe_ftrace().
 
-  * baseline.login: https://kernelci.org/test/case/id/62f6a46b1656c1a50adaf=
-103
-        new failure (last pass: v5.15.60-22-gaa26185c2c1ff) =
+  # fg
+  /usr/share/bcc/tools/execsnoop
+  ^C
 
- =
+Actually, WARN_ONCE() is fired twice, and __unregister_kprobe_top() misses
+some cleanups and leaves the aggregated kprobe in the hash table.  Then,
+__unregister_trace_kprobe() initialises tk->rp.kp.list and creates an
+infinite loop like this.
 
+  aggregated kprobe.list -> kprobe.list -.
+                                     ^    |
+                                     '.__.'
 
+In this situation, these commands fall into the infinite loop and result
+in RCU stall or soft lockup.
 
-platform      | arch | lab          | compiler | defconfig           | regr=
-essions
---------------+------+--------------+----------+---------------------+-----=
--------
-beagle-xm     | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1   =
-       =
+  cat /sys/kernel/debug/kprobes/list : show_kprobe_addr() enters into the
+                                       infinite loop with RCU.
 
+  /usr/share/bcc/tools/execsnoop : warn_kprobe_rereg() holds kprobe_mutex,
+                                   and __get_valid_kprobe() is stuck in
+				   the loop.
 
-  Details:     https://kernelci.org/test/plan/id/62f6a7011cd7ef429adaf056
+To avoid the issue, make sure we don't call disarm_kprobe() for disabled
+kprobes.
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.60-=
-34-gdab49837d475c/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.60-=
-34-gdab49837d475c/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/armel/rootfs.cpio.gz =
+[0]
+Failed to disarm kprobe-ftrace at __x64_sys_execve+0x0/0x40 (error -2)
+WARNING: CPU: 6 PID: 2460 at kernel/kprobes.c:1130 __disarm_kprobe_ftrace.isra.19 (kernel/kprobes.c:1129)
+Modules linked in: ena
+CPU: 6 PID: 2460 Comm: execsnoop Not tainted 5.19.0+ #28
+Hardware name: Amazon EC2 c5.2xlarge/, BIOS 1.0 10/16/2017
+RIP: 0010:__disarm_kprobe_ftrace.isra.19 (kernel/kprobes.c:1129)
+Code: 24 8b 02 eb c1 80 3d c4 83 f2 01 00 75 d4 48 8b 75 00 89 c2 48 c7 c7 90 fa 0f 92 89 04 24 c6 05 ab 83 01 e8 e4 94 f0 ff <0f> 0b 8b 04 24 eb b1 89 c6 48 c7 c7 60 fa 0f 92 89 04 24 e8 cc 94
+RSP: 0018:ffff9e6ec154bd98 EFLAGS: 00010282
+RAX: 0000000000000000 RBX: ffffffff930f7b00 RCX: 0000000000000001
+RDX: 0000000080000001 RSI: ffffffff921461c5 RDI: 00000000ffffffff
+RBP: ffff89c504286da8 R08: 0000000000000000 R09: c0000000fffeffff
+R10: 0000000000000000 R11: ffff9e6ec154bc28 R12: ffff89c502394e40
+R13: ffff89c502394c00 R14: ffff9e6ec154bc00 R15: 0000000000000000
+FS:  00007fe800398740(0000) GS:ffff89c812d80000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000c00057f010 CR3: 0000000103b54006 CR4: 00000000007706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+<TASK>
+ __disable_kprobe (kernel/kprobes.c:1716)
+ disable_kprobe (kernel/kprobes.c:2392)
+ __disable_trace_kprobe (kernel/trace/trace_kprobe.c:340)
+ disable_trace_kprobe (kernel/trace/trace_kprobe.c:429)
+ perf_trace_event_unreg.isra.2 (./include/linux/tracepoint.h:93 kernel/trace/trace_event_perf.c:168)
+ perf_kprobe_destroy (kernel/trace/trace_event_perf.c:295)
+ _free_event (kernel/events/core.c:4971)
+ perf_event_release_kernel (kernel/events/core.c:5176)
+ perf_release (kernel/events/core.c:5186)
+ __fput (fs/file_table.c:321)
+ task_work_run (./include/linux/sched.h:2056 (discriminator 1) kernel/task_work.c:179 (discriminator 1))
+ exit_to_user_mode_prepare (./include/linux/resume_user_mode.h:49 kernel/entry/common.c:169 kernel/entry/common.c:201)
+ syscall_exit_to_user_mode (./arch/x86/include/asm/jump_label.h:55 ./arch/x86/include/asm/nospec-branch.h:384 ./arch/x86/include/asm/entry-common.h:94 kernel/entry/common.c:133 kernel/entry/common.c:296)
+ do_syscall_64 (arch/x86/entry/common.c:87)
+ entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
+RIP: 0033:0x7fe7ff210654
+Code: 15 79 89 20 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb be 0f 1f 00 8b 05 9a cd 20 00 48 63 ff 85 c0 75 11 b8 03 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 3a f3 c3 48 83 ec 18 48 89 7c 24 08 e8 34 fc
+RSP: 002b:00007ffdbd1d3538 EFLAGS: 00000246 ORIG_RAX: 0000000000000003
+RAX: 0000000000000000 RBX: 0000000000000008 RCX: 00007fe7ff210654
+RDX: 0000000000000000 RSI: 0000000000002401 RDI: 0000000000000008
+RBP: 0000000000000000 R08: 94ae31d6fda838a4 R0900007fe8001c9d30
+R10: 00007ffdbd1d34b0 R11: 0000000000000246 R12: 00007ffdbd1d3600
+R13: 0000000000000000 R14: fffffffffffffffc R15: 00007ffdbd1d3560
+</TASK>
 
+Link: https://lkml.kernel.org/r/20220813020509.90805-1-kuniyu@amazon.com
+Fixes: 69d54b916d83 ("kprobes: makes kprobes/enabled works correctly for optimized kprobes.")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Reported-by: Ayushman Dutta <ayudutta@amazon.com>
+Cc: "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Wang Nan <wangnan0@huawei.com>
+Cc: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: Kuniyuki Iwashima <kuni1840@gmail.com>
+Cc: Ayushman Dutta <ayudutta@amazon.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
+ kernel/kprobes.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-  * baseline.login: https://kernelci.org/test/case/id/62f6a7011cd7ef429adaf=
-057
-        failing since 134 days (last pass: v5.15.31-2-g57d4301e22c2, first =
-fail: v5.15.31-3-g4ae45332eb9c) =
+--- a/kernel/kprobes.c~kprobes-dont-call-disarm_kprobe-for-disabled-kprobes
++++ a/kernel/kprobes.c
+@@ -1707,11 +1707,12 @@ static struct kprobe *__disable_kprobe(s
+ 		/* Try to disarm and disable this/parent probe */
+ 		if (p == orig_p || aggr_kprobe_disabled(orig_p)) {
+ 			/*
+-			 * If 'kprobes_all_disarmed' is set, 'orig_p'
+-			 * should have already been disarmed, so
+-			 * skip unneed disarming process.
++			 * Don't be lazy here.  Even if 'kprobes_all_disarmed'
++			 * is false, 'orig_p' might not have been armed yet.
++			 * Note arm_all_kprobes() __tries__ to arm all kprobes
++			 * on the best effort basis.
+ 			 */
+-			if (!kprobes_all_disarmed) {
++			if (!kprobes_all_disarmed && !kprobe_disabled(orig_p)) {
+ 				ret = disarm_kprobe(orig_p, true);
+ 				if (ret) {
+ 					p->flags &= ~KPROBE_FLAG_DISABLED;
+_
 
- =20
+Patches currently in -mm which might be from kuniyu@amazon.com are
+
+kprobes-dont-call-disarm_kprobe-for-disabled-kprobes.patch
+
