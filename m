@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADC75591A4C
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:49:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25C07591A4D
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 14:49:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237374AbiHMMtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 08:49:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59986 "EHLO
+        id S232003AbiHMMto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 08:49:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232003AbiHMMtk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:49:40 -0400
+        with ESMTP id S239051AbiHMMtn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 08:49:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8299E13F4B
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:49:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9605C13F4B
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 05:49:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E57F60D24
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:49:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28F6DC433D6;
-        Sat, 13 Aug 2022 12:49:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32E2060D2F
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 12:49:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43871C433D6;
+        Sat, 13 Aug 2022 12:49:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660394978;
-        bh=emJib4dhZPNqn8PV6qfgAQ57bSigshBJhjTWD2+iFPA=;
+        s=korg; t=1660394981;
+        bh=2WxaLthpgQEoVWq5ei/kuottosPv63tgGnOAizae+jE=;
         h=Subject:To:Cc:From:Date:From;
-        b=TyhWjXPY9LwoY0ZZxqcjeqWgJxS2lST50NB4BJOkZ+xSMccC5Lp1px3PzLG7AI1vy
-         y7Tr3kl+PTzKvw9A/K93a08SBWoATbmxLzSaffsU7zvtIwUvjRNTJEsaqZiSdvWG24
-         TAZLSF3X6UiQYJ3x/291RGcK+hAGbNkKXTzsg5yw=
-Subject: FAILED: patch "[PATCH] drm/vc4: drv: Adopt the dma configuration from the HVS or V3D" failed to apply to 5.19-stable tree
+        b=mlK8HlQrQOAmkH6Bt4xdiBbUeCfKFM0X5Q84jmyAjDXFONSKxgst37eL+b9QvpgK/
+         HwpT95aMMMqBX+cMDFkG+SevY/1x9HzmKd1/s7wLwxeS1bTCMhOvKKg2NQ+LIjEIMz
+         43IcZgRyuljfgbtUMvtg336hughsz7jrHNQpT8bk=
+Subject: FAILED: patch "[PATCH] drm/vc4: drv: Adopt the dma configuration from the HVS or V3D" failed to apply to 5.18-stable tree
 To:     dave.stevenson@raspberrypi.com, maxime@cerno.tech,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 13 Aug 2022 14:49:36 +0200
-Message-ID: <166039497691241@kroah.com>
+Message-ID: <1660394976138139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
