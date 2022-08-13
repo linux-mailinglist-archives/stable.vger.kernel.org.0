@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BCE7591AEF
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:26:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B73C591AF0
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:27:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239445AbiHMO02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 10:26:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49404 "EHLO
+        id S239517AbiHMO1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 10:27:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237698AbiHMO01 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:26:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0455D248C1
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:26:24 -0700 (PDT)
+        with ESMTP id S237698AbiHMO1i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:27:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 106BA27B2B
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:27:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8420560E26
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:26:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CA3CC433D6;
-        Sat, 13 Aug 2022 14:26:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F9C2B80189
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:27:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8E28C433C1;
+        Sat, 13 Aug 2022 14:27:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660400782;
-        bh=APWZnEhTxLmVVwMqAFzPG7eTHtUMzXvV9jeeOGPG1rc=;
+        s=korg; t=1660400854;
+        bh=ls2UaqFfmYIVL3Yge93BsKQXEoqTY1MZevihMV4wDww=;
         h=Subject:To:Cc:From:Date:From;
-        b=rim0Eesgq4xc3Ev4n8aySkyWQDyeMU41ZNZ/7ZsPx1xMzzNsUmY6r1/jhOHJca1GB
-         9Bit3PETS5FYS6Mzwsrtr7ip7uG9cuLCYjnCuQ926HcP70os4swl0yDMoQ7oTq9ppa
-         xRmzpXT6J2rDsQb2njPli4rMGfF9GOowFNxerp5E=
-Subject: FAILED: patch "[PATCH] ksmbd: fix heap-based overflow in set_ntacl_dacl()" failed to apply to 5.15-stable tree
-To:     linkinjeon@kernel.org, hyc.lee@gmail.com, stfrench@microsoft.com
+        b=M8dHKpLnff4C4t9wUaFR0RDwgl4NFCJyJwH1jULWog8GGQQY7XOqB4zubcop5SEbZ
+         1h/xgVszrrp0M14Fkr8VOk3mNN0uNBn4KnnpCumaMtXl4oKi9DZAYl+DxJbkekLdem
+         wd34eXRidJvFu+IgJrfOQMbo2s0hwGOU5ztOASkQ=
+Subject: FAILED: patch "[PATCH] fuse: fix deadlock between atomic O_TRUNC and page" failed to apply to 5.15-stable tree
+To:     mszeredi@redhat.com, stable@vger.kernel.org,
+        zhangjiachen.jaycee@bytedance.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 16:26:20 +0200
-Message-ID: <16604007807799@kroah.com>
+Date:   Sat, 13 Aug 2022 16:27:31 +0200
+Message-ID: <1660400851167211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,431 +60,169 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8f0541186e9ad1b62accc9519cc2b7a7240272a7 Mon Sep 17 00:00:00 2001
-From: Namjae Jeon <linkinjeon@kernel.org>
-Date: Tue, 2 Aug 2022 07:28:51 +0900
-Subject: [PATCH] ksmbd: fix heap-based overflow in set_ntacl_dacl()
+From 2fdbb8dd01556e1501132b5ad3826e8f71e24a8b Mon Sep 17 00:00:00 2001
+From: Miklos Szeredi <mszeredi@redhat.com>
+Date: Fri, 22 Apr 2022 15:48:53 +0200
+Subject: [PATCH] fuse: fix deadlock between atomic O_TRUNC and page
+ invalidation
 
-The testcase use SMB2_SET_INFO_HE command to set a malformed file attribute
-under the label `security.NTACL`. SMB2_QUERY_INFO_HE command in testcase
-trigger the following overflow.
+fuse_finish_open() will be called with FUSE_NOWRITE set in case of atomic
+O_TRUNC open(), so commit 76224355db75 ("fuse: truncate pagecache on
+atomic_o_trunc") replaced invalidate_inode_pages2() by truncate_pagecache()
+in such a case to avoid the A-A deadlock. However, we found another A-B-B-A
+deadlock related to the case above, which will cause the xfstests
+generic/464 testcase hung in our virtio-fs test environment.
 
-[ 4712.003781] ==================================================================
-[ 4712.003790] BUG: KASAN: slab-out-of-bounds in build_sec_desc+0x842/0x1dd0 [ksmbd]
-[ 4712.003807] Write of size 1060 at addr ffff88801e34c068 by task kworker/0:0/4190
+For example, consider two processes concurrently open one same file, one
+with O_TRUNC and another without O_TRUNC. The deadlock case is described
+below, if open(O_TRUNC) is already set_nowrite(acquired A), and is trying
+to lock a page (acquiring B), open() could have held the page lock
+(acquired B), and waiting on the page writeback (acquiring A). This would
+lead to deadlocks.
 
-[ 4712.003813] CPU: 0 PID: 4190 Comm: kworker/0:0 Not tainted 5.19.0-rc5 #1
-[ 4712.003850] Workqueue: ksmbd-io handle_ksmbd_work [ksmbd]
-[ 4712.003867] Call Trace:
-[ 4712.003870]  <TASK>
-[ 4712.003873]  dump_stack_lvl+0x49/0x5f
-[ 4712.003935]  print_report.cold+0x5e/0x5cf
-[ 4712.003972]  ? ksmbd_vfs_get_sd_xattr+0x16d/0x500 [ksmbd]
-[ 4712.003984]  ? cmp_map_id+0x200/0x200
-[ 4712.003988]  ? build_sec_desc+0x842/0x1dd0 [ksmbd]
-[ 4712.004000]  kasan_report+0xaa/0x120
-[ 4712.004045]  ? build_sec_desc+0x842/0x1dd0 [ksmbd]
-[ 4712.004056]  kasan_check_range+0x100/0x1e0
-[ 4712.004060]  memcpy+0x3c/0x60
-[ 4712.004064]  build_sec_desc+0x842/0x1dd0 [ksmbd]
-[ 4712.004076]  ? parse_sec_desc+0x580/0x580 [ksmbd]
-[ 4712.004088]  ? ksmbd_acls_fattr+0x281/0x410 [ksmbd]
-[ 4712.004099]  smb2_query_info+0xa8f/0x6110 [ksmbd]
-[ 4712.004111]  ? psi_group_change+0x856/0xd70
-[ 4712.004148]  ? update_load_avg+0x1c3/0x1af0
-[ 4712.004152]  ? asym_cpu_capacity_scan+0x5d0/0x5d0
-[ 4712.004157]  ? xas_load+0x23/0x300
-[ 4712.004162]  ? smb2_query_dir+0x1530/0x1530 [ksmbd]
-[ 4712.004173]  ? _raw_spin_lock_bh+0xe0/0xe0
-[ 4712.004179]  handle_ksmbd_work+0x30e/0x1020 [ksmbd]
-[ 4712.004192]  process_one_work+0x778/0x11c0
-[ 4712.004227]  ? _raw_spin_lock_irq+0x8e/0xe0
-[ 4712.004231]  worker_thread+0x544/0x1180
-[ 4712.004234]  ? __cpuidle_text_end+0x4/0x4
-[ 4712.004239]  kthread+0x282/0x320
-[ 4712.004243]  ? process_one_work+0x11c0/0x11c0
-[ 4712.004246]  ? kthread_complete_and_exit+0x30/0x30
-[ 4712.004282]  ret_from_fork+0x1f/0x30
+open(O_TRUNC)
+----------------------------------------------------------------
+fuse_open_common
+  inode_lock            [C acquire]
+  fuse_set_nowrite      [A acquire]
 
-This patch add the buffer validation for security descriptor that is
-stored by malformed SMB2_SET_INFO_HE command. and allocate large
-response buffer about SMB2_O_INFO_SECURITY file info class.
+  fuse_finish_open
+    truncate_pagecache
+      lock_page         [B acquire]
+      truncate_inode_page
+      unlock_page       [B release]
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Cc: stable@vger.kernel.org
-Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-17771
-Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+  fuse_release_nowrite  [A release]
+  inode_unlock          [C release]
+----------------------------------------------------------------
 
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index 5943cb17a9b0..9751cc92c111 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -535,9 +535,10 @@ int smb2_allocate_rsp_buf(struct ksmbd_work *work)
- 		struct smb2_query_info_req *req;
+open()
+----------------------------------------------------------------
+fuse_open_common
+  fuse_finish_open
+    invalidate_inode_pages2
+      lock_page         [B acquire]
+        fuse_launder_page
+          fuse_wait_on_page_writeback [A acquire & release]
+      unlock_page       [B release]
+----------------------------------------------------------------
+
+Besides this case, all calls of invalidate_inode_pages2() and
+invalidate_inode_pages2_range() in fuse code also can deadlock with
+open(O_TRUNC).
+
+Fix by moving the truncate_pagecache() call outside the nowrite protected
+region.  The nowrite protection is only for delayed writeback
+(writeback_cache) case, where inode lock does not protect against
+truncation racing with writes on the server.  Write syscalls racing with
+page cache truncation still get the inode lock protection.
+
+This patch also changes the order of filemap_invalidate_lock()
+vs. fuse_set_nowrite() in fuse_open_common().  This new order matches the
+order found in fuse_file_fallocate() and fuse_do_setattr().
+
+Reported-by: Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>
+Tested-by: Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>
+Fixes: e4648309b85a ("fuse: truncate pending writes on O_TRUNC")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+
+diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+index 74303d6e987b..a93d675a726a 100644
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -537,6 +537,7 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
+ 	struct fuse_file *ff;
+ 	void *security_ctx = NULL;
+ 	u32 security_ctxlen;
++	bool trunc = flags & O_TRUNC;
  
- 		req = smb2_get_msg(work->request_buf);
--		if (req->InfoType == SMB2_O_INFO_FILE &&
--		    (req->FileInfoClass == FILE_FULL_EA_INFORMATION ||
--		     req->FileInfoClass == FILE_ALL_INFORMATION))
-+		if ((req->InfoType == SMB2_O_INFO_FILE &&
-+		     (req->FileInfoClass == FILE_FULL_EA_INFORMATION ||
-+		     req->FileInfoClass == FILE_ALL_INFORMATION)) ||
-+		    req->InfoType == SMB2_O_INFO_SECURITY)
- 			sz = large_sz;
+ 	/* Userspace expects S_IFREG in create mode */
+ 	BUG_ON((mode & S_IFMT) != S_IFREG);
+@@ -561,7 +562,7 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
+ 	inarg.mode = mode;
+ 	inarg.umask = current_umask();
+ 
+-	if (fm->fc->handle_killpriv_v2 && (flags & O_TRUNC) &&
++	if (fm->fc->handle_killpriv_v2 && trunc &&
+ 	    !(flags & O_EXCL) && !capable(CAP_FSETID)) {
+ 		inarg.open_flags |= FUSE_OPEN_KILL_SUIDGID;
  	}
+@@ -623,6 +624,10 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
+ 	} else {
+ 		file->private_data = ff;
+ 		fuse_finish_open(inode, file);
++		if (fm->fc->atomic_o_trunc && trunc)
++			truncate_pagecache(inode, 0);
++		else if (!(ff->open_flags & FOPEN_KEEP_CACHE))
++			invalidate_inode_pages2(inode->i_mapping);
+ 	}
+ 	return err;
  
-@@ -2988,7 +2989,7 @@ int smb2_open(struct ksmbd_work *work)
- 						goto err_out;
- 
- 					rc = build_sec_desc(user_ns,
--							    pntsd, NULL,
-+							    pntsd, NULL, 0,
- 							    OWNER_SECINFO |
- 							    GROUP_SECINFO |
- 							    DACL_SECINFO,
-@@ -3833,6 +3834,15 @@ static int verify_info_level(int info_level)
- 	return 0;
- }
- 
-+static int smb2_resp_buf_len(struct ksmbd_work *work, unsigned short hdr2_len)
-+{
-+	int free_len;
-+
-+	free_len = (int)(work->response_sz -
-+		(get_rfc1002_len(work->response_buf) + 4)) - hdr2_len;
-+	return free_len;
-+}
-+
- static int smb2_calc_max_out_buf_len(struct ksmbd_work *work,
- 				     unsigned short hdr2_len,
- 				     unsigned int out_buf_len)
-@@ -3842,9 +3852,7 @@ static int smb2_calc_max_out_buf_len(struct ksmbd_work *work,
- 	if (out_buf_len > work->conn->vals->max_trans_size)
- 		return -EINVAL;
- 
--	free_len = (int)(work->response_sz -
--			 (get_rfc1002_len(work->response_buf) + 4)) -
--		hdr2_len;
-+	free_len = smb2_resp_buf_len(work, hdr2_len);
- 	if (free_len < 0)
- 		return -EINVAL;
- 
-@@ -5107,10 +5115,10 @@ static int smb2_get_info_sec(struct ksmbd_work *work,
- 	struct smb_ntsd *pntsd = (struct smb_ntsd *)rsp->Buffer, *ppntsd = NULL;
- 	struct smb_fattr fattr = {{0}};
- 	struct inode *inode;
--	__u32 secdesclen;
-+	__u32 secdesclen = 0;
- 	unsigned int id = KSMBD_NO_FID, pid = KSMBD_NO_FID;
- 	int addition_info = le32_to_cpu(req->AdditionalInformation);
--	int rc;
-+	int rc = 0, ppntsd_size = 0;
- 
- 	if (addition_info & ~(OWNER_SECINFO | GROUP_SECINFO | DACL_SECINFO |
- 			      PROTECTED_DACL_SECINFO |
-@@ -5156,11 +5164,14 @@ static int smb2_get_info_sec(struct ksmbd_work *work,
- 
- 	if (test_share_config_flag(work->tcon->share_conf,
- 				   KSMBD_SHARE_FLAG_ACL_XATTR))
--		ksmbd_vfs_get_sd_xattr(work->conn, user_ns,
--				       fp->filp->f_path.dentry, &ppntsd);
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index 60885ff9157c..dfee142bca5c 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -210,13 +210,9 @@ void fuse_finish_open(struct inode *inode, struct file *file)
+ 		fi->attr_version = atomic64_inc_return(&fc->attr_version);
+ 		i_size_write(inode, 0);
+ 		spin_unlock(&fi->lock);
+-		truncate_pagecache(inode, 0);
+ 		file_update_time(file);
+ 		fuse_invalidate_attr_mask(inode, FUSE_STATX_MODSIZE);
+-	} else if (!(ff->open_flags & FOPEN_KEEP_CACHE)) {
+-		invalidate_inode_pages2(inode->i_mapping);
+ 	}
 -
--	rc = build_sec_desc(user_ns, pntsd, ppntsd, addition_info,
--			    &secdesclen, &fattr);
-+		ppntsd_size = ksmbd_vfs_get_sd_xattr(work->conn, user_ns,
-+						     fp->filp->f_path.dentry,
-+						     &ppntsd);
-+
-+	/* Check if sd buffer size exceeds response buffer size */
-+	if (smb2_resp_buf_len(work, 8) > ppntsd_size)
-+		rc = build_sec_desc(user_ns, pntsd, ppntsd, ppntsd_size,
-+				    addition_info, &secdesclen, &fattr);
- 	posix_acl_release(fattr.cf_acls);
- 	posix_acl_release(fattr.cf_dacls);
- 	kfree(ppntsd);
-diff --git a/fs/ksmbd/smbacl.c b/fs/ksmbd/smbacl.c
-index 38f23bf981ac..3781bca2c8fc 100644
---- a/fs/ksmbd/smbacl.c
-+++ b/fs/ksmbd/smbacl.c
-@@ -690,6 +690,7 @@ static void set_posix_acl_entries_dacl(struct user_namespace *user_ns,
- static void set_ntacl_dacl(struct user_namespace *user_ns,
- 			   struct smb_acl *pndacl,
- 			   struct smb_acl *nt_dacl,
-+			   unsigned int aces_size,
- 			   const struct smb_sid *pownersid,
- 			   const struct smb_sid *pgrpsid,
- 			   struct smb_fattr *fattr)
-@@ -703,9 +704,19 @@ static void set_ntacl_dacl(struct user_namespace *user_ns,
- 	if (nt_num_aces) {
- 		ntace = (struct smb_ace *)((char *)nt_dacl + sizeof(struct smb_acl));
- 		for (i = 0; i < nt_num_aces; i++) {
--			memcpy((char *)pndace + size, ntace, le16_to_cpu(ntace->size));
--			size += le16_to_cpu(ntace->size);
--			ntace = (struct smb_ace *)((char *)ntace + le16_to_cpu(ntace->size));
-+			unsigned short nt_ace_size;
-+
-+			if (offsetof(struct smb_ace, access_req) > aces_size)
-+				break;
-+
-+			nt_ace_size = le16_to_cpu(ntace->size);
-+			if (nt_ace_size > aces_size)
-+				break;
-+
-+			memcpy((char *)pndace + size, ntace, nt_ace_size);
-+			size += nt_ace_size;
-+			aces_size -= nt_ace_size;
-+			ntace = (struct smb_ace *)((char *)ntace + nt_ace_size);
- 			num_aces++;
- 		}
- 	}
-@@ -878,7 +889,7 @@ int parse_sec_desc(struct user_namespace *user_ns, struct smb_ntsd *pntsd,
- /* Convert permission bits from mode to equivalent CIFS ACL */
- int build_sec_desc(struct user_namespace *user_ns,
- 		   struct smb_ntsd *pntsd, struct smb_ntsd *ppntsd,
--		   int addition_info, __u32 *secdesclen,
-+		   int ppntsd_size, int addition_info, __u32 *secdesclen,
- 		   struct smb_fattr *fattr)
- {
- 	int rc = 0;
-@@ -938,15 +949,25 @@ int build_sec_desc(struct user_namespace *user_ns,
+ 	if ((file->f_mode & FMODE_WRITE) && fc->writeback_cache)
+ 		fuse_link_write_file(file);
+ }
+@@ -239,30 +235,38 @@ int fuse_open_common(struct inode *inode, struct file *file, bool isdir)
+ 	if (err)
+ 		return err;
  
- 		if (!ppntsd) {
- 			set_mode_dacl(user_ns, dacl_ptr, fattr);
--		} else if (!ppntsd->dacloffset) {
+-	if (is_wb_truncate || dax_truncate) {
++	if (is_wb_truncate || dax_truncate)
+ 		inode_lock(inode);
+-		fuse_set_nowrite(inode);
+-	}
+ 
+ 	if (dax_truncate) {
+ 		filemap_invalidate_lock(inode->i_mapping);
+ 		err = fuse_dax_break_layouts(inode, 0, 0);
+ 		if (err)
 -			goto out;
- 		} else {
- 			struct smb_acl *ppdacl_ptr;
-+			unsigned int dacl_offset = le32_to_cpu(ppntsd->dacloffset);
-+			int ppdacl_size, ntacl_size = ppntsd_size - dacl_offset;
-+
-+			if (!dacl_offset ||
-+			    (dacl_offset + sizeof(struct smb_acl) > ppntsd_size))
-+				goto out;
-+
-+			ppdacl_ptr = (struct smb_acl *)((char *)ppntsd + dacl_offset);
-+			ppdacl_size = le16_to_cpu(ppdacl_ptr->size);
-+			if (ppdacl_size > ntacl_size ||
-+			    ppdacl_size < sizeof(struct smb_acl))
-+				goto out;
- 
--			ppdacl_ptr = (struct smb_acl *)((char *)ppntsd +
--						le32_to_cpu(ppntsd->dacloffset));
- 			set_ntacl_dacl(user_ns, dacl_ptr, ppdacl_ptr,
--				       nowner_sid_ptr, ngroup_sid_ptr, fattr);
-+				       ntacl_size - sizeof(struct smb_acl),
-+				       nowner_sid_ptr, ngroup_sid_ptr,
-+				       fattr);
- 		}
- 		pntsd->dacloffset = cpu_to_le32(offset);
- 		offset += le16_to_cpu(dacl_ptr->size);
-@@ -980,24 +1001,31 @@ int smb_inherit_dacl(struct ksmbd_conn *conn,
- 	struct smb_sid owner_sid, group_sid;
- 	struct dentry *parent = path->dentry->d_parent;
- 	struct user_namespace *user_ns = mnt_user_ns(path->mnt);
--	int inherited_flags = 0, flags = 0, i, ace_cnt = 0, nt_size = 0;
--	int rc = 0, num_aces, dacloffset, pntsd_type, acl_len;
-+	int inherited_flags = 0, flags = 0, i, ace_cnt = 0, nt_size = 0, pdacl_size;
-+	int rc = 0, num_aces, dacloffset, pntsd_type, pntsd_size, acl_len, aces_size;
- 	char *aces_base;
- 	bool is_dir = S_ISDIR(d_inode(path->dentry)->i_mode);
- 
--	acl_len = ksmbd_vfs_get_sd_xattr(conn, user_ns,
--					 parent, &parent_pntsd);
--	if (acl_len <= 0)
-+	pntsd_size = ksmbd_vfs_get_sd_xattr(conn, user_ns,
-+					    parent, &parent_pntsd);
-+	if (pntsd_size <= 0)
- 		return -ENOENT;
- 	dacloffset = le32_to_cpu(parent_pntsd->dacloffset);
--	if (!dacloffset) {
-+	if (!dacloffset || (dacloffset + sizeof(struct smb_acl) > pntsd_size)) {
- 		rc = -EINVAL;
- 		goto free_parent_pntsd;
++			goto out_inode_unlock;
  	}
  
- 	parent_pdacl = (struct smb_acl *)((char *)parent_pntsd + dacloffset);
-+	acl_len = pntsd_size - dacloffset;
- 	num_aces = le32_to_cpu(parent_pdacl->num_aces);
- 	pntsd_type = le16_to_cpu(parent_pntsd->type);
-+	pdacl_size = le16_to_cpu(parent_pdacl->size);
++	if (is_wb_truncate || dax_truncate)
++		fuse_set_nowrite(inode);
 +
-+	if (pdacl_size > acl_len || pdacl_size < sizeof(struct smb_acl)) {
-+		rc = -EINVAL;
-+		goto free_parent_pntsd;
+ 	err = fuse_do_open(fm, get_node_id(inode), file, isdir);
+ 	if (!err)
+ 		fuse_finish_open(inode, file);
+ 
+-out:
++	if (is_wb_truncate || dax_truncate)
++		fuse_release_nowrite(inode);
++	if (!err) {
++		struct fuse_file *ff = file->private_data;
++
++		if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC))
++			truncate_pagecache(inode, 0);
++		else if (!(ff->open_flags & FOPEN_KEEP_CACHE))
++			invalidate_inode_pages2(inode->i_mapping);
 +	}
- 
- 	aces_base = kmalloc(sizeof(struct smb_ace) * num_aces * 2, GFP_KERNEL);
- 	if (!aces_base) {
-@@ -1008,11 +1036,23 @@ int smb_inherit_dacl(struct ksmbd_conn *conn,
- 	aces = (struct smb_ace *)aces_base;
- 	parent_aces = (struct smb_ace *)((char *)parent_pdacl +
- 			sizeof(struct smb_acl));
-+	aces_size = acl_len - sizeof(struct smb_acl);
- 
- 	if (pntsd_type & DACL_AUTO_INHERITED)
- 		inherited_flags = INHERITED_ACE;
- 
- 	for (i = 0; i < num_aces; i++) {
-+		int pace_size;
-+
-+		if (offsetof(struct smb_ace, access_req) > aces_size)
-+			break;
-+
-+		pace_size = le16_to_cpu(parent_aces->size);
-+		if (pace_size > aces_size)
-+			break;
-+
-+		aces_size -= pace_size;
-+
- 		flags = parent_aces->flags;
- 		if (!smb_inherit_flags(flags, is_dir))
- 			goto pass;
-@@ -1057,8 +1097,7 @@ int smb_inherit_dacl(struct ksmbd_conn *conn,
- 		aces = (struct smb_ace *)((char *)aces + le16_to_cpu(aces->size));
- 		ace_cnt++;
- pass:
--		parent_aces =
--			(struct smb_ace *)((char *)parent_aces + le16_to_cpu(parent_aces->size));
-+		parent_aces = (struct smb_ace *)((char *)parent_aces + pace_size);
- 	}
- 
- 	if (nt_size > 0) {
-@@ -1153,7 +1192,7 @@ int smb_check_perm_dacl(struct ksmbd_conn *conn, struct path *path,
- 	struct smb_ntsd *pntsd = NULL;
- 	struct smb_acl *pdacl;
- 	struct posix_acl *posix_acls;
--	int rc = 0, acl_size;
-+	int rc = 0, pntsd_size, acl_size, aces_size, pdacl_size, dacl_offset;
- 	struct smb_sid sid;
- 	int granted = le32_to_cpu(*pdaccess & ~FILE_MAXIMAL_ACCESS_LE);
- 	struct smb_ace *ace;
-@@ -1162,37 +1201,33 @@ int smb_check_perm_dacl(struct ksmbd_conn *conn, struct path *path,
- 	struct smb_ace *others_ace = NULL;
- 	struct posix_acl_entry *pa_entry;
- 	unsigned int sid_type = SIDOWNER;
--	char *end_of_acl;
-+	unsigned short ace_size;
- 
- 	ksmbd_debug(SMB, "check permission using windows acl\n");
--	acl_size = ksmbd_vfs_get_sd_xattr(conn, user_ns,
--					  path->dentry, &pntsd);
--	if (acl_size <= 0 || !pntsd || !pntsd->dacloffset) {
--		kfree(pntsd);
--		return 0;
+ 	if (dax_truncate)
+ 		filemap_invalidate_unlock(inode->i_mapping);
+-
+-	if (is_wb_truncate | dax_truncate) {
+-		fuse_release_nowrite(inode);
++out_inode_unlock:
++	if (is_wb_truncate || dax_truncate)
+ 		inode_unlock(inode);
 -	}
-+	pntsd_size = ksmbd_vfs_get_sd_xattr(conn, user_ns,
-+					    path->dentry, &pntsd);
-+	if (pntsd_size <= 0 || !pntsd)
-+		goto err_out;
-+
-+	dacl_offset = le32_to_cpu(pntsd->dacloffset);
-+	if (!dacl_offset ||
-+	    (dacl_offset + sizeof(struct smb_acl) > pntsd_size))
-+		goto err_out;
  
- 	pdacl = (struct smb_acl *)((char *)pntsd + le32_to_cpu(pntsd->dacloffset));
--	end_of_acl = ((char *)pntsd) + acl_size;
--	if (end_of_acl <= (char *)pdacl) {
--		kfree(pntsd);
--		return 0;
--	}
-+	acl_size = pntsd_size - dacl_offset;
-+	pdacl_size = le16_to_cpu(pdacl->size);
- 
--	if (end_of_acl < (char *)pdacl + le16_to_cpu(pdacl->size) ||
--	    le16_to_cpu(pdacl->size) < sizeof(struct smb_acl)) {
--		kfree(pntsd);
--		return 0;
--	}
-+	if (pdacl_size > acl_size || pdacl_size < sizeof(struct smb_acl))
-+		goto err_out;
- 
- 	if (!pdacl->num_aces) {
--		if (!(le16_to_cpu(pdacl->size) - sizeof(struct smb_acl)) &&
-+		if (!(pdacl_size - sizeof(struct smb_acl)) &&
- 		    *pdaccess & ~(FILE_READ_CONTROL_LE | FILE_WRITE_DAC_LE)) {
- 			rc = -EACCES;
- 			goto err_out;
- 		}
--		kfree(pntsd);
--		return 0;
-+		goto err_out;
- 	}
- 
- 	if (*pdaccess & FILE_MAXIMAL_ACCESS_LE) {
-@@ -1200,11 +1235,16 @@ int smb_check_perm_dacl(struct ksmbd_conn *conn, struct path *path,
- 			DELETE;
- 
- 		ace = (struct smb_ace *)((char *)pdacl + sizeof(struct smb_acl));
-+		aces_size = acl_size - sizeof(struct smb_acl);
- 		for (i = 0; i < le32_to_cpu(pdacl->num_aces); i++) {
-+			if (offsetof(struct smb_ace, access_req) > aces_size)
-+				break;
-+			ace_size = le16_to_cpu(ace->size);
-+			if (ace_size > aces_size)
-+				break;
-+			aces_size -= ace_size;
- 			granted |= le32_to_cpu(ace->access_req);
- 			ace = (struct smb_ace *)((char *)ace + le16_to_cpu(ace->size));
--			if (end_of_acl < (char *)ace)
--				goto err_out;
- 		}
- 
- 		if (!pdacl->num_aces)
-@@ -1216,7 +1256,15 @@ int smb_check_perm_dacl(struct ksmbd_conn *conn, struct path *path,
- 	id_to_sid(uid, sid_type, &sid);
- 
- 	ace = (struct smb_ace *)((char *)pdacl + sizeof(struct smb_acl));
-+	aces_size = acl_size - sizeof(struct smb_acl);
- 	for (i = 0; i < le32_to_cpu(pdacl->num_aces); i++) {
-+		if (offsetof(struct smb_ace, access_req) > aces_size)
-+			break;
-+		ace_size = le16_to_cpu(ace->size);
-+		if (ace_size > aces_size)
-+			break;
-+		aces_size -= ace_size;
-+
- 		if (!compare_sids(&sid, &ace->sid) ||
- 		    !compare_sids(&sid_unix_NFS_mode, &ace->sid)) {
- 			found = 1;
-@@ -1226,8 +1274,6 @@ int smb_check_perm_dacl(struct ksmbd_conn *conn, struct path *path,
- 			others_ace = ace;
- 
- 		ace = (struct smb_ace *)((char *)ace + le16_to_cpu(ace->size));
--		if (end_of_acl < (char *)ace)
--			goto err_out;
- 	}
- 
- 	if (*pdaccess & FILE_MAXIMAL_ACCESS_LE && found) {
-diff --git a/fs/ksmbd/smbacl.h b/fs/ksmbd/smbacl.h
-index 811af3309429..fcb2c83f2992 100644
---- a/fs/ksmbd/smbacl.h
-+++ b/fs/ksmbd/smbacl.h
-@@ -193,7 +193,7 @@ struct posix_acl_state {
- int parse_sec_desc(struct user_namespace *user_ns, struct smb_ntsd *pntsd,
- 		   int acl_len, struct smb_fattr *fattr);
- int build_sec_desc(struct user_namespace *user_ns, struct smb_ntsd *pntsd,
--		   struct smb_ntsd *ppntsd, int addition_info,
-+		   struct smb_ntsd *ppntsd, int ppntsd_size, int addition_info,
- 		   __u32 *secdesclen, struct smb_fattr *fattr);
- int init_acl_state(struct posix_acl_state *state, int cnt);
- void free_acl_state(struct posix_acl_state *state);
-diff --git a/fs/ksmbd/vfs.c b/fs/ksmbd/vfs.c
-index c23793469645..ea139078b4b7 100644
---- a/fs/ksmbd/vfs.c
-+++ b/fs/ksmbd/vfs.c
-@@ -1539,6 +1539,11 @@ int ksmbd_vfs_get_sd_xattr(struct ksmbd_conn *conn,
- 	}
- 
- 	*pntsd = acl.sd_buf;
-+	if (acl.sd_size < sizeof(struct smb_ntsd)) {
-+		pr_err("sd size is invalid\n");
-+		goto out_free;
-+	}
-+
- 	(*pntsd)->osidoffset = cpu_to_le32(le32_to_cpu((*pntsd)->osidoffset) -
- 					   NDR_NTSD_OFFSETOF);
- 	(*pntsd)->gsidoffset = cpu_to_le32(le32_to_cpu((*pntsd)->gsidoffset) -
+ 	return err;
+ }
 
