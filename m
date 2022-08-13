@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD3FD591B21
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05CD3591B22
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:47:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239659AbiHMOrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 10:47:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41968 "EHLO
+        id S239653AbiHMOrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 10:47:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239471AbiHMOrj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:47:39 -0400
+        with ESMTP id S239471AbiHMOrm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:47:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC92AE61
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:47:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 151E4AE61
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:47:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D08F560E73
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:47:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDE89C433C1;
-        Sat, 13 Aug 2022 14:47:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A674B60E75
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:47:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86E7BC433D6;
+        Sat, 13 Aug 2022 14:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660402058;
-        bh=tzlwmIoX25xC8I7cTbF4xtVhpH2oTADvtSjIeqDljVw=;
+        s=korg; t=1660402061;
+        bh=uFL5NoOVvVqgwomH7KaDEU9HcdZkpmShlcrM6nfNh+k=;
         h=Subject:To:Cc:From:Date:From;
-        b=1kaokTczDcw3IQbSnfGT/IxdU9bZP9WFI9R0CsbpLHX2vjGQhV6yhL2dUkAsJZZF/
-         08oqKFaQueBfQexN44aQJMa5Se7QmqHxY+WqmcUqlNiOKJGuqSQ1sg4+vmTdOSuhtk
-         CW7n8EAayjvw7xii20qmZc8lGgdMiegNsGqdhVis=
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: fix high speed multiplier setting" failed to apply to 4.19-stable tree
+        b=aqdilR42pQQbDZn+Crg9uqBus0fLjEd8JLfWxBm+nGJIovvomFt298k1ZX5HNiU/0
+         eK2jIvssb1sK9dXSL3fNJ1ay2qNGYWrdW66s7OzNITjgrSHJLXzu7PaC0Krx7uaA2/
+         aMee4eQ/RzaVBgRklwWl75Ztpy8OsDCExxjVtwkc=
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: fix high speed multiplier setting" failed to apply to 4.9-stable tree
 To:     m.grzeschik@pengutronix.de, gregkh@linuxfoundation.org,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 16:47:27 +0200
-Message-ID: <1660402047153138@kroah.com>
+Date:   Sat, 13 Aug 2022 16:47:28 +0200
+Message-ID: <16604020482726@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
