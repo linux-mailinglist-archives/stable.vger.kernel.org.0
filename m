@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F5C1591AF5
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A3C6591AF6
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:28:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239051AbiHMO1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 10:27:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50612 "EHLO
+        id S239547AbiHMO2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 10:28:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239547AbiHMO1w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:27:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA6DA27B36
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:27:51 -0700 (PDT)
+        with ESMTP id S239419AbiHMO2y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:28:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1443327B2D
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:28:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70F81B8013C
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:27:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CED3DC433D7;
-        Sat, 13 Aug 2022 14:27:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2C6260DED
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:28:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8DF5C433D6;
+        Sat, 13 Aug 2022 14:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660400869;
-        bh=OrGFI2rvc+XvEI0MpW3qx2uOY/P0Af67nnxzeyqblKc=;
+        s=korg; t=1660400932;
+        bh=tOal3ZBf2c9F/4EVimhXb5i4D/vhj4pdgJe+ISSeZXo=;
         h=Subject:To:Cc:From:Date:From;
-        b=KLKAbRmssneItTJJQ5hv7Ao3d+XwyV5Dh+sgTqFpOXOhBQ36GJ5sjOPIzYjuSPdjN
-         Pjs5Z50rayT+mzkyyloGRn209g3vV113VW4U9G3Og3YIdnygpd1qgiojXoSjVcS1w4
-         APy96g2MHWj5vvfWBLkluwEvR42CwwM7t1jJoLEw=
-Subject: FAILED: patch "[PATCH] fuse: fix deadlock between atomic O_TRUNC and page" failed to apply to 4.9-stable tree
-To:     mszeredi@redhat.com, stable@vger.kernel.org,
-        zhangjiachen.jaycee@bytedance.com
+        b=UpDtPcTVqtvYRRbfisb6RQ6g9ycq4jfrMDZzg5rBpFuYJz1+fvp4+zmIUeKcS8gN5
+         bBG+s1J3nCu5AVxUHXuoXeLuqRYI4StV94b0MWTdpWnjOr46HbncQqBkyc6cQ/nTFG
+         AHKhT0Ykbrk8o0iATCBQpn17/G+lWlJoFaOa9cVA=
+Subject: FAILED: patch "[PATCH] md-raid: destroy the bitmap after destroying the thread" failed to apply to 5.4-stable tree
+To:     mpatocka@redhat.com, axboe@kernel.dk, song@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 16:27:39 +0200
-Message-ID: <166040085919195@kroah.com>
+Date:   Sat, 13 Aug 2022 16:28:49 +0200
+Message-ID: <166040092923374@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,HEXHASH_WORD,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,169 +59,127 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2fdbb8dd01556e1501132b5ad3826e8f71e24a8b Mon Sep 17 00:00:00 2001
-From: Miklos Szeredi <mszeredi@redhat.com>
-Date: Fri, 22 Apr 2022 15:48:53 +0200
-Subject: [PATCH] fuse: fix deadlock between atomic O_TRUNC and page
- invalidation
+From e151db8ecfb019b7da31d076130a794574c89f6f Mon Sep 17 00:00:00 2001
+From: Mikulas Patocka <mpatocka@redhat.com>
+Date: Sun, 24 Jul 2022 14:26:12 -0400
+Subject: [PATCH] md-raid: destroy the bitmap after destroying the thread
 
-fuse_finish_open() will be called with FUSE_NOWRITE set in case of atomic
-O_TRUNC open(), so commit 76224355db75 ("fuse: truncate pagecache on
-atomic_o_trunc") replaced invalidate_inode_pages2() by truncate_pagecache()
-in such a case to avoid the A-A deadlock. However, we found another A-B-B-A
-deadlock related to the case above, which will cause the xfstests
-generic/464 testcase hung in our virtio-fs test environment.
+When we ran the lvm test "shell/integrity-blocksize-3.sh" on a kernel with
+kasan, we got failure in write_page.
 
-For example, consider two processes concurrently open one same file, one
-with O_TRUNC and another without O_TRUNC. The deadlock case is described
-below, if open(O_TRUNC) is already set_nowrite(acquired A), and is trying
-to lock a page (acquiring B), open() could have held the page lock
-(acquired B), and waiting on the page writeback (acquiring A). This would
-lead to deadlocks.
+The reason for the failure is that md_bitmap_destroy is called before
+destroying the thread and the thread may be waiting in the function
+write_page for the bio to complete. When the thread finishes waiting, it
+executes "if (test_bit(BITMAP_WRITE_ERROR, &bitmap->flags))", which
+triggers the kasan warning.
 
-open(O_TRUNC)
-----------------------------------------------------------------
-fuse_open_common
-  inode_lock            [C acquire]
-  fuse_set_nowrite      [A acquire]
+Note that the commit 48df498daf62 that caused this bug claims that it is
+neede for md-cluster, you should check md-cluster and possibly find
+another bugfix for it.
 
-  fuse_finish_open
-    truncate_pagecache
-      lock_page         [B acquire]
-      truncate_inode_page
-      unlock_page       [B release]
+BUG: KASAN: use-after-free in write_page+0x18d/0x680 [md_mod]
+Read of size 8 at addr ffff889162030c78 by task mdX_raid1/5539
 
-  fuse_release_nowrite  [A release]
-  inode_unlock          [C release]
-----------------------------------------------------------------
+CPU: 10 PID: 5539 Comm: mdX_raid1 Not tainted 5.19.0-rc2 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x34/0x44
+ print_report.cold+0x45/0x57a
+ ? __lock_text_start+0x18/0x18
+ ? write_page+0x18d/0x680 [md_mod]
+ kasan_report+0xa8/0xe0
+ ? write_page+0x18d/0x680 [md_mod]
+ kasan_check_range+0x13f/0x180
+ write_page+0x18d/0x680 [md_mod]
+ ? super_sync+0x4d5/0x560 [dm_raid]
+ ? md_bitmap_file_kick+0xa0/0xa0 [md_mod]
+ ? rs_set_dev_and_array_sectors+0x2e0/0x2e0 [dm_raid]
+ ? mutex_trylock+0x120/0x120
+ ? preempt_count_add+0x6b/0xc0
+ ? preempt_count_sub+0xf/0xc0
+ md_update_sb+0x707/0xe40 [md_mod]
+ md_reap_sync_thread+0x1b2/0x4a0 [md_mod]
+ md_check_recovery+0x533/0x960 [md_mod]
+ raid1d+0xc8/0x2a20 [raid1]
+ ? var_wake_function+0xe0/0xe0
+ ? psi_group_change+0x411/0x500
+ ? preempt_count_sub+0xf/0xc0
+ ? _raw_spin_lock_irqsave+0x78/0xc0
+ ? __lock_text_start+0x18/0x18
+ ? raid1_end_read_request+0x2a0/0x2a0 [raid1]
+ ? preempt_count_sub+0xf/0xc0
+ ? _raw_spin_unlock_irqrestore+0x19/0x40
+ ? del_timer_sync+0xa9/0x100
+ ? try_to_del_timer_sync+0xc0/0xc0
+ ? _raw_spin_lock_irqsave+0x78/0xc0
+ ? __lock_text_start+0x18/0x18
+ ? __list_del_entry_valid+0x68/0xa0
+ ? finish_wait+0xa3/0x100
+ md_thread+0x161/0x260 [md_mod]
+ ? unregister_md_personality+0xa0/0xa0 [md_mod]
+ ? _raw_spin_lock_irqsave+0x78/0xc0
+ ? prepare_to_wait_event+0x2c0/0x2c0
+ ? unregister_md_personality+0xa0/0xa0 [md_mod]
+ kthread+0x148/0x180
+ ? kthread_complete_and_exit+0x20/0x20
+ ret_from_fork+0x1f/0x30
+ </TASK>
 
-open()
-----------------------------------------------------------------
-fuse_open_common
-  fuse_finish_open
-    invalidate_inode_pages2
-      lock_page         [B acquire]
-        fuse_launder_page
-          fuse_wait_on_page_writeback [A acquire & release]
-      unlock_page       [B release]
-----------------------------------------------------------------
+Allocated by task 5522:
+ kasan_save_stack+0x1e/0x40
+ __kasan_kmalloc+0x80/0xa0
+ md_bitmap_create+0xa8/0xe80 [md_mod]
+ md_run+0x777/0x1300 [md_mod]
+ raid_ctr+0x249c/0x4a30 [dm_raid]
+ dm_table_add_target+0x2b0/0x620 [dm_mod]
+ table_load+0x1c8/0x400 [dm_mod]
+ ctl_ioctl+0x29e/0x560 [dm_mod]
+ dm_compat_ctl_ioctl+0x7/0x20 [dm_mod]
+ __do_compat_sys_ioctl+0xfa/0x160
+ do_syscall_64+0x90/0xc0
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Besides this case, all calls of invalidate_inode_pages2() and
-invalidate_inode_pages2_range() in fuse code also can deadlock with
-open(O_TRUNC).
+Freed by task 5680:
+ kasan_save_stack+0x1e/0x40
+ kasan_set_track+0x21/0x40
+ kasan_set_free_info+0x20/0x40
+ __kasan_slab_free+0xf7/0x140
+ kfree+0x80/0x240
+ md_bitmap_free+0x1c3/0x280 [md_mod]
+ __md_stop+0x21/0x120 [md_mod]
+ md_stop+0x9/0x40 [md_mod]
+ raid_dtr+0x1b/0x40 [dm_raid]
+ dm_table_destroy+0x98/0x1e0 [dm_mod]
+ __dm_destroy+0x199/0x360 [dm_mod]
+ dev_remove+0x10c/0x160 [dm_mod]
+ ctl_ioctl+0x29e/0x560 [dm_mod]
+ dm_compat_ctl_ioctl+0x7/0x20 [dm_mod]
+ __do_compat_sys_ioctl+0xfa/0x160
+ do_syscall_64+0x90/0xc0
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Fix by moving the truncate_pagecache() call outside the nowrite protected
-region.  The nowrite protection is only for delayed writeback
-(writeback_cache) case, where inode lock does not protect against
-truncation racing with writes on the server.  Write syscalls racing with
-page cache truncation still get the inode lock protection.
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 48df498daf62 ("md: move bitmap_destroy to the beginning of __md_stop")
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-This patch also changes the order of filemap_invalidate_lock()
-vs. fuse_set_nowrite() in fuse_open_common().  This new order matches the
-order found in fuse_file_fallocate() and fuse_do_setattr().
-
-Reported-by: Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>
-Tested-by: Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>
-Fixes: e4648309b85a ("fuse: truncate pending writes on O_TRUNC")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-
-diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
-index 74303d6e987b..a93d675a726a 100644
---- a/fs/fuse/dir.c
-+++ b/fs/fuse/dir.c
-@@ -537,6 +537,7 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
- 	struct fuse_file *ff;
- 	void *security_ctx = NULL;
- 	u32 security_ctxlen;
-+	bool trunc = flags & O_TRUNC;
- 
- 	/* Userspace expects S_IFREG in create mode */
- 	BUG_ON((mode & S_IFMT) != S_IFREG);
-@@ -561,7 +562,7 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
- 	inarg.mode = mode;
- 	inarg.umask = current_umask();
- 
--	if (fm->fc->handle_killpriv_v2 && (flags & O_TRUNC) &&
-+	if (fm->fc->handle_killpriv_v2 && trunc &&
- 	    !(flags & O_EXCL) && !capable(CAP_FSETID)) {
- 		inarg.open_flags |= FUSE_OPEN_KILL_SUIDGID;
- 	}
-@@ -623,6 +624,10 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
- 	} else {
- 		file->private_data = ff;
- 		fuse_finish_open(inode, file);
-+		if (fm->fc->atomic_o_trunc && trunc)
-+			truncate_pagecache(inode, 0);
-+		else if (!(ff->open_flags & FOPEN_KEEP_CACHE))
-+			invalidate_inode_pages2(inode->i_mapping);
- 	}
- 	return err;
- 
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index 60885ff9157c..dfee142bca5c 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -210,13 +210,9 @@ void fuse_finish_open(struct inode *inode, struct file *file)
- 		fi->attr_version = atomic64_inc_return(&fc->attr_version);
- 		i_size_write(inode, 0);
- 		spin_unlock(&fi->lock);
--		truncate_pagecache(inode, 0);
- 		file_update_time(file);
- 		fuse_invalidate_attr_mask(inode, FUSE_STATX_MODSIZE);
--	} else if (!(ff->open_flags & FOPEN_KEEP_CACHE)) {
--		invalidate_inode_pages2(inode->i_mapping);
- 	}
--
- 	if ((file->f_mode & FMODE_WRITE) && fc->writeback_cache)
- 		fuse_link_write_file(file);
- }
-@@ -239,30 +235,38 @@ int fuse_open_common(struct inode *inode, struct file *file, bool isdir)
- 	if (err)
- 		return err;
- 
--	if (is_wb_truncate || dax_truncate) {
-+	if (is_wb_truncate || dax_truncate)
- 		inode_lock(inode);
--		fuse_set_nowrite(inode);
--	}
- 
- 	if (dax_truncate) {
- 		filemap_invalidate_lock(inode->i_mapping);
- 		err = fuse_dax_break_layouts(inode, 0, 0);
- 		if (err)
--			goto out;
-+			goto out_inode_unlock;
- 	}
- 
-+	if (is_wb_truncate || dax_truncate)
-+		fuse_set_nowrite(inode);
-+
- 	err = fuse_do_open(fm, get_node_id(inode), file, isdir);
- 	if (!err)
- 		fuse_finish_open(inode, file);
- 
--out:
-+	if (is_wb_truncate || dax_truncate)
-+		fuse_release_nowrite(inode);
-+	if (!err) {
-+		struct fuse_file *ff = file->private_data;
-+
-+		if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC))
-+			truncate_pagecache(inode, 0);
-+		else if (!(ff->open_flags & FOPEN_KEEP_CACHE))
-+			invalidate_inode_pages2(inode->i_mapping);
-+	}
- 	if (dax_truncate)
- 		filemap_invalidate_unlock(inode->i_mapping);
--
--	if (is_wb_truncate | dax_truncate) {
--		fuse_release_nowrite(inode);
-+out_inode_unlock:
-+	if (is_wb_truncate || dax_truncate)
- 		inode_unlock(inode);
--	}
- 
- 	return err;
- }
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 6e82df21623d..35b895813c88 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -6238,11 +6238,11 @@ static void mddev_detach(struct mddev *mddev)
+ static void __md_stop(struct mddev *mddev)
+ {
+ 	struct md_personality *pers = mddev->pers;
+-	md_bitmap_destroy(mddev);
+ 	mddev_detach(mddev);
+ 	/* Ensure ->event_work is done */
+ 	if (mddev->event_work.func)
+ 		flush_workqueue(md_misc_wq);
++	md_bitmap_destroy(mddev);
+ 	spin_lock(&mddev->lock);
+ 	mddev->pers = NULL;
+ 	spin_unlock(&mddev->lock);
 
