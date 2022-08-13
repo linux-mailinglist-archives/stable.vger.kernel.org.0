@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F3AC591B12
-	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:40:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1202591B17
+	for <lists+stable@lfdr.de>; Sat, 13 Aug 2022 16:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239738AbiHMOkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Aug 2022 10:40:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33894 "EHLO
+        id S237698AbiHMOpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Aug 2022 10:45:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239664AbiHMOkD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:40:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 502414D167
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:40:02 -0700 (PDT)
+        with ESMTP id S239660AbiHMOpt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Aug 2022 10:45:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEF226279
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 07:45:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0A8C60E33
-        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:40:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE20CC433C1;
-        Sat, 13 Aug 2022 14:40:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86FCB60EA4
+        for <stable@vger.kernel.org>; Sat, 13 Aug 2022 14:45:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89DF2C433C1;
+        Sat, 13 Aug 2022 14:45:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660401601;
-        bh=j2YlDUCVojh9D7wGmDUd+pGXqGjfUpd6P1PNzFDHPis=;
+        s=korg; t=1660401945;
+        bh=3x3WAaS5Irt0RkUEEwj/LExr21xBLncdvdxzYmywBnc=;
         h=Subject:To:Cc:From:Date:From;
-        b=LW8hQN4qnPiU0N65/vL1nt98h7W8SYMkUEGIbzzBYUs14U8YsrL1OgqBSqlxE9xoj
-         49Q7+1HvYazOB//2lUJyipSM8nwlq0fsDWpMuUMANRFHjmWmUiOvDUu8UM1W+5uLYZ
-         H4v7fcKm37c1KobGsJ6tbAdpDzSxw1MpR2Lf58go=
-Subject: FAILED: patch "[PATCH] powerpc/ptdump: Fix display of RW pages on FSL_BOOK3E" failed to apply to 4.14-stable tree
-To:     christophe.leroy@csgroup.eu, mpe@ellerman.id.au
+        b=0IOT0jCFjcBJh2OE+1X3w+h/WY35m0MqhQFSJuylcfxzVhR+Awrlr73b4UvxllJ/N
+         qrHjHvBmV53aMps34V72wp+qZWrVCP7SGOAzo7iq7dMPX+47DYd5LgXwTIPdEXgH8D
+         OP+OGicRGRSb/a/rgwNtnhkggzVYfm3PfXASrJhc=
+Subject: FAILED: patch "[PATCH] Revert "net: usb: ax88179_178a needs FLAG_SEND_ZLP"" failed to apply to 5.15-stable tree
+To:     joalonsof@gmail.com, davem@davemloft.net, ronald.wahl@raritan.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Aug 2022 16:38:58 +0200
-Message-ID: <166040153819982@kroah.com>
+Date:   Sat, 13 Aug 2022 16:45:43 +0200
+Message-ID: <166040194321469@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,44 +59,148 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From dd8de84b57b02ba9c1fe530a6d916c0853f136bd Mon Sep 17 00:00:00 2001
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Tue, 28 Jun 2022 16:43:35 +0200
-Subject: [PATCH] powerpc/ptdump: Fix display of RW pages on FSL_BOOK3E
+From 6fd2c17fb6e02a8c0ab51df1cfec82ce96b8e83d Mon Sep 17 00:00:00 2001
+From: Jose Alonso <joalonsof@gmail.com>
+Date: Mon, 8 Aug 2022 08:35:04 -0300
+Subject: [PATCH] Revert "net: usb: ax88179_178a needs FLAG_SEND_ZLP"
 
-On FSL_BOOK3E, _PAGE_RW is defined with two bits, one for user and one
-for supervisor. As soon as one of the two bits is set, the page has
-to be display as RW. But the way it is implemented today requires both
-bits to be set in order to display it as RW.
+This reverts commit 36a15e1cb134c0395261ba1940762703f778438c.
 
-Instead of display RW when _PAGE_RW bits are set and R otherwise,
-reverse the logic and display R when _PAGE_RW bits are all 0 and
-RW otherwise.
+The usage of FLAG_SEND_ZLP causes problems to other firmware/hardware
+versions that have no issues.
 
-This change has no impact on other platforms as _PAGE_RW is a single
-bit on all of them.
+The FLAG_SEND_ZLP is not safe to use in this context.
+See:
+https://patchwork.ozlabs.org/project/netdev/patch/1270599787.8900.8.camel@Linuxdev4-laptop/#118378
+The original problem needs another way to solve.
 
-Fixes: 8eb07b187000 ("powerpc/mm: Dump linux pagetables")
+Fixes: 36a15e1cb134 ("net: usb: ax88179_178a needs FLAG_SEND_ZLP")
 Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/0c33b96317811edf691e81698aaee8fa45ec3449.1656427391.git.christophe.leroy@csgroup.eu
+Reported-by: Ronald Wahl <ronald.wahl@raritan.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216327
+Link: https://bugs.archlinux.org/task/75491
+Signed-off-by: Jose Alonso <joalonsof@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 
-diff --git a/arch/powerpc/mm/ptdump/shared.c b/arch/powerpc/mm/ptdump/shared.c
-index 03607ab90c66..f884760ca5cf 100644
---- a/arch/powerpc/mm/ptdump/shared.c
-+++ b/arch/powerpc/mm/ptdump/shared.c
-@@ -17,9 +17,9 @@ static const struct flag_info flag_array[] = {
- 		.clear	= "    ",
- 	}, {
- 		.mask	= _PAGE_RW,
--		.val	= _PAGE_RW,
--		.set	= "rw",
--		.clear	= "r ",
-+		.val	= 0,
-+		.set	= "r ",
-+		.clear	= "rw",
- 	}, {
- 		.mask	= _PAGE_EXEC,
- 		.val	= _PAGE_EXEC,
+diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
+index 0ad468a00064..aff39bf3161d 100644
+--- a/drivers/net/usb/ax88179_178a.c
++++ b/drivers/net/usb/ax88179_178a.c
+@@ -1680,7 +1680,7 @@ static const struct driver_info ax88179_info = {
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1693,7 +1693,7 @@ static const struct driver_info ax88178a_info = {
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1706,7 +1706,7 @@ static const struct driver_info cypress_GX3_info = {
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1719,7 +1719,7 @@ static const struct driver_info dlink_dub1312_info = {
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1732,7 +1732,7 @@ static const struct driver_info sitecom_info = {
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1745,7 +1745,7 @@ static const struct driver_info samsung_info = {
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1758,7 +1758,7 @@ static const struct driver_info lenovo_info = {
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1771,7 +1771,7 @@ static const struct driver_info belkin_info = {
+ 	.link_reset = ax88179_link_reset,
+ 	.reset	= ax88179_reset,
+ 	.stop	= ax88179_stop,
+-	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1784,7 +1784,7 @@ static const struct driver_info toshiba_info = {
+ 	.link_reset = ax88179_link_reset,
+ 	.reset	= ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1797,7 +1797,7 @@ static const struct driver_info mct_info = {
+ 	.link_reset = ax88179_link_reset,
+ 	.reset	= ax88179_reset,
+ 	.stop	= ax88179_stop,
+-	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1810,7 +1810,7 @@ static const struct driver_info at_umc2000_info = {
+ 	.link_reset = ax88179_link_reset,
+ 	.reset  = ax88179_reset,
+ 	.stop   = ax88179_stop,
+-	.flags  = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags  = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1823,7 +1823,7 @@ static const struct driver_info at_umc200_info = {
+ 	.link_reset = ax88179_link_reset,
+ 	.reset  = ax88179_reset,
+ 	.stop   = ax88179_stop,
+-	.flags  = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags  = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1836,7 +1836,7 @@ static const struct driver_info at_umc2000sp_info = {
+ 	.link_reset = ax88179_link_reset,
+ 	.reset  = ax88179_reset,
+ 	.stop   = ax88179_stop,
+-	.flags  = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags  = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
 
