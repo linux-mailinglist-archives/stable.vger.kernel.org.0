@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6249459241A
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:29:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D02FB592419
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:29:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242219AbiHNQ21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:28:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56826 "EHLO
+        id S242230AbiHNQ22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:28:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242362AbiHNQ1l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:27:41 -0400
+        with ESMTP id S242373AbiHNQ1m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:27:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 785BE108A;
-        Sun, 14 Aug 2022 09:23:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF84310D7;
+        Sun, 14 Aug 2022 09:23:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C86CB80B7E;
-        Sun, 14 Aug 2022 16:23:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48C21C433D6;
-        Sun, 14 Aug 2022 16:23:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 748A8B80B7F;
+        Sun, 14 Aug 2022 16:23:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F97DC433D7;
+        Sun, 14 Aug 2022 16:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494219;
-        bh=VziyZwYaiI2XjJAGJqmfymcTUHj6O9Hj9Y370mGm6oQ=;
+        s=k20201202; t=1660494220;
+        bh=orAGjlJwzVgk5ZF7dM4scUpZR5ZY+GmzCEngj9bOJ/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pEy0XDk5tTYVGDV/RQBSVF7s9JEFgfHFEZVjxz5S73ztAKYjr5WzhoG/i9+0SYZLr
-         AexmFBThsZLJXizt2uOc7T8k7RCs6A+vO59n4UpxcGwRl4zveeUy+tJ8Il2JAr5UoX
-         +tk3RlOFg86JyRvJF3hAcxm6vmQJZwsoNf5Sw77OAKig6v41Ff/hbNcagJdIQ1od+U
-         gKBC9xd43T69QwrftCBysLsgnyTEOqfgSwuLARP9Woq2p2VirvrmMPeWScqSH+unGm
-         r8DaGqMrt1cyTKO3MirWlGFnn5F8MMu9bMSejS77HXckA99AqNLedBdNZX/aEg0fL7
-         VQcxgA/R6G9SQ==
+        b=Q2CB7RNh2k3pxWbIrrY7DnTJ2VsGI+2IotjNPpQwMrRFcuBXPWvkVAwFNpcCSqffj
+         GpKvszX74/hmfMKUNq9nR0HVRQrvyL8ut5a/5a73vCcDN0O2CNUYdZJipX6zAZPCvV
+         wPwnKNtZmZTHnGr0Lu6rYUa/KI/M0sINd85f+fk7i/b2d6Fs8SeLJebeSw26r3NiqR
+         oC5gCHc063Dcu8h9msfCUvZu8fZLRdsScFbbCwE/8qkTOBFHVQUr7rrmLLkVU0IN4+
+         ZZc+TNhID9njpi6cHd/GElUsE7s3JQ8eE0Zzoxfx+NmIjk4Ge8j9bneWomdJUGa0rf
+         7M5FC1LZ8QWJA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabiano Rosas <farosas@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, npiggin@gmail.com,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.18 03/39] KVM: PPC: Book3S HV: Fix "rm_exit" entry in debugfs timings
-Date:   Sun, 14 Aug 2022 12:22:52 -0400
-Message-Id: <20220814162332.2396012-3-sashal@kernel.org>
+Cc:     Schspa Shi <schspa@gmail.com>, Cornelia Huck <cohuck@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 04/39] vfio: Clear the caps->buf to NULL after free
+Date:   Sun, 14 Aug 2022 12:22:53 -0400
+Message-Id: <20220814162332.2396012-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814162332.2396012-1-sashal@kernel.org>
 References: <20220814162332.2396012-1-sashal@kernel.org>
@@ -57,67 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabiano Rosas <farosas@linux.ibm.com>
+From: Schspa Shi <schspa@gmail.com>
 
-[ Upstream commit 9981bace85d816ed8724ac46e49285e8488d29e6 ]
+[ Upstream commit 6641085e8d7b3f061911517f79a2a15a0a21b97b ]
 
-At debugfs/kvm/<pid>/vcpu0/timings we show how long each part of the
-code takes to run:
+On buffer resize failure, vfio_info_cap_add() will free the buffer,
+report zero for the size, and return -ENOMEM.  As additional
+hardening, also clear the buffer pointer to prevent any chance of a
+double free.
 
-$ cat /sys/kernel/debug/kvm/*-*/vcpu0/timings
-rm_entry: 123785 49398892 118 4898
-rm_intr: 123780 6075890 22 390
-rm_exit: 0 0 0 0                     <-- NOK
-guest: 123780 46732919988 402 9997638
-cede: 0 0 0 0                        <-- OK, no cede napping in P9
-
-The "rm_exit" is always showing zero because it is the last one and
-end_timing does not increment the counter of the previous entry.
-
-We can fix it by calling accumulate_time again instead of
-end_timing. That way the counter gets incremented. The rest of the
-arithmetic can be ignored because there are no timing points after
-this and the accumulators are reset before the next round.
-
-Signed-off-by: Fabiano Rosas <farosas@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220525130554.2614394-2-farosas@linux.ibm.com
+Signed-off-by: Schspa Shi <schspa@gmail.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Link: https://lore.kernel.org/r/20220629022948.55608-1-schspa@gmail.com
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv_p9_entry.c | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ drivers/vfio/vfio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/kvm/book3s_hv_p9_entry.c b/arch/powerpc/kvm/book3s_hv_p9_entry.c
-index a28e5b3daabd..f7591b6c92d1 100644
---- a/arch/powerpc/kvm/book3s_hv_p9_entry.c
-+++ b/arch/powerpc/kvm/book3s_hv_p9_entry.c
-@@ -438,15 +438,6 @@ void restore_p9_host_os_sprs(struct kvm_vcpu *vcpu,
- EXPORT_SYMBOL_GPL(restore_p9_host_os_sprs);
- 
- #ifdef CONFIG_KVM_BOOK3S_HV_EXIT_TIMING
--static void __start_timing(struct kvm_vcpu *vcpu, struct kvmhv_tb_accumulator *next)
--{
--	struct kvmppc_vcore *vc = vcpu->arch.vcore;
--	u64 tb = mftb() - vc->tb_offset_applied;
--
--	vcpu->arch.cur_activity = next;
--	vcpu->arch.cur_tb_start = tb;
--}
--
- static void __accumulate_time(struct kvm_vcpu *vcpu, struct kvmhv_tb_accumulator *next)
- {
- 	struct kvmppc_vcore *vc = vcpu->arch.vcore;
-@@ -478,8 +469,8 @@ static void __accumulate_time(struct kvm_vcpu *vcpu, struct kvmhv_tb_accumulator
- 	curr->seqcount = seq + 2;
- }
- 
--#define start_timing(vcpu, next) __start_timing(vcpu, next)
--#define end_timing(vcpu) __start_timing(vcpu, NULL)
-+#define start_timing(vcpu, next) __accumulate_time(vcpu, next)
-+#define end_timing(vcpu) __accumulate_time(vcpu, NULL)
- #define accumulate_time(vcpu, next) __accumulate_time(vcpu, next)
- #else
- #define start_timing(vcpu, next) do {} while (0)
+diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
+index a4555014bd1e..544403171ba3 100644
+--- a/drivers/vfio/vfio.c
++++ b/drivers/vfio/vfio.c
+@@ -2034,6 +2034,7 @@ struct vfio_info_cap_header *vfio_info_cap_add(struct vfio_info_cap *caps,
+ 	buf = krealloc(caps->buf, caps->size + size, GFP_KERNEL);
+ 	if (!buf) {
+ 		kfree(caps->buf);
++		caps->buf = NULL;
+ 		caps->size = 0;
+ 		return ERR_PTR(-ENOMEM);
+ 	}
 -- 
 2.35.1
 
