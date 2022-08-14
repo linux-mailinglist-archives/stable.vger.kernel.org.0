@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 385F15920FF
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0782592109
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:33:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240656AbiHNPcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:32:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39208 "EHLO
+        id S240602AbiHNPcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:32:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240596AbiHNPcF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:32:05 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FF2A1ADB8;
-        Sun, 14 Aug 2022 08:29:56 -0700 (PDT)
+        with ESMTP id S239597AbiHNPcK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:32:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1E7F1ADA4;
+        Sun, 14 Aug 2022 08:29:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 316F8CE0B69;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B58DD60C0B;
         Sun, 14 Aug 2022 15:29:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1BACC433D6;
-        Sun, 14 Aug 2022 15:29:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15C38C433C1;
+        Sun, 14 Aug 2022 15:29:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660490992;
-        bh=2F6ETMZsAJ9BEr8L3pUMUUvrKg/3pNm/yewanihTYIE=;
+        s=k20201202; t=1660490994;
+        bh=/EAzLTw2LDeTTq+gH0iIZMFAkA3J3B3MG6b3v5PKd8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BXPOKN4PYlcN2AKnnjrgfK+2I77Iv0iKIWvczHA7sE7kfm+j6351tgBpkTAZZkZNV
-         KXs4JGkOGNfSzVsJhV/q65K55Of+gmq56j7+Rz3KFoYaBvRzBYMyRSlXg5mLmZnt+8
-         xIkXDzwXhEx7mFAhONexClzF98yE3EOKTUQ/U1zB/y7Ng0vMMlGmH3ZOx9t7Wo6TW6
-         ftlRcFqihGP2pyXnNj/D1DhHXh7q18D6yPlmO3zttPgjDa/N5s1H7o7KVsfRjqdG4J
-         aI4EGxpSQ3UTqUC81mEgS1Cn7GK0MSFemlBKr2xVAE+5r5ZaWr6cNnfAMW7fkYQzLR
-         Rt9dXYGIUK1ag==
+        b=r63qp95N/c4gsRykwxvp9MnvQXPGzaZ63CdzEaiJ05gsN4QFdynGywpQ1s8CiNtlj
+         aApf3tbve+J6QHEEWcMMzCC6GzkwRilGxIkZyU8p1YG4ni5wB9jLnhguFIhj9+nTyb
+         QcSFSbDmrtP7NRlx6uTtBusJT3fktPMv4MWjg1cBjNy4+gYDaAvGxcmtTRIOM1NegI
+         10JD/l5K9QLgY+TZ2q64lQYq4VEJT/1O/H7HonpnNITt2Gi+V25GxDlslM1ViSjnt6
+         H82h+9jmplrINaHAnTnWAadfRNRHv3mTc4b4/FGCeXCoUYblDtzdOqiMidcXewkxZ8
+         JGQcfSaa5WL+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        shuah@kernel.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 50/64] selftests/kprobe: Do not test for GRP/ without event failures
-Date:   Sun, 14 Aug 2022 11:24:23 -0400
-Message-Id: <20220814152437.2374207-50-sashal@kernel.org>
+Cc:     Akhil R <akhilrajeev@nvidia.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        ldewangan@nvidia.com, thierry.reding@gmail.com,
+        dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 51/64] dmaengine: tegra: Add terminate() for Tegra234
+Date:   Sun, 14 Aug 2022 11:24:24 -0400
+Message-Id: <20220814152437.2374207-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814152437.2374207-1-sashal@kernel.org>
 References: <20220814152437.2374207-1-sashal@kernel.org>
@@ -56,48 +58,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+From: Akhil R <akhilrajeev@nvidia.com>
 
-[ Upstream commit f5eab65ff2b76449286d18efc7fee3e0b72f7d9b ]
+[ Upstream commit 36834c67016794b8fa03d7672a5b7f2cc4529298 ]
 
-A new feature is added where kprobes (and other probes) do not need to
-explicitly state the event name when creating a probe. The event name will
-come from what is being attached.
+In certain cases where the DMA client bus gets corrupted or if the
+end device ceases to send/receive data, DMA can wait indefinitely
+for the data to be received/sent. Attempting to terminate the transfer
+will put the DMA in pause flush mode and it remains there.
 
-That is:
+The channel is irrecoverable once this pause times out in Tegra194 and
+earlier chips. Whereas, from Tegra234, it can be recovered by disabling
+the channel and reprograming it.
 
-  # echo 'p:foo/ vfs_read' > kprobe_events
+Hence add a new terminate() function that ignores the outcome of
+dma_pause() so that terminate_all() can proceed to disable the channel.
 
-Will no longer error, but instead create an event:
-
-  # cat kprobe_events
- p:foo/p_vfs_read_0 vfs_read
-
-This should not be tested as an error case anymore. Remove it from the
-selftest as now this feature "breaks" the selftest as it no longer fails
-as expected.
-
-Link: https://lore.kernel.org/all/1656296348-16111-1-git-send-email-quic_linyyuan@quicinc.com/
-Link: https://lkml.kernel.org/r/20220712161707.6dc08a14@gandalf.local.home
-
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Akhil R <akhilrajeev@nvidia.com>
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Link: https://lore.kernel.org/r/20220720104045.16099-3-akhilrajeev@nvidia.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc       | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/dma/tegra186-gpc-dma.c | 26 ++++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-index fa928b431555..7c02509c71d0 100644
---- a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-+++ b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-@@ -21,7 +21,6 @@ check_error 'p:^/bar vfs_read'		# NO_GROUP_NAME
- check_error 'p:^12345678901234567890123456789012345678901234567890123456789012345/bar vfs_read'	# GROUP_TOO_LONG
+diff --git a/drivers/dma/tegra186-gpc-dma.c b/drivers/dma/tegra186-gpc-dma.c
+index 05cd451f541d..fa9bda4a2bc6 100644
+--- a/drivers/dma/tegra186-gpc-dma.c
++++ b/drivers/dma/tegra186-gpc-dma.c
+@@ -157,8 +157,8 @@
+  * If any burst is in flight and DMA paused then this is the time to complete
+  * on-flight burst and update DMA status register.
+  */
+-#define TEGRA_GPCDMA_BURST_COMPLETE_TIME	20
+-#define TEGRA_GPCDMA_BURST_COMPLETION_TIMEOUT	100
++#define TEGRA_GPCDMA_BURST_COMPLETE_TIME	10
++#define TEGRA_GPCDMA_BURST_COMPLETION_TIMEOUT	5000 /* 5 msec */
  
- check_error 'p:^foo.1/bar vfs_read'	# BAD_GROUP_NAME
--check_error 'p:foo/^ vfs_read'		# NO_EVENT_NAME
- check_error 'p:foo/^12345678901234567890123456789012345678901234567890123456789012345 vfs_read'	# EVENT_TOO_LONG
- check_error 'p:foo/^bar.1 vfs_read'	# BAD_EVENT_NAME
+ /* Channel base address offset from GPCDMA base address */
+ #define TEGRA_GPCDMA_CHANNEL_BASE_ADD_OFFSET	0x20000
+@@ -432,6 +432,17 @@ static int tegra_dma_device_resume(struct dma_chan *dc)
+ 	return 0;
+ }
  
++static inline int tegra_dma_pause_noerr(struct tegra_dma_channel *tdc)
++{
++	/* Return 0 irrespective of PAUSE status.
++	 * This is useful to recover channels that can exit out of flush
++	 * state when the channel is disabled.
++	 */
++
++	tegra_dma_pause(tdc);
++	return 0;
++}
++
+ static void tegra_dma_disable(struct tegra_dma_channel *tdc)
+ {
+ 	u32 csr, status;
+@@ -1292,6 +1303,14 @@ static const struct tegra_dma_chip_data tegra194_dma_chip_data = {
+ 	.terminate = tegra_dma_pause,
+ };
+ 
++static const struct tegra_dma_chip_data tegra234_dma_chip_data = {
++	.nr_channels = 31,
++	.channel_reg_size = SZ_64K,
++	.max_dma_count = SZ_1G,
++	.hw_support_pause = true,
++	.terminate = tegra_dma_pause_noerr,
++};
++
+ static const struct of_device_id tegra_dma_of_match[] = {
+ 	{
+ 		.compatible = "nvidia,tegra186-gpcdma",
+@@ -1299,6 +1318,9 @@ static const struct of_device_id tegra_dma_of_match[] = {
+ 	}, {
+ 		.compatible = "nvidia,tegra194-gpcdma",
+ 		.data = &tegra194_dma_chip_data,
++	}, {
++		.compatible = "nvidia,tegra234-gpcdma",
++		.data = &tegra234_dma_chip_data,
+ 	}, {
+ 	},
+ };
 -- 
 2.35.1
 
