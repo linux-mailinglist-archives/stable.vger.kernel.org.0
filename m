@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C88E4592316
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:53:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 986D4592321
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:53:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242068AbiHNPxL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:53:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55398 "EHLO
+        id S241903AbiHNPxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:53:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241904AbiHNPui (ORCPT
+        with ESMTP id S241909AbiHNPui (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:50:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B0BB15FEB;
-        Sun, 14 Aug 2022 08:35:56 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8ED416594;
+        Sun, 14 Aug 2022 08:35:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45169B80B48;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50F0060DBC;
+        Sun, 14 Aug 2022 15:35:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C02C5C433D6;
         Sun, 14 Aug 2022 15:35:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E398C433C1;
-        Sun, 14 Aug 2022 15:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491354;
-        bh=tcc/9GT4Cx6LCF2rISrkHBzxNjQ+akbGEAC2Vt2oo7U=;
+        s=k20201202; t=1660491356;
+        bh=CGpqeaQ+Kv576NDKhkFcAltFTpaVpI9mO0acYBIYJCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aRP1wsiTmmwTRB6pFxUKVrJkrNRQNpDDFY/arUZrRfMXbpxNnziYWoUQHGzYkaK1y
-         wccZ8pGxJiYgAzFkiQTckc2sY+P59/xxM/Rw1auAd++co5Q81HhqpWYhYskoVA/YqD
-         EM0xksNB6Sk035rnCCX2thuwd2Rz4U8V/5qc9R5Wm2hkHbzeGeuszMJbeXgkGpUsIe
-         BSGrdvQUord2x5P30tPaAs4jnzE9+BG4sZIUzN3APk8KEjBl4Xjt1iL1Wx6JJ/degq
-         NjH1bXoZcvVHROo4RzmljkhnO3xSYaz//HyehGGU3bdErb13FEZrEz4cNB+5zubr2R
-         5D1NdOq60u2fA==
+        b=vOh/cR01gCHvFHP6KPLCTL7aolwwCvSSDqph1ChfE8M1c0uEbESz5JkuPnuNI5DBp
+         IJlQurDPW4MqsF6RzF85N7QYYPtLywPWOlwzZE6su7YcFMJxxEcNhsTfZLvVgJsxjV
+         Daw0YTM6/gVJjuMvIJ5vwaivbdwknrpx0MAhnBNYXgpOo+az/3ECzmRtJ7y1YxRaO7
+         7Umiz7IxU+6gyB6Zs+ekNbAxmQF9msDFPZPi9scbQIJoXYStKF1f8fUhhCXZL/FDf1
+         MQY4fUh6RuCohzBXqndiul2cZp04NJNPu749E5UQ5Ztr42TUA5BLyrPIIJbtO0HtAJ
+         kHJH7DwxHbh/w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huacai Chen <chenhuacai@loongson.cn>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        linux-pci@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 13/21] PCI/ACPI: Guard ARM64-specific mcfg_quirks
-Date:   Sun, 14 Aug 2022 11:35:23 -0400
-Message-Id: <20220814153531.2379705-13-sashal@kernel.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        linux@roeck-us.net, linux-um@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 14/21] um: add "noreboot" command line option for PANIC_TIMEOUT=-1 setups
+Date:   Sun, 14 Aug 2022 11:35:24 -0400
+Message-Id: <20220814153531.2379705-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153531.2379705-1-sashal@kernel.org>
 References: <20220814153531.2379705-1-sashal@kernel.org>
@@ -57,42 +58,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhuacai@loongson.cn>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 40a6cc141b4b9580de140bcb3e893445708acc5d ]
+[ Upstream commit dda520d07b95072a0b63f6c52a8eb566d08ea897 ]
 
-Guard ARM64-specific quirks with CONFIG_ARM64 to avoid build errors,
-since mcfg_quirks will be shared by more than one architectures.
+QEMU has a -no-reboot option, which halts instead of reboots when the
+guest asks to reboot. This is invaluable when used with
+CONFIG_PANIC_TIMEOUT=-1 (and panic_on_warn), because it allows panics
+and warnings to be caught immediately in CI. Implement this in UML too,
+by way of a basic setup param.
 
-Link: https://lore.kernel.org/r/20220714124216.1489304-2-chenhuacai@loongson.cn
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/pci_mcfg.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/um/os-Linux/skas/process.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/pci_mcfg.c b/drivers/acpi/pci_mcfg.c
-index 47e43c949825..ed2f880b63b5 100644
---- a/drivers/acpi/pci_mcfg.c
-+++ b/drivers/acpi/pci_mcfg.c
-@@ -41,6 +41,8 @@ struct mcfg_fixup {
- static struct mcfg_fixup mcfg_quirks[] = {
- /*	{ OEM_ID, OEM_TABLE_ID, REV, SEGMENT, BUS_RANGE, ops, cfgres }, */
+diff --git a/arch/um/os-Linux/skas/process.c b/arch/um/os-Linux/skas/process.c
+index 4fb877b99dde..0571cc0a30fc 100644
+--- a/arch/um/os-Linux/skas/process.c
++++ b/arch/um/os-Linux/skas/process.c
+@@ -5,6 +5,7 @@
+  */
  
-+#ifdef CONFIG_ARM64
+ #include <stdlib.h>
++#include <stdbool.h>
+ #include <unistd.h>
+ #include <sched.h>
+ #include <errno.h>
+@@ -641,10 +642,24 @@ void halt_skas(void)
+ 	UML_LONGJMP(&initial_jmpbuf, INIT_JMP_HALT);
+ }
+ 
++static bool noreboot;
 +
- #define AL_ECAM(table_id, rev, seg, ops) \
- 	{ "AMAZON", table_id, rev, seg, MCFG_BUS_ANY, ops }
++static int __init noreboot_cmd_param(char *str, int *add)
++{
++	noreboot = true;
++	return 0;
++}
++
++__uml_setup("noreboot", noreboot_cmd_param,
++"noreboot\n"
++"    Rather than rebooting, exit always, akin to QEMU's -no-reboot option.\n"
++"    This is useful if you're using CONFIG_PANIC_TIMEOUT in order to catch\n"
++"    crashes in CI\n");
++
+ void reboot_skas(void)
+ {
+ 	block_signals_trace();
+-	UML_LONGJMP(&initial_jmpbuf, INIT_JMP_REBOOT);
++	UML_LONGJMP(&initial_jmpbuf, noreboot ? INIT_JMP_HALT : INIT_JMP_REBOOT);
+ }
  
-@@ -162,6 +164,7 @@ static struct mcfg_fixup mcfg_quirks[] = {
- 	ALTRA_ECAM_QUIRK(1, 13),
- 	ALTRA_ECAM_QUIRK(1, 14),
- 	ALTRA_ECAM_QUIRK(1, 15),
-+#endif /* ARM64 */
- };
- 
- static char mcfg_oem_id[ACPI_OEM_ID_SIZE];
+ void __switch_mm(struct mm_id *mm_idp)
 -- 
 2.35.1
 
