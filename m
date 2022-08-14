@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67CEF5921A5
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:39:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A830059219A
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241073AbiHNPiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:38:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54592 "EHLO
+        id S241069AbiHNPiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:38:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240761AbiHNPg4 (ORCPT
+        with ESMTP id S240889AbiHNPg4 (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:36:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36A0220182;
-        Sun, 14 Aug 2022 08:32:13 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7DFC1F615;
+        Sun, 14 Aug 2022 08:32:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E51AAB80B48;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64DCC60C05;
+        Sun, 14 Aug 2022 15:32:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FEB0C433C1;
         Sun, 14 Aug 2022 15:32:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6A71C43140;
-        Sun, 14 Aug 2022 15:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491130;
-        bh=L42qY2/qCnSxRQq+g5T8n1aIYGDtaKOIMuhcekAA/MY=;
+        s=k20201202; t=1660491131;
+        bh=Wk2EN4oWzCNZy1fjsGB+gIos7yTqSgZhVXSohy2ODQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=go40HM/h6s9E2VkbuY0AAkvQ9NvWFWU80AarICEhAXCBkQp1aovyylvoWQWiDfUd3
-         uhqHsfJEeFiv99PPgoVf+uYq6qu+/Kxa/AZ0h/qIGgukWY8fUVRLIyeQlRA2m4PwHH
-         XWTY0C5b/9yv0u+ADrSNlpyn2ED24HXBbtrsnjvm9BmOkU93XBcdMZeG2jk5Gmn+yg
-         cbyn2Zn1mY2GyBFAEPygfI8yT0cq0MPVXIa3AVhNJ4o1n2KCjgZn9nC1cT5aMpebJF
-         1AFqHtji8DhhU586y6OdU/SLCRSPrQPFjlA9fcDxmDCw9xbzzTsBeGek1rCxNrxl5I
-         TVPm9/Ou2nn3w==
+        b=aTJV8MY1KV54bG9SXO6ghAmT+zs5gv/5vd+SDNH/rolTZBLBXvEdfVy8pUBoCaaGN
+         1HCdPxegZjgxDGU26RPCc9danzLicdArnRkvPnBTvjcYwG+R0uNY0pwkWcJbpX+ATk
+         izWobxFFdGOMwijTLe6A/KFoIpD0vxlGTDUcLaqwVzZFvPKzcukaQH790yJAfQ9rY0
+         RUTX65BcYCm1N9wSbqgyBcFhCQsqOEY4n37c49Mf+HPiW+SYaifXg3f7LxrxuXwrjt
+         51URjF9w1V81KLxPJZSsw5HoOIq/ZelOsZ11GSX5dykH3r7XGVfb6uKwQ0CgH3MvR+
+         A01ev3vNCuyuA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        linux@roeck-us.net, linux-um@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 38/56] um: add "noreboot" command line option for PANIC_TIMEOUT=-1 setups
-Date:   Sun, 14 Aug 2022 11:30:08 -0400
-Message-Id: <20220814153026.2377377-38-sashal@kernel.org>
+Cc:     Ben Dooks <ben.dooks@sifive.com>, Vinod Koul <vkoul@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, Eugeniy.Paltsev@synopsys.com,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 39/56] dmaengine: dw-axi-dmac: do not print NULL LLI during error
+Date:   Sun, 14 Aug 2022 11:30:09 -0400
+Message-Id: <20220814153026.2377377-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153026.2377377-1-sashal@kernel.org>
 References: <20220814153026.2377377-1-sashal@kernel.org>
@@ -58,61 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Ben Dooks <ben.dooks@sifive.com>
 
-[ Upstream commit dda520d07b95072a0b63f6c52a8eb566d08ea897 ]
+[ Upstream commit 86cb0defe0e275453bc39e856bb523eb425a6537 ]
 
-QEMU has a -no-reboot option, which halts instead of reboots when the
-guest asks to reboot. This is invaluable when used with
-CONFIG_PANIC_TIMEOUT=-1 (and panic_on_warn), because it allows panics
-and warnings to be caught immediately in CI. Implement this in UML too,
-by way of a basic setup param.
+During debugging we have seen an issue where axi_chan_dump_lli()
+is passed a NULL LLI pointer which ends up causing an OOPS due
+to trying to get fields from it. Simply print NULL LLI and exit
+to avoid this.
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Ben Dooks <ben.dooks@sifive.com>
+Link: https://lore.kernel.org/r/20220708170153.269991-3-ben.dooks@sifive.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/os-Linux/skas/process.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/um/os-Linux/skas/process.c b/arch/um/os-Linux/skas/process.c
-index 87d3129e7362..0df2ebcc97c0 100644
---- a/arch/um/os-Linux/skas/process.c
-+++ b/arch/um/os-Linux/skas/process.c
-@@ -5,6 +5,7 @@
-  */
- 
- #include <stdlib.h>
-+#include <stdbool.h>
- #include <unistd.h>
- #include <sched.h>
- #include <errno.h>
-@@ -707,10 +708,24 @@ void halt_skas(void)
- 	UML_LONGJMP(&initial_jmpbuf, INIT_JMP_HALT);
- }
- 
-+static bool noreboot;
-+
-+static int __init noreboot_cmd_param(char *str, int *add)
-+{
-+	noreboot = true;
-+	return 0;
-+}
-+
-+__uml_setup("noreboot", noreboot_cmd_param,
-+"noreboot\n"
-+"    Rather than rebooting, exit always, akin to QEMU's -no-reboot option.\n"
-+"    This is useful if you're using CONFIG_PANIC_TIMEOUT in order to catch\n"
-+"    crashes in CI\n");
-+
- void reboot_skas(void)
+diff --git a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
+index c741da02b67e..41583f01a360 100644
+--- a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
++++ b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
+@@ -982,6 +982,11 @@ static int dw_axi_dma_chan_slave_config(struct dma_chan *dchan,
+ static void axi_chan_dump_lli(struct axi_dma_chan *chan,
+ 			      struct axi_dma_hw_desc *desc)
  {
- 	block_signals_trace();
--	UML_LONGJMP(&initial_jmpbuf, INIT_JMP_REBOOT);
-+	UML_LONGJMP(&initial_jmpbuf, noreboot ? INIT_JMP_HALT : INIT_JMP_REBOOT);
- }
- 
- void __switch_mm(struct mm_id *mm_idp)
++	if (!desc->lli) {
++		dev_err(dchan2dev(&chan->vc.chan), "NULL LLI\n");
++		return;
++	}
++
+ 	dev_err(dchan2dev(&chan->vc.chan),
+ 		"SAR: 0x%llx DAR: 0x%llx LLP: 0x%llx BTS 0x%x CTL: 0x%x:%08x",
+ 		le64_to_cpu(desc->lli->sar),
 -- 
 2.35.1
 
