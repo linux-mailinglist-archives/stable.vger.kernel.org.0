@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75973592187
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:38:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BF8C59218D
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:38:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240939AbiHNPhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:37:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54910 "EHLO
+        id S240655AbiHNPhI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:37:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241187AbiHNPg0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:36:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D9AF1EC7B;
-        Sun, 14 Aug 2022 08:31:50 -0700 (PDT)
+        with ESMTP id S241231AbiHNPgb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:36:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9EE91F2C3;
+        Sun, 14 Aug 2022 08:31:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BFD660C8C;
-        Sun, 14 Aug 2022 15:31:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41226C43144;
-        Sun, 14 Aug 2022 15:31:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D58EB80B27;
+        Sun, 14 Aug 2022 15:31:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFF88C433D7;
+        Sun, 14 Aug 2022 15:31:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491108;
-        bh=mhHmj7mUNqBlkY3zt+9evoaMWx3Yb08kfz20bxtaHbw=;
+        s=k20201202; t=1660491112;
+        bh=k90/bpdTXvK9Z66uLqBWejOIb8++F5yg2k613oH8El0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Klf0Hbgf0g8cRv34EVmJF6cmZYwTO2tBuyeLdk17OdzrEep08/CDoaniLPMjCEGfe
-         2kupRUZo0nUHooG0on4NCMBJct2nu5+hlEdQraBBk1gVLRUh0mRzLJOaC+ZVMSTy8W
-         EnJZw430LtOPXRQGTzNAg5yYga/w+xdzII1M8cGTX2Yf+74boJX0GIAb+kyP5KWmz7
-         7E+x41SM9Z0woWQuIDUwA9R8woeBJHVilim3MAdaSUT+1ww5Vo8g83HnxlMHZhafDg
-         mlzkspkZTkDK9ZpqBMyd2DKHB5/kwOaVLR9/W8FXNIxfVAeTicG3XV1e6h1dCg5IJ0
-         0ARPu5UHDkRtw==
+        b=r+GDpjH/22Fq3rt0dEvu8GnqAIKnomiOA5uYi95eq5k0hdmkoqn8LPoa5+ABseMr3
+         e+7QZ4Y+NCXY0ryH/Pn5MQAqhcRpKCP0e+8E+W1SqSX2qfZNIA2WzCB83Mt+mVC8a+
+         KYdXdUPENcJNt9b1CHfCzxZ/ugJYaRbMI4eU/roXIxuKsqrao+GkptJDly/l9jbPUg
+         HXMnWbomHZM/GzibRfaMVKRXJoutN9d7J+aRD4qVD8RoiUNIYCVv7gWMPLkAwm3+xg
+         /7MxU+hij8So1JYaEMKdBHmP5+ibmJ3LK9mRRnsjplCCu/2yz8+7Mg02ofTuhDdLta
+         c+ql4CIur5inw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tal Cohen <talcohen@habana.ai>, Oded Gabbay <ogabbay@kernel.org>,
+Cc:     Ofir Bitton <obitton@habana.ai>, Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
-        osharabi@habana.ai, obitton@habana.ai, ttayar@habana.ai,
-        ynudelman@habana.ai, dliberman@habana.ai, fkassabri@habana.ai,
-        dhirschfeld@habana.ai
-Subject: [PATCH AUTOSEL 5.18 30/56] habanalabs/gaudi: invoke device reset from one code block
-Date:   Sun, 14 Aug 2022 11:30:00 -0400
-Message-Id: <20220814153026.2377377-30-sashal@kernel.org>
+        osharabi@habana.ai, ttayar@habana.ai, ynudelman@habana.ai,
+        dliberman@habana.ai, fkassabri@habana.ai, dhirschfeld@habana.ai
+Subject: [PATCH AUTOSEL 5.18 31/56] habanalabs/gaudi: fix shift out of bounds
+Date:   Sun, 14 Aug 2022 11:30:01 -0400
+Message-Id: <20220814153026.2377377-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153026.2377377-1-sashal@kernel.org>
 References: <20220814153026.2377377-1-sashal@kernel.org>
@@ -58,86 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tal Cohen <talcohen@habana.ai>
+From: Ofir Bitton <obitton@habana.ai>
 
-[ Upstream commit be572e67dafbf8004d46a2c9d97338c107efb60e ]
+[ Upstream commit 01622098aeb05a5efbb727199bbc2a4653393255 ]
 
-In order to prepare the driver code for device reset event
-notification, change the event handler function flow to call
-device reset from one code block.
+When validating NIC queues, queue offset calculation must be
+performed only for NIC queues.
 
-In addition, the commit fixes an issue that reset was performed
-w/o checking the 'hard_reset_on_fw_event' state and w/o setting
-the HL_DRV_RESET_DELAY flag.
-
-Signed-off-by: Tal Cohen <talcohen@habana.ai>
+Signed-off-by: Ofir Bitton <obitton@habana.ai>
 Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/gaudi/gaudi.c | 25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ drivers/misc/habanalabs/gaudi/gaudi.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
-index 1c271edb9297..90b769114fea 100644
+index 90b769114fea..824a2fac22a4 100644
 --- a/drivers/misc/habanalabs/gaudi/gaudi.c
 +++ b/drivers/misc/habanalabs/gaudi/gaudi.c
-@@ -7942,10 +7942,10 @@ static void gaudi_handle_eqe(struct hl_device *hdev,
+@@ -5698,15 +5698,17 @@ static int gaudi_parse_cb_no_ext_queue(struct hl_device *hdev,
+ {
+ 	struct asic_fixed_properties *asic_prop = &hdev->asic_prop;
  	struct gaudi_device *gaudi = hdev->asic_specific;
- 	u64 data = le64_to_cpu(eq_entry->data[0]);
- 	u32 ctl = le32_to_cpu(eq_entry->hdr.ctl);
--	u32 fw_fatal_err_flag = 0;
-+	u32 fw_fatal_err_flag = 0, flags = 0;
- 	u16 event_type = ((ctl & EQ_CTL_EVENT_TYPE_MASK)
- 			>> EQ_CTL_EVENT_TYPE_SHIFT);
--	bool reset_required;
-+	bool reset_required, reset_direct = false;
- 	u8 cause;
- 	int rc;
+-	u32 nic_mask_q_id = 1 << (HW_CAP_NIC_SHIFT +
+-		((parser->hw_queue_id - GAUDI_QUEUE_ID_NIC_0_0) >> 2));
++	u32 nic_queue_offset, nic_mask_q_id;
  
-@@ -8033,7 +8033,8 @@ static void gaudi_handle_eqe(struct hl_device *hdev,
- 			dev_err(hdev->dev, "reset required due to %s\n",
- 				gaudi_irq_map_table[event_type].name);
- 
--			hl_device_reset(hdev, 0);
-+			reset_direct = true;
-+			goto reset_device;
- 		} else {
- 			hl_fw_unmask_irq(hdev, event_type);
- 		}
-@@ -8055,7 +8056,8 @@ static void gaudi_handle_eqe(struct hl_device *hdev,
- 			dev_err(hdev->dev, "reset required due to %s\n",
- 				gaudi_irq_map_table[event_type].name);
- 
--			hl_device_reset(hdev, 0);
-+			reset_direct = true;
-+			goto reset_device;
- 		} else {
- 			hl_fw_unmask_irq(hdev, event_type);
- 		}
-@@ -8194,12 +8196,17 @@ static void gaudi_handle_eqe(struct hl_device *hdev,
- 	return;
- 
- reset_device:
--	if (hdev->asic_prop.fw_security_enabled)
--		hl_device_reset(hdev, HL_DRV_RESET_HARD
--					| HL_DRV_RESET_BYPASS_REQ_TO_FW
--					| fw_fatal_err_flag);
-+	reset_required = true;
+ 	if ((parser->hw_queue_id >= GAUDI_QUEUE_ID_NIC_0_0) &&
+-			(parser->hw_queue_id <= GAUDI_QUEUE_ID_NIC_9_3) &&
+-			(!(gaudi->hw_cap_initialized & nic_mask_q_id))) {
+-		dev_err(hdev->dev, "h/w queue %d is disabled\n",
+-				parser->hw_queue_id);
+-		return -EINVAL;
++			(parser->hw_queue_id <= GAUDI_QUEUE_ID_NIC_9_3)) {
++		nic_queue_offset = parser->hw_queue_id - GAUDI_QUEUE_ID_NIC_0_0;
++		nic_mask_q_id = 1 << (HW_CAP_NIC_SHIFT + (nic_queue_offset >> 2));
 +
-+	if (hdev->asic_prop.fw_security_enabled && !reset_direct)
-+		flags = HL_DRV_RESET_HARD | HL_DRV_RESET_BYPASS_REQ_TO_FW | fw_fatal_err_flag;
- 	else if (hdev->hard_reset_on_fw_events)
--		hl_device_reset(hdev, HL_DRV_RESET_HARD | HL_DRV_RESET_DELAY | fw_fatal_err_flag);
-+		flags = HL_DRV_RESET_HARD | HL_DRV_RESET_DELAY | fw_fatal_err_flag;
-+	else
-+		reset_required = false;
-+
-+	if (reset_required)
-+		hl_device_reset(hdev, flags);
- 	else
- 		hl_fw_unmask_irq(hdev, event_type);
- }
++		if (!(gaudi->hw_cap_initialized & nic_mask_q_id)) {
++			dev_err(hdev->dev, "h/w queue %d is disabled\n", parser->hw_queue_id);
++			return -EINVAL;
++		}
+ 	}
+ 
+ 	/* For internal queue jobs just check if CB address is valid */
 -- 
 2.35.1
 
