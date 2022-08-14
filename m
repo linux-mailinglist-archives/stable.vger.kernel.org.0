@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41F6F592153
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 553DE59214E
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:36:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231503AbiHNPgn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:36:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54446 "EHLO
+        id S240291AbiHNPgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:36:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240777AbiHNPfd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:35:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F4D13D4B;
-        Sun, 14 Aug 2022 08:30:50 -0700 (PDT)
+        with ESMTP id S240830AbiHNPfL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:35:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3CBB1CB25;
+        Sun, 14 Aug 2022 08:30:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E6D4260CA3;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13E2BB80B4D;
+        Sun, 14 Aug 2022 15:30:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3A69C43141;
         Sun, 14 Aug 2022 15:30:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79E9AC43142;
-        Sun, 14 Aug 2022 15:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491035;
-        bh=ajrefJ9f1ixT32JAcsAdH2A3pWO5nNoP2gGtygVkdQE=;
+        s=k20201202; t=1660491036;
+        bh=XfTpIaEcdH4Kr+11fCWTXZMYxUdU3fx7fJjlYGcy0nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=roajf/tvD/RJ2tuqXlrrMI+BzODwqMWz8S17zduMwp37fV1hKPZlfx/33bMDI4TeX
-         zq54ce1NbhNX8bEEaTQwgAt+cRhAs4j4LbfyfrISbb/w9jcQkssQm4BjfM2YOl5Eik
-         wiPfIBz9QSf+j0Zt1LkHu3pOVsa64Oi/drwC4r1gr8j9TbJwANHOcZ9uxXyGjG5cgC
-         db0JEojSnaDHaoZmlP9uOZKVBaAavpwc/7Aly6uyn1zyXuVJguTFV6StKjSXT7hISp
-         56UHJlo0szOgyW6r93+ZVz8uRNCRbYU4kev1lZ5N4A7r1bX5xy6aOoxgn0WFW1AJW2
-         rpMLNweNDSraA==
+        b=gPoKhwZjxWCwqMPVprLMv65qQrASytTagIWCVMkQVoZUMfBoBcpV9SJz2XYNE9h61
+         HdX319kKN0fR/DWGf7HQcdOsoZNCjQ7xC6ZmUf+3joMn91CkzKuDz1XpBE9m2/EnDR
+         IaTk8B2mXpa0tzXdIVDW18h2TW4866pHqW+xEk9uHYxAsjSujCDcHtHd9d5YJnS/4u
+         SJg6lnc7dvHjMWZIOl+vHgJzFVMOuU6C6Q5pyLacSGKfRhImYInxB1QRVJGCZuDqAP
+         M3d8p5Sds0dosMLkuwjFhbgCG4nCnaslc5G24uKZ+aH+lcbPxkWKVl44eArOsoYQSC
+         y797YmrF56dRA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Frank Li <Frank.Li@nxp.com>,
+Cc:     Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        Dan Vacura <w36195@motorola.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, peter.chen@kernel.org,
-        pawell@cadence.com, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 06/56] usb: cdns3: fix random warning message when driver load
-Date:   Sun, 14 Aug 2022 11:29:36 -0400
-Message-Id: <20220814153026.2377377-6-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        laurent.pinchart@ideasonboard.com, balbi@kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 07/56] usb: gadget: uvc: calculate the number of request depending on framesize
+Date:   Sun, 14 Aug 2022 11:29:37 -0400
+Message-Id: <20220814153026.2377377-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153026.2377377-1-sashal@kernel.org>
 References: <20220814153026.2377377-1-sashal@kernel.org>
@@ -57,65 +59,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Li <Frank.Li@nxp.com>
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-[ Upstream commit 8659ab3d936fcf0084676f98b75b317017aa8f82 ]
+[ Upstream commit 87d76b5f1d8eeb49efa16e2018e188864cbb9401 ]
 
-Warning log:
-[    4.141392] Unexpected gfp: 0x4 (GFP_DMA32). Fixing up to gfp: 0xa20 (GFP_ATOMIC). Fix your code!
-[    4.150340] CPU: 1 PID: 175 Comm: 1-0050 Not tainted 5.15.5-00039-g2fd9ae1b568c #20
-[    4.158010] Hardware name: Freescale i.MX8QXP MEK (DT)
-[    4.163155] Call trace:
-[    4.165600]  dump_backtrace+0x0/0x1b0
-[    4.169286]  show_stack+0x18/0x68
-[    4.172611]  dump_stack_lvl+0x68/0x84
-[    4.176286]  dump_stack+0x18/0x34
-[    4.179613]  kmalloc_fix_flags+0x60/0x88
-[    4.183550]  new_slab+0x334/0x370
-[    4.186878]  ___slab_alloc.part.108+0x4d4/0x748
-[    4.191419]  __slab_alloc.isra.109+0x30/0x78
-[    4.195702]  kmem_cache_alloc+0x40c/0x420
-[    4.199725]  dma_pool_alloc+0xac/0x1f8
-[    4.203486]  cdns3_allocate_trb_pool+0xb4/0xd0
+The current limitation of possible number of requests being handled is
+dependent on the gadget speed. It makes more sense to depend on the
+typical frame size when calculating the number of requests. This patch
+is changing this and is using the previous limits as boundaries for
+reasonable minimum and maximum number of requests.
 
-pool_alloc_page(struct dma_pool *pool, gfp_t mem_flags)
-{
-	...
-	page = kmalloc(sizeof(*page), mem_flags);
-	page->vaddr = dma_alloc_coherent(pool->dev, pool->allocation,
-					 &page->dma, mem_flags);
-	...
-}
+For a 1080p jpeg encoded video stream with a maximum imagesize of
+e.g. 800kB with a maxburst of 8 and an multiplier of 1 the resulting
+number of requests is calculated to 49.
 
-kmalloc was called with mem_flags, which is passed down in
-cdns3_allocate_trb_pool() and have GFP_DMA32 flags.
-kmall_fix_flags() report warning.
+        800768         1
+nreqs = ------ * -------------- ~= 49
+          2      (1024 * 8 * 1)
 
-GFP_DMA32 is not useful at all. dma_alloc_coherent() will handle
-DMA memory region correctly by pool->dev. GFP_DMA32 can be removed
-safely.
-
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Link: https://lore.kernel.org/r/20220609154456.2871672-1-Frank.Li@nxp.com
+Tested-by: Dan Vacura <w36195@motorola.com>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Link: https://lore.kernel.org/r/20220529223848.105914-2-m.grzeschik@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/cdns3/cdns3-gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/uvc_queue.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/cdns3/cdns3-gadget.c b/drivers/usb/cdns3/cdns3-gadget.c
-index c4f90b124e55..c7c394402e44 100644
---- a/drivers/usb/cdns3/cdns3-gadget.c
-+++ b/drivers/usb/cdns3/cdns3-gadget.c
-@@ -220,7 +220,7 @@ int cdns3_allocate_trb_pool(struct cdns3_endpoint *priv_ep)
+diff --git a/drivers/usb/gadget/function/uvc_queue.c b/drivers/usb/gadget/function/uvc_queue.c
+index 2cda982f3765..5b78e000cded 100644
+--- a/drivers/usb/gadget/function/uvc_queue.c
++++ b/drivers/usb/gadget/function/uvc_queue.c
+@@ -44,7 +44,8 @@ static int uvc_queue_setup(struct vb2_queue *vq,
+ {
+ 	struct uvc_video_queue *queue = vb2_get_drv_priv(vq);
+ 	struct uvc_video *video = container_of(queue, struct uvc_video, queue);
+-	struct usb_composite_dev *cdev = video->uvc->func.config->cdev;
++	unsigned int req_size;
++	unsigned int nreq;
  
- 	if (!priv_ep->trb_pool) {
- 		priv_ep->trb_pool = dma_pool_alloc(priv_dev->eps_dma_pool,
--						   GFP_DMA32 | GFP_ATOMIC,
-+						   GFP_ATOMIC,
- 						   &priv_ep->trb_pool_dma);
+ 	if (*nbuffers > UVC_MAX_VIDEO_BUFFERS)
+ 		*nbuffers = UVC_MAX_VIDEO_BUFFERS;
+@@ -53,10 +54,16 @@ static int uvc_queue_setup(struct vb2_queue *vq,
  
- 		if (!priv_ep->trb_pool)
+ 	sizes[0] = video->imagesize;
+ 
+-	if (cdev->gadget->speed < USB_SPEED_SUPER)
+-		video->uvc_num_requests = 4;
+-	else
+-		video->uvc_num_requests = 64;
++	req_size = video->ep->maxpacket
++		 * max_t(unsigned int, video->ep->maxburst, 1)
++		 * (video->ep->mult);
++
++	/* We divide by two, to increase the chance to run
++	 * into fewer requests for smaller framesizes.
++	 */
++	nreq = DIV_ROUND_UP(DIV_ROUND_UP(sizes[0], 2), req_size);
++	nreq = clamp(nreq, 4U, 64U);
++	video->uvc_num_requests = nreq;
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
