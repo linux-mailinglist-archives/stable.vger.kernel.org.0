@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED93359230B
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:53:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5CC659231C
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:53:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241752AbiHNPwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:52:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40474 "EHLO
+        id S242107AbiHNPxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:53:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242118AbiHNPvP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:51:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E861F1D31B;
-        Sun, 14 Aug 2022 08:36:54 -0700 (PDT)
+        with ESMTP id S242135AbiHNPvR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:51:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D33D1D335;
+        Sun, 14 Aug 2022 08:36:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 492F1B80B77;
-        Sun, 14 Aug 2022 15:36:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 501B8C433C1;
-        Sun, 14 Aug 2022 15:36:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C782660B90;
+        Sun, 14 Aug 2022 15:36:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44FE6C433C1;
+        Sun, 14 Aug 2022 15:36:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491412;
-        bh=HDn0Qcz2gytPtLt5gyFK0rQWGhhoEna1MAc0S70Ab3I=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o/GFh5zRhi+tj4LBDM6w45anT2Y30fYU40PTADfbbrXBQeWEpj1POQpEPIFQkIdVk
-         K2Sgyth8FqcCgh8Nwxe+WQB/zGv92SaCJRxtGa0RUqDw4qQnsIqFCHNtctHEV2OTl8
-         hCrgq0S1UThLwYXAnhZvkuq3yOSBS7m7VhAsw93Wqv6zpkBbNj8gC6Fl20iuwEDC7L
-         bVY9NpVj9RZ9SkaLVbzmUMVlNAkm1DJMVBhvMAroinuJe64HKaMK0hOBKG2gpqMnhF
-         HA9qPmdDa52BKeYTvEm9E9b2eVVL6XyE3d5iSI/ebcKI3w5ADoKjsi/7Jau3DgnQN5
-         WSeDj2MpeQYeg==
+        s=k20201202; t=1660491415;
+        bh=4w3lDk5hzKUuT+9+ilwQbT7hBop2B7aR7/BqfQaQuMM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=lzxeP/vgnryJsW5c6XT087rEAVDCqrNX/FVQWgYoGT9wKZbrkpql6PTQVyEtxAIDP
+         ZXOMABkWE1KaladI4/kSsJpzIZ+56Lq+P3fVM/rMd3yDXwj6tjEGLrAUr6PutL/7Rn
+         Q70Oa1KhKJ2PwC9K60Is5RvxFK53ZMpwRUaM2IzT60QHcAML7C+7jZhIe5XtfzYkS9
+         qGhPwg9lJS25TkMBzyIe5kke55mZJcxqxTvWn9+37m0jvlEvDeGkKMO60byyD/ipTu
+         pG0P5k9JxFC4Re4hlcdcF71IIcG4IHj76oMxGACToPmySuPYtKFLphCVaOZQ0bl2hS
+         OMODoXS/LNHQQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Kiselev, Oleg" <okiselev@amazon.com>,
-        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 9/9] ext4: avoid resizing to a partial cluster size
-Date:   Sun, 14 Aug 2022 11:36:36 -0400
-Message-Id: <20220814153637.2380406-9-sashal@kernel.org>
+Cc:     Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
+        Marc Zyngier <maz@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        thierry.reding@gmail.com, jonathanh@nvidia.com,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 1/7] irqchip/tegra: Fix overflow implicit truncation warnings
+Date:   Sun, 14 Aug 2022 11:36:46 -0400
+Message-Id: <20220814153652.2380549-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220814153637.2380406-1-sashal@kernel.org>
-References: <20220814153637.2380406-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -56,44 +57,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Kiselev, Oleg" <okiselev@amazon.com>
+From: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
 
-[ Upstream commit 69cb8e9d8cd97cdf5e293b26d70a9dee3e35e6bd ]
+[ Upstream commit 443685992bda9bb4f8b17fc02c9f6c60e62b1461 ]
 
-This patch avoids an attempt to resize the filesystem to an
-unaligned cluster boundary.  An online resize to a size that is not
-integral to cluster size results in the last iteration attempting to
-grow the fs by a negative amount, which trips a BUG_ON and leaves the fs
-with a corrupted in-memory superblock.
+Fix -Woverflow warnings for tegra irqchip driver which is a result
+of moving arm64 custom MMIO accessor macros to asm-generic function
+implementations giving a bonus type-checking now and uncovering these
+overflow warnings.
 
-Signed-off-by: Oleg Kiselev <okiselev@amazon.com>
-Link: https://lore.kernel.org/r/0E92A0AB-4F16-4F1A-94B7-702CC6504FDE@amazon.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+drivers/irqchip/irq-tegra.c: In function ‘tegra_ictlr_suspend’:
+drivers/irqchip/irq-tegra.c:151:18: warning: large integer implicitly truncated to unsigned type [-Woverflow]
+   writel_relaxed(~0ul, ictlr + ICTLR_COP_IER_CLR);
+                  ^
+
+Suggested-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/resize.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/irqchip/irq-tegra.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/ext4/resize.c b/fs/ext4/resize.c
-index 721a00767d0e..aab86205c056 100644
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -1950,6 +1950,16 @@ int ext4_resize_fs(struct super_block *sb, ext4_fsblk_t n_blocks_count)
- 	}
- 	brelse(bh);
+diff --git a/drivers/irqchip/irq-tegra.c b/drivers/irqchip/irq-tegra.c
+index 3973a14bb15b..02ffefd5011a 100644
+--- a/drivers/irqchip/irq-tegra.c
++++ b/drivers/irqchip/irq-tegra.c
+@@ -157,10 +157,10 @@ static int tegra_ictlr_suspend(void)
+ 		lic->cop_iep[i] = readl_relaxed(ictlr + ICTLR_COP_IEP_CLASS);
  
-+	/*
-+	 * For bigalloc, trim the requested size to the nearest cluster
-+	 * boundary to avoid creating an unusable filesystem. We do this
-+	 * silently, instead of returning an error, to avoid breaking
-+	 * callers that blindly resize the filesystem to the full size of
-+	 * the underlying block device.
-+	 */
-+	if (ext4_has_feature_bigalloc(sb))
-+		n_blocks_count &= ~((1 << EXT4_CLUSTER_BITS(sb)) - 1);
-+
- retry:
- 	o_blocks_count = ext4_blocks_count(es);
+ 		/* Disable COP interrupts */
+-		writel_relaxed(~0ul, ictlr + ICTLR_COP_IER_CLR);
++		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_COP_IER_CLR);
+ 
+ 		/* Disable CPU interrupts */
+-		writel_relaxed(~0ul, ictlr + ICTLR_CPU_IER_CLR);
++		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_CPU_IER_CLR);
+ 
+ 		/* Enable the wakeup sources of ictlr */
+ 		writel_relaxed(lic->ictlr_wake_mask[i], ictlr + ICTLR_CPU_IER_SET);
+@@ -181,12 +181,12 @@ static void tegra_ictlr_resume(void)
+ 
+ 		writel_relaxed(lic->cpu_iep[i],
+ 			       ictlr + ICTLR_CPU_IEP_CLASS);
+-		writel_relaxed(~0ul, ictlr + ICTLR_CPU_IER_CLR);
++		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_CPU_IER_CLR);
+ 		writel_relaxed(lic->cpu_ier[i],
+ 			       ictlr + ICTLR_CPU_IER_SET);
+ 		writel_relaxed(lic->cop_iep[i],
+ 			       ictlr + ICTLR_COP_IEP_CLASS);
+-		writel_relaxed(~0ul, ictlr + ICTLR_COP_IER_CLR);
++		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_COP_IER_CLR);
+ 		writel_relaxed(lic->cop_ier[i],
+ 			       ictlr + ICTLR_COP_IER_SET);
+ 	}
+@@ -321,7 +321,7 @@ static int __init tegra_ictlr_init(struct device_node *node,
+ 		lic->base[i] = base;
+ 
+ 		/* Disable all interrupts */
+-		writel_relaxed(~0UL, base + ICTLR_CPU_IER_CLR);
++		writel_relaxed(GENMASK(31, 0), base + ICTLR_CPU_IER_CLR);
+ 		/* All interrupts target IRQ */
+ 		writel_relaxed(0, base + ICTLR_CPU_IEP_CLASS);
  
 -- 
 2.35.1
