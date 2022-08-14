@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F95C592397
+	by mail.lfdr.de (Postfix) with ESMTP id 66F62592398
 	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:23:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231215AbiHNQWP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:22:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50454 "EHLO
+        id S240107AbiHNQWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:22:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241073AbiHNQVm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:21:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6E212EF;
-        Sun, 14 Aug 2022 09:20:23 -0700 (PDT)
+        with ESMTP id S241193AbiHNQVp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:21:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54EC1B85;
+        Sun, 14 Aug 2022 09:20:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A03260F40;
-        Sun, 14 Aug 2022 16:20:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A916C433D7;
-        Sun, 14 Aug 2022 16:20:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E61EF60F40;
+        Sun, 14 Aug 2022 16:20:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F396EC433C1;
+        Sun, 14 Aug 2022 16:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494022;
-        bh=XMqlULsVRDZW+IEUfiphA3cJNCqcrWzjUawBkqNX6W4=;
+        s=k20201202; t=1660494027;
+        bh=HsE6Hc1g0L5kt8Rb3CEnOB/34WTJkVgtm0Yx9+swGaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jzc8pajroHF5mNigjW37/vIYBlwRxXlb/jIbQw+4eM/6hhiviTz5fvAZPefcJJsE6
-         RZs4FPbJh59rOI+oL9UEmDY9pXCHtMd+wjdUTNKal7ZDcl9PMn2vRUbcmWOxVxjnJ6
-         fgf29tjq44eHtxThbLpJouzoTWUjOheTov5voOCVt40GOhVlz4RyfTM3BjCkjjEu8/
-         8OIcMQ3i4OGMiMqiwjslrzWcaaZnxNVl756FKvZwSVZLiF5p9g9ldklZhFBpExAwGv
-         +1WnsCMkCqs0+zx3rWNramj1xE/CoGtwarfFBbsfDCmKBA0jym7EDG2QA0sabVtZlL
-         POvegh8R4Qw8A==
+        b=XUyOpqDiEwfTn1QCmkS//+t9YxiBXvWn6CTSAhwScMOjp1voIKaTn7DzFLPo/Cs+X
+         u7GUm5N83C8uOeCPQaeNijO/yKEv1Ub3TDbjpcQMDH+9j7IeK3UXyxo++N9+ui5UR2
+         9YMXvfLkxRDcK7dWUYPU6W+oGJ6ls8VvRqoZbfsFU1jQ2fumoCt7MvEGp4eTqwwH2t
+         kRaBD0ip4gRyOh3mW46lfCnjeSh65aP6qVDs1kyr676m8yzMWNzwNQrmS7VnTzb7zH
+         8nnaXchbPKIA0vK/t6PasNqj5FNuFN5zLGC+aH5SNAkpfAKSnD76Wl+0cVqGqQhUU8
+         YhhZfv35GbkKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Nguyen Bao Nguyen <nguyen.nguyen.yj@renesas.com>,
+        Nishiyama Kunihiko <kunihiko.nishiyama.dn@renesas.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        yung-chuan.liao@linux.intel.com, daniel.baluta@nxp.com,
-        perex@perex.cz, tiwai@suse.com,
-        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.19 14/48] ASoC: SOF: sof-client-probes: Only load the driver if IPC3 is used
-Date:   Sun, 14 Aug 2022 12:19:07 -0400
-Message-Id: <20220814161943.2394452-14-sashal@kernel.org>
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.19 15/48] ASoC: rsnd: care default case on rsnd_ssiu_busif_err_irq_ctrl()
+Date:   Sun, 14 Aug 2022 12:19:08 -0400
+Message-Id: <20220814161943.2394452-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814161943.2394452-1-sashal@kernel.org>
 References: <20220814161943.2394452-1-sashal@kernel.org>
@@ -61,38 +59,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit 9b93eda355089b36482f7a2f134bdd24be70f907 ]
+[ Upstream commit ef30911d3c39fd57884c348c29b9cbff88def155 ]
 
-The current implementation of probes only supports IPC3 and should not be
-loaded for other IPC implementation.
+Before, ssiu.c didn't care SSI5-8, thus,
+commit b1384d4c95088d0 ("ASoC: rsnd: care default case on
+rsnd_ssiu_busif_err_status_clear()") cares it for status clear.
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Link: https://lore.kernel.org/r/20220712131022.1124-1-peter.ujfalusi@linux.intel.com
+But we should care it for error irq handling, too.
+This patch cares it.
+
+Reported-by: Nguyen Bao Nguyen <nguyen.nguyen.yj@renesas.com>
+Reported-by: Nishiyama Kunihiko <kunihiko.nishiyama.dn@renesas.com>
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/871quocio1.wl-kuninori.morimoto.gx@renesas.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/sof-client-probes.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/sh/rcar/ssiu.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/sof/sof-client-probes.c b/sound/soc/sof/sof-client-probes.c
-index 34e6bd356e71..60e4250fac87 100644
---- a/sound/soc/sof/sof-client-probes.c
-+++ b/sound/soc/sof/sof-client-probes.c
-@@ -693,6 +693,10 @@ static int sof_probes_client_probe(struct auxiliary_device *auxdev,
- 	if (!sof_probes_enabled)
- 		return -ENXIO;
+diff --git a/sound/soc/sh/rcar/ssiu.c b/sound/soc/sh/rcar/ssiu.c
+index 4b8a63e336c7..d7f4646ee029 100644
+--- a/sound/soc/sh/rcar/ssiu.c
++++ b/sound/soc/sh/rcar/ssiu.c
+@@ -67,6 +67,8 @@ static void rsnd_ssiu_busif_err_irq_ctrl(struct rsnd_mod *mod, int enable)
+ 		shift  = 1;
+ 		offset = 1;
+ 		break;
++	default:
++		return;
+ 	}
  
-+	/* only ipc3 is supported */
-+	if (sof_client_get_ipc_type(cdev) != SOF_IPC)
-+		return -ENXIO;
-+
- 	if (!dev->platform_data) {
- 		dev_err(dev, "missing platform data\n");
- 		return -ENODEV;
+ 	for (i = 0; i < 4; i++) {
 -- 
 2.35.1
 
