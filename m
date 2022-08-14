@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DED3592164
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:36:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14D35592160
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:36:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240848AbiHNPgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:36:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54590 "EHLO
+        id S240838AbiHNPgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:36:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240888AbiHNPft (ORCPT
+        with ESMTP id S240887AbiHNPft (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:35:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D3F91CFD7;
-        Sun, 14 Aug 2022 08:31:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F7B21D316;
+        Sun, 14 Aug 2022 08:31:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F830B80B4D;
-        Sun, 14 Aug 2022 15:31:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23144C433C1;
-        Sun, 14 Aug 2022 15:31:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A97EB80B27;
+        Sun, 14 Aug 2022 15:31:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45947C433D7;
+        Sun, 14 Aug 2022 15:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491068;
-        bh=dt0BS2f9ek9t8KbWEO8Bu16vd6SbZkTKMNwAzrHuyl8=;
+        s=k20201202; t=1660491070;
+        bh=0LLFBfOKHFPod6bxQlh8610jSWOZ/Fs0Wgi1kYBiWWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mCfSQcX0LwFhupOmt+HrhSvWnZIJStW9VXOZ67AozprFqhcNdy+UAL8Qw75UXBwUz
-         Jtr6X+8uilCy6P0IJFcYVQtpvL8KeXBa08r2ZXbhlxGgVzg1n/vNJxyWooQh6vdVfu
-         yG30rnyN+1OiylbUGmFmJPMorIcAePjg7haIqZinTPs4UL8rbARiZaqLW9ZAPUL+hO
-         5BDq3bjHqcFzmgwr7cl3Fl8fPMN1rwaoaMqW8OU1FexnHHuDgfCKY7gOaA9LCFTh2m
-         89SpVLywgOy87Ve93lu00ulb+z6qNU8UhdBlW/WQ6Pyrlzq9QvQDREoKjCnipLGc67
-         vmYPNW9sHV9Yg==
+        b=DuWRmyqlXwSomOybSKOh5Lwjoy1582G7l04/6rGY2a3YNPmh5Q+2K+6H3vv++S58L
+         t1PkjWbsK2PFN33DUI4LX9UpS5p42ZSaocZmOtQ2NbsB7XbU5zLTTN9yxTfbX73QmV
+         Gvzg82TWF/zS8yNV+Hj3oc6Q8WJITDN08nQ/BXmr292mObaFLBuYZUenfoTJJHCepS
+         66uSAKJbiQKsmv1GBEDTGYqZfJEjRJc1/aYAyOVe9xV3IlSqus3ITZ2iLzApTBOlXX
+         Q2RZYstgnOKyQAi+2IL2f0L2Td6ZFFLZKKSSQubKWFvujJzd4oc/k71iNM7ewRSwWE
+         4D7R0EVVNb1AQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Po-Wen Kao <powen.kao@mediatek.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
-        matthias.bgg@gmail.com, beanhuo@micron.com, bvanassche@acm.org,
-        avri.altman@wdc.com, peter.wang@mediatek.com, linmq006@gmail.com,
-        ye.guojin@zte.com.cn, linux-scsi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 15/56] scsi: ufs: ufs-mediatek: Fix the timing of configuring device regulators
-Date:   Sun, 14 Aug 2022 11:29:45 -0400
-Message-Id: <20220814153026.2377377-15-sashal@kernel.org>
+Cc:     Liang He <windhl@126.com>, Alan Stern <stern@rowland.harvard.edu>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 16/56] usb: host: ohci-ppc-of: Fix refcount leak bug
+Date:   Sun, 14 Aug 2022 11:29:46 -0400
+Message-Id: <20220814153026.2377377-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153026.2377377-1-sashal@kernel.org>
 References: <20220814153026.2377377-1-sashal@kernel.org>
@@ -62,113 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Wen Kao <powen.kao@mediatek.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 3fd23b8dfb54d9b74eba6dfdd3225db3ac116785 ]
+[ Upstream commit 40a959d7042bb7711e404ad2318b30e9f92c6b9b ]
 
-Currently the LPM configurations of device regulators may not work since
-VCC is not disabled yet while ufs_mtk_vreg_set_lpm() is executed.
+In ohci_hcd_ppc_of_probe(), of_find_compatible_node() will return
+a node pointer with refcount incremented. We should use of_node_put()
+when it is not used anymore.
 
-Fix this by changing the timing of invoking ufs_mtk_vreg_set_lpm().
-
-Link: https://lore.kernel.org/r/20220616053725.5681-5-stanley.chu@mediatek.com
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Po-Wen Kao <powen.kao@mediatek.com>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220617034637.4003115-1-windhl@126.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufs-mediatek.c | 58 ++++++++++++++++++++++++++++++---
- 1 file changed, 53 insertions(+), 5 deletions(-)
+ drivers/usb/host/ohci-ppc-of.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/ufs/ufs-mediatek.c b/drivers/scsi/ufs/ufs-mediatek.c
-index 86a938075f30..266ceed34751 100644
---- a/drivers/scsi/ufs/ufs-mediatek.c
-+++ b/drivers/scsi/ufs/ufs-mediatek.c
-@@ -1033,7 +1033,6 @@ static int ufs_mtk_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op,
- 		 * ufshcd_suspend() re-enabling regulators while vreg is still
- 		 * in low-power mode.
- 		 */
--		ufs_mtk_vreg_set_lpm(hba, true);
- 		err = ufs_mtk_mphy_power_on(hba, false);
- 		if (err)
- 			goto fail;
-@@ -1057,12 +1056,13 @@ static int ufs_mtk_resume(struct ufs_hba *hba, enum ufs_pm_op pm_op)
- {
- 	int err;
+diff --git a/drivers/usb/host/ohci-ppc-of.c b/drivers/usb/host/ohci-ppc-of.c
+index 45f7cceb6df3..98e46725999e 100644
+--- a/drivers/usb/host/ohci-ppc-of.c
++++ b/drivers/usb/host/ohci-ppc-of.c
+@@ -169,6 +169,7 @@ static int ohci_hcd_ppc_of_probe(struct platform_device *op)
+ 				release_mem_region(res.start, 0x4);
+ 		} else
+ 			pr_debug("%s: cannot get ehci offset from fdt\n", __FILE__);
++		of_node_put(np);
+ 	}
  
-+	if (hba->ufshcd_state != UFSHCD_STATE_OPERATIONAL)
-+		ufs_mtk_vreg_set_lpm(hba, false);
-+
- 	err = ufs_mtk_mphy_power_on(hba, true);
- 	if (err)
- 		goto fail;
- 
--	ufs_mtk_vreg_set_lpm(hba, false);
--
- 	if (ufshcd_is_link_hibern8(hba)) {
- 		err = ufs_mtk_link_set_hpm(hba);
- 		if (err)
-@@ -1227,9 +1227,57 @@ static int ufs_mtk_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+int ufs_mtk_system_suspend(struct device *dev)
-+{
-+	struct ufs_hba *hba = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = ufshcd_system_suspend(dev);
-+	if (ret)
-+		return ret;
-+
-+	ufs_mtk_vreg_set_lpm(hba, true);
-+
-+	return 0;
-+}
-+
-+int ufs_mtk_system_resume(struct device *dev)
-+{
-+	struct ufs_hba *hba = dev_get_drvdata(dev);
-+
-+	ufs_mtk_vreg_set_lpm(hba, false);
-+
-+	return ufshcd_system_resume(dev);
-+}
-+
-+int ufs_mtk_runtime_suspend(struct device *dev)
-+{
-+	struct ufs_hba *hba = dev_get_drvdata(dev);
-+	int ret = 0;
-+
-+	ret = ufshcd_runtime_suspend(dev);
-+	if (ret)
-+		return ret;
-+
-+	ufs_mtk_vreg_set_lpm(hba, true);
-+
-+	return 0;
-+}
-+
-+int ufs_mtk_runtime_resume(struct device *dev)
-+{
-+	struct ufs_hba *hba = dev_get_drvdata(dev);
-+
-+	ufs_mtk_vreg_set_lpm(hba, false);
-+
-+	return ufshcd_runtime_resume(dev);
-+}
-+
- static const struct dev_pm_ops ufs_mtk_pm_ops = {
--	SET_SYSTEM_SLEEP_PM_OPS(ufshcd_system_suspend, ufshcd_system_resume)
--	SET_RUNTIME_PM_OPS(ufshcd_runtime_suspend, ufshcd_runtime_resume, NULL)
-+	SET_SYSTEM_SLEEP_PM_OPS(ufs_mtk_system_suspend,
-+				ufs_mtk_system_resume)
-+	SET_RUNTIME_PM_OPS(ufs_mtk_runtime_suspend,
-+			   ufs_mtk_runtime_resume, NULL)
- 	.prepare	 = ufshcd_suspend_prepare,
- 	.complete	 = ufshcd_resume_complete,
- };
+ 	irq_dispose_mapping(irq);
 -- 
 2.35.1
 
