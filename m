@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A56865922DA
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:53:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C95195922D9
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241751AbiHNPwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:52:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39468 "EHLO
+        id S242072AbiHNPwd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:52:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242025AbiHNPu6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:50:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB7991A806;
-        Sun, 14 Aug 2022 08:36:41 -0700 (PDT)
+        with ESMTP id S242039AbiHNPvF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:51:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B423317AB0;
+        Sun, 14 Aug 2022 08:36:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 88DF560B90;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E4C4B80B56;
+        Sun, 14 Aug 2022 15:36:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64526C43470;
         Sun, 14 Aug 2022 15:36:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E24A3C433B5;
-        Sun, 14 Aug 2022 15:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491401;
-        bh=yx3F4GWmfbblmgPgIsm34N4nZ3rzz+7Tif+D4H6tSck=;
+        s=k20201202; t=1660491402;
+        bh=X32xtPBWcVE6Z6gxu3/jbMLK/pP7I1mcOKV4OxfaTWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G+jFkkLHmHl10J5RCj1Af2DnQEW5zFbi0fR4RYnUymrvHXyqHoA/a9O5EkdTMF7Xn
-         KI8tcoPZdsH4oP6jdlY/JBDWYPd3ON54H9LAOZZt8L0mAx/4zmuSsMz5x9xibjiipT
-         dH4YQQScgQNEqL/QY+46gJEsU1nPCe8MDIjrM6EEmOjejNNJftkER9C5fuBEoMAhbx
-         hwP6zk926WOT0eHMq083jlg3mJjLnrtrzTjIkwJm8Idnm5hSuKWUZHpSBsmbfNBLB1
-         irFloNclFnd/hEcQrZq92YQI+qni8gKISN2bg7v4/DhVuIn2tSv9eKQa7lkpceTOMl
-         yd0iz/YlDRSeQ==
+        b=TBt1HThrz9JxiAAOe/IQBYrFVQTwjKS4GZt0ilyjIKRbXuG5moPVkZ5DIH1sElVR6
+         1wrXIGtMAIfr0psmvAL9stMM7tJSkHXKcZlDdWSLQeBHIRc85KBhLWakyw3wEJwdyo
+         /TOTtukmUWkoRo9F0ki1rIrcWrYjS5LmVbV/ABKLaMe5LZHUgi6dNZdmQKNe+CWauI
+         kJxVJD45fWj80QXNrWJibu1WpHuB83823yVJ4DRGed7jthpybjfa0W9mm2G1hH0lka
+         2cz9vr5cbdeVsLWYaLu7dStoGY04Hg0G4lnJLSLp+9TsOcgjKgP+wkf4t6br7fl3iE
+         vvFkfqJlmLy+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
-        Marc Zyngier <maz@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        thierry.reding@gmail.com, jonathanh@nvidia.com,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 2/9] irqchip/tegra: Fix overflow implicit truncation warnings
-Date:   Sun, 14 Aug 2022 11:36:29 -0400
-Message-Id: <20220814153637.2380406-2-sashal@kernel.org>
+Cc:     Liang He <windhl@126.com>, Alan Stern <stern@rowland.harvard.edu>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 3/9] usb: host: ohci-ppc-of: Fix refcount leak bug
+Date:   Sun, 14 Aug 2022 11:36:30 -0400
+Message-Id: <20220814153637.2380406-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153637.2380406-1-sashal@kernel.org>
 References: <20220814153637.2380406-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,71 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 443685992bda9bb4f8b17fc02c9f6c60e62b1461 ]
+[ Upstream commit 40a959d7042bb7711e404ad2318b30e9f92c6b9b ]
 
-Fix -Woverflow warnings for tegra irqchip driver which is a result
-of moving arm64 custom MMIO accessor macros to asm-generic function
-implementations giving a bonus type-checking now and uncovering these
-overflow warnings.
+In ohci_hcd_ppc_of_probe(), of_find_compatible_node() will return
+a node pointer with refcount incremented. We should use of_node_put()
+when it is not used anymore.
 
-drivers/irqchip/irq-tegra.c: In function ‘tegra_ictlr_suspend’:
-drivers/irqchip/irq-tegra.c:151:18: warning: large integer implicitly truncated to unsigned type [-Woverflow]
-   writel_relaxed(~0ul, ictlr + ICTLR_COP_IER_CLR);
-                  ^
-
-Suggested-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220617034637.4003115-1-windhl@126.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-tegra.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/usb/host/ohci-ppc-of.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/irqchip/irq-tegra.c b/drivers/irqchip/irq-tegra.c
-index 0abc0cd1c32e..1b3048ecb600 100644
---- a/drivers/irqchip/irq-tegra.c
-+++ b/drivers/irqchip/irq-tegra.c
-@@ -157,10 +157,10 @@ static int tegra_ictlr_suspend(void)
- 		lic->cop_iep[i] = readl_relaxed(ictlr + ICTLR_COP_IEP_CLASS);
- 
- 		/* Disable COP interrupts */
--		writel_relaxed(~0ul, ictlr + ICTLR_COP_IER_CLR);
-+		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_COP_IER_CLR);
- 
- 		/* Disable CPU interrupts */
--		writel_relaxed(~0ul, ictlr + ICTLR_CPU_IER_CLR);
-+		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_CPU_IER_CLR);
- 
- 		/* Enable the wakeup sources of ictlr */
- 		writel_relaxed(lic->ictlr_wake_mask[i], ictlr + ICTLR_CPU_IER_SET);
-@@ -181,12 +181,12 @@ static void tegra_ictlr_resume(void)
- 
- 		writel_relaxed(lic->cpu_iep[i],
- 			       ictlr + ICTLR_CPU_IEP_CLASS);
--		writel_relaxed(~0ul, ictlr + ICTLR_CPU_IER_CLR);
-+		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_CPU_IER_CLR);
- 		writel_relaxed(lic->cpu_ier[i],
- 			       ictlr + ICTLR_CPU_IER_SET);
- 		writel_relaxed(lic->cop_iep[i],
- 			       ictlr + ICTLR_COP_IEP_CLASS);
--		writel_relaxed(~0ul, ictlr + ICTLR_COP_IER_CLR);
-+		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_COP_IER_CLR);
- 		writel_relaxed(lic->cop_ier[i],
- 			       ictlr + ICTLR_COP_IER_SET);
+diff --git a/drivers/usb/host/ohci-ppc-of.c b/drivers/usb/host/ohci-ppc-of.c
+index 4f87a5c61b08..d22a70363fbf 100644
+--- a/drivers/usb/host/ohci-ppc-of.c
++++ b/drivers/usb/host/ohci-ppc-of.c
+@@ -168,6 +168,7 @@ static int ohci_hcd_ppc_of_probe(struct platform_device *op)
+ 				release_mem_region(res.start, 0x4);
+ 		} else
+ 			pr_debug("%s: cannot get ehci offset from fdt\n", __FILE__);
++		of_node_put(np);
  	}
-@@ -321,7 +321,7 @@ static int __init tegra_ictlr_init(struct device_node *node,
- 		lic->base[i] = base;
  
- 		/* Disable all interrupts */
--		writel_relaxed(~0UL, base + ICTLR_CPU_IER_CLR);
-+		writel_relaxed(GENMASK(31, 0), base + ICTLR_CPU_IER_CLR);
- 		/* All interrupts target IRQ */
- 		writel_relaxed(0, base + ICTLR_CPU_IEP_CLASS);
- 
+ 	irq_dispose_mapping(irq);
 -- 
 2.35.1
 
