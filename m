@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 248BC592555
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:43:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A951759257F
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243061AbiHNQmf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:42:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38142 "EHLO
+        id S243023AbiHNQmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:42:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243363AbiHNQkw (ORCPT
+        with ESMTP id S243366AbiHNQkw (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:40:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA258558A;
-        Sun, 14 Aug 2022 09:31:09 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF73C66;
+        Sun, 14 Aug 2022 09:31:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8795C60FBE;
-        Sun, 14 Aug 2022 16:31:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5ABAC433C1;
-        Sun, 14 Aug 2022 16:31:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BA6EB80B3C;
+        Sun, 14 Aug 2022 16:31:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60221C433C1;
+        Sun, 14 Aug 2022 16:31:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494668;
-        bh=Ozh6pKstKR8EmXCauJAdcp4MKdVlb4V3CinW1snpBUI=;
+        s=k20201202; t=1660494675;
+        bh=QJRKZeqWyHOAMgpIQr673Jjz8RQb1Y0LVJw0ylK1rRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pGLlz9bYUKWlpX6Uy+7ggI0lEvG8n2TiI3yo2IOGt2USuL2sl7EgbDlT3IS2PMT3C
-         gmMW8lTIWxdjO/ShL8xkL+wd8lOaA9EbDKsyKD4SOuSQL/3ofWz3xrQAhIfyzeA/jj
-         voKrnbuXZTIfaBxCL1YLerDBiAPSfLynv9gnei0S9taXKlvAW8YMRyiY2UF7D89fNl
-         xEKa0sV8wJKyN7eaw25ZU3Gv4yocHl6agBYTdid3JTxgFJB+kdfTKNQy6ApTpfXupP
-         tPgarX9Au4i83Pq2oZ/fj1gxiVSzGQ6Uo+fR2E5Mcshkx7mhBukTJ8pjynGkoMvlEC
-         CBM54jYXv4Eow==
+        b=uS/+6wltoyffidAKki2gMIEeG6JC03BBaZ33OibIk4FSEJ98+U9hLBi7DS/E4DXT5
+         pff7Yi7UGoI3hAlhzoPCFDz2s2VfW743hkbcQfNVYO1RtCRCADBWO/NFFT+miF8H0X
+         De3n2aAtznYXZ9mIP9Kf/hrfhIag0WL8xrV72PbNsUN/SGHx/tkvb9jVmLPBnQTxvk
+         DDL6s0zxHne5JE7aIlXeG0ImMnlw3pqDLrUEk0d9RxSK7110+5GL/OjIxBNXRgzNom
+         micFIvotNoglFyzDmrRB6ULXCyoH/ORhE4krLWPqgvIZA8x13xuneYC8cAUrtpGBHO
+         3joEpJ6mU6uhw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhouyi Zhou <zhouzhouyi@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, robh@kernel.org,
-        frank.rowand@sony.com, nick.child@ibm.com, npiggin@gmail.com,
-        adobriyan@gmail.com, clg@kaod.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.9 6/8] powerpc/64: Init jump labels before parse_early_param()
-Date:   Sun, 14 Aug 2022 12:30:39 -0400
-Message-Id: <20220814163041.2399552-6-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>, Helge Deller <deller@gmx.de>,
+        Sasha Levin <sashal@kernel.org>, linux@zary.sk,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.9 7/8] video: fbdev: i740fb: Check the argument of i740_calc_vclk()
+Date:   Sun, 14 Aug 2022 12:30:40 -0400
+Message-Id: <20220814163041.2399552-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814163041.2399552-1-sashal@kernel.org>
 References: <20220814163041.2399552-1-sashal@kernel.org>
@@ -58,63 +56,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhouyi Zhou <zhouzhouyi@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit ca829e05d3d4f728810cc5e4b468d9ebc7745eb3 ]
+[ Upstream commit 40bf722f8064f50200b8c4f8946cd625b441dda9 ]
 
-On 64-bit, calling jump_label_init() in setup_feature_keys() is too
-late because static keys may be used in subroutines of
-parse_early_param() which is again subroutine of early_init_devtree().
+Since the user can control the arguments of the ioctl() from the user
+space, under special arguments that may result in a divide-by-zero bug.
 
-For example booting with "threadirqs":
+If the user provides an improper 'pixclock' value that makes the argumet
+of i740_calc_vclk() less than 'I740_RFREQ_FIX', it will cause a
+divide-by-zero bug in:
+    drivers/video/fbdev/i740fb.c:353 p_best = min(15, ilog2(I740_MAX_VCO_FREQ / (freq / I740_RFREQ_FIX)));
 
-  static_key_enable_cpuslocked(): static key '0xc000000002953260' used before call to jump_label_init()
-  WARNING: CPU: 0 PID: 0 at kernel/jump_label.c:166 static_key_enable_cpuslocked+0xfc/0x120
-  ...
-  NIP static_key_enable_cpuslocked+0xfc/0x120
-  LR  static_key_enable_cpuslocked+0xf8/0x120
-  Call Trace:
-    static_key_enable_cpuslocked+0xf8/0x120 (unreliable)
-    static_key_enable+0x30/0x50
-    setup_forced_irqthreads+0x28/0x40
-    do_early_param+0xa0/0x108
-    parse_args+0x290/0x4e0
-    parse_early_options+0x48/0x5c
-    parse_early_param+0x58/0x84
-    early_init_devtree+0xd4/0x518
-    early_setup+0xb4/0x214
+The following log can reveal it:
 
-So call jump_label_init() just before parse_early_param() in
-early_init_devtree().
+divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+RIP: 0010:i740_calc_vclk drivers/video/fbdev/i740fb.c:353 [inline]
+RIP: 0010:i740fb_decode_var drivers/video/fbdev/i740fb.c:646 [inline]
+RIP: 0010:i740fb_set_par+0x163f/0x3b70 drivers/video/fbdev/i740fb.c:742
+Call Trace:
+ fb_set_var+0x604/0xeb0 drivers/video/fbdev/core/fbmem.c:1034
+ do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1110
+ fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1189
 
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Zhouyi Zhou <zhouzhouyi@gmail.com>
-[mpe: Add call trace to change log and minor wording edits.]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220726015747.11754-1-zhouzhouyi@gmail.com
+Fix this by checking the argument of i740_calc_vclk() first.
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/prom.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/video/fbdev/i740fb.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
-index 11b4ecec04ee..1413d72689d2 100644
---- a/arch/powerpc/kernel/prom.c
-+++ b/arch/powerpc/kernel/prom.c
-@@ -682,6 +682,13 @@ void __init early_init_devtree(void *params)
- 	of_scan_flat_dt(early_init_dt_scan_root, NULL);
- 	of_scan_flat_dt(early_init_dt_scan_memory_ppc, NULL);
+diff --git a/drivers/video/fbdev/i740fb.c b/drivers/video/fbdev/i740fb.c
+index 7bc5f6056c77..4147a9534179 100644
+--- a/drivers/video/fbdev/i740fb.c
++++ b/drivers/video/fbdev/i740fb.c
+@@ -399,7 +399,7 @@ static int i740fb_decode_var(const struct fb_var_screeninfo *var,
+ 	u32 xres, right, hslen, left, xtotal;
+ 	u32 yres, lower, vslen, upper, ytotal;
+ 	u32 vxres, xoffset, vyres, yoffset;
+-	u32 bpp, base, dacspeed24, mem;
++	u32 bpp, base, dacspeed24, mem, freq;
+ 	u8 r7;
+ 	int i;
  
-+	/*
-+	 * As generic code authors expect to be able to use static keys
-+	 * in early_param() handlers, we initialize the static keys just
-+	 * before parsing early params (it's fine to call jump_label_init()
-+	 * more than once).
-+	 */
-+	jump_label_init();
- 	parse_early_param();
+@@ -641,7 +641,12 @@ static int i740fb_decode_var(const struct fb_var_screeninfo *var,
+ 	par->atc[VGA_ATC_OVERSCAN] = 0;
  
- 	/* make sure we've parsed cmdline for mem= before this */
+ 	/* Calculate VCLK that most closely matches the requested dot clock */
+-	i740_calc_vclk((((u32)1e9) / var->pixclock) * (u32)(1e3), par);
++	freq = (((u32)1e9) / var->pixclock) * (u32)(1e3);
++	if (freq < I740_RFREQ_FIX) {
++		fb_dbg(info, "invalid pixclock\n");
++		freq = I740_RFREQ_FIX;
++	}
++	i740_calc_vclk(freq, par);
+ 
+ 	/* Since we program the clocks ourselves, always use VCLK2. */
+ 	par->misc |= 0x0C;
 -- 
 2.35.1
 
