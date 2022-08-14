@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FC51592116
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:33:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA9359211E
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:34:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240539AbiHNPdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:33:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39374 "EHLO
+        id S240203AbiHNPeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:34:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240702AbiHNPd1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:33:27 -0400
+        with ESMTP id S231252AbiHNPda (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:33:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC975FF2;
-        Sun, 14 Aug 2022 08:30:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84F092BC6;
+        Sun, 14 Aug 2022 08:30:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DCB4FB80B27;
-        Sun, 14 Aug 2022 15:30:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D422AC433D7;
-        Sun, 14 Aug 2022 15:30:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 377A8B80B4D;
+        Sun, 14 Aug 2022 15:30:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82022C4314B;
+        Sun, 14 Aug 2022 15:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491011;
-        bh=TmwB1yyIO7hlQxEEZ3YP1Hse/khGDr1TusJ9UJG8jgQ=;
+        s=k20201202; t=1660491015;
+        bh=dA6ZEuwj7DPqjItnEoT4QchiUOKqV/ohRsxC0LHDOW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AClHnpxETW7doCkoaOlshndODXSaqAYcC+SEfS04/CNg2VebkbcVYTmEpB6bQtJFR
-         RpCxs/2iZ6WuUU/pk2lZXda+35I/JyEbixMKNT9Adt6OnT0XffNC0pldXzeg1q0wgm
-         BDkRQAIwa8pphD5aCFcizf4UeFwnyq3Yhhc2b0aoA75H9Oj8lbtivx2y3KHScavWZr
-         N8d8FF6oNZ8Yw/WApEoJC5jJQsKUSL6OdN3r7OmuRBKaG0fA7BgubSSn1YAdel3XUN
-         L712S0tJE0y8pRchU35NX+797xnaeeNtBC6fpzXyk4NzTf6hCDzTxA1C/Jyc0KoiOG
-         sLHBcO53/LrLQ==
+        b=JXgTDBOABiffiVpBOZfuKphny11/sBUdu9XH6rSx2Le0+ZVvPZA6uVdOqfEH6zf70
+         XT+PwuWuP6bVRzEJ2CfMTdAlTQAdh022fPxZwykUm9Rfon5nO7znLU6DQkYlWNO0OF
+         +XNhlk0SHXW32KTur71FLx2az4mDKGfsqQyZCb+ZNkezdnfbeaIYZq7fDIVptgw/VE
+         uwFhLg6X85kd9nPZcdsjSchYtw5p5/iUTDc/4XQRim15GqltX2tTk9F3sWI/ZpWeCR
+         +JZgXJlG+dilyeW6aKnSGzf3vSDBNRud6Rv76FTJCpbkQ9wQZdiB+xXEd047ONjPJF
+         ymIDFnjapy3Qw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stafford Horne <shorne@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, jonas@southpole.se,
-        stefan.kristiansson@saunalahti.fi, openrisc@lists.librecores.org
-Subject: [PATCH AUTOSEL 5.19 56/64] openrisc: io: Define iounmap argument as volatile
-Date:   Sun, 14 Aug 2022 11:24:29 -0400
-Message-Id: <20220814152437.2374207-56-sashal@kernel.org>
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Chanho Park <chanho61.park@samsung.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        kishon@ti.com, linux-phy@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 57/64] phy: samsung: phy-exynos-pcie: sanitize init/power_on callbacks
+Date:   Sun, 14 Aug 2022 11:24:30 -0400
+Message-Id: <20220814152437.2374207-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814152437.2374207-1-sashal@kernel.org>
 References: <20220814152437.2374207-1-sashal@kernel.org>
@@ -57,65 +62,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stafford Horne <shorne@gmail.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 52e0ea900202d23843daee8f7089817e81dd3dd7 ]
+[ Upstream commit f2812227bb07e2eaee74253f11cea1576945df31 ]
 
-When OpenRISC enables PCI it allows for more drivers to be compiled
-resulting in exposing the following with -Werror.
+The exynos-pcie driver called phy_power_on() before phy_init() for some
+historical reasons. However the generic PHY framework assumes that the
+proper sequence is to call phy_init() first, then phy_power_on(). The
+operations done by both functions should be considered as one action and as
+such they are called by the exynos-pcie driver (without doing anything
+between them). The initialization is just a sequence of register writes,
+which cannot be altered without breaking the hardware operation.
 
-    drivers/video/fbdev/riva/fbdev.c: In function 'rivafb_probe':
-    drivers/video/fbdev/riva/fbdev.c:2062:42: error:
-	    passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
+To match the generic PHY framework requirement, simply move all register
+writes to the phy_init()/phy_exit() and drop power_on()/power_off()
+callbacks. This way the driver will also work with the old (incorrect)
+PHY initialization call sequence.
 
-    drivers/video/fbdev/nvidia/nvidia.c: In function 'nvidiafb_probe':
-    drivers/video/fbdev/nvidia/nvidia.c:1414:20: error:
-	    passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
-
-    drivers/scsi/aic7xxx/aic7xxx_osm.c: In function 'ahc_platform_free':
-    drivers/scsi/aic7xxx/aic7xxx_osm.c:1231:41: error:
-	    passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type
-
-Most architectures define the iounmap argument to be volatile.  To fix this
-issue we do the same for OpenRISC.  This patch must go before PCI is enabled on
-OpenRISC to avoid any compile failures.
-
-Link: https://lore.kernel.org/lkml/20220729033728.GA2195022@roeck-us.net/
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+Link: https://lore.kernel.org/r/20220628220409.26545-1-m.szyprowski@samsung.com
+Reported-by: Bjorn Helgaas <helgaas@kernel.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Chanho Park <chanho61.park@samsung.com>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Acked-By: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/include/asm/io.h | 2 +-
- arch/openrisc/mm/ioremap.c     | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/phy/samsung/phy-exynos-pcie.c | 25 +++++++++----------------
+ 1 file changed, 9 insertions(+), 16 deletions(-)
 
-diff --git a/arch/openrisc/include/asm/io.h b/arch/openrisc/include/asm/io.h
-index c298061c70a7..8aa3e78181e9 100644
---- a/arch/openrisc/include/asm/io.h
-+++ b/arch/openrisc/include/asm/io.h
-@@ -31,7 +31,7 @@
- void __iomem *ioremap(phys_addr_t offset, unsigned long size);
- 
- #define iounmap iounmap
--extern void iounmap(void __iomem *addr);
-+extern void iounmap(volatile void __iomem *addr);
- 
- #include <asm-generic/io.h>
- 
-diff --git a/arch/openrisc/mm/ioremap.c b/arch/openrisc/mm/ioremap.c
-index daae13a76743..8ec0dafecf25 100644
---- a/arch/openrisc/mm/ioremap.c
-+++ b/arch/openrisc/mm/ioremap.c
-@@ -77,7 +77,7 @@ void __iomem *__ref ioremap(phys_addr_t addr, unsigned long size)
- }
- EXPORT_SYMBOL(ioremap);
- 
--void iounmap(void __iomem *addr)
-+void iounmap(volatile void __iomem *addr)
+diff --git a/drivers/phy/samsung/phy-exynos-pcie.c b/drivers/phy/samsung/phy-exynos-pcie.c
+index 578cfe07d07a..53c9230c2907 100644
+--- a/drivers/phy/samsung/phy-exynos-pcie.c
++++ b/drivers/phy/samsung/phy-exynos-pcie.c
+@@ -51,6 +51,13 @@ static int exynos5433_pcie_phy_init(struct phy *phy)
  {
- 	/* If the page is from the fixmap pool then we just clear out
- 	 * the fixmap mapping.
+ 	struct exynos_pcie_phy *ep = phy_get_drvdata(phy);
+ 
++	regmap_update_bits(ep->pmureg, EXYNOS5433_PMU_PCIE_PHY_OFFSET,
++			   BIT(0), 1);
++	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_GLOBAL_RESET,
++			   PCIE_APP_REQ_EXIT_L1_MODE, 0);
++	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_L1SUB_CM_CON,
++			   PCIE_REFCLK_GATING_EN, 0);
++
+ 	regmap_update_bits(ep->fsysreg,	PCIE_EXYNOS5433_PHY_COMMON_RESET,
+ 			   PCIE_PHY_RESET, 1);
+ 	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_MAC_RESET,
+@@ -109,20 +116,7 @@ static int exynos5433_pcie_phy_init(struct phy *phy)
+ 	return 0;
+ }
+ 
+-static int exynos5433_pcie_phy_power_on(struct phy *phy)
+-{
+-	struct exynos_pcie_phy *ep = phy_get_drvdata(phy);
+-
+-	regmap_update_bits(ep->pmureg, EXYNOS5433_PMU_PCIE_PHY_OFFSET,
+-			   BIT(0), 1);
+-	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_GLOBAL_RESET,
+-			   PCIE_APP_REQ_EXIT_L1_MODE, 0);
+-	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_L1SUB_CM_CON,
+-			   PCIE_REFCLK_GATING_EN, 0);
+-	return 0;
+-}
+-
+-static int exynos5433_pcie_phy_power_off(struct phy *phy)
++static int exynos5433_pcie_phy_exit(struct phy *phy)
+ {
+ 	struct exynos_pcie_phy *ep = phy_get_drvdata(phy);
+ 
+@@ -135,8 +129,7 @@ static int exynos5433_pcie_phy_power_off(struct phy *phy)
+ 
+ static const struct phy_ops exynos5433_phy_ops = {
+ 	.init		= exynos5433_pcie_phy_init,
+-	.power_on	= exynos5433_pcie_phy_power_on,
+-	.power_off	= exynos5433_pcie_phy_power_off,
++	.exit		= exynos5433_pcie_phy_exit,
+ 	.owner		= THIS_MODULE,
+ };
+ 
 -- 
 2.35.1
 
