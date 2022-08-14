@@ -2,47 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E900359227D
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:47:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D24E592275
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:47:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232146AbiHNPrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:47:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42268 "EHLO
+        id S241592AbiHNPrd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:47:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241463AbiHNPpE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:45:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 099C8240B2;
+        with ESMTP id S241461AbiHNPpD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:45:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD42E2494B;
         Sun, 14 Aug 2022 08:34:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFB3EB80B27;
-        Sun, 14 Aug 2022 15:34:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19F2C433C1;
-        Sun, 14 Aug 2022 15:34:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9091C60CF1;
+        Sun, 14 Aug 2022 15:34:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06712C433D7;
+        Sun, 14 Aug 2022 15:34:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491247;
-        bh=2F6ETMZsAJ9BEr8L3pUMUUvrKg/3pNm/yewanihTYIE=;
+        s=k20201202; t=1660491249;
+        bh=t1roUgaSTodrFE5Q67YXj8K4EuRG/7oWKG6ZxMhzEgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rd7S9wLTP0fPo2XhCQgiYjoOkyZyWJyv4Y8gOCMDZ9FjeSoCusxanPBBAG6pdff32
-         CQr/BKl1U0VzvF94C1D8J2G2sd1m3tsbVnPvNJLO6fNoy7HTYT0G2kK8VCXKj0tytC
-         ZI4Tx7EHsReAHmOCXVLDCx2PZx6SWGOjE/ogRMctxpYKwwFan2lMp/xGkS0ab2khlU
-         FNiCB1gKLCah1OOwIwScEncmgWqZZ6ctZ9cqBCbXSq7tp8h5HgeBK+h04Oyqj7jbf3
-         pu6FK/fazBVUhDfAoEnVSqqNPgPTcka/TPiDoHDT1qttWx4DG2yQm3zFueecuieBiH
-         oSKYNoUOXXydA==
+        b=W3GhR4uqLnh0tbC4JCnYlL8maN1sLXZ93UAEpaSZ8nhELQc74o2y3rlErI48o1VWu
+         EH9VzGZosDoUGjnp3IUXc8WMbJYy4hRR6Iw4gzdqButMGqcMVbaPEr2HIAHRu5e7qu
+         9lF2OK7ygZkiEB1PCwFo4Gdn6YbhAh+rAJWABFi+iY3Ezi+kTEiAVRjPKLqN016V00
+         fuzWJfDRAL4HCL2mILdVGSkTDY0YLCdYkZIMfOe2Hfy5VBccW6/6zF7ztE+PsjxRT8
+         FC/r9z/oDziCyB/fDpk3O8/nqp49TICkCfjbpI710MESkDYCwfMJFeHyFLWxh8Bp6+
+         sbHiIeH/OJd3g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        shuah@kernel.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 36/46] selftests/kprobe: Do not test for GRP/ without event failures
-Date:   Sun, 14 Aug 2022 11:32:37 -0400
-Message-Id: <20220814153247.2378312-36-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        orsonzhai@gmail.com, zhang.lyra@gmail.com,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 37/46] dmaengine: sprd: Cleanup in .remove() after pm_runtime_get_sync() failed
+Date:   Sun, 14 Aug 2022 11:32:38 -0400
+Message-Id: <20220814153247.2378312-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153247.2378312-1-sashal@kernel.org>
 References: <20220814153247.2378312-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -56,48 +60,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit f5eab65ff2b76449286d18efc7fee3e0b72f7d9b ]
+[ Upstream commit 1e42f82cbec7b2cc4873751e7791e6611901c5fc ]
 
-A new feature is added where kprobes (and other probes) do not need to
-explicitly state the event name when creating a probe. The event name will
-come from what is being attached.
+It's not allowed to quit remove early without cleaning up completely.
+Otherwise this results in resource leaks that probably yield graver
+problems later. Here for example some tasklets might survive the lifetime
+of the sprd-dma device and access sdev which is freed after .remove()
+returns.
 
-That is:
+As none of the device freeing requires an active device, just ignore the
+return value of pm_runtime_get_sync().
 
-  # echo 'p:foo/ vfs_read' > kprobe_events
-
-Will no longer error, but instead create an event:
-
-  # cat kprobe_events
- p:foo/p_vfs_read_0 vfs_read
-
-This should not be tested as an error case anymore. Remove it from the
-selftest as now this feature "breaks" the selftest as it no longer fails
-as expected.
-
-Link: https://lore.kernel.org/all/1656296348-16111-1-git-send-email-quic_linyyuan@quicinc.com/
-Link: https://lkml.kernel.org/r/20220712161707.6dc08a14@gandalf.local.home
-
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
+Link: https://lore.kernel.org/r/20220721204054.323602-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc       | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/dma/sprd-dma.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-index fa928b431555..7c02509c71d0 100644
---- a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-+++ b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-@@ -21,7 +21,6 @@ check_error 'p:^/bar vfs_read'		# NO_GROUP_NAME
- check_error 'p:^12345678901234567890123456789012345678901234567890123456789012345/bar vfs_read'	# GROUP_TOO_LONG
+diff --git a/drivers/dma/sprd-dma.c b/drivers/dma/sprd-dma.c
+index 4357d2395e6b..60115d8d4083 100644
+--- a/drivers/dma/sprd-dma.c
++++ b/drivers/dma/sprd-dma.c
+@@ -1236,11 +1236,8 @@ static int sprd_dma_remove(struct platform_device *pdev)
+ {
+ 	struct sprd_dma_dev *sdev = platform_get_drvdata(pdev);
+ 	struct sprd_dma_chn *c, *cn;
+-	int ret;
  
- check_error 'p:^foo.1/bar vfs_read'	# BAD_GROUP_NAME
--check_error 'p:foo/^ vfs_read'		# NO_EVENT_NAME
- check_error 'p:foo/^12345678901234567890123456789012345678901234567890123456789012345 vfs_read'	# EVENT_TOO_LONG
- check_error 'p:foo/^bar.1 vfs_read'	# BAD_EVENT_NAME
+-	ret = pm_runtime_get_sync(&pdev->dev);
+-	if (ret < 0)
+-		return ret;
++	pm_runtime_get_sync(&pdev->dev);
  
+ 	/* explicitly free the irq */
+ 	if (sdev->irq > 0)
 -- 
 2.35.1
 
