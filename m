@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF5F2592258
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:47:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E900359227D
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:47:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241486AbiHNPrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:47:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40514 "EHLO
+        id S232146AbiHNPrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:47:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241239AbiHNPox (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:44:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C58F3248E1;
-        Sun, 14 Aug 2022 08:34:06 -0700 (PDT)
+        with ESMTP id S241463AbiHNPpE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:45:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 099C8240B2;
+        Sun, 14 Aug 2022 08:34:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35239B80B79;
+        by ams.source.kernel.org (Postfix) with ESMTPS id DFB3EB80B27;
+        Sun, 14 Aug 2022 15:34:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19F2C433C1;
         Sun, 14 Aug 2022 15:34:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E452EC433C1;
-        Sun, 14 Aug 2022 15:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491244;
-        bh=lY8Vu6e1a86oTT8LLYHfgkFVDDyf4+IO166QYIoKdS4=;
+        s=k20201202; t=1660491247;
+        bh=2F6ETMZsAJ9BEr8L3pUMUUvrKg/3pNm/yewanihTYIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=reeUw7Su+x7OFAsbsfPGVuofObE0hWaoGYvoO9TMYmxOLzazFNOrzrx97MNNKBJnT
-         w3zYciuAZ62nvHhg6adb95y3+iYQqnpBgdhqqzO9AOsHoi20Dn3Q56ya1XuoCZLYFC
-         zEJWzjcpCO8pnJSdDkVIFY+YrLjT2Tw/foYKDyZnF4f7WIdRBrI2bsBRIA6+WbDKLM
-         EOH52PuNLMKJwc7dMAMu2tvi0jhKfil6XWtFPRI+Grea+7BMLvNKJB8/uu6fOQBs36
-         B/CWijjrSKSvPr48pFms1XtrEKxIjZtRM6Jja1h3BdgFb9S7UCv/wvwJg75dnZHXBU
-         Pj1K0n+cs1p7A==
+        b=Rd7S9wLTP0fPo2XhCQgiYjoOkyZyWJyv4Y8gOCMDZ9FjeSoCusxanPBBAG6pdff32
+         CQr/BKl1U0VzvF94C1D8J2G2sd1m3tsbVnPvNJLO6fNoy7HTYT0G2kK8VCXKj0tytC
+         ZI4Tx7EHsReAHmOCXVLDCx2PZx6SWGOjE/ogRMctxpYKwwFan2lMp/xGkS0ab2khlU
+         FNiCB1gKLCah1OOwIwScEncmgWqZZ6ctZ9cqBCbXSq7tp8h5HgeBK+h04Oyqj7jbf3
+         pu6FK/fazBVUhDfAoEnVSqqNPgPTcka/TPiDoHDT1qttWx4DG2yQm3zFueecuieBiH
+         oSKYNoUOXXydA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liao Chang <liaochang1@huawei.com>,
-        Chen Guokai <chenguokai17@mails.ucas.ac.cn>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Guo Ren <guoren@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        rostedt@goodmis.org, lkp@intel.com, linux-csky@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 35/46] csky/kprobe: reclaim insn_slot on kprobe unregistration
-Date:   Sun, 14 Aug 2022 11:32:36 -0400
-Message-Id: <20220814153247.2378312-35-sashal@kernel.org>
+Cc:     "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        shuah@kernel.org, linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 36/46] selftests/kprobe: Do not test for GRP/ without event failures
+Date:   Sun, 14 Aug 2022 11:32:37 -0400
+Message-Id: <20220814153247.2378312-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153247.2378312-1-sashal@kernel.org>
 References: <20220814153247.2378312-1-sashal@kernel.org>
@@ -58,38 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liao Chang <liaochang1@huawei.com>
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
 
-[ Upstream commit a2310c74d418deca0f1d749c45f1f43162510f51 ]
+[ Upstream commit f5eab65ff2b76449286d18efc7fee3e0b72f7d9b ]
 
-On kprobe registration kernel allocate one insn_slot for new kprobe,
-but it forget to reclaim the insn_slot on unregistration, leading to a
-potential leakage.
+A new feature is added where kprobes (and other probes) do not need to
+explicitly state the event name when creating a probe. The event name will
+come from what is being attached.
 
-Reported-by: Chen Guokai <chenguokai17@mails.ucas.ac.cn>
-Reviewed-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Liao Chang <liaochang1@huawei.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
+That is:
+
+  # echo 'p:foo/ vfs_read' > kprobe_events
+
+Will no longer error, but instead create an event:
+
+  # cat kprobe_events
+ p:foo/p_vfs_read_0 vfs_read
+
+This should not be tested as an error case anymore. Remove it from the
+selftest as now this feature "breaks" the selftest as it no longer fails
+as expected.
+
+Link: https://lore.kernel.org/all/1656296348-16111-1-git-send-email-quic_linyyuan@quicinc.com/
+Link: https://lkml.kernel.org/r/20220712161707.6dc08a14@gandalf.local.home
+
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/csky/kernel/probes/kprobes.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ .../selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc       | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/csky/kernel/probes/kprobes.c b/arch/csky/kernel/probes/kprobes.c
-index 4045894d9280..584ed9f36290 100644
---- a/arch/csky/kernel/probes/kprobes.c
-+++ b/arch/csky/kernel/probes/kprobes.c
-@@ -124,6 +124,10 @@ void __kprobes arch_disarm_kprobe(struct kprobe *p)
+diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
+index fa928b431555..7c02509c71d0 100644
+--- a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
++++ b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
+@@ -21,7 +21,6 @@ check_error 'p:^/bar vfs_read'		# NO_GROUP_NAME
+ check_error 'p:^12345678901234567890123456789012345678901234567890123456789012345/bar vfs_read'	# GROUP_TOO_LONG
  
- void __kprobes arch_remove_kprobe(struct kprobe *p)
- {
-+	if (p->ainsn.api.insn) {
-+		free_insn_slot(p->ainsn.api.insn, 0);
-+		p->ainsn.api.insn = NULL;
-+	}
- }
+ check_error 'p:^foo.1/bar vfs_read'	# BAD_GROUP_NAME
+-check_error 'p:foo/^ vfs_read'		# NO_EVENT_NAME
+ check_error 'p:foo/^12345678901234567890123456789012345678901234567890123456789012345 vfs_read'	# EVENT_TOO_LONG
+ check_error 'p:foo/^bar.1 vfs_read'	# BAD_EVENT_NAME
  
- static void __kprobes save_previous_kprobe(struct kprobe_ctlblk *kcb)
 -- 
 2.35.1
 
