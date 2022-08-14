@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C672A59221A
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C334592226
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241359AbiHNPnh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:43:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42386 "EHLO
+        id S241188AbiHNPoi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:44:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229731AbiHNPmR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:42:17 -0400
+        with ESMTP id S241189AbiHNPmh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:42:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7FB31C11E;
-        Sun, 14 Aug 2022 08:33:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 012DD1C137;
+        Sun, 14 Aug 2022 08:33:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0BCA9B80B56;
-        Sun, 14 Aug 2022 15:33:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A549C433D6;
-        Sun, 14 Aug 2022 15:33:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2E31B80B87;
+        Sun, 14 Aug 2022 15:33:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EB0BC43143;
+        Sun, 14 Aug 2022 15:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491215;
-        bh=QwleLkPpMUtNrPJ2hpugjtXEVqvUzO1wsjJ02z4FvRk=;
+        s=k20201202; t=1660491217;
+        bh=jUkAJE7/Y8YQ4Nx6v1v38JNhEtb9m+JA5U0akmvdf3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E0bRmdoI39bRYMLHM0YkUB8cWZ6FPRe6uqfwQ6FrlunRaCtLroV4Ho5VY0tHfFumY
-         dGIdvg0PoWaFN92L0n43ZTxLd+Qx9t9lzsLJx2FdlRUoTyi7ZmhcRVrrCX9VzE6QjW
-         3M6hbdylH5WpZt1PrP66YhmwR6dMpsOLVtKoGg602P3iccIXVf4kPYNZ0fWKsXPyX4
-         Ij89hFcPCHSDGVUkhNv2vPkowGSv+MgspJVQcFoIUsQDH7ca8fM4wZxHk5eWVZS+r1
-         b0IxyyW9qkXh39FyjoKCw6Kxras5Febx37/UqLecY3dTGQc2e1gX7pxJN7zaiSIw4d
-         0PkypofrmbZhg==
+        b=OqmRE4YoEslcm+2RyRmlwl2tQWUymbPA9+kBaTo1jThmBimq6aPe8MBf8OS5Mlph6
+         UW8XpcQpxWtEkzql2sRp3XNDGbNGxrqgCBwnUxzriRkl2Uq542jXowe5twj5QmImvD
+         sIg+GmJORnUosAiHwBLViDPPVnK1FPoPtsh2r/um9KNYlJ9BJhHqI7g84v9XDPLhSs
+         u0BBjyWF8aHpbG7Cta4OoCAYEcbE1+d13+Acd0N6TllC4HImiTiitZvMkCQlhLJswK
+         bliyBmPeUbTpYVWKoD6El1M51CdKH8WLP7GLV6vnYDQv3qW5pSFhpB6arvgO5MNyZu
+         RMtPD7frAtfNQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jozef Martiniak <jomajm@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, balbi@kernel.org,
-        stern@rowland.harvard.edu, axboe@kernel.dk, hbh25y@gmail.com,
-        mingo@kernel.org, rdunlap@infradead.org, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 23/46] gadgetfs: ep_io - wait until IRQ finishes
-Date:   Sun, 14 Aug 2022 11:32:24 -0400
-Message-Id: <20220814153247.2378312-23-sashal@kernel.org>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Arnd Bergmann <arnd@kernel.org>,
+        Tao Zhang <quic_taozha@quicinc.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Sasha Levin <sashal@kernel.org>, mathieu.poirier@linaro.org,
+        alexander.shishkin@linux.intel.com, nathan@kernel.org,
+        coresight@lists.linaro.org, linux-arm-kernel@lists.infradead.org,
+        llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.15 24/46] coresight: etm4x: avoid build failure with unrolled loops
+Date:   Sun, 14 Aug 2022 11:32:25 -0400
+Message-Id: <20220814153247.2378312-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153247.2378312-1-sashal@kernel.org>
 References: <20220814153247.2378312-1-sashal@kernel.org>
@@ -58,35 +62,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jozef Martiniak <jomajm@gmail.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 04cb742d4d8f30dc2e83b46ac317eec09191c68e ]
+[ Upstream commit 4d45bc82df667ad9e9cb8361830e54fc1264e993 ]
 
-after usb_ep_queue() if wait_for_completion_interruptible() is
-interrupted we need to wait until IRQ gets finished.
+When the following configs are enabled:
+* CORESIGHT
+* CORESIGHT_SOURCE_ETM4X
+* UBSAN
+* UBSAN_TRAP
 
-Otherwise complete() from epio_complete() can corrupt stack.
+Clang fails assemble the kernel with the error:
+<instantiation>:1:7: error: expected constant expression in '.inst' directive
+.inst (0xd5200000|((((2) << 19) | ((1) << 16) | (((((((((((0x160 + (i * 4))))) >> 2))) >> 7) & 0x7)) << 12) | ((((((((((0x160 + (i * 4))))) >> 2))) & 0xf)) << 8) | (((((((((((0x160 + (i * 4))))) >> 2))) >> 4) & 0x7)) << 5)))|(.L__reg_num_x8))
+      ^
+drivers/hwtracing/coresight/coresight-etm4x-core.c:702:4: note: while in
+macro instantiation
+etm4x_relaxed_read32(csa, TRCCNTVRn(i));
+^
+drivers/hwtracing/coresight/coresight-etm4x.h:403:4: note: expanded from
+macro 'etm4x_relaxed_read32'
+read_etm4x_sysreg_offset((offset), false)))
+^
+drivers/hwtracing/coresight/coresight-etm4x.h:383:12: note: expanded
+from macro 'read_etm4x_sysreg_offset'
+__val = read_etm4x_sysreg_const_offset((offset));       \
+        ^
+drivers/hwtracing/coresight/coresight-etm4x.h:149:2: note: expanded from
+macro 'read_etm4x_sysreg_const_offset'
+READ_ETM4x_REG(ETM4x_OFFSET_TO_REG(offset))
+^
+drivers/hwtracing/coresight/coresight-etm4x.h:144:2: note: expanded from
+macro 'READ_ETM4x_REG'
+read_sysreg_s(ETM4x_REG_NUM_TO_SYSREG((reg)))
+^
+arch/arm64/include/asm/sysreg.h:1108:15: note: expanded from macro
+'read_sysreg_s'
+asm volatile(__mrs_s("%0", r) : "=r" (__val));                  \
+             ^
+arch/arm64/include/asm/sysreg.h:1074:2: note: expanded from macro '__mrs_s'
+"       mrs_s " v ", " __stringify(r) "\n"                      \
+ ^
 
-Signed-off-by: Jozef Martiniak <jomajm@gmail.com>
-Link: https://lore.kernel.org/r/20220708070645.6130-1-jomajm@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Consider the definitions of TRCSSCSRn and TRCCNTVRn:
+drivers/hwtracing/coresight/coresight-etm4x.h:56
+ #define TRCCNTVRn(n)      (0x160 + (n * 4))
+drivers/hwtracing/coresight/coresight-etm4x.h:81
+ #define TRCSSCSRn(n)      (0x2A0 + (n * 4))
+
+Where the macro parameter is expanded to i; a loop induction variable
+from etm4_disable_hw.
+
+When any compiler can determine that loops may be unrolled, then the
+__builtin_constant_p check in read_etm4x_sysreg_offset() defined in
+drivers/hwtracing/coresight/coresight-etm4x.h may evaluate to true. This
+can lead to the expression `(0x160 + (i * 4))` being passed to
+read_etm4x_sysreg_const_offset. Via the trace above, this is passed
+through READ_ETM4x_REG, read_sysreg_s, and finally to __mrs_s where it
+is string-ified and used directly in inline asm.
+
+Regardless of which compiler or compiler options determine whether a
+loop can or can't be unrolled, which determines whether
+__builtin_constant_p evaluates to true when passed an expression using a
+loop induction variable, it is NEVER safe to allow the preprocessor to
+construct inline asm like:
+  asm volatile (".inst (0x160 + (i * 4))" : "=r"(__val));
+                                 ^ expected constant expression
+
+Instead of read_etm4x_sysreg_offset() using __builtin_constant_p(), use
+__is_constexpr from include/linux/const.h instead to ensure only
+expressions that are valid integer constant expressions get passed
+through to read_sysreg_s().
+
+This is not a bug in clang; it's a potentially unsafe use of the macro
+arguments in read_etm4x_sysreg_offset dependent on __builtin_constant_p.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1310
+Reported-by: Arnd Bergmann <arnd@kernel.org>
+Reported-by: Tao Zhang <quic_taozha@quicinc.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20220708231520.3958391-1-ndesaulniers@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/legacy/inode.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwtracing/coresight/coresight-etm4x.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
-index 3279b4767424..9e8b678f0548 100644
---- a/drivers/usb/gadget/legacy/inode.c
-+++ b/drivers/usb/gadget/legacy/inode.c
-@@ -362,6 +362,7 @@ ep_io (struct ep_data *epdata, void *buf, unsigned len)
- 				spin_unlock_irq (&epdata->dev->lock);
+diff --git a/drivers/hwtracing/coresight/coresight-etm4x.h b/drivers/hwtracing/coresight/coresight-etm4x.h
+index e5b79bdb9851..794b29639035 100644
+--- a/drivers/hwtracing/coresight/coresight-etm4x.h
++++ b/drivers/hwtracing/coresight/coresight-etm4x.h
+@@ -7,6 +7,7 @@
+ #define _CORESIGHT_CORESIGHT_ETM_H
  
- 				DBG (epdata->dev, "endpoint gone\n");
-+				wait_for_completion(&done);
- 				epdata->status = -ENODEV;
- 			}
- 		}
+ #include <asm/local.h>
++#include <linux/const.h>
+ #include <linux/spinlock.h>
+ #include <linux/types.h>
+ #include "coresight-priv.h"
+@@ -417,7 +418,7 @@
+ 	({									\
+ 		u64 __val;							\
+ 										\
+-		if (__builtin_constant_p((offset)))				\
++		if (__is_constexpr((offset)))					\
+ 			__val = read_etm4x_sysreg_const_offset((offset));	\
+ 		else								\
+ 			__val = etm4x_sysreg_read((offset), true, (_64bit));	\
 -- 
 2.35.1
 
