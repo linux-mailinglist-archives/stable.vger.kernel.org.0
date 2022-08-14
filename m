@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE879592467
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A56F592475
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:33:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242474AbiHNQc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:32:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40836 "EHLO
+        id S242504AbiHNQcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:32:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242900AbiHNQbe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:31:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9096922517;
-        Sun, 14 Aug 2022 09:26:09 -0700 (PDT)
+        with ESMTP id S242942AbiHNQbj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:31:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 018E022B13;
+        Sun, 14 Aug 2022 09:26:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C177060FAD;
-        Sun, 14 Aug 2022 16:26:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F8C1C433D6;
-        Sun, 14 Aug 2022 16:26:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 894A7B80B3F;
+        Sun, 14 Aug 2022 16:26:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B947C433C1;
+        Sun, 14 Aug 2022 16:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494368;
-        bh=pVh0kY2dRG6Xb0FG85icTj2NW55fBngQJ94RJpxzoGQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYBlrNsvF5Syh5JAYJegXIP3v/LdbzOXfry41IW6Zm56ucwDH/JqtijF0E6BI3Qf/
-         3MsTlyS0AIxItj3r5SJg1x+VEj1lAaD19+umKl+wob2hp/zGvL1+uo0VYiYNlGe8g8
-         JjVLgWwIN55qXYcI79QILXGrsVNn9IDZjFJIgJEGo9hTN04tD8MS1RzhWiHuzB33Gw
-         MZ9CWpRBrKXCGke7++IXC2q/rUjN2GR2ThoogxC283h3NWj3KW72/3rbzRwfxkic0d
-         yWUUGGfsdYzSiKxHrTblEKoWnxUTiabZBVdV/hIvEX51m+29GXtVOwE9s+Wyve6s+w
-         o4K2WPcK/YBbw==
+        s=k20201202; t=1660494373;
+        bh=5QEhkpbOIt5ZQhJj4twQe+roC+RNayxcEOZD8bg916A=;
+        h=From:To:Cc:Subject:Date:From;
+        b=afgPfB1cNI8/HydOIGZtDhxLyCfwe3jPSbmac6HzqyDBQkNAQvjO7Hq+h6LxwhOnh
+         GnzMShcASHr7OmBSkuUyDg3GsGPlsoK0/dq12/GHhiKx+buZDmrqppdI7Jmf0cvOrk
+         Nvv2Iip39JKv4IRtfTxaqtaV0J+nlRzmurI7A+2/BrAze4ik1+xEbJjNW5cdMsbT/S
+         N+Ir9u4PjR9Y5p0sZSZsqu1wYKVtOqV6ytRV9FSbW5xuiJvVzLXeihwx4ilETZAQWd
+         S5eBnk7vYMJYJRQ7Kkyqa/8hvXxzpuxg50nPXEFr58NokrmBisBjXRo/G9Jq3tjSHN
+         TwWfhUjx/32YQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, ndesaulniers@google.com,
-        macro@orcam.me.uk, linux-mips@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.18 39/39] MIPS: tlbex: Explicitly compare _PAGE_NO_EXEC against 0
-Date:   Sun, 14 Aug 2022 12:23:28 -0400
-Message-Id: <20220814162332.2396012-39-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, thunder.leizhen@huawei.com
+Subject: [PATCH AUTOSEL 5.15 01/28] lib/list_debug.c: Detect uninitialized lists
+Date:   Sun, 14 Aug 2022 12:25:41 -0400
+Message-Id: <20220814162610.2397644-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220814162332.2396012-1-sashal@kernel.org>
-References: <20220814162332.2396012-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,68 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 74de14fe05dd6b151d73cb0c73c8ec874cbdcde6 ]
+[ Upstream commit 0cc011c576aaa4de505046f7a6c90933d7c749a9 ]
 
-When CONFIG_XPA is enabled, Clang warns:
+In some circumstances, attempts are made to add entries to or to remove
+entries from an uninitialized list.  A prime example is
+amdgpu_bo_vm_destroy(): It is indirectly called from
+ttm_bo_init_reserved() if that function fails, and tries to remove an
+entry from a list.  However, that list is only initialized in
+amdgpu_bo_create_vm() after the call to ttm_bo_init_reserved() returned
+success.  This results in crashes such as
 
-  arch/mips/mm/tlbex.c:629:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
-          if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
-                              ^
-  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
-  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
-                                     ^
-  arch/mips/mm/tlbex.c:2568:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
-          if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
-                                ^
-  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
-  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
-                                     ^
-  2 errors generated.
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP NOPTI
+ CPU: 1 PID: 1479 Comm: chrome Not tainted 5.10.110-15768-g29a72e65dae5
+ Hardware name: Google Grunt/Grunt, BIOS Google_Grunt.11031.149.0 07/15/2020
+ RIP: 0010:__list_del_entry_valid+0x26/0x7d
+ ...
+ Call Trace:
+  amdgpu_bo_vm_destroy+0x48/0x8b
+  ttm_bo_init_reserved+0x1d7/0x1e0
+  amdgpu_bo_create+0x212/0x476
+  ? amdgpu_bo_user_destroy+0x23/0x23
+  ? kmem_cache_alloc+0x60/0x271
+  amdgpu_bo_create_vm+0x40/0x7d
+  amdgpu_vm_pt_create+0xe8/0x24b
+ ...
 
-_PAGE_NO_EXEC can be '0' or '1 << _PAGE_NO_EXEC_SHIFT' depending on the
-build and runtime configuration, which is what the negation operators
-are trying to convey. To silence the warning, explicitly compare against
-0 so the result of the '<<' operator is not implicitly converted to a
-boolean.
+Check if the list's prev and next pointers are NULL to catch such problems.
 
-According to its documentation, GCC enables -Wint-in-bool-context with
--Wall but this warning is not visible when building the same
-configuration with GCC. It appears GCC only warns when compiling C++,
-not C, although the documentation makes no note of this:
-https://godbolt.org/z/x39q3brxf
-
-Reported-by: Sudip Mukherjee (Codethink) <sudipm.mukherjee@gmail.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Link: https://lkml.kernel.org/r/20220531222951.92073-1-linux@roeck-us.net
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mm/tlbex.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/list_debug.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
-index 8dbbd99fc7e8..be4d4670d649 100644
---- a/arch/mips/mm/tlbex.c
-+++ b/arch/mips/mm/tlbex.c
-@@ -626,7 +626,7 @@ static __maybe_unused void build_convert_pte_to_entrylo(u32 **p,
- 		return;
- 	}
+diff --git a/lib/list_debug.c b/lib/list_debug.c
+index 5d5424b51b74..413daa72a3d8 100644
+--- a/lib/list_debug.c
++++ b/lib/list_debug.c
+@@ -20,7 +20,11 @@
+ bool __list_add_valid(struct list_head *new, struct list_head *prev,
+ 		      struct list_head *next)
+ {
+-	if (CHECK_DATA_CORRUPTION(next->prev != prev,
++	if (CHECK_DATA_CORRUPTION(prev == NULL,
++			"list_add corruption. prev is NULL.\n") ||
++	    CHECK_DATA_CORRUPTION(next == NULL,
++			"list_add corruption. next is NULL.\n") ||
++	    CHECK_DATA_CORRUPTION(next->prev != prev,
+ 			"list_add corruption. next->prev should be prev (%px), but was %px. (next=%px).\n",
+ 			prev, next->prev, next) ||
+ 	    CHECK_DATA_CORRUPTION(prev->next != next,
+@@ -42,7 +46,11 @@ bool __list_del_entry_valid(struct list_head *entry)
+ 	prev = entry->prev;
+ 	next = entry->next;
  
--	if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
-+	if (cpu_has_rixi && _PAGE_NO_EXEC != 0) {
- 		if (fill_includes_sw_bits) {
- 			UASM_i_ROTR(p, reg, reg, ilog2(_PAGE_GLOBAL));
- 		} else {
-@@ -2565,7 +2565,7 @@ static void check_pabits(void)
- 	unsigned long entry;
- 	unsigned pabits, fillbits;
- 
--	if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
-+	if (!cpu_has_rixi || _PAGE_NO_EXEC == 0) {
- 		/*
- 		 * We'll only be making use of the fact that we can rotate bits
- 		 * into the fill if the CPU supports RIXI, so don't bother
+-	if (CHECK_DATA_CORRUPTION(next == LIST_POISON1,
++	if (CHECK_DATA_CORRUPTION(next == NULL,
++			"list_del corruption, %px->next is NULL\n", entry) ||
++	    CHECK_DATA_CORRUPTION(prev == NULL,
++			"list_del corruption, %px->prev is NULL\n", entry) ||
++	    CHECK_DATA_CORRUPTION(next == LIST_POISON1,
+ 			"list_del corruption, %px->next is LIST_POISON1 (%px)\n",
+ 			entry, LIST_POISON1) ||
+ 	    CHECK_DATA_CORRUPTION(prev == LIST_POISON2,
 -- 
 2.35.1
 
