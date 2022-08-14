@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC3D059215B
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:36:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A40C592151
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:36:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240797AbiHNPgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:36:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52302 "EHLO
+        id S234911AbiHNPgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:36:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240808AbiHNPfj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:35:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCD401CFE8;
-        Sun, 14 Aug 2022 08:30:59 -0700 (PDT)
+        with ESMTP id S240761AbiHNPfc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:35:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 472F21CFD0;
+        Sun, 14 Aug 2022 08:30:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CB0660B90;
-        Sun, 14 Aug 2022 15:30:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D272C433D6;
-        Sun, 14 Aug 2022 15:30:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFA9960C94;
+        Sun, 14 Aug 2022 15:30:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 113A7C43470;
+        Sun, 14 Aug 2022 15:30:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491053;
-        bh=GUcB9eD+iEOCbxU+UeqApPApFnGb+Rc+D67AbgcVBCw=;
+        s=k20201202; t=1660491055;
+        bh=hRPBfczdm15C8/gZO/F3YClMCpGorCXgOhAyyTX1B+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c5D7+MeVhbc7r0SHjDXpq0utDRIKmYYf3zhbTfJGLxhiy9XcSrynPlN/TYlcdv6me
-         28R7r+Hg7CR8qR2vmDQh0mvup7V9tWFlVj/et0HS42Qs3HIlmgwT0AqLqGIKBJ7AVW
-         9Wh/oVlEfv/Fm+P+EgQV+9d7yN5FAyz5JgC+BNqcUpyfkv3optUghbibjB1oMFW4z3
-         KvULYg3tHmKnGAdSYYxCnBBm8xVlODnHEVcwyOwPSqfIVD9gq/V6sLd/+/S90FY7RG
-         WTteFwKLrd575pu8lS/QKfohehxyRicUayynEteHhSdgU6jtNIcl4xVLbZn/BTcKaC
-         n2+6QPEX7VZOw==
+        b=fBdWERADFM/uLE1cBEUckMe3btlPmw/qy7qx6dDAT/jihfXVQTwvowMIdjfzUaxk2
+         Fj4/uzGXh8/SWQC35hRlwyWoiyU2BkWkFXOk7qgz3PNK5dduwb7Y0fCkJgRiwnC1mA
+         ycYFznm+coZTlGpnJMCW8B51WrOuuZ+McfXNczhmLBVsRsOuGqsonDBcYP/TrKLnJV
+         7BKAUQIpvQhWbyCS13WjmdilLGqvp/c8F00VkRDbUFs2dpiIqVU9/0N0xVK9WYC2Ae
+         oYxXuSqDI97wQTGUqUosO0uAyOCDrpb5IDqKB/G83gN/SfUwyBerldUAYUgxsj4ToZ
+         0FIE5o3fGTomw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
-        bvanassche@acm.org, beanhuo@micron.com, avri.altman@wdc.com,
-        adrian.hunter@intel.com, j-young.choi@samsung.com,
-        ebiggers@google.com, jjmin.jeong@samsung.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 11/56] scsi: ufs: core: Add UFSHCD_QUIRK_HIBERN_FASTAUTO
-Date:   Sun, 14 Aug 2022 11:29:41 -0400
-Message-Id: <20220814153026.2377377-11-sashal@kernel.org>
+Cc:     Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
+        Marc Zyngier <maz@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        thierry.reding@gmail.com, jonathanh@nvidia.com,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 12/56] irqchip/tegra: Fix overflow implicit truncation warnings
+Date:   Sun, 14 Aug 2022 11:29:42 -0400
+Message-Id: <20220814153026.2377377-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153026.2377377-1-sashal@kernel.org>
 References: <20220814153026.2377377-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,59 +59,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
 
-[ Upstream commit 2f11bbc2c7f37e3a6151ac548b1c0679cc90ea83 ]
+[ Upstream commit 443685992bda9bb4f8b17fc02c9f6c60e62b1461 ]
 
-Add UFSHCD_QUIRK_HIBERN_FASTAUTO quirk for host controllers which supports
-auto-hibernate the capability but only FASTAUTO mode.
+Fix -Woverflow warnings for tegra irqchip driver which is a result
+of moving arm64 custom MMIO accessor macros to asm-generic function
+implementations giving a bonus type-checking now and uncovering these
+overflow warnings.
 
-Link: https://lore.kernel.org/r/20220603110524.1997825-4-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+drivers/irqchip/irq-tegra.c: In function ‘tegra_ictlr_suspend’:
+drivers/irqchip/irq-tegra.c:151:18: warning: large integer implicitly truncated to unsigned type [-Woverflow]
+   writel_relaxed(~0ul, ictlr + ICTLR_COP_IER_CLR);
+                  ^
+
+Suggested-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 9 +++++++--
- drivers/scsi/ufs/ufshcd.h | 6 ++++++
- 2 files changed, 13 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-tegra.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 95be78549ed2..92de5b8d187c 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -4290,8 +4290,13 @@ static int ufshcd_get_max_pwr_mode(struct ufs_hba *hba)
- 	if (hba->max_pwr_info.is_valid)
- 		return 0;
+diff --git a/drivers/irqchip/irq-tegra.c b/drivers/irqchip/irq-tegra.c
+index e1f771c72fc4..ad3e2c1b3c87 100644
+--- a/drivers/irqchip/irq-tegra.c
++++ b/drivers/irqchip/irq-tegra.c
+@@ -148,10 +148,10 @@ static int tegra_ictlr_suspend(void)
+ 		lic->cop_iep[i] = readl_relaxed(ictlr + ICTLR_COP_IEP_CLASS);
  
--	pwr_info->pwr_tx = FAST_MODE;
--	pwr_info->pwr_rx = FAST_MODE;
-+	if (hba->quirks & UFSHCD_QUIRK_HIBERN_FASTAUTO) {
-+		pwr_info->pwr_tx = FASTAUTO_MODE;
-+		pwr_info->pwr_rx = FASTAUTO_MODE;
-+	} else {
-+		pwr_info->pwr_tx = FAST_MODE;
-+		pwr_info->pwr_rx = FAST_MODE;
-+	}
- 	pwr_info->hs_rate = PA_HS_MODE_B;
+ 		/* Disable COP interrupts */
+-		writel_relaxed(~0ul, ictlr + ICTLR_COP_IER_CLR);
++		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_COP_IER_CLR);
  
- 	/* Get the connected lane count */
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index 1745144eb904..d14cc48226ce 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -608,6 +608,12 @@ enum ufshcd_quirks {
- 	 * 64-bit addressing supported capability but it doesn't work.
- 	 */
- 	UFSHCD_QUIRK_BROKEN_64BIT_ADDRESS		= 1 << 17,
-+
-+	/*
-+	 * This quirk needs to be enabled if the host controller has
-+	 * auto-hibernate capability but it's FASTAUTO only.
-+	 */
-+	UFSHCD_QUIRK_HIBERN_FASTAUTO			= 1 << 18,
- };
+ 		/* Disable CPU interrupts */
+-		writel_relaxed(~0ul, ictlr + ICTLR_CPU_IER_CLR);
++		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_CPU_IER_CLR);
  
- enum ufshcd_caps {
+ 		/* Enable the wakeup sources of ictlr */
+ 		writel_relaxed(lic->ictlr_wake_mask[i], ictlr + ICTLR_CPU_IER_SET);
+@@ -172,12 +172,12 @@ static void tegra_ictlr_resume(void)
+ 
+ 		writel_relaxed(lic->cpu_iep[i],
+ 			       ictlr + ICTLR_CPU_IEP_CLASS);
+-		writel_relaxed(~0ul, ictlr + ICTLR_CPU_IER_CLR);
++		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_CPU_IER_CLR);
+ 		writel_relaxed(lic->cpu_ier[i],
+ 			       ictlr + ICTLR_CPU_IER_SET);
+ 		writel_relaxed(lic->cop_iep[i],
+ 			       ictlr + ICTLR_COP_IEP_CLASS);
+-		writel_relaxed(~0ul, ictlr + ICTLR_COP_IER_CLR);
++		writel_relaxed(GENMASK(31, 0), ictlr + ICTLR_COP_IER_CLR);
+ 		writel_relaxed(lic->cop_ier[i],
+ 			       ictlr + ICTLR_COP_IER_SET);
+ 	}
+@@ -312,7 +312,7 @@ static int __init tegra_ictlr_init(struct device_node *node,
+ 		lic->base[i] = base;
+ 
+ 		/* Disable all interrupts */
+-		writel_relaxed(~0UL, base + ICTLR_CPU_IER_CLR);
++		writel_relaxed(GENMASK(31, 0), base + ICTLR_CPU_IER_CLR);
+ 		/* All interrupts target IRQ */
+ 		writel_relaxed(0, base + ICTLR_CPU_IEP_CLASS);
+ 
 -- 
 2.35.1
 
