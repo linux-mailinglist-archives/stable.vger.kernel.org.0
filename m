@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51412592136
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:34:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACC19592127
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:34:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240790AbiHNPeo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:34:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54448 "EHLO
+        id S240590AbiHNPeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:34:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240745AbiHNPeQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:34:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ED0ABE23;
-        Sun, 14 Aug 2022 08:30:33 -0700 (PDT)
+        with ESMTP id S231671AbiHNPdw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:33:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 782942DDD;
+        Sun, 14 Aug 2022 08:30:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 745A8B80B7E;
-        Sun, 14 Aug 2022 15:30:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22CF5C433C1;
-        Sun, 14 Aug 2022 15:30:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CF4960BEC;
+        Sun, 14 Aug 2022 15:30:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90599C433B5;
+        Sun, 14 Aug 2022 15:30:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491029;
-        bh=ebo6kPnfZ6o+Q1fsjAA8jeQY9HT8MUugEfOa0/b02xE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=qqeMILVRzrnyMCODpMc+97MO7Z5sHBTFaFS4Qc/tuXaxJ8xGwWIMf1MsrydmVrCk0
-         fYEP3/jK8YnAYh2ZhlQtd/bkgRkIhi94W3tHQJk0MHeljeZbaPJ8+AZh3/pNyNmuCN
-         Wi+DEHy441MrNcJbAmpcc49bTyhsgLQqwJ6P9oEJw1xEHAqxJoDkXYMszO2pCXuHBx
-         v8gA0Zj2Zokn3gsG9kDuCLzitC+73JuDmKvg5DrrVIGx3semOPUe1q4o9OFFplO9VB
-         7j4N4SwHCztDnRBwuli7l+Aq6hZkPLwWJ8YsL6ZUZSb89dMN8MgtHR5IG07hqJavV8
-         5E+ZcvaJQCS+w==
+        s=k20201202; t=1660491030;
+        bh=opRpwBXuIqKfJEKdV/gdL/Q2qqUENx7dxO38eYQHJZA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=YdtKb7w02pilIBrprKtdd2D41OGkNwWu0qjhgxoDeqrxmNWFLNN1Ss7HMZPlwc1Fh
+         KAN7cMpYjQC+Y6WuJ0T+/xuqSgVQI8EY7QSwHkRCgjCctpdtND8sCYrKFMWAc8txbq
+         sEahmoEAb5ip+sgLy3HSMc+OiZnuM9G86hy1IYB2dPr9NYg3ZOSIKDj6HoFLCGHKju
+         PlAfzoZi+JtZqT2q+JZw8rqmItw7cI0yKTXqTQ5Mx/noXpEvSyWJHS+TNPoRaWkUbk
+         wTyP4Q2S8pVbIrzY7eDTpXDfZh+sUujkSHiT3vATcxID//ZGRbX++qEGdeGx3p2uad
+         lAdzHrpBx5iqw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gil Fine <gil.fine@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, andreas.noever@gmail.com,
-        michael.jamet@intel.com, YehezkelShB@gmail.com,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 01/56] thunderbolt: Change downstream router's TMU rate in both TMU uni/bidir mode
-Date:   Sun, 14 Aug 2022 11:29:31 -0400
-Message-Id: <20220814153026.2377377-1-sashal@kernel.org>
+Cc:     Tao Jin <tao-j@outlook.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 02/56] HID: multitouch: new device class fix Lenovo X12 trackpad sticky
+Date:   Sun, 14 Aug 2022 11:29:32 -0400
+Message-Id: <20220814153026.2377377-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220814153026.2377377-1-sashal@kernel.org>
+References: <20220814153026.2377377-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,51 +56,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gil Fine <gil.fine@intel.com>
+From: Tao Jin <tao-j@outlook.com>
 
-[ Upstream commit 5fd6b9a5cbe63fea4c490fee8af34144a139a266 ]
+[ Upstream commit 54eed5c7b938dc4ef6b14d4ee048bbdafdbce352 ]
 
-In case of uni-directional time sync, TMU handshake is
-initiated by upstream router. In case of bi-directional
-time sync, TMU handshake is initiated by downstream router.
-In order to handle correctly the case of uni-directional mode,
-we avoid changing the upstream router's rate to off,
-because it might have another downstream router plugged that is set to
-uni-directional mode (and we don't want to change its mode).
-Instead, we always change downstream router's rate.
+The trackpad of the given device sends continuous report of pointers
+status as per wxn8 spec. However, the spec did not clarify when the
+fingers are lifted so fast that between the interval of two report
+frames fingers on pad reduced from >=2 to 0. The second last report
+contains >=2 fingers with tip state 1 and the last report contains only
+1 finger with tip state 0. Although this can happen unfrequently, a
+  quick fix will be improve the consistency to 100%. A quick fix is to
+disable MT_QUIRK_ALWAYS_VALID and enable MT_QUIRK_NOT_SEEN_MEANS_UP.
 
-Signed-off-by: Gil Fine <gil.fine@intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Test for hid-tools is added in [1]
+
+In addition to this, I2C device 04CA:00B1 may also need similar class
+but with MT_QUIRK_FORCE_MULTI_INPUT disabled (but it does not harm to
+ enable it on non-multi-input device either). The respective owner has
+been notified and a patch may coming soon after test.
+
+[1]: https://gitlab.freedesktop.org/libevdev/hid-tools/-/merge_requests/130
+
+Signed-off-by: Tao Jin <tao-j@outlook.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/tmu.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/hid/hid-multitouch.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/thunderbolt/tmu.c b/drivers/thunderbolt/tmu.c
-index e4a07a26f693..93ba1d00335b 100644
---- a/drivers/thunderbolt/tmu.c
-+++ b/drivers/thunderbolt/tmu.c
-@@ -359,13 +359,14 @@ int tb_switch_tmu_disable(struct tb_switch *sw)
- 		 * In case of uni-directional time sync, TMU handshake is
- 		 * initiated by upstream router. In case of bi-directional
- 		 * time sync, TMU handshake is initiated by downstream router.
--		 * Therefore, we change the rate to off in the respective
--		 * router.
-+		 * We change downstream router's rate to off for both uni/bidir
-+		 * cases although it is needed only for the bi-directional mode.
-+		 * We avoid changing upstream router's mode since it might
-+		 * have another downstream router plugged, that is set to
-+		 * uni-directional mode and we don't want to change it's TMU
-+		 * mode.
- 		 */
--		if (unidirectional)
--			tb_switch_tmu_rate_write(parent, TB_SWITCH_TMU_RATE_OFF);
--		else
--			tb_switch_tmu_rate_write(sw, TB_SWITCH_TMU_RATE_OFF);
-+		tb_switch_tmu_rate_write(sw, TB_SWITCH_TMU_RATE_OFF);
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 6bb3890b0f2c..2e72922e36f5 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -194,6 +194,7 @@ static void mt_post_parse(struct mt_device *td, struct mt_application *app);
+ #define MT_CLS_WIN_8_FORCE_MULTI_INPUT		0x0015
+ #define MT_CLS_WIN_8_DISABLE_WAKEUP		0x0016
+ #define MT_CLS_WIN_8_NO_STICKY_FINGERS		0x0017
++#define MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU	0x0018
  
- 		tb_port_tmu_time_sync_disable(up);
- 		ret = tb_port_tmu_time_sync_disable(down);
+ /* vendor specific classes */
+ #define MT_CLS_3M				0x0101
+@@ -286,6 +287,15 @@ static const struct mt_class mt_classes[] = {
+ 			MT_QUIRK_WIN8_PTP_BUTTONS |
+ 			MT_QUIRK_FORCE_MULTI_INPUT,
+ 		.export_all_inputs = true },
++	{ .name = MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU,
++		.quirks = MT_QUIRK_IGNORE_DUPLICATES |
++			MT_QUIRK_HOVERING |
++			MT_QUIRK_CONTACT_CNT_ACCURATE |
++			MT_QUIRK_STICKY_FINGERS |
++			MT_QUIRK_WIN8_PTP_BUTTONS |
++			MT_QUIRK_FORCE_MULTI_INPUT |
++			MT_QUIRK_NOT_SEEN_MEANS_UP,
++		.export_all_inputs = true },
+ 	{ .name = MT_CLS_WIN_8_DISABLE_WAKEUP,
+ 		.quirks = MT_QUIRK_ALWAYS_VALID |
+ 			MT_QUIRK_IGNORE_DUPLICATES |
+@@ -783,6 +793,7 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		case HID_DG_CONFIDENCE:
+ 			if ((cls->name == MT_CLS_WIN_8 ||
+ 			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
++			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU ||
+ 			     cls->name == MT_CLS_WIN_8_DISABLE_WAKEUP) &&
+ 				(field->application == HID_DG_TOUCHPAD ||
+ 				 field->application == HID_DG_TOUCHSCREEN))
+@@ -2035,7 +2046,7 @@ static const struct hid_device_id mt_devices[] = {
+ 			   USB_DEVICE_ID_LENOVO_X1_TAB3) },
+ 
+ 	/* Lenovo X12 TAB Gen 1 */
+-	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU,
+ 		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
+ 			   USB_VENDOR_ID_LENOVO,
+ 			   USB_DEVICE_ID_LENOVO_X12_TAB) },
 -- 
 2.35.1
 
