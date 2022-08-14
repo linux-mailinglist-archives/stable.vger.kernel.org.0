@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB2335921C3
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:40:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8783F5921C5
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:40:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241114AbiHNPj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240758AbiHNPj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 14 Aug 2022 11:39:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53588 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240745AbiHNPh3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:37:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C57420F4D;
-        Sun, 14 Aug 2022 08:32:25 -0700 (PDT)
+        with ESMTP id S240793AbiHNPhh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:37:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F69C20F69;
+        Sun, 14 Aug 2022 08:32:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A83D8B80B4D;
-        Sun, 14 Aug 2022 15:32:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76DB3C43141;
-        Sun, 14 Aug 2022 15:32:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF4B660C41;
+        Sun, 14 Aug 2022 15:32:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CBA7C433D6;
+        Sun, 14 Aug 2022 15:32:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491142;
-        bh=3Ju9VbGV6I1/r0QTNy2axkLR0oPolV6Y+H6HWcrkt4E=;
+        s=k20201202; t=1660491146;
+        bh=MWnYgLY5zU2YWGkXf3/KfDv1cw42WwuopIXFevHqSEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sF5GBF00uzwQUEZmevW1jwuhFc5ooOVFuoJY/9CrFYQWmW0VJ3U0ZRi5+fTwZ6pXb
-         SlkJnGcMQ7yC6tkPLUmtcFAJSXT6nkPQYuOoj78q1Rgyb4RvBvt4/sdJB5yFODxiI7
-         csB9PJ1MVwvRlZQ9GiYh31sVszWlVreJVYlZoBdcvMPtaDeTsMG+u2JSODkAam7O9e
-         S5zbYtYJTVBfHEkI2uBV+35qUAneHMzUR2ZhzbEv2RiwKDxICwFdY9JvDciIaVbgiS
-         yM+alo9kYtyb++u6acjRUMKvncJBmQCcSLMWPiZEQ3Nv1ppV5qEZ3zmuM4pHGUo0JV
-         I6QULbeThgdeQ==
+        b=PWWhl7jIRTGYTiMzqEbTL4gBQIWzvhRERSJbvC5XczsoxOfubpsxy5aXh9lfTKRip
+         PI/P/lrS8Q5BdOletUdEpKMHu7FyfcFWCTZzkAHCDTeIgSXG5V1NoBHb3yFCtEHddV
+         uG2dBNTSbI5Neq4FSeSsKeKDD+qmvsfQe8dZuxtPZkn6GEEqfk6/xzG9rwj6hLuOUO
+         S3oLkykCj1pyRjmz5ms+GZ4hPDeTVb7HE2D9ZducxJwlzZnvS4zo52S5VjRIH7wHWc
+         PLPCM1DcXU9HmiBGRC7NqVI3NfenHvoy0MmLS/mTJ9HQ27VL9zMxVp1ro9MRJIyFUu
+         q9NBeb09s9dlw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Baolin Wang <baolin.wang7@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        orsonzhai@gmail.com, zhang.lyra@gmail.com,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 45/56] dmaengine: sprd: Cleanup in .remove() after pm_runtime_get_sync() failed
-Date:   Sun, 14 Aug 2022 11:30:15 -0400
-Message-Id: <20220814153026.2377377-45-sashal@kernel.org>
+Cc:     Lecopzer Chen <lecopzer.chen@mediatek.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        ryabinin.a.a@gmail.com, matthias.bgg@gmail.com, arnd@arndb.de,
+        ardb@kernel.org, rostedt@goodmis.org, nick.hawkins@hpe.com,
+        john@phrozen.org, linux-arm-kernel@lists.infradead.org,
+        kasan-dev@googlegroups.com, linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.18 46/56] ARM: 9202/1: kasan: support CONFIG_KASAN_VMALLOC
+Date:   Sun, 14 Aug 2022 11:30:16 -0400
+Message-Id: <20220814153026.2377377-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153026.2377377-1-sashal@kernel.org>
 References: <20220814153026.2377377-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,45 +61,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Lecopzer Chen <lecopzer.chen@mediatek.com>
 
-[ Upstream commit 1e42f82cbec7b2cc4873751e7791e6611901c5fc ]
+[ Upstream commit 565cbaad83d83e288927b96565211109bc984007 ]
 
-It's not allowed to quit remove early without cleaning up completely.
-Otherwise this results in resource leaks that probably yield graver
-problems later. Here for example some tasklets might survive the lifetime
-of the sprd-dma device and access sdev which is freed after .remove()
-returns.
+Simply make shadow of vmalloc area mapped on demand.
 
-As none of the device freeing requires an active device, just ignore the
-return value of pm_runtime_get_sync().
+Since the virtual address of vmalloc for Arm is also between
+MODULE_VADDR and 0x100000000 (ZONE_HIGHMEM), which means the shadow
+address has already included between KASAN_SHADOW_START and
+KASAN_SHADOW_END.
+Thus we need to change nothing for memory map of Arm.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
-Link: https://lore.kernel.org/r/20220721204054.323602-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+This can fix ARM_MODULE_PLTS with KASan, support KASan for higmem
+and support CONFIG_VMAP_STACK with KASan.
+
+Signed-off-by: Lecopzer Chen <lecopzer.chen@mediatek.com>
+Tested-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sprd-dma.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ arch/arm/Kconfig         | 1 +
+ arch/arm/mm/kasan_init.c | 6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/sprd-dma.c b/drivers/dma/sprd-dma.c
-index 7f158ef5672d..e5c8b274c76a 100644
---- a/drivers/dma/sprd-dma.c
-+++ b/drivers/dma/sprd-dma.c
-@@ -1233,11 +1233,8 @@ static int sprd_dma_remove(struct platform_device *pdev)
- {
- 	struct sprd_dma_dev *sdev = platform_get_drvdata(pdev);
- 	struct sprd_dma_chn *c, *cn;
--	int ret;
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 2e8091e2d8a8..f440cf59cea1 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -75,6 +75,7 @@ config ARM
+ 	select HAVE_ARCH_KFENCE if MMU && !XIP_KERNEL
+ 	select HAVE_ARCH_KGDB if !CPU_ENDIAN_BE32 && MMU
+ 	select HAVE_ARCH_KASAN if MMU && !XIP_KERNEL
++	select HAVE_ARCH_KASAN_VMALLOC if HAVE_ARCH_KASAN
+ 	select HAVE_ARCH_MMAP_RND_BITS if MMU
+ 	select HAVE_ARCH_PFN_VALID
+ 	select HAVE_ARCH_SECCOMP
+diff --git a/arch/arm/mm/kasan_init.c b/arch/arm/mm/kasan_init.c
+index 5ad0d6c56d56..29caee9c79ce 100644
+--- a/arch/arm/mm/kasan_init.c
++++ b/arch/arm/mm/kasan_init.c
+@@ -236,7 +236,11 @@ void __init kasan_init(void)
  
--	ret = pm_runtime_get_sync(&pdev->dev);
--	if (ret < 0)
--		return ret;
-+	pm_runtime_get_sync(&pdev->dev);
+ 	clear_pgds(KASAN_SHADOW_START, KASAN_SHADOW_END);
  
- 	/* explicitly free the irq */
- 	if (sdev->irq > 0)
+-	kasan_populate_early_shadow(kasan_mem_to_shadow((void *)VMALLOC_START),
++	if (!IS_ENABLED(CONFIG_KASAN_VMALLOC))
++		kasan_populate_early_shadow(kasan_mem_to_shadow((void *)VMALLOC_START),
++					    kasan_mem_to_shadow((void *)VMALLOC_END));
++
++	kasan_populate_early_shadow(kasan_mem_to_shadow((void *)VMALLOC_END),
+ 				    kasan_mem_to_shadow((void *)-1UL) + 1);
+ 
+ 	for_each_mem_range(i, &pa_start, &pa_end) {
 -- 
 2.35.1
 
