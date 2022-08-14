@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82D0A59212A
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:34:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 533F1592142
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:35:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240730AbiHNPek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:34:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54414 "EHLO
+        id S240694AbiHNPe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:34:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231252AbiHNPeP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:34:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78EBDDEA4;
-        Sun, 14 Aug 2022 08:30:36 -0700 (PDT)
+        with ESMTP id S240518AbiHNPeV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:34:21 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CDE1DF35;
+        Sun, 14 Aug 2022 08:30:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C16F60C94;
+        by sin.source.kernel.org (Postfix) with ESMTPS id CB044CE0B63;
+        Sun, 14 Aug 2022 15:30:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A5E3C4347C;
         Sun, 14 Aug 2022 15:30:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30774C433D7;
-        Sun, 14 Aug 2022 15:30:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491020;
-        bh=LKYTZ8t1r7PSDOsdZvV9qIXBrHrd4WElWZNqWkPgLvo=;
+        s=k20201202; t=1660491022;
+        bh=oLdac/GYfJCC8DaGqXUjQX2LUFe0uX1PO4NaTektQbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TcqSMF4xMJmMORL/T1tAEOTJgV6NHGVfh3p+K1h3pqfDT20p3eRLx1xHg+x4UdcA3
-         qTv4voMgpzuxDTZjLd54nGt3/W82U/VhO8DbLgGgVI3b0e0rJhUxbiX8hDiv0p4kLC
-         QPbNXLWKC8H4dj0dfTs//7jb5mpXD2NgjM9k/PlZI59zbrFZZlnCQbn0+SsJv5n7hX
-         dC0l6hn4GRPUMvl0EwFIhLVGIly4O+xityX20+t8eZmryKv6yO7pyiWs7arcJuR3RF
-         YRBFGloXwpNPBcpE9p618jjpXUtoBl0rbi2+s62xhuR31VBDK6TmgguWY9TzrqfjsD
-         96vopDRutepAw==
+        b=XVzpOGUQWtXu8pCalKewfQbmAIgKGO1MgmsYTBLv/uS1qq5x/uVTu1iPWxa4QPx26
+         S2089C7HE60WVnNJ8taRX1Gc12sZLt7xwdiLQC2KEbQCDs6sm1PE+tuND0Cz5SyDM9
+         9E5cN46xEF8rJiCpjZyz4CiPfpltHxMVuH3RRPqkubOJUKNznEU4X3I0ehN85YJ56R
+         wxOJIQbYhjI8m6vE8zKza69bx3b3TcFLbt+MG5UAQcUw5BJ+DTBCCsJvS16ivc8MVg
+         lq3Etrkqx8UbnfkwEW7+JBgD/Q+fn3x1wwU2kDARm45CbxgxakT8PrcIqezGWck3Mk
+         B7OB5U6Cbl2XQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wentao_Liang <Wentao_Liang_g@163.com>, Song Liu <song@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 61/64] drivers:md:fix a potential use-after-free bug
-Date:   Sun, 14 Aug 2022 11:24:34 -0400
-Message-Id: <20220814152437.2374207-61-sashal@kernel.org>
+Cc:     Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 62/64] ext4: avoid remove directory when directory is corrupted
+Date:   Sun, 14 Aug 2022 11:24:35 -0400
+Message-Id: <20220814152437.2374207-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814152437.2374207-1-sashal@kernel.org>
 References: <20220814152437.2374207-1-sashal@kernel.org>
@@ -56,42 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wentao_Liang <Wentao_Liang_g@163.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 104212471b1c1817b311771d817fb692af983173 ]
+[ Upstream commit b24e77ef1c6d4dbf42749ad4903c97539cc9755a ]
 
-In line 2884, "raid5_release_stripe(sh);" drops the reference to sh and
-may cause sh to be released. However, sh is subsequently used in lines
-2886 "if (sh->batch_head && sh != sh->batch_head)". This may result in an
-use-after-free bug.
+Now if check directoy entry is corrupted, ext4_empty_dir may return true
+then directory will be removed when file system mounted with "errors=continue".
+In order not to make things worse just return false when directory is corrupted.
 
-It can be fixed by moving "raid5_release_stripe(sh);" to the bottom of
-the function.
-
-Signed-off-by: Wentao_Liang <Wentao_Liang_g@163.com>
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220622090223.682234-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid5.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/namei.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 45482cebacdb..1c1310d539f2 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -2881,10 +2881,10 @@ static void raid5_end_write_request(struct bio *bi)
- 	if (!test_and_clear_bit(R5_DOUBLE_LOCKED, &sh->dev[i].flags))
- 		clear_bit(R5_LOCKED, &sh->dev[i].flags);
- 	set_bit(STRIPE_HANDLE, &sh->state);
--	raid5_release_stripe(sh);
- 
- 	if (sh->batch_head && sh != sh->batch_head)
- 		raid5_release_stripe(sh->batch_head);
-+	raid5_release_stripe(sh);
- }
- 
- static void raid5_error(struct mddev *mddev, struct md_rdev *rdev)
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index db4ba99d1ceb..1c6725ecca1a 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3067,11 +3067,8 @@ bool ext4_empty_dir(struct inode *inode)
+ 		de = (struct ext4_dir_entry_2 *) (bh->b_data +
+ 					(offset & (sb->s_blocksize - 1)));
+ 		if (ext4_check_dir_entry(inode, NULL, de, bh,
+-					 bh->b_data, bh->b_size, offset)) {
+-			offset = (offset | (sb->s_blocksize - 1)) + 1;
+-			continue;
+-		}
+-		if (le32_to_cpu(de->inode)) {
++					 bh->b_data, bh->b_size, offset) ||
++		    le32_to_cpu(de->inode)) {
+ 			brelse(bh);
+ 			return false;
+ 		}
 -- 
 2.35.1
 
