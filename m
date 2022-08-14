@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4EF4592472
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59B2F592479
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242526AbiHNQce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:32:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40060 "EHLO
+        id S242028AbiHNQcT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:32:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242531AbiHNQam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:30:42 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0006F2665;
-        Sun, 14 Aug 2022 09:25:19 -0700 (PDT)
+        with ESMTP id S242541AbiHNQan (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:30:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 235D2BB5;
+        Sun, 14 Aug 2022 09:25:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 49381CE0B12;
-        Sun, 14 Aug 2022 16:25:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3FE1C433C1;
-        Sun, 14 Aug 2022 16:25:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D174560F49;
+        Sun, 14 Aug 2022 16:25:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FC95C433C1;
+        Sun, 14 Aug 2022 16:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494316;
-        bh=V+ENuY92A0wmHDlcl6RZEmcFDNBsdEAFSOMvhdQxeGE=;
+        s=k20201202; t=1660494322;
+        bh=SEqKIRRUltMc9e+YLD5+fG86Hjx732TT2HrJsTk1a70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8Z13GEKfe8Su1oM6tB4RZMeOLqCS0sYgQaAI5Ml77VQSMtv/mmiei+bd3oCPpt7A
-         2HVX0xgR59nYIoOemteNFul8J0Sx3ELUgXtB3di93zTGJ7apbKmwtllKCYn7DXUpbD
-         nGrWKljroiu2Q8FCviZyaL9aFIGVM7GXRUat2lzTWsyT8sxo+9CY1geJI1w+h8hp8T
-         3dyjwQELH3LBKqAUsOVoPfBm5xFPA76ZA+qlkry6K8QBn9LaOg0UqQHjWQ9msxtV0j
-         pULlhCAYLEPOW9/z+pcBPt2f0UVpjjAXj9bqpVK2wOrnylfyFSsImeeUCcWauT2vgo
-         09Q1tT5VzCfLg==
+        b=dr/QUIRofdr9+rtz67N/b583fB82U2N3jjOKV/N/O1jwPXjHqsVYedgfkPSsdB/3t
+         lDyHTQzMfLOIMXyu2bEfnY4cUxVCTijOnR3283YUzX7uuB5vFcOlOV4HP67OLvEnYE
+         dgS1uZpKQbIZcnGDyXl3SMRBPcmIdyb0qyCfY2blvN1eaoXB4zDRCqF69ImqfU0ter
+         cKzOfe6gnFh8d8J786P9mPFQ3MoRFgXxjXmMhtzxVmh32RbXkqQPb2fE2p/7A1iPAF
+         neFsJlKDW9OCwbQwzvCRc8Nlhf1/HC97zgJ61B2Fk9TXG1GHubTJ+E+HOIoTzR7Jqo
+         d5Tkzm45ttKHg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laurent Dufour <ldufour@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Maxime Bizon <mbizon@freebox.fr>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, corbet@lwn.net,
-        akpm@linux-foundation.org, Jason@zx2c4.com, feng.tang@intel.com,
-        ying.huang@intel.com, gpiccoli@igalia.com,
-        mchehab+huawei@kernel.org, robh@kernel.org, jsavitz@redhat.com,
-        nathanl@linux.ibm.com, haren@linux.ibm.com,
-        linux-doc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.18 23/39] powerpc/pseries/mobility: set NMI watchdog factor during an LPM
-Date:   Sun, 14 Aug 2022 12:23:12 -0400
-Message-Id: <20220814162332.2396012-23-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, nick.child@ibm.com,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.18 24/39] powerpc/32: Set an IBAT covering up to _einittext during init
+Date:   Sun, 14 Aug 2022 12:23:13 -0400
+Message-Id: <20220814162332.2396012-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814162332.2396012-1-sashal@kernel.org>
 References: <20220814162332.2396012-1-sashal@kernel.org>
@@ -62,139 +58,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Dufour <ldufour@linux.ibm.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 118b1366930c8c833b8b36abef657f40d4e26610 ]
+[ Upstream commit 2a0fb3c155c97c75176e557d61f8e66c1bd9b735 ]
 
-During an LPM, while the memory transfer is in progress on the arrival
-side, some latencies are generated when accessing not yet transferred
-pages on the arrival side. Thus, the NMI watchdog may be triggered too
-frequently, which increases the risk to hit an NMI interrupt in a bad
-place in the kernel, leading to a kernel panic.
+Always set an IBAT covering up to _einittext during init because when
+CONFIG_MODULES is not selected there is no reason to have an exception
+handler for kernel instruction TLB misses.
 
-Disabling the Hard Lockup Watchdog until the memory transfer could be a
-too strong work around, some users would want this timeout to be
-eventually triggered if the system is hanging even during an LPM.
+It implies DBAT and IBAT are now totaly independent, IBATs are set
+by setibat() and DBAT by setbat().
 
-Introduce a new sysctl variable nmi_watchdog_factor. It allows to apply
-a factor to the NMI watchdog timeout during an LPM. Just before the CPUs
-are stopped for the switchover sequence, the NMI watchdog timer is set
-to watchdog_thresh + factor%
+This allows to revert commit 9bb162fa26ed ("powerpc/603: Fix
+boot failure with DEBUG_PAGEALLOC and KFENCE")
 
-A value of 0 has no effect. The default value is 200, meaning that the
-NMI watchdog is set to 30s during LPM (based on a 10s watchdog_thresh
-value). Once the memory transfer is achieved, the factor is reset to 0.
-
-Setting this value to a high number is like disabling the NMI watchdog
-during an LPM.
-
-Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Reported-by: Maxime Bizon <mbizon@freebox.fr>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220713154729.80789-5-ldufour@linux.ibm.com
+Link: https://lore.kernel.org/r/ce7f04a39593934d9b1ee68c69144ccd3d4da4a1.1655202804.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/sysctl/kernel.rst | 12 ++++++
- arch/powerpc/platforms/pseries/mobility.c   | 43 +++++++++++++++++++++
- 2 files changed, 55 insertions(+)
+ arch/powerpc/kernel/head_book3s_32.S |  4 ++--
+ arch/powerpc/mm/book3s32/mmu.c       | 10 ++++------
+ 2 files changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/admin-guide/sysctl/kernel.rst
-index e9c18dabc552..fc9e6565ced0 100644
---- a/Documentation/admin-guide/sysctl/kernel.rst
-+++ b/Documentation/admin-guide/sysctl/kernel.rst
-@@ -592,6 +592,18 @@ to the guest kernel command line (see
- Documentation/admin-guide/kernel-parameters.rst).
- 
- 
-+nmi_wd_lpm_factor (PPC only)
-+============================
-+
-+Factor to apply to the NMI watchdog timeout (only when ``nmi_watchdog`` is
-+set to 1). This factor represents the percentage added to
-+``watchdog_thresh`` when calculating the NMI watchdog timeout during an
-+LPM. The soft lockup timeout is not impacted.
-+
-+A value of 0 means no change. The default value is 200 meaning the NMI
-+watchdog is set to 30s (based on ``watchdog_thresh`` equal to 10).
-+
-+
- numa_balancing
- ==============
- 
-diff --git a/arch/powerpc/platforms/pseries/mobility.c b/arch/powerpc/platforms/pseries/mobility.c
-index 78f3f74c7056..cbe0989239bf 100644
---- a/arch/powerpc/platforms/pseries/mobility.c
-+++ b/arch/powerpc/platforms/pseries/mobility.c
-@@ -48,6 +48,39 @@ struct update_props_workarea {
- #define MIGRATION_SCOPE	(1)
- #define PRRN_SCOPE -2
- 
-+#ifdef CONFIG_PPC_WATCHDOG
-+static unsigned int nmi_wd_lpm_factor = 200;
-+
-+#ifdef CONFIG_SYSCTL
-+static struct ctl_table nmi_wd_lpm_factor_ctl_table[] = {
-+	{
-+		.procname	= "nmi_wd_lpm_factor",
-+		.data		= &nmi_wd_lpm_factor,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_douintvec_minmax,
-+	},
-+	{}
-+};
-+static struct ctl_table nmi_wd_lpm_factor_sysctl_root[] = {
-+	{
-+		.procname       = "kernel",
-+		.mode           = 0555,
-+		.child          = nmi_wd_lpm_factor_ctl_table,
-+	},
-+	{}
-+};
-+
-+static int __init register_nmi_wd_lpm_factor_sysctl(void)
-+{
-+	register_sysctl_table(nmi_wd_lpm_factor_sysctl_root);
-+
-+	return 0;
-+}
-+device_initcall(register_nmi_wd_lpm_factor_sysctl);
-+#endif /* CONFIG_SYSCTL */
-+#endif /* CONFIG_PPC_WATCHDOG */
-+
- static int mobility_rtas_call(int token, char *buf, s32 scope)
+diff --git a/arch/powerpc/kernel/head_book3s_32.S b/arch/powerpc/kernel/head_book3s_32.S
+index 6c739beb938c..519b60695167 100644
+--- a/arch/powerpc/kernel/head_book3s_32.S
++++ b/arch/powerpc/kernel/head_book3s_32.S
+@@ -418,14 +418,14 @@ InstructionTLBMiss:
+  */
+ 	/* Get PTE (linux-style) and check access */
+ 	mfspr	r3,SPRN_IMISS
+-#if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_KFENCE)
++#ifdef CONFIG_MODULES
+ 	lis	r1, TASK_SIZE@h		/* check if kernel address */
+ 	cmplw	0,r1,r3
+ #endif
+ 	mfspr	r2, SPRN_SDR1
+ 	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC | _PAGE_USER
+ 	rlwinm	r2, r2, 28, 0xfffff000
+-#if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_KFENCE)
++#ifdef CONFIG_MODULES
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+ 	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
+diff --git a/arch/powerpc/mm/book3s32/mmu.c b/arch/powerpc/mm/book3s32/mmu.c
+index 203735caf691..bfca0afe9112 100644
+--- a/arch/powerpc/mm/book3s32/mmu.c
++++ b/arch/powerpc/mm/book3s32/mmu.c
+@@ -160,7 +160,10 @@ unsigned long __init mmu_mapin_ram(unsigned long base, unsigned long top)
  {
- 	int rc;
-@@ -665,19 +698,29 @@ static int pseries_suspend(u64 handle)
- static int pseries_migrate_partition(u64 handle)
- {
- 	int ret;
-+	unsigned int factor = 0;
+ 	unsigned long done;
+ 	unsigned long border = (unsigned long)__init_begin - PAGE_OFFSET;
++	unsigned long size;
  
-+#ifdef CONFIG_PPC_WATCHDOG
-+	factor = nmi_wd_lpm_factor;
-+#endif
- 	ret = wait_for_vasi_session_suspending(handle);
- 	if (ret)
- 		return ret;
++	size = roundup_pow_of_two((unsigned long)_einittext - PAGE_OFFSET);
++	setibat(0, PAGE_OFFSET, 0, size, PAGE_KERNEL_X);
  
- 	vas_migration_handler(VAS_SUSPEND);
+ 	if (debug_pagealloc_enabled_or_kfence() || __map_without_bats) {
+ 		pr_debug_once("Read-Write memory mapped without BATs\n");
+@@ -246,10 +249,9 @@ void mmu_mark_rodata_ro(void)
+ }
  
-+	if (factor)
-+		watchdog_nmi_set_timeout_pct(factor);
-+
- 	ret = pseries_suspend(handle);
- 	if (ret == 0)
- 		post_mobility_fixup();
- 	else
- 		pseries_cancel_migration(handle, ret);
+ /*
+- * Set up one of the I/D BAT (block address translation) register pairs.
++ * Set up one of the D BAT (block address translation) register pairs.
+  * The parameters are not checked; in particular size must be a power
+  * of 2 between 128k and 256M.
+- * On 603+, only set IBAT when _PAGE_EXEC is set
+  */
+ void __init setbat(int index, unsigned long virt, phys_addr_t phys,
+ 		   unsigned int size, pgprot_t prot)
+@@ -285,10 +287,6 @@ void __init setbat(int index, unsigned long virt, phys_addr_t phys,
+ 		/* G bit must be zero in IBATs */
+ 		flags &= ~_PAGE_EXEC;
+ 	}
+-	if (flags & _PAGE_EXEC)
+-		bat[0] = bat[1];
+-	else
+-		bat[0].batu = bat[0].batl = 0;
  
-+	if (factor)
-+		watchdog_nmi_set_timeout_pct(0);
-+
- 	vas_migration_handler(VAS_RESUME);
- 
- 	return ret;
+ 	bat_addrs[index].start = virt;
+ 	bat_addrs[index].limit = virt + ((bl + 1) << 17) - 1;
 -- 
 2.35.1
 
