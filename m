@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B17E6592461
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D698D592497
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242513AbiHNQcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:32:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45848 "EHLO
+        id S241765AbiHNQcj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:32:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242616AbiHNQaz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:30:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0306F5FD3;
-        Sun, 14 Aug 2022 09:25:40 -0700 (PDT)
+        with ESMTP id S242708AbiHNQbK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:31:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C987463E9;
+        Sun, 14 Aug 2022 09:25:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9478F60F98;
-        Sun, 14 Aug 2022 16:25:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB989C433D7;
-        Sun, 14 Aug 2022 16:25:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFF99B80B3F;
+        Sun, 14 Aug 2022 16:25:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 561D6C433C1;
+        Sun, 14 Aug 2022 16:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494339;
-        bh=dJICxAXUVqoAvRcs1iEYL7jr+zKhXIpbPrZJ96/wyv0=;
+        s=k20201202; t=1660494346;
+        bh=BWjidRQ+edWUR4aH7drez7StIMEyzcJyA/RtL4QAKXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qk8EdI1AOrLtxaDo3pWGSz8LeHoZVFs9Ea43DsNPjX5uus/+8C2sMINaIwprF7GVK
-         2LNNCsVI3ktVvXZYLQq7hOf8m8HZvfCcIvTXIoiGONuGoaaP2x08xBMk3A4yw8tH7T
-         30ekWXIt83UsR9XekoEw2Zw69/mb8T49K2iJidLXzCfnkm++U/cO3TiMJ1OCwOH+DW
-         Lc3nZ5pAg52D4jEzoB/hZa+W8lQAa8HXVb4Z2yf2H0S7+Rzd0c4aQukpD4BQqVNhXO
-         hWUbpyC+odRVY5lxo/fuCN90PrSuceqMhaDxyh7wz5vKsojW/Vepr8J+H2gPQved1C
-         3omyI4kbec/RA==
+        b=pgkkyq09Ie6tvmlEzRQEFb1BwFmzKj5SA2kczGZpb1EqJ5k49iK4xo/y2/fMU7SC2
+         12xzVn7ms6wJU8p8RxOj8pFQdR8vv5oxu3J7IgjCgszfRx3UEA17uugICGkThexPRd
+         1bZQ+SI2Ipe6nYg+xuLAe6j3nIgp2geG3GXyWKLhE/nTbDZI1fbFxJHga3mayDKRht
+         ZCVEKSCBj8rghkAMOMAjruEOe38ab+OGQ09Ec/YkVwUBT43xky9CFSORHFaUBqm0sN
+         jmHHBPz/ggWMYuVxHjp0qAztLaDHK9pPSuy56Z+8dxnjKgScx/s6MBP0fv1483VHKZ
+         jY147hY2e6C3w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Takashi Iwai <tiwai@suse.de>,
-        syzbot+1ee0910eca9c94f71f25@syzkaller.appspotmail.com,
-        syzbot+49b10793b867871ee26f@syzkaller.appspotmail.com,
         syzbot+8285e973a41b5aa68902@syzkaller.appspotmail.com,
+        syzbot+669c9abf11a6a011dd09@syzkaller.appspotmail.com,
         Sasha Levin <sashal@kernel.org>, perex@perex.cz,
-        tiwai@suse.com, wangwensheng4@huawei.com,
+        tiwai@suse.com, ranjani.sridharan@linux.intel.com,
+        pierre-louis.bossart@linux.intel.com, broonie@kernel.org,
+        kai.vehmanen@linux.intel.com, zsm@chromium.org,
         alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.18 30/39] ALSA: timer: Use deferred fasync helper
-Date:   Sun, 14 Aug 2022 12:23:19 -0400
-Message-Id: <20220814162332.2396012-30-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 31/39] ALSA: pcm: Use deferred fasync helper
+Date:   Sun, 14 Aug 2022 12:23:20 -0400
+Message-Id: <20220814162332.2396012-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814162332.2396012-1-sashal@kernel.org>
 References: <20220814162332.2396012-1-sashal@kernel.org>
@@ -62,79 +63,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 95cc637c1afd83fb7dd3d7c8a53710488f4caf9c ]
+[ Upstream commit 96b097091c66df4f6fbf5cbff21df6cc02a2f055 ]
 
 For avoiding the potential deadlock via kill_fasync() call, use the
-new fasync helpers to defer the invocation from PCI API.  Note that
+new fasync helpers to defer the invocation from timer API.  Note that
 it's merely a workaround.
 
-Reported-by: syzbot+1ee0910eca9c94f71f25@syzkaller.appspotmail.com
-Reported-by: syzbot+49b10793b867871ee26f@syzkaller.appspotmail.com
 Reported-by: syzbot+8285e973a41b5aa68902@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20220728125945.29533-3-tiwai@suse.de
+Reported-by: syzbot+669c9abf11a6a011dd09@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20220728125945.29533-4-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/timer.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ include/sound/pcm.h     | 2 +-
+ sound/core/pcm.c        | 1 +
+ sound/core/pcm_lib.c    | 2 +-
+ sound/core/pcm_native.c | 2 +-
+ 4 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/sound/core/timer.c b/sound/core/timer.c
-index b3214baa8919..e08a37c23add 100644
---- a/sound/core/timer.c
-+++ b/sound/core/timer.c
-@@ -83,7 +83,7 @@ struct snd_timer_user {
- 	unsigned int filter;
- 	struct timespec64 tstamp;		/* trigger tstamp */
- 	wait_queue_head_t qchange_sleep;
+diff --git a/include/sound/pcm.h b/include/sound/pcm.h
+index 6b99310b5b88..6987110843f0 100644
+--- a/include/sound/pcm.h
++++ b/include/sound/pcm.h
+@@ -399,7 +399,7 @@ struct snd_pcm_runtime {
+ 	snd_pcm_uframes_t twake; 	/* do transfer (!poll) wakeup if non-zero */
+ 	wait_queue_head_t sleep;	/* poll sleep */
+ 	wait_queue_head_t tsleep;	/* transfer sleep */
 -	struct fasync_struct *fasync;
 +	struct snd_fasync *fasync;
- 	struct mutex ioctl_lock;
- };
- 
-@@ -1345,7 +1345,7 @@ static void snd_timer_user_interrupt(struct snd_timer_instance *timeri,
+ 	bool stop_operating;		/* sync_stop will be called */
+ 	struct mutex buffer_mutex;	/* protect for buffer changes */
+ 	atomic_t buffer_accessing;	/* >0: in r/w operation, <0: blocked */
+diff --git a/sound/core/pcm.c b/sound/core/pcm.c
+index 977d54320a5c..c917ac84a7e5 100644
+--- a/sound/core/pcm.c
++++ b/sound/core/pcm.c
+@@ -1005,6 +1005,7 @@ void snd_pcm_detach_substream(struct snd_pcm_substream *substream)
+ 		substream->runtime = NULL;
  	}
-       __wake:
- 	spin_unlock(&tu->qlock);
--	kill_fasync(&tu->fasync, SIGIO, POLL_IN);
-+	snd_kill_fasync(tu->fasync, SIGIO, POLL_IN);
- 	wake_up(&tu->qchange_sleep);
+ 	mutex_destroy(&runtime->buffer_mutex);
++	snd_fasync_free(runtime->fasync);
+ 	kfree(runtime);
+ 	put_pid(substream->pid);
+ 	substream->pid = NULL;
+diff --git a/sound/core/pcm_lib.c b/sound/core/pcm_lib.c
+index 1fc7c50ffa62..40751e5aff09 100644
+--- a/sound/core/pcm_lib.c
++++ b/sound/core/pcm_lib.c
+@@ -1822,7 +1822,7 @@ void snd_pcm_period_elapsed_under_stream_lock(struct snd_pcm_substream *substrea
+ 		snd_timer_interrupt(substream->timer, 1);
+ #endif
+  _end:
+-	kill_fasync(&runtime->fasync, SIGIO, POLL_IN);
++	snd_kill_fasync(runtime->fasync, SIGIO, POLL_IN);
+ }
+ EXPORT_SYMBOL(snd_pcm_period_elapsed_under_stream_lock);
+ 
+diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
+index 4adaee62ef33..16fcf57c6f03 100644
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -3945,7 +3945,7 @@ static int snd_pcm_fasync(int fd, struct file * file, int on)
+ 	runtime = substream->runtime;
+ 	if (runtime->status->state == SNDRV_PCM_STATE_DISCONNECTED)
+ 		return -EBADFD;
+-	return fasync_helper(fd, file, on, &runtime->fasync);
++	return snd_fasync_helper(fd, file, on, &runtime->fasync);
  }
  
-@@ -1383,7 +1383,7 @@ static void snd_timer_user_ccallback(struct snd_timer_instance *timeri,
- 	spin_lock_irqsave(&tu->qlock, flags);
- 	snd_timer_user_append_to_tqueue(tu, &r1);
- 	spin_unlock_irqrestore(&tu->qlock, flags);
--	kill_fasync(&tu->fasync, SIGIO, POLL_IN);
-+	snd_kill_fasync(tu->fasync, SIGIO, POLL_IN);
- 	wake_up(&tu->qchange_sleep);
- }
- 
-@@ -1453,7 +1453,7 @@ static void snd_timer_user_tinterrupt(struct snd_timer_instance *timeri,
- 	spin_unlock(&tu->qlock);
- 	if (append == 0)
- 		return;
--	kill_fasync(&tu->fasync, SIGIO, POLL_IN);
-+	snd_kill_fasync(tu->fasync, SIGIO, POLL_IN);
- 	wake_up(&tu->qchange_sleep);
- }
- 
-@@ -1521,6 +1521,7 @@ static int snd_timer_user_release(struct inode *inode, struct file *file)
- 			snd_timer_instance_free(tu->timeri);
- 		}
- 		mutex_unlock(&tu->ioctl_lock);
-+		snd_fasync_free(tu->fasync);
- 		kfree(tu->queue);
- 		kfree(tu->tqueue);
- 		kfree(tu);
-@@ -2135,7 +2136,7 @@ static int snd_timer_user_fasync(int fd, struct file * file, int on)
- 	struct snd_timer_user *tu;
- 
- 	tu = file->private_data;
--	return fasync_helper(fd, file, on, &tu->fasync);
-+	return snd_fasync_helper(fd, file, on, &tu->fasync);
- }
- 
- static ssize_t snd_timer_user_read(struct file *file, char __user *buffer,
+ /*
 -- 
 2.35.1
 
