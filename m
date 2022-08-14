@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B112592080
+	by mail.lfdr.de (Postfix) with ESMTP id 11EE259207F
 	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239819AbiHNP1p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:27:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36992 "EHLO
+        id S239918AbiHNP1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:27:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239463AbiHNP1f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:27:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0587BB1C6;
-        Sun, 14 Aug 2022 08:27:34 -0700 (PDT)
+        with ESMTP id S239624AbiHNP1h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:27:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95EF0AE62;
+        Sun, 14 Aug 2022 08:27:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 985F4B80B48;
-        Sun, 14 Aug 2022 15:27:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 769AAC433D6;
-        Sun, 14 Aug 2022 15:27:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A1E6B80B27;
+        Sun, 14 Aug 2022 15:27:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4449C433C1;
+        Sun, 14 Aug 2022 15:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660490851;
-        bh=cxkevsUwWhkQZ7oBs9OqhVFejVOhwqYVJhnKPFLumOo=;
+        s=k20201202; t=1660490852;
+        bh=5GyLM1CyVv10Ove+YIIf3oMlmnKfA55OKySxx0jDfxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mtd+CwmA2zZSbvtDREtJWA1c6MLDBOUstxhSzhKGjXPea14JpIk+nT791UGpEuMQU
-         113/YMWfLa+rTtR3p+kH+ZFSrTN5gt73Vetzhm6+NgXQFQ4maVjl1zvRKUk15AV2L3
-         XJTHMCGIatrmFYoIk3aOP9bxehEhn53L5Ym1KVBmNT+ze8K/fy0rPp+w565kxTM1IF
-         +WaDaNGb9hobM1znm14K6wZtVQ1XUbh8pA4+WGli1TEh8S9OgCnr0jQcMA6MvaOOHr
-         EU0b67vEeV5t0hrLDSy35CsNXshxMwiIMgzw0s1FCDk7y5XBlXELLPNQgiRDWqafSE
-         19qqM+TZhBxuQ==
+        b=A67viJI2thCRSB5Fr624goC6G8U1y/41RffDWMv3el7/1F5562HU7+47a5YiiP9Ot
+         TysGLZucmttPDDe19UCllhJRbGjjdO+lTNKqdr/axnMHyP1s9OpcWvPpF3u0iriyrQ
+         uiLjl49XE4bTjfYG1at4sIHhvbZuB4+4B9QcN53jzRhvZGyuywshhbVWGoOSR3oiMy
+         zlrcu5+0RPdHL5glYp30e1m95EwxtmV+Vfc2BvC0W2q9kqaGyTV7Fy0mGwObry0X1v
+         cNMHHoajVxJQOIbWVerTbdoquP7uleM1qwZEF+VVtbbB5ia36TLPHB85Toy00u2UOp
+         xZ436PF4wxogA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, balbi@kernel.org,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 11/64] usb: gadget: uvc: call uvc uvcg_warn on completed status instead of uvcg_info
-Date:   Sun, 14 Aug 2022 11:23:44 -0400
-Message-Id: <20220814152437.2374207-11-sashal@kernel.org>
+Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, thomas.petazzoni@bootlin.com,
+        lpieralisi@kernel.org, linux-pci@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.19 12/64] PCI: aardvark: Fix reporting Slot capabilities on emulated bridge
+Date:   Sun, 14 Aug 2022 11:23:45 -0400
+Message-Id: <20220814152437.2374207-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814152437.2374207-1-sashal@kernel.org>
 References: <20220814152437.2374207-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,36 +60,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit a725d0f6dfc5d3739d6499f30ec865305ba3544d ]
+[ Upstream commit bcdb6fd4f3e9ac1097698c8d8f56b70853b49873 ]
 
-Likewise to the uvcvideo hostside driver, this patch is changing the
-usb_request message of an non zero completion handler call from dev_info
-to dev_warn.
+Slot capabilities are currently not reported because emulated bridge does
+not report the PCI_EXP_FLAGS_SLOT flag.
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Link: https://lore.kernel.org/r/20220529223848.105914-4-m.grzeschik@pengutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Set PCI_EXP_FLAGS_SLOT to let the kernel know that PCI_EXP_SLT* registers
+are supported.
+
+Move setting of PCI_EXP_SLTCTL register from "dynamic" pcie_conf_read
+function to static buffer as it is only statically filled the
+PCI_EXP_SLTSTA_PDS flag and dynamic read callback is not needed for this
+register.
+
+Set Presence State Bit to 1 since there is no support for unplugging the
+card and there is currently no platform able to detect presence of a card -
+in such a case the bit needs to be set to 1.
+
+Finally correctly set Physical Slot Number to 1 since there is only one
+port and zero value is reserved for ports within the same silicon as Root
+Port which is not our case for Aardvark HW.
+
+Link: https://lore.kernel.org/r/20220524132827.8837-3-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/uvc_video.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c | 33 +++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-index d42bb3346745..e0f381ce7e77 100644
---- a/drivers/usb/gadget/function/uvc_video.c
-+++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -261,7 +261,7 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
- 		break;
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index ffec82c8a523..62db476a8651 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -8,6 +8,7 @@
+  * Author: Hezi Shahmoon <hezi.shahmoon@marvell.com>
+  */
  
- 	default:
--		uvcg_info(&video->uvc->func,
-+		uvcg_warn(&video->uvc->func,
- 			  "VS request completed with status %d.\n",
- 			  req->status);
- 		uvcg_queue_cancel(queue, 0);
++#include <linux/bitfield.h>
+ #include <linux/delay.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/interrupt.h>
+@@ -857,14 +858,11 @@ advk_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
+ 
+ 
+ 	switch (reg) {
+-	case PCI_EXP_SLTCTL:
+-		*value = PCI_EXP_SLTSTA_PDS << 16;
+-		return PCI_BRIDGE_EMUL_HANDLED;
+-
+ 	/*
+-	 * PCI_EXP_RTCTL and PCI_EXP_RTSTA are also supported, but do not need
+-	 * to be handled here, because their values are stored in emulated
+-	 * config space buffer, and we read them from there when needed.
++	 * PCI_EXP_SLTCAP, PCI_EXP_SLTCTL, PCI_EXP_RTCTL and PCI_EXP_RTSTA are
++	 * also supported, but do not need to be handled here, because their
++	 * values are stored in emulated config space buffer, and we read them
++	 * from there when needed.
+ 	 */
+ 
+ 	case PCI_EXP_LNKCAP: {
+@@ -977,8 +975,25 @@ static int advk_sw_pci_bridge_init(struct advk_pcie *pcie)
+ 	/* Support interrupt A for MSI feature */
+ 	bridge->conf.intpin = PCI_INTERRUPT_INTA;
+ 
+-	/* Aardvark HW provides PCIe Capability structure in version 2 */
+-	bridge->pcie_conf.cap = cpu_to_le16(2);
++	/*
++	 * Aardvark HW provides PCIe Capability structure in version 2 and
++	 * indicate slot support, which is emulated.
++	 */
++	bridge->pcie_conf.cap = cpu_to_le16(2 | PCI_EXP_FLAGS_SLOT);
++
++	/*
++	 * Set Presence Detect State bit permanently since there is no support
++	 * for unplugging the card nor detecting whether it is plugged. (If a
++	 * platform exists in the future that supports it, via a GPIO for
++	 * example, it should be implemented via this bit.)
++	 *
++	 * Set physical slot number to 1 since there is only one port and zero
++	 * value is reserved for ports within the same silicon as Root Port
++	 * which is not our case.
++	 */
++	bridge->pcie_conf.slotcap = cpu_to_le32(FIELD_PREP(PCI_EXP_SLTCAP_PSN,
++							   1));
++	bridge->pcie_conf.slotsta = cpu_to_le16(PCI_EXP_SLTSTA_PDS);
+ 
+ 	/* Indicates supports for Completion Retry Status */
+ 	bridge->pcie_conf.rootcap = cpu_to_le16(PCI_EXP_RTCAP_CRSVIS);
 -- 
 2.35.1
 
