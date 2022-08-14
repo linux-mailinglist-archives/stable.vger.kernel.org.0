@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 927D8592445
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:30:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA7D9592456
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:32:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241751AbiHNQaB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:30:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42588 "EHLO
+        id S242511AbiHNQa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:30:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242419AbiHNQ3h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:29:37 -0400
+        with ESMTP id S241869AbiHNQ3u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:29:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58EFD1EEF3;
-        Sun, 14 Aug 2022 09:24:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D17CD20BD7;
+        Sun, 14 Aug 2022 09:24:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC29660F76;
-        Sun, 14 Aug 2022 16:24:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DD64C433D6;
-        Sun, 14 Aug 2022 16:24:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 210FA60F76;
+        Sun, 14 Aug 2022 16:24:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2C1FC433D7;
+        Sun, 14 Aug 2022 16:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494266;
-        bh=bfcOz9zsKVPqIE/edsGfGC3+4XG2YhdpQJo5xjBlGBI=;
+        s=k20201202; t=1660494277;
+        bh=5l5V9Grk51FTQ9f0kCCkBO1vSt+OBwU5YNq0pBwO10w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OCezi9lbLAOpFOAW9wMS+e+EX7CMW1olijK0e9zOzu6t/wd+qjVBc9Cpv+FySpM5N
-         +x7EDdpeAXT+nnd/mvxsS9msKXsTASysIbfcFEjk21/APJ++8c6VnScaNfIyWXI707
-         ZslNWpJhLdsq/jEW4gIEjRfGaUHucD9qlmbvoJdRdUuAjlfOVHqWasmQV3F7tYMOkm
-         OzokI/4oEdvEXitx28eXzuWSYWjXOZoLmFDUFUBLavdF+yZj5pRgLeWIr3FxmJZpvq
-         hSA/bGohoya0EEEn+lAb0LROVzYaH9RoB+UIlikrwFwsGgL1jgfdDE2p/muSSwk3iM
-         qVUMR1rOV6FSQ==
+        b=fclcJGxFAPtSRZ9CmYIMLMjvmTzv+mR1eXDTs150BpLCleyvVAUAe7sFgJRlFG+6s
+         /yC2buZfWYy5M9uuI1/bvVImDQ70wJPYL1GJIFsBm6HZp0Z96MspY2TwHXCaL07aXf
+         UixblrjoV9n3PNUYeNM/sdK99jsy5//GJip1NjKqI5JVxJ0hcqG/bE2q+dBCddueu0
+         6PdhahiOZBllJRoNNzyDdh/+E6PWe+xIW/eo0bvEiX3R9yIUcPxgNhfrDA0LUzfRhH
+         UUBSFqrFd55d+LSRZhoQabo4hEpq6tZLcp+cjaHiv/MtfWggXJYAOjh7t/YW0StMnj
+         Bw2vw14Nqd/tQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
+Cc:     Andrey Turkin <andrey.turkin@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        peter.ujfalusi@linux.intel.com, daniel.baluta@nxp.com,
-        perex@perex.cz, tiwai@suse.com, kai.vehmanen@linux.intel.com,
-        guennadi.liakhovetski@linux.intel.com,
-        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.18 17/39] ASoC: SOF: Intel: hda: add sanity check on SSP index reported by NHLT
-Date:   Sun, 14 Aug 2022 12:23:06 -0400
-Message-Id: <20220814162332.2396012-17-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
+        liam.r.girdwood@linux.intel.com, peter.ujfalusi@linux.intel.com,
+        yung-chuan.liao@linux.intel.com, ranjani.sridharan@linux.intel.com,
+        kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
+        mchehab@kernel.org, akihiko.odaki@gmail.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.18 18/39] ASoC: Intel: sof_es8336: Fix GPIO quirks set via module option
+Date:   Sun, 14 Aug 2022 12:23:07 -0400
+Message-Id: <20220814162332.2396012-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814162332.2396012-1-sashal@kernel.org>
 References: <20220814162332.2396012-1-sashal@kernel.org>
@@ -62,48 +63,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Andrey Turkin <andrey.turkin@gmail.com>
 
-[ Upstream commit e51699505042fb365df3a0ce68b850ccd9ad0108 ]
+[ Upstream commit 5e60f1cfb830342304200437121f440b72b54f54 ]
 
-We should have a limited trust in the BIOS and verify that the SSP
-index reported in NHLT is valid for each platform.
+The two GPIO quirk bits only affected actual GPIO selection
+when set by the quirks table. They were reported as being
+in effect when set via module options but actually did nothing.
 
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Andrey Turkin <andrey.turkin@gmail.com>
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220725195343.145603-2-pierre-louis.bossart@linux.intel.com
+Link: https://lore.kernel.org/r/20220725194909.145418-4-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/soc/intel/boards/sof_es8336.c | 23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
-index 9c97c80a7f48..b688caa34774 100644
---- a/sound/soc/sof/intel/hda.c
-+++ b/sound/soc/sof/intel/hda.c
-@@ -1375,6 +1375,7 @@ struct snd_soc_acpi_mach *hda_machine_select(struct snd_sof_dev *sdev)
+diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
+index 9d617831dd20..81e12f03ec97 100644
+--- a/sound/soc/intel/boards/sof_es8336.c
++++ b/sound/soc/intel/boards/sof_es8336.c
+@@ -77,8 +77,6 @@ static const struct acpi_gpio_mapping acpi_enable_both_gpios_rev_order[] = {
+ 	{ }
+ };
  
- 		if (mach->tplg_quirk_mask & SND_SOC_ACPI_TPLG_INTEL_SSP_NUMBER &&
- 		    mach->mach_params.i2s_link_mask) {
-+			const struct sof_intel_dsp_desc *chip = get_chip_info(sdev->pdata);
- 			int ssp_num;
+-static const struct acpi_gpio_mapping *gpio_mapping = acpi_speakers_enable_gpio0;
+-
+ static void log_quirks(struct device *dev)
+ {
+ 	dev_info(dev, "quirk mask %#lx\n", quirk);
+@@ -272,15 +270,6 @@ static int sof_es8336_quirk_cb(const struct dmi_system_id *id)
+ {
+ 	quirk = (unsigned long)id->driver_data;
  
- 			if (hweight_long(mach->mach_params.i2s_link_mask) > 1 &&
-@@ -1384,6 +1385,12 @@ struct snd_soc_acpi_mach *hda_machine_select(struct snd_sof_dev *sdev)
- 			/* fls returns 1-based results, SSPs indices are 0-based */
- 			ssp_num = fls(mach->mach_params.i2s_link_mask) - 1;
+-	if (quirk & SOF_ES8336_HEADPHONE_GPIO) {
+-		if (quirk & SOF_ES8336_SPEAKERS_EN_GPIO1_QUIRK)
+-			gpio_mapping = acpi_enable_both_gpios;
+-		else
+-			gpio_mapping = acpi_enable_both_gpios_rev_order;
+-	} else if (quirk & SOF_ES8336_SPEAKERS_EN_GPIO1_QUIRK) {
+-		gpio_mapping = acpi_speakers_enable_gpio1;
+-	}
+-
+ 	return 1;
+ }
  
-+			if (ssp_num >= chip->ssp_count) {
-+				dev_err(sdev->dev, "Invalid SSP %d, max on this platform is %d\n",
-+					ssp_num, chip->ssp_count);
-+				return NULL;
-+			}
+@@ -529,6 +518,7 @@ static int sof_es8336_probe(struct platform_device *pdev)
+ 	struct acpi_device *adev;
+ 	struct snd_soc_dai_link *dai_links;
+ 	struct device *codec_dev;
++	const struct acpi_gpio_mapping *gpio_mapping;
+ 	unsigned int cnt = 0;
+ 	int dmic_be_num = 0;
+ 	int hdmi_num = 3;
+@@ -635,6 +625,17 @@ static int sof_es8336_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* get speaker enable GPIO */
++	if (quirk & SOF_ES8336_HEADPHONE_GPIO) {
++		if (quirk & SOF_ES8336_SPEAKERS_EN_GPIO1_QUIRK)
++			gpio_mapping = acpi_enable_both_gpios;
++		else
++			gpio_mapping = acpi_enable_both_gpios_rev_order;
++	} else if (quirk & SOF_ES8336_SPEAKERS_EN_GPIO1_QUIRK) {
++		gpio_mapping = acpi_speakers_enable_gpio1;
++	} else {
++		gpio_mapping = acpi_speakers_enable_gpio0;
++	}
 +
- 			tplg_filename = devm_kasprintf(sdev->dev, GFP_KERNEL,
- 						       "%s%s%d",
- 						       sof_pdata->tplg_filename,
+ 	ret = devm_acpi_dev_add_driver_gpios(codec_dev, gpio_mapping);
+ 	if (ret)
+ 		dev_warn(codec_dev, "unable to add GPIO mapping table\n");
 -- 
 2.35.1
 
