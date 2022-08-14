@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A161591F79
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 12:13:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A834591F7C
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 12:14:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235437AbiHNKNz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 06:13:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42822 "EHLO
+        id S230437AbiHNKOy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 06:14:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235436AbiHNKNy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 06:13:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B15AF201B9
-        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 03:13:53 -0700 (PDT)
+        with ESMTP id S229845AbiHNKOx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 06:14:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D704205C3
+        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 03:14:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C044B80B42
-        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 10:13:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5B38C433C1;
-        Sun, 14 Aug 2022 10:13:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ADE660F73
+        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 10:14:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 230AEC433C1;
+        Sun, 14 Aug 2022 10:14:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660472031;
-        bh=+H+6EspS8moDA5/XhSuMzr+ZI2Mjr+rrx+kQKNuJ6J4=;
+        s=korg; t=1660472091;
+        bh=OU3ZEYlBJWnns706bfpXvZ/d2CW3hnwgo7Mx/3l9b9E=;
         h=Subject:To:Cc:From:Date:From;
-        b=RCWeV7imNB+9MtaobHVN3dZ6N8+ELcp7+e4J4VSPECcs78BWBqd6WR08vUaoMdJai
-         mw3dKDubzZELRDaNk4biRGuvpNXFoaW4LG6iVAdEwaXGgqMg2I7tH9WTkH/FGaungF
-         z4vGEukbQWPM5fLma6Q9tttfCKsgzKAOwl3cNNms=
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix crash due to stale SRB access around I/O" failed to apply to 4.14-stable tree
+        b=zGtmtoIbvPg+oa7IgaeZmpmkWl6avEjT3v8a1VKNeouJJy7Q2CZsyukwkxaeS0zJr
+         f50sZD+DgL2N61jvm4syaKM1TRShxf5qIwh/HEvpT2z7EBZV7IyI5X2E0XszVaJ90w
+         k8vjkjdI5o518/6QHUoauleDUFSalD6xs5r0xXKo=
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix losing target when it reappears during" failed to apply to 5.10-stable tree
 To:     aeasi@marvell.com, martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Aug 2022 12:13:36 +0200
-Message-ID: <166047201666185@kroah.com>
+Date:   Sun, 14 Aug 2022 12:14:48 +0200
+Message-ID: <166047208816645@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,119 +59,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c39587bc0abaf16593f7abcdf8aeec3c038c7d52 Mon Sep 17 00:00:00 2001
+From 118b0c863c8f5629cc5271fc24d72d926e0715d9 Mon Sep 17 00:00:00 2001
 From: Arun Easi <aeasi@marvell.com>
-Date: Wed, 15 Jun 2022 22:35:02 -0700
-Subject: [PATCH] scsi: qla2xxx: Fix crash due to stale SRB access around I/O
- timeouts
+Date: Wed, 15 Jun 2022 22:35:04 -0700
+Subject: [PATCH] scsi: qla2xxx: Fix losing target when it reappears during
+ delete
 
-Ensure SRB is returned during I/O timeout error escalation. If that is not
-possible fail the escalation path.
+FC target disappeared during port perturbation tests due to a race that
+tramples target state.  Fix the issue by adding state checks before
+proceeding.
 
-Following crash stack was seen:
-
-BUG: unable to handle kernel paging request at 0000002f56aa90f8
-IP: qla_chk_edif_rx_sa_delete_pending+0x14/0x30 [qla2xxx]
-Call Trace:
- ? qla2x00_status_entry+0x19f/0x1c50 [qla2xxx]
- ? qla2x00_start_sp+0x116/0x1170 [qla2xxx]
- ? dma_pool_alloc+0x1d6/0x210
- ? mempool_alloc+0x54/0x130
- ? qla24xx_process_response_queue+0x548/0x12b0 [qla2xxx]
- ? qla_do_work+0x2d/0x40 [qla2xxx]
- ? process_one_work+0x14c/0x390
-
-Link: https://lore.kernel.org/r/20220616053508.27186-6-njavali@marvell.com
-Fixes: d74595278f4a ("scsi: qla2xxx: Add multiple queue pair functionality.")
+Link: https://lore.kernel.org/r/20220616053508.27186-8-njavali@marvell.com
+Fixes: 44c57f205876 ("scsi: qla2xxx: Changes to support FCP2 Target")
 Cc: stable@vger.kernel.org
 Signed-off-by: Arun Easi <aeasi@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 210fb5c52421..1c7fb6484db2 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -1342,21 +1342,20 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
- /*
-  * Returns: QLA_SUCCESS or QLA_FUNCTION_FAILED.
-  */
--int
--qla2x00_eh_wait_for_pending_commands(scsi_qla_host_t *vha, unsigned int t,
--	uint64_t l, enum nexus_wait_type type)
-+static int
-+__qla2x00_eh_wait_for_pending_commands(struct qla_qpair *qpair, unsigned int t,
-+				       uint64_t l, enum nexus_wait_type type)
- {
- 	int cnt, match, status;
- 	unsigned long flags;
--	struct qla_hw_data *ha = vha->hw;
--	struct req_que *req;
-+	scsi_qla_host_t *vha = qpair->vha;
-+	struct req_que *req = qpair->req;
- 	srb_t *sp;
- 	struct scsi_cmnd *cmd;
+diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
+index 8b87fefda423..feca9e44b21c 100644
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -2714,17 +2714,24 @@ qla2x00_dev_loss_tmo_callbk(struct fc_rport *rport)
+ 	if (!fcport)
+ 		return;
  
- 	status = QLA_SUCCESS;
- 
--	spin_lock_irqsave(&ha->hardware_lock, flags);
--	req = vha->req;
-+	spin_lock_irqsave(qpair->qp_lock_ptr, flags);
- 	for (cnt = 1; status == QLA_SUCCESS &&
- 		cnt < req->num_outstanding_cmds; cnt++) {
- 		sp = req->outstanding_cmds[cnt];
-@@ -1383,12 +1382,32 @@ qla2x00_eh_wait_for_pending_commands(scsi_qla_host_t *vha, unsigned int t,
- 		if (!match)
- 			continue;
- 
--		spin_unlock_irqrestore(&ha->hardware_lock, flags);
-+		spin_unlock_irqrestore(qpair->qp_lock_ptr, flags);
- 		status = qla2x00_eh_wait_on_command(cmd);
--		spin_lock_irqsave(&ha->hardware_lock, flags);
-+		spin_lock_irqsave(qpair->qp_lock_ptr, flags);
- 	}
--	spin_unlock_irqrestore(&ha->hardware_lock, flags);
-+	spin_unlock_irqrestore(qpair->qp_lock_ptr, flags);
+-	/* Now that the rport has been deleted, set the fcport state to
+-	   FCS_DEVICE_DEAD */
+-	qla2x00_set_fcport_state(fcport, FCS_DEVICE_DEAD);
 +
-+	return status;
-+}
-+
-+int
-+qla2x00_eh_wait_for_pending_commands(scsi_qla_host_t *vha, unsigned int t,
-+				     uint64_t l, enum nexus_wait_type type)
-+{
-+	struct qla_qpair *qpair;
-+	struct qla_hw_data *ha = vha->hw;
-+	int i, status = QLA_SUCCESS;
++	/*
++	 * Now that the rport has been deleted, set the fcport state to
++	 * FCS_DEVICE_DEAD, if the fcport is still lost.
++	 */
++	if (fcport->scan_state != QLA_FCPORT_FOUND)
++		qla2x00_set_fcport_state(fcport, FCS_DEVICE_DEAD);
  
-+	status = __qla2x00_eh_wait_for_pending_commands(ha->base_qpair, t, l,
-+							type);
-+	for (i = 0; status == QLA_SUCCESS && i < ha->max_qpairs; i++) {
-+		qpair = ha->queue_pair_map[i];
-+		if (!qpair)
-+			continue;
-+		status = __qla2x00_eh_wait_for_pending_commands(qpair, t, l,
-+								type);
+ 	/*
+ 	 * Transport has effectively 'deleted' the rport, clear
+ 	 * all local references.
+ 	 */
+ 	spin_lock_irqsave(host->host_lock, flags);
+-	fcport->rport = fcport->drport = NULL;
+-	*((fc_port_t **)rport->dd_data) = NULL;
++	/* Confirm port has not reappeared before clearing pointers. */
++	if (rport->port_state != FC_PORTSTATE_ONLINE) {
++		fcport->rport = fcport->drport = NULL;
++		*((fc_port_t **)rport->dd_data) = NULL;
 +	}
- 	return status;
- }
+ 	spin_unlock_irqrestore(host->host_lock, flags);
  
-@@ -1425,7 +1444,7 @@ qla2xxx_eh_device_reset(struct scsi_cmnd *cmd)
- 		return err;
+ 	if (test_bit(ABORT_ISP_ACTIVE, &fcport->vha->dpc_flags))
+@@ -2757,9 +2764,12 @@ qla2x00_terminate_rport_io(struct fc_rport *rport)
+ 	/*
+ 	 * At this point all fcport's software-states are cleared.  Perform any
+ 	 * final cleanup of firmware resources (PCBs and XCBs).
++	 *
++	 * Attempt to cleanup only lost devices.
+ 	 */
+ 	if (fcport->loop_id != FC_NO_LOOP_ID) {
+-		if (IS_FWI2_CAPABLE(fcport->vha->hw)) {
++		if (IS_FWI2_CAPABLE(fcport->vha->hw) &&
++		    fcport->scan_state != QLA_FCPORT_FOUND) {
+ 			if (fcport->loop_id != FC_NO_LOOP_ID)
+ 				fcport->logout_on_delete = 1;
  
- 	if (fcport->deleted)
--		return SUCCESS;
-+		return FAILED;
- 
- 	ql_log(ql_log_info, vha, 0x8009,
- 	    "DEVICE RESET ISSUED nexus=%ld:%d:%llu cmd=%p.\n", vha->host_no,
-@@ -1493,7 +1512,7 @@ qla2xxx_eh_target_reset(struct scsi_cmnd *cmd)
- 		return err;
- 
- 	if (fcport->deleted)
--		return SUCCESS;
-+		return FAILED;
- 
- 	ql_log(ql_log_info, vha, 0x8009,
- 	    "TARGET RESET ISSUED nexus=%ld:%d cmd=%p.\n", vha->host_no,
+@@ -2769,7 +2779,7 @@ qla2x00_terminate_rport_io(struct fc_rport *rport)
+ 				       __LINE__);
+ 				qlt_schedule_sess_for_deletion(fcport);
+ 			}
+-		} else {
++		} else if (!IS_FWI2_CAPABLE(fcport->vha->hw)) {
+ 			qla2x00_port_logout(fcport->vha, fcport);
+ 		}
+ 	}
 
