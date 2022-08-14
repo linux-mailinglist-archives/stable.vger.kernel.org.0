@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAA965923F0
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:26:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 351C95923F1
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:26:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241127AbiHNQ0U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:26:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57420 "EHLO
+        id S241275AbiHNQ0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:26:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241026AbiHNQZS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:25:18 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 571981901B;
-        Sun, 14 Aug 2022 09:23:08 -0700 (PDT)
+        with ESMTP id S241289AbiHNQZZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:25:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB5CD19036;
+        Sun, 14 Aug 2022 09:23:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AFA64CE0B6B;
-        Sun, 14 Aug 2022 16:23:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41372C43140;
-        Sun, 14 Aug 2022 16:23:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45E6AB80B7C;
+        Sun, 14 Aug 2022 16:23:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97821C433D7;
+        Sun, 14 Aug 2022 16:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494185;
-        bh=vtUXON8ZPY2JWNUwIGTSBD4cwQhMoCHe7RqNx/KHnSw=;
+        s=k20201202; t=1660494189;
+        bh=Ufu0YQ4jl5NNJVHMzR49EucjoyZ1trfx8HRK1GTs8OQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LY0AQ9nDheh8kxxaSObkLvC5duFOFR/wG1iNiPmoGWlNM+9hjnk1c5MQNIfQPlj4F
-         DJoWorLW5VxB3dCD9DEQuoKfdvU/ec6SITropKwh0jPNyWva4YkrOKUOTGV72uDCO5
-         NfiVfY2Er7mfZNIM/3/K1b4CzJLKd7u06c+wzIeQZY4sve22fE5L51DGjlJ7O9uyG9
-         EstJc2qxSbx2Itxc2sWdv4QYmdKvpw9oDAMbhH9OwjjQuvk78Ti/cRGJr6vWHOchg3
-         JnpAMsC1ZqB7ZxdKMZinGRM9dxeye0dXbc6Nccdt8efINQn7pq/Hd23e3Pd2cKG8RC
-         9HTWakZxjrv6Q==
+        b=FVZVWZ516ILnGyDuQUowp6jTqku6ljM++XV7s01ahxG2I77Fq0AFpypt9ShkL5Jxj
+         OehBQF1m7VUCVkMRpXVQRoFtmhTyy1NqGuCvJ91KND+H9YqivVTJ41IpD5OSPZdAbr
+         Hk82rUUXC36DXGdkemCV+CxZBgommlfIehONrjv8nX32tp37jP7sw4GWj0gnagun+Q
+         KvVL5C2pzfwbuhYR68ASbKuUMV9jELri5QvqqpvZBNwUQlZdZEQKzwA8MbTvcLCwH4
+         W43R37th6lRrMP+b/ybwdDQ48e5sh5BBkjPSuGdeGAtpbK5z6qMTg/KcMzFNI2qIQb
+         gHitF2FCm77FA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
-        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.19 42/48] smb3: check xattr value length earlier
-Date:   Sun, 14 Aug 2022 12:19:35 -0400
-Message-Id: <20220814161943.2394452-42-sashal@kernel.org>
+Cc:     Zhouyi Zhou <zhouzhouyi@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, robh@kernel.org,
+        frank.rowand@sony.com, masahiroy@kernel.org, clg@kaod.org,
+        nick.child@ibm.com, christophe.leroy@csgroup.eu,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.19 43/48] powerpc/64: Init jump labels before parse_early_param()
+Date:   Sun, 14 Aug 2022 12:19:36 -0400
+Message-Id: <20220814161943.2394452-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814161943.2394452-1-sashal@kernel.org>
 References: <20220814161943.2394452-1-sashal@kernel.org>
@@ -49,57 +51,71 @@ X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_FILL_THIS_FORM_SHORT,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Zhouyi Zhou <zhouzhouyi@gmail.com>
 
-[ Upstream commit 5fa2cffba0b82336a2244d941322eb1627ff787b ]
+[ Upstream commit ca829e05d3d4f728810cc5e4b468d9ebc7745eb3 ]
 
-Coverity complains about assigning a pointer based on
-value length before checking that value length goes
-beyond the end of the SMB.  Although this is even more
-unlikely as value length is a single byte, and the
-pointer is not dereferenced until laterm, it is clearer
-to check the lengths first.
+On 64-bit, calling jump_label_init() in setup_feature_keys() is too
+late because static keys may be used in subroutines of
+parse_early_param() which is again subroutine of early_init_devtree().
 
-Addresses-Coverity: 1467704 ("Speculative execution data leak")
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+For example booting with "threadirqs":
+
+  static_key_enable_cpuslocked(): static key '0xc000000002953260' used before call to jump_label_init()
+  WARNING: CPU: 0 PID: 0 at kernel/jump_label.c:166 static_key_enable_cpuslocked+0xfc/0x120
+  ...
+  NIP static_key_enable_cpuslocked+0xfc/0x120
+  LR  static_key_enable_cpuslocked+0xf8/0x120
+  Call Trace:
+    static_key_enable_cpuslocked+0xf8/0x120 (unreliable)
+    static_key_enable+0x30/0x50
+    setup_forced_irqthreads+0x28/0x40
+    do_early_param+0xa0/0x108
+    parse_args+0x290/0x4e0
+    parse_early_options+0x48/0x5c
+    parse_early_param+0x58/0x84
+    early_init_devtree+0xd4/0x518
+    early_setup+0xb4/0x214
+
+So call jump_label_init() just before parse_early_param() in
+early_init_devtree().
+
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Zhouyi Zhou <zhouzhouyi@gmail.com>
+[mpe: Add call trace to change log and minor wording edits.]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220726015747.11754-1-zhouzhouyi@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/prom.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 8802995b2d3d..aa4c1d403708 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1145,9 +1145,7 @@ move_smb2_ea_to_cifs(char *dst, size_t dst_size,
- 	size_t name_len, value_len, user_name_len;
+diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
+index feae8509b59c..b64c3f06c069 100644
+--- a/arch/powerpc/kernel/prom.c
++++ b/arch/powerpc/kernel/prom.c
+@@ -751,6 +751,13 @@ void __init early_init_devtree(void *params)
+ 	early_init_dt_scan_root();
+ 	early_init_dt_scan_memory_ppc();
  
- 	while (src_size > 0) {
--		name = &src->ea_data[0];
- 		name_len = (size_t)src->ea_name_length;
--		value = &src->ea_data[src->ea_name_length + 1];
- 		value_len = (size_t)le16_to_cpu(src->ea_value_length);
++	/*
++	 * As generic code authors expect to be able to use static keys
++	 * in early_param() handlers, we initialize the static keys just
++	 * before parsing early params (it's fine to call jump_label_init()
++	 * more than once).
++	 */
++	jump_label_init();
+ 	parse_early_param();
  
- 		if (name_len == 0)
-@@ -1159,6 +1157,9 @@ move_smb2_ea_to_cifs(char *dst, size_t dst_size,
- 			goto out;
- 		}
- 
-+		name = &src->ea_data[0];
-+		value = &src->ea_data[src->ea_name_length + 1];
-+
- 		if (ea_name) {
- 			if (ea_name_len == name_len &&
- 			    memcmp(ea_name, name, name_len) == 0) {
+ 	/* make sure we've parsed cmdline for mem= before this */
 -- 
 2.35.1
 
