@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08AB459226D
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:47:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7244159223D
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241561AbiHNPr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:47:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55086 "EHLO
+        id S241453AbiHNPrN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:47:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241672AbiHNPqG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:46:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30C1D2528B;
-        Sun, 14 Aug 2022 08:34:38 -0700 (PDT)
+        with ESMTP id S241703AbiHNPqK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:46:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5156ABC1A;
+        Sun, 14 Aug 2022 08:34:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AE8360DDA;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC12360CF7;
+        Sun, 14 Aug 2022 15:34:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CD26C43145;
         Sun, 14 Aug 2022 15:34:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5288C433D6;
-        Sun, 14 Aug 2022 15:34:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491276;
-        bh=dyJOthvr6oSUl/doNTPZjgQxVs7NMIJmhIQjnx2L0YU=;
+        s=k20201202; t=1660491278;
+        bh=XCAFwGt6ZZvGEEsPqFEisCf1nOo3sIPK3uhYeB8yzeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dfONxJwvyMcT8EYJDHe7vPF0QPmsZh1G23gIVDgCbYPtOZbcr3SFVJcZ9Bk1pdcF7
-         0zTVkRrqRHEDptHskeDU6Lgsm9WY9OgUWyNvtuwkPnV+snMfY6wM0x+rUQ1iuL4EOr
-         MqUmFlGAgaSf0dWXPqJA9iXcPoLEyo9tmDgtQfC9J0d/YdfdrU+PTKHgMwPgAQgDmv
-         SQRosDA7DNkPQR2AElDsFP8EnTOUcWZckpRcDWKH83Cc7nrddAl18F4nuJhI52meRc
-         LFTkVj3paDFggt9EZyshsufsBd3yZJBNymn//YmqT8zTsU8iIMTD7xeq5f9Z0+Rnal
-         L6YS/y6zXA87w==
+        b=aJavevuT+uTlhH2CVD+/cbXfad1j+c+8FfP9gaL5czloKYEXit3aBnGea1tuA5iNg
+         BSUMM0H3U06FawagtGsL8SCflFzOXC508FR2wm1YSSS2VF+QoDYi6eTqicXwr4Qt9M
+         TSJzcmyilmIUwkPkf8ztus5AvjhEsN/DFJ/vEVT42vM1liIx9rs4B5g5rj1x5J2ki0
+         STzROC1poAdKpToL5FlgvfGQvHhFHuwOzQM8J6ScGF9t24VB1w4a9W4Lmr3KbZNJJ4
+         ZxddyVSqG2Z0ZwQZ9af3TJgUVSWAv4qHLI9lqgrbNi3AIrWzQqlVyfN5shQuXGt9Cj
+         8Rwri+UBLvsNQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Frank Li <Frank.Li@nxp.com>, Faqiang Zhu <faqiang.zhu@nxp.com>,
+Cc:     Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, peter.chen@kernel.org,
-        pawell@cadence.com, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 03/31] usb: cdns3 fix use-after-free at workaround 2
-Date:   Sun, 14 Aug 2022 11:34:03 -0400
-Message-Id: <20220814153431.2379231-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, balbi@kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 04/31] usb: gadget: uvc: call uvc uvcg_warn on completed status instead of uvcg_info
+Date:   Sun, 14 Aug 2022 11:34:04 -0400
+Message-Id: <20220814153431.2379231-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153431.2379231-1-sashal@kernel.org>
 References: <20220814153431.2379231-1-sashal@kernel.org>
@@ -57,51 +58,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Li <Frank.Li@nxp.com>
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-[ Upstream commit 7d602f30149a117eea260208b1661bc404c21dfd ]
+[ Upstream commit a725d0f6dfc5d3739d6499f30ec865305ba3544d ]
 
-BUG: KFENCE: use-after-free read in __list_del_entry_valid+0x10/0xac
+Likewise to the uvcvideo hostside driver, this patch is changing the
+usb_request message of an non zero completion handler call from dev_info
+to dev_warn.
 
-cdns3_wa2_remove_old_request()
-{
-	...
-	kfree(priv_req->request.buf);
-	cdns3_gadget_ep_free_request(&priv_ep->endpoint, &priv_req->request);
-	list_del_init(&priv_req->list);
-	^^^ use after free
-	...
-}
-
-cdns3_gadget_ep_free_request() free the space pointed by priv_req,
-but priv_req is used in the following list_del_init().
-
-This patch move list_del_init() before cdns3_gadget_ep_free_request().
-
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Signed-off-by: Faqiang Zhu <faqiang.zhu@nxp.com>
-Link: https://lore.kernel.org/r/20220608190430.2814358-1-Frank.Li@nxp.com
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Link: https://lore.kernel.org/r/20220529223848.105914-4-m.grzeschik@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/cdns3/gadget.c | 2 +-
+ drivers/usb/gadget/function/uvc_video.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/cdns3/gadget.c b/drivers/usb/cdns3/gadget.c
-index d5056cc34974..75bfc039fb7b 100644
---- a/drivers/usb/cdns3/gadget.c
-+++ b/drivers/usb/cdns3/gadget.c
-@@ -655,9 +655,9 @@ static void cdns3_wa2_remove_old_request(struct cdns3_endpoint *priv_ep)
- 		trace_cdns3_wa2(priv_ep, "removes eldest request");
+diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
+index 633e23d58d86..5ce548c2359d 100644
+--- a/drivers/usb/gadget/function/uvc_video.c
++++ b/drivers/usb/gadget/function/uvc_video.c
+@@ -159,7 +159,7 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
+ 		break;
  
- 		kfree(priv_req->request.buf);
-+		list_del_init(&priv_req->list);
- 		cdns3_gadget_ep_free_request(&priv_ep->endpoint,
- 					     &priv_req->request);
--		list_del_init(&priv_req->list);
- 		--priv_ep->wa2_counter;
- 
- 		if (!chain)
+ 	default:
+-		uvcg_info(&video->uvc->func,
++		uvcg_warn(&video->uvc->func,
+ 			  "VS request completed with status %d.\n",
+ 			  req->status);
+ 		uvcg_queue_cancel(queue, 0);
 -- 
 2.35.1
 
