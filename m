@@ -2,52 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48EE8592381
+	by mail.lfdr.de (Postfix) with ESMTP id DACE9592383
 	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:22:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240838AbiHNQWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240897AbiHNQWI (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 14 Aug 2022 12:22:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50596 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240818AbiHNQVi (ORCPT
+        with ESMTP id S240819AbiHNQVi (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:21:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94944140CC;
-        Sun, 14 Aug 2022 09:20:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD567140F2;
+        Sun, 14 Aug 2022 09:20:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B786B80B37;
-        Sun, 14 Aug 2022 16:20:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62147C433C1;
-        Sun, 14 Aug 2022 16:20:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96C85B80AEE;
+        Sun, 14 Aug 2022 16:20:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2F88C433C1;
+        Sun, 14 Aug 2022 16:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494002;
-        bh=DwkobU+BMVJXJJWUeB8LPhbQL15JLQM4IwAWMPhJRpA=;
+        s=k20201202; t=1660494007;
+        bh=KbyObKk7cSByvvXNFKtPxO7zqzi0cCyZ20ssVNoXFdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HC9Lo8NuhW6O6Mwvx067K3FL1AXcnyMxHJS7PzeUuabs2gmN7Ndidh5oMuuzEdNOs
-         vUEP4mGag/Wo1gEraZI72BTihkdNML5XaFlO/Q3s+ylHjK+yFYoeWc/1a7Vrw4u7Wz
-         Uxz15VPgUst+H0WK8oxOo3o+ttMWqxOXG/ffc27K8hOikdPVSHV9/X9TeY2Vvaqac0
-         duOBPMWrqtDwKMmUe3+jivpOaIYwF1G+UFQNAAXwvrKjGwdXOnho55mc2Eo81bSPjN
-         Lux4AtDH/By1qqnBPeml6iXe8BSpq6eRTU4AcWAgfI8XJ6NFOCm5h6qmhgfGZI8WyC
-         Yovb1FFDBrNGw==
+        b=fElOJ2s75zrPaFl7JONGQKtvBK1oqlr4q8F0YwsFB2B0zyHnDCoV0wBFO5VaH19X8
+         p5TmUhBXEQ7KvK7WJVTKhU08PuaDnog9Pa7XdeZrCjubMuUBWw8cFUSRbp/TFC5OBC
+         tv+Iw3ibqF/b06JA4ypwMOBLBKR5CcMeV6UQN/Bhp8jlW5dIqkcviuqoISXQeilI8X
+         C7ogCB7xXJ8OldQiqB6F2G3AjSdvwm9Vp007bbkrk+P7m1lF5IobamYgX0czmqM0sp
+         mkBFJHIIyx6hbRmm+JlAVXzhd+wFcBe/eVeg9GcRWZSamU3kT9GPkw/h95sElv7wlI
+         B5x+hZE+eY1Zw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Conor Dooley <conor.dooley@microchip.com>,
-        Brice Goglin <Brice.Goglin@inria.fr>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>, daire.mcnamara@microchip.com,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, linux-riscv@lists.infradead.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 08/48] riscv: dts: microchip: Add mpfs' topology information
-Date:   Sun, 14 Aug 2022 12:19:01 -0400
-Message-Id: <20220814161943.2394452-8-sashal@kernel.org>
+Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        pierre-louis.bossart@linux.intel.com,
+        liam.r.girdwood@linux.intel.com, peter.ujfalusi@linux.intel.com,
+        yung-chuan.liao@linux.intel.com, ranjani.sridharan@linux.intel.com,
+        kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.19 09/48] ASoC: Intel: avs: Set max DMA segment size
+Date:   Sun, 14 Aug 2022 12:19:02 -0400
+Message-Id: <20220814161943.2394452-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814161943.2394452-1-sashal@kernel.org>
 References: <20220814161943.2394452-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,57 +64,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit 88d319c6abaeb37f0e2323275eaf57a8388e0265 ]
+[ Upstream commit 8544eebc78c96f1834a46b26ade3e7ebe785d10c ]
 
-The mpfs has no cpu-map node, so tools like hwloc cannot correctly
-parse the topology. Add the node using the existing node labels.
+Apparently it is possible for code to allocate large buffers which may
+cause warnings as reported in [1]. This was fixed for HDA, SOF and
+skylake in patchset [2], fix it also for avs driver.
 
-Reported-by: Brice Goglin <Brice.Goglin@inria.fr>
-Link: https://github.com/open-mpi/hwloc/issues/536
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+[1] https://github.com/thesofproject/linux/issues/3430
+[2] https://lore.kernel.org/all/20220215132756.31236-1-tiwai@suse.de/
+
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20220707124153.1858249-8-cezary.rojewski@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/boot/dts/microchip/mpfs.dtsi | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ sound/soc/intel/avs/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/riscv/boot/dts/microchip/mpfs.dtsi b/arch/riscv/boot/dts/microchip/mpfs.dtsi
-index 496d3b7642bd..e3793916a1e5 100644
---- a/arch/riscv/boot/dts/microchip/mpfs.dtsi
-+++ b/arch/riscv/boot/dts/microchip/mpfs.dtsi
-@@ -142,6 +142,30 @@ cpu4_intc: interrupt-controller {
- 				interrupt-controller;
- 			};
- 		};
-+
-+		cpu-map {
-+			cluster0 {
-+				core0 {
-+					cpu = <&cpu0>;
-+				};
-+
-+				core1 {
-+					cpu = <&cpu1>;
-+				};
-+
-+				core2 {
-+					cpu = <&cpu2>;
-+				};
-+
-+				core3 {
-+					cpu = <&cpu3>;
-+				};
-+
-+				core4 {
-+					cpu = <&cpu4>;
-+				};
-+			};
-+		};
- 	};
+diff --git a/sound/soc/intel/avs/core.c b/sound/soc/intel/avs/core.c
+index 3a0997c3af2b..cf373969bb69 100644
+--- a/sound/soc/intel/avs/core.c
++++ b/sound/soc/intel/avs/core.c
+@@ -445,6 +445,7 @@ static int avs_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
+ 		dma_set_mask(dev, DMA_BIT_MASK(32));
+ 		dma_set_coherent_mask(dev, DMA_BIT_MASK(32));
+ 	}
++	dma_set_max_seg_size(dev, UINT_MAX);
  
- 	refclk: mssrefclk {
+ 	ret = avs_hdac_bus_init_streams(bus);
+ 	if (ret < 0) {
 -- 
 2.35.1
 
