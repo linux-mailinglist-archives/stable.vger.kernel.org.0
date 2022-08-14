@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A951759257F
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED145592564
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:43:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243023AbiHNQmd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:42:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38154 "EHLO
+        id S243336AbiHNQmw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:42:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243366AbiHNQkw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:40:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF73C66;
-        Sun, 14 Aug 2022 09:31:17 -0700 (PDT)
+        with ESMTP id S243377AbiHNQkx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:40:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CB565F40;
+        Sun, 14 Aug 2022 09:31:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7BA6EB80B3C;
-        Sun, 14 Aug 2022 16:31:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60221C433C1;
-        Sun, 14 Aug 2022 16:31:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE0A960F73;
+        Sun, 14 Aug 2022 16:31:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27383C433C1;
+        Sun, 14 Aug 2022 16:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494675;
-        bh=QJRKZeqWyHOAMgpIQr673Jjz8RQb1Y0LVJw0ylK1rRM=;
+        s=k20201202; t=1660494680;
+        bh=WnMkrFmRqTr/C6KW7WcHvuKKxCCcy1TaXXmxhygiNlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uS/+6wltoyffidAKki2gMIEeG6JC03BBaZ33OibIk4FSEJ98+U9hLBi7DS/E4DXT5
-         pff7Yi7UGoI3hAlhzoPCFDz2s2VfW743hkbcQfNVYO1RtCRCADBWO/NFFT+miF8H0X
-         De3n2aAtznYXZ9mIP9Kf/hrfhIag0WL8xrV72PbNsUN/SGHx/tkvb9jVmLPBnQTxvk
-         DDL6s0zxHne5JE7aIlXeG0ImMnlw3pqDLrUEk0d9RxSK7110+5GL/OjIxBNXRgzNom
-         micFIvotNoglFyzDmrRB6ULXCyoH/ORhE4krLWPqgvIZA8x13xuneYC8cAUrtpGBHO
-         3joEpJ6mU6uhw==
+        b=AafPMN7naZneKeqK1CAqc4CUJqDcngZ7R6+buGJ1ksHbW8ZHu7+KQCUtzIN3b0MEG
+         qBkTPHpZ0fJ56NX5D/K2IkJI28NwUd8gf5WzydGgyvqnZMg031WqZvkI/Nvhdfvqdw
+         Tir3N8fNwRS+hAyRAl8X9CknBSQuwkbTYUCGABkloihlu58mbecX2cTbcTEkhJn5+g
+         ROirRPT+wuhP4jakKbczdoOKf28YfX77Z8Qf7iP5hVJNy8r55DQkXvpKzmN5gsrEi/
+         7uYAnHEzMqhaJnv/W+dtTK7iu0blxxO2enFE08GSEdAJrUurUzt+AvOtK71IFFj3OQ
+         TzbwKdaM7P+LQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>, linux@zary.sk,
-        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 7/8] video: fbdev: i740fb: Check the argument of i740_calc_vclk()
-Date:   Sun, 14 Aug 2022 12:30:40 -0400
-Message-Id: <20220814163041.2399552-7-sashal@kernel.org>
+Cc:     Nathan Chancellor <nathan@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, ndesaulniers@google.com,
+        macro@orcam.me.uk, linux-mips@vger.kernel.org, llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 4.9 8/8] MIPS: tlbex: Explicitly compare _PAGE_NO_EXEC against 0
+Date:   Sun, 14 Aug 2022 12:30:41 -0400
+Message-Id: <20220814163041.2399552-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814163041.2399552-1-sashal@kernel.org>
 References: <20220814163041.2399552-1-sashal@kernel.org>
@@ -56,65 +58,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 40bf722f8064f50200b8c4f8946cd625b441dda9 ]
+[ Upstream commit 74de14fe05dd6b151d73cb0c73c8ec874cbdcde6 ]
 
-Since the user can control the arguments of the ioctl() from the user
-space, under special arguments that may result in a divide-by-zero bug.
+When CONFIG_XPA is enabled, Clang warns:
 
-If the user provides an improper 'pixclock' value that makes the argumet
-of i740_calc_vclk() less than 'I740_RFREQ_FIX', it will cause a
-divide-by-zero bug in:
-    drivers/video/fbdev/i740fb.c:353 p_best = min(15, ilog2(I740_MAX_VCO_FREQ / (freq / I740_RFREQ_FIX)));
+  arch/mips/mm/tlbex.c:629:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
+          if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
+                              ^
+  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
+  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
+                                     ^
+  arch/mips/mm/tlbex.c:2568:24: error: converting the result of '<<' to a boolean; did you mean '(1 << _PAGE_NO_EXEC_SHIFT) != 0'? [-Werror,-Wint-in-bool-context]
+          if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
+                                ^
+  arch/mips/include/asm/pgtable-bits.h:174:28: note: expanded from macro '_PAGE_NO_EXEC'
+  # define _PAGE_NO_EXEC          (1 << _PAGE_NO_EXEC_SHIFT)
+                                     ^
+  2 errors generated.
 
-The following log can reveal it:
+_PAGE_NO_EXEC can be '0' or '1 << _PAGE_NO_EXEC_SHIFT' depending on the
+build and runtime configuration, which is what the negation operators
+are trying to convey. To silence the warning, explicitly compare against
+0 so the result of the '<<' operator is not implicitly converted to a
+boolean.
 
-divide error: 0000 [#1] PREEMPT SMP KASAN PTI
-RIP: 0010:i740_calc_vclk drivers/video/fbdev/i740fb.c:353 [inline]
-RIP: 0010:i740fb_decode_var drivers/video/fbdev/i740fb.c:646 [inline]
-RIP: 0010:i740fb_set_par+0x163f/0x3b70 drivers/video/fbdev/i740fb.c:742
-Call Trace:
- fb_set_var+0x604/0xeb0 drivers/video/fbdev/core/fbmem.c:1034
- do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1110
- fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1189
+According to its documentation, GCC enables -Wint-in-bool-context with
+-Wall but this warning is not visible when building the same
+configuration with GCC. It appears GCC only warns when compiling C++,
+not C, although the documentation makes no note of this:
+https://godbolt.org/z/x39q3brxf
 
-Fix this by checking the argument of i740_calc_vclk() first.
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: Sudip Mukherjee (Codethink) <sudipm.mukherjee@gmail.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/i740fb.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/mips/mm/tlbex.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/i740fb.c b/drivers/video/fbdev/i740fb.c
-index 7bc5f6056c77..4147a9534179 100644
---- a/drivers/video/fbdev/i740fb.c
-+++ b/drivers/video/fbdev/i740fb.c
-@@ -399,7 +399,7 @@ static int i740fb_decode_var(const struct fb_var_screeninfo *var,
- 	u32 xres, right, hslen, left, xtotal;
- 	u32 yres, lower, vslen, upper, ytotal;
- 	u32 vxres, xoffset, vyres, yoffset;
--	u32 bpp, base, dacspeed24, mem;
-+	u32 bpp, base, dacspeed24, mem, freq;
- 	u8 r7;
- 	int i;
+diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
+index f625fd20b21e..65fed205383e 100644
+--- a/arch/mips/mm/tlbex.c
++++ b/arch/mips/mm/tlbex.c
+@@ -637,7 +637,7 @@ static __maybe_unused void build_convert_pte_to_entrylo(u32 **p,
+ 		return;
+ 	}
  
-@@ -641,7 +641,12 @@ static int i740fb_decode_var(const struct fb_var_screeninfo *var,
- 	par->atc[VGA_ATC_OVERSCAN] = 0;
+-	if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
++	if (cpu_has_rixi && _PAGE_NO_EXEC != 0) {
+ 		if (fill_includes_sw_bits) {
+ 			UASM_i_ROTR(p, reg, reg, ilog2(_PAGE_GLOBAL));
+ 		} else {
+@@ -2518,7 +2518,7 @@ static void check_pabits(void)
+ 	unsigned long entry;
+ 	unsigned pabits, fillbits;
  
- 	/* Calculate VCLK that most closely matches the requested dot clock */
--	i740_calc_vclk((((u32)1e9) / var->pixclock) * (u32)(1e3), par);
-+	freq = (((u32)1e9) / var->pixclock) * (u32)(1e3);
-+	if (freq < I740_RFREQ_FIX) {
-+		fb_dbg(info, "invalid pixclock\n");
-+		freq = I740_RFREQ_FIX;
-+	}
-+	i740_calc_vclk(freq, par);
- 
- 	/* Since we program the clocks ourselves, always use VCLK2. */
- 	par->misc |= 0x0C;
+-	if (!cpu_has_rixi || !_PAGE_NO_EXEC) {
++	if (!cpu_has_rixi || _PAGE_NO_EXEC == 0) {
+ 		/*
+ 		 * We'll only be making use of the fact that we can rotate bits
+ 		 * into the fill if the CPU supports RIXI, so don't bother
 -- 
 2.35.1
 
