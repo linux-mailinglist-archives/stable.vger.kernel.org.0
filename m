@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B13B9592085
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:28:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8627859208D
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:28:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231671AbiHNP2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:28:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37058 "EHLO
+        id S240162AbiHNP24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:28:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240303AbiHNP2T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:28:19 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40823BE13;
-        Sun, 14 Aug 2022 08:28:06 -0700 (PDT)
+        with ESMTP id S240134AbiHNP23 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:28:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7F4BB1EC;
+        Sun, 14 Aug 2022 08:28:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C12D3CE0B63;
-        Sun, 14 Aug 2022 15:28:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9915C433C1;
-        Sun, 14 Aug 2022 15:27:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 62ED1B80B56;
+        Sun, 14 Aug 2022 15:28:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8F08C433D6;
+        Sun, 14 Aug 2022 15:28:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660490881;
-        bh=Rle9Qq4e/mlWETi+2POIqUErgB4QJ1aHPiH+DiXmeXQ=;
+        s=k20201202; t=1660490901;
+        bh=yWDQ9RtqIFVVwTO4cTahQSOk9mCzHcSac7SkVGICur4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a8LF9Tlu7G8tat0HhtyYJnSAnuIvXuS0q6vU8p9YQOT1UpSKvNUUtxu2kg0/goEmK
-         67mdYuRK4kq1A+U0SiVlxX4F6/ihFX08TZArbltInXA4Inrmua5FFxKXHuXIdyfEZ3
-         vvJ0wo4qSM5fcQgjbjyAwZfPv3V826/DU95as7EW1gFJiSSZvN/4zSzZ5UwKAOOrmm
-         Rrx7P1RNjgX8zDAzlgGATj19/CRL8olmjBe6RpAmB5DyIxwpx5QCWW6Haz2/LRF5pm
-         vQzjsQD9tuTizRtooz1gaiqHfXEY3xBDK8/5zmQhZ+v0pBCxxvq4hb1Ad3rd5ollLT
-         qnncEzy20wIWQ==
+        b=Bm/F5tB/oyeeVi/2omXYj0Q8C8fPuihHuigUk/TVRaREQCib7rNiDCl0msj7uKmhC
+         tf4Tv3JuFnOfOE2sXuusrJLximRGbeHHExnSa5rL78obTroDbnp3YQPgw6atgwDQ0f
+         ENS+xqWF1Yc66dlEMfiD52SVRivtqanQ0+Bbuhyt6KcHXYhda1ptYIcAX9DfG/Lyeb
+         Yd9H5I8nzESFCznfgubaghMG6TLi9oLhqI7/NNM/i0MuhTh3s352UsubJYlMzs3+Ne
+         eZwBNUZLnK7bAuWVu5qRrptljlHEDRhNeTiu7SCKZ7Zirzh5HUifkMRD0gkVZTjWKy
+         VM406UnqxozOQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
@@ -39,9 +39,9 @@ Cc:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
         bvanassche@acm.org, beanhuo@micron.com, avri.altman@wdc.com,
         adrian.hunter@intel.com, jjmin.jeong@samsung.com,
         linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 13/64] scsi: ufs: core: Add UFSHCD_QUIRK_BROKEN_64BIT_ADDRESS
-Date:   Sun, 14 Aug 2022 11:23:46 -0400
-Message-Id: <20220814152437.2374207-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 14/64] scsi: ufs: core: Add UFSHCD_QUIRK_HIBERN_FASTAUTO
+Date:   Sun, 14 Aug 2022 11:23:47 -0400
+Message-Id: <20220814152437.2374207-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814152437.2374207-1-sashal@kernel.org>
 References: <20220814152437.2374207-1-sashal@kernel.org>
@@ -61,47 +61,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 6554400d6f66b9494a0c0f07712ab0a9d307eb01 ]
+[ Upstream commit 2f11bbc2c7f37e3a6151ac548b1c0679cc90ea83 ]
 
-Add UFSHCD_QUIRK_BROKEN_64BIT_ADDRESS for host controllers which do not
-support 64-bit addressing.
+Add UFSHCD_QUIRK_HIBERN_FASTAUTO quirk for host controllers which supports
+auto-hibernate the capability but only FASTAUTO mode.
 
-Link: https://lore.kernel.org/r/20220603110524.1997825-3-yoshihiro.shimoda.uh@renesas.com
+Link: https://lore.kernel.org/r/20220603110524.1997825-4-yoshihiro.shimoda.uh@renesas.com
 Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ufs/core/ufshcd.c | 2 ++
+ drivers/ufs/core/ufshcd.c | 9 +++++++--
  include/ufs/ufshcd.h      | 6 ++++++
- 2 files changed, 8 insertions(+)
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
-index 3d367be71728..dc5f0dfc8c79 100644
+index dc5f0dfc8c79..7360a1fe52a7 100644
 --- a/drivers/ufs/core/ufshcd.c
 +++ b/drivers/ufs/core/ufshcd.c
-@@ -2227,6 +2227,8 @@ static inline int ufshcd_hba_capabilities(struct ufs_hba *hba)
- 	int err;
+@@ -4292,8 +4292,13 @@ static int ufshcd_get_max_pwr_mode(struct ufs_hba *hba)
+ 	if (hba->max_pwr_info.is_valid)
+ 		return 0;
  
- 	hba->capabilities = ufshcd_readl(hba, REG_CONTROLLER_CAPABILITIES);
-+	if (hba->quirks & UFSHCD_QUIRK_BROKEN_64BIT_ADDRESS)
-+		hba->capabilities &= ~MASK_64_ADDRESSING_SUPPORT;
+-	pwr_info->pwr_tx = FAST_MODE;
+-	pwr_info->pwr_rx = FAST_MODE;
++	if (hba->quirks & UFSHCD_QUIRK_HIBERN_FASTAUTO) {
++		pwr_info->pwr_tx = FASTAUTO_MODE;
++		pwr_info->pwr_rx = FASTAUTO_MODE;
++	} else {
++		pwr_info->pwr_tx = FAST_MODE;
++		pwr_info->pwr_rx = FAST_MODE;
++	}
+ 	pwr_info->hs_rate = PA_HS_MODE_B;
  
- 	/* nutrs and nutmrs are 0 based values */
- 	hba->nutrs = (hba->capabilities & MASK_TRANSFER_REQUESTS_SLOTS) + 1;
+ 	/* Get the connected lane count */
 diff --git a/include/ufs/ufshcd.h b/include/ufs/ufshcd.h
-index a92271421718..795c8951341d 100644
+index 795c8951341d..991aea081ec7 100644
 --- a/include/ufs/ufshcd.h
 +++ b/include/ufs/ufshcd.h
-@@ -577,6 +577,12 @@ enum ufshcd_quirks {
- 	 * support physical host configuration.
+@@ -583,6 +583,12 @@ enum ufshcd_quirks {
+ 	 * 64-bit addressing supported capability but it doesn't work.
  	 */
- 	UFSHCD_QUIRK_SKIP_PH_CONFIGURATION		= 1 << 16,
+ 	UFSHCD_QUIRK_BROKEN_64BIT_ADDRESS		= 1 << 17,
 +
 +	/*
 +	 * This quirk needs to be enabled if the host controller has
-+	 * 64-bit addressing supported capability but it doesn't work.
++	 * auto-hibernate capability but it's FASTAUTO only.
 +	 */
-+	UFSHCD_QUIRK_BROKEN_64BIT_ADDRESS		= 1 << 17,
++	UFSHCD_QUIRK_HIBERN_FASTAUTO			= 1 << 18,
  };
  
  enum ufshcd_caps {
