@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBB75591E61
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 07:14:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C434591E7D
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 07:40:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230131AbiHNFO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 01:14:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55160 "EHLO
+        id S229542AbiHNFkG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 01:40:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229529AbiHNFOZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 01:14:25 -0400
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A0B11E3C5;
-        Sat, 13 Aug 2022 22:14:25 -0700 (PDT)
-Received: by mail-pf1-f173.google.com with SMTP id q19so4266344pfg.8;
-        Sat, 13 Aug 2022 22:14:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc;
-        bh=14NPMXyjjrXGjW8hanxzbHCYc24FuB+QqAulXXLKvvY=;
-        b=7ghYEeEwVwdBePCfjIC2yHz/J0S7Hmv5v8+MPOjg4QXvp+LlAwxN1UNN5vyWK/+zof
-         enm6QmxFiH6GgQh0Gc4+dxyOJvL97DJtdjMZJUTs4kKnBRZra1E3qZYDpH4xlrzlsSvR
-         dQYW7QEw3m8C0oujVYHyjMJHiZqWavBvRIqfYWGsHp8DzD5lthqTQklV8xJFc5WsOX7W
-         AH2h1hsPdJWop/HtwQMNOkcdp46XoBxZjsnyVkAz8X+mKxEejaVlKpDrg1KgTOizspZb
-         eDHKWaUxXilbdDlLXiX7CLQ8/P46jDZ7IHwDFvcISLQUDlELCN+jMsH1WRKE9hW+KpOg
-         waLg==
-X-Gm-Message-State: ACgBeo2XGFvkilJwfcbPoRzreKhgfZvSDXQaHwm1SKdStA7Yb4kj8DNE
-        pgHjotYQO+V2KzR+V/aKIPzTZZeRxX4=
-X-Google-Smtp-Source: AA6agR4Q6oEq3zTcdn6Dj149eLmZq8xWzocxdWcstQO+W571NufzVQGhWXGV0cskzifOPWn6mNLeeg==
-X-Received: by 2002:a05:6a00:1bcb:b0:52e:d2ca:1b5a with SMTP id o11-20020a056a001bcb00b0052ed2ca1b5amr10710906pfw.16.1660454064036;
-        Sat, 13 Aug 2022 22:14:24 -0700 (PDT)
-Received: from localhost.localdomain ([211.49.23.9])
-        by smtp.gmail.com with ESMTPSA id p123-20020a634281000000b0041c9a4001ebsm3790376pga.21.2022.08.13.22.14.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 13 Aug 2022 22:14:23 -0700 (PDT)
-From:   Namjae Jeon <linkinjeon@kernel.org>
-To:     linux-cifs@vger.kernel.org
-Cc:     smfrench@gmail.com, hyc.lee@gmail.com, senozhatsky@chromium.org,
-        Namjae Jeon <linkinjeon@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v2] ksmbd: don't remove dos attribute xattr on O_TRUNC open
-Date:   Sun, 14 Aug 2022 14:04:33 +0900
-Message-Id: <20220814050433.7458-1-linkinjeon@kernel.org>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229436AbiHNFkF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 01:40:05 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A82AF33432;
+        Sat, 13 Aug 2022 22:40:03 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 7195C60217;
+        Sun, 14 Aug 2022 05:40:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1660455601; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=CEjboMcdqsMdJyrDKToa7VObRYscq/R9KI6TJJDGEqk=;
+        b=n6kAIleK5B1SbnlSA+KrB3OEH8k+CMa2NCBwA8dUyWG8+Lk4WNVVPrSlaeDga6tEmBdsTB
+        9yV0PQDuW9zd3/rQQ3gNTtbDa5OWMv6QQhS8iVI/z0RqZQ7H4en33cAsf2yboG4PwsFMbC
+        m/mC8caSz3k6/EyT2fZ6/OSXg1zadiY=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 485DC13305;
+        Sun, 14 Aug 2022 05:40:00 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id /t/PA7CK+GI3CgAAMHmgww
+        (envelope-from <wqu@suse.com>); Sun, 14 Aug 2022 05:40:00 +0000
+From:   Qu Wenruo <wqu@suse.com>
+To:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
+Cc:     David Sterba <dsterba@suse.com>
+Subject: [PATCH STABLE v5.10] btrfs: reject log replay if there is unsupported RO compat flag
+Date:   Sun, 14 Aug 2022 13:39:42 +0800
+Message-Id: <08ae6c89c11423933bb95bc04f603bdcbb9afc87.1660455547.git.wqu@suse.com>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,41 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When smb client open file in ksmbd share with O_TRUNC, dos attribute
-xattr is removed as well as data in file. This cause the FSCTL_SET_SPARSE
-request from the client fails because ksmbd can't update the dos attribute
-after setting ATTR_SPARSE_FILE. And this patch fix xfstests generic/469
-test also.
+commit dc4d31684974d140250f3ee612c3f0cab13b3146 upstream.
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Cc: stable@vger.kernel.org
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+[BUG]
+If we have a btrfs image with dirty log, along with an unsupported RO
+compatible flag:
+
+log_root		30474240
+...
+compat_flags		0x0
+compat_ro_flags		0x40000003
+			( FREE_SPACE_TREE |
+			  FREE_SPACE_TREE_VALID |
+			  unknown flag: 0x40000000 )
+
+Then even if we can only mount it RO, we will still cause metadata
+update for log replay:
+
+  BTRFS info (device dm-1): flagging fs with big metadata feature
+  BTRFS info (device dm-1): using free space tree
+  BTRFS info (device dm-1): has skinny extents
+  BTRFS info (device dm-1): start tree-log replay
+
+This is definitely against RO compact flag requirement.
+
+[CAUSE]
+RO compact flag only forces us to do RO mount, but we will still do log
+replay for plain RO mount.
+
+Thus this will result us to do log replay and update metadata.
+
+This can be very problematic for new RO compat flag, for example older
+kernel can not understand v2 cache, and if we allow metadata update on
+RO mount and invalidate/corrupt v2 cache.
+
+[FIX]
+Just reject the mount unless rescue=nologreplay is provided:
+
+  BTRFS error (device dm-1): cannot replay dirty log with unsupport optional features (0x40000000), try rescue=nologreplay instead
+
+We don't want to set rescue=nologreply directly, as this would make the
+end user to read the old data, and cause confusion.
+
+Since the such case is really rare, we're mostly fine to just reject the
+mount with an error message, which also includes the proper workaround.
+
+CC: stable@vger.kernel.org #5.10
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 ---
- v2:
-   - don't remove other xattr class also.
-   - add fixes and stable tags.
+ fs/btrfs/disk-io.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
- fs/ksmbd/smb2pdu.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
-
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index a136d5e4943b..c2daef28a214 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -2330,10 +2330,9 @@ static int smb2_remove_smb_xattrs(struct path *path)
- 			name += strlen(name) + 1) {
- 		ksmbd_debug(SMB, "%s, len %zd\n", name, strlen(name));
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index 35acdab56a1c..2c7e50980a70 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3104,6 +3104,20 @@ int __cold open_ctree(struct super_block *sb, struct btrfs_fs_devices *fs_device
+ 		err = -EINVAL;
+ 		goto fail_alloc;
+ 	}
++	/*
++	 * We have unsupported RO compat features, although RO mounted, we
++	 * should not cause any metadata write, including log replay.
++	 * Or we could screw up whatever the new feature requires.
++	 */
++	if (unlikely(features && btrfs_super_log_root(disk_super) &&
++		     !btrfs_test_opt(fs_info, NOLOGREPLAY))) {
++		btrfs_err(fs_info,
++"cannot replay dirty log with unsupported compat_ro features (0x%llx), try rescue=nologreplay",
++			  features);
++		err = -EINVAL;
++		goto fail_alloc;
++	}
++
  
--		if (strncmp(name, XATTR_USER_PREFIX, XATTR_USER_PREFIX_LEN) &&
--		    strncmp(&name[XATTR_USER_PREFIX_LEN], DOS_ATTRIBUTE_PREFIX,
--			    DOS_ATTRIBUTE_PREFIX_LEN) &&
--		    strncmp(&name[XATTR_USER_PREFIX_LEN], STREAM_PREFIX, STREAM_PREFIX_LEN))
-+		if (strncmp(name, XATTR_USER_PREFIX, XATTR_USER_PREFIX_LEN) ||
-+		    (!strncmp(name, XATTR_USER_PREFIX, XATTR_USER_PREFIX_LEN) &&
-+		     strncmp(&name[XATTR_USER_PREFIX_LEN], STREAM_PREFIX, STREAM_PREFIX_LEN)))
- 			continue;
- 
- 		err = ksmbd_vfs_remove_xattr(user_ns, path->dentry, name);
+ 	ret = btrfs_init_workqueues(fs_info, fs_devices);
+ 	if (ret) {
 -- 
-2.25.1
+2.37.1
 
