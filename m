@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 748DC5924CE
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:36:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50C765924D9
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:36:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242407AbiHNQg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:36:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45866 "EHLO
+        id S242705AbiHNQgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:36:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242663AbiHNQe5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:34:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABF71193DB;
-        Sun, 14 Aug 2022 09:27:47 -0700 (PDT)
+        with ESMTP id S242691AbiHNQfK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:35:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA9E1A07B;
+        Sun, 14 Aug 2022 09:27:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 116CCB80B7E;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D429160F49;
+        Sun, 14 Aug 2022 16:27:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89CA0C433D6;
         Sun, 14 Aug 2022 16:27:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17748C433D7;
-        Sun, 14 Aug 2022 16:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494464;
-        bh=oM5whZQr7EaKEurMMTtZ3SRlY7dX/wbzjkApNsQPbeI=;
+        s=k20201202; t=1660494467;
+        bh=G31bJPoYMv94cqbiSEOGE7aQCgluitafdoR37mIssKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJ55Ll82dtWIjGcU+MAOWRxZFSAxG5DOYvIFaqs4kHIE+tma2HgPWj+m6/NfOMnIF
-         cwYHQBjybiDzZ6KVf+hVn8wsnKhH+bMSF1PFEzJhwoR5V9MojWcZ4LFaP1jQ4F86w4
-         2x5NOkhN6+KUm7hpK3xMVZimpbJeX6ExEcao0FDp765XHxk4UR8EXJQtwvmNiXmie8
-         H5LT8DsXcT1pCt6ADHPPpMVxJPuxWu/c97a+g0VLmNqBH7BofCwj+Zo1D61csl12K+
-         JpbWkfEDwKNgbwQktubC1t/uq68n5oNKsRscrr2DDRdDMLsPCG/cSQghzBAjx6/Ybn
-         ev6uf0BSsGxEw==
+        b=kGonBEe+rLETDf+kqE4QvdzYwkJE34fFnBzXrDstcto/Y88rY/PgaDeq/C0/Tmkmi
+         KoU0VH61fL1cBgr90Ed8R/GV+Ax1tn6ijtuTXMYCCwr/e/lguX34w++DcjkB3Whp45
+         XEWd0EcH4dZGrKcdkojFEbBjF31YDyQQVJRVM1gF59BXX15T/h07046T6QOCGSP3qK
+         +LyfNeArqVxc3hCjaePWbnpId8yKwOuwHTVPffyp5CIFYILJYxZUlxr0TAeaeVkRZ9
+         sJMabfMC/4VdT3PLmVGG6Xj6ayKwBzTO/TB2UgiKmzvbIR1Q0RPt3Poqo8Y9Ee9dJK
+         9skXEl0HC9EgQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Schspa Shi <schspa@gmail.com>, Cornelia Huck <cohuck@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 03/19] vfio: Clear the caps->buf to NULL after free
-Date:   Sun, 14 Aug 2022 12:27:22 -0400
-Message-Id: <20220814162739.2398217-3-sashal@kernel.org>
+Cc:     Liang He <windhl@126.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, ye.guojin@zte.com.cn,
+        linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 04/19] mips: cavium-octeon: Fix missing of_node_put() in octeon2_usb_clocks_start
+Date:   Sun, 14 Aug 2022 12:27:23 -0400
+Message-Id: <20220814162739.2398217-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814162739.2398217-1-sashal@kernel.org>
 References: <20220814162739.2398217-1-sashal@kernel.org>
@@ -56,35 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Schspa Shi <schspa@gmail.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 6641085e8d7b3f061911517f79a2a15a0a21b97b ]
+[ Upstream commit 7a9f743ceead60ed454c46fbc3085ee9a79cbebb ]
 
-On buffer resize failure, vfio_info_cap_add() will free the buffer,
-report zero for the size, and return -ENOMEM.  As additional
-hardening, also clear the buffer pointer to prevent any chance of a
-double free.
+We should call of_node_put() for the reference 'uctl_node' returned by
+of_get_parent() which will increase the refcount. Otherwise, there will
+be a refcount leak bug.
 
-Signed-off-by: Schspa Shi <schspa@gmail.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Link: https://lore.kernel.org/r/20220629022948.55608-1-schspa@gmail.com
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/vfio.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/cavium-octeon/octeon-platform.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
-index 2151bc7f87ab..7f60aedc3769 100644
---- a/drivers/vfio/vfio.c
-+++ b/drivers/vfio/vfio.c
-@@ -1823,6 +1823,7 @@ struct vfio_info_cap_header *vfio_info_cap_add(struct vfio_info_cap *caps,
- 	buf = krealloc(caps->buf, caps->size + size, GFP_KERNEL);
- 	if (!buf) {
- 		kfree(caps->buf);
-+		caps->buf = NULL;
- 		caps->size = 0;
- 		return ERR_PTR(-ENOMEM);
+diff --git a/arch/mips/cavium-octeon/octeon-platform.c b/arch/mips/cavium-octeon/octeon-platform.c
+index a994022e32c9..ce05c0dd3acd 100644
+--- a/arch/mips/cavium-octeon/octeon-platform.c
++++ b/arch/mips/cavium-octeon/octeon-platform.c
+@@ -86,11 +86,12 @@ static void octeon2_usb_clocks_start(struct device *dev)
+ 					 "refclk-frequency", &clock_rate);
+ 		if (i) {
+ 			dev_err(dev, "No UCTL \"refclk-frequency\"\n");
++			of_node_put(uctl_node);
+ 			goto exit;
+ 		}
+ 		i = of_property_read_string(uctl_node,
+ 					    "refclk-type", &clock_type);
+-
++		of_node_put(uctl_node);
+ 		if (!i && strcmp("crystal", clock_type) == 0)
+ 			is_crystal_clock = true;
  	}
 -- 
 2.35.1
