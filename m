@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DA25592373
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:22:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6630592379
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241222AbiHNQWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241238AbiHNQWC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 14 Aug 2022 12:22:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50656 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240777AbiHNQVh (ORCPT
+        with ESMTP id S240790AbiHNQVh (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:21:37 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 730D0140B8;
-        Sun, 14 Aug 2022 09:19:49 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E737140BA;
+        Sun, 14 Aug 2022 09:19:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DD3EDCE0B6B;
-        Sun, 14 Aug 2022 16:19:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3661BC433D6;
-        Sun, 14 Aug 2022 16:19:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE024B80B37;
+        Sun, 14 Aug 2022 16:19:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99612C433B5;
+        Sun, 14 Aug 2022 16:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660493986;
-        bh=j6NV3NHZXdnVzeVJMsRHbm/l1Gnb2Ly24LwoKMCdh4Y=;
-        h=From:To:Cc:Subject:Date:From;
-        b=EKpkwqFKJLwFzIXXtDnP1it1LCLOkG6l4leDWjDebv5FvzT0gobJv0RayD6QzYutG
-         A8zjpJADCZLUG8gBDUlnOQBpDsXHcEUB7T4H+QHurUfSFb5K/Fr16YHK+oyqBDN3dl
-         lEGXnwGjF2RLEWPK+N3mToetOlXeOs1HNRRmIldnIi1xNjnfeHVE2ns8vBJV+QSNGj
-         VjA5K8o4k9S8i8UYHSEZdEK2ZX1YI/wySGuq/6NgPOgXnEkyn1WJeN3AOu2po9M510
-         U8v03tcUAHUNRg6M2es44ag6KbbnlzQMpirx8j2gc7zaaqKeOWIj1KXV48+g664q7o
-         ymlBMCF3zdn7w==
+        s=k20201202; t=1660493987;
+        bh=YhTyq8ztHRIzhCyqOa/NH29eSjBtsSbe0iDoCiRMWzw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=WROZvLWPbEYgPuUVIbZU1xgzC5SxpZ4un809HN7d5t+RZ7DYaNwdeL/c28OeTN1cN
+         BppG0NIuMwiDb5QPAJwrerogDJ6x1EghhshI8+fKe3Z64Ug6U58JMIVpCLXzjLPsxr
+         b0xSgV/jEL6/N+Yn6XeLfU0ou66kYU7uSegxjQN0XZ5wMft+KjHfJ6EfniCvAk0n7R
+         nvE+y4IgLAeA9NPCvAEff2AcFg8BpGkRa+/ZIneEJv+YTWU5dJTKSeii0+44s4hyZw
+         g5TdzOdsHRh14EpwnwQ/CJ4s7uqDOFQuQs6anJPiHTPYkjSdX+QULrssJ6EWNiSHLM
+         fPJnVKdiHo4YA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, thunder.leizhen@huawei.com
-Subject: [PATCH AUTOSEL 5.19 01/48] lib/list_debug.c: Detect uninitialized lists
-Date:   Sun, 14 Aug 2022 12:18:54 -0400
-Message-Id: <20220814161943.2394452-1-sashal@kernel.org>
+Cc:     Dongli Zhang <dongli.zhang@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, hch@infradead.org,
+        m.szyprowski@samsung.com, iommu@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.19 02/48] swiotlb: panic if nslabs is too small
+Date:   Sun, 14 Aug 2022 12:18:55 -0400
+Message-Id: <20220814161943.2394452-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220814161943.2394452-1-sashal@kernel.org>
+References: <20220814161943.2394452-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,78 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-[ Upstream commit 0cc011c576aaa4de505046f7a6c90933d7c749a9 ]
+[ Upstream commit 0bf28fc40d89b1a3e00d1b79473bad4e9ca20ad1 ]
 
-In some circumstances, attempts are made to add entries to or to remove
-entries from an uninitialized list.  A prime example is
-amdgpu_bo_vm_destroy(): It is indirectly called from
-ttm_bo_init_reserved() if that function fails, and tries to remove an
-entry from a list.  However, that list is only initialized in
-amdgpu_bo_create_vm() after the call to ttm_bo_init_reserved() returned
-success.  This results in crashes such as
+Panic on purpose if nslabs is too small, in order to sync with the remap
+retry logic.
 
- BUG: kernel NULL pointer dereference, address: 0000000000000000
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] PREEMPT SMP NOPTI
- CPU: 1 PID: 1479 Comm: chrome Not tainted 5.10.110-15768-g29a72e65dae5
- Hardware name: Google Grunt/Grunt, BIOS Google_Grunt.11031.149.0 07/15/2020
- RIP: 0010:__list_del_entry_valid+0x26/0x7d
- ...
- Call Trace:
-  amdgpu_bo_vm_destroy+0x48/0x8b
-  ttm_bo_init_reserved+0x1d7/0x1e0
-  amdgpu_bo_create+0x212/0x476
-  ? amdgpu_bo_user_destroy+0x23/0x23
-  ? kmem_cache_alloc+0x60/0x271
-  amdgpu_bo_create_vm+0x40/0x7d
-  amdgpu_vm_pt_create+0xe8/0x24b
- ...
+In addition, print the number of bytes for tlb alloc failure.
 
-Check if the list's prev and next pointers are NULL to catch such problems.
-
-Link: https://lkml.kernel.org/r/20220531222951.92073-1-linux@roeck-us.net
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/list_debug.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ kernel/dma/swiotlb.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/lib/list_debug.c b/lib/list_debug.c
-index 9daa3fb9d1cd..d98d43f80958 100644
---- a/lib/list_debug.c
-+++ b/lib/list_debug.c
-@@ -20,7 +20,11 @@
- bool __list_add_valid(struct list_head *new, struct list_head *prev,
- 		      struct list_head *next)
- {
--	if (CHECK_DATA_CORRUPTION(next->prev != prev,
-+	if (CHECK_DATA_CORRUPTION(prev == NULL,
-+			"list_add corruption. prev is NULL.\n") ||
-+	    CHECK_DATA_CORRUPTION(next == NULL,
-+			"list_add corruption. next is NULL.\n") ||
-+	    CHECK_DATA_CORRUPTION(next->prev != prev,
- 			"list_add corruption. next->prev should be prev (%px), but was %px. (next=%px).\n",
- 			prev, next->prev, next) ||
- 	    CHECK_DATA_CORRUPTION(prev->next != next,
-@@ -42,7 +46,11 @@ bool __list_del_entry_valid(struct list_head *entry)
- 	prev = entry->prev;
- 	next = entry->next;
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index cb50f8d38360..03af7c3bee71 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -242,6 +242,9 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
+ 	if (swiotlb_force_disable)
+ 		return;
  
--	if (CHECK_DATA_CORRUPTION(next == LIST_POISON1,
-+	if (CHECK_DATA_CORRUPTION(next == NULL,
-+			"list_del corruption, %px->next is NULL\n", entry) ||
-+	    CHECK_DATA_CORRUPTION(prev == NULL,
-+			"list_del corruption, %px->prev is NULL\n", entry) ||
-+	    CHECK_DATA_CORRUPTION(next == LIST_POISON1,
- 			"list_del corruption, %px->next is LIST_POISON1 (%px)\n",
- 			entry, LIST_POISON1) ||
- 	    CHECK_DATA_CORRUPTION(prev == LIST_POISON2,
++	if (nslabs < IO_TLB_MIN_SLABS)
++		panic("%s: nslabs = %lu too small\n", __func__, nslabs);
++
+ 	/*
+ 	 * By default allocate the bounce buffer memory from low memory, but
+ 	 * allow to pick a location everywhere for hypervisors with guest
+@@ -254,7 +257,8 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
+ 	else
+ 		tlb = memblock_alloc_low(bytes, PAGE_SIZE);
+ 	if (!tlb) {
+-		pr_warn("%s: failed to allocate tlb structure\n", __func__);
++		pr_warn("%s: Failed to allocate %zu bytes tlb structure\n",
++			__func__, bytes);
+ 		return;
+ 	}
+ 
 -- 
 2.35.1
 
