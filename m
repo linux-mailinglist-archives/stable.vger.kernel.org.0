@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74E6759212E
+	by mail.lfdr.de (Postfix) with ESMTP id BE24C59212F
 	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:34:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240764AbiHNPed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:34:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39672 "EHLO
+        id S240784AbiHNPel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:34:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240725AbiHNPd6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:33:58 -0400
+        with ESMTP id S240732AbiHNPeC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:34:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86B2ECE10;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFA36CE25;
         Sun, 14 Aug 2022 08:30:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33BB060C58;
-        Sun, 14 Aug 2022 15:30:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E03B7C4314F;
-        Sun, 14 Aug 2022 15:30:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5214160C1D;
+        Sun, 14 Aug 2022 15:30:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A2D7C433D7;
+        Sun, 14 Aug 2022 15:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491031;
-        bh=XoTiZoUVZX4pd9WYhnysuZkslFJxFicRZdPAq2tGTyg=;
+        s=k20201202; t=1660491032;
+        bh=9S61Z+VGznUtOHxI/LjEz0Ut1LHsJYtenXwGluVJaXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZP5DIMF4ztMuXq7NNtZnygVTcNhv9dIw3jROlvb4F7Jpt5OgGHzY0kSnyEiy6bB6W
-         rjMPLt0YBaDkxEtuYD4jD4VCwmeN+D6ZOFhos48h60PPUFlhxXHv3TTbLgY4ZKrHay
-         beWVJrF+76sV4QZj/z/FDJwQ2HOL3T2CxG8hgCpjkkSl7EAbiWBqd8rtEPgV/p+MZL
-         l5PV7Qpq9MnvanuKMgWWUUSJID2rokKjFj7kerM+OMnUvxlvyWaPjG59BL+Xs8okKf
-         Kmq4e/pawJJFL2bmVE5KGTYCSnr2FcxFRH55yghLLic5O5AUSJ24VQucumfqex/dCK
-         ZZWTcp4gKuUhA==
+        b=H1ZxAlZunwiZm07mAHyvRJCyUs6+EfbEwoRsgxMQrorl/NHaUquY3HramaGMtj1Uq
+         jxuWatfnWxkM0im1J/+8p2ER59DhhlCWF7QJIuSDwtT3LEO35/mvgeHGW4KXgsArb0
+         wD4Ir3u8UTiAinH45p+It2P+R76Le9of+fJBCK4cTP/bWsaO3BjGivUBAC3YHZJkmi
+         aUWos/hz05s1ZQniuK/AdndCQ5tSoOXE7d2Ia79eKI6gpyg1szkSiHJX+1xLd4OEym
+         EStI1P/ovO6rx9GvelS97JdMmeVmoK2D54OT2IalZUMGpLt/Y44pG+mzX29QGZzmL7
+         4llrYunMiD2Sw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 03/56] PCI: Add ACS quirk for Broadcom BCM5750x NICs
-Date:   Sun, 14 Aug 2022 11:29:33 -0400
-Message-Id: <20220814153026.2377377-3-sashal@kernel.org>
+Cc:     Tzung-Bi Shih <tzungbi@kernel.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, bleung@chromium.org,
+        chrome-platform@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.18 04/56] platform/chrome: cros_ec_proto: don't show MKBP version if unsupported
+Date:   Sun, 14 Aug 2022 11:29:34 -0400
+Message-Id: <20220814153026.2377377-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153026.2377377-1-sashal@kernel.org>
 References: <20220814153026.2377377-1-sashal@kernel.org>
@@ -57,42 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavan Chebbi <pavan.chebbi@broadcom.com>
+From: Tzung-Bi Shih <tzungbi@kernel.org>
 
-[ Upstream commit afd306a65cedb9589564bdb23a0c368abc4215fd ]
+[ Upstream commit b36f0643ff14a2fb281b105418e4e73c9d7c11d0 ]
 
-The Broadcom BCM5750x NICs may be multi-function devices.  They do not
-advertise ACS capability. Peer-to-peer transactions are not possible
-between the individual functions, so it is safe to treat them as fully
-isolated.
+It wrongly showed the following message when it doesn't support MKBP:
+"MKBP support version 4294967295".
 
-Add an ACS quirk for these devices so the functions can be in independent
-IOMMU groups and attached individually to userspace applications using
-VFIO.
+Fix it.
 
-Link: https://lore.kernel.org/r/1654796507-28610-1-git-send-email-michael.chan@broadcom.com
-Signed-off-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
+Link: https://lore.kernel.org/r/20220609084957.3684698-14-tzungbi@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/platform/chrome/cros_ec_proto.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 41aeaa235132..2e68f50bc7ae 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4924,6 +4924,9 @@ static const struct pci_dev_acs_enabled {
- 	{ PCI_VENDOR_ID_AMPERE, 0xE00C, pci_quirk_xgene_acs },
- 	/* Broadcom multi-function device */
- 	{ PCI_VENDOR_ID_BROADCOM, 0x16D7, pci_quirk_mf_endpoint_acs },
-+	{ PCI_VENDOR_ID_BROADCOM, 0x1750, pci_quirk_mf_endpoint_acs },
-+	{ PCI_VENDOR_ID_BROADCOM, 0x1751, pci_quirk_mf_endpoint_acs },
-+	{ PCI_VENDOR_ID_BROADCOM, 0x1752, pci_quirk_mf_endpoint_acs },
- 	{ PCI_VENDOR_ID_BROADCOM, 0xD714, pci_quirk_brcm_acs },
- 	/* Amazon Annapurna Labs */
- 	{ PCI_VENDOR_ID_AMAZON_ANNAPURNA_LABS, 0x0031, pci_quirk_al_acs },
+diff --git a/drivers/platform/chrome/cros_ec_proto.c b/drivers/platform/chrome/cros_ec_proto.c
+index ac1419881ff3..c8353f96a7f3 100644
+--- a/drivers/platform/chrome/cros_ec_proto.c
++++ b/drivers/platform/chrome/cros_ec_proto.c
+@@ -507,13 +507,13 @@ int cros_ec_query_all(struct cros_ec_device *ec_dev)
+ 	ret = cros_ec_get_host_command_version_mask(ec_dev,
+ 						    EC_CMD_GET_NEXT_EVENT,
+ 						    &ver_mask);
+-	if (ret < 0 || ver_mask == 0)
++	if (ret < 0 || ver_mask == 0) {
+ 		ec_dev->mkbp_event_supported = 0;
+-	else
++	} else {
+ 		ec_dev->mkbp_event_supported = fls(ver_mask);
+ 
+-	dev_dbg(ec_dev->dev, "MKBP support version %u\n",
+-		ec_dev->mkbp_event_supported - 1);
++		dev_dbg(ec_dev->dev, "MKBP support version %u\n", ec_dev->mkbp_event_supported - 1);
++	}
+ 
+ 	/* Probe if host sleep v1 is supported for S0ix failure detection. */
+ 	ret = cros_ec_get_host_command_version_mask(ec_dev,
 -- 
 2.35.1
 
