@@ -2,53 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 590DD5924DE
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:36:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB2B35924D1
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:36:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242751AbiHNQgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:36:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51348 "EHLO
+        id S242515AbiHNQga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:36:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242963AbiHNQgG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:36:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3068540BC6;
-        Sun, 14 Aug 2022 09:28:09 -0700 (PDT)
+        with ESMTP id S242976AbiHNQgH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:36:07 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8103710CE;
+        Sun, 14 Aug 2022 09:28:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22D2260FBC;
-        Sun, 14 Aug 2022 16:28:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43214C433D6;
-        Sun, 14 Aug 2022 16:28:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D5624CE0B12;
+        Sun, 14 Aug 2022 16:28:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 682A0C433C1;
+        Sun, 14 Aug 2022 16:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494487;
-        bh=fyLsniPtbkvhrz7Aktr8PJkpKS/Iw4SVc6NcDeoroHE=;
+        s=k20201202; t=1660494490;
+        bh=iWyB8IFdso5gtJebIO8+TRvfPEgvkhSnV7gP/U3fW1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iG36Bsw4aqnnjS7e/0SfiR4dpgzPACIq3jfsCBGx3qyXRiOtQ/1Cp7mJ1fzHp39//
-         OpgaOD4aUNbhLneAG4NbLrQVkDsFCTHubnO2x6VLSDuGJME2aNu6QMpIBWN0Yrj8Cl
-         z5G37GHSc25oN3v/3hL1dD55prvRFKguLuZn4/7u5ON7uifY0n9o9HfKJXwifNWe5E
-         a7bMB6J4ndkRyhQB5pPMXt87hopsAaWr2Uqj3aLX4bZcJgewhg4S5hlWaW4TizX7+Q
-         0kslmkTCtB+2TKrUiMrGiul+lrnolunFFVeiB5qoyQJfwVNMwZn96RIeGsZR2pVU3m
-         NiwZVxJAaEqqA==
+        b=DYk0ffaHGStH3+wV1Mu6jFocHUxaobGZVJ0+Z4onBIBgZ24VY4eGS0DXAaobCo4aP
+         ACjAZdiM34GfP9lJNZrxjkgv8YRX7/TBKq2qHukEzj1JDmtlRpk7BxdG+zZFAJ/DGw
+         +BoJhNVbLAqM03ZR2CLPGyOxBqkhLAyt6sCzxkigkyNhbBQ5MU2p7Fh7Mr6VF0nvkE
+         h+pbkMe9i9FA907ffW8TQ/ocICzg4YFycbeBsmY0H4HRIYDOMq5nzOHWFfIGveM23g
+         lLkvpx5xbxC+csl1H4+4WfzB1uju1x7nyWHB6RKyA6PgaPtJ6K03djwtiPBWwrjTi0
+         2tHDEItM15iqA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, npiggin@gmail.com,
-        dja@axtens.net, lukas.bulwahn@gmail.com,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.10 10/19] powerpc/32: Don't always pass -mcpu=powerpc to the compiler
-Date:   Sun, 14 Aug 2022 12:27:29 -0400
-Message-Id: <20220814162739.2398217-10-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.10 11/19] ALSA: core: Add async signal helpers
+Date:   Sun, 14 Aug 2022 12:27:30 -0400
+Message-Id: <20220814162739.2398217-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814162739.2398217-1-sashal@kernel.org>
 References: <20220814162739.2398217-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -62,146 +55,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 446cda1b21d9a6b3697fe399c6a3a00ff4a285f5 ]
+[ Upstream commit ef34a0ae7a2654bc9e58675e36898217fb2799d8 ]
 
-Since commit 4bf4f42a2feb ("powerpc/kbuild: Set default generic
-machine type for 32-bit compile"), when building a 32 bits kernel
-with a bi-arch version of GCC, or when building a book3s/32 kernel,
-the option -mcpu=powerpc is passed to GCC at all time, relying on it
-being eventually overriden by a subsequent -mcpu=xxxx.
+Currently the call of kill_fasync() from an interrupt handler might
+lead to potential spin deadlocks, as spotted by syzkaller.
+Unfortunately, it's not so trivial to fix this lock chain as it's
+involved with the tasklist_lock that is touched in allover places.
 
-But when building the same kernel with a 32 bits only version of GCC,
-that is not done, relying on gcc being built with the expected default
-CPU.
+As a temporary workaround, this patch provides the way to defer the
+async signal notification in a work.  The new helper functions,
+snd_fasync_helper() and snd_kill_faync() are replacements for
+fasync_helper() and kill_fasync(), respectively.  In addition,
+snd_fasync_free() needs to be called at the destructor of the relevant
+file object.
 
-This logic has two problems. First, it is a bit fragile to rely on
-whether the GCC version is bi-arch or not, because today we can have
-bi-arch versions of GCC configured with a 32 bits default. Second,
-there are some versions of GCC which don't support -mcpu=powerpc,
-for instance for e500 SPE-only versions.
-
-So, stop relying on this approximative logic and allow the user to
-decide whether he/she wants to use the toolchain's default CPU or if
-he/she wants to set one, and allow only possible CPUs based on the
-selected target.
-
-Reported-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Tested-by: Pali Rohár <pali@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/d4df724691351531bf46d685d654689e5dfa0d74.1657549153.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/20220728125945.29533-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Makefile                  | 26 +-------------------------
- arch/powerpc/platforms/Kconfig.cputype | 21 ++++++++++++++++++---
- 2 files changed, 19 insertions(+), 28 deletions(-)
+ include/sound/core.h |  8 ++++
+ sound/core/misc.c    | 94 ++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 102 insertions(+)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index 7a96cdefbd4e..59175651f0b9 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -17,23 +17,6 @@ HAS_BIARCH	:= $(call cc-option-yn, -m32)
- # Set default 32 bits cross compilers for vdso and boot wrapper
- CROSS32_COMPILE ?=
+diff --git a/include/sound/core.h b/include/sound/core.h
+index 0462c577d7a3..85610ede9ea0 100644
+--- a/include/sound/core.h
++++ b/include/sound/core.h
+@@ -446,4 +446,12 @@ snd_pci_quirk_lookup_id(u16 vendor, u16 device,
+ }
+ #endif
  
--ifeq ($(HAS_BIARCH),y)
--ifeq ($(CROSS32_COMPILE),)
--ifdef CONFIG_PPC32
--# These options will be overridden by any -mcpu option that the CPU
--# or platform code sets later on the command line, but they are needed
--# to set a sane 32-bit cpu target for the 64-bit cross compiler which
--# may default to the wrong ISA.
--KBUILD_CFLAGS		+= -mcpu=powerpc
--KBUILD_AFLAGS		+= -mcpu=powerpc
--endif
--endif
--endif
--
--ifdef CONFIG_PPC_BOOK3S_32
--KBUILD_CFLAGS		+= -mcpu=powerpc
--endif
--
- # If we're on a ppc/ppc64/ppc64le machine use that defconfig, otherwise just use
- # ppc64_defconfig because we have nothing better to go on.
- uname := $(shell uname -m)
-@@ -190,6 +173,7 @@ endif
- endif
- 
- CFLAGS-$(CONFIG_TARGET_CPU_BOOL) += $(call cc-option,-mcpu=$(CONFIG_TARGET_CPU))
-+AFLAGS-$(CONFIG_TARGET_CPU_BOOL) += $(call cc-option,-mcpu=$(CONFIG_TARGET_CPU))
- 
- # Altivec option not allowed with e500mc64 in GCC.
- ifdef CONFIG_ALTIVEC
-@@ -200,14 +184,6 @@ endif
- CFLAGS-$(CONFIG_E5500_CPU) += $(E5500_CPU)
- CFLAGS-$(CONFIG_E6500_CPU) += $(call cc-option,-mcpu=e6500,$(E5500_CPU))
- 
--ifdef CONFIG_PPC32
--ifdef CONFIG_PPC_E500MC
--CFLAGS-y += $(call cc-option,-mcpu=e500mc,-mcpu=powerpc)
--else
--CFLAGS-$(CONFIG_E500) += $(call cc-option,-mcpu=8540 -msoft-float,-mcpu=powerpc)
--endif
--endif
--
- asinstr := $(call as-instr,lis 9$(comma)foo@high,-DHAVE_AS_ATHIGH=1)
- 
- KBUILD_CPPFLAGS	+= -I $(srctree)/arch/$(ARCH) $(asinstr)
-diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
-index 32a9c4c09b98..24e3d427bce5 100644
---- a/arch/powerpc/platforms/Kconfig.cputype
-+++ b/arch/powerpc/platforms/Kconfig.cputype
-@@ -119,9 +119,9 @@ config GENERIC_CPU
- 	depends on PPC64 && CPU_LITTLE_ENDIAN
- 	select ARCH_HAS_FAST_MULTIPLIER
- 
--config GENERIC_CPU
-+config POWERPC_CPU
- 	bool "Generic 32 bits powerpc"
--	depends on PPC32 && !PPC_8xx
-+	depends on PPC32 && !PPC_8xx && !PPC_85xx
- 
- config CELL_CPU
- 	bool "Cell Broadband Engine"
-@@ -175,11 +175,23 @@ config G4_CPU
- 	depends on PPC_BOOK3S_32
- 	select ALTIVEC
- 
-+config E500_CPU
-+	bool "e500 (8540)"
-+	depends on PPC_85xx && !PPC_E500MC
++/* async signal helpers */
++struct snd_fasync;
 +
-+config E500MC_CPU
-+	bool "e500mc"
-+	depends on PPC_85xx && PPC_E500MC
++int snd_fasync_helper(int fd, struct file *file, int on,
++		      struct snd_fasync **fasyncp);
++void snd_kill_fasync(struct snd_fasync *fasync, int signal, int poll);
++void snd_fasync_free(struct snd_fasync *fasync);
 +
-+config TOOLCHAIN_DEFAULT_CPU
-+	bool "Rely on the toolchain's implicit default CPU"
-+	depends on PPC32
+ #endif /* __SOUND_CORE_H */
+diff --git a/sound/core/misc.c b/sound/core/misc.c
+index 3579dd7a161f..c3f3d94b5197 100644
+--- a/sound/core/misc.c
++++ b/sound/core/misc.c
+@@ -10,6 +10,7 @@
+ #include <linux/time.h>
+ #include <linux/slab.h>
+ #include <linux/ioport.h>
++#include <linux/fs.h>
+ #include <sound/core.h>
+ 
+ #ifdef CONFIG_SND_DEBUG
+@@ -145,3 +146,96 @@ snd_pci_quirk_lookup(struct pci_dev *pci, const struct snd_pci_quirk *list)
+ }
+ EXPORT_SYMBOL(snd_pci_quirk_lookup);
+ #endif
 +
- endchoice
- 
- config TARGET_CPU_BOOL
- 	bool
--	default !GENERIC_CPU
-+	default !GENERIC_CPU && !TOOLCHAIN_DEFAULT_CPU
- 
- config TARGET_CPU
- 	string
-@@ -194,6 +206,9 @@ config TARGET_CPU
- 	default "e300c2" if E300C2_CPU
- 	default "e300c3" if E300C3_CPU
- 	default "G4" if G4_CPU
-+	default "8540" if E500_CPU
-+	default "e500mc" if E500MC_CPU
-+	default "powerpc" if POWERPC_CPU
- 
- config PPC_BOOK3S
- 	def_bool y
++/*
++ * Deferred async signal helpers
++ *
++ * Below are a few helper functions to wrap the async signal handling
++ * in the deferred work.  The main purpose is to avoid the messy deadlock
++ * around tasklist_lock and co at the kill_fasync() invocation.
++ * fasync_helper() and kill_fasync() are replaced with snd_fasync_helper()
++ * and snd_kill_fasync(), respectively.  In addition, snd_fasync_free() has
++ * to be called at releasing the relevant file object.
++ */
++struct snd_fasync {
++	struct fasync_struct *fasync;
++	int signal;
++	int poll;
++	int on;
++	struct list_head list;
++};
++
++static DEFINE_SPINLOCK(snd_fasync_lock);
++static LIST_HEAD(snd_fasync_list);
++
++static void snd_fasync_work_fn(struct work_struct *work)
++{
++	struct snd_fasync *fasync;
++
++	spin_lock_irq(&snd_fasync_lock);
++	while (!list_empty(&snd_fasync_list)) {
++		fasync = list_first_entry(&snd_fasync_list, struct snd_fasync, list);
++		list_del_init(&fasync->list);
++		spin_unlock_irq(&snd_fasync_lock);
++		if (fasync->on)
++			kill_fasync(&fasync->fasync, fasync->signal, fasync->poll);
++		spin_lock_irq(&snd_fasync_lock);
++	}
++	spin_unlock_irq(&snd_fasync_lock);
++}
++
++static DECLARE_WORK(snd_fasync_work, snd_fasync_work_fn);
++
++int snd_fasync_helper(int fd, struct file *file, int on,
++		      struct snd_fasync **fasyncp)
++{
++	struct snd_fasync *fasync = NULL;
++
++	if (on) {
++		fasync = kzalloc(sizeof(*fasync), GFP_KERNEL);
++		if (!fasync)
++			return -ENOMEM;
++		INIT_LIST_HEAD(&fasync->list);
++	}
++
++	spin_lock_irq(&snd_fasync_lock);
++	if (*fasyncp) {
++		kfree(fasync);
++		fasync = *fasyncp;
++	} else {
++		if (!fasync) {
++			spin_unlock_irq(&snd_fasync_lock);
++			return 0;
++		}
++		*fasyncp = fasync;
++	}
++	fasync->on = on;
++	spin_unlock_irq(&snd_fasync_lock);
++	return fasync_helper(fd, file, on, &fasync->fasync);
++}
++EXPORT_SYMBOL_GPL(snd_fasync_helper);
++
++void snd_kill_fasync(struct snd_fasync *fasync, int signal, int poll)
++{
++	unsigned long flags;
++
++	if (!fasync || !fasync->on)
++		return;
++	spin_lock_irqsave(&snd_fasync_lock, flags);
++	fasync->signal = signal;
++	fasync->poll = poll;
++	list_move(&fasync->list, &snd_fasync_list);
++	schedule_work(&snd_fasync_work);
++	spin_unlock_irqrestore(&snd_fasync_lock, flags);
++}
++EXPORT_SYMBOL_GPL(snd_kill_fasync);
++
++void snd_fasync_free(struct snd_fasync *fasync)
++{
++	if (!fasync)
++		return;
++	fasync->on = 0;
++	flush_work(&snd_fasync_work);
++	kfree(fasync);
++}
++EXPORT_SYMBOL_GPL(snd_fasync_free);
 -- 
 2.35.1
 
