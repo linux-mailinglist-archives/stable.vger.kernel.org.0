@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E807259223E
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:47:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7671E592265
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:47:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241181AbiHNPrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:47:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55284 "EHLO
+        id S241542AbiHNPrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:47:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241588AbiHNPpu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:45:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3467BB85B;
-        Sun, 14 Aug 2022 08:34:25 -0700 (PDT)
+        with ESMTP id S241600AbiHNPpw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:45:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 137D6BC36;
+        Sun, 14 Aug 2022 08:34:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CCCBE60CF7;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 37F6A60CF1;
+        Sun, 14 Aug 2022 15:34:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB027C4347C;
         Sun, 14 Aug 2022 15:34:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB435C433C1;
-        Sun, 14 Aug 2022 15:34:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491264;
-        bh=dA6ZEuwj7DPqjItnEoT4QchiUOKqV/ohRsxC0LHDOW0=;
+        s=k20201202; t=1660491265;
+        bh=5J3CrasuJ+H3IhnQusuUS3vDZ0zL0c+C2iD72KLsHps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n4Vkw7fJasY4SHvpwajwV8xT76J/s6rM47swdn38/qZ4eO5SdmvlRDwsB9rsCTbB+
-         9hK3eEPHYpgWgFMoWUxjX7dYFD1x3HIg4q0n9n8ydXSuBHnyIB2FVPLJsLu5Ypyqk0
-         bVEk1O/hkgnLr37SEW+F/UDHHJyL6YqYR1BCs0MyluQjpHh0wMbtC88LAj/pgNZ6Pn
-         sjr1B8RpBdZ9yF+//Kh41X4f48orJwsadmJB7nhVppC0Kz7x9qoBaROi9TefuMdTKp
-         Ln0jHWIBdh7uEBVZ8a3y4zEknqZjnWft9IZw10U/G2f9unTQnl/PrEm0DZaHBWakfn
-         eiFtCABozuPQg==
+        b=uZi5/QxuLhNPAti1Sk9ufaQ4UL9hPieMHMyQgvpx+xhBpxJv5/duZ5rsI82X3Ktp/
+         0SHSs/Pf3TD4NaVeEavp+4cUDMUR5k664U5SlDHi9tlVtgp3rce/4lemyu9o7kgici
+         bEBnDUu4yIBi45aRtZVQNa6OfGPh9IkcCCbTjb+v+9R7iDctiXPJvsWHcV7Hdl1UpT
+         fFTYITB8A3AMPSDgZoxwcyeewWRCwDAH9h97zoXpS/e578UlA/G7qyQtMW0V25lf2L
+         RwCicvNiS5LfmZNbk17OZuNJ2tzCGwSjFA9sO1ORJQQq0tCDJKBGQa4myKRGvbxXQ5
+         ybJwPjSE6aqYw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Chanho Park <chanho61.park@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kishon@ti.com, linux-phy@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 41/46] phy: samsung: phy-exynos-pcie: sanitize init/power_on callbacks
-Date:   Sun, 14 Aug 2022 11:32:42 -0400
-Message-Id: <20220814153247.2378312-41-sashal@kernel.org>
+Cc:     Logan Gunthorpe <logang@deltatee.com>,
+        Christoph Hellwig <hch@lst.de>, Song Liu <song@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 42/46] md: Notify sysfs sync_completed in md_reap_sync_thread()
+Date:   Sun, 14 Aug 2022 11:32:43 -0400
+Message-Id: <20220814153247.2378312-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153247.2378312-1-sashal@kernel.org>
 References: <20220814153247.2378312-1-sashal@kernel.org>
@@ -62,85 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit f2812227bb07e2eaee74253f11cea1576945df31 ]
+[ Upstream commit 9973f0fa7d20269fe6fefe6333997fb5914449c1 ]
 
-The exynos-pcie driver called phy_power_on() before phy_init() for some
-historical reasons. However the generic PHY framework assumes that the
-proper sequence is to call phy_init() first, then phy_power_on(). The
-operations done by both functions should be considered as one action and as
-such they are called by the exynos-pcie driver (without doing anything
-between them). The initialization is just a sequence of register writes,
-which cannot be altered without breaking the hardware operation.
+The mdadm test 07layouts randomly produces a kernel hung task deadlock.
+The deadlock is caused by the suspend_lo/suspend_hi files being set by
+the mdadm background process during reshape and not being cleared
+because the process hangs. (Leaving aside the issue of the fragility of
+freezing kernel tasks by buggy userspace processes...)
 
-To match the generic PHY framework requirement, simply move all register
-writes to the phy_init()/phy_exit() and drop power_on()/power_off()
-callbacks. This way the driver will also work with the old (incorrect)
-PHY initialization call sequence.
+When the background mdadm process hangs it, is waiting (without a
+timeout) on a change to the sync_completed file signalling that the
+reshape has completed. The process is woken up a couple times when
+the reshape finishes but it is woken up before MD_RECOVERY_RUNNING
+is cleared so sync_completed_show() reports 0 instead of "none".
 
-Link: https://lore.kernel.org/r/20220628220409.26545-1-m.szyprowski@samsung.com
-Reported-by: Bjorn Helgaas <helgaas@kernel.org>
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Chanho Park <chanho61.park@samsung.com>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-By: Vinod Koul <vkoul@kernel.org>
+To fix this, notify the sysfs file in md_reap_sync_thread() after
+MD_RECOVERY_RUNNING has been cleared. This wakes up mdadm and causes
+it to continue and write to suspend_lo/suspend_hi to allow IO to
+continue.
+
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/samsung/phy-exynos-pcie.c | 25 +++++++++----------------
- 1 file changed, 9 insertions(+), 16 deletions(-)
+ drivers/md/md.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/phy/samsung/phy-exynos-pcie.c b/drivers/phy/samsung/phy-exynos-pcie.c
-index 578cfe07d07a..53c9230c2907 100644
---- a/drivers/phy/samsung/phy-exynos-pcie.c
-+++ b/drivers/phy/samsung/phy-exynos-pcie.c
-@@ -51,6 +51,13 @@ static int exynos5433_pcie_phy_init(struct phy *phy)
- {
- 	struct exynos_pcie_phy *ep = phy_get_drvdata(phy);
- 
-+	regmap_update_bits(ep->pmureg, EXYNOS5433_PMU_PCIE_PHY_OFFSET,
-+			   BIT(0), 1);
-+	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_GLOBAL_RESET,
-+			   PCIE_APP_REQ_EXIT_L1_MODE, 0);
-+	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_L1SUB_CM_CON,
-+			   PCIE_REFCLK_GATING_EN, 0);
-+
- 	regmap_update_bits(ep->fsysreg,	PCIE_EXYNOS5433_PHY_COMMON_RESET,
- 			   PCIE_PHY_RESET, 1);
- 	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_MAC_RESET,
-@@ -109,20 +116,7 @@ static int exynos5433_pcie_phy_init(struct phy *phy)
- 	return 0;
- }
- 
--static int exynos5433_pcie_phy_power_on(struct phy *phy)
--{
--	struct exynos_pcie_phy *ep = phy_get_drvdata(phy);
--
--	regmap_update_bits(ep->pmureg, EXYNOS5433_PMU_PCIE_PHY_OFFSET,
--			   BIT(0), 1);
--	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_GLOBAL_RESET,
--			   PCIE_APP_REQ_EXIT_L1_MODE, 0);
--	regmap_update_bits(ep->fsysreg, PCIE_EXYNOS5433_PHY_L1SUB_CM_CON,
--			   PCIE_REFCLK_GATING_EN, 0);
--	return 0;
--}
--
--static int exynos5433_pcie_phy_power_off(struct phy *phy)
-+static int exynos5433_pcie_phy_exit(struct phy *phy)
- {
- 	struct exynos_pcie_phy *ep = phy_get_drvdata(phy);
- 
-@@ -135,8 +129,7 @@ static int exynos5433_pcie_phy_power_off(struct phy *phy)
- 
- static const struct phy_ops exynos5433_phy_ops = {
- 	.init		= exynos5433_pcie_phy_init,
--	.power_on	= exynos5433_pcie_phy_power_on,
--	.power_off	= exynos5433_pcie_phy_power_off,
-+	.exit		= exynos5433_pcie_phy_exit,
- 	.owner		= THIS_MODULE,
- };
- 
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index bf1c5c0e472e..4be9b23019c7 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -9467,6 +9467,7 @@ void md_reap_sync_thread(struct mddev *mddev)
+ 	wake_up(&resync_wait);
+ 	/* flag recovery needed just to double check */
+ 	set_bit(MD_RECOVERY_NEEDED, &mddev->recovery);
++	sysfs_notify_dirent_safe(mddev->sysfs_completed);
+ 	sysfs_notify_dirent_safe(mddev->sysfs_action);
+ 	md_new_event(mddev);
+ 	if (mddev->event_work.func)
 -- 
 2.35.1
 
