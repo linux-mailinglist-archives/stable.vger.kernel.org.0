@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBE3F592469
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 735E6592465
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:32:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242435AbiHNQcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:32:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40906 "EHLO
+        id S241580AbiHNQc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:32:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243022AbiHNQbt (ORCPT
+        with ESMTP id S243025AbiHNQbt (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:31:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46DCC237DF;
-        Sun, 14 Aug 2022 09:26:27 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23BBE237F1;
+        Sun, 14 Aug 2022 09:26:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBA10B80B3F;
-        Sun, 14 Aug 2022 16:26:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20D95C433D6;
-        Sun, 14 Aug 2022 16:26:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7332060F49;
+        Sun, 14 Aug 2022 16:26:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44011C433D7;
+        Sun, 14 Aug 2022 16:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494384;
-        bh=YI2a3bQsRpitOm3qvXNGbLX4UFt3jIL05K8HgbujqzQ=;
+        s=k20201202; t=1660494386;
+        bh=zZLL++bYvl0F92rMoTpAbVJJgVpyIgrqAToCvPmUEYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EalNv9Jb1PUXxGzsCpbwEKs6/3D7cRTn585a1RmGxviAYOX+WOQlegOQKPAnCFz3t
-         1FCdWdW5h5lxmV6SnmVvaLgukZI3YdEbpxjfFkbNZxLjAkOvwGOwkxYB6p6qvJV7Yp
-         a5GFewZHm8tqezEJBPxMLgAYs5hRGkLJcOrRxAD0V8HQXG46uPsL/RQoN656PrsTB+
-         OYzswzAoIbm7odW6Xcp+7fNWF2+vVB8r09g7Fovxw3QStHGtrFmPGS3BjdHt92797d
-         VeSS0IclW/TidRzxVooh5gi8k/Rn1viLBdhl68w+HrioHvp8zG2m9Qh+iFOFeUJZO/
-         3MvPfE1fMLzzQ==
+        b=fGHozz6Qi5LZQBw8lbrxo2WBuqRiIgHw0jIKniALm5M3Kef0m7bToBgA0tugp7pLn
+         cjXTEceTYPw8lZNgqB9dNFFswwl1DN7rCi4CpqaWM9G3KAU2tdm8ZPrFwnmLBx7cFG
+         IrgI5xiXqfEc7dPrtmjmBbDqT41999lxk5xlcgvuu3hy5Lt9LqM4UWgQswpZz7Tdr4
+         qDemdBNI/vYxh+Nk8Wv/qqYLROyq4/Ym/W00nAgvfhjzsL0zQWScFr54SNa7Lp/fWX
+         I4TWfLTOc1SQ/TOzzuxGX19Ap2oRavVpN+6pQiTgmXg/L+q0ZC3ILoIwsxMaaiND82
+         jObcvho39lQhg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yunfei Wang <yf.wang@mediatek.com>, Ning Li <ning.li@mediatek.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will@kernel.org>, Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>, joro@8bytes.org,
-        matthias.bgg@gmail.com, linux-arm-kernel@lists.infradead.org,
-        iommu@lists.linux.dev, linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 06/28] iommu/io-pgtable-arm-v7s: Add a quirk to allow pgtable PA up to 35bit
-Date:   Sun, 14 Aug 2022 12:25:46 -0400
-Message-Id: <20220814162610.2397644-6-sashal@kernel.org>
+Cc:     Helge Deller <deller@gmx.de>, Luis Chamberlain <mcgrof@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 07/28] modules: Ensure natural alignment for .altinstructions and __bug_table sections
+Date:   Sun, 14 Aug 2022 12:25:47 -0400
+Message-Id: <20220814162610.2397644-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814162610.2397644-1-sashal@kernel.org>
 References: <20220814162610.2397644-1-sashal@kernel.org>
@@ -59,215 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfei Wang <yf.wang@mediatek.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit bfdd231374181254742c5e2faef0bef2d30c0ee4 ]
+[ Upstream commit 87c482bdfa79f378297d92af49cdf265be199df5 ]
 
-Single memory zone feature will remove ZONE_DMA32 and ZONE_DMA and
-cause pgtable PA size larger than 32bit.
+In the kernel image vmlinux.lds.S linker scripts the .altinstructions
+and __bug_table sections are 4- or 8-byte aligned because they hold 32-
+and/or 64-bit values.
 
-Since Mediatek IOMMU hardware support at most 35bit PA in pgtable,
-so add a quirk to allow the PA of pgtables support up to bit35.
+Most architectures use altinstructions and BUG() or WARN() in modules as
+well, but in the module linker script (module.lds.S) those sections are
+currently missing. As consequence the linker will store their content
+byte-aligned by default, which then can lead to unnecessary unaligned
+memory accesses by the CPU when those tables are processed at runtime.
 
-Signed-off-by: Ning Li <ning.li@mediatek.com>
-Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Acked-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20220630092927.24925-2-yf.wang@mediatek.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Usually unaligned memory accesses are unnoticed, because either the
+hardware (as on x86 CPUs) or in-kernel exception handlers (e.g. on
+parisc or sparc) emulate and fix them up at runtime. Nevertheless, such
+unaligned accesses introduce a performance penalty and can even crash
+the kernel if there is a bug in the unalignment exception handlers
+(which happened once to me on the parisc architecture and which is why I
+noticed that issue at all).
+
+This patch fixes a non-critical issue and might be backported at any time.
+It's trivial and shouldn't introduce any regression because it simply
+tells the linker to use a different (8-byte alignment) for those
+sections by default.
+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Link: https://lore.kernel.org/all/Yr8%2Fgr8e8I7tVX4d@p100/
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/io-pgtable-arm-v7s.c | 75 ++++++++++++++++++++++--------
- include/linux/io-pgtable.h         | 15 ++++--
- 2 files changed, 66 insertions(+), 24 deletions(-)
+ scripts/module.lds.S | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/io-pgtable-arm-v7s.c b/drivers/iommu/io-pgtable-arm-v7s.c
-index be066c1503d3..ba3115fd0f86 100644
---- a/drivers/iommu/io-pgtable-arm-v7s.c
-+++ b/drivers/iommu/io-pgtable-arm-v7s.c
-@@ -182,14 +182,8 @@ static bool arm_v7s_is_mtk_enabled(struct io_pgtable_cfg *cfg)
- 		(cfg->quirks & IO_PGTABLE_QUIRK_ARM_MTK_EXT);
- }
+diff --git a/scripts/module.lds.S b/scripts/module.lds.S
+index 1d0e1e4dc3d2..3a3aa2354ed8 100644
+--- a/scripts/module.lds.S
++++ b/scripts/module.lds.S
+@@ -27,6 +27,8 @@ SECTIONS {
+ 	.ctors			0 : ALIGN(8) { *(SORT(.ctors.*)) *(.ctors) }
+ 	.init_array		0 : ALIGN(8) { *(SORT(.init_array.*)) *(.init_array) }
  
--static arm_v7s_iopte paddr_to_iopte(phys_addr_t paddr, int lvl,
--				    struct io_pgtable_cfg *cfg)
-+static arm_v7s_iopte to_mtk_iopte(phys_addr_t paddr, arm_v7s_iopte pte)
- {
--	arm_v7s_iopte pte = paddr & ARM_V7S_LVL_MASK(lvl);
--
--	if (!arm_v7s_is_mtk_enabled(cfg))
--		return pte;
--
- 	if (paddr & BIT_ULL(32))
- 		pte |= ARM_V7S_ATTR_MTK_PA_BIT32;
- 	if (paddr & BIT_ULL(33))
-@@ -199,6 +193,17 @@ static arm_v7s_iopte paddr_to_iopte(phys_addr_t paddr, int lvl,
- 	return pte;
- }
++	.altinstructions	0 : ALIGN(8) { KEEP(*(.altinstructions)) }
++	__bug_table		0 : ALIGN(8) { KEEP(*(__bug_table)) }
+ 	__jump_table		0 : ALIGN(8) { KEEP(*(__jump_table)) }
  
-+static arm_v7s_iopte paddr_to_iopte(phys_addr_t paddr, int lvl,
-+				    struct io_pgtable_cfg *cfg)
-+{
-+	arm_v7s_iopte pte = paddr & ARM_V7S_LVL_MASK(lvl);
-+
-+	if (arm_v7s_is_mtk_enabled(cfg))
-+		return to_mtk_iopte(paddr, pte);
-+
-+	return pte;
-+}
-+
- static phys_addr_t iopte_to_paddr(arm_v7s_iopte pte, int lvl,
- 				  struct io_pgtable_cfg *cfg)
- {
-@@ -240,10 +245,17 @@ static void *__arm_v7s_alloc_table(int lvl, gfp_t gfp,
- 	dma_addr_t dma;
- 	size_t size = ARM_V7S_TABLE_SIZE(lvl, cfg);
- 	void *table = NULL;
-+	gfp_t gfp_l1;
-+
-+	/*
-+	 * ARM_MTK_TTBR_EXT extend the translation table base support larger
-+	 * memory address.
-+	 */
-+	gfp_l1 = cfg->quirks & IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT ?
-+		 GFP_KERNEL : ARM_V7S_TABLE_GFP_DMA;
- 
- 	if (lvl == 1)
--		table = (void *)__get_free_pages(
--			__GFP_ZERO | ARM_V7S_TABLE_GFP_DMA, get_order(size));
-+		table = (void *)__get_free_pages(gfp_l1 | __GFP_ZERO, get_order(size));
- 	else if (lvl == 2)
- 		table = kmem_cache_zalloc(data->l2_tables, gfp);
- 
-@@ -251,7 +263,8 @@ static void *__arm_v7s_alloc_table(int lvl, gfp_t gfp,
- 		return NULL;
- 
- 	phys = virt_to_phys(table);
--	if (phys != (arm_v7s_iopte)phys) {
-+	if (cfg->quirks & IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT ?
-+	    phys >= (1ULL << cfg->oas) : phys != (arm_v7s_iopte)phys) {
- 		/* Doesn't fit in PTE */
- 		dev_err(dev, "Page table does not fit in PTE: %pa", &phys);
- 		goto out_free;
-@@ -457,9 +470,14 @@ static arm_v7s_iopte arm_v7s_install_table(arm_v7s_iopte *table,
- 					   arm_v7s_iopte curr,
- 					   struct io_pgtable_cfg *cfg)
- {
-+	phys_addr_t phys = virt_to_phys(table);
- 	arm_v7s_iopte old, new;
- 
--	new = virt_to_phys(table) | ARM_V7S_PTE_TYPE_TABLE;
-+	new = phys | ARM_V7S_PTE_TYPE_TABLE;
-+
-+	if (cfg->quirks & IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT)
-+		new = to_mtk_iopte(phys, new);
-+
- 	if (cfg->quirks & IO_PGTABLE_QUIRK_ARM_NS)
- 		new |= ARM_V7S_ATTR_NS_TABLE;
- 
-@@ -779,6 +797,8 @@ static struct io_pgtable *arm_v7s_alloc_pgtable(struct io_pgtable_cfg *cfg,
- 						void *cookie)
- {
- 	struct arm_v7s_io_pgtable *data;
-+	slab_flags_t slab_flag;
-+	phys_addr_t paddr;
- 
- 	if (cfg->ias > (arm_v7s_is_mtk_enabled(cfg) ? 34 : ARM_V7S_ADDR_BITS))
- 		return NULL;
-@@ -788,7 +808,8 @@ static struct io_pgtable *arm_v7s_alloc_pgtable(struct io_pgtable_cfg *cfg,
- 
- 	if (cfg->quirks & ~(IO_PGTABLE_QUIRK_ARM_NS |
- 			    IO_PGTABLE_QUIRK_NO_PERMS |
--			    IO_PGTABLE_QUIRK_ARM_MTK_EXT))
-+			    IO_PGTABLE_QUIRK_ARM_MTK_EXT |
-+			    IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT))
- 		return NULL;
- 
- 	/* If ARM_MTK_4GB is enabled, the NO_PERMS is also expected. */
-@@ -796,15 +817,27 @@ static struct io_pgtable *arm_v7s_alloc_pgtable(struct io_pgtable_cfg *cfg,
- 	    !(cfg->quirks & IO_PGTABLE_QUIRK_NO_PERMS))
- 			return NULL;
- 
-+	if ((cfg->quirks & IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT) &&
-+	    !arm_v7s_is_mtk_enabled(cfg))
-+		return NULL;
-+
- 	data = kmalloc(sizeof(*data), GFP_KERNEL);
- 	if (!data)
- 		return NULL;
- 
- 	spin_lock_init(&data->split_lock);
-+
-+	/*
-+	 * ARM_MTK_TTBR_EXT extend the translation table base support larger
-+	 * memory address.
-+	 */
-+	slab_flag = cfg->quirks & IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT ?
-+		    0 : ARM_V7S_TABLE_SLAB_FLAGS;
-+
- 	data->l2_tables = kmem_cache_create("io-pgtable_armv7s_l2",
- 					    ARM_V7S_TABLE_SIZE(2, cfg),
- 					    ARM_V7S_TABLE_SIZE(2, cfg),
--					    ARM_V7S_TABLE_SLAB_FLAGS, NULL);
-+					    slab_flag, NULL);
- 	if (!data->l2_tables)
- 		goto out_free_data;
- 
-@@ -850,12 +883,16 @@ static struct io_pgtable *arm_v7s_alloc_pgtable(struct io_pgtable_cfg *cfg,
- 	wmb();
- 
- 	/* TTBR */
--	cfg->arm_v7s_cfg.ttbr = virt_to_phys(data->pgd) | ARM_V7S_TTBR_S |
--				(cfg->coherent_walk ? (ARM_V7S_TTBR_NOS |
--				 ARM_V7S_TTBR_IRGN_ATTR(ARM_V7S_RGN_WBWA) |
--				 ARM_V7S_TTBR_ORGN_ATTR(ARM_V7S_RGN_WBWA)) :
--				(ARM_V7S_TTBR_IRGN_ATTR(ARM_V7S_RGN_NC) |
--				 ARM_V7S_TTBR_ORGN_ATTR(ARM_V7S_RGN_NC)));
-+	paddr = virt_to_phys(data->pgd);
-+	if (arm_v7s_is_mtk_enabled(cfg))
-+		cfg->arm_v7s_cfg.ttbr = paddr | upper_32_bits(paddr);
-+	else
-+		cfg->arm_v7s_cfg.ttbr = paddr | ARM_V7S_TTBR_S |
-+					(cfg->coherent_walk ? (ARM_V7S_TTBR_NOS |
-+					 ARM_V7S_TTBR_IRGN_ATTR(ARM_V7S_RGN_WBWA) |
-+					 ARM_V7S_TTBR_ORGN_ATTR(ARM_V7S_RGN_WBWA)) :
-+					(ARM_V7S_TTBR_IRGN_ATTR(ARM_V7S_RGN_NC) |
-+					 ARM_V7S_TTBR_ORGN_ATTR(ARM_V7S_RGN_NC)));
- 	return &data->iop;
- 
- out_free_data:
-diff --git a/include/linux/io-pgtable.h b/include/linux/io-pgtable.h
-index 86af6f0a00a2..ca98aeadcc80 100644
---- a/include/linux/io-pgtable.h
-+++ b/include/linux/io-pgtable.h
-@@ -74,17 +74,22 @@ struct io_pgtable_cfg {
- 	 *	to support up to 35 bits PA where the bit32, bit33 and bit34 are
- 	 *	encoded in the bit9, bit4 and bit5 of the PTE respectively.
- 	 *
-+	 * IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT: (ARM v7s format) MediaTek IOMMUs
-+	 *	extend the translation table base support up to 35 bits PA, the
-+	 *	encoding format is same with IO_PGTABLE_QUIRK_ARM_MTK_EXT.
-+	 *
- 	 * IO_PGTABLE_QUIRK_ARM_TTBR1: (ARM LPAE format) Configure the table
- 	 *	for use in the upper half of a split address space.
- 	 *
- 	 * IO_PGTABLE_QUIRK_ARM_OUTER_WBWA: Override the outer-cacheability
- 	 *	attributes set in the TCR for a non-coherent page-table walker.
- 	 */
--	#define IO_PGTABLE_QUIRK_ARM_NS		BIT(0)
--	#define IO_PGTABLE_QUIRK_NO_PERMS	BIT(1)
--	#define IO_PGTABLE_QUIRK_ARM_MTK_EXT	BIT(3)
--	#define IO_PGTABLE_QUIRK_ARM_TTBR1	BIT(5)
--	#define IO_PGTABLE_QUIRK_ARM_OUTER_WBWA	BIT(6)
-+	#define IO_PGTABLE_QUIRK_ARM_NS			BIT(0)
-+	#define IO_PGTABLE_QUIRK_NO_PERMS		BIT(1)
-+	#define IO_PGTABLE_QUIRK_ARM_MTK_EXT		BIT(3)
-+	#define IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT	BIT(4)
-+	#define IO_PGTABLE_QUIRK_ARM_TTBR1		BIT(5)
-+	#define IO_PGTABLE_QUIRK_ARM_OUTER_WBWA		BIT(6)
- 	unsigned long			quirks;
- 	unsigned long			pgsize_bitmap;
- 	unsigned int			ias;
+ 	__patchable_function_entries : { *(__patchable_function_entries) }
 -- 
 2.35.1
 
