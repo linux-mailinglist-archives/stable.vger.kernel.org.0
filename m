@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB72059227F
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:47:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D602592284
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241596AbiHNPrp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:47:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53448 "EHLO
+        id S241507AbiHNPru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:47:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241943AbiHNPqt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:46:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF20DEE7;
-        Sun, 14 Aug 2022 08:35:09 -0700 (PDT)
+        with ESMTP id S241957AbiHNPqv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:46:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D1291C914;
+        Sun, 14 Aug 2022 08:35:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AEC160DD3;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 474B2B80B83;
+        Sun, 14 Aug 2022 15:35:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ADDDC433C1;
         Sun, 14 Aug 2022 15:35:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E737AC43140;
-        Sun, 14 Aug 2022 15:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491308;
-        bh=g97XD/pgPbqJ4VwO4uV+VBUuGwCDEvgLc1WAUiTfTeI=;
+        s=k20201202; t=1660491310;
+        bh=YN7hsJzAs5oj+GODhyYpaGyRXv7Zw0L+eTzt7H41l3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uQO9KbLXh55fltn/zso1Awz3xEHeI9d9Ij0oxQ7yH+KQXoiAGxMSePsqw05ifgKRQ
-         1MEM4jn6aR+BQoM2mkmHJovodLBs4qaYj3SeYiDFyQO1S40fK8ozIAH+/BoLRaUbvR
-         9+qvuKOep+Gc1ME/pzQYbV0HMre71wwV37eDGoz5pkAxpgDgAYt4kMf0t3SWwT+jhe
-         eqxqregXCXG2ZK+fAR+P+K3RF5LPFp+IXA9ttUdlu3k/60QVrgHtPiys46sfPRRpE5
-         xZ2lQolSWb9hziQqazaBfOSO8PYqpzh9QblkMcKenK6QXPdXeVPCvwbONzYj8PsEZT
-         yB3S+uTXYjqtw==
+        b=OmJQaC4uOH44yHVwbwPv9I29VK8xNOxg5IvoufaGmIkUSB6yLaG9Q5U5j/tM0AP9+
+         QwSdbochadW0+EEv/UTClDgqW6kTnVk2kx2M5JqV1ubTEbaZRgvIllxPZ7oGegcdOl
+         r6SKhb5a3Cvp6Vk3pEAVPP8mU2/4swrkG1T0ps1NXp1//uC5iiDgtPuTRqJh2VpeF9
+         701e/RVGO2lyk8FhYcHmIejb7pWy5uLikxxwYiXWA4UVASG7XXUaBoWuy33e5PWX32
+         YCJF7MAq0goM55b4VEllHN9XxjcOybeoi6mMkqcUbNz1KdB8ETEA6QbVXRmoep4Lc3
+         YEiWRXlmH7fmQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, fbarrat@linux.ibm.com,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.10 19/31] cxl: Fix a memory leak in an error handling path
-Date:   Sun, 14 Aug 2022 11:34:19 -0400
-Message-Id: <20220814153431.2379231-19-sashal@kernel.org>
+Cc:     Huacai Chen <chenhuacai@loongson.cn>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-pci@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 20/31] PCI/ACPI: Guard ARM64-specific mcfg_quirks
+Date:   Sun, 14 Aug 2022 11:34:20 -0400
+Message-Id: <20220814153431.2379231-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153431.2379231-1-sashal@kernel.org>
 References: <20220814153431.2379231-1-sashal@kernel.org>
@@ -58,34 +57,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-[ Upstream commit 3a15b45b5454da862376b5d69a4967f5c6fa1368 ]
+[ Upstream commit 40a6cc141b4b9580de140bcb3e893445708acc5d ]
 
-A bitmap_zalloc() must be balanced by a corresponding bitmap_free() in the
-error handling path of afu_allocate_irqs().
+Guard ARM64-specific quirks with CONFIG_ARM64 to avoid build errors,
+since mcfg_quirks will be shared by more than one architectures.
 
-Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/ce5869418f5838187946eb6b11a52715a93ece3d.1657566849.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220714124216.1489304-2-chenhuacai@loongson.cn
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cxl/irq.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/pci_mcfg.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/misc/cxl/irq.c b/drivers/misc/cxl/irq.c
-index 4cb829d5d873..2e4dcfebf19a 100644
---- a/drivers/misc/cxl/irq.c
-+++ b/drivers/misc/cxl/irq.c
-@@ -349,6 +349,7 @@ int afu_allocate_irqs(struct cxl_context *ctx, u32 count)
+diff --git a/drivers/acpi/pci_mcfg.c b/drivers/acpi/pci_mcfg.c
+index 95f23acd5b80..2709ef2b0351 100644
+--- a/drivers/acpi/pci_mcfg.c
++++ b/drivers/acpi/pci_mcfg.c
+@@ -41,6 +41,8 @@ struct mcfg_fixup {
+ static struct mcfg_fixup mcfg_quirks[] = {
+ /*	{ OEM_ID, OEM_TABLE_ID, REV, SEGMENT, BUS_RANGE, ops, cfgres }, */
  
- out:
- 	cxl_ops->release_irq_ranges(&ctx->irqs, ctx->afu->adapter);
-+	bitmap_free(ctx->irq_bitmap);
- 	afu_irq_name_free(ctx);
- 	return -ENOMEM;
- }
++#ifdef CONFIG_ARM64
++
+ #define AL_ECAM(table_id, rev, seg, ops) \
+ 	{ "AMAZON", table_id, rev, seg, MCFG_BUS_ANY, ops }
+ 
+@@ -162,6 +164,7 @@ static struct mcfg_fixup mcfg_quirks[] = {
+ 	ALTRA_ECAM_QUIRK(1, 13),
+ 	ALTRA_ECAM_QUIRK(1, 14),
+ 	ALTRA_ECAM_QUIRK(1, 15),
++#endif /* ARM64 */
+ };
+ 
+ static char mcfg_oem_id[ACPI_OEM_ID_SIZE];
 -- 
 2.35.1
 
