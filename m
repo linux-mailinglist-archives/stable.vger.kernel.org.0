@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CC5B591F83
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 12:21:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C67A591F84
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 12:21:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230085AbiHNKVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 06:21:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50658 "EHLO
+        id S230161AbiHNKV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 06:21:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229723AbiHNKVU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 06:21:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786DF22514
-        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 03:21:19 -0700 (PDT)
+        with ESMTP id S229723AbiHNKV1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 06:21:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5277422BE8
+        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 03:21:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 300A9B80B3E
-        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 10:21:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82517C433D6;
-        Sun, 14 Aug 2022 10:21:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E233E60F85
+        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 10:21:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDE6BC433D6;
+        Sun, 14 Aug 2022 10:21:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660472476;
-        bh=49iQcnB3n5TcysljWXzSFiZ0H4q09CzojBJOgcdOR/I=;
+        s=korg; t=1660472485;
+        bh=1fxnmukhJIz06cdwmkXPGoRAvqI5G4og+sNkHBzOKZg=;
         h=Subject:To:Cc:From:Date:From;
-        b=ANw3dxHM9pVD+cMJa729b2znGFn80cTbjJW+2xV5H53szs5pY01OGXo14RDFAgeG0
-         KMbZV1YjdMKEl51BeQKm2Z9lV/CyXLUHiAZmIlPLAor6baxtKfQj+7eAHkW8nJycS+
-         m1c238rcGNmK48eEenUh6RdBpY1+bW16q7DuKPkU=
-Subject: FAILED: patch "[PATCH] io_uring: mem-account pbuf buckets" failed to apply to 5.19-stable tree
+        b=hIQdnjZyPMhOXQWjt1/QNNyYuqh2JVzIQI64IWhSglcPi82a4wyKPa1BQJlJMscHH
+         3pgDh/fu7qKOEGbfFK0kwWykC9qqSfCtT6HHeXpbjhjTlxJhJY6SSzeUdZDQ6KDMjp
+         6RhfQU1gwQgjtZBUS6Nx6bG+G8G4kEsPiOWSIm1k=
+Subject: FAILED: patch "[PATCH] io_uring: mem-account pbuf buckets" failed to apply to 5.18-stable tree
 To:     asml.silence@gmail.com, axboe@kernel.dk, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 14 Aug 2022 12:21:14 +0200
-Message-ID: <16604724744256@kroah.com>
+Message-ID: <1660472474221151@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.18-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
