@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C9DE591F72
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 12:12:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A086591F71
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 12:12:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230437AbiHNKMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 06:12:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42022 "EHLO
+        id S229921AbiHNKMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 06:12:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230488AbiHNKMO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 06:12:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7472D201A5
-        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 03:12:13 -0700 (PDT)
+        with ESMTP id S230527AbiHNKML (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 06:12:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF28B201B2
+        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 03:12:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B6A4B80B42
-        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 10:12:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83F02C433C1;
-        Sun, 14 Aug 2022 10:12:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DE1CB80AEE
+        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 10:12:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6F9FC433C1;
+        Sun, 14 Aug 2022 10:12:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660471930;
-        bh=jdG/PmrEvWD/SApBEmJqNU2qDnOZr1bmB8L5QEEmKso=;
+        s=korg; t=1660471928;
+        bh=6nPPFGTHtsWaVhmltFlJmJO076cml8PMSGqnlKpSHc4=;
         h=Subject:To:Cc:From:Date:From;
-        b=BFmKhD4RFixqjJXUJRI11m+FrBqaqefpM2AJZ2Z+MtNJDgdEXNcPAJ36xHU595xWu
-         tP7mucWv4GboDqMx/BaCIPyEHBKDXiGzS1n1AZn/oBg5ztK/i5riW9yKBCubia/75J
-         iRrE4egDDUNPOCDOuAVzX1vU/lhfYbqjL+tgrHNo=
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: edif: Fix dropped IKE message" failed to apply to 5.18-stable tree
+        b=fBA1G8AfzAIenxQc8z9Pzx0ZWn1vbuVQ3dghkO7+UwrYEzbaR0d9JNAIjOHTsdeCO
+         82XAOjVak+qPnUquyB4Ijkvf3T7fCxlDBg/vMFNoCuOq0m3TlRCUHlL/6GTTTeSKcH
+         HDZu29ztDN+goFXTbqXZ81Kpx3yQRVOX6Dh3VCUo=
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: edif: Fix dropped IKE message" failed to apply to 5.15-stable tree
 To:     qutran@marvell.com, himanshu.madhani@oracle.com,
         martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 14 Aug 2022 12:11:55 +0200
-Message-ID: <166047191554180@kroah.com>
+Message-ID: <1660471915235171@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.18-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
