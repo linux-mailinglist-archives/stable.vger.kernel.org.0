@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B064592442
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:30:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA538592446
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:30:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241651AbiHNQaA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:30:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42486 "EHLO
+        id S241827AbiHNQaC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:30:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242346AbiHNQ3X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:29:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53F731EACD;
-        Sun, 14 Aug 2022 09:24:19 -0700 (PDT)
+        with ESMTP id S242353AbiHNQ3Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:29:25 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BE1F1EEC6;
+        Sun, 14 Aug 2022 09:24:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB79260F71;
-        Sun, 14 Aug 2022 16:24:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5F22C433D7;
-        Sun, 14 Aug 2022 16:24:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1FA85CE0B5E;
+        Sun, 14 Aug 2022 16:24:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5984C433D6;
+        Sun, 14 Aug 2022 16:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494258;
-        bh=yG70TElzY3pqwf+P+DefanwjD3PKIULBwNjRqXQjbtg=;
+        s=k20201202; t=1660494262;
+        bh=50LxYaW0s6g5aawYlGxNMapMzOAnUzrDRFZi2x4260w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iDWJ7idB1pVhU2nZzpKciKKxRPNmeaTl0eN5kEw3kS+bHg8TxjBs3WyM0yOMBYHxt
-         K+po3LEk987S0P76fGwTZfZXW7NMOOknRnS4HeVf93kn8GURfa7ojz7ZU4c/MgAwW4
-         M2z8P0IhuljlDJAZS/Z2UimmHUAup5JI8t8vGLS/q2QkxnYxJUSWN97pWlfWQySLCP
-         H7jAoLQbNv3Kv8bPXnsUm7q+HFyhvn/1jB4ZADdJfLt+gDtHdq2LSFQiPvCXeNKL1l
-         lszyg8+Fe5T2UPrapT63FDXFm65V+PzlIVjtYZJ9Um/K3rGcPBSQjx47DL+iCTTpdY
-         DmwmvlZdnNUvA==
+        b=GXiHmAQs8urpssHs3nrztG5eWZyd1sNsiqFz8u3HWdiso3Qgowwra89UCEVOZSP+M
+         m97JzU3OBUf4owUlFrwT55DbCGmDWgO0UbfQ7I0xReFzOAROANQFZyfchqX+mahmLy
+         jY+8JvYBHg2is52C2z26KESSFwZ1iNkd3abbBxrNggRiT5pObFiFuboqWNwhvQxuDy
+         E8+Fei6GQ5x8bs5CTuxb5adLIyxPRcU5nwcQUavVze0K85SmrYhdksjtklKdVh2uLE
+         N777ldpdSn8ugApf9CHa5osP8SP3Dg8dLNACvxnjgESl89Hi7ccjVQcZyb8Ju92Kmu
+         GCB6y3HBvahTA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xianting Tian <xianting.tian@linux.alibaba.com>,
-        Guo Ren <guoren@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>, paul.walmsley@sifive.com,
-        palmer@dabbelt.com, aou@eecs.berkeley.edu, heiko@sntech.de,
-        wangkefeng.wang@huawei.com, ebiederm@xmission.com,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 15/39] RISC-V: Add fast call path of crash_kexec()
-Date:   Sun, 14 Aug 2022 12:23:04 -0400
-Message-Id: <20220814162332.2396012-15-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Lucas Tanure <tanureal@opensource.cirrus.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        perex@perex.cz, tiwai@suse.com, tcrawford@system76.com,
+        wse@tuxedocomputers.com, tangmeng@uniontech.com, cam@neo-zeon.de,
+        kailang@realtek.com, sbinding@opensource.cirrus.com,
+        yong.wu@mediatek.com, andy.chi@canonical.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.18 16/39] ALSA: hda/realtek: Enable speaker and mute LEDs for HP laptops
+Date:   Sun, 14 Aug 2022 12:23:05 -0400
+Message-Id: <20220814162332.2396012-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814162332.2396012-1-sashal@kernel.org>
 References: <20220814162332.2396012-1-sashal@kernel.org>
@@ -60,71 +61,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xianting Tian <xianting.tian@linux.alibaba.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 3f1901110a89b0e2e13adb2ac8d1a7102879ea98 ]
+[ Upstream commit c578d5da10dc429c6676ab09f3fec0b79b31633a ]
 
-Currently, almost all archs (x86, arm64, mips...) support fast call
-of crash_kexec() when "regs && kexec_should_crash()" is true. But
-RISC-V not, it can only enter crash system via panic(). However panic()
-doesn't pass the regs of the real accident scene to crash_kexec(),
-it caused we can't get accurate backtrace via gdb,
-	$ riscv64-linux-gnu-gdb vmlinux vmcore
-	Reading symbols from vmlinux...
-	[New LWP 95]
-	#0  console_unlock () at kernel/printk/printk.c:2557
-	2557                    if (do_cond_resched)
-	(gdb) bt
-	#0  console_unlock () at kernel/printk/printk.c:2557
-	#1  0x0000000000000000 in ?? ()
+Two more HP laptops that use cs35l41 AMP for speaker and GPIO for mute
+LEDs.
 
-With the patch we can get the accurate backtrace,
-	$ riscv64-linux-gnu-gdb vmlinux vmcore
-	Reading symbols from vmlinux...
-	[New LWP 95]
-	#0  0xffffffe00063a4e0 in test_thread (data=<optimized out>) at drivers/test_crash.c:81
-	81             *(int *)p = 0xdead;
-	(gdb)
-	(gdb) bt
-	#0  0xffffffe00064d5c0 in test_thread (data=<optimized out>) at drivers/test_crash.c:81
-	#1  0x0000000000000000 in ?? ()
+So use the existing quirk to enable them accordingly.
 
-Test code to produce NULL address dereference in test_crash.c,
-	void *p = NULL;
-	*(int *)p = 0xdead;
+[ Sort the entries at the SSID order by tiwai ]
 
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Tested-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20220606082308.2883458-1-xianting.tian@linux.alibaba.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reviewed-by: Lucas Tanure <tanureal@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220719142015.244426-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/traps.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/pci/hda/patch_realtek.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
-index fe92e119e6a3..e666ebfa2a64 100644
---- a/arch/riscv/kernel/traps.c
-+++ b/arch/riscv/kernel/traps.c
-@@ -16,6 +16,7 @@
- #include <linux/mm.h>
- #include <linux/module.h>
- #include <linux/irq.h>
-+#include <linux/kexec.h>
- 
- #include <asm/asm-prototypes.h>
- #include <asm/bug.h>
-@@ -44,6 +45,9 @@ void die(struct pt_regs *regs, const char *str)
- 
- 	ret = notify_die(DIE_OOPS, str, regs, 0, regs->cause, SIGSEGV);
- 
-+	if (regs && kexec_should_crash(current))
-+		crash_kexec(regs);
-+
- 	bust_spinlocks(0);
- 	add_taint(TAINT_DIE, LOCKDEP_NOW_UNRELIABLE);
- 	spin_unlock_irq(&die_lock);
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index b7f1f2fb60cb..ebd970961e00 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9166,6 +9166,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x8aa3, "HP ProBook 450 G9 (MB 8AA1)", ALC236_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8aa8, "HP EliteBook 640 G9 (MB 8AA6)", ALC236_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8aab, "HP EliteBook 650 G9 (MB 8AA9)", ALC236_FIXUP_HP_GPIO_LED),
++	SND_PCI_QUIRK(0x103c, 0x8ad1, "HP EliteBook 840 14 inch G9 Notebook PC", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
++	SND_PCI_QUIRK(0x103c, 0x8ad2, "HP EliteBook 860 16 inch G9 Notebook PC", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
+ 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
 -- 
 2.35.1
 
