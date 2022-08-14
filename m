@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54C3A592523
+	by mail.lfdr.de (Postfix) with ESMTP id 9D23E592524
 	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:38:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242964AbiHNQit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:38:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47596 "EHLO
+        id S243128AbiHNQiu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:38:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242983AbiHNQhM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:37:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3D4D38A6;
-        Sun, 14 Aug 2022 09:29:09 -0700 (PDT)
+        with ESMTP id S242957AbiHNQh1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:37:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF01D1C11E;
+        Sun, 14 Aug 2022 09:29:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CC8360FBF;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CE08B80B37;
+        Sun, 14 Aug 2022 16:29:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65309C43470;
         Sun, 14 Aug 2022 16:29:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2EE7C433D6;
-        Sun, 14 Aug 2022 16:29:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494548;
-        bh=Qz4ncXoPoM7vugOgfR+vbf/bthx4RLKEb397z+CrCds=;
+        s=k20201202; t=1660494550;
+        bh=9SfeYFIkUxV4kzA0oTEj7SB4EtELhFUNxGS1fzUs1Ro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mCVZADOc6fY94QafbVw+3/9mwP8AmlJTs2W59dZ42orSc3nDPTgD/07PL9XP07sjZ
-         F4NrWqriF4DH0GnLW34b5kQmDugzaLMEigBfczv/x3f5NsVRaKI7BRHa5VDKfkt6r8
-         w1ylxccFD66EOA7N3ae0K5tEdVfQO/h/BmI4j/nPuSn35vMrQVcLODvTeXQiRkgwl+
-         gqhsFe8HrcEYO2+rCOmtNII7wkfUPH0DvjRYXSaWzxaL0UIotsKt0qkWs1Nr6Lr9Sm
-         8+J/CdMblYscesJGl2yoHbwZkcVHSNpL0Mp9wUGmi1oE4p+ih7h3IrNuwVHJXSiJL5
-         VHrp57Ojxho4A==
+        b=am8jsWNHsXZGimAkMpH6DHCjuIDZe59QEk9yFryekNJFwdynwZZQbg8Q1B+DidpL0
+         7BtPjXTBTSinkyiX5TR88dsHBlqEHcH00E+snK2ZG3bgBhn/DrvJw6ZGAOO2LQcYKT
+         ua9wiMkH9nkXBUjiWTskUXoQbj16a4b6fgXDY+IJlSp2WPk0r51Xiz2v4BwFVF56OZ
+         UqPBlVNPJyxZcOtRFxLWSMg/fbYO5DPZu893g1AzDutWiFVu8rNgLh7nDeQ0IpUwVF
+         q/JP5uLeK4mPKP6+F0Ud4NCyg+sGe3kWdEr2eC6AbjUG3KA4SEnibm5M4rAzn8E1N0
+         EMIyJcjhv8QfQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <chao.yu@oppo.com>,
-        Dipanjan Das <mail.dipanjan.das@gmail.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, chao@kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.4 12/16] f2fs: fix to avoid use f2fs_bug_on() in f2fs_new_node_page()
-Date:   Sun, 14 Aug 2022 12:28:27 -0400
-Message-Id: <20220814162833.2398478-12-sashal@kernel.org>
+Cc:     Steve French <stfrench@microsoft.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
+        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.4 13/16] smb3: check xattr value length earlier
+Date:   Sun, 14 Aug 2022 12:28:28 -0400
+Message-Id: <20220814162833.2398478-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814162833.2398478-1-sashal@kernel.org>
 References: <20220814162833.2398478-1-sashal@kernel.org>
@@ -50,69 +49,57 @@ X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_FILL_THIS_FORM_SHORT,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao.yu@oppo.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit 141170b759e03958f296033bb7001be62d1d363b ]
+[ Upstream commit 5fa2cffba0b82336a2244d941322eb1627ff787b ]
 
-As Dipanjan Das <mail.dipanjan.das@gmail.com> reported, syzkaller
-found a f2fs bug as below:
+Coverity complains about assigning a pointer based on
+value length before checking that value length goes
+beyond the end of the SMB.  Although this is even more
+unlikely as value length is a single byte, and the
+pointer is not dereferenced until laterm, it is clearer
+to check the lengths first.
 
-RIP: 0010:f2fs_new_node_page+0x19ac/0x1fc0 fs/f2fs/node.c:1295
-Call Trace:
- write_all_xattrs fs/f2fs/xattr.c:487 [inline]
- __f2fs_setxattr+0xe76/0x2e10 fs/f2fs/xattr.c:743
- f2fs_setxattr+0x233/0xab0 fs/f2fs/xattr.c:790
- f2fs_xattr_generic_set+0x133/0x170 fs/f2fs/xattr.c:86
- __vfs_setxattr+0x115/0x180 fs/xattr.c:182
- __vfs_setxattr_noperm+0x125/0x5f0 fs/xattr.c:216
- __vfs_setxattr_locked+0x1cf/0x260 fs/xattr.c:277
- vfs_setxattr+0x13f/0x330 fs/xattr.c:303
- setxattr+0x146/0x160 fs/xattr.c:611
- path_setxattr+0x1a7/0x1d0 fs/xattr.c:630
- __do_sys_lsetxattr fs/xattr.c:653 [inline]
- __se_sys_lsetxattr fs/xattr.c:649 [inline]
- __x64_sys_lsetxattr+0xbd/0x150 fs/xattr.c:649
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-NAT entry and nat bitmap can be inconsistent, e.g. one nid is free
-in nat bitmap, and blkaddr in its NAT entry is not NULL_ADDR, it
-may trigger BUG_ON() in f2fs_new_node_page(), fix it.
-
-Reported-by: Dipanjan Das <mail.dipanjan.das@gmail.com>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Addresses-Coverity: 1467704 ("Speculative execution data leak")
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/node.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/cifs/smb2ops.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 3dc7cc3d6ac6..b080d5c58f6c 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -1240,7 +1240,11 @@ struct page *f2fs_new_node_page(struct dnode_of_data *dn, unsigned int ofs)
- 		dec_valid_node_count(sbi, dn->inode, !ofs);
- 		goto fail;
- 	}
--	f2fs_bug_on(sbi, new_ni.blk_addr != NULL_ADDR);
-+	if (unlikely(new_ni.blk_addr != NULL_ADDR)) {
-+		err = -EFSCORRUPTED;
-+		set_sbi_flag(sbi, SBI_NEED_FSCK);
-+		goto fail;
-+	}
- #endif
- 	new_ni.nid = dn->nid;
- 	new_ni.ino = dn->inode->i_ino;
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 57164563eec6..6ae281cff0d5 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -960,9 +960,7 @@ move_smb2_ea_to_cifs(char *dst, size_t dst_size,
+ 	size_t name_len, value_len, user_name_len;
+ 
+ 	while (src_size > 0) {
+-		name = &src->ea_data[0];
+ 		name_len = (size_t)src->ea_name_length;
+-		value = &src->ea_data[src->ea_name_length + 1];
+ 		value_len = (size_t)le16_to_cpu(src->ea_value_length);
+ 
+ 		if (name_len == 0)
+@@ -974,6 +972,9 @@ move_smb2_ea_to_cifs(char *dst, size_t dst_size,
+ 			goto out;
+ 		}
+ 
++		name = &src->ea_data[0];
++		value = &src->ea_data[src->ea_name_length + 1];
++
+ 		if (ea_name) {
+ 			if (ea_name_len == name_len &&
+ 			    memcmp(ea_name, name, name_len) == 0) {
 -- 
 2.35.1
 
