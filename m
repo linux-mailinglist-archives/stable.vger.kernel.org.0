@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6D6D592440
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D30FD592443
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:30:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242580AbiHNQ35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:29:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40836 "EHLO
+        id S240694AbiHNQ37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:29:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242115AbiHNQ3Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:29:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2B8D1D315;
-        Sun, 14 Aug 2022 09:24:12 -0700 (PDT)
+        with ESMTP id S242322AbiHNQ3V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:29:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDA8B1E3F1;
+        Sun, 14 Aug 2022 09:24:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3381960F9F;
-        Sun, 14 Aug 2022 16:24:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12C60C433D6;
-        Sun, 14 Aug 2022 16:24:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C892B80B7F;
+        Sun, 14 Aug 2022 16:24:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6293EC433C1;
+        Sun, 14 Aug 2022 16:24:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494251;
-        bh=t3xlxbpc+pSeSGh1Ge9cevaG2rWDIJOPlc1y8yJahgc=;
+        s=k20201202; t=1660494254;
+        bh=19IgdIE9ZrUrSbXsW+/oPm9vunuXvHYium+mpiIAJ+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hCA0nyfZyRd+7tuEPmzqyY9Br0WfZUe+mhX2zXjk5NiahHVq/rGcactjFBMxGGaoU
-         irj5GlqaMV9n8fO5S206t+bji3aPMoOXvMW/AF0kIKMgo5EPpTpgD2cTw4PMJzRaUz
-         qC7QKM2/pyv1+8N/27jvanBEZtw81I3vnowuu0AH4QkY7BaPq8581kq4aOSgd4mVKd
-         UpbxMCvsFfyhPy+Bs5xylKUZPRn3+SUApdRj7D8pIk20fmNQxRVH67hNRAfc772FbO
-         qzY9Gm4W8Ku+jAQ9NiVhir7+gHztVaJuCpRQyfMPvv1xsdk5kEao4HDLk9Zx8s4Iaj
-         v93yPtXnWGGvw==
+        b=XtqUlhc+iIcj5gPlv3nZWYC5gFCzPYghhj4pe9i7HOZnljQeEz3gkEbFwzsLn7Qzb
+         /s2JqeyeGwO7Rf4PqfrgPssdV0eYV3CeHcoLRzfTskExdVU0fTV54P9mM9tiXQzxO7
+         VBPDLXxTJjrf9xb8ssooVAiHUJALgJRW1VTuOrQrcGyxL6tzOhj7pRtUMbfvWXZAHi
+         9oPoJ+mCaYyWPdjrgiewPZfsxLc2QbKxc7Bx2iouQ59AIkSGogRDEwgUAc/oGUkf6O
+         yTG+xJGIed/5XtCEAGnQ+4Ky4Zud3Rbe9hdhcAc2DKWvVmU9lfnU189XhtN8kawyUi
+         1sbFXtVnjLOug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Conor Dooley <conor.dooley@microchip.com>,
-        Brice Goglin <Brice.Goglin@inria.fr>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+Cc:     Celeste Liu <coelacanthus@outlook.com>, xctan <xc-tan@outlook.com>,
+        dram <dramforever@live.com>, Ruizhe Pan <c141028@gmail.com>,
         Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, paul.walmsley@sifive.com,
-        palmer@dabbelt.com, aou@eecs.berkeley.edu, geert@linux-m68k.org,
-        niklas.cassel@wdc.com, devicetree@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>, paul.walmsley@sifive.com,
+        palmer@dabbelt.com, aou@eecs.berkeley.edu, guoren@kernel.org,
         linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 13/39] riscv: dts: canaan: Add k210 topology information
-Date:   Sun, 14 Aug 2022 12:23:02 -0400
-Message-Id: <20220814162332.2396012-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 14/39] riscv: mmap with PROT_WRITE but no PROT_READ is invalid
+Date:   Sun, 14 Aug 2022 12:23:03 -0400
+Message-Id: <20220814162332.2396012-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814162332.2396012-1-sashal@kernel.org>
 References: <20220814162332.2396012-1-sashal@kernel.org>
@@ -62,47 +59,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: Celeste Liu <coelacanthus@outlook.com>
 
-[ Upstream commit d9d193dea8666bbf69fc21c5bdcdabaa34a466e3 ]
+[ Upstream commit 2139619bcad7ac44cc8f6f749089120594056613 ]
 
-The k210 has no cpu-map node, so tools like hwloc cannot correctly
-parse the topology. Add the node using the existing node labels.
+As mentioned in Table 4.5 in RISC-V spec Volume 2 Section 4.3, write
+but not read is "Reserved for future use.". For now, they are not valid.
+In the current code, -wx is marked as invalid, but -w- is not marked
+as invalid.
+This patch refines that judgment.
 
-Reported-by: Brice Goglin <Brice.Goglin@inria.fr>
-Link: https://github.com/open-mpi/hwloc/issues/536
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Link: https://lore.kernel.org/r/20220705190435.1790466-6-mail@conchuod.ie
+Reported-by: xctan <xc-tan@outlook.com>
+Co-developed-by: dram <dramforever@live.com>
+Signed-off-by: dram <dramforever@live.com>
+Co-developed-by: Ruizhe Pan <c141028@gmail.com>
+Signed-off-by: Ruizhe Pan <c141028@gmail.com>
+Signed-off-by: Celeste Liu <coelacanthus@outlook.com>
+Link: https://lore.kernel.org/r/PH7PR14MB559464DBDD310E755F5B21E8CEDC9@PH7PR14MB5594.namprd14.prod.outlook.com
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/boot/dts/canaan/k210.dtsi | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/riscv/kernel/sys_riscv.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/boot/dts/canaan/k210.dtsi b/arch/riscv/boot/dts/canaan/k210.dtsi
-index 44d338514761..ec944d1537dc 100644
---- a/arch/riscv/boot/dts/canaan/k210.dtsi
-+++ b/arch/riscv/boot/dts/canaan/k210.dtsi
-@@ -65,6 +65,18 @@ cpu1_intc: interrupt-controller {
- 				compatible = "riscv,cpu-intc";
- 			};
- 		};
-+
-+		cpu-map {
-+			cluster0 {
-+				core0 {
-+					cpu = <&cpu0>;
-+				};
-+
-+				core1 {
-+					cpu = <&cpu1>;
-+				};
-+			};
-+		};
- 	};
+diff --git a/arch/riscv/kernel/sys_riscv.c b/arch/riscv/kernel/sys_riscv.c
+index 12f8a7fce78b..8a7880b9c433 100644
+--- a/arch/riscv/kernel/sys_riscv.c
++++ b/arch/riscv/kernel/sys_riscv.c
+@@ -18,9 +18,8 @@ static long riscv_sys_mmap(unsigned long addr, unsigned long len,
+ 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
+ 		return -EINVAL;
  
- 	sram: memory@80000000 {
+-	if ((prot & PROT_WRITE) && (prot & PROT_EXEC))
+-		if (unlikely(!(prot & PROT_READ)))
+-			return -EINVAL;
++	if (unlikely((prot & PROT_WRITE) && !(prot & PROT_READ)))
++		return -EINVAL;
+ 
+ 	return ksys_mmap_pgoff(addr, len, prot, flags, fd,
+ 			       offset >> (PAGE_SHIFT - page_shift_offset));
 -- 
 2.35.1
 
