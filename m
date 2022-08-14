@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 574315921D8
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:42:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAFC75921FC
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:42:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240845AbiHNPmR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:42:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42570 "EHLO
+        id S241227AbiHNPmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:42:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241197AbiHNPkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:40:37 -0400
+        with ESMTP id S241306AbiHNPlQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:41:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A882E21E04;
-        Sun, 14 Aug 2022 08:32:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 152C421804;
+        Sun, 14 Aug 2022 08:32:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8B49B80B43;
-        Sun, 14 Aug 2022 15:32:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAEE4C433D6;
-        Sun, 14 Aug 2022 15:32:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FDDCB80B87;
+        Sun, 14 Aug 2022 15:32:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 764B7C433D6;
+        Sun, 14 Aug 2022 15:32:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491166;
-        bh=2Pt4+ZlLYuaPt/DR5/FYcoRr9azFVFuCxOaaNH0l4P0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cc37qyoqFFmLy2jeLDbVQLN0Sa/HERdPDkuXGSYJCbjZEjJm+XogjadH1gx3+Vj4Q
-         qC7tfPSgRc+E9GKk8FGLdnWrnKHsvwHIHWN0dDJANv/JgNsuzD2uxVuPkYngggt60e
-         ju7TiLYMt3gkavc4BgEfIXkl6i3vrVuMXFcROSP4ZrUgSNUuVM9noB7rMie5XPkF5H
-         ekwWN2CxYqfRvNHG261p50juNmRUDwgxKMw6F79r4NSqgLlsYl5ojHZQBZ5at2Q6vE
-         GfES2dOU2nKai2dMyZOIIUs/uiPuJqEHtRXINUiNk+oBlc45zF5crlsJqNtODnycjl
-         C3KZN/fdlCCXQ==
+        s=k20201202; t=1660491170;
+        bh=0pbObdzox6CbrcgRjPxsv/HH0bIFHIjmUHHJFWXZ/p4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Emdu4A2EjO9syZj1eibSW2jxAzP0fGWy3NnlUQ2AgOY5XDPVNupFXRPu/DcIJeo4D
+         ibznx8WzgmHtrmhq6tds3ff4moZjtiy++e6YAAS9Gv6wGdljbEFzdXfhVoHj2+IkYt
+         qMEfLO7QqY5m7zpOE8ZajgFaLFVBFbvRmGfGP1RoW7oSyQStkwHXh70o3CCSgAjnT5
+         6HoBwYpWBXfRQa/vcM6ogcj5MFNg/9bqSbIEXQWrX8oWinyGod/ruewX1tqzYZYC0l
+         DgTXOhCYBILbB3bzgvu28EI/mE+DECnWj5qSCDKLVQRJcJ6k3Hbaq99rGacQWOnpuy
+         /6Jxa8csxY+VA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Kiselev, Oleg" <okiselev@amazon.com>,
-        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 56/56] ext4: avoid resizing to a partial cluster size
-Date:   Sun, 14 Aug 2022 11:30:26 -0400
-Message-Id: <20220814153026.2377377-56-sashal@kernel.org>
+Cc:     Tao Jin <tao-j@outlook.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 01/46] HID: multitouch: new device class fix Lenovo X12 trackpad sticky
+Date:   Sun, 14 Aug 2022 11:32:02 -0400
+Message-Id: <20220814153247.2378312-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220814153026.2377377-1-sashal@kernel.org>
-References: <20220814153026.2377377-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,45 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Kiselev, Oleg" <okiselev@amazon.com>
+From: Tao Jin <tao-j@outlook.com>
 
-[ Upstream commit 69cb8e9d8cd97cdf5e293b26d70a9dee3e35e6bd ]
+[ Upstream commit 54eed5c7b938dc4ef6b14d4ee048bbdafdbce352 ]
 
-This patch avoids an attempt to resize the filesystem to an
-unaligned cluster boundary.  An online resize to a size that is not
-integral to cluster size results in the last iteration attempting to
-grow the fs by a negative amount, which trips a BUG_ON and leaves the fs
-with a corrupted in-memory superblock.
+The trackpad of the given device sends continuous report of pointers
+status as per wxn8 spec. However, the spec did not clarify when the
+fingers are lifted so fast that between the interval of two report
+frames fingers on pad reduced from >=2 to 0. The second last report
+contains >=2 fingers with tip state 1 and the last report contains only
+1 finger with tip state 0. Although this can happen unfrequently, a
+  quick fix will be improve the consistency to 100%. A quick fix is to
+disable MT_QUIRK_ALWAYS_VALID and enable MT_QUIRK_NOT_SEEN_MEANS_UP.
 
-Signed-off-by: Oleg Kiselev <okiselev@amazon.com>
-Link: https://lore.kernel.org/r/0E92A0AB-4F16-4F1A-94B7-702CC6504FDE@amazon.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Test for hid-tools is added in [1]
+
+In addition to this, I2C device 04CA:00B1 may also need similar class
+but with MT_QUIRK_FORCE_MULTI_INPUT disabled (but it does not harm to
+ enable it on non-multi-input device either). The respective owner has
+been notified and a patch may coming soon after test.
+
+[1]: https://gitlab.freedesktop.org/libevdev/hid-tools/-/merge_requests/130
+
+Signed-off-by: Tao Jin <tao-j@outlook.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/resize.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/hid/hid-multitouch.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext4/resize.c b/fs/ext4/resize.c
-index 8b70a4701293..ce93fee7ef8b 100644
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -1988,6 +1988,16 @@ int ext4_resize_fs(struct super_block *sb, ext4_fsblk_t n_blocks_count)
- 	}
- 	brelse(bh);
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index f382444dc2db..a14c48de4446 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -194,6 +194,7 @@ static void mt_post_parse(struct mt_device *td, struct mt_application *app);
+ #define MT_CLS_WIN_8_FORCE_MULTI_INPUT		0x0015
+ #define MT_CLS_WIN_8_DISABLE_WAKEUP		0x0016
+ #define MT_CLS_WIN_8_NO_STICKY_FINGERS		0x0017
++#define MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU	0x0018
  
-+	/*
-+	 * For bigalloc, trim the requested size to the nearest cluster
-+	 * boundary to avoid creating an unusable filesystem. We do this
-+	 * silently, instead of returning an error, to avoid breaking
-+	 * callers that blindly resize the filesystem to the full size of
-+	 * the underlying block device.
-+	 */
-+	if (ext4_has_feature_bigalloc(sb))
-+		n_blocks_count &= ~((1 << EXT4_CLUSTER_BITS(sb)) - 1);
-+
- retry:
- 	o_blocks_count = ext4_blocks_count(es);
+ /* vendor specific classes */
+ #define MT_CLS_3M				0x0101
+@@ -286,6 +287,15 @@ static const struct mt_class mt_classes[] = {
+ 			MT_QUIRK_WIN8_PTP_BUTTONS |
+ 			MT_QUIRK_FORCE_MULTI_INPUT,
+ 		.export_all_inputs = true },
++	{ .name = MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU,
++		.quirks = MT_QUIRK_IGNORE_DUPLICATES |
++			MT_QUIRK_HOVERING |
++			MT_QUIRK_CONTACT_CNT_ACCURATE |
++			MT_QUIRK_STICKY_FINGERS |
++			MT_QUIRK_WIN8_PTP_BUTTONS |
++			MT_QUIRK_FORCE_MULTI_INPUT |
++			MT_QUIRK_NOT_SEEN_MEANS_UP,
++		.export_all_inputs = true },
+ 	{ .name = MT_CLS_WIN_8_DISABLE_WAKEUP,
+ 		.quirks = MT_QUIRK_ALWAYS_VALID |
+ 			MT_QUIRK_IGNORE_DUPLICATES |
+@@ -783,6 +793,7 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		case HID_DG_CONFIDENCE:
+ 			if ((cls->name == MT_CLS_WIN_8 ||
+ 			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
++			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU ||
+ 			     cls->name == MT_CLS_WIN_8_DISABLE_WAKEUP) &&
+ 				(field->application == HID_DG_TOUCHPAD ||
+ 				 field->application == HID_DG_TOUCHSCREEN))
+@@ -2033,7 +2044,7 @@ static const struct hid_device_id mt_devices[] = {
+ 			   USB_DEVICE_ID_LENOVO_X1_TAB3) },
  
+ 	/* Lenovo X12 TAB Gen 1 */
+-	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU,
+ 		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
+ 			   USB_VENDOR_ID_LENOVO,
+ 			   USB_DEVICE_ID_LENOVO_X12_TAB) },
 -- 
 2.35.1
 
