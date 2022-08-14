@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E98C5924A0
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:34:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E66745924A7
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:34:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242678AbiHNQdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:33:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39678 "EHLO
+        id S241927AbiHNQdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:33:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243135AbiHNQcI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:32:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56A972497C;
-        Sun, 14 Aug 2022 09:26:53 -0700 (PDT)
+        with ESMTP id S242068AbiHNQcS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:32:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B31D325296;
+        Sun, 14 Aug 2022 09:26:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30BC1B80B7C;
-        Sun, 14 Aug 2022 16:26:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56450C433C1;
-        Sun, 14 Aug 2022 16:26:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A57A060FBD;
+        Sun, 14 Aug 2022 16:26:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B11A2C433C1;
+        Sun, 14 Aug 2022 16:26:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494410;
-        bh=rjjCfkyDLgishq46C0BsFbiiIVJXO157qW9QTrr4C8Y=;
+        s=k20201202; t=1660494417;
+        bh=43GzhRkhEbwNxskyppUOE7zuVHwQvae/qFtzbaRz0xo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D5bA8akNIEwG2piRlj2O5QQU1wXIJ/J6hmOvvsr8eW2lX4sSrw1IP6Pd9t+Vr4eTR
-         B20JW9IgoFqrzAljUAjh2Lt8Pc8KjYGa4dPcUM6HD3w/xBwc1koeU5q54iXbNzdk86
-         JJS4AzvO3v4Q6JlE3dxgM7qkMZioYWCmwWu9+l+rhFTb//Fn13ed/LoIeOHcr1sJgp
-         VK9Jc7yEi0/S+gA1sW2XDVl1hnNo6VsxeCEqww3LIOGuutYJpMaK8UD3s+dJeGvJp5
-         mbyB99JfYu+rnEXrdXbIajruzdiiJk57XWL0ws20kPAoRuPY9LLdc5Q7VgGbeZ8/Qj
-         uSNDDFSVdaH6w==
+        b=cPnjcOBPewbu2orc1l2o20D6eggMxlU1VrA4KZIJ1Z9vABorLxvUkMbNocGDYqPn2
+         3oM7mqSbvoduXk5lXAIsiMmy6x1H4OJPEWy6Tp8aaMKZFS5DEjOiYLtmt/F9DTx5IR
+         dFIN1ONOv4yyMCHRVPc162Hf8oWMXrMIEam5EG11ltMZIe2rxU48gmdigy7OrHyE8G
+         /g7opHl+a84pDElvwDchEVWPrPx8+VQxR4J3/Wr/dGxqmQmnNdrARJryuh2e4sqMg3
+         /ApUKBUWlpygNFN6Q8kQrBI9mZI1vpxXPAcYfBZv4aJRQwhwPwYja0Fs/KPHlhPaAO
+         iYLGqYnfGCzJw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xianting Tian <xianting.tian@linux.alibaba.com>,
-        Guo Ren <guoren@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>, paul.walmsley@sifive.com,
-        palmer@dabbelt.com, aou@eecs.berkeley.edu, ebiederm@xmission.com,
-        rmk+kernel@armlinux.org.uk, akpm@linux-foundation.org,
-        wangkefeng.wang@huawei.com, heiko@sntech.de,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 13/28] RISC-V: Add fast call path of crash_kexec()
-Date:   Sun, 14 Aug 2022 12:25:53 -0400
-Message-Id: <20220814162610.2397644-13-sashal@kernel.org>
+Cc:     Laurent Dufour <ldufour@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, pmladek@suse.com,
+        akpm@linux-foundation.org, juri.lelli@redhat.com, pauld@redhat.com,
+        nixiaoming@huawei.com, john.ogness@linutronix.de,
+        frederic@kernel.org, linux@rasmusvillemoes.dk
+Subject: [PATCH AUTOSEL 5.15 14/28] watchdog: export lockup_detector_reconfigure
+Date:   Sun, 14 Aug 2022 12:25:54 -0400
+Message-Id: <20220814162610.2397644-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814162610.2397644-1-sashal@kernel.org>
 References: <20220814162610.2397644-1-sashal@kernel.org>
@@ -61,71 +59,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xianting Tian <xianting.tian@linux.alibaba.com>
+From: Laurent Dufour <ldufour@linux.ibm.com>
 
-[ Upstream commit 3f1901110a89b0e2e13adb2ac8d1a7102879ea98 ]
+[ Upstream commit 7c56a8733d0a2a4be2438a7512566e5ce552fccf ]
 
-Currently, almost all archs (x86, arm64, mips...) support fast call
-of crash_kexec() when "regs && kexec_should_crash()" is true. But
-RISC-V not, it can only enter crash system via panic(). However panic()
-doesn't pass the regs of the real accident scene to crash_kexec(),
-it caused we can't get accurate backtrace via gdb,
-	$ riscv64-linux-gnu-gdb vmlinux vmcore
-	Reading symbols from vmlinux...
-	[New LWP 95]
-	#0  console_unlock () at kernel/printk/printk.c:2557
-	2557                    if (do_cond_resched)
-	(gdb) bt
-	#0  console_unlock () at kernel/printk/printk.c:2557
-	#1  0x0000000000000000 in ?? ()
+In some circumstances it may be interesting to reconfigure the watchdog
+from inside the kernel.
 
-With the patch we can get the accurate backtrace,
-	$ riscv64-linux-gnu-gdb vmlinux vmcore
-	Reading symbols from vmlinux...
-	[New LWP 95]
-	#0  0xffffffe00063a4e0 in test_thread (data=<optimized out>) at drivers/test_crash.c:81
-	81             *(int *)p = 0xdead;
-	(gdb)
-	(gdb) bt
-	#0  0xffffffe00064d5c0 in test_thread (data=<optimized out>) at drivers/test_crash.c:81
-	#1  0x0000000000000000 in ?? ()
+On PowerPC, this may helpful before and after a LPAR migration (LPM) is
+initiated, because it implies some latencies, watchdog, and especially NMI
+watchdog is expected to be triggered during this operation. Reconfiguring
+the watchdog with a factor, would prevent it to happen too frequently
+during LPM.
 
-Test code to produce NULL address dereference in test_crash.c,
-	void *p = NULL;
-	*(int *)p = 0xdead;
+Rename lockup_detector_reconfigure() as __lockup_detector_reconfigure() and
+create a new function lockup_detector_reconfigure() calling
+__lockup_detector_reconfigure() under the protection of watchdog_mutex.
 
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Tested-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20220606082308.2883458-1-xianting.tian@linux.alibaba.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+[mpe: Squash in build fix from Laurent, reported by Sachin]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220713154729.80789-3-ldufour@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/traps.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/nmi.h |  2 ++
+ kernel/watchdog.c   | 21 ++++++++++++++++-----
+ 2 files changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
-index 0daaa3e4630d..b938ffe129d6 100644
---- a/arch/riscv/kernel/traps.c
-+++ b/arch/riscv/kernel/traps.c
-@@ -16,6 +16,7 @@
- #include <linux/mm.h>
- #include <linux/module.h>
- #include <linux/irq.h>
-+#include <linux/kexec.h>
+diff --git a/include/linux/nmi.h b/include/linux/nmi.h
+index 750c7f395ca9..f700ff2df074 100644
+--- a/include/linux/nmi.h
++++ b/include/linux/nmi.h
+@@ -122,6 +122,8 @@ int watchdog_nmi_probe(void);
+ int watchdog_nmi_enable(unsigned int cpu);
+ void watchdog_nmi_disable(unsigned int cpu);
  
- #include <asm/asm-prototypes.h>
- #include <asm/bug.h>
-@@ -44,6 +45,9 @@ void die(struct pt_regs *regs, const char *str)
- 
- 	ret = notify_die(DIE_OOPS, str, regs, 0, regs->cause, SIGSEGV);
- 
-+	if (regs && kexec_should_crash(current))
-+		crash_kexec(regs);
++void lockup_detector_reconfigure(void);
 +
- 	bust_spinlocks(0);
- 	add_taint(TAINT_DIE, LOCKDEP_NOW_UNRELIABLE);
- 	spin_unlock_irq(&die_lock);
+ /**
+  * touch_nmi_watchdog - restart NMI watchdog timeout.
+  *
+diff --git a/kernel/watchdog.c b/kernel/watchdog.c
+index ad912511a0c0..1cfa269bd448 100644
+--- a/kernel/watchdog.c
++++ b/kernel/watchdog.c
+@@ -537,7 +537,7 @@ int lockup_detector_offline_cpu(unsigned int cpu)
+ 	return 0;
+ }
+ 
+-static void lockup_detector_reconfigure(void)
++static void __lockup_detector_reconfigure(void)
+ {
+ 	cpus_read_lock();
+ 	watchdog_nmi_stop();
+@@ -557,6 +557,13 @@ static void lockup_detector_reconfigure(void)
+ 	__lockup_detector_cleanup();
+ }
+ 
++void lockup_detector_reconfigure(void)
++{
++	mutex_lock(&watchdog_mutex);
++	__lockup_detector_reconfigure();
++	mutex_unlock(&watchdog_mutex);
++}
++
+ /*
+  * Create the watchdog infrastructure and configure the detector(s).
+  */
+@@ -573,13 +580,13 @@ static __init void lockup_detector_setup(void)
+ 		return;
+ 
+ 	mutex_lock(&watchdog_mutex);
+-	lockup_detector_reconfigure();
++	__lockup_detector_reconfigure();
+ 	softlockup_initialized = true;
+ 	mutex_unlock(&watchdog_mutex);
+ }
+ 
+ #else /* CONFIG_SOFTLOCKUP_DETECTOR */
+-static void lockup_detector_reconfigure(void)
++static void __lockup_detector_reconfigure(void)
+ {
+ 	cpus_read_lock();
+ 	watchdog_nmi_stop();
+@@ -587,9 +594,13 @@ static void lockup_detector_reconfigure(void)
+ 	watchdog_nmi_start();
+ 	cpus_read_unlock();
+ }
++void lockup_detector_reconfigure(void)
++{
++	__lockup_detector_reconfigure();
++}
+ static inline void lockup_detector_setup(void)
+ {
+-	lockup_detector_reconfigure();
++	__lockup_detector_reconfigure();
+ }
+ #endif /* !CONFIG_SOFTLOCKUP_DETECTOR */
+ 
+@@ -629,7 +640,7 @@ static void proc_watchdog_update(void)
+ {
+ 	/* Remove impossible cpus to keep sysctl output clean. */
+ 	cpumask_and(&watchdog_cpumask, &watchdog_cpumask, cpu_possible_mask);
+-	lockup_detector_reconfigure();
++	__lockup_detector_reconfigure();
+ }
+ 
+ /*
 -- 
 2.35.1
 
