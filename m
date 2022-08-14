@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EA50592079
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:27:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B112592080
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239249AbiHNP1c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:27:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36864 "EHLO
+        id S239819AbiHNP1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:27:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238927AbiHNP1b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:27:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 294BAA47E;
-        Sun, 14 Aug 2022 08:27:31 -0700 (PDT)
+        with ESMTP id S239463AbiHNP1f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:27:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0587BB1C6;
+        Sun, 14 Aug 2022 08:27:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B67A60C13;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 985F4B80B48;
+        Sun, 14 Aug 2022 15:27:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 769AAC433D6;
         Sun, 14 Aug 2022 15:27:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 102B4C433C1;
-        Sun, 14 Aug 2022 15:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660490850;
-        bh=w33mRs5F3PRzrxWw08hnwiY70oxNBCnhaR6ox81U+W0=;
+        s=k20201202; t=1660490851;
+        bh=cxkevsUwWhkQZ7oBs9OqhVFejVOhwqYVJhnKPFLumOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HokVP/ReXtpQFilMpjqUnZ2HlMBS+XpYn2FJ5mCcXf5cedAApkKM3I651GcTcj2+l
-         N3I4g57dTC5jlZNJ2mZmkOBmhlaiGp+8+Tr+aoiLKjGq6LzD9TDX5NyWXiAEeXQMbX
-         eD2tQiGZCabgviqzsdoANDdX8D0YZ8g725FZ23f43zF3qEf8T2HkJXR7d03Lh/SRpE
-         wYJDUHtwm+TKMJ3egOa+cnifCfDK6+HKE0arJmHJ7nNHuKwmnzl7HcbxAwFvCzauVD
-         +GJ+EqZAu80D5pEy0U5ZPzk2yknPDtn6LfDDdQ+lh104szIL54r79U0rzp7YI+P3RC
-         1bqr4Tn43KTkw==
+        b=Mtd+CwmA2zZSbvtDREtJWA1c6MLDBOUstxhSzhKGjXPea14JpIk+nT791UGpEuMQU
+         113/YMWfLa+rTtR3p+kH+ZFSrTN5gt73Vetzhm6+NgXQFQ4maVjl1zvRKUk15AV2L3
+         XJTHMCGIatrmFYoIk3aOP9bxehEhn53L5Ym1KVBmNT+ze8K/fy0rPp+w565kxTM1IF
+         +WaDaNGb9hobM1znm14K6wZtVQ1XUbh8pA4+WGli1TEh8S9OgCnr0jQcMA6MvaOOHr
+         EU0b67vEeV5t0hrLDSy35CsNXshxMwiIMgzw0s1FCDk7y5XBlXELLPNQgiRDWqafSE
+         19qqM+TZhBxuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        Dan Vacura <w36195@motorola.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        laurent.pinchart@ideasonboard.com, balbi@kernel.org,
+        Sasha Levin <sashal@kernel.org>, balbi@kernel.org,
         linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 10/64] usb: gadget: uvc: calculate the number of request depending on framesize
-Date:   Sun, 14 Aug 2022 11:23:43 -0400
-Message-Id: <20220814152437.2374207-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.19 11/64] usb: gadget: uvc: call uvc uvcg_warn on completed status instead of uvcg_info
+Date:   Sun, 14 Aug 2022 11:23:44 -0400
+Message-Id: <20220814152437.2374207-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814152437.2374207-1-sashal@kernel.org>
 References: <20220814152437.2374207-1-sashal@kernel.org>
@@ -61,66 +60,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-[ Upstream commit 87d76b5f1d8eeb49efa16e2018e188864cbb9401 ]
+[ Upstream commit a725d0f6dfc5d3739d6499f30ec865305ba3544d ]
 
-The current limitation of possible number of requests being handled is
-dependent on the gadget speed. It makes more sense to depend on the
-typical frame size when calculating the number of requests. This patch
-is changing this and is using the previous limits as boundaries for
-reasonable minimum and maximum number of requests.
+Likewise to the uvcvideo hostside driver, this patch is changing the
+usb_request message of an non zero completion handler call from dev_info
+to dev_warn.
 
-For a 1080p jpeg encoded video stream with a maximum imagesize of
-e.g. 800kB with a maxburst of 8 and an multiplier of 1 the resulting
-number of requests is calculated to 49.
-
-        800768         1
-nreqs = ------ * -------------- ~= 49
-          2      (1024 * 8 * 1)
-
-Tested-by: Dan Vacura <w36195@motorola.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Link: https://lore.kernel.org/r/20220529223848.105914-2-m.grzeschik@pengutronix.de
+Link: https://lore.kernel.org/r/20220529223848.105914-4-m.grzeschik@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/uvc_queue.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/usb/gadget/function/uvc_video.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/uvc_queue.c b/drivers/usb/gadget/function/uvc_queue.c
-index d25edc3d2174..eb9bd9d32cd0 100644
---- a/drivers/usb/gadget/function/uvc_queue.c
-+++ b/drivers/usb/gadget/function/uvc_queue.c
-@@ -44,7 +44,8 @@ static int uvc_queue_setup(struct vb2_queue *vq,
- {
- 	struct uvc_video_queue *queue = vb2_get_drv_priv(vq);
- 	struct uvc_video *video = container_of(queue, struct uvc_video, queue);
--	struct usb_composite_dev *cdev = video->uvc->func.config->cdev;
-+	unsigned int req_size;
-+	unsigned int nreq;
+diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
+index d42bb3346745..e0f381ce7e77 100644
+--- a/drivers/usb/gadget/function/uvc_video.c
++++ b/drivers/usb/gadget/function/uvc_video.c
+@@ -261,7 +261,7 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
+ 		break;
  
- 	if (*nbuffers > UVC_MAX_VIDEO_BUFFERS)
- 		*nbuffers = UVC_MAX_VIDEO_BUFFERS;
-@@ -53,10 +54,16 @@ static int uvc_queue_setup(struct vb2_queue *vq,
- 
- 	sizes[0] = video->imagesize;
- 
--	if (cdev->gadget->speed < USB_SPEED_SUPER)
--		video->uvc_num_requests = 4;
--	else
--		video->uvc_num_requests = 64;
-+	req_size = video->ep->maxpacket
-+		 * max_t(unsigned int, video->ep->maxburst, 1)
-+		 * (video->ep->mult);
-+
-+	/* We divide by two, to increase the chance to run
-+	 * into fewer requests for smaller framesizes.
-+	 */
-+	nreq = DIV_ROUND_UP(DIV_ROUND_UP(sizes[0], 2), req_size);
-+	nreq = clamp(nreq, 4U, 64U);
-+	video->uvc_num_requests = nreq;
- 
- 	return 0;
- }
+ 	default:
+-		uvcg_info(&video->uvc->func,
++		uvcg_warn(&video->uvc->func,
+ 			  "VS request completed with status %d.\n",
+ 			  req->status);
+ 		uvcg_queue_cancel(queue, 0);
 -- 
 2.35.1
 
