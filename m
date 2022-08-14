@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2A915922DE
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:53:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA25592373
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:22:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241787AbiHNPwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:52:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40028 "EHLO
+        id S241222AbiHNQWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:22:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242186AbiHNPvX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:51:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 075F71AD96;
-        Sun, 14 Aug 2022 08:37:05 -0700 (PDT)
+        with ESMTP id S240777AbiHNQVh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:21:37 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 730D0140B8;
+        Sun, 14 Aug 2022 09:19:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A56B60DD3;
-        Sun, 14 Aug 2022 15:37:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34053C43148;
-        Sun, 14 Aug 2022 15:37:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DD3EDCE0B6B;
+        Sun, 14 Aug 2022 16:19:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3661BC433D6;
+        Sun, 14 Aug 2022 16:19:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491424;
-        bh=JDjptrvKjJqW3xN16G0npcUJ09mDN43wulCP7Pndw5w=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C2Te9zSeG4ovfUetrFeu6GCwR3H4Jglx6UOn0zigMN+Ib33uwgbUZtDaKCW2vNd22
-         Y9y6O6BAuzkWus6M0hHjGLmd6DGJFWcsJRv3cenxcGqyQ7Cxeqb60Xeud36p4OyJQD
-         AeHB390P7JDbXcuws7wrdvgO48+n+7+/eeGUVYlK5E5BFUjHvxW0lAb0fDeFVn0fWe
-         YGvATBMCkGQwk0lmzCRxT/3E0nBZJFFXqIBuJ44jGUsukm6MSogZbPE9oapNe3d157
-         Fq51i6BDdEnClOq9EVM3gGFtXhynXF7yQKd44VaNzzub4Dw9RFdjWEsZMOmtXAjNwk
-         cnkhy5Oee0xGg==
+        s=k20201202; t=1660493986;
+        bh=j6NV3NHZXdnVzeVJMsRHbm/l1Gnb2Ly24LwoKMCdh4Y=;
+        h=From:To:Cc:Subject:Date:From;
+        b=EKpkwqFKJLwFzIXXtDnP1it1LCLOkG6l4leDWjDebv5FvzT0gobJv0RayD6QzYutG
+         A8zjpJADCZLUG8gBDUlnOQBpDsXHcEUB7T4H+QHurUfSFb5K/Fr16YHK+oyqBDN3dl
+         lEGXnwGjF2RLEWPK+N3mToetOlXeOs1HNRRmIldnIi1xNjnfeHVE2ns8vBJV+QSNGj
+         VjA5K8o4k9S8i8UYHSEZdEK2ZX1YI/wySGuq/6NgPOgXnEkyn1WJeN3AOu2po9M510
+         U8v03tcUAHUNRg6M2es44ag6KbbnlzQMpirx8j2gc7zaaqKeOWIj1KXV48+g664q7o
+         ymlBMCF3zdn7w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Kiselev, Oleg" <okiselev@amazon.com>,
-        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 7/7] ext4: avoid resizing to a partial cluster size
-Date:   Sun, 14 Aug 2022 11:36:52 -0400
-Message-Id: <20220814153652.2380549-7-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, thunder.leizhen@huawei.com
+Subject: [PATCH AUTOSEL 5.19 01/48] lib/list_debug.c: Detect uninitialized lists
+Date:   Sun, 14 Aug 2022 12:18:54 -0400
+Message-Id: <20220814161943.2394452-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220814153652.2380549-1-sashal@kernel.org>
-References: <20220814153652.2380549-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,45 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Kiselev, Oleg" <okiselev@amazon.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 69cb8e9d8cd97cdf5e293b26d70a9dee3e35e6bd ]
+[ Upstream commit 0cc011c576aaa4de505046f7a6c90933d7c749a9 ]
 
-This patch avoids an attempt to resize the filesystem to an
-unaligned cluster boundary.  An online resize to a size that is not
-integral to cluster size results in the last iteration attempting to
-grow the fs by a negative amount, which trips a BUG_ON and leaves the fs
-with a corrupted in-memory superblock.
+In some circumstances, attempts are made to add entries to or to remove
+entries from an uninitialized list.  A prime example is
+amdgpu_bo_vm_destroy(): It is indirectly called from
+ttm_bo_init_reserved() if that function fails, and tries to remove an
+entry from a list.  However, that list is only initialized in
+amdgpu_bo_create_vm() after the call to ttm_bo_init_reserved() returned
+success.  This results in crashes such as
 
-Signed-off-by: Oleg Kiselev <okiselev@amazon.com>
-Link: https://lore.kernel.org/r/0E92A0AB-4F16-4F1A-94B7-702CC6504FDE@amazon.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP NOPTI
+ CPU: 1 PID: 1479 Comm: chrome Not tainted 5.10.110-15768-g29a72e65dae5
+ Hardware name: Google Grunt/Grunt, BIOS Google_Grunt.11031.149.0 07/15/2020
+ RIP: 0010:__list_del_entry_valid+0x26/0x7d
+ ...
+ Call Trace:
+  amdgpu_bo_vm_destroy+0x48/0x8b
+  ttm_bo_init_reserved+0x1d7/0x1e0
+  amdgpu_bo_create+0x212/0x476
+  ? amdgpu_bo_user_destroy+0x23/0x23
+  ? kmem_cache_alloc+0x60/0x271
+  amdgpu_bo_create_vm+0x40/0x7d
+  amdgpu_vm_pt_create+0xe8/0x24b
+ ...
+
+Check if the list's prev and next pointers are NULL to catch such problems.
+
+Link: https://lkml.kernel.org/r/20220531222951.92073-1-linux@roeck-us.net
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/resize.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ lib/list_debug.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/resize.c b/fs/ext4/resize.c
-index c367129dcdc1..c16bcd3f2e6d 100644
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -1940,6 +1940,16 @@ int ext4_resize_fs(struct super_block *sb, ext4_fsblk_t n_blocks_count)
- 	}
- 	brelse(bh);
+diff --git a/lib/list_debug.c b/lib/list_debug.c
+index 9daa3fb9d1cd..d98d43f80958 100644
+--- a/lib/list_debug.c
++++ b/lib/list_debug.c
+@@ -20,7 +20,11 @@
+ bool __list_add_valid(struct list_head *new, struct list_head *prev,
+ 		      struct list_head *next)
+ {
+-	if (CHECK_DATA_CORRUPTION(next->prev != prev,
++	if (CHECK_DATA_CORRUPTION(prev == NULL,
++			"list_add corruption. prev is NULL.\n") ||
++	    CHECK_DATA_CORRUPTION(next == NULL,
++			"list_add corruption. next is NULL.\n") ||
++	    CHECK_DATA_CORRUPTION(next->prev != prev,
+ 			"list_add corruption. next->prev should be prev (%px), but was %px. (next=%px).\n",
+ 			prev, next->prev, next) ||
+ 	    CHECK_DATA_CORRUPTION(prev->next != next,
+@@ -42,7 +46,11 @@ bool __list_del_entry_valid(struct list_head *entry)
+ 	prev = entry->prev;
+ 	next = entry->next;
  
-+	/*
-+	 * For bigalloc, trim the requested size to the nearest cluster
-+	 * boundary to avoid creating an unusable filesystem. We do this
-+	 * silently, instead of returning an error, to avoid breaking
-+	 * callers that blindly resize the filesystem to the full size of
-+	 * the underlying block device.
-+	 */
-+	if (ext4_has_feature_bigalloc(sb))
-+		n_blocks_count &= ~((1 << EXT4_CLUSTER_BITS(sb)) - 1);
-+
- retry:
- 	o_blocks_count = ext4_blocks_count(es);
- 
+-	if (CHECK_DATA_CORRUPTION(next == LIST_POISON1,
++	if (CHECK_DATA_CORRUPTION(next == NULL,
++			"list_del corruption, %px->next is NULL\n", entry) ||
++	    CHECK_DATA_CORRUPTION(prev == NULL,
++			"list_del corruption, %px->prev is NULL\n", entry) ||
++	    CHECK_DATA_CORRUPTION(next == LIST_POISON1,
+ 			"list_del corruption, %px->next is LIST_POISON1 (%px)\n",
+ 			entry, LIST_POISON1) ||
+ 	    CHECK_DATA_CORRUPTION(prev == LIST_POISON2,
 -- 
 2.35.1
 
