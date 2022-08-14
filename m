@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F3A759225F
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FE6859227A
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:47:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241517AbiHNPrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:47:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55072 "EHLO
+        id S241602AbiHNPri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:47:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241887AbiHNPqf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:46:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 040F327CC0;
-        Sun, 14 Aug 2022 08:35:01 -0700 (PDT)
+        with ESMTP id S241894AbiHNPqg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:46:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F15527CE1;
+        Sun, 14 Aug 2022 08:35:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8086760DE6;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 031F960DEB;
+        Sun, 14 Aug 2022 15:35:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57A64C43142;
         Sun, 14 Aug 2022 15:35:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDF77C43140;
-        Sun, 14 Aug 2022 15:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491300;
-        bh=z24/BARLJ//SDqxiofAV43yx4a8PcW9v68+Ar14AMV8=;
+        s=k20201202; t=1660491302;
+        bh=kVlUXOCqSVxVL6zHBfQjFoxbj12/c/D87XseBODHvrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NMISJmH1bRsczmpIYSmp4R/x0SoxKgXOqFPNpugLhX9I9pqBsCHQoo2/kQGjjJGob
-         +W1XJAwayB6hm5T/AoOpi+d9x+xRgeCDXV/kQGNMZhtIoZ015oA2n2Tnpt3aquHvoT
-         uwmHX2QU3flYzQNINryu/q7NxK3osQnsg6bL4IE9RoFpTx3eEWjYiSze6LOLqx8Zd4
-         M1e4uCRWyWV6qli0vonRaVRBUOQHeCznH5njYyCs6Hz26v073zowbUQOlRi0Sw+TLj
-         WGS4osTcG+wkMKKZzkzN3sMBr0Rhp6TgnRBSv07aG5ANZcGa1bVWqL8TXaN9UO61z3
-         UrB0G84Mi1T7g==
+        b=HhqF+yOEqr5sDBk/lN0sj3hfYNhSF8+MfQEBK4xOZNAoL2PbnT4Rad4vUSz6gRwLB
+         RTjBT/irz7vBOcFb/GO0lK5XRD5Em/6XeAms/kLsqhwyFQEfwFl2kW1zM95HcPNeSj
+         dAYzb6a57t24XgaXfeoVZVR6BqSKflMuaTFacr6fuAWxS0Y1Z+JZOVk16tGwmLbzB6
+         LODbZENAi4K9uZyZDSPFNwpUMGzvh33qsP8GOxmz4Ts+LJjwSlfKJlY1kYMr6nBkW0
+         5DY4jI75TORcNOCrUZbl7sPOVFh/J9KXQGheSETJWrxDxn2P8Pty+tKLCKYdzewVXs
+         ZeVjua1oIPdrQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
-        mturquette@baylibre.com, linux-arm-msm@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 15/31] clk: qcom: clk-alpha-pll: fix clk_trion_pll_configure description
-Date:   Sun, 14 Aug 2022 11:34:15 -0400
-Message-Id: <20220814153431.2379231-15-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Justin Tee <justin.tee@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
+        dick.kennedy@broadcom.com, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 16/31] scsi: lpfc: Prevent buffer overflow crashes in debugfs with malformed user input
+Date:   Sun, 14 Aug 2022 11:34:16 -0400
+Message-Id: <20220814153431.2379231-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153431.2379231-1-sashal@kernel.org>
 References: <20220814153431.2379231-1-sashal@kernel.org>
@@ -59,38 +59,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 94bed9bb05c7850ff5d80b87cc29004901f37956 ]
+[ Upstream commit f8191d40aa612981ce897e66cda6a88db8df17bb ]
 
-After merging lucid and trion pll functions in commit 0b01489475c6
-("clk: qcom: clk-alpha-pll: same regs and ops for trion and lucid")
-the function clk_trion_pll_configure() is left with an old description
-header, which results in a W=2 compile time warning, fix it.
+Malformed user input to debugfs results in buffer overflow crashes.  Adapt
+input string lengths to fit within internal buffers, leaving space for NULL
+terminators.
 
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220701062711.2757855-1-vladimir.zapolskiy@linaro.org
+Link: https://lore.kernel.org/r/20220701211425.2708-3-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/clk-alpha-pll.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_debugfs.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/clk/qcom/clk-alpha-pll.c b/drivers/clk/qcom/clk-alpha-pll.c
-index 1a571c04a76c..cf265ab035ea 100644
---- a/drivers/clk/qcom/clk-alpha-pll.c
-+++ b/drivers/clk/qcom/clk-alpha-pll.c
-@@ -1379,7 +1379,7 @@ const struct clk_ops clk_alpha_pll_postdiv_fabia_ops = {
- EXPORT_SYMBOL_GPL(clk_alpha_pll_postdiv_fabia_ops);
+diff --git a/drivers/scsi/lpfc/lpfc_debugfs.c b/drivers/scsi/lpfc/lpfc_debugfs.c
+index beaf3a8d206f..fbc76d69ea0b 100644
+--- a/drivers/scsi/lpfc/lpfc_debugfs.c
++++ b/drivers/scsi/lpfc/lpfc_debugfs.c
+@@ -2609,8 +2609,8 @@ lpfc_debugfs_multixripools_write(struct file *file, const char __user *buf,
+ 	struct lpfc_sli4_hdw_queue *qp;
+ 	struct lpfc_multixri_pool *multixri_pool;
  
- /**
-- * clk_lucid_pll_configure - configure the lucid pll
-+ * clk_trion_pll_configure - configure the trion pll
-  *
-  * @pll: clk alpha pll
-  * @regmap: register map
+-	if (nbytes > 64)
+-		nbytes = 64;
++	if (nbytes > sizeof(mybuf) - 1)
++		nbytes = sizeof(mybuf) - 1;
+ 
+ 	memset(mybuf, 0, sizeof(mybuf));
+ 
+@@ -2690,8 +2690,8 @@ lpfc_debugfs_nvmestat_write(struct file *file, const char __user *buf,
+ 	if (!phba->targetport)
+ 		return -ENXIO;
+ 
+-	if (nbytes > 64)
+-		nbytes = 64;
++	if (nbytes > sizeof(mybuf) - 1)
++		nbytes = sizeof(mybuf) - 1;
+ 
+ 	memset(mybuf, 0, sizeof(mybuf));
+ 
+@@ -2828,8 +2828,8 @@ lpfc_debugfs_ioktime_write(struct file *file, const char __user *buf,
+ 	char mybuf[64];
+ 	char *pbuf;
+ 
+-	if (nbytes > 64)
+-		nbytes = 64;
++	if (nbytes > sizeof(mybuf) - 1)
++		nbytes = sizeof(mybuf) - 1;
+ 
+ 	memset(mybuf, 0, sizeof(mybuf));
+ 
+@@ -2956,8 +2956,8 @@ lpfc_debugfs_nvmeio_trc_write(struct file *file, const char __user *buf,
+ 	char mybuf[64];
+ 	char *pbuf;
+ 
+-	if (nbytes > 63)
+-		nbytes = 63;
++	if (nbytes > sizeof(mybuf) - 1)
++		nbytes = sizeof(mybuf) - 1;
+ 
+ 	memset(mybuf, 0, sizeof(mybuf));
+ 
+@@ -3062,8 +3062,8 @@ lpfc_debugfs_hdwqstat_write(struct file *file, const char __user *buf,
+ 	char *pbuf;
+ 	int i;
+ 
+-	if (nbytes > 64)
+-		nbytes = 64;
++	if (nbytes > sizeof(mybuf) - 1)
++		nbytes = sizeof(mybuf) - 1;
+ 
+ 	memset(mybuf, 0, sizeof(mybuf));
+ 
 -- 
 2.35.1
 
