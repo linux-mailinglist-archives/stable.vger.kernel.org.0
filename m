@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1B305922A0
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:50:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A5BA59229E
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:50:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241327AbiHNPtS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:49:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53454 "EHLO
+        id S241651AbiHNPtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:49:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241466AbiHNPrO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:47:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F441BF7B;
-        Sun, 14 Aug 2022 08:35:24 -0700 (PDT)
+        with ESMTP id S241647AbiHNPsX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:48:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F73EDFA9;
+        Sun, 14 Aug 2022 08:35:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CE57B80B56;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 763F4B80B43;
+        Sun, 14 Aug 2022 15:35:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8F75C433C1;
         Sun, 14 Aug 2022 15:35:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD747C433C1;
-        Sun, 14 Aug 2022 15:35:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491320;
-        bh=t1roUgaSTodrFE5Q67YXj8K4EuRG/7oWKG6ZxMhzEgA=;
+        s=k20201202; t=1660491324;
+        bh=OGmMYQtr3snVEWFz3+EMj3eCxP/ElJtY42eT+tXGG48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCCvqObOwAaKUF/6y8Dq7/f/HteUnzdME5wD3XNsbftfCZ6Wc6exYDqyvVRWCXVj6
-         UUNRdvYiQd01frXuQmQYfg8Es/vV/FXRmUGpkz+av2AWVuXk9bk1xcooUzOD76wyAR
-         uf5lxPMTbrf2y28A+4rxBnxJhj1CeCL+9qHP6Un+L8pyvBn4Cb6mzCMtxbmWAPXsjH
-         rnUraTmCOgtyIO6D7iOduoPSrpRjgDJEQsHMHsLKrlVkHLYPKqegPwxhFDBIJlg1wk
-         uOANtQWzjMfo8qx/my5yojDUeNU2ErZINWzGy9us2s7koTAbbBtTb0VZWslptiFc0i
-         1dgyJBqnIrOWw==
+        b=EoyYJFw3DOcLT9OKl9NkJATX2P2ObY+ZD3FqBlUIbxv4M5dEqDkLbXqpH2M4hHmvA
+         YYSTNm599opqpOxYNAh7vuxzviGcpTLj8kwidgGMIMRQhBGqreLlfnIrU1XVvEKlvi
+         s56UC0zRORUzLA3ZAipYag1/k6Yh/n5EeImZB6Q6i/vbMTwCMDJZ464iUzfu+v/Nre
+         P+NcD34iAQqszxM9cAlxxpbzr8HF3mSjd+tQGd1V+A89O7JZajigZDlkQgXioFdvsN
+         EuHSoYgtU8PcS0S7HhnhAaAftNUIPDVz3msvxBCs/pk2AphmeZuZ2g+iV6+sfmBeZg
+         QdNXLLWZUTgOg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Baolin Wang <baolin.wang7@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        orsonzhai@gmail.com, zhang.lyra@gmail.com,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 25/31] dmaengine: sprd: Cleanup in .remove() after pm_runtime_get_sync() failed
-Date:   Sun, 14 Aug 2022 11:34:25 -0400
-Message-Id: <20220814153431.2379231-25-sashal@kernel.org>
+Cc:     Lecopzer Chen <lecopzer.chen@mediatek.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        matthias.bgg@gmail.com, arnd@arndb.de, ardb@kernel.org,
+        rostedt@goodmis.org, nick.hawkins@hpe.com, john@phrozen.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 26/31] ARM: 9203/1: kconfig: fix MODULE_PLTS for KASAN with KASAN_VMALLOC
+Date:   Sun, 14 Aug 2022 11:34:26 -0400
+Message-Id: <20220814153431.2379231-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153431.2379231-1-sashal@kernel.org>
 References: <20220814153431.2379231-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,45 +61,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Lecopzer Chen <lecopzer.chen@mediatek.com>
 
-[ Upstream commit 1e42f82cbec7b2cc4873751e7791e6611901c5fc ]
+[ Upstream commit 8fa7ea40bf56945c3ff5af00c0dca1fd9e26f129 ]
 
-It's not allowed to quit remove early without cleaning up completely.
-Otherwise this results in resource leaks that probably yield graver
-problems later. Here for example some tasklets might survive the lifetime
-of the sprd-dma device and access sdev which is freed after .remove()
-returns.
+When we run out of module space address with ko insertion,
+and with MODULE_PLTS, module would turn to try to find memory
+from VMALLOC address space.
 
-As none of the device freeing requires an active device, just ignore the
-return value of pm_runtime_get_sync().
+Unfortunately, with KASAN enabled, VMALLOC doesn't work without
+KASAN_VMALLOC, thus select KASAN_VMALLOC by default.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
-Link: https://lore.kernel.org/r/20220721204054.323602-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+8<--- cut here ---
+ Unable to handle kernel paging request at virtual address bd300860
+ [bd300860] *pgd=41cf1811, *pte=41cf26df, *ppte=41cf265f
+ Internal error: Oops: 80f [#1] PREEMPT SMP ARM
+ Modules linked in: hello(O+)
+ CPU: 0 PID: 89 Comm: insmod Tainted: G           O      5.16.0-rc6+ #19
+ Hardware name: Generic DT based system
+ PC is at mmioset+0x30/0xa8
+ LR is at 0x0
+ pc : [<c077ed30>]    lr : [<00000000>]    psr: 20000013
+ sp : c451fc18  ip : bd300860  fp : c451fc2c
+ r10: f18042cc  r9 : f18042d0  r8 : 00000000
+ r7 : 00000001  r6 : 00000003  r5 : 01312d00  r4 : f1804300
+ r3 : 00000000  r2 : 00262560  r1 : 00000000  r0 : bd300860
+ Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+ Control: 10c5387d  Table: 43e9406a  DAC: 00000051
+ Register r0 information: non-paged memory
+ Register r1 information: NULL pointer
+ Register r2 information: non-paged memory
+ Register r3 information: NULL pointer
+ Register r4 information: 4887-page vmalloc region starting at 0xf1802000 allocated at load_module+0x14f4/0x32a8
+ Register r5 information: non-paged memory
+ Register r6 information: non-paged memory
+ Register r7 information: non-paged memory
+ Register r8 information: NULL pointer
+ Register r9 information: 4887-page vmalloc region starting at 0xf1802000 allocated at load_module+0x14f4/0x32a8
+ Register r10 information: 4887-page vmalloc region starting at 0xf1802000 allocated at load_module+0x14f4/0x32a8
+ Register r11 information: non-slab/vmalloc memory
+ Register r12 information: non-paged memory
+ Process insmod (pid: 89, stack limit = 0xc451c000)
+ Stack: (0xc451fc18 to 0xc4520000)
+ fc00:                                                       f18041f0 c04803a4
+ fc20: c451fc44 c451fc30 c048053c c0480358 f1804030 01312cff c451fc64 c451fc48
+ fc40: c047f330 c0480500 f18040c0 c1b52ccc 00000001 c5be7700 c451fc74 c451fc68
+ fc60: f1802098 c047f300 c451fcb4 c451fc78 c026106c f180208c c4880004 00000000
+ fc80: c451fcb4 bf001000 c044ff48 c451fec0 f18040c0 00000000 c1b54cc4 00000000
+ fca0: c451fdf0 f1804268 c451fe64 c451fcb8 c0264e88 c0260d48 ffff8000 00007fff
+ fcc0: f18040c0 c025cd00 c451fd14 00000003 0157f008 f1804258 f180425c f1804174
+ fce0: f1804154 f180424c f18041f0 f180414c f1804178 f18041c0 bf0025d4 188a3fa8
+ fd00: 0000009e f1804170 f2b18000 c451ff10 c0d92e40 f180416c c451feec 00000001
+ fd20: 00000000 c451fec8 c451fe20 c451fed0 f18040cc 00000000 f17ea000 c451fdc0
+ fd40: 41b58ab3 c1387729 c0261c28 c047fb5c c451fe2c c451fd60 c0525308 c048033c
+ fd60: 188a3fb4 c3ccb090 c451fe00 c3ccb080 00000000 00000000 00016920 00000000
+ fd80: c02d0388 c047f55c c02d0388 00000000 c451fddc c451fda0 c02d0388 00000000
+ fda0: 41b58ab3 c13a72d0 c0524ff0 c1705f48 c451fdfc c451fdc0 c02d0388 c047f55c
+ fdc0: 00016920 00000000 00000003 c1bb2384 c451fdfc c3ccb080 c1bb2384 00000000
+ fde0: 00000000 00000000 00000000 00000000 c451fe1c c451fe00 c04e9d70 c1705f48
+ fe00: c1b54cc4 c1bbc71c c3ccb080 00000000 c3ccb080 00000000 00000003 c451fec0
+ fe20: c451fe64 c451fe30 c0525918 c0524ffc c451feb0 c1705f48 00000000 c1b54cc4
+ fe40: b78a3fd0 c451ff60 00000000 0157f008 00000003 c451fec0 c451ffa4 c451fe68
+ fe60: c0265480 c0261c34 c451feb0 7fffffff 00000000 00000002 00000000 c4880000
+ fe80: 41b58ab3 c138777b c02652cc c04803ec 000a0000 c451ff00 ffffff9c b6ac9f60
+ fea0: c451fed4 c1705f48 c04a4a90 b78a3fdc f17ea000 ffffff9c b6ac9f60 c0100244
+ fec0: f17ea21a f17ea300 f17ea000 00016920 f1800240 f18000ac f17fb7dc 01316000
+ fee0: 013161b0 00002590 01316250 00000000 00000000 00000000 00002580 00000029
+ ff00: 0000002a 00000013 00000000 0000000c 00000000 00000000 0157f004 c451ffb0
+ ff20: c1719be0 aed6f410 c451ff74 c451ff38 c0c4103c c0c407d0 c451ff84 c451ff48
+ ff40: 00000805 c02c8658 c1604230 c1719c30 00000805 0157f004 00000005 c451ffb0
+ ff60: c1719be0 aed6f410 c451ffac c451ff78 c0122130 c1705f48 c451ffac 0157f008
+ ff80: 00000006 0000005f 0000017b c0100244 c4880000 0000017b 00000000 c451ffa8
+ ffa0: c0100060 c02652d8 0157f008 00000006 00000003 0157f008 00000000 b6ac9f60
+ ffc0: 0157f008 00000006 0000005f 0000017b 00000000 00000000 aed85f74 00000000
+ ffe0: b6ac9cd8 b6ac9cc8 00030200 aecf2d60 a0000010 00000003 00000000 00000000
+ Backtrace:
+ [<c048034c>] (kasan_poison) from [<c048053c>] (kasan_unpoison+0x48/0x5c)
+ [<c04804f4>] (kasan_unpoison) from [<c047f330>] (__asan_register_globals+0x3c/0x64)
+  r5:01312cff r4:f1804030
+ [<c047f2f4>] (__asan_register_globals) from [<f1802098>] (_sub_I_65535_1+0x18/0xf80 [hello])
+  r7:c5be7700 r6:00000001 r5:c1b52ccc r4:f18040c0
+ [<f1802080>] (_sub_I_65535_1 [hello]) from [<c026106c>] (do_init_module+0x330/0x72c)
+ [<c0260d3c>] (do_init_module) from [<c0264e88>] (load_module+0x3260/0x32a8)
+  r10:f1804268 r9:c451fdf0 r8:00000000 r7:c1b54cc4 r6:00000000 r5:f18040c0
+  r4:c451fec0
+ [<c0261c28>] (load_module) from [<c0265480>] (sys_finit_module+0x1b4/0x1e8)
+  r10:c451fec0 r9:00000003 r8:0157f008 r7:00000000 r6:c451ff60 r5:b78a3fd0
+  r4:c1b54cc4
+ [<c02652cc>] (sys_finit_module) from [<c0100060>] (ret_fast_syscall+0x0/0x1c)
+ Exception stack(0xc451ffa8 to 0xc451fff0)
+ ffa0:                   0157f008 00000006 00000003 0157f008 00000000 b6ac9f60
+ ffc0: 0157f008 00000006 0000005f 0000017b 00000000 00000000 aed85f74 00000000
+ ffe0: b6ac9cd8 b6ac9cc8 00030200 aecf2d60
+  r10:0000017b r9:c4880000 r8:c0100244 r7:0000017b r6:0000005f r5:00000006
+  r4:0157f008
+ Code: e92d4100 e1a08001 e1a0e003 e2522040 (a8ac410a)
+ ---[ end trace df6e12843197b6f5 ]---
+
+Signed-off-by: Lecopzer Chen <lecopzer.chen@mediatek.com>
+Tested-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sprd-dma.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ arch/arm/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/sprd-dma.c b/drivers/dma/sprd-dma.c
-index 4357d2395e6b..60115d8d4083 100644
---- a/drivers/dma/sprd-dma.c
-+++ b/drivers/dma/sprd-dma.c
-@@ -1236,11 +1236,8 @@ static int sprd_dma_remove(struct platform_device *pdev)
- {
- 	struct sprd_dma_dev *sdev = platform_get_drvdata(pdev);
- 	struct sprd_dma_chn *c, *cn;
--	int ret;
- 
--	ret = pm_runtime_get_sync(&pdev->dev);
--	if (ret < 0)
--		return ret;
-+	pm_runtime_get_sync(&pdev->dev);
- 
- 	/* explicitly free the irq */
- 	if (sdev->irq > 0)
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index b587ecc6f949..6181b22cdcd9 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1554,6 +1554,7 @@ config ARCH_WANT_GENERAL_HUGETLB
+ config ARM_MODULE_PLTS
+ 	bool "Use PLTs to allow module memory to spill over into vmalloc area"
+ 	depends on MODULES
++	select KASAN_VMALLOC if KASAN
+ 	default y
+ 	help
+ 	  Allocate PLTs when loading modules so that jumps and calls whose
 -- 
 2.35.1
 
