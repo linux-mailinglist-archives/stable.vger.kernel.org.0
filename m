@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE878592180
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:37:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75259592190
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:38:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240643AbiHNPhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240635AbiHNPhF (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 14 Aug 2022 11:37:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54658 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241264AbiHNPgh (ORCPT
+        with ESMTP id S241270AbiHNPgh (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:36:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4A511F2F7;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D46C51F2F1;
         Sun, 14 Aug 2022 08:32:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73F6AB80B56;
-        Sun, 14 Aug 2022 15:31:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D9D5C433D6;
-        Sun, 14 Aug 2022 15:31:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7127560C05;
+        Sun, 14 Aug 2022 15:32:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAD36C433B5;
+        Sun, 14 Aug 2022 15:31:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491118;
-        bh=CLp2UEbX2CIOx7XRmK/amARl8O9R1CmUS9HymsJdjN0=;
+        s=k20201202; t=1660491119;
+        bh=nP1DlsNRGP/D5Gl1DWMLoEGRaHYNd9cQJkhrCACYWtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ei7hmEDHrXxlQI/lMF+1TI5doFukSNU4164ry4pzStun8hvDNbJ/pyP4NAIwQINrl
-         OzAg3LNneJRubDDP4AwngqLBjDSgC0kSDCfeE9/zXWd6exqi/S8Smz6NlxD8nbY4C8
-         mUKXFUZGhKQQoRKXKOvp3gWHPZkYDR//oUak7uyGJHozz5VaRALeQGlVK0FnpcU6Io
-         sGqAGEBAJ5BpnmD8qzZHUMZU7wRD+P4ScJoGhZgbBe/juaJd6raqhOhcfIARpbHPE+
-         fp9HOGJ2Eqa4S0Cnww0fvnu2AmEm7y/gJ84EXgAk8WFAu1DuTkfbBIlRMtsqQOMR4I
-         tAVxPOiI7Br4Q==
+        b=PldSKOQK670GUJuRndsLhFMou5xLI9GIf37URLHxE40BvHNCLJmLDwkY0ti39TTjA
+         EWzrdlXAzVyal9LZCR8VjGL0nmHff7FQrGockKZJEiT6kznC7li+K608D4uVAIFig4
+         vKh0tD1QVD6gXv405GFARHVwIDxmdzzw8/a9mstIxZCDicXdiI8t8q7xPX8Xqh5LlA
+         yEOPQ4rg5DMax7N4zfQn5ZXdu4FbgypqrISqiDh0N5PPQPnzN83Tw0Dbqm5FJ1WbQ6
+         v4PA4JwxAxMJaFjN8y2oUUzNuJRQ647iJjfGqvpPXsBHRvADJF37kQORv6uGdo1Ael
+         JT7HDqPrRKXWA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oded Gabbay <ogabbay@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        gregkh@linuxfoundation.org, osharabi@habana.ai, obitton@habana.ai,
-        ttayar@habana.ai, ynudelman@habana.ai, dliberman@habana.ai,
-        fkassabri@habana.ai, dhirschfeld@habana.ai
-Subject: [PATCH AUTOSEL 5.18 32/56] habanalabs/gaudi: mask constant value before cast
-Date:   Sun, 14 Aug 2022 11:30:02 -0400
-Message-Id: <20220814153026.2377377-32-sashal@kernel.org>
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, p.zabel@pengutronix.de,
+        linux-mmc@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 33/56] mmc: tmio: avoid glitches when resetting
+Date:   Sun, 14 Aug 2022 11:30:03 -0400
+Message-Id: <20220814153026.2377377-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153026.2377377-1-sashal@kernel.org>
 References: <20220814153026.2377377-1-sashal@kernel.org>
@@ -57,47 +58,208 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oded Gabbay <ogabbay@kernel.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit e3f49437a2e0221a387ecd192d742ae1434e1e3a ]
+[ Upstream commit 2e586f8a5b0ed4a525014a692923ac96f6647816 ]
 
-This fixes a sparse warning of
-"cast truncates bits from constant value"
+If we reset because of an error, we need to preserve values for the
+clock frequency. Otherwise, glitches may be seen on the bus.
 
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+To achieve that, we introduce a 'preserve' parameter to the reset
+function and the IP core specific reset callbacks to handle everything
+accordingly.
+
+Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/20220625131722.1397-1-wsa@kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/gaudi/gaudi.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/mmc/host/renesas_sdhi_core.c | 29 ++++++++++++++--------------
+ drivers/mmc/host/tmio_mmc.c          |  2 +-
+ drivers/mmc/host/tmio_mmc.h          |  6 +++++-
+ drivers/mmc/host/tmio_mmc_core.c     | 28 +++++++++++++++++++++------
+ 4 files changed, 42 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
-index 824a2fac22a4..f8426f14d023 100644
---- a/drivers/misc/habanalabs/gaudi/gaudi.c
-+++ b/drivers/misc/habanalabs/gaudi/gaudi.c
-@@ -3340,19 +3340,19 @@ static void gaudi_init_nic_qman(struct hl_device *hdev, u32 nic_offset,
- 	u32 nic_qm_err_cfg, irq_handler_offset;
- 	u32 q_off;
+diff --git a/drivers/mmc/host/renesas_sdhi_core.c b/drivers/mmc/host/renesas_sdhi_core.c
+index ddb5ca2f559e..5b438a8d5b42 100644
+--- a/drivers/mmc/host/renesas_sdhi_core.c
++++ b/drivers/mmc/host/renesas_sdhi_core.c
+@@ -51,9 +51,6 @@
+ #define HOST_MODE_GEN3_32BIT	(HOST_MODE_GEN3_WMODE | HOST_MODE_GEN3_BUSWIDTH)
+ #define HOST_MODE_GEN3_64BIT	0
  
--	mtr_base_en_lo = lower_32_bits(CFG_BASE +
-+	mtr_base_en_lo = lower_32_bits((CFG_BASE & U32_MAX) +
- 			mmSYNC_MNGR_E_N_SYNC_MNGR_OBJS_MON_PAY_ADDRL_0);
- 	mtr_base_en_hi = upper_32_bits(CFG_BASE +
- 				mmSYNC_MNGR_E_N_SYNC_MNGR_OBJS_MON_PAY_ADDRL_0);
--	so_base_en_lo = lower_32_bits(CFG_BASE +
-+	so_base_en_lo = lower_32_bits((CFG_BASE & U32_MAX) +
- 				mmSYNC_MNGR_E_N_SYNC_MNGR_OBJS_SOB_OBJ_0);
- 	so_base_en_hi = upper_32_bits(CFG_BASE +
- 				mmSYNC_MNGR_E_N_SYNC_MNGR_OBJS_SOB_OBJ_0);
--	mtr_base_ws_lo = lower_32_bits(CFG_BASE +
-+	mtr_base_ws_lo = lower_32_bits((CFG_BASE & U32_MAX) +
- 				mmSYNC_MNGR_W_S_SYNC_MNGR_OBJS_MON_PAY_ADDRL_0);
- 	mtr_base_ws_hi = upper_32_bits(CFG_BASE +
- 				mmSYNC_MNGR_W_S_SYNC_MNGR_OBJS_MON_PAY_ADDRL_0);
--	so_base_ws_lo = lower_32_bits(CFG_BASE +
-+	so_base_ws_lo = lower_32_bits((CFG_BASE & U32_MAX) +
- 				mmSYNC_MNGR_W_S_SYNC_MNGR_OBJS_SOB_OBJ_0);
- 	so_base_ws_hi = upper_32_bits(CFG_BASE +
- 				mmSYNC_MNGR_W_S_SYNC_MNGR_OBJS_SOB_OBJ_0);
+-#define CTL_SDIF_MODE	0xe6
+-#define SDIF_MODE_HS400		BIT(0)
+-
+ #define SDHI_VER_GEN2_SDR50	0x490c
+ #define SDHI_VER_RZ_A1		0x820b
+ /* very old datasheets said 0x490c for SDR104, too. They are wrong! */
+@@ -564,23 +561,25 @@ static void renesas_sdhi_scc_reset(struct tmio_mmc_host *host, struct renesas_sd
+ }
+ 
+ /* only populated for TMIO_MMC_MIN_RCAR2 */
+-static void renesas_sdhi_reset(struct tmio_mmc_host *host)
++static void renesas_sdhi_reset(struct tmio_mmc_host *host, bool preserve)
+ {
+ 	struct renesas_sdhi *priv = host_to_priv(host);
+ 	int ret;
+ 	u16 val;
+ 
+-	if (priv->rstc) {
+-		reset_control_reset(priv->rstc);
+-		/* Unknown why but without polling reset status, it will hang */
+-		read_poll_timeout(reset_control_status, ret, ret == 0, 1, 100,
+-				  false, priv->rstc);
+-		/* At least SDHI_VER_GEN2_SDR50 needs manual release of reset */
+-		sd_ctrl_write16(host, CTL_RESET_SD, 0x0001);
+-		priv->needs_adjust_hs400 = false;
+-		renesas_sdhi_set_clock(host, host->clk_cache);
+-	} else if (priv->scc_ctl) {
+-		renesas_sdhi_scc_reset(host, priv);
++	if (!preserve) {
++		if (priv->rstc) {
++			reset_control_reset(priv->rstc);
++			/* Unknown why but without polling reset status, it will hang */
++			read_poll_timeout(reset_control_status, ret, ret == 0, 1, 100,
++					  false, priv->rstc);
++			/* At least SDHI_VER_GEN2_SDR50 needs manual release of reset */
++			sd_ctrl_write16(host, CTL_RESET_SD, 0x0001);
++			priv->needs_adjust_hs400 = false;
++			renesas_sdhi_set_clock(host, host->clk_cache);
++		} else if (priv->scc_ctl) {
++			renesas_sdhi_scc_reset(host, priv);
++		}
+ 	}
+ 
+ 	if (sd_ctrl_read16(host, CTL_VERSION) >= SDHI_VER_GEN3_SD) {
+diff --git a/drivers/mmc/host/tmio_mmc.c b/drivers/mmc/host/tmio_mmc.c
+index b55a29c53d9c..53a2ad9a24b8 100644
+--- a/drivers/mmc/host/tmio_mmc.c
++++ b/drivers/mmc/host/tmio_mmc.c
+@@ -75,7 +75,7 @@ static void tmio_mmc_set_clock(struct tmio_mmc_host *host,
+ 	tmio_mmc_clk_start(host);
+ }
+ 
+-static void tmio_mmc_reset(struct tmio_mmc_host *host)
++static void tmio_mmc_reset(struct tmio_mmc_host *host, bool preserve)
+ {
+ 	sd_ctrl_write16(host, CTL_RESET_SDIO, 0x0000);
+ 	usleep_range(10000, 11000);
+diff --git a/drivers/mmc/host/tmio_mmc.h b/drivers/mmc/host/tmio_mmc.h
+index e754bb3f5c32..501613c74406 100644
+--- a/drivers/mmc/host/tmio_mmc.h
++++ b/drivers/mmc/host/tmio_mmc.h
+@@ -42,6 +42,7 @@
+ #define CTL_DMA_ENABLE 0xd8
+ #define CTL_RESET_SD 0xe0
+ #define CTL_VERSION 0xe2
++#define CTL_SDIF_MODE 0xe6 /* only known on R-Car 2+ */
+ 
+ /* Definitions for values the CTL_STOP_INTERNAL_ACTION register can take */
+ #define TMIO_STOP_STP		BIT(0)
+@@ -98,6 +99,9 @@
+ /* Definitions for values the CTL_DMA_ENABLE register can take */
+ #define DMA_ENABLE_DMASDRW	BIT(1)
+ 
++/* Definitions for values the CTL_SDIF_MODE register can take */
++#define SDIF_MODE_HS400		BIT(0) /* only known on R-Car 2+ */
++
+ /* Define some IRQ masks */
+ /* This is the mask used at reset by the chip */
+ #define TMIO_MASK_ALL           0x837f031d
+@@ -181,7 +185,7 @@ struct tmio_mmc_host {
+ 	int (*multi_io_quirk)(struct mmc_card *card,
+ 			      unsigned int direction, int blk_size);
+ 	int (*write16_hook)(struct tmio_mmc_host *host, int addr);
+-	void (*reset)(struct tmio_mmc_host *host);
++	void (*reset)(struct tmio_mmc_host *host, bool preserve);
+ 	bool (*check_retune)(struct tmio_mmc_host *host, struct mmc_request *mrq);
+ 	void (*fixup_request)(struct tmio_mmc_host *host, struct mmc_request *mrq);
+ 	unsigned int (*get_timeout_cycles)(struct tmio_mmc_host *host);
+diff --git a/drivers/mmc/host/tmio_mmc_core.c b/drivers/mmc/host/tmio_mmc_core.c
+index a5850d83908b..437048bb8027 100644
+--- a/drivers/mmc/host/tmio_mmc_core.c
++++ b/drivers/mmc/host/tmio_mmc_core.c
+@@ -179,8 +179,17 @@ static void tmio_mmc_set_bus_width(struct tmio_mmc_host *host,
+ 	sd_ctrl_write16(host, CTL_SD_MEM_CARD_OPT, reg);
+ }
+ 
+-static void tmio_mmc_reset(struct tmio_mmc_host *host)
++static void tmio_mmc_reset(struct tmio_mmc_host *host, bool preserve)
+ {
++	u16 card_opt, clk_ctrl, sdif_mode;
++
++	if (preserve) {
++		card_opt = sd_ctrl_read16(host, CTL_SD_MEM_CARD_OPT);
++		clk_ctrl = sd_ctrl_read16(host, CTL_SD_CARD_CLK_CTL);
++		if (host->pdata->flags & TMIO_MMC_MIN_RCAR2)
++			sdif_mode = sd_ctrl_read16(host, CTL_SDIF_MODE);
++	}
++
+ 	/* FIXME - should we set stop clock reg here */
+ 	sd_ctrl_write16(host, CTL_RESET_SD, 0x0000);
+ 	usleep_range(10000, 11000);
+@@ -190,7 +199,7 @@ static void tmio_mmc_reset(struct tmio_mmc_host *host)
+ 	tmio_mmc_abort_dma(host);
+ 
+ 	if (host->reset)
+-		host->reset(host);
++		host->reset(host, preserve);
+ 
+ 	sd_ctrl_write32_as_16_and_16(host, CTL_IRQ_MASK, host->sdcard_irq_mask_all);
+ 	host->sdcard_irq_mask = host->sdcard_irq_mask_all;
+@@ -206,6 +215,13 @@ static void tmio_mmc_reset(struct tmio_mmc_host *host)
+ 		sd_ctrl_write16(host, CTL_TRANSACTION_CTL, 0x0001);
+ 	}
+ 
++	if (preserve) {
++		sd_ctrl_write16(host, CTL_SD_MEM_CARD_OPT, card_opt);
++		sd_ctrl_write16(host, CTL_SD_CARD_CLK_CTL, clk_ctrl);
++		if (host->pdata->flags & TMIO_MMC_MIN_RCAR2)
++			sd_ctrl_write16(host, CTL_SDIF_MODE, sdif_mode);
++	}
++
+ 	if (host->mmc->card)
+ 		mmc_retune_needed(host->mmc);
+ }
+@@ -248,7 +264,7 @@ static void tmio_mmc_reset_work(struct work_struct *work)
+ 
+ 	spin_unlock_irqrestore(&host->lock, flags);
+ 
+-	tmio_mmc_reset(host);
++	tmio_mmc_reset(host, true);
+ 
+ 	/* Ready for new calls */
+ 	host->mrq = NULL;
+@@ -961,7 +977,7 @@ static void tmio_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
+ 		tmio_mmc_power_off(host);
+ 		/* For R-Car Gen2+, we need to reset SDHI specific SCC */
+ 		if (host->pdata->flags & TMIO_MMC_MIN_RCAR2)
+-			tmio_mmc_reset(host);
++			tmio_mmc_reset(host, false);
+ 
+ 		host->set_clock(host, 0);
+ 		break;
+@@ -1189,7 +1205,7 @@ int tmio_mmc_host_probe(struct tmio_mmc_host *_host)
+ 		_host->sdcard_irq_mask_all = TMIO_MASK_ALL;
+ 
+ 	_host->set_clock(_host, 0);
+-	tmio_mmc_reset(_host);
++	tmio_mmc_reset(_host, false);
+ 
+ 	spin_lock_init(&_host->lock);
+ 	mutex_init(&_host->ios_lock);
+@@ -1285,7 +1301,7 @@ int tmio_mmc_host_runtime_resume(struct device *dev)
+ 	struct tmio_mmc_host *host = dev_get_drvdata(dev);
+ 
+ 	tmio_mmc_clk_enable(host);
+-	tmio_mmc_reset(host);
++	tmio_mmc_reset(host, false);
+ 
+ 	if (host->clk_cache)
+ 		host->set_clock(host, host->clk_cache);
 -- 
 2.35.1
 
