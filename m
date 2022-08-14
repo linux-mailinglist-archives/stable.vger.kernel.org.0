@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE95591F78
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 12:13:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB635591F77
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 12:13:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230513AbiHNKNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235340AbiHNKNv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 14 Aug 2022 06:13:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42758 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229845AbiHNKNs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 06:13:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECEC5201B9
-        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 03:13:47 -0700 (PDT)
+        with ESMTP id S230513AbiHNKNu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 06:13:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31C1A201BE
+        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 03:13:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A79E4B80B3E
-        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 10:13:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CD47C433D6;
-        Sun, 14 Aug 2022 10:13:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C36DB6100C
+        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 10:13:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE952C433D6;
+        Sun, 14 Aug 2022 10:13:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660472025;
-        bh=lITUbzNAR6l/80spOv0Y0yqKWPDDt+SMZ43qQJxtupA=;
+        s=korg; t=1660472028;
+        bh=kTn4tSnnqVKGmOucpNzdmTHBhXf0J2qGExquXQJCkow=;
         h=Subject:To:Cc:From:Date:From;
-        b=ylmCcFky2pM83Xo0Qq/kF0OfdGLH/RQIEaFlNGTkcXuyK2S0jje3xxGnlG23Ic6s2
-         Nu8XfNpCL88DkHltUm5DmLi0CeEhXNM7FhpF0x0uDtYYAXFbeyNbyGOWkQEI9dxlIq
-         5k5oAPGgNMw0j385ytmi/bc1XAsOxtG17uabwsDY=
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix crash due to stale SRB access around I/O" failed to apply to 4.19-stable tree
+        b=Yltj6CzbWZenOzsQLnC0f3o/UH7N3+cNUfWjHo0zwaLavvh89s6G47bW8Xcs9u1ZQ
+         7cuWU8uf8efoDiUZg9qP82WvRypwkqiZq+zS/clablrc1A1s4i+PGubon78eOomNJw
+         /MYkWWw8UgnHK5XrbDCK/yKQ3on5TaLx4JdsqYUc=
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix crash due to stale SRB access around I/O" failed to apply to 5.4-stable tree
 To:     aeasi@marvell.com, martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 14 Aug 2022 12:13:35 +0200
-Message-ID: <166047201534232@kroah.com>
+Message-ID: <166047201562213@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
