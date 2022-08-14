@@ -2,135 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A834591F7C
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 12:14:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA318591F80
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 12:17:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230437AbiHNKOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 06:14:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43370 "EHLO
+        id S235695AbiHNKRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 06:17:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229845AbiHNKOx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 06:14:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D704205C3
-        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 03:14:52 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ADE660F73
-        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 10:14:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 230AEC433C1;
-        Sun, 14 Aug 2022 10:14:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660472091;
-        bh=OU3ZEYlBJWnns706bfpXvZ/d2CW3hnwgo7Mx/3l9b9E=;
-        h=Subject:To:Cc:From:Date:From;
-        b=zGtmtoIbvPg+oa7IgaeZmpmkWl6avEjT3v8a1VKNeouJJy7Q2CZsyukwkxaeS0zJr
-         f50sZD+DgL2N61jvm4syaKM1TRShxf5qIwh/HEvpT2z7EBZV7IyI5X2E0XszVaJ90w
-         k8vjkjdI5o518/6QHUoauleDUFSalD6xs5r0xXKo=
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix losing target when it reappears during" failed to apply to 5.10-stable tree
-To:     aeasi@marvell.com, martin.petersen@oracle.com, njavali@marvell.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Aug 2022 12:14:48 +0200
-Message-ID: <166047208816645@kroah.com>
+        with ESMTP id S230488AbiHNKRg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 06:17:36 -0400
+Received: from mail.z3ntu.xyz (mail.z3ntu.xyz [128.199.32.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B96F21E20;
+        Sun, 14 Aug 2022 03:17:34 -0700 (PDT)
+Received: from g550jk.localnet (217-149-168-95.nat.highway.telekom.at [217.149.168.95])
+        by mail.z3ntu.xyz (Postfix) with ESMTPSA id 99ADBCA576;
+        Sun, 14 Aug 2022 10:17:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=z3ntu.xyz; s=z3ntu;
+        t=1660472221; bh=82bmlvZYh/pm/el+VeCtbE3cdx4IbOcvwUq9hPZ6kSY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=hA00L+v/kYzFnxj/8oNM7RiwSzjM+gCEB5S9FGTy7+hRX9KR8iIoPqk5seX8BKWG6
+         ETJLHH0Qo3ecxHdijp5kbIqkeTtHmKnklWUkLMfpp/scp2mVeHs126qHMYhfH8NKIA
+         1OCJNftWUF+GTSdrKAZES0D6fyHz18F4ySUBocRw=
+From:   Luca Weiss <luca@z3ntu.xyz>
+To:     stable-commits@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        stable@vger.kernel.org
+Cc:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
+Subject: Re: Patch "ARM: dts: qcom: msm8974-FP2: Add supplies for remoteprocs" has been added to the 5.18-stable tree
+Date:   Sun, 14 Aug 2022 12:16:59 +0200
+Message-ID: <5592507.DvuYhMxLoT@g550jk>
+In-Reply-To: <20220813212142.1948036-1-sashal@kernel.org>
+References: <20220813212142.1948036-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+X-Spam-Status: No, score=-0.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FROM_SUSPICIOUS_NTLD,
+        PDS_OTHER_BAD_TLD,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Sasha and others,
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On Samstag, 13. August 2022 23:21:42 CEST Sasha Levin wrote:
+> This is a note to let you know that I've just added the patch titled
+> 
+>     ARM: dts: qcom: msm8974-FP2: Add supplies for remoteprocs
+> 
+> to the 5.18-stable tree which can be found at:
+>    
+> http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=sum
+> mary
+> 
+> The filename of the patch is:
+>      arm-dts-qcom-msm8974-fp2-add-supplies-for-remoteproc.patch
+> and it can be found in the queue-5.18 subdirectory.
+> 
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
+> 
 
-thanks,
+While I don't know the policy for backporting major dts changes, I don't think 
+backporting all the msm8974 cleanup to anything older is really worth it.
 
-greg k-h
+I also don't think there's actually a user of msm8974 stable, all the activity 
+I know of happens on the latest mainline plus some extra patches on top for 
+extra functionality that cannot be upstreamed yet.
 
------------------- original commit in Linus's tree ------------------
+Regards
+Luca
 
-From 118b0c863c8f5629cc5271fc24d72d926e0715d9 Mon Sep 17 00:00:00 2001
-From: Arun Easi <aeasi@marvell.com>
-Date: Wed, 15 Jun 2022 22:35:04 -0700
-Subject: [PATCH] scsi: qla2xxx: Fix losing target when it reappears during
- delete
+> 
+> 
+> commit d5e29d1fc785b60f8ac337c1a36b908a228b01ac
+> Author: Luca Weiss <luca@z3ntu.xyz>
+> Date:   Thu Apr 21 23:42:43 2022 +0200
+> 
+>     ARM: dts: qcom: msm8974-FP2: Add supplies for remoteprocs
+> 
+>     [ Upstream commit fb5e339fb1bc9eb7f34b341d995e4ab39c03588e ]
+> 
+>     Those were removed from msm8974.dtsi as part of a recent cleanup commit,
+> so add them back for FP2.
+> 
+>     Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
+>     Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+>     Link: https://lore.kernel.org/r/20220421214243.352469-3-luca@z3ntu.xyz
+>     Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> diff --git a/arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dts
+> b/arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dts index
+> d6799a1b820b..32975f56f896 100644
+> --- a/arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dts
+> +++ b/arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dts
+> @@ -131,6 +131,17 @@ wcnss {
+>  	};
+>  };
+> 
+> +&remoteproc_adsp {
+> +	cx-supply = <&pm8841_s2>;
+> +};
+> +
+> +&remoteproc_mss {
+> +	cx-supply = <&pm8841_s2>;
+> +	mss-supply = <&pm8841_s3>;
+> +	mx-supply = <&pm8841_s1>;
+> +	pll-supply = <&pm8941_l12>;
+> +};
+> +
+>  &rpm_requests {
+>  	pm8841-regulators {
+>  		compatible = "qcom,rpm-pm8841-regulators";
 
-FC target disappeared during port perturbation tests due to a race that
-tramples target state.  Fix the issue by adding state checks before
-proceeding.
 
-Link: https://lore.kernel.org/r/20220616053508.27186-8-njavali@marvell.com
-Fixes: 44c57f205876 ("scsi: qla2xxx: Changes to support FCP2 Target")
-Cc: stable@vger.kernel.org
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
-index 8b87fefda423..feca9e44b21c 100644
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -2714,17 +2714,24 @@ qla2x00_dev_loss_tmo_callbk(struct fc_rport *rport)
- 	if (!fcport)
- 		return;
- 
--	/* Now that the rport has been deleted, set the fcport state to
--	   FCS_DEVICE_DEAD */
--	qla2x00_set_fcport_state(fcport, FCS_DEVICE_DEAD);
-+
-+	/*
-+	 * Now that the rport has been deleted, set the fcport state to
-+	 * FCS_DEVICE_DEAD, if the fcport is still lost.
-+	 */
-+	if (fcport->scan_state != QLA_FCPORT_FOUND)
-+		qla2x00_set_fcport_state(fcport, FCS_DEVICE_DEAD);
- 
- 	/*
- 	 * Transport has effectively 'deleted' the rport, clear
- 	 * all local references.
- 	 */
- 	spin_lock_irqsave(host->host_lock, flags);
--	fcport->rport = fcport->drport = NULL;
--	*((fc_port_t **)rport->dd_data) = NULL;
-+	/* Confirm port has not reappeared before clearing pointers. */
-+	if (rport->port_state != FC_PORTSTATE_ONLINE) {
-+		fcport->rport = fcport->drport = NULL;
-+		*((fc_port_t **)rport->dd_data) = NULL;
-+	}
- 	spin_unlock_irqrestore(host->host_lock, flags);
- 
- 	if (test_bit(ABORT_ISP_ACTIVE, &fcport->vha->dpc_flags))
-@@ -2757,9 +2764,12 @@ qla2x00_terminate_rport_io(struct fc_rport *rport)
- 	/*
- 	 * At this point all fcport's software-states are cleared.  Perform any
- 	 * final cleanup of firmware resources (PCBs and XCBs).
-+	 *
-+	 * Attempt to cleanup only lost devices.
- 	 */
- 	if (fcport->loop_id != FC_NO_LOOP_ID) {
--		if (IS_FWI2_CAPABLE(fcport->vha->hw)) {
-+		if (IS_FWI2_CAPABLE(fcport->vha->hw) &&
-+		    fcport->scan_state != QLA_FCPORT_FOUND) {
- 			if (fcport->loop_id != FC_NO_LOOP_ID)
- 				fcport->logout_on_delete = 1;
- 
-@@ -2769,7 +2779,7 @@ qla2x00_terminate_rport_io(struct fc_rport *rport)
- 				       __LINE__);
- 				qlt_schedule_sess_for_deletion(fcport);
- 			}
--		} else {
-+		} else if (!IS_FWI2_CAPABLE(fcport->vha->hw)) {
- 			qla2x00_port_logout(fcport->vha, fcport);
- 		}
- 	}
 
