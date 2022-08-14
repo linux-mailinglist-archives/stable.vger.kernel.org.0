@@ -2,114 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EA1B592172
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:37:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE6E9592064
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:24:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240870AbiHNPg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:36:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53668 "EHLO
+        id S231348AbiHNPYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:24:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240980AbiHNPgD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:36:03 -0400
-X-Greylist: delayed 913 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 14 Aug 2022 08:31:21 PDT
-Received: from sender-of-o50.zoho.in (sender-of-o50.zoho.in [103.117.158.50])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DEF1E3C3
-        for <stable@vger.kernel.org>; Sun, 14 Aug 2022 08:31:21 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1660490136; cv=none; 
-        d=zohomail.in; s=zohoarc; 
-        b=P0DMXelA8rZr+5tpNnF6yG45AYFNAp+orQVwMoEoNU36lj2KNLAhBcqvPXhkEjeaFoYq6MyA17DiK4I0A3l17aI/Lcm0KOsEbGKV5jbMC8riMgRKjxS2PEYjW843EE7WGsU05zUu5E6wQsFB2XVPdJni+tSv+msrN2YrzSoclTY=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.in; s=zohoarc; 
-        t=1660490136; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:MIME-Version:Message-ID:Subject:To; 
-        bh=Vc8f/bR6BhLdNYT+B1nN0BGO6y9fqlas6nlpvef1JJI=; 
-        b=VRRsUlpu/kFkS0lDXXYrUkehylNrf7iAPHo4MhQ6629Ix5dlK5WtWiBQbsHnsmh8+jlqi2YGX0ij1iXcHuDCKlUA7eqEW39lU9wisFQ/7TA9zvN2kMSi4QrwQdMJx2NlI99y8BvlGYCHt1w5Jd4rAEiLCGLOf4NmWNW+qdVJdU8=
-ARC-Authentication-Results: i=1; mx.zohomail.in;
-        dkim=pass  header.i=siddh.me;
-        spf=pass  smtp.mailfrom=code@siddh.me;
-        dmarc=pass header.from=<code@siddh.me>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1660490136;
-        s=zmail; d=siddh.me; i=code@siddh.me;
-        h=From:From:To:To:Cc:Cc:Message-ID:Subject:Subject:Date:Date:MIME-Version:Content-Transfer-Encoding:Content-Type:Message-Id:Reply-To;
-        bh=Vc8f/bR6BhLdNYT+B1nN0BGO6y9fqlas6nlpvef1JJI=;
-        b=qG2uwrkjvQvVaLteAYiN06fRfAxokADh32VxkVKlEj5gbvGV2+0KZ3Z3txOfNqxk
-        7VxKz4tR79W2AhHUmjXzy3d27m/S57hs9Di5avdO4IlNXP071ru8ub+sUc6uAAnKk6d
-        aojkofVw/A5JbzeUyiW8ooQ96PJCRe5ETeU1Eg7Q=
-Received: from localhost.localdomain (103.86.19.140 [103.86.19.140]) by mx.zoho.in
-        with SMTPS id 1660490133725920.3510862995147; Sun, 14 Aug 2022 20:45:33 +0530 (IST)
-From:   Siddh Raman Pant <code@siddh.me>
-To:     Johannes Berg <johannes@sipsolutions.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc:     linux-wireless <linux-wireless@vger.kernel.org>,
-        netdev <netdev@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-kernel-mentees 
-        <linux-kernel-mentees@lists.linuxfoundation.org>,
-        syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com,
-        stable@vger.kernel.org
-Message-ID: <20220814151512.9985-1-code@siddh.me>
-Subject: [PATCH] wifi: mac80211: Don't finalize CSA in IBSS mode if state is disconnected
-Date:   Sun, 14 Aug 2022 20:45:12 +0530
+        with ESMTP id S229656AbiHNPYn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:24:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EB0765E7;
+        Sun, 14 Aug 2022 08:24:41 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 264B260B9F;
+        Sun, 14 Aug 2022 15:24:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DCBBC433D6;
+        Sun, 14 Aug 2022 15:24:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1660490680;
+        bh=ebo6kPnfZ6o+Q1fsjAA8jeQY9HT8MUugEfOa0/b02xE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=KJl1IjqkM8tIPfkWtU0OdEDNWny/vh2eYKzzLZiyVvgh4K0xbJVJr89Cvk509Rh3v
+         YD+OrKP4rfJJxPx7jzrrwV5ujfPwJMmn+XG4MVymIeH+r7s8ZLSTe8pktcsGTVjmeT
+         vZV74qyvDcIkJ8eIJnmwKLlh6xlTCk+K00O9/8hf7fsfL41LBHsDQxNP0cGYYie9JU
+         huBxztY5T+FXX954T2+bk9iSTBOEyUi0EYRvxslWpFNDezyPjvNfA8jSTiPDjM60Bg
+         W/AKsopd/auyWWuZWI672UdxqfqLsy72haJL9zgF6Cw17zQ/Vti6kRUarHkPHRvGW1
+         lthSqx2t32enw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Gil Fine <gil.fine@intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, andreas.noever@gmail.com,
+        michael.jamet@intel.com, YehezkelShB@gmail.com,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 01/64] thunderbolt: Change downstream router's TMU rate in both TMU uni/bidir mode
+Date:   Sun, 14 Aug 2022 11:23:34 -0400
+Message-Id: <20220814152437.2374207-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-ZohoMailClient: External
-Content-Type: text/plain; charset=utf8
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_RED
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When we are not connected to a channel, sending channel "switch"
-announcement doesn't make any sense.
+From: Gil Fine <gil.fine@intel.com>
 
-The BSS list is empty in that case. This causes the for loop in
-cfg80211_get_bss() to be bypassed, so the function returns NULL
-(check line 1424 of net/wireless/scan.c), causing the WARN_ON()
-in ieee80211_ibss_csa_beacon() to get triggered (check line 500
-of net/mac80211/ibss.c), which was consequently reported on the
-syzkaller dashboard.
+[ Upstream commit 5fd6b9a5cbe63fea4c490fee8af34144a139a266 ]
 
-Thus, check if we have an existing connection before generating
-the CSA beacon in ieee80211_ibss_finish_csa().
+In case of uni-directional time sync, TMU handshake is
+initiated by upstream router. In case of bi-directional
+time sync, TMU handshake is initiated by downstream router.
+In order to handle correctly the case of uni-directional mode,
+we avoid changing the upstream router's rate to off,
+because it might have another downstream router plugged that is set to
+uni-directional mode (and we don't want to change its mode).
+Instead, we always change downstream router's rate.
 
-Fixes: cd7760e62c2a ("mac80211: add support for CSA in IBSS mode")
-Bug report: https://syzkaller.appspot.com/bug?id=3D05603ef4ae8926761b678d29=
-39a3b2ad28ab9ca6
-Reported-by: syzbot+b6c9fe29aefe68e4ad34@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-
-Signed-off-by: Siddh Raman Pant <code@siddh.me>
+Signed-off-by: Gil Fine <gil.fine@intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-The fixes commit is old, and syzkaller shows the problem exists for
-4.19 and 4.14 as well, so CC'd stable list.
+ drivers/thunderbolt/tmu.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
- net/mac80211/ibss.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/net/mac80211/ibss.c b/net/mac80211/ibss.c
-index d56890e3fabb..9b283bbc7bb4 100644
---- a/net/mac80211/ibss.c
-+++ b/net/mac80211/ibss.c
-@@ -530,6 +530,10 @@ int ieee80211_ibss_finish_csa(struct ieee80211_sub_if_=
-data *sdata)
-=20
- =09sdata_assert_lock(sdata);
-=20
-+=09/* When not connected/joined, sending CSA doesn't make sense. */
-+=09if (ifibss->state !=3D IEEE80211_IBSS_MLME_JOINED)
-+=09=09return -ENOLINK;
-+
- =09/* update cfg80211 bss information with the new channel */
- =09if (!is_zero_ether_addr(ifibss->bssid)) {
- =09=09cbss =3D cfg80211_get_bss(sdata->local->hw.wiphy,
---=20
+diff --git a/drivers/thunderbolt/tmu.c b/drivers/thunderbolt/tmu.c
+index e4a07a26f693..93ba1d00335b 100644
+--- a/drivers/thunderbolt/tmu.c
++++ b/drivers/thunderbolt/tmu.c
+@@ -359,13 +359,14 @@ int tb_switch_tmu_disable(struct tb_switch *sw)
+ 		 * In case of uni-directional time sync, TMU handshake is
+ 		 * initiated by upstream router. In case of bi-directional
+ 		 * time sync, TMU handshake is initiated by downstream router.
+-		 * Therefore, we change the rate to off in the respective
+-		 * router.
++		 * We change downstream router's rate to off for both uni/bidir
++		 * cases although it is needed only for the bi-directional mode.
++		 * We avoid changing upstream router's mode since it might
++		 * have another downstream router plugged, that is set to
++		 * uni-directional mode and we don't want to change it's TMU
++		 * mode.
+ 		 */
+-		if (unidirectional)
+-			tb_switch_tmu_rate_write(parent, TB_SWITCH_TMU_RATE_OFF);
+-		else
+-			tb_switch_tmu_rate_write(sw, TB_SWITCH_TMU_RATE_OFF);
++		tb_switch_tmu_rate_write(sw, TB_SWITCH_TMU_RATE_OFF);
+ 
+ 		tb_port_tmu_time_sync_disable(up);
+ 		ret = tb_port_tmu_time_sync_disable(down);
+-- 
 2.35.1
-
 
