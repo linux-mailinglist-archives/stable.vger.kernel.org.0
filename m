@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C334592226
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8BFB592223
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:45:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241188AbiHNPoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:44:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39562 "EHLO
+        id S241430AbiHNPoV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:44:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241189AbiHNPmh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:42:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 012DD1C137;
-        Sun, 14 Aug 2022 08:33:40 -0700 (PDT)
+        with ESMTP id S241078AbiHNPmX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:42:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C751C139;
+        Sun, 14 Aug 2022 08:33:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2E31B80B87;
-        Sun, 14 Aug 2022 15:33:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EB0BC43143;
-        Sun, 14 Aug 2022 15:33:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4900260BC9;
+        Sun, 14 Aug 2022 15:33:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A655C433B5;
+        Sun, 14 Aug 2022 15:33:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491217;
-        bh=jUkAJE7/Y8YQ4Nx6v1v38JNhEtb9m+JA5U0akmvdf3Y=;
+        s=k20201202; t=1660491221;
+        bh=Qv6ZPkimk60J/z99QV34gPcNVKVWvbzTNrs91mDfqTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OqmRE4YoEslcm+2RyRmlwl2tQWUymbPA9+kBaTo1jThmBimq6aPe8MBf8OS5Mlph6
-         UW8XpcQpxWtEkzql2sRp3XNDGbNGxrqgCBwnUxzriRkl2Uq542jXowe5twj5QmImvD
-         sIg+GmJORnUosAiHwBLViDPPVnK1FPoPtsh2r/um9KNYlJ9BJhHqI7g84v9XDPLhSs
-         u0BBjyWF8aHpbG7Cta4OoCAYEcbE1+d13+Acd0N6TllC4HImiTiitZvMkCQlhLJswK
-         bliyBmPeUbTpYVWKoD6El1M51CdKH8WLP7GLV6vnYDQv3qW5pSFhpB6arvgO5MNyZu
-         RMtPD7frAtfNQ==
+        b=gUcn1LTGw7IKAR8ey2lOlcbcOndz7MZKbQmuy1CUUTccTXoVKnyPbLiaTxjD+WKPT
+         C9qm5vn2sfka972L4HoOkU8fftqarJksVEtOWNWky0no40zz2OmQ7iFVunl7q/+NA2
+         guqDTOqrDSKHSrMFwJ/Z4zXzSApZyzephxaU4YS1SjO4if9kDhyq3npmVmTFgPW952
+         cQfx88L20iqpXW9zRiD8d753wrIuFE/JYwmYn/adorIif3QnIkJY6tbVjOmKtaCSbq
+         KVZQHyXunD9+9gIn2lubQGhf7cLGmLuhKk2gQPXIJHrfHDnk6UhFf20CU5iUBPZza+
+         xF7c73jXzt98g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Arnd Bergmann <arnd@kernel.org>,
-        Tao Zhang <quic_taozha@quicinc.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Sasha Levin <sashal@kernel.org>, mathieu.poirier@linaro.org,
-        alexander.shishkin@linux.intel.com, nathan@kernel.org,
-        coresight@lists.linaro.org, linux-arm-kernel@lists.infradead.org,
-        llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.15 24/46] coresight: etm4x: avoid build failure with unrolled loops
-Date:   Sun, 14 Aug 2022 11:32:25 -0400
-Message-Id: <20220814153247.2378312-24-sashal@kernel.org>
+Cc:     Ofir Bitton <obitton@habana.ai>, Oded Gabbay <ogabbay@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
+        osharabi@habana.ai, ttayar@habana.ai, ynudelman@habana.ai,
+        dliberman@habana.ai, fkassabri@habana.ai, dhirschfeld@habana.ai
+Subject: [PATCH AUTOSEL 5.15 25/46] habanalabs/gaudi: fix shift out of bounds
+Date:   Sun, 14 Aug 2022 11:32:26 -0400
+Message-Id: <20220814153247.2378312-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153247.2378312-1-sashal@kernel.org>
 References: <20220814153247.2378312-1-sashal@kernel.org>
@@ -62,114 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Ofir Bitton <obitton@habana.ai>
 
-[ Upstream commit 4d45bc82df667ad9e9cb8361830e54fc1264e993 ]
+[ Upstream commit 01622098aeb05a5efbb727199bbc2a4653393255 ]
 
-When the following configs are enabled:
-* CORESIGHT
-* CORESIGHT_SOURCE_ETM4X
-* UBSAN
-* UBSAN_TRAP
+When validating NIC queues, queue offset calculation must be
+performed only for NIC queues.
 
-Clang fails assemble the kernel with the error:
-<instantiation>:1:7: error: expected constant expression in '.inst' directive
-.inst (0xd5200000|((((2) << 19) | ((1) << 16) | (((((((((((0x160 + (i * 4))))) >> 2))) >> 7) & 0x7)) << 12) | ((((((((((0x160 + (i * 4))))) >> 2))) & 0xf)) << 8) | (((((((((((0x160 + (i * 4))))) >> 2))) >> 4) & 0x7)) << 5)))|(.L__reg_num_x8))
-      ^
-drivers/hwtracing/coresight/coresight-etm4x-core.c:702:4: note: while in
-macro instantiation
-etm4x_relaxed_read32(csa, TRCCNTVRn(i));
-^
-drivers/hwtracing/coresight/coresight-etm4x.h:403:4: note: expanded from
-macro 'etm4x_relaxed_read32'
-read_etm4x_sysreg_offset((offset), false)))
-^
-drivers/hwtracing/coresight/coresight-etm4x.h:383:12: note: expanded
-from macro 'read_etm4x_sysreg_offset'
-__val = read_etm4x_sysreg_const_offset((offset));       \
-        ^
-drivers/hwtracing/coresight/coresight-etm4x.h:149:2: note: expanded from
-macro 'read_etm4x_sysreg_const_offset'
-READ_ETM4x_REG(ETM4x_OFFSET_TO_REG(offset))
-^
-drivers/hwtracing/coresight/coresight-etm4x.h:144:2: note: expanded from
-macro 'READ_ETM4x_REG'
-read_sysreg_s(ETM4x_REG_NUM_TO_SYSREG((reg)))
-^
-arch/arm64/include/asm/sysreg.h:1108:15: note: expanded from macro
-'read_sysreg_s'
-asm volatile(__mrs_s("%0", r) : "=r" (__val));                  \
-             ^
-arch/arm64/include/asm/sysreg.h:1074:2: note: expanded from macro '__mrs_s'
-"       mrs_s " v ", " __stringify(r) "\n"                      \
- ^
-
-Consider the definitions of TRCSSCSRn and TRCCNTVRn:
-drivers/hwtracing/coresight/coresight-etm4x.h:56
- #define TRCCNTVRn(n)      (0x160 + (n * 4))
-drivers/hwtracing/coresight/coresight-etm4x.h:81
- #define TRCSSCSRn(n)      (0x2A0 + (n * 4))
-
-Where the macro parameter is expanded to i; a loop induction variable
-from etm4_disable_hw.
-
-When any compiler can determine that loops may be unrolled, then the
-__builtin_constant_p check in read_etm4x_sysreg_offset() defined in
-drivers/hwtracing/coresight/coresight-etm4x.h may evaluate to true. This
-can lead to the expression `(0x160 + (i * 4))` being passed to
-read_etm4x_sysreg_const_offset. Via the trace above, this is passed
-through READ_ETM4x_REG, read_sysreg_s, and finally to __mrs_s where it
-is string-ified and used directly in inline asm.
-
-Regardless of which compiler or compiler options determine whether a
-loop can or can't be unrolled, which determines whether
-__builtin_constant_p evaluates to true when passed an expression using a
-loop induction variable, it is NEVER safe to allow the preprocessor to
-construct inline asm like:
-  asm volatile (".inst (0x160 + (i * 4))" : "=r"(__val));
-                                 ^ expected constant expression
-
-Instead of read_etm4x_sysreg_offset() using __builtin_constant_p(), use
-__is_constexpr from include/linux/const.h instead to ensure only
-expressions that are valid integer constant expressions get passed
-through to read_sysreg_s().
-
-This is not a bug in clang; it's a potentially unsafe use of the macro
-arguments in read_etm4x_sysreg_offset dependent on __builtin_constant_p.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1310
-Reported-by: Arnd Bergmann <arnd@kernel.org>
-Reported-by: Tao Zhang <quic_taozha@quicinc.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20220708231520.3958391-1-ndesaulniers@google.com
+Signed-off-by: Ofir Bitton <obitton@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etm4x.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/misc/habanalabs/gaudi/gaudi.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x.h b/drivers/hwtracing/coresight/coresight-etm4x.h
-index e5b79bdb9851..794b29639035 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x.h
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.h
-@@ -7,6 +7,7 @@
- #define _CORESIGHT_CORESIGHT_ETM_H
+diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
+index 14da87b38e83..801acab048eb 100644
+--- a/drivers/misc/habanalabs/gaudi/gaudi.c
++++ b/drivers/misc/habanalabs/gaudi/gaudi.c
+@@ -5744,15 +5744,17 @@ static int gaudi_parse_cb_no_ext_queue(struct hl_device *hdev,
+ {
+ 	struct asic_fixed_properties *asic_prop = &hdev->asic_prop;
+ 	struct gaudi_device *gaudi = hdev->asic_specific;
+-	u32 nic_mask_q_id = 1 << (HW_CAP_NIC_SHIFT +
+-		((parser->hw_queue_id - GAUDI_QUEUE_ID_NIC_0_0) >> 2));
++	u32 nic_queue_offset, nic_mask_q_id;
  
- #include <asm/local.h>
-+#include <linux/const.h>
- #include <linux/spinlock.h>
- #include <linux/types.h>
- #include "coresight-priv.h"
-@@ -417,7 +418,7 @@
- 	({									\
- 		u64 __val;							\
- 										\
--		if (__builtin_constant_p((offset)))				\
-+		if (__is_constexpr((offset)))					\
- 			__val = read_etm4x_sysreg_const_offset((offset));	\
- 		else								\
- 			__val = etm4x_sysreg_read((offset), true, (_64bit));	\
+ 	if ((parser->hw_queue_id >= GAUDI_QUEUE_ID_NIC_0_0) &&
+-			(parser->hw_queue_id <= GAUDI_QUEUE_ID_NIC_9_3) &&
+-			(!(gaudi->hw_cap_initialized & nic_mask_q_id))) {
+-		dev_err(hdev->dev, "h/w queue %d is disabled\n",
+-				parser->hw_queue_id);
+-		return -EINVAL;
++			(parser->hw_queue_id <= GAUDI_QUEUE_ID_NIC_9_3)) {
++		nic_queue_offset = parser->hw_queue_id - GAUDI_QUEUE_ID_NIC_0_0;
++		nic_mask_q_id = 1 << (HW_CAP_NIC_SHIFT + (nic_queue_offset >> 2));
++
++		if (!(gaudi->hw_cap_initialized & nic_mask_q_id)) {
++			dev_err(hdev->dev, "h/w queue %d is disabled\n", parser->hw_queue_id);
++			return -EINVAL;
++		}
+ 	}
+ 
+ 	/* For internal queue jobs just check if CB address is valid */
 -- 
 2.35.1
 
