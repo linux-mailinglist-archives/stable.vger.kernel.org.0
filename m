@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DC4B5921FB
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:42:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B347C592203
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 17:42:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241225AbiHNPmn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 11:42:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38832 "EHLO
+        id S241238AbiHNPms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 11:42:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240761AbiHNPj2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:39:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5E872124F;
-        Sun, 14 Aug 2022 08:32:42 -0700 (PDT)
+        with ESMTP id S241072AbiHNPkL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 11:40:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D451521805;
+        Sun, 14 Aug 2022 08:32:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 28FBA60B90;
-        Sun, 14 Aug 2022 15:32:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB35CC433D7;
-        Sun, 14 Aug 2022 15:32:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02AC7B80B56;
+        Sun, 14 Aug 2022 15:32:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05604C433B5;
+        Sun, 14 Aug 2022 15:32:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660491161;
-        bh=BK6B3gdawsyew22CcsT952m5T51Qwd2OmaLNJ6Zjx3M=;
+        s=k20201202; t=1660491162;
+        bh=hIO3oN5eDL2EKz1zAiwin8jpVWT8nxVWMN5hH6JlTJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xx6XK7yFW7d/6oRJbGylnDtvysQ0NkQh3X30uA3FQj5P1JKzcJ9JGppLu6oPX0mob
-         39XLNsJyD7co1+bRQ/blwaUkRGnrws2iZ+ztu7D3gndpD4l2eIbtWD5ja+emblBtAy
-         oDj5QxwCcZwkcvFV14pHEjZsReTwOw67PtOFnpFlRUi2de6gl6yOF//dJz4GnRjGOa
-         YeS13+4JoJq44SY2tt5Fzomr1UQ3Cw+L/7D5hk6mkfD713AM/bUoXYTvsewoU3xE2w
-         z8Q2nLjFu9YbF/ZI065qZy5NGHd66d4FO8mHLSKsUewh4n1s+6ycJsgywo3/O+W9yd
-         HMTHHrYZFlkcg==
+        b=rKPSN5grc4Xw8pzy3x9gN0Ghe6rbL08tcivAfmGOSAPDiw01aCcvfNo05opeThAXW
+         IF2qcUX13yAIy1ggNOLx8ldnbVFtfTTvhgH0ZY/3vUGaxB3l6yN5LSZiZRGb+d9JYJ
+         6EXPvtT8RX1iMJt9orP5QFN7tsD1tWgTek/weCngs3XikN2EEdw58Pl8eYDJWn7CeQ
+         O/E6L+66AlsZy1r0dCIkZLluDz/0c6b3AK1tbzG6H1L6NT9zgsVkaTUQqiyQZYt3ka
+         RqYdkhPHUhcRi4pWLvsEOZG4YkYLtmpvvla7EsOtsrG536XMvhQT3mLJT4cu8veZu9
+         W1kFVSkFTeeXA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>, Yi Zhang <yi.zhang@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, kch@nvidia.com,
-        linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 52/56] nvmet-tcp: fix lockdep complaint on nvmet_tcp_wq flush during queue teardown
-Date:   Sun, 14 Aug 2022 11:30:22 -0400
-Message-Id: <20220814153026.2377377-52-sashal@kernel.org>
+Cc:     Wentao_Liang <Wentao_Liang_g@163.com>, Song Liu <song@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 53/56] drivers:md:fix a potential use-after-free bug
+Date:   Sun, 14 Aug 2022 11:30:23 -0400
+Message-Id: <20220814153026.2377377-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814153026.2377377-1-sashal@kernel.org>
 References: <20220814153026.2377377-1-sashal@kernel.org>
@@ -57,43 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Wentao_Liang <Wentao_Liang_g@163.com>
 
-[ Upstream commit 533d2e8b4d5e4c89772a0adce913525fb86cbbee ]
+[ Upstream commit 104212471b1c1817b311771d817fb692af983173 ]
 
-We probably need nvmet_tcp_wq to have MEM_RECLAIM as we are
-sending/receiving for the socket from works on this workqueue.
-Also this eliminates lockdep complaints:
---
-[ 6174.010200] workqueue: WQ_MEM_RECLAIM
-nvmet-wq:nvmet_tcp_release_queue_work [nvmet_tcp] is flushing
-!WQ_MEM_RECLAIM nvmet_tcp_wq:nvmet_tcp_io_work [nvmet_tcp]
-[ 6174.010216] WARNING: CPU: 20 PID: 14456 at kernel/workqueue.c:2628
-check_flush_dependency+0x110/0x14c
+In line 2884, "raid5_release_stripe(sh);" drops the reference to sh and
+may cause sh to be released. However, sh is subsequently used in lines
+2886 "if (sh->batch_head && sh != sh->batch_head)". This may result in an
+use-after-free bug.
 
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+It can be fixed by moving "raid5_release_stripe(sh);" to the bottom of
+the function.
+
+Signed-off-by: Wentao_Liang <Wentao_Liang_g@163.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/tcp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/md/raid5.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index 0a9542599ad1..dc3b4dc8fe08 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -1839,7 +1839,8 @@ static int __init nvmet_tcp_init(void)
- {
- 	int ret;
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 402b627139d6..9998fd275ee1 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -2850,10 +2850,10 @@ static void raid5_end_write_request(struct bio *bi)
+ 	if (!test_and_clear_bit(R5_DOUBLE_LOCKED, &sh->dev[i].flags))
+ 		clear_bit(R5_LOCKED, &sh->dev[i].flags);
+ 	set_bit(STRIPE_HANDLE, &sh->state);
+-	raid5_release_stripe(sh);
  
--	nvmet_tcp_wq = alloc_workqueue("nvmet_tcp_wq", WQ_HIGHPRI, 0);
-+	nvmet_tcp_wq = alloc_workqueue("nvmet_tcp_wq",
-+				WQ_MEM_RECLAIM | WQ_HIGHPRI, 0);
- 	if (!nvmet_tcp_wq)
- 		return -ENOMEM;
+ 	if (sh->batch_head && sh != sh->batch_head)
+ 		raid5_release_stripe(sh->batch_head);
++	raid5_release_stripe(sh);
+ }
  
+ static void raid5_error(struct mddev *mddev, struct md_rdev *rdev)
 -- 
 2.35.1
 
