@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 603A05923A3
-	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:23:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E66F5923AA
+	for <lists+stable@lfdr.de>; Sun, 14 Aug 2022 18:23:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239901AbiHNQXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Aug 2022 12:23:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54648 "EHLO
+        id S240946AbiHNQXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Aug 2022 12:23:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241438AbiHNQWE (ORCPT
+        with ESMTP id S241453AbiHNQWE (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 14 Aug 2022 12:22:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 122ECED;
-        Sun, 14 Aug 2022 09:20:56 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC8D4F3E;
+        Sun, 14 Aug 2022 09:20:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5119B80B78;
-        Sun, 14 Aug 2022 16:20:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F1A3C433D7;
-        Sun, 14 Aug 2022 16:20:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 82B5760F6A;
+        Sun, 14 Aug 2022 16:20:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6558BC433C1;
+        Sun, 14 Aug 2022 16:20:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660494053;
-        bh=YPFGWF+SZ3nfFejBqr/SAmSzFD052TPPo811pYAyxFQ=;
+        s=k20201202; t=1660494056;
+        bh=ZvgNG1eC9iccsixk7C5q3yyyNPKNAPFVwtvxIcix/aA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YdhxYoj/EFmPWuPCghNhU2zzoSAssOQHmQ8weHLRcInX8X24bEn0xcJVbblJ4cTi1
-         O5uEJTFNnWDWE7FsP5x8jFAmhBQCaPWvlAlMqz2neLbtsfKIzEk+qX9l4VP3KVQeq0
-         hz2EA0BrhsLd96IA59AFueE4ennY8aMAtSvBWSDrK6IoGdvnZB02mel8d9dWFfS73K
-         3/LOHiaW5pN1sv05pW0Vwr+KoyxDMeSot3iGHWRITh+mQD4VFey+OrXRcgnjvpZNsz
-         sYHbv+XlCoBKBi9Q43PKHZrKfC3EqZ4g1SlnuMIiLgYHianSj5/srDyeq5AyGMSrZs
-         f4ReBu+X1dDyg==
+        b=ksTillY2i2DDyzU1zbmt6w9PL46A2kQtIxoZN4F1JOlErjLLATaIxcDCkTFyZMZkF
+         ZX+quEkAZSJPKD1iCaN0WSp/oHwxu3dqgosTuqMT0F3Bkv5iga0Oq9BnGEFY3jnoQW
+         pTwTDIYJmWF03soW0ozefZNN1tuTHbyHwtQTrizLDQsgIMrqHPlyCWfiooRivHEDaF
+         kWAOcq8sTe46m2LHsQ44XxL7glAvdgkLLLRYR3uu/n+JGRN1J3SJ7YM3jqiiO12NHN
+         LjmItx2UCEsn4o7bZgREneNK5SjaAmqKg39ykmftBB8uxrwrTofR2st4xavkT1jfFN
+         dWo1Z1NcP0yuw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>, Zheyu Ma <zheyuma97@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com,
-        pierre-louis.bossart@linux.intel.com, wtli@nuvoton.com,
-        steve@sk2.org, Vijendar.Mukunda@amd.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.19 19/48] ASoC: nau8821: Don't unconditionally free interrupt
-Date:   Sun, 14 Aug 2022 12:19:12 -0400
-Message-Id: <20220814161943.2394452-19-sashal@kernel.org>
+Cc:     Celeste Liu <coelacanthus@outlook.com>, xctan <xc-tan@outlook.com>,
+        dram <dramforever@live.com>, Ruizhe Pan <c141028@gmail.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>, paul.walmsley@sifive.com,
+        palmer@dabbelt.com, aou@eecs.berkeley.edu, guoren@kernel.org,
+        arnd@arndb.de, linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.19 20/48] riscv: mmap with PROT_WRITE but no PROT_READ is invalid
+Date:   Sun, 14 Aug 2022 12:19:13 -0400
+Message-Id: <20220814161943.2394452-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220814161943.2394452-1-sashal@kernel.org>
 References: <20220814161943.2394452-1-sashal@kernel.org>
@@ -59,54 +59,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Celeste Liu <coelacanthus@outlook.com>
 
-[ Upstream commit 2d86cef353b8f3d20b16f8c5615742fd6938c801 ]
+[ Upstream commit 2139619bcad7ac44cc8f6f749089120594056613 ]
 
-The remove() operation unconditionally frees the interrupt for the device
-but we may not actually have an interrupt so there might be nothing to
-free. Since the interrupt is requested after all other resources we don't
-need the explicit free anyway, unwinding is guaranteed to be safe, so just
-delete the remove() function and let devm take care of things.
+As mentioned in Table 4.5 in RISC-V spec Volume 2 Section 4.3, write
+but not read is "Reserved for future use.". For now, they are not valid.
+In the current code, -wx is marked as invalid, but -w- is not marked
+as invalid.
+This patch refines that judgment.
 
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Tested-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/20220718140405.57233-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: xctan <xc-tan@outlook.com>
+Co-developed-by: dram <dramforever@live.com>
+Signed-off-by: dram <dramforever@live.com>
+Co-developed-by: Ruizhe Pan <c141028@gmail.com>
+Signed-off-by: Ruizhe Pan <c141028@gmail.com>
+Signed-off-by: Celeste Liu <coelacanthus@outlook.com>
+Link: https://lore.kernel.org/r/PH7PR14MB559464DBDD310E755F5B21E8CEDC9@PH7PR14MB5594.namprd14.prod.outlook.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/nau8821.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ arch/riscv/kernel/sys_riscv.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/nau8821.c b/sound/soc/codecs/nau8821.c
-index ce4e7f46bb06..e078d2ffb3f6 100644
---- a/sound/soc/codecs/nau8821.c
-+++ b/sound/soc/codecs/nau8821.c
-@@ -1665,15 +1665,6 @@ static int nau8821_i2c_probe(struct i2c_client *i2c)
- 	return ret;
- }
+diff --git a/arch/riscv/kernel/sys_riscv.c b/arch/riscv/kernel/sys_riscv.c
+index 9c0194f176fc..571556bb9261 100644
+--- a/arch/riscv/kernel/sys_riscv.c
++++ b/arch/riscv/kernel/sys_riscv.c
+@@ -18,9 +18,8 @@ static long riscv_sys_mmap(unsigned long addr, unsigned long len,
+ 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
+ 		return -EINVAL;
  
--static int nau8821_i2c_remove(struct i2c_client *i2c_client)
--{
--	struct nau8821 *nau8821 = i2c_get_clientdata(i2c_client);
--
--	devm_free_irq(nau8821->dev, nau8821->irq, nau8821);
--
--	return 0;
--}
--
- static const struct i2c_device_id nau8821_i2c_ids[] = {
- 	{ "nau8821", 0 },
- 	{ }
-@@ -1703,7 +1694,6 @@ static struct i2c_driver nau8821_driver = {
- 		.acpi_match_table = ACPI_PTR(nau8821_acpi_match),
- 	},
- 	.probe_new = nau8821_i2c_probe,
--	.remove = nau8821_i2c_remove,
- 	.id_table = nau8821_i2c_ids,
- };
- module_i2c_driver(nau8821_driver);
+-	if ((prot & PROT_WRITE) && (prot & PROT_EXEC))
+-		if (unlikely(!(prot & PROT_READ)))
+-			return -EINVAL;
++	if (unlikely((prot & PROT_WRITE) && !(prot & PROT_READ)))
++		return -EINVAL;
+ 
+ 	return ksys_mmap_pgoff(addr, len, prot, flags, fd,
+ 			       offset >> (PAGE_SHIFT - page_shift_offset));
 -- 
 2.35.1
 
