@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BF53594AB4
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:19:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 440E7594AC4
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:19:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353407AbiHPAF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:05:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34464 "EHLO
+        id S1355843AbiHPAGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:06:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353878AbiHOX6x (ORCPT
+        with ESMTP id S1354040AbiHOX6x (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:58:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D5E79ECA;
-        Mon, 15 Aug 2022 13:20:55 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2104F804AD;
+        Mon, 15 Aug 2022 13:20:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71520B81135;
-        Mon, 15 Aug 2022 20:20:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A80A5C433C1;
-        Mon, 15 Aug 2022 20:20:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B08DA61007;
+        Mon, 15 Aug 2022 20:20:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB8F3C433C1;
+        Mon, 15 Aug 2022 20:20:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594853;
-        bh=JDV9LBwF5joWK8HGi4wBwjEykNxNVY96ePmNBMJjcug=;
+        s=korg; t=1660594856;
+        bh=aRQIsfM1DlDmmnhgQS9E3HmvnGvp5qyhm8dCDWeSy6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LTZL8zlbdu/9tZC6fwtHZlvICpl1zLtzUGIzxgl92HgIxkUMTNQCrW/f1VDyBdGu0
-         9LLvimZMtg3KI2UIYXxuo5NUlLAuvd2oqn2nXhZ7NXrNxsP9/Kc86MEWYj069vcf1d
-         tLXL6JLsZFAnxf4dY//ja+lc8Sq0ej0VzNzKn6SM=
+        b=OH8OuCkXIE2u9Qz6AgsTFDMpJ5KKOYgtUQdgsWRfwPfEhMFyHXFVz5dPnqzZXyczn
+         822sFr11dM6v6wMIlOo2hMsDbqPJg4XzJBtvWY3VgOAg7Q0cG+lVegULNqhVS6tYQ3
+         CPqO7GhoKinp2RCdhc81lZtSFFBONI066GMqd62E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Liang Yang <liang.yang@amlogic.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0578/1157] mtd: rawnand: meson: Fix a potential double free issue
-Date:   Mon, 15 Aug 2022 19:58:54 +0200
-Message-Id: <20220815180502.759849232@linuxfoundation.org>
+Subject: [PATCH 5.19 0579/1157] clk: renesas: rzg2l: Fix reset status function
+Date:   Mon, 15 Aug 2022 19:58:55 +0200
+Message-Id: <20220815180502.808916209@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,44 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit ec0da06337751b18f6dee06b6526e0f0d6e80369 ]
+[ Upstream commit 02c96ed9e4cd1f47bfcd10296fec6b0b69d6b3c6 ]
 
-When meson_nfc_nand_chip_cleanup() is called, it will call:
-	meson_nfc_free_buffer(&meson_chip->nand);
-	nand_cleanup(&meson_chip->nand);
+As per RZ/G2L HW(Rev.1.10) manual, reset monitor register value 0 means
+reset signal is not applied (deassert state) and 1 means reset signal
+is applied (assert state).
 
-nand_cleanup() in turn will call nand_detach() which calls the
-.detach_chip() which is here meson_nand_detach_chip().
+reset_control_status() expects a positive value if the reset line is
+asserted. But rzg2l_cpg_status function returns zero for asserted
+state.
 
-meson_nand_detach_chip() already calls meson_nfc_free_buffer(), so we
-could double free some memory.
+This patch fixes the issue by adding double inverted logic, so that
+reset_control_status returns a positive value if the reset line is
+asserted.
 
-Fix it by removing the unneeded explicit call to meson_nfc_free_buffer().
-
-Fixes: 8fae856c5350 ("mtd: rawnand: meson: add support for Amlogic NAND flash controller")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Liang Yang <liang.yang@amlogic.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/ec15c358b8063f7c50ff4cd628cf0d2e14e43f49.1653064877.git.christophe.jaillet@wanadoo.fr
+Fixes: ef3c613ccd68 ("clk: renesas: Add CPG core wrapper for RZ/G2L SoC")
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/r/20220531071657.104121-1-biju.das.jz@bp.renesas.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/meson_nand.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/clk/renesas/rzg2l-cpg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/raw/meson_nand.c b/drivers/mtd/nand/raw/meson_nand.c
-index ac3be92872d0..032180183339 100644
---- a/drivers/mtd/nand/raw/meson_nand.c
-+++ b/drivers/mtd/nand/raw/meson_nand.c
-@@ -1307,7 +1307,6 @@ static int meson_nfc_nand_chip_cleanup(struct meson_nfc *nfc)
- 		if (ret)
- 			return ret;
+diff --git a/drivers/clk/renesas/rzg2l-cpg.c b/drivers/clk/renesas/rzg2l-cpg.c
+index e2999ab2b53c..3ff6ecd61756 100644
+--- a/drivers/clk/renesas/rzg2l-cpg.c
++++ b/drivers/clk/renesas/rzg2l-cpg.c
+@@ -1180,7 +1180,7 @@ static int rzg2l_cpg_status(struct reset_controller_dev *rcdev,
+ 	s8 monbit = info->resets[id].monbit;
  
--		meson_nfc_free_buffer(&meson_chip->nand);
- 		nand_cleanup(&meson_chip->nand);
- 		list_del(&meson_chip->node);
- 	}
+ 	if (info->has_clk_mon_regs) {
+-		return !(readl(priv->base + CLK_MRST_R(reg)) & bitmask);
++		return !!(readl(priv->base + CLK_MRST_R(reg)) & bitmask);
+ 	} else if (monbit >= 0) {
+ 		u32 monbitmask = BIT(monbit);
+ 
 -- 
 2.35.1
 
