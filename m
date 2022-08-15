@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 091AA5940A3
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23035594113
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243774AbiHOVKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:10:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46448 "EHLO
+        id S243781AbiHOVJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:09:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347730AbiHOVHS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:07:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44D15D7CC0;
-        Mon, 15 Aug 2022 12:16:01 -0700 (PDT)
+        with ESMTP id S1347775AbiHOVHd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:07:33 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E2B2D7CC5;
+        Mon, 15 Aug 2022 12:16:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F32660F68;
-        Mon, 15 Aug 2022 19:16:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65520C433C1;
-        Mon, 15 Aug 2022 19:15:59 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6189BCE1087;
+        Mon, 15 Aug 2022 19:16:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F872C433D6;
+        Mon, 15 Aug 2022 19:16:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590960;
-        bh=TV1A34qSeVnvK3T5CmuOfDs7H8Ocm+rnoh5pu/mpe1I=;
+        s=korg; t=1660590962;
+        bh=UDGcVwRi7O++OPdySi9hrL7ej4PyhcDWLK6vrD9AdiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pYtuTMA7VkvQm4h0sDbfo1MVvaDsRJZwDZQmi9oMM8DRgq8JFqEAjrBiN3KOdIvrf
-         DOFeF/IXYTiev9KJVd5Wd1FUk2SPzzrZInh7IbzsBCX5JQX6fKvcQ+YI6Nd42xbtlS
-         zP3M/uPflskz8sP9GS6Ipikxd/GdvG+A4rHJpArc=
+        b=qHhiBrLRc2TI11CAY/7SSrB4m8picCbIOAyWrNvrUhUz3YTTfAN2IW78C3qppFeF8
+         UWQMbrMSMr+pET/wBTGSFM0PncJIfONeqhl9yYy10hpAe5QZyD6/xJJW3qzfO8UNtH
+         GRkFg81TW6XrYaEjGLTLnGchy6oUwcrq7xCd7GtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zhengchao Shao <shaozhengchao@huawei.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0425/1095] crypto: hisilicon/sec - dont sleep when in softirq
-Date:   Mon, 15 Aug 2022 19:57:04 +0200
-Message-Id: <20220815180447.314041633@linuxfoundation.org>
+Subject: [PATCH 5.18 0426/1095] crypto: hisilicon - Kunpeng916 crypto driver dont sleep when in softirq
+Date:   Mon, 15 Aug 2022 19:57:05 +0200
+Message-Id: <20220815180447.347753642@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,176 +56,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 02884a4f12de11f54d4ca67a07dd1f111d96fdbd ]
+[ Upstream commit 68740ab505431f268dc1ee26a54b871e75f0ddaa ]
 
-When kunpeng920 encryption driver is used to deencrypt and decrypt
-packets during the softirq, it is not allowed to use mutex lock. The
-kernel will report the following error:
+When kunpeng916 encryption driver is used to deencrypt and decrypt
+packets during the softirq, it is not allowed to use mutex lock.
 
-BUG: scheduling while atomic: swapper/57/0/0x00000300
-Call trace:
-dump_backtrace+0x0/0x1e4
-show_stack+0x20/0x2c
-dump_stack+0xd8/0x140
-__schedule_bug+0x68/0x80
-__schedule+0x728/0x840
-schedule+0x50/0xe0
-schedule_preempt_disabled+0x18/0x24
-__mutex_lock.constprop.0+0x594/0x5dc
-__mutex_lock_slowpath+0x1c/0x30
-mutex_lock+0x50/0x60
-sec_request_init+0x8c/0x1a0 [hisi_sec2]
-sec_process+0x28/0x1ac [hisi_sec2]
-sec_skcipher_crypto+0xf4/0x1d4 [hisi_sec2]
-sec_skcipher_encrypt+0x1c/0x30 [hisi_sec2]
-crypto_skcipher_encrypt+0x2c/0x40
-crypto_authenc_encrypt+0xc8/0xfc [authenc]
-crypto_aead_encrypt+0x2c/0x40
-echainiv_encrypt+0x144/0x1a0 [echainiv]
-crypto_aead_encrypt+0x2c/0x40
-esp_output_tail+0x348/0x5c0 [esp4]
-esp_output+0x120/0x19c [esp4]
-xfrm_output_one+0x25c/0x4d4
-xfrm_output_resume+0x6c/0x1fc
-xfrm_output+0xac/0x3c0
-xfrm4_output+0x64/0x130
-ip_build_and_send_pkt+0x158/0x20c
-tcp_v4_send_synack+0xdc/0x1f0
-tcp_conn_request+0x7d0/0x994
-tcp_v4_conn_request+0x58/0x6c
-tcp_v6_conn_request+0xf0/0x100
-tcp_rcv_state_process+0x1cc/0xd60
-tcp_v4_do_rcv+0x10c/0x250
-tcp_v4_rcv+0xfc4/0x10a4
-ip_protocol_deliver_rcu+0xf4/0x200
-ip_local_deliver_finish+0x58/0x70
-ip_local_deliver+0x68/0x120
-ip_sublist_rcv_finish+0x70/0x94
-ip_list_rcv_finish.constprop.0+0x17c/0x1d0
-ip_sublist_rcv+0x40/0xb0
-ip_list_rcv+0x140/0x1dc
-__netif_receive_skb_list_core+0x154/0x28c
-__netif_receive_skb_list+0x120/0x1a0
-netif_receive_skb_list_internal+0xe4/0x1f0
-napi_complete_done+0x70/0x1f0
-gro_cell_poll+0x9c/0xb0
-napi_poll+0xcc/0x264
-net_rx_action+0xd4/0x21c
-__do_softirq+0x130/0x358
-irq_exit+0x11c/0x13c
-__handle_domain_irq+0x88/0xf0
-gic_handle_irq+0x78/0x2c0
-el1_irq+0xb8/0x140
-arch_cpu_idle+0x18/0x40
-default_idle_call+0x5c/0x1c0
-cpuidle_idle_call+0x174/0x1b0
-do_idle+0xc8/0x160
-cpu_startup_entry+0x30/0x11c
-secondary_start_kernel+0x158/0x1e4
-softirq: huh, entered softirq 3 NET_RX 0000000093774ee4 with
-preempt_count 00000100, exited with fffffe00?
-
-Fixes: 416d82204df4 ("crypto: hisilicon - add HiSilicon SEC V2 driver")
+Fixes: 915e4e8413da ("crypto: hisilicon - SEC security accelerator driver")
 Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/sec2/sec.h        |  2 +-
- drivers/crypto/hisilicon/sec2/sec_crypto.c | 20 ++++++++++----------
- 2 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/crypto/hisilicon/sec/sec_algs.c | 14 +++++++-------
+ drivers/crypto/hisilicon/sec/sec_drv.h  |  2 +-
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/crypto/hisilicon/sec2/sec.h b/drivers/crypto/hisilicon/sec2/sec.h
-index c2e9b01187a7..a44c8dba3cda 100644
---- a/drivers/crypto/hisilicon/sec2/sec.h
-+++ b/drivers/crypto/hisilicon/sec2/sec.h
-@@ -119,7 +119,7 @@ struct sec_qp_ctx {
- 	struct idr req_idr;
- 	struct sec_alg_res res[QM_Q_DEPTH];
- 	struct sec_ctx *ctx;
--	struct mutex req_lock;
-+	spinlock_t req_lock;
- 	struct list_head backlog;
- 	struct hisi_acc_sgl_pool *c_in_pool;
- 	struct hisi_acc_sgl_pool *c_out_pool;
-diff --git a/drivers/crypto/hisilicon/sec2/sec_crypto.c b/drivers/crypto/hisilicon/sec2/sec_crypto.c
-index a91635c348b5..f193d6b6fa16 100644
---- a/drivers/crypto/hisilicon/sec2/sec_crypto.c
-+++ b/drivers/crypto/hisilicon/sec2/sec_crypto.c
-@@ -127,11 +127,11 @@ static int sec_alloc_req_id(struct sec_req *req, struct sec_qp_ctx *qp_ctx)
- {
- 	int req_id;
- 
--	mutex_lock(&qp_ctx->req_lock);
-+	spin_lock_bh(&qp_ctx->req_lock);
- 
- 	req_id = idr_alloc_cyclic(&qp_ctx->req_idr, NULL,
- 				  0, QM_Q_DEPTH, GFP_ATOMIC);
--	mutex_unlock(&qp_ctx->req_lock);
-+	spin_unlock_bh(&qp_ctx->req_lock);
- 	if (unlikely(req_id < 0)) {
- 		dev_err(req->ctx->dev, "alloc req id fail!\n");
- 		return req_id;
-@@ -156,9 +156,9 @@ static void sec_free_req_id(struct sec_req *req)
- 	qp_ctx->req_list[req_id] = NULL;
- 	req->qp_ctx = NULL;
- 
--	mutex_lock(&qp_ctx->req_lock);
-+	spin_lock_bh(&qp_ctx->req_lock);
- 	idr_remove(&qp_ctx->req_idr, req_id);
--	mutex_unlock(&qp_ctx->req_lock);
-+	spin_unlock_bh(&qp_ctx->req_lock);
- }
- 
- static u8 pre_parse_finished_bd(struct bd_status *status, void *resp)
-@@ -273,7 +273,7 @@ static int sec_bd_send(struct sec_ctx *ctx, struct sec_req *req)
- 	    !(req->flag & CRYPTO_TFM_REQ_MAY_BACKLOG))
- 		return -EBUSY;
- 
--	mutex_lock(&qp_ctx->req_lock);
-+	spin_lock_bh(&qp_ctx->req_lock);
- 	ret = hisi_qp_send(qp_ctx->qp, &req->sec_sqe);
- 
- 	if (ctx->fake_req_limit <=
-@@ -281,10 +281,10 @@ static int sec_bd_send(struct sec_ctx *ctx, struct sec_req *req)
- 		list_add_tail(&req->backlog_head, &qp_ctx->backlog);
- 		atomic64_inc(&ctx->sec->debug.dfx.send_cnt);
- 		atomic64_inc(&ctx->sec->debug.dfx.send_busy_cnt);
--		mutex_unlock(&qp_ctx->req_lock);
-+		spin_unlock_bh(&qp_ctx->req_lock);
- 		return -EBUSY;
+diff --git a/drivers/crypto/hisilicon/sec/sec_algs.c b/drivers/crypto/hisilicon/sec/sec_algs.c
+index 0a3c8f019b02..490e1542305e 100644
+--- a/drivers/crypto/hisilicon/sec/sec_algs.c
++++ b/drivers/crypto/hisilicon/sec/sec_algs.c
+@@ -449,7 +449,7 @@ static void sec_skcipher_alg_callback(struct sec_bd_info *sec_resp,
+ 		 */
  	}
--	mutex_unlock(&qp_ctx->req_lock);
-+	spin_unlock_bh(&qp_ctx->req_lock);
  
- 	if (unlikely(ret == -EBUSY))
- 		return -ENOBUFS;
-@@ -487,7 +487,7 @@ static int sec_create_qp_ctx(struct hisi_qm *qm, struct sec_ctx *ctx,
- 
- 	qp->req_cb = sec_req_cb;
- 
--	mutex_init(&qp_ctx->req_lock);
-+	spin_lock_init(&qp_ctx->req_lock);
- 	idr_init(&qp_ctx->req_idr);
- 	INIT_LIST_HEAD(&qp_ctx->backlog);
- 
-@@ -1382,7 +1382,7 @@ static struct sec_req *sec_back_req_clear(struct sec_ctx *ctx,
- {
- 	struct sec_req *backlog_req = NULL;
- 
--	mutex_lock(&qp_ctx->req_lock);
-+	spin_lock_bh(&qp_ctx->req_lock);
- 	if (ctx->fake_req_limit >=
- 	    atomic_read(&qp_ctx->qp->qp_status.used) &&
- 	    !list_empty(&qp_ctx->backlog)) {
-@@ -1390,7 +1390,7 @@ static struct sec_req *sec_back_req_clear(struct sec_ctx *ctx,
- 				typeof(*backlog_req), backlog_head);
- 		list_del(&backlog_req->backlog_head);
+-	mutex_lock(&ctx->queue->queuelock);
++	spin_lock_bh(&ctx->queue->queuelock);
+ 	/* Put the IV in place for chained cases */
+ 	switch (ctx->cipher_alg) {
+ 	case SEC_C_AES_CBC_128:
+@@ -509,7 +509,7 @@ static void sec_skcipher_alg_callback(struct sec_bd_info *sec_resp,
+ 			list_del(&backlog_req->backlog_head);
+ 		}
  	}
--	mutex_unlock(&qp_ctx->req_lock);
-+	spin_unlock_bh(&qp_ctx->req_lock);
+-	mutex_unlock(&ctx->queue->queuelock);
++	spin_unlock_bh(&ctx->queue->queuelock);
  
- 	return backlog_req;
- }
+ 	mutex_lock(&sec_req->lock);
+ 	list_del(&sec_req_el->head);
+@@ -798,7 +798,7 @@ static int sec_alg_skcipher_crypto(struct skcipher_request *skreq,
+ 	 */
+ 
+ 	/* Grab a big lock for a long time to avoid concurrency issues */
+-	mutex_lock(&queue->queuelock);
++	spin_lock_bh(&queue->queuelock);
+ 
+ 	/*
+ 	 * Can go on to queue if we have space in either:
+@@ -814,15 +814,15 @@ static int sec_alg_skcipher_crypto(struct skcipher_request *skreq,
+ 		ret = -EBUSY;
+ 		if ((skreq->base.flags & CRYPTO_TFM_REQ_MAY_BACKLOG)) {
+ 			list_add_tail(&sec_req->backlog_head, &ctx->backlog);
+-			mutex_unlock(&queue->queuelock);
++			spin_unlock_bh(&queue->queuelock);
+ 			goto out;
+ 		}
+ 
+-		mutex_unlock(&queue->queuelock);
++		spin_unlock_bh(&queue->queuelock);
+ 		goto err_free_elements;
+ 	}
+ 	ret = sec_send_request(sec_req, queue);
+-	mutex_unlock(&queue->queuelock);
++	spin_unlock_bh(&queue->queuelock);
+ 	if (ret)
+ 		goto err_free_elements;
+ 
+@@ -881,7 +881,7 @@ static int sec_alg_skcipher_init(struct crypto_skcipher *tfm)
+ 	if (IS_ERR(ctx->queue))
+ 		return PTR_ERR(ctx->queue);
+ 
+-	mutex_init(&ctx->queue->queuelock);
++	spin_lock_init(&ctx->queue->queuelock);
+ 	ctx->queue->havesoftqueue = false;
+ 
+ 	return 0;
+diff --git a/drivers/crypto/hisilicon/sec/sec_drv.h b/drivers/crypto/hisilicon/sec/sec_drv.h
+index 179a8250d691..e2a50bf2234b 100644
+--- a/drivers/crypto/hisilicon/sec/sec_drv.h
++++ b/drivers/crypto/hisilicon/sec/sec_drv.h
+@@ -347,7 +347,7 @@ struct sec_queue {
+ 	DECLARE_BITMAP(unprocessed, SEC_QUEUE_LEN);
+ 	DECLARE_KFIFO_PTR(softqueue, typeof(struct sec_request_el *));
+ 	bool havesoftqueue;
+-	struct mutex queuelock;
++	spinlock_t queuelock;
+ 	void *shadow[SEC_QUEUE_LEN];
+ };
+ 
 -- 
 2.35.1
 
