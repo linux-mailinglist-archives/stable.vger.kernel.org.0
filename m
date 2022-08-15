@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AFFB593781
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DC8A5938FF
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244964AbiHOTDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:03:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60070 "EHLO
+        id S231375AbiHOTCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:02:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245277AbiHOTBo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:01:44 -0400
+        with ESMTP id S245375AbiHOTBy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:01:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC4114B4B9;
-        Mon, 15 Aug 2022 11:33:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B10A733A19;
+        Mon, 15 Aug 2022 11:33:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F40461029;
-        Mon, 15 Aug 2022 18:33:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CFE9C433D6;
-        Mon, 15 Aug 2022 18:33:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35E47610A4;
+        Mon, 15 Aug 2022 18:33:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CFA1C433C1;
+        Mon, 15 Aug 2022 18:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588383;
-        bh=HlTfPbXchC5cAD7jsM/6p4KFPwSHFJtQRD++oV1z8MA=;
+        s=korg; t=1660588389;
+        bh=hG2YwfD3GERqvp7dAQn4lJn8v53PgZPVyBYg36/I2NI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IsIYxZvoCcuTipC0wvZ5KPlNUK7eYA3mEmIR0rofJwRnpz8ELQh+s2XulVlUgzWR5
-         EDn4CLbvDzId73oFPirwEcSeFAlriH/vKKEmDaJY7yy2zPgvuZAvMy6b599BvjbYvu
-         pWjBevSg8xQ9BPe9vM/bxXzY567w4j+7XXAm3094=
+        b=ztNv+EugwAXUhOEb+XsnNzJIkoF2htQTJ+KriEuUwNO0rCv2Faeohu1wWmHgYnT6D
+         zfxwG7nEUAEvu31nnK+xM+mCtdNXwta43X7idoLSdKpB6xCn3Gfom5OtrRL+ccSgyn
+         QsIUkcuRkUz/3pz0Eoy5ti9trn0zgBqzbC2bQDzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Hayes Wang <hayeswang@realtek.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 385/779] net: usb: make USB_RTL8153_ECM non user configurable
-Date:   Mon, 15 Aug 2022 20:00:29 +0200
-Message-Id: <20220815180353.747685622@linuxfoundation.org>
+Subject: [PATCH 5.15 386/779] wireguard: ratelimiter: use hrtimer in selftest
+Date:   Mon, 15 Aug 2022 20:00:30 +0200
+Message-Id: <20220815180353.787691263@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -58,98 +55,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit f56530dcdb0684406661ac9f1accf48319d07600 ]
+[ Upstream commit 151c8e499f4705010780189377f85b57400ccbf5 ]
 
-This refixes:
+Using msleep() is problematic because it's compared against
+ratelimiter.c's ktime_get_coarse_boottime_ns(), which means on systems
+with slow jiffies (such as UML's forced HZ=100), the result is
+inaccurate. So switch to using schedule_hrtimeout().
 
-    commit 7da17624e7948d5d9660b910f8079d26d26ce453
-    nt: usb: USB_RTL8153_ECM should not default to y
+However, hrtimer gives us access only to the traditional posix timers,
+and none of the _COARSE variants. So now, rather than being too
+imprecise like jiffies, it's too precise.
 
-    In general, device drivers should not be enabled by default.
+One solution would be to give it a large "range" value, but this will
+still fire early on a loaded system. A better solution is to align the
+timeout to the actual coarse timer, and then round up to the nearest
+tick, plus change.
 
-which basically broke the commit it claimed to fix, ie:
+So add the timeout to the current coarse time, and then
+schedule_hrtimer() until the absolute computed time.
 
-    commit 657bc1d10bfc23ac06d5d687ce45826c760744f9
-    r8153_ecm: avoid to be prior to r8152 driver
+This should hopefully reduce flakes in CI as well. Note that we keep the
+retry loop in case the entire function is running behind, because the
+test could still be scheduled out, by either the kernel or by the
+hypervisor's kernel, in which case restarting the test and hoping to not
+be scheduled out still helps.
 
-    Avoid r8153_ecm is compiled as built-in, if r8152 driver is compiled
-    as modules. Otherwise, the r8153_ecm would be used, even though the
-    device is supported by r8152 driver.
-
-this commit amounted to:
-
-drivers/net/usb/Kconfig:
-
-+config USB_RTL8153_ECM
-+       tristate "RTL8153 ECM support"
-+       depends on USB_NET_CDCETHER && (USB_RTL8152 || USB_RTL8152=n)
-+       default y
-+       help
-+         This option supports ECM mode for RTL8153 ethernet adapter, when
-+         CONFIG_USB_RTL8152 is not set, or the RTL8153 device is not
-+         supported by r8152 driver.
-
-drivers/net/usb/Makefile:
-
--obj-$(CONFIG_USB_NET_CDCETHER) += cdc_ether.o r8153_ecm.o
-+obj-$(CONFIG_USB_NET_CDCETHER) += cdc_ether.o
-+obj-$(CONFIG_USB_RTL8153_ECM)  += r8153_ecm.o
-
-And as can be seen it pulls a piece of the cdc_ether driver out into
-a separate config option to be able to make this piece modular in case
-cdc_ether is builtin, while r8152 is modular.
-
-While in general, device drivers should indeed not be enabled by default:
-this isn't a device driver per say, but rather this is support code for
-the CDCETHER (ECM) driver, and should thus be enabled if it is enabled.
-
-See also email thread at:
-  https://www.spinics.net/lists/netdev/msg767649.html
-
-In:
-  https://www.spinics.net/lists/netdev/msg768284.html
-
-Jakub wrote:
-  And when we say "removed" we can just hide it from what's prompted
-  to the user (whatever such internal options are called)? I believe
-  this way we don't bring back Marek's complaint.
-
-Side note: these incorrect defaults will result in Android 13
-on 5.15 GKI kernels lacking USB_RTL8153_ECM support while having
-USB_NET_CDCETHER (luckily we also have USB_RTL8150 and USB_RTL8152,
-so it's probably only an issue for very new RTL815x hardware with
-no native 5.15 driver).
-
-Fixes: 7da17624e7948d5d ("nt: usb: USB_RTL8153_ECM should not default to y")
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Hayes Wang <hayeswang@realtek.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Link: https://lore.kernel.org/r/20220730230113.4138858-1-zenczykowski@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireguard/selftest/ratelimiter.c | 25 +++++++++++---------
+ kernel/time/hrtimer.c                        |  1 +
+ 2 files changed, 15 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/usb/Kconfig b/drivers/net/usb/Kconfig
-index b554054a7560..8939e5fbd50a 100644
---- a/drivers/net/usb/Kconfig
-+++ b/drivers/net/usb/Kconfig
-@@ -636,8 +636,9 @@ config USB_NET_AQC111
- 	  * Aquantia AQtion USB to 5GbE
+diff --git a/drivers/net/wireguard/selftest/ratelimiter.c b/drivers/net/wireguard/selftest/ratelimiter.c
+index 007cd4457c5f..ba87d294604f 100644
+--- a/drivers/net/wireguard/selftest/ratelimiter.c
++++ b/drivers/net/wireguard/selftest/ratelimiter.c
+@@ -6,28 +6,29 @@
+ #ifdef DEBUG
  
- config USB_RTL8153_ECM
--	tristate "RTL8153 ECM support"
-+	tristate
- 	depends on USB_NET_CDCETHER && (USB_RTL8152 || USB_RTL8152=n)
-+	default y
- 	help
- 	  This option supports ECM mode for RTL8153 ethernet adapter, when
- 	  CONFIG_USB_RTL8152 is not set, or the RTL8153 device is not
+ #include <linux/jiffies.h>
++#include <linux/hrtimer.h>
+ 
+ static const struct {
+ 	bool result;
+-	unsigned int msec_to_sleep_before;
++	u64 nsec_to_sleep_before;
+ } expected_results[] __initconst = {
+ 	[0 ... PACKETS_BURSTABLE - 1] = { true, 0 },
+ 	[PACKETS_BURSTABLE] = { false, 0 },
+-	[PACKETS_BURSTABLE + 1] = { true, MSEC_PER_SEC / PACKETS_PER_SECOND },
++	[PACKETS_BURSTABLE + 1] = { true, NSEC_PER_SEC / PACKETS_PER_SECOND },
+ 	[PACKETS_BURSTABLE + 2] = { false, 0 },
+-	[PACKETS_BURSTABLE + 3] = { true, (MSEC_PER_SEC / PACKETS_PER_SECOND) * 2 },
++	[PACKETS_BURSTABLE + 3] = { true, (NSEC_PER_SEC / PACKETS_PER_SECOND) * 2 },
+ 	[PACKETS_BURSTABLE + 4] = { true, 0 },
+ 	[PACKETS_BURSTABLE + 5] = { false, 0 }
+ };
+ 
+ static __init unsigned int maximum_jiffies_at_index(int index)
+ {
+-	unsigned int total_msecs = 2 * MSEC_PER_SEC / PACKETS_PER_SECOND / 3;
++	u64 total_nsecs = 2 * NSEC_PER_SEC / PACKETS_PER_SECOND / 3;
+ 	int i;
+ 
+ 	for (i = 0; i <= index; ++i)
+-		total_msecs += expected_results[i].msec_to_sleep_before;
+-	return msecs_to_jiffies(total_msecs);
++		total_nsecs += expected_results[i].nsec_to_sleep_before;
++	return nsecs_to_jiffies(total_nsecs);
+ }
+ 
+ static __init int timings_test(struct sk_buff *skb4, struct iphdr *hdr4,
+@@ -42,8 +43,12 @@ static __init int timings_test(struct sk_buff *skb4, struct iphdr *hdr4,
+ 	loop_start_time = jiffies;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(expected_results); ++i) {
+-		if (expected_results[i].msec_to_sleep_before)
+-			msleep(expected_results[i].msec_to_sleep_before);
++		if (expected_results[i].nsec_to_sleep_before) {
++			ktime_t timeout = ktime_add(ktime_add_ns(ktime_get_coarse_boottime(), TICK_NSEC * 4 / 3),
++						    ns_to_ktime(expected_results[i].nsec_to_sleep_before));
++			set_current_state(TASK_UNINTERRUPTIBLE);
++			schedule_hrtimeout_range_clock(&timeout, 0, HRTIMER_MODE_ABS, CLOCK_BOOTTIME);
++		}
+ 
+ 		if (time_is_before_jiffies(loop_start_time +
+ 					   maximum_jiffies_at_index(i)))
+@@ -127,7 +132,7 @@ bool __init wg_ratelimiter_selftest(void)
+ 	if (IS_ENABLED(CONFIG_KASAN) || IS_ENABLED(CONFIG_UBSAN))
+ 		return true;
+ 
+-	BUILD_BUG_ON(MSEC_PER_SEC % PACKETS_PER_SECOND != 0);
++	BUILD_BUG_ON(NSEC_PER_SEC % PACKETS_PER_SECOND != 0);
+ 
+ 	if (wg_ratelimiter_init())
+ 		goto out;
+@@ -176,7 +181,6 @@ bool __init wg_ratelimiter_selftest(void)
+ 				test += test_count;
+ 				goto err;
+ 			}
+-			msleep(500);
+ 			continue;
+ 		} else if (ret < 0) {
+ 			test += test_count;
+@@ -195,7 +199,6 @@ bool __init wg_ratelimiter_selftest(void)
+ 				test += test_count;
+ 				goto err;
+ 			}
+-			msleep(50);
+ 			continue;
+ 		}
+ 		test += test_count;
+diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
+index 0ea8702eb516..23af5eca11b1 100644
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -2311,6 +2311,7 @@ schedule_hrtimeout_range_clock(ktime_t *expires, u64 delta,
+ 
+ 	return !t.task ? 0 : -EINTR;
+ }
++EXPORT_SYMBOL_GPL(schedule_hrtimeout_range_clock);
+ 
+ /**
+  * schedule_hrtimeout_range - sleep until timeout
 -- 
 2.35.1
 
