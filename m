@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D9D059478A
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37667594722
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352950AbiHOXJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:09:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36528 "EHLO
+        id S1345838AbiHOXMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:12:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353264AbiHOXHf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:07:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D6781436CE;
-        Mon, 15 Aug 2022 12:59:39 -0700 (PDT)
+        with ESMTP id S232933AbiHOXLg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:11:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8542238B3;
+        Mon, 15 Aug 2022 13:00:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB8BDB81154;
-        Mon, 15 Aug 2022 19:59:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE0BC43142;
-        Mon, 15 Aug 2022 19:59:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99AEB612B8;
+        Mon, 15 Aug 2022 20:00:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E38AC433C1;
+        Mon, 15 Aug 2022 20:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593576;
-        bh=XSZt3y04SiP8tLE10pIGsc79AdnnvDgeIIf2BR6p02M=;
+        s=korg; t=1660593616;
+        bh=HH4qPGidm0OUya6QXERfAKhEFrdc6+v3zuCV1SJ7ZWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KOAbyXOz00bCj/jmzbcrXNIn3CcSTcCu+uE1NzTN/zUuC/i/tibGcXG30bl8KYYu
-         NpjBC6prEU272hToAMq9MAarmdzM35ydUUiKbE6l1XCam8DT2/wGN0ttMQQDPL31IG
-         3UCgwnSLxeoZgemVK99hDIN3vNXdczuz9RuCoftM=
+        b=DvLgj34xtBjS79KJcY+X2oBoudgW4Gb+klj5T23u+xCtTyF0dAylqFXJbFO/9x9+g
+         Wvwbbt5fDP5j4Gnw2FD6TNwygRfxb6JyalasyPYBMku91+ii0Kge/U8b257Rsac159
+         srLLmxvR8NtWNIVbvuLWl0R+jVzz9fgMC970ahpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.18 0970/1095] scsi: qla2xxx: Fix losing FCP-2 targets during port perturbation tests
-Date:   Mon, 15 Aug 2022 20:06:09 +0200
-Message-Id: <20220815180509.193243814@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.18 0976/1095] posix-cpu-timers: Cleanup CPU timers before freeing them during exec
+Date:   Mon, 15 Aug 2022 20:06:15 +0200
+Message-Id: <20220815180509.486593618@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,35 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit 58d1c124cd79ea686b512043c5bd515590b2ed95 upstream.
+commit e362359ace6f87c201531872486ff295df306d13 upstream.
 
-When a mix of FCP-2 (tape) and non-FCP-2 targets are present, FCP-2 target
-state was incorrectly transitioned when both of the targets were gone. Fix
-this by ignoring state transition for FCP-2 targets.
+Commit 55e8c8eb2c7b ("posix-cpu-timers: Store a reference to a pid not a
+task") started looking up tasks by PID when deleting a CPU timer.
 
-Link: https://lore.kernel.org/r/20220616053508.27186-7-njavali@marvell.com
-Fixes: 44c57f205876 ("scsi: qla2xxx: Changes to support FCP2 Target")
-Cc: stable@vger.kernel.org
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+When a non-leader thread calls execve, it will switch PIDs with the leader
+process. Then, as it calls exit_itimers, posix_cpu_timer_del cannot find
+the task because the timer still points out to the old PID.
+
+That means that armed timers won't be disarmed, that is, they won't be
+removed from the timerqueue_list. exit_itimers will still release their
+memory, and when that list is later processed, it leads to a
+use-after-free.
+
+Clean up the timers from the de-threaded task before freeing them. This
+prevents a reported use-after-free.
+
+Fixes: 55e8c8eb2c7b ("posix-cpu-timers: Store a reference to a pid not a task")
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220809170751.164716-1-cascardo@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_gs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/exec.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_gs.c
-+++ b/drivers/scsi/qla2xxx/qla_gs.c
-@@ -3629,7 +3629,7 @@ login_logout:
- 				do_delete) {
- 				if (fcport->loop_id != FC_NO_LOOP_ID) {
- 					if (fcport->flags & FCF_FCP2_DEVICE)
--						fcport->logout_on_delete = 0;
-+						continue;
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1297,6 +1297,9 @@ int begin_new_exec(struct linux_binprm *
+ 	bprm->mm = NULL;
  
- 					ql_log(ql_log_warn, vha, 0x20f0,
- 					       "%s %d %8phC post del sess\n",
+ #ifdef CONFIG_POSIX_TIMERS
++	spin_lock_irq(&me->sighand->siglock);
++	posix_cpu_timers_exit(me);
++	spin_unlock_irq(&me->sighand->siglock);
+ 	exit_itimers(me);
+ 	flush_itimer_signals();
+ #endif
 
 
