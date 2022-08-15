@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3512594ABC
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:19:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E271F594A96
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354806AbiHPAGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:06:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46806 "EHLO
+        id S1352411AbiHPAEt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:04:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354942AbiHPAAk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:00:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A11D897532;
-        Mon, 15 Aug 2022 13:21:57 -0700 (PDT)
+        with ESMTP id S1355290AbiHPAAm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:00:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28DC6491C4;
+        Mon, 15 Aug 2022 13:21:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F822B80EAD;
-        Mon, 15 Aug 2022 20:21:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E9C6C433C1;
-        Mon, 15 Aug 2022 20:21:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA8ED61058;
+        Mon, 15 Aug 2022 20:21:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB0C4C433D6;
+        Mon, 15 Aug 2022 20:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594915;
-        bh=9u+RPsdKAXeHUNT7S87LWCUibPX9fT0Xx0jOa0D91Us=;
+        s=korg; t=1660594918;
+        bh=mXRncFbX1rhnBroBNy3dqVvrGlP+7CSJazY55cdca20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=trJMyXhR9Mz21y/vNNA/PZ67Cb33rpg3lHRZiqOjN2g2ijU45rETqPcb9WAvQWCy7
-         KmMq5lmW7hJKv+fArmmq/c2/Wc0mxRtrKr+Vew1PyJHR3JEgF/LBt3u9XTXoNxYIAt
-         BrDA7f2Xj1jENAgqWv7YHaVTV1+cyCbZ8it2u7MM=
+        b=lbBWeacqHW5XKxKzKa0Sj/b6Zh0FjfVZ+WmyXUgCUQIX0wpAFYs6SbTTMhaKiwH0j
+         eXg5RUbNZF+fL3Prxu986TPDBnhrBp4eX5jl3aWXswpjPtnrjCFRHyv86WOEWAwhNU
+         Rum++MaCZM7UULyLzYJVgoWCC4IXEeHm9yGIwZK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0599/1157] mtd: parsers: ofpart: Fix refcount leak in bcm4908_partitions_fw_offset
-Date:   Mon, 15 Aug 2022 19:59:15 +0200
-Message-Id: <20220815180503.622591678@linuxfoundation.org>
+Subject: [PATCH 5.19 0600/1157] mtd: spear_smi: Dont skip cleanup after mtd_device_unregister() failed
+Date:   Mon, 15 Aug 2022 19:59:16 +0200
+Message-Id: <20220815180503.666525013@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,43 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit e607879b0da18c451de5e91daf239cc2f2f8ff2d ]
+[ Upstream commit 0057568b391488a5940635cbda562ea397bf4bdd ]
 
-of_find_node_by_path() returns a node pointer with refcount incremented,
-we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+If mtd_device_unregister() fails (which it doesn't when used correctly),
+the resources bound by the nand chip should be freed anyhow as returning
+an error value doesn't prevent the device getting unbound.
 
-Fixes: bb17230c61a6 ("mtd: parsers: ofpart: support BCM4908 fixed partitions")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Instead use WARN_ON on the return value similar to how other drivers do
+it.
+
+This is a preparation for making platform remove callbacks return void.
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220605070726.5979-1-linmq006@gmail.com
+Link: https://lore.kernel.org/linux-mtd/20220603210758.148493-7-u.kleine-koenig@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/parsers/ofpart_bcm4908.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mtd/devices/spear_smi.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mtd/parsers/ofpart_bcm4908.c b/drivers/mtd/parsers/ofpart_bcm4908.c
-index 0eddef4c198e..bb072a0940e4 100644
---- a/drivers/mtd/parsers/ofpart_bcm4908.c
-+++ b/drivers/mtd/parsers/ofpart_bcm4908.c
-@@ -35,12 +35,15 @@ static long long bcm4908_partitions_fw_offset(void)
- 		err = kstrtoul(s + len + 1, 0, &offset);
- 		if (err) {
- 			pr_err("failed to parse %s\n", s + len + 1);
-+			of_node_put(root);
- 			return err;
- 		}
+diff --git a/drivers/mtd/devices/spear_smi.c b/drivers/mtd/devices/spear_smi.c
+index 24073518587f..f6febe6662db 100644
+--- a/drivers/mtd/devices/spear_smi.c
++++ b/drivers/mtd/devices/spear_smi.c
+@@ -1045,7 +1045,7 @@ static int spear_smi_remove(struct platform_device *pdev)
+ {
+ 	struct spear_smi *dev;
+ 	struct spear_snor_flash *flash;
+-	int ret, i;
++	int i;
  
-+		of_node_put(root);
- 		return offset << 10;
+ 	dev = platform_get_drvdata(pdev);
+ 	if (!dev) {
+@@ -1060,9 +1060,7 @@ static int spear_smi_remove(struct platform_device *pdev)
+ 			continue;
+ 
+ 		/* clean up mtd stuff */
+-		ret = mtd_device_unregister(&flash->mtd);
+-		if (ret)
+-			dev_err(&pdev->dev, "error removing mtd\n");
++		WARN_ON(mtd_device_unregister(&flash->mtd));
  	}
  
-+	of_node_put(root);
- 	return -ENOENT;
- }
- 
+ 	clk_disable_unprepare(dev->clk);
 -- 
 2.35.1
 
