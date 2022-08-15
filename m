@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60D05594D14
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9ACA59483E
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239988AbiHPAw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:52:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43386 "EHLO
+        id S242848AbiHOXWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:22:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244766AbiHPAuS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:50:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 442DCD91DA;
-        Mon, 15 Aug 2022 13:46:03 -0700 (PDT)
+        with ESMTP id S240822AbiHOXTE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:19:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A2E014A1C6;
+        Mon, 15 Aug 2022 13:03:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B26CEB80EAD;
-        Mon, 15 Aug 2022 20:46:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0941FC433C1;
-        Mon, 15 Aug 2022 20:45:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2496B61089;
+        Mon, 15 Aug 2022 20:03:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23159C433C1;
+        Mon, 15 Aug 2022 20:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596360;
-        bh=oCQoZ/p7DA6Hwbt7h9YnDmeAd2OfPIKQCnbiaHnZFeg=;
+        s=korg; t=1660593834;
+        bh=tR7DPSIp4Nw+YZPrGRHaKGiNk5UW/pvct4lAxpVCj08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CgAxr1Gc9VWkjK+cbBJO83cM8LE0W6R8aatAmFz49andj5eFp5J2vigW0UI39bsua
-         fI5JHtAJXAaJ5qF77ny7Qjah6z4sG4jdXBhrtDHbkaALw9URfrkPEs7s2EF/Dp2Z3V
-         4MM3QN5J2VpTd4rigi+EYXR48evTXn1ZoDv/eNu0=
+        b=nrdL13bSKEznogFdPbVIvB+7s0hP+iIErED+ead6zkymWpW7e13NspikS6vjoHW/w
+         ZeDuQpCIhe3Tq15QHvzxPwnzSZNPt+ILkkHEVTYAIbnePGTVBJveqx+qq22/B9mCYG
+         YYgPg242FOfsubtbX7j8kc41y99HdBTCAWTjnKm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
-        Yury Norov <yury.norov@gmail.com>, Phil Auld <pauld@redhat.com>
-Subject: [PATCH 5.19 1056/1157] drivers/base: fix userspace break from using bin_attributes for cpumap and cpulist
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 1013/1095] btrfs: ensure pages are unlocked on cow_file_range() failure
 Date:   Mon, 15 Aug 2022 20:06:52 +0200
-Message-Id: <20220815180522.304029664@linuxfoundation.org>
+Message-Id: <20220815180511.013269350@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,177 +55,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Auld <pauld@redhat.com>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-commit 7ee951acd31a88f941fd6535fbdee3a1567f1d63 upstream.
+[ Upstream commit 9ce7466f372d83054c7494f6b3e4b9abaf3f0355 ]
 
-Using bin_attributes with a 0 size causes fstat and friends to return that
-0 size. This breaks userspace code that retrieves the size before reading
-the file. Rather than reverting 75bd50fa841 ("drivers/base/node.c: use
-bin_attribute to break the size limitation of cpumap ABI") let's put in a
-size value at compile time.
+There is a hung_task report on zoned btrfs like below.
 
-For cpulist the maximum size is on the order of
-	NR_CPUS * (ceil(log10(NR_CPUS)) + 1)/2
+https://github.com/naota/linux/issues/59
 
-which for 8192 is 20480 (8192 * 5)/2. In order to get near that you'd need
-a system with every other CPU on one node. For example: (0,2,4,8, ... ).
-To simplify the math and support larger NR_CPUS in the future we are using
-(NR_CPUS * 7)/2. We also set it to a min of PAGE_SIZE to retain the older
-behavior for smaller NR_CPUS.
+  [726.328648] INFO: task rocksdb:high0:11085 blocked for more than 241 seconds.
+  [726.329839]       Not tainted 5.16.0-rc1+ #1
+  [726.330484] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [726.331603] task:rocksdb:high0   state:D stack:    0 pid:11085 ppid: 11082 flags:0x00000000
+  [726.331608] Call Trace:
+  [726.331611]  <TASK>
+  [726.331614]  __schedule+0x2e5/0x9d0
+  [726.331622]  schedule+0x58/0xd0
+  [726.331626]  io_schedule+0x3f/0x70
+  [726.331629]  __folio_lock+0x125/0x200
+  [726.331634]  ? find_get_entries+0x1bc/0x240
+  [726.331638]  ? filemap_invalidate_unlock_two+0x40/0x40
+  [726.331642]  truncate_inode_pages_range+0x5b2/0x770
+  [726.331649]  truncate_inode_pages_final+0x44/0x50
+  [726.331653]  btrfs_evict_inode+0x67/0x480
+  [726.331658]  evict+0xd0/0x180
+  [726.331661]  iput+0x13f/0x200
+  [726.331664]  do_unlinkat+0x1c0/0x2b0
+  [726.331668]  __x64_sys_unlink+0x23/0x30
+  [726.331670]  do_syscall_64+0x3b/0xc0
+  [726.331674]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [726.331677] RIP: 0033:0x7fb9490a171b
+  [726.331681] RSP: 002b:00007fb943ffac68 EFLAGS: 00000246 ORIG_RAX: 0000000000000057
+  [726.331684] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fb9490a171b
+  [726.331686] RDX: 00007fb943ffb040 RSI: 000055a6bbe6ec20 RDI: 00007fb94400d300
+  [726.331687] RBP: 00007fb943ffad00 R08: 0000000000000000 R09: 0000000000000000
+  [726.331688] R10: 0000000000000031 R11: 0000000000000246 R12: 00007fb943ffb000
+  [726.331690] R13: 00007fb943ffb040 R14: 0000000000000000 R15: 00007fb943ffd260
+  [726.331693]  </TASK>
 
-The cpumap file the size works out to be NR_CPUS/4 + NR_CPUS/32 - 1
-(or NR_CPUS * 9/32 - 1) including the ","s.
+While we debug the issue, we found running fstests generic/551 on 5GB
+non-zoned null_blk device in the emulated zoned mode also had a
+similar hung issue.
 
-Add a set of macros for these values to cpumask.h so they can be used in
-multiple places. Apply these to the handful of such files in
-drivers/base/topology.c as well as node.c.
+Also, we can reproduce the same symptom with an error injected
+cow_file_range() setup.
 
-As an example, on an 80 cpu 4-node system (NR_CPUS == 8192):
+The hang occurs when cow_file_range() fails in the middle of
+allocation. cow_file_range() called from do_allocation_zoned() can
+split the give region ([start, end]) for allocation depending on
+current block group usages. When btrfs can allocate bytes for one part
+of the split regions but fails for the other region (e.g. because of
+-ENOSPC), we return the error leaving the pages in the succeeded regions
+locked. Technically, this occurs only when @unlock == 0. Otherwise, we
+unlock the pages in an allocated region after creating an ordered
+extent.
 
-before:
+Considering the callers of cow_file_range(unlock=0) won't write out
+the pages, we can unlock the pages on error exit from
+cow_file_range(). So, we can ensure all the pages except @locked_page
+are unlocked on error case.
 
--r--r--r--. 1 root root 0 Jul 12 14:08 system/node/node0/cpulist
--r--r--r--. 1 root root 0 Jul 11 17:25 system/node/node0/cpumap
+In summary, cow_file_range now behaves like this:
 
-after:
+- page_started == 1 (return value)
+  - All the pages are unlocked. IO is started.
+- unlock == 1
+  - All the pages except @locked_page are unlocked in any case
+- unlock == 0
+  - On success, all the pages are locked for writing out them
+  - On failure, all the pages except @locked_page are unlocked
 
--r--r--r--. 1 root root 28672 Jul 13 11:32 system/node/node0/cpulist
--r--r--r--. 1 root root  4096 Jul 13 11:31 system/node/node0/cpumap
-
-CONFIG_NR_CPUS = 16384
--r--r--r--. 1 root root 57344 Jul 13 14:03 system/node/node0/cpulist
--r--r--r--. 1 root root  4607 Jul 13 14:02 system/node/node0/cpumap
-
-The actual number of cpus doesn't matter for the reported size since they
-are based on NR_CPUS.
-
-Fixes: 75bd50fa841d ("drivers/base/node.c: use bin_attribute to break the size limitation of cpumap ABI")
-Fixes: bb9ec13d156e ("topology: use bin_attribute to break the size limitation of cpumap ABI")
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: stable@vger.kernel.org
-Acked-by: Yury Norov <yury.norov@gmail.com> (for include/linux/cpumask.h)
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Link: https://lore.kernel.org/r/20220715134924.3466194-1-pauld@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 42c011000963 ("btrfs: zoned: introduce dedicated data write path for zoned filesystems")
+CC: stable@vger.kernel.org # 5.12+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/node.c     |    4 ++--
- drivers/base/topology.c |   32 ++++++++++++++++----------------
- include/linux/cpumask.h |   18 ++++++++++++++++++
- 3 files changed, 36 insertions(+), 18 deletions(-)
+ fs/btrfs/inode.c | 72 ++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 64 insertions(+), 8 deletions(-)
 
---- a/drivers/base/node.c
-+++ b/drivers/base/node.c
-@@ -45,7 +45,7 @@ static inline ssize_t cpumap_read(struct
- 	return n;
- }
- 
--static BIN_ATTR_RO(cpumap, 0);
-+static BIN_ATTR_RO(cpumap, CPUMAP_FILE_MAX_BYTES);
- 
- static inline ssize_t cpulist_read(struct file *file, struct kobject *kobj,
- 				   struct bin_attribute *attr, char *buf,
-@@ -66,7 +66,7 @@ static inline ssize_t cpulist_read(struc
- 	return n;
- }
- 
--static BIN_ATTR_RO(cpulist, 0);
-+static BIN_ATTR_RO(cpulist, CPULIST_FILE_MAX_BYTES);
- 
- /**
-  * struct node_access_nodes - Access class device to hold user visible
---- a/drivers/base/topology.c
-+++ b/drivers/base/topology.c
-@@ -62,47 +62,47 @@ define_id_show_func(ppin, "0x%llx");
- static DEVICE_ATTR_ADMIN_RO(ppin);
- 
- define_siblings_read_func(thread_siblings, sibling_cpumask);
--static BIN_ATTR_RO(thread_siblings, 0);
--static BIN_ATTR_RO(thread_siblings_list, 0);
-+static BIN_ATTR_RO(thread_siblings, CPUMAP_FILE_MAX_BYTES);
-+static BIN_ATTR_RO(thread_siblings_list, CPULIST_FILE_MAX_BYTES);
- 
- define_siblings_read_func(core_cpus, sibling_cpumask);
--static BIN_ATTR_RO(core_cpus, 0);
--static BIN_ATTR_RO(core_cpus_list, 0);
-+static BIN_ATTR_RO(core_cpus, CPUMAP_FILE_MAX_BYTES);
-+static BIN_ATTR_RO(core_cpus_list, CPULIST_FILE_MAX_BYTES);
- 
- define_siblings_read_func(core_siblings, core_cpumask);
--static BIN_ATTR_RO(core_siblings, 0);
--static BIN_ATTR_RO(core_siblings_list, 0);
-+static BIN_ATTR_RO(core_siblings, CPUMAP_FILE_MAX_BYTES);
-+static BIN_ATTR_RO(core_siblings_list, CPULIST_FILE_MAX_BYTES);
- 
- #ifdef TOPOLOGY_CLUSTER_SYSFS
- define_siblings_read_func(cluster_cpus, cluster_cpumask);
--static BIN_ATTR_RO(cluster_cpus, 0);
--static BIN_ATTR_RO(cluster_cpus_list, 0);
-+static BIN_ATTR_RO(cluster_cpus, CPUMAP_FILE_MAX_BYTES);
-+static BIN_ATTR_RO(cluster_cpus_list, CPULIST_FILE_MAX_BYTES);
- #endif
- 
- #ifdef TOPOLOGY_DIE_SYSFS
- define_siblings_read_func(die_cpus, die_cpumask);
--static BIN_ATTR_RO(die_cpus, 0);
--static BIN_ATTR_RO(die_cpus_list, 0);
-+static BIN_ATTR_RO(die_cpus, CPUMAP_FILE_MAX_BYTES);
-+static BIN_ATTR_RO(die_cpus_list, CPULIST_FILE_MAX_BYTES);
- #endif
- 
- define_siblings_read_func(package_cpus, core_cpumask);
--static BIN_ATTR_RO(package_cpus, 0);
--static BIN_ATTR_RO(package_cpus_list, 0);
-+static BIN_ATTR_RO(package_cpus, CPUMAP_FILE_MAX_BYTES);
-+static BIN_ATTR_RO(package_cpus_list, CPULIST_FILE_MAX_BYTES);
- 
- #ifdef TOPOLOGY_BOOK_SYSFS
- define_id_show_func(book_id, "%d");
- static DEVICE_ATTR_RO(book_id);
- define_siblings_read_func(book_siblings, book_cpumask);
--static BIN_ATTR_RO(book_siblings, 0);
--static BIN_ATTR_RO(book_siblings_list, 0);
-+static BIN_ATTR_RO(book_siblings, CPUMAP_FILE_MAX_BYTES);
-+static BIN_ATTR_RO(book_siblings_list, CPULIST_FILE_MAX_BYTES);
- #endif
- 
- #ifdef TOPOLOGY_DRAWER_SYSFS
- define_id_show_func(drawer_id, "%d");
- static DEVICE_ATTR_RO(drawer_id);
- define_siblings_read_func(drawer_siblings, drawer_cpumask);
--static BIN_ATTR_RO(drawer_siblings, 0);
--static BIN_ATTR_RO(drawer_siblings_list, 0);
-+static BIN_ATTR_RO(drawer_siblings, CPUMAP_FILE_MAX_BYTES);
-+static BIN_ATTR_RO(drawer_siblings_list, CPULIST_FILE_MAX_BYTES);
- #endif
- 
- static struct bin_attribute *bin_attrs[] = {
---- a/include/linux/cpumask.h
-+++ b/include/linux/cpumask.h
-@@ -1071,4 +1071,22 @@ cpumap_print_list_to_buf(char *buf, cons
- 	[0] =  1UL							\
- } }
- 
-+/*
-+ * Provide a valid theoretical max size for cpumap and cpulist sysfs files
-+ * to avoid breaking userspace which may allocate a buffer based on the size
-+ * reported by e.g. fstat.
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 5d15e374d032..54afa9e538c5 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -1097,6 +1097,28 @@ static u64 get_extent_allocation_hint(struct btrfs_inode *inode, u64 start,
+  * *page_started is set to one if we unlock locked_page and do everything
+  * required to start IO on it.  It may be clean and already done with
+  * IO when we return.
 + *
-+ * for cpumap NR_CPUS * 9/32 - 1 should be an exact length.
++ * When unlock == 1, we unlock the pages in successfully allocated regions.
++ * When unlock == 0, we leave them locked for writing them out.
 + *
-+ * For cpulist 7 is (ceil(log10(NR_CPUS)) + 1) allowing for NR_CPUS to be up
-+ * to 2 orders of magnitude larger than 8192. And then we divide by 2 to
-+ * cover a worst-case of every other cpu being on one of two nodes for a
-+ * very large NR_CPUS.
++ * However, we unlock all the pages except @locked_page in case of failure.
 + *
-+ *  Use PAGE_SIZE as a minimum for smaller configurations.
-+ */
-+#define CPUMAP_FILE_MAX_BYTES  ((((NR_CPUS * 9)/32 - 1) > PAGE_SIZE) \
-+					? (NR_CPUS * 9)/32 - 1 : PAGE_SIZE)
-+#define CPULIST_FILE_MAX_BYTES  (((NR_CPUS * 7)/2 > PAGE_SIZE) ? (NR_CPUS * 7)/2 : PAGE_SIZE)
++ * In summary, page locking state will be as follow:
++ *
++ * - page_started == 1 (return value)
++ *     - All the pages are unlocked. IO is started.
++ *     - Note that this can happen only on success
++ * - unlock == 1
++ *     - All the pages except @locked_page are unlocked in any case
++ * - unlock == 0
++ *     - On success, all the pages are locked for writing out them
++ *     - On failure, all the pages except @locked_page are unlocked
++ *
++ * When a failure happens in the second or later iteration of the
++ * while-loop, the ordered extents created in previous iterations are kept
++ * intact. So, the caller must clean them up by calling
++ * btrfs_cleanup_ordered_extents(). See btrfs_run_delalloc_range() for
++ * example.
+  */
+ static noinline int cow_file_range(struct btrfs_inode *inode,
+ 				   struct page *locked_page,
+@@ -1106,6 +1128,7 @@ static noinline int cow_file_range(struct btrfs_inode *inode,
+ 	struct btrfs_root *root = inode->root;
+ 	struct btrfs_fs_info *fs_info = root->fs_info;
+ 	u64 alloc_hint = 0;
++	u64 orig_start = start;
+ 	u64 num_bytes;
+ 	unsigned long ram_size;
+ 	u64 cur_alloc_size = 0;
+@@ -1293,18 +1316,44 @@ static noinline int cow_file_range(struct btrfs_inode *inode,
+ 	btrfs_dec_block_group_reservations(fs_info, ins.objectid);
+ 	btrfs_free_reserved_extent(fs_info, ins.objectid, ins.offset, 1);
+ out_unlock:
++	/*
++	 * Now, we have three regions to clean up:
++	 *
++	 * |-------(1)----|---(2)---|-------------(3)----------|
++	 * `- orig_start  `- start  `- start + cur_alloc_size  `- end
++	 *
++	 * We process each region below.
++	 */
 +
- #endif /* __LINUX_CPUMASK_H */
+ 	clear_bits = EXTENT_LOCKED | EXTENT_DELALLOC | EXTENT_DELALLOC_NEW |
+ 		EXTENT_DEFRAG | EXTENT_CLEAR_META_RESV;
+ 	page_ops = PAGE_UNLOCK | PAGE_START_WRITEBACK | PAGE_END_WRITEBACK;
++
+ 	/*
+-	 * If we reserved an extent for our delalloc range (or a subrange) and
+-	 * failed to create the respective ordered extent, then it means that
+-	 * when we reserved the extent we decremented the extent's size from
+-	 * the data space_info's bytes_may_use counter and incremented the
+-	 * space_info's bytes_reserved counter by the same amount. We must make
+-	 * sure extent_clear_unlock_delalloc() does not try to decrement again
+-	 * the data space_info's bytes_may_use counter, therefore we do not pass
+-	 * it the flag EXTENT_CLEAR_DATA_RESV.
++	 * For the range (1). We have already instantiated the ordered extents
++	 * for this region. They are cleaned up by
++	 * btrfs_cleanup_ordered_extents() in e.g,
++	 * btrfs_run_delalloc_range(). EXTENT_LOCKED | EXTENT_DELALLOC are
++	 * already cleared in the above loop. And, EXTENT_DELALLOC_NEW |
++	 * EXTENT_DEFRAG | EXTENT_CLEAR_META_RESV are handled by the cleanup
++	 * function.
++	 *
++	 * However, in case of unlock == 0, we still need to unlock the pages
++	 * (except @locked_page) to ensure all the pages are unlocked.
++	 */
++	if (!unlock && orig_start < start)
++		extent_clear_unlock_delalloc(inode, orig_start, start - 1,
++					     locked_page, 0, page_ops);
++
++	/*
++	 * For the range (2). If we reserved an extent for our delalloc range
++	 * (or a subrange) and failed to create the respective ordered extent,
++	 * then it means that when we reserved the extent we decremented the
++	 * extent's size from the data space_info's bytes_may_use counter and
++	 * incremented the space_info's bytes_reserved counter by the same
++	 * amount. We must make sure extent_clear_unlock_delalloc() does not try
++	 * to decrement again the data space_info's bytes_may_use counter,
++	 * therefore we do not pass it the flag EXTENT_CLEAR_DATA_RESV.
+ 	 */
+ 	if (extent_reserved) {
+ 		extent_clear_unlock_delalloc(inode, start,
+@@ -1316,6 +1365,13 @@ static noinline int cow_file_range(struct btrfs_inode *inode,
+ 		if (start >= end)
+ 			goto out;
+ 	}
++
++	/*
++	 * For the range (3). We never touched the region. In addition to the
++	 * clear_bits above, we add EXTENT_CLEAR_DATA_RESV to release the data
++	 * space_info's bytes_may_use counter, reserved in
++	 * btrfs_check_data_free_space().
++	 */
+ 	extent_clear_unlock_delalloc(inode, start, end, locked_page,
+ 				     clear_bits | EXTENT_CLEAR_DATA_RESV,
+ 				     page_ops);
+-- 
+2.35.1
+
 
 
