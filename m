@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2A6B594858
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 601B659487B
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354831AbiHOXza (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:55:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54680 "EHLO
+        id S1354324AbiHOXyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:54:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356409AbiHOXyS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:54:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0042816079A;
-        Mon, 15 Aug 2022 13:19:09 -0700 (PDT)
+        with ESMTP id S1356445AbiHOXy3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:54:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 047761607A1;
+        Mon, 15 Aug 2022 13:19:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91CC0B80EAD;
-        Mon, 15 Aug 2022 20:19:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BECE7C433C1;
-        Mon, 15 Aug 2022 20:19:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C998A60F86;
+        Mon, 15 Aug 2022 20:19:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD9F1C433C1;
+        Mon, 15 Aug 2022 20:19:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594746;
-        bh=fI3ggYNDRY5ZStkHfiu7AToAPUQW7fzehU9W+hqrCew=;
+        s=korg; t=1660594749;
+        bh=4Da9VfCATmK0UuUvULHDYgqa7YJ9Qcv9Lzqi2nk+pWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fI8JR3xQiJqqb+sndGAJBVdyghQWqXxiGShQeKpskgghOP9WBqtOvg0mx9L68spaq
-         q+6SWl+iMl1cP4xacpwYlxVZCDf+Ybsfj7Eh+HvNJnewgxlo42E+RWeLZnOk4DIGsg
-         ZXtLc041VTM/EXlrfpqc8c5sFko2FIj6f9TQaUCE=
+        b=lKdpkdMBnkt45nY4JX6u3YwZKS31CRgCVXaHybVz+SOdD5kQ/uXncUS/OvjwMUONZ
+         TVfFHFvu2kRLhwtRlpKBXlX61JvZfuaza3B4I0Ysq4KWctNgxfppgDCbsIPGOKvQ8X
+         9uu2uN2vTs0861z2huUXWsG2d9z4jaTCFB8DJv/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        stable@vger.kernel.org,
         Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0544/1157] media: cedrus: hevc: Add check for invalid timestamp
-Date:   Mon, 15 Aug 2022 19:58:20 +0200
-Message-Id: <20220815180501.431843860@linuxfoundation.org>
+Subject: [PATCH 5.19 0545/1157] hantro: Remove incorrect HEVC SPS validation
+Date:   Mon, 15 Aug 2022 19:58:21 +0200
+Message-Id: <20220815180501.466187835@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,43 +56,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
 
-[ Upstream commit 143201a6435bf65f0115435e9dc6d95c66b908e9 ]
+[ Upstream commit df9ec2fc8e70e01532fd9161cd98711969561ff6 ]
 
-Not all DPB entries will be used most of the time. Unused entries will
-thus have invalid timestamps. They will produce negative buffer index
-which is not specifically handled. This works just by chance in current
-code. It will even produce bogus pointer, but since it's not used, it
-won't do any harm.
+Currently, the driver tries to validat the HEVC SPS
+against the CAPTURE queue format (i.e. the decoded format).
+This is not correct, because typically the SPS control is set
+before the CAPTURE queue is negotiated.
 
-Let's fix that brittle design by skipping writing DPB entry altogether
-if timestamp is invalid.
-
-Fixes: 86caab29da78 ("media: cedrus: Add HEVC/H.265 decoding support")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Fixes: 135ad96cb4d6b ("media: hantro: Be more accurate on pixel formats step_width constraints")
+Signed-off-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/sunxi/cedrus/cedrus_h265.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/staging/media/hantro/hantro_drv.c  | 12 ++++++------
+ drivers/staging/media/hantro/hantro_hevc.c |  9 +--------
+ drivers/staging/media/hantro/hantro_hw.h   |  1 -
+ 3 files changed, 7 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-index 2f6404fccd5a..04419381ea56 100644
---- a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-@@ -147,6 +147,9 @@ static void cedrus_h265_frame_info_write_dpb(struct cedrus_ctx *ctx,
- 			dpb[i].pic_order_cnt_val
- 		};
+diff --git a/drivers/staging/media/hantro/hantro_drv.c b/drivers/staging/media/hantro/hantro_drv.c
+index 01d33dcb0467..ac232b5f7825 100644
+--- a/drivers/staging/media/hantro/hantro_drv.c
++++ b/drivers/staging/media/hantro/hantro_drv.c
+@@ -253,11 +253,6 @@ queue_init(void *priv, struct vb2_queue *src_vq, struct vb2_queue *dst_vq)
  
-+		if (buffer_index < 0)
-+			continue;
-+
- 		cedrus_h265_frame_info_write_single(ctx, i, dpb[i].field_pic,
- 						    pic_order_cnt,
- 						    buffer_index);
+ static int hantro_try_ctrl(struct v4l2_ctrl *ctrl)
+ {
+-	struct hantro_ctx *ctx;
+-
+-	ctx = container_of(ctrl->handler,
+-			   struct hantro_ctx, ctrl_handler);
+-
+ 	if (ctrl->id == V4L2_CID_STATELESS_H264_SPS) {
+ 		const struct v4l2_ctrl_h264_sps *sps = ctrl->p_new.p_h264_sps;
+ 
+@@ -273,7 +268,12 @@ static int hantro_try_ctrl(struct v4l2_ctrl *ctrl)
+ 	} else if (ctrl->id == V4L2_CID_MPEG_VIDEO_HEVC_SPS) {
+ 		const struct v4l2_ctrl_hevc_sps *sps = ctrl->p_new.p_hevc_sps;
+ 
+-		return hantro_hevc_validate_sps(ctx, sps);
++		if (sps->bit_depth_luma_minus8 != sps->bit_depth_chroma_minus8)
++			/* Luma and chroma bit depth mismatch */
++			return -EINVAL;
++		if (sps->bit_depth_luma_minus8 != 0)
++			/* Only 8-bit is supported */
++			return -EINVAL;
+ 	} else if (ctrl->id == V4L2_CID_STATELESS_VP9_FRAME) {
+ 		const struct v4l2_ctrl_vp9_frame *dec_params = ctrl->p_new.p_vp9_frame;
+ 
+diff --git a/drivers/staging/media/hantro/hantro_hevc.c b/drivers/staging/media/hantro/hantro_hevc.c
+index 4f7e2acb46ec..df1f81952bba 100644
+--- a/drivers/staging/media/hantro/hantro_hevc.c
++++ b/drivers/staging/media/hantro/hantro_hevc.c
+@@ -154,15 +154,8 @@ static int tile_buffer_reallocate(struct hantro_ctx *ctx)
+ 	return -ENOMEM;
+ }
+ 
+-int hantro_hevc_validate_sps(struct hantro_ctx *ctx, const struct v4l2_ctrl_hevc_sps *sps)
++static int hantro_hevc_validate_sps(struct hantro_ctx *ctx, const struct v4l2_ctrl_hevc_sps *sps)
+ {
+-	if (sps->bit_depth_luma_minus8 != sps->bit_depth_chroma_minus8)
+-		/* Luma and chroma bit depth mismatch */
+-		return -EINVAL;
+-	if (sps->bit_depth_luma_minus8 != 0)
+-		/* Only 8-bit is supported */
+-		return -EINVAL;
+-
+ 	/*
+ 	 * for tile pixel format check if the width and height match
+ 	 * hardware constraints
+diff --git a/drivers/staging/media/hantro/hantro_hw.h b/drivers/staging/media/hantro/hantro_hw.h
+index 33d156ccbfeb..77769d2bb38e 100644
+--- a/drivers/staging/media/hantro/hantro_hw.h
++++ b/drivers/staging/media/hantro/hantro_hw.h
+@@ -359,7 +359,6 @@ int hantro_hevc_dec_prepare_run(struct hantro_ctx *ctx);
+ void hantro_hevc_ref_init(struct hantro_ctx *ctx);
+ dma_addr_t hantro_hevc_get_ref_buf(struct hantro_ctx *ctx, s32 poc);
+ int hantro_hevc_add_ref_buf(struct hantro_ctx *ctx, int poc, dma_addr_t addr);
+-int hantro_hevc_validate_sps(struct hantro_ctx *ctx, const struct v4l2_ctrl_hevc_sps *sps);
+ 
+ 
+ static inline unsigned short hantro_vp9_num_sbs(unsigned short dimension)
 -- 
 2.35.1
 
