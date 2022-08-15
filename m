@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98622594998
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:14:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E0025947BF
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:04:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245462AbiHOXRa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:17:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48328 "EHLO
+        id S233567AbiHOXTH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:19:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353474AbiHOXQh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:16:37 -0400
+        with ESMTP id S241347AbiHOXRC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:17:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16A391484E5;
-        Mon, 15 Aug 2022 13:03:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4C077CB58;
+        Mon, 15 Aug 2022 13:03:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62B38B81142;
-        Mon, 15 Aug 2022 20:03:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A51EDC433C1;
-        Mon, 15 Aug 2022 20:03:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23E1DB810C5;
+        Mon, 15 Aug 2022 20:03:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DFEEC433D6;
+        Mon, 15 Aug 2022 20:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593799;
-        bh=VBA4o0Mb7y8Az4iYRvFH18ZYSc8JyfxdBkwdZbQ+Q28=;
+        s=korg; t=1660593816;
+        bh=u+YTZMnI+mHY8ePME3H/NiQfW4K6V1KRiwc+uCFjTLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fHQr2UIIzKmFK6xp8m92rXfJQn8Eg8mgajLq2iPdk6Qo1dNM+sImHdgs8lU09fLVJ
-         kb1EA9LnptXG89CsJ4LlvrLNxKkq55Mx+jjQXGhmgVhL7Kn4e6X5T702D5JPrT6IWh
-         aATqMwjex6tVJEskTLOlgNOaDzIGDGPg7QdE89uk=
+        b=r2h0W4twkyg0RcPuzV6b7UGIyznxmqBq9PVOw54aDTeRQwJTZa8ZEgTKrF2mHa55j
+         762DJTGyL34B/c5grCZ62p48qPTa7b9KzlS2FOWnJPC/upSZrIttqded+mfcBvggNj
+         k/Liu3TvvqGrK74gE2CxwAUENeC5kYVtQ5UTivQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunhao Tian <t123yh.xyz@gmail.com>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0327/1157] drm/mipi-dbi: align max_chunk to 2 in spi_transfer
-Date:   Mon, 15 Aug 2022 19:54:43 +0200
-Message-Id: <20220815180452.735746838@linuxfoundation.org>
+Subject: [PATCH 5.19 0330/1157] sample: bpf: xdp_router_ipv4: Allow the kernel to send arp requests
+Date:   Mon, 15 Aug 2022 19:54:46 +0200
+Message-Id: <20220815180452.870580758@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,46 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunhao Tian <t123yh.xyz@gmail.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 435c249008cba04ed6a7975e9411f3b934620204 ]
+[ Upstream commit 200a89e3e88786b52bc1dd5f26a310c097f4c6a7 ]
 
-In __spi_validate, there's a validation that no partial transfers
-are accepted (xfer->len % w_size must be zero). When
-max_chunk is not a multiple of bpw (e.g. max_chunk = 65535,
-bpw = 16), the transfer will be rejected.
+Forward the packet to the kernel if the gw router mac address is missing
+in to trigger ARP discovery.
 
-This patch aligns max_chunk to 2 bytes (the maximum value of bpw is 16),
-so that no partial transfer will occur.
-
-Fixes: d23d4d4dac01 ("drm/tinydrm: Move tinydrm_spi_transfer()")
-
-Signed-off-by: Yunhao Tian <t123yh.xyz@gmail.com>
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220510030219.2486687-1-t123yh.xyz@gmail.com
+Fixes: 85bf1f51691c ("samples: bpf: Convert xdp_router_ipv4 to XDP samples helper")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/60bde5496d108089080504f58199bcf1143ea938.1653471558.git.lorenzo@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mipi_dbi.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ samples/bpf/xdp_router_ipv4.bpf.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
-index 9314f2ead79f..09e4edb5a992 100644
---- a/drivers/gpu/drm/drm_mipi_dbi.c
-+++ b/drivers/gpu/drm/drm_mipi_dbi.c
-@@ -1199,6 +1199,13 @@ int mipi_dbi_spi_transfer(struct spi_device *spi, u32 speed_hz,
- 	size_t chunk;
- 	int ret;
+diff --git a/samples/bpf/xdp_router_ipv4.bpf.c b/samples/bpf/xdp_router_ipv4.bpf.c
+index 248119ca7938..0643330d1d2e 100644
+--- a/samples/bpf/xdp_router_ipv4.bpf.c
++++ b/samples/bpf/xdp_router_ipv4.bpf.c
+@@ -150,6 +150,15 @@ int xdp_router_ipv4_prog(struct xdp_md *ctx)
  
-+	/* In __spi_validate, there's a validation that no partial transfers
-+	 * are accepted (xfer->len % w_size must be zero).
-+	 * Here we align max_chunk to multiple of 2 (16bits),
-+	 * to prevent transfers from being rejected.
-+	 */
-+	max_chunk = ALIGN_DOWN(max_chunk, 2);
-+
- 	spi_message_init_with_transfers(&m, &tr, 1);
+ 				dest_mac = bpf_map_lookup_elem(&arp_table,
+ 							       &prefix_value->gw);
++				if (!dest_mac) {
++					/* Forward the packet to the kernel in
++					 * order to trigger ARP discovery for
++					 * the default gw.
++					 */
++					if (rec)
++						NO_TEAR_INC(rec->xdp_pass);
++					return XDP_PASS;
++				}
+ 			}
+ 		}
  
- 	while (len) {
 -- 
 2.35.1
 
