@@ -2,283 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66C97594032
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D88265945C1
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:01:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245248AbiHOVUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:20:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54480 "EHLO
+        id S240890AbiHOV5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:57:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241931AbiHOVNw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:13:52 -0400
-Received: from mail-qv1-xf33.google.com (mail-qv1-xf33.google.com [IPv6:2607:f8b0:4864:20::f33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFE4CDABB4
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 12:19:51 -0700 (PDT)
-Received: by mail-qv1-xf33.google.com with SMTP id u10so6018908qvp.12
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 12:19:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=R1uDU/c6zIL3G9hby8nKxESi8ZLmJkpQHtE/bPRNTYo=;
-        b=mvs6fLPX6IO6K1a4A5Wic6bKJGW6PNpMa7u5YQhZynyz18/r3c9pbpbdMYoil2Yxys
-         44xXKoea6xWrIjKTL7Ny2po0R/eukU+zAoeJCDsDkPqHYxLzDMkBxFQecdlBii4didCv
-         pnfoUxcqrXfxmTKon8203VYEBiQ5LPDAWq5YsNId5y6kLz7cP2cQXdNMj7ZWIT48yikS
-         1gCrVGQYhPDAXz1sYcdrF1i+qQNwtt7RJoXrIZkfOGN09k3fLnL9nkJVgTD46euaorFl
-         muRH/FFBQ/w5KjDTbzyUiwdpbOLgXQ61JcrevTRdTiU2MySU34Jp7lzYqLP8hgzSe/H1
-         3NXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=R1uDU/c6zIL3G9hby8nKxESi8ZLmJkpQHtE/bPRNTYo=;
-        b=3FymiSn0/jcETW2qWkXILEgHsxUaE1n2r7LF2ZWPqm472/3fHFMYHrLxLgMVbR2oVy
-         1+0dREtFt7O8dh2XxC1bG0d5M/VuLBAb3LO+KlTqjtU8agyP1XqCQwz4XHLWBf5nUAV1
-         DLQeBnM2bA46iReqvssab1ZWZdjU2eC3WqlZnrjqlPyqFqqmnUd0FTJNTwWcNdatRA3x
-         vUN03UaWTzqEwANLKXQlAvKTl9hbs7MQTIE8MZeKXoTNXK9QVwPVaCs/18Eb+fl+mLPx
-         cucfNFo7zbLkVmaYyhkdt97crfxRzuNkkR8T/kfntdfO9k5ZG2HSBNBBeaZomydEbwhN
-         qe6g==
-X-Gm-Message-State: ACgBeo1qYuwzWAfhjid9iIeevyAR3PIMCQGLkTL0C0jYR3yoRBzoMo1T
-        OY5sZ+JfKmWPOvcV+loU5naWVFHM+Rsdj19ipkGPKg==
-X-Google-Smtp-Source: AA6agR41ehKoW3wvj95YuO3Moq/HiMtjeaJJ0X77qKlKPOJfUJgFITiQmmE3l2BapN+3089YZLWtsXTDJ2jk2+2iLpE=
-X-Received: by 2002:a05:6214:27e4:b0:476:be6a:91c1 with SMTP id
- jt4-20020a05621427e400b00476be6a91c1mr14890709qvb.39.1660591190154; Mon, 15
- Aug 2022 12:19:50 -0700 (PDT)
+        with ESMTP id S1349771AbiHOVzE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:55:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31B665C9EF;
+        Mon, 15 Aug 2022 12:33:39 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C3D061185;
+        Mon, 15 Aug 2022 19:33:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CB6CC433C1;
+        Mon, 15 Aug 2022 19:33:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1660592017;
+        bh=BYdkPs7pd6vq5aBQeItYiOjpSnUcIePo8X2AobeeMOU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=CK516Tv1bnUgr3cydlp+QVhX3pNUj7EiaaiwFjC/rKH7oj3B8//B162clnG9sc/7L
+         mHDM1To7zDNAAcHZuonE4B3Pwl7PrFSCFxhH5MhB1KmauEfQYmiyGxG3fxS6Ky3EQL
+         oYN9wB9nZRYZANGt/6q9MSFr6ISkma5bk6whPr6M=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.19 0022/1157] HID: wacom: Dont register pad_input for touch switch
+Date:   Mon, 15 Aug 2022 19:49:38 +0200
+Message-Id: <20220815180440.318139182@linuxfoundation.org>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
+User-Agent: quilt/0.67
 MIME-Version: 1.0
-References: <20220721204404.388396-1-weiwan@google.com> <ca408271-8730-eb2b-f12e-3f66df2e643a@kernel.org>
- <CADVnQymVXMamTRP-eSKhwq1M612zx0ZoNd=rs4MtipJNGm5Wcw@mail.gmail.com>
- <e318ba59-d58a-5826-82c9-6cfc2409cbd4@kernel.org> <f3301080-78c6-a65a-d8b1-59b759a077a4@kernel.org>
- <CADVnQykRMcumBjxND9E4nSxqA-s3exR3AzJ6+Nf0g+s5H6dqeQ@mail.gmail.com> <CAEA6p_Aujf5Q=sG56-VfoOvOjPcvwa-Ajw4519hHV+L2hYGrRg@mail.gmail.com>
-In-Reply-To: <CAEA6p_Aujf5Q=sG56-VfoOvOjPcvwa-Ajw4519hHV+L2hYGrRg@mail.gmail.com>
-From:   Neal Cardwell <ncardwell@google.com>
-Date:   Mon, 15 Aug 2022 15:19:33 -0400
-Message-ID: <CADVnQynTmkJ7j2RBvZba3UA5gkdVAD3gcrOx998BVv3HXt9=Dw@mail.gmail.com>
-Subject: Re: [PATCH net v2] Revert "tcp: change pingpong threshold to 3"
-To:     Wei Wang <weiwan@google.com>
-Cc:     Jiri Slaby <jirislaby@kernel.org>,
-        David Miller <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        LemmyHuang <hlm3280@163.com>, stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-=
+From: Ping Cheng <pinglinux@gmail.com>
+
+commit d6b675687a4ab4dba684716d97c8c6f81bf10905 upstream.
+
+Touch switch state is received through WACOM_PAD_FIELD. However, it
+is reported by touch_input. Don't register pad_input if no other pad
+events require the interface.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/hid/wacom_sys.c |    2 +-
+ drivers/hid/wacom_wac.c |   43 +++++++++++++++++++++++++------------------
+ 2 files changed, 26 insertions(+), 19 deletions(-)
+
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -2121,7 +2121,7 @@ static int wacom_register_inputs(struct
+ 
+ 	error = wacom_setup_pad_input_capabilities(pad_input_dev, wacom_wac);
+ 	if (error) {
+-		/* no pad in use on this interface */
++		/* no pad events using this interface */
+ 		input_free_device(pad_input_dev);
+ 		wacom_wac->pad_input = NULL;
+ 		pad_input_dev = NULL;
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2019,7 +2019,6 @@ static void wacom_wac_pad_usage_mapping(
+ 		wacom_wac->has_mute_touch_switch = true;
+ 		usage->type = EV_SW;
+ 		usage->code = SW_MUTE_DEVICE;
+-		features->device_type |= WACOM_DEVICETYPE_PAD;
+ 		break;
+ 	case WACOM_HID_WD_TOUCHSTRIP:
+ 		wacom_map_usage(input, usage, field, EV_ABS, ABS_RX, 0);
+@@ -2099,6 +2098,30 @@ static void wacom_wac_pad_event(struct h
+ 			wacom_wac->hid_data.inrange_state |= value;
+ 	}
+ 
++	/* Process touch switch state first since it is reported through touch interface,
++	 * which is indepentent of pad interface. In the case when there are no other pad
++	 * events, the pad interface will not even be created.
++	 */
++	if ((equivalent_usage == WACOM_HID_WD_MUTE_DEVICE) ||
++	   (equivalent_usage == WACOM_HID_WD_TOUCHONOFF)) {
++		if (wacom_wac->shared->touch_input) {
++			bool *is_touch_on = &wacom_wac->shared->is_touch_on;
++
++			if (equivalent_usage == WACOM_HID_WD_MUTE_DEVICE && value)
++				*is_touch_on = !(*is_touch_on);
++			else if (equivalent_usage == WACOM_HID_WD_TOUCHONOFF)
++				*is_touch_on = value;
++
++			input_report_switch(wacom_wac->shared->touch_input,
++					    SW_MUTE_DEVICE, !(*is_touch_on));
++			input_sync(wacom_wac->shared->touch_input);
++		}
++		return;
++	}
++
++	if (!input)
++		return;
++
+ 	switch (equivalent_usage) {
+ 	case WACOM_HID_WD_TOUCHRING:
+ 		/*
+@@ -2134,22 +2157,6 @@ static void wacom_wac_pad_event(struct h
+ 			input_event(input, usage->type, usage->code, 0);
+ 		break;
+ 
+-	case WACOM_HID_WD_MUTE_DEVICE:
+-	case WACOM_HID_WD_TOUCHONOFF:
+-		if (wacom_wac->shared->touch_input) {
+-			bool *is_touch_on = &wacom_wac->shared->is_touch_on;
+-
+-			if (equivalent_usage == WACOM_HID_WD_MUTE_DEVICE && value)
+-				*is_touch_on = !(*is_touch_on);
+-			else if (equivalent_usage == WACOM_HID_WD_TOUCHONOFF)
+-				*is_touch_on = value;
+-
+-			input_report_switch(wacom_wac->shared->touch_input,
+-					    SW_MUTE_DEVICE, !(*is_touch_on));
+-			input_sync(wacom_wac->shared->touch_input);
+-		}
+-		break;
+-
+ 	case WACOM_HID_WD_MODE_CHANGE:
+ 		if (wacom_wac->is_direct_mode != value) {
+ 			wacom_wac->is_direct_mode = value;
+@@ -2835,7 +2842,7 @@ void wacom_wac_event(struct hid_device *
+ 	/* usage tests must precede field tests */
+ 	if (WACOM_BATTERY_USAGE(usage))
+ 		wacom_wac_battery_event(hdev, field, usage, value);
+-	else if (WACOM_PAD_FIELD(field) && wacom->wacom_wac.pad_input)
++	else if (WACOM_PAD_FIELD(field))
+ 		wacom_wac_pad_event(hdev, field, usage, value);
+ 	else if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
+ 		wacom_wac_pen_event(hdev, field, usage, value);
 
 
-
-
-On Mon, Aug 15, 2022 at 2:54 PM Wei Wang <weiwan@google.com> wrote:
->
-> On Mon, Aug 15, 2022 at 6:30 AM Neal Cardwell <ncardwell@google.com> wrote:
-> >
-> > On Mon, Aug 15, 2022 at 3:48 AM Jiri Slaby <jirislaby@kernel.org> wrote:
-> > >
-> > > On 06. 08. 22, 16:41, Jiri Slaby wrote:
-> > > > On 06. 08. 22, 13:24, Neal Cardwell wrote:
-> > > >> On Sat, Aug 6, 2022 at 6:02 AM Jiri Slaby <jirislaby@kernel.org> wrote:
-> > > >>>
-> > > >>> On 21. 07. 22, 22:44, Wei Wang wrote:
-> > > >>>> This reverts commit 4a41f453bedfd5e9cd040bad509d9da49feb3e2c.
-> > > >>>>
-> > > >>>> This to-be-reverted commit was meant to apply a stricter rule for the
-> > > >>>> stack to enter pingpong mode. However, the condition used to check for
-> > > >>>> interactive session "before(tp->lsndtime, icsk->icsk_ack.lrcvtime)" is
-> > > >>>> jiffy based and might be too coarse, which delays the stack entering
-> > > >>>> pingpong mode.
-> > > >>>> We revert this patch so that we no longer use the above condition to
-> > > >>>> determine interactive session, and also reduce pingpong threshold to 1.
-> > > >>>>
-> > > >>>> Fixes: 4a41f453bedf ("tcp: change pingpong threshold to 3")
-> > > >>>> Reported-by: LemmyHuang <hlm3280@163.com>
-> > > >>>> Suggested-by: Neal Cardwell <ncardwell@google.com>
-> > > >>>> Signed-off-by: Wei Wang <weiwan@google.com>
-> > > >>>
-> > > >>>
-> > > >>> This breaks python-eventlet [1] (and was backported to stable trees):
-> > > >>> ________________ TestHttpd.test_018b_http_10_keepalive_framing
-> > > >>> _________________
-> > > >>>
-> > > >>> self = <tests.wsgi_test.TestHttpd
-> > > >>> testMethod=test_018b_http_10_keepalive_framing>
-> > > >>>
-> > > >>>       def test_018b_http_10_keepalive_framing(self):
-> > > >>>           # verify that if an http/1.0 client sends connection:
-> > > >>> keep-alive
-> > > >>>           # that we don't mangle the request framing if the app doesn't
-> > > >>> read the request
-> > > >>>           def app(environ, start_response):
-> > > >>>               resp_body = {
-> > > >>>                   '/1': b'first response',
-> > > >>>                   '/2': b'second response',
-> > > >>>                   '/3': b'third response',
-> > > >>>               }.get(environ['PATH_INFO'])
-> > > >>>               if resp_body is None:
-> > > >>>                   resp_body = 'Unexpected path: ' + environ['PATH_INFO']
-> > > >>>                   if six.PY3:
-> > > >>>                       resp_body = resp_body.encode('latin1')
-> > > >>>               # Never look at wsgi.input!
-> > > >>>               start_response('200 OK', [('Content-type', 'text/plain')])
-> > > >>>               return [resp_body]
-> > > >>>
-> > > >>>           self.site.application = app
-> > > >>>           sock = eventlet.connect(self.server_addr)
-> > > >>>           req_body = b'GET /tricksy HTTP/1.1\r\n'
-> > > >>>           body_len = str(len(req_body)).encode('ascii')
-> > > >>>
-> > > >>>           sock.sendall(b'PUT /1 HTTP/1.0\r\nHost:
-> > > >>> localhost\r\nConnection: keep-alive\r\n'
-> > > >>>                        b'Content-Length: ' + body_len + b'\r\n\r\n' +
-> > > >>> req_body)
-> > > >>>           result1 = read_http(sock)
-> > > >>>           self.assertEqual(b'first response', result1.body)
-> > > >>>           self.assertEqual(result1.headers_original.get('Connection'),
-> > > >>> 'keep-alive')
-> > > >>>
-> > > >>>           sock.sendall(b'PUT /2 HTTP/1.0\r\nHost:
-> > > >>> localhost\r\nConnection: keep-alive\r\n'
-> > > >>>                        b'Content-Length: ' + body_len + b'\r\nExpect:
-> > > >>> 100-continue\r\n\r\n')
-> > > >>>           # Client may have a short timeout waiting on that 100 Continue
-> > > >>>           # and basically immediately send its body
-> > > >>>           sock.sendall(req_body)
-> > > >>>           result2 = read_http(sock)
-> > > >>>           self.assertEqual(b'second response', result2.body)
-> > > >>>           self.assertEqual(result2.headers_original.get('Connection'),
-> > > >>> 'close')
-> > > >>>
-> > > >>>   >       sock.sendall(b'PUT /3 HTTP/1.0\r\nHost:
-> > > >>> localhost\r\nConnection: close\r\n\r\n')
-> > > >>>
-> > > >>> tests/wsgi_test.py:648:
-> > > >>> _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-> > > >>> _ _ _ _
-> > > >>> eventlet/greenio/base.py:407: in sendall
-> > > >>>       tail = self.send(data, flags)
-> > > >>> eventlet/greenio/base.py:401: in send
-> > > >>>       return self._send_loop(self.fd.send, data, flags)
-> > > >>> _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-> > > >>> _ _ _ _
-> > > >>>
-> > > >>> self = <eventlet.greenio.base.GreenSocket object at 0x7f5f2f73c9a0>
-> > > >>> send_method = <built-in method send of socket object at 0x7f5f2f73d520>
-> > > >>> data = b'PUT /3 HTTP/1.0\r\nHost: localhost\r\nConnection:
-> > > >>> close\r\n\r\n'
-> > > >>> args = (0,), _timeout_exc = timeout('timed out'), eno = 32
-> > > >>>
-> > > >>>       def _send_loop(self, send_method, data, *args):
-> > > >>>           if self.act_non_blocking:
-> > > >>>               return send_method(data, *args)
-> > > >>>
-> > > >>>           _timeout_exc = socket_timeout('timed out')
-> > > >>>           while True:
-> > > >>>               try:
-> > > >>>   >               return send_method(data, *args)
-> > > >>> E               BrokenPipeError: [Errno 32] Broken pipe
-> > > >>>
-> > > >>> eventlet/greenio/base.py:388: BrokenPipeError
-> > > >>> ====================
-> > > >>>
-> > > >>> Reverting this revert on the top of 5.19 solves the issue.
-> > > >>>
-> > > >>> Any ideas?
-> > > >>
-> > > >> Interesting. This revert should return the kernel back to the delayed
-> > > >> ACK behavior it had for many years before May 2019 and Linux 5.1,
-> > > >> which contains the commit it is reverting:
-> > > >>
-> > > >>    4a41f453bedfd tcp: change pingpong threshold to 3
-> > > >>
-> > > >> It sounds like perhaps this test you mention has an implicit
-> > > >> dependence on the timing of delayed ACKs.
-> > > >>
-> > > >> A few questions:
-> > > >
-> > > > Dunno. I am only an openSUSE kernel maintainer and this popped out at
-> > > > me. Feel free to dig to eventlet's sources on your own :P.
-> > >
-> > > Any updates on this or should I send a revert directly?
-> > >
-> > > The "before() &&" part of the patch makes the difference. That is this diff:
-> > > --- a/net/ipv4/tcp_output.c
-> > > +++ b/net/ipv4/tcp_output.c
-> > > @@ -172,9 +172,17 @@ static void tcp_event_data_sent(struct tcp_sock *tp,
-> > >           * and it is a reply for ato after last received packet,
-> > >           * increase pingpong count.
-> > >           */
-> > > -       if (before(tp->lsndtime, icsk->icsk_ack.lrcvtime) &&
-> > > -           (u32)(now - icsk->icsk_ack.lrcvtime) < icsk->icsk_ack.ato)
-> > > +       pr_info("%s: sk=%p (%llx:%x) now=%u lsndtime=%u lrcvtime=%u
-> > > ping=%u\n",
-> > > +                       __func__, sk, sk->sk_addrpair, sk->sk_portpair, now,
-> > > +                       tp->lsndtime, icsk->icsk_ack.lrcvtime,
-> > > +                       inet_csk(sk)->icsk_ack.pingpong);
-> > > +       if (//before(tp->lsndtime, icsk->icsk_ack.lrcvtime) &&
-> > > +           (u32)(now - icsk->icsk_ack.lrcvtime) < icsk->icsk_ack.ato) {
-> > >                  inet_csk_inc_pingpong_cnt(sk);
-> > > +               pr_info("\tINC ping=%u before=%u\n",
-> > > +                               inet_csk(sk)->icsk_ack.pingpong,
-> > > +                               before(tp->lsndtime,
-> > > icsk->icsk_ack.lrcvtime));
-> > > +       }
-> > >
-> > >          tp->lsndtime = now;
-> > >   }
-> > >
-> > > makes it work again, and outputs this:
->
-> Is the above patch made on top of my reverted patch? It seems not
-> according to this part of diff.
-> Then what is the definition of TCP_PINGPONG_THRESH in the working
-> case? I think that is the key, regardless of the result of:
->     before(tp->lsndtime, icsk->icsk_ack.lrcvtime)
->
-> I tried to look into what exactly the test is doing, and can't tell
-> why it is failing. I don't see any check that is based on the timing
-> of the reply. :(
-> I hope someone could explain more about what this test is doing.
-
-Yes, the test case is a bit hard to read.
-
-I have a conjecture about what might be going wrong: the eventlet
-client code connect() method in
-https://github.com/eventlet/eventlet/blob/master/eventlet/green/http/client.py
-uses:
-          self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-to disable Nagle's algorithm.
-
-However, I don't see anything on the server side in
-https://github.com/eventlet/eventlet/blob/master/eventlet/green/http/server.py
-disabling Nagle's algorithm.
-
-AFAICT the server code is using TCPServer, so from skimming
-  https://github.com/python/cpython/blob/3.10/Lib/socketserver.py
-...it seems that the code should probably be setting
-disable_nagle_algorithm to True to disable Nagle's algorithm
-(disable_nagle_algorithm defaults to False).
-
-If the server code is indeed leaving Nagle's algorithm enabled (the
-TCP default), as I suspect here, that's a classic
-userspace/application bug, which  means the server performance can be
-stalled by waiting for delayed ACKs from the remote side, which means
-changes in delayed ACK timing behavior (such as from this kernel
-patch) can cause the test to fail.
-
-The appropriate fix is probably to have the eventlet server code use
-disable_nagle_algorithm=True.
-
-Just a conjecture. :-)
-
-cheers,
-neal
