@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAD5E593DF5
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78BF6593DFC
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345429AbiHOUdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:33:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41894 "EHLO
+        id S1345692AbiHOUdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:33:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348291AbiHOUc0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:32:26 -0400
+        with ESMTP id S1348339AbiHOUcc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:32:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 121125A2EC;
-        Mon, 15 Aug 2022 12:05:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2FE185FB8;
+        Mon, 15 Aug 2022 12:05:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BAC81612AF;
-        Mon, 15 Aug 2022 19:05:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC31DC433C1;
-        Mon, 15 Aug 2022 19:05:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A931E61281;
+        Mon, 15 Aug 2022 19:05:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0D61C433C1;
+        Mon, 15 Aug 2022 19:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590335;
-        bh=NpP1xSHXN7C1Bjs+TVA9esRLrTXCrQMqK4pxcramw2k=;
+        s=korg; t=1660590338;
+        bh=esD0rQV8wZIFlZqYk+UwjZZhg1rXQIzw+OF5KHdrJ2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c8UV2xKoLPRqnp0eHlKAH4xkktLJ+FWFc6NI3rPoA1dqqgwSEDJ7FT5tknVqI29X8
-         8/Oo5rLwGIP3kkW7G35LeQ4Tbp4/jAUbMYPXUOu4bLKhlYxWCJepRWqngLFxyWENrl
-         NQVt0QdG4kHawWlT0R3At01fIQTb4LCMte1yXOgA=
+        b=sGk5T7XgdkORR/MKiY6YNu4s55V8vwKODoa2xiQ9YBqiepJSINJ0gFT8KFeOXZVzB
+         H2sT514gHmQ1SC4opFQnurHBPT0H9Xm0QgbTcyvIpYFZ9jz7nBJ9U8uX0iQFr5WRSr
+         YGmG2vibE3NsvoEALAnMm4G94kItzSCJOtrRqXfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0226/1095] ARM: dts: qcom: do not use underscore in node name
-Date:   Mon, 15 Aug 2022 19:53:45 +0200
-Message-Id: <20220815180439.060686085@linuxfoundation.org>
+Subject: [PATCH 5.18 0227/1095] ARM: dts: qcom-msm8974*: Fix UART naming
+Date:   Mon, 15 Aug 2022 19:53:46 +0200
+Message-Id: <20220815180439.107102982@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,188 +55,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit 43cdc159d203eb6d02b312409e634a3fa06632ac ]
+[ Upstream commit b905c34ae7db6b564589f02fa7eac7afaa0294e9 ]
 
-Align RPM requests node with DT schema by using hyphen instead of
-underscore.
+It's either uart10, or blsp2_uart4, not blsp2_uart10, as there aren't 10
+UARTs on BLSP2. Fix the naming to align with what's done in arm64/qcom.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-[bjorn: Fixed up qcom-{apq8074,msm8974}-*.dts to match the qcom-msm8974.dtsi]
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220401201035.189106-8-krzysztof.kozlowski@linaro.org
+Link: https://lore.kernel.org/r/20220415115633.575010-4-konrad.dybcio@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-apq8064.dtsi                      | 8 ++++----
- arch/arm/boot/dts/qcom-apq8074-dragonboard.dts           | 2 +-
- arch/arm/boot/dts/qcom-apq8084.dtsi                      | 2 +-
- arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dts         | 2 +-
- arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts | 2 +-
- arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts          | 2 +-
- arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dts     | 2 +-
- arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts    | 2 +-
- arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dts    | 2 +-
- arch/arm/boot/dts/qcom-msm8974.dtsi                      | 2 +-
- 10 files changed, 13 insertions(+), 13 deletions(-)
+ .../boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts    |  6 +++---
+ arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts        | 10 +++++-----
+ arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts  |  2 +-
+ arch/arm/boot/dts/qcom-msm8974.dtsi                    |  6 +++---
+ 4 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
-index a1c8ae516d21..33a4d3441959 100644
---- a/arch/arm/boot/dts/qcom-apq8064.dtsi
-+++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
-@@ -227,7 +227,7 @@ smem {
- 	smd {
- 		compatible = "qcom,smd";
- 
--		modem@0 {
-+		modem-edge {
- 			interrupts = <0 37 IRQ_TYPE_EDGE_RISING>;
- 
- 			qcom,ipc = <&l2cc 8 3>;
-@@ -236,7 +236,7 @@ modem@0 {
- 			status = "disabled";
- 		};
- 
--		q6@1 {
-+		q6-edge {
- 			interrupts = <0 90 IRQ_TYPE_EDGE_RISING>;
- 
- 			qcom,ipc = <&l2cc 8 15>;
-@@ -245,7 +245,7 @@ q6@1 {
- 			status = "disabled";
- 		};
- 
--		dsps@3 {
-+		dsps-edge {
- 			interrupts = <0 138 IRQ_TYPE_EDGE_RISING>;
- 
- 			qcom,ipc = <&sps_sic_non_secure 0x4080 0>;
-@@ -254,7 +254,7 @@ dsps@3 {
- 			status = "disabled";
- 		};
- 
--		riva@6 {
-+		riva-edge {
- 			interrupts = <0 198 IRQ_TYPE_EDGE_RISING>;
- 
- 			qcom,ipc = <&l2cc 8 25>;
-diff --git a/arch/arm/boot/dts/qcom-apq8074-dragonboard.dts b/arch/arm/boot/dts/qcom-apq8074-dragonboard.dts
-index 83793b835d40..e2b4e4fc6377 100644
---- a/arch/arm/boot/dts/qcom-apq8074-dragonboard.dts
-+++ b/arch/arm/boot/dts/qcom-apq8074-dragonboard.dts
-@@ -147,7 +147,7 @@ eeprom: eeprom@52 {
- 
- 	smd {
- 		rpm {
--			rpm_requests {
-+			rpm-requests {
- 				pm8841-regulators {
- 					s1 {
- 						regulator-min-microvolt = <675000>;
-diff --git a/arch/arm/boot/dts/qcom-apq8084.dtsi b/arch/arm/boot/dts/qcom-apq8084.dtsi
-index 52240fc7a1a6..da50a1a0197f 100644
---- a/arch/arm/boot/dts/qcom-apq8084.dtsi
-+++ b/arch/arm/boot/dts/qcom-apq8084.dtsi
-@@ -470,7 +470,7 @@ rpm {
- 			qcom,ipc = <&apcs 8 0>;
- 			qcom,smd-edge = <15>;
- 
--			rpm_requests {
-+			rpm-requests {
- 				compatible = "qcom,rpm-apq8084";
- 				qcom,smd-channels = "rpm_requests";
- 
-diff --git a/arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dts b/arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dts
-index 6d77e0f8ca4d..9dbfc9f8646a 100644
---- a/arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dts
-@@ -57,7 +57,7 @@ vibrator {
- 
- 	smd {
- 		rpm {
--			rpm_requests {
-+			rpm-requests {
- 				pm8841-regulators {
- 					s1 {
- 						regulator-min-microvolt = <675000>;
 diff --git a/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts b/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
-index 6d5fb60e798f..5fbdba73c07f 100644
+index 5fbdba73c07f..dd2d0647d4be 100644
 --- a/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
 +++ b/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
-@@ -42,7 +42,7 @@ volume-down {
+@@ -12,7 +12,7 @@ / {
  
- 	smd {
- 		rpm {
--			rpm_requests {
-+			rpm-requests {
- 				pm8841-regulators {
- 					s1 {
- 						regulator-min-microvolt = <675000>;
+ 	aliases {
+ 		serial0 = &blsp1_uart1;
+-		serial1 = &blsp2_uart10;
++		serial1 = &blsp2_uart4;
+ 	};
+ 
+ 	chosen {
+@@ -395,7 +395,7 @@ shutdown {
+ 			};
+ 		};
+ 
+-		blsp2_uart10_pin_a: blsp2-uart10-pin-active {
++		blsp2_uart4_pin_a: blsp2-uart4-pin-active {
+ 			tx {
+ 				pins = "gpio53";
+ 				function = "blsp_uart10";
+@@ -473,7 +473,7 @@ serial@f9960000 {
+ 		status = "okay";
+ 
+ 		pinctrl-names = "default";
+-		pinctrl-0 = <&blsp2_uart10_pin_a>;
++		pinctrl-0 = <&blsp2_uart4_pin_a>;
+ 
+ 		bluetooth {
+ 			compatible = "brcm,bcm43438-bt";
 diff --git a/arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts b/arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts
-index 6e036a440532..1f630120c01f 100644
+index 1f630120c01f..95ae30d06554 100644
 --- a/arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts
 +++ b/arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts
-@@ -54,7 +54,7 @@ volume-up {
+@@ -358,13 +358,13 @@ serial@f991e000 {
+ 		status = "okay";
+ 	};
  
- 	smd {
- 		rpm {
--			rpm_requests {
-+			rpm-requests {
- 				pma8084-regulators {
- 					compatible = "qcom,rpm-pma8084-regulators";
- 					status = "okay";
-diff --git a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dts b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dts
-index 79e2cfbbb1ba..8cace789fb26 100644
---- a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dts
-@@ -60,7 +60,7 @@ memory@0 {
+-	/* blsp2_uart8 */
++	/* blsp2_uart2 */
+ 	serial@f995e000 {
+ 		status = "okay";
  
- 	smd {
- 		rpm {
--			rpm_requests {
-+			rpm-requests {
- 				pm8841-regulators {
- 					s1 {
- 						regulator-min-microvolt = <675000>;
+ 		pinctrl-names = "default", "sleep";
+-		pinctrl-0 = <&blsp2_uart8_pins_active>;
+-		pinctrl-1 = <&blsp2_uart8_pins_sleep>;
++		pinctrl-0 = <&blsp2_uart2_pins_active>;
++		pinctrl-1 = <&blsp2_uart2_pins_sleep>;
+ 
+ 		bluetooth {
+ 			compatible = "brcm,bcm43540-bt";
+@@ -380,14 +380,14 @@ bluetooth {
+ 	};
+ 
+ 	pinctrl@fd510000 {
+-		blsp2_uart8_pins_active: blsp2-uart8-pins-active {
++		blsp2_uart2_pins_active: blsp2-uart2-pins-active {
+ 			pins = "gpio45", "gpio46", "gpio47", "gpio48";
+ 			function = "blsp_uart8";
+ 			drive-strength = <8>;
+ 			bias-disable;
+ 		};
+ 
+-		blsp2_uart8_pins_sleep: blsp2-uart8-pins-sleep {
++		blsp2_uart2_pins_sleep: blsp2-uart2-pins-sleep {
+ 			pins = "gpio45", "gpio46", "gpio47", "gpio48";
+ 			function = "gpio";
+ 			drive-strength = <2>;
 diff --git a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts
-index e66937e3f7dd..3c4a7d760ba9 100644
+index 3c4a7d760ba9..e27b360951fd 100644
 --- a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts
 +++ b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts
-@@ -55,7 +55,7 @@ volume-up {
+@@ -11,7 +11,7 @@ / {
  
- 	smd {
- 		rpm {
--			rpm_requests {
-+			rpm-requests {
- 				pm8941-regulators {
- 					vdd_l1_l3-supply = <&pm8941_s1>;
- 					vdd_l2_lvs1_2_3-supply = <&pm8941_s3>;
-diff --git a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dts b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dts
-index a62e5c25b23c..f4a2e2560777 100644
---- a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dts
-@@ -60,7 +60,7 @@ memory@0 {
+ 	aliases {
+ 		serial0 = &blsp1_uart2;
+-		serial1 = &blsp2_uart7;
++		serial1 = &blsp2_uart1;
+ 	};
  
- 	smd {
- 		rpm {
--			rpm_requests {
-+			rpm-requests {
- 				pm8841-regulators {
- 					s1 {
- 						regulator-min-microvolt = <675000>;
+ 	chosen {
 diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi b/arch/arm/boot/dts/qcom-msm8974.dtsi
-index 412d94736c35..08497783757a 100644
+index 08497783757a..689ddaabf463 100644
 --- a/arch/arm/boot/dts/qcom-msm8974.dtsi
 +++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
-@@ -1614,7 +1614,7 @@ rpm {
- 			qcom,ipc = <&apcs 8 0>;
- 			qcom,smd-edge = <15>;
+@@ -715,7 +715,7 @@ blsp1_uart2: serial@f991e000 {
+ 			status = "disabled";
+ 		};
  
--			rpm_requests {
-+			rpm-requests {
- 				compatible = "qcom,rpm-msm8974";
- 				qcom,smd-channels = "rpm_requests";
+-		blsp2_uart7: serial@f995d000 {
++		blsp2_uart1: serial@f995d000 {
+ 			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
+ 			reg = <0xf995d000 0x1000>;
+ 			interrupts = <GIC_SPI 113 IRQ_TYPE_NONE>;
+@@ -724,7 +724,7 @@ blsp2_uart7: serial@f995d000 {
+ 			status = "disabled";
+ 		};
  
+-		blsp2_uart8: serial@f995e000 {
++		blsp2_uart2: serial@f995e000 {
+ 			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
+ 			reg = <0xf995e000 0x1000>;
+ 			interrupts = <GIC_SPI 114 IRQ_TYPE_LEVEL_HIGH>;
+@@ -733,7 +733,7 @@ blsp2_uart8: serial@f995e000 {
+ 			status = "disabled";
+ 		};
+ 
+-		blsp2_uart10: serial@f9960000 {
++		blsp2_uart4: serial@f9960000 {
+ 			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
+ 			reg = <0xf9960000 0x1000>;
+ 			interrupts = <GIC_SPI 116 IRQ_TYPE_LEVEL_HIGH>;
 -- 
 2.35.1
 
