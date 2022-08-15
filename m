@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28735593AC4
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5683593B36
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345735AbiHOTvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:51:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58722 "EHLO
+        id S1345344AbiHOTwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:52:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345276AbiHOTtN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:49:13 -0400
+        with ESMTP id S1345682AbiHOTvi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:51:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0E3172854;
-        Mon, 15 Aug 2022 11:49:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0522BA198;
+        Mon, 15 Aug 2022 11:50:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06612611EC;
-        Mon, 15 Aug 2022 18:49:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E546FC433D6;
-        Mon, 15 Aug 2022 18:49:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7054460C0B;
+        Mon, 15 Aug 2022 18:50:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7687AC433D7;
+        Mon, 15 Aug 2022 18:50:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589387;
-        bh=Oyu8SLvYHA4waZZ1sY8iSpqGSuscCZRhPGnX5EgPg38=;
+        s=korg; t=1660589422;
+        bh=KA1uoX8dztzybu+oQwNd21XsNnUm0jus5zMhqtDVzq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UgLOSITrE+W4uR5mXnSbJ7bPMgLmF7RLewFepynLIRx4qIWf+4OCBCPcrjBdkrHka
-         ARJ72CPDnVhm/fxyy3UnECzA0df3jTATeYtvQfecJY413SeyJ4AF9PrDXIXCqwAz10
-         3bFErjH9fVeweGTfySOMHH1TJpr4r4Ns6LKBGwgU=
+        b=TncGLM0/sxvqGhRvAOPDyl6xYhkTCCFQfS4Y8JoxH9XpPAMPAbKZ1oYddL6N3vCcM
+         qOtERdviljd/rMduSh0geJoKK9xjwHO3/GuJ52oUZ/kPC1fHc0LJOyT1QBuk1m0bQz
+         UN7JXeFyjYlFq167LCcWmrgrozi/3cO74V2G34Gc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>,
         Oleksij Rempel <o.rempel@pengutronix.de>,
         Ferry Toth <fntoth@gmail.com>
-Subject: [PATCH 5.15 695/779] usbnet: smsc95xx: Dont clear read-only PHY interrupt
-Date:   Mon, 15 Aug 2022 20:05:39 +0200
-Message-Id: <20220815180407.050105261@linuxfoundation.org>
+Subject: [PATCH 5.15 696/779] usbnet: smsc95xx: Avoid link settings race on interrupt reception
+Date:   Mon, 15 Aug 2022 20:05:40 +0200
+Message-Id: <20220815180407.101084787@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -59,21 +59,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 3108871f19221372b251f7da1ac38736928b5b3a ]
+[ Upstream commit 8960f878e39fadc03d74292a6731f1e914cf2019 ]
 
-Upon receiving data from the Interrupt Endpoint, the SMSC LAN95xx driver
-attempts to clear the signaled interrupts by writing "all ones" to the
-Interrupt Status Register.
+When a PHY interrupt is signaled, the SMSC LAN95xx driver updates the
+MAC full duplex mode and PHY flow control registers based on cached data
+in struct phy_device:
 
-However the driver only ever enables a single type of interrupt, namely
-the PHY Interrupt.  And according to page 119 of the LAN950x datasheet,
-its bit in the Interrupt Status Register is read-only.  There's no other
-way to clear it than in a separate PHY register:
+  smsc95xx_status()                 # raises EVENT_LINK_RESET
+    usbnet_deferred_kevent()
+      smsc95xx_link_reset()         # uses cached data in phydev
 
-https://www.microchip.com/content/dam/mchp/documents/UNG/ProductDocuments/DataSheets/LAN950x-Data-Sheet-DS00001875D.pdf
+Simultaneously, phylib polls link status once per second and updates
+that cached data:
 
-Consequently, writing "all ones" to the Interrupt Status Register is
-pointless and can be dropped.
+  phy_state_machine()
+    phy_check_link_status()
+      phy_read_status()
+        lan87xx_read_status()
+          genphy_read_status()      # updates cached data in phydev
+
+If smsc95xx_link_reset() wins the race against genphy_read_status(),
+the registers may be updated based on stale data.
+
+E.g. if the link was previously down, phydev->duplex is set to
+DUPLEX_UNKNOWN and that's what smsc95xx_link_reset() will use, even
+though genphy_read_status() may update it to DUPLEX_FULL afterwards.
+
+PHY interrupts are currently only enabled on suspend to trigger wakeup,
+so the impact of the race is limited, but we're about to enable them
+perpetually.
+
+Avoid the race by delaying execution of smsc95xx_link_reset() until
+phy_state_machine() has done its job and calls back via
+smsc95xx_handle_link_change().
+
+Signaling EVENT_LINK_RESET on wakeup is not necessary because phylib
+picks up link status changes through polling.  So drop the declaration
+of a ->link_reset() callback.
+
+Note that the semicolon on a line by itself added in smsc95xx_status()
+is a placeholder for a function call which will be added in a subsequent
+commit.  That function call will actually handle the INT_ENP_PHY_INT_
+interrupt.
 
 Tested-by: Oleksij Rempel <o.rempel@pengutronix.de> # LAN9514/9512/9500
 Tested-by: Ferry Toth <fntoth@gmail.com> # LAN9514
@@ -82,24 +109,68 @@ Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc95xx.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/net/usb/smsc95xx.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index 4e39e4345084..c33089168880 100644
+index c33089168880..7cf9206638c3 100644
 --- a/drivers/net/usb/smsc95xx.c
 +++ b/drivers/net/usb/smsc95xx.c
-@@ -570,10 +570,6 @@ static int smsc95xx_link_reset(struct usbnet *dev)
- 	unsigned long flags;
- 	int ret;
+@@ -564,7 +564,7 @@ static int smsc95xx_phy_update_flowcontrol(struct usbnet *dev)
+ 	return smsc95xx_write_reg(dev, AFC_CFG, afc_cfg);
+ }
  
--	ret = smsc95xx_write_reg(dev, INT_STS, INT_STS_CLEAR_ALL_);
+-static int smsc95xx_link_reset(struct usbnet *dev)
++static void smsc95xx_mac_update_fullduplex(struct usbnet *dev)
+ {
+ 	struct smsc95xx_priv *pdata = dev->driver_priv;
+ 	unsigned long flags;
+@@ -581,14 +581,16 @@ static int smsc95xx_link_reset(struct usbnet *dev)
+ 	spin_unlock_irqrestore(&pdata->mac_cr_lock, flags);
+ 
+ 	ret = smsc95xx_write_reg(dev, MAC_CR, pdata->mac_cr);
 -	if (ret < 0)
 -		return ret;
++	if (ret < 0) {
++		if (ret != -ENODEV)
++			netdev_warn(dev->net,
++				    "Error updating MAC full duplex mode\n");
++		return;
++	}
+ 
+ 	ret = smsc95xx_phy_update_flowcontrol(dev);
+ 	if (ret < 0)
+ 		netdev_warn(dev->net, "Error updating PHY flow control\n");
 -
- 	spin_lock_irqsave(&pdata->mac_cr_lock, flags);
- 	if (pdata->phydev->duplex != DUPLEX_FULL) {
- 		pdata->mac_cr &= ~MAC_CR_FDPX_;
+-	return ret;
+ }
+ 
+ static void smsc95xx_status(struct usbnet *dev, struct urb *urb)
+@@ -605,7 +607,7 @@ static void smsc95xx_status(struct usbnet *dev, struct urb *urb)
+ 	netif_dbg(dev, link, dev->net, "intdata: 0x%08X\n", intdata);
+ 
+ 	if (intdata & INT_ENP_PHY_INT_)
+-		usbnet_defer_kevent(dev, EVENT_LINK_RESET);
++		;
+ 	else
+ 		netdev_warn(dev->net, "unexpected interrupt, intdata=0x%08X\n",
+ 			    intdata);
+@@ -1062,6 +1064,7 @@ static void smsc95xx_handle_link_change(struct net_device *net)
+ 	struct usbnet *dev = netdev_priv(net);
+ 
+ 	phy_print_status(net->phydev);
++	smsc95xx_mac_update_fullduplex(dev);
+ 	usbnet_defer_kevent(dev, EVENT_LINK_CHANGE);
+ }
+ 
+@@ -1967,7 +1970,6 @@ static const struct driver_info smsc95xx_info = {
+ 	.description	= "smsc95xx USB 2.0 Ethernet",
+ 	.bind		= smsc95xx_bind,
+ 	.unbind		= smsc95xx_unbind,
+-	.link_reset	= smsc95xx_link_reset,
+ 	.reset		= smsc95xx_reset,
+ 	.check_connect	= smsc95xx_start_phy,
+ 	.stop		= smsc95xx_stop,
 -- 
 2.35.1
 
