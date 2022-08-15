@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 798E9594B3F
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:22:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 492A9594B41
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:22:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244941AbiHPAOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:14:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55900 "EHLO
+        id S1349539AbiHPAOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:14:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353011AbiHPAJr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:09:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F5191741AD;
-        Mon, 15 Aug 2022 13:29:22 -0700 (PDT)
+        with ESMTP id S1353090AbiHPAKF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:10:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA7211741B7;
+        Mon, 15 Aug 2022 13:29:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5AD23B80EA8;
-        Mon, 15 Aug 2022 20:29:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86193C433D7;
-        Mon, 15 Aug 2022 20:29:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C03F961135;
+        Mon, 15 Aug 2022 20:29:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA040C433D6;
+        Mon, 15 Aug 2022 20:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595359;
-        bh=bOmIgRM4vNz3Df9Jf/OuuxejBYT6qZkU/b0bYL8I7/w=;
+        s=korg; t=1660595362;
+        bh=UOH6REFJS8cP2N9uoUPHkUleTOhh+U4QEU+B7D5bc6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dZDrizdnsMRErkxuhlQw0CwwYrpPDXuMOcQ44meTBOh6RwC66CxnyvTCiD9OZLa1S
-         a/LaPxGW2eO9wEghn65PtFz2xRxKi2cZoxMtBIlntSaqCm4DL0ulLlN0aIiUcEX9TQ
-         bppow7XYtdf0Hc9rhxZogj+eX9EDP3BbhCMvVOU8=
+        b=H+Ba2GEkgRxFOWp5LiyV0E4ufiAgB9FzyonxNqhrm5Gx60aPx4LEcqzCoN/xCBF8y
+         SVT0300B/rdhb6pD/hSy9Ln6/cJhUgklQ85bF9atezMyjCu8JPbwQjk9OzuZYyJEiK
+         1jd9PbBI230+aXIp/IOX4cWXiSPcJR9zELYylwL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0740/1157] mtd: dataflash: Add SPI ID table
-Date:   Mon, 15 Aug 2022 20:01:36 +0200
-Message-Id: <20220815180509.082055892@linuxfoundation.org>
+Subject: [PATCH 5.19 0741/1157] clk: qcom: camcc-sm8250: Fix halt on boot by reducing drivers init level
+Date:   Mon, 15 Aug 2022 20:01:37 +0200
+Message-Id: <20220815180509.121567079@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,51 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
-[ Upstream commit ac4f83482afbfd927d0fe118151b747cf175e724 ]
+[ Upstream commit c4f40351901a10cd662ac2c081396d8fb04f584d ]
 
-Currently autoloading for SPI devices does not use the DT ID table, it uses
-SPI modalises. Supporting OF modalises is going to be difficult if not
-impractical, an attempt was made but has been reverted, so ensure that
-module autoloading works for this driver by adding an id_table listing the
-SPI IDs for everything.
+Access to I/O of SM8250 camera clock controller IP depends on enabled
+GCC_CAMERA_AHB_CLK clock supplied by global clock controller, the latter
+one is inited on subsys level, so, to satisfy the dependency, it would
+make sense to deprive the init level of camcc-sm8250 driver.
 
-Fixes: 96c8395e2166 ("spi: Revert modalias changes")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220620152313.708768-1-broonie@kernel.org
+If both drivers are compiled as built-in, there is a change that a board
+won't boot up due to a race, which happens on the same init level.
+
+Fixes: 5d66ca79b58c ("clk: qcom: Add camera clock controller driver for SM8250")
+Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Tested-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220518103554.949511-1-vladimir.zapolskiy@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/devices/mtd_dataflash.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/clk/qcom/camcc-sm8250.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/drivers/mtd/devices/mtd_dataflash.c b/drivers/mtd/devices/mtd_dataflash.c
-index 134e27328597..25bad4318305 100644
---- a/drivers/mtd/devices/mtd_dataflash.c
-+++ b/drivers/mtd/devices/mtd_dataflash.c
-@@ -112,6 +112,13 @@ static const struct of_device_id dataflash_dt_ids[] = {
- MODULE_DEVICE_TABLE(of, dataflash_dt_ids);
- #endif
- 
-+static const struct spi_device_id dataflash_spi_ids[] = {
-+	{ .name = "at45", },
-+	{ .name = "dataflash", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(spi, dataflash_spi_ids);
-+
- /* ......................................................................... */
- 
- /*
-@@ -936,6 +943,7 @@ static struct spi_driver dataflash_driver = {
- 
- 	.probe		= dataflash_probe,
- 	.remove		= dataflash_remove,
-+	.id_table	= dataflash_spi_ids,
- 
- 	/* FIXME:  investigate suspend and resume... */
+diff --git a/drivers/clk/qcom/camcc-sm8250.c b/drivers/clk/qcom/camcc-sm8250.c
+index 439eaafdcc86..ae4e9774f36e 100644
+--- a/drivers/clk/qcom/camcc-sm8250.c
++++ b/drivers/clk/qcom/camcc-sm8250.c
+@@ -2440,17 +2440,7 @@ static struct platform_driver cam_cc_sm8250_driver = {
+ 	},
  };
+ 
+-static int __init cam_cc_sm8250_init(void)
+-{
+-	return platform_driver_register(&cam_cc_sm8250_driver);
+-}
+-subsys_initcall(cam_cc_sm8250_init);
+-
+-static void __exit cam_cc_sm8250_exit(void)
+-{
+-	platform_driver_unregister(&cam_cc_sm8250_driver);
+-}
+-module_exit(cam_cc_sm8250_exit);
++module_platform_driver(cam_cc_sm8250_driver);
+ 
+ MODULE_DESCRIPTION("QTI CAMCC SM8250 Driver");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.35.1
 
