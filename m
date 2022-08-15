@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63C3F5944A0
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D92755943C6
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:57:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346965AbiHOWDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:03:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35056 "EHLO
+        id S1347043AbiHOWDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:03:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349948AbiHOWBr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:01:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37F30112F88;
-        Mon, 15 Aug 2022 12:36:06 -0700 (PDT)
+        with ESMTP id S1350228AbiHOWBz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:01:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E78E113686;
+        Mon, 15 Aug 2022 12:36:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11D4A6113B;
-        Mon, 15 Aug 2022 19:36:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8ED1C433D7;
-        Mon, 15 Aug 2022 19:36:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B015AB81141;
+        Mon, 15 Aug 2022 19:36:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ABFAC433B5;
+        Mon, 15 Aug 2022 19:36:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592165;
-        bh=PnK96AcJoNH02OrlMKcpheKhKI/ZKO5ifjdCqo9v2nI=;
+        s=korg; t=1660592171;
+        bh=MqXDXlZKe82M+ZSR3HvDR2TXSZqOQYNlIWIzz4zgi5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xikvCP/99cGXvUQ3XldHoR1npBRDdY2QzJZE2cdNV0rW4cf1ToECd+KuELnr5HNEz
-         VTlm2PsaN5QaIurcZ8LJDB8/NnDZPQSNu4V0Kz5C0fLt5UX/MBf3xA+Ey8cLot0WZe
-         RyI4/FR4CoYhzKIXgBkwKvohh+IVGweg5v6hu4CA=
+        b=2hdwX4hPtbIIQWyoVtNdnbmasXBMaiG+luRaQOEnJ8nbw3B1v2Qz/Sw0+Bi/A+MMV
+         pJLsMd5LpFp3Uaye0w0dEGRuQcQku3F2Bl3m2jtAqZ8XEjpVqIV1yxaqGq/8zHobA5
+         xjYUot6AY3ijqyytUBPyphsOK6puqMXJhBxBRCbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Lifu <chenlifu@huawei.com>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
+        stable@vger.kernel.org, Atul Khare <atulkhare@rivosinc.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.19 0068/1157] riscv: lib: uaccess: fix CSR_STATUS SR_SUM bit
-Date:   Mon, 15 Aug 2022 19:50:24 +0200
-Message-Id: <20220815180442.218601764@linuxfoundation.org>
+Subject: [PATCH 5.19 0069/1157] dt-bindings: riscv: fix SiFive l2-caches cache-sets
+Date:   Mon, 15 Aug 2022 19:50:25 +0200
+Message-Id: <20220815180442.253046396@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,48 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Lifu <chenlifu@huawei.com>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-commit c08b4848f596fd95543197463b5162bd7bab2442 upstream.
+commit b60cf8e59e61133b6c9514ff8d8c8d7049d040ef upstream.
 
-Since commit 5d8544e2d007 ("RISC-V: Generic library routines and assembly")
-and commit ebcbd75e3962 ("riscv: Fix the bug in memory access fixup code"),
-if __clear_user and __copy_user return from an fixup branch,
-CSR_STATUS SR_SUM bit will be set, it is a vulnerability, so that
-S-mode memory accesses to pages that are accessible by U-mode will success.
-Disable S-mode access to U-mode memory should clear SR_SUM bit.
+Fix device tree schema validation error messages for the SiFive
+Unmatched: ' cache-sets:0:0: 1024 was expected'.
 
-Fixes: 5d8544e2d007 ("RISC-V: Generic library routines and assembly")
-Fixes: ebcbd75e3962 ("riscv: Fix the bug in memory access fixup code")
-Signed-off-by: Chen Lifu <chenlifu@huawei.com>
-Reviewed-by: Ben Dooks <ben.dooks@codethink.co.uk>
-Link: https://lore.kernel.org/r/20220615014714.1650349-1-chenlifu@huawei.com
+The existing bindings allow for just 1024 cache-sets but the fu740 on
+Unmatched the has 2048 cache-sets. The ISA itself permits any arbitrary
+power of two, however this is not supported by dt-schema. The RTL for
+the IP, to which the number of cache-sets is a tunable parameter, has
+been released publicly so speculatively adding a small number of
+"reasonable" values seems unwise also.
+
+Instead, as the binding only supports two distinct controllers: add 2048
+and explicitly lock it to the fu740's l2 cache while limiting 1024 to
+the l2 cache on the fu540.
+
+Fixes: af951c3a113b ("dt-bindings: riscv: Update l2 cache DT documentation to add support for SiFive FU740")
+Reported-by: Atul Khare <atulkhare@rivosinc.com>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220803185359.942928-1-mail@conchuod.ie
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/lib/uaccess.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/riscv/sifive-l2-cache.yaml |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/riscv/lib/uaccess.S
-+++ b/arch/riscv/lib/uaccess.S
-@@ -175,7 +175,7 @@ ENTRY(__asm_copy_from_user)
- 	/* Exception fixup code */
- 10:
- 	/* Disable access to user memory */
--	csrs CSR_STATUS, t6
-+	csrc CSR_STATUS, t6
- 	mv a0, t5
- 	ret
- ENDPROC(__asm_copy_to_user)
-@@ -227,7 +227,7 @@ ENTRY(__clear_user)
- 	/* Exception fixup code */
- 11:
- 	/* Disable access to user memory */
--	csrs CSR_STATUS, t6
-+	csrc CSR_STATUS, t6
- 	mv a0, a1
- 	ret
- ENDPROC(__clear_user)
+--- a/Documentation/devicetree/bindings/riscv/sifive-l2-cache.yaml
++++ b/Documentation/devicetree/bindings/riscv/sifive-l2-cache.yaml
+@@ -46,7 +46,7 @@ properties:
+     const: 2
+ 
+   cache-sets:
+-    const: 1024
++    enum: [1024, 2048]
+ 
+   cache-size:
+     const: 2097152
+@@ -84,6 +84,8 @@ then:
+       description: |
+         Must contain entries for DirError, DataError and DataFail signals.
+       maxItems: 3
++    cache-sets:
++      const: 1024
+ 
+ else:
+   properties:
+@@ -91,6 +93,8 @@ else:
+       description: |
+         Must contain entries for DirError, DataError, DataFail, DirFail signals.
+       minItems: 4
++    cache-sets:
++      const: 2048
+ 
+ additionalProperties: false
+ 
 
 
