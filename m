@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06700594FB4
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:31:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF479594FD2
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230027AbiHPEbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:31:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47204 "EHLO
+        id S230190AbiHPEdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:33:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230012AbiHPEbR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:31:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DCEF1665B0;
-        Mon, 15 Aug 2022 13:22:57 -0700 (PDT)
+        with ESMTP id S230042AbiHPEcv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:32:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CCF01665BB;
+        Mon, 15 Aug 2022 13:22:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7D72B8119B;
-        Mon, 15 Aug 2022 20:22:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A201C433C1;
-        Mon, 15 Aug 2022 20:22:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6429E61072;
+        Mon, 15 Aug 2022 20:22:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65286C433D6;
+        Mon, 15 Aug 2022 20:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594974;
-        bh=zGsvOp9SRF/84WtIQLwTb+KtRGixmQm3FaS1JsCSYsM=;
+        s=korg; t=1660594977;
+        bh=VjzZqsbaWnZGIyqrjQJ4BBVHwACh7tYen7EsXIv/VEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1nozzs7Z9xYU0ed7kmMHkkVOiMVhwTFl9FdNBwlFAvwFT95t9sgPMvzKnMrT12YS
-         gx/fyWhtOAQJXjPC+PjpEvws7fyRzeVCp0ZvZqboS++gVvHTmsAveMlerD4I4ySkqL
-         CdCj91SbSnSxXHdnyKxBxJhgd7rp64xHFsHp+DII=
+        b=AWXbvGYW/ioJPk2AJquv8DAo2qtv4/EFLXc/QJKZsftvVLzdDSDn8z0sxQIsF9mVn
+         GOWumVvEdn8CVVp07gibR6EHBm36xD1uCZn4AftLM51pESkB9aosqSjhrpTihhsox7
+         x01p03ZuMoXSZuHJ5ssOFatmCSZFx1ooL7EGjG8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0586/1157] scsi: qla2xxx: edif: Synchronize NPIV deletion with authentication application
-Date:   Mon, 15 Aug 2022 19:59:02 +0200
-Message-Id: <20220815180503.105984621@linuxfoundation.org>
+Subject: [PATCH 5.19 0587/1157] scsi: qla2xxx: edif: Add retry for ELS passthrough
+Date:   Mon, 15 Aug 2022 19:59:03 +0200
+Message-Id: <20220815180503.143141029@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -57,52 +57,138 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit cf79716e6636400ae38c37bc8a652b1e522abbba ]
+[ Upstream commit 0b3f3143d473b489a7aa0779c43bcdb344bd3014 ]
 
-Notify authentication application of a NPIV deletion event is about to
-occur. This allows app to perform cleanup.
+Relating to EDIF, when sending IKE message, updating key or deleting key,
+driver can encounter IOCB queue full. Add additional retries to reduce
+higher level recovery.
 
-Link: https://lore.kernel.org/r/20220607044627.19563-7-njavali@marvell.com
-Fixes: 9efea843a906 ("scsi: qla2xxx: edif: Add detection of secure device")
+Link: https://lore.kernel.org/r/20220607044627.19563-8-njavali@marvell.com
+Fixes: dd30706e73b7 ("scsi: qla2xxx: edif: Add key update")
 Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_edif_bsg.h | 2 ++
- drivers/scsi/qla2xxx/qla_mid.c      | 6 +++++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_edif.c | 52 +++++++++++++++++++++++----------
+ drivers/scsi/qla2xxx/qla_os.c   |  2 +-
+ 2 files changed, 38 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_edif_bsg.h b/drivers/scsi/qla2xxx/qla_edif_bsg.h
-index 110843b13767..0931f4e4e127 100644
---- a/drivers/scsi/qla2xxx/qla_edif_bsg.h
-+++ b/drivers/scsi/qla2xxx/qla_edif_bsg.h
-@@ -253,4 +253,6 @@ struct aen_complete_cmd {
+diff --git a/drivers/scsi/qla2xxx/qla_edif.c b/drivers/scsi/qla2xxx/qla_edif.c
+index c7198f8635c7..06c1252019e1 100644
+--- a/drivers/scsi/qla2xxx/qla_edif.c
++++ b/drivers/scsi/qla2xxx/qla_edif.c
+@@ -1467,6 +1467,8 @@ qla24xx_check_sadb_avail_slot(struct bsg_job *bsg_job, fc_port_t *fcport,
  
- #define RX_DELAY_DELETE_TIMEOUT 20
+ #define QLA_SA_UPDATE_FLAGS_RX_KEY      0x0
+ #define QLA_SA_UPDATE_FLAGS_TX_KEY      0x2
++#define EDIF_MSLEEP_INTERVAL 100
++#define EDIF_RETRY_COUNT  50
  
-+#define FCH_EVT_VENDOR_UNIQUE_VPORT_DOWN  1
+ int
+ qla24xx_sadb_update(struct bsg_job *bsg_job)
+@@ -1479,7 +1481,7 @@ qla24xx_sadb_update(struct bsg_job *bsg_job)
+ 	struct edif_list_entry *edif_entry = NULL;
+ 	int			found = 0;
+ 	int			rval = 0;
+-	int result = 0;
++	int result = 0, cnt;
+ 	struct qla_sa_update_frame sa_frame;
+ 	struct srb_iocb *iocb_cmd;
+ 	port_id_t portid;
+@@ -1720,11 +1722,23 @@ qla24xx_sadb_update(struct bsg_job *bsg_job)
+ 	sp->done = qla2x00_bsg_job_done;
+ 	iocb_cmd = &sp->u.iocb_cmd;
+ 	iocb_cmd->u.sa_update.sa_frame  = sa_frame;
+-
++	cnt = 0;
++retry:
+ 	rval = qla2x00_start_sp(sp);
+-	if (rval != QLA_SUCCESS) {
++	switch (rval) {
++	case QLA_SUCCESS:
++		break;
++	case EAGAIN:
++		msleep(EDIF_MSLEEP_INTERVAL);
++		cnt++;
++		if (cnt < EDIF_RETRY_COUNT)
++			goto retry;
 +
- #endif	/* QLA_EDIF_BSG_H */
-diff --git a/drivers/scsi/qla2xxx/qla_mid.c b/drivers/scsi/qla2xxx/qla_mid.c
-index 346d47b61c07..16a9f22bb860 100644
---- a/drivers/scsi/qla2xxx/qla_mid.c
-+++ b/drivers/scsi/qla2xxx/qla_mid.c
-@@ -166,9 +166,13 @@ qla24xx_disable_vp(scsi_qla_host_t *vha)
- 	int ret = QLA_SUCCESS;
- 	fc_port_t *fcport;
++		fallthrough;
++	default:
+ 		ql_log(ql_dbg_edif, vha, 0x70e3,
+-		    "qla2x00_start_sp failed=%d.\n", rval);
++		       "%s qla2x00_start_sp failed=%d.\n",
++		       __func__, rval);
  
--	if (vha->hw->flags.edif_enabled)
-+	if (vha->hw->flags.edif_enabled) {
-+		if (DBELL_ACTIVE(vha))
-+			qla2x00_post_aen_work(vha, FCH_EVT_VENDOR_UNIQUE,
-+			    FCH_EVT_VENDOR_UNIQUE_VPORT_DOWN);
- 		/* delete sessions and flush sa_indexes */
- 		qla2x00_wait_for_sess_deletion(vha);
-+	}
+ 		qla2x00_rel_sp(sp);
+ 		rval = -EIO;
+@@ -2398,7 +2412,6 @@ qla24xx_issue_sa_replace_iocb(scsi_qla_host_t *vha, struct qla_work_evt *e)
+ 	rval = qla2x00_start_sp(sp);
  
- 	if (vha->hw->flags.fw_started)
- 		ret = qla24xx_control_vp(vha, VCE_COMMAND_DISABLE_VPS_LOGO_ALL);
+ 	if (rval != QLA_SUCCESS) {
+-		rval = QLA_FUNCTION_FAILED;
+ 		goto done_free_sp;
+ 	}
+ 
+@@ -3530,7 +3543,7 @@ int qla_edif_process_els(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
+ 	fc_port_t *fcport = NULL;
+ 	struct qla_hw_data *ha = vha->hw;
+ 	srb_t *sp;
+-	int rval =  (DID_ERROR << 16);
++	int rval =  (DID_ERROR << 16), cnt;
+ 	port_id_t d_id;
+ 	struct qla_bsg_auth_els_request *p =
+ 	    (struct qla_bsg_auth_els_request *)bsg_job->request;
+@@ -3625,17 +3638,26 @@ int qla_edif_process_els(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
+ 	sp->free = qla2x00_bsg_sp_free;
+ 	sp->done = qla2x00_bsg_job_done;
+ 
++	cnt = 0;
++retry:
+ 	rval = qla2x00_start_sp(sp);
+-
+-	ql_dbg(ql_dbg_edif, vha, 0x700a,
+-	    "%s %s %8phN xchg %x ctlflag %x hdl %x reqlen %xh bsg ptr %p\n",
+-	    __func__, sc_to_str(p->e.sub_cmd), fcport->port_name,
+-	    p->e.extra_rx_xchg_address, p->e.extra_control_flags,
+-	    sp->handle, sp->remap.req.len, bsg_job);
+-
+-	if (rval != QLA_SUCCESS) {
++	switch (rval) {
++	case QLA_SUCCESS:
++		ql_dbg(ql_dbg_edif, vha, 0x700a,
++		       "%s %s %8phN xchg %x ctlflag %x hdl %x reqlen %xh bsg ptr %p\n",
++		       __func__, sc_to_str(p->e.sub_cmd), fcport->port_name,
++		       p->e.extra_rx_xchg_address, p->e.extra_control_flags,
++		       sp->handle, sp->remap.req.len, bsg_job);
++		break;
++	case EAGAIN:
++		msleep(EDIF_MSLEEP_INTERVAL);
++		cnt++;
++		if (cnt < EDIF_RETRY_COUNT)
++			goto retry;
++		fallthrough;
++	default:
+ 		ql_log(ql_log_warn, vha, 0x700e,
+-		    "qla2x00_start_sp failed = %d\n", rval);
++		    "%s qla2x00_start_sp failed = %d\n", __func__, rval);
+ 		SET_DID_STATUS(bsg_reply->result, DID_IMM_RETRY);
+ 		rval = -EIO;
+ 		goto done_free_remap_rsp;
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index 73073fb08369..4f3125b826c4 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -5472,7 +5472,7 @@ qla2x00_do_work(struct scsi_qla_host *vha)
+ 			    e->u.fcport.fcport, false);
+ 			break;
+ 		case QLA_EVT_SA_REPLACE:
+-			qla24xx_issue_sa_replace_iocb(vha, e);
++			rc = qla24xx_issue_sa_replace_iocb(vha, e);
+ 			break;
+ 		}
+ 
 -- 
 2.35.1
 
