@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F3FB5942F4
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D66C59463D
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:02:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350518AbiHOWsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:48:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50674 "EHLO
+        id S1351540AbiHOWsh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:48:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352039AbiHOWrl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:47:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3C26135AC9;
-        Mon, 15 Aug 2022 12:53:17 -0700 (PDT)
+        with ESMTP id S1352127AbiHOWry (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:47:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25269135AEB;
+        Mon, 15 Aug 2022 12:53:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BA9160FB9;
-        Mon, 15 Aug 2022 19:53:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2549DC433C1;
-        Mon, 15 Aug 2022 19:53:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2DB83B81142;
+        Mon, 15 Aug 2022 19:53:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 732B8C433D7;
+        Mon, 15 Aug 2022 19:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593196;
-        bh=sZQQJBhKBqZz1oQBCZX4pRulQOQ09eGmJoa2eOxyBZQ=;
+        s=korg; t=1660593205;
+        bh=T42vtNvZmfSxu+bANyz8LMcHBQaRj4p58WGreN/apcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WR9/5JmHNqP6g8X17EK5on5n0Gy71Ze8P2Q7hFNicPJLuYHUQImCEJWzYgs5uPHLj
-         pURokytHyBUBMwK74t8XYYmSrMzenzhmOjf1yDk2kKlyH20tgFEoC5ABimzMFp53t7
-         u7r01ve0G9iGQU17hO+dG8zQlJiuYHu6icqGYvRU=
+        b=LQiGIVoODbvERF3HwuD1il+ULip4uAdR6ihoWydV6veR+i4WUI1d4KZIgkpU4XY0l
+         yknOlajUhtY4A5TiyKYvxkUt9KplWN6akYkvry+k93L+zUQyPKsEfRoOCI8A9oie3F
+         5KDvRstWONLuWDJrfrYiJlhSssYPvalpbIeeTVl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
-        William Dean <williamsukatube@gmail.com>,
-        Marek Beh=C3=BAn <kabel@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Yong Zhi <yong.zhi@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0910/1095] watchdog: armada_37xx_wdt: check the return value of devm_ioremap() in armada_37xx_wdt_probe()
-Date:   Mon, 15 Aug 2022 20:05:09 +0200
-Message-Id: <20220815180506.932605582@linuxfoundation.org>
+Subject: [PATCH 5.18 0911/1095] ASoC: Intel: sof_rt5682: Perform quirk check first in card late probe
+Date:   Mon, 15 Aug 2022 20:05:10 +0200
+Message-Id: <20220815180506.966324573@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,39 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Dean <williamsukatube@gmail.com>
+From: Yong Zhi <yong.zhi@intel.com>
 
-[ Upstream commit 2d27e52841092e5831dd41f313028c668d816eb0 ]
+[ Upstream commit 371a3f01fc1862c23fae35cb2c98ffb2eec143f1 ]
 
-The function devm_ioremap() in armada_37xx_wdt_probe() can fail, so
-its return value should be checked.
+The check of sof_rt5682_quirk should not be skipped unless the HDMI
+handling code exits with error, fix by moving the quirk check to the front.
 
-Fixes: 54e3d9b518c8a ("watchdog: Add support for Armada 37xx CPU watchdog")
-Reported-by: Hacash Robot <hacashRobot@santino.com>
-Signed-off-by: William Dean <williamsukatube@gmail.com>
-Reviewed-by: Marek Beh=C3=BAn <kabel@kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220722030938.2925156-1-williamsukatube@163.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fixes: 94d2d0897474 ("ASoC: Intel: Boards: tgl_max98373: add dai_trigger function")
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Yong Zhi <yong.zhi@intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220725194909.145418-10-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/armada_37xx_wdt.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/intel/boards/sof_rt5682.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/watchdog/armada_37xx_wdt.c b/drivers/watchdog/armada_37xx_wdt.c
-index 1635f421ef2c..854b1cc723cb 100644
---- a/drivers/watchdog/armada_37xx_wdt.c
-+++ b/drivers/watchdog/armada_37xx_wdt.c
-@@ -274,6 +274,8 @@ static int armada_37xx_wdt_probe(struct platform_device *pdev)
- 	if (!res)
- 		return -ENODEV;
- 	dev->reg = devm_ioremap(&pdev->dev, res->start, resource_size(res));
-+	if (!dev->reg)
-+		return -ENOMEM;
+diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
+index 7126fcb63d90..d9f83b04be87 100644
+--- a/sound/soc/intel/boards/sof_rt5682.c
++++ b/sound/soc/intel/boards/sof_rt5682.c
+@@ -435,6 +435,15 @@ static int sof_card_late_probe(struct snd_soc_card *card)
+ 	int err;
+ 	int i = 0;
  
- 	/* init clock */
- 	dev->clk = devm_clk_get(&pdev->dev, NULL);
++	if (sof_rt5682_quirk & SOF_MAX98373_SPEAKER_AMP_PRESENT) {
++		/* Disable Left and Right Spk pin after boot */
++		snd_soc_dapm_disable_pin(dapm, "Left Spk");
++		snd_soc_dapm_disable_pin(dapm, "Right Spk");
++		err = snd_soc_dapm_sync(dapm);
++		if (err < 0)
++			return err;
++	}
++
+ 	/* HDMI is not supported by SOF on Baytrail/CherryTrail */
+ 	if (is_legacy_cpu || !ctx->idisp_codec)
+ 		return 0;
+@@ -468,15 +477,6 @@ static int sof_card_late_probe(struct snd_soc_card *card)
+ 		i++;
+ 	}
+ 
+-	if (sof_rt5682_quirk & SOF_MAX98373_SPEAKER_AMP_PRESENT) {
+-		/* Disable Left and Right Spk pin after boot */
+-		snd_soc_dapm_disable_pin(dapm, "Left Spk");
+-		snd_soc_dapm_disable_pin(dapm, "Right Spk");
+-		err = snd_soc_dapm_sync(dapm);
+-		if (err < 0)
+-			return err;
+-	}
+-
+ 	return hdac_hdmi_jack_port_init(component, &card->dapm);
+ }
+ 
 -- 
 2.35.1
 
