@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E871F59377D
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DDA1593937
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243728AbiHOSpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:45:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38406 "EHLO
+        id S243730AbiHOSpN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:45:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243344AbiHOSnt (ORCPT
+        with ESMTP id S243350AbiHOSnt (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:43:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84B912F66B;
-        Mon, 15 Aug 2022 11:27:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 944602BB07;
+        Mon, 15 Aug 2022 11:27:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21F4B60FC4;
-        Mon, 15 Aug 2022 18:27:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14834C433D7;
-        Mon, 15 Aug 2022 18:27:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31AC060EEB;
+        Mon, 15 Aug 2022 18:27:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2965FC433D6;
+        Mon, 15 Aug 2022 18:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588028;
-        bh=lnkl56a31MbvW6ouXWsb6NWSAKbk0Xa/VASYs6iBCg0=;
+        s=korg; t=1660588031;
+        bh=PKc2T3fY74EMGaI7u7Ln8IptTYkyGTfoHS2qJcdxyHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zHbM7MXTHaHuNWxcT0J2sRXEEM8TaIg3Qx/dwsm7Oh3lvgtFCO8S+aLpbXiJNQRLp
-         Y95j4eA4ENVN4GvE3OO1lrkX62RVGbT4liTBeeMsXfYafZRrbgu+5FHLghxW/u3lAZ
-         NCK/wfmTAHGQCfgfaeEfTUpVyOHt13zA0AVYBVeE=
+        b=Dz4046sqwLvf8mABX5eY63Yp+4/M7kPH9k+u2TXw68CnKmwHS/ErM0463bqx4Yyhk
+         wU6aB6EJkPt2VNOhnJac7/59ck5Zc8zgdlJ31AoIaZu+iWo05R5QvLipW7MgShLfSe
+         Ze5jjNE9SCbqvcTjyNO9cHBnhbF96ZgpqT3OEa00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 273/779] media: imx-jpeg: Refactor function mxc_jpeg_parse
-Date:   Mon, 15 Aug 2022 19:58:37 +0200
-Message-Id: <20220815180348.974481341@linuxfoundation.org>
+Subject: [PATCH 5.15 274/779] media: imx-jpeg: Identify and handle precision correctly
+Date:   Mon, 15 Aug 2022 19:58:38 +0200
+Message-Id: <20220815180349.020193615@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -58,9 +58,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit 8dd504a3a0a5f73b4c137ce3afc35936a4ecd871 ]
+[ Upstream commit bec0a3a67389ede106d0661a007edf832878d8b2 ]
 
-Refine code to support dynamic resolution change
+The decoder will save the precision that was detected from jpeg header
+and use it later, when choosing the pixel format and also calculate
+bytesperline according to precision.
+
+The 12bit jpeg is not supported yet,
+but driver shouldn't led to serious problem if user enqueue a 12 bit jpeg.
+And the 12bit jpeg is supported by hardware, driver may support it later.
+
+[hverkuil: document the new precision field]
 
 Signed-off-by: Ming Qian <ming.qian@nxp.com>
 Reviewed-by: Mirela Rabulea <mirela.rabulea@nxp.com>
@@ -68,54 +76,159 @@ Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/imx-jpeg/mxc-jpeg.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/media/platform/imx-jpeg/mxc-jpeg.c | 37 +++++++++++++++-------
+ drivers/media/platform/imx-jpeg/mxc-jpeg.h |  2 ++
+ 2 files changed, 27 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/media/platform/imx-jpeg/mxc-jpeg.c b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
-index 2d0c1307180f..5064a994a42e 100644
+index 5064a994a42e..718de999987e 100644
 --- a/drivers/media/platform/imx-jpeg/mxc-jpeg.c
 +++ b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
-@@ -1236,8 +1236,7 @@ static void mxc_jpeg_sizeimage(struct mxc_jpeg_q_data *q)
+@@ -82,6 +82,7 @@ static const struct mxc_jpeg_fmt mxc_formats[] = {
+ 		.h_align	= 3,
+ 		.v_align	= 3,
+ 		.flags		= MXC_JPEG_FMT_TYPE_RAW,
++		.precision	= 8,
+ 	},
+ 	{
+ 		.name		= "ARGB", /* ARGBARGB packed format */
+@@ -93,6 +94,7 @@ static const struct mxc_jpeg_fmt mxc_formats[] = {
+ 		.h_align	= 3,
+ 		.v_align	= 3,
+ 		.flags		= MXC_JPEG_FMT_TYPE_RAW,
++		.precision	= 8,
+ 	},
+ 	{
+ 		.name		= "YUV420", /* 1st plane = Y, 2nd plane = UV */
+@@ -104,6 +106,7 @@ static const struct mxc_jpeg_fmt mxc_formats[] = {
+ 		.h_align	= 4,
+ 		.v_align	= 4,
+ 		.flags		= MXC_JPEG_FMT_TYPE_RAW,
++		.precision	= 8,
+ 	},
+ 	{
+ 		.name		= "YUV422", /* YUYV */
+@@ -115,6 +118,7 @@ static const struct mxc_jpeg_fmt mxc_formats[] = {
+ 		.h_align	= 4,
+ 		.v_align	= 3,
+ 		.flags		= MXC_JPEG_FMT_TYPE_RAW,
++		.precision	= 8,
+ 	},
+ 	{
+ 		.name		= "YUV444", /* YUVYUV */
+@@ -126,6 +130,7 @@ static const struct mxc_jpeg_fmt mxc_formats[] = {
+ 		.h_align	= 3,
+ 		.v_align	= 3,
+ 		.flags		= MXC_JPEG_FMT_TYPE_RAW,
++		.precision	= 8,
+ 	},
+ 	{
+ 		.name		= "Gray", /* Gray (Y8/Y12) or Single Comp */
+@@ -137,6 +142,7 @@ static const struct mxc_jpeg_fmt mxc_formats[] = {
+ 		.h_align	= 3,
+ 		.v_align	= 3,
+ 		.flags		= MXC_JPEG_FMT_TYPE_RAW,
++		.precision	= 8,
+ 	},
+ };
+ 
+@@ -1166,14 +1172,17 @@ static u32 mxc_jpeg_get_image_format(struct device *dev,
+ 
+ 	for (i = 0; i < MXC_JPEG_NUM_FORMATS; i++)
+ 		if (mxc_formats[i].subsampling == header->frame.subsampling &&
+-		    mxc_formats[i].nc == header->frame.num_components) {
++		    mxc_formats[i].nc == header->frame.num_components &&
++		    mxc_formats[i].precision == header->frame.precision) {
+ 			fourcc = mxc_formats[i].fourcc;
+ 			break;
+ 		}
+ 	if (fourcc == 0) {
+-		dev_err(dev, "Could not identify image format nc=%d, subsampling=%d\n",
++		dev_err(dev,
++			"Could not identify image format nc=%d, subsampling=%d, precision=%d\n",
+ 			header->frame.num_components,
+-			header->frame.subsampling);
++			header->frame.subsampling,
++			header->frame.precision);
+ 		return fourcc;
+ 	}
+ 	/*
+@@ -1199,18 +1208,22 @@ static void mxc_jpeg_bytesperline(struct mxc_jpeg_q_data *q,
+ 		/* bytesperline unused for compressed formats */
+ 		q->bytesperline[0] = 0;
+ 		q->bytesperline[1] = 0;
+-	} else if (q->fmt->fourcc == V4L2_PIX_FMT_NV12M) {
++	} else if (q->fmt->subsampling == V4L2_JPEG_CHROMA_SUBSAMPLING_420) {
+ 		/* When the image format is planar the bytesperline value
+ 		 * applies to the first plane and is divided by the same factor
+ 		 * as the width field for the other planes
+ 		 */
+-		q->bytesperline[0] = q->w * (precision / 8) *
+-				     (q->fmt->depth / 8);
++		q->bytesperline[0] = q->w * DIV_ROUND_UP(precision, 8);
+ 		q->bytesperline[1] = q->bytesperline[0];
++	} else if (q->fmt->subsampling == V4L2_JPEG_CHROMA_SUBSAMPLING_422) {
++		q->bytesperline[0] = q->w * DIV_ROUND_UP(precision, 8) * 2;
++		q->bytesperline[1] = 0;
++	} else if (q->fmt->subsampling == V4L2_JPEG_CHROMA_SUBSAMPLING_444) {
++		q->bytesperline[0] = q->w * DIV_ROUND_UP(precision, 8) * q->fmt->nc;
++		q->bytesperline[1] = 0;
+ 	} else {
+-		/* single plane formats */
+-		q->bytesperline[0] = q->w * (precision / 8) *
+-				     (q->fmt->depth / 8);
++		/* grayscale */
++		q->bytesperline[0] = q->w * DIV_ROUND_UP(precision, 8);
+ 		q->bytesperline[1] = 0;
  	}
  }
+@@ -1344,7 +1357,7 @@ static int mxc_jpeg_parse(struct mxc_jpeg_ctx *ctx, struct vb2_buffer *vb)
+ 		(fourcc >> 24) & 0xff);
  
--static int mxc_jpeg_parse(struct mxc_jpeg_ctx *ctx,
--			  u8 *src_addr, u32 size, bool *dht_needed)
-+static int mxc_jpeg_parse(struct mxc_jpeg_ctx *ctx, struct vb2_buffer *vb)
- {
- 	struct device *dev = ctx->mxc_jpeg->dev;
- 	struct mxc_jpeg_q_data *q_data_out, *q_data_cap;
-@@ -1247,6 +1246,9 @@ static int mxc_jpeg_parse(struct mxc_jpeg_ctx *ctx,
- 	struct v4l2_jpeg_header header;
- 	struct mxc_jpeg_sof *psof = NULL;
- 	struct mxc_jpeg_sos *psos = NULL;
-+	struct mxc_jpeg_src_buf *jpeg_src_buf = vb2_to_mxc_buf(vb);
-+	u8 *src_addr = (u8 *)vb2_plane_vaddr(vb, 0);
-+	u32 size = vb2_get_plane_payload(vb, 0);
- 	int ret;
+ 	/* setup bytesperline/sizeimage for capture queue */
+-	mxc_jpeg_bytesperline(q_data_cap, header.frame.precision);
++	mxc_jpeg_bytesperline(q_data_cap, q_data_cap->fmt->precision);
+ 	mxc_jpeg_sizeimage(q_data_cap);
  
- 	memset(&header, 0, sizeof(header));
-@@ -1257,7 +1259,7 @@ static int mxc_jpeg_parse(struct mxc_jpeg_ctx *ctx,
+ 	/*
+@@ -1500,7 +1513,7 @@ static void mxc_jpeg_set_default_params(struct mxc_jpeg_ctx *ctx)
+ 		q[i]->h = MXC_JPEG_DEFAULT_HEIGHT;
+ 		q[i]->w_adjusted = MXC_JPEG_DEFAULT_WIDTH;
+ 		q[i]->h_adjusted = MXC_JPEG_DEFAULT_HEIGHT;
+-		mxc_jpeg_bytesperline(q[i], 8);
++		mxc_jpeg_bytesperline(q[i], q[i]->fmt->precision);
+ 		mxc_jpeg_sizeimage(q[i]);
+ 	}
+ }
+@@ -1642,7 +1655,7 @@ static int mxc_jpeg_try_fmt(struct v4l2_format *f, const struct mxc_jpeg_fmt *fm
  	}
  
- 	/* if DHT marker present, no need to inject default one */
--	*dht_needed = (header.num_dht == 0);
-+	jpeg_src_buf->dht_needed = (header.num_dht == 0);
+ 	/* calculate bytesperline & sizeimage into the tmp_q */
+-	mxc_jpeg_bytesperline(&tmp_q, 8);
++	mxc_jpeg_bytesperline(&tmp_q, fmt->precision);
+ 	mxc_jpeg_sizeimage(&tmp_q);
  
- 	q_data_out = mxc_jpeg_get_q_data(ctx,
- 					 V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
-@@ -1372,10 +1374,7 @@ static void mxc_jpeg_buf_queue(struct vb2_buffer *vb)
+ 	/* adjust user format according to our calculations */
+diff --git a/drivers/media/platform/imx-jpeg/mxc-jpeg.h b/drivers/media/platform/imx-jpeg/mxc-jpeg.h
+index f53f004ba851..2b4b30d01e51 100644
+--- a/drivers/media/platform/imx-jpeg/mxc-jpeg.h
++++ b/drivers/media/platform/imx-jpeg/mxc-jpeg.h
+@@ -49,6 +49,7 @@ enum mxc_jpeg_mode {
+  * @h_align:	horizontal alignment order (align to 2^h_align)
+  * @v_align:	vertical alignment order (align to 2^v_align)
+  * @flags:	flags describing format applicability
++ * @precision:  jpeg sample precision
+  */
+ struct mxc_jpeg_fmt {
+ 	const char				*name;
+@@ -60,6 +61,7 @@ struct mxc_jpeg_fmt {
+ 	int					h_align;
+ 	int					v_align;
+ 	u32					flags;
++	u8					precision;
+ };
  
- 	jpeg_src_buf = vb2_to_mxc_buf(vb);
- 	jpeg_src_buf->jpeg_parse_error = false;
--	ret = mxc_jpeg_parse(ctx,
--			     (u8 *)vb2_plane_vaddr(vb, 0),
--			     vb2_get_plane_payload(vb, 0),
--			     &jpeg_src_buf->dht_needed);
-+	ret = mxc_jpeg_parse(ctx, vb);
- 	if (ret)
- 		jpeg_src_buf->jpeg_parse_error = true;
- 
+ struct mxc_jpeg_desc {
 -- 
 2.35.1
 
