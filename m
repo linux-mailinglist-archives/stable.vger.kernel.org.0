@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3759594A27
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:17:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A3BC594809
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353658AbiHOXjx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:39:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58686 "EHLO
+        id S1346133AbiHOXmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:42:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353671AbiHOXhw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:37:52 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74DA2BD1EB;
-        Mon, 15 Aug 2022 13:10:01 -0700 (PDT)
+        with ESMTP id S1353976AbiHOXk0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:40:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71E64DF8C;
+        Mon, 15 Aug 2022 13:10:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9A74DCE12EB;
-        Mon, 15 Aug 2022 20:09:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67E27C433C1;
-        Mon, 15 Aug 2022 20:09:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24C51B80EAB;
+        Mon, 15 Aug 2022 20:10:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 282C8C433C1;
+        Mon, 15 Aug 2022 20:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594197;
-        bh=3a/0iYeb7AK1RwoIK1dPVzlUnp+fNBDwrmN1efzJZA4=;
+        s=korg; t=1660594216;
+        bh=+RDC+fA7ra6cCH+DXFwe/HZEoHRonNZiVTAAfjz3wCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xU69hgcJWroZeeyZxQyZT+ForhNRHOOfCi2gzdTBrLBDo2GwevELn/L4axdLoHWKi
-         JYDidCxCeht6apuRb5XgxAlWIZCgbV4IjzCkxehSWVe4VcCFngyGR891Phr3TS4Z3n
-         oegvNiPaAzXdifE/zFheRRWqk6Z7z80WT3WMhv2s=
+        b=duwp1yIWYwsc+QoHCdux09gjhl5Z6kX8TDifYid941WLaic4bRHhlQWHnGRI3xWuC
+         ZLGagMOlb2DOhLClmdxaJ5IM4Jaaawyr/nsDLQfAVVQEQ/d17uUbLCDj6rSfdZyA2x
+         VF1BDMLTy3bItNsLHie/aqCUURNLEHnJLPLLcscI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Ming Qian <ming.qian@nxp.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0393/1157] crypto: ccp - During shutdown, check SEV data pointer before using
-Date:   Mon, 15 Aug 2022 19:55:49 +0200
-Message-Id: <20220815180455.411363444@linuxfoundation.org>
+Subject: [PATCH 5.19 0396/1157] media: amphion: output firmware error message
+Date:   Mon, 15 Aug 2022 19:55:52 +0200
+Message-Id: <20220815180455.521689307@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,42 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit 1b05ece0c931536c0a38a9385e243a7962e933f6 ]
+[ Upstream commit 89e3f3fb3d9014efa59ed6bb526d5f1a00168452 ]
 
-On shutdown, each CCP device instance performs shutdown processing.
-However, __sev_platform_shutdown_locked() uses the controlling psp
-structure to obtain the pointer to the sev_device structure. However,
-during driver initialization, it is possible that an error can be received
-from the firmware that results in the sev_data pointer being cleared from
-the controlling psp structure. The __sev_platform_shutdown_locked()
-function does not check for this situation and will segfault.
+Firmware may send the error event with some error message,
+and it help locate the firmware error,
+so output the error message if it exists
 
-While not common, this scenario should be accounted for. Add a check for a
-NULL sev_device structure before attempting to use it.
-
-Fixes: 5441a07a127f ("crypto: ccp - shutdown SEV firmware on kexec")
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 61cbf1c1fa6d7 ("media: amphion: implement vpu core communication based on mailbox")
+Signed-off-by: Ming Qian <ming.qian@nxp.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/sev-dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/amphion/vpu_msgs.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
-index 0c92d940ac4e..9f588c9728f8 100644
---- a/drivers/crypto/ccp/sev-dev.c
-+++ b/drivers/crypto/ccp/sev-dev.c
-@@ -503,7 +503,7 @@ static int __sev_platform_shutdown_locked(int *error)
- 	struct sev_device *sev = psp_master->sev_data;
- 	int ret;
+diff --git a/drivers/media/platform/amphion/vpu_msgs.c b/drivers/media/platform/amphion/vpu_msgs.c
+index d5850df8f1d5..d8247f36d84b 100644
+--- a/drivers/media/platform/amphion/vpu_msgs.c
++++ b/drivers/media/platform/amphion/vpu_msgs.c
+@@ -150,7 +150,12 @@ static void vpu_session_handle_eos(struct vpu_inst *inst, struct vpu_rpc_event *
  
--	if (sev->state == SEV_STATE_UNINIT)
-+	if (!sev || sev->state == SEV_STATE_UNINIT)
- 		return 0;
- 
- 	ret = __sev_do_cmd_locked(SEV_CMD_SHUTDOWN, NULL, error);
+ static void vpu_session_handle_error(struct vpu_inst *inst, struct vpu_rpc_event *pkt)
+ {
+-	dev_err(inst->dev, "unsupported stream\n");
++	char *str = (char *)pkt->data;
++
++	if (strlen(str))
++		dev_err(inst->dev, "instance %d firmware error : %s\n", inst->id, str);
++	else
++		dev_err(inst->dev, "instance %d is unsupported stream\n", inst->id);
+ 	call_void_vop(inst, event_notify, VPU_MSG_ID_UNSUPPORTED, NULL);
+ 	vpu_v4l2_set_error(inst);
+ }
 -- 
 2.35.1
 
