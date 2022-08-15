@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97A225936E9
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 228065938A3
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:32:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243537AbiHOSwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:52:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34446 "EHLO
+        id S243816AbiHOSwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:52:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244518AbiHOSvW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:51:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77A504598B;
-        Mon, 15 Aug 2022 11:29:15 -0700 (PDT)
+        with ESMTP id S244534AbiHOSvZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:51:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC08343323;
+        Mon, 15 Aug 2022 11:29:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 067E9B81062;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EC0F60FEE;
+        Mon, 15 Aug 2022 18:29:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29EC1C433D6;
         Mon, 15 Aug 2022 18:29:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F782C433D6;
-        Mon, 15 Aug 2022 18:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588152;
-        bh=IH/eqnSii+jb589bXR/fw04LvgxuSLSD1NZCXm8mjqk=;
+        s=korg; t=1660588155;
+        bh=kpVBEoT6LCIL/pFUQuqn8rGR3aDGvmQPx3ShG7RBrfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sB14TNc6JkJSXKH9ZktVllYm7j6HHnlwNPkBX5aUAE1Z6xVIumZIhBkEdueSZKs8m
-         SuUzbzQjGNkEyTexRlxNixNJ3MnvS0dwDsKDzvezO6jRQKtGqobbEkmBvz/7iQbBCk
-         dYPDzTtmzSYpjwuRlkBGvIZWqKHYvrbmDQQbdnWA=
+        b=sR24tCoqaRj0AfatXAYVhfLUYOepkfJW0oxU1Xo8I9t2dNuiTdEf1NaiJwnxiWdYM
+         p0i/vr5mWfBfKrv7UPqLAgsGfUgKWnvKP9oEY/IDH1duZIJQZI6LvOByeAPwx/yzT8
+         vpNszX68OSWnqOVcMP8U6x/mYIbp4ogaxLqVP1UI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 311/779] selftests/xsk: Destroy BPF resources only when ctx refcount drops to 0
-Date:   Mon, 15 Aug 2022 19:59:15 +0200
-Message-Id: <20220815180350.586778586@linuxfoundation.org>
+Subject: [PATCH 5.15 312/779] drm/rockchip: vop: Dont crash for invalid duplicate_state()
+Date:   Mon, 15 Aug 2022 19:59:16 +0200
+Message-Id: <20220815180350.631718767@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,74 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit 39e940d4abfabb08b6937a315546b24d10be67e3 ]
+[ Upstream commit 1449110b0dade8b638d2c17ab7c5b0ff696bfccb ]
 
-Currently, xsk_socket__delete frees BPF resources regardless of ctx
-refcount. Xdpxceiver has a test to verify whether underlying BPF
-resources would not be wiped out after closing XSK socket that was
-bound to interface with other active sockets. From library's xsk part
-perspective it also means that the internal xsk context is shared and
-its refcount is bumped accordingly.
+It's possible for users to try to duplicate the CRTC state even when the
+state doesn't exist. drm_atomic_helper_crtc_duplicate_state() (and other
+users of __drm_atomic_helper_crtc_duplicate_state()) already guard this
+with a WARN_ON() instead of crashing, so let's do that here too.
 
-After a switch to loading XDP prog based on previously opened XSK
-socket, mentioned xdpxceiver test fails with:
-
-  not ok 16 [xdpxceiver.c:swap_xsk_resources:1334]: ERROR: 9/"Bad file descriptor
-
-which means that in swap_xsk_resources(), xsk_socket__delete() released
-xskmap which in turn caused a failure of xsk_socket__update_xskmap().
-
-To fix this, when deleting socket, decrement ctx refcount before
-releasing BPF resources and do so only when refcount dropped to 0 which
-means there are no more active sockets for this ctx so BPF resources can
-be freed safely.
-
-Fixes: 2f6324a3937f ("libbpf: Support shared umems between queues and devices")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Link: https://lore.kernel.org/bpf/20220629143458.934337-5-maciej.fijalkowski@intel.com
+Fixes: 4e257d9eee23 ("drm/rockchip: get rid of rockchip_drm_crtc_mode_config")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Sean Paul <seanpaul@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220617172623.1.I62db228170b1559ada60b8d3e1637e1688424926@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/xsk.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/lib/bpf/xsk.c b/tools/lib/bpf/xsk.c
-index a27b3141463a..42b8437b0535 100644
---- a/tools/lib/bpf/xsk.c
-+++ b/tools/lib/bpf/xsk.c
-@@ -1164,8 +1164,6 @@ int xsk_socket__create_shared(struct xsk_socket **xsk_ptr,
- 		goto out_mmap_tx;
- 	}
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+index 8b4287d40379..d5b74ea06a45 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+@@ -1550,6 +1550,9 @@ static struct drm_crtc_state *vop_crtc_duplicate_state(struct drm_crtc *crtc)
+ {
+ 	struct rockchip_crtc_state *rockchip_state;
  
--	ctx->prog_fd = -1;
--
- 	if (!(xsk->config.libbpf_flags & XSK_LIBBPF_FLAGS__INHIBIT_PROG_LOAD)) {
- 		err = __xsk_setup_xdp_prog(xsk, NULL);
- 		if (err)
-@@ -1246,7 +1244,10 @@ void xsk_socket__delete(struct xsk_socket *xsk)
- 
- 	ctx = xsk->ctx;
- 	umem = ctx->umem;
--	if (ctx->prog_fd != -1) {
++	if (WARN_ON(!crtc->state))
++		return NULL;
 +
-+	xsk_put_ctx(ctx, true);
-+
-+	if (!ctx->refcount) {
- 		xsk_delete_bpf_maps(xsk);
- 		close(ctx->prog_fd);
- 		if (ctx->has_bpf_link)
-@@ -1265,8 +1266,6 @@ void xsk_socket__delete(struct xsk_socket *xsk)
- 		}
- 	}
- 
--	xsk_put_ctx(ctx, true);
--
- 	umem->refcount--;
- 	/* Do not close an fd that also has an associated umem connected
- 	 * to it.
+ 	rockchip_state = kzalloc(sizeof(*rockchip_state), GFP_KERNEL);
+ 	if (!rockchip_state)
+ 		return NULL;
 -- 
 2.35.1
 
