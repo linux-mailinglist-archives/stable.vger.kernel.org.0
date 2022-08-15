@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFB9C594765
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04A1B594707
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:58:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239683AbiHOXYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:24:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55934 "EHLO
+        id S245602AbiHOX3S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:29:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239853AbiHOXWj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:22:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC50148E83;
-        Mon, 15 Aug 2022 13:05:28 -0700 (PDT)
+        with ESMTP id S244480AbiHOXYK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:24:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F61A7FE5E;
+        Mon, 15 Aug 2022 13:05:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B0CEB810C5;
-        Mon, 15 Aug 2022 20:05:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1CF9C433C1;
-        Mon, 15 Aug 2022 20:05:25 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CC268CE12E9;
+        Mon, 15 Aug 2022 20:05:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6687CC433C1;
+        Mon, 15 Aug 2022 20:05:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593926;
-        bh=8wmv2mpi8sUIIu/K8J/rRbiyFnvYWdh1DOEZEe1g1cw=;
+        s=korg; t=1660593944;
+        bh=XHiBzFvb+eLbGtcLFq0MqwzvtpGwgrJ2dHXZcprAbDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LVkWcV6pdTSl+Mxe0eL1ihUuJ4ZCVXN9uXuvXhIgsaIk9Slb4MYnY3Q4Fcd7DOwEU
-         gdj4ERtTOdoocw6fkASQC6RH3S5uesIHdlZF52HITA1zSaS+SnfiHHlDYcasc4M7JR
-         A3DrPirDVMiTWZb6LKuRoWkAxxq6Aj43qIAthTNI=
+        b=X3tn1MUmCVOh9uKvRvzyGwhTqweiJr3cY7SYsO/BWiLA3vphmrZh8lGdP1EM+tfKC
+         DK5DZnYw4BPmOoiq4IlsebEqnQe+5wrfn13ptrVBoywG+6EHqsDyUkLw+K6xF9gG7h
+         dZjpYeBYNtp1Y9ePDJsa8D2hMQnvK1fKAY4l0ANo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Corentin Labbe <clabbe.montjoie@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0349/1157] drm/virtio: Fix NULL vs IS_ERR checking in virtio_gpu_object_shmem_init
-Date:   Mon, 15 Aug 2022 19:55:05 +0200
-Message-Id: <20220815180453.676436520@linuxfoundation.org>
+Subject: [PATCH 5.19 0352/1157] crypto: sun8i-ss - fix error codes in allocate_flows()
+Date:   Mon, 15 Aug 2022 19:55:08 +0200
+Message-Id: <20220815180453.799055997@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,39 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c24968734abfed81c8f93dc5f44a7b7a9aecadfa ]
+[ Upstream commit d2765e1b9ac4b2d5a5d5bf17f468c9b3566c3770 ]
 
-Since drm_prime_pages_to_sg() function return error pointers.
-The drm_gem_shmem_get_sg_table() function returns error pointers too.
-Using IS_ERR() to check the return value to fix this.
+These failure paths should return -ENOMEM.  Currently they return
+success.
 
-Fixes: 2f2aa13724d5 ("drm/virtio: move virtio_gpu_mem_entry initialization to new function")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20220602104223.54527-1-linmq006@gmail.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Fixes: 359e893e8af4 ("crypto: sun8i-ss - rework handling of IV")
+Fixes: 8eec4563f152 ("crypto: sun8i-ss - do not allocate memory when handling hash requests")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_object.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../crypto/allwinner/sun8i-ss/sun8i-ss-core.c    | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index f293e6ad52da..1cc8f3fc8e4b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -168,9 +168,9 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
- 	 * since virtio_gpu doesn't support dma-buf import from other devices.
- 	 */
- 	shmem->pages = drm_gem_shmem_get_sg_table(&bo->base);
--	if (!shmem->pages) {
-+	if (IS_ERR(shmem->pages)) {
- 		drm_gem_shmem_unpin(&bo->base);
--		return -EINVAL;
-+		return PTR_ERR(shmem->pages);
- 	}
+diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
+index 98593a0cff69..ac2329e2b0e5 100644
+--- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
++++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
+@@ -528,25 +528,33 @@ static int allocate_flows(struct sun8i_ss_dev *ss)
  
- 	if (use_dma_api) {
+ 		ss->flows[i].biv = devm_kmalloc(ss->dev, AES_BLOCK_SIZE,
+ 						GFP_KERNEL | GFP_DMA);
+-		if (!ss->flows[i].biv)
++		if (!ss->flows[i].biv) {
++			err = -ENOMEM;
+ 			goto error_engine;
++		}
+ 
+ 		for (j = 0; j < MAX_SG; j++) {
+ 			ss->flows[i].iv[j] = devm_kmalloc(ss->dev, AES_BLOCK_SIZE,
+ 							  GFP_KERNEL | GFP_DMA);
+-			if (!ss->flows[i].iv[j])
++			if (!ss->flows[i].iv[j]) {
++				err = -ENOMEM;
+ 				goto error_engine;
++			}
+ 		}
+ 
+ 		/* the padding could be up to two block. */
+ 		ss->flows[i].pad = devm_kmalloc(ss->dev, MAX_PAD_SIZE,
+ 						GFP_KERNEL | GFP_DMA);
+-		if (!ss->flows[i].pad)
++		if (!ss->flows[i].pad) {
++			err = -ENOMEM;
+ 			goto error_engine;
++		}
+ 		ss->flows[i].result = devm_kmalloc(ss->dev, SHA256_DIGEST_SIZE,
+ 						   GFP_KERNEL | GFP_DMA);
+-		if (!ss->flows[i].result)
++		if (!ss->flows[i].result) {
++			err = -ENOMEM;
+ 			goto error_engine;
++		}
+ 
+ 		ss->flows[i].engine = crypto_engine_alloc_init(ss->dev, true);
+ 		if (!ss->flows[i].engine) {
 -- 
 2.35.1
 
