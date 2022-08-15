@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E317594FB5
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:31:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E40CE594FD6
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229493AbiHPEbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:31:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52068 "EHLO
+        id S229658AbiHPEde (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:33:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229454AbiHPEbT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:31:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4714416658C;
-        Mon, 15 Aug 2022 13:22:53 -0700 (PDT)
+        with ESMTP id S229588AbiHPEdJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:33:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC25F16945E;
+        Mon, 15 Aug 2022 13:23:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 530F76108F;
-        Mon, 15 Aug 2022 20:22:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4405DC433C1;
-        Mon, 15 Aug 2022 20:22:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CFC561007;
+        Mon, 15 Aug 2022 20:23:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31AC9C433D7;
+        Mon, 15 Aug 2022 20:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594971;
-        bh=xL5a/gAxJH4uFQYlVestcdxCd6X4ul2rdgS4aszoXTs=;
+        s=korg; t=1660595032;
+        bh=NituQGIJrlhmVONiOXePMyRzbgpWrRi0nhnlPe8xvqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wd+Vx8c8RugAkywiyzYfNGmill+LN7O6nNiz1icso0hLhgniCQHWwOZVEkIquqpfh
-         7OwgCBRt0zgigD5Pmj+kXe5Pd1M571zjproJvv3eAjdugLrYflAIDthFXzImOsrQAC
-         kNuTiWoQBimvIcPdh+ctAvx6sl8R7BPkRBAma88c=
+        b=onqIGUYpkLhgUNJtGMiqiYyVeBt8Xdno0qtq2oI0ZWhMA+1btJVbdNjwkIQDivtef
+         mDBG5yhJ9d+uqzvmuHEVf3seOVWrus+lHbwX4Vq0wJi40HQHgaj1izgZ9prKilK+ON
+         HO0peuqXcEjz81zjDimua9OiOH54XMpRewQguVOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0615/1157] dmaengine: dw: dmamux: Export the module device table
-Date:   Mon, 15 Aug 2022 19:59:31 +0200
-Message-Id: <20220815180504.255234231@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0618/1157] scsi: qla2xxx: edif: Send LOGO for unexpected IKE message
+Date:   Mon, 15 Aug 2022 19:59:34 +0200
+Message-Id: <20220815180504.380900214@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,35 +57,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 2717d33841957a0f5fb65fd8b37f9c2321593864 ]
+[ Upstream commit 2b659ed67a12f39f56d8dcad9b5d5a74d67c01b3 ]
 
-This is a tristate driver that can be built as a module, as a result,
-the OF match table should be exported with MODULE_DEVICE_TABLE().
+If the session is down and the local port continues to receive AUTH ELS
+messages, the driver needs to send back LOGO so that the remote device
+knows to tear down its session. Terminate and clean up the AUTH ELS
+exchange followed by a passthrough LOGO.
 
-Fixes: 134d9c52fca2 ("dmaengine: dw: dmamux: Introduce RZN1 DMA router support")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220609141455.300879-1-miquel.raynal@bootlin.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20220608115849.16693-3-njavali@marvell.com
+Fixes: 225479296c4f ("scsi: qla2xxx: edif: Reject AUTH ELS on session down")
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dw/rzn1-dmamux.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/qla2xxx/qla_edif.c | 19 +++++++++++++++++--
+ drivers/scsi/qla2xxx/qla_fw.h   |  2 +-
+ 2 files changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/dw/rzn1-dmamux.c b/drivers/dma/dw/rzn1-dmamux.c
-index 11d254e450b0..0ce4fb58185e 100644
---- a/drivers/dma/dw/rzn1-dmamux.c
-+++ b/drivers/dma/dw/rzn1-dmamux.c
-@@ -140,6 +140,7 @@ static const struct of_device_id rzn1_dmamux_match[] = {
- 	{ .compatible = "renesas,rzn1-dmamux" },
- 	{}
- };
-+MODULE_DEVICE_TABLE(of, rzn1_dmamux_match);
+diff --git a/drivers/scsi/qla2xxx/qla_edif.c b/drivers/scsi/qla2xxx/qla_edif.c
+index bd5740f23e76..f9f4c4a6afcc 100644
+--- a/drivers/scsi/qla2xxx/qla_edif.c
++++ b/drivers/scsi/qla2xxx/qla_edif.c
+@@ -2643,8 +2643,7 @@ void qla24xx_auth_els(scsi_qla_host_t *vha, void **pkt, struct rsp_que **rsp)
  
- static struct platform_driver rzn1_dmamux_driver = {
- 	.driver = {
+ 	fcport = qla2x00_find_fcport_by_pid(host, &purex->pur_info.pur_sid);
+ 
+-	if (DBELL_INACTIVE(vha) ||
+-	    (fcport && EDIF_SESSION_DOWN(fcport))) {
++	if (DBELL_INACTIVE(vha)) {
+ 		ql_dbg(ql_dbg_edif, host, 0x0910c, "%s e_dbell.db_flags =%x %06x\n",
+ 		    __func__, host->e_dbell.db_flags,
+ 		    fcport ? fcport->d_id.b24 : 0);
+@@ -2654,6 +2653,22 @@ void qla24xx_auth_els(scsi_qla_host_t *vha, void **pkt, struct rsp_que **rsp)
+ 		return;
+ 	}
+ 
++	if (fcport && EDIF_SESSION_DOWN(fcport)) {
++		ql_dbg(ql_dbg_edif, host, 0x13b6,
++		    "%s terminate exchange. Send logo to 0x%x\n",
++		    __func__, a.did.b24);
++
++		a.tx_byte_count = a.tx_len = 0;
++		a.tx_addr = 0;
++		a.control_flags = EPD_RX_XCHG;  /* EPD_RX_XCHG = terminate cmd */
++		qla_els_reject_iocb(host, (*rsp)->qpair, &a);
++		qla_enode_free(host, ptr);
++		/* send logo to let remote port knows to tear down session */
++		fcport->send_els_logo = 1;
++		qlt_schedule_sess_for_deletion(fcport);
++		return;
++	}
++
+ 	/* add the local enode to the list */
+ 	qla_enode_add(host, ptr);
+ 
+diff --git a/drivers/scsi/qla2xxx/qla_fw.h b/drivers/scsi/qla2xxx/qla_fw.h
+index 0bb1d562f0bf..361015b5763e 100644
+--- a/drivers/scsi/qla2xxx/qla_fw.h
++++ b/drivers/scsi/qla2xxx/qla_fw.h
+@@ -807,7 +807,7 @@ struct els_entry_24xx {
+ #define EPD_ELS_COMMAND		(0 << 13)
+ #define EPD_ELS_ACC		(1 << 13)
+ #define EPD_ELS_RJT		(2 << 13)
+-#define EPD_RX_XCHG		(3 << 13)
++#define EPD_RX_XCHG		(3 << 13)  /* terminate exchange */
+ #define ECF_CLR_PASSTHRU_PEND	BIT_12
+ #define ECF_INCL_FRAME_HDR	BIT_11
+ #define ECF_SEC_LOGIN		BIT_3
 -- 
 2.35.1
 
