@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 714BA593FE3
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4CFB59411E
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242798AbiHOVCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:02:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35878 "EHLO
+        id S243179AbiHOVCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:02:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347535AbiHOVCF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:02:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7A08CAC76;
-        Mon, 15 Aug 2022 12:14:00 -0700 (PDT)
+        with ESMTP id S1347595AbiHOVCJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:02:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80C94CAC71;
+        Mon, 15 Aug 2022 12:14:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D270E60F86;
-        Mon, 15 Aug 2022 19:13:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D832DC433C1;
-        Mon, 15 Aug 2022 19:13:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7935B81115;
+        Mon, 15 Aug 2022 19:14:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9D1FC433C1;
+        Mon, 15 Aug 2022 19:14:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590839;
-        bh=zJh7aVjy83OVBviyzmE9wu2gQP51nHf6qxEIm9t2EEo=;
+        s=korg; t=1660590842;
+        bh=p+lLgH6ceTfuqTDR32cF1V9u3wTChHSwPS5LpO3gH1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0sBfqoTXUNDbxin2zqgMHhn5ml54baA7ybqOpjIW0G+IgUpudsmO4vz7W217ehlpe
-         QFNKEgMEbi5ri5X8YNM6RQ+1sFclXM89RrQA/TaRuwUi2nfS+vwDvwIvKiZhq5tmKD
-         FvY15+YKEbASH/neLkI/sX3pYiiun8OIbAFM7nyE=
+        b=lloUeSROF68+Ze9dVfBkxv8l+AnQJGdSlHSDQzziQD86uGmOe5KS6LGwXeDpTYVDo
+         qyIjYkgkplsJsC1p4XFvCOGOaXcGYNl1Et7HYorhW6hg5K4s4mp+pZVYVDqJCmZ1UD
+         zeJp7IixfaqbWBzWowNH50pvOyCssEebe9wqf0QQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0387/1095] drm/vc4: dsi: Correct DSI divider calculations
-Date:   Mon, 15 Aug 2022 19:56:26 +0200
-Message-Id: <20220815180445.698269581@linuxfoundation.org>
+Subject: [PATCH 5.18 0388/1095] drm/vc4: dsi: Correct pixel order for DSI0
+Date:   Mon, 15 Aug 2022 19:56:27 +0200
+Message-Id: <20220815180445.739615247@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,47 +57,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit 3b45eee87da171caa28f61240ddb5c21170cda53 ]
+[ Upstream commit edfe84ae0df16be1251b5a8e840d95f1f3827500 ]
 
-The divider calculations tried to find the divider just faster than the
-clock requested. However if it required a divider of 7 then the for loop
-aborted without handling the "error" case, and could end up with a clock
-lower than requested.
+For slightly unknown reasons, dsi0 takes a different pixel format
+to dsi1, and that has to be set in the pixel valve.
 
-The integer divider from parent PLL to DSI clock is also capable of
-going up to /255, not just /7 that the driver was trying.  This allows
-for slower link frequencies on the DSI bus where the resolution permits.
+Amend the setup accordingly.
 
-Correct the loop so that we always have a clock greater than requested,
-and covering the whole range of dividers.
-
-Fixes: 86c1b9eff3f2 ("drm/vc4: Adjust modes in DSI to work around the integer PLL divider.")
+Fixes: a86773d120d7 ("drm/vc4: Add support for feeding DSI encoders from the pixel valve.")
 Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Link: https://lore.kernel.org/r/20220613144800.326124-13-maxime@cerno.tech
+Link: https://lore.kernel.org/r/20220613144800.326124-14-maxime@cerno.tech
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_dsi.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/vc4/vc4_crtc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_dsi.c b/drivers/gpu/drm/vc4/vc4_dsi.c
-index e82ee94cafc7..81a6c4e9576d 100644
---- a/drivers/gpu/drm/vc4/vc4_dsi.c
-+++ b/drivers/gpu/drm/vc4/vc4_dsi.c
-@@ -805,11 +805,9 @@ static bool vc4_dsi_encoder_mode_fixup(struct drm_encoder *encoder,
- 	/* Find what divider gets us a faster clock than the requested
- 	 * pixel clock.
- 	 */
--	for (divider = 1; divider < 8; divider++) {
--		if (parent_rate / divider < pll_clock) {
--			divider--;
-+	for (divider = 1; divider < 255; divider++) {
-+		if (parent_rate / (divider + 1) < pll_clock)
- 			break;
--		}
- 	}
+diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
+index 477b3c5ad089..0a5f58cdd781 100644
+--- a/drivers/gpu/drm/vc4/vc4_crtc.c
++++ b/drivers/gpu/drm/vc4/vc4_crtc.c
+@@ -317,7 +317,8 @@ static void vc4_crtc_config_pv(struct drm_crtc *crtc, struct drm_encoder *encode
+ 	u32 pixel_rep = (mode->flags & DRM_MODE_FLAG_DBLCLK) ? 2 : 1;
+ 	bool is_dsi = (vc4_encoder->type == VC4_ENCODER_TYPE_DSI0 ||
+ 		       vc4_encoder->type == VC4_ENCODER_TYPE_DSI1);
+-	u32 format = is_dsi ? PV_CONTROL_FORMAT_DSIV_24 : PV_CONTROL_FORMAT_24;
++	bool is_dsi1 = vc4_encoder->type == VC4_ENCODER_TYPE_DSI1;
++	u32 format = is_dsi1 ? PV_CONTROL_FORMAT_DSIV_24 : PV_CONTROL_FORMAT_24;
+ 	u8 ppc = pv_data->pixels_per_clock;
+ 	bool debug_dump_regs = false;
  
- 	/* Now that we've picked a PLL divider, calculate back to its
 -- 
 2.35.1
 
