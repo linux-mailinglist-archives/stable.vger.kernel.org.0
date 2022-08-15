@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CC2959385A
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6044593672
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243297AbiHOSc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:32:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42182 "EHLO
+        id S230511AbiHOSbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:31:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243293AbiHOScO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:32:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C26033424;
-        Mon, 15 Aug 2022 11:21:28 -0700 (PDT)
+        with ESMTP id S242913AbiHOSaR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:30:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56047F5B1;
+        Mon, 15 Aug 2022 11:20:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76385B8107E;
-        Mon, 15 Aug 2022 18:20:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA934C433C1;
-        Mon, 15 Aug 2022 18:20:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 037CBB81072;
+        Mon, 15 Aug 2022 18:20:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63C81C433C1;
+        Mon, 15 Aug 2022 18:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587633;
-        bh=fJlX3h+MOj3Xfe/dl4vL1uJNZJFo+EAzH1jy8cqdO+U=;
+        s=korg; t=1660587636;
+        bh=4pNbcfBY7sSXixtKDEXaS8TRXL9OvdOoDNaQXO+z7ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YXILqoJvs43UJcfrInA9w0qPXgZugcbtaM4WF6aELFbEGVQ6bLBL5G2rB/abBFM4a
-         2oLJOSKBHg9IJ6qdSeKX2tSpzR2bEa06GJhlvFVIcpUTHJfBnnvHb5XT31GMVk2aih
-         1uPaIHwmaJHoG5Olsn+qqirrGTatX63NF6a/0Y7g=
+        b=OCdt8kkcSM0oIq91A2XsJCtjegCbHdXznNsTauq72ClB3Q63mf/d0eK9LlIpi3lf1
+         giN4uEKejcVJWqoS5C9Fj7imcRw9W/D2JWw1w28P3kZxC1v2NKYHfkQPplSrN+Mvq4
+         Trs1CxY0tDUrjI9TBoWFpobplfsMj2XUuJKVbqVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
         Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 145/779] hwmon: (dell-smm) Add Dell XPS 13 7390 to fan control whitelist
-Date:   Mon, 15 Aug 2022 19:56:29 +0200
-Message-Id: <20220815180343.518187007@linuxfoundation.org>
+Subject: [PATCH 5.15 146/779] hwmon: (sht15) Fix wrong assumptions in device remove callback
+Date:   Mon, 15 Aug 2022 19:56:30 +0200
+Message-Id: <20220815180343.568855910@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,45 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 385e5f57053ff293282fea84c1c27186d53f66e1 ]
+[ Upstream commit 7d4edccc9bbfe1dcdff641343f7b0c6763fbe774 ]
 
-A user reported that the program dell-bios-fan-control
-worked on his Dell XPS 13 7390 to switch off automatic
-fan control.
-Since it uses the same mechanism as the dell_smm_hwmon
-module, add this model to the fan control whitelist.
+Taking a lock at the beginning of .remove() doesn't prevent new readers.
+With the existing approach it can happen, that a read occurs just when
+the lock was taken blocking the reader until the lock is released at the
+end of the remove callback which then accessed *data that is already
+freed then.
 
-Compile-tested only.
+To actually fix this problem the hwmon core needs some adaption. Until
+this is implemented take the optimistic approach of assuming that all
+readers are gone after hwmon_device_unregister() and
+sysfs_remove_group() as most other drivers do. (And once the core
+implements that, taking the lock would deadlock.)
 
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Acked-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20220612041806.11367-1-W_Armin@gmx.de
+So drop the lock, move the reset to after device unregistration to keep
+the device in a workable state until it's deregistered. Also add a error
+message in case the reset fails and return 0 anyhow. (Returning an error
+code, doesn't stop the platform device unregistration and only results
+in a little helpful error message before the devm cleanup handlers are
+called.)
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20220725194344.150098-1-u.kleine-koenig@pengutronix.de
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/dell-smm-hwmon.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hwmon/sht15.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon.c
-index 9cb1c3588038..597cbb4391bd 100644
---- a/drivers/hwmon/dell-smm-hwmon.c
-+++ b/drivers/hwmon/dell-smm-hwmon.c
-@@ -1198,6 +1198,14 @@ static const struct dmi_system_id i8k_whitelist_fan_control[] __initconst = {
- 		},
- 		.driver_data = (void *)&i8k_fan_control_data[I8K_FAN_34A3_35A3],
- 	},
-+	{
-+		.ident = "Dell XPS 13 7390",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "XPS 13 7390"),
-+		},
-+		.driver_data = (void *)&i8k_fan_control_data[I8K_FAN_34A3_35A3],
-+	},
- 	{ }
- };
+diff --git a/drivers/hwmon/sht15.c b/drivers/hwmon/sht15.c
+index 7f4a63959730..ae4d14257a11 100644
+--- a/drivers/hwmon/sht15.c
++++ b/drivers/hwmon/sht15.c
+@@ -1020,25 +1020,20 @@ static int sht15_probe(struct platform_device *pdev)
+ static int sht15_remove(struct platform_device *pdev)
+ {
+ 	struct sht15_data *data = platform_get_drvdata(pdev);
++	int ret;
+ 
+-	/*
+-	 * Make sure any reads from the device are done and
+-	 * prevent new ones beginning
+-	 */
+-	mutex_lock(&data->read_lock);
+-	if (sht15_soft_reset(data)) {
+-		mutex_unlock(&data->read_lock);
+-		return -EFAULT;
+-	}
+ 	hwmon_device_unregister(data->hwmon_dev);
+ 	sysfs_remove_group(&pdev->dev.kobj, &sht15_attr_group);
++
++	ret = sht15_soft_reset(data);
++	if (ret)
++		dev_err(&pdev->dev, "Failed to reset device (%pe)\n", ERR_PTR(ret));
++
+ 	if (!IS_ERR(data->reg)) {
+ 		regulator_unregister_notifier(data->reg, &data->nb);
+ 		regulator_disable(data->reg);
+ 	}
+ 
+-	mutex_unlock(&data->read_lock);
+-
+ 	return 0;
+ }
  
 -- 
 2.35.1
