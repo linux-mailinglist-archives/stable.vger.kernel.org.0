@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57407594BF9
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:31:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC167594954
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:11:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344530AbiHPAsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:48:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36234 "EHLO
+        id S1344244AbiHOXII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:08:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349822AbiHPAqq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:46:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76228196845;
-        Mon, 15 Aug 2022 13:45:08 -0700 (PDT)
+        with ESMTP id S1353169AbiHOXHU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:07:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08846792C9;
+        Mon, 15 Aug 2022 12:59:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BD17B80EAD;
-        Mon, 15 Aug 2022 20:45:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD03AC433D7;
-        Mon, 15 Aug 2022 20:45:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6144AB80EAD;
+        Mon, 15 Aug 2022 19:59:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4142C433D6;
+        Mon, 15 Aug 2022 19:59:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596306;
-        bh=W5pDJItj94NXUxrK1mfpqh+HdM5JMas3eDHf6EDrFqs=;
+        s=korg; t=1660593562;
+        bh=ckpDEeEgJ/UECDM9viJTkM7Sj1003rU4VIiNM4CXKbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GTUKixmbUqR62i8yyNmGEggcRACQwfZWuqL8whzk5bm1/iRSH87XWoXWOjGMhdPKt
-         hv99KRUBKQH1ocbu0fMNreTKkL0uZ5ZPafeghAq3Vwd8oqoN+g1/0qQFV/e2N7YkuV
-         ZFgU6erFemDSZKdMiPSZgkBajk8Wen7nrcPV+1Ig=
+        b=m51cPvfh2mK9aAyYJkd4qTCFujqWmfgdzBrPzHBKRV/NwCqnXCdBG//Qm3PZoPfVl
+         ZptxR5aWBXvRhOG37SnBBqRU8XQgR/8Ovm02XKmNUQ02XWe+KrVCFO2C9ywWKbt35Q
+         Wa4o7tdDKr2J6WeqYkAiWiz3DqC8FgllB6nffbmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1010/1157] powerpc/spufs: Fix refcount leak in spufs_init_isolated_loader
-Date:   Mon, 15 Aug 2022 20:06:06 +0200
-Message-Id: <20220815180520.254683760@linuxfoundation.org>
+        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.18 0968/1095] scsi: qla2xxx: Fix losing FCP-2 targets on long port disable with I/Os
+Date:   Mon, 15 Aug 2022 20:06:07 +0200
+Message-Id: <20220815180509.109325954@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit 6ac059dacffa8ab2f7798f20e4bd3333890c541c ]
+commit 2416ccd3815ba1613e10a6da0a24ef21acfe5633 upstream.
 
-of_find_node_by_path() returns remote device nodepointer with
-refcount incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+FCP-2 devices were not coming back online once they were lost, login
+retries exhausted, and then came back up.  Fix this by accepting RSCN when
+the device is not online.
 
-Fixes: 0afacde3df4c ("[POWERPC] spufs: allow isolated mode apps by starting the SPE loader")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220603121543.22884-1-linmq006@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220616053508.27186-10-njavali@marvell.com
+Fixes: 44c57f205876 ("scsi: qla2xxx: Changes to support FCP2 Target")
+Cc: stable@vger.kernel.org
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/cell/spufs/inode.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/qla2xxx/qla_init.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/platforms/cell/spufs/inode.c b/arch/powerpc/platforms/cell/spufs/inode.c
-index 34334c32b7f5..320008528edd 100644
---- a/arch/powerpc/platforms/cell/spufs/inode.c
-+++ b/arch/powerpc/platforms/cell/spufs/inode.c
-@@ -660,6 +660,7 @@ spufs_init_isolated_loader(void)
- 		return;
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -1834,7 +1834,8 @@ void qla2x00_handle_rscn(scsi_qla_host_t
+ 	case RSCN_PORT_ADDR:
+ 		fcport = qla2x00_find_fcport_by_nportid(vha, &ea->id, 1);
+ 		if (fcport) {
+-			if (fcport->flags & FCF_FCP2_DEVICE) {
++			if (fcport->flags & FCF_FCP2_DEVICE &&
++			    atomic_read(&fcport->state) == FCS_ONLINE) {
+ 				ql_dbg(ql_dbg_disc, vha, 0x2115,
+ 				       "Delaying session delete for FCP2 portid=%06x %8phC ",
+ 					fcport->d_id.b24, fcport->port_name);
+@@ -1866,7 +1867,8 @@ void qla2x00_handle_rscn(scsi_qla_host_t
+ 		break;
+ 	case RSCN_AREA_ADDR:
+ 		list_for_each_entry(fcport, &vha->vp_fcports, list) {
+-			if (fcport->flags & FCF_FCP2_DEVICE)
++			if (fcport->flags & FCF_FCP2_DEVICE &&
++			    atomic_read(&fcport->state) == FCS_ONLINE)
+ 				continue;
  
- 	loader = of_get_property(dn, "loader", &size);
-+	of_node_put(dn);
- 	if (!loader)
- 		return;
+ 			if ((ea->id.b24 & 0xffff00) == (fcport->d_id.b24 & 0xffff00)) {
+@@ -1877,7 +1879,8 @@ void qla2x00_handle_rscn(scsi_qla_host_t
+ 		break;
+ 	case RSCN_DOM_ADDR:
+ 		list_for_each_entry(fcport, &vha->vp_fcports, list) {
+-			if (fcport->flags & FCF_FCP2_DEVICE)
++			if (fcport->flags & FCF_FCP2_DEVICE &&
++			    atomic_read(&fcport->state) == FCS_ONLINE)
+ 				continue;
  
--- 
-2.35.1
-
+ 			if ((ea->id.b24 & 0xff0000) == (fcport->d_id.b24 & 0xff0000)) {
+@@ -1889,7 +1892,8 @@ void qla2x00_handle_rscn(scsi_qla_host_t
+ 	case RSCN_FAB_ADDR:
+ 	default:
+ 		list_for_each_entry(fcport, &vha->vp_fcports, list) {
+-			if (fcport->flags & FCF_FCP2_DEVICE)
++			if (fcport->flags & FCF_FCP2_DEVICE &&
++			    atomic_read(&fcport->state) == FCS_ONLINE)
+ 				continue;
+ 
+ 			fcport->scan_needed = 1;
 
 
