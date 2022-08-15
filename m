@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2841B593F7B
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:45:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC09A59406D
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243341AbiHOVIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:08:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46098 "EHLO
+        id S241347AbiHOVIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:08:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346816AbiHOVGX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:06:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA6FCEBC;
-        Mon, 15 Aug 2022 12:15:23 -0700 (PDT)
+        with ESMTP id S1346905AbiHOVG2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:06:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F28C388C;
+        Mon, 15 Aug 2022 12:15:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 244E3B81117;
-        Mon, 15 Aug 2022 19:15:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AF42C433B5;
-        Mon, 15 Aug 2022 19:15:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9744E60F68;
+        Mon, 15 Aug 2022 19:15:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96F77C433D7;
+        Mon, 15 Aug 2022 19:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590920;
-        bh=LZk7gSWpaSoUsHd/k9TE2xG/PGVAIeKrKwCihr/MDmk=;
+        s=korg; t=1660590927;
+        bh=HdZN3NTvMMQl8HTqsLSlcwZKLq5OqohzlyHzJ25xYXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YeIDs53IdbKSgIin9lET7/04KynHYe12j5W4D0vSFJmLu11uYlXZVRxqBqiIOzNHi
-         PN3nZue8av674riY8iUyifflFogCKMvaD7bqTb2tpJvqhwwqS+P7+uT+sj2Kx4rloE
-         9JFT0AQkfu0iy1tH237KxoGSbFKaF6/3crUbsr3k=
+        b=ZafUegXbXcBEt9lXLZXl1D5MLNYD38NpFiYL8QZduzYMQIHWXVPfwmu2A2DYfgsLE
+         HpsJfxrfzYyONj7NmPohNoXRcvMdO6+jkP6STxB8XNwdKQ5osSECN3ak9hzmYjk8KB
+         Lu4zYjRh2bE/ibHc9TDQgvCWAiQuqt/cvHj3kTqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org,
+        Colin Foster <colin.foster@in-advantage.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0414/1095] drm: bridge: sii8620: fix possible off-by-one
-Date:   Mon, 15 Aug 2022 19:56:53 +0200
-Message-Id: <20220815180446.823025815@linuxfoundation.org>
+Subject: [PATCH 5.18 0415/1095] net: sched: provide shim definitions for taprio_offload_{get,free}
+Date:   Mon, 15 Aug 2022 19:56:54 +0200
+Message-Id: <20220815180446.866780758@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,50 +57,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 21779cc21c732c5eff8ea1624be6590450baa30f ]
+[ Upstream commit d7be266adbfd3aca6965ea6a0c36b2c3d8fc9fc8 ]
 
-The next call to sii8620_burst_get_tx_buf will result in off-by-one
-When ctx->burst.tx_count + size == ARRAY_SIZE(ctx->burst.tx_buf). The same
-thing happens in sii8620_burst_get_rx_buf.
+All callers of taprio_offload_get() and taprio_offload_free() prior to
+the blamed commit are conditionally compiled based on CONFIG_NET_SCH_TAPRIO.
 
-This patch also change tx_count and tx_buf to rx_count and rx_buf in
-sii8620_burst_get_rx_buf. It is unreasonable to check tx_buf's size and
-use rx_buf.
+felix_vsc9959.c is different; it provides vsc9959_qos_port_tas_set()
+even when taprio is compiled out.
 
-Fixes: e19e9c692f81 ("drm/bridge/sii8620: add support for burst eMSC transmissions")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220518065856.18936-1-hbh25y@gmail.com
+Provide shim definitions for the functions exported by taprio so that
+felix_vsc9959.c is able to compile. vsc9959_qos_port_tas_set() in that
+case is dead code anyway, and ocelot_port->taprio remains NULL, which is
+fine for the rest of the logic.
+
+Fixes: 1c9017e44af2 ("net: dsa: felix: keep reference on entire tc-taprio config")
+Reported-by: Colin Foster <colin.foster@in-advantage.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Tested-by: Colin Foster <colin.foster@in-advantage.com>
+Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Link: https://lore.kernel.org/r/20220704190241.1288847-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/sil-sii8620.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/net/pkt_sched.h | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
-index ec7745c31da0..ab0bce4a988c 100644
---- a/drivers/gpu/drm/bridge/sil-sii8620.c
-+++ b/drivers/gpu/drm/bridge/sil-sii8620.c
-@@ -605,7 +605,7 @@ static void *sii8620_burst_get_tx_buf(struct sii8620 *ctx, int len)
- 	u8 *buf = &ctx->burst.tx_buf[ctx->burst.tx_count];
- 	int size = len + 2;
+diff --git a/include/net/pkt_sched.h b/include/net/pkt_sched.h
+index 44a35531952e..3372a1f67cf4 100644
+--- a/include/net/pkt_sched.h
++++ b/include/net/pkt_sched.h
+@@ -173,11 +173,28 @@ struct tc_taprio_qopt_offload {
+ 	struct tc_taprio_sched_entry entries[];
+ };
  
--	if (ctx->burst.tx_count + size > ARRAY_SIZE(ctx->burst.tx_buf)) {
-+	if (ctx->burst.tx_count + size >= ARRAY_SIZE(ctx->burst.tx_buf)) {
- 		dev_err(ctx->dev, "TX-BLK buffer exhausted\n");
- 		ctx->error = -EINVAL;
- 		return NULL;
-@@ -622,7 +622,7 @@ static u8 *sii8620_burst_get_rx_buf(struct sii8620 *ctx, int len)
- 	u8 *buf = &ctx->burst.rx_buf[ctx->burst.rx_count];
- 	int size = len + 1;
++#if IS_ENABLED(CONFIG_NET_SCH_TAPRIO)
++
+ /* Reference counting */
+ struct tc_taprio_qopt_offload *taprio_offload_get(struct tc_taprio_qopt_offload
+ 						  *offload);
+ void taprio_offload_free(struct tc_taprio_qopt_offload *offload);
  
--	if (ctx->burst.tx_count + size > ARRAY_SIZE(ctx->burst.tx_buf)) {
-+	if (ctx->burst.rx_count + size >= ARRAY_SIZE(ctx->burst.rx_buf)) {
- 		dev_err(ctx->dev, "RX-BLK buffer exhausted\n");
- 		ctx->error = -EINVAL;
- 		return NULL;
++#else
++
++/* Reference counting */
++static inline struct tc_taprio_qopt_offload *
++taprio_offload_get(struct tc_taprio_qopt_offload *offload)
++{
++	return NULL;
++}
++
++static inline void taprio_offload_free(struct tc_taprio_qopt_offload *offload)
++{
++}
++
++#endif
++
+ /* Ensure skb_mstamp_ns, which might have been populated with the txtime, is
+  * not mistaken for a software timestamp, because this will otherwise prevent
+  * the dispatch of hardware timestamps to the socket.
 -- 
 2.35.1
 
