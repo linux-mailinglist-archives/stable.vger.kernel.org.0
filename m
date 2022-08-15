@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22DCF59478E
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:00:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F27D59472D
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241164AbiHOXmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:42:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32888 "EHLO
+        id S1353876AbiHOXmw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:42:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353659AbiHOXjy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:39:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DDC6153D3C;
-        Mon, 15 Aug 2022 13:10:13 -0700 (PDT)
+        with ESMTP id S1354172AbiHOXle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11EB7155CAC;
+        Mon, 15 Aug 2022 13:10:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B620B80EA9;
-        Mon, 15 Aug 2022 20:10:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2209C433D6;
-        Mon, 15 Aug 2022 20:10:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A91560F0C;
+        Mon, 15 Aug 2022 20:10:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 640E7C433D6;
+        Mon, 15 Aug 2022 20:10:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594210;
-        bh=WTlqPFfrZvu1SVl3BDbBSZq5wF8+vw4pET+mwT6EseM=;
+        s=korg; t=1660594256;
+        bh=uw//HsiRMHBa899GZSRbrnUZcOQGxjsDm5ULzHnOqJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbea4ZM61uI7y2Yj0+cHRUu31Uv/GY2J1TC7cELyst94U8WwaPW7NuSy3Oz+BG9eP
-         Yd/TzPj/0mJ/vhUB4HogzqTUmDR2tOB285vUqcPFiIjK/Kj100lf/omxaBalIZnMpl
-         8kQFn7XAC6QbOXqx7if7sS1aaMeOOc3Z2bcuDvc4=
+        b=OQwqYYEWiRNsEofHxse2jRC0GEN1EYRgEox+7NPYTY/mULlThaZlA5Vdyg5itsIgY
+         xTBzFdiCIIY06H5CgDjk+5ies0QrnY9tjvJR557tIK5pvCeqV317n3/jdNCL8U0Dnr
+         vLoOLUstNXGIF9G9soJrbI6CNJYVXktrPBkqCHag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Qian <ming.qian@nxp.com>,
-        Mirela Rabulea <mirela.rabulea@nxp.com>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0395/1157] media: imx-jpeg: Disable slot interrupt when frame done
-Date:   Mon, 15 Aug 2022 19:55:51 +0200
-Message-Id: <20220815180455.483633379@linuxfoundation.org>
+Subject: [PATCH 5.19 0402/1157] media: mediatek: vcodec: Skip SOURCE_CHANGE & EOS events for stateless
+Date:   Mon, 15 Aug 2022 19:55:58 +0200
+Message-Id: <20220815180455.755899657@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,86 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit 22a2bc88c139dc9757bdb1d0a3665ac27edc79a5 ]
+[ Upstream commit e13ca460e20ed42fe57a3845b0bb9a82f81f05cd ]
 
-The interrupt STMBUF_HALF may be triggered after frame done.
-It may led to system hang if driver try to access the register after
-power off.
+The stateless decoder API does not specify the usage of SOURCE_CHANGE
+and EOF events. These events are used by stateful decoders to signal
+changes in the bitstream. They do not make sense for stateless decoders.
 
-Disable the slot interrupt when frame done.
+Do not handle subscription for these two types of events for stateless
+decoder instances. This fixes the last v4l2-compliance error:
 
-Fixes: 2db16c6ed72ce ("media: imx-jpeg: Add V4L2 driver for i.MX8 JPEG Encoder/Decoder")
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
-Reviewed-by: Mirela Rabulea <mirela.rabulea@nxp.com>
-Tested-by: Mirela Rabulea <mirela.rabulea@nxp.com>
+Control ioctls:
+		fail: v4l2-test-controls.cpp(946): have_source_change || have_eos
+	test VIDIOC_(UN)SUBSCRIBE_EVENT/DQEVENT: FAIL
+
+Fixes: 8cdc3794b2e3 ("media: mtk-vcodec: vdec: support stateless API")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c |  5 +++++
- drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h |  1 +
- drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c    | 10 ++--------
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c
-index 29c604b1b179..718b7b08f93e 100644
---- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c
-+++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c
-@@ -79,6 +79,11 @@ void mxc_jpeg_enable_irq(void __iomem *reg, int slot)
- 	writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
- }
- 
-+void mxc_jpeg_disable_irq(void __iomem *reg, int slot)
-+{
-+	writel(0x0, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
-+}
-+
- void mxc_jpeg_sw_reset(void __iomem *reg)
+diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
+index 50cfb18f85ae..01836a1c7d3f 100644
+--- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
++++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
+@@ -196,6 +196,11 @@ static int vidioc_vdec_querycap(struct file *file, void *priv,
+ static int vidioc_vdec_subscribe_evt(struct v4l2_fh *fh,
+ 				     const struct v4l2_event_subscription *sub)
  {
- 	/*
-diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h
-index 5f64cbbe0fa9..645a24fe8bc1 100644
---- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h
-+++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h
-@@ -125,6 +125,7 @@ u32 mxc_jpeg_get_offset(void __iomem *reg, int slot);
- void mxc_jpeg_enable_slot(void __iomem *reg, int slot);
- void mxc_jpeg_set_l_endian(void __iomem *reg, int le);
- void mxc_jpeg_enable_irq(void __iomem *reg, int slot);
-+void mxc_jpeg_disable_irq(void __iomem *reg, int slot);
- int mxc_jpeg_set_input(void __iomem *reg, u32 in_buf, u32 bufsize);
- int mxc_jpeg_set_output(void __iomem *reg, u16 out_pitch, u32 out_buf,
- 			u16 w, u16 h);
-diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
-index 9a2fb0dc77a4..35a7cb936653 100644
---- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
-+++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
-@@ -593,15 +593,8 @@ static irqreturn_t mxc_jpeg_dec_irq(int irq, void *priv)
- 	dev_dbg(dev, "Irq %d on slot %d.\n", irq, slot);
- 
- 	ctx = v4l2_m2m_get_curr_priv(jpeg->m2m_dev);
--	if (!ctx) {
--		dev_err(dev,
--			"Instance released before the end of transaction.\n");
--		/* soft reset only resets internal state, not registers */
--		mxc_jpeg_sw_reset(reg);
--		/* clear all interrupts */
--		writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_STATUS));
-+	if (WARN_ON(!ctx))
- 		goto job_unlock;
--	}
- 
- 	if (slot != ctx->slot) {
- 		/* TODO investigate when adding multi-instance support */
-@@ -673,6 +666,7 @@ static irqreturn_t mxc_jpeg_dec_irq(int irq, void *priv)
- 	buf_state = VB2_BUF_STATE_DONE;
- 
- buffers_done:
-+	mxc_jpeg_disable_irq(reg, ctx->slot);
- 	jpeg->slot_data[slot].used = false; /* unused, but don't free */
- 	mxc_jpeg_check_and_set_last_buffer(ctx, src_buf, dst_buf);
- 	v4l2_m2m_src_buf_remove(ctx->fh.m2m_ctx);
++	struct mtk_vcodec_ctx *ctx = fh_to_ctx(fh);
++
++	if (ctx->dev->vdec_pdata->uses_stateless_api)
++		return v4l2_ctrl_subscribe_event(fh, sub);
++
+ 	switch (sub->type) {
+ 	case V4L2_EVENT_EOS:
+ 		return v4l2_event_subscribe(fh, sub, 2, NULL);
 -- 
 2.35.1
 
