@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFE47593921
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C504593903
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343772AbiHOTOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:14:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59076 "EHLO
+        id S1343963AbiHOTN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:13:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343801AbiHOTNB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:13:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 486A95073C;
-        Mon, 15 Aug 2022 11:37:25 -0700 (PDT)
+        with ESMTP id S1343765AbiHOTM5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:12:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 024CB3C161;
+        Mon, 15 Aug 2022 11:37:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 320A0610A4;
-        Mon, 15 Aug 2022 18:37:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 388B6C433C1;
-        Mon, 15 Aug 2022 18:37:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD075B81084;
+        Mon, 15 Aug 2022 18:37:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49787C433C1;
+        Mon, 15 Aug 2022 18:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588644;
-        bh=8UyRwPRI9GXPc89UbffERA3S7rsrfc9rjDhGIYxXX4k=;
+        s=korg; t=1660588647;
+        bh=49uVIo5yxX6YOHCXdzDZ21EmAzU5bpz2xA4aVGHhjq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HtpJOKshq3UzQwEAIJZ3iqX2HGjcz/lxOPHrgWrz72lOAUsyabGZjUZBAbM/vaZBn
-         aRwcKS8qb30lg8VF11/7bL0fhU91VQpl1lv77vB5qpMXKBtdRkesw8eYVQjQMBC84e
-         T8dLyxpyqyw28zyjaZIZTbYLbJ9fEp3ByDpgw0AQ=
+        b=DGAHdoc+p2cIhGncnPv+8SkxqWklJhf/rdmN5GB1wLSdSwuh9auqSdMhIkvx1iKCs
+         UYUHo+NyG3KBQYIcaq7TVrMHyozeb6Sc1cX3J1VpHqRgbBZqTzCCkMCgdcdXEdi8HY
+         CneIOYxFMVHaNdasn3LY681aLw5Nzt0Ro2GRzMec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 470/779] scsi: qla2xxx: Check correct variable in qla24xx_async_gffid()
-Date:   Mon, 15 Aug 2022 20:01:54 +0200
-Message-Id: <20220815180357.386650944@linuxfoundation.org>
+Subject: [PATCH 5.15 471/779] intel_th: Fix a resource leak in an error handling path
+Date:   Mon, 15 Aug 2022 20:01:55 +0200
+Message-Id: <20220815180357.417846191@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,38 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 7c33e477bd883f79cccec418980cb8f7f2d50347 ]
+[ Upstream commit 086c28ab7c5699256aced0049aae9c42f1410313 ]
 
-There is a copy and paste bug here.  It should check ".rsp" instead of
-".req".  The error message is copy and pasted as well so update that too.
+If an error occurs after calling 'pci_alloc_irq_vectors()',
+'pci_free_irq_vectors()' must be called as already done in the remove
+function.
 
-Link: https://lore.kernel.org/r/YrK1A/t3L6HKnswO@kili
-Fixes: 9c40c36e75ff ("scsi: qla2xxx: edif: Reduce Initiator-Initiator thrashing")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 7b7036d47c35 ("intel_th: pci: Use MSI interrupt signalling")
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Link: https://lore.kernel.org/r/20220705082637.59979-2-alexander.shishkin@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_gs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hwtracing/intel_th/pci.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
-index f89911beaade..2c49f12078ac 100644
---- a/drivers/scsi/qla2xxx/qla_gs.c
-+++ b/drivers/scsi/qla2xxx/qla_gs.c
-@@ -3385,9 +3385,9 @@ int qla24xx_async_gffid(scsi_qla_host_t *vha, fc_port_t *fcport, bool wait)
- 				sp->u.iocb_cmd.u.ctarg.rsp_allocated_size,
- 				&sp->u.iocb_cmd.u.ctarg.rsp_dma,
- 	    GFP_KERNEL);
--	if (!sp->u.iocb_cmd.u.ctarg.req) {
-+	if (!sp->u.iocb_cmd.u.ctarg.rsp) {
- 		ql_log(ql_log_warn, vha, 0xd041,
--		       "%s: Failed to allocate ct_sns request.\n",
-+		       "%s: Failed to allocate ct_sns response.\n",
- 		       __func__);
- 		goto done_free_sp;
- 	}
+diff --git a/drivers/hwtracing/intel_th/pci.c b/drivers/hwtracing/intel_th/pci.c
+index 7da4f298ed01..fcd0aca75007 100644
+--- a/drivers/hwtracing/intel_th/pci.c
++++ b/drivers/hwtracing/intel_th/pci.c
+@@ -100,8 +100,10 @@ static int intel_th_pci_probe(struct pci_dev *pdev,
+ 		}
+ 
+ 	th = intel_th_alloc(&pdev->dev, drvdata, resource, r);
+-	if (IS_ERR(th))
+-		return PTR_ERR(th);
++	if (IS_ERR(th)) {
++		err = PTR_ERR(th);
++		goto err_free_irq;
++	}
+ 
+ 	th->activate   = intel_th_pci_activate;
+ 	th->deactivate = intel_th_pci_deactivate;
+@@ -109,6 +111,10 @@ static int intel_th_pci_probe(struct pci_dev *pdev,
+ 	pci_set_master(pdev);
+ 
+ 	return 0;
++
++err_free_irq:
++	pci_free_irq_vectors(pdev);
++	return err;
+ }
+ 
+ static void intel_th_pci_remove(struct pci_dev *pdev)
 -- 
 2.35.1
 
