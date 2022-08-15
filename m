@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8550B593995
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53B0D5937AA
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242158AbiHOSmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:42:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38512 "EHLO
+        id S242321AbiHOSmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:42:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243815AbiHOSl0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:41:26 -0400
+        with ESMTP id S243846AbiHOSl3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:41:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 423123F32A;
-        Mon, 15 Aug 2022 11:25:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44E8B3FA05;
+        Mon, 15 Aug 2022 11:25:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CEB41B80F99;
-        Mon, 15 Aug 2022 18:25:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07CD3C433D6;
-        Mon, 15 Aug 2022 18:25:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E126BB80F99;
+        Mon, 15 Aug 2022 18:25:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CC28C433C1;
+        Mon, 15 Aug 2022 18:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587902;
-        bh=UF5GPIszFRHwpo/77bs1bWbnNvzx9uno6HUPVgnvNao=;
+        s=korg; t=1660587905;
+        bh=tyewOjfDvcMDuNc0n8mcfNqZN/2ho/mbC0GukSH0x9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xPf5cRvjf2EIFMPV7OauN6gY4yCMlT9VclNlyujHy8zAZyt/4Znku91ZoKdinvFQd
-         Lcx1A+y6VZ8Mu5TxU1KKYR3d23SmYXhbKc6xYvTh/BRAkYy0nHHPh6O36gcmuZgf66
-         edMjZLFwNQcJI5Ra4ZZZ/2lDyPFbFOmTeSXU+fCM=
+        b=h2aaNKTV1CA4gxJZCAtqw8h1ZSoddBOybBGo7wkuKJiVzO/0nbwWyXpPNMMf68Tln
+         8IZhYZcpkKVHoko/xWUHQTu2PAMhht6p3u5QFJloF/jC2Udy4TaHlPwb8QD7NrFdJK
+         LWRGJ3iOhPTGnawGINX3J5VSLgDTd5iEvKUhkZcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <u.kleine-koenig@pengutronix.de>,
         Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 232/779] pwm: lpc18xx-sct: Simplify driver by not using pwm_[gs]et_chip_data()
-Date:   Mon, 15 Aug 2022 19:57:56 +0200
-Message-Id: <20220815180347.200305319@linuxfoundation.org>
+Subject: [PATCH 5.15 233/779] pwm: lpc18xx: Fix period handling
+Date:   Mon, 15 Aug 2022 19:57:57 +0200
+Message-Id: <20220815180347.244304969@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -58,117 +58,138 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 9136a39e6cf69e49803ac6123a4ac4431bc915a2 ]
+[ Upstream commit 8933d30c5f468d6cc1e4bf9bb535149da35f202e ]
 
-The per-channel data is available directly in the driver data struct. So
-use it without making use of pwm_[gs]et_chip_data().
+The calculation:
 
-The relevant change introduced by this patch to lpc18xx_pwm_disable() at
-the assembler level (for an arm lpc18xx_defconfig build) is:
+	val = (u64)NSEC_PER_SEC * LPC18XX_PWM_TIMER_MAX;
+	do_div(val, lpc18xx_pwm->clk_rate);
+	lpc18xx_pwm->max_period_ns = val;
 
-	push    {r3, r4, r5, lr}
-	mov     r4, r0
-	mov     r0, r1
-	mov     r5, r1
-	bl      0 <pwm_get_chip_data>
-	ldr     r3, [r0, #0]
+is bogus because with NSEC_PER_SEC = 1000000000,
+LPC18XX_PWM_TIMER_MAX = 0xffffffff and clk_rate < NSEC_PER_SEC this
+overflows the (on lpc18xx (i.e. ARM32) 32 bit wide) unsigned int
+.max_period_ns. This results (dependant of the actual clk rate) in an
+arbitrary limitation of the maximal period.  E.g. for clkrate =
+333333333 (Hz) we get max_period_ns = 9 instead of 12884901897.
 
-changes to
+So make .max_period_ns an u64 and pass period and duty as u64 to not
+discard relevant digits. And also make use of mul_u64_u64_div_u64()
+which prevents all overflows assuming clk_rate < NSEC_PER_SEC.
 
-	ldr     r3, [r1, #8]
-	push    {r4, lr}
-	add.w   r3, r0, r3, lsl #2
-	ldr     r3, [r3, #92]   ; 0x5c
-
-So this reduces stack usage, has an improved runtime behavior because of
-better pipeline usage, doesn't branch to an external function and the
-generated code is a bit smaller occupying less memory.
-
-The codesize of lpc18xx_pwm_probe() is reduced by 32 bytes.
-
+Fixes: 841e6f90bb78 ("pwm: NXP LPC18xx PWM/SCT driver")
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-lpc18xx-sct.c | 23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ drivers/pwm/pwm-lpc18xx-sct.c | 55 +++++++++++++++++++++++++----------
+ 1 file changed, 39 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/pwm/pwm-lpc18xx-sct.c b/drivers/pwm/pwm-lpc18xx-sct.c
-index 6cf02554066c..b909096dba2f 100644
+index b909096dba2f..43b5509dde51 100644
 --- a/drivers/pwm/pwm-lpc18xx-sct.c
 +++ b/drivers/pwm/pwm-lpc18xx-sct.c
-@@ -166,7 +166,7 @@ static void lpc18xx_pwm_config_duty(struct pwm_chip *chip,
- 				    struct pwm_device *pwm, int duty_ns)
- {
- 	struct lpc18xx_pwm_chip *lpc18xx_pwm = to_lpc18xx_pwm_chip(chip);
--	struct lpc18xx_pwm_data *lpc18xx_data = pwm_get_chip_data(pwm);
-+	struct lpc18xx_pwm_data *lpc18xx_data = &lpc18xx_pwm->channeldata[pwm->hwpwm];
- 	u64 val;
+@@ -98,7 +98,7 @@ struct lpc18xx_pwm_chip {
+ 	unsigned long clk_rate;
+ 	unsigned int period_ns;
+ 	unsigned int min_period_ns;
+-	unsigned int max_period_ns;
++	u64 max_period_ns;
+ 	unsigned int period_event;
+ 	unsigned long event_map;
+ 	struct mutex res_lock;
+@@ -145,40 +145,48 @@ static void lpc18xx_pwm_set_conflict_res(struct lpc18xx_pwm_chip *lpc18xx_pwm,
+ 	mutex_unlock(&lpc18xx_pwm->res_lock);
+ }
  
- 	val = (u64)duty_ns * lpc18xx_pwm->clk_rate;
-@@ -236,7 +236,7 @@ static int lpc18xx_pwm_set_polarity(struct pwm_chip *chip,
- static int lpc18xx_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
+-static void lpc18xx_pwm_config_period(struct pwm_chip *chip, int period_ns)
++static void lpc18xx_pwm_config_period(struct pwm_chip *chip, u64 period_ns)
  {
  	struct lpc18xx_pwm_chip *lpc18xx_pwm = to_lpc18xx_pwm_chip(chip);
--	struct lpc18xx_pwm_data *lpc18xx_data = pwm_get_chip_data(pwm);
-+	struct lpc18xx_pwm_data *lpc18xx_data = &lpc18xx_pwm->channeldata[pwm->hwpwm];
- 	enum lpc18xx_pwm_res_action res_action;
- 	unsigned int set_event, clear_event;
+-	u64 val;
++	u32 val;
  
-@@ -271,7 +271,7 @@ static int lpc18xx_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
- static void lpc18xx_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
- {
- 	struct lpc18xx_pwm_chip *lpc18xx_pwm = to_lpc18xx_pwm_chip(chip);
--	struct lpc18xx_pwm_data *lpc18xx_data = pwm_get_chip_data(pwm);
-+	struct lpc18xx_pwm_data *lpc18xx_data = &lpc18xx_pwm->channeldata[pwm->hwpwm];
+-	val = (u64)period_ns * lpc18xx_pwm->clk_rate;
+-	do_div(val, NSEC_PER_SEC);
++	/*
++	 * With clk_rate < NSEC_PER_SEC this cannot overflow.
++	 * With period_ns < max_period_ns this also fits into an u32.
++	 * As period_ns >= min_period_ns = DIV_ROUND_UP(NSEC_PER_SEC, lpc18xx_pwm->clk_rate);
++	 * we have val >= 1.
++	 */
++	val = mul_u64_u64_div_u64(period_ns, lpc18xx_pwm->clk_rate, NSEC_PER_SEC);
  
  	lpc18xx_pwm_writel(lpc18xx_pwm,
- 			   LPC18XX_PWM_EVCTRL(lpc18xx_data->duty_event), 0);
-@@ -282,7 +282,7 @@ static void lpc18xx_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
- static int lpc18xx_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
- {
- 	struct lpc18xx_pwm_chip *lpc18xx_pwm = to_lpc18xx_pwm_chip(chip);
--	struct lpc18xx_pwm_data *lpc18xx_data = pwm_get_chip_data(pwm);
-+	struct lpc18xx_pwm_data *lpc18xx_data = &lpc18xx_pwm->channeldata[pwm->hwpwm];
- 	unsigned long event;
+ 			   LPC18XX_PWM_MATCH(lpc18xx_pwm->period_event),
+-			   (u32)val - 1);
++			   val - 1);
  
- 	event = find_first_zero_bit(&lpc18xx_pwm->event_map,
-@@ -303,7 +303,7 @@ static int lpc18xx_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
- static void lpc18xx_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
- {
- 	struct lpc18xx_pwm_chip *lpc18xx_pwm = to_lpc18xx_pwm_chip(chip);
--	struct lpc18xx_pwm_data *lpc18xx_data = pwm_get_chip_data(pwm);
-+	struct lpc18xx_pwm_data *lpc18xx_data = &lpc18xx_pwm->channeldata[pwm->hwpwm];
- 
- 	clear_bit(lpc18xx_data->duty_event, &lpc18xx_pwm->event_map);
+ 	lpc18xx_pwm_writel(lpc18xx_pwm,
+ 			   LPC18XX_PWM_MATCHREL(lpc18xx_pwm->period_event),
+-			   (u32)val - 1);
++			   val - 1);
  }
-@@ -327,8 +327,7 @@ MODULE_DEVICE_TABLE(of, lpc18xx_pwm_of_match);
- static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 
+ static void lpc18xx_pwm_config_duty(struct pwm_chip *chip,
+-				    struct pwm_device *pwm, int duty_ns)
++				    struct pwm_device *pwm, u64 duty_ns)
  {
- 	struct lpc18xx_pwm_chip *lpc18xx_pwm;
--	struct pwm_device *pwm;
--	int ret, i;
-+	int ret;
- 	u64 val;
+ 	struct lpc18xx_pwm_chip *lpc18xx_pwm = to_lpc18xx_pwm_chip(chip);
+ 	struct lpc18xx_pwm_data *lpc18xx_data = &lpc18xx_pwm->channeldata[pwm->hwpwm];
+-	u64 val;
++	u32 val;
  
- 	lpc18xx_pwm = devm_kzalloc(&pdev->dev, sizeof(*lpc18xx_pwm),
-@@ -398,16 +397,6 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
- 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_LIMIT,
- 			   BIT(lpc18xx_pwm->period_event));
+-	val = (u64)duty_ns * lpc18xx_pwm->clk_rate;
+-	do_div(val, NSEC_PER_SEC);
++	/*
++	 * With clk_rate < NSEC_PER_SEC this cannot overflow.
++	 * With duty_ns <= period_ns < max_period_ns this also fits into an u32.
++	 */
++	val = mul_u64_u64_div_u64(duty_ns, lpc18xx_pwm->clk_rate, NSEC_PER_SEC);
  
--	for (i = 0; i < lpc18xx_pwm->chip.npwm; i++) {
--		struct lpc18xx_pwm_data *data;
--
--		pwm = &lpc18xx_pwm->chip.pwms[i];
--
--		data = &lpc18xx_pwm->channeldata[i];
--
--		pwm_set_chip_data(pwm, data);
--	}
--
- 	val = lpc18xx_pwm_readl(lpc18xx_pwm, LPC18XX_PWM_CTRL);
- 	val &= ~LPC18XX_PWM_BIDIR;
- 	val &= ~LPC18XX_PWM_CTRL_HALT;
+ 	lpc18xx_pwm_writel(lpc18xx_pwm,
+ 			   LPC18XX_PWM_MATCH(lpc18xx_data->duty_event),
+-			   (u32)val);
++			   val);
+ 
+ 	lpc18xx_pwm_writel(lpc18xx_pwm,
+ 			   LPC18XX_PWM_MATCHREL(lpc18xx_data->duty_event),
+-			   (u32)val);
++			   val);
+ }
+ 
+ static int lpc18xx_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
+@@ -360,12 +368,27 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 		goto disable_pwmclk;
+ 	}
+ 
++	/*
++	 * If clkrate is too fast, the calculations in .apply() might overflow.
++	 */
++	if (lpc18xx_pwm->clk_rate > NSEC_PER_SEC) {
++		ret = dev_err_probe(&pdev->dev, -EINVAL, "pwm clock to fast\n");
++		goto disable_pwmclk;
++	}
++
++	/*
++	 * If clkrate is too fast, the calculations in .apply() might overflow.
++	 */
++	if (lpc18xx_pwm->clk_rate > NSEC_PER_SEC) {
++		ret = dev_err_probe(&pdev->dev, -EINVAL, "pwm clock to fast\n");
++		goto disable_pwmclk;
++	}
++
+ 	mutex_init(&lpc18xx_pwm->res_lock);
+ 	mutex_init(&lpc18xx_pwm->period_lock);
+ 
+-	val = (u64)NSEC_PER_SEC * LPC18XX_PWM_TIMER_MAX;
+-	do_div(val, lpc18xx_pwm->clk_rate);
+-	lpc18xx_pwm->max_period_ns = val;
++	lpc18xx_pwm->max_period_ns =
++		mul_u64_u64_div_u64(NSEC_PER_SEC, LPC18XX_PWM_TIMER_MAX, lpc18xx_pwm->clk_rate);
+ 
+ 	lpc18xx_pwm->min_period_ns = DIV_ROUND_UP(NSEC_PER_SEC,
+ 						  lpc18xx_pwm->clk_rate);
 -- 
 2.35.1
 
