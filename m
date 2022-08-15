@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 358015941B4
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:51:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDCF65941C1
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:51:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344961AbiHOUyy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:54:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55612 "EHLO
+        id S1346654AbiHOUzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:55:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346316AbiHOUyI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:54:08 -0400
+        with ESMTP id S1346773AbiHOUyt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:54:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0D9B40BE4;
-        Mon, 15 Aug 2022 12:10:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89DA3BFA90;
+        Mon, 15 Aug 2022 12:11:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 462EA60BB5;
-        Mon, 15 Aug 2022 19:10:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CB34C433C1;
-        Mon, 15 Aug 2022 19:10:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 43AAD60BAF;
+        Mon, 15 Aug 2022 19:11:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A2B0C433D6;
+        Mon, 15 Aug 2022 19:11:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590657;
-        bh=vrIzN52GEEHh/T0R5cqvOZOYcnv5hQLjIKksDxnlmEo=;
+        s=korg; t=1660590660;
+        bh=aeRuvv4n+RQx3rdfldF9GjNSj+5s1DQan1L3wad8ZI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F31StDHArfmopv0xywsziVMsMX8GLfooG1yybw+fPa12p5pqVXA4y3qcqaujdlQZq
-         B60n6baxzFLCFbvH2knMuFltsNz0DIvjKijznFf0MmACnntiVtvTWqSysHXv+QaiVI
-         14Db8LU06h6NhfSt1ECOc7Oy/eBX9gTU2/wHR7mk=
+        b=BwsZCqggWxxvyInvQrBwVIEQiXwnOHxO0OmCh232GBVAlwAj47yb8JHHTZo9KN0Hi
+         F2wvqJ5w9Yor6jQHvDAUTAzsGrJmOQV7co1N2QtLkTlqTPEqHCjTNMgJ2T4THNgOon
+         KoSlZFgM31OddLExU297v9LDGzxEt+XK1cPxAMoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Emil Renner Berthing <emil.renner.berthing@canonical.com>,
         Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0298/1095] pwm: sifive: Simplify offset calculation for PWMCMP registers
-Date:   Mon, 15 Aug 2022 19:54:57 +0200
-Message-Id: <20220815180442.092452046@linuxfoundation.org>
+Subject: [PATCH 5.18 0299/1095] pwm: sifive: Ensure the clk is enabled exactly once per running PWM
+Date:   Mon, 15 Aug 2022 19:54:58 +0200
+Message-Id: <20220815180442.145155594@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -59,67 +59,109 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 20550a61880fc55e68a0d290ad195b74729c0e7b ]
+[ Upstream commit ace41d7564e655c39f709a78c035188a460c7cbd ]
 
-Instead of explicitly using PWM_SIFIVE_PWMCMP0 + pwm->hwpwm *
-PWM_SIFIVE_SIZE_PWMCMP for each access to one of the PWMCMP registers,
-introduce a macro that takes the hwpwm id as parameter.
+.apply() assumes the clk to be for a given PWM iff the PWM is enabled.
+So make sure this is the case when .probe() completes. And in .remove()
+disable the according number of times.
 
-For the register definition using a plain 4 instead of the cpp constant
-PWM_SIFIVE_SIZE_PWMCMP is easier to read, so define the offset macro
-without the constant. The latter can then be dropped as there are no
-users left.
+This fixes a clk enable/disable imbalance, if some PWMs are already running
+at probe time.
 
+Fixes: 9e37a53eb051 (pwm: sifive: Add a driver for SiFive SoC PWM)
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Tested-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
 Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-sifive.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/pwm/pwm-sifive.c | 46 ++++++++++++++++++++++++++++++++--------
+ 1 file changed, 37 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/pwm/pwm-sifive.c b/drivers/pwm/pwm-sifive.c
-index 253c4a17d255..a55f7345dc87 100644
+index a55f7345dc87..3936fda53366 100644
 --- a/drivers/pwm/pwm-sifive.c
 +++ b/drivers/pwm/pwm-sifive.c
-@@ -23,7 +23,7 @@
- #define PWM_SIFIVE_PWMCFG		0x0
- #define PWM_SIFIVE_PWMCOUNT		0x8
- #define PWM_SIFIVE_PWMS			0x10
--#define PWM_SIFIVE_PWMCMP0		0x20
-+#define PWM_SIFIVE_PWMCMP(i)		(0x20 + 4 * (i))
+@@ -229,6 +229,8 @@ static int pwm_sifive_probe(struct platform_device *pdev)
+ 	struct pwm_sifive_ddata *ddata;
+ 	struct pwm_chip *chip;
+ 	int ret;
++	u32 val;
++	unsigned int enabled_pwms = 0, enabled_clks = 1;
  
- /* PWMCFG fields */
- #define PWM_SIFIVE_PWMCFG_SCALE		GENMASK(3, 0)
-@@ -36,8 +36,6 @@
- #define PWM_SIFIVE_PWMCFG_GANG		BIT(24)
- #define PWM_SIFIVE_PWMCFG_IP		BIT(28)
- 
--/* PWM_SIFIVE_SIZE_PWMCMP is used to calculate offset for pwmcmpX registers */
--#define PWM_SIFIVE_SIZE_PWMCMP		4
- #define PWM_SIFIVE_CMPWIDTH		16
- #define PWM_SIFIVE_DEFAULT_PERIOD	10000000
- 
-@@ -112,8 +110,7 @@ static void pwm_sifive_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
- 	struct pwm_sifive_ddata *ddata = pwm_sifive_chip_to_ddata(chip);
- 	u32 duty, val;
- 
--	duty = readl(ddata->regs + PWM_SIFIVE_PWMCMP0 +
--		     pwm->hwpwm * PWM_SIFIVE_SIZE_PWMCMP);
-+	duty = readl(ddata->regs + PWM_SIFIVE_PWMCMP(pwm->hwpwm));
- 
- 	state->enabled = duty > 0;
- 
-@@ -194,8 +191,7 @@ static int pwm_sifive_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- 		pwm_sifive_update_clock(ddata, clk_get_rate(ddata->clk));
+ 	ddata = devm_kzalloc(dev, sizeof(*ddata), GFP_KERNEL);
+ 	if (!ddata)
+@@ -255,6 +257,33 @@ static int pwm_sifive_probe(struct platform_device *pdev)
+ 		return ret;
  	}
  
--	writel(frac, ddata->regs + PWM_SIFIVE_PWMCMP0 +
--	       pwm->hwpwm * PWM_SIFIVE_SIZE_PWMCMP);
-+	writel(frac, ddata->regs + PWM_SIFIVE_PWMCMP(pwm->hwpwm));
++	val = readl(ddata->regs + PWM_SIFIVE_PWMCFG);
++	if (val & PWM_SIFIVE_PWMCFG_EN_ALWAYS) {
++		unsigned int i;
++
++		for (i = 0; i < chip->npwm; ++i) {
++			val = readl(ddata->regs + PWM_SIFIVE_PWMCMP(i));
++			if (val > 0)
++				++enabled_pwms;
++		}
++	}
++
++	/* The clk should be on once for each running PWM. */
++	if (enabled_pwms) {
++		while (enabled_clks < enabled_pwms) {
++			/* This is not expected to fail as the clk is already on */
++			ret = clk_enable(ddata->clk);
++			if (unlikely(ret)) {
++				dev_err_probe(dev, ret, "Failed to enable clk\n");
++				goto disable_clk;
++			}
++			++enabled_clks;
++		}
++	} else {
++		clk_disable(ddata->clk);
++		enabled_clks = 0;
++	}
++
+ 	/* Watch for changes to underlying clock frequency */
+ 	ddata->notifier.notifier_call = pwm_sifive_clock_notifier;
+ 	ret = clk_notifier_register(ddata->clk, &ddata->notifier);
+@@ -277,7 +306,11 @@ static int pwm_sifive_probe(struct platform_device *pdev)
+ unregister_clk:
+ 	clk_notifier_unregister(ddata->clk, &ddata->notifier);
+ disable_clk:
+-	clk_disable_unprepare(ddata->clk);
++	while (enabled_clks) {
++		clk_disable(ddata->clk);
++		--enabled_clks;
++	}
++	clk_unprepare(ddata->clk);
  
- 	if (state->enabled != enabled)
- 		pwm_sifive_enable(chip, state->enabled);
+ 	return ret;
+ }
+@@ -285,21 +318,16 @@ static int pwm_sifive_probe(struct platform_device *pdev)
+ static int pwm_sifive_remove(struct platform_device *dev)
+ {
+ 	struct pwm_sifive_ddata *ddata = platform_get_drvdata(dev);
+-	bool is_enabled = false;
+ 	struct pwm_device *pwm;
+ 	int ch;
+ 
+ 	for (ch = 0; ch < ddata->chip.npwm; ch++) {
+ 		pwm = &ddata->chip.pwms[ch];
+-		if (pwm->state.enabled) {
+-			is_enabled = true;
+-			break;
+-		}
++		if (pwm->state.enabled)
++			clk_disable(ddata->clk);
+ 	}
+-	if (is_enabled)
+-		clk_disable(ddata->clk);
+ 
+-	clk_disable_unprepare(ddata->clk);
++	clk_unprepare(ddata->clk);
+ 	pwmchip_remove(&ddata->chip);
+ 	clk_notifier_unregister(ddata->clk, &ddata->notifier);
+ 
 -- 
 2.35.1
 
