@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28E94594D69
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3917C594987
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:14:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244474AbiHPBAO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 21:00:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51226 "EHLO
+        id S244274AbiHOXcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:32:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343555AbiHPA4J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:56:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1872FB7282;
-        Mon, 15 Aug 2022 13:47:59 -0700 (PDT)
+        with ESMTP id S1353520AbiHOX2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:28:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658A714ECA3;
+        Mon, 15 Aug 2022 13:07:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A2A0961275;
-        Mon, 15 Aug 2022 20:47:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FFCFC433C1;
-        Mon, 15 Aug 2022 20:47:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BD3B60B69;
+        Mon, 15 Aug 2022 20:07:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EFEFC433D6;
+        Mon, 15 Aug 2022 20:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596478;
-        bh=ZT7d3vi64Ldjk6F/M0BqkWhd+6Psc0GSzuNDJIb85JI=;
+        s=korg; t=1660594068;
+        bh=Ycp0s2Glg8mhvTj7X08fjKGg5VeHENMBJ1BiPadpejc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2lVhIxLGo9X8qv7IZ0BEKyfBn9LLrszw/53IQueaTb1aaWy2zfwXBrJeCKGKVnjGW
-         cPwo9gnhrNxE8tyKbO/8qGFLErAN9/oQOPN/7OAr5f1mCQB3GAbZLU74yceCsvzyBr
-         P1ZDdZVhty7pfqrnXcPyFxF7jEwxbVnGIRzZgV6k=
+        b=O1ZsTV26xlaci6EevSOFWAn5Ny/oRo5vfCF6c5UzPXn8I37x4BYvIXvEhO1ZI5S4F
+         6aQMZ0AbZwYrE/MgpB1MUo9AfGeUN0DpwIih/RCLNLFyPCeHE50UviiWfy+VHclBzW
+         UHNo6EHeLMv5gmT/LajrUa+FN0vrHb8uEq31is1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1093/1157] btrfs: zoned: activate metadata block group on flush_space
+Subject: [PATCH 5.18 1050/1095] ksmbd: smbd: introduce read/write credits for RDMA read/write
 Date:   Mon, 15 Aug 2022 20:07:29 +0200
-Message-Id: <20220815180523.933570407@linuxfoundation.org>
+Message-Id: <20220815180512.513026047@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,178 +55,292 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Hyunchul Lee <hyc.lee@gmail.com>
 
-[ Upstream commit b0931513913633044ed6e3800334c28433c007b0 ]
+[ Upstream commit ddbdc861e37c168cf2fb8a7b7477f5d18b4daf76 ]
 
-For metadata space on zoned filesystem, reaching ALLOC_CHUNK{,_FORCE}
-means we don't have enough space left in the active_total_bytes. Before
-allocating a new chunk, we can try to activate an existing block group
-in this case.
+SMB2_READ/SMB2_WRITE request has to be granted the number
+of rw credits, the pages the request wants to transfer
+/ the maximum pages which can be registered with one
+MR to read and write a file.
+And allocate enough RDMA resources for the maximum
+number of rw credits allowed by ksmbd.
 
-Also, allocating a chunk is not enough to grant a ticket for metadata
-space on zoned filesystem we need to activate the block group to
-increase the active_total_bytes.
-
-btrfs_zoned_activate_one_bg() implements the activation feature. It will
-activate a block group by (maybe) finishing a block group. It will give up
-activating a block group if it cannot finish any block group.
-
-CC: stable@vger.kernel.org # 5.16+
-Fixes: afba2bc036b0 ("btrfs: zoned: implement active zone tracking")
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/space-info.c | 30 ++++++++++++++++++++++++
- fs/btrfs/zoned.c      | 53 +++++++++++++++++++++++++++++++++++++++++++
- fs/btrfs/zoned.h      | 10 ++++++++
- 3 files changed, 93 insertions(+)
+ fs/ksmbd/transport_rdma.c | 120 ++++++++++++++++++++++----------------
+ 1 file changed, 71 insertions(+), 49 deletions(-)
 
-diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
-index ad13b9d207b1..b0c5b4738b1f 100644
---- a/fs/btrfs/space-info.c
-+++ b/fs/btrfs/space-info.c
-@@ -9,6 +9,7 @@
- #include "ordered-data.h"
- #include "transaction.h"
- #include "block-group.h"
-+#include "zoned.h"
+diff --git a/fs/ksmbd/transport_rdma.c b/fs/ksmbd/transport_rdma.c
+index 479d279ee146..b44a5e584bac 100644
+--- a/fs/ksmbd/transport_rdma.c
++++ b/fs/ksmbd/transport_rdma.c
+@@ -80,9 +80,7 @@ static int smb_direct_max_fragmented_recv_size = 1024 * 1024;
+ /*  The maximum single-message size which can be received */
+ static int smb_direct_max_receive_size = 8192;
  
- /*
-  * HOW DOES SPACE RESERVATION WORK
-@@ -724,6 +725,18 @@ static void flush_space(struct btrfs_fs_info *fs_info,
- 		break;
- 	case ALLOC_CHUNK:
- 	case ALLOC_CHUNK_FORCE:
-+		/*
-+		 * For metadata space on zoned filesystem, reaching here means we
-+		 * don't have enough space left in active_total_bytes. Try to
-+		 * activate a block group first, because we may have inactive
-+		 * block group already allocated.
-+		 */
-+		ret = btrfs_zoned_activate_one_bg(fs_info, space_info, false);
-+		if (ret < 0)
-+			break;
-+		else if (ret == 1)
-+			break;
-+
- 		trans = btrfs_join_transaction(root);
- 		if (IS_ERR(trans)) {
- 			ret = PTR_ERR(trans);
-@@ -734,6 +747,23 @@ static void flush_space(struct btrfs_fs_info *fs_info,
- 				(state == ALLOC_CHUNK) ? CHUNK_ALLOC_NO_FORCE :
- 					CHUNK_ALLOC_FORCE);
- 		btrfs_end_transaction(trans);
-+
-+		/*
-+		 * For metadata space on zoned filesystem, allocating a new chunk
-+		 * is not enough. We still need to activate the block * group.
-+		 * Active the newly allocated block group by (maybe) finishing
-+		 * a block group.
-+		 */
-+		if (ret == 1) {
-+			ret = btrfs_zoned_activate_one_bg(fs_info, space_info, true);
-+			/*
-+			 * Revert to the original ret regardless we could finish
-+			 * one block group or not.
-+			 */
-+			if (ret >= 0)
-+				ret = 1;
-+		}
-+
- 		if (ret > 0 || ret == -ENOSPC)
- 			ret = 0;
- 		break;
-diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
-index 16ed426a58c9..4df5b36dc574 100644
---- a/fs/btrfs/zoned.c
-+++ b/fs/btrfs/zoned.c
-@@ -2226,3 +2226,56 @@ int btrfs_zone_finish_one_bg(struct btrfs_fs_info *fs_info)
+-static int smb_direct_max_read_write_size = 524224;
+-
+-static int smb_direct_max_outstanding_rw_ops = 8;
++static int smb_direct_max_read_write_size = 8 * 1024 * 1024;
  
- 	return ret < 0 ? ret : 1;
- }
-+
-+int btrfs_zoned_activate_one_bg(struct btrfs_fs_info *fs_info,
-+				struct btrfs_space_info *space_info,
-+				bool do_finish)
-+{
-+	struct btrfs_block_group *bg;
-+	int index;
-+
-+	if (!btrfs_is_zoned(fs_info) || (space_info->flags & BTRFS_BLOCK_GROUP_DATA))
-+		return 0;
-+
-+	/* No more block groups to activate */
-+	if (space_info->active_total_bytes == space_info->total_bytes)
-+		return 0;
-+
-+	for (;;) {
-+		int ret;
-+		bool need_finish = false;
-+
-+		down_read(&space_info->groups_sem);
-+		for (index = 0; index < BTRFS_NR_RAID_TYPES; index++) {
-+			list_for_each_entry(bg, &space_info->block_groups[index],
-+					    list) {
-+				if (!spin_trylock(&bg->lock))
-+					continue;
-+				if (btrfs_zoned_bg_is_full(bg) || bg->zone_is_active) {
-+					spin_unlock(&bg->lock);
-+					continue;
-+				}
-+				spin_unlock(&bg->lock);
-+
-+				if (btrfs_zone_activate(bg)) {
-+					up_read(&space_info->groups_sem);
-+					return 1;
-+				}
-+
-+				need_finish = true;
-+			}
-+		}
-+		up_read(&space_info->groups_sem);
-+
-+		if (!do_finish || !need_finish)
-+			break;
-+
-+		ret = btrfs_zone_finish_one_bg(fs_info);
-+		if (ret == 0)
-+			break;
-+		if (ret < 0)
-+			return ret;
-+	}
-+
-+	return 0;
-+}
-diff --git a/fs/btrfs/zoned.h b/fs/btrfs/zoned.h
-index 329d28e2fd8d..e17462db3a84 100644
---- a/fs/btrfs/zoned.h
-+++ b/fs/btrfs/zoned.h
-@@ -81,6 +81,8 @@ bool btrfs_zoned_should_reclaim(struct btrfs_fs_info *fs_info);
- void btrfs_zoned_release_data_reloc_bg(struct btrfs_fs_info *fs_info, u64 logical,
- 				       u64 length);
- int btrfs_zone_finish_one_bg(struct btrfs_fs_info *fs_info);
-+int btrfs_zoned_activate_one_bg(struct btrfs_fs_info *fs_info,
-+				struct btrfs_space_info *space_info, bool do_finish);
- #else /* CONFIG_BLK_DEV_ZONED */
- static inline int btrfs_get_dev_zone(struct btrfs_device *device, u64 pos,
- 				     struct blk_zone *zone)
-@@ -256,6 +258,14 @@ static inline int btrfs_zone_finish_one_bg(struct btrfs_fs_info *fs_info)
- 	return 1;
+ static LIST_HEAD(smb_direct_device_list);
+ static DEFINE_RWLOCK(smb_direct_device_lock);
+@@ -147,10 +145,12 @@ struct smb_direct_transport {
+ 	atomic_t		send_credits;
+ 	spinlock_t		lock_new_recv_credits;
+ 	int			new_recv_credits;
+-	atomic_t		rw_avail_ops;
++	int			max_rw_credits;
++	int			pages_per_rw_credit;
++	atomic_t		rw_credits;
+ 
+ 	wait_queue_head_t	wait_send_credits;
+-	wait_queue_head_t	wait_rw_avail_ops;
++	wait_queue_head_t	wait_rw_credits;
+ 
+ 	mempool_t		*sendmsg_mempool;
+ 	struct kmem_cache	*sendmsg_cache;
+@@ -377,7 +377,7 @@ static struct smb_direct_transport *alloc_transport(struct rdma_cm_id *cm_id)
+ 	t->reassembly_queue_length = 0;
+ 	init_waitqueue_head(&t->wait_reassembly_queue);
+ 	init_waitqueue_head(&t->wait_send_credits);
+-	init_waitqueue_head(&t->wait_rw_avail_ops);
++	init_waitqueue_head(&t->wait_rw_credits);
+ 
+ 	spin_lock_init(&t->receive_credit_lock);
+ 	spin_lock_init(&t->recvmsg_queue_lock);
+@@ -984,18 +984,19 @@ static int smb_direct_flush_send_list(struct smb_direct_transport *t,
  }
  
-+static inline int btrfs_zoned_activate_one_bg(struct btrfs_fs_info *fs_info,
-+					      struct btrfs_space_info *space_info,
-+					      bool do_finish)
-+{
-+	/* Consider all the block groups are active */
-+	return 0;
+ static int wait_for_credits(struct smb_direct_transport *t,
+-			    wait_queue_head_t *waitq, atomic_t *credits)
++			    wait_queue_head_t *waitq, atomic_t *total_credits,
++			    int needed)
+ {
+ 	int ret;
+ 
+ 	do {
+-		if (atomic_dec_return(credits) >= 0)
++		if (atomic_sub_return(needed, total_credits) >= 0)
+ 			return 0;
+ 
+-		atomic_inc(credits);
++		atomic_add(needed, total_credits);
+ 		ret = wait_event_interruptible(*waitq,
+-					       atomic_read(credits) > 0 ||
+-						t->status != SMB_DIRECT_CS_CONNECTED);
++					       atomic_read(total_credits) >= needed ||
++					       t->status != SMB_DIRECT_CS_CONNECTED);
+ 
+ 		if (t->status != SMB_DIRECT_CS_CONNECTED)
+ 			return -ENOTCONN;
+@@ -1016,7 +1017,19 @@ static int wait_for_send_credits(struct smb_direct_transport *t,
+ 			return ret;
+ 	}
+ 
+-	return wait_for_credits(t, &t->wait_send_credits, &t->send_credits);
++	return wait_for_credits(t, &t->wait_send_credits, &t->send_credits, 1);
 +}
 +
- #endif
++static int wait_for_rw_credits(struct smb_direct_transport *t, int credits)
++{
++	return wait_for_credits(t, &t->wait_rw_credits, &t->rw_credits, credits);
++}
++
++static int calc_rw_credits(struct smb_direct_transport *t,
++			   char *buf, unsigned int len)
++{
++	return DIV_ROUND_UP(get_buf_page_count(buf, len),
++			    t->pages_per_rw_credit);
+ }
  
- static inline bool btrfs_dev_is_sequential(struct btrfs_device *device, u64 pos)
+ static int smb_direct_create_header(struct smb_direct_transport *t,
+@@ -1332,8 +1345,8 @@ static void read_write_done(struct ib_cq *cq, struct ib_wc *wc,
+ 		smb_direct_disconnect_rdma_connection(t);
+ 	}
+ 
+-	if (atomic_inc_return(&t->rw_avail_ops) > 0)
+-		wake_up(&t->wait_rw_avail_ops);
++	if (atomic_inc_return(&t->rw_credits) > 0)
++		wake_up(&t->wait_rw_credits);
+ 
+ 	rdma_rw_ctx_destroy(&msg->rw_ctx, t->qp, t->qp->port,
+ 			    msg->sg_list, msg->sgt.nents, dir);
+@@ -1364,8 +1377,10 @@ static int smb_direct_rdma_xmit(struct smb_direct_transport *t,
+ 	struct ib_send_wr *first_wr = NULL;
+ 	u32 remote_key = le32_to_cpu(desc[0].token);
+ 	u64 remote_offset = le64_to_cpu(desc[0].offset);
++	int credits_needed;
+ 
+-	ret = wait_for_credits(t, &t->wait_rw_avail_ops, &t->rw_avail_ops);
++	credits_needed = calc_rw_credits(t, buf, buf_len);
++	ret = wait_for_rw_credits(t, credits_needed);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -1373,7 +1388,7 @@ static int smb_direct_rdma_xmit(struct smb_direct_transport *t,
+ 	msg = kmalloc(offsetof(struct smb_direct_rdma_rw_msg, sg_list) +
+ 		      sizeof(struct scatterlist) * SG_CHUNK_SIZE, GFP_KERNEL);
+ 	if (!msg) {
+-		atomic_inc(&t->rw_avail_ops);
++		atomic_add(credits_needed, &t->rw_credits);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -1382,7 +1397,7 @@ static int smb_direct_rdma_xmit(struct smb_direct_transport *t,
+ 				     get_buf_page_count(buf, buf_len),
+ 				     msg->sg_list, SG_CHUNK_SIZE);
+ 	if (ret) {
+-		atomic_inc(&t->rw_avail_ops);
++		atomic_add(credits_needed, &t->rw_credits);
+ 		kfree(msg);
+ 		return -ENOMEM;
+ 	}
+@@ -1418,7 +1433,7 @@ static int smb_direct_rdma_xmit(struct smb_direct_transport *t,
+ 	return 0;
+ 
+ err:
+-	atomic_inc(&t->rw_avail_ops);
++	atomic_add(credits_needed, &t->rw_credits);
+ 	if (first_wr)
+ 		rdma_rw_ctx_destroy(&msg->rw_ctx, t->qp, t->qp->port,
+ 				    msg->sg_list, msg->sgt.nents,
+@@ -1643,11 +1658,19 @@ static int smb_direct_prepare_negotiation(struct smb_direct_transport *t)
+ 	return ret;
+ }
+ 
++static unsigned int smb_direct_get_max_fr_pages(struct smb_direct_transport *t)
++{
++	return min_t(unsigned int,
++		     t->cm_id->device->attrs.max_fast_reg_page_list_len,
++		     256);
++}
++
+ static int smb_direct_init_params(struct smb_direct_transport *t,
+ 				  struct ib_qp_cap *cap)
+ {
+ 	struct ib_device *device = t->cm_id->device;
+-	int max_send_sges, max_pages, max_rw_wrs, max_send_wrs;
++	int max_send_sges, max_rw_wrs, max_send_wrs;
++	unsigned int max_sge_per_wr, wrs_per_credit;
+ 
+ 	/* need 2 more sge. because a SMB_DIRECT header will be mapped,
+ 	 * and maybe a send buffer could be not page aligned.
+@@ -1659,25 +1682,31 @@ static int smb_direct_init_params(struct smb_direct_transport *t,
+ 		return -EINVAL;
+ 	}
+ 
+-	/*
+-	 * allow smb_direct_max_outstanding_rw_ops of in-flight RDMA
+-	 * read/writes. HCA guarantees at least max_send_sge of sges for
+-	 * a RDMA read/write work request, and if memory registration is used,
+-	 * we need reg_mr, local_inv wrs for each read/write.
++	/* Calculate the number of work requests for RDMA R/W.
++	 * The maximum number of pages which can be registered
++	 * with one Memory region can be transferred with one
++	 * R/W credit. And at least 4 work requests for each credit
++	 * are needed for MR registration, RDMA R/W, local & remote
++	 * MR invalidation.
+ 	 */
+ 	t->max_rdma_rw_size = smb_direct_max_read_write_size;
+-	max_pages = DIV_ROUND_UP(t->max_rdma_rw_size, PAGE_SIZE) + 1;
+-	max_rw_wrs = DIV_ROUND_UP(max_pages, SMB_DIRECT_MAX_SEND_SGES);
+-	max_rw_wrs += rdma_rw_mr_factor(device, t->cm_id->port_num,
+-			max_pages) * 2;
+-	max_rw_wrs *= smb_direct_max_outstanding_rw_ops;
++	t->pages_per_rw_credit = smb_direct_get_max_fr_pages(t);
++	t->max_rw_credits = DIV_ROUND_UP(t->max_rdma_rw_size,
++					 (t->pages_per_rw_credit - 1) *
++					 PAGE_SIZE);
++
++	max_sge_per_wr = min_t(unsigned int, device->attrs.max_send_sge,
++			       device->attrs.max_sge_rd);
++	wrs_per_credit = max_t(unsigned int, 4,
++			       DIV_ROUND_UP(t->pages_per_rw_credit,
++					    max_sge_per_wr) + 1);
++	max_rw_wrs = t->max_rw_credits * wrs_per_credit;
+ 
+ 	max_send_wrs = smb_direct_send_credit_target + max_rw_wrs;
+ 	if (max_send_wrs > device->attrs.max_cqe ||
+ 	    max_send_wrs > device->attrs.max_qp_wr) {
+-		pr_err("consider lowering send_credit_target = %d, or max_outstanding_rw_ops = %d\n",
+-		       smb_direct_send_credit_target,
+-		       smb_direct_max_outstanding_rw_ops);
++		pr_err("consider lowering send_credit_target = %d\n",
++		       smb_direct_send_credit_target);
+ 		pr_err("Possible CQE overrun, device reporting max_cqe %d max_qp_wr %d\n",
+ 		       device->attrs.max_cqe, device->attrs.max_qp_wr);
+ 		return -EINVAL;
+@@ -1712,7 +1741,7 @@ static int smb_direct_init_params(struct smb_direct_transport *t,
+ 
+ 	t->send_credit_target = smb_direct_send_credit_target;
+ 	atomic_set(&t->send_credits, 0);
+-	atomic_set(&t->rw_avail_ops, smb_direct_max_outstanding_rw_ops);
++	atomic_set(&t->rw_credits, t->max_rw_credits);
+ 
+ 	t->max_send_size = smb_direct_max_send_size;
+ 	t->max_recv_size = smb_direct_max_receive_size;
+@@ -1720,12 +1749,10 @@ static int smb_direct_init_params(struct smb_direct_transport *t,
+ 
+ 	cap->max_send_wr = max_send_wrs;
+ 	cap->max_recv_wr = t->recv_credit_max;
+-	cap->max_send_sge = SMB_DIRECT_MAX_SEND_SGES;
++	cap->max_send_sge = max_sge_per_wr;
+ 	cap->max_recv_sge = SMB_DIRECT_MAX_RECV_SGES;
+ 	cap->max_inline_data = 0;
+-	cap->max_rdma_ctxs =
+-		rdma_rw_mr_factor(device, t->cm_id->port_num, max_pages) *
+-		smb_direct_max_outstanding_rw_ops;
++	cap->max_rdma_ctxs = t->max_rw_credits;
+ 	return 0;
+ }
+ 
+@@ -1818,7 +1845,8 @@ static int smb_direct_create_qpair(struct smb_direct_transport *t,
+ 	}
+ 
+ 	t->send_cq = ib_alloc_cq(t->cm_id->device, t,
+-				 t->send_credit_target, 0, IB_POLL_WORKQUEUE);
++				 smb_direct_send_credit_target + cap->max_rdma_ctxs,
++				 0, IB_POLL_WORKQUEUE);
+ 	if (IS_ERR(t->send_cq)) {
+ 		pr_err("Can't create RDMA send CQ\n");
+ 		ret = PTR_ERR(t->send_cq);
+@@ -1827,8 +1855,7 @@ static int smb_direct_create_qpair(struct smb_direct_transport *t,
+ 	}
+ 
+ 	t->recv_cq = ib_alloc_cq(t->cm_id->device, t,
+-				 cap->max_send_wr + cap->max_rdma_ctxs,
+-				 0, IB_POLL_WORKQUEUE);
++				 t->recv_credit_max, 0, IB_POLL_WORKQUEUE);
+ 	if (IS_ERR(t->recv_cq)) {
+ 		pr_err("Can't create RDMA recv CQ\n");
+ 		ret = PTR_ERR(t->recv_cq);
+@@ -1857,17 +1884,12 @@ static int smb_direct_create_qpair(struct smb_direct_transport *t,
+ 
+ 	pages_per_rw = DIV_ROUND_UP(t->max_rdma_rw_size, PAGE_SIZE) + 1;
+ 	if (pages_per_rw > t->cm_id->device->attrs.max_sgl_rd) {
+-		int pages_per_mr, mr_count;
+-
+-		pages_per_mr = min_t(int, pages_per_rw,
+-				     t->cm_id->device->attrs.max_fast_reg_page_list_len);
+-		mr_count = DIV_ROUND_UP(pages_per_rw, pages_per_mr) *
+-			atomic_read(&t->rw_avail_ops);
+-		ret = ib_mr_pool_init(t->qp, &t->qp->rdma_mrs, mr_count,
+-				      IB_MR_TYPE_MEM_REG, pages_per_mr, 0);
++		ret = ib_mr_pool_init(t->qp, &t->qp->rdma_mrs,
++				      t->max_rw_credits, IB_MR_TYPE_MEM_REG,
++				      t->pages_per_rw_credit, 0);
+ 		if (ret) {
+ 			pr_err("failed to init mr pool count %d pages %d\n",
+-			       mr_count, pages_per_mr);
++			       t->max_rw_credits, t->pages_per_rw_credit);
+ 			goto err;
+ 		}
+ 	}
 -- 
 2.35.1
 
