@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88E6D592E68
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4F06592E6C
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:48:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231610AbiHOLr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 07:47:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32790 "EHLO
+        id S240820AbiHOLsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 07:48:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231228AbiHOLr3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:47:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F6D8BF5C
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:47:28 -0700 (PDT)
+        with ESMTP id S232094AbiHOLsJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:48:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 663BCBF5C
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:48:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35998B80E23
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:47:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80A86C433D6;
-        Mon, 15 Aug 2022 11:47:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0142961167
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:48:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05136C433D6;
+        Mon, 15 Aug 2022 11:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660564045;
-        bh=MieFFeDIo3SmRcRyFpA4uIwYEp3CItY6L3h/jT1RlPQ=;
+        s=korg; t=1660564087;
+        bh=Xhyau39+MrCh/SJi9UVC0ZfZPlCGfZTHOA3rzJ5XzGI=;
         h=Subject:To:Cc:From:Date:From;
-        b=c8pY00C47sjzTjnil6Lz9wQYcryC7oclsqUkJcTIuKZ4f5+geBk4q06GKhoF9lTCP
-         gdtUAX08ZHqFxcePlaBK+k60HpRAbediF3HNZ9mUHJk9nI2h8TepGZiQM5i+3Sr42E
-         8DlaC80HhC54v58ipCAamYj1pI5iDgYw8x9lwFwo=
-Subject: FAILED: patch "[PATCH] timekeeping: contribute wall clock to rng on time change" failed to apply to 4.9-stable tree
-To:     Jason@zx2c4.com, ebiggers@google.com, tglx@linutronix.de
+        b=aNnzIQTLxif8xoslUwVc50VX8qj4CYhb7kNgYeSt2ny5PEVr7eYN+Ca2njBhI/3Vi
+         X/Jy3fvvEvFVSVL5uIq3gwGTTJDlNluvS59Z43mtW99mdEeFVJ83AFnLe8lzINYH/3
+         89JKLHuT5A6zgVQCS7PslxLGiaRJbzqQore+DCfM=
+Subject: FAILED: patch "[PATCH] kexec: clean up arch_kexec_kernel_verify_sig" failed to apply to 5.15-stable tree
+To:     coxu@redhat.com, bhe@redhat.com, ebiederm@xmission.com,
+        msuchanek@suse.de, zohar@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Aug 2022 13:47:13 +0200
-Message-ID: <16605640331186@kroah.com>
+Date:   Mon, 15 Aug 2022 13:48:04 +0200
+Message-ID: <1660564084173149@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,67 +60,99 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b8ac29b40183a6038919768b5d189c9bd91ce9b4 Mon Sep 17 00:00:00 2001
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Sun, 17 Jul 2022 23:53:34 +0200
-Subject: [PATCH] timekeeping: contribute wall clock to rng on time change
+From 689a71493bd2f31c024f8c0395f85a1fd4b2138e Mon Sep 17 00:00:00 2001
+From: Coiby Xu <coxu@redhat.com>
+Date: Thu, 14 Jul 2022 21:40:24 +0800
+Subject: [PATCH] kexec: clean up arch_kexec_kernel_verify_sig
 
-The rng's random_init() function contributes the real time to the rng at
-boot time, so that events can at least start in relation to something
-particular in the real world. But this clock might not yet be set that
-point in boot, so nothing is contributed. In addition, the relation
-between minor clock changes from, say, NTP, and the cycle counter is
-potentially useful entropic data.
+Before commit 105e10e2cf1c ("kexec_file: drop weak attribute from
+functions"), there was already no arch-specific implementation
+of arch_kexec_kernel_verify_sig. With weak attribute dropped by that
+commit, arch_kexec_kernel_verify_sig is completely useless. So clean it
+up.
 
-This commit addresses this by mixing in a time stamp on calls to
-settimeofday and adjtimex. No entropy is credited in doing so, so it
-doesn't make initialization faster, but it is still useful input to
-have.
+Note later patches are dependent on this patch so it should be backported
+to the stable tree as well.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: stable@vger.kernel.org
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Suggested-by: Eric W. Biederman <ebiederm@xmission.com>
+Reviewed-by: Michal Suchanek <msuchanek@suse.de>
+Acked-by: Baoquan He <bhe@redhat.com>
+Signed-off-by: Coiby Xu <coxu@redhat.com>
+[zohar@linux.ibm.com: reworded patch description "Note"]
+Link: https://lore.kernel.org/linux-integrity/20220714134027.394370-1-coxu@redhat.com/
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 
-diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-index 8e4b3c32fcf9..f72b9f1de178 100644
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -23,6 +23,7 @@
- #include <linux/pvclock_gtod.h>
- #include <linux/compiler.h>
- #include <linux/audit.h>
-+#include <linux/random.h>
- 
- #include "tick-internal.h"
- #include "ntp_internal.h"
-@@ -1343,8 +1344,10 @@ int do_settimeofday64(const struct timespec64 *ts)
- 	/* Signal hrtimers about time change */
- 	clock_was_set(CLOCK_SET_WALL);
- 
--	if (!ret)
-+	if (!ret) {
- 		audit_tk_injoffset(ts_delta);
-+		add_device_randomness(ts, sizeof(*ts));
-+	}
- 
- 	return ret;
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index 8107606ad1e8..7f710fb3712b 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -212,11 +212,6 @@ static inline void *arch_kexec_kernel_image_load(struct kimage *image)
  }
-@@ -2430,6 +2433,7 @@ int do_adjtimex(struct __kernel_timex *txc)
- 	ret = timekeeping_validate_timex(txc);
- 	if (ret)
- 		return ret;
-+	add_device_randomness(txc, sizeof(*txc));
+ #endif
  
- 	if (txc->modes & ADJ_SETOFFSET) {
- 		struct timespec64 delta;
-@@ -2447,6 +2451,7 @@ int do_adjtimex(struct __kernel_timex *txc)
- 	audit_ntp_init(&ad);
+-#ifdef CONFIG_KEXEC_SIG
+-int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+-				 unsigned long buf_len);
+-#endif
+-
+ extern int kexec_add_buffer(struct kexec_buf *kbuf);
+ int kexec_locate_mem_hole(struct kexec_buf *kbuf);
  
- 	ktime_get_real_ts64(&ts);
-+	add_device_randomness(&ts, sizeof(ts));
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index 0c27c81351ee..6dc1294c90fc 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -81,24 +81,6 @@ int kexec_image_post_load_cleanup_default(struct kimage *image)
+ 	return image->fops->cleanup(image->image_loader_data);
+ }
  
- 	raw_spin_lock_irqsave(&timekeeper_lock, flags);
- 	write_seqcount_begin(&tk_core.seq);
+-#ifdef CONFIG_KEXEC_SIG
+-static int kexec_image_verify_sig_default(struct kimage *image, void *buf,
+-					  unsigned long buf_len)
+-{
+-	if (!image->fops || !image->fops->verify_sig) {
+-		pr_debug("kernel loader does not support signature verification.\n");
+-		return -EKEYREJECTED;
+-	}
+-
+-	return image->fops->verify_sig(buf, buf_len);
+-}
+-
+-int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf, unsigned long buf_len)
+-{
+-	return kexec_image_verify_sig_default(image, buf, buf_len);
+-}
+-#endif
+-
+ /*
+  * Free up memory used by kernel, initrd, and command line. This is temporary
+  * memory allocation which is not needed any more after these buffers have
+@@ -141,13 +123,24 @@ void kimage_file_post_load_cleanup(struct kimage *image)
+ }
+ 
+ #ifdef CONFIG_KEXEC_SIG
++static int kexec_image_verify_sig(struct kimage *image, void *buf,
++				  unsigned long buf_len)
++{
++	if (!image->fops || !image->fops->verify_sig) {
++		pr_debug("kernel loader does not support signature verification.\n");
++		return -EKEYREJECTED;
++	}
++
++	return image->fops->verify_sig(buf, buf_len);
++}
++
+ static int
+ kimage_validate_signature(struct kimage *image)
+ {
+ 	int ret;
+ 
+-	ret = arch_kexec_kernel_verify_sig(image, image->kernel_buf,
+-					   image->kernel_buf_len);
++	ret = kexec_image_verify_sig(image, image->kernel_buf,
++				     image->kernel_buf_len);
+ 	if (ret) {
+ 
+ 		if (sig_enforce) {
 
