@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2DDC593CCD
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18C70593CA2
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233479AbiHOUNd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:13:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50770 "EHLO
+        id S230057AbiHOUN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:13:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344832AbiHOUJo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:09:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99FA72705;
-        Mon, 15 Aug 2022 11:56:13 -0700 (PDT)
+        with ESMTP id S1345876AbiHOUJs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:09:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 964C860D1;
+        Mon, 15 Aug 2022 11:56:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20E876125B;
-        Mon, 15 Aug 2022 18:56:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12D3DC433C1;
-        Mon, 15 Aug 2022 18:56:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 33AFB6123D;
+        Mon, 15 Aug 2022 18:56:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22DA0C433D7;
+        Mon, 15 Aug 2022 18:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589772;
-        bh=vojduCioZU72AP6BPNWFv/LPak1ZFP+99zslQ2g/d1I=;
+        s=korg; t=1660589775;
+        bh=2s6DLnBMZjpDPk2dGSvozIT9Ci6o/Qk7OdSE3YjsmmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cz4b/OhWC1sH5Xsa9C13Si3QrSe47usrNhbWqX6Z53ulJ7/1R00e/VLJssV+NxfKo
-         oYSPR6JkfOxfw00asrI+DYoOqgU1CUvusILFbBYrYK+iRxHr8E9C5dLC9II808VE7w
-         befD0/6wPCNf4lRvuNjlqYgzSPpmCkAXYqjAkXRg=
+        b=BJdO86NdPkkEcOcVxkUo9AOtbTu/00uhfPWBByrsyhB+10JOOn2hcA9To4YWpeJjh
+         z+ZUGIY8Bk+XoH8Lhev/5qDXgF7oQkksEEfOI3V+XRDp/0Aoxy88j7Rr8DSKLlFiKA
+         Rk3w1LDrKX3VV7oQxcFt+qHWsnwksklW4SJdjcOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
+        stable@vger.kernel.org, Bedant Patnaik <bedant.patnaik@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.18 0044/1095] ALSA: hda/realtek: Add quirk for another Asus K42JZ model
-Date:   Mon, 15 Aug 2022 19:50:43 +0200
-Message-Id: <20220815180431.275083033@linuxfoundation.org>
+Subject: [PATCH 5.18 0045/1095] ALSA: hda/realtek: Add a quirk for HP OMEN 15 (8786) mute LED
+Date:   Mon, 15 Aug 2022 19:50:44 +0200
+Message-Id: <20220815180431.311522894@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -53,56 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Tang <tangmeng@uniontech.com>
+From: Bedant Patnaik <bedant.patnaik@gmail.com>
 
-commit f882c4bef9cb914d9f7be171afb10ed26536bfa7 upstream.
+commit 30267718fe2d4dbea49015b022f6f1fe16ca31ab upstream.
 
-There is another Asus K42JZ model with the PCI SSID 1043:1313
-that requires the quirk ALC269VB_FIXUP_ASUS_MIC_NO_PRESENCE.
-Add the corresponding entry to the quirk table.
+Board ID 8786 seems to be another variant of the Omen 15 that needs
+ALC285_FIXUP_HP_MUTE_LED for working mute LED.
 
-Signed-off-by: Meng Tang <tangmeng@uniontech.com>
+Signed-off-by: Bedant Patnaik <bedant.patnaik@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220805074534.20003-1-tangmeng@uniontech.com
+Link: https://lore.kernel.org/r/20220809142455.6473-1-bedant.patnaik@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -6931,6 +6931,7 @@ enum {
- 	ALC269_FIXUP_LIMIT_INT_MIC_BOOST,
- 	ALC269VB_FIXUP_ASUS_ZENBOOK,
- 	ALC269VB_FIXUP_ASUS_ZENBOOK_UX31A,
-+	ALC269VB_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC269_FIXUP_LIMIT_INT_MIC_BOOST_MUTE_LED,
- 	ALC269VB_FIXUP_ORDISSIMO_EVE2,
- 	ALC283_FIXUP_CHROME_BOOK,
-@@ -7518,6 +7519,15 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC269VB_FIXUP_ASUS_ZENBOOK,
- 	},
-+	[ALC269VB_FIXUP_ASUS_MIC_NO_PRESENCE] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x18, 0x01a110f0 },  /* use as headset mic */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_HEADSET_MIC
-+	},
- 	[ALC269_FIXUP_LIMIT_INT_MIC_BOOST_MUTE_LED] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc269_fixup_limit_int_mic_boost,
-@@ -9289,6 +9299,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x12a0, "ASUS X441UV", ALC233_FIXUP_EAPD_COEF_AND_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1043, 0x12e0, "ASUS X541SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x12f0, "ASUS X541UV", ALC256_FIXUP_ASUS_MIC),
-+	SND_PCI_QUIRK(0x1043, 0x1313, "Asus K42JZ", ALC269VB_FIXUP_ASUS_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1043, 0x13b0, "ASUS Z550SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1427, "Asus Zenbook UX31E", ALC269VB_FIXUP_ASUS_ZENBOOK),
- 	SND_PCI_QUIRK(0x1043, 0x1517, "Asus Zenbook UX31A", ALC269VB_FIXUP_ASUS_ZENBOOK_UX31A),
+@@ -9230,6 +9230,7 @@ static const struct snd_pci_quirk alc269
+ 		      ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8783, "HP ZBook Fury 15 G7 Mobile Workstation",
+ 		      ALC285_FIXUP_HP_GPIO_AMP_INIT),
++	SND_PCI_QUIRK(0x103c, 0x8786, "HP OMEN 15", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8787, "HP OMEN 15", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8788, "HP OMEN 15", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x87c8, "HP", ALC287_FIXUP_HP_GPIO_LED),
 
 
