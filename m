@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FEA05950E8
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:49:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47A685950F3
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231313AbiHPEsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231360AbiHPEsm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 16 Aug 2022 00:48:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54830 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233263AbiHPEqi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:46:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF934B249B;
-        Mon, 15 Aug 2022 13:43:30 -0700 (PDT)
+        with ESMTP id S231961AbiHPEqj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:46:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0526FB24BC;
+        Mon, 15 Aug 2022 13:43:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2A7DB81197;
-        Mon, 15 Aug 2022 20:43:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03638C433C1;
-        Mon, 15 Aug 2022 20:43:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DFF06122B;
+        Mon, 15 Aug 2022 20:43:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F09AC433D6;
+        Mon, 15 Aug 2022 20:43:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596207;
-        bh=zqRJVTqnhVnCcS8AAZW3JKoLlu8MDd4u9JRcij25GfU=;
+        s=korg; t=1660596210;
+        bh=DSa1Nww/GJG07Ljq8FXOs2YqiTMvpeYFmc1IDhYdfg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FbjBukhuAnusNpHiF6Eg9v1CLdK5NzXxRmai34uuFCkjwkKZ6hRA2qaGFnDeXY4i+
-         FJq452Dv2z8zkEjGS7gOxCJvkCbCt+5rjTbw6HLToyAyX0WvaWgTKGe5/4kD8RhIvh
-         hchm/GlfdzD1rhqD/MplwFaRIMl7aA7+eWaWAnv4=
+        b=fvN7GSvU+GxXs6m9T3Mog5ReA6Lg35cB+ROU7eE9Sg7iArhUmV6cSrn89M4cKbbRN
+         57W2UP0v6u3YbEzgMxKRAe+OwDzg68y3R5oMydFA26uzg2GuWC6tPIdELE630PjfyJ
+         0+N6aBGhSINAz4pantkBycr56YD+al9/4KGqCjxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Hyeong-Jun Kim <hj514.kim@samsung.com>,
+        Chao Yu <chao.yu@oppo.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1005/1157] perf stat: Revert "perf stat: Add default hybrid events"
-Date:   Mon, 15 Aug 2022 20:06:01 +0200
-Message-Id: <20220815180520.003520098@linuxfoundation.org>
+Subject: [PATCH 5.19 1006/1157] f2fs: fix to invalidate META_MAPPING before DIO write
+Date:   Mon, 15 Aug 2022 20:06:02 +0200
+Message-Id: <20220815180520.056683269@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -61,90 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit ace3e31e653e79cae9b047e85f567e6b44c98532 ]
+[ Upstream commit 67ca06872eb02944b4c6f92cffa9242e92c63109 ]
 
-This reverts commit Fixes: ac2dc29edd21f9ec ("perf stat: Add default
-hybrid events")
+Quoted from commit e3b49ea36802 ("f2fs: invalidate META_MAPPING before
+IPU/DIO write")
 
-Between this patch and the reverted patch, the commit 6c1912898ed21bef
-("perf parse-events: Rename parse_events_error functions") and the
-commit 07eafd4e053a41d7 ("perf parse-event: Add init and exit to
-parse_event_error") clean up the parse_events_error_*() codes. The
-related change is also reverted.
+"
+Encrypted pages during GC are read and cached in META_MAPPING.
+However, due to cached pages in META_MAPPING, there is an issue where
+newly written pages are lost by IPU or DIO writes.
 
-The reverted patch is hard to be extended to support new default events,
-e.g., Topdown events, and the existing "--detailed" option on a hybrid
-platform.
+Thread A - f2fs_gc()            Thread B
+/* phase 3 */
+down_write(i_gc_rwsem)
+ra_data_block()       ---- (a)
+up_write(i_gc_rwsem)
+                                f2fs_direct_IO() :
+                                 - down_read(i_gc_rwsem)
+                                 - __blockdev_direct_io()
+                                 - get_data_block_dio_write()
+                                 - f2fs_dio_submit_bio()  ---- (b)
+                                 - up_read(i_gc_rwsem)
+/* phase 4 */
+down_write(i_gc_rwsem)
+move_data_block()     ---- (c)
+up_write(i_gc_rwsem)
 
-A new solution will be proposed in the following patch to enable the
-perf stat default on a hybrid platform.
+(a) In phase 3 of f2fs_gc(), up-to-date page is read from storage and
+    cached in META_MAPPING.
+(b) In thread B, writing new data by IPU or DIO write on same blkaddr as
+    read in (a). cached page in META_MAPPING become out-dated.
+(c) In phase 4 of f2fs_gc(), out-dated page in META_MAPPING is copied to
+    new blkaddr. In conclusion, the newly written data in (b) is lost.
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220721065706.2886112-2-zhengjun.xing@linux.intel.com
-Signed-off-by: Xing Zhengjun <zhengjun.xing@linux.intel.com>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+To address this issue, invalidating pages in META_MAPPING before IPU or
+DIO write.
+"
+
+In previous commit, we missed to cover extent cache hit case, and passed
+wrong value for parameter @end of invalidate_mapping_pages(), fix both
+issues.
+
+Fixes: 6aa58d8ad20a ("f2fs: readahead encrypted block during GC")
+Fixes: e3b49ea36802 ("f2fs: invalidate META_MAPPING before IPU/DIO write")
+Cc: Hyeong-Jun Kim <hj514.kim@samsung.com>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-stat.c | 30 ------------------------------
- 1 file changed, 30 deletions(-)
+ fs/f2fs/data.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
-index d2ecd4d29624..86f838c5661e 100644
---- a/tools/perf/builtin-stat.c
-+++ b/tools/perf/builtin-stat.c
-@@ -1685,12 +1685,6 @@ static int add_default_attributes(void)
-   { .type = PERF_TYPE_HARDWARE, .config = PERF_COUNT_HW_BRANCH_INSTRUCTIONS	},
-   { .type = PERF_TYPE_HARDWARE, .config = PERF_COUNT_HW_BRANCH_MISSES		},
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index 7fcbcf979737..f2a272613477 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -1463,9 +1463,12 @@ int f2fs_map_blocks(struct inode *inode, struct f2fs_map_blocks *map,
+ 			*map->m_next_extent = pgofs + map->m_len;
  
--};
--	struct perf_event_attr default_sw_attrs[] = {
--  { .type = PERF_TYPE_SOFTWARE, .config = PERF_COUNT_SW_TASK_CLOCK		},
--  { .type = PERF_TYPE_SOFTWARE, .config = PERF_COUNT_SW_CONTEXT_SWITCHES	},
--  { .type = PERF_TYPE_SOFTWARE, .config = PERF_COUNT_SW_CPU_MIGRATIONS		},
--  { .type = PERF_TYPE_SOFTWARE, .config = PERF_COUNT_SW_PAGE_FAULTS		},
- };
+ 		/* for hardware encryption, but to avoid potential issue in future */
+-		if (flag == F2FS_GET_BLOCK_DIO)
++		if (flag == F2FS_GET_BLOCK_DIO) {
+ 			f2fs_wait_on_block_writeback_range(inode,
+ 						map->m_pblk, map->m_len);
++			invalidate_mapping_pages(META_MAPPING(sbi),
++				map->m_pblk, map->m_pblk + map->m_len - 1);
++		}
  
- /*
-@@ -1947,30 +1941,6 @@ static int add_default_attributes(void)
- 	}
+ 		if (map->m_multidev_dio) {
+ 			block_t blk_addr = map->m_pblk;
+@@ -1682,7 +1685,7 @@ int f2fs_map_blocks(struct inode *inode, struct f2fs_map_blocks *map,
+ 		f2fs_wait_on_block_writeback_range(inode,
+ 						map->m_pblk, map->m_len);
+ 		invalidate_mapping_pages(META_MAPPING(sbi),
+-						map->m_pblk, map->m_pblk);
++				map->m_pblk, map->m_pblk + map->m_len - 1);
  
- 	if (!evsel_list->core.nr_entries) {
--		if (perf_pmu__has_hybrid()) {
--			struct parse_events_error errinfo;
--			const char *hybrid_str = "cycles,instructions,branches,branch-misses";
--
--			if (target__has_cpu(&target))
--				default_sw_attrs[0].config = PERF_COUNT_SW_CPU_CLOCK;
--
--			if (evlist__add_default_attrs(evsel_list,
--						      default_sw_attrs) < 0) {
--				return -1;
--			}
--
--			parse_events_error__init(&errinfo);
--			err = parse_events(evsel_list, hybrid_str, &errinfo);
--			if (err) {
--				fprintf(stderr,
--					"Cannot set up hybrid events %s: %d\n",
--					hybrid_str, err);
--				parse_events_error__print(&errinfo, hybrid_str);
--			}
--			parse_events_error__exit(&errinfo);
--			return err ? -1 : 0;
--		}
--
- 		if (target__has_cpu(&target))
- 			default_attrs0[0].config = PERF_COUNT_SW_CPU_CLOCK;
- 
+ 		if (map->m_multidev_dio) {
+ 			block_t blk_addr = map->m_pblk;
 -- 
 2.35.1
 
