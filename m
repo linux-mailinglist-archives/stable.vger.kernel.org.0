@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F0075941DE
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4CE6593FF6
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:47:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346238AbiHOUuF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:50:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38658 "EHLO
+        id S1346058AbiHOUuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:50:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346250AbiHOUtX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:49:23 -0400
+        with ESMTP id S245187AbiHOUt1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:49:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1926B8F01;
-        Mon, 15 Aug 2022 12:09:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7785B958F;
+        Mon, 15 Aug 2022 12:09:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E9B1B60A52;
-        Mon, 15 Aug 2022 19:09:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D16FAC433C1;
-        Mon, 15 Aug 2022 19:09:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E031260ACE;
+        Mon, 15 Aug 2022 19:09:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAEB0C433D7;
+        Mon, 15 Aug 2022 19:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590552;
-        bh=kuSPsuod3nFFBwRzP14Dq+MMwRDfrosp/7NOt14u+p4=;
+        s=korg; t=1660590555;
+        bh=t4VfIFbTd+hOKtBrkZrnhvdPwL/KK5ZpeGv/LvfhQqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L09ghtYh5RaLjXMthYB/9GHF8azEJL9YIPE+iiErTqJ56ylsa1lNHfX9REhP0IVMH
-         6y4BqhjEPQLElFoLI2GdItUh6efEnYC+ooADw+BT+EOUgLhV+/HCb4B5MSPlQ8t8w2
-         IOqiyAeGHp4UFR7K1RMFTHa6ZttA0K50XHuUZC+8=
+        b=V4gajcr0VIqq6ErcuZ3hlPM5xE0sC4vr8EmYAjGqWoS1W+AxUAdEI6MvnnvgIVLKG
+         tjzEMvEmH6LTQiugzDchmbfvKVIYOMrljIGo2IX5rAoCt0mvx4OGF5Tac22+L3O80m
+         U64nsDjwslKGK1FCae+dMJPOxYx6AlJe1trfelGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Jinbao <liujinbao1@xiaomi.com>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0265/1095] erofs: avoid consecutive detection for Highmem memory
-Date:   Mon, 15 Aug 2022 19:54:24 +0200
-Message-Id: <20220815180440.711719977@linuxfoundation.org>
+Subject: [PATCH 5.18 0266/1095] spi: Return deferred probe error when controller isnt yet available
+Date:   Mon, 15 Aug 2022 19:54:25 +0200
+Message-Id: <20220815180440.746497365@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,57 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 448b5a1548d87c246c3d0c3df8480d3c6eb6c11a ]
+[ Upstream commit 9c22ec4ac27bcc5a54dd406da168f403327a5b55 ]
 
-Currently, vmap()s are avoided if physical addresses are
-consecutive for decompressed buffers.
+If the controller is not available, it might be in the future and
+we would like to re-probe the peripheral again. For that purpose
+return deferred probe.
 
-I observed that is very common for 4KiB pclusters since the
-numbers of decompressed pages are almost 2 or 3.
-
-However, such detection doesn't work for Highmem pages on
-32-bit machines, let's fix it now.
-
-Reported-by: Liu Jinbao <liujinbao1@xiaomi.com>
-Fixes: 7fc45dbc938a ("staging: erofs: introduce generic decompression backend")
-Link: https://lore.kernel.org/r/20220708101001.21242-1-hsiangkao@linux.alibaba.com
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215993
+Fixes: 87e59b36e5e2 ("spi: Support selection of the index of the ACPI Spi Resource before alloc")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20220709212956.25530-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/erofs/decompressor.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/spi/spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index 0e0d1fc0f130..9bbd9a59426b 100644
---- a/fs/erofs/decompressor.c
-+++ b/fs/erofs/decompressor.c
-@@ -93,14 +93,18 @@ static int z_erofs_lz4_prepare_dstpages(struct z_erofs_lz4_decompress_ctx *ctx,
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 2e6d6bbeb784..e1065768c537 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -2416,7 +2416,7 @@ static int acpi_spi_add_resource(struct acpi_resource *ares, void *data)
  
- 		if (page) {
- 			__clear_bit(j, bounced);
--			if (kaddr) {
--				if (kaddr + PAGE_SIZE == page_address(page))
-+			if (!PageHighMem(page)) {
-+				if (!i) {
-+					kaddr = page_address(page);
-+					continue;
-+				}
-+				if (kaddr &&
-+				    kaddr + PAGE_SIZE == page_address(page)) {
- 					kaddr += PAGE_SIZE;
--				else
--					kaddr = NULL;
--			} else if (!i) {
--				kaddr = page_address(page);
-+					continue;
-+				}
+ 				ctlr = acpi_spi_find_controller_by_adev(adev);
+ 				if (!ctlr)
+-					return -ENODEV;
++					return -EPROBE_DEFER;
+ 
+ 				lookup->ctlr = ctlr;
  			}
-+			kaddr = NULL;
- 			continue;
- 		}
- 		kaddr = NULL;
 -- 
 2.35.1
 
