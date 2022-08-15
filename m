@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB58759479B
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66E58594766
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240957AbiHOXH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:07:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60922 "EHLO
+        id S241419AbiHOXH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:07:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353119AbiHOXHN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:07:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39F9E1423D3;
-        Mon, 15 Aug 2022 12:59:16 -0700 (PDT)
+        with ESMTP id S1353145AbiHOXHR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:07:17 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 401761423EE;
+        Mon, 15 Aug 2022 12:59:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A23D4B80EAD;
-        Mon, 15 Aug 2022 19:59:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0BA7C433C1;
-        Mon, 15 Aug 2022 19:59:12 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A7294CE12C1;
+        Mon, 15 Aug 2022 19:59:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EBBBC433C1;
+        Mon, 15 Aug 2022 19:59:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593553;
-        bh=caZpDJ7aSRMBdaIMuyVsTOuU9AM6FJlvGJPQMJVwMhk=;
+        s=korg; t=1660593559;
+        bh=LVHA3YzYWEMPoW5ZgxNE0Ccb4/VJ6WQwYu7SWqFJdg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AJQiUbvt4ZAE+dDuDN+/dd6LdGYFE3uTCpUVq+1fncz58kqTrWDxYYwsi/w1cipPY
-         kUlBcoGKNcEVm3g9xu5Hjcoyc1+wNyGmggYe9Buds8mwfy4UaDRhF+Gkq7+sBTpmrm
-         xrrtkBlAJ9J8wzhzB+F8u8+40JJAFPPGYN93oZXw=
+        b=kN3kpXkiNwb6SjPq6wtXPCoU1dDf2GkoBOsggcc4f4qOY06hVlv06IMck93YBObnm
+         cxcF3ejTvkS3J8jN9qYWyHyi1ialOBNs5ktM4FrFrS8MBfeT8usCrapsTyPRpgMwyI
+         yqBaGaY3W58VfgQk2C1oO83EZ6wSTrsLWozhFkxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Atish Patra <atishp@rivosinc.com>,
-        Andrew Jones <ajones@ventanamicro.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0287/1157] perf: RISC-V: Add of_node_put() when breaking out of for_each_of_cpu_node()
-Date:   Mon, 15 Aug 2022 19:54:03 +0200
-Message-Id: <20220815180451.099813403@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        linux-arm-kernel@lists.infradead.org,
+        German Gomez <german.gomez@arm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0288/1157] drivers/perf: arm_spe: Fix consistency of SYS_PMSCR_EL1.CX
+Date:   Mon, 15 Aug 2022 19:54:04 +0200
+Message-Id: <20220815180451.138467006@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,46 +59,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 
-[ Upstream commit 491f10d08fdae10a177edf6af4f43b83b293114b ]
+[ Upstream commit 92f2b8bafa3d6e89c750e9d301a8b7ab76aaa8b6 ]
 
-In pmu_sbi_setup_irqs(), we should call of_node_put() for the 'cpu'
-when breaking out of for_each_of_cput_node() as its refcount will
-be automatically increased and decreased during the iteration.
+The arm_spe_pmu driver will enable SYS_PMSCR_EL1.CX in order to add CONTEXT
+packets into the traces, if the owner of the perf event runs with required
+capabilities i.e CAP_PERFMON or CAP_SYS_ADMIN via perfmon_capable() helper.
 
-Fixes: 4905ec2fb7e6 ("RISC-V: Add sscofpmf extension support")
-Signed-off-by: Liang He <windhl@126.com>
-Reviewed-by: Atish Patra <atishp@rivosinc.com>
-Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
-Link: https://lore.kernel.org/r/20220715130330.443363-1-windhl@126.com
+The value of this bit is computed in the arm_spe_event_to_pmscr() function
+but the check for capabilities happens in the pmu event init callback i.e
+arm_spe_pmu_event_init(). This suggests that the value of the CX bit should
+remain consistent for the duration of the perf session.
+
+However, the function arm_spe_event_to_pmscr() may be called later during
+the event start callback i.e arm_spe_pmu_start() when the "current" process
+is not the owner of the perf session, hence the CX bit setting is currently
+not consistent.
+
+One way to fix this, is by caching the required value of the CX bit during
+the initialization of the PMU event, so that it remains consistent for the
+duration of the session. It uses currently unused 'event->hw.flags' element
+to cache perfmon_capable() value, which can be referred during event start
+callback to compute SYS_PMSCR_EL1.CX. This ensures consistent availability
+of context packets in the trace as per event owner capabilities.
+
+Drop BIT(SYS_PMSCR_EL1_CX_SHIFT) check in arm_spe_pmu_event_init(), because
+now CX bit cannot be set in arm_spe_event_to_pmscr() with perfmon_capable()
+disabled.
+
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Fixes: d5d9696b0380 ("drivers/perf: Add support for ARMv8.2 Statistical Profiling Extension")
+Reported-by: German Gomez <german.gomez@arm.com>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20220714061302.2715102-1-anshuman.khandual@arm.com
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/riscv_pmu_sbi.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/perf/arm_spe_pmu.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/perf/riscv_pmu_sbi.c b/drivers/perf/riscv_pmu_sbi.c
-index bae614c73b14..231d86d3949c 100644
---- a/drivers/perf/riscv_pmu_sbi.c
-+++ b/drivers/perf/riscv_pmu_sbi.c
-@@ -682,12 +682,15 @@ static int pmu_sbi_setup_irqs(struct riscv_pmu *pmu, struct platform_device *pde
- 		child = of_get_compatible_child(cpu, "riscv,cpu-intc");
- 		if (!child) {
- 			pr_err("Failed to find INTC node\n");
-+			of_node_put(cpu);
- 			return -ENODEV;
- 		}
- 		domain = irq_find_host(child);
- 		of_node_put(child);
--		if (domain)
-+		if (domain) {
-+			of_node_put(cpu);
- 			break;
-+		}
- 	}
- 	if (!domain) {
- 		pr_err("Failed to find INTC IRQ root domain\n");
+diff --git a/drivers/perf/arm_spe_pmu.c b/drivers/perf/arm_spe_pmu.c
+index db670b265897..b65a7d9640e1 100644
+--- a/drivers/perf/arm_spe_pmu.c
++++ b/drivers/perf/arm_spe_pmu.c
+@@ -39,6 +39,24 @@
+ #include <asm/mmu.h>
+ #include <asm/sysreg.h>
+ 
++/*
++ * Cache if the event is allowed to trace Context information.
++ * This allows us to perform the check, i.e, perfmon_capable(),
++ * in the context of the event owner, once, during the event_init().
++ */
++#define SPE_PMU_HW_FLAGS_CX			BIT(0)
++
++static void set_spe_event_has_cx(struct perf_event *event)
++{
++	if (IS_ENABLED(CONFIG_PID_IN_CONTEXTIDR) && perfmon_capable())
++		event->hw.flags |= SPE_PMU_HW_FLAGS_CX;
++}
++
++static bool get_spe_event_has_cx(struct perf_event *event)
++{
++	return !!(event->hw.flags & SPE_PMU_HW_FLAGS_CX);
++}
++
+ #define ARM_SPE_BUF_PAD_BYTE			0
+ 
+ struct arm_spe_pmu_buf {
+@@ -272,7 +290,7 @@ static u64 arm_spe_event_to_pmscr(struct perf_event *event)
+ 	if (!attr->exclude_kernel)
+ 		reg |= BIT(SYS_PMSCR_EL1_E1SPE_SHIFT);
+ 
+-	if (IS_ENABLED(CONFIG_PID_IN_CONTEXTIDR) && perfmon_capable())
++	if (get_spe_event_has_cx(event))
+ 		reg |= BIT(SYS_PMSCR_EL1_CX_SHIFT);
+ 
+ 	return reg;
+@@ -709,10 +727,10 @@ static int arm_spe_pmu_event_init(struct perf_event *event)
+ 	    !(spe_pmu->features & SPE_PMU_FEAT_FILT_LAT))
+ 		return -EOPNOTSUPP;
+ 
++	set_spe_event_has_cx(event);
+ 	reg = arm_spe_event_to_pmscr(event);
+ 	if (!perfmon_capable() &&
+ 	    (reg & (BIT(SYS_PMSCR_EL1_PA_SHIFT) |
+-		    BIT(SYS_PMSCR_EL1_CX_SHIFT) |
+ 		    BIT(SYS_PMSCR_EL1_PCT_SHIFT))))
+ 		return -EACCES;
+ 
 -- 
 2.35.1
 
