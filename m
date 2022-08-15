@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 228065938A3
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:32:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85A0159376B
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:28:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243816AbiHOSwL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:52:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34526 "EHLO
+        id S243890AbiHOSwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:52:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244534AbiHOSvZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:51:25 -0400
+        with ESMTP id S244564AbiHOSv3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:51:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC08343323;
-        Mon, 15 Aug 2022 11:29:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4697641989;
+        Mon, 15 Aug 2022 11:29:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EC0F60FEE;
-        Mon, 15 Aug 2022 18:29:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29EC1C433D6;
-        Mon, 15 Aug 2022 18:29:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BCC160FDA;
+        Mon, 15 Aug 2022 18:29:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EBB5C433C1;
+        Mon, 15 Aug 2022 18:29:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588155;
-        bh=kpVBEoT6LCIL/pFUQuqn8rGR3aDGvmQPx3ShG7RBrfw=;
+        s=korg; t=1660588159;
+        bh=75PJQzjZ5bs1glYwli5PDChBligTr07n+c98BVE86jI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sR24tCoqaRj0AfatXAYVhfLUYOepkfJW0oxU1Xo8I9t2dNuiTdEf1NaiJwnxiWdYM
-         p0i/vr5mWfBfKrv7UPqLAgsGfUgKWnvKP9oEY/IDH1duZIJQZI6LvOByeAPwx/yzT8
-         vpNszX68OSWnqOVcMP8U6x/mYIbp4ogaxLqVP1UI=
+        b=1vmfqLdqNhqzZM0+Ju/DZ/fYgZNB5Sj2tOFuKkdrFZy+X+3SnJHmIkbdXsDnOGAYN
+         WSFxrZ7SOa2tbemv2yEBoDyaB/PgyicMUKwd1FSWDUUgW6Mrdxnz1QQV6k6CYWCmJg
+         AjnC4ZJQUPQFz9Xs1F4H1MAFPbeXhqxBHe5kXqHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 312/779] drm/rockchip: vop: Dont crash for invalid duplicate_state()
-Date:   Mon, 15 Aug 2022 19:59:16 +0200
-Message-Id: <20220815180350.631718767@linuxfoundation.org>
+Subject: [PATCH 5.15 313/779] drm/rockchip: Fix an error handling path rockchip_dp_probe()
+Date:   Mon, 15 Aug 2022 19:59:17 +0200
+Message-Id: <20220815180350.662255941@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,40 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 1449110b0dade8b638d2c17ab7c5b0ff696bfccb ]
+[ Upstream commit 5074376822fe99fa4ce344b851c5016d00c0444f ]
 
-It's possible for users to try to duplicate the CRTC state even when the
-state doesn't exist. drm_atomic_helper_crtc_duplicate_state() (and other
-users of __drm_atomic_helper_crtc_duplicate_state()) already guard this
-with a WARN_ON() instead of crashing, so let's do that here too.
+Should component_add() fail, we should call analogix_dp_remove() in the
+error handling path, as already done in the remove function.
 
-Fixes: 4e257d9eee23 ("drm/rockchip: get rid of rockchip_drm_crtc_mode_config")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Sean Paul <seanpaul@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Fixes: 152cce0006ab ("drm/bridge: analogix_dp: Split bind() into probe() and real bind()")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220617172623.1.I62db228170b1559ada60b8d3e1637e1688424926@changeid
+Link: https://patchwork.freedesktop.org/patch/msgid/b719d9061bb97eb85145fbd3c5e63f4549f2e13e.1655572071.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/rockchip/analogix_dp-rockchip.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-index 8b4287d40379..d5b74ea06a45 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-@@ -1550,6 +1550,9 @@ static struct drm_crtc_state *vop_crtc_duplicate_state(struct drm_crtc *crtc)
- {
- 	struct rockchip_crtc_state *rockchip_state;
+diff --git a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
+index ade2327a10e2..512581698a1e 100644
+--- a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
++++ b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
+@@ -398,7 +398,15 @@ static int rockchip_dp_probe(struct platform_device *pdev)
+ 	if (IS_ERR(dp->adp))
+ 		return PTR_ERR(dp->adp);
  
-+	if (WARN_ON(!crtc->state))
-+		return NULL;
+-	return component_add(dev, &rockchip_dp_component_ops);
++	ret = component_add(dev, &rockchip_dp_component_ops);
++	if (ret)
++		goto err_dp_remove;
 +
- 	rockchip_state = kzalloc(sizeof(*rockchip_state), GFP_KERNEL);
- 	if (!rockchip_state)
- 		return NULL;
++	return 0;
++
++err_dp_remove:
++	analogix_dp_remove(dp->adp);
++	return ret;
+ }
+ 
+ static int rockchip_dp_remove(struct platform_device *pdev)
 -- 
 2.35.1
 
