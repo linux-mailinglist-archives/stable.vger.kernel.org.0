@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4202594BE8
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AE0D594B98
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:24:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351613AbiHPA3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:29:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57248 "EHLO
+        id S1349053AbiHPAXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:23:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357561AbiHPA1Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:27:16 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2B91180B5E;
-        Mon, 15 Aug 2022 13:34:54 -0700 (PDT)
+        with ESMTP id S1353070AbiHPAUX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:20:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 217AD17B819;
+        Mon, 15 Aug 2022 13:33:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DC698CE12C4;
-        Mon, 15 Aug 2022 20:34:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E924BC433C1;
-        Mon, 15 Aug 2022 20:34:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14073611AA;
+        Mon, 15 Aug 2022 20:33:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D06FC433C1;
+        Mon, 15 Aug 2022 20:33:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595653;
-        bh=4Qx3TpTzRNC8GP0eSyB6JcW988m841SDnRGg73iCp10=;
+        s=korg; t=1660595596;
+        bh=BWdZqPLDXsnad35DrHwcE33hAm8J1xbYtk0RGyawOr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yZZzifybzRxrYJ8U1l+2ZlthsMs9DYo6osGP/rYBubxxKT4rNIbSRaBghrEkGHiFA
-         0Dg4NTaSR32DmRtfCwD7IqcwXfdHJ8xngF44WboA4p2gTbZszP7/aJTdQYXhawhdIU
-         sMvDAI79eRRMKs86H71ei2VY1JRdrHOTojCRtgJo=
+        b=uJ3+QGAxdvOuq2EbSYqCw1LfVDZXX0RBsWTpxi3laEuRFpvRCsctGVkRu85uQBow2
+         HLJbhu1BmwzGtqCNpKVmV56AYb1Wu05Z6HKEejQsVoClvy++VblpXsmjnIHY8bKgyX
+         x8kDXofiCGG/GaRLLsOWkSU4qytARH4FcOJEC49Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Miaoqian Lin <linmq006@gmail.com>
-Subject: [PATCH 5.19 0800/1157] of: device: Fix missing of_node_put() in of_dma_set_restricted_buffer
-Date:   Mon, 15 Aug 2022 20:02:36 +0200
-Message-Id: <20220815180511.486332585@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0814/1157] phy: stm32: fix error return in stm32_usbphyc_phy_init
+Date:   Mon, 15 Aug 2022 20:02:50 +0200
+Message-Id: <20220815180512.052610482@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,40 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
 
-[ Upstream commit d17e37c41b7ed38459957a5d2968ba61516fd5c2 ]
+[ Upstream commit 32b378a9179ae4db61cfc5d502717214e6cd1e1c ]
 
-We should use of_node_put() for the reference 'node' returned by
-of_parse_phandle() which will increase the refcount.
+Error code is overridden, in case the PLL doesn't lock. So, the USB
+initialization can continue. This leads to a platform freeze.
+This can be avoided by returning proper error code to avoid USB probe
+freezing the platform. It also displays proper errors in log.
 
-Fixes: fec9b625095f ("of: Add plumbing for restricted DMA pool")
-Co-authored-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20220702014449.263772-1-windhl@126.com
+Fixes: 5b1af71280ab ("phy: stm32: rework PLL Lock detection")
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20220713133953.595134-1-fabrice.gasnier@foss.st.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/device.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/phy/st/phy-stm32-usbphyc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/of/device.c b/drivers/of/device.c
-index 874f031442dc..75b6cbffa755 100644
---- a/drivers/of/device.c
-+++ b/drivers/of/device.c
-@@ -81,8 +81,11 @@ of_dma_set_restricted_buffer(struct device *dev, struct device_node *np)
- 		 * restricted-dma-pool region is allowed.
- 		 */
- 		if (of_device_is_compatible(node, "restricted-dma-pool") &&
--		    of_device_is_available(node))
-+		    of_device_is_available(node)) {
-+			of_node_put(node);
- 			break;
-+		}
-+		of_node_put(node);
- 	}
+diff --git a/drivers/phy/st/phy-stm32-usbphyc.c b/drivers/phy/st/phy-stm32-usbphyc.c
+index 007a23c78d56..a98c911cc37a 100644
+--- a/drivers/phy/st/phy-stm32-usbphyc.c
++++ b/drivers/phy/st/phy-stm32-usbphyc.c
+@@ -358,7 +358,9 @@ static int stm32_usbphyc_phy_init(struct phy *phy)
+ 	return 0;
  
- 	/*
+ pll_disable:
+-	return stm32_usbphyc_pll_disable(usbphyc);
++	stm32_usbphyc_pll_disable(usbphyc);
++
++	return ret;
+ }
+ 
+ static int stm32_usbphyc_phy_exit(struct phy *phy)
 -- 
 2.35.1
 
