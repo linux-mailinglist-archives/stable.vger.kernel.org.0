@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA09A593E1D
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC803593E20
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344258AbiHOUhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:37:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41870 "EHLO
+        id S1344812AbiHOUhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:37:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346007AbiHOUei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:34:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCF994D16B;
-        Mon, 15 Aug 2022 12:06:16 -0700 (PDT)
+        with ESMTP id S1346029AbiHOUej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:34:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07FE74D803;
+        Mon, 15 Aug 2022 12:06:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 755F2B81104;
-        Mon, 15 Aug 2022 19:06:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D37C433D6;
-        Mon, 15 Aug 2022 19:06:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 943DE61299;
+        Mon, 15 Aug 2022 19:06:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0BDDC433C1;
+        Mon, 15 Aug 2022 19:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590374;
-        bh=eYdIiq6i7+oz5kC9QwEqKLyINkLBLeu8q8JqoqMwYYs=;
+        s=korg; t=1660590378;
+        bh=f1QHJkEWBxe0y7ULk3wzJybIZKZvXufJ0WmRnppxYtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ukW9UwdhDLduxJyF34lC/+cNsy/6OSCliNuOAgmzK4bxEsfxvPM3KBJOiSiSbaBPH
-         wRIddZuURn8ICYRGIEdSjdqs6GFKqCUmYKVMkvAbAB/o4tzWsgJCWjFKa76MQ5cedS
-         7K1QcrLp2Hw9mtM7wCU0zfCyt0ezY4lZrYa6lDPM=
+        b=AkBMkvzmyZRCgRsybAnR6VBa73mZ0dXecyUeELJEPrZjWutpvrfZRq4wyPthHMR2s
+         FshSrVJ/QMyFA5rFpuNEKnQhbaey+BGpAM7RyQl2myx6s518UH9lbg/acjTJRqoqfH
+         5a6eRDkjPndc/Mi9xJ3G1/MYvBDZgOAOsDXypF28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Weiss <luca@z3ntu.xyz>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Jing Leng <jleng@ambarella.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0240/1095] ARM: dts: qcom-msm8974: fix irq type on blsp2_uart1
-Date:   Mon, 15 Aug 2022 19:53:59 +0200
-Message-Id: <20220815180439.717676342@linuxfoundation.org>
+Subject: [PATCH 5.18 0241/1095] kbuild: Fix include path in scripts/Makefile.modpost
+Date:   Mon, 15 Aug 2022 19:54:00 +0200
+Message-Id: <20220815180439.757015907@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,35 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Weiss <luca@z3ntu.xyz>
+From: Jing Leng <jleng@ambarella.com>
 
-[ Upstream commit ab1489017aa7a9f02e24bee73cf9ec8079cd3909 ]
+[ Upstream commit 23a0cb8e3225122496bfa79172005c587c2d64bf ]
 
-IRQ_TYPE_NONE is invalid, so use the correct interrupt type.
+When building an external module, if users don't need to separate the
+compilation output and source code, they run the following command:
+"make -C $(LINUX_SRC_DIR) M=$(PWD)". At this point, "$(KBUILD_EXTMOD)"
+and "$(src)" are the same.
 
-Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
-Fixes: b05f82b152c9 ("ARM: dts: qcom: msm8974: Add blsp2_uart7 for bluetooth on sirius")
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220522083618.17894-1-luca@z3ntu.xyz
+If they need to separate them, they run "make -C $(KERNEL_SRC_DIR)
+O=$(KERNEL_OUT_DIR) M=$(OUT_DIR) src=$(PWD)". Before running the
+command, they need to copy "Kbuild" or "Makefile" to "$(OUT_DIR)" to
+prevent compilation failure.
+
+So the kernel should change the included path to avoid the copy operation.
+
+Signed-off-by: Jing Leng <jleng@ambarella.com>
+[masahiro: I do not think "M=$(OUT_DIR) src=$(PWD)" is the official way,
+but this patch is a nice clean up anyway.]
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-msm8974.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/Makefile.modpost | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi b/arch/arm/boot/dts/qcom-msm8974.dtsi
-index 0091a4c29fff..ed3e46e7f96d 100644
---- a/arch/arm/boot/dts/qcom-msm8974.dtsi
-+++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
-@@ -562,7 +562,7 @@ blsp2_dma: dma-controller@f9944000 {
- 		blsp2_uart1: serial@f995d000 {
- 			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
- 			reg = <0xf995d000 0x1000>;
--			interrupts = <GIC_SPI 113 IRQ_TYPE_NONE>;
-+			interrupts = <GIC_SPI 113 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&gcc GCC_BLSP2_UART1_APPS_CLK>, <&gcc GCC_BLSP2_AHB_CLK>;
- 			clock-names = "core", "iface";
- 			status = "disabled";
+diff --git a/scripts/Makefile.modpost b/scripts/Makefile.modpost
+index 48585c4d04ad..0273bf7375e2 100644
+--- a/scripts/Makefile.modpost
++++ b/scripts/Makefile.modpost
+@@ -87,8 +87,7 @@ obj := $(KBUILD_EXTMOD)
+ src := $(obj)
+ 
+ # Include the module's Makefile to find KBUILD_EXTRA_SYMBOLS
+-include $(if $(wildcard $(KBUILD_EXTMOD)/Kbuild), \
+-             $(KBUILD_EXTMOD)/Kbuild, $(KBUILD_EXTMOD)/Makefile)
++include $(if $(wildcard $(src)/Kbuild), $(src)/Kbuild, $(src)/Makefile)
+ 
+ # modpost option for external modules
+ MODPOST += -e
 -- 
 2.35.1
 
