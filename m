@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7840C593AB8
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:33:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F46A593AF4
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346391AbiHOUOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:14:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33746 "EHLO
+        id S238086AbiHOUNq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:13:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242813AbiHOUNO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:13:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5900132EF3;
-        Mon, 15 Aug 2022 11:59:10 -0700 (PDT)
+        with ESMTP id S1346363AbiHOULP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:11:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45C3F31373;
+        Mon, 15 Aug 2022 11:57:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86F70B810C5;
-        Mon, 15 Aug 2022 18:59:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE280C433C1;
-        Mon, 15 Aug 2022 18:59:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C8F460A71;
+        Mon, 15 Aug 2022 18:57:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 068E6C433C1;
+        Mon, 15 Aug 2022 18:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589947;
-        bh=hFLdWtZlm6m47mimf7VH2hREI4jtWZfe2DLf4xlZbfc=;
+        s=korg; t=1660589857;
+        bh=tMbRNLEwJhzBn3I2NtkHXpA8he1iH1lPv6QR3bX1QbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oyr1DeKiXKi+f8q6NKgzXKdQJWpBpsjp+cRa8cZffpH2HpAjw0VQacGDYXPBv++fR
-         hqqpyHiXj6BYJ6mG/OmYAXY7lWFfQVbolwolnwEBOKmVY64OF9bqSoOyrgmg2t+7Hm
-         2V+XlX8juld8ud1xPfnWXDJymRV0L4lxJMYtVKHA=
+        b=ke0btZn/ca66Ownbl3i4AXFvJjcvxFenmxyFsprPYeJTEELnF2C2CFFmac9qwvSg7
+         /9cS9yuFRL3ASECkQS90TcHdAGP1iNAwKf4nHjymdk201MNE+ZLBA7+9pGhVEeVrJT
+         CICbQPur37iF0iDyThQnwWoTsA2jfV621SqZQHNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atish Patra <atishp@rivosinc.com>,
+        stable@vger.kernel.org, Anup Patel <anup@brainfault.org>,
+        Atish Patra <atishp@rivosinc.com>, Guo Ren <guoren@kernel.org>,
         Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.18 0070/1095] RISC-V: Fix SBI PMU calls for RV32
-Date:   Mon, 15 Aug 2022 19:51:09 +0200
-Message-Id: <20220815180432.414248634@linuxfoundation.org>
+Subject: [PATCH 5.18 0071/1095] RISC-V: Update user page mapping only once during start
+Date:   Mon, 15 Aug 2022 19:51:10 +0200
+Message-Id: <20220815180432.452222140@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,60 +56,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Atish Patra <atishp@rivosinc.com>
 
-commit 0209b5830bea42dd3ce33ab0397231e67ec3b751 upstream.
+commit 133a6d1fe7d7ad8393af025c4dde379c0616661f upstream.
 
-Some of the SBI PMU calls does not pass 64bit arguments
-correctly and not under RV32 compile time flags. Currently,
-this doesn't create any incorrect results as RV64 ignores
-any value in the additional register and qemu doesn't support
-raw events.
+Currently, riscv_pmu_event_set_period updates the userpage mapping.
+However, the caller of riscv_pmu_event_set_period should update
+the userpage mapping because the counter can not be updated/started
+from set_period function in counter overflow path.
 
-Fix those SBI calls in order to set correct values for RV32.
+Invoke the perf_event_update_userpage at the caller so that it
+doesn't get invoked twice during counter start path.
 
-Fixes: e9991434596f ("RISC-V: Add perf platform driver based on SBI PMU extension")
+Fixes: f5bfa23f576f ("RISC-V: Add a perf core library for pmu drivers")
+Reviewed-by: Anup Patel <anup@brainfault.org>
 Signed-off-by: Atish Patra <atishp@rivosinc.com>
+Reviewed-by: Guo Ren <guoren@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220711174632.4186047-4-atishp@rivosinc.com
+Link: https://lore.kernel.org/r/20220711174632.4186047-3-atishp@rivosinc.com
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/perf/riscv_pmu_sbi.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/perf/riscv_pmu.c     |    1 -
+ drivers/perf/riscv_pmu_sbi.c |    1 +
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/perf/riscv_pmu_sbi.c b/drivers/perf/riscv_pmu_sbi.c
-index 3735337a4cfb..bae614c73b14 100644
+--- a/drivers/perf/riscv_pmu.c
++++ b/drivers/perf/riscv_pmu.c
+@@ -170,7 +170,6 @@ int riscv_pmu_event_set_period(struct pe
+ 		left = (max_period >> 1);
+ 
+ 	local64_set(&hwc->prev_count, (u64)-left);
+-	perf_event_update_userpage(event);
+ 
+ 	return overflow;
+ }
 --- a/drivers/perf/riscv_pmu_sbi.c
 +++ b/drivers/perf/riscv_pmu_sbi.c
-@@ -274,8 +274,13 @@ static int pmu_sbi_ctr_get_idx(struct perf_event *event)
- 		cflags |= SBI_PMU_CFG_FLAG_SET_UINH;
- 
- 	/* retrieve the available counter index */
-+#if defined(CONFIG_32BIT)
-+	ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_CFG_MATCH, cbase, cmask,
-+			cflags, hwc->event_base, hwc->config, hwc->config >> 32);
-+#else
- 	ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_CFG_MATCH, cbase, cmask,
- 			cflags, hwc->event_base, hwc->config, 0);
-+#endif
- 	if (ret.error) {
- 		pr_debug("Not able to find a counter for event %lx config %llx\n",
- 			hwc->event_base, hwc->config);
-@@ -417,8 +422,13 @@ static void pmu_sbi_ctr_start(struct perf_event *event, u64 ival)
- 	struct hw_perf_event *hwc = &event->hw;
- 	unsigned long flag = SBI_PMU_START_FLAG_SET_INIT_VALUE;
- 
-+#if defined(CONFIG_32BIT)
- 	ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_START, hwc->idx,
- 			1, flag, ival, ival >> 32, 0);
-+#else
-+	ret = sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_START, hwc->idx,
-+			1, flag, ival, 0, 0);
-+#endif
- 	if (ret.error && (ret.error != SBI_ERR_ALREADY_STARTED))
- 		pr_err("Starting counter idx %d failed with error %d\n",
- 			hwc->idx, sbi_err_map_linux_errno(ret.error));
--- 
-2.37.1
-
+@@ -542,6 +542,7 @@ static inline void pmu_sbi_start_overflo
+ 			sbi_ecall(SBI_EXT_PMU, SBI_EXT_PMU_COUNTER_START, idx, 1,
+ 				  flag, init_val, 0, 0);
+ #endif
++			perf_event_update_userpage(event);
+ 		}
+ 		ctr_ovf_mask = ctr_ovf_mask >> 1;
+ 		idx++;
 
 
