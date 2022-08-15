@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F01D59380C
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 419AE5936F6
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:26:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229752AbiHOS6b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S244693AbiHOS6b (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Aug 2022 14:58:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48712 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245219AbiHOS5C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:57:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DC8148EB6;
-        Mon, 15 Aug 2022 11:32:06 -0700 (PDT)
+        with ESMTP id S245232AbiHOS5D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:57:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 312C0326F2;
+        Mon, 15 Aug 2022 11:32:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B14BA61070;
-        Mon, 15 Aug 2022 18:32:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C4C0C433C1;
-        Mon, 15 Aug 2022 18:32:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E127B8106C;
+        Mon, 15 Aug 2022 18:32:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADA3AC43143;
+        Mon, 15 Aug 2022 18:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588325;
-        bh=IHCGDqu5bwcqLCvp1VkhijS+mn/FWgB8orbf0bZ0ZjI=;
+        s=korg; t=1660588328;
+        bh=BzYeuORAkJHPCD80V8MI5zoA/RwoFsTPI8noqeq6Vdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSE6Z5EOcnIeGUGXe9FdvbKsvqM8OM09FQ2PTIsPrH0oKfvw08ysDzy7rT+4Zpiy+
-         VcjdjDwcCjGBV0gV3R96KbH72V+7bb7oGFkIE9y1CwlzJCvxncZrf79OlUEjZnJHGN
-         tWk6mZRmeL6XoBkmM5O7ikKd/++36i80ggBsXodk=
+        b=g1ySNgQ3SJSaSmnb7cqjXv8/KyHcNBopp0hYGYLbCypyRNwk8coP4RLLDkWK/KR4g
+         uo8sfc8XxV3IsOUyq0AZoeyTQm6+JgLCyin2CA0Ky+O2aUoV4onZEe6vQhOSZkEJrt
+         SOhXlNOyMs4Mk7pbtOwQiLbu+ya+y+eIsy3WFec8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 367/779] media: cedrus: hevc: Add check for invalid timestamp
-Date:   Mon, 15 Aug 2022 20:00:11 +0200
-Message-Id: <20220815180352.941967383@linuxfoundation.org>
+Subject: [PATCH 5.15 368/779] net/mlx5e: Remove WARN_ON when trying to offload an unsupported TLS cipher/version
+Date:   Mon, 15 Aug 2022 20:00:12 +0200
+Message-Id: <20220815180352.981767985@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,43 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Gal Pressman <gal@nvidia.com>
 
-[ Upstream commit 143201a6435bf65f0115435e9dc6d95c66b908e9 ]
+[ Upstream commit 115d9f95ea7ab780ef315dc356bebba2e07cb731 ]
 
-Not all DPB entries will be used most of the time. Unused entries will
-thus have invalid timestamps. They will produce negative buffer index
-which is not specifically handled. This works just by chance in current
-code. It will even produce bogus pointer, but since it's not used, it
-won't do any harm.
+The driver reports whether TX/RX TLS device offloads are supported, but
+not which ciphers/versions, these should be handled by returning
+-EOPNOTSUPP when .tls_dev_add() is called.
 
-Let's fix that brittle design by skipping writing DPB entry altogether
-if timestamp is invalid.
+Remove the WARN_ON kernel trace when the driver gets a request to
+offload a cipher/version that is not supported as it is expected.
 
-Fixes: 86caab29da78 ("media: cedrus: Add HEVC/H.265 decoding support")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: d2ead1f360e8 ("net/mlx5e: Add kTLS TX HW offload support")
+Signed-off-by: Gal Pressman <gal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/sunxi/cedrus/cedrus_h265.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-index f2cec43fd1f0..830cae03fc6e 100644
---- a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-@@ -147,6 +147,9 @@ static void cedrus_h265_frame_info_write_dpb(struct cedrus_ctx *ctx,
- 			dpb[i].pic_order_cnt[1]
- 		};
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.c
+index d93aadbf10da..90ea78239d40 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.c
+@@ -16,7 +16,7 @@ static int mlx5e_ktls_add(struct net_device *netdev, struct sock *sk,
+ 	struct mlx5_core_dev *mdev = priv->mdev;
+ 	int err;
  
-+		if (buffer_index < 0)
-+			continue;
-+
- 		cedrus_h265_frame_info_write_single(ctx, i, dpb[i].field_pic,
- 						    pic_order_cnt,
- 						    buffer_index);
+-	if (WARN_ON(!mlx5e_ktls_type_check(mdev, crypto_info)))
++	if (!mlx5e_ktls_type_check(mdev, crypto_info))
+ 		return -EOPNOTSUPP;
+ 
+ 	if (direction == TLS_OFFLOAD_CTX_DIR_TX)
 -- 
 2.35.1
 
