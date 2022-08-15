@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35F7E593810
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E0A7593858
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242058AbiHOSbg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:31:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40114 "EHLO
+        id S242020AbiHOSbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:31:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242801AbiHOSa3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:30:29 -0400
+        with ESMTP id S242848AbiHOSaa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:30:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7375F3207A;
-        Mon, 15 Aug 2022 11:20:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8FA2A728;
+        Mon, 15 Aug 2022 11:20:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C2C46069E;
-        Mon, 15 Aug 2022 18:20:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F8A3C433C1;
-        Mon, 15 Aug 2022 18:20:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 312126068D;
+        Mon, 15 Aug 2022 18:20:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37601C433C1;
+        Mon, 15 Aug 2022 18:20:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587639;
-        bh=duFYzGOIIixBva0Q9jgqi225EbafyGawSTxEWc9V+Ds=;
+        s=korg; t=1660587642;
+        bh=6CRLhn7oCpLe3R4QHpr0/0MYXVi1LdC9PER/71MjKW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SRS5UzI1Fs5uMkq+9W+XEL5/8dmzRiGue6yT/SWPFXA2Vr023GWmZuFXnLm21+OCv
-         oJMuEI2Lt0wcd6Zk9DZda137hYEk5pbMSqThTNk+aFI1tCACdd6uLdLk/YHyEbn5mS
-         qLLbYybyh8h1r27pRDkTnzIWx9WuSXQFyMEC2roc=
+        b=y9GUuTrgkjDlfmiU1v8il9U2Yppm/voxFmAX+KXH6NcRCvOV7a6lPAwTzf0Z3cGYc
+         myT0qdAIqnFObbXz/iZCwLe2duvMe2nZaYU5XaKTAhHHFu2umNf47dS3cW6s2wPy3i
+         eQRQHJPX8M98yoWDAE0mszv0Xye5NV7m9dW/BzzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 147/779] PM: hibernate: defer device probing when resuming from hibernation
-Date:   Mon, 15 Aug 2022 19:56:31 +0200
-Message-Id: <20220815180343.607408603@linuxfoundation.org>
+Subject: [PATCH 5.15 148/779] selinux: fix memleak in security_read_state_kernel()
+Date:   Mon, 15 Aug 2022 19:56:32 +0200
+Message-Id: <20220815180343.640854417@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,104 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit 8386c414e27caba8501119948e9551e52b527f59 ]
+[ Upstream commit 73de1befcc53a7c68b0c5e76b9b5ac41c517760f ]
 
-syzbot is reporting hung task at misc_open() [1], for there is a race
-window of AB-BA deadlock which involves probe_count variable. Currently
-wait_for_device_probe() from snapshot_open() from misc_open() can sleep
-forever with misc_mtx held if probe_count cannot become 0.
+In this function, it directly returns the result of __security_read_policy
+without freeing the allocated memory in *data, cause memory leak issue,
+so free the memory if __security_read_policy failed.
 
-When a device is probed by hub_event() work function, probe_count is
-incremented before the probe function starts, and probe_count is
-decremented after the probe function completed.
-
-There are three cases that can prevent probe_count from dropping to 0.
-
-  (a) A device being probed stopped responding (i.e. broken/malicious
-      hardware).
-
-  (b) A process emulating a USB device using /dev/raw-gadget interface
-      stopped responding for some reason.
-
-  (c) New device probe requests keeps coming in before existing device
-      probe requests complete.
-
-The phenomenon syzbot is reporting is (b). A process which is holding
-system_transition_mutex and misc_mtx is waiting for probe_count to become
-0 inside wait_for_device_probe(), but the probe function which is called
- from hub_event() work function is waiting for the processes which are
-blocked at mutex_lock(&misc_mtx) to respond via /dev/raw-gadget interface.
-
-This patch mitigates (b) by deferring wait_for_device_probe() from
-snapshot_open() to snapshot_write() and snapshot_ioctl(). Please note that
-the possibility of (b) remains as long as any thread which is emulating a
-USB device via /dev/raw-gadget interface can be blocked by uninterruptible
-blocking operations (e.g. mutex_lock()).
-
-Please also note that (a) and (c) are not addressed. Regarding (c), we
-should change the code to wait for only one device which contains the
-image for resuming from hibernation. I don't know how to address (a), for
-use of timeout for wait_for_device_probe() might result in loss of user
-data in the image. Maybe we should require the userland to wait for the
-image device before opening /dev/snapshot interface.
-
-Link: https://syzkaller.appspot.com/bug?extid=358c9ab4c93da7b7238c [1]
-Reported-by: syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+358c9ab4c93da7b7238c@syzkaller.appspotmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+[PM: subject line tweak]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/user.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ security/selinux/ss/services.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/power/user.c b/kernel/power/user.c
-index 740723bb3885..13cca2e2c2bc 100644
---- a/kernel/power/user.c
-+++ b/kernel/power/user.c
-@@ -26,6 +26,7 @@
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index c4931bf6f92a..e8035e4876df 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -4045,6 +4045,7 @@ int security_read_policy(struct selinux_state *state,
+ int security_read_state_kernel(struct selinux_state *state,
+ 			       void **data, size_t *len)
+ {
++	int err;
+ 	struct selinux_policy *policy;
  
- #include "power.h"
+ 	policy = rcu_dereference_protected(
+@@ -4057,5 +4058,11 @@ int security_read_state_kernel(struct selinux_state *state,
+ 	if (!*data)
+ 		return -ENOMEM;
  
-+static bool need_wait;
- 
- static struct snapshot_data {
- 	struct snapshot_handle handle;
-@@ -78,7 +79,7 @@ static int snapshot_open(struct inode *inode, struct file *filp)
- 		 * Resuming.  We may need to wait for the image device to
- 		 * appear.
- 		 */
--		wait_for_device_probe();
-+		need_wait = true;
- 
- 		data->swap = -1;
- 		data->mode = O_WRONLY;
-@@ -168,6 +169,11 @@ static ssize_t snapshot_write(struct file *filp, const char __user *buf,
- 	ssize_t res;
- 	loff_t pg_offp = *offp & ~PAGE_MASK;
- 
-+	if (need_wait) {
-+		wait_for_device_probe();
-+		need_wait = false;
+-	return __security_read_policy(policy, *data, len);
++	err = __security_read_policy(policy, *data, len);
++	if (err) {
++		vfree(*data);
++		*data = NULL;
++		*len = 0;
 +	}
-+
- 	lock_system_sleep();
- 
- 	data = filp->private_data;
-@@ -244,6 +250,11 @@ static long snapshot_ioctl(struct file *filp, unsigned int cmd,
- 	loff_t size;
- 	sector_t offset;
- 
-+	if (need_wait) {
-+		wait_for_device_probe();
-+		need_wait = false;
-+	}
-+
- 	if (_IOC_TYPE(cmd) != SNAPSHOT_IOC_MAGIC)
- 		return -ENOTTY;
- 	if (_IOC_NR(cmd) > SNAPSHOT_IOC_MAXNR)
++	return err;
+ }
 -- 
 2.35.1
 
