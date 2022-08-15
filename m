@@ -2,54 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90B525947E5
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AF4F594DF7
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344756AbiHOX3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:29:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43958 "EHLO
+        id S245526AbiHPBAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 21:00:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352832AbiHOX1h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:27:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0BFC14D722;
-        Mon, 15 Aug 2022 13:07:22 -0700 (PDT)
+        with ESMTP id S1348940AbiHPA54 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:57:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D001A153D;
+        Mon, 15 Aug 2022 13:49:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2366FB80EAD;
-        Mon, 15 Aug 2022 20:07:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ECA9C433D6;
-        Mon, 15 Aug 2022 20:07:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EAE2C61275;
+        Mon, 15 Aug 2022 20:49:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB6D5C433D6;
+        Mon, 15 Aug 2022 20:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594039;
-        bh=ZVE2RNHPOttuDHZ2xX2gbbcEhpFNhv9Nt5X6GeRZKSY=;
+        s=korg; t=1660596572;
+        bh=gDAwmXYERhw10a9sfoxHyQnxm9AwJu7cfxmrBmi3DU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VkWP08ORQ9PtPN7Mzdle9M/hAVKlXcelGbkgd0qOqBUhS/EKcrgG5f3IWAfpXKAGY
-         pih3xQvWhJm3AYZWXY/s5d3qU2h8eROXz505NQ878M4N4Hq04+8PbSuCpalfnC1Z0T
-         mJkappOehipy8pTdlE63bt+8qC3lCLRgTij/AmDY=
+        b=QrQosL9n3T9tsAHvgp2vooUhS2Maf30ebdyteat+8oj8hRuoR4rKLO2cg3qaKkkTK
+         WtSAYB+ktFzv4uh3jPd4MAF25mZqFlMooSoN9MQr8CwPfmTpE9pq+1koe1v1Jbl6ju
+         +6/Ir2TrL/FkdknTbUIw78l/W4+ZjdmtBN/+rgPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Lindner <mareklindner@neomailbox.ch>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        Antonio Quartulli <a@unstable.cc>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org,
-        Sven Eckelmann <sven@narfation.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1046/1095] batman-adv: tracing: Use the new __vstring() helper
+Subject: [PATCH 5.19 1089/1157] btrfs: zoned: finish least available block group on data bg allocation
 Date:   Mon, 15 Aug 2022 20:07:25 +0200
-Message-Id: <20220815180512.360819821@linuxfoundation.org>
+Message-Id: <20220815180523.754213997@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,67 +56,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-[ Upstream commit 9abc291812d784bd4a26c01af4ebdbf9f2dbf0bb ]
+[ Upstream commit 393f646e34c18b85d0f41272bfcbd475ae3a0d34 ]
 
-Instead of open coding a __dynamic_array() with a fixed length (which
-defeats the purpose of the dynamic array in the first place). Use the new
-__vstring() helper that will use a va_list and only write enough of the
-string into the ring buffer that is needed.
+When we run out of active zones and no sufficient space is left in any
+block groups, we need to finish one block group to make room to activate a
+new block group.
 
-Link: https://lkml.kernel.org/r/20220724191650.236b1355@rorschach.local.home
+However, we cannot do this for metadata block groups because we can cause a
+deadlock by waiting for a running transaction commit. So, do that only for
+a data block group.
 
-Cc: Marek Lindner <mareklindner@neomailbox.ch>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Simon Wunderlich <sw@simonwunderlich.de>
-Cc: Antonio Quartulli <a@unstable.cc>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: b.a.t.m.a.n@lists.open-mesh.org
-Cc: netdev@vger.kernel.org
-Acked-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Furthermore, the block group to be finished has two requirements. First,
+the block group must not have reserved bytes left. Having reserved bytes
+means we have an allocated region but did not yet send bios for it. If that
+region is allocated by the thread calling btrfs_zone_finish(), it results
+in a deadlock.
+
+Second, the block group to be finished must not be a SYSTEM block
+group. Finishing a SYSTEM block group easily breaks further chunk
+allocation by nullifying the SYSTEM free space.
+
+In a certain case, we cannot find any zone finish candidate or
+btrfs_zone_finish() may fail. In that case, we fall back to split the
+allocation bytes and fill the last spaces left in the block groups.
+
+CC: stable@vger.kernel.org # 5.16+
+Fixes: afba2bc036b0 ("btrfs: zoned: implement active zone tracking")
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/trace.h | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ fs/btrfs/extent-tree.c | 50 +++++++++++++++++++++++++++++++++---------
+ fs/btrfs/zoned.c       | 40 +++++++++++++++++++++++++++++++++
+ fs/btrfs/zoned.h       |  7 ++++++
+ 3 files changed, 87 insertions(+), 10 deletions(-)
 
-diff --git a/net/batman-adv/trace.h b/net/batman-adv/trace.h
-index d673ebdd0426..31c8f922651d 100644
---- a/net/batman-adv/trace.h
-+++ b/net/batman-adv/trace.h
-@@ -28,8 +28,6 @@
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index 506852795db1..ad45083c6461 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -3981,6 +3981,45 @@ static void found_extent(struct find_free_extent_ctl *ffe_ctl,
+ 	}
+ }
  
- #endif /* CONFIG_BATMAN_ADV_TRACING */
++static int can_allocate_chunk_zoned(struct btrfs_fs_info *fs_info,
++				    struct find_free_extent_ctl *ffe_ctl)
++{
++	/* If we can activate new zone, just allocate a chunk and use it */
++	if (btrfs_can_activate_zone(fs_info->fs_devices, ffe_ctl->flags))
++		return 0;
++
++	/*
++	 * We already reached the max active zones. Try to finish one block
++	 * group to make a room for a new block group. This is only possible
++	 * for a data block group because btrfs_zone_finish() may need to wait
++	 * for a running transaction which can cause a deadlock for metadata
++	 * allocation.
++	 */
++	if (ffe_ctl->flags & BTRFS_BLOCK_GROUP_DATA) {
++		int ret = btrfs_zone_finish_one_bg(fs_info);
++
++		if (ret == 1)
++			return 0;
++		else if (ret < 0)
++			return ret;
++	}
++
++	/*
++	 * If we have enough free space left in an already active block group
++	 * and we can't activate any other zone now, do not allow allocating a
++	 * new chunk and let find_free_extent() retry with a smaller size.
++	 */
++	if (ffe_ctl->max_extent_size >= ffe_ctl->min_alloc_size)
++		return -ENOSPC;
++
++	/*
++	 * We cannot activate a new block group and no enough space left in any
++	 * block groups. So, allocating a new block group may not help. But,
++	 * there is nothing to do anyway, so let's go with it.
++	 */
++	return 0;
++}
++
+ static int can_allocate_chunk(struct btrfs_fs_info *fs_info,
+ 			      struct find_free_extent_ctl *ffe_ctl)
+ {
+@@ -3988,16 +4027,7 @@ static int can_allocate_chunk(struct btrfs_fs_info *fs_info,
+ 	case BTRFS_EXTENT_ALLOC_CLUSTERED:
+ 		return 0;
+ 	case BTRFS_EXTENT_ALLOC_ZONED:
+-		/*
+-		 * If we have enough free space left in an already
+-		 * active block group and we can't activate any other
+-		 * zone now, do not allow allocating a new chunk and
+-		 * let find_free_extent() retry with a smaller size.
+-		 */
+-		if (ffe_ctl->max_extent_size >= ffe_ctl->min_alloc_size &&
+-		    !btrfs_can_activate_zone(fs_info->fs_devices, ffe_ctl->flags))
+-			return -ENOSPC;
+-		return 0;
++		return can_allocate_chunk_zoned(fs_info, ffe_ctl);
+ 	default:
+ 		BUG();
+ 	}
+diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
+index 7ac2d7cfca31..eb9eb9e72187 100644
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -2180,3 +2180,43 @@ void btrfs_zoned_release_data_reloc_bg(struct btrfs_fs_info *fs_info, u64 logica
+ 	spin_unlock(&block_group->lock);
+ 	btrfs_put_block_group(block_group);
+ }
++
++int btrfs_zone_finish_one_bg(struct btrfs_fs_info *fs_info)
++{
++	struct btrfs_block_group *block_group;
++	struct btrfs_block_group *min_bg = NULL;
++	u64 min_avail = U64_MAX;
++	int ret;
++
++	spin_lock(&fs_info->zone_active_bgs_lock);
++	list_for_each_entry(block_group, &fs_info->zone_active_bgs,
++			    active_bg_list) {
++		u64 avail;
++
++		spin_lock(&block_group->lock);
++		if (block_group->reserved ||
++		    (block_group->flags & BTRFS_BLOCK_GROUP_SYSTEM)) {
++			spin_unlock(&block_group->lock);
++			continue;
++		}
++
++		avail = block_group->zone_capacity - block_group->alloc_offset;
++		if (min_avail > avail) {
++			if (min_bg)
++				btrfs_put_block_group(min_bg);
++			min_bg = block_group;
++			min_avail = avail;
++			btrfs_get_block_group(min_bg);
++		}
++		spin_unlock(&block_group->lock);
++	}
++	spin_unlock(&fs_info->zone_active_bgs_lock);
++
++	if (!min_bg)
++		return 0;
++
++	ret = btrfs_zone_finish(min_bg);
++	btrfs_put_block_group(min_bg);
++
++	return ret < 0 ? ret : 1;
++}
+diff --git a/fs/btrfs/zoned.h b/fs/btrfs/zoned.h
+index 9caeab07fd38..329d28e2fd8d 100644
+--- a/fs/btrfs/zoned.h
++++ b/fs/btrfs/zoned.h
+@@ -80,6 +80,7 @@ void btrfs_free_zone_cache(struct btrfs_fs_info *fs_info);
+ bool btrfs_zoned_should_reclaim(struct btrfs_fs_info *fs_info);
+ void btrfs_zoned_release_data_reloc_bg(struct btrfs_fs_info *fs_info, u64 logical,
+ 				       u64 length);
++int btrfs_zone_finish_one_bg(struct btrfs_fs_info *fs_info);
+ #else /* CONFIG_BLK_DEV_ZONED */
+ static inline int btrfs_get_dev_zone(struct btrfs_device *device, u64 pos,
+ 				     struct blk_zone *zone)
+@@ -249,6 +250,12 @@ static inline bool btrfs_zoned_should_reclaim(struct btrfs_fs_info *fs_info)
  
--#define BATADV_MAX_MSG_LEN	256
--
- TRACE_EVENT(batadv_dbg,
+ static inline void btrfs_zoned_release_data_reloc_bg(struct btrfs_fs_info *fs_info,
+ 						     u64 logical, u64 length) { }
++
++static inline int btrfs_zone_finish_one_bg(struct btrfs_fs_info *fs_info)
++{
++	return 1;
++}
++
+ #endif
  
- 	    TP_PROTO(struct batadv_priv *bat_priv,
-@@ -40,16 +38,13 @@ TRACE_EVENT(batadv_dbg,
- 	    TP_STRUCT__entry(
- 		    __string(device, bat_priv->soft_iface->name)
- 		    __string(driver, KBUILD_MODNAME)
--		    __dynamic_array(char, msg, BATADV_MAX_MSG_LEN)
-+		    __vstring(msg, vaf->fmt, vaf->va)
- 	    ),
- 
- 	    TP_fast_assign(
- 		    __assign_str(device, bat_priv->soft_iface->name);
- 		    __assign_str(driver, KBUILD_MODNAME);
--		    WARN_ON_ONCE(vsnprintf(__get_dynamic_array(msg),
--					   BATADV_MAX_MSG_LEN,
--					   vaf->fmt,
--					   *vaf->va) >= BATADV_MAX_MSG_LEN);
-+		    __assign_vstr(msg, vaf->fmt, vaf->va);
- 	    ),
- 
- 	    TP_printk(
+ static inline bool btrfs_dev_is_sequential(struct btrfs_device *device, u64 pos)
 -- 
 2.35.1
 
