@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7104A594A95
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:19:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A88EE594ACA
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:19:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352207AbiHPAEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:04:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46800 "EHLO
+        id S1355904AbiHPAGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:06:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354940AbiHPAAk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:00:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55F66C743F;
-        Mon, 15 Aug 2022 13:20:39 -0700 (PDT)
+        with ESMTP id S1355546AbiHPAAy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:00:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C82165704;
+        Mon, 15 Aug 2022 13:20:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17BECB80EB1;
-        Mon, 15 Aug 2022 20:20:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6380EC433D7;
-        Mon, 15 Aug 2022 20:20:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8C13B80EB1;
+        Mon, 15 Aug 2022 20:20:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C66DC433C1;
+        Mon, 15 Aug 2022 20:20:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594836;
-        bh=e9whEK17xKjaAzRvOp5nbn9YoNuJqN2Qv4Jjbm+eUP0=;
+        s=korg; t=1660594840;
+        bh=qcowErLidLwa9TT1op1TnR4sNtYyxpDgSOfn3xZpfVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uDxTb2jMk4r9TcDOdg3/QHss2hok0StcurhdIL2FaAr/yleCJKWYB2LxB/C8gf6S6
-         72aafNuYzLn8FZbnvbL16fcc4gduKFAnJqBtMNpO7lt4KfYvG2EvgvubBBJB+RhbkF
-         vgo/+qRlXLtUqjIzF5tMSOv6fn9gYUOqJAHLMVkM=
+        b=bPirVM3IUp6nMHMgoKBbBBp4YRO1i7n2raNU7KGKCEr56y11xnoDO7kbBClJfQkse
+         ZTila6vnAGFG72kMFJpycmxhzrL2AKEOBgspFc+3tHa9LPNQQ0PZsZLu6QmSW+co0g
+         Ipj+WTg1fLFm8WvyGYXp+QCBX2S+tqzhPVQbZshU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Chang <David.Chang@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0574/1157] HID: amd_sfh: Dont show client init failed as error when discovery fails
-Date:   Mon, 15 Aug 2022 19:58:50 +0200
-Message-Id: <20220815180502.599031993@linuxfoundation.org>
+        stable@vger.kernel.org, Ralph Siemsen <ralph.siemsen@linaro.org>,
+        Phil Edworthy <phil.edworthy@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0575/1157] clk: renesas: r9a06g032: Fix UART clkgrp bitsel
+Date:   Mon, 15 Aug 2022 19:58:51 +0200
+Message-Id: <20220815180502.635858514@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,42 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Ralph Siemsen <ralph.siemsen@linaro.org>
 
-[ Upstream commit e51d8d3ea3d773334d2c047c8d1623dba66f592a ]
+[ Upstream commit 2dee50ab9e72a3cae75b65e5934c8dd3e9bf01bc ]
 
-When sensor discovery fails, this means that the system doesn't have
-any sensors connected and a user should only be notified at most one time.
-A message is already displayed at WARN level of "failed to discover,
-sensors not enabled".  It's pointless to show that the client init failed
-at ERR level for the same condition.
+There are two UART clock groups, each having a mux to select its
+upstream clock source. The register/bit definitions for accessing these
+two muxes appear to have been reversed since introduction. Correct them
+so as to match the hardware manual.
 
-Check the return code and don't display this message in those conditions.
+Fixes: 4c3d88526eba ("clk: renesas: Renesas R9A06G032 clock driver")
 
-Fixes: b5d7f43e97da ("HID: amd_sfh: Add support for sensor discovery")
-Reported-by: David Chang <David.Chang@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Ralph Siemsen <ralph.siemsen@linaro.org>
+Reviewed-by: Phil Edworthy <phil.edworthy@renesas.com>
+Link: https://lore.kernel.org/r/20220518182527.1693156-1-ralph.siemsen@linaro.org
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/renesas/r9a06g032-clocks.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-index dadc491bbf6b..1441787a154a 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-@@ -327,7 +327,8 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
- 	rc = amd_sfh_hid_client_init(privdata);
- 	if (rc) {
- 		amd_sfh_clear_intr(privdata);
--		dev_err(&pdev->dev, "amd_sfh_hid_client_init failed\n");
-+		if (rc != -EOPNOTSUPP)
-+			dev_err(&pdev->dev, "amd_sfh_hid_client_init failed\n");
- 		return rc;
- 	}
- 
+diff --git a/drivers/clk/renesas/r9a06g032-clocks.c b/drivers/clk/renesas/r9a06g032-clocks.c
+index 35ffc462af1a..864b3dabecd9 100644
+--- a/drivers/clk/renesas/r9a06g032-clocks.c
++++ b/drivers/clk/renesas/r9a06g032-clocks.c
+@@ -290,8 +290,8 @@ static const struct r9a06g032_clkdesc r9a06g032_clocks[] = {
+ 		.name = "uart_group_012",
+ 		.type = K_BITSEL,
+ 		.source = 1 + R9A06G032_DIV_UART,
+-		/* R9A06G032_SYSCTRL_REG_PWRCTRL_PG1_PR2 */
+-		.dual.sel = ((0xec / 4) << 5) | 24,
++		/* R9A06G032_SYSCTRL_REG_PWRCTRL_PG0_0 */
++		.dual.sel = ((0x34 / 4) << 5) | 30,
+ 		.dual.group = 0,
+ 	},
+ 	{
+@@ -299,8 +299,8 @@ static const struct r9a06g032_clkdesc r9a06g032_clocks[] = {
+ 		.name = "uart_group_34567",
+ 		.type = K_BITSEL,
+ 		.source = 1 + R9A06G032_DIV_P2_PG,
+-		/* R9A06G032_SYSCTRL_REG_PWRCTRL_PG0_0 */
+-		.dual.sel = ((0x34 / 4) << 5) | 30,
++		/* R9A06G032_SYSCTRL_REG_PWRCTRL_PG1_PR2 */
++		.dual.sel = ((0xec / 4) << 5) | 24,
+ 		.dual.group = 1,
+ 	},
+ 	D_UGATE(CLK_UART0, "clk_uart0", UART_GROUP_012, 0, 0, 0x1b2, 0x1b3, 0x1b4, 0x1b5),
 -- 
 2.35.1
 
