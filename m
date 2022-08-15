@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49AEB594C47
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D49AF594989
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:14:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239747AbiHPAtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:49:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36226 "EHLO
+        id S232795AbiHOXLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:11:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242350AbiHPArF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:47:05 -0400
+        with ESMTP id S1353068AbiHOXKr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:10:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06DD7197B88;
-        Mon, 15 Aug 2022 13:45:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A805379A55;
+        Mon, 15 Aug 2022 13:00:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 652C3B811A0;
-        Mon, 15 Aug 2022 20:45:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB004C433C1;
-        Mon, 15 Aug 2022 20:45:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 275E2B80EA8;
+        Mon, 15 Aug 2022 20:00:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F22EC433C1;
+        Mon, 15 Aug 2022 20:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596342;
-        bh=s1VU8Oz7bh5fv2iQebK9iNjwCoHIbzx+5W1iUloCXxk=;
+        s=korg; t=1660593601;
+        bh=StjgcR6nA87Jhlh+ZwYMvS8/tCMtuZEn7F+G7iUqQg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DyJ9GGwudT/O+vNtyeMrfuuSDfBXPO4ZaEJbRAjeG+sz132+5naPmaL5TviCgs8EZ
-         RDv0r8/ckUnH0LmpS/d4B7AKsiv8NG1EDBVP4qAYnEEOlT3SvemlOTGCHO7bxA5LwW
-         TQgjrTkU8jxsrUk2roGp0cGr1hWgks+/Ql+rrA2M=
+        b=RujZWniObrL4LjPtnXPjATjxxJsxRZtPMyYZlf0qslmBjIqS1gC144qEt7uFXmRuX
+         oe/4hCFkllsHD24gN5A/0Oxzkj1S6kTRlb0SD7xS1BiIjk4FB3GGn8+bS8mIi73f7w
+         +M5eVlw3rvXOH7ClYxyI4g68xo64SX94GexlMUqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1016/1157] powerpc/pci: Fix PHB numbering when using opal-phbid
-Date:   Mon, 15 Aug 2022 20:06:12 +0200
-Message-Id: <20220815180520.517075068@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        kernel test robot <lkp@intel.com>,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Yury Norov <yury.norov@gmail.com>
+Subject: [PATCH 5.18 0974/1095] x86/olpc: fix logical not is only applied to the left hand side
+Date:   Mon, 15 Aug 2022 20:06:13 +0200
+Message-Id: <20220815180509.382223212@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
 
-[ Upstream commit f4b39e88b42d13366b831270306326b5c20971ca ]
+commit 3a2ba42cbd0b669ce3837ba400905f93dd06c79f upstream.
 
-The recent change to the PHB numbering logic has a logic error in the
-handling of "ibm,opal-phbid".
+The bitops compile-time optimization series revealed one more
+problem in olpc-xo1-sci.c:send_ebook_state(), resulted in GCC
+warnings:
 
-When an "ibm,opal-phbid" property is present, &prop is written to and
-ret is set to zero.
+arch/x86/platform/olpc/olpc-xo1-sci.c: In function 'send_ebook_state':
+arch/x86/platform/olpc/olpc-xo1-sci.c:83:63: warning: logical not is only applied to the left hand side of comparison [-Wlogical-not-parentheses]
+   83 |         if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
+      |                                                               ^~
+arch/x86/platform/olpc/olpc-xo1-sci.c:83:13: note: add parentheses around left hand side expression to silence this warning
 
-The following call to of_alias_get_id() is skipped because ret == 0.
+Despite this code working as intended, this redundant double
+negation of boolean value, together with comparing to `char`
+with no explicit conversion to bool, makes compilers think
+the author made some unintentional logical mistakes here.
+Make it the other way around and negate the char instead
+to silence the warnings.
 
-But then the if (ret >= 0) is true, and the body of that if statement
-sets prop = ret which throws away the value that was just read from
-"ibm,opal-phbid".
-
-Fix the logic by only doing the ret >= 0 check in the of_alias_get_id()
-case.
-
-Fixes: 0fe1e96fef0a ("powerpc/pci: Prefer PCI domain assignment via DT 'linux,pci-domain' and alias")
-Reviewed-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220802105723.1055178-1-mpe@ellerman.id.au
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d2aa37411b8e ("x86/olpc/xo1/sci: Produce wakeup events for buttons and switches")
+Cc: stable@vger.kernel.org # 3.5+
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-and-tested-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Signed-off-by: Yury Norov <yury.norov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/pci-common.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/x86/platform/olpc/olpc-xo1-sci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/pci-common.c b/arch/powerpc/kernel/pci-common.c
-index b2b12ce44b5f..c787df126ada 100644
---- a/arch/powerpc/kernel/pci-common.c
-+++ b/arch/powerpc/kernel/pci-common.c
-@@ -90,11 +90,13 @@ static int get_phb_number(struct device_node *dn)
+--- a/arch/x86/platform/olpc/olpc-xo1-sci.c
++++ b/arch/x86/platform/olpc/olpc-xo1-sci.c
+@@ -80,7 +80,7 @@ static void send_ebook_state(void)
+ 		return;
  	}
- 	if (ret)
- 		ret = of_property_read_u64(dn, "ibm,opal-phbid", &prop);
--	if (ret)
-+
-+	if (ret) {
- 		ret = of_alias_get_id(dn, "pci");
--	if (ret >= 0) {
--		prop = ret;
--		ret = 0;
-+		if (ret >= 0) {
-+			prop = ret;
-+			ret = 0;
-+		}
- 	}
- 	if (ret) {
- 		u32 prop_32;
--- 
-2.35.1
-
+ 
+-	if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
++	if (test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == !!state)
+ 		return; /* Nothing new to report. */
+ 
+ 	input_report_switch(ebook_switch_idev, SW_TABLET_MODE, state);
 
 
