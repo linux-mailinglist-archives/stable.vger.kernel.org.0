@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 936D2593955
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0741D593956
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241222AbiHOTM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:12:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44374 "EHLO
+        id S1343644AbiHOTMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:12:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241407AbiHOTJ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:09:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C900EE1C;
-        Mon, 15 Aug 2022 11:36:24 -0700 (PDT)
+        with ESMTP id S1343675AbiHOTJ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:09:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2107D2CDD6;
+        Mon, 15 Aug 2022 11:36:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C540DB8105D;
-        Mon, 15 Aug 2022 18:36:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2711FC433C1;
-        Mon, 15 Aug 2022 18:36:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCC23B8105D;
+        Mon, 15 Aug 2022 18:36:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3726AC433C1;
+        Mon, 15 Aug 2022 18:36:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588581;
-        bh=9x+bpN8wLnOjkwbTRQPKw8W/hBE2mJhuV0IMW/PEOQI=;
+        s=korg; t=1660588584;
+        bh=EIFqnLnUM23Nz1J6+mXn0fbS1tnry5gPG/oOFxiGxUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AS8tG0p3jli8Tw7jmRQPqUWPQAhxly1Eb3TzZsafisIEqeqs3yVntgBqLE71l4d45
-         BcQl5fdqoNclYMso2PcIrJNzQwpfFT4BqUun6p3X3Y2tcGKvvUokExFnlDwxORfPqF
-         HaRByIgh2aM9wZNBtqUCX8nu2sdxi4D6pnt3Z9zE=
+        b=e1/yCgLhmWutZu19siYp4F544lJrMUP/yrjZMS9ZFXl7tETGcXlujBlpIaz8f0Hga
+         NHRpCwpcE8h6HpXc4bdbmtYZNvt13G5kO05OGWNOgU9tJURcEttqSG8C6pyq4QJhJS
+         Hfmkk+rib9IN79F2v/6Jb6o7skBeRrYVKN6GNx+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jenny Hack <jhack@hpe.com>,
-        Bob Pearson <rpearsonhpe@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Robert Marko <robimarko@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 449/779] RDMA/rxe: Fix deadlock in rxe_do_local_ops()
-Date:   Mon, 15 Aug 2022 20:01:33 +0200
-Message-Id: <20220815180356.477304299@linuxfoundation.org>
+Subject: [PATCH 5.15 450/779] clk: qcom: ipq8074: fix NSS core PLL-s
+Date:   Mon, 15 Aug 2022 20:01:34 +0200
+Message-Id: <20220815180356.507479205@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,52 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Pearson <rpearsonhpe@gmail.com>
+From: Robert Marko <robimarko@gmail.com>
 
-[ Upstream commit 7cb33d1bc1ac8e51fd88928f96674d392f8e07c4 ]
+[ Upstream commit ca41ec1b30434636c56c5600b24a8d964d359d9c ]
 
-When a local operation (invalidate mr, reg mr, bind mw) is finished there
-will be no ack packet coming from a responder to cause the wqe to be
-completed. This may happen anyway if a subsequent wqe performs
-IO. Currently if the wqe is signalled the completer tasklet is scheduled
-immediately but not otherwise.
+Like in IPQ6018 the NSS related Alpha PLL-s require initial configuration
+to work.
 
-This leads to a deadlock if the next wqe has the fence bit set in send
-flags and the operation is not signalled. This patch removes the condition
-that the wqe must be signalled in order to schedule the completer tasklet
-which is the simplest fix for this deadlock and is fairly low cost. This
-is the analog for local operations of always setting the ackreq bit in all
-last or only request packets even if the operation is not signalled.
+So, obtain the regmap that is required for the Alpha PLL configuration
+and thus utilize the qcom_cc_really_probe() as we already have the regmap.
+Then utilize the Alpha PLL configs from the downstream QCA 5.4 based
+kernel to configure them.
 
-Link: https://lore.kernel.org/r/20220523223251.15350-1-rpearsonhpe@gmail.com
-Reported-by: Jenny Hack <jhack@hpe.com>
-Fixes: c1a411268a4b ("RDMA/rxe: Move local ops to subroutine")
-Signed-off-by: Bob Pearson <rpearsonhpe@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+This fixes the UBI32 and NSS crypto PLL-s failing to get enabled by the
+kernel.
+
+Fixes: b8e7e519625f ("clk: qcom: ipq8074: add remaining PLL’s")
+Signed-off-by: Robert Marko <robimarko@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220515210048.483898-1-robimarko@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_req.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/clk/qcom/gcc-ipq8074.c | 39 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 38 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
-index 7812e3d6a6c2..4ea9319f0d52 100644
---- a/drivers/infiniband/sw/rxe/rxe_req.c
-+++ b/drivers/infiniband/sw/rxe/rxe_req.c
-@@ -612,9 +612,11 @@ static int rxe_do_local_ops(struct rxe_qp *qp, struct rxe_send_wqe *wqe)
- 	wqe->status = IB_WC_SUCCESS;
- 	qp->req.wqe_index = next_index(qp->sq.queue, qp->req.wqe_index);
+diff --git a/drivers/clk/qcom/gcc-ipq8074.c b/drivers/clk/qcom/gcc-ipq8074.c
+index 541016db3c4b..1a5141da7e23 100644
+--- a/drivers/clk/qcom/gcc-ipq8074.c
++++ b/drivers/clk/qcom/gcc-ipq8074.c
+@@ -4371,6 +4371,33 @@ static struct clk_branch gcc_pcie0_axi_s_bridge_clk = {
+ 	},
+ };
  
--	if ((wqe->wr.send_flags & IB_SEND_SIGNALED) ||
--	    qp->sq_sig_type == IB_SIGNAL_ALL_WR)
--		rxe_run_task(&qp->comp.task, 1);
-+	/* There is no ack coming for local work requests
-+	 * which can lead to a deadlock. So go ahead and complete
-+	 * it now.
-+	 */
-+	rxe_run_task(&qp->comp.task, 1);
++static const struct alpha_pll_config ubi32_pll_config = {
++	.l = 0x4e,
++	.config_ctl_val = 0x200d4aa8,
++	.config_ctl_hi_val = 0x3c2,
++	.main_output_mask = BIT(0),
++	.aux_output_mask = BIT(1),
++	.pre_div_val = 0x0,
++	.pre_div_mask = BIT(12),
++	.post_div_val = 0x0,
++	.post_div_mask = GENMASK(9, 8),
++};
++
++static const struct alpha_pll_config nss_crypto_pll_config = {
++	.l = 0x3e,
++	.alpha = 0x0,
++	.alpha_hi = 0x80,
++	.config_ctl_val = 0x4001055b,
++	.main_output_mask = BIT(0),
++	.pre_div_val = 0x0,
++	.pre_div_mask = GENMASK(14, 12),
++	.post_div_val = 0x1 << 8,
++	.post_div_mask = GENMASK(11, 8),
++	.vco_mask = GENMASK(21, 20),
++	.vco_val = 0x0,
++	.alpha_en_mask = BIT(24),
++};
++
+ static struct clk_hw *gcc_ipq8074_hws[] = {
+ 	&gpll0_out_main_div2.hw,
+ 	&gpll6_out_main_div2.hw,
+@@ -4772,7 +4799,17 @@ static const struct qcom_cc_desc gcc_ipq8074_desc = {
  
- 	return 0;
+ static int gcc_ipq8074_probe(struct platform_device *pdev)
+ {
+-	return qcom_cc_probe(pdev, &gcc_ipq8074_desc);
++	struct regmap *regmap;
++
++	regmap = qcom_cc_map(pdev, &gcc_ipq8074_desc);
++	if (IS_ERR(regmap))
++		return PTR_ERR(regmap);
++
++	clk_alpha_pll_configure(&ubi32_pll_main, regmap, &ubi32_pll_config);
++	clk_alpha_pll_configure(&nss_crypto_pll_main, regmap,
++				&nss_crypto_pll_config);
++
++	return qcom_cc_really_probe(pdev, &gcc_ipq8074_desc, regmap);
  }
+ 
+ static struct platform_driver gcc_ipq8074_driver = {
 -- 
 2.35.1
 
