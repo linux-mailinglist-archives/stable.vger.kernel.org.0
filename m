@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8251E594295
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1FF959429D
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349939AbiHOVwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:52:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44234 "EHLO
+        id S244736AbiHOVwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:52:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350530AbiHOVvd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:51:33 -0400
+        with ESMTP id S1350565AbiHOVvi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:51:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AE7C106F9C;
-        Mon, 15 Aug 2022 12:32:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8408510774F;
+        Mon, 15 Aug 2022 12:33:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4D03B80EAD;
-        Mon, 15 Aug 2022 19:32:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A4D8C433D6;
-        Mon, 15 Aug 2022 19:32:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21AFAB80EAD;
+        Mon, 15 Aug 2022 19:33:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 587B0C433D6;
+        Mon, 15 Aug 2022 19:33:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591976;
-        bh=ydOSK1Hk0GTmHTcy6hWBPyLZP1ki0L2m1F1ee9yKE8g=;
+        s=korg; t=1660591985;
+        bh=B9x94GFAJ58C5q5QEsDUkX1JGRSes5Nt9uSoHJvL1ec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zaS2zQCmBPFsosTLDAYZIvsTO2qG8M91OyshRuDXxyAmKvjjyqlJTtHmYV9tivHCR
-         ZOoY/lbJe2RFxTPqOzmOtyaA+WVyw8ZGGQ7MuNwUXJ/UQIPMgbSJPOC49DKzDYWhEe
-         IiA41ppL3Wae+dD9z/J/EXdCN1ZubEPanA5M147I=
+        b=u/9wcbI1PnQsM98rZn9xqlYW6SXANnPUFUD3W2RhKr3iEyMRy8CCLO9mwcUPJdrF5
+         XMM0Vq7N9h+n3GRHRK3aCtz144zeHtQESr4dlnPxPrTZSlU9+xOG9GtSwgI1zfWdGj
+         30jiKgwSmMy0p6zAY2eKOxL//mBNUyPXyI7PCaBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Roth <michael.roth@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
+        stable@vger.kernel.org, Kai Huang <kai.huang@intel.com>,
+        Michael Roth <michael.roth@amd.com>,
         Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.19 0039/1157] KVM: SVM: Disable SEV-ES support if MMIO caching is disable
-Date:   Mon, 15 Aug 2022 19:49:55 +0200
-Message-Id: <20220815180440.997426890@linuxfoundation.org>
+Subject: [PATCH 5.19 0040/1157] KVM: x86: Tag kvm_mmu_x86_module_init() with __init
+Date:   Mon, 15 Aug 2022 19:49:56 +0200
+Message-Id: <20220815180441.036484267@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -57,116 +57,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit 0c29397ac1fdd64ae59941a477511a05e61a4754 upstream.
+commit 982bae43f11c37b51d2f1961bb25ef7cac3746fa upstream.
 
-Disable SEV-ES if MMIO caching is disabled as SEV-ES relies on MMIO SPTEs
-generating #NPF(RSVD), which are reflected by the CPU into the guest as
-a #VC.  With SEV-ES, the untrusted host, a.k.a. KVM, doesn't have access
-to the guest instruction stream or register state and so can't directly
-emulate in response to a #NPF on an emulated MMIO GPA.  Disabling MMIO
-caching means guest accesses to emulated MMIO ranges cause #NPF(!PRESENT),
-and those flavors of #NPF cause automatic VM-Exits, not #VC.
+Mark kvm_mmu_x86_module_init() with __init, the entire reason it exists
+is to initialize variables when kvm.ko is loaded, i.e. it must never be
+called after module initialization.
 
-Adjust KVM's MMIO masks to account for the C-bit location prior to doing
-SEV(-ES) setup, and document that dependency between adjusting the MMIO
-SPTE mask and SEV(-ES) setup.
-
-Fixes: b09763da4dd8 ("KVM: x86/mmu: Add module param to disable MMIO caching (for testing)")
-Reported-by: Michael Roth <michael.roth@amd.com>
-Tested-by: Michael Roth <michael.roth@amd.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Fixes: 1d0e84806047 ("KVM: x86/mmu: Resolve nx_huge_pages when kvm.ko is loaded")
 Cc: stable@vger.kernel.org
+Reviewed-by: Kai Huang <kai.huang@intel.com>
+Tested-by: Michael Roth <michael.roth@amd.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220803224957.1285926-4-seanjc@google.com>
+Message-Id: <20220803224957.1285926-2-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu.h      |    2 ++
- arch/x86/kvm/mmu/spte.c |    1 +
- arch/x86/kvm/mmu/spte.h |    2 --
- arch/x86/kvm/svm/sev.c  |   10 ++++++++++
- arch/x86/kvm/svm/svm.c  |    9 ++++++---
- 5 files changed, 19 insertions(+), 5 deletions(-)
+ arch/x86/include/asm/kvm_host.h |    2 +-
+ arch/x86/kvm/mmu/mmu.c          |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/mmu.h
-+++ b/arch/x86/kvm/mmu.h
-@@ -11,6 +11,8 @@
- #define PT32_PT_BITS 10
- #define PT32_ENT_PER_PAGE (1 << PT32_PT_BITS)
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1654,7 +1654,7 @@ static inline int kvm_arch_flush_remote_
+ #define kvm_arch_pmi_in_guest(vcpu) \
+ 	((vcpu) && (vcpu)->arch.handling_intr_from_guest)
  
-+extern bool __read_mostly enable_mmio_caching;
-+
- #define PT_WRITABLE_SHIFT 1
- #define PT_USER_SHIFT 2
+-void kvm_mmu_x86_module_init(void);
++void __init kvm_mmu_x86_module_init(void);
+ int kvm_mmu_vendor_module_init(void);
+ void kvm_mmu_vendor_module_exit(void);
  
---- a/arch/x86/kvm/mmu/spte.c
-+++ b/arch/x86/kvm/mmu/spte.c
-@@ -21,6 +21,7 @@
- 
- bool __read_mostly enable_mmio_caching = true;
- module_param_named(mmio_caching, enable_mmio_caching, bool, 0444);
-+EXPORT_SYMBOL_GPL(enable_mmio_caching);
- 
- u64 __read_mostly shadow_host_writable_mask;
- u64 __read_mostly shadow_mmu_writable_mask;
---- a/arch/x86/kvm/mmu/spte.h
-+++ b/arch/x86/kvm/mmu/spte.h
-@@ -5,8 +5,6 @@
- 
- #include "mmu_internal.h"
- 
--extern bool __read_mostly enable_mmio_caching;
--
- /*
-  * A MMU present SPTE is backed by actual memory and may or may not be present
-  * in hardware.  E.g. MMIO SPTEs are not considered present.  Use bit 11, as it
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -22,6 +22,7 @@
- #include <asm/trapnr.h>
- #include <asm/fpu/xcr.h>
- 
-+#include "mmu.h"
- #include "x86.h"
- #include "svm.h"
- #include "svm_ops.h"
-@@ -2221,6 +2222,15 @@ void __init sev_hardware_setup(void)
- 	if (!sev_es_enabled)
- 		goto out;
- 
-+	/*
-+	 * SEV-ES requires MMIO caching as KVM doesn't have access to the guest
-+	 * instruction stream, i.e. can't emulate in response to a #NPF and
-+	 * instead relies on #NPF(RSVD) being reflected into the guest as #VC
-+	 * (the guest can then do a #VMGEXIT to request MMIO emulation).
-+	 */
-+	if (!enable_mmio_caching)
-+		goto out;
-+
- 	/* Does the CPU support SEV-ES? */
- 	if (!boot_cpu_has(X86_FEATURE_SEV_ES))
- 		goto out;
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -4897,13 +4897,16 @@ static __init int svm_hardware_setup(voi
- 	/* Setup shadow_me_value and shadow_me_mask */
- 	kvm_mmu_set_me_spte_mask(sme_me_mask, sme_me_mask);
- 
--	/* Note, SEV setup consumes npt_enabled. */
-+	svm_adjust_mmio_mask();
-+
-+	/*
-+	 * Note, SEV setup consumes npt_enabled and enable_mmio_caching (which
-+	 * may be modified by svm_adjust_mmio_mask()).
-+	 */
- 	sev_hardware_setup();
- 
- 	svm_hv_hardware_setup();
- 
--	svm_adjust_mmio_mask();
--
- 	for_each_possible_cpu(cpu) {
- 		r = svm_cpu_init(cpu);
- 		if (r)
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -6275,7 +6275,7 @@ static int set_nx_huge_pages(const char
+  * nx_huge_pages needs to be resolved to true/false when kvm.ko is loaded, as
+  * its default value of -1 is technically undefined behavior for a boolean.
+  */
+-void kvm_mmu_x86_module_init(void)
++void __init kvm_mmu_x86_module_init(void)
+ {
+ 	if (nx_huge_pages == -1)
+ 		__set_nx_huge_pages(get_nx_auto_mode());
 
 
