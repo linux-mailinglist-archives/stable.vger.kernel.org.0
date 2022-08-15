@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57C58594FC4
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:32:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 194FE594FB2
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230129AbiHPEcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:32:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47078 "EHLO
+        id S230052AbiHPEbr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:31:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230088AbiHPEcE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:32:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C681165726;
-        Mon, 15 Aug 2022 13:22:48 -0700 (PDT)
+        with ESMTP id S230014AbiHPEbR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:31:17 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 991CD16658A;
+        Mon, 15 Aug 2022 13:22:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4B37B80EAD;
-        Mon, 15 Aug 2022 20:22:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3428C433C1;
-        Mon, 15 Aug 2022 20:22:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5B312CE12DE;
+        Mon, 15 Aug 2022 20:22:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3059DC433C1;
+        Mon, 15 Aug 2022 20:22:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594965;
-        bh=iNo/LO41dBsaQDRtTqkiOLvpSgWW5TzPoPLvvxIj5bo=;
+        s=korg; t=1660594968;
+        bh=2iiww0YZVx3IsAfXGgFTGknilWMD0Hkj0gj15HbjlMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OdAMSm5VUg2Czd3EcQMWEY9NqyAaMFM/iRWe11k0CQl/AuqLr19Zsidc+qynIIrXa
-         94oawwP6AZdKlh6zeyoOogUG6JrooSYHukX9NuNOqDLieoXKCSe5NV6+f1zuvSV+7j
-         MVbiR6Q3zVQ2n8QUo/311wGHVAOuHNOpLcTiAJjs=
+        b=ZdRcUG/Ec9MbF5GgK36iizLEzsdSEGWOptT35dtYmYr2xtNO7QiTbsi1GbEXQNwFN
+         USm+yZ2Y53Lpz/C/zMk5wl/Aw66DOR/k3Q4+oX41514TM5eqmdjq5A0BD981JKkk2b
+         A6U7i22HsROZXCg47K4aoFhoUimNijKsl7130AJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>,
+        stable@vger.kernel.org, Tang Bin <tangbin@cmss.chinamobile.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0613/1157] usb: host: ohci-at91: add support to enter suspend using SMC
-Date:   Mon, 15 Aug 2022 19:59:29 +0200
-Message-Id: <20220815180504.170811259@linuxfoundation.org>
+Subject: [PATCH 5.19 0614/1157] usb: xhci: tegra: Fix error check
+Date:   Mon, 15 Aug 2022 19:59:30 +0200
+Message-Id: <20220815180504.209528033@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,172 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clément Léger <clement.leger@bootlin.com>
+From: Tang Bin <tangbin@cmss.chinamobile.com>
 
-[ Upstream commit 1e073e3ed9ff9ec14e7e360ed89a81256d895588 ]
+[ Upstream commit 18fc7c435be3f17ea26a21b2e2312fcb9088e01f ]
 
-When Linux is running under OP-TEE, the SFR is set as secured and thus
-the AT91_OHCIICR_USB_SUSPEND register isn't accessible. Add a SMC to
-do the appropriate call to suspend the controller.
-The SMC id is fetched from the device-tree property
-"microchip,suspend-smc-id". if present, then the syscon regmap is not
-used to enter suspend and a SMC is issued.
+In the function tegra_xusb_powerdomain_init(),
+dev_pm_domain_attach_by_name() may return NULL in some cases,
+so IS_ERR() doesn't meet the requirements. Thus fix it.
 
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Clément Léger <clement.leger@bootlin.com>
-Link: https://lore.kernel.org/r/20220607133454.727063-1-clement.leger@bootlin.com
+Fixes: 6494a9ad86de ("usb: xhci: tegra: Add genpd support")
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+Link: https://lore.kernel.org/r/20220524121404.18376-1-tangbin@cmss.chinamobile.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ohci-at91.c | 69 ++++++++++++++++++++++++------------
- 1 file changed, 46 insertions(+), 23 deletions(-)
+ drivers/usb/host/xhci-tegra.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/host/ohci-at91.c b/drivers/usb/host/ohci-at91.c
-index a24aea3d2759..98326465e2dc 100644
---- a/drivers/usb/host/ohci-at91.c
-+++ b/drivers/usb/host/ohci-at91.c
-@@ -13,6 +13,7 @@
-  * This file is licenced under the GPL.
-  */
+diff --git a/drivers/usb/host/xhci-tegra.c b/drivers/usb/host/xhci-tegra.c
+index 996958a6565c..bdb776553826 100644
+--- a/drivers/usb/host/xhci-tegra.c
++++ b/drivers/usb/host/xhci-tegra.c
+@@ -1010,15 +1010,15 @@ static int tegra_xusb_powerdomain_init(struct device *dev,
+ 	int err;
  
-+#include <linux/arm-smccc.h>
- #include <linux/clk.h>
- #include <linux/dma-mapping.h>
- #include <linux/gpio/consumer.h>
-@@ -55,6 +56,7 @@ struct ohci_at91_priv {
- 	bool clocked;
- 	bool wakeup;		/* Saved wake-up state for resume */
- 	struct regmap *sfr_regmap;
-+	u32 suspend_smc_id;
- };
- /* interface and function clocks; sometimes also an AHB clock */
- 
-@@ -135,6 +137,19 @@ static void at91_stop_hc(struct platform_device *pdev)
- 
- static void usb_hcd_at91_remove (struct usb_hcd *, struct platform_device *);
- 
-+static u32 at91_dt_suspend_smc(struct device *dev)
-+{
-+	u32 suspend_smc_id;
-+
-+	if (!dev->of_node)
-+		return 0;
-+
-+	if (of_property_read_u32(dev->of_node, "microchip,suspend-smc-id", &suspend_smc_id))
-+		return 0;
-+
-+	return suspend_smc_id;
-+}
-+
- static struct regmap *at91_dt_syscon_sfr(void)
- {
- 	struct regmap *regmap;
-@@ -215,9 +230,13 @@ static int usb_hcd_at91_probe(const struct hc_driver *driver,
- 		goto err;
+ 	tegra->genpd_dev_host = dev_pm_domain_attach_by_name(dev, "xusb_host");
+-	if (IS_ERR(tegra->genpd_dev_host)) {
+-		err = PTR_ERR(tegra->genpd_dev_host);
++	if (IS_ERR_OR_NULL(tegra->genpd_dev_host)) {
++		err = PTR_ERR(tegra->genpd_dev_host) ? : -ENODATA;
+ 		dev_err(dev, "failed to get host pm-domain: %d\n", err);
+ 		return err;
  	}
  
--	ohci_at91->sfr_regmap = at91_dt_syscon_sfr();
--	if (!ohci_at91->sfr_regmap)
--		dev_dbg(dev, "failed to find sfr node\n");
-+	ohci_at91->suspend_smc_id = at91_dt_suspend_smc(dev);
-+	if (!ohci_at91->suspend_smc_id)  {
-+		dev_dbg(dev, "failed to find sfr suspend smc id, using regmap\n");
-+		ohci_at91->sfr_regmap = at91_dt_syscon_sfr();
-+		if (!ohci_at91->sfr_regmap)
-+			dev_dbg(dev, "failed to find sfr node\n");
-+	}
- 
- 	board = hcd->self.controller->platform_data;
- 	ohci = hcd_to_ohci(hcd);
-@@ -303,24 +322,30 @@ static int ohci_at91_hub_status_data(struct usb_hcd *hcd, char *buf)
- 	return length;
- }
- 
--static int ohci_at91_port_suspend(struct regmap *regmap, u8 set)
-+static int ohci_at91_port_suspend(struct ohci_at91_priv *ohci_at91, u8 set)
- {
-+	struct regmap *regmap = ohci_at91->sfr_regmap;
- 	u32 regval;
- 	int ret;
- 
--	if (!regmap)
--		return 0;
-+	if (ohci_at91->suspend_smc_id) {
-+		struct arm_smccc_res res;
- 
--	ret = regmap_read(regmap, AT91_SFR_OHCIICR, &regval);
--	if (ret)
--		return ret;
-+		arm_smccc_smc(ohci_at91->suspend_smc_id, set, 0, 0, 0, 0, 0, 0, &res);
-+		if (res.a0)
-+			return -EINVAL;
-+	} else if (regmap) {
-+		ret = regmap_read(regmap, AT91_SFR_OHCIICR, &regval);
-+		if (ret)
-+			return ret;
- 
--	if (set)
--		regval |= AT91_OHCIICR_USB_SUSPEND;
--	else
--		regval &= ~AT91_OHCIICR_USB_SUSPEND;
-+		if (set)
-+			regval |= AT91_OHCIICR_USB_SUSPEND;
-+		else
-+			regval &= ~AT91_OHCIICR_USB_SUSPEND;
- 
--	regmap_write(regmap, AT91_SFR_OHCIICR, regval);
-+		regmap_write(regmap, AT91_SFR_OHCIICR, regval);
-+	}
- 
- 	return 0;
- }
-@@ -357,9 +382,8 @@ static int ohci_at91_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
- 
- 		case USB_PORT_FEAT_SUSPEND:
- 			dev_dbg(hcd->self.controller, "SetPortFeat: SUSPEND\n");
--			if (valid_port(wIndex) && ohci_at91->sfr_regmap) {
--				ohci_at91_port_suspend(ohci_at91->sfr_regmap,
--						       1);
-+			if (valid_port(wIndex)) {
-+				ohci_at91_port_suspend(ohci_at91, 1);
- 				return 0;
- 			}
- 			break;
-@@ -400,9 +424,8 @@ static int ohci_at91_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
- 
- 		case USB_PORT_FEAT_SUSPEND:
- 			dev_dbg(hcd->self.controller, "ClearPortFeature: SUSPEND\n");
--			if (valid_port(wIndex) && ohci_at91->sfr_regmap) {
--				ohci_at91_port_suspend(ohci_at91->sfr_regmap,
--						       0);
-+			if (valid_port(wIndex)) {
-+				ohci_at91_port_suspend(ohci_at91, 0);
- 				return 0;
- 			}
- 			break;
-@@ -630,10 +653,10 @@ ohci_hcd_at91_drv_suspend(struct device *dev)
- 		/* flush the writes */
- 		(void) ohci_readl (ohci, &ohci->regs->control);
- 		msleep(1);
--		ohci_at91_port_suspend(ohci_at91->sfr_regmap, 1);
-+		ohci_at91_port_suspend(ohci_at91, 1);
- 		at91_stop_clock(ohci_at91);
- 	} else {
--		ohci_at91_port_suspend(ohci_at91->sfr_regmap, 1);
-+		ohci_at91_port_suspend(ohci_at91, 1);
+ 	tegra->genpd_dev_ss = dev_pm_domain_attach_by_name(dev, "xusb_ss");
+-	if (IS_ERR(tegra->genpd_dev_ss)) {
+-		err = PTR_ERR(tegra->genpd_dev_ss);
++	if (IS_ERR_OR_NULL(tegra->genpd_dev_ss)) {
++		err = PTR_ERR(tegra->genpd_dev_ss) ? : -ENODATA;
+ 		dev_err(dev, "failed to get superspeed pm-domain: %d\n", err);
+ 		return err;
  	}
- 
- 	return ret;
-@@ -645,7 +668,7 @@ ohci_hcd_at91_drv_resume(struct device *dev)
- 	struct usb_hcd	*hcd = dev_get_drvdata(dev);
- 	struct ohci_at91_priv *ohci_at91 = hcd_to_ohci_at91_priv(hcd);
- 
--	ohci_at91_port_suspend(ohci_at91->sfr_regmap, 0);
-+	ohci_at91_port_suspend(ohci_at91, 0);
- 
- 	if (ohci_at91->wakeup)
- 		disable_irq_wake(hcd->irq);
 -- 
 2.35.1
 
