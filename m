@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2706B594C0A
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A96F7594DE5
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:35:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243835AbiHPAjs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:39:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49008 "EHLO
+        id S1344358AbiHPAjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:39:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346717AbiHPAh7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:37:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1788F4E876;
-        Mon, 15 Aug 2022 13:38:15 -0700 (PDT)
+        with ESMTP id S1345152AbiHPAh0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:37:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD9DB520AF;
+        Mon, 15 Aug 2022 13:38:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15F2B611FC;
-        Mon, 15 Aug 2022 20:38:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A0B3C433D6;
-        Mon, 15 Aug 2022 20:38:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DCFEBB80EA8;
+        Mon, 15 Aug 2022 20:38:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA94C433D6;
+        Mon, 15 Aug 2022 20:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595894;
-        bh=1P0QJ7as0hYzhD5ijHWEvqmNPZKo7he6CYz7tYoqMF4=;
+        s=korg; t=1660595897;
+        bh=8hDBdMDPvbcd9tHee3CoHzdJ9KzK5YiVA0P4PEbm/ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dzwp3x+51ICq03lQ/5bXVWf5n0ijawsH4XdNMA3CD0b5TaMt86cZpaXOZIZ/Ee1oa
-         6mk2YYNfKZNNoFbFY0hCT9Cl7UJhXkPoEp6tO6q3XXOb+4FCZtVLSy4ccWDvanRjQU
-         D7y9Yd1ATUgSp+Lmvw51xFHHiATi3hTJrWswaF1I=
+        b=2HNUN8u4qbuKCy484ndcVNz6MyJ+4wHB5oo0oXDWp0d8OvLxY0bhHRpjDfctasqop
+         3WR/yDFP8cFCcK41ko8reAhLZENYb5f6f0zLXHDupRdSVUeWEDLQRue8eTYTN0/iAp
+         kJX6kQPTR6LC1mRNdiPsU7Rq3ooHi4tI+hUIDZ3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Suman Anna <s-anna@ti.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0909/1157] remoteproc: k3-r5: Fix refcount leak in k3_r5_cluster_of_init
-Date:   Mon, 15 Aug 2022 20:04:25 +0200
-Message-Id: <20220815180515.821960813@linuxfoundation.org>
+        stable@vger.kernel.org, Joe Lawrence <joe.lawrence@redhat.com>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0910/1157] selftests/livepatch: better synchronize test_klp_callbacks_busy
+Date:   Mon, 15 Aug 2022 20:04:26 +0200
+Message-Id: <20220815180515.861770148@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,46 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Joe Lawrence <joe.lawrence@redhat.com>
 
-[ Upstream commit fa220c05d282e7479abe08b54e3bdffd06c25e97 ]
+[ Upstream commit 55eb9a6c8bf3e2099863118ef53e02d9f44f85a8 ]
 
-Every iteration of for_each_available_child_of_node() decrements
-the reference count of the previous node.
-When breaking early from a for_each_available_child_of_node() loop,
-we need to explicitly call of_node_put() on the child node.
-Add missing of_node_put() to avoid refcount leak.
+The test_klp_callbacks_busy module conditionally blocks a future
+livepatch transition by busy waiting inside its workqueue function,
+busymod_work_func().  After scheduling this work, a test livepatch is
+loaded, introducing the transition under test.
 
-Fixes: 6dedbd1d5443 ("remoteproc: k3-r5: Add a remoteproc driver for R5F subsystem")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Suman Anna <s-anna@ti.com>
-Link: https://lore.kernel.org/r/20220605083334.23942-1-linmq006@gmail.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Both events are marked in the kernel log for later verification, but
+there is no synchronization to ensure that busymod_work_func() logs its
+function entry message before subsequent selftest commands log their own
+messages.  This can lead to a rare test failure due to unexpected
+ordering like:
+
+#  --- expected
+#  +++ result
+#  @@ -1,7 +1,7 @@
+#   % modprobe test_klp_callbacks_busy block_transition=Y
+#   test_klp_callbacks_busy: test_klp_callbacks_busy_init
+#  -test_klp_callbacks_busy: busymod_work_func enter
+#   % modprobe test_klp_callbacks_demo
+#  +test_klp_callbacks_busy: busymod_work_func enter
+#   livepatch: enabling patch 'test_klp_callbacks_demo'
+#   livepatch: 'test_klp_callbacks_demo': initializing patching transition
+#   test_klp_callbacks_demo: pre_patch_callback: vmlinux
+
+Force the module init function to wait until busymod_work_func() has
+started (and logged its message), before exiting to the next selftest
+steps.
+
+Fixes: 547840bd5ae5 ("selftests/livepatch: simplify test-klp-callbacks busy target tests")
+Signed-off-by: Joe Lawrence <joe.lawrence@redhat.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20220602203233.979681-1-joe.lawrence@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/ti_k3_r5_remoteproc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ lib/livepatch/test_klp_callbacks_busy.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/remoteproc/ti_k3_r5_remoteproc.c b/drivers/remoteproc/ti_k3_r5_remoteproc.c
-index 4840ad906018..0481926c6975 100644
---- a/drivers/remoteproc/ti_k3_r5_remoteproc.c
-+++ b/drivers/remoteproc/ti_k3_r5_remoteproc.c
-@@ -1655,6 +1655,7 @@ static int k3_r5_cluster_of_init(struct platform_device *pdev)
- 		if (!cpdev) {
- 			ret = -ENODEV;
- 			dev_err(dev, "could not get R5 core platform device\n");
-+			of_node_put(child);
- 			goto fail;
- 		}
+diff --git a/lib/livepatch/test_klp_callbacks_busy.c b/lib/livepatch/test_klp_callbacks_busy.c
+index 7ac845f65be5..133929e0ce8f 100644
+--- a/lib/livepatch/test_klp_callbacks_busy.c
++++ b/lib/livepatch/test_klp_callbacks_busy.c
+@@ -16,10 +16,12 @@ MODULE_PARM_DESC(block_transition, "block_transition (default=false)");
  
-@@ -1663,6 +1664,7 @@ static int k3_r5_cluster_of_init(struct platform_device *pdev)
- 			dev_err(dev, "k3_r5_core_of_init failed, ret = %d\n",
- 				ret);
- 			put_device(&cpdev->dev);
-+			of_node_put(child);
- 			goto fail;
- 		}
+ static void busymod_work_func(struct work_struct *work);
+ static DECLARE_WORK(work, busymod_work_func);
++static DECLARE_COMPLETION(busymod_work_started);
  
+ static void busymod_work_func(struct work_struct *work)
+ {
+ 	pr_info("%s enter\n", __func__);
++	complete(&busymod_work_started);
+ 
+ 	while (READ_ONCE(block_transition)) {
+ 		/*
+@@ -37,6 +39,12 @@ static int test_klp_callbacks_busy_init(void)
+ 	pr_info("%s\n", __func__);
+ 	schedule_work(&work);
+ 
++	/*
++	 * To synchronize kernel messages, hold the init function from
++	 * exiting until the work function's entry message has printed.
++	 */
++	wait_for_completion(&busymod_work_started);
++
+ 	if (!block_transition) {
+ 		/*
+ 		 * Serialize output: print all messages from the work
 -- 
 2.35.1
 
