@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE5065943FA
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:57:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A42C59430B
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348443AbiHOWaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:30:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41382 "EHLO
+        id S1347587AbiHOWUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:20:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349546AbiHOW0B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:26:01 -0400
+        with ESMTP id S1350780AbiHOWSb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:18:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09D091272F7;
-        Mon, 15 Aug 2022 12:44:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDA89419AA;
+        Mon, 15 Aug 2022 12:41:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7629CB80EAD;
-        Mon, 15 Aug 2022 19:44:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDFD9C433D7;
-        Mon, 15 Aug 2022 19:44:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A03AEB80EA9;
+        Mon, 15 Aug 2022 19:41:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1698C433C1;
+        Mon, 15 Aug 2022 19:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592680;
-        bh=kJiAJLBI1zI4upGRqmYNzAq/cmr+YVYjwMY4ik5mLsQ=;
+        s=korg; t=1660592491;
+        bh=LDycKYnW6ye4o2A+N5sKquPsWFCQPRnl7ImjLXfcl90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=msf7ebpSh+ffhLZQZr2U1t6CoY9OYXTUQYdCW+U0jxzfHceJ7+Av1AlG/k1u45tuo
-         beHguJRKqiY6Hjhd52m2GweuRQ+jyLQFFlQ5E125MMZPXAOlYLxsy2BgOC6/eDd1Oj
-         pEoVXY4sqPELt3OQatVNx6i412fP9o/XHsVN852k=
+        b=a/OhsFFxDuTB2vSbi4SpcnQOaO4Qlrh55oO7CuAgbo+9d87S/97zJiZLnx1p/w00b
+         Ixyfges4Mhnc8biuoBOJZWvjV4ICou7GxmHAQh/mWKRdzZjsalXzY8lyKwHEtFTmTb
+         JWl4wvloPxzgcA0EPAzp4zh8RZPpXB9xA7Wrt1A8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0797/1095] KVM: nVMX: Set UMIP bit CR4_FIXED1 MSR when emulating UMIP
-Date:   Mon, 15 Aug 2022 20:03:16 +0200
-Message-Id: <20220815180502.226505304@linuxfoundation.org>
+Subject: [PATCH 5.18 0798/1095] tools/power/x86/intel-speed-select: Fix off by one check
+Date:   Mon, 15 Aug 2022 20:03:17 +0200
+Message-Id: <20220815180502.270345880@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,42 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a910b5ab6b250a88fff1866bf708642d83317466 ]
+[ Upstream commit d9f74d98bbec978edbf860f729b531281ba0d8ff ]
 
-Make UMIP an "allowed-1" bit CR4_FIXED1 MSR when KVM is emulating UMIP.
-KVM emulates UMIP for both L1 and L2, and so should enumerate that L2 is
-allowed to have CR4.UMIP=1.  Not setting the bit doesn't immediately
-break nVMX, as KVM does set/clear the bit in CR4_FIXED1 in response to a
-guest CPUID update, i.e. KVM will correctly (dis)allow nested VM-Entry
-based on whether or not UMIP is exposed to L1.  That said, KVM should
-enumerate the bit as being allowed from time zero, e.g. userspace will
-see the wrong value if the MSR is read before CPUID is written.
+Change > MAX_DIE_PER_PACKAGE to >= MAX_DIE_PER_PACKAGE to prevent
+accessing one element beyond the end of the array.
 
-Fixes: 0367f205a3b7 ("KVM: vmx: add support for emulating UMIP")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220607213604.3346000-12-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 7fd786dfbd2c ("tools/power/x86/intel-speed-select: OOB daemon mode")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/power/x86/intel-speed-select/isst-daemon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index c632df13ada2..aa287302f991 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -6790,6 +6790,9 @@ void nested_vmx_setup_ctls_msrs(struct nested_vmx_msrs *msrs, u32 ept_caps)
- 	rdmsrl(MSR_IA32_VMX_CR0_FIXED1, msrs->cr0_fixed1);
- 	rdmsrl(MSR_IA32_VMX_CR4_FIXED1, msrs->cr4_fixed1);
+diff --git a/tools/power/x86/intel-speed-select/isst-daemon.c b/tools/power/x86/intel-speed-select/isst-daemon.c
+index dd372924bc82..d0400c6684ba 100644
+--- a/tools/power/x86/intel-speed-select/isst-daemon.c
++++ b/tools/power/x86/intel-speed-select/isst-daemon.c
+@@ -41,7 +41,7 @@ void process_level_change(int cpu)
+ 	time_t tm;
+ 	int ret;
  
-+	if (vmx_umip_emulated())
-+		msrs->cr4_fixed1 |= X86_CR4_UMIP;
-+
- 	msrs->vmcs_enum = nested_vmx_calc_vmcs_enum_msr();
- }
- 
+-	if (pkg_id >= MAX_PACKAGE_COUNT || die_id > MAX_DIE_PER_PACKAGE) {
++	if (pkg_id >= MAX_PACKAGE_COUNT || die_id >= MAX_DIE_PER_PACKAGE) {
+ 		debug_printf("Invalid package/die info for cpu:%d\n", cpu);
+ 		return;
+ 	}
 -- 
 2.35.1
 
