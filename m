@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A69D593EEB
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5D45593F97
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:45:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242401AbiHOVT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:19:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37430 "EHLO
+        id S244738AbiHOVUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:20:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344874AbiHOVRh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:17:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8A9FE0FD9;
-        Mon, 15 Aug 2022 12:20:52 -0700 (PDT)
+        with ESMTP id S1344947AbiHOVRi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:17:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34EF6E0FF9;
+        Mon, 15 Aug 2022 12:20:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FA9BB80FD3;
-        Mon, 15 Aug 2022 19:20:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 993C4C433D6;
-        Mon, 15 Aug 2022 19:20:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6A5660EF0;
+        Mon, 15 Aug 2022 19:20:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1813C433C1;
+        Mon, 15 Aug 2022 19:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591250;
-        bh=TQxWdx3oGUdaA/R2Vh3d0qVpSXxzDrvfsM9VzIlgOAw=;
+        s=korg; t=1660591253;
+        bh=alkqNoVEuZH4FmZPEVVM7SNB9OYHmAev1RY7fyrIPCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kNRtr97poKl908dk+Zu6F6hPdzIr6mC8Ksto7TnYqLCEOmzellDHyRua3QHtiU+6T
-         hJl163PVLwR6945rAs7GaKW+Q7owWDzlCtdt1SFpMzc3KmK1yScTFH+cVdwxeGvWcW
-         w8PPlKSVYDEOkCcSjqCwRD+R5nQ7Ls/+8YintxYg=
+        b=i0ZAprHThy1q+7vdJq9901xVGodcvCvwhbYzRUUyZ3o6jQ6nYN0rgMjWwA3KSEvf6
+         Ab/Jaz/g9GfO2+CRCA9pjptNrgN/iwVgDRagbxEK7mk78xTbbMYSnrpVDi1tJscE76
+         /8sYSeTndOIR7lrmqG5TBLuBsIetVkIR6sWxNQ8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shay Drory <shayd@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Bernard F6BVP <f6bvp@free.fr>,
+        Eric Dumazet <edumazet@google.com>,
+        Duoming Zhou <duoming@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0519/1095] net/mlx5: Fix driver use of uninitialized timeout
-Date:   Mon, 15 Aug 2022 19:58:38 +0200
-Message-Id: <20220815180451.008226773@linuxfoundation.org>
+Subject: [PATCH 5.18 0520/1095] ax25: fix incorrect dev_tracker usage
+Date:   Mon, 15 Aug 2022 19:58:39 +0200
+Message-Id: <20220815180451.058379786@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -55,86 +56,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@nvidia.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 42b4f7f66a43cdb9216e76e595c8a9af154806da ]
+[ Upstream commit d7c4c9e075f8cc6d88d277bc24e5d99297f03c06 ]
 
-Currently, driver is setting default values to all timeouts during
-function setup. The offending commit is using a timeout before
-function setup, meaning: the timeout is 0 (or garbage), since no
-value have been set.
-This may result in failure to probe the driver:
-mlx5_function_setup:1034:(pid 69850): Firmware over 4294967296 MS in pre-initializing state, aborting
-probe_one:1591:(pid 69850): mlx5_init_one failed with error code -16
+While investigating a separate rose issue [1], and enabling
+CONFIG_NET_DEV_REFCNT_TRACKER=3Dy, Bernard reported an orthogonal ax25 issu=
+e [2]
 
-Hence, set default values to timeouts during tout_init()
+An ax25_dev can be used by one (or many) struct ax25_cb.
+We thus need different dev_tracker, one per struct ax25_cb.
 
-Fixes: 37ca95e62ee2 ("net/mlx5: Increase FW pre-init timeout for health recovery")
-Signed-off-by: Shay Drory <shayd@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+After this patch is applied, we are able to focus on rose.
+
+[1] https://lore.kernel.org/netdev/fb7544a1-f42e-9254-18cc-c9b071f4ca70@fre=
+e.fr/
+
+[2]
+[  205.798723] reference already released.
+[  205.798732] allocated in:
+[  205.798734]  ax25_bind+0x1a2/0x230 [ax25]
+[  205.798747]  __sys_bind+0xea/0x110
+[  205.798753]  __x64_sys_bind+0x18/0x20
+[  205.798758]  do_syscall_64+0x5c/0x80
+[  205.798763]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  205.798768] freed in:
+[  205.798770]  ax25_release+0x115/0x370 [ax25]
+[  205.798778]  __sock_release+0x42/0xb0
+[  205.798782]  sock_close+0x15/0x20
+[  205.798785]  __fput+0x9f/0x260
+[  205.798789]  ____fput+0xe/0x10
+[  205.798792]  task_work_run+0x64/0xa0
+[  205.798798]  exit_to_user_mode_prepare+0x18b/0x190
+[  205.798804]  syscall_exit_to_user_mode+0x26/0x40
+[  205.798808]  do_syscall_64+0x69/0x80
+[  205.798812]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  205.798827] ------------[ cut here ]------------
+[  205.798829] WARNING: CPU: 2 PID: 2605 at lib/ref_tracker.c:136 ref_track=
+er_free.cold+0x60/0x81
+[  205.798837] Modules linked in: rose netrom mkiss ax25 rfcomm cmac algif_=
+hash algif_skcipher af_alg bnep snd_hda_codec_hdmi nls_iso8859_1 i915 rtw88=
+_8821ce rtw88_8821c x86_pkg_temp_thermal rtw88_pci intel_powerclamp rtw88_c=
+ore snd_hda_codec_realtek snd_hda_codec_generic ledtrig_audio coretemp snd_=
+hda_intel kvm_intel snd_intel_dspcfg mac80211 snd_hda_codec kvm i2c_algo_bi=
+t drm_buddy drm_dp_helper btusb drm_kms_helper snd_hwdep btrtl snd_hda_core=
+ btbcm joydev crct10dif_pclmul btintel crc32_pclmul ghash_clmulni_intel mei=
+_hdcp btmtk intel_rapl_msr aesni_intel bluetooth input_leds snd_pcm crypto_=
+simd syscopyarea processor_thermal_device_pci_legacy sysfillrect cryptd int=
+el_soc_dts_iosf snd_seq sysimgblt ecdh_generic fb_sys_fops rapl libarc4 pro=
+cessor_thermal_device intel_cstate processor_thermal_rfim cec snd_timer ecc=
+ snd_seq_device cfg80211 processor_thermal_mbox mei_me processor_thermal_ra=
+pl mei rc_core at24 snd intel_pch_thermal intel_rapl_common ttm soundcore i=
+nt340x_thermal_zone video
+[  205.798948]  mac_hid acpi_pad sch_fq_codel ipmi_devintf ipmi_msghandler =
+drm msr parport_pc ppdev lp parport ramoops pstore_blk reed_solomon pstore_=
+zone efi_pstore ip_tables x_tables autofs4 hid_generic usbhid hid i2c_i801 =
+i2c_smbus r8169 xhci_pci ahci libahci realtek lpc_ich xhci_pci_renesas [las=
+t unloaded: ax25]
+[  205.798992] CPU: 2 PID: 2605 Comm: ax25ipd Not tainted 5.18.11-F6BVP #3
+[  205.798996] Hardware name: To be filled by O.E.M. To be filled by O.E.M.=
+/CK3, BIOS 5.011 09/16/2020
+[  205.798999] RIP: 0010:ref_tracker_free.cold+0x60/0x81
+[  205.799005] Code: e8 d2 01 9b ff 83 7b 18 00 74 14 48 c7 c7 2f d7 ff 98 =
+e8 10 6e fc ff 8b 7b 18 e8 b8 01 9b ff 4c 89 ee 4c 89 e7 e8 5d fd 07 00 <0f=
+> 0b b8 ea ff ff ff e9 30 05 9b ff 41 0f b6 f7 48 c7 c7 a0 fa 4e
+[  205.799008] RSP: 0018:ffffaf5281073958 EFLAGS: 00010286
+[  205.799011] RAX: 0000000080000000 RBX: ffff9a0bd687ebe0 RCX: 00000000000=
+00000
+[  205.799014] RDX: 0000000000000001 RSI: 0000000000000282 RDI: 00000000fff=
+fffff
+[  205.799016] RBP: ffffaf5281073a10 R08: 0000000000000003 R09: fffffffffff=
+d5618
+[  205.799019] R10: 0000000000ffff10 R11: 000000000000000f R12: ffff9a0bc53=
+384d0
+[  205.799022] R13: 0000000000000282 R14: 00000000ae000001 R15: 00000000000=
+00001
+[  205.799024] FS:  0000000000000000(0000) GS:ffff9a0d0f300000(0000) knlGS:=
+0000000000000000
+[  205.799028] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  205.799031] CR2: 00007ff6b8311554 CR3: 000000001ac10004 CR4: 00000000001=
+706e0
+[  205.799033] Call Trace:
+[  205.799035]  <TASK>
+[  205.799038]  ? ax25_dev_device_down+0xd9/0x1b0 [ax25]
+[  205.799047]  ? ax25_device_event+0x9f/0x270 [ax25]
+[  205.799055]  ? raw_notifier_call_chain+0x49/0x60
+[  205.799060]  ? call_netdevice_notifiers_info+0x52/0xa0
+[  205.799065]  ? dev_close_many+0xc8/0x120
+[  205.799070]  ? unregister_netdevice_many+0x13d/0x890
+[  205.799073]  ? unregister_netdevice_queue+0x90/0xe0
+[  205.799076]  ? unregister_netdev+0x1d/0x30
+[  205.799080]  ? mkiss_close+0x7c/0xc0 [mkiss]
+[  205.799084]  ? tty_ldisc_close+0x2e/0x40
+[  205.799089]  ? tty_ldisc_hangup+0x137/0x210
+[  205.799092]  ? __tty_hangup.part.0+0x208/0x350
+[  205.799098]  ? tty_vhangup+0x15/0x20
+[  205.799103]  ? pty_close+0x127/0x160
+[  205.799108]  ? tty_release+0x139/0x5e0
+[  205.799112]  ? __fput+0x9f/0x260
+[  205.799118]  ax25_dev_device_down+0xd9/0x1b0 [ax25]
+[  205.799126]  ax25_device_event+0x9f/0x270 [ax25]
+[  205.799135]  raw_notifier_call_chain+0x49/0x60
+[  205.799140]  call_netdevice_notifiers_info+0x52/0xa0
+[  205.799146]  dev_close_many+0xc8/0x120
+[  205.799152]  unregister_netdevice_many+0x13d/0x890
+[  205.799157]  unregister_netdevice_queue+0x90/0xe0
+[  205.799161]  unregister_netdev+0x1d/0x30
+[  205.799165]  mkiss_close+0x7c/0xc0 [mkiss]
+[  205.799170]  tty_ldisc_close+0x2e/0x40
+[  205.799173]  tty_ldisc_hangup+0x137/0x210
+[  205.799178]  __tty_hangup.part.0+0x208/0x350
+[  205.799184]  tty_vhangup+0x15/0x20
+[  205.799188]  pty_close+0x127/0x160
+[  205.799193]  tty_release+0x139/0x5e0
+[  205.799199]  __fput+0x9f/0x260
+[  205.799203]  ____fput+0xe/0x10
+[  205.799208]  task_work_run+0x64/0xa0
+[  205.799213]  do_exit+0x33b/0xab0
+[  205.799217]  ? __handle_mm_fault+0xc4f/0x15f0
+[  205.799224]  do_group_exit+0x35/0xa0
+[  205.799228]  __x64_sys_exit_group+0x18/0x20
+[  205.799232]  do_syscall_64+0x5c/0x80
+[  205.799238]  ? handle_mm_fault+0xba/0x290
+[  205.799242]  ? debug_smp_processor_id+0x17/0x20
+[  205.799246]  ? fpregs_assert_state_consistent+0x26/0x50
+[  205.799251]  ? exit_to_user_mode_prepare+0x49/0x190
+[  205.799256]  ? irqentry_exit_to_user_mode+0x9/0x20
+[  205.799260]  ? irqentry_exit+0x33/0x40
+[  205.799263]  ? exc_page_fault+0x87/0x170
+[  205.799268]  ? asm_exc_page_fault+0x8/0x30
+[  205.799273]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  205.799277] RIP: 0033:0x7ff6b80eaca1
+[  205.799281] Code: Unable to access opcode bytes at RIP 0x7ff6b80eac77.
+[  205.799283] RSP: 002b:00007fff6dfd4738 EFLAGS: 00000246 ORIG_RAX: 000000=
+00000000e7
+[  205.799287] RAX: ffffffffffffffda RBX: 00007ff6b8215a00 RCX: 00007ff6b80=
+eaca1
+[  205.799290] RDX: 000000000000003c RSI: 00000000000000e7 RDI: 00000000000=
+00001
+[  205.799293] RBP: 0000000000000001 R08: ffffffffffffff80 R09: 00000000000=
+00028
+[  205.799295] R10: 0000000000000000 R11: 0000000000000246 R12: 00007ff6b82=
+15a00
+[  205.799298] R13: 0000000000000000 R14: 00007ff6b821aee8 R15: 00007ff6b82=
+1af00
+[  205.799304]  </TASK>
+
+Fixes: feef318c855a ("ax25: fix UAF bugs of net_device caused by rebinding =
+operation")
+Reported-by: Bernard F6BVP <f6bvp@free.fr>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220728051821.3160118-1-eric.dumazet@gmail=
+.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lib/tout.c | 11 ++++-------
- drivers/net/ethernet/mellanox/mlx5/core/lib/tout.h |  1 -
- drivers/net/ethernet/mellanox/mlx5/core/main.c     |  2 --
- 3 files changed, 4 insertions(+), 10 deletions(-)
+ include/net/ax25.h | 1 +
+ net/ax25/af_ax25.c | 4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.c
-index d758848d34d0..696e45e2bd06 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.c
-@@ -32,20 +32,17 @@ static void tout_set(struct mlx5_core_dev *dev, u64 val, enum mlx5_timeouts_type
- 	dev->timeouts->to[type] = val;
- }
- 
--void mlx5_tout_set_def_val(struct mlx5_core_dev *dev)
-+int mlx5_tout_init(struct mlx5_core_dev *dev)
- {
- 	int i;
- 
--	for (i = 0; i < MAX_TIMEOUT_TYPES; i++)
--		tout_set(dev, tout_def_sw_val[i], i);
--}
--
--int mlx5_tout_init(struct mlx5_core_dev *dev)
--{
- 	dev->timeouts = kmalloc(sizeof(*dev->timeouts), GFP_KERNEL);
- 	if (!dev->timeouts)
- 		return -ENOMEM;
- 
-+	for (i = 0; i < MAX_TIMEOUT_TYPES; i++)
-+		tout_set(dev, tout_def_sw_val[i], i);
-+
- 	return 0;
- }
- 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.h b/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.h
-index 257c03eeab36..bc9e9aeda847 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.h
-@@ -35,7 +35,6 @@ int mlx5_tout_init(struct mlx5_core_dev *dev);
- void mlx5_tout_cleanup(struct mlx5_core_dev *dev);
- void mlx5_tout_query_iseg(struct mlx5_core_dev *dev);
- int mlx5_tout_query_dtor(struct mlx5_core_dev *dev);
--void mlx5_tout_set_def_val(struct mlx5_core_dev *dev);
- u64 _mlx5_tout_ms(struct mlx5_core_dev *dev, enum mlx5_timeouts_types type);
- 
- #define mlx5_tout_ms(dev, type) _mlx5_tout_ms(dev, MLX5_TO_##type##_MS)
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index ffb0bb4ecdef..75d216246955 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1025,8 +1025,6 @@ static int mlx5_function_setup(struct mlx5_core_dev *dev, u64 timeout)
- 	if (mlx5_core_is_pf(dev))
- 		pcie_print_link_status(dev->pdev);
- 
--	mlx5_tout_set_def_val(dev);
--
- 	/* wait for firmware to accept initialization segments configurations
- 	 */
- 	err = wait_fw_init(dev, timeout,
--- 
+diff --git a/include/net/ax25.h b/include/net/ax25.h
+index a427a05672e2..f8cf3629a419 100644
+--- a/include/net/ax25.h
++++ b/include/net/ax25.h
+@@ -236,6 +236,7 @@ typedef struct ax25_cb {
+ 	ax25_address		source_addr, dest_addr;
+ 	ax25_digi		*digipeat;
+ 	ax25_dev		*ax25_dev;
++	netdevice_tracker	dev_tracker;
+ 	unsigned char		iamdigi;
+ 	unsigned char		state, modulus, pidincl;
+ 	unsigned short		vs, vr, va;
+diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
+index 4c7030ed8d33..5b5363c99ed5 100644
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -1065,7 +1065,7 @@ static int ax25_release(struct socket *sock)
+ 			del_timer_sync(&ax25->t3timer);
+ 			del_timer_sync(&ax25->idletimer);
+ 		}
+-		dev_put_track(ax25_dev->dev, &ax25_dev->dev_tracker);
++		dev_put_track(ax25_dev->dev, &ax25->dev_tracker);
+ 		ax25_dev_put(ax25_dev);
+ 	}
+=20
+@@ -1146,7 +1146,7 @@ static int ax25_bind(struct socket *sock, struct sock=
+addr *uaddr, int addr_len)
+=20
+ 	if (ax25_dev) {
+ 		ax25_fillin_cb(ax25, ax25_dev);
+-		dev_hold_track(ax25_dev->dev, &ax25_dev->dev_tracker, GFP_ATOMIC);
++		dev_hold_track(ax25_dev->dev, &ax25->dev_tracker, GFP_ATOMIC);
+ 	}
+=20
+ done:
+--=20
 2.35.1
 
 
