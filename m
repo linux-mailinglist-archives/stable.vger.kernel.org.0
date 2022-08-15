@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC5AE593D43
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B095593C61
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242022AbiHOUON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:14:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60114 "EHLO
+        id S1346157AbiHOUNV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:13:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346093AbiHOUKr (ORCPT
+        with ESMTP id S1346108AbiHOUKr (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:10:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A9D6447;
-        Mon, 15 Aug 2022 11:56:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AD8F64ED;
+        Mon, 15 Aug 2022 11:56:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BCF3B81082;
-        Mon, 15 Aug 2022 18:56:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFACEC433C1;
-        Mon, 15 Aug 2022 18:56:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6D35B8105C;
+        Mon, 15 Aug 2022 18:56:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C1A5C433C1;
+        Mon, 15 Aug 2022 18:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589798;
-        bh=d0+uaXnzk2ajdnldlX+pjv1VYjPMK/590gVPt1rVsX0=;
+        s=korg; t=1660589801;
+        bh=pTtIM64RdILeVy25ARrvbKCjUMJ6DkCoiulUOCyVutE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XoLjRUXAxQjNDyxEBuy6lR4PV6DrwjmK9NmRPtcCNn/gg3pawfxE6LjQVSxI4RbcV
-         UD4xkJeqcOfjAQNg2Cgkp/2Mcza+45SfzIIeIJVUCp6+sJytucDgEIisRRrBx2qszo
-         fhp+uBfmcV2O2UXHL/f9UaxnDOBwEexRft+mHYy0=
+        b=o81CxyRpGLO6VdE3NnJ464wgUFLyFobjOzhuyM0mdsbGRNtlZM0ixrKN2gwfcJf/G
+         xrsX9XE4d9xe96AQbBoKogtYGGeEGTGlpPRs7dNmJIPIY3qgjs+IQgl7jWJceKu4oa
+         pORoMxS03lVPAlHN0kTvLIh8xBo1xPf/NPQiJYIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.18 0051/1095] fbcon: Fix accelerated fbdev scrolling while logo is still shown
-Date:   Mon, 15 Aug 2022 19:50:50 +0200
-Message-Id: <20220815180431.588084175@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Lukas Wunner <lukas@wunner.de>,
+        Oliver Neukum <oneukum@suse.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 0052/1095] usbnet: Fix linkwatch use-after-free on disconnect
+Date:   Mon, 15 Aug 2022 19:50:51 +0200
+Message-Id: <20220815180431.625608326@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -53,52 +56,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 3866cba87dcd0162fb41e9b3b653d0af68fad5ec upstream.
+commit a69e617e533edddf3fa3123149900f36e0a6dc74 upstream.
 
-There is no need to directly skip over to the SCROLL_REDRAW case while
-the logo is still shown.
+usbnet uses the work usbnet_deferred_kevent() to perform tasks which may
+sleep.  On disconnect, completion of the work was originally awaited in
+->ndo_stop().  But in 2003, that was moved to ->disconnect() by historic
+commit "[PATCH] USB: usbnet, prevent exotic rtnl deadlock":
 
-When using DRM, this change has no effect because the code will reach
-the SCROLL_REDRAW case immediately anyway.
+  https://git.kernel.org/tglx/history/c/0f138bbfd83c
 
-But if you run an accelerated fbdev driver and have
-FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION enabled, console scrolling is
-slowed down by factors so that it feels as if you use a 9600 baud
-terminal.
+The change was made because back then, the kernel's workqueue
+implementation did not allow waiting for a single work.  One had to wait
+for completion of *all* work by calling flush_scheduled_work(), and that
+could deadlock when waiting for usbnet_deferred_kevent() with rtnl_mutex
+held in ->ndo_stop().
 
-So, drop those unnecessary checks and speed up fbdev console
-acceleration during bootup.
+The commit solved one problem but created another:  It causes a
+use-after-free in USB Ethernet drivers aqc111.c, asix_devices.c,
+ax88179_178a.c, ch9200.c and smsc75xx.c:
 
-Cc: stable@vger.kernel.org # v5.10+
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/YpkYxk7wsBPx3po+@p100
+* If the drivers receive a link change interrupt immediately before
+  disconnect, they raise EVENT_LINK_RESET in their (non-sleepable)
+  ->status() callback and schedule usbnet_deferred_kevent().
+* usbnet_deferred_kevent() invokes the driver's ->link_reset() callback,
+  which calls netif_carrier_{on,off}().
+* That in turn schedules the work linkwatch_event().
+
+Because usbnet_deferred_kevent() is awaited after unregister_netdev(),
+netif_carrier_{on,off}() may operate on an unregistered netdev and
+linkwatch_event() may run after free_netdev(), causing a use-after-free.
+
+In 2010, usbnet was changed to only wait for a single instance of
+usbnet_deferred_kevent() instead of *all* work by commit 23f333a2bfaf
+("drivers/net: don't use flush_scheduled_work()").
+
+Unfortunately the commit neglected to move the wait back to
+->ndo_stop().  Rectify that omission at long last.
+
+Reported-by: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/netdev/CAG48ez0MHBbENX5gCdHAUXZ7h7s20LnepBF-pa5M=7Bi-jZrEA@mail.gmail.com/
+Reported-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://lore.kernel.org/netdev/20220315113841.GA22337@pengutronix.de/
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/d1c87ebe9fc502bffcd1576e238d685ad08321e4.1655987888.git.lukas@wunner.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbcon.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/net/usb/usbnet.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -1706,8 +1706,6 @@ static bool fbcon_scroll(struct vc_data
- 	case SM_UP:
- 		if (count > vc->vc_rows)	/* Maximum realistic size */
- 			count = vc->vc_rows;
--		if (logo_shown >= 0)
--			goto redraw_up;
- 		switch (fb_scrollmode(p)) {
- 		case SCROLL_MOVE:
- 			fbcon_redraw_blit(vc, info, p, t, b - t - count,
-@@ -1796,8 +1794,6 @@ static bool fbcon_scroll(struct vc_data
- 	case SM_DOWN:
- 		if (count > vc->vc_rows)	/* Maximum realistic size */
- 			count = vc->vc_rows;
--		if (logo_shown >= 0)
--			goto redraw_down;
- 		switch (fb_scrollmode(p)) {
- 		case SCROLL_MOVE:
- 			fbcon_redraw_blit(vc, info, p, b - 1, b - t - count,
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -849,13 +849,11 @@ int usbnet_stop (struct net_device *net)
+ 
+ 	mpn = !test_and_clear_bit(EVENT_NO_RUNTIME_PM, &dev->flags);
+ 
+-	/* deferred work (task, timer, softirq) must also stop.
+-	 * can't flush_scheduled_work() until we drop rtnl (later),
+-	 * else workers could deadlock; so make workers a NOP.
+-	 */
++	/* deferred work (timer, softirq, task) must also stop */
+ 	dev->flags = 0;
+ 	del_timer_sync (&dev->delay);
+ 	tasklet_kill (&dev->bh);
++	cancel_work_sync(&dev->kevent);
+ 	if (!pm)
+ 		usb_autopm_put_interface(dev->intf);
+ 
+@@ -1619,8 +1617,6 @@ void usbnet_disconnect (struct usb_inter
+ 	net = dev->net;
+ 	unregister_netdev (net);
+ 
+-	cancel_work_sync(&dev->kevent);
+-
+ 	usb_scuttle_anchored_urbs(&dev->deferred);
+ 
+ 	if (dev->driver_info->unbind)
 
 
