@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52DDF59423C
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ABFF59426A
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349284AbiHOVr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:47:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33162 "EHLO
+        id S1349927AbiHOVtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:49:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350233AbiHOVra (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:47:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D75B20BFA;
-        Mon, 15 Aug 2022 12:31:21 -0700 (PDT)
+        with ESMTP id S1350320AbiHOVrj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:47:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C571A60535;
+        Mon, 15 Aug 2022 12:31:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1931610A3;
-        Mon, 15 Aug 2022 19:31:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7250C433D6;
-        Mon, 15 Aug 2022 19:31:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42D96B81128;
+        Mon, 15 Aug 2022 19:31:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74D9FC4315A;
+        Mon, 15 Aug 2022 19:31:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591880;
-        bh=UOH6REFJS8cP2N9uoUPHkUleTOhh+U4QEU+B7D5bc6k=;
+        s=korg; t=1660591913;
+        bh=ISFO6hjI4XqtpbbowUxey809oGw5ggq0GNaeJcnkqKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HFFIlybauDg/ardgHNbMvLYzlOFR0uhbgsdKJVUeYpuvwSMhv3dqbKoEFLX3gAbB1
-         DWKbVzpaVATnklPa289Dl/+9sbA6JktZao2EUBU58DGl+a6jcYoYbd9huOTZyCHxzc
-         XniqxbFm3R5AW+avxZybqyQ8TaHxTuyqdTRq/vUA=
+        b=JpennA+rVC23dmt3KSf0eBxhsieabMVmp+ZbjZ4OjF4MNxU6DFvwmxmXhXHcT5iT+
+         3TeZ1ToJu6+JtNamSsr/j6syAukVT0/O9B5kspD/0A/jdutxHn78yelf+n1d9ZI+AQ
+         8CXwOD9bTyosbxfj5Bwm5qEF8VMDRXmidBYXiubM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0693/1095] clk: qcom: camcc-sm8250: Fix halt on boot by reducing drivers init level
-Date:   Mon, 15 Aug 2022 20:01:32 +0200
-Message-Id: <20220815180458.050992029@linuxfoundation.org>
+Subject: [PATCH 5.18 0694/1095] misc: rtsx: Fix an error handling path in rtsx_pci_probe()
+Date:   Mon, 15 Aug 2022 20:01:33 +0200
+Message-Id: <20220815180458.085909188@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,52 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit c4f40351901a10cd662ac2c081396d8fb04f584d ]
+[ Upstream commit 44fd1917314e9d4f53dd95dd65df1c152f503d3a ]
 
-Access to I/O of SM8250 camera clock controller IP depends on enabled
-GCC_CAMERA_AHB_CLK clock supplied by global clock controller, the latter
-one is inited on subsys level, so, to satisfy the dependency, it would
-make sense to deprive the init level of camcc-sm8250 driver.
+If an error occurs after a successful idr_alloc() call, the corresponding
+resource must be released with idr_remove() as already done in the .remove
+function.
 
-If both drivers are compiled as built-in, there is a change that a board
-won't boot up due to a race, which happens on the same init level.
+Update the error handling path to add the missing idr_remove() call.
 
-Fixes: 5d66ca79b58c ("clk: qcom: Add camera clock controller driver for SM8250")
-Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Tested-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220518103554.949511-1-vladimir.zapolskiy@linaro.org
+Fixes: ada8a8a13b13 ("mfd: Add realtek pcie card reader driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/e8dc41716cbf52fb37a12e70d8972848e69df6d6.1655271216.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/camcc-sm8250.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/misc/cardreader/rtsx_pcr.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/qcom/camcc-sm8250.c b/drivers/clk/qcom/camcc-sm8250.c
-index 439eaafdcc86..ae4e9774f36e 100644
---- a/drivers/clk/qcom/camcc-sm8250.c
-+++ b/drivers/clk/qcom/camcc-sm8250.c
-@@ -2440,17 +2440,7 @@ static struct platform_driver cam_cc_sm8250_driver = {
- 	},
- };
+diff --git a/drivers/misc/cardreader/rtsx_pcr.c b/drivers/misc/cardreader/rtsx_pcr.c
+index 2a2619e3c72c..f001d99bf366 100644
+--- a/drivers/misc/cardreader/rtsx_pcr.c
++++ b/drivers/misc/cardreader/rtsx_pcr.c
+@@ -1507,7 +1507,7 @@ static int rtsx_pci_probe(struct pci_dev *pcidev,
+ 	pcr->remap_addr = ioremap(base, len);
+ 	if (!pcr->remap_addr) {
+ 		ret = -ENOMEM;
+-		goto free_handle;
++		goto free_idr;
+ 	}
  
--static int __init cam_cc_sm8250_init(void)
--{
--	return platform_driver_register(&cam_cc_sm8250_driver);
--}
--subsys_initcall(cam_cc_sm8250_init);
--
--static void __exit cam_cc_sm8250_exit(void)
--{
--	platform_driver_unregister(&cam_cc_sm8250_driver);
--}
--module_exit(cam_cc_sm8250_exit);
-+module_platform_driver(cam_cc_sm8250_driver);
- 
- MODULE_DESCRIPTION("QTI CAMCC SM8250 Driver");
- MODULE_LICENSE("GPL v2");
+ 	pcr->rtsx_resv_buf = dma_alloc_coherent(&(pcidev->dev),
+@@ -1570,6 +1570,10 @@ static int rtsx_pci_probe(struct pci_dev *pcidev,
+ 			pcr->rtsx_resv_buf, pcr->rtsx_resv_buf_addr);
+ unmap:
+ 	iounmap(pcr->remap_addr);
++free_idr:
++	spin_lock(&rtsx_pci_lock);
++	idr_remove(&rtsx_pci_idr, pcr->id);
++	spin_unlock(&rtsx_pci_lock);
+ free_handle:
+ 	kfree(handle);
+ free_pcr:
 -- 
 2.35.1
 
