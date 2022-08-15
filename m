@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F4A594561
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA7A259454E
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346768AbiHOWMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:12:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44160 "EHLO
+        id S1346937AbiHOWMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:12:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349541AbiHOWLb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:11:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D34011B4F3;
-        Mon, 15 Aug 2022 12:38:44 -0700 (PDT)
+        with ESMTP id S1349882AbiHOWLr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:11:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 762C511BB27;
+        Mon, 15 Aug 2022 12:38:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1CFD60FB9;
-        Mon, 15 Aug 2022 19:38:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFA23C433C1;
-        Mon, 15 Aug 2022 19:38:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB08EB80EA8;
+        Mon, 15 Aug 2022 19:38:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 324E1C433C1;
+        Mon, 15 Aug 2022 19:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592322;
-        bh=lVE6si0vEtraGgGv0n6yqWBROaRF84v5MFZZ0BLmqaA=;
+        s=korg; t=1660592328;
+        bh=z5P5iOpHw9o5eHJmvlNNQbVx8HFSYja93QJ6343QSNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QBBvZXY18a7RN8p3AdGYto241JUo21aZ89m6SwCH+P1blzWte/Kp1zU/dANYBEX4a
-         Ww3mKDiD6xxgBxB7EsZur/R3j/TOUvFl9fPr2xj1vckqt2Cdya6a6TqycDlj7batWG
-         TXNiY6t3sYZLaznaFK5DAP2w/bv+DzRjV4usc9Ko=
+        b=q/GPsx9dMtMOZ0Nfqv1Fe6wLN6j6Vd4zldiPJ0LC6XJkCELWb66YoIE1WqulnReIi
+         jnN/SdCJh9qWW9aQSaEh+uXbuB90od8JKS/zl+ie0LlV1VHb76l+C64kU4sIFip5sj
+         5C/QvwaguwkkyARzNE74Us2AnzyFpFdCSJDCbvug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.19 0093/1157] drm/tegra: Fix vmapping of prime buffers
-Date:   Mon, 15 Aug 2022 19:50:49 +0200
-Message-Id: <20220815180443.314575317@linuxfoundation.org>
+        stable@vger.kernel.org, Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH 5.19 0094/1157] drm/amdgpu: Check BOs requested pinning domains against its preferred_domains
+Date:   Mon, 15 Aug 2022 19:50:50 +0200
+Message-Id: <20220815180443.367402744@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,51 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+From: Leo Li <sunpeng.li@amd.com>
 
-commit c7860cbee9989882d2908682526a5ef617523cfe upstream.
+commit f5ba14043621f4afdf3ad5f92ee2d8dbebbe4340 upstream.
 
-The code assumes that Tegra GEM is permanently vmapped, which is not
-true for the scattered buffers. After converting Tegra video decoder
-driver to V4L API, we're now getting a BUG_ON from dma-buf core on playing
-video using libvdpau-tegra on T30+ because tegra_gem_prime_vmap() sets
-vaddr to NULL. Older pre-V4L video decoder driver wasn't vmapping dma-bufs.
-Fix it by actually vmapping the exported GEMs.
+When pinning a buffer, we should check to see if there are any
+additional restrictions imposed by bo->preferred_domains. This will
+prevent the BO from being moved to an invalid domain when pinning.
 
+For example, this can happen if the user requests to create a BO in GTT
+domain for display scanout. amdgpu_dm will allow pinning to either VRAM
+or GTT domains, since DCN can scanout from either or. However, in
+amdgpu_bo_pin_restricted(), pinning to VRAM is preferred if there is
+adequate carveout. This can lead to pinning to VRAM despite the user
+requesting GTT placement for the BO.
+
+v2: Allow the kernel to override the domain, which can happen when
+    exporting a BO to a V4L camera (for example).
+
+Signed-off-by: Leo Li <sunpeng.li@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/tegra/gem.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/tegra/gem.c
-+++ b/drivers/gpu/drm/tegra/gem.c
-@@ -704,14 +704,23 @@ static int tegra_gem_prime_vmap(struct d
- {
- 	struct drm_gem_object *gem = buf->priv;
- 	struct tegra_bo *bo = to_tegra_bo(gem);
-+	void *vaddr;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+@@ -882,6 +882,10 @@ int amdgpu_bo_pin_restricted(struct amdg
+ 	if (WARN_ON_ONCE(min_offset > max_offset))
+ 		return -EINVAL;
  
--	iosys_map_set_vaddr(map, bo->vaddr);
-+	vaddr = tegra_bo_mmap(&bo->base);
-+	if (IS_ERR(vaddr))
-+		return PTR_ERR(vaddr);
++	/* Check domain to be pinned to against preferred domains */
++	if (bo->preferred_domains & domain)
++		domain = bo->preferred_domains & domain;
 +
-+	iosys_map_set_vaddr(map, vaddr);
- 
- 	return 0;
- }
- 
- static void tegra_gem_prime_vunmap(struct dma_buf *buf, struct iosys_map *map)
- {
-+	struct drm_gem_object *gem = buf->priv;
-+	struct tegra_bo *bo = to_tegra_bo(gem);
-+
-+	tegra_bo_munmap(&bo->base, map->vaddr);
- }
- 
- static const struct dma_buf_ops tegra_gem_prime_dmabuf_ops = {
+ 	/* A shared bo cannot be migrated to VRAM */
+ 	if (bo->tbo.base.import_attach) {
+ 		if (domain & AMDGPU_GEM_DOMAIN_GTT)
 
 
