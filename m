@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC5A7593AE8
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0A1C593B67
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241793AbiHOUJy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:09:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51484 "EHLO
+        id S244298AbiHOUOP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:14:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345945AbiHOUJI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:09:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DEB448E8B;
-        Mon, 15 Aug 2022 11:55:58 -0700 (PDT)
+        with ESMTP id S231645AbiHOUJ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:09:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E745E83F13;
+        Mon, 15 Aug 2022 11:56:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BEC2B81082;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35A35B8105C;
+        Mon, 15 Aug 2022 18:55:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D315C433B5;
         Mon, 15 Aug 2022 18:55:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 584BEC433D7;
-        Mon, 15 Aug 2022 18:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589753;
-        bh=0Vf1LBb2tevvjfeLXP55gJuVlTgflOIAvvALnHmU5zI=;
+        s=korg; t=1660589756;
+        bh=ykdKXs4qXCQoLzzTkpAnTym0LPHlNozcDOaKd/4WEhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pwP21o0rg3LTYQxU5rl2s1gghj97M0N4oVZ+ZzvjXZdUfRzTKPczm8B+DB3Ft4Fmg
-         s7u9yEy8II8s/OdKvvsttYjalHNv+mETTAusFcb89fsL47EsS9KcZJMKFpusO2vANU
-         fF85eJhQrO66SosnLZCybgsoRJpuUu6sr4/TxXlA=
+        b=0mwq2KFQEUUdbj+L1/uXCiALmqZYwKc/vQbqI9ITomoAPMjuZgaiXvfImSbG2dvSD
+         rlLT4Nmk14QHFBwPdeYMOcRypy0qbsB8m5Jxb2EhveeeCTjSwnW+Bh9RdCNH+kHIF6
+         GK/sHsOKdpQKjFHNUGzDvr5PG3MCb5UBOLjw3AaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 5.18 0038/1095] KVM: nVMX: Always enable TSC scaling for L2 when it was enabled for L1
-Date:   Mon, 15 Aug 2022 19:50:37 +0200
-Message-Id: <20220815180430.975118197@linuxfoundation.org>
+        stable@vger.kernel.org, Kai Huang <kai.huang@intel.com>,
+        Michael Roth <michael.roth@amd.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.18 0039/1095] KVM: x86: Tag kvm_mmu_x86_module_init() with __init
+Date:   Mon, 15 Aug 2022 19:50:38 +0200
+Message-Id: <20220815180431.026391216@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,43 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 156b9d76e8822f2956c15029acf2d4b171502f3a upstream.
+commit 982bae43f11c37b51d2f1961bb25ef7cac3746fa upstream.
 
-Windows 10/11 guests with Hyper-V role (WSL2) enabled are observed to
-hang upon boot or shortly after when a non-default TSC frequency was
-set for L1. The issue is observed on a host where TSC scaling is
-supported. The problem appears to be that Windows doesn't use TSC
-scaling for its guests, even when the feature is advertised, and KVM
-filters SECONDARY_EXEC_TSC_SCALING out when creating L2 controls from
-L1's VMCS. This leads to L2 running with the default frequency (matching
-host's) while L1 is running with an altered one.
+Mark kvm_mmu_x86_module_init() with __init, the entire reason it exists
+is to initialize variables when kvm.ko is loaded, i.e. it must never be
+called after module initialization.
 
-Keep SECONDARY_EXEC_TSC_SCALING in secondary exec controls for L2 when
-it was set for L1. TSC_MULTIPLIER is already correctly computed and
-written by prepare_vmcs02().
-
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Fixes: d041b5ea93352b ("KVM: nVMX: Enable nested TSC scaling")
+Fixes: 1d0e84806047 ("KVM: x86/mmu: Resolve nx_huge_pages when kvm.ko is loaded")
 Cc: stable@vger.kernel.org
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20220712135009.952805-1-vkuznets@redhat.com
+Reviewed-by: Kai Huang <kai.huang@intel.com>
+Tested-by: Michael Roth <michael.roth@amd.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220803224957.1285926-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/x86/include/asm/kvm_host.h |    2 +-
+ arch/x86/kvm/mmu/mmu.c          |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2283,7 +2283,6 @@ static void prepare_vmcs02_early(struct
- 				  SECONDARY_EXEC_VIRTUAL_INTR_DELIVERY |
- 				  SECONDARY_EXEC_APIC_REGISTER_VIRT |
- 				  SECONDARY_EXEC_ENABLE_VMFUNC |
--				  SECONDARY_EXEC_TSC_SCALING |
- 				  SECONDARY_EXEC_DESC);
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1588,7 +1588,7 @@ static inline int kvm_arch_flush_remote_
+ #define kvm_arch_pmi_in_guest(vcpu) \
+ 	((vcpu) && (vcpu)->arch.handling_intr_from_guest)
  
- 		if (nested_cpu_has(vmcs12,
+-void kvm_mmu_x86_module_init(void);
++void __init kvm_mmu_x86_module_init(void);
+ int kvm_mmu_vendor_module_init(void);
+ void kvm_mmu_vendor_module_exit(void);
+ 
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -6264,7 +6264,7 @@ static int set_nx_huge_pages(const char
+  * nx_huge_pages needs to be resolved to true/false when kvm.ko is loaded, as
+  * its default value of -1 is technically undefined behavior for a boolean.
+  */
+-void kvm_mmu_x86_module_init(void)
++void __init kvm_mmu_x86_module_init(void)
+ {
+ 	if (nx_huge_pages == -1)
+ 		__set_nx_huge_pages(get_nx_auto_mode());
 
 
