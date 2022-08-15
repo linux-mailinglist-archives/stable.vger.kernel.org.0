@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB57F594A24
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:17:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 675DF59484D
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243169AbiHOXW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:22:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60066 "EHLO
+        id S244510AbiHOXYL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:24:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353267AbiHOXWA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:22:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09DC37E817;
-        Mon, 15 Aug 2022 13:05:08 -0700 (PDT)
+        with ESMTP id S1353418AbiHOXWH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:22:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 220FC5F8F;
+        Mon, 15 Aug 2022 13:05:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BACEB80EB1;
-        Mon, 15 Aug 2022 20:05:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBF18C433D6;
-        Mon, 15 Aug 2022 20:05:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B379560693;
+        Mon, 15 Aug 2022 20:05:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEF61C433C1;
+        Mon, 15 Aug 2022 20:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593905;
-        bh=catCIrF+FyTL0WjZLHY3p3AfBbLlV9/q/eoNToE/gr4=;
+        s=korg; t=1660593917;
+        bh=YcHOJyY6Ze1wflj+HVPwk8FDdUytNxdCp0psuhP8bfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ic1lPlCd9HWZ/7fIzcoFaPSiIaqL4GvNdgr5P0ZZwvJZl4CczARQdoeF6h0x/2oDr
-         4olFz7QJX9I65P6P556k+9D+WQyC8UI0WZjaQJ9/w8+whtto0EC1AHD80wqRKeEgoZ
-         mZJtvFNLNUIP3y07rsuYwiwHWMPfwLfTHXEL2S4g=
+        b=P+ERtCSGpTP9Jjx2YpPDp+xNPCmbIhKHp00r9MKuUoPdFAHSWsDjeTIYaXbyca665
+         RWd5eSU7vqGp6JdgDFcoZLG0x3i5nDmJGzJCC0Oi7M1hA+s/w0GBDAKt5cg9Sh0hJX
+         L8yuTnPzj5R13IZ4rj9wS/L8kauBSLSjS7BlZIQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tali Perry <tali.perry1@gmail.com>,
-        Tyrone Ting <kfting@nuvoton.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0346/1157] i2c: npcm: Correct slave role behavior
-Date:   Mon, 15 Aug 2022 19:55:02 +0200
-Message-Id: <20220815180453.551332627@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Chia-I Wu <olvaffe@gmail.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0348/1157] virtio-gpu: fix a missing check to avoid NULL dereference
+Date:   Mon, 15 Aug 2022 19:55:04 +0200
+Message-Id: <20220815180453.638153634@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,53 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tali Perry <tali.perry1@gmail.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit d7aa1b149b8fc04d802879cf4662010aa4a42deb ]
+[ Upstream commit bd63f11f4c3c46afec07d821f74736161ff6e526 ]
 
-Correct the slave transaction logic to be compatible with the generic
-slave backend driver.
+'cache_ent' could be set NULL inside virtio_gpu_cmd_get_capset()
+and it will lead to a NULL dereference by a lately use of it
+(i.e., ptr = cache_ent->caps_cache). Fix it with a NULL check.
 
-Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
-Signed-off-by: Tali Perry <tali.perry1@gmail.com>
-Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 62fb7a5e10962 ("virtio-gpu: add 3d/virgl support")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20220327050945.1614-1-xiam0nd.tong@gmail.com
+
+[ kraxel: minor codestyle fixup ]
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-npcm7xx.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-index f3177cff9591..7b112be5e35c 100644
---- a/drivers/i2c/busses/i2c-npcm7xx.c
-+++ b/drivers/i2c/busses/i2c-npcm7xx.c
-@@ -915,11 +915,15 @@ static int npcm_i2c_slave_get_wr_buf(struct npcm_i2c *bus)
- 	for (i = 0; i < I2C_HW_FIFO_SIZE; i++) {
- 		if (bus->slv_wr_size >= I2C_HW_FIFO_SIZE)
- 			break;
--		i2c_slave_event(bus->slave, I2C_SLAVE_READ_REQUESTED, &value);
-+		if (bus->state == I2C_SLAVE_MATCH) {
-+			i2c_slave_event(bus->slave, I2C_SLAVE_READ_REQUESTED, &value);
-+			bus->state = I2C_OPER_STARTED;
-+		} else {
-+			i2c_slave_event(bus->slave, I2C_SLAVE_READ_PROCESSED, &value);
-+		}
- 		ind = (bus->slv_wr_ind + bus->slv_wr_size) % I2C_HW_FIFO_SIZE;
- 		bus->slv_wr_buf[ind] = value;
- 		bus->slv_wr_size++;
--		i2c_slave_event(bus->slave, I2C_SLAVE_READ_PROCESSED, &value);
- 	}
- 	return I2C_HW_FIFO_SIZE - ret;
- }
-@@ -967,7 +971,6 @@ static void npcm_i2c_slave_xmit(struct npcm_i2c *bus, u16 nwrite,
- 	if (nwrite == 0)
- 		return;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index f8d83358d2a0..9b2702116f93 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -580,8 +580,10 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
+ 	spin_unlock(&vgdev->display_info_lock);
  
--	bus->state = I2C_OPER_STARTED;
- 	bus->operation = I2C_WRITE_OPER;
+ 	/* not in cache - need to talk to hw */
+-	virtio_gpu_cmd_get_capset(vgdev, found_valid, args->cap_set_ver,
+-				  &cache_ent);
++	ret = virtio_gpu_cmd_get_capset(vgdev, found_valid, args->cap_set_ver,
++					&cache_ent);
++	if (ret)
++		return ret;
+ 	virtio_gpu_notify(vgdev);
  
- 	/* get the next buffer */
+ copy_exit:
 -- 
 2.35.1
 
