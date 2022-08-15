@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA695949B7
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:15:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBC3E594D98
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242651AbiHOXcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:32:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43990 "EHLO
+        id S239635AbiHPA7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:59:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353489AbiHOX2Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:28:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 839D414EC8D;
-        Mon, 15 Aug 2022 13:07:44 -0700 (PDT)
+        with ESMTP id S245169AbiHPAz6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:55:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA09719D0F5;
+        Mon, 15 Aug 2022 13:47:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38092B80EA8;
-        Mon, 15 Aug 2022 20:07:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77507C433D6;
-        Mon, 15 Aug 2022 20:07:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3CE92B811A0;
+        Mon, 15 Aug 2022 20:47:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F846C433C1;
+        Mon, 15 Aug 2022 20:47:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594061;
-        bh=uxd7EsReGra/kxKK0MUI8FhFK70UAPwYm5or0x5vyGU=;
+        s=korg; t=1660596475;
+        bh=VjOLk6pk422TPUk70SO6FX4Gg4xsXe8RV2YsAvq5hqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRFHwtetQADb+N/0Dx/lD4xyA5lldub/nCjISAhZBRGagzy0ktGg+orYgqqRw7dzd
-         PLPlq5HiGQUA5E3v7kusZlA0aoArEB3lJPaBwFP+OgEqqwTs+kYKTlaZaSY1jywPot
-         YDd5Qm+5BH7r/IUVY9oSpeE746EstcYDnShkD1kc=
+        b=AL9JZRNCZDqA2dElemyuOZcRfdx+LZ0ibM25tmTeiq92cICEv6Omu7kuJLu2dAR7S
+         6OcJeVXoraK27G84H8vL0enr16c0fuyhK0kdn3rRZztCB1QNVAZlknSapLct9v2P3q
+         1kLZwXmKXDrPVe1p2Q4DB/z6Sr6y+vPJdmjdLj4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1049/1095] ksmbd: smbd: change prototypes of RDMA read/write related functions
+Subject: [PATCH 5.19 1092/1157] btrfs: zoned: introduce space_info->active_total_bytes
 Date:   Mon, 15 Aug 2022 20:07:28 +0200
-Message-Id: <20220815180512.469753235@linuxfoundation.org>
+Message-Id: <20220815180523.879388374@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,256 +54,255 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunchul Lee <hyc.lee@gmail.com>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-[ Upstream commit 1807abcf8778bcbbf584fe54da9ccbe9029c49bb ]
+[ Upstream commit 6a921de589926a350634e6e279f43fa5b9dbf5ba ]
 
-Change the prototypes of RDMA read/write
-operations to accept a pointer and length
-of buffer descriptors.
+The active_total_bytes, like the total_bytes, accounts for the total bytes
+of active block groups in the space_info.
 
-Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+With an introduction of active_total_bytes, we can check if the reserved
+bytes can be written to the block groups without activating a new block
+group. The check is necessary for metadata allocation on zoned
+filesystem. We cannot finish a block group, which may require waiting
+for the current transaction, from the metadata allocation context.
+Instead, we need to ensure the ongoing allocation (reserved bytes) fits
+in active block groups.
+
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/connection.c     | 20 ++++++++++----------
- fs/ksmbd/connection.h     | 27 ++++++++++++++++-----------
- fs/ksmbd/smb2pdu.c        | 23 ++++++++---------------
- fs/ksmbd/transport_rdma.c | 30 +++++++++++++++++-------------
- 4 files changed, 51 insertions(+), 49 deletions(-)
+ fs/btrfs/block-group.c | 12 +++++++++---
+ fs/btrfs/space-info.c  | 41 ++++++++++++++++++++++++++++++++---------
+ fs/btrfs/space-info.h  |  4 +++-
+ fs/btrfs/zoned.c       |  6 ++++++
+ 4 files changed, 50 insertions(+), 13 deletions(-)
 
-diff --git a/fs/ksmbd/connection.c b/fs/ksmbd/connection.c
-index bc6050b67256..e8f476c5f189 100644
---- a/fs/ksmbd/connection.c
-+++ b/fs/ksmbd/connection.c
-@@ -205,31 +205,31 @@ int ksmbd_conn_write(struct ksmbd_work *work)
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index 13358fbc1629..20c78ae7d150 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -1051,8 +1051,13 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 			< block_group->zone_unusable);
+ 		WARN_ON(block_group->space_info->disk_total
+ 			< block_group->length * factor);
++		WARN_ON(block_group->zone_is_active &&
++			block_group->space_info->active_total_bytes
++			< block_group->length);
+ 	}
+ 	block_group->space_info->total_bytes -= block_group->length;
++	if (block_group->zone_is_active)
++		block_group->space_info->active_total_bytes -= block_group->length;
+ 	block_group->space_info->bytes_readonly -=
+ 		(block_group->length - block_group->zone_unusable);
+ 	block_group->space_info->bytes_zone_unusable -=
+@@ -2108,7 +2113,8 @@ static int read_one_block_group(struct btrfs_fs_info *info,
+ 	trace_btrfs_add_block_group(info, cache, 0);
+ 	btrfs_update_space_info(info, cache->flags, cache->length,
+ 				cache->used, cache->bytes_super,
+-				cache->zone_unusable, &space_info);
++				cache->zone_unusable, cache->zone_is_active,
++				&space_info);
+ 
+ 	cache->space_info = space_info;
+ 
+@@ -2178,7 +2184,7 @@ static int fill_dummy_bgs(struct btrfs_fs_info *fs_info)
+ 		}
+ 
+ 		btrfs_update_space_info(fs_info, bg->flags, em->len, em->len,
+-					0, 0, &space_info);
++					0, 0, false, &space_info);
+ 		bg->space_info = space_info;
+ 		link_block_group(bg);
+ 
+@@ -2559,7 +2565,7 @@ struct btrfs_block_group *btrfs_make_block_group(struct btrfs_trans_handle *tran
+ 	trace_btrfs_add_block_group(fs_info, cache, 1);
+ 	btrfs_update_space_info(fs_info, cache->flags, size, bytes_used,
+ 				cache->bytes_super, cache->zone_unusable,
+-				&cache->space_info);
++				cache->zone_is_active, &cache->space_info);
+ 	btrfs_update_global_block_rsv(fs_info);
+ 
+ 	link_block_group(cache);
+diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
+index 51fbfd716623..ad13b9d207b1 100644
+--- a/fs/btrfs/space-info.c
++++ b/fs/btrfs/space-info.c
+@@ -295,7 +295,7 @@ int btrfs_init_space_info(struct btrfs_fs_info *fs_info)
+ void btrfs_update_space_info(struct btrfs_fs_info *info, u64 flags,
+ 			     u64 total_bytes, u64 bytes_used,
+ 			     u64 bytes_readonly, u64 bytes_zone_unusable,
+-			     struct btrfs_space_info **space_info)
++			     bool active, struct btrfs_space_info **space_info)
+ {
+ 	struct btrfs_space_info *found;
+ 	int factor;
+@@ -306,6 +306,8 @@ void btrfs_update_space_info(struct btrfs_fs_info *info, u64 flags,
+ 	ASSERT(found);
+ 	spin_lock(&found->lock);
+ 	found->total_bytes += total_bytes;
++	if (active)
++		found->active_total_bytes += total_bytes;
+ 	found->disk_total += total_bytes * factor;
+ 	found->bytes_used += bytes_used;
+ 	found->disk_used += bytes_used * factor;
+@@ -369,6 +371,22 @@ static u64 calc_available_free_space(struct btrfs_fs_info *fs_info,
+ 	return avail;
+ }
+ 
++static inline u64 writable_total_bytes(struct btrfs_fs_info *fs_info,
++				       struct btrfs_space_info *space_info)
++{
++	/*
++	 * On regular filesystem, all total_bytes are always writable. On zoned
++	 * filesystem, there may be a limitation imposed by max_active_zones.
++	 * For metadata allocation, we cannot finish an existing active block
++	 * group to avoid a deadlock. Thus, we need to consider only the active
++	 * groups to be writable for metadata space.
++	 */
++	if (!btrfs_is_zoned(fs_info) || (space_info->flags & BTRFS_BLOCK_GROUP_DATA))
++		return space_info->total_bytes;
++
++	return space_info->active_total_bytes;
++}
++
+ int btrfs_can_overcommit(struct btrfs_fs_info *fs_info,
+ 			 struct btrfs_space_info *space_info, u64 bytes,
+ 			 enum btrfs_reserve_flush_enum flush)
+@@ -386,7 +404,7 @@ int btrfs_can_overcommit(struct btrfs_fs_info *fs_info,
+ 	else
+ 		avail = calc_available_free_space(fs_info, space_info, flush);
+ 
+-	if (used + bytes < space_info->total_bytes + avail)
++	if (used + bytes < writable_total_bytes(fs_info, space_info) + avail)
+ 		return 1;
  	return 0;
  }
+@@ -422,7 +440,7 @@ void btrfs_try_granting_tickets(struct btrfs_fs_info *fs_info,
+ 		ticket = list_first_entry(head, struct reserve_ticket, list);
  
--int ksmbd_conn_rdma_read(struct ksmbd_conn *conn, void *buf,
--			 unsigned int buflen, u32 remote_key, u64 remote_offset,
--			 u32 remote_len)
-+int ksmbd_conn_rdma_read(struct ksmbd_conn *conn,
-+			 void *buf, unsigned int buflen,
-+			 struct smb2_buffer_desc_v1 *desc,
-+			 unsigned int desc_len)
+ 		/* Check and see if our ticket can be satisfied now. */
+-		if ((used + ticket->bytes <= space_info->total_bytes) ||
++		if ((used + ticket->bytes <= writable_total_bytes(fs_info, space_info)) ||
+ 		    btrfs_can_overcommit(fs_info, space_info, ticket->bytes,
+ 					 flush)) {
+ 			btrfs_space_info_update_bytes_may_use(fs_info,
+@@ -753,6 +771,7 @@ btrfs_calc_reclaim_metadata_size(struct btrfs_fs_info *fs_info,
  {
- 	int ret = -EINVAL;
+ 	u64 used;
+ 	u64 avail;
++	u64 total;
+ 	u64 to_reclaim = space_info->reclaim_size;
  
- 	if (conn->transport->ops->rdma_read)
- 		ret = conn->transport->ops->rdma_read(conn->transport,
- 						      buf, buflen,
--						      remote_key, remote_offset,
--						      remote_len);
-+						      desc, desc_len);
+ 	lockdep_assert_held(&space_info->lock);
+@@ -767,8 +786,9 @@ btrfs_calc_reclaim_metadata_size(struct btrfs_fs_info *fs_info,
+ 	 * space.  If that's the case add in our overage so we make sure to put
+ 	 * appropriate pressure on the flushing state machine.
+ 	 */
+-	if (space_info->total_bytes + avail < used)
+-		to_reclaim += used - (space_info->total_bytes + avail);
++	total = writable_total_bytes(fs_info, space_info);
++	if (total + avail < used)
++		to_reclaim += used - (total + avail);
+ 
+ 	return to_reclaim;
+ }
+@@ -778,9 +798,12 @@ static bool need_preemptive_reclaim(struct btrfs_fs_info *fs_info,
+ {
+ 	u64 global_rsv_size = fs_info->global_block_rsv.reserved;
+ 	u64 ordered, delalloc;
+-	u64 thresh = div_factor_fine(space_info->total_bytes, 90);
++	u64 total = writable_total_bytes(fs_info, space_info);
++	u64 thresh;
+ 	u64 used;
+ 
++	thresh = div_factor_fine(total, 90);
++
+ 	lockdep_assert_held(&space_info->lock);
+ 
+ 	/* If we're just plain full then async reclaim just slows us down. */
+@@ -842,8 +865,8 @@ static bool need_preemptive_reclaim(struct btrfs_fs_info *fs_info,
+ 					   BTRFS_RESERVE_FLUSH_ALL);
+ 	used = space_info->bytes_used + space_info->bytes_reserved +
+ 	       space_info->bytes_readonly + global_rsv_size;
+-	if (used < space_info->total_bytes)
+-		thresh += space_info->total_bytes - used;
++	if (used < total)
++		thresh += total - used;
+ 	thresh >>= space_info->clamp;
+ 
+ 	used = space_info->bytes_pinned;
+@@ -1560,7 +1583,7 @@ static int __reserve_bytes(struct btrfs_fs_info *fs_info,
+ 	 * can_overcommit() to ensure we can overcommit to continue.
+ 	 */
+ 	if (!pending_tickets &&
+-	    ((used + orig_bytes <= space_info->total_bytes) ||
++	    ((used + orig_bytes <= writable_total_bytes(fs_info, space_info)) ||
+ 	     btrfs_can_overcommit(fs_info, space_info, orig_bytes, flush))) {
+ 		btrfs_space_info_update_bytes_may_use(fs_info, space_info,
+ 						      orig_bytes);
+diff --git a/fs/btrfs/space-info.h b/fs/btrfs/space-info.h
+index e7de24a529cf..12fd6147f92d 100644
+--- a/fs/btrfs/space-info.h
++++ b/fs/btrfs/space-info.h
+@@ -19,6 +19,8 @@ struct btrfs_space_info {
+ 	u64 bytes_may_use;	/* number of bytes that may be used for
+ 				   delalloc/allocations */
+ 	u64 bytes_readonly;	/* total bytes that are read only */
++	/* Total bytes in the space, but only accounts active block groups. */
++	u64 active_total_bytes;
+ 	u64 bytes_zone_unusable;	/* total bytes that are unusable until
+ 					   resetting the device zone */
+ 
+@@ -124,7 +126,7 @@ int btrfs_init_space_info(struct btrfs_fs_info *fs_info);
+ void btrfs_update_space_info(struct btrfs_fs_info *info, u64 flags,
+ 			     u64 total_bytes, u64 bytes_used,
+ 			     u64 bytes_readonly, u64 bytes_zone_unusable,
+-			     struct btrfs_space_info **space_info);
++			     bool active, struct btrfs_space_info **space_info);
+ void btrfs_update_space_info_chunk_size(struct btrfs_space_info *space_info,
+ 					u64 chunk_size);
+ struct btrfs_space_info *btrfs_find_space_info(struct btrfs_fs_info *info,
+diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
+index eb9eb9e72187..16ed426a58c9 100644
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -1849,6 +1849,7 @@ struct btrfs_device *btrfs_zoned_get_device(struct btrfs_fs_info *fs_info,
+ bool btrfs_zone_activate(struct btrfs_block_group *block_group)
+ {
+ 	struct btrfs_fs_info *fs_info = block_group->fs_info;
++	struct btrfs_space_info *space_info = block_group->space_info;
+ 	struct map_lookup *map;
+ 	struct btrfs_device *device;
+ 	u64 physical;
+@@ -1860,6 +1861,7 @@ bool btrfs_zone_activate(struct btrfs_block_group *block_group)
+ 
+ 	map = block_group->physical_map;
+ 
++	spin_lock(&space_info->lock);
+ 	spin_lock(&block_group->lock);
+ 	if (block_group->zone_is_active) {
+ 		ret = true;
+@@ -1888,7 +1890,10 @@ bool btrfs_zone_activate(struct btrfs_block_group *block_group)
+ 
+ 	/* Successfully activated all the zones */
+ 	block_group->zone_is_active = 1;
++	space_info->active_total_bytes += block_group->length;
+ 	spin_unlock(&block_group->lock);
++	btrfs_try_granting_tickets(fs_info, space_info);
++	spin_unlock(&space_info->lock);
+ 
+ 	/* For the active block group list */
+ 	btrfs_get_block_group(block_group);
+@@ -1901,6 +1906,7 @@ bool btrfs_zone_activate(struct btrfs_block_group *block_group)
+ 
+ out_unlock:
+ 	spin_unlock(&block_group->lock);
++	spin_unlock(&space_info->lock);
  	return ret;
  }
  
--int ksmbd_conn_rdma_write(struct ksmbd_conn *conn, void *buf,
--			  unsigned int buflen, u32 remote_key,
--			  u64 remote_offset, u32 remote_len)
-+int ksmbd_conn_rdma_write(struct ksmbd_conn *conn,
-+			  void *buf, unsigned int buflen,
-+			  struct smb2_buffer_desc_v1 *desc,
-+			  unsigned int desc_len)
- {
- 	int ret = -EINVAL;
- 
- 	if (conn->transport->ops->rdma_write)
- 		ret = conn->transport->ops->rdma_write(conn->transport,
- 						       buf, buflen,
--						       remote_key, remote_offset,
--						       remote_len);
-+						       desc, desc_len);
- 	return ret;
- }
- 
-diff --git a/fs/ksmbd/connection.h b/fs/ksmbd/connection.h
-index 7a59aacb5daa..98c1cbe45ec9 100644
---- a/fs/ksmbd/connection.h
-+++ b/fs/ksmbd/connection.h
-@@ -122,11 +122,14 @@ struct ksmbd_transport_ops {
- 	int (*writev)(struct ksmbd_transport *t, struct kvec *iovs, int niov,
- 		      int size, bool need_invalidate_rkey,
- 		      unsigned int remote_key);
--	int (*rdma_read)(struct ksmbd_transport *t, void *buf, unsigned int len,
--			 u32 remote_key, u64 remote_offset, u32 remote_len);
--	int (*rdma_write)(struct ksmbd_transport *t, void *buf,
--			  unsigned int len, u32 remote_key, u64 remote_offset,
--			  u32 remote_len);
-+	int (*rdma_read)(struct ksmbd_transport *t,
-+			 void *buf, unsigned int len,
-+			 struct smb2_buffer_desc_v1 *desc,
-+			 unsigned int desc_len);
-+	int (*rdma_write)(struct ksmbd_transport *t,
-+			  void *buf, unsigned int len,
-+			  struct smb2_buffer_desc_v1 *desc,
-+			  unsigned int desc_len);
- };
- 
- struct ksmbd_transport {
-@@ -148,12 +151,14 @@ struct ksmbd_conn *ksmbd_conn_alloc(void);
- void ksmbd_conn_free(struct ksmbd_conn *conn);
- bool ksmbd_conn_lookup_dialect(struct ksmbd_conn *c);
- int ksmbd_conn_write(struct ksmbd_work *work);
--int ksmbd_conn_rdma_read(struct ksmbd_conn *conn, void *buf,
--			 unsigned int buflen, u32 remote_key, u64 remote_offset,
--			 u32 remote_len);
--int ksmbd_conn_rdma_write(struct ksmbd_conn *conn, void *buf,
--			  unsigned int buflen, u32 remote_key, u64 remote_offset,
--			  u32 remote_len);
-+int ksmbd_conn_rdma_read(struct ksmbd_conn *conn,
-+			 void *buf, unsigned int buflen,
-+			 struct smb2_buffer_desc_v1 *desc,
-+			 unsigned int desc_len);
-+int ksmbd_conn_rdma_write(struct ksmbd_conn *conn,
-+			  void *buf, unsigned int buflen,
-+			  struct smb2_buffer_desc_v1 *desc,
-+			  unsigned int desc_len);
- void ksmbd_conn_enqueue_request(struct ksmbd_work *work);
- int ksmbd_conn_try_dequeue_request(struct ksmbd_work *work);
- void ksmbd_conn_init_server_callbacks(struct ksmbd_conn_ops *ops);
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index 5df87fe18905..8f86b8d6765f 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -6132,7 +6132,6 @@ static noinline int smb2_read_pipe(struct ksmbd_work *work)
- static int smb2_set_remote_key_for_rdma(struct ksmbd_work *work,
- 					struct smb2_buffer_desc_v1 *desc,
- 					__le32 Channel,
--					__le16 ChannelInfoOffset,
- 					__le16 ChannelInfoLength)
- {
- 	unsigned int i, ch_count;
-@@ -6158,7 +6157,8 @@ static int smb2_set_remote_key_for_rdma(struct ksmbd_work *work,
- 
- 	work->need_invalidate_rkey =
- 		(Channel == SMB2_CHANNEL_RDMA_V1_INVALIDATE);
--	work->remote_key = le32_to_cpu(desc->token);
-+	if (Channel == SMB2_CHANNEL_RDMA_V1_INVALIDATE)
-+		work->remote_key = le32_to_cpu(desc->token);
- 	return 0;
- }
- 
-@@ -6166,14 +6166,12 @@ static ssize_t smb2_read_rdma_channel(struct ksmbd_work *work,
- 				      struct smb2_read_req *req, void *data_buf,
- 				      size_t length)
- {
--	struct smb2_buffer_desc_v1 *desc =
--		(struct smb2_buffer_desc_v1 *)&req->Buffer[0];
- 	int err;
- 
- 	err = ksmbd_conn_rdma_write(work->conn, data_buf, length,
--				    le32_to_cpu(desc->token),
--				    le64_to_cpu(desc->offset),
--				    le32_to_cpu(desc->length));
-+				    (struct smb2_buffer_desc_v1 *)
-+				    ((char *)req + le16_to_cpu(req->ReadChannelInfoOffset)),
-+				    le16_to_cpu(req->ReadChannelInfoLength));
- 	if (err)
- 		return err;
- 
-@@ -6217,7 +6215,6 @@ int smb2_read(struct ksmbd_work *work)
- 						   (struct smb2_buffer_desc_v1 *)
- 						   ((char *)req + ch_offset),
- 						   req->Channel,
--						   req->ReadChannelInfoOffset,
- 						   req->ReadChannelInfoLength);
- 		if (err)
- 			goto out;
-@@ -6395,21 +6392,18 @@ static ssize_t smb2_write_rdma_channel(struct ksmbd_work *work,
- 				       struct ksmbd_file *fp,
- 				       loff_t offset, size_t length, bool sync)
- {
--	struct smb2_buffer_desc_v1 *desc;
- 	char *data_buf;
- 	int ret;
- 	ssize_t nbytes;
- 
--	desc = (struct smb2_buffer_desc_v1 *)&req->Buffer[0];
--
- 	data_buf = kvmalloc(length, GFP_KERNEL | __GFP_ZERO);
- 	if (!data_buf)
- 		return -ENOMEM;
- 
- 	ret = ksmbd_conn_rdma_read(work->conn, data_buf, length,
--				   le32_to_cpu(desc->token),
--				   le64_to_cpu(desc->offset),
--				   le32_to_cpu(desc->length));
-+				   (struct smb2_buffer_desc_v1 *)
-+				   ((char *)req + le16_to_cpu(req->WriteChannelInfoOffset)),
-+				   le16_to_cpu(req->WriteChannelInfoLength));
- 	if (ret < 0) {
- 		kvfree(data_buf);
- 		return ret;
-@@ -6461,7 +6455,6 @@ int smb2_write(struct ksmbd_work *work)
- 						   (struct smb2_buffer_desc_v1 *)
- 						   ((char *)req + ch_offset),
- 						   req->Channel,
--						   req->WriteChannelInfoOffset,
- 						   req->WriteChannelInfoLength);
- 		if (err)
- 			goto out;
-diff --git a/fs/ksmbd/transport_rdma.c b/fs/ksmbd/transport_rdma.c
-index 3f5d13571694..479d279ee146 100644
---- a/fs/ksmbd/transport_rdma.c
-+++ b/fs/ksmbd/transport_rdma.c
-@@ -1352,14 +1352,18 @@ static void write_done(struct ib_cq *cq, struct ib_wc *wc)
- 	read_write_done(cq, wc, DMA_TO_DEVICE);
- }
- 
--static int smb_direct_rdma_xmit(struct smb_direct_transport *t, void *buf,
--				int buf_len, u32 remote_key, u64 remote_offset,
--				u32 remote_len, bool is_read)
-+static int smb_direct_rdma_xmit(struct smb_direct_transport *t,
-+				void *buf, int buf_len,
-+				struct smb2_buffer_desc_v1 *desc,
-+				unsigned int desc_len,
-+				bool is_read)
- {
- 	struct smb_direct_rdma_rw_msg *msg;
- 	int ret;
- 	DECLARE_COMPLETION_ONSTACK(completion);
- 	struct ib_send_wr *first_wr = NULL;
-+	u32 remote_key = le32_to_cpu(desc[0].token);
-+	u64 remote_offset = le64_to_cpu(desc[0].offset);
- 
- 	ret = wait_for_credits(t, &t->wait_rw_avail_ops, &t->rw_avail_ops);
- 	if (ret < 0)
-@@ -1424,22 +1428,22 @@ static int smb_direct_rdma_xmit(struct smb_direct_transport *t, void *buf,
- 	return ret;
- }
- 
--static int smb_direct_rdma_write(struct ksmbd_transport *t, void *buf,
--				 unsigned int buflen, u32 remote_key,
--				 u64 remote_offset, u32 remote_len)
-+static int smb_direct_rdma_write(struct ksmbd_transport *t,
-+				 void *buf, unsigned int buflen,
-+				 struct smb2_buffer_desc_v1 *desc,
-+				 unsigned int desc_len)
- {
- 	return smb_direct_rdma_xmit(smb_trans_direct_transfort(t), buf, buflen,
--				    remote_key, remote_offset,
--				    remote_len, false);
-+				    desc, desc_len, false);
- }
- 
--static int smb_direct_rdma_read(struct ksmbd_transport *t, void *buf,
--				unsigned int buflen, u32 remote_key,
--				u64 remote_offset, u32 remote_len)
-+static int smb_direct_rdma_read(struct ksmbd_transport *t,
-+				void *buf, unsigned int buflen,
-+				struct smb2_buffer_desc_v1 *desc,
-+				unsigned int desc_len)
- {
- 	return smb_direct_rdma_xmit(smb_trans_direct_transfort(t), buf, buflen,
--				    remote_key, remote_offset,
--				    remote_len, true);
-+				    desc, desc_len, true);
- }
- 
- static void smb_direct_disconnect(struct ksmbd_transport *t)
 -- 
 2.35.1
 
