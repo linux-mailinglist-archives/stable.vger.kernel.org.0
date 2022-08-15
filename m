@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E0025947BF
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:04:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B490E5949B3
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:15:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233567AbiHOXTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:19:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54098 "EHLO
+        id S243703AbiHOXTv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:19:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241347AbiHOXRC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:17:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4C077CB58;
-        Mon, 15 Aug 2022 13:03:39 -0700 (PDT)
+        with ESMTP id S1344690AbiHOXR5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:17:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DAD27CB7F;
+        Mon, 15 Aug 2022 13:03:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 23E1DB810C5;
-        Mon, 15 Aug 2022 20:03:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DFEEC433D6;
-        Mon, 15 Aug 2022 20:03:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 204FBB80EB1;
+        Mon, 15 Aug 2022 20:03:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A63EC433C1;
+        Mon, 15 Aug 2022 20:03:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593816;
-        bh=u+YTZMnI+mHY8ePME3H/NiQfW4K6V1KRiwc+uCFjTLg=;
+        s=korg; t=1660593822;
+        bh=abYdGz99G+a8NjFTk64PqU1lQ3mOkmqE+lQJmz80CzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r2h0W4twkyg0RcPuzV6b7UGIyznxmqBq9PVOw54aDTeRQwJTZa8ZEgTKrF2mHa55j
-         762DJTGyL34B/c5grCZ62p48qPTa7b9KzlS2FOWnJPC/upSZrIttqded+mfcBvggNj
-         k/Liu3TvvqGrK74gE2CxwAUENeC5kYVtQ5UTivQQ=
+        b=KN1TY495V2gEAj+8IVrUzc00RpeuYY6V82QWSSyQcrn9wzNFFRHi91OZRadEbKkug
+         NWiEBjTncStkjBfyXFqKVbpwArbavTuhFQauruON08E91OB4JYMZleqTLTNZ3k765V
+         Nrz2BNozZOmt5EHq3rXrGD6cr1yoMTo6KTaVMCnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0330/1157] sample: bpf: xdp_router_ipv4: Allow the kernel to send arp requests
-Date:   Mon, 15 Aug 2022 19:54:46 +0200
-Message-Id: <20220815180452.870580758@linuxfoundation.org>
+Subject: [PATCH 5.19 0331/1157] selftests/bpf: Fix tc_redirect_dtime
+Date:   Mon, 15 Aug 2022 19:54:47 +0200
+Message-Id: <20220815180452.905032391@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,42 +55,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Martin KaFai Lau <kafai@fb.com>
 
-[ Upstream commit 200a89e3e88786b52bc1dd5f26a310c097f4c6a7 ]
+[ Upstream commit e6ff92f41b65fce07365f1066fb13b5e42aca08d ]
 
-Forward the packet to the kernel if the gw router mac address is missing
-in to trigger ARP discovery.
+tc_redirect_dtime was reported flaky from time to time.  It
+always fails at the udp test and complains about the bpf@tc-ingress
+got a skb->tstamp when handling udp packet.  It is unexpected
+because the skb->tstamp should have been cleared when crossing
+different netns.
 
-Fixes: 85bf1f51691c ("samples: bpf: Convert xdp_router_ipv4 to XDP samples helper")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+The most likely cause is that the skb is actually a tcp packet
+from the earlier tcp test.  It could be the final TCP_FIN handling.
+
+This patch tightens the skb->tstamp check in the bpf prog.  It ensures
+the skb is the current testing traffic.  First, it checks that skb
+matches the IPPROTO of the running test (i.e. tcp vs udp).
+Second, it checks the server port (dst_ns_port).  The server
+port is unique for each test (50000 + test_enum).
+
+Also fixed a typo in test_udp_dtime(): s/P100/P101/
+
+Fixes: c803475fd8dd ("bpf: selftests: test skb->tstamp in redirect_neigh")
+Reported-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Martin KaFai Lau <kafai@fb.com>
 Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/60bde5496d108089080504f58199bcf1143ea938.1653471558.git.lorenzo@kernel.org
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20220601234050.2572671-1-kafai@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/xdp_router_ipv4.bpf.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ .../selftests/bpf/prog_tests/tc_redirect.c    |  8 +--
+ .../selftests/bpf/progs/test_tc_dtime.c       | 53 ++++++++++++++++++-
+ 2 files changed, 55 insertions(+), 6 deletions(-)
 
-diff --git a/samples/bpf/xdp_router_ipv4.bpf.c b/samples/bpf/xdp_router_ipv4.bpf.c
-index 248119ca7938..0643330d1d2e 100644
---- a/samples/bpf/xdp_router_ipv4.bpf.c
-+++ b/samples/bpf/xdp_router_ipv4.bpf.c
-@@ -150,6 +150,15 @@ int xdp_router_ipv4_prog(struct xdp_md *ctx)
+diff --git a/tools/testing/selftests/bpf/prog_tests/tc_redirect.c b/tools/testing/selftests/bpf/prog_tests/tc_redirect.c
+index 958dae769c52..cb6a53b3e023 100644
+--- a/tools/testing/selftests/bpf/prog_tests/tc_redirect.c
++++ b/tools/testing/selftests/bpf/prog_tests/tc_redirect.c
+@@ -646,7 +646,7 @@ static void test_tcp_clear_dtime(struct test_tc_dtime *skel)
+ 	__u32 *errs = skel->bss->errs[t];
  
- 				dest_mac = bpf_map_lookup_elem(&arp_table,
- 							       &prefix_value->gw);
-+				if (!dest_mac) {
-+					/* Forward the packet to the kernel in
-+					 * order to trigger ARP discovery for
-+					 * the default gw.
-+					 */
-+					if (rec)
-+						NO_TEAR_INC(rec->xdp_pass);
-+					return XDP_PASS;
-+				}
- 			}
- 		}
+ 	skel->bss->test = t;
+-	test_inet_dtime(AF_INET6, SOCK_STREAM, IP6_DST, 0);
++	test_inet_dtime(AF_INET6, SOCK_STREAM, IP6_DST, 50000 + t);
  
+ 	ASSERT_EQ(dtimes[INGRESS_FWDNS_P100], 0,
+ 		  dtime_cnt_str(t, INGRESS_FWDNS_P100));
+@@ -683,7 +683,7 @@ static void test_tcp_dtime(struct test_tc_dtime *skel, int family, bool bpf_fwd)
+ 	errs = skel->bss->errs[t];
+ 
+ 	skel->bss->test = t;
+-	test_inet_dtime(family, SOCK_STREAM, addr, 0);
++	test_inet_dtime(family, SOCK_STREAM, addr, 50000 + t);
+ 
+ 	/* fwdns_prio100 prog does not read delivery_time_type, so
+ 	 * kernel puts the (rcv) timetamp in __sk_buff->tstamp
+@@ -715,13 +715,13 @@ static void test_udp_dtime(struct test_tc_dtime *skel, int family, bool bpf_fwd)
+ 	errs = skel->bss->errs[t];
+ 
+ 	skel->bss->test = t;
+-	test_inet_dtime(family, SOCK_DGRAM, addr, 0);
++	test_inet_dtime(family, SOCK_DGRAM, addr, 50000 + t);
+ 
+ 	ASSERT_EQ(dtimes[INGRESS_FWDNS_P100], 0,
+ 		  dtime_cnt_str(t, INGRESS_FWDNS_P100));
+ 	/* non mono delivery time is not forwarded */
+ 	ASSERT_EQ(dtimes[INGRESS_FWDNS_P101], 0,
+-		  dtime_cnt_str(t, INGRESS_FWDNS_P100));
++		  dtime_cnt_str(t, INGRESS_FWDNS_P101));
+ 	for (i = EGRESS_FWDNS_P100; i < SET_DTIME; i++)
+ 		ASSERT_GT(dtimes[i], 0, dtime_cnt_str(t, i));
+ 
+diff --git a/tools/testing/selftests/bpf/progs/test_tc_dtime.c b/tools/testing/selftests/bpf/progs/test_tc_dtime.c
+index 06f300d06dbd..b596479a9ebe 100644
+--- a/tools/testing/selftests/bpf/progs/test_tc_dtime.c
++++ b/tools/testing/selftests/bpf/progs/test_tc_dtime.c
+@@ -11,6 +11,8 @@
+ #include <linux/in.h>
+ #include <linux/ip.h>
+ #include <linux/ipv6.h>
++#include <linux/tcp.h>
++#include <linux/udp.h>
+ #include <bpf/bpf_helpers.h>
+ #include <bpf/bpf_endian.h>
+ #include <sys/socket.h>
+@@ -115,6 +117,19 @@ static bool bpf_fwd(void)
+ 	return test < TCP_IP4_RT_FWD;
+ }
+ 
++static __u8 get_proto(void)
++{
++	switch (test) {
++	case UDP_IP4:
++	case UDP_IP6:
++	case UDP_IP4_RT_FWD:
++	case UDP_IP6_RT_FWD:
++		return IPPROTO_UDP;
++	default:
++		return IPPROTO_TCP;
++	}
++}
++
+ /* -1: parse error: TC_ACT_SHOT
+  *  0: not testing traffic: TC_ACT_OK
+  * >0: first byte is the inet_proto, second byte has the netns
+@@ -122,11 +137,16 @@ static bool bpf_fwd(void)
+  */
+ static int skb_get_type(struct __sk_buff *skb)
+ {
++	__u16 dst_ns_port = __bpf_htons(50000 + test);
+ 	void *data_end = ctx_ptr(skb->data_end);
+ 	void *data = ctx_ptr(skb->data);
+ 	__u8 inet_proto = 0, ns = 0;
+ 	struct ipv6hdr *ip6h;
++	__u16 sport, dport;
+ 	struct iphdr *iph;
++	struct tcphdr *th;
++	struct udphdr *uh;
++	void *trans;
+ 
+ 	switch (skb->protocol) {
+ 	case __bpf_htons(ETH_P_IP):
+@@ -138,6 +158,7 @@ static int skb_get_type(struct __sk_buff *skb)
+ 		else if (iph->saddr == ip4_dst)
+ 			ns = DST_NS;
+ 		inet_proto = iph->protocol;
++		trans = iph + 1;
+ 		break;
+ 	case __bpf_htons(ETH_P_IPV6):
+ 		ip6h = data + sizeof(struct ethhdr);
+@@ -148,15 +169,43 @@ static int skb_get_type(struct __sk_buff *skb)
+ 		else if (v6_equal(ip6h->saddr, (struct in6_addr)ip6_dst))
+ 			ns = DST_NS;
+ 		inet_proto = ip6h->nexthdr;
++		trans = ip6h + 1;
+ 		break;
+ 	default:
+ 		return 0;
+ 	}
+ 
+-	if ((inet_proto != IPPROTO_TCP && inet_proto != IPPROTO_UDP) || !ns)
++	/* skb is not from src_ns or dst_ns.
++	 * skb is not the testing IPPROTO.
++	 */
++	if (!ns || inet_proto != get_proto())
+ 		return 0;
+ 
+-	return (ns << 8 | inet_proto);
++	switch (inet_proto) {
++	case IPPROTO_TCP:
++		th = trans;
++		if (th + 1 > data_end)
++			return -1;
++		sport = th->source;
++		dport = th->dest;
++		break;
++	case IPPROTO_UDP:
++		uh = trans;
++		if (uh + 1 > data_end)
++			return -1;
++		sport = uh->source;
++		dport = uh->dest;
++		break;
++	default:
++		return 0;
++	}
++
++	/* The skb is the testing traffic */
++	if ((ns == SRC_NS && dport == dst_ns_port) ||
++	    (ns == DST_NS && sport == dst_ns_port))
++		return (ns << 8 | inet_proto);
++
++	return 0;
+ }
+ 
+ /* format: direction@iface@netns
 -- 
 2.35.1
 
