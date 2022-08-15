@@ -2,229 +2,251 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 580EF594867
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33E16594C87
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241753AbiHOXRx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:17:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45228 "EHLO
+        id S1344402AbiHPAsM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:48:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243999AbiHOXOr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:14:47 -0400
+        with ESMTP id S1349786AbiHPAqp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:46:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39B157C744;
-        Mon, 15 Aug 2022 13:02:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8033C196868;
+        Mon, 15 Aug 2022 13:45:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3465612DA;
-        Mon, 15 Aug 2022 20:02:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B16AFC433C1;
-        Mon, 15 Aug 2022 20:02:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6C5561241;
+        Mon, 15 Aug 2022 20:45:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE35CC433C1;
+        Mon, 15 Aug 2022 20:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593737;
-        bh=P8GQnbQLC+qgRVnKQimFpEPL2VoCMHFCbwyyvs/xq+U=;
+        s=korg; t=1660596321;
+        bh=Tr2M4nayNpPSq3PjjPGO+MGyVIhL9QGHlDEJcNCeS/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TK51KMwDqFDmOfz4c6aMuRZ5CexowqF4EWH06pxtmGRPgHdT4yDf5C2lr9CHooV88
-         YgC1mPQ062DnRbJ2dAiB/A24F3+q50nwfZcf3SiC8N6AHLT60j/uIB9v62DQ46gPUa
-         9vt4j5lYf25NKIbKO5VqT9pFr7q3Argwd092zg88=
+        b=arMA1MurgJkuSj+4lFAuTFpeerDxOgMbe3uZTC2Hy+nfB3EKTIdfT2h20nWtyqQKH
+         /BVeqPtXcHrYOWHegWIwuNfrHqWgltexJHoOszNWarZZLXe9P0LFXegYbBpk9/2gQ3
+         Mhz9RR6uTXbcvp2w8ClSPYHKT6zkO8dyQZq2xQI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0998/1095] serial: 8250: Fold EndRun device support into OxSemi Tornado code
+        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.19 1041/1157] scsi: qla2xxx: Wind down adapter after PCIe error
 Date:   Mon, 15 Aug 2022 20:06:37 +0200
-Message-Id: <20220815180510.397151785@linuxfoundation.org>
+Message-Id: <20220815180521.643619758@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PDS_OTHER_BAD_TLD,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 1f32c65bad24b9787d3e52843de375430e3df822 ]
+commit d3117c83ba316b3200d9f2fe900f2b9a5525a25c upstream.
 
-The EndRun PTP/1588 dual serial port device is based on the Oxford
-Semiconductor OXPCIe952 UART device with the PCI vendor:device ID set
-for EndRun Technologies and uses the same sequence to determine the
-number of ports available.  Despite that we have duplicate code
-specific to the EndRun device.
+Put adapter into a wind down state if OS does not make any attempt to
+recover the adapter after PCIe error.
 
-Remove redundant code then and factor out OxSemi Tornado device
-detection.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204181516220.9383@angie.orcam.me.uk
+Link: https://lore.kernel.org/r/20220616053508.27186-4-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_pci.c | 76 ++++++++++--------------------
- 1 file changed, 25 insertions(+), 51 deletions(-)
+ drivers/scsi/qla2xxx/qla_bsg.c  |   10 +++++++-
+ drivers/scsi/qla2xxx/qla_def.h  |    4 +++
+ drivers/scsi/qla2xxx/qla_init.c |   20 ++++++++++++++++
+ drivers/scsi/qla2xxx/qla_os.c   |   48 ++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 81 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
-index a293e9f107d0..4b0e84e01e55 100644
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -994,41 +994,29 @@ static void pci_ite887x_exit(struct pci_dev *dev)
+--- a/drivers/scsi/qla2xxx/qla_bsg.c
++++ b/drivers/scsi/qla2xxx/qla_bsg.c
+@@ -2975,6 +2975,13 @@ qla24xx_bsg_timeout(struct bsg_job *bsg_
+ 
+ 	ql_log(ql_log_info, vha, 0x708b, "%s CMD timeout. bsg ptr %p.\n",
+ 	    __func__, bsg_job);
++
++	if (qla2x00_isp_reg_stat(ha)) {
++		ql_log(ql_log_info, vha, 0x9007,
++		    "PCI/Register disconnect.\n");
++		qla_pci_set_eeh_busy(vha);
++	}
++
+ 	/* find the bsg job from the active list of commands */
+ 	spin_lock_irqsave(&ha->hardware_lock, flags);
+ 	for (que = 0; que < ha->max_req_queues; que++) {
+@@ -2992,7 +2999,8 @@ qla24xx_bsg_timeout(struct bsg_job *bsg_
+ 			    sp->u.bsg_job == bsg_job) {
+ 				req->outstanding_cmds[cnt] = NULL;
+ 				spin_unlock_irqrestore(&ha->hardware_lock, flags);
+-				if (ha->isp_ops->abort_command(sp)) {
++
++				if (!ha->flags.eeh_busy && ha->isp_ops->abort_command(sp)) {
+ 					ql_log(ql_log_warn, vha, 0x7089,
+ 					    "mbx abort_command failed.\n");
+ 					bsg_reply->result = -EIO;
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -4048,6 +4048,9 @@ struct qla_hw_data {
+ 		uint32_t	n2n_fw_acc_sec:1;
+ 		uint32_t	plogi_template_valid:1;
+ 		uint32_t	port_isolated:1;
++		uint32_t	eeh_flush:2;
++#define EEH_FLUSH_RDY  1
++#define EEH_FLUSH_DONE 2
+ 	} flags;
+ 
+ 	uint16_t max_exchg;
+@@ -4082,6 +4085,7 @@ struct qla_hw_data {
+ 	uint32_t		rsp_que_len;
+ 	uint32_t		req_que_off;
+ 	uint32_t		rsp_que_off;
++	unsigned long		eeh_jif;
+ 
+ 	/* Multi queue data structs */
+ 	device_reg_t *mqiobase;
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -47,6 +47,7 @@ qla2x00_sp_timeout(struct timer_list *t)
+ {
+ 	srb_t *sp = from_timer(sp, t, u.iocb_cmd.timer);
+ 	struct srb_iocb *iocb;
++	scsi_qla_host_t *vha = sp->vha;
+ 
+ 	WARN_ON(irqs_disabled());
+ 	iocb = &sp->u.iocb_cmd;
+@@ -54,6 +55,12 @@ qla2x00_sp_timeout(struct timer_list *t)
+ 
+ 	/* ref: TMR */
+ 	kref_put(&sp->cmd_kref, qla2x00_sp_release);
++
++	if (vha && qla2x00_isp_reg_stat(vha->hw)) {
++		ql_log(ql_log_info, vha, 0x9008,
++		    "PCI/Register disconnect.\n");
++		qla_pci_set_eeh_busy(vha);
++	}
  }
  
- /*
-- * EndRun Technologies.
-- * Determine the number of ports available on the device.
-+ * Oxford Semiconductor Inc.
-+ * Check if an OxSemi device is part of the Tornado range of devices.
-  */
- #define PCI_VENDOR_ID_ENDRUN			0x7401
- #define PCI_DEVICE_ID_ENDRUN_1588	0xe100
+ void qla2x00_sp_free(srb_t *sp)
+@@ -9702,6 +9709,12 @@ int qla2xxx_disable_port(struct Scsi_Hos
  
--static int pci_endrun_init(struct pci_dev *dev)
-+static bool pci_oxsemi_tornado_p(struct pci_dev *dev)
- {
--	u8 __iomem *p;
--	unsigned long deviceID;
--	unsigned int  number_uarts = 0;
-+	/* OxSemi Tornado devices are all 0xCxxx */
-+	if (dev->vendor == PCI_VENDOR_ID_OXSEMI &&
-+	    (dev->device & 0xf000) != 0xc000)
-+		return false;
+ 	vha->hw->flags.port_isolated = 1;
  
--	/* EndRun device is all 0xexxx */
-+	/* EndRun devices are all 0xExxx */
- 	if (dev->vendor == PCI_VENDOR_ID_ENDRUN &&
--		(dev->device & 0xf000) != 0xe000)
--		return 0;
--
--	p = pci_iomap(dev, 0, 5);
--	if (p == NULL)
--		return -ENOMEM;
-+	    (dev->device & 0xf000) != 0xe000)
-+		return false;
- 
--	deviceID = ioread32(p);
--	/* EndRun device */
--	if (deviceID == 0x07000200) {
--		number_uarts = ioread8(p + 4);
--		pci_dbg(dev, "%d ports detected on EndRun PCI Express device\n", number_uarts);
--	}
--	pci_iounmap(dev, p);
--	return number_uarts;
-+	return true;
- }
- 
- /*
-- * Oxford Semiconductor Inc.
-- * Check that device is part of the Tornado range of devices, then determine
-- * the number of ports available on the device.
-+ * Determine the number of ports available on a Tornado device.
-  */
- static int pci_oxsemi_tornado_init(struct pci_dev *dev)
- {
-@@ -1036,9 +1024,7 @@ static int pci_oxsemi_tornado_init(struct pci_dev *dev)
- 	unsigned long deviceID;
- 	unsigned int  number_uarts = 0;
- 
--	/* OxSemi Tornado devices are all 0xCxxx */
--	if (dev->vendor == PCI_VENDOR_ID_OXSEMI &&
--	    (dev->device & 0xF000) != 0xC000)
-+	if (!pci_oxsemi_tornado_p(dev))
++	if (qla2x00_isp_reg_stat(vha->hw)) {
++		ql_log(ql_log_info, vha, 0x9006,
++		    "PCI/Register disconnect, exiting.\n");
++		qla_pci_set_eeh_busy(vha);
++		return FAILED;
++	}
+ 	if (qla2x00_chip_is_down(vha))
  		return 0;
  
- 	p = pci_iomap(dev, 0, 5);
-@@ -1049,7 +1035,10 @@ static int pci_oxsemi_tornado_init(struct pci_dev *dev)
- 	/* Tornado device */
- 	if (deviceID == 0x07000200) {
- 		number_uarts = ioread8(p + 4);
--		pci_dbg(dev, "%d ports detected on Oxford PCI Express device\n", number_uarts);
-+		pci_dbg(dev, "%d ports detected on %s PCI Express device\n",
-+			number_uarts,
-+			dev->vendor == PCI_VENDOR_ID_ENDRUN ?
-+			"EndRun" : "Oxford");
+@@ -9717,6 +9730,13 @@ int qla2xxx_enable_port(struct Scsi_Host
+ {
+ 	scsi_qla_host_t *vha = shost_priv(host);
+ 
++	if (qla2x00_isp_reg_stat(vha->hw)) {
++		ql_log(ql_log_info, vha, 0x9001,
++		    "PCI/Register disconnect, exiting.\n");
++		qla_pci_set_eeh_busy(vha);
++		return FAILED;
++	}
++
+ 	vha->hw->flags.port_isolated = 0;
+ 	/* Set the flag to 1, so that isp_abort can proceed */
+ 	vha->flags.online = 1;
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -333,6 +333,11 @@ MODULE_PARM_DESC(ql2xabts_wait_nvme,
+ 		 "To wait for ABTS response on I/O timeouts for NVMe. (default: 1)");
+ 
+ 
++u32 ql2xdelay_before_pci_error_handling = 5;
++module_param(ql2xdelay_before_pci_error_handling, uint, 0644);
++MODULE_PARM_DESC(ql2xdelay_before_pci_error_handling,
++	"Number of seconds delayed before qla begin PCI error self-handling (default: 5).\n");
++
+ static void qla2x00_clear_drv_active(struct qla_hw_data *);
+ static void qla2x00_free_device(scsi_qla_host_t *);
+ static int qla2xxx_map_queues(struct Scsi_Host *shost);
+@@ -7257,6 +7262,44 @@ static void qla_heart_beat(struct scsi_q
  	}
- 	pci_iounmap(dev, p);
- 	return number_uarts;
-@@ -2244,7 +2233,7 @@ static struct pci_serial_quirk pci_serial_quirks[] = {
- 		.device		= PCI_ANY_ID,
- 		.subvendor	= PCI_ANY_ID,
- 		.subdevice	= PCI_ANY_ID,
--		.init		= pci_endrun_init,
-+		.init		= pci_oxsemi_tornado_init,
- 		.setup		= pci_default_setup,
- 	},
- 	/*
-@@ -2667,7 +2656,6 @@ enum pci_board_num_t {
- 	pbn_panacom2,
- 	pbn_panacom4,
- 	pbn_plx_romulus,
--	pbn_endrun_2_3906250,
- 	pbn_oxsemi,
- 	pbn_oxsemi_1_3906250,
- 	pbn_oxsemi_2_3906250,
-@@ -3189,20 +3177,6 @@ static struct pciserial_board pci_boards[] = {
- 		.first_offset	= 0x03,
- 	},
+ }
  
--	/*
--	 * EndRun Technologies
--	* Uses the size of PCI Base region 0 to
--	* signal now many ports are available
--	* 2 port 952 Uart support
--	*/
--	[pbn_endrun_2_3906250] = {
--		.flags		= FL_BASE0,
--		.num_ports	= 2,
--		.base_baud	= 3906250,
--		.uart_offset	= 0x200,
--		.first_offset	= 0x1000,
--	},
--
- 	/*
- 	 * This board uses the size of PCI Base region 0 to
- 	 * signal now many ports are available
-@@ -4109,13 +4083,6 @@ static const struct pci_device_id serial_pci_tbl[] = {
- 	{	PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_ROMULUS,
- 		0x10b5, 0x106a, 0, 0,
- 		pbn_plx_romulus },
--	/*
--	* EndRun Technologies. PCI express device range.
--	*    EndRun PTP/1588 has 2 Native UARTs.
--	*/
--	{	PCI_VENDOR_ID_ENDRUN, PCI_DEVICE_ID_ENDRUN_1588,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--		pbn_endrun_2_3906250 },
- 	/*
- 	 * Quatech cards. These actually have configurable clocks but for
- 	 * now we just use the default.
-@@ -4377,6 +4344,13 @@ static const struct pci_device_id serial_pci_tbl[] = {
- 	{	PCI_VENDOR_ID_DIGI, PCIE_DEVICE_ID_NEO_2_OX_IBM,
- 		PCI_SUBVENDOR_ID_IBM, PCI_ANY_ID, 0, 0,
- 		pbn_oxsemi_2_3906250 },
++static void qla_wind_down_chip(scsi_qla_host_t *vha)
++{
++	struct qla_hw_data *ha = vha->hw;
++
++	if (!ha->flags.eeh_busy)
++		return;
++	if (ha->pci_error_state)
++		/* system is trying to recover */
++		return;
++
 +	/*
-+	 * EndRun Technologies. PCI express device range.
-+	 * EndRun PTP/1588 has 2 Native UARTs utilizing OxSemi 952.
++	 * Current system is not handling PCIE error.  At this point, this is
++	 * best effort to wind down the adapter.
 +	 */
-+	{	PCI_VENDOR_ID_ENDRUN, PCI_DEVICE_ID_ENDRUN_1588,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+		pbn_oxsemi_2_3906250 },
++	if (time_after_eq(jiffies, ha->eeh_jif + ql2xdelay_before_pci_error_handling * HZ) &&
++	    !ha->flags.eeh_flush) {
++		ql_log(ql_log_info, vha, 0x9009,
++		    "PCI Error detected, attempting to reset hardware.\n");
++
++		ha->isp_ops->reset_chip(vha);
++		ha->isp_ops->disable_intrs(ha);
++
++		ha->flags.eeh_flush = EEH_FLUSH_RDY;
++		ha->eeh_jif = jiffies;
++
++	} else if (ha->flags.eeh_flush == EEH_FLUSH_RDY &&
++	    time_after_eq(jiffies, ha->eeh_jif +  5 * HZ)) {
++		pci_clear_master(ha->pdev);
++
++		/* flush all command */
++		qla2x00_abort_isp_cleanup(vha);
++		ha->flags.eeh_flush = EEH_FLUSH_DONE;
++
++		ql_log(ql_log_info, vha, 0x900a,
++		    "PCI Error handling complete, all IOs aborted.\n");
++	}
++}
++
+ /**************************************************************************
+ *   qla2x00_timer
+ *
+@@ -7280,6 +7323,8 @@ qla2x00_timer(struct timer_list *t)
+ 	fc_port_t *fcport = NULL;
  
- 	/*
- 	 * SBS Technologies, Inc. P-Octal and PMC-OCTPRO cards,
--- 
-2.35.1
-
+ 	if (ha->flags.eeh_busy) {
++		qla_wind_down_chip(vha);
++
+ 		ql_dbg(ql_dbg_timer, vha, 0x6000,
+ 		    "EEH = %d, restarting timer.\n",
+ 		    ha->flags.eeh_busy);
+@@ -7860,6 +7905,9 @@ void qla_pci_set_eeh_busy(struct scsi_ql
+ 
+ 	spin_lock_irqsave(&base_vha->work_lock, flags);
+ 	if (!ha->flags.eeh_busy) {
++		ha->eeh_jif = jiffies;
++		ha->flags.eeh_flush = 0;
++
+ 		ha->flags.eeh_busy = 1;
+ 		do_cleanup = true;
+ 	}
 
 
