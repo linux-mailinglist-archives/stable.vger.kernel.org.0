@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 150EA593DDC
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:43:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C5F8593CDE
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344950AbiHOUdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:33:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57864 "EHLO
+        id S1344948AbiHOUdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:33:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347101AbiHOU2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:28:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFF19402ED;
-        Mon, 15 Aug 2022 12:04:21 -0700 (PDT)
+        with ESMTP id S1347733AbiHOUbh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:31:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52282A61D5;
+        Mon, 15 Aug 2022 12:04:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45091612C5;
-        Mon, 15 Aug 2022 19:04:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48950C433D6;
-        Mon, 15 Aug 2022 19:04:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AD96612B7;
+        Mon, 15 Aug 2022 19:04:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 152DBC433D7;
+        Mon, 15 Aug 2022 19:04:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590259;
-        bh=wo4l3src4p2Y6TKnCr9r6/z8QAnWWL3kywTWwoncKeE=;
+        s=korg; t=1660590294;
+        bh=VYfBlipzcVbhm4a67MWNtWYnwO8/NK7weJw/0ZKExAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WplpO9Hf0zFcjneJxtOTZaQiaXKI470hR8o1fyAYhskIr8aHiYX2VA903Z/IUA9vJ
-         J2dCdO+rU4NU9EHQRdyRhI5KkveLDVaUW8SLz9kaNpWckwui7+l5W4aKlu4qUe1xdo
-         /wHjmJdNa3/qTWTPwM2eoQniBjzScQOH7VPBPn+M=
+        b=J4orDkO/ZRRYtwfjo2Nd+97vVF4zyY/xWUF8udH9IGvVwjaAEtP2c/xHxvaLez5cN
+         Ypm5aiLJ2hZCqAZqNO5VI90ARWoTdZZu7rv6wN+PsCVkIP6tsclX2LkzzSjzUHgQE+
+         U9FuvtpGpVkJXDWh4xT7LzjSz3394UV9SOLok+P8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0196/1095] arm64: dts: renesas: Fix thermal-sensors on single-zone sensors
-Date:   Mon, 15 Aug 2022 19:53:15 +0200
-Message-Id: <20220815180437.734907497@linuxfoundation.org>
+Subject: [PATCH 5.18 0197/1095] Revert "ARM: dts: imx6qdl-apalis: Avoid underscore in node name"
+Date:   Mon, 15 Aug 2022 19:53:16 +0200
+Message-Id: <20220815180437.778617589@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,62 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Max Krummenacher <max.krummenacher@toradex.com>
 
-[ Upstream commit 62e8a53431145e06e503b71625a34eaa87b72b2c ]
+[ Upstream commit 9c0919acb3fa7c1a24e384ff912f2d88f060c373 ]
 
-"make dtbs_check":
+The STMPE MFD device binding requires the child node to have a fixed
+name, i.e. with '_', not '-'. Otherwise the stmpe_adc, stmpe_touchscreen
+drivers will not be probed.
 
-    arch/arm64/boot/dts/renesas/r8a774c0-cat874.dtb: thermal-zones: cpu-thermal:thermal-sensors: [[74], [0]] is too long
-    arch/arm64/boot/dts/renesas/r8a774c0-ek874.dtb: thermal-zones: cpu-thermal:thermal-sensors: [[79], [0]] is too long
-    arch/arm64/boot/dts/renesas/r8a774c0-ek874-idk-2121wr.dtb: thermal-zones: cpu-thermal:thermal-sensors: [[82], [0]] is too long
-    arch/arm64/boot/dts/renesas/r8a774c0-ek874-mipi-2.1.dtb: thermal-zones: cpu-thermal:thermal-sensors: [[87], [0]] is too long
-    arch/arm64/boot/dts/renesas/r8a77990-ebisu.dtb: thermal-zones: cpu-thermal:thermal-sensors: [[105], [0]] is too long
-	    From schema: Documentation/devicetree/bindings/thermal/thermal-zones.yaml
-
-Indeed, the thermal sensors on R-Car E3 and RZ/G2E support only a single
-zone, hence #thermal-sensor-cells = <0>.
-
-Fix this by dropping the bogus zero cell from the thermal sensor
-specifiers.
-
-Fixes: 8fa7d18f9ee2dc20 ("arm64: dts: renesas: r8a77990: Create thermal zone to support IPA")
-Fixes: 8438bfda9d768157 ("arm64: dts: renesas: r8a774c0: Create thermal zone to support IPA")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Link: https://lore.kernel.org/r/28b812fdd1fc3698311fac984ab8b91d3d655c1c.1655301684.git.geert+renesas@glider.be
+Fixes: 56086b5e804f ("ARM: dts: imx6qdl-apalis: Avoid underscore in node name")
+Reviewed-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r8a774c0.dtsi | 2 +-
- arch/arm64/boot/dts/renesas/r8a77990.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6qdl-apalis.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a774c0.dtsi b/arch/arm64/boot/dts/renesas/r8a774c0.dtsi
-index e123c8d1bab9..337efbeda5a9 100644
---- a/arch/arm64/boot/dts/renesas/r8a774c0.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a774c0.dtsi
-@@ -1956,7 +1956,7 @@ thermal-zones {
- 		cpu-thermal {
- 			polling-delay-passive = <250>;
- 			polling-delay = <0>;
--			thermal-sensors = <&thermal 0>;
-+			thermal-sensors = <&thermal>;
- 			sustainable-power = <717>;
+diff --git a/arch/arm/boot/dts/imx6qdl-apalis.dtsi b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
+index bd763bae596b..da919d0544a8 100644
+--- a/arch/arm/boot/dts/imx6qdl-apalis.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
+@@ -315,7 +315,7 @@ stmpe811@41 {
+ 		/* ADC conversion time: 80 clocks */
+ 		st,sample-time = <4>;
  
- 			cooling-maps {
-diff --git a/arch/arm64/boot/dts/renesas/r8a77990.dtsi b/arch/arm64/boot/dts/renesas/r8a77990.dtsi
-index 7e0f1aab2135..155589f67e1b 100644
---- a/arch/arm64/boot/dts/renesas/r8a77990.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a77990.dtsi
-@@ -2117,7 +2117,7 @@ thermal-zones {
- 		cpu-thermal {
- 			polling-delay-passive = <250>;
- 			polling-delay = <0>;
--			thermal-sensors = <&thermal 0>;
-+			thermal-sensors = <&thermal>;
- 			sustainable-power = <717>;
+-		stmpe_touchscreen: stmpe-touchscreen {
++		stmpe_touchscreen: stmpe_touchscreen {
+ 			compatible = "st,stmpe-ts";
+ 			/* 8 sample average control */
+ 			st,ave-ctrl = <3>;
+@@ -332,7 +332,7 @@ stmpe_touchscreen: stmpe-touchscreen {
+ 			st,touch-det-delay = <5>;
+ 		};
  
- 			cooling-maps {
+-		stmpe_adc: stmpe-adc {
++		stmpe_adc: stmpe_adc {
+ 			compatible = "st,stmpe-adc";
+ 			/* forbid to use ADC channels 3-0 (touch) */
+ 			st,norequest-mask = <0x0F>;
 -- 
 2.35.1
 
