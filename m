@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E65C593D1D
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCB76593C94
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243568AbiHOUIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:08:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52752 "EHLO
+        id S243493AbiHOUJG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:09:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244054AbiHOUHx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:07:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A1AC402CD;
-        Mon, 15 Aug 2022 11:55:29 -0700 (PDT)
+        with ESMTP id S240602AbiHOUIf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:08:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7510C481DE;
+        Mon, 15 Aug 2022 11:55:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55656B8105C;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85008B810A0;
+        Mon, 15 Aug 2022 18:55:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFDD1C433C1;
         Mon, 15 Aug 2022 18:55:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C856CC433C1;
-        Mon, 15 Aug 2022 18:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589725;
-        bh=rgVZ0QPFNWmFUdSoYFtBcF4v79wbdPH3MlDMPbj3SaU=;
+        s=korg; t=1660589728;
+        bh=ROX/1QPSrkWehly//Z9ez2AbVEnBFV5ns4JBLQV7t80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vc4QjLGc3MIrF9ZPS8FTtoVmaakAOESj0DbC3Gv/0EmOFNIT5J4XXnrbzAPy5He4l
-         2gqKH85Pt9AhRV5WYM8H6V4DPpAwsbDUHnEIQEjfHo8KvlUuJ6YBC/e3pn2PBqOKqZ
-         MPA5OZb//WPhrIbfsNwELNSvyRZ1ZYRTXsou8TrU=
+        b=kWc0s1yua8+4Hda6KKCExzIzpCUFhmThZ/sQB7qvkz7K9hVe9jdrLexBbq5YB+syq
+         c9vN9TZFN6AiWBmOHb+aJh0qMvB6nWlprrbI30+h3RVAlyLEmr1Qbi9DY2AkO1YhMR
+         lerZqfBzS+oJ3ibamLPoHxOk/cDMftvIMBfaMRT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.18 0004/1095] scsi: Revert "scsi: qla2xxx: Fix disk failure to rediscover"
-Date:   Mon, 15 Aug 2022 19:50:03 +0200
-Message-Id: <20220815180429.464204939@linuxfoundation.org>
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.18 0005/1095] pNFS/flexfiles: Report RDMA connection errors to the server
+Date:   Mon, 15 Aug 2022 19:50:04 +0200
+Message-Id: <20220815180429.511045249@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,67 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nilesh Javali <njavali@marvell.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 5bc7b01c513a4a9b4cfe306e8d1720cfcfd3b8a3 upstream.
+commit 7836d75467e9d214bdf5c693b32721de729a6e38 upstream.
 
-This fixes the regression of NVMe discovery failure during driver load
-time.
+The RPC/RDMA driver will return -EPROTO and -ENODEV as connection errors
+under certain circumstances. Make sure that we handle them and report
+them to the server. If not, we can end up cycling forever in a
+LAYOUTGET/LAYOUTRETURN loop.
 
-This reverts commit 6a45c8e137d4e2c72eecf1ac7cf64f2fdfcead99.
-
-Link: https://lore.kernel.org/r/20220713052045.10683-2-njavali@marvell.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: a12f996d3413 ("NFSv4/pNFS: Use connections to a DS that are all of the same protocol family")
+Cc: stable@vger.kernel.org # 5.11.x
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    5 ++---
- drivers/scsi/qla2xxx/qla_nvme.c |    5 -----
- 2 files changed, 2 insertions(+), 8 deletions(-)
+ fs/nfs/flexfilelayout/flexfilelayout.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -5767,8 +5767,6 @@ qla2x00_reg_remote_port(scsi_qla_host_t
- 	if (atomic_read(&fcport->state) == FCS_ONLINE)
- 		return;
- 
--	qla2x00_set_fcport_state(fcport, FCS_ONLINE);
--
- 	rport_ids.node_name = wwn_to_u64(fcport->node_name);
- 	rport_ids.port_name = wwn_to_u64(fcport->port_name);
- 	rport_ids.port_id = fcport->d_id.b.domain << 16 |
-@@ -5869,7 +5867,6 @@ qla2x00_update_fcport(scsi_qla_host_t *v
- 		qla2x00_reg_remote_port(vha, fcport);
- 		break;
- 	case MODE_TARGET:
--		qla2x00_set_fcport_state(fcport, FCS_ONLINE);
- 		if (!vha->vha_tgt.qla_tgt->tgt_stop &&
- 			!vha->vha_tgt.qla_tgt->tgt_stopped)
- 			qlt_fc_port_added(vha, fcport);
-@@ -5887,6 +5884,8 @@ qla2x00_update_fcport(scsi_qla_host_t *v
- 	if (NVME_TARGET(vha->hw, fcport))
- 		qla_nvme_register_remote(vha, fcport);
- 
-+	qla2x00_set_fcport_state(fcport, FCS_ONLINE);
-+
- 	if (IS_IIDMA_CAPABLE(vha->hw) && vha->hw->flags.gpsc_supported) {
- 		if (fcport->id_changed) {
- 			fcport->id_changed = 0;
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -37,11 +37,6 @@ int qla_nvme_register_remote(struct scsi
- 		(fcport->nvme_flag & NVME_FLAG_REGISTERED))
- 		return 0;
- 
--	if (atomic_read(&fcport->state) == FCS_ONLINE)
--		return 0;
--
--	qla2x00_set_fcport_state(fcport, FCS_ONLINE);
--
- 	fcport->nvme_flag &= ~NVME_FLAG_RESETTING;
- 
- 	memset(&req, 0, sizeof(struct nvme_fc_port_info));
+--- a/fs/nfs/flexfilelayout/flexfilelayout.c
++++ b/fs/nfs/flexfilelayout/flexfilelayout.c
+@@ -1131,6 +1131,8 @@ static int ff_layout_async_handle_error_
+ 	case -EIO:
+ 	case -ETIMEDOUT:
+ 	case -EPIPE:
++	case -EPROTO:
++	case -ENODEV:
+ 		dprintk("%s DS connection error %d\n", __func__,
+ 			task->tk_status);
+ 		nfs4_delete_deviceid(devid->ld, devid->nfs_client,
+@@ -1236,6 +1238,8 @@ static void ff_layout_io_track_ds_error(
+ 		case -ENOBUFS:
+ 		case -EPIPE:
+ 		case -EPERM:
++		case -EPROTO:
++		case -ENODEV:
+ 			*op_status = status = NFS4ERR_NXIO;
+ 			break;
+ 		case -EACCES:
 
 
