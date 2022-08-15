@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 825675946DF
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:04:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2392F5946E7
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:04:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344667AbiHOXC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:02:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48850 "EHLO
+        id S1346116AbiHOXDf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:03:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352997AbiHOXBu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:01:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D68D13F207;
-        Mon, 15 Aug 2022 12:58:03 -0700 (PDT)
+        with ESMTP id S231646AbiHOXB6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:01:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B37D13F227;
+        Mon, 15 Aug 2022 12:58:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF337612BC;
-        Mon, 15 Aug 2022 19:58:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0AAFC433D6;
-        Mon, 15 Aug 2022 19:58:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86AFEB80EAD;
+        Mon, 15 Aug 2022 19:58:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D36F1C433D6;
+        Mon, 15 Aug 2022 19:58:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593481;
-        bh=pSqFm/F+9c2KAa07HAvyYA0Ppsjj8HHDA+WUMgJeHDU=;
+        s=korg; t=1660593487;
+        bh=mPAZIivBhuehrA9rWZjos+F/5rsjO/MsLGLXHKosBsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTiPLbAX0T4AfNg6X8gIBYSfF9rDJHxcc2exgmTh0zuSlwtD2QTRgyKAB9DpRS/QI
-         S3AAAumMDg0Wz/FZOgykVLPRu/+eMjlfA9d72I7rAf72ZtYqvJkDqV35xK6xDstVZd
-         24lVKL9Qjtp6IlehHrpxyL8eoVWjGuKfrOKZZ3ng=
+        b=saq9aOJTENQaYj7WLJNsDF+kaqifXZJ76oPSQiFrkAq+JwYA+OGnn6lSZXUgOg66q
+         WhO9u/p+ynOzPsekpSWYx2IA1yRQ/lg7/iDac2cfNqmWoqtMyH8vMRT7h5El9VODRt
+         SBU3dcz9yfI0T83fe5dxQ60J/i5/tb+ErkOOxq88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
+        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0952/1095] sched/core: Do not requeue task on CPU excluded from cpus_mask
-Date:   Mon, 15 Aug 2022 20:05:51 +0200
-Message-Id: <20220815180508.490711459@linuxfoundation.org>
+Subject: [PATCH 5.18 0953/1095] x86/entry: Build thunk_$(BITS) only if CONFIG_PREEMPTION=y
+Date:   Mon, 15 Aug 2022 20:05:52 +0200
+Message-Id: <20220815180508.530638561@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -53,83 +53,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mel Gorman <mgorman@techsingularity.net>
+From: Andrea Righi <andrea.righi@canonical.com>
 
-[ Upstream commit 751d4cbc43879229dbc124afefe240b70fd29a85 ]
+[ Upstream commit de979c83574abf6e78f3fa65b716515c91b2613d ]
 
-The following warning was triggered on a large machine early in boot on
-a distribution kernel but the same problem should also affect mainline.
+With CONFIG_PREEMPTION disabled, arch/x86/entry/thunk_$(BITS).o becomes
+an empty object file.
 
-   WARNING: CPU: 439 PID: 10 at ../kernel/workqueue.c:2231 process_one_work+0x4d/0x440
-   Call Trace:
-    <TASK>
-    rescuer_thread+0x1f6/0x360
-    kthread+0x156/0x180
-    ret_from_fork+0x22/0x30
-    </TASK>
+With some old versions of binutils (i.e., 2.35.90.20210113-1ubuntu1) the
+GNU assembler doesn't generate a symbol table for empty object files and
+objtool fails with the following error when a valid symbol table cannot
+be found:
 
-Commit c6e7bd7afaeb ("sched/core: Optimize ttwu() spinning on p->on_cpu")
-optimises ttwu by queueing a task that is descheduling on the wakelist,
-but does not check if the task descheduling is still allowed to run on that CPU.
+  arch/x86/entry/thunk_64.o: warning: objtool: missing symbol table
 
-In this warning, the problematic task is a workqueue rescue thread which
-checks if the rescue is for a per-cpu workqueue and running on the wrong CPU.
-While this is early in boot and it should be possible to create workers,
-the rescue thread may still used if the MAYDAY_INITIAL_TIMEOUT is reached
-or MAYDAY_INTERVAL and on a sufficiently large machine, the rescue
-thread is being used frequently.
+To prevent this from happening, build thunk_$(BITS).o only if
+CONFIG_PREEMPTION is enabled.
 
-Tracing confirmed that the task should have migrated properly using the
-stopper thread to handle the migration. However, a parallel wakeup from udev
-running on another CPU that does not share CPU cache observes p->on_cpu and
-uses task_cpu(p), queues the task on the old CPU and triggers the warning.
+BugLink: https://bugs.launchpad.net/bugs/1911359
 
-Check that the wakee task that is descheduling is still allowed to run
-on its current CPU and if not, wait for the descheduling to complete
-and select an allowed CPU.
-
-Fixes: c6e7bd7afaeb ("sched/core: Optimize ttwu() spinning on p->on_cpu")
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Fixes: 320100a5ffe5 ("x86/entry: Remove the TRACE_IRQS cruft")
+Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20220804092119.20137-1-mgorman@techsingularity.net
+Link: https://lore.kernel.org/r/Ys/Ke7EWjcX+ZlXO@arighi-desktop
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/x86/entry/Makefile   | 3 ++-
+ arch/x86/entry/thunk_32.S | 2 --
+ arch/x86/entry/thunk_64.S | 4 ----
+ arch/x86/um/Makefile      | 3 ++-
+ 4 files changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index df4a8c9d1070..9671796a11cc 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -3811,7 +3811,7 @@ bool cpus_share_cache(int this_cpu, int that_cpu)
- 	return per_cpu(sd_llc_id, this_cpu) == per_cpu(sd_llc_id, that_cpu);
- }
+diff --git a/arch/x86/entry/Makefile b/arch/x86/entry/Makefile
+index eeadbd7d92cc..ca2fe186994b 100644
+--- a/arch/x86/entry/Makefile
++++ b/arch/x86/entry/Makefile
+@@ -11,12 +11,13 @@ CFLAGS_REMOVE_common.o		= $(CC_FLAGS_FTRACE)
  
--static inline bool ttwu_queue_cond(int cpu)
-+static inline bool ttwu_queue_cond(struct task_struct *p, int cpu)
- {
- 	/*
- 	 * Do not complicate things with the async wake_list while the CPU is
-@@ -3820,6 +3820,10 @@ static inline bool ttwu_queue_cond(int cpu)
- 	if (!cpu_active(cpu))
- 		return false;
+ CFLAGS_common.o			+= -fno-stack-protector
  
-+	/* Ensure the task will still be allowed to run on the CPU. */
-+	if (!cpumask_test_cpu(cpu, p->cpus_ptr))
-+		return false;
-+
- 	/*
- 	 * If the CPU does not share cache, then queue the task on the
- 	 * remote rqs wakelist to avoid accessing remote data.
-@@ -3849,7 +3853,7 @@ static inline bool ttwu_queue_cond(int cpu)
+-obj-y				:= entry.o entry_$(BITS).o thunk_$(BITS).o syscall_$(BITS).o
++obj-y				:= entry.o entry_$(BITS).o syscall_$(BITS).o
+ obj-y				+= common.o
  
- static bool ttwu_queue_wakelist(struct task_struct *p, int cpu, int wake_flags)
- {
--	if (sched_feat(TTWU_QUEUE) && ttwu_queue_cond(cpu)) {
-+	if (sched_feat(TTWU_QUEUE) && ttwu_queue_cond(p, cpu)) {
- 		sched_clock_cpu(cpu); /* Sync clocks across CPUs */
- 		__ttwu_queue_wakelist(p, cpu, wake_flags);
- 		return true;
+ obj-y				+= vdso/
+ obj-y				+= vsyscall/
+ 
++obj-$(CONFIG_PREEMPTION)	+= thunk_$(BITS).o
+ obj-$(CONFIG_IA32_EMULATION)	+= entry_64_compat.o syscall_32.o
+ obj-$(CONFIG_X86_X32_ABI)	+= syscall_x32.o
+ 
+diff --git a/arch/x86/entry/thunk_32.S b/arch/x86/entry/thunk_32.S
+index 7591bab060f7..ff6e7003da97 100644
+--- a/arch/x86/entry/thunk_32.S
++++ b/arch/x86/entry/thunk_32.S
+@@ -29,10 +29,8 @@ SYM_CODE_START_NOALIGN(\name)
+ SYM_CODE_END(\name)
+ 	.endm
+ 
+-#ifdef CONFIG_PREEMPTION
+ 	THUNK preempt_schedule_thunk, preempt_schedule
+ 	THUNK preempt_schedule_notrace_thunk, preempt_schedule_notrace
+ 	EXPORT_SYMBOL(preempt_schedule_thunk)
+ 	EXPORT_SYMBOL(preempt_schedule_notrace_thunk)
+-#endif
+ 
+diff --git a/arch/x86/entry/thunk_64.S b/arch/x86/entry/thunk_64.S
+index 505b488fcc65..f38b07d2768b 100644
+--- a/arch/x86/entry/thunk_64.S
++++ b/arch/x86/entry/thunk_64.S
+@@ -31,14 +31,11 @@ SYM_FUNC_END(\name)
+ 	_ASM_NOKPROBE(\name)
+ 	.endm
+ 
+-#ifdef CONFIG_PREEMPTION
+ 	THUNK preempt_schedule_thunk, preempt_schedule
+ 	THUNK preempt_schedule_notrace_thunk, preempt_schedule_notrace
+ 	EXPORT_SYMBOL(preempt_schedule_thunk)
+ 	EXPORT_SYMBOL(preempt_schedule_notrace_thunk)
+-#endif
+ 
+-#ifdef CONFIG_PREEMPTION
+ SYM_CODE_START_LOCAL_NOALIGN(__thunk_restore)
+ 	popq %r11
+ 	popq %r10
+@@ -53,4 +50,3 @@ SYM_CODE_START_LOCAL_NOALIGN(__thunk_restore)
+ 	RET
+ 	_ASM_NOKPROBE(__thunk_restore)
+ SYM_CODE_END(__thunk_restore)
+-#endif
+diff --git a/arch/x86/um/Makefile b/arch/x86/um/Makefile
+index ba5789c35809..a8cde4e8ab11 100644
+--- a/arch/x86/um/Makefile
++++ b/arch/x86/um/Makefile
+@@ -28,7 +28,8 @@ else
+ 
+ obj-y += syscalls_64.o vdso/
+ 
+-subarch-y = ../lib/csum-partial_64.o ../lib/memcpy_64.o ../entry/thunk_64.o
++subarch-y = ../lib/csum-partial_64.o ../lib/memcpy_64.o
++subarch-$(CONFIG_PREEMPTION) += ../entry/thunk_64.o
+ 
+ endif
+ 
 -- 
 2.35.1
 
