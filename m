@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E6185939DD
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CC115939CB
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244331AbiHOT25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:28:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55676 "EHLO
+        id S245214AbiHOT2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:28:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344099AbiHOT0W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:26:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A8CF2634;
-        Mon, 15 Aug 2022 11:42:12 -0700 (PDT)
+        with ESMTP id S1344108AbiHOT0X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:26:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 900A12702;
+        Mon, 15 Aug 2022 11:42:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AF11B8105D;
-        Mon, 15 Aug 2022 18:42:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97AB3C433D6;
-        Mon, 15 Aug 2022 18:42:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A93FB81084;
+        Mon, 15 Aug 2022 18:42:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A56D4C433D6;
+        Mon, 15 Aug 2022 18:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588930;
-        bh=KS2OCnk0y2REtlr7azy2kucg/UNHjlyWK1tajYCZUTo=;
+        s=korg; t=1660588933;
+        bh=xEf/k7miYj598fvT11oa+UpDHarhQ255uiyXjXf6Mp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rKyA6ZwJB0gmJXNFNM8iWvgtguUuRYaULfBY3qBPJrUOPGQ90z5KYZpQY/U+Bkm2M
-         nnVr+S8qmSX17yFphvzwOXbEEQ9+TdB+r7yrl0n5IHS1YmKQVBlY1yvKYV6mWCDCvd
-         GKk9q+sqcjx62fGE2t84dMZUb5lo3dGzPyJkSpBo=
+        b=OhLDBv+YZWVby5+22o664BAJQjtVODH5vQkJlmtxYV9l2jsVM4iJjzla0sGmPu0uy
+         ORWCMWa2DAzlQGJyf9137v/vjiVRTO8QkHI5HoVJoFtye8PB8E1CVQ8O4qFBXT/wwZ
+         FfhIMDhzFdRiYDUEX20d3VvOZZzPk7Es9EpLyU0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Md Haris Iqbal <haris.phnx@gmail.com>,
-        Bob Pearson <rpearsonhpe@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Vidya Sagar <vidyas@nvidia.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 527/779] RDMA/rxe: For invalidate compare according to set keys in mr
-Date:   Mon, 15 Aug 2022 20:02:51 +0200
-Message-Id: <20220815180359.799695080@linuxfoundation.org>
+Subject: [PATCH 5.15 528/779] PCI: tegra194: Fix Root Port interrupt handling
+Date:   Mon, 15 Aug 2022 20:02:52 +0200
+Message-Id: <20220815180359.848628295@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,77 +54,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Md Haris Iqbal <haris.phnx@gmail.com>
+From: Vidya Sagar <vidyas@nvidia.com>
 
-[ Upstream commit 174e7b137042f19b5ce88beb4fc0ff4ec6b0c72a ]
+[ Upstream commit 6646e99bcec627e866bc84365af37942c72b4b76 ]
 
-The 'rkey' input can be an lkey or rkey, and in rxe the lkey or rkey have
-the same value, including the variant bits.
+As part of Root Port interrupt handling, level-0 register is read first and
+based on the bits set in that, corresponding level-1 registers are read for
+further interrupt processing. Since both these values are currently read
+into the same 'val' variable, checking level-0 bits the second time around
+is happening on the 'val' variable value of level-1 register contents
+instead of freshly reading the level-0 value again.
 
-So, if mr->rkey is set, compare the invalidate key with it, otherwise
-compare with the mr->lkey.
+Fix by using different variables to store level-0 and level-1 registers
+contents.
 
-Since we already did a lookup on the non-varient bits to get this far, the
-check's only purpose is to confirm that the wqe has the correct variant
-bits.
-
-Fixes: 001345339f4c ("RDMA/rxe: Separate HW and SW l/rkeys")
-Link: https://lore.kernel.org/r/20220707073006.328737-1-haris.phnx@gmail.com
-Signed-off-by: Md Haris Iqbal <haris.phnx@gmail.com>
-Reviewed-by: Bob Pearson <rpearsonhpe@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Link: https://lore.kernel.org/r/20220721142052.25971-11-vidyas@nvidia.com
+Fixes: 56e15a238d92 ("PCI: tegra: Add Tegra194 PCIe support")
+Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_loc.h |  2 +-
- drivers/infiniband/sw/rxe/rxe_mr.c  | 12 ++++++------
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/pci/controller/dwc/pcie-tegra194.c | 46 +++++++++++-----------
+ 1 file changed, 22 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_loc.h b/drivers/infiniband/sw/rxe/rxe_loc.h
-index 4fd73b51fabf..21bd969718bd 100644
---- a/drivers/infiniband/sw/rxe/rxe_loc.h
-+++ b/drivers/infiniband/sw/rxe/rxe_loc.h
-@@ -85,7 +85,7 @@ struct rxe_mr *lookup_mr(struct rxe_pd *pd, int access, u32 key,
- 			 enum rxe_mr_lookup_type type);
- int mr_check_range(struct rxe_mr *mr, u64 iova, size_t length);
- int advance_dma_data(struct rxe_dma_info *dma, unsigned int length);
--int rxe_invalidate_mr(struct rxe_qp *qp, u32 rkey);
-+int rxe_invalidate_mr(struct rxe_qp *qp, u32 key);
- int rxe_reg_fast_mr(struct rxe_qp *qp, struct rxe_send_wqe *wqe);
- int rxe_dereg_mr(struct ib_mr *ibmr, struct ib_udata *udata);
- void rxe_mr_cleanup(struct rxe_pool_entry *arg);
-diff --git a/drivers/infiniband/sw/rxe/rxe_mr.c b/drivers/infiniband/sw/rxe/rxe_mr.c
-index bedcf15aaea7..7c2e7b291b65 100644
---- a/drivers/infiniband/sw/rxe/rxe_mr.c
-+++ b/drivers/infiniband/sw/rxe/rxe_mr.c
-@@ -522,22 +522,22 @@ struct rxe_mr *lookup_mr(struct rxe_pd *pd, int access, u32 key,
- 	return mr;
- }
+diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
+index 98da2578e4db..ba9f29d6bca1 100644
+--- a/drivers/pci/controller/dwc/pcie-tegra194.c
++++ b/drivers/pci/controller/dwc/pcie-tegra194.c
+@@ -352,15 +352,14 @@ static irqreturn_t tegra_pcie_rp_irq_handler(int irq, void *arg)
+ 	struct tegra_pcie_dw *pcie = arg;
+ 	struct dw_pcie *pci = &pcie->pci;
+ 	struct pcie_port *pp = &pci->pp;
+-	u32 val, tmp;
++	u32 val, status_l0, status_l1;
+ 	u16 val_w;
  
--int rxe_invalidate_mr(struct rxe_qp *qp, u32 rkey)
-+int rxe_invalidate_mr(struct rxe_qp *qp, u32 key)
- {
- 	struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
- 	struct rxe_mr *mr;
- 	int ret;
- 
--	mr = rxe_pool_get_index(&rxe->mr_pool, rkey >> 8);
-+	mr = rxe_pool_get_index(&rxe->mr_pool, key >> 8);
- 	if (!mr) {
--		pr_err("%s: No MR for rkey %#x\n", __func__, rkey);
-+		pr_err("%s: No MR for key %#x\n", __func__, key);
- 		ret = -EINVAL;
- 		goto err;
+-	val = appl_readl(pcie, APPL_INTR_STATUS_L0);
+-	if (val & APPL_INTR_STATUS_L0_LINK_STATE_INT) {
+-		val = appl_readl(pcie, APPL_INTR_STATUS_L1_0_0);
+-		if (val & APPL_INTR_STATUS_L1_0_0_LINK_REQ_RST_NOT_CHGED) {
+-			appl_writel(pcie, val, APPL_INTR_STATUS_L1_0_0);
+-
++	status_l0 = appl_readl(pcie, APPL_INTR_STATUS_L0);
++	if (status_l0 & APPL_INTR_STATUS_L0_LINK_STATE_INT) {
++		status_l1 = appl_readl(pcie, APPL_INTR_STATUS_L1_0_0);
++		appl_writel(pcie, status_l1, APPL_INTR_STATUS_L1_0_0);
++		if (status_l1 & APPL_INTR_STATUS_L1_0_0_LINK_REQ_RST_NOT_CHGED) {
+ 			/* SBR & Surprise Link Down WAR */
+ 			val = appl_readl(pcie, APPL_CAR_RESET_OVRD);
+ 			val &= ~APPL_CAR_RESET_OVRD_CYA_OVERRIDE_CORE_RST_N;
+@@ -376,15 +375,15 @@ static irqreturn_t tegra_pcie_rp_irq_handler(int irq, void *arg)
+ 		}
  	}
  
--	if (rkey != mr->rkey) {
--		pr_err("%s: rkey (%#x) doesn't match mr->rkey (%#x)\n",
--			__func__, rkey, mr->rkey);
-+	if (mr->rkey ? (key != mr->rkey) : (key != mr->lkey)) {
-+		pr_err("%s: wr key (%#x) doesn't match mr key (%#x)\n",
-+			__func__, key, (mr->rkey ? mr->rkey : mr->lkey));
- 		ret = -EINVAL;
- 		goto err_drop_ref;
+-	if (val & APPL_INTR_STATUS_L0_INT_INT) {
+-		val = appl_readl(pcie, APPL_INTR_STATUS_L1_8_0);
+-		if (val & APPL_INTR_STATUS_L1_8_0_AUTO_BW_INT_STS) {
++	if (status_l0 & APPL_INTR_STATUS_L0_INT_INT) {
++		status_l1 = appl_readl(pcie, APPL_INTR_STATUS_L1_8_0);
++		if (status_l1 & APPL_INTR_STATUS_L1_8_0_AUTO_BW_INT_STS) {
+ 			appl_writel(pcie,
+ 				    APPL_INTR_STATUS_L1_8_0_AUTO_BW_INT_STS,
+ 				    APPL_INTR_STATUS_L1_8_0);
+ 			apply_bad_link_workaround(pp);
+ 		}
+-		if (val & APPL_INTR_STATUS_L1_8_0_BW_MGT_INT_STS) {
++		if (status_l1 & APPL_INTR_STATUS_L1_8_0_BW_MGT_INT_STS) {
+ 			appl_writel(pcie,
+ 				    APPL_INTR_STATUS_L1_8_0_BW_MGT_INT_STS,
+ 				    APPL_INTR_STATUS_L1_8_0);
+@@ -396,25 +395,24 @@ static irqreturn_t tegra_pcie_rp_irq_handler(int irq, void *arg)
+ 		}
  	}
+ 
+-	val = appl_readl(pcie, APPL_INTR_STATUS_L0);
+-	if (val & APPL_INTR_STATUS_L0_CDM_REG_CHK_INT) {
+-		val = appl_readl(pcie, APPL_INTR_STATUS_L1_18);
+-		tmp = dw_pcie_readl_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS);
+-		if (val & APPL_INTR_STATUS_L1_18_CDM_REG_CHK_CMPLT) {
++	if (status_l0 & APPL_INTR_STATUS_L0_CDM_REG_CHK_INT) {
++		status_l1 = appl_readl(pcie, APPL_INTR_STATUS_L1_18);
++		val = dw_pcie_readl_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS);
++		if (status_l1 & APPL_INTR_STATUS_L1_18_CDM_REG_CHK_CMPLT) {
+ 			dev_info(pci->dev, "CDM check complete\n");
+-			tmp |= PCIE_PL_CHK_REG_CHK_REG_COMPLETE;
++			val |= PCIE_PL_CHK_REG_CHK_REG_COMPLETE;
+ 		}
+-		if (val & APPL_INTR_STATUS_L1_18_CDM_REG_CHK_CMP_ERR) {
++		if (status_l1 & APPL_INTR_STATUS_L1_18_CDM_REG_CHK_CMP_ERR) {
+ 			dev_err(pci->dev, "CDM comparison mismatch\n");
+-			tmp |= PCIE_PL_CHK_REG_CHK_REG_COMPARISON_ERROR;
++			val |= PCIE_PL_CHK_REG_CHK_REG_COMPARISON_ERROR;
+ 		}
+-		if (val & APPL_INTR_STATUS_L1_18_CDM_REG_CHK_LOGIC_ERR) {
++		if (status_l1 & APPL_INTR_STATUS_L1_18_CDM_REG_CHK_LOGIC_ERR) {
+ 			dev_err(pci->dev, "CDM Logic error\n");
+-			tmp |= PCIE_PL_CHK_REG_CHK_REG_LOGIC_ERROR;
++			val |= PCIE_PL_CHK_REG_CHK_REG_LOGIC_ERROR;
+ 		}
+-		dw_pcie_writel_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS, tmp);
+-		tmp = dw_pcie_readl_dbi(pci, PCIE_PL_CHK_REG_ERR_ADDR);
+-		dev_err(pci->dev, "CDM Error Address Offset = 0x%08X\n", tmp);
++		dw_pcie_writel_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS, val);
++		val = dw_pcie_readl_dbi(pci, PCIE_PL_CHK_REG_ERR_ADDR);
++		dev_err(pci->dev, "CDM Error Address Offset = 0x%08X\n", val);
+ 	}
+ 
+ 	return IRQ_HANDLED;
 -- 
 2.35.1
 
