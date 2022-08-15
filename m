@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DB4B593ACC
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:33:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CF63593C28
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:37:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344506AbiHOTnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:43:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36588 "EHLO
+        id S1344512AbiHOTn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:43:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345187AbiHOTme (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:42:34 -0400
+        with ESMTP id S1345213AbiHOTmi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:42:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2B1F6B646;
-        Mon, 15 Aug 2022 11:48:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4017C6B673;
+        Mon, 15 Aug 2022 11:48:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0C4CB810A0;
-        Mon, 15 Aug 2022 18:48:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3464FC433C1;
-        Mon, 15 Aug 2022 18:48:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D134B810A3;
+        Mon, 15 Aug 2022 18:48:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48F26C433D6;
+        Mon, 15 Aug 2022 18:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589288;
-        bh=5AooMPA3ZrJcRMxrL843yoAkL5TcRwMlZgvuvKA3e4w=;
+        s=korg; t=1660589291;
+        bh=kE5Pc4KWT4QTt3aRanAvcr3cLoMWZNTORiqhy0qVjeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NKzL1YqfnYZX2lx6BNn87/mGOQaJrrYuk1Phqswj64Q1zT4su6yBhHQvlVeDHByOe
-         kd4Mhxim+nKhsf8EGGFvbcOPOsDWuwMRrZ6no1ZysgL93hIXzAELeEVub+kBsvGjN7
-         VvDaxF4LJJJo8Jos6Id4+EcIgFbJWJ3ni2zy1eHc=
+        b=SgWWe34h2D3Za/vcW9LpstzbjSjGJ9fIglhYgjlUtgGi3U9xHzFRq+ODMlT2ZegWC
+         aJ6Y4h8yxDUokNTbOiM+AOy3FgXq31q2XkQMk/3Yw+hlE93mJKYoxbR90trdgx5No+
+         FoUdFPhnGm1STRiqdsWybrE5nf6bpFoNpQ3WPatQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Battersby <tonyb@cybernetics.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Arun Easi <aeasi@marvell.com>,
+        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 672/779] scsi: qla2xxx: Fix discovery issues in FC-AL topology
-Date:   Mon, 15 Aug 2022 20:05:16 +0200
-Message-Id: <20220815180406.063549006@linuxfoundation.org>
+Subject: [PATCH 5.15 673/779] scsi: qla2xxx: Turn off multi-queue for 8G adapters
+Date:   Mon, 15 Aug 2022 20:05:17 +0200
+Message-Id: <20220815180406.116249365@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,107 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Quinn Tran <qutran@marvell.com>
 
-commit 47ccb113cead905bdc236571bf8ac6fed90321b3 upstream.
+commit 5304673bdb1635e27555bd636fd5d6956f1cd552 upstream.
 
-A direct attach tape device, when gets swapped with another, was not
-discovered. Fix this by looking at loop map and reinitialize link if there
-are devices present.
+For 8G adapters, multi-queue was enabled accidentally. Make sure
+multi-queue is not enabled.
 
-Link: https://lore.kernel.org/linux-scsi/baef87c3-5dad-3b47-44c1-6914bfc90108@cybernetics.com/
-Link: https://lore.kernel.org/r/20220713052045.10683-8-njavali@marvell.com
+Link: https://lore.kernel.org/r/20220616053508.27186-5-njavali@marvell.com
 Cc: stable@vger.kernel.org
-Reported-by: Tony Battersby <tonyb@cybernetics.com>
-Tested-by: Tony Battersby <tonyb@cybernetics.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_gbl.h  |    3 ++-
- drivers/scsi/qla2xxx/qla_init.c |   29 +++++++++++++++++++++++++++++
- drivers/scsi/qla2xxx/qla_mbx.c  |    5 ++++-
- 3 files changed, 35 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_def.h |    4 ++--
+ drivers/scsi/qla2xxx/qla_isr.c |   16 ++++++----------
+ 2 files changed, 8 insertions(+), 12 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_gbl.h
-+++ b/drivers/scsi/qla2xxx/qla_gbl.h
-@@ -433,7 +433,8 @@ extern int
- qla2x00_get_resource_cnts(scsi_qla_host_t *);
- 
- extern int
--qla2x00_get_fcal_position_map(scsi_qla_host_t *ha, char *pos_map);
-+qla2x00_get_fcal_position_map(scsi_qla_host_t *ha, char *pos_map,
-+		u8 *num_entries);
- 
- extern int
- qla2x00_get_link_status(scsi_qla_host_t *, uint16_t, struct link_statistics *,
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -5510,6 +5510,22 @@ static int qla2x00_configure_n2n_loop(sc
- 	return QLA_FUNCTION_FAILED;
- }
- 
-+static void
-+qla_reinitialize_link(scsi_qla_host_t *vha)
-+{
-+	int rval;
-+
-+	atomic_set(&vha->loop_state, LOOP_DOWN);
-+	atomic_set(&vha->loop_down_timer, LOOP_DOWN_TIME);
-+	rval = qla2x00_full_login_lip(vha);
-+	if (rval == QLA_SUCCESS) {
-+		ql_dbg(ql_dbg_disc, vha, 0xd050, "Link reinitialized\n");
-+	} else {
-+		ql_dbg(ql_dbg_disc, vha, 0xd051,
-+			"Link reinitialization failed (%d)\n", rval);
-+	}
-+}
-+
- /*
-  * qla2x00_configure_local_loop
-  *	Updates Fibre Channel Device Database with local loop devices.
-@@ -5561,6 +5577,19 @@ qla2x00_configure_local_loop(scsi_qla_ho
- 		spin_unlock_irqrestore(&vha->work_lock, flags);
- 
- 		if (vha->scan.scan_retry < MAX_SCAN_RETRIES) {
-+			u8 loop_map_entries = 0;
-+			int rc;
-+
-+			rc = qla2x00_get_fcal_position_map(vha, NULL,
-+						&loop_map_entries);
-+			if (rc == QLA_SUCCESS && loop_map_entries > 1) {
-+				/*
-+				 * There are devices that are still not logged
-+				 * in. Reinitialize to give them a chance.
-+				 */
-+				qla_reinitialize_link(vha);
-+				return QLA_FUNCTION_FAILED;
-+			}
- 			set_bit(LOCAL_LOOP_UPDATE, &vha->dpc_flags);
- 			set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
- 		}
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -3062,7 +3062,8 @@ qla2x00_get_resource_cnts(scsi_qla_host_
-  *	Kernel context.
-  */
- int
--qla2x00_get_fcal_position_map(scsi_qla_host_t *vha, char *pos_map)
-+qla2x00_get_fcal_position_map(scsi_qla_host_t *vha, char *pos_map,
-+		u8 *num_entries)
- {
- 	int rval;
- 	mbx_cmd_t mc;
-@@ -3102,6 +3103,8 @@ qla2x00_get_fcal_position_map(scsi_qla_h
- 
- 		if (pos_map)
- 			memcpy(pos_map, pmap, FCAL_MAP_SIZE);
-+		if (num_entries)
-+			*num_entries = pmap[0];
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -4261,8 +4261,8 @@ struct qla_hw_data {
+ #define IS_OEM_001(ha)          ((ha)->device_type & DT_OEM_001)
+ #define HAS_EXTENDED_IDS(ha)    ((ha)->device_type & DT_EXTENDED_IDS)
+ #define IS_CT6_SUPPORTED(ha)	((ha)->device_type & DT_CT6_SUPPORTED)
+-#define IS_MQUE_CAPABLE(ha)	((ha)->mqenable || IS_QLA83XX(ha) || \
+-				IS_QLA27XX(ha) || IS_QLA28XX(ha))
++#define IS_MQUE_CAPABLE(ha)	(IS_QLA83XX(ha) || IS_QLA27XX(ha) || \
++				 IS_QLA28XX(ha))
+ #define IS_BIDI_CAPABLE(ha) \
+     (IS_QLA25XX(ha) || IS_QLA2031(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha))
+ /* Bit 21 of fw_attributes decides the MCTP capabilities */
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -4415,16 +4415,12 @@ msix_register_fail:
  	}
- 	dma_pool_free(ha->s_dma_pool, pmap, pmap_dma);
  
+ 	/* Enable MSI-X vector for response queue update for queue 0 */
+-	if (IS_QLA83XX(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha)) {
+-		if (ha->msixbase && ha->mqiobase &&
+-		    (ha->max_rsp_queues > 1 || ha->max_req_queues > 1 ||
+-		     ql2xmqsupport))
+-			ha->mqenable = 1;
+-	} else
+-		if (ha->mqiobase &&
+-		    (ha->max_rsp_queues > 1 || ha->max_req_queues > 1 ||
+-		     ql2xmqsupport))
+-			ha->mqenable = 1;
++	if (IS_MQUE_CAPABLE(ha) &&
++	    (ha->msixbase && ha->mqiobase && ha->max_qpairs))
++		ha->mqenable = 1;
++	else
++		ha->mqenable = 0;
++
+ 	ql_dbg(ql_dbg_multiq, vha, 0xc005,
+ 	    "mqiobase=%p, max_rsp_queues=%d, max_req_queues=%d.\n",
+ 	    ha->mqiobase, ha->max_rsp_queues, ha->max_req_queues);
 
 
