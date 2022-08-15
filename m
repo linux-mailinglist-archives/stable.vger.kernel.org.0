@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ED065937E0
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15DA4593846
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239227AbiHOSrH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:47:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49094 "EHLO
+        id S243577AbiHOSrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:47:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243886AbiHOSp7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:45:59 -0400
+        with ESMTP id S243908AbiHOSqC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:46:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8204E3134B;
-        Mon, 15 Aug 2022 11:27:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6436131368;
+        Mon, 15 Aug 2022 11:27:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C388AB8107E;
-        Mon, 15 Aug 2022 18:27:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14AD3C43470;
-        Mon, 15 Aug 2022 18:27:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6206B81084;
+        Mon, 15 Aug 2022 18:27:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E9C3C433D7;
+        Mon, 15 Aug 2022 18:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588062;
-        bh=TsSpg9xei03B3IEjwmKrEgwfTR9D4NPgnrc2GqCzx+U=;
+        s=korg; t=1660588065;
+        bh=BxpY6iIlfLnFd1njRfSfnNl01nNyiLcBbiK0AkRMjks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+L7JPq+7teDBwzkuMYF6FP6i22KmbCaZJW0I1SrO4j0A6QFhNeeqVd/3WaXKA9H5
-         bsaTlmZRvB8C4pdFaoXbUN7aF+UWvzyS0ChHk4iRqOO67Dyi8ULBBYuL08fYBB+HzM
-         1vZyz3GRwvP1tFyMhOfiaqNGN+U+1YLAR9RyVrvo=
+        b=gNtRgD8U6SXizNBNZUug5Sc0xmYhij12ZlXwqdfOXB5upG5SUZgnSsbDOtB07Jfdk
+         /yf+QhcmNBvwd4yR6oHvzlsuhukduFI4Gpg3qe+n0xip52VaSyUXy8MPUPa2VUgz1P
+         WwwBNjKIaeFceC1AggPpcNlBEtJQMmwyjYi8xBbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Frederic Weisbecker <frederic@kernel.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 283/779] rcutorture: Dont cpuhp_remove_state() if cpuhp_setup_state() failed
-Date:   Mon, 15 Aug 2022 19:58:47 +0200
-Message-Id: <20220815180349.403405923@linuxfoundation.org>
+Subject: [PATCH 5.15 284/779] rcutorture: Fix ksoftirqd boosting timing and iteration
+Date:   Mon, 15 Aug 2022 19:58:48 +0200
+Message-Id: <20220815180349.450307256@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,47 +54,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-[ Upstream commit fd13fe16db0d82612b260640f4e26f6d9d1e11fd ]
+[ Upstream commit 3002153a91a9732a6d1d0bb95138593c7da15743 ]
 
-Currently, in CONFIG_RCU_BOOST kernels, if the rcu_torture_init()
-function's call to cpuhp_setup_state() fails, rcu_torture_cleanup()
-gamely passes nonsense to cpuhp_remove_state().  This results in
-strange and misleading splats.  This commit therefore ensures that if
-the rcu_torture_init() function's call to cpuhp_setup_state() fails,
-rcu_torture_cleanup() avoids invoking cpuhp_remove_state().
+The RCU priority boosting can fail in two situations:
 
+1) If (nr_cpus= > maxcpus=), which means if the total number of CPUs
+is higher than those brought online at boot, then torture_onoff() may
+later bring up CPUs that weren't online on boot. Now since rcutorture
+initialization only boosts the ksoftirqds of the CPUs that have been
+set online on boot, the CPUs later set online by torture_onoff won't
+benefit from the boost, making RCU priority boosting fail.
+
+2) The ksoftirqd kthreads are boosted after the creation of
+rcu_torture_boost() kthreads, which opens a window large enough for these
+rcu_torture_boost() kthreads to wait (despite running at FIFO priority)
+for ksoftirqds that are still running at SCHED_NORMAL priority.
+
+The issues can trigger for example with:
+
+	./kvm.sh --configs TREE01 --kconfig "CONFIG_RCU_BOOST=y"
+
+	[   34.968561] rcu-torture: !!!
+	[   34.968627] ------------[ cut here ]------------
+	[   35.014054] WARNING: CPU: 4 PID: 114 at kernel/rcu/rcutorture.c:1979 rcu_torture_stats_print+0x5ad/0x610
+	[   35.052043] Modules linked in:
+	[   35.069138] CPU: 4 PID: 114 Comm: rcu_torture_sta Not tainted 5.18.0-rc1 #1
+	[   35.096424] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.14.0-0-g155821a-rebuilt.opensuse.org 04/01/2014
+	[   35.154570] RIP: 0010:rcu_torture_stats_print+0x5ad/0x610
+	[   35.198527] Code: 63 1b 02 00 74 02 0f 0b 48 83 3d 35 63 1b 02 00 74 02 0f 0b 48 83 3d 21 63 1b 02 00 74 02 0f 0b 48 83 3d 0d 63 1b 02 00 74 02 <0f> 0b 83 eb 01 0f 8e ba fc ff ff 0f 0b e9 b3 fc ff f82
+	[   37.251049] RSP: 0000:ffffa92a0050bdf8 EFLAGS: 00010202
+	[   37.277320] rcu: De-offloading 8
+	[   37.290367] RAX: 0000000000000000 RBX: 0000000000000001 RCX: 0000000000000001
+	[   37.290387] RDX: 0000000000000000 RSI: 00000000ffffbfff RDI: 00000000ffffffff
+	[   37.290398] RBP: 000000000000007b R08: 0000000000000000 R09: c0000000ffffbfff
+	[   37.290407] R10: 000000000000002a R11: ffffa92a0050bc18 R12: ffffa92a0050be20
+	[   37.290417] R13: ffffa92a0050be78 R14: 0000000000000000 R15: 000000000001bea0
+	[   37.290427] FS:  0000000000000000(0000) GS:ffff96045eb00000(0000) knlGS:0000000000000000
+	[   37.290448] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+	[   37.290460] CR2: 0000000000000000 CR3: 000000001dc0c000 CR4: 00000000000006e0
+	[   37.290470] Call Trace:
+	[   37.295049]  <TASK>
+	[   37.295065]  ? preempt_count_add+0x63/0x90
+	[   37.295095]  ? _raw_spin_lock_irqsave+0x12/0x40
+	[   37.295125]  ? rcu_torture_stats_print+0x610/0x610
+	[   37.295143]  rcu_torture_stats+0x29/0x70
+	[   37.295160]  kthread+0xe3/0x110
+	[   37.295176]  ? kthread_complete_and_exit+0x20/0x20
+	[   37.295193]  ret_from_fork+0x22/0x30
+	[   37.295218]  </TASK>
+
+Fix this with boosting the ksoftirqds kthreads from the boosting
+hotplug callback itself and before the boosting kthreads are created.
+
+Fixes: ea6d962e80b6 ("rcutorture: Judge RCU priority boosting on grace periods, not callbacks")
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/rcutorture.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/rcu/rcutorture.c | 28 +++++++++++++---------------
+ 1 file changed, 13 insertions(+), 15 deletions(-)
 
 diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
-index c1b36c52e896..3262330d1679 100644
+index 3262330d1679..d820ef615475 100644
 --- a/kernel/rcu/rcutorture.c
 +++ b/kernel/rcu/rcutorture.c
-@@ -2848,7 +2848,7 @@ rcu_torture_cleanup(void)
- 		 rcutorture_seq_diff(gp_seq, start_gp_seq));
- 	torture_stop_kthread(rcu_torture_stats, stats_task);
- 	torture_stop_kthread(rcu_torture_fqs, fqs_task);
--	if (rcu_torture_can_boost())
-+	if (rcu_torture_can_boost() && rcutor_hp >= 0)
- 		cpuhp_remove_state(rcutor_hp);
+@@ -1991,6 +1991,19 @@ static int rcutorture_booster_init(unsigned int cpu)
+ 	if (boost_tasks[cpu] != NULL)
+ 		return 0;  /* Already created, nothing more to do. */
  
- 	/*
-@@ -3161,9 +3161,9 @@ rcu_torture_init(void)
- 		firsterr = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "RCU_TORTURE",
- 					     rcutorture_booster_init,
- 					     rcutorture_booster_cleanup);
-+		rcutor_hp = firsterr;
++	// Testing RCU priority boosting requires rcutorture do
++	// some serious abuse.  Counter this by running ksoftirqd
++	// at higher priority.
++	if (IS_BUILTIN(CONFIG_RCU_TORTURE_TEST)) {
++		struct sched_param sp;
++		struct task_struct *t;
++
++		t = per_cpu(ksoftirqd, cpu);
++		WARN_ON_ONCE(!t);
++		sp.sched_priority = 2;
++		sched_setscheduler_nocheck(t, SCHED_FIFO, &sp);
++	}
++
+ 	/* Don't allow time recalculation while creating a new task. */
+ 	mutex_lock(&boost_mutex);
+ 	rcu_torture_disable_rt_throttle();
+@@ -3164,21 +3177,6 @@ rcu_torture_init(void)
+ 		rcutor_hp = firsterr;
  		if (torture_init_error(firsterr))
  			goto unwind;
--		rcutor_hp = firsterr;
- 
- 		// Testing RCU priority boosting requires rcutorture do
- 		// some serious abuse.  Counter this by running ksoftirqd
+-
+-		// Testing RCU priority boosting requires rcutorture do
+-		// some serious abuse.  Counter this by running ksoftirqd
+-		// at higher priority.
+-		if (IS_BUILTIN(CONFIG_RCU_TORTURE_TEST)) {
+-			for_each_online_cpu(cpu) {
+-				struct sched_param sp;
+-				struct task_struct *t;
+-
+-				t = per_cpu(ksoftirqd, cpu);
+-				WARN_ON_ONCE(!t);
+-				sp.sched_priority = 2;
+-				sched_setscheduler_nocheck(t, SCHED_FIFO, &sp);
+-			}
+-		}
+ 	}
+ 	shutdown_jiffies = jiffies + shutdown_secs * HZ;
+ 	firsterr = torture_shutdown_init(shutdown_secs, rcu_torture_cleanup);
 -- 
 2.35.1
 
