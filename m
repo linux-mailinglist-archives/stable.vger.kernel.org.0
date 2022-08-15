@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50F12594D0C
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B079594C5D
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244415AbiHPAeL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:34:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39262 "EHLO
+        id S233052AbiHPAd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:33:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348778AbiHPAcY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:32:24 -0400
+        with ESMTP id S1354500AbiHPAbh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:31:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9C0E186EAC;
-        Mon, 15 Aug 2022 13:36:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 995BE18730D;
+        Mon, 15 Aug 2022 13:37:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F1A34611D2;
-        Mon, 15 Aug 2022 20:36:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECDE1C433D7;
-        Mon, 15 Aug 2022 20:36:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8020611E2;
+        Mon, 15 Aug 2022 20:37:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7008C433D6;
+        Mon, 15 Aug 2022 20:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595817;
-        bh=ODX781OjagjZqRdZMPht02M+391MRlrl9iZmqo9YD4U=;
+        s=korg; t=1660595820;
+        bh=o1kO/kGJcleySV8cZnjcpWdXy1DYRXJbPorvBfsbIFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1bhdNSAJkF0WWVAVcVka9ci/VRIhD/bY/MCPW6J9CkRy/sZwPSw1K26h0LXlTM+DP
-         JGWWZzf7B0o2nvzB/6ZjJlxrJFeXC9dL27uzvMwOQYyJFBkJuhQG/O2sbSZCBZp27Y
-         fhIibtjLDYU6i8v7GtxN+k2d/PSNY0VsI6wvPXxI=
+        b=NXKwfK8W8S3EesA2wvIIAVwNVhfgcsNNklK0iNurQmvoEJKAGaEfs8rnrR4AgWekb
+         y7Kle4omvZ7NCoJfzyVNsOhvpdyqqjigchi1gvO0a5ahBx2pl1IJFIIxJE0P6su18m
+         cj5h1YWQtutr6mooM0dMl79jiR4RnLDf9TRG2iOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0884/1157] block: ensure iov_iter advances for added pages
-Date:   Mon, 15 Aug 2022 20:04:00 +0200
-Message-Id: <20220815180514.793517975@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0885/1157] jbd2: fix outstanding credits assert in jbd2_journal_commit_transaction()
+Date:   Mon, 15 Aug 2022 20:04:01 +0200
+Message-Id: <20220815180514.839532242@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -53,62 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-[ Upstream commit 325347d965e7ccf5424a05398807a6d801846612 ]
+[ Upstream commit a89573ce4ad32f19f43ec669771726817e185be0 ]
 
-There are cases where a bio may not accept additional pages, and the iov
-needs to advance to the last data length that was accepted. The zone
-append used to handle this correctly, but was inadvertently broken when
-the setup was made common with the normal r/w case.
+We catch an assert problem in jbd2_journal_commit_transaction() when
+doing fsstress and request falut injection tests. The problem is
+happened in a race condition between jbd2_journal_commit_transaction()
+and ext4_end_io_end(). Firstly, ext4_writepages() writeback dirty pages
+and start reserved handle, and then the journal was aborted due to some
+previous metadata IO error, jbd2_journal_abort() start to commit current
+running transaction, the committing procedure could be raced by
+ext4_end_io_end() and lead to subtract j_reserved_credits twice from
+commit_transaction->t_outstanding_credits, finally the
+t_outstanding_credits is mistakenly smaller than t_nr_buffers and
+trigger assert.
 
-Fixes: 576ed9135489c ("block: use bio_add_page in bio_iov_iter_get_pages")
-Fixes: c58c0074c54c2 ("block/bio: remove duplicate append pages code")
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Link: https://lore.kernel.org/r/20220712153256.2202024-1-kbusch@fb.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+kjournald2           kworker
+
+jbd2_journal_commit_transaction()
+ write_unlock(&journal->j_state_lock);
+ atomic_sub(j_reserved_credits, t_outstanding_credits); //sub once
+
+     	             jbd2_journal_start_reserved()
+     	              start_this_handle()  //detect aborted journal
+     	              jbd2_journal_free_reserved()  //get running transaction
+                       read_lock(&journal->j_state_lock)
+     	                __jbd2_journal_unreserve_handle()
+     	               atomic_sub(j_reserved_credits, t_outstanding_credits);
+                       //sub again
+                       read_unlock(&journal->j_state_lock);
+
+ journal->j_running_transaction = NULL;
+ J_ASSERT(t_nr_buffers <= t_outstanding_credits) //bomb!!!
+
+Fix this issue by using journal->j_state_lock to protect the subtraction
+in jbd2_journal_commit_transaction().
+
+Fixes: 96f1e0974575 ("jbd2: avoid long hold times of j_state_lock while committing a transaction")
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220611130426.2013258-1-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/jbd2/commit.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index ee5fe1bb015e..eb7cc591ee93 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -1211,6 +1211,7 @@ static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
- 	ssize_t size, left;
- 	unsigned len, i;
- 	size_t offset;
-+	int ret = 0;
+diff --git a/fs/jbd2/commit.c b/fs/jbd2/commit.c
+index eb315e81f1a6..af1a9191368c 100644
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -553,13 +553,13 @@ void jbd2_journal_commit_transaction(journal_t *journal)
+ 	 */
+ 	jbd2_journal_switch_revoke_table(journal);
  
++	write_lock(&journal->j_state_lock);
  	/*
- 	 * Move page array up in the allocated memory for the bio vecs as far as
-@@ -1226,7 +1227,6 @@ static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
+ 	 * Reserved credits cannot be claimed anymore, free them
+ 	 */
+ 	atomic_sub(atomic_read(&journal->j_reserved_credits),
+ 		   &commit_transaction->t_outstanding_credits);
  
- 	for (left = size, i = 0; left > 0; left -= len, i++) {
- 		struct page *page = pages[i];
--		int ret;
- 
- 		len = min_t(size_t, PAGE_SIZE - offset, left);
- 		if (bio_op(bio) == REQ_OP_ZONE_APPEND)
-@@ -1237,13 +1237,13 @@ static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
- 
- 		if (ret) {
- 			bio_put_pages(pages + i, left, offset);
--			return ret;
-+			break;
- 		}
- 		offset = 0;
- 	}
- 
--	iov_iter_advance(iter, size);
--	return 0;
-+	iov_iter_advance(iter, size - left);
-+	return ret;
- }
- 
- /**
+-	write_lock(&journal->j_state_lock);
+ 	trace_jbd2_commit_flushing(journal, commit_transaction);
+ 	stats.run.rs_flushing = jiffies;
+ 	stats.run.rs_locked = jbd2_time_diff(stats.run.rs_locked,
 -- 
 2.35.1
 
