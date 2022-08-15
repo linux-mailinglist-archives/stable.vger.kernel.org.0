@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 180745948C5
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:09:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E8E65948BB
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:09:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353921AbiHOXmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:42:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60740 "EHLO
+        id S1346151AbiHOXng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:43:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354202AbiHOXli (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:38 -0400
+        with ESMTP id S1354326AbiHOXlx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DF272705;
-        Mon, 15 Aug 2022 13:11:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B73572C665;
+        Mon, 15 Aug 2022 13:12:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71A1E60B9B;
-        Mon, 15 Aug 2022 20:11:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AF9AC433C1;
-        Mon, 15 Aug 2022 20:11:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53C116077B;
+        Mon, 15 Aug 2022 20:12:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 541F9C433C1;
+        Mon, 15 Aug 2022 20:12:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594268;
-        bh=UsI/1rvqLECPRbEyqNSSrEWNvQrZbquWROC02DqDgvM=;
+        s=korg; t=1660594356;
+        bh=Y7dWTjLqANNjbJKqLAbtLdNNLRyhsxmBAvgy0geNrzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xSiu7KmR+75O08RVUGFCu0rEEjaxTtdG2qq/lxvaOuWsAnViKDLnWHBhiyGldILeJ
-         FNSSTLpdZ2gVz3jMivUOBvxgRao9yNk85lX13DxjrpOEAC3OckgAQ4dNpdj1Dk7aUi
-         mY4azbbGBluaSU5ptGn5v1pNTpUbU5BwJszerSUQ=
+        b=TTv6G4IfScpWIDNA/Vnmb1rtgz2GFc9biFIAP7ZR2rjEBl9PAIjq169ih7PhWV4yd
+         ItbccRauNFSoJHo9ZVq+bvwlFB2s/6e/IPcIh44SZAY5sNwq2RBlH7IfW00TVf9SVY
+         SDldB4yVGLtVrKFU6Ocy5cbb84HF/tqmwoEwCfgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Brian Norris <briannorris@chromium.org>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: [PATCH 5.18 1081/1095] Revert "mwifiex: fix sleep in atomic context bugs caused by dev_coredumpv"
-Date:   Mon, 15 Aug 2022 20:08:00 +0200
-Message-Id: <20220815180513.748936524@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 1084/1095] net: dsa: felix: fix min gate len calculation for tc when its first gate is closed
+Date:   Mon, 15 Aug 2022 20:08:03 +0200
+Message-Id: <20220815180513.883761274@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,100 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 5f8954e099b8ae96e7de1bb95950e00c85bedd40 upstream.
+commit 7e4babffa6f340a74c820d44d44d16511e666424 upstream.
 
-This reverts commit a52ed4866d2b90dd5e4ae9dabd453f3ed8fa3cbc as it
-causes build problems in linux-next.  It needs to be reintroduced in a
-way that can allow the api to evolve and not require a "flag day" to
-catch all users.
+min_gate_len[tc] is supposed to track the shortest interval of
+continuously open gates for a traffic class. For example, in the
+following case:
 
-Link: https://lore.kernel.org/r/20220623160723.7a44b573@canb.auug.org.au
-Cc: Duoming Zhou <duoming@zju.edu.cn>
-Cc: Brian Norris <briannorris@chromium.org>
-Cc: Johannes Berg <johannes@sipsolutions.net>
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+TC 76543210
+
+t0 00000001b 200000 ns
+t1 00000010b 200000 ns
+
+min_gate_len[0] and min_gate_len[1] should be 200000, while
+min_gate_len[2-7] should be 0.
+
+However what happens is that min_gate_len[0] is 200000, but
+min_gate_len[1] ends up being 0 (despite gate_len[1] being 200000 at the
+point where the logic detects the gate close event for TC 1).
+
+The problem is that the code considers a "gate close" event whenever it
+sees that there is a 0 for that TC (essentially it's level rather than
+edge triggered). By doing that, any time a gate is seen as closed
+without having been open prior, gate_len, which is 0, will be written
+into min_gate_len. Once min_gate_len becomes 0, it's impossible for it
+to track anything higher than that (the length of actually open
+intervals).
+
+To fix this, we make the writing to min_gate_len[tc] be edge-triggered,
+which avoids writes for gates that are closed in consecutive intervals.
+However what this does is it makes us need to special-case the
+permanently closed gates at the end.
+
+Fixes: 55a515b1f5a9 ("net: dsa: felix: drop oversized frames with tc-taprio instead of hanging the port")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20220804202817.1677572-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/marvell/mwifiex/init.c      |    9 ++++-----
- drivers/net/wireless/marvell/mwifiex/main.h      |    3 +--
- drivers/net/wireless/marvell/mwifiex/sta_event.c |    6 +++---
- 3 files changed, 8 insertions(+), 10 deletions(-)
+ drivers/net/dsa/ocelot/felix_vsc9959.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/init.c
-+++ b/drivers/net/wireless/marvell/mwifiex/init.c
-@@ -63,10 +63,9 @@ static void wakeup_timer_fn(struct timer
- 		adapter->if_ops.card_reset(adapter);
- }
- 
--static void fw_dump_work(struct work_struct *work)
-+static void fw_dump_timer_fn(struct timer_list *t)
+--- a/drivers/net/dsa/ocelot/felix_vsc9959.c
++++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
+@@ -1133,6 +1133,7 @@ static void vsc9959_tas_min_gate_lengths
  {
--	struct mwifiex_adapter *adapter =
--		container_of(work, struct mwifiex_adapter, devdump_work.work);
-+	struct mwifiex_adapter *adapter = from_timer(adapter, t, devdump_timer);
+ 	struct tc_taprio_sched_entry *entry;
+ 	u64 gate_len[OCELOT_NUM_TC];
++	u8 gates_ever_opened = 0;
+ 	int tc, i, n;
  
- 	mwifiex_upload_device_dump(adapter);
- }
-@@ -322,7 +321,7 @@ static void mwifiex_init_adapter(struct
- 	adapter->active_scan_triggered = false;
- 	timer_setup(&adapter->wakeup_timer, wakeup_timer_fn, 0);
- 	adapter->devdump_len = 0;
--	INIT_DELAYED_WORK(&adapter->devdump_work, fw_dump_work);
-+	timer_setup(&adapter->devdump_timer, fw_dump_timer_fn, 0);
- }
- 
- /*
-@@ -401,7 +400,7 @@ static void
- mwifiex_adapter_cleanup(struct mwifiex_adapter *adapter)
- {
- 	del_timer(&adapter->wakeup_timer);
--	cancel_delayed_work_sync(&adapter->devdump_work);
-+	del_timer_sync(&adapter->devdump_timer);
- 	mwifiex_cancel_all_pending_cmd(adapter);
- 	wake_up_interruptible(&adapter->cmd_wait_q.wait);
- 	wake_up_interruptible(&adapter->hs_activate_wait_q);
---- a/drivers/net/wireless/marvell/mwifiex/main.h
-+++ b/drivers/net/wireless/marvell/mwifiex/main.h
-@@ -49,7 +49,6 @@
- #include <linux/pm_runtime.h>
- #include <linux/slab.h>
- #include <linux/of_irq.h>
--#include <linux/workqueue.h>
- 
- #include "decl.h"
- #include "ioctl.h"
-@@ -1056,7 +1055,7 @@ struct mwifiex_adapter {
- 	/* Device dump data/length */
- 	void *devdump_data;
- 	int devdump_len;
--	struct delayed_work devdump_work;
-+	struct timer_list devdump_timer;
- 
- 	bool ignore_btcoex_events;
- };
---- a/drivers/net/wireless/marvell/mwifiex/sta_event.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sta_event.c
-@@ -623,8 +623,8 @@ mwifiex_fw_dump_info_event(struct mwifie
- 		 * transmission event get lost, in this cornel case,
- 		 * user would still get partial of the dump.
- 		 */
--		schedule_delayed_work(&adapter->devdump_work,
--				      msecs_to_jiffies(MWIFIEX_TIMER_10S));
-+		mod_timer(&adapter->devdump_timer,
-+			  jiffies + msecs_to_jiffies(MWIFIEX_TIMER_10S));
+ 	/* Initialize arrays */
+@@ -1160,16 +1161,28 @@ static void vsc9959_tas_min_gate_lengths
+ 		for (tc = 0; tc < OCELOT_NUM_TC; tc++) {
+ 			if (entry->gate_mask & BIT(tc)) {
+ 				gate_len[tc] += entry->interval;
++				gates_ever_opened |= BIT(tc);
+ 			} else {
+ 				/* Gate closes now, record a potential new
+ 				 * minimum and reinitialize length
+ 				 */
+-				if (min_gate_len[tc] > gate_len[tc])
++				if (min_gate_len[tc] > gate_len[tc] &&
++				    gate_len[tc])
+ 					min_gate_len[tc] = gate_len[tc];
+ 				gate_len[tc] = 0;
+ 			}
+ 		}
  	}
- 
- 	/* Overflow check */
-@@ -643,7 +643,7 @@ mwifiex_fw_dump_info_event(struct mwifie
- 	return;
- 
- upload_dump:
--	cancel_delayed_work_sync(&adapter->devdump_work);
-+	del_timer_sync(&adapter->devdump_timer);
- 	mwifiex_upload_device_dump(adapter);
++
++	/* min_gate_len[tc] actually tracks minimum *open* gate time, so for
++	 * permanently closed gates, min_gate_len[tc] will still be U64_MAX.
++	 * Therefore they are currently indistinguishable from permanently
++	 * open gates. Overwrite the gate len with 0 when we know they're
++	 * actually permanently closed, i.e. after the loop above.
++	 */
++	for (tc = 0; tc < OCELOT_NUM_TC; tc++)
++		if (!(gates_ever_opened & BIT(tc)))
++			min_gate_len[tc] = 0;
  }
  
+ /* Update QSYS_PORT_MAX_SDU to make sure the static guard bands added by the
 
 
