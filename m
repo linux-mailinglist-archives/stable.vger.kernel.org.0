@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5AC059499F
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:15:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF0E8594A07
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:17:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345534AbiHOXE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:04:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48684 "EHLO
+        id S1347378AbiHOXFH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:05:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346109AbiHOXCY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:02:24 -0400
+        with ESMTP id S1352469AbiHOXDE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:03:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECA458604C;
-        Mon, 15 Aug 2022 12:58:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC99D8606F;
+        Mon, 15 Aug 2022 12:58:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85408B81136;
-        Mon, 15 Aug 2022 19:58:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFF00C433C1;
-        Mon, 15 Aug 2022 19:58:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70EFCB81154;
+        Mon, 15 Aug 2022 19:58:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6369C433C1;
+        Mon, 15 Aug 2022 19:58:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593493;
-        bh=NXZMVp/XCIifham+N8UhWhA8PlWuq+NgCw/dNZwr9+Q=;
+        s=korg; t=1660593499;
+        bh=geNftA5eZVmPTFeqJgby+ENz25ytyj+I5h5a3CstBus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z2zz3RGGajru4+pAVbv3KwxEWpvTq0FkItfRQXVCoc2Pd0kmPfRyY1yPusRgJU4oG
-         3FUewygXNBAhw2dda9TXspoHsHqjzYnV3OIBsEmbKuLLidO8lrIlrcuSpttzwx2f5Z
-         sYGt8kOCppzB2kn7FUJpWlCZTi9RDhqvLG6rH5Qc=
+        b=ZdljFoIs9xWYWbzr5kHCOFuYZv0Zb+RNI7eAbdEiUK00zHw7yFnzdatItRoJMu590
+         4n5lkSBWEeB3AH3rQlG9+BeMap85QhroYy0oh4mWyvEE5lz76An9vXrPHqKldcMSK4
+         4YgVovDMKGteL8qNtUXD1E4O3XkQldmy/0E1iI1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Vitor Massaru Iha <vitor@massaru.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Daniel Latypov <dlatypov@google.com>,
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Xiu Jianfeng <xiujianfeng@huawei.com>,
+        "GONG, Ruiqi" <gongruiqi1@huawei.com>,
         Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0247/1157] lib: overflow: Do not define 64-bit tests on 32-bit
-Date:   Mon, 15 Aug 2022 19:53:23 +0200
-Message-Id: <20220815180449.465255125@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>, GONG@vger.kernel.org
+Subject: [PATCH 5.19 0248/1157] stack: Declare {randomize_,}kstack_offset to fix Sparse warnings
+Date:   Mon, 15 Aug 2022 19:53:24 +0200
+Message-Id: <20220815180449.510854671@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -59,94 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: GONG, Ruiqi <gongruiqi1@huawei.com>
 
-[ Upstream commit 6a022dd29f2cefbac4895a34e2e1f14b2d12d819 ]
+[ Upstream commit 375561bd6195a31bf4c109732bd538cb97a941f4 ]
 
-The 64-bit overflow tests will trigger 64-bit division on 32-bit hosts,
-which is not currently used anywhere in the kernel, and tickles bugs
-in at least Clang 13 and earlier:
-https://github.com/ClangBuiltLinux/linux/issues/1636
+Fix the following Sparse warnings that got noticed when the PPC-dev
+patchwork was checking another patch (see the link below):
 
-In reality, there shouldn't be a reason to not build the 64-bit test
-cases on 32-bit systems, so these #ifdefs can be removed once the minimum
-Clang version reaches 13.
+init/main.c:862:1: warning: symbol 'randomize_kstack_offset' was not declared. Should it be static?
+init/main.c:864:1: warning: symbol 'kstack_offset' was not declared. Should it be static?
 
-In the meantime, silence W=1 warnings given by the current code:
+Which in fact are triggered on all architectures that have
+HAVE_ARCH_RANDOMIZE_KSTACK_OFFSET support (for instances x86, arm64
+etc).
 
-../lib/overflow_kunit.c:191:19: warning: 's64_tests' defined but not used [-Wunused-const-variable=]
-  191 | DEFINE_TEST_ARRAY(s64) = {
-      |                   ^~~
-../lib/overflow_kunit.c:24:11: note: in definition of macro 'DEFINE_TEST_ARRAY'
-   24 |         } t ## _tests[]
-      |           ^
-../lib/overflow_kunit.c:94:19: warning: 'u64_tests' defined but not used [-Wunused-const-variable=]
-   94 | DEFINE_TEST_ARRAY(u64) = {
-      |                   ^~~
-../lib/overflow_kunit.c:24:11: note: in definition of macro 'DEFINE_TEST_ARRAY'
-   24 |         } t ## _tests[]
-      |           ^
-
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202205110324.7GrtxG8u-lkp@intel.com
-Fixes: 455a35a6cdb6 ("lib: add runtime test of check_*_overflow functions")
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Vitor Massaru Iha <vitor@massaru.org>
-Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Tested-by: Daniel Latypov <dlatypov@google.com>
-Link: https://lore.kernel.org/lkml/CAGS_qxokQAjQRip2vPi80toW7hmBnXf=KMTNT51B1wuDqSZuVQ@mail.gmail.com
+Link: https://lore.kernel.org/lkml/e7b0d68b-914d-7283-827c-101988923929@huawei.com/T/#m49b2d4490121445ce4bf7653500aba59eefcb67f
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Xiu Jianfeng <xiujianfeng@huawei.com>
+Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Fixes: 39218ff4c625 ("stack: Optionally randomize kernel stack offset each syscall")
 Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220629060423.2515693-1-gongruiqi1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/overflow_kunit.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ init/main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/lib/overflow_kunit.c b/lib/overflow_kunit.c
-index 475f0c064bf6..7e3e43679b73 100644
---- a/lib/overflow_kunit.c
-+++ b/lib/overflow_kunit.c
-@@ -91,6 +91,7 @@ DEFINE_TEST_ARRAY(u32) = {
- 	{-4U, 5U, 1U, -9U, -20U, true, false, true},
- };
+diff --git a/init/main.c b/init/main.c
+index 0ee39cdcfcac..91642a4e69be 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -99,6 +99,7 @@
+ #include <linux/kcsan.h>
+ #include <linux/init_syscalls.h>
+ #include <linux/stackdepot.h>
++#include <linux/randomize_kstack.h>
+ #include <net/net_namespace.h>
  
-+#if BITS_PER_LONG == 64
- DEFINE_TEST_ARRAY(u64) = {
- 	{0, 0, 0, 0, 0, false, false, false},
- 	{1, 1, 2, 0, 1, false, false, false},
-@@ -114,6 +115,7 @@ DEFINE_TEST_ARRAY(u64) = {
- 	 false, true, false},
- 	{-15ULL, 10ULL, -5ULL, -25ULL, -150ULL, false, false, true},
- };
-+#endif
- 
- DEFINE_TEST_ARRAY(s8) = {
- 	{0, 0, 0, 0, 0, false, false, false},
-@@ -188,6 +190,8 @@ DEFINE_TEST_ARRAY(s32) = {
- 	{S32_MIN, S32_MIN, 0, 0, 0, true, false, true},
- 	{S32_MAX, S32_MAX, -2, 0, 1, true, false, true},
- };
-+
-+#if BITS_PER_LONG == 64
- DEFINE_TEST_ARRAY(s64) = {
- 	{0, 0, 0, 0, 0, false, false, false},
- 
-@@ -216,6 +220,7 @@ DEFINE_TEST_ARRAY(s64) = {
- 	{-128, -1, -129, -127, 128, false, false, false},
- 	{0, -S64_MAX, -S64_MAX, S64_MAX, 0, false, false, false},
- };
-+#endif
- 
- #define check_one_op(t, fmt, op, sym, a, b, r, of) do {		\
- 	t _r;							\
-@@ -650,6 +655,7 @@ static struct kunit_case overflow_test_cases[] = {
- 	KUNIT_CASE(s16_overflow_test),
- 	KUNIT_CASE(u32_overflow_test),
- 	KUNIT_CASE(s32_overflow_test),
-+/* Clang 13 and earlier generate unwanted libcalls on 32-bit. */
- #if BITS_PER_LONG == 64
- 	KUNIT_CASE(u64_overflow_test),
- 	KUNIT_CASE(s64_overflow_test),
+ #include <asm/io.h>
 -- 
 2.35.1
 
