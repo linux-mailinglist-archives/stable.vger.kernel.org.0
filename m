@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45157594863
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF58B594CCE
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244964AbiHOXRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:17:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51194 "EHLO
+        id S231653AbiHPAw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:52:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353063AbiHOXPv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:15:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB857CB69;
-        Mon, 15 Aug 2022 13:02:50 -0700 (PDT)
+        with ESMTP id S1346967AbiHPAvW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:51:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEF53D9D51;
+        Mon, 15 Aug 2022 13:46:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 547DD612D7;
-        Mon, 15 Aug 2022 20:02:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 464B7C433C1;
-        Mon, 15 Aug 2022 20:02:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 068D661239;
+        Mon, 15 Aug 2022 20:46:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E865BC433D6;
+        Mon, 15 Aug 2022 20:46:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593769;
-        bh=TbANiIQd+FPDA4iJn6Ixa9itBumf/koL+SuMqUIt8yg=;
+        s=korg; t=1660596417;
+        bh=4Pn8x3Z3GyJ3GiIHu4qpqbkTPC+Z8s6jhh7rJUk2pfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T1ByAi9uw/oYAMI5X3qTyx2VstCKenTdy6G502GePe8K8rQXHSe9M2OTHk6GoOhnR
-         bzr0VPSP4lTV7ULvmI9D1P0UC2JUTnAD5mhlN5Zh0FV4foNjOBa/eSGCmnlfdfj+70
-         ebR/CMWHKZcygvu/uwAn8yn0I/PWcGLHPqTpWBPk=
+        b=K72q/HUCIVD+nRssy1XMCDD52qP4DokWmGOjwYD8Bal+oOkgTDGreabNNUqtNQKrC
+         MV2MwjaU/Bjf4gG8SWLqn75jMhKDIaJSXcKsxWLwTKCj/u5XDnRBgmUjJ0OEU7RlpQ
+         BpmhY7gliOrE4LyNuA8g5g7b+Hwa0yQgq8DWQuaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Michal Suchanek <msuchanek@suse.de>,
-        Baoquan He <bhe@redhat.com>, Coiby Xu <coxu@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1003/1095] kexec: clean up arch_kexec_kernel_verify_sig
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.19 1046/1157] x86/bugs: Enable STIBP for IBPB mitigated RETBleed
 Date:   Mon, 15 Aug 2022 20:06:42 +0200
-Message-Id: <20220815180510.604450713@linuxfoundation.org>
+Message-Id: <20220815180521.874432672@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,107 +53,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coiby Xu <coxu@redhat.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-[ Upstream commit 689a71493bd2f31c024f8c0395f85a1fd4b2138e ]
+commit e6cfcdda8cbe81eaf821c897369a65fec987b404 upstream.
 
-Before commit 105e10e2cf1c ("kexec_file: drop weak attribute from
-functions"), there was already no arch-specific implementation
-of arch_kexec_kernel_verify_sig. With weak attribute dropped by that
-commit, arch_kexec_kernel_verify_sig is completely useless. So clean it
-up.
+AMD's "Technical Guidance for Mitigating Branch Type Confusion,
+Rev. 1.0 2022-07-12" whitepaper, under section 6.1.2 "IBPB On
+Privileged Mode Entry / SMT Safety" says:
 
-Note later patches are dependent on this patch so it should be backported
-to the stable tree as well.
+  Similar to the Jmp2Ret mitigation, if the code on the sibling thread
+  cannot be trusted, software should set STIBP to 1 or disable SMT to
+  ensure SMT safety when using this mitigation.
 
-Cc: stable@vger.kernel.org
-Suggested-by: Eric W. Biederman <ebiederm@xmission.com>
-Reviewed-by: Michal Suchanek <msuchanek@suse.de>
-Acked-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Coiby Xu <coxu@redhat.com>
-[zohar@linux.ibm.com: reworded patch description "Note"]
-Link: https://lore.kernel.org/linux-integrity/20220714134027.394370-1-coxu@redhat.com/
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So, like already being done for retbleed=unret, and now also for
+retbleed=ibpb, force STIBP on machines that have it, and report its SMT
+vulnerability status accordingly.
+
+ [ bp: Remove the "we" and remove "[AMD]" applicability parameter which
+   doesn't work here. ]
+
+Fixes: 3ebc17006888 ("x86/bugs: Add retbleed=ibpb")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org # 5.10, 5.15, 5.19
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
+Link: https://lore.kernel.org/r/20220804192201.439596-1-kim.phillips@amd.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/kexec.h |  5 -----
- kernel/kexec_file.c   | 33 +++++++++++++--------------------
- 2 files changed, 13 insertions(+), 25 deletions(-)
+ Documentation/admin-guide/kernel-parameters.txt |   29 +++++++++++++++++-------
+ arch/x86/kernel/cpu/bugs.c                      |   10 ++++----
+ 2 files changed, 27 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/kexec.h b/include/linux/kexec.h
-index 87c1795297b0..f3e7680befcc 100644
---- a/include/linux/kexec.h
-+++ b/include/linux/kexec.h
-@@ -212,11 +212,6 @@ static inline void *arch_kexec_kernel_image_load(struct kimage *image)
- }
- #endif
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -5203,20 +5203,33 @@
+ 			Speculative Code Execution with Return Instructions)
+ 			vulnerability.
  
--#ifdef CONFIG_KEXEC_SIG
--int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
--				 unsigned long buf_len);
--#endif
--
- extern int kexec_add_buffer(struct kexec_buf *kbuf);
- int kexec_locate_mem_hole(struct kexec_buf *kbuf);
- 
-diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-index 925953dfef05..ad005cd184a4 100644
---- a/kernel/kexec_file.c
-+++ b/kernel/kexec_file.c
-@@ -81,24 +81,6 @@ int kexec_image_post_load_cleanup_default(struct kimage *image)
- 	return image->fops->cleanup(image->image_loader_data);
- }
- 
--#ifdef CONFIG_KEXEC_SIG
--static int kexec_image_verify_sig_default(struct kimage *image, void *buf,
--					  unsigned long buf_len)
--{
--	if (!image->fops || !image->fops->verify_sig) {
--		pr_debug("kernel loader does not support signature verification.\n");
--		return -EKEYREJECTED;
--	}
--
--	return image->fops->verify_sig(buf, buf_len);
--}
--
--int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf, unsigned long buf_len)
--{
--	return kexec_image_verify_sig_default(image, buf, buf_len);
--}
--#endif
--
- /*
-  * Free up memory used by kernel, initrd, and command line. This is temporary
-  * memory allocation which is not needed any more after these buffers have
-@@ -141,13 +123,24 @@ void kimage_file_post_load_cleanup(struct kimage *image)
- }
- 
- #ifdef CONFIG_KEXEC_SIG
-+static int kexec_image_verify_sig(struct kimage *image, void *buf,
-+				  unsigned long buf_len)
-+{
-+	if (!image->fops || !image->fops->verify_sig) {
-+		pr_debug("kernel loader does not support signature verification.\n");
-+		return -EKEYREJECTED;
-+	}
++			AMD-based UNRET and IBPB mitigations alone do not stop
++			sibling threads from influencing the predictions of other
++			sibling threads. For that reason, STIBP is used on pro-
++			cessors that support it, and mitigate SMT on processors
++			that don't.
 +
-+	return image->fops->verify_sig(buf, buf_len);
-+}
-+
- static int
- kimage_validate_signature(struct kimage *image)
+ 			off          - no mitigation
+ 			auto         - automatically select a migitation
+ 			auto,nosmt   - automatically select a mitigation,
+ 				       disabling SMT if necessary for
+ 				       the full mitigation (only on Zen1
+ 				       and older without STIBP).
+-			ibpb	     - mitigate short speculation windows on
+-				       basic block boundaries too. Safe, highest
+-				       perf impact.
+-			unret        - force enable untrained return thunks,
+-				       only effective on AMD f15h-f17h
+-				       based systems.
+-			unret,nosmt  - like unret, will disable SMT when STIBP
+-			               is not available.
++			ibpb         - On AMD, mitigate short speculation
++				       windows on basic block boundaries too.
++				       Safe, highest perf impact. It also
++				       enables STIBP if present. Not suitable
++				       on Intel.
++			ibpb,nosmt   - Like "ibpb" above but will disable SMT
++				       when STIBP is not available. This is
++				       the alternative for systems which do not
++				       have STIBP.
++			unret        - Force enable untrained return thunks,
++				       only effective on AMD f15h-f17h based
++				       systems.
++			unret,nosmt  - Like unret, but will disable SMT when STIBP
++				       is not available. This is the alternative for
++				       systems which do not have STIBP.
+ 
+ 			Selecting 'auto' will choose a mitigation method at run
+ 			time according to the CPU.
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -152,7 +152,7 @@ void __init check_bugs(void)
+ 	/*
+ 	 * spectre_v2_user_select_mitigation() relies on the state set by
+ 	 * retbleed_select_mitigation(); specifically the STIBP selection is
+-	 * forced for UNRET.
++	 * forced for UNRET or IBPB.
+ 	 */
+ 	spectre_v2_user_select_mitigation();
+ 	ssb_select_mitigation();
+@@ -1179,7 +1179,8 @@ spectre_v2_user_select_mitigation(void)
+ 	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
+ 		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
+ 
+-	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET) {
++	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET ||
++	    retbleed_mitigation == RETBLEED_MITIGATION_IBPB) {
+ 		if (mode != SPECTRE_V2_USER_STRICT &&
+ 		    mode != SPECTRE_V2_USER_STRICT_PREFERRED)
+ 			pr_info("Selecting STIBP always-on mode to complement retbleed mitigation\n");
+@@ -2360,10 +2361,11 @@ static ssize_t srbds_show_state(char *bu
+ 
+ static ssize_t retbleed_show_state(char *buf)
  {
- 	int ret;
+-	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET) {
++	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET ||
++	    retbleed_mitigation == RETBLEED_MITIGATION_IBPB) {
+ 	    if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
+ 		boot_cpu_data.x86_vendor != X86_VENDOR_HYGON)
+-		    return sprintf(buf, "Vulnerable: untrained return thunk on non-Zen uarch\n");
++		    return sprintf(buf, "Vulnerable: untrained return thunk / IBPB on non-AMD based uarch\n");
  
--	ret = arch_kexec_kernel_verify_sig(image, image->kernel_buf,
--					   image->kernel_buf_len);
-+	ret = kexec_image_verify_sig(image, image->kernel_buf,
-+				     image->kernel_buf_len);
- 	if (ret) {
- 
- 		if (sig_enforce) {
--- 
-2.35.1
-
+ 	    return sprintf(buf, "%s; SMT %s\n",
+ 			   retbleed_strings[retbleed_mitigation],
 
 
