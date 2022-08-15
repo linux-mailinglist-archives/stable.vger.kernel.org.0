@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F5F7594C1D
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 079365948A7
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:09:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244277AbiHPAyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:54:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46154 "EHLO
+        id S242184AbiHOXRK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:17:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348832AbiHPAwO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:52:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9914919C9E9;
-        Mon, 15 Aug 2022 13:47:45 -0700 (PDT)
+        with ESMTP id S1347438AbiHOXP3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:15:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31B1E63F27;
+        Mon, 15 Aug 2022 13:02:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9ABA8B811A1;
-        Mon, 15 Aug 2022 20:47:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1E8FC4315C;
-        Mon, 15 Aug 2022 20:47:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A61186068D;
+        Mon, 15 Aug 2022 20:02:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0701C433D6;
+        Mon, 15 Aug 2022 20:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596462;
-        bh=/SbU5TgNUUjW574cJkQIC7C8/S1kgwxyehokC/ht1GA=;
+        s=korg; t=1660593749;
+        bh=74aVVp2GcXBM2zXtNUT99Bg7mljouCS0TeZFGzM9fcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xRVirIbOJ23kkvgnPjjeljVjypRqUlSqCC5hnAe28jKeGNDEJ5Y5Im8uApHTebkK9
-         pm81iACjXFxS5HM095W8BbRmYK7HpuWyhfmJST53qIwmsmfbv1oiXKvbYcGQGSChvL
-         MLFmLBXKTCnUumQQIJxnObgc5DHyLoGoEHSj2JJQ=
+        b=t5zoMMg+Hmg/Z1ffZYbHiq1XxSmN2cz/0c3jk/SybhE0wy30eORhlWnssRs9yHKtG
+         NnBqI9CdH3T2pJ4zCK7iftcKx3AFzlyfX874lQrksx6gI561MgT2BvJIPjNkPc0ggT
+         ZaQVNBSGBuJ2lBK4XU9RwAhsbhGaEC6Tb1qUJmM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.19 1043/1157] scsi: qla2xxx: Fix losing target when it reappears during delete
+        stable@vger.kernel.org, Cameron Williams <cang1@live.co.uk>,
+        stable <stable@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 1000/1095] tty: 8250: Add support for Brainboxes PX cards.
 Date:   Mon, 15 Aug 2022 20:06:39 +0200
-Message-Id: <20220815180521.741682878@linuxfoundation.org>
+Message-Id: <20220815180510.485567793@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +53,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Cameron Williams <cang1@live.co.uk>
 
-commit 118b0c863c8f5629cc5271fc24d72d926e0715d9 upstream.
+[ Upstream commit ef5a03a26c87a760bc3d86b5af7b773e82f8b1b7 ]
 
-FC target disappeared during port perturbation tests due to a race that
-tramples target state.  Fix the issue by adding state checks before
-proceeding.
+Add support for some of the Brainboxes PCIe (PX) range of
+serial cards, including the PX-101, PX-235/PX-246,
+PX-203/PX-257, PX-260/PX-701, PX-310, PX-313,
+PX-320/PX-324/PX-376/PX-387, PX-335/PX-346, PX-368, PX-420,
+PX-803 and PX-846.
 
-Link: https://lore.kernel.org/r/20220616053508.27186-8-njavali@marvell.com
-Fixes: 44c57f205876 ("scsi: qla2xxx: Changes to support FCP2 Target")
-Cc: stable@vger.kernel.org
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Cameron Williams <cang1@live.co.uk>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/AM5PR0202MB2564669252BDC59BF55A6E87C4879@AM5PR0202MB2564.eurprd02.prod.outlook.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_attr.c |   24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ drivers/tty/serial/8250/8250_pci.c | 109 +++++++++++++++++++++++++++++
+ 1 file changed, 109 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -2716,17 +2716,24 @@ qla2x00_dev_loss_tmo_callbk(struct fc_rp
- 	if (!fcport)
- 		return;
- 
--	/* Now that the rport has been deleted, set the fcport state to
--	   FCS_DEVICE_DEAD */
--	qla2x00_set_fcport_state(fcport, FCS_DEVICE_DEAD);
-+
+diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
+index 818ed6cd3132..aeac20f7cbb2 100644
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -5063,6 +5063,115 @@ static const struct pci_device_id serial_pci_tbl[] = {
+ 		PCI_ANY_ID, PCI_ANY_ID,
+ 		0, 0,
+ 		pbn_b2_4_115200 },
 +	/*
-+	 * Now that the rport has been deleted, set the fcport state to
-+	 * FCS_DEVICE_DEAD, if the fcport is still lost.
++	 * Brainboxes PX-101
 +	 */
-+	if (fcport->scan_state != QLA_FCPORT_FOUND)
-+		qla2x00_set_fcport_state(fcport, FCS_DEVICE_DEAD);
- 
++	{	PCI_VENDOR_ID_INTASHIELD, 0x4005,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b0_2_115200 },
++	{	PCI_VENDOR_ID_INTASHIELD, 0x4019,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_oxsemi_2_15625000 },
++	/*
++	 * Brainboxes PX-235/246
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x4004,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b0_1_115200 },
++	{	PCI_VENDOR_ID_INTASHIELD, 0x4016,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_oxsemi_1_15625000 },
++	/*
++	 * Brainboxes PX-203/PX-257
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x4006,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b0_2_115200 },
++	{	PCI_VENDOR_ID_INTASHIELD, 0x4015,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_oxsemi_4_15625000 },
++	/*
++	 * Brainboxes PX-260/PX-701
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x400A,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_oxsemi_4_15625000 },
++	/*
++	 * Brainboxes PX-310
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x400E,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_oxsemi_2_15625000 },
++	/*
++	 * Brainboxes PX-313
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x400C,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_oxsemi_2_15625000 },
++	/*
++	 * Brainboxes PX-320/324/PX-376/PX-387
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x400B,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_oxsemi_1_15625000 },
++	/*
++	 * Brainboxes PX-335/346
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x400F,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_oxsemi_4_15625000 },
++	/*
++	 * Brainboxes PX-368
++	 */
++	{       PCI_VENDOR_ID_INTASHIELD, 0x4010,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_oxsemi_4_15625000 },
++	/*
++	 * Brainboxes PX-420
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x4000,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b0_4_115200 },
++	{	PCI_VENDOR_ID_INTASHIELD, 0x4011,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_oxsemi_4_15625000 },
++	/*
++	 * Brainboxes PX-803
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x4009,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b0_1_115200 },
++	{	PCI_VENDOR_ID_INTASHIELD, 0x401E,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_oxsemi_1_15625000 },
++	/*
++	 * Brainboxes PX-846
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x4008,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b0_1_115200 },
++	{	PCI_VENDOR_ID_INTASHIELD, 0x4017,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_oxsemi_1_15625000 },
++
  	/*
- 	 * Transport has effectively 'deleted' the rport, clear
- 	 * all local references.
+ 	 * Perle PCI-RAS cards
  	 */
- 	spin_lock_irqsave(host->host_lock, flags);
--	fcport->rport = fcport->drport = NULL;
--	*((fc_port_t **)rport->dd_data) = NULL;
-+	/* Confirm port has not reappeared before clearing pointers. */
-+	if (rport->port_state != FC_PORTSTATE_ONLINE) {
-+		fcport->rport = fcport->drport = NULL;
-+		*((fc_port_t **)rport->dd_data) = NULL;
-+	}
- 	spin_unlock_irqrestore(host->host_lock, flags);
- 
- 	if (test_bit(ABORT_ISP_ACTIVE, &fcport->vha->dpc_flags))
-@@ -2759,9 +2766,12 @@ qla2x00_terminate_rport_io(struct fc_rpo
- 	/*
- 	 * At this point all fcport's software-states are cleared.  Perform any
- 	 * final cleanup of firmware resources (PCBs and XCBs).
-+	 *
-+	 * Attempt to cleanup only lost devices.
- 	 */
- 	if (fcport->loop_id != FC_NO_LOOP_ID) {
--		if (IS_FWI2_CAPABLE(fcport->vha->hw)) {
-+		if (IS_FWI2_CAPABLE(fcport->vha->hw) &&
-+		    fcport->scan_state != QLA_FCPORT_FOUND) {
- 			if (fcport->loop_id != FC_NO_LOOP_ID)
- 				fcport->logout_on_delete = 1;
- 
-@@ -2771,7 +2781,7 @@ qla2x00_terminate_rport_io(struct fc_rpo
- 				       __LINE__);
- 				qlt_schedule_sess_for_deletion(fcport);
- 			}
--		} else {
-+		} else if (!IS_FWI2_CAPABLE(fcport->vha->hw)) {
- 			qla2x00_port_logout(fcport->vha, fcport);
- 		}
- 	}
+-- 
+2.35.1
+
 
 
