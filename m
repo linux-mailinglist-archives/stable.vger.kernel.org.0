@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EBEA594ADE
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:20:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7104A594A95
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356124AbiHPAHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:07:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46346 "EHLO
+        id S1352207AbiHPAEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:04:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352446AbiHPAAZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:00:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79BBC7433;
-        Mon, 15 Aug 2022 13:20:34 -0700 (PDT)
+        with ESMTP id S1354940AbiHPAAk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:00:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55F66C743F;
+        Mon, 15 Aug 2022 13:20:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 752BE6104A;
-        Mon, 15 Aug 2022 20:20:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DDF7C433D7;
-        Mon, 15 Aug 2022 20:20:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17BECB80EB1;
+        Mon, 15 Aug 2022 20:20:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6380EC433D7;
+        Mon, 15 Aug 2022 20:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594833;
-        bh=u0HsNN8rMYruFAvZHEvP0r2fe53rUhzO3lCv1NuR+A8=;
+        s=korg; t=1660594836;
+        bh=e9whEK17xKjaAzRvOp5nbn9YoNuJqN2Qv4Jjbm+eUP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CbhYs7zQwps/77L4XPLC+E30k1lm6iwGSP4U7qVBgd5JQLQCnTvapm980Sz1KYmiE
-         m72geeB1v3G9qgx9STls//aD+lv9xqLDSlebHL1lhcvnRjycBNtqr8ykaufC7ADJZ1
-         jd7Mv99YBe12XG6Ay0dQOpp5ymuEG6rz/Kk/TtFc=
+        b=uDxTb2jMk4r9TcDOdg3/QHss2hok0StcurhdIL2FaAr/yleCJKWYB2LxB/C8gf6S6
+         72aafNuYzLn8FZbnvbL16fcc4gduKFAnJqBtMNpO7lt4KfYvG2EvgvubBBJB+RhbkF
+         vgo/+qRlXLtUqjIzF5tMSOv6fn9gYUOqJAHLMVkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0573/1157] wireguard: allowedips: dont corrupt stack when detecting overflow
-Date:   Mon, 15 Aug 2022 19:58:49 +0200
-Message-Id: <20220815180502.556642003@linuxfoundation.org>
+        stable@vger.kernel.org, David Chang <David.Chang@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0574/1157] HID: amd_sfh: Dont show client init failed as error when discovery fails
+Date:   Mon, 15 Aug 2022 19:58:50 +0200
+Message-Id: <20220815180502.599031993@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,93 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit c31b14d86dfe7174361e8c6e5df6c2c3a4d5918c ]
+[ Upstream commit e51d8d3ea3d773334d2c047c8d1623dba66f592a ]
 
-In case push_rcu() and related functions are buggy, there's a
-WARN_ON(len >= 128), which the selftest tries to hit by being tricky. In
-case it is hit, we shouldn't corrupt the kernel's stack, though;
-otherwise it may be hard to even receive the report that it's buggy. So
-conditionalize the stack write based on that WARN_ON()'s return value.
+When sensor discovery fails, this means that the system doesn't have
+any sensors connected and a user should only be notified at most one time.
+A message is already displayed at WARN level of "failed to discover,
+sensors not enabled".  It's pointless to show that the client init failed
+at ERR level for the same condition.
 
-Note that this never *actually* happens anyway. The WARN_ON() in the
-first place is bounded by IS_ENABLED(DEBUG), and isn't expected to ever
-actually hit. This is just a debugging sanity check.
+Check the return code and don't display this message in those conditions.
 
-Additionally, hoist the constant 128 into a named enum,
-MAX_ALLOWEDIPS_BITS, so that it's clear why this value is chosen.
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Link: https://lore.kernel.org/all/CAHk-=wjJZGA6w_DxA+k7Ejbqsq+uGK==koPai3sqdsfJqemvag@mail.gmail.com/
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: b5d7f43e97da ("HID: amd_sfh: Add support for sensor discovery")
+Reported-by: David Chang <David.Chang@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireguard/allowedips.c          | 9 ++++++---
- drivers/net/wireguard/selftest/allowedips.c | 6 +++---
- 2 files changed, 9 insertions(+), 6 deletions(-)
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireguard/allowedips.c b/drivers/net/wireguard/allowedips.c
-index 9a4c8ff32d9d..5bf7822c53f1 100644
---- a/drivers/net/wireguard/allowedips.c
-+++ b/drivers/net/wireguard/allowedips.c
-@@ -6,6 +6,8 @@
- #include "allowedips.h"
- #include "peer.h"
- 
-+enum { MAX_ALLOWEDIPS_BITS = 128 };
-+
- static struct kmem_cache *node_cache;
- 
- static void swap_endian(u8 *dst, const u8 *src, u8 bits)
-@@ -40,7 +42,8 @@ static void push_rcu(struct allowedips_node **stack,
- 		     struct allowedips_node __rcu *p, unsigned int *len)
- {
- 	if (rcu_access_pointer(p)) {
--		WARN_ON(IS_ENABLED(DEBUG) && *len >= 128);
-+		if (WARN_ON(IS_ENABLED(DEBUG) && *len >= MAX_ALLOWEDIPS_BITS))
-+			return;
- 		stack[(*len)++] = rcu_dereference_raw(p);
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+index dadc491bbf6b..1441787a154a 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+@@ -327,7 +327,8 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 	rc = amd_sfh_hid_client_init(privdata);
+ 	if (rc) {
+ 		amd_sfh_clear_intr(privdata);
+-		dev_err(&pdev->dev, "amd_sfh_hid_client_init failed\n");
++		if (rc != -EOPNOTSUPP)
++			dev_err(&pdev->dev, "amd_sfh_hid_client_init failed\n");
+ 		return rc;
  	}
- }
-@@ -52,7 +55,7 @@ static void node_free_rcu(struct rcu_head *rcu)
  
- static void root_free_rcu(struct rcu_head *rcu)
- {
--	struct allowedips_node *node, *stack[128] = {
-+	struct allowedips_node *node, *stack[MAX_ALLOWEDIPS_BITS] = {
- 		container_of(rcu, struct allowedips_node, rcu) };
- 	unsigned int len = 1;
- 
-@@ -65,7 +68,7 @@ static void root_free_rcu(struct rcu_head *rcu)
- 
- static void root_remove_peer_lists(struct allowedips_node *root)
- {
--	struct allowedips_node *node, *stack[128] = { root };
-+	struct allowedips_node *node, *stack[MAX_ALLOWEDIPS_BITS] = { root };
- 	unsigned int len = 1;
- 
- 	while (len > 0 && (node = stack[--len])) {
-diff --git a/drivers/net/wireguard/selftest/allowedips.c b/drivers/net/wireguard/selftest/allowedips.c
-index e173204ae7d7..41db10f9be49 100644
---- a/drivers/net/wireguard/selftest/allowedips.c
-+++ b/drivers/net/wireguard/selftest/allowedips.c
-@@ -593,10 +593,10 @@ bool __init wg_allowedips_selftest(void)
- 	wg_allowedips_remove_by_peer(&t, a, &mutex);
- 	test_negative(4, a, 192, 168, 0, 1);
- 
--	/* These will hit the WARN_ON(len >= 128) in free_node if something
--	 * goes wrong.
-+	/* These will hit the WARN_ON(len >= MAX_ALLOWEDIPS_BITS) in free_node
-+	 * if something goes wrong.
- 	 */
--	for (i = 0; i < 128; ++i) {
-+	for (i = 0; i < MAX_ALLOWEDIPS_BITS; ++i) {
- 		part = cpu_to_be64(~(1LLU << (i % 64)));
- 		memset(&ip, 0xff, 16);
- 		memcpy((u8 *)&ip + (i < 64) * 8, &part, 8);
 -- 
 2.35.1
 
