@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9484594D0E
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 806675948AA
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:09:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245527AbiHPAtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:49:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36284 "EHLO
+        id S243457AbiHOXJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:09:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243787AbiHPAr2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:47:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7305BD8E0F;
-        Mon, 15 Aug 2022 13:45:37 -0700 (PDT)
+        with ESMTP id S244999AbiHOXIK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:08:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13DD278BCB;
+        Mon, 15 Aug 2022 12:59:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0CE56125F;
-        Mon, 15 Aug 2022 20:45:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBA73C433D6;
-        Mon, 15 Aug 2022 20:45:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87A31B80EB1;
+        Mon, 15 Aug 2022 19:59:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF05EC433C1;
+        Mon, 15 Aug 2022 19:59:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596336;
-        bh=6rswtPHCBmofH9wCL2FhhYPwRwY21gb1uDolVJabZu8=;
+        s=korg; t=1660593582;
+        bh=IKiFqsVBpkSCn9+EeYNF1YPmUb0OiOAXXHU+8G+n66w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l0kZzUKovgTjiPV33wEqHNRupVFxfFugZoeRp49t7Y3zsyr0Q1sVsirtJK+F7+EiW
-         4Yrb7sZrLPj1w/22LliZ6yWWECFNVd98s/Q+E/5eiywptaK58+QEZ3v5LeF/xrU9J/
-         DNre+W2P3BhEGHJlHM/19BOYTBi3OLQlE4GdEC58=
+        b=omZMT/fnLrno4CqjH8qzCr5u7gxcUaVHKkzCDZ0pXk5M4GM7bzRK37cazlVm6bTu8
+         1HI5zaBwbGzfH+hmgV5nc/eZygWRl2AU14EKSfEhaHnKvKv0UwImntpgkd5s7IVaWw
+         wKFuKCR1ujXw0EXGbLtDWvFSa3iNpygCo3JigLcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1014/1157] kprobes: Forbid probing on trampoline and BPF code areas
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.18 0971/1095] x86/bugs: Enable STIBP for IBPB mitigated RETBleed
 Date:   Mon, 15 Aug 2022 20:06:10 +0200
-Message-Id: <20220815180520.430074264@linuxfoundation.org>
+Message-Id: <20220815180509.232916030@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +53,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-[ Upstream commit 28f6c37a2910f565b4f5960df52b2eccae28c891 ]
+commit e6cfcdda8cbe81eaf821c897369a65fec987b404 upstream.
 
-kernel_text_address() treats ftrace_trampoline, kprobe_insn_slot
-and bpf_text_address as valid kprobe addresses - which is not ideal.
+AMD's "Technical Guidance for Mitigating Branch Type Confusion,
+Rev. 1.0 2022-07-12" whitepaper, under section 6.1.2 "IBPB On
+Privileged Mode Entry / SMT Safety" says:
 
-These text areas are removable and changeable without any notification
-to kprobes, and probing on them can trigger unexpected behavior:
+  Similar to the Jmp2Ret mitigation, if the code on the sibling thread
+  cannot be trusted, software should set STIBP to 1 or disable SMT to
+  ensure SMT safety when using this mitigation.
 
-  https://lkml.org/lkml/2022/7/26/1148
+So, like already being done for retbleed=unret, and now also for
+retbleed=ibpb, force STIBP on machines that have it, and report its SMT
+vulnerability status accordingly.
 
-Considering that jump_label and static_call text are already
-forbiden to probe, kernel_text_address() should be replaced with
-core_kernel_text() and is_module_text_address() to check other text
-areas which are unsafe to kprobe.
+ [ bp: Remove the "we" and remove "[AMD]" applicability parameter which
+   doesn't work here. ]
 
-[ mingo: Rewrote the changelog. ]
-
-Fixes: 5b485629ba0d ("kprobes, extable: Identify kprobes trampolines as kernel text area")
-Fixes: 74451e66d516 ("bpf: make jited programs visible in traces")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Link: https://lore.kernel.org/r/20220801033719.228248-1-chenzhongjin@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3ebc17006888 ("x86/bugs: Add retbleed=ibpb")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org # 5.10, 5.15, 5.19
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
+Link: https://lore.kernel.org/r/20220804192201.439596-1-kim.phillips@amd.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/kprobes.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Documentation/admin-guide/kernel-parameters.txt |   29 +++++++++++++++++-------
+ arch/x86/kernel/cpu/bugs.c                      |   10 ++++----
+ 2 files changed, 27 insertions(+), 12 deletions(-)
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index f214f8c088ed..80697e5e03e4 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1560,7 +1560,8 @@ static int check_kprobe_address_safe(struct kprobe *p,
- 	preempt_disable();
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -5130,20 +5130,33 @@
+ 			Speculative Code Execution with Return Instructions)
+ 			vulnerability.
  
- 	/* Ensure it is not in reserved area nor out of text */
--	if (!kernel_text_address((unsigned long) p->addr) ||
-+	if (!(core_kernel_text((unsigned long) p->addr) ||
-+	    is_module_text_address((unsigned long) p->addr)) ||
- 	    within_kprobe_blacklist((unsigned long) p->addr) ||
- 	    jump_label_text_reserved(p->addr, p->addr) ||
- 	    static_call_text_reserved(p->addr, p->addr) ||
--- 
-2.35.1
-
++			AMD-based UNRET and IBPB mitigations alone do not stop
++			sibling threads from influencing the predictions of other
++			sibling threads. For that reason, STIBP is used on pro-
++			cessors that support it, and mitigate SMT on processors
++			that don't.
++
+ 			off          - no mitigation
+ 			auto         - automatically select a migitation
+ 			auto,nosmt   - automatically select a mitigation,
+ 				       disabling SMT if necessary for
+ 				       the full mitigation (only on Zen1
+ 				       and older without STIBP).
+-			ibpb	     - mitigate short speculation windows on
+-				       basic block boundaries too. Safe, highest
+-				       perf impact.
+-			unret        - force enable untrained return thunks,
+-				       only effective on AMD f15h-f17h
+-				       based systems.
+-			unret,nosmt  - like unret, will disable SMT when STIBP
+-			               is not available.
++			ibpb         - On AMD, mitigate short speculation
++				       windows on basic block boundaries too.
++				       Safe, highest perf impact. It also
++				       enables STIBP if present. Not suitable
++				       on Intel.
++			ibpb,nosmt   - Like "ibpb" above but will disable SMT
++				       when STIBP is not available. This is
++				       the alternative for systems which do not
++				       have STIBP.
++			unret        - Force enable untrained return thunks,
++				       only effective on AMD f15h-f17h based
++				       systems.
++			unret,nosmt  - Like unret, but will disable SMT when STIBP
++				       is not available. This is the alternative for
++				       systems which do not have STIBP.
+ 
+ 			Selecting 'auto' will choose a mitigation method at run
+ 			time according to the CPU.
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -152,7 +152,7 @@ void __init check_bugs(void)
+ 	/*
+ 	 * spectre_v2_user_select_mitigation() relies on the state set by
+ 	 * retbleed_select_mitigation(); specifically the STIBP selection is
+-	 * forced for UNRET.
++	 * forced for UNRET or IBPB.
+ 	 */
+ 	spectre_v2_user_select_mitigation();
+ 	ssb_select_mitigation();
+@@ -1172,7 +1172,8 @@ spectre_v2_user_select_mitigation(void)
+ 	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
+ 		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
+ 
+-	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET) {
++	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET ||
++	    retbleed_mitigation == RETBLEED_MITIGATION_IBPB) {
+ 		if (mode != SPECTRE_V2_USER_STRICT &&
+ 		    mode != SPECTRE_V2_USER_STRICT_PREFERRED)
+ 			pr_info("Selecting STIBP always-on mode to complement retbleed mitigation\n");
+@@ -2353,10 +2354,11 @@ static ssize_t srbds_show_state(char *bu
+ 
+ static ssize_t retbleed_show_state(char *buf)
+ {
+-	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET) {
++	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET ||
++	    retbleed_mitigation == RETBLEED_MITIGATION_IBPB) {
+ 	    if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
+ 		boot_cpu_data.x86_vendor != X86_VENDOR_HYGON)
+-		    return sprintf(buf, "Vulnerable: untrained return thunk on non-Zen uarch\n");
++		    return sprintf(buf, "Vulnerable: untrained return thunk / IBPB on non-AMD based uarch\n");
+ 
+ 	    return sprintf(buf, "%s; SMT %s\n",
+ 			   retbleed_strings[retbleed_mitigation],
 
 
