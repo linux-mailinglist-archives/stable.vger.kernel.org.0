@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8AEA594BEA
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:31:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7897359484F
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242501AbiHPAxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:53:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46144 "EHLO
+        id S1343694AbiHOX30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:29:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347923AbiHPAv4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:51:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E764DA3C1;
-        Mon, 15 Aug 2022 13:47:14 -0700 (PDT)
+        with ESMTP id S244637AbiHOXYP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:24:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AD7F876B6;
+        Mon, 15 Aug 2022 13:05:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29BF8B8114A;
-        Mon, 15 Aug 2022 20:47:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BFE6C433D6;
-        Mon, 15 Aug 2022 20:47:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DDA2B6068D;
+        Mon, 15 Aug 2022 20:05:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D03EAC433D6;
+        Mon, 15 Aug 2022 20:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596430;
-        bh=b36WB6IAy6WVS7Me8ov6v93+IVXEGpv3YEPhTmt49s0=;
+        s=korg; t=1660593947;
+        bh=kcuCtULqp2kPi5vMU4qtw7Ki1COObkUW6h4KdKchGMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RCyoz3fkCNrky7aByoQ+LF6NT2WJu7Hl9kkkG+DrsaF2OL6yVa6EG0dorhcKmXera
-         UPhqOcCAZTZUIL71BHVnWiUBMAwUbZBHX1ReGNlZyGNmq1tUl/KpVevMo3jcIGa6HY
-         V9qUA1PATiyj9dmCpSXpQBtzKI/8UjbqttXyiYuA=
+        b=Z3tSE//f4wVND0u8N9564HmSFHTwpmPtj/AS6191Eb732JJwYk83QBLtKfHQqXFaQ
+         yQQlcK5Nvam3ho9xou4lISKcz7sfvUo72iJoXhD7qq639NCb84ogQBRm12OO0CaD6C
+         DGfLBL4AxPa0SBggoB2Dh59+qCkDcr8fAAiULqnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Eric Biggers <ebiggers@google.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        stable@vger.kernel.org,
+        Artem Bityutskiy <artem.bityutskiy@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1076/1157] timekeeping: contribute wall clock to rng on time change
+Subject: [PATCH 5.18 1033/1095] intel_idle: make SPR C1 and C1E be independent
 Date:   Mon, 15 Aug 2022 20:07:12 +0200
-Message-Id: <20220815180523.167658976@linuxfoundation.org>
+Message-Id: <20220815180511.794102365@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
-[ Upstream commit b8ac29b40183a6038919768b5d189c9bd91ce9b4 ]
+[ Upstream commit 1548fac47a114b42063def551eb152a536ed9697 ]
 
-The rng's random_init() function contributes the real time to the rng at
-boot time, so that events can at least start in relation to something
-particular in the real world. But this clock might not yet be set that
-point in boot, so nothing is contributed. In addition, the relation
-between minor clock changes from, say, NTP, and the cycle counter is
-potentially useful entropic data.
+This patch partially reverts the changes made by the following commit:
 
-This commit addresses this by mixing in a time stamp on calls to
-settimeofday and adjtimex. No entropy is credited in doing so, so it
-doesn't make initialization faster, but it is still useful input to
-have.
+da0e58c038e6 intel_idle: add 'preferred_cstates' module argument
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+As that commit describes, on early Sapphire Rapids Xeon platforms the C1 and
+C1E states were mutually exclusive, so that users could only have either C1 and
+C6, or C1E and C6.
+
+However, Intel firmware engineers managed to remove this limitation and make C1
+and C1E to be completely independent, just like on previous Xeon platforms.
+
+Therefore, this patch:
+ * Removes commentary describing the old, and now non-existing SPR C1E
+   limitation.
+ * Marks SPR C1E as available by default.
+ * Removes the 'preferred_cstates' parameter handling for SPR. Both C1 and
+   C1E will be available regardless of 'preferred_cstates' value.
+
+We expect that all SPR systems are shipping with new firmware, which includes
+the C1/C1E improvement.
+
+Cc: v5.18+ <stable@vger.kernel.org> # v5.18+
+Signed-off-by: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/timekeeping.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/idle/intel_idle.c | 24 +-----------------------
+ 1 file changed, 1 insertion(+), 23 deletions(-)
 
-diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-index 8e4b3c32fcf9..f72b9f1de178 100644
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -23,6 +23,7 @@
- #include <linux/pvclock_gtod.h>
- #include <linux/compiler.h>
- #include <linux/audit.h>
-+#include <linux/random.h>
+diff --git a/drivers/idle/intel_idle.c b/drivers/idle/intel_idle.c
+index 907700d1e78e..9515a3146dc9 100644
+--- a/drivers/idle/intel_idle.c
++++ b/drivers/idle/intel_idle.c
+@@ -911,16 +911,6 @@ static struct cpuidle_state adl_l_cstates[] __initdata = {
+ 		.enter = NULL }
+ };
  
- #include "tick-internal.h"
- #include "ntp_internal.h"
-@@ -1343,8 +1344,10 @@ int do_settimeofday64(const struct timespec64 *ts)
- 	/* Signal hrtimers about time change */
- 	clock_was_set(CLOCK_SET_WALL);
+-/*
+- * On Sapphire Rapids Xeon C1 has to be disabled if C1E is enabled, and vice
+- * versa. On SPR C1E is enabled only if "C1E promotion" bit is set in
+- * MSR_IA32_POWER_CTL. But in this case there effectively no C1, because C1
+- * requests are promoted to C1E. If the "C1E promotion" bit is cleared, then
+- * both C1 and C1E requests end up with C1, so there is effectively no C1E.
+- *
+- * By default we enable C1 and disable C1E by marking it with
+- * 'CPUIDLE_FLAG_UNUSABLE'.
+- */
+ static struct cpuidle_state spr_cstates[] __initdata = {
+ 	{
+ 		.name = "C1",
+@@ -933,8 +923,7 @@ static struct cpuidle_state spr_cstates[] __initdata = {
+ 	{
+ 		.name = "C1E",
+ 		.desc = "MWAIT 0x01",
+-		.flags = MWAIT2flg(0x01) | CPUIDLE_FLAG_ALWAYS_ENABLE |
+-					   CPUIDLE_FLAG_UNUSABLE,
++		.flags = MWAIT2flg(0x01) | CPUIDLE_FLAG_ALWAYS_ENABLE,
+ 		.exit_latency = 2,
+ 		.target_residency = 4,
+ 		.enter = &intel_idle,
+@@ -1756,17 +1745,6 @@ static void __init spr_idle_state_table_update(void)
+ {
+ 	unsigned long long msr;
  
--	if (!ret)
-+	if (!ret) {
- 		audit_tk_injoffset(ts_delta);
-+		add_device_randomness(ts, sizeof(*ts));
-+	}
- 
- 	return ret;
- }
-@@ -2430,6 +2433,7 @@ int do_adjtimex(struct __kernel_timex *txc)
- 	ret = timekeeping_validate_timex(txc);
- 	if (ret)
- 		return ret;
-+	add_device_randomness(txc, sizeof(*txc));
- 
- 	if (txc->modes & ADJ_SETOFFSET) {
- 		struct timespec64 delta;
-@@ -2447,6 +2451,7 @@ int do_adjtimex(struct __kernel_timex *txc)
- 	audit_ntp_init(&ad);
- 
- 	ktime_get_real_ts64(&ts);
-+	add_device_randomness(&ts, sizeof(ts));
- 
- 	raw_spin_lock_irqsave(&timekeeper_lock, flags);
- 	write_seqcount_begin(&tk_core.seq);
+-	/* Check if user prefers C1E over C1. */
+-	if ((preferred_states_mask & BIT(2)) &&
+-	    !(preferred_states_mask & BIT(1))) {
+-		/* Disable C1 and enable C1E. */
+-		spr_cstates[0].flags |= CPUIDLE_FLAG_UNUSABLE;
+-		spr_cstates[1].flags &= ~CPUIDLE_FLAG_UNUSABLE;
+-
+-		/* Enable C1E using the "C1E promotion" bit. */
+-		c1e_promotion = C1E_PROMOTION_ENABLE;
+-	}
+-
+ 	/*
+ 	 * By default, the C6 state assumes the worst-case scenario of package
+ 	 * C6. However, if PC6 is disabled, we update the numbers to match
 -- 
 2.35.1
 
