@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D175594D31
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 749DB594CE9
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343775AbiHPAmf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:42:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56458 "EHLO
+        id S1343685AbiHPAhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:37:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350173AbiHPAlm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:41:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32CAA1907E5;
-        Mon, 15 Aug 2022 13:39:55 -0700 (PDT)
+        with ESMTP id S1351852AbiHPAge (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:36:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B146118B888;
+        Mon, 15 Aug 2022 13:38:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF9E5B81197;
-        Mon, 15 Aug 2022 20:39:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AC42C433D6;
-        Mon, 15 Aug 2022 20:39:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E06AB80EA9;
+        Mon, 15 Aug 2022 20:38:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 671B2C433C1;
+        Mon, 15 Aug 2022 20:38:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595992;
-        bh=poDWCIjXQdZOYKDtK4fB+2LprMUP+thyEgOgjHZB9/Y=;
+        s=korg; t=1660595887;
+        bh=6ACOjqndLQ3Ih+OOe30yxTbZi6HcEEwp2lVFUhXVsv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g0sKesqrhzhhozYWzvuLH5k8O00mDQl2ZEdRPWMqfioAyj/5KflHPy++PDdi5uomU
-         df9RejyyTmhs4lPnVtL+vPYCc3Wt/his8vvdBK+jrpaI6HhnaiOmnOdHIWh3CzuTJK
-         qnC2ncsxpzon/Ya8tGTZcBlNJ0qObkIpH3SZ+oNs=
+        b=OwD2kaRmwVrX45vCECCw7C49DUntf3JAh9RG8rEH7SRD6NJbbJGthMeJd2/lOOu+w
+         NRqTa4eym7E0tDbaB0VF9/rVplqxiG/Zar76JcFjeBAwr0gacX+1vkHnv7M1kiHfc0
+         anMWBYtyn43FUqyvJShpYkugcJsSVlvSIXBPLCYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0906/1157] ASoC: cs35l45: Add endianness flag in snd_soc_component_driver
-Date:   Mon, 15 Aug 2022 20:04:22 +0200
-Message-Id: <20220815180515.695385074@linuxfoundation.org>
+Subject: [PATCH 5.19 0907/1157] rpmsg: char: Add mutex protection for rpmsg_eptdev_open()
+Date:   Mon, 15 Aug 2022 20:04:23 +0200
+Message-Id: <20220815180515.735164159@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,37 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit d919630fe77904931277e663c902582ea6f4e4cf ]
+[ Upstream commit abe13e9a561d6b3e82b21362c0d6dd3ecd8a5b13 ]
 
-The endianness flag is used on the CODEC side to specify an
-ambivalence to endian, typically because it is lost over the hardware
-link. This device receives audio over an I2S DAI and as such should
-have endianness applied.
+There is no mutex protection for rpmsg_eptdev_open(),
+especially for eptdev->ept read and write operation.
+It may cause issues when multiple instances call
+rpmsg_eptdev_open() in parallel,the return state
+may be success or EBUSY.
 
-Fixes: 0d463d016000 ("ASoC: cs35l45: Add driver for Cirrus Logic CS35L45 Smart Amp")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220614131022.778057-1-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 964e8bedd5a1 ("rpmsg: char: Return an error if device already open")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1653104105-16779-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs35l45.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rpmsg/rpmsg_char.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/cs35l45.c b/sound/soc/codecs/cs35l45.c
-index 2367c1a4c10e..145051390471 100644
---- a/sound/soc/codecs/cs35l45.c
-+++ b/sound/soc/codecs/cs35l45.c
-@@ -500,6 +500,8 @@ static const struct snd_soc_component_driver cs35l45_component = {
- 	.num_controls = ARRAY_SIZE(cs35l45_controls),
+diff --git a/drivers/rpmsg/rpmsg_char.c b/drivers/rpmsg/rpmsg_char.c
+index b6183d4f62a2..4f2189111494 100644
+--- a/drivers/rpmsg/rpmsg_char.c
++++ b/drivers/rpmsg/rpmsg_char.c
+@@ -120,8 +120,11 @@ static int rpmsg_eptdev_open(struct inode *inode, struct file *filp)
+ 	struct rpmsg_device *rpdev = eptdev->rpdev;
+ 	struct device *dev = &eptdev->dev;
  
- 	.name = "cs35l45",
-+
-+	.endianness = 1,
- };
+-	if (eptdev->ept)
++	mutex_lock(&eptdev->ept_lock);
++	if (eptdev->ept) {
++		mutex_unlock(&eptdev->ept_lock);
+ 		return -EBUSY;
++	}
  
- static int __maybe_unused cs35l45_runtime_suspend(struct device *dev)
+ 	get_device(dev);
+ 
+@@ -137,11 +140,13 @@ static int rpmsg_eptdev_open(struct inode *inode, struct file *filp)
+ 	if (!ept) {
+ 		dev_err(dev, "failed to open %s\n", eptdev->chinfo.name);
+ 		put_device(dev);
++		mutex_unlock(&eptdev->ept_lock);
+ 		return -EINVAL;
+ 	}
+ 
+ 	eptdev->ept = ept;
+ 	filp->private_data = eptdev;
++	mutex_unlock(&eptdev->ept_lock);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
