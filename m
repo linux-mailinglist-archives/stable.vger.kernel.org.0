@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 898CE59424D
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E84CC594236
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349588AbiHOVsM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:48:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59474 "EHLO
+        id S243653AbiHOVrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:47:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350047AbiHOVrG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:47:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5589574364;
-        Mon, 15 Aug 2022 12:30:52 -0700 (PDT)
+        with ESMTP id S1350081AbiHOVrJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:47:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E448BCC3D;
+        Mon, 15 Aug 2022 12:30:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C331DB8107A;
-        Mon, 15 Aug 2022 19:30:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CD9CC433D6;
-        Mon, 15 Aug 2022 19:30:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B2306111E;
+        Mon, 15 Aug 2022 19:30:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B4D5C433D6;
+        Mon, 15 Aug 2022 19:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591849;
-        bh=qpyjHBlNmvh5qz8ZjsmPzt6EGeEiWMCvxwoRJDS94vo=;
+        s=korg; t=1660591855;
+        bh=2aMAS6nnDE24Xxc3BAWnHHAWPjrQi/Hpa0MkJi+LjSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fGYuF48P3MEqJ5w9iu6mAJJiEweInGgl73TDA6UhZpVk1nCAkPgoc4+61qBTNLO4B
-         qJcNq/UewZjir7P9GKUSjUcGzYf7QDQu+DVWOzfwsSVIfx5Fk4A3kMVzodtFhn3Yle
-         tQIhTAH+yw54JzXUVzE4lpAA4VFhMHcJwZONPCMQ=
+        b=FjGly0CdDaXA8aGtgNeglJvdusqDLmv53nBbFgUOGDDbVQshjmqQl/gUmkspRIdK+
+         1sWTsMtLBRA90FCydWCjf3KrSjW7dvHyFARH4CzI/78UMGWZCq9pS9IsymWikuizvD
+         og3iE7ceDIQH+6hJSKWQItcFuIAxW+V62L6H+JiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.19 0017/1157] add barriers to buffer_uptodate and set_buffer_uptodate
-Date:   Mon, 15 Aug 2022 19:49:33 +0200
-Message-Id: <20220815180440.140926483@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kasiak <j.kasiak@gmail.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.19 0018/1157] lockd: detect and reject lock arguments that overflow
+Date:   Mon, 15 Aug 2022 19:49:34 +0200
+Message-Id: <20220815180440.172832868@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,77 +54,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit d4252071b97d2027d246f6a82cbee4d52f618b47 upstream.
+commit 6930bcbfb6ceda63e298c6af6d733ecdf6bd4cde upstream.
 
-Let's have a look at this piece of code in __bread_slow:
+lockd doesn't currently vet the start and length in nlm4 requests like
+it should, and can end up generating lock requests with arguments that
+overflow when passed to the filesystem.
 
-	get_bh(bh);
-	bh->b_end_io = end_buffer_read_sync;
-	submit_bh(REQ_OP_READ, 0, bh);
-	wait_on_buffer(bh);
-	if (buffer_uptodate(bh))
-		return bh;
+The NLM4 protocol uses unsigned 64-bit arguments for both start and
+length, whereas struct file_lock tracks the start and end as loff_t
+values. By the time we get around to calling nlm4svc_retrieve_args,
+we've lost the information that would allow us to determine if there was
+an overflow.
 
-Neither wait_on_buffer nor buffer_uptodate contain any memory barrier.
-Consequently, if someone calls sb_bread and then reads the buffer data,
-the read of buffer data may be executed before wait_on_buffer(bh) on
-architectures with weak memory ordering and it may return invalid data.
+Start tracking the actual start and len for NLM4 requests in the
+nlm_lock. In nlm4svc_retrieve_args, vet these values to ensure they
+won't cause an overflow, and return NLM4_FBIG if they do.
 
-Fix this bug by adding a memory barrier to set_buffer_uptodate and an
-acquire barrier to buffer_uptodate (in a similar way as
-folio_test_uptodate and folio_mark_uptodate).
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://bugzilla.linux-nfs.org/show_bug.cgi?id=392
+Reported-by: Jan Kasiak <j.kasiak@gmail.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: <stable@vger.kernel.org> # 5.14+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/buffer_head.h |   25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ fs/lockd/svc4proc.c       |    8 ++++++++
+ fs/lockd/xdr4.c           |   19 ++-----------------
+ include/linux/lockd/xdr.h |    2 ++
+ 3 files changed, 12 insertions(+), 17 deletions(-)
 
---- a/include/linux/buffer_head.h
-+++ b/include/linux/buffer_head.h
-@@ -117,7 +117,6 @@ static __always_inline int test_clear_bu
-  * of the form "mark_buffer_foo()".  These are higher-level functions which
-  * do something in addition to setting a b_state bit.
-  */
--BUFFER_FNS(Uptodate, uptodate)
- BUFFER_FNS(Dirty, dirty)
- TAS_BUFFER_FNS(Dirty, dirty)
- BUFFER_FNS(Lock, locked)
-@@ -135,6 +134,30 @@ BUFFER_FNS(Meta, meta)
- BUFFER_FNS(Prio, prio)
- BUFFER_FNS(Defer_Completion, defer_completion)
+--- a/fs/lockd/svc4proc.c
++++ b/fs/lockd/svc4proc.c
+@@ -32,6 +32,10 @@ nlm4svc_retrieve_args(struct svc_rqst *r
+ 	if (!nlmsvc_ops)
+ 		return nlm_lck_denied_nolocks;
  
-+static __always_inline void set_buffer_uptodate(struct buffer_head *bh)
-+{
-+	/*
-+	 * make it consistent with folio_mark_uptodate
-+	 * pairs with smp_load_acquire in buffer_uptodate
-+	 */
-+	smp_mb__before_atomic();
-+	set_bit(BH_Uptodate, &bh->b_state);
-+}
++	if (lock->lock_start > OFFSET_MAX ||
++	    (lock->lock_len && ((lock->lock_len - 1) > (OFFSET_MAX - lock->lock_start))))
++		return nlm4_fbig;
 +
-+static __always_inline void clear_buffer_uptodate(struct buffer_head *bh)
-+{
-+	clear_bit(BH_Uptodate, &bh->b_state);
-+}
-+
-+static __always_inline int buffer_uptodate(const struct buffer_head *bh)
-+{
-+	/*
-+	 * make it consistent with folio_test_uptodate
-+	 * pairs with smp_mb__before_atomic in set_buffer_uptodate
-+	 */
-+	return (smp_load_acquire(&bh->b_state) & (1UL << BH_Uptodate)) != 0;
-+}
-+
- #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
+ 	/* Obtain host handle */
+ 	if (!(host = nlmsvc_lookup_host(rqstp, lock->caller, lock->len))
+ 	 || (argp->monitor && nsm_monitor(host) < 0))
+@@ -50,6 +54,10 @@ nlm4svc_retrieve_args(struct svc_rqst *r
+ 		/* Set up the missing parts of the file_lock structure */
+ 		lock->fl.fl_file  = file->f_file[mode];
+ 		lock->fl.fl_pid = current->tgid;
++		lock->fl.fl_start = (loff_t)lock->lock_start;
++		lock->fl.fl_end = lock->lock_len ?
++				   (loff_t)(lock->lock_start + lock->lock_len - 1) :
++				   OFFSET_MAX;
+ 		lock->fl.fl_lmops = &nlmsvc_lock_operations;
+ 		nlmsvc_locks_init_private(&lock->fl, host, (pid_t)lock->svid);
+ 		if (!lock->fl.fl_owner) {
+--- a/fs/lockd/xdr4.c
++++ b/fs/lockd/xdr4.c
+@@ -20,13 +20,6 @@
  
- /* If we *know* page->private refers to buffer_heads */
+ #include "svcxdr.h"
+ 
+-static inline loff_t
+-s64_to_loff_t(__s64 offset)
+-{
+-	return (loff_t)offset;
+-}
+-
+-
+ static inline s64
+ loff_t_to_s64(loff_t offset)
+ {
+@@ -70,8 +63,6 @@ static bool
+ svcxdr_decode_lock(struct xdr_stream *xdr, struct nlm_lock *lock)
+ {
+ 	struct file_lock *fl = &lock->fl;
+-	u64 len, start;
+-	s64 end;
+ 
+ 	if (!svcxdr_decode_string(xdr, &lock->caller, &lock->len))
+ 		return false;
+@@ -81,20 +72,14 @@ svcxdr_decode_lock(struct xdr_stream *xd
+ 		return false;
+ 	if (xdr_stream_decode_u32(xdr, &lock->svid) < 0)
+ 		return false;
+-	if (xdr_stream_decode_u64(xdr, &start) < 0)
++	if (xdr_stream_decode_u64(xdr, &lock->lock_start) < 0)
+ 		return false;
+-	if (xdr_stream_decode_u64(xdr, &len) < 0)
++	if (xdr_stream_decode_u64(xdr, &lock->lock_len) < 0)
+ 		return false;
+ 
+ 	locks_init_lock(fl);
+ 	fl->fl_flags = FL_POSIX;
+ 	fl->fl_type  = F_RDLCK;
+-	end = start + len - 1;
+-	fl->fl_start = s64_to_loff_t(start);
+-	if (len == 0 || end < 0)
+-		fl->fl_end = OFFSET_MAX;
+-	else
+-		fl->fl_end = s64_to_loff_t(end);
+ 
+ 	return true;
+ }
+--- a/include/linux/lockd/xdr.h
++++ b/include/linux/lockd/xdr.h
+@@ -41,6 +41,8 @@ struct nlm_lock {
+ 	struct nfs_fh		fh;
+ 	struct xdr_netobj	oh;
+ 	u32			svid;
++	u64			lock_start;
++	u64			lock_len;
+ 	struct file_lock	fl;
+ };
+ 
 
 
