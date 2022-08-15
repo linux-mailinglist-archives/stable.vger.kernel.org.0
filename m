@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7233C59506E
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99F1D595064
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231807AbiHPEmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:42:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42432 "EHLO
+        id S231653AbiHPEmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:42:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232113AbiHPEku (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:40:50 -0400
+        with ESMTP id S231879AbiHPEkc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:40:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD1EA8962;
-        Mon, 15 Aug 2022 13:33:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB864D1E18;
+        Mon, 15 Aug 2022 13:33:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3CDB3B811B6;
-        Mon, 15 Aug 2022 20:33:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F3C6C433D7;
-        Mon, 15 Aug 2022 20:33:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BA29B8113E;
+        Mon, 15 Aug 2022 20:33:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C34DCC433D6;
+        Mon, 15 Aug 2022 20:33:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595580;
-        bh=x2Q/VPXMTMOlYtsTJ5bhyz1bIV5MeBrA1CJrnxVUrKY=;
+        s=korg; t=1660595587;
+        bh=lqFeD8MAkRoKJduKvTpl2VoSr2nYJ07xNk3pjF9zMZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZnyIb2YdatmcFM6odJEDlR23QznmucF/oRfU2ehtYa1wMHCWenB6iaE1MBv7bCnDw
-         C+Qlmz1G5cVXSYM98YvZXb+LrovYATmPzY+6CyBublhndsknq/3niPUviL8goky9Mn
-         xriy6G/txwbZTlZa+nzjfDfvtlVZirmzCbP6VKhU=
+        b=gGIyiEWd0VBU9TE169xc02sDK6NjW6WJDg4SzbWB5vJfmQ/mTRVt54B6mJ0vlZDfw
+         yAPfV/e5ajsHRnDVZ3VEQV7bdeAjO4Zu4B662AEeF/PqDrwEHy39TnJQ2Wvcw+W28J
+         O31RbDsRy4/RbFoVgOQXAqx3pVl9YjEor7YS0ncM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        stable@vger.kernel.org,
+        Rohith Kollalsi <quic_rkollals@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0810/1157] usb: dwc3: core: Deprecate GCTL.CORESOFTRESET
-Date:   Mon, 15 Aug 2022 20:02:46 +0200
-Message-Id: <20220815180511.894641368@linuxfoundation.org>
+Subject: [PATCH 5.19 0811/1157] usb: dwc3: core: Do not perform GCTL_CORE_SOFTRESET during bootup
+Date:   Mon, 15 Aug 2022 20:02:47 +0200
+Message-Id: <20220815180511.945558529@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -53,34 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Rohith Kollalsi <quic_rkollals@quicinc.com>
 
-[ Upstream commit afbd04e66e5d16ca3c7ea2e3c56eca25558eacf3 ]
+[ Upstream commit 07903626d98853e605fe63e5ce149f1b7314bbea ]
 
-Synopsys IP DWC_usb32 and DWC_usb31 version 1.90a and above deprecated
-GCTL.CORESOFTRESET. The DRD mode switching flow is updated to remove the
-GCTL soft reset. Add version checks to prevent using deprecated setting
-in mode switching flow.
+According to the programming guide, it is recommended to
+perform a GCTL_CORE_SOFTRESET only when switching the mode
+from device to host or host to device. However, it is found
+that during bootup when __dwc3_set_mode() is called for the
+first time, GCTL_CORESOFTRESET is done with suspendable bit(BIT 17)
+of DWC3_GUSB3PIPECTL set. This some times leads to issues
+like controller going into bad state and controller registers
+reading value zero. Until GCTL_CORESOFTRESET is done and
+run/stop bit is set core initialization is not complete.
+Setting suspendable bit of DWC3_GUSB3PIPECTL and then
+performing GCTL_CORESOFTRESET is therefore not recommended.
+Avoid this by only performing the reset if current_dr_role is set,
+that is, when doing subsequent role switching.
 
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/9df529fde6e55f5508321b6bc26e92848044ef2b.1655338967.git.Thinh.Nguyen@synopsys.com
+Fixes: f88359e1588b ("usb: dwc3: core: Do core softreset when switch mode")
+Signed-off-by: Rohith Kollalsi <quic_rkollals@quicinc.com>
+Link: https://lore.kernel.org/r/20220714045625.20377-1-quic_rkollals@quicinc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/core.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 573421984948..4c753cc0fa61 100644
+index 4c753cc0fa61..ba2fa91be1d6 100644
 --- a/drivers/usb/dwc3/core.c
 +++ b/drivers/usb/dwc3/core.c
-@@ -159,7 +159,8 @@ static void __dwc3_set_mode(struct work_struct *work)
+@@ -158,9 +158,13 @@ static void __dwc3_set_mode(struct work_struct *work)
+ 		break;
  	}
  
- 	/* For DRD host or device mode only */
--	if (dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG) {
-+	if ((DWC3_IP_IS(DWC3) || DWC3_VER_IS_PRIOR(DWC31, 190A)) &&
-+	    dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG) {
+-	/* For DRD host or device mode only */
+-	if ((DWC3_IP_IS(DWC3) || DWC3_VER_IS_PRIOR(DWC31, 190A)) &&
+-	    dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG) {
++	/*
++	 * When current_dr_role is not set, there's no role switching.
++	 * Only perform GCTL.CoreSoftReset when there's DRD role switching.
++	 */
++	if (dwc->current_dr_role && ((DWC3_IP_IS(DWC3) ||
++			DWC3_VER_IS_PRIOR(DWC31, 190A)) &&
++			dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG)) {
  		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
  		reg |= DWC3_GCTL_CORESOFTRESET;
  		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
