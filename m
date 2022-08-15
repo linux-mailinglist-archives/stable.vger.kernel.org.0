@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 791F8593B0A
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59042593C26
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:37:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242439AbiHOUW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:22:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52840 "EHLO
+        id S1346511AbiHOUWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:22:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346913AbiHOUVe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:21:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C268698C83;
-        Mon, 15 Aug 2022 12:01:02 -0700 (PDT)
+        with ESMTP id S1347077AbiHOUV5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:21:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DE6298D24;
+        Mon, 15 Aug 2022 12:01:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1720E61281;
-        Mon, 15 Aug 2022 19:01:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C3F0C433D6;
-        Mon, 15 Aug 2022 19:01:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBC89B810A1;
+        Mon, 15 Aug 2022 19:01:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC971C433C1;
+        Mon, 15 Aug 2022 19:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590061;
-        bh=vNUtB1P/IFS9iU1uA3u5SiDX2rmwure8KH5yPxre4No=;
+        s=korg; t=1660590064;
+        bh=xExqZ2cjy5zyFW10bCJOCsLa1DT07p+HNJ7TEKasfsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=We8ukadPaZi7gPRa2aIsi2l2rQ63WK9yS67nqCHdoaqz/60uwQ+DAgqASeckAg20v
-         I5+KbxgIqfH//62dI0dO8PD0ziqHNnko+AWHhTaXGp9ICBQHABN6KZ3bkIZ/HJzsa0
-         DZQQr1/sC/0YJwg6ueNvIbXZvjhLA0o0HWhPb4Dk=
+        b=Yy2F37Kmgp6gDi/WpMfXTKK9lf2uOUF+4Zq+aZbJ/c/s5SxfcRUvmqqws09+g6Jig
+         zCYb4v6CBHwkNyc3Qgk1RR1UljLpuIdH0bzH4M988Rrm7kA1J5AT1hqEUtsoYPVJ7O
+         1YzHfwxG07g9qKlUXRmJ/l6eFiy+Rxr1+Kp9MLjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Peter Collingbourne <pcc@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0139/1095] arm64: kasan: Revert "arm64: mte: reset the page tag in page->flags"
-Date:   Mon, 15 Aug 2022 19:52:18 +0200
-Message-Id: <20220815180435.331228321@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0140/1095] arm64: errata: Remove AES hwcap for COMPAT tasks
+Date:   Mon, 15 Aug 2022 19:52:19 +0200
+Message-Id: <20220815180435.366390465@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,123 +54,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit 20794545c14692094a882d2221c251c4573e6adf ]
+[ Upstream commit 44b3834b2eed595af07021b1c64e6f9bc396398b ]
 
-This reverts commit e5b8d9218951e59df986f627ec93569a0d22149b.
+Cortex-A57 and Cortex-A72 have an erratum where an interrupt that
+occurs between a pair of AES instructions in aarch32 mode may corrupt
+the ELR. The task will subsequently produce the wrong AES result.
 
-Pages mapped in user-space with PROT_MTE have the allocation tags either
-zeroed or copied/restored to some user values. In order for the kernel
-to access such pages via page_address(), resetting the tag in
-page->flags was necessary. This tag resetting was deferred to
-set_pte_at() -> mte_sync_page_tags() but it can race with another CPU
-reading the flags (via page_to_virt()):
+The AES instructions are part of the cryptographic extensions, which are
+optional. User-space software will detect the support for these
+instructions from the hwcaps. If the platform doesn't support these
+instructions a software implementation should be used.
 
-P0 (mte_sync_page_tags):	P1 (memcpy from virt_to_page):
-				  Rflags!=0xff
-  Wflags=0xff
-  DMB (doesn't help)
-  Wtags=0
-				  Rtags=0   // fault
+Remove the hwcap bits on affected parts to indicate user-space should
+not use the AES instructions.
 
-Since now the post_alloc_hook() function resets the page->flags tag when
-unpoisoning is skipped for user pages (including the __GFP_ZEROTAGS
-case), revert the arm64 commit calling page_kasan_tag_reset().
-
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Peter Collingbourne <pcc@google.com>
-Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Acked-by: Andrey Konovalov <andreyknvl@gmail.com>
-Link: https://lore.kernel.org/r/20220610152141.2148929-5-catalin.marinas@arm.com
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: James Morse <james.morse@arm.com>
+Link: https://lore.kernel.org/r/20220714161523.279570-3-james.morse@arm.com
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/hibernate.c | 5 -----
- arch/arm64/kernel/mte.c       | 9 ---------
- arch/arm64/mm/copypage.c      | 9 ---------
- arch/arm64/mm/mteswap.c       | 9 ---------
- 4 files changed, 32 deletions(-)
+ Documentation/arm64/silicon-errata.rst |  4 ++++
+ arch/arm64/Kconfig                     | 16 ++++++++++++++++
+ arch/arm64/kernel/cpu_errata.c         | 16 ++++++++++++++++
+ arch/arm64/kernel/cpufeature.c         | 14 +++++++++++++-
+ arch/arm64/tools/cpucaps               |  1 +
+ 5 files changed, 50 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/hibernate.c b/arch/arm64/kernel/hibernate.c
-index 6328308be272..7754ef328657 100644
---- a/arch/arm64/kernel/hibernate.c
-+++ b/arch/arm64/kernel/hibernate.c
-@@ -300,11 +300,6 @@ static void swsusp_mte_restore_tags(void)
- 		unsigned long pfn = xa_state.xa_index;
- 		struct page *page = pfn_to_online_page(pfn);
+diff --git a/Documentation/arm64/silicon-errata.rst b/Documentation/arm64/silicon-errata.rst
+index d27db84d585e..0b4235b1f8c4 100644
+--- a/Documentation/arm64/silicon-errata.rst
++++ b/Documentation/arm64/silicon-errata.rst
+@@ -82,10 +82,14 @@ stable kernels.
+ +----------------+-----------------+-----------------+-----------------------------+
+ | ARM            | Cortex-A57      | #1319537        | ARM64_ERRATUM_1319367       |
+ +----------------+-----------------+-----------------+-----------------------------+
++| ARM            | Cortex-A57      | #1742098        | ARM64_ERRATUM_1742098       |
+++----------------+-----------------+-----------------+-----------------------------+
+ | ARM            | Cortex-A72      | #853709         | N/A                         |
+ +----------------+-----------------+-----------------+-----------------------------+
+ | ARM            | Cortex-A72      | #1319367        | ARM64_ERRATUM_1319367       |
+ +----------------+-----------------+-----------------+-----------------------------+
++| ARM            | Cortex-A72      | #1655431        | ARM64_ERRATUM_1742098       |
+++----------------+-----------------+-----------------+-----------------------------+
+ | ARM            | Cortex-A73      | #858921         | ARM64_ERRATUM_858921        |
+ +----------------+-----------------+-----------------+-----------------------------+
+ | ARM            | Cortex-A76      | #1188873,1418040| ARM64_ERRATUM_1418040       |
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 20ea89d9ac2f..b2d5a1e8eda3 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -500,6 +500,22 @@ config ARM64_ERRATUM_834220
  
--		/*
--		 * It is not required to invoke page_kasan_tag_reset(page)
--		 * at this point since the tags stored in page->flags are
--		 * already restored.
--		 */
- 		mte_restore_page_tags(page_address(page), tags);
+ 	  If unsure, say Y.
  
- 		mte_free_tag_storage(tags);
-diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
-index d502703e8373..d565ae25e48f 100644
---- a/arch/arm64/kernel/mte.c
-+++ b/arch/arm64/kernel/mte.c
-@@ -47,15 +47,6 @@ static void mte_sync_page_tags(struct page *page, pte_t old_pte,
- 	if (!pte_is_tagged)
- 		return;
++config ARM64_ERRATUM_1742098
++	bool "Cortex-A57/A72: 1742098: ELR recorded incorrectly on interrupt taken between cryptographic instructions in a sequence"
++	depends on COMPAT
++	default y
++	help
++	  This option removes the AES hwcap for aarch32 user-space to
++	  workaround erratum 1742098 on Cortex-A57 and Cortex-A72.
++
++	  Affected parts may corrupt the AES state if an interrupt is
++	  taken between a pair of AES instructions. These instructions
++	  are only present if the cryptography extensions are present.
++	  All software should have a fallback implementation for CPUs
++	  that don't implement the cryptography extensions.
++
++	  If unsure, say Y.
++
+ config ARM64_ERRATUM_845719
+ 	bool "Cortex-A53: 845719: a load might read incorrect data"
+ 	depends on COMPAT
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index a0f3d0aaa3c5..27baa41c46ca 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -395,6 +395,14 @@ static struct midr_range trbe_write_out_of_range_cpus[] = {
+ };
+ #endif /* CONFIG_ARM64_WORKAROUND_TRBE_WRITE_OUT_OF_RANGE */
  
--	page_kasan_tag_reset(page);
--	/*
--	 * We need smp_wmb() in between setting the flags and clearing the
--	 * tags because if another thread reads page->flags and builds a
--	 * tagged address out of it, there is an actual dependency to the
--	 * memory access, but on the current thread we do not guarantee that
--	 * the new page->flags are visible before the tags were updated.
--	 */
--	smp_wmb();
- 	mte_clear_page_tags(page_address(page));
- }
- 
-diff --git a/arch/arm64/mm/copypage.c b/arch/arm64/mm/copypage.c
-index 0dea80bf6de4..24913271e898 100644
---- a/arch/arm64/mm/copypage.c
-+++ b/arch/arm64/mm/copypage.c
-@@ -23,15 +23,6 @@ void copy_highpage(struct page *to, struct page *from)
- 
- 	if (system_supports_mte() && test_bit(PG_mte_tagged, &from->flags)) {
- 		set_bit(PG_mte_tagged, &to->flags);
--		page_kasan_tag_reset(to);
--		/*
--		 * We need smp_wmb() in between setting the flags and clearing the
--		 * tags because if another thread reads page->flags and builds a
--		 * tagged address out of it, there is an actual dependency to the
--		 * memory access, but on the current thread we do not guarantee that
--		 * the new page->flags are visible before the tags were updated.
--		 */
--		smp_wmb();
- 		mte_copy_page_tags(kto, kfrom);
++#ifdef CONFIG_ARM64_ERRATUM_1742098
++static struct midr_range broken_aarch32_aes[] = {
++	MIDR_RANGE(MIDR_CORTEX_A57, 0, 1, 0xf, 0xf),
++	MIDR_ALL_VERSIONS(MIDR_CORTEX_A72),
++	{},
++};
++#endif /* CONFIG_ARM64_WORKAROUND_TRBE_WRITE_OUT_OF_RANGE */
++
+ const struct arm64_cpu_capabilities arm64_errata[] = {
+ #ifdef CONFIG_ARM64_WORKAROUND_CLEAN_CACHE
+ 	{
+@@ -657,6 +665,14 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+ 		/* Cortex-A510 r0p0 - r0p1 */
+ 		ERRATA_MIDR_REV_RANGE(MIDR_CORTEX_A510, 0, 0, 1)
+ 	},
++#endif
++#ifdef CONFIG_ARM64_ERRATUM_1742098
++	{
++		.desc = "ARM erratum 1742098",
++		.capability = ARM64_WORKAROUND_1742098,
++		CAP_MIDR_RANGE_LIST(broken_aarch32_aes),
++		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
++	},
+ #endif
+ 	{
  	}
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index 2cb9cc9e0eff..5357ba7ea3c7 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -79,6 +79,7 @@
+ #include <asm/cpufeature.h>
+ #include <asm/cpu_ops.h>
+ #include <asm/fpsimd.h>
++#include <asm/hwcap.h>
+ #include <asm/insn.h>
+ #include <asm/kvm_host.h>
+ #include <asm/mmu_context.h>
+@@ -1921,6 +1922,14 @@ static void cpu_enable_mte(struct arm64_cpu_capabilities const *cap)
  }
-diff --git a/arch/arm64/mm/mteswap.c b/arch/arm64/mm/mteswap.c
-index a9e50e930484..4334dec93bd4 100644
---- a/arch/arm64/mm/mteswap.c
-+++ b/arch/arm64/mm/mteswap.c
-@@ -53,15 +53,6 @@ bool mte_restore_tags(swp_entry_t entry, struct page *page)
- 	if (!tags)
- 		return false;
+ #endif /* CONFIG_ARM64_MTE */
  
--	page_kasan_tag_reset(page);
--	/*
--	 * We need smp_wmb() in between setting the flags and clearing the
--	 * tags because if another thread reads page->flags and builds a
--	 * tagged address out of it, there is an actual dependency to the
--	 * memory access, but on the current thread we do not guarantee that
--	 * the new page->flags are visible before the tags were updated.
--	 */
--	smp_wmb();
- 	mte_restore_page_tags(page_address(page), tags);
++static void elf_hwcap_fixup(void)
++{
++#ifdef CONFIG_ARM64_ERRATUM_1742098
++	if (cpus_have_const_cap(ARM64_WORKAROUND_1742098))
++		compat_elf_hwcap2 &= ~COMPAT_HWCAP2_AES;
++#endif /* ARM64_ERRATUM_1742098 */
++}
++
+ #ifdef CONFIG_KVM
+ static bool is_kvm_protected_mode(const struct arm64_cpu_capabilities *entry, int __unused)
+ {
+@@ -3033,8 +3042,10 @@ void __init setup_cpu_features(void)
+ 	setup_system_capabilities();
+ 	setup_elf_hwcaps(arm64_elf_hwcaps);
  
- 	return true;
+-	if (system_supports_32bit_el0())
++	if (system_supports_32bit_el0()) {
+ 		setup_elf_hwcaps(compat_elf_hwcaps);
++		elf_hwcap_fixup();
++	}
+ 
+ 	if (system_uses_ttbr0_pan())
+ 		pr_info("emulated: Privileged Access Never (PAN) using TTBR0_EL1 switching\n");
+@@ -3086,6 +3097,7 @@ static int enable_mismatched_32bit_el0(unsigned int cpu)
+ 							 cpu_active_mask);
+ 	get_cpu_device(lucky_winner)->offline_disabled = true;
+ 	setup_elf_hwcaps(compat_elf_hwcaps);
++	elf_hwcap_fixup();
+ 	pr_info("Asymmetric 32-bit EL0 support detected on CPU %u; CPU hot-unplug disabled on CPU %u\n",
+ 		cpu, lucky_winner);
+ 	return 0;
+diff --git a/arch/arm64/tools/cpucaps b/arch/arm64/tools/cpucaps
+index 3ed418f70e3b..8cd6088f8875 100644
+--- a/arch/arm64/tools/cpucaps
++++ b/arch/arm64/tools/cpucaps
+@@ -58,6 +58,7 @@ WORKAROUND_1418040
+ WORKAROUND_1463225
+ WORKAROUND_1508412
+ WORKAROUND_1542419
++WORKAROUND_1742098
+ WORKAROUND_1902691
+ WORKAROUND_2038923
+ WORKAROUND_2064142
 -- 
 2.35.1
 
