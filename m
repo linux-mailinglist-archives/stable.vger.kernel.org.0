@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03E31593B16
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E45F593C1B
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:37:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343962AbiHOTkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1344368AbiHOTkS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Aug 2022 15:40:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55348 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343953AbiHOTiQ (ORCPT
+        with ESMTP id S1343957AbiHOTiQ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:38:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1587331357;
-        Mon, 15 Aug 2022 11:46:29 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F36031DC4;
+        Mon, 15 Aug 2022 11:46:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BEBCB8105D;
-        Mon, 15 Aug 2022 18:46:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1DACC433D6;
-        Mon, 15 Aug 2022 18:46:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D383611DB;
+        Mon, 15 Aug 2022 18:46:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A48FC433C1;
+        Mon, 15 Aug 2022 18:46:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589186;
-        bh=OiLI/r7+B3K8dB10cvzdDcNRahAya9DTiPCTuRpfaaw=;
+        s=korg; t=1660589189;
+        bh=6He/nieo34FbAoePLRcPRcoYRJZGQDmNooBT9RKLjkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uNgTd/CtRuDd0G+HVBLBSuyFObninhKDZhnwtP/5pqaT8tl358Uvyzi4wlL6qkl6W
-         /otFFrek0FXReD2z+QNHSMIkQKnGYI0aIOwlM/70y+wVUNxkG+1AjXcYwUmQcl58+S
-         LwcMHnlk2JUMBC+y0bGInNecQbBfzJ8beNsKSs5k=
+        b=NvUpYPVKjemBDeYkrXCZ3T1uEnx1+CPE0cK9rJpnpu+f22sm3q3mgJ0qIkcq7vR4r
+         x7JUWK0Qdih6lR5T8tfabyjpm38sN1lFUpBMtMe250goGMgV0oJUmQaFW+bw5BVgiE
+         eolfAxp/8gzC5eJA4H0zLdxiFugMG0b7bMFd3PuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 640/779] s390/dump: fix os_info virtual vs physical address confusion
-Date:   Mon, 15 Aug 2022 20:04:44 +0200
-Message-Id: <20220815180404.705724643@linuxfoundation.org>
+Subject: [PATCH 5.15 641/779] s390/smp: cleanup target CPU callback starting
+Date:   Mon, 15 Aug 2022 20:04:45 +0200
+Message-Id: <20220815180404.755545770@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,44 +57,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit 9de209c7d584d6e06ad92f120d83d4f27c200497 ]
+[ Upstream commit dc2ab23b992c9d5dab93b9bf01b10b10465e537e ]
 
-Due to historical reasons os_info handling functions misuse
-the notion of physical vs virtual addresses difference.
+Macro mem_assign_absolute() is used to initialize a target
+CPU lowcore callback parameters. But despite the macro name
+it writes to the absolute lowcore only if the target CPU is
+offline. In case the CPU is online the macro does implicitly
+write to the normal memory.
 
-Note: this does not fix a bug currently, since virtual
-and physical addresses are identical.
+That behaviour is correct, but extremely subtle. Sacrifice
+few program bits in favour of clarity and distinguish between
+online vs offline CPUs and normal vs absolute lowcore pointer.
 
 Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/os_info.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kernel/smp.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kernel/os_info.c b/arch/s390/kernel/os_info.c
-index e548844dde28..6b5b64e67eee 100644
---- a/arch/s390/kernel/os_info.c
-+++ b/arch/s390/kernel/os_info.c
-@@ -46,7 +46,7 @@ void os_info_crashkernel_add(unsigned long base, unsigned long size)
-  */
- void os_info_entry_add(int nr, void *ptr, u64 size)
- {
--	os_info.entry[nr].addr = (u64)(unsigned long)ptr;
-+	os_info.entry[nr].addr = __pa(ptr);
- 	os_info.entry[nr].size = size;
- 	os_info.entry[nr].csum = (__force u32)csum_partial(ptr, size, 0);
- 	os_info.csum = os_info_csum(&os_info);
-@@ -63,7 +63,7 @@ void __init os_info_init(void)
- 	os_info.version_minor = OS_INFO_VERSION_MINOR;
- 	os_info.magic = OS_INFO_MAGIC;
- 	os_info.csum = os_info_csum(&os_info);
--	mem_assign_absolute(S390_lowcore.os_info, (unsigned long) ptr);
-+	mem_assign_absolute(S390_lowcore.os_info, __pa(ptr));
- }
- 
- #ifdef CONFIG_CRASH_DUMP
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index e57eb2260b90..982b72ca677c 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -328,10 +328,17 @@ static void pcpu_delegate(struct pcpu *pcpu,
+ 	/* Stop target cpu (if func returns this stops the current cpu). */
+ 	pcpu_sigp_retry(pcpu, SIGP_STOP, 0);
+ 	/* Restart func on the target cpu and stop the current cpu. */
+-	mem_assign_absolute(lc->restart_stack, stack);
+-	mem_assign_absolute(lc->restart_fn, (unsigned long) func);
+-	mem_assign_absolute(lc->restart_data, (unsigned long) data);
+-	mem_assign_absolute(lc->restart_source, source_cpu);
++	if (lc) {
++		lc->restart_stack = stack;
++		lc->restart_fn = (unsigned long)func;
++		lc->restart_data = (unsigned long)data;
++		lc->restart_source = source_cpu;
++	} else {
++		mem_assign_absolute(lc->restart_stack, stack);
++		mem_assign_absolute(lc->restart_fn, (unsigned long)func);
++		mem_assign_absolute(lc->restart_data, (unsigned long)data);
++		mem_assign_absolute(lc->restart_source, source_cpu);
++	}
+ 	__bpon();
+ 	asm volatile(
+ 		"0:	sigp	0,%0,%2	# sigp restart to target cpu\n"
 -- 
 2.35.1
 
