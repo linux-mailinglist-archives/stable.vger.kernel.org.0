@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C80559368D
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D565A593637
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:24:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244730AbiHOS6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:58:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49096 "EHLO
+        id S233396AbiHOS6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:58:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245022AbiHOS4d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:56:33 -0400
+        with ESMTP id S245042AbiHOS4f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:56:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 593273123E;
-        Mon, 15 Aug 2022 11:31:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A5AA2C67B;
+        Mon, 15 Aug 2022 11:31:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1A9061029;
-        Mon, 15 Aug 2022 18:31:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD37CC433D6;
-        Mon, 15 Aug 2022 18:31:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7104B61043;
+        Mon, 15 Aug 2022 18:31:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 486C8C433D6;
+        Mon, 15 Aug 2022 18:31:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588271;
-        bh=cTSrOZZlQgwy0HFIlp6AGXKL8rVxPWkxyDtUG4Olxmw=;
+        s=korg; t=1660588274;
+        bh=Am9f5DX2cRApJL2HJEP4OQCjdiP3VXL6uJRI/RttOyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kEXFY1xxHiKlKzM63U4MhLUoSnWchax/TlAZQ7mcX1Mi8hXZ9OVL5+xVxmDP0u14L
-         9KLSD3Yh2jiIdc+wIn5x2Tb6cA15eATFB1Z9Ugyp3/4urI7DEpjoqvUmuKlJIXEM2O
-         FdTVa17QNnUYsHQLSJVuAaPq5CtwgmI3b7lvB/ZE=
+        b=GYdx9mzHNIAUoDsEWQsOSzUKkY+eoUtqiiAoI5rbg+Z0ycUeWhOAr2cy2KeMmh4cT
+         I25bLQkzQ4BZjSkgbDQvgz4Xbw730FZoEhwYLa/R16ScGb1muJ/bhxtPFOsOp/IsW1
+         rQciFrgNVX/o2KEZAAfIWRSI2dpKyovyy6VJgC/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Martin KaFai Lau <kafai@fb.com>,
         Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 349/779] selftests/bpf: fix a test for snprintf() overflow
-Date:   Mon, 15 Aug 2022 19:59:53 +0200
-Message-Id: <20220815180352.150562016@linuxfoundation.org>
+Subject: [PATCH 5.15 350/779] libbpf: fix an snprintf() overflow check
+Date:   Mon, 15 Aug 2022 19:59:54 +0200
+Message-Id: <20220815180352.200320192@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,35 +57,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c5d22f4cfe8dfb93f1db0a1e7e2e7ebc41395d98 ]
+[ Upstream commit b77ffb30cfc5f58e957571d8541c6a7e3da19221 ]
 
-The snprintf() function returns the number of bytes which *would*
-have been copied if there were space.  In other words, it can be
-> sizeof(pin_path).
+The snprintf() function returns the number of bytes it *would* have
+copied if there were enough space.  So it can return > the
+sizeof(gen->attach_target).
 
-Fixes: c0fa1b6c3efc ("bpf: btf: Add BTF tests")
+Fixes: 67234743736a ("libbpf: Generate loader program out of BPF ELF file.")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/r/YtZ+aD/tZMkgOUw+@kili
+Link: https://lore.kernel.org/r/YtZ+oAySqIhFl6/J@kili
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/btf.c | 2 +-
+ tools/lib/bpf/gen_loader.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/btf.c b/tools/testing/selftests/bpf/prog_tests/btf.c
-index 649f87382c8d..50afa75bd45b 100644
---- a/tools/testing/selftests/bpf/prog_tests/btf.c
-+++ b/tools/testing/selftests/bpf/prog_tests/btf.c
-@@ -4913,7 +4913,7 @@ static void do_test_pprint(int test_num)
- 	ret = snprintf(pin_path, sizeof(pin_path), "%s/%s",
- 		       "/sys/fs/bpf", test->map_name);
+diff --git a/tools/lib/bpf/gen_loader.c b/tools/lib/bpf/gen_loader.c
+index 33c19590ee43..4435c09fe132 100644
+--- a/tools/lib/bpf/gen_loader.c
++++ b/tools/lib/bpf/gen_loader.c
+@@ -480,7 +480,7 @@ void bpf_gen__record_attach_target(struct bpf_gen *gen, const char *attach_name,
+ 	gen->attach_kind = kind;
+ 	ret = snprintf(gen->attach_target, sizeof(gen->attach_target), "%s%s",
+ 		       prefix, attach_name);
+-	if (ret == sizeof(gen->attach_target))
++	if (ret >= sizeof(gen->attach_target))
+ 		gen->error = -ENOSPC;
+ }
  
--	if (CHECK(ret == sizeof(pin_path), "pin_path %s/%s is too long",
-+	if (CHECK(ret >= sizeof(pin_path), "pin_path %s/%s is too long",
- 		  "/sys/fs/bpf", test->map_name)) {
- 		err = -1;
- 		goto done;
 -- 
 2.35.1
 
