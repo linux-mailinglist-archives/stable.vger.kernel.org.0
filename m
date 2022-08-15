@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5FF5593B31
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 573E4593C38
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344873AbiHOTpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43280 "EHLO
+        id S1344646AbiHOTn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:43:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344510AbiHOTn0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:43:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 458B06B173;
-        Mon, 15 Aug 2022 11:48:21 -0700 (PDT)
+        with ESMTP id S1345251AbiHOTmm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:42:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D2616C104;
+        Mon, 15 Aug 2022 11:48:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BA95B81057;
-        Mon, 15 Aug 2022 18:48:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87626C433D6;
-        Mon, 15 Aug 2022 18:48:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89311611EC;
+        Mon, 15 Aug 2022 18:48:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FD0FC433D7;
+        Mon, 15 Aug 2022 18:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589298;
-        bh=xP/ztu0pUq3CTpZIxN6O309pzYdzPqxQGpCHUkUVZK4=;
+        s=korg; t=1660589300;
+        bh=BWkT5Y8yauvayeEYP3032GkgL1q2sJJNLjErP6LavCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rswcGjtObRCu5AaUcdteoFBQbiONL6UhraOHURbewxxoGpuoZD669ZzsPzGUVteF9
-         FOL3uVEI0NpTxLlGahZqJYLyNLDlIRwhUArHc/NLipXwhK6nUYoVtJD2/S/Li7/Owi
-         P2CBlMWqEt1byWNK18dfm7jOTA19O+0+v60IyHXk=
+        b=ec1jM+0zu4BYGCslZtrXUUsiojiyvA5mPVzDQrlEvEKBq/7p/AIRU7LTwX7nLRe1x
+         kugJXadSK71UcHRVLsTqiti1j3ylqNk1DtzN2D0mGNJd/V3xxDtSxuZETUiCucxeqc
+         wKGv3553CTUNIQVBFG5I2NKmE8uOcsr3iDoSt4Bk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
+        stable@vger.kernel.org, Naresh Bannoth <nbannoth@in.ibm.com>,
+        Kyle Mahlkuch <Kyle.Mahlkuch@ibm.com>,
+        Quinn Tran <qutran@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 675/779] scsi: qla2xxx: Fix excessive I/O error messages by default
-Date:   Mon, 15 Aug 2022 20:05:19 +0200
-Message-Id: <20220815180406.199561698@linuxfoundation.org>
+Subject: [PATCH 5.15 676/779] scsi: qla2xxx: Fix erroneous mailbox timeout after PCI error injection
+Date:   Mon, 15 Aug 2022 20:05:20 +0200
+Message-Id: <20220815180406.248729432@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,43 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Quinn Tran <qutran@marvell.com>
 
-commit bff4873c709085e09d0ffae0c25b8e65256e3205 upstream.
+commit f260694e6463b63ae550aad25ddefe94cb1904da upstream.
 
-Disable printing I/O error messages by default.  The messages will be
-printed only when logging was enabled.
+Clear wait for mailbox interrupt flag to prevent stale mailbox:
 
-Link: https://lore.kernel.org/r/20220616053508.27186-2-njavali@marvell.com
-Fixes: 8e2d81c6b5be ("scsi: qla2xxx: Fix excessive messages during device logout")
+Feb 22 05:22:56 ltcden4-lp7 kernel: qla2xxx [0135:90:00.1]-500a:4: LOOP UP detected (16 Gbps).
+Feb 22 05:22:59 ltcden4-lp7 kernel: qla2xxx [0135:90:00.1]-d04c:4: MBX Command timeout for cmd 69, ...
+
+To fix the issue, driver needs to clear the MBX_INTR_WAIT flag on purging
+the mailbox. When the stale mailbox completion does arrive, it will be
+dropped.
+
+Link: https://lore.kernel.org/r/20220616053508.27186-11-njavali@marvell.com
+Fixes: b6faaaf796d7 ("scsi: qla2xxx: Serialize mailbox request")
+Cc: Naresh Bannoth <nbannoth@in.ibm.com>
+Cc: Kyle Mahlkuch <Kyle.Mahlkuch@ibm.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Arun Easi <aeasi@marvell.com>
+Reported-by: Naresh Bannoth <nbannoth@in.ibm.com>
+Tested-by: Naresh Bannoth <nbannoth@in.ibm.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_isr.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_mbx.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -2633,7 +2633,7 @@ static void qla24xx_nvme_iocb_entry(scsi
- 	}
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -276,6 +276,12 @@ qla2x00_mailbox_command(scsi_qla_host_t
+ 		atomic_inc(&ha->num_pend_mbx_stage3);
+ 		if (!wait_for_completion_timeout(&ha->mbx_intr_comp,
+ 		    mcp->tov * HZ)) {
++			ql_dbg(ql_dbg_mbx, vha, 0x117a,
++			    "cmd=%x Timeout.\n", command);
++			spin_lock_irqsave(&ha->hardware_lock, flags);
++			clear_bit(MBX_INTR_WAIT, &ha->mbx_cmd_flags);
++			spin_unlock_irqrestore(&ha->hardware_lock, flags);
++
+ 			if (chip_reset != ha->chip_reset) {
+ 				eeh_delay = ha->flags.eeh_busy ? 1 : 0;
  
- 	if (unlikely(logit))
--		ql_log(ql_dbg_io, fcport->vha, 0x5060,
-+		ql_dbg(ql_dbg_io, fcport->vha, 0x5060,
- 		   "NVME-%s ERR Handling - hdl=%x status(%x) tr_len:%x resid=%x  ox_id=%x\n",
- 		   sp->name, sp->handle, comp_status,
- 		   fd->transferred_length, le32_to_cpu(sts->residual_len),
-@@ -3491,7 +3491,7 @@ check_scsi_status:
- 
- out:
- 	if (logit)
--		ql_log(ql_dbg_io, fcport->vha, 0x3022,
-+		ql_dbg(ql_dbg_io, fcport->vha, 0x3022,
- 		       "FCP command status: 0x%x-0x%x (0x%x) nexus=%ld:%d:%llu portid=%02x%02x%02x oxid=0x%x cdb=%10phN len=0x%x rsp_info=0x%x resid=0x%x fw_resid=0x%x sp=%p cp=%p.\n",
- 		       comp_status, scsi_status, res, vha->host_no,
- 		       cp->device->id, cp->device->lun, fcport->d_id.b.domain,
+@@ -288,12 +294,6 @@ qla2x00_mailbox_command(scsi_qla_host_t
+ 				rval = QLA_ABORTED;
+ 				goto premature_exit;
+ 			}
+-			ql_dbg(ql_dbg_mbx, vha, 0x117a,
+-			    "cmd=%x Timeout.\n", command);
+-			spin_lock_irqsave(&ha->hardware_lock, flags);
+-			clear_bit(MBX_INTR_WAIT, &ha->mbx_cmd_flags);
+-			spin_unlock_irqrestore(&ha->hardware_lock, flags);
+-
+ 		} else if (ha->flags.purge_mbox ||
+ 		    chip_reset != ha->chip_reset) {
+ 			eeh_delay = ha->flags.eeh_busy ? 1 : 0;
 
 
