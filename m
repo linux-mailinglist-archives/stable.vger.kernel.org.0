@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B36F594C78
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 238A4594856
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244197AbiHPA7u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:59:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54572 "EHLO
+        id S1353498AbiHOXhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:37:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347961AbiHPA52 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:57:28 -0400
+        with ESMTP id S1353888AbiHOXgu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:36:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D0F7DAED6;
-        Mon, 15 Aug 2022 13:48:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE5D482FB9;
+        Mon, 15 Aug 2022 13:09:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF703B811AB;
-        Mon, 15 Aug 2022 20:48:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14836C433C1;
-        Mon, 15 Aug 2022 20:48:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13A7DB810C5;
+        Mon, 15 Aug 2022 20:09:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68D64C433C1;
+        Mon, 15 Aug 2022 20:09:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596528;
-        bh=aPB0rUdcfekjqm3H0m8FGPbGicTahUmBH0WeHRYV5hs=;
+        s=korg; t=1660594166;
+        bh=v79BDIz+bJxNdmMCpKkjIK9UA5+kvyKRUyd0IFt9G2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kglx+VVoS2FZ89V7eCegIMSavA0V+0ab6lPMszVkFPT/+y+l+xNTLSqQob1Jt5aSG
-         xLxW/XmOPxJJ12KK116FEYEfO3GMiGl/KTetIMAGyGPikmat8+Hfjz424RnErkMw4y
-         L3RD28ojm6/p1eCvlkO9sHU1ASn9Tl56RLbDNWhA=
+        b=IUMgZ9pqZaYZlwUMb9EPaEuUc5GDv9pPzl+/nLtqlcAMDj+Rtq5nIOgWPmvZ67X/E
+         XUKYXNk2qBw1DHNcfglVu7mdbVEEe3Su1qR1YR7CJXprNNakxm2L1N9K8FEX059W1v
+         qi9iEdshRg85XOFF3dX/qTiuVFDyz6elcjjaLMF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1108/1157] KVM: nVMX: Attempt to load PERF_GLOBAL_CTRL on nVMX xfer iff it exists
-Date:   Mon, 15 Aug 2022 20:07:44 +0200
-Message-Id: <20220815180524.609692721@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        Ritesh Harjani <ritesh.list@gmail.com>
+Subject: [PATCH 5.18 1066/1095] ext4: fix race when reusing xattr blocks
+Date:   Mon, 15 Aug 2022 20:07:45 +0200
+Message-Id: <20220815180513.145436023@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +54,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 4496a6f9b45e8cd83343ad86a3984d614e22cf54 ]
+[ Upstream commit 65f8b80053a1b2fd602daa6814e62d6fa90e5e9b ]
 
-Attempt to load PERF_GLOBAL_CTRL during nested VM-Enter/VM-Exit if and
-only if the MSR exists (according to the guest vCPU model).  KVM has very
-misguided handling of VM_{ENTRY,EXIT}_LOAD_IA32_PERF_GLOBAL_CTRL and
-attempts to force the nVMX MSR settings to match the vPMU model, i.e. to
-hide/expose the control based on whether or not the MSR exists from the
-guest's perspective.
+When ext4_xattr_block_set() decides to remove xattr block the following
+race can happen:
 
-KVM's modifications fail to handle the scenario where the vPMU is hidden
-from the guest _after_ being exposed to the guest, e.g. by userspace
-doing multiple KVM_SET_CPUID2 calls, which is allowed if done before any
-KVM_RUN.  nested_vmx_pmu_refresh() is called if and only if there's a
-recognized vPMU, i.e. KVM will leave the bits in the allow state and then
-ultimately reject the MSR load and WARN.
+CPU1                                    CPU2
+ext4_xattr_block_set()                  ext4_xattr_release_block()
+  new_bh = ext4_xattr_block_cache_find()
 
-KVM should not force the VMX MSRs in the first place.  KVM taking control
-of the MSRs was a misguided attempt at mimicking what commit 5f76f6f5ff96
-("KVM: nVMX: Do not expose MPX VMX controls when guest MPX disabled",
-2018-10-01) did for MPX.  However, the MPX commit was a workaround for
-another KVM bug and not something that should be imitated (and it should
-never been done in the first place).
+                                          lock_buffer(bh);
+                                          ref = le32_to_cpu(BHDR(bh)->h_refcount);
+                                          if (ref == 1) {
+                                            ...
+                                            mb_cache_entry_delete();
+                                            unlock_buffer(bh);
+                                            ext4_free_blocks();
+                                              ...
+                                              ext4_forget(..., bh, ...);
+                                                jbd2_journal_revoke(..., bh);
 
-In other words, KVM's ABI _should_ be that userspace has full control
-over the MSRs, at which point triggering the WARN that loading the MSR
-must not fail is trivial.
+  ext4_journal_get_write_access(..., new_bh, ...)
+    do_get_write_access()
+      jbd2_journal_cancel_revoke(..., new_bh);
 
-The intent of the WARN is still valid; KVM has consistency checks to
-ensure that vmcs12->{guest,host}_ia32_perf_global_ctrl is valid.  The
-problem is that '0' must be considered a valid value at all times, and so
-the simple/obvious solution is to just not actually load the MSR when it
-does not exist.  It is userspace's responsibility to provide a sane vCPU
-model, i.e. KVM is well within its ABI and Intel's VMX architecture to
-skip the loads if the MSR does not exist.
+Later the code in ext4_xattr_block_set() finds out the block got freed
+and cancels reusal of the block but the revoke stays canceled and so in
+case of block reuse and journal replay the filesystem can get corrupted.
+If the race works out slightly differently, we can also hit assertions
+in the jbd2 code.
 
-Fixes: 03a8871add95 ("KVM: nVMX: Expose load IA32_PERF_GLOBAL_CTRL VM-{Entry,Exit} control")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220722224409.1336532-5-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fix the problem by making sure that once matching mbcache entry is
+found, code dropping the last xattr block reference (or trying to modify
+xattr block in place) waits until the mbcache entry reference is
+dropped. This way code trying to reuse xattr block is protected from
+someone trying to drop the last reference to xattr block.
+
+Reported-and-tested-by: Ritesh Harjani <ritesh.list@gmail.com>
+CC: stable@vger.kernel.org
+Fixes: 82939d7999df ("ext4: convert to mbcache2")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220712105436.32204-5-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/ext4/xattr.c | 67 +++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 45 insertions(+), 22 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 66735fbb791d..ef21c5fe172e 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2617,6 +2617,7 @@ static int prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
- 	}
+diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
+index a25942a74929..533216e80fa2 100644
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -439,9 +439,16 @@ static int ext4_xattr_inode_iget(struct inode *parent, unsigned long ea_ino,
+ /* Remove entry from mbcache when EA inode is getting evicted */
+ void ext4_evict_ea_inode(struct inode *inode)
+ {
+-	if (EA_INODE_CACHE(inode))
+-		mb_cache_entry_delete(EA_INODE_CACHE(inode),
+-			ext4_xattr_inode_get_hash(inode), inode->i_ino);
++	struct mb_cache_entry *oe;
++
++	if (!EA_INODE_CACHE(inode))
++		return;
++	/* Wait for entry to get unused so that we can remove it */
++	while ((oe = mb_cache_entry_delete_or_get(EA_INODE_CACHE(inode),
++			ext4_xattr_inode_get_hash(inode), inode->i_ino))) {
++		mb_cache_entry_wait_unused(oe);
++		mb_cache_entry_put(EA_INODE_CACHE(inode), oe);
++	}
+ }
  
- 	if ((vmcs12->vm_entry_controls & VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL) &&
-+	    intel_pmu_has_perf_global_ctrl(vcpu_to_pmu(vcpu)) &&
- 	    WARN_ON_ONCE(kvm_set_msr(vcpu, MSR_CORE_PERF_GLOBAL_CTRL,
- 				     vmcs12->guest_ia32_perf_global_ctrl))) {
- 		*entry_failure_code = ENTRY_FAIL_DEFAULT;
-@@ -4342,7 +4343,8 @@ static void load_vmcs12_host_state(struct kvm_vcpu *vcpu,
- 		vmcs_write64(GUEST_IA32_PAT, vmcs12->host_ia32_pat);
- 		vcpu->arch.pat = vmcs12->host_ia32_pat;
- 	}
--	if (vmcs12->vm_exit_controls & VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL)
-+	if ((vmcs12->vm_exit_controls & VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL) &&
-+	    intel_pmu_has_perf_global_ctrl(vcpu_to_pmu(vcpu)))
- 		WARN_ON_ONCE(kvm_set_msr(vcpu, MSR_CORE_PERF_GLOBAL_CTRL,
- 					 vmcs12->host_ia32_perf_global_ctrl));
+ static int
+@@ -1229,6 +1236,7 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
+ 	if (error)
+ 		goto out;
  
++retry_ref:
+ 	lock_buffer(bh);
+ 	hash = le32_to_cpu(BHDR(bh)->h_hash);
+ 	ref = le32_to_cpu(BHDR(bh)->h_refcount);
+@@ -1238,9 +1246,18 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
+ 		 * This must happen under buffer lock for
+ 		 * ext4_xattr_block_set() to reliably detect freed block
+ 		 */
+-		if (ea_block_cache)
+-			mb_cache_entry_delete(ea_block_cache, hash,
+-					      bh->b_blocknr);
++		if (ea_block_cache) {
++			struct mb_cache_entry *oe;
++
++			oe = mb_cache_entry_delete_or_get(ea_block_cache, hash,
++							  bh->b_blocknr);
++			if (oe) {
++				unlock_buffer(bh);
++				mb_cache_entry_wait_unused(oe);
++				mb_cache_entry_put(ea_block_cache, oe);
++				goto retry_ref;
++			}
++		}
+ 		get_bh(bh);
+ 		unlock_buffer(bh);
+ 
+@@ -1867,9 +1884,20 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
+ 			 * ext4_xattr_block_set() to reliably detect modified
+ 			 * block
+ 			 */
+-			if (ea_block_cache)
+-				mb_cache_entry_delete(ea_block_cache, hash,
+-						      bs->bh->b_blocknr);
++			if (ea_block_cache) {
++				struct mb_cache_entry *oe;
++
++				oe = mb_cache_entry_delete_or_get(ea_block_cache,
++					hash, bs->bh->b_blocknr);
++				if (oe) {
++					/*
++					 * Xattr block is getting reused. Leave
++					 * it alone.
++					 */
++					mb_cache_entry_put(ea_block_cache, oe);
++					goto clone_block;
++				}
++			}
+ 			ea_bdebug(bs->bh, "modifying in-place");
+ 			error = ext4_xattr_set_entry(i, s, handle, inode,
+ 						     true /* is_block */);
+@@ -1885,6 +1913,7 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
+ 				goto cleanup;
+ 			goto inserted;
+ 		}
++clone_block:
+ 		unlock_buffer(bs->bh);
+ 		ea_bdebug(bs->bh, "cloning");
+ 		s->base = kmemdup(BHDR(bs->bh), bs->bh->b_size, GFP_NOFS);
+@@ -1990,18 +2019,13 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
+ 				lock_buffer(new_bh);
+ 				/*
+ 				 * We have to be careful about races with
+-				 * freeing, rehashing or adding references to
+-				 * xattr block. Once we hold buffer lock xattr
+-				 * block's state is stable so we can check
+-				 * whether the block got freed / rehashed or
+-				 * not.  Since we unhash mbcache entry under
+-				 * buffer lock when freeing / rehashing xattr
+-				 * block, checking whether entry is still
+-				 * hashed is reliable. Same rules hold for
+-				 * e_reusable handling.
++				 * adding references to xattr block. Once we
++				 * hold buffer lock xattr block's state is
++				 * stable so we can check the additional
++				 * reference fits.
+ 				 */
+-				if (hlist_bl_unhashed(&ce->e_hash_list) ||
+-				    !ce->e_reusable) {
++				ref = le32_to_cpu(BHDR(new_bh)->h_refcount) + 1;
++				if (ref > EXT4_XATTR_REFCOUNT_MAX) {
+ 					/*
+ 					 * Undo everything and check mbcache
+ 					 * again.
+@@ -2016,9 +2040,8 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
+ 					new_bh = NULL;
+ 					goto inserted;
+ 				}
+-				ref = le32_to_cpu(BHDR(new_bh)->h_refcount) + 1;
+ 				BHDR(new_bh)->h_refcount = cpu_to_le32(ref);
+-				if (ref >= EXT4_XATTR_REFCOUNT_MAX)
++				if (ref == EXT4_XATTR_REFCOUNT_MAX)
+ 					ce->e_reusable = 0;
+ 				ea_bdebug(new_bh, "reusing; refcount now=%d",
+ 					  ref);
 -- 
 2.35.1
 
