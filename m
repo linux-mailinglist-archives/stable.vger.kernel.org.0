@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8355E5937C8
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E998593941
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244615AbiHOS62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:58:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49096 "EHLO
+        id S230189AbiHOS6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:58:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245135AbiHOS4t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:56:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2557D32D83;
-        Mon, 15 Aug 2022 11:31:50 -0700 (PDT)
+        with ESMTP id S245157AbiHOS4w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:56:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C89B32DBB;
+        Mon, 15 Aug 2022 11:31:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B610060EEB;
-        Mon, 15 Aug 2022 18:31:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9DD3C433C1;
-        Mon, 15 Aug 2022 18:31:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CECF3B81082;
+        Mon, 15 Aug 2022 18:31:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 053A9C433C1;
+        Mon, 15 Aug 2022 18:31:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588309;
-        bh=lXmSoEFvjXAkURKNKmyiZ+4nCTy+7MrPzpLlojqoji4=;
+        s=korg; t=1660588312;
+        bh=UNse/8MvXDfLtiLsFDhl/AJsP8hoheWPNg98s6jZGdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dQINk7EnmIyBP4JCnkvhvFRPq8DVY3qvhxNVBtr6H0oMIhHa2rzaWdxLCJLGWE0p2
-         8GPegJdsAT5sAux8dFwEUPJw75/lqpqVLfboNdOOUX+eU3Dg4RIigBIhvI7Z+7p5H/
-         G28SCm6MVXhvTIX3InxfLS6Sy+g4NBVReaR/uMRQ=
+        b=abxF6zHlVgj2Md8Kd/Jk2TmmxKYxhaFPe169wY3AgtaA+Cj8w9/HeIFbww7dItNE6
+         KdcJrr3wikOzN2LLWxWIGxnLWETJP4XWiHHEF6F+H6u/oTYKIGlMr/Re2DglE0r2u3
+         5Lv1df24yXD/r8nYaNS3fwiRxDuDG0PlKmfXLBJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Liang He <windhl@126.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 331/779] mediatek: mt76: mac80211: Fix missing of_node_put() in mt76_led_init()
-Date:   Mon, 15 Aug 2022 19:59:35 +0200
-Message-Id: <20220815180351.441197342@linuxfoundation.org>
+Subject: [PATCH 5.15 332/779] mediatek: mt76: eeprom: fix missing of_node_put() in mt76_find_power_limits_node()
+Date:   Mon, 15 Aug 2022 19:59:36 +0200
+Message-Id: <20220815180351.473557798@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,31 +55,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liang He <windhl@126.com>
 
-[ Upstream commit 0a14c1d0113f121151edf34333cdf212dd209190 ]
+[ Upstream commit 3bd53ea02d77917c2314ec7be9e2d05be22f87d3 ]
 
 We should use of_node_put() for the reference 'np' returned by
 of_get_child_by_name() which will increase the refcount.
 
-Fixes: 17f1de56df05 ("mt76: add common code shared between multiple chipsets")
+Fixes: 22b980badc0f ("mt76: add functions for parsing rate power limits from DT")
 Signed-off-by: Liang He <windhl@126.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mac80211.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/mediatek/mt76/eeprom.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mac80211.c b/drivers/net/wireless/mediatek/mt76/mac80211.c
-index 029599d68ca7..028519a739fd 100644
---- a/drivers/net/wireless/mediatek/mt76/mac80211.c
-+++ b/drivers/net/wireless/mediatek/mt76/mac80211.c
-@@ -123,6 +123,7 @@ static int mt76_led_init(struct mt76_dev *dev)
- 		if (!of_property_read_u32(np, "led-sources", &led_pin))
- 			dev->led_pin = led_pin;
- 		dev->led_al = of_property_read_bool(np, "led-active-low");
-+		of_node_put(np);
+diff --git a/drivers/net/wireless/mediatek/mt76/eeprom.c b/drivers/net/wireless/mediatek/mt76/eeprom.c
+index 3b47e85e95e7..db0cd56c8dc7 100644
+--- a/drivers/net/wireless/mediatek/mt76/eeprom.c
++++ b/drivers/net/wireless/mediatek/mt76/eeprom.c
+@@ -146,10 +146,13 @@ mt76_find_power_limits_node(struct mt76_dev *dev)
+ 		}
+ 
+ 		if (mt76_string_prop_find(country, dev->alpha2) ||
+-		    mt76_string_prop_find(regd, region_name))
++		    mt76_string_prop_find(regd, region_name)) {
++			of_node_put(np);
+ 			return cur;
++		}
  	}
  
- 	return led_classdev_register(dev->dev, &dev->led_cdev);
++	of_node_put(np);
+ 	return fallback;
+ }
+ 
 -- 
 2.35.1
 
