@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 982DF59475B
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD4B7594761
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242559AbiHOXLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:11:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34726 "EHLO
+        id S229815AbiHOXMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:12:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353018AbiHOXJh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:09:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2187B8709C;
-        Mon, 15 Aug 2022 12:59:55 -0700 (PDT)
+        with ESMTP id S231438AbiHOXLg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:11:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2B8C3FA33;
+        Mon, 15 Aug 2022 13:00:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8956AB8106C;
-        Mon, 15 Aug 2022 19:59:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE574C433C1;
-        Mon, 15 Aug 2022 19:59:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35D6FB80EA8;
+        Mon, 15 Aug 2022 20:00:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88E6CC433C1;
+        Mon, 15 Aug 2022 20:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593592;
-        bh=PStUmSJuDh/2XlYej5na14v1ex14KuMW3PONNUSXsr0=;
+        s=korg; t=1660593618;
+        bh=2KW1HM963k7v+bwEDDz4Yh4oQrYctMijf1hKLtDHh9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OedSWArpZg4DrAe6VsSlJu1h8pu5UFwMCWzx10OTIu8fljKDtzWu3U4te+IRxfgmI
-         I/Bys0o8b6FDSvcki7rnwm12jROcawxbhL8in67W7FDmX8n2IF9yLf0+4W3/zxC9lF
-         qYP40mfgB5qlC0GG6GgaCSUQrqyAwEiZNtwtQ/BY=
+        b=E7JtWaZWU8qFPCoSP7VvySJT052Slygkr5KssrSvKPOB5JNzDEhzJJH0wpC6pcsug
+         QjpJDnxh4hYAR02NzhzNtvDTYK7ySkmTtUJ9vPVj6Kj/uZtL+BlxvnQXfvtZfPN6Hw
+         6Rdx5BJ4VO0uhGAKgcD5n69tuRg/4/fJTX71jCWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Markus Mayer <mmayer@broadcom.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>,
+        =?UTF-8?q?Alejandro=20Gonz=C3=A1lez?= 
+        <alejandro.gonzalez.correo@gmail.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0293/1157] io_uring: move to separate directory
-Date:   Mon, 15 Aug 2022 19:54:09 +0200
-Message-Id: <20220815180451.345977044@linuxfoundation.org>
+Subject: [PATCH 5.19 0297/1157] thermal/tools/tmon: Include pthread and time headers in tmon.h
+Date:   Mon, 15 Aug 2022 19:54:13 +0200
+Message-Id: <20220815180451.525116184@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -53,133 +58,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Markus Mayer <mmayer@broadcom.com>
 
-[ Upstream commit ed29b0b4fd835b058ddd151c49d021e28d631ee6 ]
+[ Upstream commit 0cf51bfe999524377fbb71becb583b4ca6d07cfc ]
 
-In preparation for splitting io_uring up a bit, move it into its own
-top level directory. It didn't really belong in fs/ anyway, as it's
-not a file system only API.
+Include sys/time.h and pthread.h in tmon.h, so that types
+"pthread_mutex_t" and "struct timeval tv" are known when tmon.h
+references them.
 
-This adds io_uring/ and moves the core files in there, and updates the
-MAINTAINERS file for the new location.
+Without these headers, compiling tmon against musl-libc will fail with
+these errors:
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+In file included from sysfs.c:31:0:
+tmon.h:47:8: error: unknown type name 'pthread_mutex_t'
+ extern pthread_mutex_t input_lock;
+        ^~~~~~~~~~~~~~~
+make[3]: *** [<builtin>: sysfs.o] Error 1
+make[3]: *** Waiting for unfinished jobs....
+In file included from tui.c:31:0:
+tmon.h:54:17: error: field 'tv' has incomplete type
+  struct timeval tv;
+                 ^~
+make[3]: *** [<builtin>: tui.o] Error 1
+make[2]: *** [Makefile:83: tmon] Error 2
+
+Signed-off-by: Markus Mayer <mmayer@broadcom.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
+Acked-by: Alejandro González <alejandro.gonzalez.correo@gmail.com>
+Tested-by: Alejandro González <alejandro.gonzalez.correo@gmail.com>
+Fixes: 94f69966faf8 ("tools/thermal: Introduce tmon, a tool for thermal  subsystem")
+Link: https://lore.kernel.org/r/20220718031040.44714-1-f.fainelli@gmail.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- MAINTAINERS                 | 7 +------
- Makefile                    | 1 +
- fs/Makefile                 | 2 --
- io_uring/Makefile           | 6 ++++++
- {fs => io_uring}/io-wq.c    | 0
- {fs => io_uring}/io-wq.h    | 0
- {fs => io_uring}/io_uring.c | 2 +-
- kernel/sched/core.c         | 2 +-
- 8 files changed, 10 insertions(+), 10 deletions(-)
- create mode 100644 io_uring/Makefile
- rename {fs => io_uring}/io-wq.c (100%)
- rename {fs => io_uring}/io-wq.h (100%)
- rename {fs => io_uring}/io_uring.c (99%)
+ tools/thermal/tmon/tmon.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 64379c699903..08620b9a44fc 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7773,9 +7773,6 @@ F:	include/linux/fs.h
- F:	include/linux/fs_types.h
- F:	include/uapi/linux/fs.h
- F:	include/uapi/linux/openat2.h
--X:	fs/io-wq.c
--X:	fs/io-wq.h
--X:	fs/io_uring.c
+diff --git a/tools/thermal/tmon/tmon.h b/tools/thermal/tmon/tmon.h
+index c9066ec104dd..44d16d778f04 100644
+--- a/tools/thermal/tmon/tmon.h
++++ b/tools/thermal/tmon/tmon.h
+@@ -27,6 +27,9 @@
+ #define NR_LINES_TZDATA 1
+ #define TMON_LOG_FILE "/var/tmp/tmon.log"
  
- FINTEK F75375S HARDWARE MONITOR AND FAN CONTROLLER DRIVER
- M:	Riku Voipio <riku.voipio@iki.fi>
-@@ -10476,9 +10473,7 @@ L:	io-uring@vger.kernel.org
- S:	Maintained
- T:	git git://git.kernel.dk/linux-block
- T:	git git://git.kernel.dk/liburing
--F:	fs/io-wq.c
--F:	fs/io-wq.h
--F:	fs/io_uring.c
-+F:	io_uring/
- F:	include/linux/io_uring.h
- F:	include/uapi/linux/io_uring.h
- F:	tools/io_uring/
-diff --git a/Makefile b/Makefile
-index cef467fc574e..68b3da2babd5 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1102,6 +1102,7 @@ export MODULES_NSDEPS := $(extmod_prefix)modules.nsdeps
- ifeq ($(KBUILD_EXTMOD),)
- core-y			+= kernel/ certs/ mm/ fs/ ipc/ security/ crypto/
- core-$(CONFIG_BLOCK)	+= block/
-+core-$(CONFIG_IO_URING)	+= io_uring/
- 
- vmlinux-dirs	:= $(patsubst %/,%,$(filter %/, \
- 		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \
-diff --git a/fs/Makefile b/fs/Makefile
-index 208a74e0b00e..93b80529f8e8 100644
---- a/fs/Makefile
-+++ b/fs/Makefile
-@@ -34,8 +34,6 @@ obj-$(CONFIG_TIMERFD)		+= timerfd.o
- obj-$(CONFIG_EVENTFD)		+= eventfd.o
- obj-$(CONFIG_USERFAULTFD)	+= userfaultfd.o
- obj-$(CONFIG_AIO)               += aio.o
--obj-$(CONFIG_IO_URING)		+= io_uring.o
--obj-$(CONFIG_IO_WQ)		+= io-wq.o
- obj-$(CONFIG_FS_DAX)		+= dax.o
- obj-$(CONFIG_FS_ENCRYPTION)	+= crypto/
- obj-$(CONFIG_FS_VERITY)		+= verity/
-diff --git a/io_uring/Makefile b/io_uring/Makefile
-new file mode 100644
-index 000000000000..3680425df947
---- /dev/null
-+++ b/io_uring/Makefile
-@@ -0,0 +1,6 @@
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Makefile for io_uring
++#include <sys/time.h>
++#include <pthread.h>
 +
-+obj-$(CONFIG_IO_URING)		+= io_uring.o
-+obj-$(CONFIG_IO_WQ)		+= io-wq.o
-diff --git a/fs/io-wq.c b/io_uring/io-wq.c
-similarity index 100%
-rename from fs/io-wq.c
-rename to io_uring/io-wq.c
-diff --git a/fs/io-wq.h b/io_uring/io-wq.h
-similarity index 100%
-rename from fs/io-wq.h
-rename to io_uring/io-wq.h
-diff --git a/fs/io_uring.c b/io_uring/io_uring.c
-similarity index 99%
-rename from fs/io_uring.c
-rename to io_uring/io_uring.c
-index e8e769be9ed0..b63956975109 100644
---- a/fs/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -87,7 +87,7 @@
- 
- #include <uapi/linux/io_uring.h>
- 
--#include "internal.h"
-+#include "../fs/internal.h"
- #include "io-wq.h"
- 
- #define IORING_MAX_ENTRIES	32768
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index f1e070551aa9..91471ba8dbd2 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -91,7 +91,7 @@
- #include "stats.h"
- 
- #include "../workqueue_internal.h"
--#include "../../fs/io-wq.h"
-+#include "../../io_uring/io-wq.h"
- #include "../smpboot.h"
- 
- /*
+ extern unsigned long ticktime;
+ extern double time_elapsed;
+ extern unsigned long target_temp_user;
 -- 
 2.35.1
 
