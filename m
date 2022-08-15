@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EF8C593AD1
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:33:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD6F6593B68
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239571AbiHOUNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:13:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52452 "EHLO
+        id S243046AbiHOUOF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:14:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346963AbiHOUMl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:12:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8244B89827;
-        Mon, 15 Aug 2022 11:58:40 -0700 (PDT)
+        with ESMTP id S1347013AbiHOUMq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:12:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A2289934;
+        Mon, 15 Aug 2022 11:58:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3C9DB810A1;
-        Mon, 15 Aug 2022 18:58:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47208C43142;
-        Mon, 15 Aug 2022 18:58:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7AAAEB810A2;
+        Mon, 15 Aug 2022 18:58:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3349C433D7;
+        Mon, 15 Aug 2022 18:58:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589917;
-        bh=36kaqV//Q65MyMm68X4c+Dpwi17dNDifBxO1QrGo2o8=;
+        s=korg; t=1660589923;
+        bh=qFEqlYR364zAMF8tGKZfx7jNJoYRaN3R5KeD+djXNmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D7kHjiszInBAchIMzJFdati7s7AnQ5L5TY1yGaFUj27YrgQ5HVpC6ScBa++UQa+sj
-         vy1WhvdcB8iVKGkwIU9FO16Nv53NiRgDvVRl7fbqLDvhQboVe6rxC6AHOYHziTLFcF
-         cwqLgMqWx2UdR4DZwSgbyKWb/qEVOKyYYly6qaAM=
+        b=PENRnJYZmvBDnx18ONxylWX75ngg04y8xxyg4dj/P8fETtMFR5Pj8RGUHRiyExz0S
+         9fpdRwt8jHJKsZDg5ZbVWdy/pI2VN2w550lfCgpXY0mfWb/QW+VqEjqLASIPdFHqrQ
+         9tvYc1UGn5q0bGN+1OmehnR9oUOf7hdstBm5CHNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benjamin Beichler <benjamin.beichler@uni-rostock.de>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.18 0090/1095] um: Remove straying parenthesis
-Date:   Mon, 15 Aug 2022 19:51:29 +0200
-Message-Id: <20220815180433.237855478@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.18 0091/1095] um: seed rng using host OS rng
+Date:   Mon, 15 Aug 2022 19:51:30 +0200
+Message-Id: <20220815180433.291146539@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,35 +54,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Beichler <benjamin.beichler@uni-rostock.de>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit c6496e0a4a90d8149203c16323cff3fa46e422e7 upstream.
+commit 0b9ba6135d7f18b82f3d8bebb55ded725ba88e0e upstream.
 
-Commit e3a33af812c6 ("um: fix and optimize xor select template for CONFIG64 and timetravel mode")
-caused a build regression when CONFIG_XOR_BLOCKS and CONFIG_UML_TIME_TRAVEL_SUPPORT
-are selected.
-Fix it by removing the straying parenthesis.
+UML generally does not provide access to special CPU instructions like
+RDRAND, and execution tends to be rather deterministic, with no real
+hardware interrupts, making good randomness really very hard, if not
+all together impossible. Not only is this a security eyebrow raiser, but
+it's also quite annoying when trying to do various pieces of UML-based
+automation that takes a long time to boot, if ever.
+
+Fix this by trivially calling getrandom() in the host and using that
+seed as "bootloader randomness", which initializes the rng immediately
+at UML boot.
+
+The old behavior can be restored the same way as on any other arch, by
+way of CONFIG_TRUST_BOOTLOADER_RANDOMNESS=n or
+random.trust_bootloader=0. So seen from that perspective, this just
+makes UML act like other archs, which is positive in its own right.
+
+Additionally, wire up arch_get_random_{int,long}() in the same way, so
+that reseeds can also make use of the host RNG, controllable by
+CONFIG_TRUST_CPU_RANDOMNESS and random.trust_cpu, per usual.
 
 Cc: stable@vger.kernel.org
-Fixes: e3a33af812c6 ("um: fix and optimize xor select template for CONFIG64 and timetravel mode")
-Signed-off-by: Benjamin Beichler <benjamin.beichler@uni-rostock.de>
-[rw: Added commit message]
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Acked-by: Johannes Berg <johannes@sipsolutions.net>
+Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/include/asm/xor.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/um/include/asm/archrandom.h |   30 ++++++++++++++++++++++++++++++
+ arch/um/include/shared/os.h      |    7 +++++++
+ arch/um/kernel/um_arch.c         |    8 ++++++++
+ arch/um/os-Linux/util.c          |    6 ++++++
+ 4 files changed, 51 insertions(+)
+ create mode 100644 arch/um/include/asm/archrandom.h
 
---- a/arch/um/include/asm/xor.h
-+++ b/arch/um/include/asm/xor.h
-@@ -18,7 +18,7 @@
- #undef XOR_SELECT_TEMPLATE
- /* pick an arbitrary one - measuring isn't possible with inf-cpu */
- #define XOR_SELECT_TEMPLATE(x)	\
--	(time_travel_mode == TT_MODE_INFCPU ? TT_CPU_INF_XOR_DEFAULT : x))
-+	(time_travel_mode == TT_MODE_INFCPU ? TT_CPU_INF_XOR_DEFAULT : x)
- #endif
+--- /dev/null
++++ b/arch/um/include/asm/archrandom.h
+@@ -0,0 +1,30 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __ASM_UM_ARCHRANDOM_H__
++#define __ASM_UM_ARCHRANDOM_H__
++
++#include <linux/types.h>
++
++/* This is from <os.h>, but better not to #include that in a global header here. */
++ssize_t os_getrandom(void *buf, size_t len, unsigned int flags);
++
++static inline bool __must_check arch_get_random_long(unsigned long *v)
++{
++	return os_getrandom(v, sizeof(*v), 0) == sizeof(*v);
++}
++
++static inline bool __must_check arch_get_random_int(unsigned int *v)
++{
++	return os_getrandom(v, sizeof(*v), 0) == sizeof(*v);
++}
++
++static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
++{
++	return false;
++}
++
++static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
++{
++	return false;
++}
++
++#endif
+--- a/arch/um/include/shared/os.h
++++ b/arch/um/include/shared/os.h
+@@ -11,6 +11,12 @@
+ #include <irq_user.h>
+ #include <longjmp.h>
+ #include <mm_id.h>
++/* This is to get size_t */
++#ifndef __UM_HOST__
++#include <linux/types.h>
++#else
++#include <sys/types.h>
++#endif
  
- #endif
+ #define CATCH_EINTR(expr) while ((errno = 0, ((expr) < 0)) && (errno == EINTR))
+ 
+@@ -243,6 +249,7 @@ extern void stack_protections(unsigned l
+ extern int raw(int fd);
+ extern void setup_machinename(char *machine_out);
+ extern void setup_hostinfo(char *buf, int len);
++extern ssize_t os_getrandom(void *buf, size_t len, unsigned int flags);
+ extern void os_dump_core(void) __attribute__ ((noreturn));
+ extern void um_early_printk(const char *s, unsigned int n);
+ extern void os_fix_helper_signals(void);
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -16,6 +16,7 @@
+ #include <linux/sched/task.h>
+ #include <linux/kmsg_dump.h>
+ #include <linux/suspend.h>
++#include <linux/random.h>
+ 
+ #include <asm/processor.h>
+ #include <asm/cpufeature.h>
+@@ -406,6 +407,8 @@ int __init __weak read_initrd(void)
+ 
+ void __init setup_arch(char **cmdline_p)
+ {
++	u8 rng_seed[32];
++
+ 	stack_protections((unsigned long) &init_thread_info);
+ 	setup_physmem(uml_physmem, uml_reserved, physmem_size, highmem);
+ 	mem_total_pages(physmem_size, iomem_size, highmem);
+@@ -416,6 +419,11 @@ void __init setup_arch(char **cmdline_p)
+ 	strlcpy(boot_command_line, command_line, COMMAND_LINE_SIZE);
+ 	*cmdline_p = command_line;
+ 	setup_hostinfo(host_info, sizeof host_info);
++
++	if (os_getrandom(rng_seed, sizeof(rng_seed), 0) == sizeof(rng_seed)) {
++		add_bootloader_randomness(rng_seed, sizeof(rng_seed));
++		memzero_explicit(rng_seed, sizeof(rng_seed));
++	}
+ }
+ 
+ void __init check_bugs(void)
+--- a/arch/um/os-Linux/util.c
++++ b/arch/um/os-Linux/util.c
+@@ -14,6 +14,7 @@
+ #include <sys/wait.h>
+ #include <sys/mman.h>
+ #include <sys/utsname.h>
++#include <sys/random.h>
+ #include <init.h>
+ #include <os.h>
+ 
+@@ -96,6 +97,11 @@ static inline void __attribute__ ((noret
+ 			exit(127);
+ }
+ 
++ssize_t os_getrandom(void *buf, size_t len, unsigned int flags)
++{
++	return getrandom(buf, len, flags);
++}
++
+ /*
+  * UML helper threads must not handle SIGWINCH/INT/TERM
+  */
 
 
