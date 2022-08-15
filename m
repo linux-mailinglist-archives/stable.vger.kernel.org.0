@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05384594219
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B59659412B
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243987AbiHOVFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:05:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37612 "EHLO
+        id S1348321AbiHOVIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:08:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344169AbiHOVDq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:03:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 124E0D347F;
-        Mon, 15 Aug 2022 12:14:39 -0700 (PDT)
+        with ESMTP id S1344445AbiHOVDt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:03:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A677DD3EC8;
+        Mon, 15 Aug 2022 12:14:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3428FB810C6;
-        Mon, 15 Aug 2022 19:14:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92B86C433D6;
-        Mon, 15 Aug 2022 19:14:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8371860F68;
+        Mon, 15 Aug 2022 19:14:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7562DC433C1;
+        Mon, 15 Aug 2022 19:14:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590877;
-        bh=Ntboj5OdAOnTGn4j2kOWSFp861U/2DFFKLts9urgMTQ=;
+        s=korg; t=1660590879;
+        bh=zv4DZZibKAMRI0gVGHC/jrX5f2LnrYxkNA82LOX0cq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CW84W8Cmh07yn5kUt6siAXb3lo7L8Wm0A40iXr5NnyKuGeBXQCHHcx31QMzD2mP2l
-         IOyyTYJ1A1ZINNQEsMUuQGEPN9R9eXvrOTJ4hj7VuV2GzdNl6pnL0iOHK9DyikL9Rz
-         FkOCHnQ7S28j9UuDc2t310Jfd35XskneR6+L9mp4=
+        b=V1fKiarpTVHVFxy/EDPdR+zoGyTrZe4MaVv0M2q4TcdvuCUATzEBm/MAE+7jzNEUG
+         q1OyXPSzIIJ1+1vifRq8OzBhEAllE41AZJrwXFCF0C8Xlg9zKA48xZT2c6sVPmILtV
+         cdascGXjbVN7PC2FmALSb1yMTluT0HXXxB70cMh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?J=C3=B6rn-Thorben=20Hinz?= <jthinz@mailbox.tu-berlin.de>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Martin KaFai Lau <kafai@fb.com>,
         John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0368/1095] test_bpf: fix incorrect netdev features
-Date:   Mon, 15 Aug 2022 19:56:07 +0200
-Message-Id: <20220815180444.933953628@linuxfoundation.org>
+Subject: [PATCH 5.18 0369/1095] selftests/bpf: Fix rare segfault in sock_fields prog test
+Date:   Mon, 15 Aug 2022 19:56:08 +0200
+Message-Id: <20220815180444.981359376@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,40 +58,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Jörn-Thorben Hinz <jthinz@mailbox.tu-berlin.de>
 
-[ Upstream commit 9676feccacdb0571791c88b23e3b7ac4e7c9c457 ]
+[ Upstream commit 6dc7a0baf1a70b7d22662d38481824c14ddd80c5 ]
 
-The prototype of .features is netdev_features_t, it should use
-NETIF_F_LLTX and NETIF_F_HW_VLAN_STAG_TX, not NETIF_F_LLTX_BIT
-and NETIF_F_HW_VLAN_STAG_TX_BIT.
+test_sock_fields__detach() got called with a null pointer here when one
+of the CHECKs or ASSERTs up to the test_sock_fields__open_and_load()
+call resulted in a jump to the "done" label.
 
-Fixes: cf204a718357 ("bpf, testing: Introduce 'gso_linear_no_head_frag' skb_segment test")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
+A skeletons *__detach() is not safe to call with a null pointer, though.
+This led to a segfault.
+
+Go the easy route and only call test_sock_fields__destroy() which is
+null-pointer safe and includes detaching.
+
+Came across this while looking[1] to introduce the usage of
+bpf_tcp_helpers.h (included in progs/test_sock_fields.c) together with
+vmlinux.h.
+
+[1] https://lore.kernel.org/bpf/629bc069dd807d7ac646f836e9dca28bbc1108e2.camel@mailbox.tu-berlin.de/
+
+Fixes: 8f50f16ff39d ("selftests/bpf: Extend verifier and bpf_sock tests for dst_port loads")
+Signed-off-by: Jörn-Thorben Hinz <jthinz@mailbox.tu-berlin.de>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
+Reviewed-by: Martin KaFai Lau <kafai@fb.com>
 Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/r/20220622135002.8263-1-shenjian15@huawei.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20220621070116.307221-1-jthinz@mailbox.tu-berlin.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_bpf.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/sock_fields.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/lib/test_bpf.c b/lib/test_bpf.c
-index 0c5cb2d6436a..1a00d0247f70 100644
---- a/lib/test_bpf.c
-+++ b/lib/test_bpf.c
-@@ -14456,9 +14456,9 @@ static struct skb_segment_test skb_segment_tests[] __initconst = {
- 		.build_skb = build_test_skb_linear_no_head_frag,
- 		.features = NETIF_F_SG | NETIF_F_FRAGLIST |
- 			    NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_GSO |
--			    NETIF_F_LLTX_BIT | NETIF_F_GRO |
-+			    NETIF_F_LLTX | NETIF_F_GRO |
- 			    NETIF_F_IPV6_CSUM | NETIF_F_RXCSUM |
--			    NETIF_F_HW_VLAN_STAG_TX_BIT
-+			    NETIF_F_HW_VLAN_STAG_TX
- 	}
- };
+diff --git a/tools/testing/selftests/bpf/prog_tests/sock_fields.c b/tools/testing/selftests/bpf/prog_tests/sock_fields.c
+index 9d211b5c22c4..7d23166c77af 100644
+--- a/tools/testing/selftests/bpf/prog_tests/sock_fields.c
++++ b/tools/testing/selftests/bpf/prog_tests/sock_fields.c
+@@ -394,7 +394,6 @@ void serial_test_sock_fields(void)
+ 	test();
  
+ done:
+-	test_sock_fields__detach(skel);
+ 	test_sock_fields__destroy(skel);
+ 	if (child_cg_fd >= 0)
+ 		close(child_cg_fd);
 -- 
 2.35.1
 
