@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C92D4593EF6
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0756A59418E
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349122AbiHOVjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:39:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39916 "EHLO
+        id S1348885AbiHOVjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:39:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348843AbiHOVhp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:37:45 -0400
+        with ESMTP id S1348865AbiHOVhr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:37:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30719DF45;
-        Mon, 15 Aug 2022 12:27:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A76E611A09;
+        Mon, 15 Aug 2022 12:27:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C06DB6102C;
-        Mon, 15 Aug 2022 19:27:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC845C433C1;
-        Mon, 15 Aug 2022 19:27:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F4826102C;
+        Mon, 15 Aug 2022 19:27:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29464C433C1;
+        Mon, 15 Aug 2022 19:27:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591654;
-        bh=E+QZQsBXl0dqxOYJkYZFIb9f68aE3v6YlJF+X8cSSBw=;
+        s=korg; t=1660591657;
+        bh=DosOz4ZtUjf4WnMkmhiZb3LJmvrLoyJntFkoAu9J33g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yzGl0O2ClLvz6xPFrvSvfazqVdNUic/NoJtTM6GdSKGgaWDRLNYwCo9wovyihQsHd
-         gh8nlFn6Mm5o1FbTzm3k44IZw5bbmoE6Z0mDNuzM5aDbBxkdL2lMxh1PbF7JHsbveJ
-         /wrss0uvUi2YVUblD0UDdoVdj2/n3DubuqMHfeO0=
+        b=F/pMcPE2fGqGaZwEsWONEamv6aW7LKxhu8u+UMlGjf2ab35oklLoteGBXptG7wHTS
+         umGtj/UWJ0fLC39qEMg8u3EtvZCQJezXIk7H5NpUMfVlT8aWXfWwVoLlsO63uZO1iT
+         rFOlADfNEfD+rVk9ecgaGC8J4GX2tpe54fBrskkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Ricardo Ribalda <ribalda@kernel.org>,
         =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0648/1095] iio: dac: ti-dac7612: Fix alignment for DMA safety
-Date:   Mon, 15 Aug 2022 20:00:47 +0200
-Message-Id: <20220815180456.204927850@linuxfoundation.org>
+Subject: [PATCH 5.18 0649/1095] iio: frequency: ad9523: Fix alignment for DMA safety
+Date:   Mon, 15 Aug 2022 20:00:48 +0200
+Message-Id: <20220815180456.246035592@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -58,7 +57,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit b9ac08b3282a95fcefb057c2886028a6807725d8 ]
+[ Upstream commit 8ff2eb625c353b1491d9f89f1dfd52e7aef5734c ]
 
 ____cacheline_aligned is an insufficient guarantee for non-coherent DMA
 on platforms with 128 byte cachelines above L1.  Switch to the updated
@@ -66,33 +65,36 @@ IIO_DMA_MINALIGN definition.
 
 Updated help text to 'may' require buffers to be in their own cacheline.
 
-Fixes: 977724d20584 ("iio:dac:ti-dac7612: Add driver for Texas Instruments DAC7612")
+Fixes: cd1678f96329 ("iio: frequency: New driver for AD9523 SPI Low Jitter Clock Generator")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Ricardo Ribalda <ribalda@kernel.org>
 Acked-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20220508175712.647246-65-jic23@kernel.org
+Link: https://lore.kernel.org/r/20220508175712.647246-66-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/ti-dac7612.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/frequency/ad9523.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/dac/ti-dac7612.c b/drivers/iio/dac/ti-dac7612.c
-index 4c0f4b5e9ff4..8195815de26f 100644
---- a/drivers/iio/dac/ti-dac7612.c
-+++ b/drivers/iio/dac/ti-dac7612.c
-@@ -31,10 +31,10 @@ struct dac7612 {
- 	struct mutex lock;
+diff --git a/drivers/iio/frequency/ad9523.c b/drivers/iio/frequency/ad9523.c
+index a0f92c336fc4..31c97f9f2c1b 100644
+--- a/drivers/iio/frequency/ad9523.c
++++ b/drivers/iio/frequency/ad9523.c
+@@ -287,13 +287,13 @@ struct ad9523_state {
+ 	struct mutex		lock;
  
  	/*
 -	 * DMA (thus cache coherency maintenance) requires the
-+	 * DMA (thus cache coherency maintenance) may require the
- 	 * transfer buffers to live in their own cache lines.
+-	 * transfer buffers to live in their own cache lines.
++	 * DMA (thus cache coherency maintenance) may require that
++	 * transfer buffers live in their own cache lines.
  	 */
--	uint8_t data[2] ____cacheline_aligned;
-+	uint8_t data[2] __aligned(IIO_DMA_MINALIGN);
+ 	union {
+ 		__be32 d32;
+ 		u8 d8[4];
+-	} data[2] ____cacheline_aligned;
++	} data[2] __aligned(IIO_DMA_MINALIGN);
  };
  
- static int dac7612_cmd_single(struct dac7612 *priv, int channel, u16 val)
+ static int ad9523_read(struct iio_dev *indio_dev, unsigned int addr)
 -- 
 2.35.1
 
