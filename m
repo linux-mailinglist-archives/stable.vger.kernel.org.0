@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E45BA592DFE
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:16:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E0BA592E03
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231657AbiHOLQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 07:16:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35154 "EHLO
+        id S231297AbiHOLRa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 07:17:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229763AbiHOLQv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:16:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82BBA13F7D
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:16:50 -0700 (PDT)
+        with ESMTP id S241432AbiHOLR2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:17:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12E4F1A3B3
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:17:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4CC87B80DF1
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:16:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F453C433D6;
-        Mon, 15 Aug 2022 11:16:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8014A6115B
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:17:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E5CBC433B5;
+        Mon, 15 Aug 2022 11:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660562208;
-        bh=Is4WY81eAR1T0+kDhHhIEKOkf+DJUpvDO4euj4LGKs8=;
+        s=korg; t=1660562241;
+        bh=86Mb2uP9U+b/Uayk+n2RizBQrYXSBp49K2hG5ps8tM0=;
         h=Subject:To:Cc:From:Date:From;
-        b=bc7gSnlmCgPoYNzfnliw1hpDNGHg/vOz9xdDgNWQg0i4foTSJwH2DVsrja7akkIiu
-         AVptVLHfBenx/Scvn/sD+FWKTn7+mxLUvbCQwrx3fNCrR/6dgCUzGOvZj2zGZdA/Us
-         IutwMNVtCm2KRbYAEsUkSFaFRWjQMrO9AWarxqw0=
-Subject: FAILED: patch "[PATCH] ext4: check if directory block is within i_size" failed to apply to 4.9-stable tree
-To:     lczerner@redhat.com, adilger@dilger.ca, tytso@mit.edu
+        b=zDCjiC5ohLFUVZfttANlHpRO3Fcc6WD/YiNGKwu5s9uJpuvR5YlH8p73RxI05nP/Y
+         DJoBDmqMsBCfrjusRZPPn9YOj1NDqRqVsK4M1858ZZhzK3sd1cftRGn+8i2cF756gR
+         tlxZPGWWYYu+SfOIQpahsOm8oPiY3UCwkbEztxTI=
+Subject: FAILED: patch "[PATCH] ext4: fix warning in ext4_iomap_begin as race between bmap" failed to apply to 5.4-stable tree
+To:     yebin10@huawei.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Aug 2022 13:16:33 +0200
-Message-ID: <16605621933348@kroah.com>
+Date:   Mon, 15 Aug 2022 13:17:19 +0200
+Message-ID: <16605622396929@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,49 +59,97 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 65f8ea4cd57dbd46ea13b41dc8bac03176b04233 Mon Sep 17 00:00:00 2001
-From: Lukas Czerner <lczerner@redhat.com>
-Date: Mon, 4 Jul 2022 16:27:20 +0200
-Subject: [PATCH] ext4: check if directory block is within i_size
+From 51ae846cff568c8c29921b1b28eb2dfbcd4ac12d Mon Sep 17 00:00:00 2001
+From: Ye Bin <yebin10@huawei.com>
+Date: Fri, 17 Jun 2022 09:39:35 +0800
+Subject: [PATCH] ext4: fix warning in ext4_iomap_begin as race between bmap
+ and write
 
-Currently ext4 directory handling code implicitly assumes that the
-directory blocks are always within the i_size. In fact ext4_append()
-will attempt to allocate next directory block based solely on i_size and
-the i_size is then appropriately increased after a successful
-allocation.
+We got issue as follows:
+------------[ cut here ]------------
+WARNING: CPU: 3 PID: 9310 at fs/ext4/inode.c:3441 ext4_iomap_begin+0x182/0x5d0
+RIP: 0010:ext4_iomap_begin+0x182/0x5d0
+RSP: 0018:ffff88812460fa08 EFLAGS: 00010293
+RAX: ffff88811f168000 RBX: 0000000000000000 RCX: ffffffff97793c12
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000003
+RBP: ffff88812c669160 R08: ffff88811f168000 R09: ffffed10258cd20f
+R10: ffff88812c669077 R11: ffffed10258cd20e R12: 0000000000000001
+R13: 00000000000000a4 R14: 000000000000000c R15: ffff88812c6691ee
+FS:  00007fd0d6ff3740(0000) GS:ffff8883af180000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fd0d6dda290 CR3: 0000000104a62000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ iomap_apply+0x119/0x570
+ iomap_bmap+0x124/0x150
+ ext4_bmap+0x14f/0x250
+ bmap+0x55/0x80
+ do_vfs_ioctl+0x952/0xbd0
+ __x64_sys_ioctl+0xc6/0x170
+ do_syscall_64+0x33/0x40
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-However, for this to work it requires i_size to be correct. If, for any
-reason, the directory inode i_size is corrupted in a way that the
-directory tree refers to a valid directory block past i_size, we could
-end up corrupting parts of the directory tree structure by overwriting
-already used directory blocks when modifying the directory.
+Above issue may happen as follows:
+          bmap                    write
+bmap
+  ext4_bmap
+    iomap_bmap
+      ext4_iomap_begin
+                            ext4_file_write_iter
+			      ext4_buffered_write_iter
+			        generic_perform_write
+				  ext4_da_write_begin
+				    ext4_da_write_inline_data_begin
+				      ext4_prepare_inline_data
+				        ext4_create_inline_data
+					  ext4_set_inode_flag(inode,
+						EXT4_INODE_INLINE_DATA);
+      if (WARN_ON_ONCE(ext4_has_inline_data(inode))) ->trigger bug_on
 
-Fix it by catching the corruption early in __ext4_read_dirblock().
+To solved above issue hold inode lock in ext4_bamp.
 
-Addresses Red-Hat-Bugzilla: #2070205
-CVE: CVE-2022-1184
-Signed-off-by: Lukas Czerner <lczerner@redhat.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20220704142721.157985-1-lczerner@redhat.com
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/r/20220617013935.397596-1-yebin10@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index 1c6725ecca1a..7fced54e2891 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -110,6 +110,13 @@ static struct buffer_head *__ext4_read_dirblock(struct inode *inode,
- 	struct ext4_dir_entry *dirent;
- 	int is_dx_block = 0;
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 641c9af91641..7db52defcb16 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -3147,13 +3147,15 @@ static sector_t ext4_bmap(struct address_space *mapping, sector_t block)
+ {
+ 	struct inode *inode = mapping->host;
+ 	journal_t *journal;
++	sector_t ret = 0;
+ 	int err;
  
-+	if (block >= inode->i_size) {
-+		ext4_error_inode(inode, func, line, block,
-+		       "Attempting to read directory block (%u) that is past i_size (%llu)",
-+		       block, inode->i_size);
-+		return ERR_PTR(-EFSCORRUPTED);
-+	}
++	inode_lock_shared(inode);
+ 	/*
+ 	 * We can get here for an inline file via the FIBMAP ioctl
+ 	 */
+ 	if (ext4_has_inline_data(inode))
+-		return 0;
++		goto out;
+ 
+ 	if (mapping_tagged(mapping, PAGECACHE_TAG_DIRTY) &&
+ 			test_opt(inode->i_sb, DELALLOC)) {
+@@ -3192,10 +3194,14 @@ static sector_t ext4_bmap(struct address_space *mapping, sector_t block)
+ 		jbd2_journal_unlock_updates(journal);
+ 
+ 		if (err)
+-			return 0;
++			goto out;
+ 	}
+ 
+-	return iomap_bmap(mapping, block, &ext4_iomap_ops);
++	ret = iomap_bmap(mapping, block, &ext4_iomap_ops);
 +
- 	if (ext4_simulate_fail(inode->i_sb, EXT4_SIM_DIRBLOCK_EIO))
- 		bh = ERR_PTR(-EIO);
- 	else
++out:
++	inode_unlock_shared(inode);
++	return ret;
+ }
+ 
+ static int ext4_read_folio(struct file *file, struct folio *folio)
 
