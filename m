@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5C9C59370C
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:26:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6724593645
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:24:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231898AbiHOSv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:51:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49792 "EHLO
+        id S233688AbiHOSwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:52:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244136AbiHOSuK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:50:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEDD043E52;
-        Mon, 15 Aug 2022 11:28:51 -0700 (PDT)
+        with ESMTP id S244291AbiHOSur (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:50:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA0B143E63;
+        Mon, 15 Aug 2022 11:28:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26D2060F9F;
-        Mon, 15 Aug 2022 18:28:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13A4DC433B5;
-        Mon, 15 Aug 2022 18:28:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85E6C61024;
+        Mon, 15 Aug 2022 18:28:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F586C433D6;
+        Mon, 15 Aug 2022 18:28:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588130;
-        bh=cmDsqLOGQfyeTpTaFLigwTiIwb3RCMp1vGAzPHr5B50=;
+        s=korg; t=1660588133;
+        bh=hdV8J5AyuQITJCxcJPRnfcmvqD7I0mHvRmOnQModVmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ek4WjC9cdH4woGVDY8zk2V7P1At/yHgUV7k1KM0VPMHCe/jkCZPvKWbpU1Kw313wR
-         8DDBeFa3GcTPnMW/TyL1pSxDAbr4MjDGKqHATrVLgA08uRPbY/mEcooAKIc2A64rq/
-         B3uloLY9HL6V3IGjDOvtWm05dMG2O8aXxGzm64lo=
+        b=jCuZ2bQHLapVGuyH1wRsFpL4OYjpZosdy1myybw4JlNfVaEOZC/66o0kZUVTpCzsn
+         HBYRRytL6FZRjq84ZvgMkzA05jzcvIwUlw0LIPeNPvRKetiO3hddMtQp3R8YjyrnP+
+         4zqd0t1Ih9C2RHz5ALl9KTl71s8YuAW6uhVFLNZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        stable@vger.kernel.org, Dom Cobley <popcornmix@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 305/779] drm/vc4: hdmi: Fix HPD GPIO detection
-Date:   Mon, 15 Aug 2022 19:59:09 +0200
-Message-Id: <20220815180350.335774846@linuxfoundation.org>
+Subject: [PATCH 5.15 306/779] drm/vc4: hdmi: Avoid full hdmi audio fifo writes
+Date:   Mon, 15 Aug 2022 19:59:10 +0200
+Message-Id: <20220815180350.370077660@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,48 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Dom Cobley <popcornmix@gmail.com>
 
-[ Upstream commit e32e5723256a99c5324824503572f743377dd0fe ]
+[ Upstream commit 1c594eeccf92368177c2e22f1d3ee4933dfb8567 ]
 
-Prior to commit 6800234ceee0 ("drm/vc4: hdmi: Convert to gpiod"), in the
-detect hook, if we had an HPD GPIO we would only rely on it and return
-whatever state it was in.
+We are getting occasional VC4_HD_MAI_CTL_ERRORF in
+HDMI_MAI_CTL which seem to correspond with audio dropouts.
 
-However, that commit changed that by mistake to only consider the case
-where we have a GPIO and it returns a logical high, and would fall back
-to the other methods otherwise.
+Reduce the threshold where we deassert DREQ to avoid the fifo
+overfilling
 
-Since we can read the EDIDs when the HPD signal is low on some displays,
-we changed the detection status from disconnected to connected, and we
-would ignore an HPD pulse.
-
-Fixes: 6800234ceee0 ("drm/vc4: hdmi: Convert to gpiod")
+Fixes: bb7d78568814 ("drm/vc4: Add HDMI audio support")
+Signed-off-by: Dom Cobley <popcornmix@gmail.com>
+Link: https://lore.kernel.org/r/20220613144800.326124-21-maxime@cerno.tech
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Link: https://lore.kernel.org/r/20211025152903.1088803-3-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 1aeb57656112..e4533fe315bf 100644
+index e4533fe315bf..879245808e26 100644
 --- a/drivers/gpu/drm/vc4/vc4_hdmi.c
 +++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -173,9 +173,9 @@ vc4_hdmi_connector_detect(struct drm_connector *connector, bool force)
+@@ -1383,10 +1383,10 @@ static int vc4_hdmi_audio_prepare(struct device *dev, void *data,
  
- 	WARN_ON(pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev));
+ 	/* Set the MAI threshold */
+ 	HDMI_WRITE(HDMI_MAI_THR,
+-		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_PANICHIGH) |
+-		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_PANICLOW) |
+-		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_DREQHIGH) |
+-		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_DREQLOW));
++		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_PANICHIGH) |
++		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_PANICLOW) |
++		   VC4_SET_FIELD(0x06, VC4_HD_MAI_THR_DREQHIGH) |
++		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_DREQLOW));
  
--	if (vc4_hdmi->hpd_gpio &&
--	    gpiod_get_value_cansleep(vc4_hdmi->hpd_gpio)) {
--		connected = true;
-+	if (vc4_hdmi->hpd_gpio) {
-+		if (gpiod_get_value_cansleep(vc4_hdmi->hpd_gpio))
-+			connected = true;
- 	} else if (drm_probe_ddc(vc4_hdmi->ddc)) {
- 		connected = true;
- 	} else if (HDMI_READ(HDMI_HOTPLUG) & VC4_HDMI_HOTPLUG_CONNECTED) {
+ 	HDMI_WRITE(HDMI_MAI_CONFIG,
+ 		   VC4_HDMI_MAI_CONFIG_BIT_REVERSE |
 -- 
 2.35.1
 
