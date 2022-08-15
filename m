@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8964594742
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F92359471F
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241157AbiHOXR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:17:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54134 "EHLO
+        id S232138AbiHOXRd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:17:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353416AbiHOXQ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:16:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 774E81481E9;
-        Mon, 15 Aug 2022 13:03:13 -0700 (PDT)
+        with ESMTP id S1353515AbiHOXQn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:16:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8CE8AF484;
+        Mon, 15 Aug 2022 13:03:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 544A3B81145;
-        Mon, 15 Aug 2022 20:03:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4C24C433D6;
-        Mon, 15 Aug 2022 20:03:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 314FAB80EA8;
+        Mon, 15 Aug 2022 20:03:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9191DC433D6;
+        Mon, 15 Aug 2022 20:03:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593790;
-        bh=IlsTSu6kQK1W/fpZxKV4UfY/eYMvYpK9w43YyHcTS5o=;
+        s=korg; t=1660593805;
+        bh=pQKLs5HCEFvdf9V0RQd4XUTM1KsvjMxn9EJ5z3G4Ec4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t6Q8uDjzEJ1qy8TFVnewFKhaYMu0HHQAMJjHwzfGoiRq1tZuoVxcbEoB80yv8Eaav
-         DDyMxDyXWfuXPCbU5PgjIBjhAUDyZkkajYJCsEWYRgD3lyDrBXE1fixkxdN0Dk+tgG
-         cHaMd+PY3TaQeFXl4iU7gLDuI5ozABrtvSyEvliQ=
+        b=GXiyYYI2kypqTSCY+G5ypnYWemnp/Q4u9sxY6q2UmuWFuuNWZQr8+obgKAgUt/ZnH
+         F3dfvI6ILi/baBl0GCSNQkhmiCyUCezYKzFiok+H36e2pJyMnAbb11A0jCDIRYVDYr
+         AZ8AynbbS+7TCnmk8qyr/7eCoUviqAWiqRCH2r0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Nathan Chancellor <nathan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0326/1157] ath11k: fix IRQ affinity warning on shutdown
-Date:   Mon, 15 Aug 2022 19:54:42 +0200
-Message-Id: <20220815180452.690231330@linuxfoundation.org>
+Subject: [PATCH 5.19 0328/1157] drm/ssd130x: Only define a SPI device ID table when built as a module
+Date:   Mon, 15 Aug 2022 19:54:44 +0200
+Message-Id: <20220815180452.777804739@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,39 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit 3bd0c69653ac636eae8872aacdcd4156f772f928 ]
+[ Upstream commit 01ece65132e2980ece4eca91105dfc9eed504881 ]
 
-Make sure to clear the IRQ affinity hint also on shutdown to avoid
-triggering a WARN_ON_ONCE() in __free_irq() when stopping MHI while
-using a single MSI vector.
+The kernel test robot reports a compile warning due the ssd130x_spi_table
+variable being defined but not used. This happen when ssd130x-spi driver
+is built-in instead of being built as a module, i.e:
 
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3
+  CC      drivers/gpu/drm/solomon/ssd130x-spi.o
+  AR      drivers/base/firmware_loader/built-in.a
+  AR      drivers/base/built-in.a
+  CC      kernel/trace/trace.o
+drivers/gpu/drm/solomon/ssd130x-spi.c:155:35: warning: ‘ssd130x_spi_table’ defined but not used [-Wunused-const-variable=]
+  155 | static const struct spi_device_id ssd130x_spi_table[] = {
+      |                                   ^~~~~~~~~~~~~~~~~
 
-Fixes: e94b07493da3 ("ath11k: Set IRQ affinity to CPU0 in case of one MSI vector")
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220523143258.24818-1-johan+linaro@kernel.org
+The driver shouldn't need a SPI device ID table and only have an OF device
+ID table, but the former is needed to workaround an issue in the SPI core.
+This always reports a MODALIAS of the form "spi:<device>" even for devices
+registered through Device Trees.
+
+But the table is only needed when the driver built as a module to populate
+the .ko alias info. It's not needed when the driver is built-in the kernel.
+
+Fixes: 74373977d2ca ("drm/solomon: Add SSD130x OLED displays SPI support")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220530140246.742469-1-javierm@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/pci.c | 2 ++
+ drivers/gpu/drm/solomon/ssd130x-spi.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath11k/pci.c b/drivers/net/wireless/ath/ath11k/pci.c
-index dedf1b88ddf6..487a303b3077 100644
---- a/drivers/net/wireless/ath/ath11k/pci.c
-+++ b/drivers/net/wireless/ath/ath11k/pci.c
-@@ -920,7 +920,9 @@ static void ath11k_pci_remove(struct pci_dev *pdev)
- static void ath11k_pci_shutdown(struct pci_dev *pdev)
- {
- 	struct ath11k_base *ab = pci_get_drvdata(pdev);
-+	struct ath11k_pci *ab_pci = ath11k_pci_priv(ab);
+diff --git a/drivers/gpu/drm/solomon/ssd130x-spi.c b/drivers/gpu/drm/solomon/ssd130x-spi.c
+index 43722adab1f8..07802907e39a 100644
+--- a/drivers/gpu/drm/solomon/ssd130x-spi.c
++++ b/drivers/gpu/drm/solomon/ssd130x-spi.c
+@@ -143,6 +143,7 @@ static const struct of_device_id ssd130x_of_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, ssd130x_of_match);
  
-+	ath11k_pci_set_irq_affinity_hint(ab_pci, NULL);
- 	ath11k_pci_power_down(ab);
- }
++#if IS_MODULE(CONFIG_DRM_SSD130X_SPI)
+ /*
+  * The SPI core always reports a MODALIAS uevent of the form "spi:<dev>", even
+  * if the device was registered via OF. This means that the module will not be
+@@ -160,6 +161,7 @@ static const struct spi_device_id ssd130x_spi_table[] = {
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(spi, ssd130x_spi_table);
++#endif
  
+ static struct spi_driver ssd130x_spi_driver = {
+ 	.driver = {
 -- 
 2.35.1
 
