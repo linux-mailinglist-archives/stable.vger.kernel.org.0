@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97455593F41
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:45:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DE19594081
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241564AbiHOVTb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:19:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37562 "EHLO
+        id S245515AbiHOVUq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:20:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344479AbiHOVRa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:17:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A5585725B;
-        Mon, 15 Aug 2022 12:20:42 -0700 (PDT)
+        with ESMTP id S1345934AbiHOVSA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:18:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AEEA59273;
+        Mon, 15 Aug 2022 12:21:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC1436009B;
-        Mon, 15 Aug 2022 19:20:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8DD6C433C1;
-        Mon, 15 Aug 2022 19:20:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 27DDA60EF0;
+        Mon, 15 Aug 2022 19:21:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16797C433D6;
+        Mon, 15 Aug 2022 19:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591241;
-        bh=W8tKKp3uQ7QzLlBkW/w8MCeuiMzfHsJzpzwh8y5v5xk=;
+        s=korg; t=1660591274;
+        bh=rrQeGSVgnu2T3cpBdnktpWmYUw4Kt7wbOPiN/PrBLLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfb3fZPYhRHw0YFxIHp6gjnEjTPZabG2TcaKZqwKzt7I8NGkAEW5LaoUbQ4ii5BvO
-         JPsGlD9r82B9HpItyvbMdNjfoQVF1JwRBXSDO+cem2/M9IlnAqtHqrw19LHw9i7bt8
-         xWImAGlb2Mtqpnkmv/JxJVY76zHZ+ZzIORfdJXhY=
+        b=i8WcICYCRchjkgS7aY0V+hvl4ikBnqakFd3aYQjtHnHYp1NLjxLeh03j5CSDJ2W/8
+         Y1zJ2VpshAKyV9NpAv69JCxxzIMW61WoixRHSkfz5CfgWeipvqC+/YI/3WHIAA0YZ9
+         E+LWXYNYZsPiYKoPp8BUVKNtXgB8KVlGorvssK3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Ying Hsu <yinghsu@chromium.org>,
+        Alain Michaud <alainm@chromium.org>,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Zhengping Jiang <jiangzp@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0499/1095] Bluetooth: hci_sync: Fix not updating privacy_mode
-Date:   Mon, 15 Aug 2022 19:58:18 +0200
-Message-Id: <20220815180450.170806979@linuxfoundation.org>
+Subject: [PATCH 5.18 0500/1095] Bluetooth: Add default wakeup callback for HCI UART driver
+Date:   Mon, 15 Aug 2022 19:58:19 +0200
+Message-Id: <20220815180450.218033541@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,37 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Ying Hsu <yinghsu@chromium.org>
 
-[ Upstream commit 0900b1c62f43e495d04ca4bebdf80b34f3c12432 ]
+[ Upstream commit bee5395ced44c5a312348557eb2dfb0c2a7bfaa2 ]
 
-When programming a new entry into the resolving list it shall default
-to network mode since the params may contain the mode programmed when
-the device was last added to the resolving list.
+Bluetooth HCI devices indicate if they are able to wakeup in the wakeup
+callback since 'commit 4539ca67fe8e ("Bluetooth: Rename driver
+.prevent_wake to .wakeup")'. This patch adds a default wakeup callback
+for Bluetooth HCI UAR devices. It assumes Bluetooth HCI UART devices are
+wakeable for backward compatibility. For those who need a customized
+behavior, one can override it before calling hci_uart_register_device().
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209745
-Fixes: 853b70b506a20 ("Bluetooth: hci_sync: Set Privacy Mode when updating the resolving list")
+Fixes: 4539ca67fe8e ("Bluetooth: Rename driver .prevent_wake to .wakeup")
+Signed-off-by: Ying Hsu <yinghsu@chromium.org>
+Reviewed-by: Alain Michaud <alainm@chromium.org>
 Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Tested-by: Zhengping Jiang <jiangzp@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sync.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/bluetooth/hci_serdev.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
-index 99ef15167a81..6f901398132e 100644
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -1612,6 +1612,9 @@ static int hci_le_add_resolve_list_sync(struct hci_dev *hdev,
- 	bacpy(&cp.bdaddr, &params->addr);
- 	memcpy(cp.peer_irk, irk->val, 16);
+diff --git a/drivers/bluetooth/hci_serdev.c b/drivers/bluetooth/hci_serdev.c
+index 4cda890ce647..c0e5f42ec6b7 100644
+--- a/drivers/bluetooth/hci_serdev.c
++++ b/drivers/bluetooth/hci_serdev.c
+@@ -231,6 +231,15 @@ static int hci_uart_setup(struct hci_dev *hdev)
+ 	return 0;
+ }
  
-+	/* Default privacy mode is always Network */
-+	params->privacy_mode = HCI_NETWORK_PRIVACY;
++/* Check if the device is wakeable */
++static bool hci_uart_wakeup(struct hci_dev *hdev)
++{
++	/* HCI UART devices are assumed to be wakeable by default.
++	 * Implement wakeup callback to override this behavior.
++	 */
++	return true;
++}
 +
- done:
- 	if (hci_dev_test_flag(hdev, HCI_PRIVACY))
- 		memcpy(cp.local_irk, hdev->irk, 16);
+ /** hci_uart_write_wakeup - transmit buffer wakeup
+  * @serdev: serial device
+  *
+@@ -342,6 +351,8 @@ int hci_uart_register_device(struct hci_uart *hu,
+ 	hdev->flush = hci_uart_flush;
+ 	hdev->send  = hci_uart_send_frame;
+ 	hdev->setup = hci_uart_setup;
++	if (!hdev->wakeup)
++		hdev->wakeup = hci_uart_wakeup;
+ 	SET_HCIDEV_DEV(hdev, &hu->serdev->dev);
+ 
+ 	if (test_bit(HCI_UART_NO_SUSPEND_NOTIFIER, &hu->flags))
 -- 
 2.35.1
 
