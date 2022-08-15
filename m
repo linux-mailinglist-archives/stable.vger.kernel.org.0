@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 271B1593F5C
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:45:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78081593FD4
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346057AbiHOUwD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:52:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43512 "EHLO
+        id S1346117AbiHOUwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:52:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346310AbiHOUui (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:50:38 -0400
+        with ESMTP id S1346569AbiHOUus (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:50:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04939BA9D9;
-        Mon, 15 Aug 2022 12:09:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D8E8BA9F3;
+        Mon, 15 Aug 2022 12:09:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15C2A6069E;
-        Mon, 15 Aug 2022 19:09:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D338EC433D6;
-        Mon, 15 Aug 2022 19:09:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E8DC60BD8;
+        Mon, 15 Aug 2022 19:09:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2462C433C1;
+        Mon, 15 Aug 2022 19:09:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590576;
-        bh=Ro6xxxF1fVuz0fJmCgBArPo/LziyaAhePT/yijdPk/k=;
+        s=korg; t=1660590579;
+        bh=+8Q92+MH6sqv7j0NhspQcG/PhDxZECR6G5xE4YY1TWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBZ7vpvh90d75KTn+VlbKfR/17GmH0Ug/6KY0pE1UfNkQWUFLYAphAXHy2W8tgn8W
-         UkLLEgHjUKNmRCzbKLRgJWy2jqGl2FDAKGzgCyEOlCdPvRufa7w6tAhefBlaS0082e
-         QKWYD+H1xiqpoCWCS51scnP7K5KC/fpRuGQrOD3E=
+        b=zVcGnxbgWdYxuPFst7wZYfkZ3Qo2m8NBs+8qXupTUF3rue4v3VYd5vpgNRJUY0rm8
+         emEYAjXyDc7DQm6mZqnjoPKH7SagL20UONgH/uKwjyA6jI0E++8gZoh++9oTW8wHKl
+         4zuwUPJMet7Nz2B0jeUe4MEX0V0Ei1hfKaVngQA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
         Maxime Ripard <maxime@cerno.tech>,
         Neil Armstrong <narmstrong@baylibre.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
         Robert Foss <robert.foss@linaro.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0304/1095] drm/bridge: tc358767: Move (e)DP bridge endpoint parsing into dedicated function
-Date:   Mon, 15 Aug 2022 19:55:03 +0200
-Message-Id: <20220815180442.353613337@linuxfoundation.org>
+Subject: [PATCH 5.18 0305/1095] drm/bridge: tc358767: Make sure Refclk clock are enabled
+Date:   Mon, 15 Aug 2022 19:55:04 +0200
+Message-Id: <20220815180442.405202606@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -61,82 +61,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 8478095a8c4bcea3c83b0767d6c9127434160761 ]
+[ Upstream commit 0b4c48f3e315d172e4cc06e10f2c8ba180788baf ]
 
-The TC358767/TC358867/TC9595 are all capable of operating in multiple
-modes, DPI-to-(e)DP, DSI-to-(e)DP, DSI-to-DPI. Only the first mode is
-currently supported. In order to support the rest of the modes without
-making the tc_probe() overly long, split the bridge endpoint parsing
-into dedicated function, where the necessary logic to detect the bridge
-mode based on which endpoints are connected, can be implemented.
+The Refclk may be supplied by SoC clock output instead of crystal
+oscillator, make sure the clock are enabled before any other action
+is performed with the bridge chip, otherwise it may either fail to
+operate at all, or miss reset GPIO toggle.
 
 Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Tested-by: Lucas Stach <l.stach@pengutronix.de> # In both DPI to eDP and DSI to DPI mode.
+Fixes: 7caff0fc4296e ("drm/bridge: tc358767: Add DPI to eDP bridge driver")
 Signed-off-by: Marek Vasut <marex@denx.de>
 Cc: Jonas Karlman <jonas@kwiboo.se>
 Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: Marek Vasut <marex@denx.de>
 Cc: Maxime Ripard <maxime@cerno.tech>
 Cc: Neil Armstrong <narmstrong@baylibre.com>
+Cc: Robert Foss <robert.foss@linaro.org>
 Cc: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220329085015.39159-7-marex@denx.de
+Reviewed-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220520121543.11550-1-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/tc358767.c | 30 +++++++++++++++++++++---------
- 1 file changed, 21 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/bridge/tc358767.c | 32 ++++++++++++++++++++++++-------
+ 1 file changed, 25 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpu/drm/bridge/tc358767.c b/drivers/gpu/drm/bridge/tc358767.c
-index c23e0abc65e8..835a146a0196 100644
+index 835a146a0196..5a51c1699b29 100644
 --- a/drivers/gpu/drm/bridge/tc358767.c
 +++ b/drivers/gpu/drm/bridge/tc358767.c
-@@ -1549,19 +1549,12 @@ static irqreturn_t tc_irq_handler(int irq, void *arg)
- 	return IRQ_HANDLED;
+@@ -1576,6 +1576,13 @@ static int tc_probe_edp_bridge_endpoint(struct tc_data *tc)
+ 	return ret;
  }
  
--static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+static int tc_probe_edp_bridge_endpoint(struct tc_data *tc)
- {
--	struct device *dev = &client->dev;
-+	struct device *dev = tc->dev;
- 	struct drm_panel *panel;
--	struct tc_data *tc;
- 	int ret;
- 
--	tc = devm_kzalloc(dev, sizeof(*tc), GFP_KERNEL);
--	if (!tc)
--		return -ENOMEM;
--
--	tc->dev = dev;
--
- 	/* port@2 is the output port */
- 	ret = drm_of_find_panel_or_bridge(dev->of_node, 2, 0, &panel, NULL);
- 	if (ret && ret != -ENODEV)
-@@ -1580,6 +1573,25 @@ static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		tc->bridge.type = DRM_MODE_CONNECTOR_DisplayPort;
- 	}
- 
-+	return ret;
++static void tc_clk_disable(void *data)
++{
++	struct clk *refclk = data;
++
++	clk_disable_unprepare(refclk);
 +}
 +
-+static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+{
-+	struct device *dev = &client->dev;
-+	struct tc_data *tc;
-+	int ret;
+ static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ {
+ 	struct device *dev = &client->dev;
+@@ -1592,6 +1599,24 @@ static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	if (ret)
+ 		return ret;
+ 
++	tc->refclk = devm_clk_get(dev, "ref");
++	if (IS_ERR(tc->refclk)) {
++		ret = PTR_ERR(tc->refclk);
++		dev_err(dev, "Failed to get refclk: %d\n", ret);
++		return ret;
++	}
 +
-+	tc = devm_kzalloc(dev, sizeof(*tc), GFP_KERNEL);
-+	if (!tc)
-+		return -ENOMEM;
-+
-+	tc->dev = dev;
-+
-+	ret = tc_probe_edp_bridge_endpoint(tc);
++	ret = clk_prepare_enable(tc->refclk);
 +	if (ret)
 +		return ret;
++
++	ret = devm_add_action_or_reset(dev, tc_clk_disable, tc->refclk);
++	if (ret)
++		return ret;
++
++	/* tRSTW = 100 cycles , at 13 MHz that is ~7.69 us */
++	usleep_range(10, 15);
 +
  	/* Shut down GPIO is optional */
  	tc->sd_gpio = devm_gpiod_get_optional(dev, "shutdown", GPIOD_OUT_HIGH);
  	if (IS_ERR(tc->sd_gpio))
+@@ -1612,13 +1637,6 @@ static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		usleep_range(5000, 10000);
+ 	}
+ 
+-	tc->refclk = devm_clk_get(dev, "ref");
+-	if (IS_ERR(tc->refclk)) {
+-		ret = PTR_ERR(tc->refclk);
+-		dev_err(dev, "Failed to get refclk: %d\n", ret);
+-		return ret;
+-	}
+-
+ 	tc->regmap = devm_regmap_init_i2c(client, &tc_regmap_config);
+ 	if (IS_ERR(tc->regmap)) {
+ 		ret = PTR_ERR(tc->regmap);
 -- 
 2.35.1
 
