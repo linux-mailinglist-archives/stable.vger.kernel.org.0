@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24559594390
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:57:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82634594387
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343718AbiHOWMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:12:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43686 "EHLO
+        id S1346559AbiHOWNh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:13:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244075AbiHOWKL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:10:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 005EB118DDC;
-        Mon, 15 Aug 2022 12:38:07 -0700 (PDT)
+        with ESMTP id S1350489AbiHOWMT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:12:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF37A11C961;
+        Mon, 15 Aug 2022 12:39:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A185260BC2;
-        Mon, 15 Aug 2022 19:38:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94CFCC433C1;
-        Mon, 15 Aug 2022 19:38:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BFBC60BC2;
+        Mon, 15 Aug 2022 19:39:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FE99C433D6;
+        Mon, 15 Aug 2022 19:39:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592285;
-        bh=BWdZqPLDXsnad35DrHwcE33hAm8J1xbYtk0RGyawOr4=;
+        s=korg; t=1660592353;
+        bh=BIuSVG4tSIEfGPXbEkEZKeip4h+jB7rKwCTaHB/ldEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BThENeyXsNigqO2x4HQ7fWfRyukkcDN3hrM9lCZlASxQ62IV1Ylqohws9WV87M9Q2
-         PxGZX3kN2TBG0DHPs8hEPl3YHdNZNPE1xavE2gxd8gbhEI3nfiNIZcrYipMDU+7eAv
-         KVfJhfM11rloJnlSGcqg1gdAR+kRe9wrEu12RnFw=
+        b=AyVm09Q5For9SJl8BG/85QiRlDfjlF2VzducnjyhzHPhu/GxoKSvl5umzpAMcnxag
+         Gt7Lzr8rHK486zqnQBCe4zFRKDQw0qIjpptK0gTEs9H2Gr2oS3vnRA63fmrkhS+LSi
+         WYc1oGyATIWtXDEXhM/+SLEqkaNPAZc8L5cCVUf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
+        Samuel Holland <samuel@sholland.org>,
+        Peter Geis <pgwipeout@gmail.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0760/1095] phy: stm32: fix error return in stm32_usbphyc_phy_init
-Date:   Mon, 15 Aug 2022 20:02:39 +0200
-Message-Id: <20220815180500.716285659@linuxfoundation.org>
+Subject: [PATCH 5.18 0761/1095] phy: rockchip-inno-usb2: Ignore OTG IRQs in host mode
+Date:   Mon, 15 Aug 2022 20:02:40 +0200
+Message-Id: <20220815180500.756948274@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,39 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit 32b378a9179ae4db61cfc5d502717214e6cd1e1c ]
+[ Upstream commit fd7d47484125c7d04578de9294faa7fec6e5df0a ]
 
-Error code is overridden, in case the PLL doesn't lock. So, the USB
-initialization can continue. This leads to a platform freeze.
-This can be avoided by returning proper error code to avoid USB probe
-freezing the platform. It also displays proper errors in log.
+When the OTG port is fixed to host mode, the driver does not request its
+IRQs, nor does it enable those IRQs in hardware. Similarly, the driver
+should ignore the OTG port IRQs when handling the shared interrupt.
 
-Fixes: 5b1af71280ab ("phy: stm32: rework PLL Lock detection")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20220713133953.595134-1-fabrice.gasnier@foss.st.com
+Otherwise, it would update the extcon based on an ID pin which may be in
+an undefined state, or try to queue a uninitialized work item.
+
+Fixes: 6a98df08ccd5 ("phy: rockchip-inno-usb2: Fix muxed interrupt support")
+Reported-by: Frank Wunderlich <frank-w@public-files.de>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Tested-by: Peter Geis <pgwipeout@gmail.com>
+Tested-by: Frank Wunderlich <frank-w@public-files.de>
+Link: https://lore.kernel.org/r/20220708061434.38115-1-samuel@sholland.org
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/st/phy-stm32-usbphyc.c | 4 +++-
+ drivers/phy/rockchip/phy-rockchip-inno-usb2.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/phy/st/phy-stm32-usbphyc.c b/drivers/phy/st/phy-stm32-usbphyc.c
-index 007a23c78d56..a98c911cc37a 100644
---- a/drivers/phy/st/phy-stm32-usbphyc.c
-+++ b/drivers/phy/st/phy-stm32-usbphyc.c
-@@ -358,7 +358,9 @@ static int stm32_usbphyc_phy_init(struct phy *phy)
- 	return 0;
+diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+index cba5c32cbaee..0c6548ac9d8a 100644
+--- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
++++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+@@ -942,7 +942,9 @@ static irqreturn_t rockchip_usb2phy_irq(int irq, void *data)
  
- pll_disable:
--	return stm32_usbphyc_pll_disable(usbphyc);
-+	stm32_usbphyc_pll_disable(usbphyc);
-+
-+	return ret;
- }
- 
- static int stm32_usbphyc_phy_exit(struct phy *phy)
+ 		switch (rport->port_id) {
+ 		case USB2PHY_PORT_OTG:
+-			ret |= rockchip_usb2phy_otg_mux_irq(irq, rport);
++			if (rport->mode != USB_DR_MODE_HOST &&
++			    rport->mode != USB_DR_MODE_UNKNOWN)
++				ret |= rockchip_usb2phy_otg_mux_irq(irq, rport);
+ 			break;
+ 		case USB2PHY_PORT_HOST:
+ 			ret |= rockchip_usb2phy_linestate_irq(irq, rport);
 -- 
 2.35.1
 
