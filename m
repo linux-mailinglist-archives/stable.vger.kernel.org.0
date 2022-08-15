@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 438BE5944D5
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3269B5945B6
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:01:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348185AbiHOWUr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:20:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55280 "EHLO
+        id S1344950AbiHOWT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:19:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349919AbiHOWRR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:17:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65BBC3F313;
-        Mon, 15 Aug 2022 12:40:40 -0700 (PDT)
+        with ESMTP id S1350693AbiHOWSN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:18:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8255123CA2;
+        Mon, 15 Aug 2022 12:41:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C01EC61217;
-        Mon, 15 Aug 2022 19:40:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9D36C43470;
-        Mon, 15 Aug 2022 19:40:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CB83B80EA8;
+        Mon, 15 Aug 2022 19:41:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3EA4C433D6;
+        Mon, 15 Aug 2022 19:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592423;
-        bh=YHnaOV5Y4krgMZM6veswHxagQoNsgvH0gQzfp0blJqo=;
+        s=korg; t=1660592476;
+        bh=hwUVotYLPPfsowZItZNAHswZcEHPnU+JPQbbWO55Yh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xcd5ZAfeNvmAu0IIOlurHnNzaRbhtleCcmiRvztfdLL7ZK+fvpZQahqT4gSpNit6u
-         tgJiFg7cNxJXxhjj8NQvi7e0K9FzNpWhJhyPUYfc0zqh8+JfQs3/FPJTgXQ6jTmSSB
-         p25u947ROUD6EvyLo/comO1Y3VLNpa3hkuINYneU=
+        b=VYjiEfsLDucngGw8/pwzs5BOPfNtIpxWP2DQr8FgWaLidTsBdgrDkF6dZrAVy5TWK
+         qVaaD//4ORr83zkIN0QC1dPWnyp4j4L792Oj1wr78nxbmnJIUD+R9+l4i5ObqlO9Qd
+         CGaX3R4YDK+4/gmrenmMi5LsVKWOiVs7Qrr8Y188=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Peng Fan <peng.fan@nxp.com>, Georgi Djakov <djakov@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Christopher Obbard <chris.obbard@collabora.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0762/1095] interconnect: imx: fix max_node_id
-Date:   Mon, 15 Aug 2022 20:02:41 +0200
-Message-Id: <20220815180500.792253160@linuxfoundation.org>
+Subject: [PATCH 5.18 0763/1095] um: random: Dont initialise hwrng struct with zero
+Date:   Mon, 15 Aug 2022 20:02:42 +0200
+Message-Id: <20220815180500.829772755@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,49 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Christopher Obbard <chris.obbard@collabora.com>
 
-[ Upstream commit bd734481e172b4827af09c9ab06c51d2ab7201e6 ]
+[ Upstream commit 9e70cbd11b03889c92462cf52edb2bd023c798fa ]
 
-max_node_id not equal to the ARRAY_SIZE of node array, need increase 1,
-otherwise xlate will fail for the last entry. And rename max_node_id
-to num_nodes to reflect the reality.
+Initialising the hwrng struct with zeros causes a
+compile-time sparse warning:
 
-Fixes: f0d8048525d7d ("interconnect: Add imx core driver")
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/20220703091132.1412063-5-peng.fan@oss.nxp.com
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
+ $ ARCH=um make -j10 W=1 C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__'
+ ...
+ CHECK   arch/um/drivers/random.c
+ arch/um/drivers/random.c:31:31: sparse: warning: Using plain integer as NULL pointer
+
+Fix the warning by not initialising the hwrng struct
+with zeros as it is initialised anyway during module
+init.
+
+Fixes: 72d3e093afae ("um: random: Register random as hwrng-core device")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Christopher Obbard <chris.obbard@collabora.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/imx/imx.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/um/drivers/random.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/interconnect/imx/imx.c b/drivers/interconnect/imx/imx.c
-index 249ca25d1d55..4406ec45fa90 100644
---- a/drivers/interconnect/imx/imx.c
-+++ b/drivers/interconnect/imx/imx.c
-@@ -234,16 +234,16 @@ int imx_icc_register(struct platform_device *pdev,
- 	struct device *dev = &pdev->dev;
- 	struct icc_onecell_data *data;
- 	struct icc_provider *provider;
--	int max_node_id;
-+	int num_nodes;
- 	int ret;
+diff --git a/arch/um/drivers/random.c b/arch/um/drivers/random.c
+index 433a3f8f2ef3..32b3341fe970 100644
+--- a/arch/um/drivers/random.c
++++ b/arch/um/drivers/random.c
+@@ -28,7 +28,7 @@
+  * protects against a module being loaded twice at the same time.
+  */
+ static int random_fd = -1;
+-static struct hwrng hwrng = { 0, };
++static struct hwrng hwrng;
+ static DECLARE_COMPLETION(have_data);
  
- 	/* icc_onecell_data is indexed by node_id, unlike nodes param */
--	max_node_id = get_max_node_id(nodes, nodes_count);
--	data = devm_kzalloc(dev, struct_size(data, nodes, max_node_id),
-+	num_nodes = get_max_node_id(nodes, nodes_count) + 1;
-+	data = devm_kzalloc(dev, struct_size(data, nodes, num_nodes),
- 			    GFP_KERNEL);
- 	if (!data)
- 		return -ENOMEM;
--	data->num_nodes = max_node_id;
-+	data->num_nodes = num_nodes;
- 
- 	provider = devm_kzalloc(dev, sizeof(*provider), GFP_KERNEL);
- 	if (!provider)
+ static int rng_dev_read(struct hwrng *rng, void *buf, size_t max, bool block)
 -- 
 2.35.1
 
