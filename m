@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAA97594D28
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 639F4594828
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:06:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242952AbiHPBHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 21:07:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35442 "EHLO
+        id S1353648AbiHOXmq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:42:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344143AbiHPBED (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 21:04:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EFCBB9F93;
-        Mon, 15 Aug 2022 13:50:49 -0700 (PDT)
+        with ESMTP id S1354126AbiHOXl0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 617C0B8A51;
+        Mon, 15 Aug 2022 13:10:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 800586125E;
-        Mon, 15 Aug 2022 20:50:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73079C433D7;
-        Mon, 15 Aug 2022 20:50:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F33B260025;
+        Mon, 15 Aug 2022 20:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ADE0C433D6;
+        Mon, 15 Aug 2022 20:10:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596647;
-        bh=AJ9Cae9twUPm3oRt+U4Os2vYeJaUHtnMyscaHzAnWyY=;
+        s=korg; t=1660594241;
+        bh=wrdV1fXSBKWOJtHJ7kC8djl55hFYUK2qDMkSXC92H5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OLaSgMdvhXdrKC86z1FJSuf6oBA/6VfcGAvDTkpJoUeyp/g/OOD3VFPv7AOe5N0K7
-         83rWBRisjredLWAT/eqb6TID8h7ZjvOasdyOByU36SYXp7p8qv/5RyvRnWT5f2//4s
-         b7ym6tSaks7mZkxgw6tJJ5Hm9wLsuGUUem8Zq/2g=
+        b=kra0gckRklY9r7iD3KaeTZKDmLJqQ5njHdp24jb08Ex1v4l8m9YrOB4fNZhFbMfKy
+         fzI4/sszj7I2mci5nFzQCms6BOJ6FB5S6hcHjti7MrZeSCYnSBKOJ0G8d0+HZ466Cy
+         MV4SygCs3XEU4qWg/+tp6JFS90n91CPj9TCyZnTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baokun Li <libaokun1@huawei.com>,
-        Jan Kara <jack@suse.cz>,
-        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1119/1157] ext4: add EXT4_INODE_HAS_XATTR_SPACE macro in xattr.h
-Date:   Mon, 15 Aug 2022 20:07:55 +0200
-Message-Id: <20220815180525.102363505@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Wei Wang <weiwan@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.18 1077/1095] tcp: fix over estimation in sk_forced_mem_schedule()
+Date:   Mon, 15 Aug 2022 20:07:56 +0200
+Message-Id: <20220815180513.603052216@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 179b14152dcb6a24c3415200603aebca70ff13af ]
+commit c4ee118561a0f74442439b7b5b486db1ac1ddfeb upstream.
 
-When adding an xattr to an inode, we must ensure that the inode_size is
-not less than EXT4_GOOD_OLD_INODE_SIZE + extra_isize + pad. Otherwise,
-the end position may be greater than the start position, resulting in UAF.
+sk_forced_mem_schedule() has a bug similar to ones fixed
+in commit 7c80b038d23e ("net: fix sk_wmem_schedule() and
+sk_rmem_schedule() errors")
 
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220616021358.2504451-2-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+While this bug has little chance to trigger in old kernels,
+we need to fix it before the following patch.
+
+Fixes: d83769a580f1 ("tcp: fix possible deadlock in tcp_send_fin()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Wei Wang <weiwan@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/xattr.h | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ net/ipv4/tcp_output.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ext4/xattr.h b/fs/ext4/xattr.h
-index 77efb9a627ad..f885f362add4 100644
---- a/fs/ext4/xattr.h
-+++ b/fs/ext4/xattr.h
-@@ -95,6 +95,19 @@ struct ext4_xattr_entry {
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -3367,11 +3367,12 @@ void tcp_xmit_retransmit_queue(struct so
+  */
+ void sk_forced_mem_schedule(struct sock *sk, int size)
+ {
+-	int amt;
++	int delta, amt;
  
- #define EXT4_ZERO_XATTR_VALUE ((void *)-1)
+-	if (size <= sk->sk_forward_alloc)
++	delta = size - sk->sk_forward_alloc;
++	if (delta <= 0)
+ 		return;
+-	amt = sk_mem_pages(size);
++	amt = sk_mem_pages(delta);
+ 	sk->sk_forward_alloc += amt * SK_MEM_QUANTUM;
+ 	sk_memory_allocated_add(sk, amt);
  
-+/*
-+ * If we want to add an xattr to the inode, we should make sure that
-+ * i_extra_isize is not 0 and that the inode size is not less than
-+ * EXT4_GOOD_OLD_INODE_SIZE + extra_isize + pad.
-+ *   EXT4_GOOD_OLD_INODE_SIZE   extra_isize header   entry   pad  data
-+ * |--------------------------|------------|------|---------|---|-------|
-+ */
-+#define EXT4_INODE_HAS_XATTR_SPACE(inode)				\
-+	((EXT4_I(inode)->i_extra_isize != 0) &&				\
-+	 (EXT4_GOOD_OLD_INODE_SIZE + EXT4_I(inode)->i_extra_isize +	\
-+	  sizeof(struct ext4_xattr_ibody_header) + EXT4_XATTR_PAD <=	\
-+	  EXT4_INODE_SIZE((inode)->i_sb)))
-+
- struct ext4_xattr_info {
- 	const char *name;
- 	const void *value;
--- 
-2.35.1
-
 
 
