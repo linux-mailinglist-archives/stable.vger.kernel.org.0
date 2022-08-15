@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAD08594A22
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:17:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E49FA594C31
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240371AbiHOXWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:22:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33930 "EHLO
+        id S1343814AbiHPAsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:48:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346033AbiHOXVR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:21:17 -0400
+        with ESMTP id S1349214AbiHPAqc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:46:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 562187E32E;
-        Mon, 15 Aug 2022 13:04:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3112D87DA;
+        Mon, 15 Aug 2022 13:45:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E39D26068D;
-        Mon, 15 Aug 2022 20:04:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC1D5C433C1;
-        Mon, 15 Aug 2022 20:04:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 729306125E;
+        Mon, 15 Aug 2022 20:45:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73E00C433D6;
+        Mon, 15 Aug 2022 20:44:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593874;
-        bh=3bSndzRHGwDoEIiOezBILBR3x1ANK+Rt3C1uwr4VLqQ=;
+        s=korg; t=1660596299;
+        bh=H4/hsVFJqPIVHOEuLSJ+W+AOG4ouYb+3A7WRi0QKwP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DEkfrXn7iJTxAyccQz0QIc8fWWmulym9qWmhfcNrV6QkAZfMcGgG6piw0h8Hr2bi8
-         H9FV0hNNETq2xyiYCydbCWse/tvMYJXKDDr0EniZpj0w63J/BoxRxDyta/D5PMlLMN
-         pGvgVqJuamsM821bOj1p8T8cNVLyNr0SmtOztf+c=
+        b=PdD9eBVJgKKVQ5wyK8kc3zJjItddAm3KxwjoY4GTXAzIlazGnuGiPCStFcv3tNG9e
+         Bl/SwbAjD4YrO1RLcbfckXAkqh+Di/PJmIbFtUN8UvS5ZdIxL2QAFp8BfbYSNlDyAb
+         9TcX7s/oQnMWiCH38GIZwgYwcooLuqZWk8DYHTpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        stable <stable@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0991/1095] intel_th: pci: Add Raptor Lake-S PCH support
-Date:   Mon, 15 Aug 2022 20:06:30 +0200
-Message-Id: <20220815180510.102890328@linuxfoundation.org>
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.19 1035/1157] scsi: qla2xxx: Fix imbalance vha->vref_count
+Date:   Mon, 15 Aug 2022 20:06:31 +0200
+Message-Id: <20220815180521.374960798@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 23e2de5826e2fc4dd43e08bab3a2ea1a5338b063 ]
+commit 63fa7f2644b4b48e1913af33092c044bf48e9321 upstream.
 
-Add support for the Trace Hub in Raptor Lake-S PCH.
+vref_count took an extra decrement in the task management path.  Add an
+extra ref count to compensate the imbalance.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Link: https://lore.kernel.org/r/20220705082637.59979-6-alexander.shishkin@linux.intel.com
+Link: https://lore.kernel.org/r/20220713052045.10683-7-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/intel_th/pci.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/scsi/qla2xxx/qla_init.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hwtracing/intel_th/pci.c b/drivers/hwtracing/intel_th/pci.c
-index 41a31c7f505f..5b6da26f1b63 100644
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -289,6 +289,11 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x7e24),
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
- 	},
-+	{
-+		/* Raptor Lake-S */
-+		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x7a26),
-+		.driver_data = (kernel_ulong_t)&intel_th_2x,
-+	},
- 	{
- 		/* Alder Lake CPU */
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x466f),
--- 
-2.35.1
-
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -161,6 +161,7 @@ int qla24xx_async_abort_cmd(srb_t *cmd_s
+ 	struct srb_iocb *abt_iocb;
+ 	srb_t *sp;
+ 	int rval = QLA_FUNCTION_FAILED;
++	uint8_t bail;
+ 
+ 	/* ref: INIT for ABTS command */
+ 	sp = qla2xxx_get_qpair_sp(cmd_sp->vha, cmd_sp->qpair, cmd_sp->fcport,
+@@ -168,6 +169,7 @@ int qla24xx_async_abort_cmd(srb_t *cmd_s
+ 	if (!sp)
+ 		return QLA_MEMORY_ALLOC_FAILED;
+ 
++	QLA_VHA_MARK_BUSY(vha, bail);
+ 	abt_iocb = &sp->u.iocb_cmd;
+ 	sp->type = SRB_ABT_CMD;
+ 	sp->name = "abort";
+@@ -2007,12 +2009,14 @@ qla2x00_async_tm_cmd(fc_port_t *fcport,
+ 	struct srb_iocb *tm_iocb;
+ 	srb_t *sp;
+ 	int rval = QLA_FUNCTION_FAILED;
++	uint8_t bail;
+ 
+ 	/* ref: INIT */
+ 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
+ 	if (!sp)
+ 		goto done;
+ 
++	QLA_VHA_MARK_BUSY(vha, bail);
+ 	sp->type = SRB_TM_CMD;
+ 	sp->name = "tmf";
+ 	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha),
 
 
