@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37667594722
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 587FF59477C
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:00:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345838AbiHOXMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:12:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44046 "EHLO
+        id S245599AbiHOXNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:13:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232933AbiHOXLg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:11:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8542238B3;
-        Mon, 15 Aug 2022 13:00:17 -0700 (PDT)
+        with ESMTP id S245715AbiHOXMZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:12:25 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C7BF4DB0C;
+        Mon, 15 Aug 2022 13:00:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 99AEB612B8;
-        Mon, 15 Aug 2022 20:00:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E38AC433C1;
-        Mon, 15 Aug 2022 20:00:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 99C04CE12C3;
+        Mon, 15 Aug 2022 20:00:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A8AAC433D7;
+        Mon, 15 Aug 2022 20:00:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593616;
-        bh=HH4qPGidm0OUya6QXERfAKhEFrdc6+v3zuCV1SJ7ZWo=;
+        s=korg; t=1660593627;
+        bh=NeiVTxAhI6nx6NjJa+fD0XlyRj4AyPMiZ3D5AsiipeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DvLgj34xtBjS79KJcY+X2oBoudgW4Gb+klj5T23u+xCtTyF0dAylqFXJbFO/9x9+g
-         Wvwbbt5fDP5j4Gnw2FD6TNwygRfxb6JyalasyPYBMku91+ii0Kge/U8b257Rsac159
-         srLLmxvR8NtWNIVbvuLWl0R+jVzz9fgMC970ahpY=
+        b=ooYuRksgowJjXg19BevQrInGcSXbAji9JEpeKpnYMvAjnWsq54sNyYWU2tj505D6v
+         SAAM9lhawbyX9JjfnmsCtzbu3phumxiqOC1q9kL0ZvEu5tE/Xv8bdUzBergTT6Wsg7
+         WIGuOtEDj0A++qmoFAw9HzCtufhK9QPNgWI8pvZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.18 0976/1095] posix-cpu-timers: Cleanup CPU timers before freeing them during exec
-Date:   Mon, 15 Aug 2022 20:06:15 +0200
-Message-Id: <20220815180509.486593618@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.18 0978/1095] __follow_mount_rcu(): verify that mount_lock remains unchanged
+Date:   Mon, 15 Aug 2022 20:06:17 +0200
+Message-Id: <20220815180509.584528994@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,47 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit e362359ace6f87c201531872486ff295df306d13 upstream.
+commit 20aac6c60981f5bfacd66661d090d907bf1482f0 upstream.
 
-Commit 55e8c8eb2c7b ("posix-cpu-timers: Store a reference to a pid not a
-task") started looking up tasks by PID when deleting a CPU timer.
+Validate mount_lock seqcount as soon as we cross into mount in RCU
+mode.  Sure, ->mnt_root is pinned and will remain so until we
+do rcu_read_unlock() anyway, and we will eventually fail to unlazy if
+the mount_lock had been touched, but we might run into a hard error
+(e.g. -ENOENT) before trying to unlazy.  And it's possible to end
+up with RCU pathwalk racing with rename() and umount() in a way
+that would fail with -ENOENT while non-RCU pathwalk would've
+succeeded with any timings.
 
-When a non-leader thread calls execve, it will switch PIDs with the leader
-process. Then, as it calls exit_itimers, posix_cpu_timer_del cannot find
-the task because the timer still points out to the old PID.
+Once upon a time we hadn't needed that, but analysis had been subtle,
+brittle and went out of window as soon as RENAME_EXCHANGE had been
+added.
 
-That means that armed timers won't be disarmed, that is, they won't be
-removed from the timerqueue_list. exit_itimers will still release their
-memory, and when that list is later processed, it leads to a
-use-after-free.
+It's narrow, hard to hit and won't get you anything other than
+stray -ENOENT that could be arranged in much easier way with the
+same priveleges, but it's a bug all the same.
 
-Clean up the timers from the de-threaded task before freeing them. This
-prevents a reported use-after-free.
-
-Fixes: 55e8c8eb2c7b ("posix-cpu-timers: Store a reference to a pid not a task")
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220809170751.164716-1-cascardo@canonical.com
+Cc: stable@kernel.org
+X-sky-is-falling: unlikely
+Fixes: da1ce0670c14 "vfs: add cross-rename"
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/exec.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/namei.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1297,6 +1297,9 @@ int begin_new_exec(struct linux_binprm *
- 	bprm->mm = NULL;
- 
- #ifdef CONFIG_POSIX_TIMERS
-+	spin_lock_irq(&me->sighand->siglock);
-+	posix_cpu_timers_exit(me);
-+	spin_unlock_irq(&me->sighand->siglock);
- 	exit_itimers(me);
- 	flush_itimer_signals();
- #endif
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1511,6 +1511,8 @@ static bool __follow_mount_rcu(struct na
+ 				 * becoming unpinned.
+ 				 */
+ 				flags = dentry->d_flags;
++				if (read_seqretry(&mount_lock, nd->m_seq))
++					return false;
+ 				continue;
+ 			}
+ 			if (read_seqretry(&mount_lock, nd->m_seq))
 
 
