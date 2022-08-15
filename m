@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F276D5946D5
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 825675946DF
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:04:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245022AbiHOXCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:02:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52246 "EHLO
+        id S1344667AbiHOXC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:02:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352910AbiHOXB0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:01:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36D07857E9;
-        Mon, 15 Aug 2022 12:57:53 -0700 (PDT)
+        with ESMTP id S1352997AbiHOXBu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:01:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D68D13F207;
+        Mon, 15 Aug 2022 12:58:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EF3361295;
-        Mon, 15 Aug 2022 19:57:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49C8EC433D7;
-        Mon, 15 Aug 2022 19:57:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF337612BC;
+        Mon, 15 Aug 2022 19:58:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0AAFC433D6;
+        Mon, 15 Aug 2022 19:58:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593471;
-        bh=JrbZjLxAE6WonbV+c40fQnNTMkBUk55tFnGk4JeOn+k=;
+        s=korg; t=1660593481;
+        bh=pSqFm/F+9c2KAa07HAvyYA0Ppsjj8HHDA+WUMgJeHDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bI3o/NJybVR7kqu5LCP5vqzd27+XJyjrKuZMN0eEYJmg8b1Ll4NY+siWjNgEGZP3u
-         8UJFWbGxMLjNa9C+XvXgcZfTZhx/ozVqw8BDJ27wg64CZ1RHLwPvHi46rJ27eOmXCp
-         cTf9oyT65ss9E4Vka10ZbgYg7XXRYqMt/XUcYFec=
+        b=DTiPLbAX0T4AfNg6X8gIBYSfF9rDJHxcc2exgmTh0zuSlwtD2QTRgyKAB9DpRS/QI
+         S3AAAumMDg0Wz/FZOgykVLPRu/+eMjlfA9d72I7rAf72ZtYqvJkDqV35xK6xDstVZd
+         24lVKL9Qjtp6IlehHrpxyL8eoVWjGuKfrOKZZ3ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianchen Ding <dtcccc@linux.alibaba.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <vschneid@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0951/1095] sched: Remove the limitation of WF_ON_CPU on wakelist if wakee cpu is idle
-Date:   Mon, 15 Aug 2022 20:05:50 +0200
-Message-Id: <20220815180508.442818420@linuxfoundation.org>
+        stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0952/1095] sched/core: Do not requeue task on CPU excluded from cpus_mask
+Date:   Mon, 15 Aug 2022 20:05:51 +0200
+Message-Id: <20220815180508.490711459@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,233 +53,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianchen Ding <dtcccc@linux.alibaba.com>
+From: Mel Gorman <mgorman@techsingularity.net>
 
-[ Upstream commit f3dd3f674555bd9455c5ae7fafce0696bd9931b3 ]
+[ Upstream commit 751d4cbc43879229dbc124afefe240b70fd29a85 ]
 
-Wakelist can help avoid cache bouncing and offload the overhead of waker
-cpu. So far, using wakelist within the same llc only happens on
-WF_ON_CPU, and this limitation could be removed to further improve
-wakeup performance.
+The following warning was triggered on a large machine early in boot on
+a distribution kernel but the same problem should also affect mainline.
 
-The commit 518cd6234178 ("sched: Only queue remote wakeups when
-crossing cache boundaries") disabled queuing tasks on wakelist when
-the cpus share llc. This is because, at that time, the scheduler must
-send IPIs to do ttwu_queue_wakelist. Nowadays, ttwu_queue_wakelist also
-supports TIF_POLLING, so this is not a problem now when the wakee cpu is
-in idle polling.
+   WARNING: CPU: 439 PID: 10 at ../kernel/workqueue.c:2231 process_one_work+0x4d/0x440
+   Call Trace:
+    <TASK>
+    rescuer_thread+0x1f6/0x360
+    kthread+0x156/0x180
+    ret_from_fork+0x22/0x30
+    </TASK>
 
-Benefits:
-  Queuing the task on idle cpu can help improving performance on waker cpu
-  and utilization on wakee cpu, and further improve locality because
-  the wakee cpu can handle its own rq. This patch helps improving rt on
-  our real java workloads where wakeup happens frequently.
+Commit c6e7bd7afaeb ("sched/core: Optimize ttwu() spinning on p->on_cpu")
+optimises ttwu by queueing a task that is descheduling on the wakelist,
+but does not check if the task descheduling is still allowed to run on that CPU.
 
-  Consider the normal condition (CPU0 and CPU1 share same llc)
-  Before this patch:
+In this warning, the problematic task is a workqueue rescue thread which
+checks if the rescue is for a per-cpu workqueue and running on the wrong CPU.
+While this is early in boot and it should be possible to create workers,
+the rescue thread may still used if the MAYDAY_INITIAL_TIMEOUT is reached
+or MAYDAY_INTERVAL and on a sufficiently large machine, the rescue
+thread is being used frequently.
 
-         CPU0                                       CPU1
+Tracing confirmed that the task should have migrated properly using the
+stopper thread to handle the migration. However, a parallel wakeup from udev
+running on another CPU that does not share CPU cache observes p->on_cpu and
+uses task_cpu(p), queues the task on the old CPU and triggers the warning.
 
-    select_task_rq()                                idle
-    rq_lock(CPU1->rq)
-    enqueue_task(CPU1->rq)
-    notify CPU1 (by sending IPI or CPU1 polling)
+Check that the wakee task that is descheduling is still allowed to run
+on its current CPU and if not, wait for the descheduling to complete
+and select an allowed CPU.
 
-                                                    resched()
-
-  After this patch:
-
-         CPU0                                       CPU1
-
-    select_task_rq()                                idle
-    add to wakelist of CPU1
-    notify CPU1 (by sending IPI or CPU1 polling)
-
-                                                    rq_lock(CPU1->rq)
-                                                    enqueue_task(CPU1->rq)
-                                                    resched()
-
-  We see CPU0 can finish its work earlier. It only needs to put task to
-  wakelist and return.
-  While CPU1 is idle, so let itself handle its own runqueue data.
-
-This patch brings no difference about IPI.
-  This patch only takes effect when the wakee cpu is:
-  1) idle polling
-  2) idle not polling
-
-  For 1), there will be no IPI with or without this patch.
-
-  For 2), there will always be an IPI before or after this patch.
-  Before this patch: waker cpu will enqueue task and check preempt. Since
-  "idle" will be sure to be preempted, waker cpu must send a resched IPI.
-  After this patch: waker cpu will put the task to the wakelist of wakee
-  cpu, and send an IPI.
-
-Benchmark:
-We've tested schbench, unixbench, and hachbench on both x86 and arm64.
-
-On x86 (Intel Xeon Platinum 8269CY):
-  schbench -m 2 -t 8
-
-    Latency percentiles (usec)              before        after
-        50.0000th:                             8            6
-        75.0000th:                            10            7
-        90.0000th:                            11            8
-        95.0000th:                            12            8
-        *99.0000th:                           13           10
-        99.5000th:                            15           11
-        99.9000th:                            18           14
-
-  Unixbench with full threads (104)
-                                            before        after
-    Dhrystone 2 using register variables  3011862938    3009935994  -0.06%
-    Double-Precision Whetstone              617119.3      617298.5   0.03%
-    Execl Throughput                         27667.3       27627.3  -0.14%
-    File Copy 1024 bufsize 2000 maxblocks   785871.4      784906.2  -0.12%
-    File Copy 256 bufsize 500 maxblocks     210113.6      212635.4   1.20%
-    File Copy 4096 bufsize 8000 maxblocks  2328862.2     2320529.1  -0.36%
-    Pipe Throughput                      145535622.8   145323033.2  -0.15%
-    Pipe-based Context Switching           3221686.4     3583975.4  11.25%
-    Process Creation                        101347.1      103345.4   1.97%
-    Shell Scripts (1 concurrent)            120193.5      123977.8   3.15%
-    Shell Scripts (8 concurrent)             17233.4       17138.4  -0.55%
-    System Call Overhead                   5300604.8     5312213.6   0.22%
-
-  hackbench -g 1 -l 100000
-                                            before        after
-    Time                                     3.246        2.251
-
-On arm64 (Ampere Altra):
-  schbench -m 2 -t 8
-
-    Latency percentiles (usec)              before        after
-        50.0000th:                            14           10
-        75.0000th:                            19           14
-        90.0000th:                            22           16
-        95.0000th:                            23           16
-        *99.0000th:                           24           17
-        99.5000th:                            24           17
-        99.9000th:                            28           25
-
-  Unixbench with full threads (80)
-                                            before        after
-    Dhrystone 2 using register variables  3536194249    3537019613   0.02%
-    Double-Precision Whetstone              629383.6      629431.6   0.01%
-    Execl Throughput                         65920.5       65846.2  -0.11%
-    File Copy 1024 bufsize 2000 maxblocks  1063722.8     1064026.8   0.03%
-    File Copy 256 bufsize 500 maxblocks     322684.5      318724.5  -1.23%
-    File Copy 4096 bufsize 8000 maxblocks  2348285.3     2328804.8  -0.83%
-    Pipe Throughput                      133542875.3   131619389.8  -1.44%
-    Pipe-based Context Switching           3215356.1     3576945.1  11.25%
-    Process Creation                        108520.5      120184.6  10.75%
-    Shell Scripts (1 concurrent)            122636.3        121888  -0.61%
-    Shell Scripts (8 concurrent)             17462.1       17381.4  -0.46%
-    System Call Overhead                   4429998.9     4435006.7   0.11%
-
-  hackbench -g 1 -l 100000
-                                            before        after
-    Time                                     4.217        2.916
-
-Our patch has improvement on schbench, hackbench
-and Pipe-based Context Switching of unixbench
-when there exists idle cpus,
-and no obvious regression on other tests of unixbench.
-This can help improve rt in scenes where wakeup happens frequently.
-
-Signed-off-by: Tianchen Ding <dtcccc@linux.alibaba.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <vschneid@redhat.com>
-Link: https://lore.kernel.org/r/20220608233412.327341-3-dtcccc@linux.alibaba.com
+Fixes: c6e7bd7afaeb ("sched/core: Optimize ttwu() spinning on p->on_cpu")
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20220804092119.20137-1-mgorman@techsingularity.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c  | 26 ++++++++++++++------------
- kernel/sched/sched.h |  1 -
- 2 files changed, 14 insertions(+), 13 deletions(-)
+ kernel/sched/core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 4e99f0cf727a..df4a8c9d1070 100644
+index df4a8c9d1070..9671796a11cc 100644
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
 @@ -3811,7 +3811,7 @@ bool cpus_share_cache(int this_cpu, int that_cpu)
  	return per_cpu(sd_llc_id, this_cpu) == per_cpu(sd_llc_id, that_cpu);
  }
  
--static inline bool ttwu_queue_cond(int cpu, int wake_flags)
-+static inline bool ttwu_queue_cond(int cpu)
+-static inline bool ttwu_queue_cond(int cpu)
++static inline bool ttwu_queue_cond(struct task_struct *p, int cpu)
  {
  	/*
  	 * Do not complicate things with the async wake_list while the CPU is
-@@ -3827,17 +3827,21 @@ static inline bool ttwu_queue_cond(int cpu, int wake_flags)
- 	if (!cpus_share_cache(smp_processor_id(), cpu))
- 		return true;
+@@ -3820,6 +3820,10 @@ static inline bool ttwu_queue_cond(int cpu)
+ 	if (!cpu_active(cpu))
+ 		return false;
  
-+	if (cpu == smp_processor_id())
++	/* Ensure the task will still be allowed to run on the CPU. */
++	if (!cpumask_test_cpu(cpu, p->cpus_ptr))
 +		return false;
 +
  	/*
--	 * If the task is descheduling and the only running task on the
--	 * CPU then use the wakelist to offload the task activation to
--	 * the soon-to-be-idle CPU as the current CPU is likely busy.
--	 * nr_running is checked to avoid unnecessary task stacking.
-+	 * If the wakee cpu is idle, or the task is descheduling and the
-+	 * only running task on the CPU, then use the wakelist to offload
-+	 * the task activation to the idle (or soon-to-be-idle) CPU as
-+	 * the current CPU is likely busy. nr_running is checked to
-+	 * avoid unnecessary task stacking.
- 	 *
- 	 * Note that we can only get here with (wakee) p->on_rq=0,
- 	 * p->on_cpu can be whatever, we've done the dequeue, so
- 	 * the wakee has been accounted out of ->nr_running.
- 	 */
--	if ((wake_flags & WF_ON_CPU) && !cpu_rq(cpu)->nr_running)
-+	if (!cpu_rq(cpu)->nr_running)
- 		return true;
- 
- 	return false;
-@@ -3845,10 +3849,7 @@ static inline bool ttwu_queue_cond(int cpu, int wake_flags)
+ 	 * If the CPU does not share cache, then queue the task on the
+ 	 * remote rqs wakelist to avoid accessing remote data.
+@@ -3849,7 +3853,7 @@ static inline bool ttwu_queue_cond(int cpu)
  
  static bool ttwu_queue_wakelist(struct task_struct *p, int cpu, int wake_flags)
  {
--	if (sched_feat(TTWU_QUEUE) && ttwu_queue_cond(cpu, wake_flags)) {
--		if (WARN_ON_ONCE(cpu == smp_processor_id()))
--			return false;
--
-+	if (sched_feat(TTWU_QUEUE) && ttwu_queue_cond(cpu)) {
+-	if (sched_feat(TTWU_QUEUE) && ttwu_queue_cond(cpu)) {
++	if (sched_feat(TTWU_QUEUE) && ttwu_queue_cond(p, cpu)) {
  		sched_clock_cpu(cpu); /* Sync clocks across CPUs */
  		__ttwu_queue_wakelist(p, cpu, wake_flags);
  		return true;
-@@ -4170,7 +4171,7 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
- 	 * scheduling.
- 	 */
- 	if (smp_load_acquire(&p->on_cpu) &&
--	    ttwu_queue_wakelist(p, task_cpu(p), wake_flags | WF_ON_CPU))
-+	    ttwu_queue_wakelist(p, task_cpu(p), wake_flags))
- 		goto unlock;
- 
- 	/*
-@@ -4714,7 +4715,8 @@ static inline void prepare_task(struct task_struct *next)
- 	 * Claim the task as running, we do this before switching to it
- 	 * such that any running task will have this set.
- 	 *
--	 * See the ttwu() WF_ON_CPU case and its ordering comment.
-+	 * See the smp_load_acquire(&p->on_cpu) case in ttwu() and
-+	 * its ordering comment.
- 	 */
- 	WRITE_ONCE(next->on_cpu, 1);
- #endif
-diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index 84bba67c92dc..08fdb9ccd14d 100644
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -2042,7 +2042,6 @@ static inline int task_on_rq_migrating(struct task_struct *p)
- 
- #define WF_SYNC     0x10 /* Waker goes to sleep after wakeup */
- #define WF_MIGRATED 0x20 /* Internal use, task got migrated */
--#define WF_ON_CPU   0x40 /* Wakee is on_cpu */
- 
- #ifdef CONFIG_SMP
- static_assert(WF_EXEC == SD_BALANCE_EXEC);
 -- 
 2.35.1
 
