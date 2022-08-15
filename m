@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15F8C5944AF
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABCB95945AE
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:01:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348657AbiHOW3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:29:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36528 "EHLO
+        id S1347633AbiHOWUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:20:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349650AbiHOW0D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:26:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B2EF1272FF;
-        Mon, 15 Aug 2022 12:44:44 -0700 (PDT)
+        with ESMTP id S1350782AbiHOWSc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:18:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B3A56556A;
+        Mon, 15 Aug 2022 12:41:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6585610A3;
-        Mon, 15 Aug 2022 19:44:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1DACC433D6;
-        Mon, 15 Aug 2022 19:44:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB1F460FB9;
+        Mon, 15 Aug 2022 19:41:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EACB5C433D6;
+        Mon, 15 Aug 2022 19:41:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592683;
-        bh=WaC73Ehtk9NNYbQh1XGhrw8e5kNMtkzBB3GdQVraR34=;
+        s=korg; t=1660592494;
+        bh=uwI7jOt3LUj5x/gvUBN4HIO7/wzxiNFPzitTcyPAavQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x1TpHEA1n3U4FSpPHUW1RDynBK40XcCQjAQb5zBi/E/l/xI8yUE8KqxITXhlwQJx4
-         dhVNPJEWO3YY7BMNWoRq1f8zJjLR7E3K3j0LG5yXfmCG1tcDwObGGzsDbVOM7tsQIG
-         HLy7wrU1a1N/oR+Xv/9w4nMCYu6RM0kCCbZHxw+Y=
+        b=1wLgD+cqLnd5bgcjVhVxkUDj99pWnulFgh8R3ytltqRXoklMTOcUMW7U9fprH56oF
+         QSY4bXkaKwT3ZI8wocjsD4r4FJJ++Pw9XDvA9mG4ES1YlFmQcOjI7ujlo1Ko9K64Mc
+         XRmVGYNfOtnd+xSrcGuoZHuzivWhdivxBLVUOrY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Song Liu <song@kernel.org>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.19 0119/1157] md-raid10: fix KASAN warning
-Date:   Mon, 15 Aug 2022 19:51:15 +0200
-Message-Id: <20220815180444.373919713@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.19 0120/1157] mbcache: dont reclaim used entries
+Date:   Mon, 15 Aug 2022 19:51:16 +0200
+Message-Id: <20220815180444.411280397@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -53,148 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Jan Kara <jack@suse.cz>
 
-commit d17f744e883b2f8d13cca252d71cfe8ace346f7d upstream.
+commit 58318914186c157477b978b1739dfe2f1b9dc0fe upstream.
 
-There's a KASAN warning in raid10_remove_disk when running the lvm
-test lvconvert-raid-reshape.sh. We fix this warning by verifying that the
-value "number" is valid.
+Do not reclaim entries that are currently used by somebody from a
+shrinker. Firstly, these entries are likely useful. Secondly, we will
+need to keep such entries to protect pending increment of xattr block
+refcount.
 
-BUG: KASAN: slab-out-of-bounds in raid10_remove_disk+0x61/0x2a0 [raid10]
-Read of size 8 at addr ffff889108f3d300 by task mdX_raid10/124682
-
-CPU: 3 PID: 124682 Comm: mdX_raid10 Not tainted 5.19.0-rc6 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0x34/0x44
- print_report.cold+0x45/0x57a
- ? __lock_text_start+0x18/0x18
- ? raid10_remove_disk+0x61/0x2a0 [raid10]
- kasan_report+0xa8/0xe0
- ? raid10_remove_disk+0x61/0x2a0 [raid10]
- raid10_remove_disk+0x61/0x2a0 [raid10]
-Buffer I/O error on dev dm-76, logical block 15344, async page read
- ? __mutex_unlock_slowpath.constprop.0+0x1e0/0x1e0
- remove_and_add_spares+0x367/0x8a0 [md_mod]
- ? super_written+0x1c0/0x1c0 [md_mod]
- ? mutex_trylock+0xac/0x120
- ? _raw_spin_lock+0x72/0xc0
- ? _raw_spin_lock_bh+0xc0/0xc0
- md_check_recovery+0x848/0x960 [md_mod]
- raid10d+0xcf/0x3360 [raid10]
- ? sched_clock_cpu+0x185/0x1a0
- ? rb_erase+0x4d4/0x620
- ? var_wake_function+0xe0/0xe0
- ? psi_group_change+0x411/0x500
- ? preempt_count_sub+0xf/0xc0
- ? _raw_spin_lock_irqsave+0x78/0xc0
- ? __lock_text_start+0x18/0x18
- ? raid10_sync_request+0x36c0/0x36c0 [raid10]
- ? preempt_count_sub+0xf/0xc0
- ? _raw_spin_unlock_irqrestore+0x19/0x40
- ? del_timer_sync+0xa9/0x100
- ? try_to_del_timer_sync+0xc0/0xc0
- ? _raw_spin_lock_irqsave+0x78/0xc0
- ? __lock_text_start+0x18/0x18
- ? _raw_spin_unlock_irq+0x11/0x24
- ? __list_del_entry_valid+0x68/0xa0
- ? finish_wait+0xa3/0x100
- md_thread+0x161/0x260 [md_mod]
- ? unregister_md_personality+0xa0/0xa0 [md_mod]
- ? _raw_spin_lock_irqsave+0x78/0xc0
- ? prepare_to_wait_event+0x2c0/0x2c0
- ? unregister_md_personality+0xa0/0xa0 [md_mod]
- kthread+0x148/0x180
- ? kthread_complete_and_exit+0x20/0x20
- ret_from_fork+0x1f/0x30
- </TASK>
-
-Allocated by task 124495:
- kasan_save_stack+0x1e/0x40
- __kasan_kmalloc+0x80/0xa0
- setup_conf+0x140/0x5c0 [raid10]
- raid10_run+0x4cd/0x740 [raid10]
- md_run+0x6f9/0x1300 [md_mod]
- raid_ctr+0x2531/0x4ac0 [dm_raid]
- dm_table_add_target+0x2b0/0x620 [dm_mod]
- table_load+0x1c8/0x400 [dm_mod]
- ctl_ioctl+0x29e/0x560 [dm_mod]
- dm_compat_ctl_ioctl+0x7/0x20 [dm_mod]
- __do_compat_sys_ioctl+0xfa/0x160
- do_syscall_64+0x90/0xc0
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Last potentially related work creation:
- kasan_save_stack+0x1e/0x40
- __kasan_record_aux_stack+0x9e/0xc0
- kvfree_call_rcu+0x84/0x480
- timerfd_release+0x82/0x140
-L __fput+0xfa/0x400
- task_work_run+0x80/0xc0
- exit_to_user_mode_prepare+0x155/0x160
- syscall_exit_to_user_mode+0x12/0x40
- do_syscall_64+0x42/0xc0
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Second to last potentially related work creation:
- kasan_save_stack+0x1e/0x40
- __kasan_record_aux_stack+0x9e/0xc0
- kvfree_call_rcu+0x84/0x480
- timerfd_release+0x82/0x140
- __fput+0xfa/0x400
- task_work_run+0x80/0xc0
- exit_to_user_mode_prepare+0x155/0x160
- syscall_exit_to_user_mode+0x12/0x40
- do_syscall_64+0x42/0xc0
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-The buggy address belongs to the object at ffff889108f3d200
- which belongs to the cache kmalloc-256 of size 256
-The buggy address is located 0 bytes to the right of
- 256-byte region [ffff889108f3d200, ffff889108f3d300)
-
-The buggy address belongs to the physical page:
-page:000000007ef2a34c refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1108f3c
-head:000000007ef2a34c order:2 compound_mapcount:0 compound_pincount:0
-flags: 0x4000000000010200(slab|head|zone=2)
-raw: 4000000000010200 0000000000000000 dead000000000001 ffff889100042b40
-raw: 0000000000000000 0000000080200020 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff889108f3d200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff889108f3d280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff889108f3d300: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-                   ^
- ffff889108f3d380: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff889108f3d400: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+CC: stable@vger.kernel.org
+Fixes: 82939d7999df ("ext4: convert to mbcache2")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220712105436.32204-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/raid10.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/mbcache.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/md/raid10.c
-+++ b/drivers/md/raid10.c
-@@ -2167,9 +2167,12 @@ static int raid10_remove_disk(struct mdd
- 	int err = 0;
- 	int number = rdev->raid_disk;
- 	struct md_rdev **rdevp;
--	struct raid10_info *p = conf->mirrors + number;
-+	struct raid10_info *p;
- 
- 	print_conf(conf);
-+	if (unlikely(number >= mddev->raid_disks))
-+		return 0;
-+	p = conf->mirrors + number;
- 	if (rdev == p->rdev)
- 		rdevp = &p->rdev;
- 	else if (rdev == p->replacement)
+--- a/fs/mbcache.c
++++ b/fs/mbcache.c
+@@ -288,7 +288,7 @@ static unsigned long mb_cache_shrink(str
+ 	while (nr_to_scan-- && !list_empty(&cache->c_list)) {
+ 		entry = list_first_entry(&cache->c_list,
+ 					 struct mb_cache_entry, e_list);
+-		if (entry->e_referenced) {
++		if (entry->e_referenced || atomic_read(&entry->e_refcnt) > 2) {
+ 			entry->e_referenced = 0;
+ 			list_move_tail(&entry->e_list, &cache->c_list);
+ 			continue;
+@@ -302,6 +302,14 @@ static unsigned long mb_cache_shrink(str
+ 		spin_unlock(&cache->c_list_lock);
+ 		head = mb_cache_entry_head(cache, entry->e_key);
+ 		hlist_bl_lock(head);
++		/* Now a reliable check if the entry didn't get used... */
++		if (atomic_read(&entry->e_refcnt) > 2) {
++			hlist_bl_unlock(head);
++			spin_lock(&cache->c_list_lock);
++			list_add_tail(&entry->e_list, &cache->c_list);
++			cache->c_entry_count++;
++			continue;
++		}
+ 		if (!hlist_bl_unhashed(&entry->e_hash_list)) {
+ 			hlist_bl_del_init(&entry->e_hash_list);
+ 			atomic_dec(&entry->e_refcnt);
 
 
