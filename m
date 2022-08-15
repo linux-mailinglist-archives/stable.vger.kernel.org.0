@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57DA259434C
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:55:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1E7459449C
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351709AbiHOWwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:52:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60226 "EHLO
+        id S1351715AbiHOWwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:52:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352350AbiHOWvb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:51:31 -0400
+        with ESMTP id S1352398AbiHOWvo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:51:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5188C13894B;
-        Mon, 15 Aug 2022 12:54:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12D7D7F0B2;
+        Mon, 15 Aug 2022 12:54:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 840FF61178;
-        Mon, 15 Aug 2022 19:54:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 710A6C433C1;
-        Mon, 15 Aug 2022 19:54:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8B2E6113B;
+        Mon, 15 Aug 2022 19:54:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADC1EC433C1;
+        Mon, 15 Aug 2022 19:54:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593256;
-        bh=MmaqZzJMFfhczwdG6lBI7PY17ZXYb9+bNAo7nLLp8qw=;
+        s=korg; t=1660593263;
+        bh=luJq0rhnS1tOZpDK/MobD+pecUceV/cKAkDXwD7RAbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wC+KIxfOr6Ls4q/cs8fPjc5EI3UuXfZRrqV6nvSDDvISCmbRWhmpmbOIKfz7rSNMd
-         LRRyCtVC3QuGM0+ifmxkb1MCt8Dx7VaOGEuI/hF4wQJRINELV59VbSIN0D2S53h9Vd
-         JXbs+kcZPMKiCTui25J2/LzYeKOS7sJLO10C18F0=
+        b=BOTnehircC3h5GKHpk4hT7L1wMPfjZl6OQFDMpALEvZ3dXrr7tbhKZimM+6UM2kzM
+         8j2Vw+8xEd6eYNhN2QcIFOYL1+XozHmzM9gJ7OOtE6BwRuTDC9lhb9+DFE3M8Yi8RS
+         wI2kQuPBZBoKrWtKULtq9YjKkj2DuhhLwYN6tgLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+        Omar Avelar <omar.avelar@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0237/1157] regulator: qcom_smd: Fix pm8916_pldo range
-Date:   Mon, 15 Aug 2022 19:53:13 +0200
-Message-Id: <20220815180449.045594664@linuxfoundation.org>
+Subject: [PATCH 5.19 0238/1157] ACPI: APEI: Fix _EINJ vs EFI_MEMORY_SP
+Date:   Mon, 15 Aug 2022 19:53:14 +0200
+Message-Id: <20220815180449.086857452@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,52 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-[ Upstream commit e8977917e116d1571dacb8e9864474551c1c12bd ]
+[ Upstream commit b13a3e5fd40b7d1b394c5ecbb5eb301a4c38e7b2 ]
 
-The PM8916 device specification [1] documents a programmable range of
-1.75V to 3.337V with 12.5mV steps for the PMOS LDOs in PM8916. This
-range is also used when controlling the regulator directly using the
-qcom_spmi-regulator driver ("ult_pldo" there).
+When a platform marks a memory range as "special purpose" it is not
+onlined as System RAM by default. However, it is still suitable for
+error injection. Add IORES_DESC_SOFT_RESERVED to einj_error_inject() as
+a permissible memory type in the sanity checking of the arguments to
+_EINJ.
 
-However, for some reason the qcom_smd-regulator driver allows a much
-larger range for the same hardware component. This could be simply a
-typo, since the start of the range is essentially just missing a '1'.
-
-In practice this does not cause any major problems, since the driver
-just sends the actual voltage to the RPM firmware instead of making use
-of the incorrect voltage selector. Still, having the wrong range there
-is confusing and prevents the regulator core from validating requests
-correctly.
-
-[1]: https://developer.qualcomm.com/download/sd410/pm8916pm8916-1-power-management-ic-device-specification.pdf
-
-Fixes: 57d6567680ed ("regulator: qcom-smd: Add PM8916 support")
-Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
-Link: https://lore.kernel.org/r/20220623094614.1410180-2-stephan.gerhold@kernkonzept.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 262b45ae3ab4 ("x86/efi: EFI soft reservation to E820 enumeration")
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Reported-by: Omar Avelar <omar.avelar@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/qcom_smd-regulator.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/acpi/apei/einj.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/regulator/qcom_smd-regulator.c b/drivers/regulator/qcom_smd-regulator.c
-index ef6e47d025ca..60f3513f7038 100644
---- a/drivers/regulator/qcom_smd-regulator.c
-+++ b/drivers/regulator/qcom_smd-regulator.c
-@@ -357,10 +357,10 @@ static const struct regulator_desc pm8941_switch = {
- 
- static const struct regulator_desc pm8916_pldo = {
- 	.linear_ranges = (struct linear_range[]) {
--		REGULATOR_LINEAR_RANGE(750000, 0, 208, 12500),
-+		REGULATOR_LINEAR_RANGE(1750000, 0, 127, 12500),
- 	},
- 	.n_linear_ranges = 1,
--	.n_voltages = 209,
-+	.n_voltages = 128,
- 	.ops = &rpm_smps_ldo_ops,
- };
+diff --git a/drivers/acpi/apei/einj.c b/drivers/acpi/apei/einj.c
+index d4326ec12d29..6b583373c58a 100644
+--- a/drivers/acpi/apei/einj.c
++++ b/drivers/acpi/apei/einj.c
+@@ -546,6 +546,8 @@ static int einj_error_inject(u32 type, u32 flags, u64 param1, u64 param2,
+ 				!= REGION_INTERSECTS) &&
+ 	     (region_intersects(base_addr, size, IORESOURCE_MEM, IORES_DESC_PERSISTENT_MEMORY)
+ 				!= REGION_INTERSECTS) &&
++	     (region_intersects(base_addr, size, IORESOURCE_MEM, IORES_DESC_SOFT_RESERVED)
++				!= REGION_INTERSECTS) &&
+ 	     !arch_is_platform_page(base_addr)))
+ 		return -EINVAL;
  
 -- 
 2.35.1
