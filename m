@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26CEB594751
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 041FF594776
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:00:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347356AbiHOXNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:13:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42292 "EHLO
+        id S1353471AbiHOXWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:22:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241267AbiHOXMH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:12:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C77326D9;
-        Mon, 15 Aug 2022 13:00:34 -0700 (PDT)
+        with ESMTP id S243187AbiHOXS5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:18:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4852C149A13;
+        Mon, 15 Aug 2022 13:03:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15C1D612B9;
-        Mon, 15 Aug 2022 20:00:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1817CC433C1;
-        Mon, 15 Aug 2022 20:00:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5029C61089;
+        Mon, 15 Aug 2022 20:03:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58577C433C1;
+        Mon, 15 Aug 2022 20:03:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593633;
-        bh=SmZYZEpOelWUIJG7oTgTHs2s9xh0YRCxcCr5ctiy6do=;
+        s=korg; t=1660593828;
+        bh=ideHvfhDE9wq+JxMMdoFAQuD3viIDQ424rCtYQY44JA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sxfs5qoqjcDB6yKPq8rJZuZJlPNekQJokp0ZYzt56YA2KyqlkfJMufIZCWOEFsRil
-         7lQlGsMkLbPjK5sEJOCyeTufZ4nPnge89FSwR2EjXYgkAOGFjBtoIuv64WQHty5FHP
-         xDGbI7qN4M9SGg3K3GR2nkVmGndniXt0yAMHIsWQ=
+        b=dzptm9vIqJVsnS/M10s6MsU9i4++YBWGEumq3Ci8SMvz+i3TlJqUFYMHiWkJcvH4+
+         R4OhK4vph0N27YJRV59YCnm/DRiZT54EZ7FhIbEY+qW/nuQBX0DzgVv3RHeNJVC0FP
+         2YL8DRyaY50toeDhMg7NYGuca4IRFlfDZ9w00GgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        David Collins <quic_collinsd@quicinc.com>
-Subject: [PATCH 5.18 0979/1095] spmi: trace: fix stack-out-of-bound access in SPMI tracing functions
-Date:   Mon, 15 Aug 2022 20:06:18 +0200
-Message-Id: <20220815180509.630450802@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable <stable@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0990/1095] intel_th: pci: Add Meteor Lake-P support
+Date:   Mon, 15 Aug 2022 20:06:29 +0200
+Message-Id: <20220815180510.065201774@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,110 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Collins <quic_collinsd@quicinc.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit 2af28b241eea816e6f7668d1954f15894b45d7e3 upstream.
+[ Upstream commit 802a9a0b1d91274ef10d9fe429b4cc1e8c200aef ]
 
-trace_spmi_write_begin() and trace_spmi_read_end() both call
-memcpy() with a length of "len + 1".  This leads to one extra
-byte being read beyond the end of the specified buffer.  Fix
-this out-of-bound memory access by using a length of "len"
-instead.
+Add support for the Trace Hub in Meteor Lake-P.
 
-Here is a KASAN log showing the issue:
-
-BUG: KASAN: stack-out-of-bounds in trace_event_raw_event_spmi_read_end+0x1d0/0x234
-Read of size 2 at addr ffffffc0265b7540 by task thermal@2.0-ser/1314
-...
-Call trace:
- dump_backtrace+0x0/0x3e8
- show_stack+0x2c/0x3c
- dump_stack_lvl+0xdc/0x11c
- print_address_description+0x74/0x384
- kasan_report+0x188/0x268
- kasan_check_range+0x270/0x2b0
- memcpy+0x90/0xe8
- trace_event_raw_event_spmi_read_end+0x1d0/0x234
- spmi_read_cmd+0x294/0x3ac
- spmi_ext_register_readl+0x84/0x9c
- regmap_spmi_ext_read+0x144/0x1b0 [regmap_spmi]
- _regmap_raw_read+0x40c/0x754
- regmap_raw_read+0x3a0/0x514
- regmap_bulk_read+0x418/0x494
- adc5_gen3_poll_wait_hs+0xe8/0x1e0 [qcom_spmi_adc5_gen3]
- ...
- __arm64_sys_read+0x4c/0x60
- invoke_syscall+0x80/0x218
- el0_svc_common+0xec/0x1c8
- ...
-
-addr ffffffc0265b7540 is located in stack of task thermal@2.0-ser/1314 at offset 32 in frame:
- adc5_gen3_poll_wait_hs+0x0/0x1e0 [qcom_spmi_adc5_gen3]
-
-this frame has 1 object:
- [32, 33) 'status'
-
-Memory state around the buggy address:
- ffffffc0265b7400: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
- ffffffc0265b7480: 04 f3 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
->ffffffc0265b7500: 00 00 00 00 f1 f1 f1 f1 01 f3 f3 f3 00 00 00 00
-                                           ^
- ffffffc0265b7580: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffffffc0265b7600: f1 f1 f1 f1 01 f2 07 f2 f2 f2 01 f3 00 00 00 00
-==================================================================
-
-Fixes: a9fce374815d ("spmi: add command tracepoints for SPMI")
-Cc: stable@vger.kernel.org
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: David Collins <quic_collinsd@quicinc.com>
-Link: https://lore.kernel.org/r/20220627235512.2272783-1-quic_collinsd@quicinc.com
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Link: https://lore.kernel.org/r/20220705082637.59979-5-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/spmi.h |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/hwtracing/intel_th/pci.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/include/trace/events/spmi.h
-+++ b/include/trace/events/spmi.h
-@@ -21,15 +21,15 @@ TRACE_EVENT(spmi_write_begin,
- 		__field		( u8,         sid       )
- 		__field		( u16,        addr      )
- 		__field		( u8,         len       )
--		__dynamic_array	( u8,   buf,  len + 1   )
-+		__dynamic_array	( u8,   buf,  len       )
- 	),
- 
- 	TP_fast_assign(
- 		__entry->opcode = opcode;
- 		__entry->sid    = sid;
- 		__entry->addr   = addr;
--		__entry->len    = len + 1;
--		memcpy(__get_dynamic_array(buf), buf, len + 1);
-+		__entry->len    = len;
-+		memcpy(__get_dynamic_array(buf), buf, len);
- 	),
- 
- 	TP_printk("opc=%d sid=%02d addr=0x%04x len=%d buf=0x[%*phD]",
-@@ -92,7 +92,7 @@ TRACE_EVENT(spmi_read_end,
- 		__field		( u16,        addr      )
- 		__field		( int,        ret       )
- 		__field		( u8,         len       )
--		__dynamic_array	( u8,   buf,  len + 1   )
-+		__dynamic_array	( u8,   buf,  len       )
- 	),
- 
- 	TP_fast_assign(
-@@ -100,8 +100,8 @@ TRACE_EVENT(spmi_read_end,
- 		__entry->sid    = sid;
- 		__entry->addr   = addr;
- 		__entry->ret    = ret;
--		__entry->len    = len + 1;
--		memcpy(__get_dynamic_array(buf), buf, len + 1);
-+		__entry->len    = len;
-+		memcpy(__get_dynamic_array(buf), buf, len);
- 	),
- 
- 	TP_printk("opc=%d sid=%02d addr=0x%04x ret=%d len=%02d buf=0x[%*phD]",
+diff --git a/drivers/hwtracing/intel_th/pci.c b/drivers/hwtracing/intel_th/pci.c
+index fcd0aca75007..41a31c7f505f 100644
+--- a/drivers/hwtracing/intel_th/pci.c
++++ b/drivers/hwtracing/intel_th/pci.c
+@@ -284,6 +284,11 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x54a6),
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+ 	},
++	{
++		/* Meteor Lake-P */
++		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x7e24),
++		.driver_data = (kernel_ulong_t)&intel_th_2x,
++	},
+ 	{
+ 		/* Alder Lake CPU */
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x466f),
+-- 
+2.35.1
+
 
 
