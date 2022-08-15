@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F734595045
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:39:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22406595031
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:38:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231535AbiHPEjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:39:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42578 "EHLO
+        id S231156AbiHPEhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:37:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231383AbiHPEic (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:38:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E050DA025B;
-        Mon, 15 Aug 2022 13:28:40 -0700 (PDT)
+        with ESMTP id S231283AbiHPEhC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:37:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DCB7357EC;
+        Mon, 15 Aug 2022 13:27:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1CE26B8119A;
-        Mon, 15 Aug 2022 20:28:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 770E6C433C1;
-        Mon, 15 Aug 2022 20:28:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D62D61133;
+        Mon, 15 Aug 2022 20:27:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 192DDC433D6;
+        Mon, 15 Aug 2022 20:26:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595317;
-        bh=E+QZQsBXl0dqxOYJkYZFIb9f68aE3v6YlJF+X8cSSBw=;
+        s=korg; t=1660595220;
+        bh=iTmeA8s+xFoCTgBSS0GCvKoR1P2ycaxa6jZr3GJywEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T3lAlwIGwSv32NtpFzhaI/bwpnOxyOGXN79PXjfZDffMmV1BzdfMflnLa3D4UyaP0
-         7Vi0BNWlLxFI/RCaZByIZKZCuzTc1J2f9nlIMfM80Sw8QdOFgB5QkbPLjoo2HfHQLT
-         VbPoheYwILkRlkPRAIavfM1cPWePc4K/U/fWe1Ao=
+        b=gA14AuHpjJmwQ7M7ep58ZnRwPdOd+Xz0e+7hP1ZddQXd/rUZ0TSIKm5ZroD+Tr2X6
+         R0VekTjmNqwjKcYRsdEbJHt8Qk+MmbH8qlrk0v02p8LxZCm/Zqg+YjluhdebEYOaZl
+         pw68kDGGtnFboysC4oPkZNqwSy+/e5c/K3/PVqrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Ricardo Ribalda <ribalda@kernel.org>,
         =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0693/1157] iio: dac: ti-dac7612: Fix alignment for DMA safety
-Date:   Mon, 15 Aug 2022 20:00:49 +0200
-Message-Id: <20220815180507.349750546@linuxfoundation.org>
+Subject: [PATCH 5.19 0696/1157] iio: frequency: adf4371: Fix alignment for DMA safety
+Date:   Mon, 15 Aug 2022 20:00:52 +0200
+Message-Id: <20220815180507.470699394@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -58,41 +57,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit b9ac08b3282a95fcefb057c2886028a6807725d8 ]
+[ Upstream commit 0bb5675befe666eeed71ad808426cf2ec1c9a714 ]
 
 ____cacheline_aligned is an insufficient guarantee for non-coherent DMA
 on platforms with 128 byte cachelines above L1.  Switch to the updated
 IIO_DMA_MINALIGN definition.
 
-Updated help text to 'may' require buffers to be in their own cacheline.
-
-Fixes: 977724d20584 ("iio:dac:ti-dac7612: Add driver for Texas Instruments DAC7612")
+Fixes: 7f699bd14913 ("iio: frequency: adf4371: Add support for ADF4371 PLL")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Ricardo Ribalda <ribalda@kernel.org>
 Acked-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20220508175712.647246-65-jic23@kernel.org
+Link: https://lore.kernel.org/r/20220508175712.647246-68-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/ti-dac7612.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/frequency/adf4371.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/dac/ti-dac7612.c b/drivers/iio/dac/ti-dac7612.c
-index 4c0f4b5e9ff4..8195815de26f 100644
---- a/drivers/iio/dac/ti-dac7612.c
-+++ b/drivers/iio/dac/ti-dac7612.c
-@@ -31,10 +31,10 @@ struct dac7612 {
- 	struct mutex lock;
- 
- 	/*
--	 * DMA (thus cache coherency maintenance) requires the
-+	 * DMA (thus cache coherency maintenance) may require the
- 	 * transfer buffers to live in their own cache lines.
- 	 */
--	uint8_t data[2] ____cacheline_aligned;
-+	uint8_t data[2] __aligned(IIO_DMA_MINALIGN);
+diff --git a/drivers/iio/frequency/adf4371.c b/drivers/iio/frequency/adf4371.c
+index ecd5e18995ad..135c8cedc33d 100644
+--- a/drivers/iio/frequency/adf4371.c
++++ b/drivers/iio/frequency/adf4371.c
+@@ -175,7 +175,7 @@ struct adf4371_state {
+ 	unsigned int mod2;
+ 	unsigned int rf_div_sel;
+ 	unsigned int ref_div_factor;
+-	u8 buf[10] ____cacheline_aligned;
++	u8 buf[10] __aligned(IIO_DMA_MINALIGN);
  };
  
- static int dac7612_cmd_single(struct dac7612 *priv, int channel, u16 val)
+ static unsigned long long adf4371_pll_fract_n_get_rate(struct adf4371_state *st,
 -- 
 2.35.1
 
