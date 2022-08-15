@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C4A8592E22
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:25:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51481592E23
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232045AbiHOLZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230471AbiHOLZM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Aug 2022 07:25:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41766 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231524AbiHOLZK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:25:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B2FF1A383
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:25:09 -0700 (PDT)
+        with ESMTP id S232957AbiHOLZL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:25:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3708322B2E
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:25:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFF67B80DF1
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:25:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E858C433D6;
-        Mon, 15 Aug 2022 11:25:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CAD0661155
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:25:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7A97C433D6;
+        Mon, 15 Aug 2022 11:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660562706;
-        bh=iXyg4NFawRnZHrQ0+6O3/Vdl3r9XLHormxXi9ADCksU=;
+        s=korg; t=1660562709;
+        bh=c+CfVA9R7cXmuzdbZptj5P2+x6574wUTaa56C/qJXSY=;
         h=Subject:To:Cc:From:Date:From;
-        b=HLxFlyvOzIvA5c9KsOGONtV5w9umiqQywse6MGytP0FejnCPgeHO9rJocmr8Aw0ke
-         t/HUugjLN0mvTVIagxHHUZod/zwgM65uLSP1XBTh+8Z4CoNj4qm8lkyci1kUteajX6
-         9nLBa78w8Ip0BdSqg4knpPtV4zspJaIzuHwGVd3U=
-Subject: FAILED: patch "[PATCH] ext4: fix race when reusing xattr blocks" failed to apply to 5.4-stable tree
+        b=NgkZ8Di+kcLtkdZ8Q9YZCyKq+SqYPk8oKgBhtfxgoZkx8wAs6fkCO+Rl6FYzXhqsX
+         tNyTuhnbVQbioNQP2eqCxHouurqRTC8xF/svZTEp5/wMibidsemlAu+0X/hjt0a/3A
+         S+jTWNGo5A4x8cMSj61ri7JKOaTRfSAtC1DkfYGU=
+Subject: FAILED: patch "[PATCH] ext4: fix race when reusing xattr blocks" failed to apply to 4.19-stable tree
 To:     jack@suse.cz, ritesh.list@gmail.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Aug 2022 13:24:51 +0200
-Message-ID: <166056269117975@kroah.com>
+Date:   Mon, 15 Aug 2022 13:24:52 +0200
+Message-ID: <166056269259116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
