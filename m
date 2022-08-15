@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7E11594873
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3C89594826
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:06:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229597AbiHOXRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:17:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48328 "EHLO
+        id S1343530AbiHOXRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:17:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232573AbiHOXO2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:14:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC13D7B1D6;
-        Mon, 15 Aug 2022 13:01:43 -0700 (PDT)
+        with ESMTP id S241876AbiHOXO3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:14:29 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D10DA474FB;
+        Mon, 15 Aug 2022 13:01:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79D9DB80EAD;
-        Mon, 15 Aug 2022 20:01:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDDB7C433D6;
-        Mon, 15 Aug 2022 20:01:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 09617CE12E7;
+        Mon, 15 Aug 2022 20:01:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3C7CC433C1;
+        Mon, 15 Aug 2022 20:01:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593701;
-        bh=sgTuMiFPF54ACuOVTfBonHG/zBfkQGkStRcBCG6GKZE=;
+        s=korg; t=1660593707;
+        bh=nDbHqfhdNpzYZKdbkZ4LGk/SQWMKL/OIcQRYU9Jk20o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkIYz8B67J5PyEBI2+AFMRIVJFY+yMW2wBTy9xIzDihm0HmNO1UhCxtgdw+jcq+3u
-         vEpElxG44YkSWSPldA5iKbIpcy6KhlWBIaQ9SGB09HjZT3HxEqnuIDPG0K9tU+ghRa
-         TIYswK7tmtMrFEXszwnwqFDsfF4i6eoYeJfNQeD8=
+        b=WkV4qifhuorlxeXj/qCJ2R6gL9rZ2C0bWOL0FZq7e90/IFeJ5ZqsFk9EFxS3EjA73
+         K12n8SksGVd3mnMmZSnbWMpWu/ez8C6KsSFNJ0U8tvZr0+o7siAS3fYeirOBWqRioQ
+         7OgGJ0S+LxOOoeMy0KaWJ1u0I0JPaPXaZTPuHmVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Andrzej Hajda <andrzej.hajda@intel.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Marek Vasut <marex@denx.de>, Jonas Karlman <jonas@kwiboo.se>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0312/1157] drm/dp: Export symbol / kerneldoc fixes for DP AUX bus
-Date:   Mon, 15 Aug 2022 19:54:28 +0200
-Message-Id: <20220815180452.136975843@linuxfoundation.org>
+Subject: [PATCH 5.19 0313/1157] drm/bridge: tc358767: Handle dsi_lanes == 0 as invalid
+Date:   Mon, 15 Aug 2022 19:54:29 +0200
+Message-Id: <20220815180452.170706172@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,54 +60,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 39c28cdfb719f0e306b447f0827dfd712f81858b ]
+[ Upstream commit 0d662350928e6787d29ab205e47e5aa6f1f792f9 ]
 
-While working on the DP AUX bus code I found a few small things that
-should be fixed. Namely the non-devm version of
-of_dp_aux_populate_ep_devices() was missing an export. There was also
-an extra blank line in a kerneldoc and a kerneldoc that incorrectly
-documented a return value. Fix these.
+Handle empty data-lanes = < >; property, which translates to
+dsi_lanes = 0 as invalid.
 
-Fixes: aeb33699fc2c ("drm: Introduce the DP AUX bus")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220510122726.v3.1.Ia91f4849adfc5eb9da1eb37ba79aa65fb3c95a0f@changeid
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Fixes: bbfd3190b6562 ("drm/bridge: tc358767: Add DSI-to-DPI mode support")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Jonas Karlman <jonas@kwiboo.se>
+Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: Marek Vasut <marex@denx.de>
+Cc: Maxime Ripard <maxime@cerno.tech>
+Cc: Neil Armstrong <narmstrong@baylibre.com>
+Cc: Robert Foss <robert.foss@linaro.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220519095137.11896-1-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/display/drm_dp_aux_bus.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/gpu/drm/bridge/tc358767.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/display/drm_dp_aux_bus.c b/drivers/gpu/drm/display/drm_dp_aux_bus.c
-index dccf3e2ea323..552f949cff59 100644
---- a/drivers/gpu/drm/display/drm_dp_aux_bus.c
-+++ b/drivers/gpu/drm/display/drm_dp_aux_bus.c
-@@ -66,7 +66,6 @@ static int dp_aux_ep_probe(struct device *dev)
-  * @dev: The device to remove.
-  *
-  * Calls through to the endpoint driver remove.
-- *
-  */
- static void dp_aux_ep_remove(struct device *dev)
- {
-@@ -120,8 +119,6 @@ ATTRIBUTE_GROUPS(dp_aux_ep_dev);
- /**
-  * dp_aux_ep_dev_release() - Free memory for the dp_aux_ep device
-  * @dev: The device to free.
-- *
-- * Return: 0 if no error or negative error code.
-  */
- static void dp_aux_ep_dev_release(struct device *dev)
- {
-@@ -256,6 +253,7 @@ int of_dp_aux_populate_ep_devices(struct drm_dp_aux *aux)
+diff --git a/drivers/gpu/drm/bridge/tc358767.c b/drivers/gpu/drm/bridge/tc358767.c
+index 485717c8f0b4..466b8fc9836a 100644
+--- a/drivers/gpu/drm/bridge/tc358767.c
++++ b/drivers/gpu/drm/bridge/tc358767.c
+@@ -1871,7 +1871,7 @@ static int tc_mipi_dsi_host_attach(struct tc_data *tc)
+ 	of_node_put(host_node);
+ 	of_node_put(endpoint);
  
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(of_dp_aux_populate_ep_devices);
+-	if (dsi_lanes < 0 || dsi_lanes > 4)
++	if (dsi_lanes <= 0 || dsi_lanes > 4)
+ 		return -EINVAL;
  
- static void of_dp_aux_depopulate_ep_devices_void(void *data)
- {
+ 	if (!host)
 -- 
 2.35.1
 
