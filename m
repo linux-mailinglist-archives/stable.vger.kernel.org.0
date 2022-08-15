@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0712D594311
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:54:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1523594481
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:58:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349060AbiHOWiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:38:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35232 "EHLO
+        id S1348690AbiHOWiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:38:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350726AbiHOWg4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:36:56 -0400
+        with ESMTP id S1350695AbiHOWgx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:36:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AAD712F720;
-        Mon, 15 Aug 2022 12:50:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB12D72867;
+        Mon, 15 Aug 2022 12:50:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF169B8114E;
-        Mon, 15 Aug 2022 19:50:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3C06C433C1;
-        Mon, 15 Aug 2022 19:50:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10223B8106C;
+        Mon, 15 Aug 2022 19:50:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FED6C433C1;
+        Mon, 15 Aug 2022 19:50:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593018;
-        bh=YKHQv8ohmk4Xil86jK0EXwiIzBcc1yD6B4GvV0O1SNU=;
+        s=korg; t=1660593024;
+        bh=hF+MWjz3NwNhxg062slqc22gSVlrgR4oKLCaB8gyQdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVBxaOOx+BxSLOJlBZjpvb29QowQe3ACJdTjyrg/OiC2Nlg0AvArywQgaapoz0wC/
-         mcnHmeAG6neKSGTt+IVZpRv6vxG+dmeKi08dYyruNV+XydOqKx4woBQVctVxFqM/PW
-         /nX1zODRh0jrINgQPxRJjxcrsJwl0uRPVvGUk5hg=
+        b=Y6jW55AOcd9npPd0YMh6NsHonPNDUiGhwaJxqj5skM+bz8TnM8U/6j7kLjbeDdX2N
+         nucPXiNpa7DAhKWaC0ajHTgcZJMZaO4HfV8chXBlRXZKrmBrepd1RYg9GSGKQ8AZ1N
+         TrJ/01gzA2CAABEMohpavhdcwzkc9tFpzk91o96M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0880/1095] ASoC: mt6359: Fix refcount leak bug
-Date:   Mon, 15 Aug 2022 20:04:39 +0200
-Message-Id: <20220815180505.762202059@linuxfoundation.org>
+Subject: [PATCH 5.18 0881/1095] serial: 8250_bcm7271: Save/restore RTS in suspend/resume
+Date:   Mon, 15 Aug 2022 20:04:40 +0200
+Message-Id: <20220815180505.792379523@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,49 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit a8d5df69e2ec702d979f7d04ed519caf8691a032 ]
+[ Upstream commit 3182efd036c1b955403d131258234896cbd9fbeb ]
 
-In mt6359_parse_dt() and mt6359_accdet_parse_dt(), we should call
-of_node_put() for the reference returned by of_get_child_by_name()
-which has increased the refcount.
+Commit 9cabe26e65a8 ("serial: 8250_bcm7271: UART errors after resuming
+from S2") prevented an early enabling of RTS during resume, but it did
+not actively restore the RTS state after resume.
 
-Fixes: 683530285316 ("ASoC: mt6359: fix failed to parse DT properties")
-Fixes: eef07b9e0925 ("ASoC: mediatek: mt6359: add MT6359 accdet jack driver")
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220713102013.367336-1-windhl@126.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 9cabe26e65a8 ("serial: 8250_bcm7271: UART errors after resuming from S2")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220714031316.404918-1-f.fainelli@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/mt6359-accdet.c | 1 +
- sound/soc/codecs/mt6359.c        | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/tty/serial/8250/8250_bcm7271.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/codecs/mt6359-accdet.c b/sound/soc/codecs/mt6359-accdet.c
-index 6d3d170144a0..c190628e2905 100644
---- a/sound/soc/codecs/mt6359-accdet.c
-+++ b/sound/soc/codecs/mt6359-accdet.c
-@@ -675,6 +675,7 @@ static int mt6359_accdet_parse_dt(struct mt6359_accdet *priv)
- 			       sizeof(struct three_key_threshold));
- 	}
+diff --git a/drivers/tty/serial/8250/8250_bcm7271.c b/drivers/tty/serial/8250/8250_bcm7271.c
+index 9b878d023dac..8efdc271eb75 100644
+--- a/drivers/tty/serial/8250/8250_bcm7271.c
++++ b/drivers/tty/serial/8250/8250_bcm7271.c
+@@ -1139,16 +1139,19 @@ static int __maybe_unused brcmuart_suspend(struct device *dev)
+ 	struct brcmuart_priv *priv = dev_get_drvdata(dev);
+ 	struct uart_8250_port *up = serial8250_get_port(priv->line);
+ 	struct uart_port *port = &up->port;
+-
+-	serial8250_suspend_port(priv->line);
+-	clk_disable_unprepare(priv->baud_mux_clk);
++	unsigned long flags;
  
-+	of_node_put(node);
- 	dev_warn(priv->dev, "accdet caps=%x\n", priv->caps);
+ 	/*
+ 	 * This will prevent resume from enabling RTS before the
+-	 *  baud rate has been resored.
++	 *  baud rate has been restored.
+ 	 */
++	spin_lock_irqsave(&port->lock, flags);
+ 	priv->saved_mctrl = port->mctrl;
+-	port->mctrl = 0;
++	port->mctrl &= ~TIOCM_RTS;
++	spin_unlock_irqrestore(&port->lock, flags);
++
++	serial8250_suspend_port(priv->line);
++	clk_disable_unprepare(priv->baud_mux_clk);
  
  	return 0;
-diff --git a/sound/soc/codecs/mt6359.c b/sound/soc/codecs/mt6359.c
-index f8532aa7e4aa..9a9c8555f720 100644
---- a/sound/soc/codecs/mt6359.c
-+++ b/sound/soc/codecs/mt6359.c
-@@ -2780,6 +2780,7 @@ static int mt6359_parse_dt(struct mt6359_priv *priv)
+ }
+@@ -1158,6 +1161,7 @@ static int __maybe_unused brcmuart_resume(struct device *dev)
+ 	struct brcmuart_priv *priv = dev_get_drvdata(dev);
+ 	struct uart_8250_port *up = serial8250_get_port(priv->line);
+ 	struct uart_port *port = &up->port;
++	unsigned long flags;
+ 	int ret;
  
- 	ret = of_property_read_u32(np, "mediatek,mic-type-2",
- 				   &priv->mux_select[MUX_MIC_TYPE_2]);
-+	of_node_put(np);
- 	if (ret) {
- 		dev_info(priv->dev,
- 			 "%s() failed to read mic-type-2, use default (%d)\n",
+ 	ret = clk_prepare_enable(priv->baud_mux_clk);
+@@ -1180,7 +1184,15 @@ static int __maybe_unused brcmuart_resume(struct device *dev)
+ 		start_rx_dma(serial8250_get_port(priv->line));
+ 	}
+ 	serial8250_resume_port(priv->line);
+-	port->mctrl = priv->saved_mctrl;
++
++	if (priv->saved_mctrl & TIOCM_RTS) {
++		/* Restore RTS */
++		spin_lock_irqsave(&port->lock, flags);
++		port->mctrl |= TIOCM_RTS;
++		port->ops->set_mctrl(port, port->mctrl);
++		spin_unlock_irqrestore(&port->lock, flags);
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
