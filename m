@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BF0A592E52
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:44:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED94F592E53
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:44:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231562AbiHOLoj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 07:44:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58654 "EHLO
+        id S232473AbiHOLon (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 07:44:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231621AbiHOLoj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:44:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4305C24BF7
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:44:38 -0700 (PDT)
+        with ESMTP id S231621AbiHOLom (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:44:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2F824F10
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:44:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E120CB80E5C
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:44:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A5CEC433D6;
-        Mon, 15 Aug 2022 11:44:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 03AFF6116A
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:44:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 090AEC433C1;
+        Mon, 15 Aug 2022 11:44:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660563875;
-        bh=eH/fHkTbij027gK0JAtN9+aLZi6U0czITsbZ9DeS7b4=;
+        s=korg; t=1660563880;
+        bh=WnR4dQsYaESK2of6oBCa4nCCFRPWIhQgbGLx7T98t5s=;
         h=Subject:To:Cc:From:Date:From;
-        b=sg0hV+fjwntWqeSeM5SuKAUNTymhE53Reky+FZip7kpfqvonvBoyy7OznZ4QWNl3I
-         EByuYCnAyVEi0nBABO/fIImBlFs1IQPZhVkC6krJgYxdtqEbvkqks8tpAfPeyKW33t
-         ZiidW0uH4bwmOOh8QEI9uAFyjWWUatxbLuEqesHY=
-Subject: FAILED: patch "[PATCH] dm thin: fix use-after-free crash in" failed to apply to 4.19-stable tree
+        b=MJFYFC0xzWoMahDCyVrdYO/hB6Q2n/yfnnq02IjdxPBGGmaUkUp3GqRHtWN8Xatvj
+         ewP+2IxltiMXMGMnuTtSOsvlGJoXNG1gczXhq2M3uE7dyjM/i6WpeDk0tI52CKJfVl
+         TG5qkzlLCzGNSQjE9oyodF4RyeypZ2Ad1zg59yUo=
+Subject: FAILED: patch "[PATCH] dm thin: fix use-after-free crash in" failed to apply to 4.14-stable tree
 To:     luomeng12@huawei.com, hulkci@huawei.com, snitzer@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Aug 2022 13:44:32 +0200
-Message-ID: <166056387213555@kroah.com>
+Date:   Mon, 15 Aug 2022 13:44:37 +0200
+Message-ID: <166056387753172@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
