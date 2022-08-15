@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1AD2593586
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F1F459357A
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241459AbiHOS1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:27:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55330 "EHLO
+        id S241675AbiHOSZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:25:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232750AbiHOSZN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:25:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F31CA17074;
-        Mon, 15 Aug 2022 11:18:37 -0700 (PDT)
+        with ESMTP id S241516AbiHOSY6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:24:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DB5513E90;
+        Mon, 15 Aug 2022 11:18:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6FA5FB81071;
-        Mon, 15 Aug 2022 18:18:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A701DC433C1;
-        Mon, 15 Aug 2022 18:18:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7951B81072;
+        Mon, 15 Aug 2022 18:18:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4CCFC433C1;
+        Mon, 15 Aug 2022 18:18:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587495;
-        bh=WKhP9fvoBVbhKnnC/6M6Uk1riJbubN2caMGm8tF5IXM=;
+        s=korg; t=1660587498;
+        bh=ZM6vYaCVQmYjmggAgwDup8mSvZXzP1AWtKqfz4xpgts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QrEUD9NnhVGgkGHETC1s8wBGCPJBGEjInSl//wsBsdYeNTOpJRLPdqU/KW9/nNAxk
-         OASP8tTZromsw3XUdZoeWYhy/iQFx55lIaxK7Wk2e4MlevL5fG2YOLQfojj8kN6zIC
-         bZ9oL39nEZi9HtGcWQGfWNgLUcGHxw+2ORdKKFMI=
+        b=k74eGyHkPH1gi5sq8Qq2qRtqs3tYJgguVEo2LacNwnBg4v10tOlIv69IIv8tKs07h
+         pOVe5uBFSsUC+qh/vbdJU5LNicNNdfDV0vNWXXFv7/Ys8B52XbsE/IKoDM+1KvPqyf
+         1b0qLUk8hjg82JRdbUBeqNylcJQ+QrT0iQfJmRwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+b0de012ceb1e2a97891b@syzkaller.appspotmail.com
-Subject: [PATCH 5.15 103/779] USB: gadget: Fix use-after-free Read in usb_udc_uevent()
-Date:   Mon, 15 Aug 2022 19:55:47 +0200
-Message-Id: <20220815180341.711918032@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>
+Subject: [PATCH 5.15 104/779] usb: dwc3: gadget: refactor dwc3_repare_one_trb
+Date:   Mon, 15 Aug 2022 19:55:48 +0200
+Message-Id: <20220815180341.762158140@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,72 +53,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-commit 2191c00855b03aa59c20e698be713d952d51fc18 upstream.
+commit 23385cec5f354794dadced7f28c31da7ae3eb54c upstream.
 
-The syzbot fuzzer found a race between uevent callbacks and gadget
-driver unregistration that can cause a use-after-free bug:
+The function __dwc3_prepare_one_trb has many parameters. Since it is
+only used in dwc3_prepare_one_trb there is no point in keeping the
+function. We merge both functions and get rid of the big list of
+parameters.
 
----------------------------------------------------------------
-BUG: KASAN: use-after-free in usb_udc_uevent+0x11f/0x130
-drivers/usb/gadget/udc/core.c:1732
-Read of size 8 at addr ffff888078ce2050 by task udevd/2968
-
-CPU: 1 PID: 2968 Comm: udevd Not tainted 5.19.0-rc4-next-20220628-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google
-06/29/2022
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:317 [inline]
- print_report.cold+0x2ba/0x719 mm/kasan/report.c:433
- kasan_report+0xbe/0x1f0 mm/kasan/report.c:495
- usb_udc_uevent+0x11f/0x130 drivers/usb/gadget/udc/core.c:1732
- dev_uevent+0x290/0x770 drivers/base/core.c:2424
----------------------------------------------------------------
-
-The bug occurs because usb_udc_uevent() dereferences udc->driver but
-does so without acquiring the udc_lock mutex, which protects this
-field.  If the gadget driver is unbound from the udc concurrently with
-uevent processing, the driver structure may be accessed after it has
-been deallocated.
-
-To prevent the race, we make sure that the routine holds the mutex
-around the racing accesses.
-
-Link: <https://lore.kernel.org/all/0000000000004de90405a719c951@google.com>
-CC: stable@vger.kernel.org # fc274c1e9973
-Reported-and-tested-by: syzbot+b0de012ceb1e2a97891b@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YtlrnhHyrHsSky9m@rowland.harvard.edu
+Fixes: 40d829fb2ec6 ("usb: dwc3: gadget: Correct ISOC DATA PIDs for short packets")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Link: https://lore.kernel.org/r/20220704141812.1532306-2-m.grzeschik@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/core.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/usb/dwc3/gadget.c |   92 ++++++++++++++++++++--------------------------
+ 1 file changed, 40 insertions(+), 52 deletions(-)
 
---- a/drivers/usb/gadget/udc/core.c
-+++ b/drivers/usb/gadget/udc/core.c
-@@ -1739,13 +1739,14 @@ static int usb_udc_uevent(struct device
- 		return ret;
- 	}
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1169,17 +1169,49 @@ static u32 dwc3_calc_trbs_left(struct dw
+ 	return trbs_left;
+ }
  
--	if (udc->driver) {
-+	mutex_lock(&udc_lock);
-+	if (udc->driver)
- 		ret = add_uevent_var(env, "USB_UDC_DRIVER=%s",
- 				udc->driver->function);
--		if (ret) {
--			dev_err(dev, "failed to add uevent USB_UDC_DRIVER\n");
--			return ret;
--		}
-+	mutex_unlock(&udc_lock);
-+	if (ret) {
-+		dev_err(dev, "failed to add uevent USB_UDC_DRIVER\n");
-+		return ret;
- 	}
+-static void __dwc3_prepare_one_trb(struct dwc3_ep *dep, struct dwc3_trb *trb,
+-		dma_addr_t dma, unsigned int length, unsigned int chain,
+-		unsigned int node, unsigned int stream_id,
+-		unsigned int short_not_ok, unsigned int no_interrupt,
+-		unsigned int is_last, bool must_interrupt)
++/**
++ * dwc3_prepare_one_trb - setup one TRB from one request
++ * @dep: endpoint for which this request is prepared
++ * @req: dwc3_request pointer
++ * @trb_length: buffer size of the TRB
++ * @chain: should this TRB be chained to the next?
++ * @node: only for isochronous endpoints. First TRB needs different type.
++ * @use_bounce_buffer: set to use bounce buffer
++ * @must_interrupt: set to interrupt on TRB completion
++ */
++static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
++		struct dwc3_request *req, unsigned int trb_length,
++		unsigned int chain, unsigned int node, bool use_bounce_buffer,
++		bool must_interrupt)
+ {
++	struct dwc3_trb		*trb;
++	dma_addr_t		dma;
++	unsigned int		stream_id = req->request.stream_id;
++	unsigned int		short_not_ok = req->request.short_not_ok;
++	unsigned int		no_interrupt = req->request.no_interrupt;
++	unsigned int		is_last = req->request.is_last;
+ 	struct dwc3		*dwc = dep->dwc;
+ 	struct usb_gadget	*gadget = dwc->gadget;
+ 	enum usb_device_speed	speed = gadget->speed;
  
- 	return 0;
+-	trb->size = DWC3_TRB_SIZE_LENGTH(length);
++	if (use_bounce_buffer)
++		dma = dep->dwc->bounce_addr;
++	else if (req->request.num_sgs > 0)
++		dma = sg_dma_address(req->start_sg);
++	else
++		dma = req->request.dma;
++
++	trb = &dep->trb_pool[dep->trb_enqueue];
++
++	if (!req->trb) {
++		dwc3_gadget_move_started_request(req);
++		req->trb = trb;
++		req->trb_dma = dwc3_trb_dma_offset(dep, trb);
++	}
++
++	req->num_trbs++;
++
++	trb->size = DWC3_TRB_SIZE_LENGTH(trb_length);
+ 	trb->bpl = lower_32_bits(dma);
+ 	trb->bph = upper_32_bits(dma);
+ 
+@@ -1219,10 +1251,10 @@ static void __dwc3_prepare_one_trb(struc
+ 				unsigned int mult = 2;
+ 				unsigned int maxp = usb_endpoint_maxp(ep->desc);
+ 
+-				if (length <= (2 * maxp))
++				if (trb_length <= (2 * maxp))
+ 					mult--;
+ 
+-				if (length <= maxp)
++				if (trb_length <= maxp)
+ 					mult--;
+ 
+ 				trb->size |= DWC3_TRB_SIZE_PCM1(mult);
+@@ -1291,50 +1323,6 @@ static void __dwc3_prepare_one_trb(struc
+ 	trace_dwc3_prepare_trb(dep, trb);
+ }
+ 
+-/**
+- * dwc3_prepare_one_trb - setup one TRB from one request
+- * @dep: endpoint for which this request is prepared
+- * @req: dwc3_request pointer
+- * @trb_length: buffer size of the TRB
+- * @chain: should this TRB be chained to the next?
+- * @node: only for isochronous endpoints. First TRB needs different type.
+- * @use_bounce_buffer: set to use bounce buffer
+- * @must_interrupt: set to interrupt on TRB completion
+- */
+-static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
+-		struct dwc3_request *req, unsigned int trb_length,
+-		unsigned int chain, unsigned int node, bool use_bounce_buffer,
+-		bool must_interrupt)
+-{
+-	struct dwc3_trb		*trb;
+-	dma_addr_t		dma;
+-	unsigned int		stream_id = req->request.stream_id;
+-	unsigned int		short_not_ok = req->request.short_not_ok;
+-	unsigned int		no_interrupt = req->request.no_interrupt;
+-	unsigned int		is_last = req->request.is_last;
+-
+-	if (use_bounce_buffer)
+-		dma = dep->dwc->bounce_addr;
+-	else if (req->request.num_sgs > 0)
+-		dma = sg_dma_address(req->start_sg);
+-	else
+-		dma = req->request.dma;
+-
+-	trb = &dep->trb_pool[dep->trb_enqueue];
+-
+-	if (!req->trb) {
+-		dwc3_gadget_move_started_request(req);
+-		req->trb = trb;
+-		req->trb_dma = dwc3_trb_dma_offset(dep, trb);
+-	}
+-
+-	req->num_trbs++;
+-
+-	__dwc3_prepare_one_trb(dep, trb, dma, trb_length, chain, node,
+-			stream_id, short_not_ok, no_interrupt, is_last,
+-			must_interrupt);
+-}
+-
+ static bool dwc3_needs_extra_trb(struct dwc3_ep *dep, struct dwc3_request *req)
+ {
+ 	unsigned int maxp = usb_endpoint_maxp(dep->endpoint.desc);
 
 
