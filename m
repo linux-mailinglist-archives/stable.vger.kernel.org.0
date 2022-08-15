@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CE11593C8F
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DB4B593ACC
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:33:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344394AbiHOTnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:43:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44362 "EHLO
+        id S1344506AbiHOTnY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:43:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345119AbiHOTm1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:42:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C64B6A496;
-        Mon, 15 Aug 2022 11:48:06 -0700 (PDT)
+        with ESMTP id S1345187AbiHOTme (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:42:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2B1F6B646;
+        Mon, 15 Aug 2022 11:48:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E68561215;
-        Mon, 15 Aug 2022 18:48:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E50EC433C1;
-        Mon, 15 Aug 2022 18:48:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0C4CB810A0;
+        Mon, 15 Aug 2022 18:48:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3464FC433C1;
+        Mon, 15 Aug 2022 18:48:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589285;
-        bh=S/JQouxy1F63QMdn0oomDfQuYY1coqzJfhi6JPkD6tc=;
+        s=korg; t=1660589288;
+        bh=5AooMPA3ZrJcRMxrL843yoAkL5TcRwMlZgvuvKA3e4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iP9E4fS0BboJIQFFdIc5S/MdMRKO+6VPZskKZLyCeqXJoolV4iuYOtA6IFlUvgEpa
-         PQ4sIIWj1sqGrkUGcqZpKUcKE+w/DxAJVs7gFDGMR3HrYMPlycvaa2N0lFuOvulXXb
-         WiiBzLEj0QVvsowGm6vjQewqmNL3APCuy7prgTAg=
+        b=NKzL1YqfnYZX2lx6BNn87/mGOQaJrrYuk1Phqswj64Q1zT4su6yBhHQvlVeDHByOe
+         kd4Mhxim+nKhsf8EGGFvbcOPOsDWuwMRrZ6no1ZysgL93hIXzAELeEVub+kBsvGjN7
+         VvDaxF4LJJJo8Jos6Id4+EcIgFbJWJ3ni2zy1eHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Tony Battersby <tonyb@cybernetics.com>,
         Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
+        Arun Easi <aeasi@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 671/779] scsi: qla2xxx: Fix imbalance vha->vref_count
-Date:   Mon, 15 Aug 2022 20:05:15 +0200
-Message-Id: <20220815180406.029915271@linuxfoundation.org>
+Subject: [PATCH 5.15 672/779] scsi: qla2xxx: Fix discovery issues in FC-AL topology
+Date:   Mon, 15 Aug 2022 20:05:16 +0200
+Message-Id: <20220815180406.063549006@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,56 +56,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Arun Easi <aeasi@marvell.com>
 
-commit 63fa7f2644b4b48e1913af33092c044bf48e9321 upstream.
+commit 47ccb113cead905bdc236571bf8ac6fed90321b3 upstream.
 
-vref_count took an extra decrement in the task management path.  Add an
-extra ref count to compensate the imbalance.
+A direct attach tape device, when gets swapped with another, was not
+discovered. Fix this by looking at loop map and reinitialize link if there
+are devices present.
 
-Link: https://lore.kernel.org/r/20220713052045.10683-7-njavali@marvell.com
+Link: https://lore.kernel.org/linux-scsi/baef87c3-5dad-3b47-44c1-6914bfc90108@cybernetics.com/
+Link: https://lore.kernel.org/r/20220713052045.10683-8-njavali@marvell.com
 Cc: stable@vger.kernel.org
+Reported-by: Tony Battersby <tonyb@cybernetics.com>
+Tested-by: Tony Battersby <tonyb@cybernetics.com>
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/qla2xxx/qla_gbl.h  |    3 ++-
+ drivers/scsi/qla2xxx/qla_init.c |   29 +++++++++++++++++++++++++++++
+ drivers/scsi/qla2xxx/qla_mbx.c  |    5 ++++-
+ 3 files changed, 35 insertions(+), 2 deletions(-)
 
+--- a/drivers/scsi/qla2xxx/qla_gbl.h
++++ b/drivers/scsi/qla2xxx/qla_gbl.h
+@@ -433,7 +433,8 @@ extern int
+ qla2x00_get_resource_cnts(scsi_qla_host_t *);
+ 
+ extern int
+-qla2x00_get_fcal_position_map(scsi_qla_host_t *ha, char *pos_map);
++qla2x00_get_fcal_position_map(scsi_qla_host_t *ha, char *pos_map,
++		u8 *num_entries);
+ 
+ extern int
+ qla2x00_get_link_status(scsi_qla_host_t *, uint16_t, struct link_statistics *,
 --- a/drivers/scsi/qla2xxx/qla_init.c
 +++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -161,6 +161,7 @@ int qla24xx_async_abort_cmd(srb_t *cmd_s
- 	struct srb_iocb *abt_iocb;
- 	srb_t *sp;
- 	int rval = QLA_FUNCTION_FAILED;
-+	uint8_t bail;
+@@ -5510,6 +5510,22 @@ static int qla2x00_configure_n2n_loop(sc
+ 	return QLA_FUNCTION_FAILED;
+ }
  
- 	/* ref: INIT for ABTS command */
- 	sp = qla2xxx_get_qpair_sp(cmd_sp->vha, cmd_sp->qpair, cmd_sp->fcport,
-@@ -168,6 +169,7 @@ int qla24xx_async_abort_cmd(srb_t *cmd_s
- 	if (!sp)
- 		return QLA_MEMORY_ALLOC_FAILED;
++static void
++qla_reinitialize_link(scsi_qla_host_t *vha)
++{
++	int rval;
++
++	atomic_set(&vha->loop_state, LOOP_DOWN);
++	atomic_set(&vha->loop_down_timer, LOOP_DOWN_TIME);
++	rval = qla2x00_full_login_lip(vha);
++	if (rval == QLA_SUCCESS) {
++		ql_dbg(ql_dbg_disc, vha, 0xd050, "Link reinitialized\n");
++	} else {
++		ql_dbg(ql_dbg_disc, vha, 0xd051,
++			"Link reinitialization failed (%d)\n", rval);
++	}
++}
++
+ /*
+  * qla2x00_configure_local_loop
+  *	Updates Fibre Channel Device Database with local loop devices.
+@@ -5561,6 +5577,19 @@ qla2x00_configure_local_loop(scsi_qla_ho
+ 		spin_unlock_irqrestore(&vha->work_lock, flags);
  
-+	QLA_VHA_MARK_BUSY(vha, bail);
- 	abt_iocb = &sp->u.iocb_cmd;
- 	sp->type = SRB_ABT_CMD;
- 	sp->name = "abort";
-@@ -2009,12 +2011,14 @@ qla2x00_async_tm_cmd(fc_port_t *fcport,
- 	struct srb_iocb *tm_iocb;
- 	srb_t *sp;
- 	int rval = QLA_FUNCTION_FAILED;
-+	uint8_t bail;
+ 		if (vha->scan.scan_retry < MAX_SCAN_RETRIES) {
++			u8 loop_map_entries = 0;
++			int rc;
++
++			rc = qla2x00_get_fcal_position_map(vha, NULL,
++						&loop_map_entries);
++			if (rc == QLA_SUCCESS && loop_map_entries > 1) {
++				/*
++				 * There are devices that are still not logged
++				 * in. Reinitialize to give them a chance.
++				 */
++				qla_reinitialize_link(vha);
++				return QLA_FUNCTION_FAILED;
++			}
+ 			set_bit(LOCAL_LOOP_UPDATE, &vha->dpc_flags);
+ 			set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
+ 		}
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -3062,7 +3062,8 @@ qla2x00_get_resource_cnts(scsi_qla_host_
+  *	Kernel context.
+  */
+ int
+-qla2x00_get_fcal_position_map(scsi_qla_host_t *vha, char *pos_map)
++qla2x00_get_fcal_position_map(scsi_qla_host_t *vha, char *pos_map,
++		u8 *num_entries)
+ {
+ 	int rval;
+ 	mbx_cmd_t mc;
+@@ -3102,6 +3103,8 @@ qla2x00_get_fcal_position_map(scsi_qla_h
  
- 	/* ref: INIT */
- 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
- 	if (!sp)
- 		goto done;
+ 		if (pos_map)
+ 			memcpy(pos_map, pmap, FCAL_MAP_SIZE);
++		if (num_entries)
++			*num_entries = pmap[0];
+ 	}
+ 	dma_pool_free(ha->s_dma_pool, pmap, pmap_dma);
  
-+	QLA_VHA_MARK_BUSY(vha, bail);
- 	sp->type = SRB_TM_CMD;
- 	sp->name = "tmf";
- 	qla2x00_init_async_sp(sp, qla2x00_get_async_timeout(vha),
 
 
