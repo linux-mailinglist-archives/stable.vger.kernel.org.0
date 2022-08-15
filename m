@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D60EF5938C1
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:32:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78529593704
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:26:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241076AbiHOSjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:39:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56400 "EHLO
+        id S241777AbiHOSjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:39:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243531AbiHOSiX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:38:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C5D43C8FA;
-        Mon, 15 Aug 2022 11:23:39 -0700 (PDT)
+        with ESMTP id S242120AbiHOSiZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:38:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 060663CBFF;
+        Mon, 15 Aug 2022 11:23:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C83CB81062;
-        Mon, 15 Aug 2022 18:23:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B22A8C43470;
-        Mon, 15 Aug 2022 18:23:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 313FA60C07;
+        Mon, 15 Aug 2022 18:23:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A9B2C433D6;
+        Mon, 15 Aug 2022 18:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587817;
-        bh=Kuj2M50v7Es9mL0wqjafMAdtgSOCl8NrfZFfG2xdwaw=;
+        s=korg; t=1660587820;
+        bh=7yTsgTxRPiTe1CNGAyg1LU8nwoKF2gMiyP+86hKk4o4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lhluwB92tWLvpwfm7XHdHZ2rq/no9z8wA1i5ICXrKqiwhgSL2ICrLlp7EISW1XGRk
-         L2bz0eApZdzI8lfPy2SUq/wD2krtrng6GF8xuM8KWSHEMCluCkhndtc0VlUR45x5QT
-         DeshPXzI0w6ZmRlepAEpU+Cny9c4SDqHjltjCVx0=
+        b=EzC3ARo5Mbqhtxd4BelbW2+SFbV/GxYkdRudOUDJGVPfwFpvzcTcrID9Wvzy0FYKJ
+         SNZTp1L6xC04akHkxJSDm7WBmXFeDMSWkaYPOyP8TYDhgOxP4fS8jzAXy01EFnjbaR
+         tVSKLhdWFhHw8GfKZ68Jm7SfJ2I3qyNwrcAe6Zxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikko Perttunen <mperttunen@nvidia.com>,
-        Yousaf Kaukab <ykaukab@suse.de>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Tam=C3=A1s=20Sz=C5=B1cs?= <tszucs@protonmail.ch>,
         Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 205/779] arm64: tegra: Mark BPMP channels as no-memory-wc
-Date:   Mon, 15 Aug 2022 19:57:29 +0200
-Message-Id: <20220815180346.035505502@linuxfoundation.org>
+Subject: [PATCH 5.15 206/779] arm64: tegra: Fix SDMMC1 CD on P2888
+Date:   Mon, 15 Aug 2022 19:57:30 +0200
+Message-Id: <20220815180346.082702041@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,76 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikko Perttunen <mperttunen@nvidia.com>
+From: Tamás Szűcs <tszucs@protonmail.ch>
 
-[ Upstream commit 61192a9d8a6367ae1b8234876941b037910a2459 ]
+[ Upstream commit b415bb7c976f1d595ed752001c0938f702645dab ]
 
-The Tegra SYSRAM contains regions access to which is restricted to
-certain hardware blocks on the system, and speculative accesses to
-those will cause issues.
+Hook SDMMC1 CD up with CVM GPIO02 (SOC_GPIO11) used for card detection on J4
+(uSD socket) on the carrier.
 
-Patch 'misc: sram: Only map reserved areas in Tegra SYSRAM' attempted
-to resolve this by only mapping the regions specified in the device
-tree on the assumption that there are no such restricted areas within
-the 64K-aligned area of memory that contains the memory we wish to map.
-
-Turns out this assumption is wrong, as there are such areas above the
-4K pages described in the device trees. As such, we need to use the
-bigger hammer that is no-memory-wc, which causes the memory to be
-mapped as Device memory to which speculative accesses are disallowed.
-
-As such, the previous patch in the series,
-  'firmware: tegra: bpmp: do only aligned access to IPC memory area',
-is required with this patch to make the BPMP driver only issue aligned
-memory accesses as those are also required with Device memory.
-
-Fixes: fec29bf04994 ("misc: sram: Only map reserved areas in Tegra SYSRAM")
-Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
-Reviewed-by: Yousaf Kaukab <ykaukab@suse.de>
+Fixes: ef633bfc21e9 ("arm64: tegra: Enable card detect for SD card on P2888")
+Signed-off-by: Tamás Szűcs <tszucs@protonmail.ch>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra186.dtsi | 1 +
- arch/arm64/boot/dts/nvidia/tegra194.dtsi | 1 +
- arch/arm64/boot/dts/nvidia/tegra234.dtsi | 1 +
- 3 files changed, 3 insertions(+)
+ arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra186.dtsi b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-index 8354512d7b1c..5b0bc9aa1a42 100644
---- a/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-@@ -1583,6 +1583,7 @@ sram@30000000 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
- 		ranges = <0x0 0x0 0x30000000 0x50000>;
-+		no-memory-wc;
+diff --git a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
+index c4058ee36fec..1a444705517f 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
+@@ -75,7 +75,7 @@ eeprom@50 {
  
- 		cpu_bpmp_tx: sram@4e000 {
- 			reg = <0x4e000 0x1000>;
-diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-index a56fb83839a4..ca71b71d801a 100644
---- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-@@ -2249,6 +2249,7 @@ sram@40000000 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
- 		ranges = <0x0 0x0 0x40000000 0x50000>;
-+		no-memory-wc;
+ 		/* SDMMC1 (SD/MMC) */
+ 		mmc@3400000 {
+-			cd-gpios = <&gpio TEGRA194_MAIN_GPIO(A, 0) GPIO_ACTIVE_LOW>;
++			cd-gpios = <&gpio TEGRA194_MAIN_GPIO(G, 7) GPIO_ACTIVE_LOW>;
+ 		};
  
- 		cpu_bpmp_tx: sram@4e000 {
- 			reg = <0x4e000 0x1000>;
-diff --git a/arch/arm64/boot/dts/nvidia/tegra234.dtsi b/arch/arm64/boot/dts/nvidia/tegra234.dtsi
-index 144a7eb699a7..2b4784572220 100644
---- a/arch/arm64/boot/dts/nvidia/tegra234.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra234.dtsi
-@@ -128,6 +128,7 @@ sram@40000000 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
- 		ranges = <0x0 0x0 0x40000000 0x80000>;
-+		no-memory-wc;
- 
- 		cpu_bpmp_tx: sram@70000 {
- 			reg = <0x70000 0x1000>;
+ 		/* SDMMC4 (eMMC) */
 -- 
 2.35.1
 
