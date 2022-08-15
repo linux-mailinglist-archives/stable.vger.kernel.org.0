@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E4BB593627
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:24:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E37515937BF
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242847AbiHOS5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:57:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49264 "EHLO
+        id S244505AbiHOS5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:57:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244937AbiHOS4U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:56:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 452C964FD;
-        Mon, 15 Aug 2022 11:30:47 -0700 (PDT)
+        with ESMTP id S244952AbiHOS4W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:56:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5171AE4D;
+        Mon, 15 Aug 2022 11:30:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5C0160F9F;
-        Mon, 15 Aug 2022 18:30:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1A1BC433D6;
-        Mon, 15 Aug 2022 18:30:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78857B81062;
+        Mon, 15 Aug 2022 18:30:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D69E8C433D6;
+        Mon, 15 Aug 2022 18:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588246;
-        bh=QPTfQKqh2f76lb3mUBMoomoHcK9nZi9n8RF13z/wN6M=;
+        s=korg; t=1660588252;
+        bh=b+UBN1FBQ7qTYL/22sOwtFW1DR36fOVK9mF/Wjsb7gI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HEDElQGt+prNOtlc0t8DjCOE8niGMB49FzBD+8NHY5TKUFRoxm4qRAlcKNONgDDZ9
-         BgN+sIEOmwd3YZZLHoXmz92mh/jwme12xwr5HGmac2C28jhs/KqpGHbwBPV2hdw2qj
-         YICGHXhpejnRMIrAB8rCq1Wo69mTzlvPBxVFtq7o=
+        b=sBdqQ+gQtBQT3HybY5xrbcPTUclTR6KbwruzxkhMfl7giOmzMZYoJwTp+PYHfU90w
+         E6b++PLtZiW72hX2mdM9WltTBZx+Yylxkfx+3/kNmR7RiLXXwEEPCdDcTKrnhazNKL
+         Hz0IA8wwRB0y1EX+0Wb02ofIuwngA7/zQje5Gxeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 342/779] media: hantro: postproc: Fix motion vector space size
-Date:   Mon, 15 Aug 2022 19:59:46 +0200
-Message-Id: <20220815180351.888932267@linuxfoundation.org>
+Subject: [PATCH 5.15 343/779] media: hantro: Simplify postprocessor
+Date:   Mon, 15 Aug 2022 19:59:47 +0200
+Message-Id: <20220815180351.922425700@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -58,19 +58,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ezequiel Garcia <ezequiel@collabora.com>
 
-[ Upstream commit 9393761aec4c56b7f2f19d21f806d316731401c1 ]
+[ Upstream commit 53a3e71095c572333ceea30762565dbedec951ca ]
 
-When the post-processor hardware block is enabled, the driver
-allocates an internal queue of buffers for the decoder enginer,
-and uses the vb2 queue for the post-processor engine.
-
-For instance, on a G1 core, the decoder engine produces NV12 buffers
-and the post-processor engine can produce YUY2 buffers. The decoder
-engine expects motion vectors to be appended to the NV12 buffers,
-but this is only required for CODECs that need motion vectors,
-such as H.264.
-
-Fix the post-processor logic accordingly.
+Add a 'postprocessed' boolean property to struct hantro_fmt
+to signal that a format is produced by the post-processor.
+This will allow to introduce the G2 post-processor in a simple way.
 
 Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
 Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
@@ -78,27 +70,90 @@ Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/hantro/hantro_postproc.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/staging/media/hantro/hantro.h          | 2 ++
+ drivers/staging/media/hantro/hantro_postproc.c | 8 +-------
+ drivers/staging/media/hantro/imx8m_vpu_hw.c    | 1 +
+ drivers/staging/media/hantro/rockchip_vpu_hw.c | 1 +
+ drivers/staging/media/hantro/sama5d4_vdec_hw.c | 1 +
+ 5 files changed, 6 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/staging/media/hantro/hantro.h b/drivers/staging/media/hantro/hantro.h
+index c2e2dca38628..88792c863edc 100644
+--- a/drivers/staging/media/hantro/hantro.h
++++ b/drivers/staging/media/hantro/hantro.h
+@@ -262,6 +262,7 @@ struct hantro_ctx {
+  * @max_depth:	Maximum depth, for bitstream formats
+  * @enc_fmt:	Format identifier for encoder registers.
+  * @frmsize:	Supported range of frame sizes (only for bitstream formats).
++ * @postprocessed: Indicates if this format needs the post-processor.
+  */
+ struct hantro_fmt {
+ 	char *name;
+@@ -271,6 +272,7 @@ struct hantro_fmt {
+ 	int max_depth;
+ 	enum hantro_enc_fmt enc_fmt;
+ 	struct v4l2_frmsize_stepwise frmsize;
++	bool postprocessed;
+ };
+ 
+ struct hantro_reg {
 diff --git a/drivers/staging/media/hantro/hantro_postproc.c b/drivers/staging/media/hantro/hantro_postproc.c
-index ed8916c950a4..07842152003f 100644
+index 07842152003f..46434c97317b 100644
 --- a/drivers/staging/media/hantro/hantro_postproc.c
 +++ b/drivers/staging/media/hantro/hantro_postproc.c
-@@ -132,9 +132,10 @@ int hantro_postproc_alloc(struct hantro_ctx *ctx)
- 	unsigned int num_buffers = cap_queue->num_buffers;
- 	unsigned int i, buf_size;
+@@ -53,15 +53,9 @@ const struct hantro_postproc_regs hantro_g1_postproc_regs = {
+ bool hantro_needs_postproc(const struct hantro_ctx *ctx,
+ 			   const struct hantro_fmt *fmt)
+ {
+-	struct hantro_dev *vpu = ctx->dev;
+-
+ 	if (ctx->is_encoder)
+ 		return false;
+-
+-	if (!vpu->variant->postproc_fmts)
+-		return false;
+-
+-	return fmt->fourcc != V4L2_PIX_FMT_NV12;
++	return fmt->postprocessed;
+ }
  
--	buf_size = ctx->dst_fmt.plane_fmt[0].sizeimage +
--		   hantro_h264_mv_size(ctx->dst_fmt.width,
--				       ctx->dst_fmt.height);
-+	buf_size = ctx->dst_fmt.plane_fmt[0].sizeimage;
-+	if (ctx->vpu_src_fmt->fourcc == V4L2_PIX_FMT_H264_SLICE)
-+		buf_size += hantro_h264_mv_size(ctx->dst_fmt.width,
-+						ctx->dst_fmt.height);
+ void hantro_postproc_enable(struct hantro_ctx *ctx)
+diff --git a/drivers/staging/media/hantro/imx8m_vpu_hw.c b/drivers/staging/media/hantro/imx8m_vpu_hw.c
+index ea919bfb9891..b692b74b0914 100644
+--- a/drivers/staging/media/hantro/imx8m_vpu_hw.c
++++ b/drivers/staging/media/hantro/imx8m_vpu_hw.c
+@@ -82,6 +82,7 @@ static const struct hantro_fmt imx8m_vpu_postproc_fmts[] = {
+ 	{
+ 		.fourcc = V4L2_PIX_FMT_YUYV,
+ 		.codec_mode = HANTRO_MODE_NONE,
++		.postprocessed = true,
+ 	},
+ };
  
- 	for (i = 0; i < num_buffers; ++i) {
- 		struct hantro_aux_buf *priv = &ctx->postproc.dec_q[i];
+diff --git a/drivers/staging/media/hantro/rockchip_vpu_hw.c b/drivers/staging/media/hantro/rockchip_vpu_hw.c
+index 0c22039162a0..543dc4a5486c 100644
+--- a/drivers/staging/media/hantro/rockchip_vpu_hw.c
++++ b/drivers/staging/media/hantro/rockchip_vpu_hw.c
+@@ -62,6 +62,7 @@ static const struct hantro_fmt rockchip_vpu1_postproc_fmts[] = {
+ 	{
+ 		.fourcc = V4L2_PIX_FMT_YUYV,
+ 		.codec_mode = HANTRO_MODE_NONE,
++		.postprocessed = true,
+ 	},
+ };
+ 
+diff --git a/drivers/staging/media/hantro/sama5d4_vdec_hw.c b/drivers/staging/media/hantro/sama5d4_vdec_hw.c
+index 9c3b8cd0b239..99432008b241 100644
+--- a/drivers/staging/media/hantro/sama5d4_vdec_hw.c
++++ b/drivers/staging/media/hantro/sama5d4_vdec_hw.c
+@@ -15,6 +15,7 @@ static const struct hantro_fmt sama5d4_vdec_postproc_fmts[] = {
+ 	{
+ 		.fourcc = V4L2_PIX_FMT_YUYV,
+ 		.codec_mode = HANTRO_MODE_NONE,
++		.postprocessed = true,
+ 	},
+ };
+ 
 -- 
 2.35.1
 
