@@ -1,42 +1,42 @@
 Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
-Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A7A259358E
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:43 +0200 (CEST)
+Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
+	by mail.lfdr.de (Postfix) with ESMTP id 6D7365937AC
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241550AbiHOS1a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:27:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54582 "EHLO
+        id S242797AbiHOS3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:29:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242797AbiHOS02 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:26:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC00B30F57;
-        Mon, 15 Aug 2022 11:19:28 -0700 (PDT)
+        with ESMTP id S233038AbiHOS2m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:28:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 897B9C36;
+        Mon, 15 Aug 2022 11:20:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8FA360EF7;
-        Mon, 15 Aug 2022 18:19:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0082C433C1;
-        Mon, 15 Aug 2022 18:19:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D76E060ABC;
+        Mon, 15 Aug 2022 18:19:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD849C433C1;
+        Mon, 15 Aug 2022 18:19:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587566;
-        bh=kydCZxS2HyPc3cC1Mr1++qUBFTk6gJM/dRcmOx+uCNg=;
+        s=korg; t=1660587570;
+        bh=3C0nmz2bwUw/YhMXl/4vqecM80SkN232zvqvmAcwXbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQCsCTjdeo6ItrHUTme42awnbkLjXSlrPQsDwx+Q1WqG+catzsOkKw7fc38RB362a
-         +siTZ19mUgkxOI0CGdDgyfLT0Lwih242GlI7XMqzLY0X/4YHSWZOov7xqLgvMkpXYT
-         NeNU5q5LxmMfIl4kvzXr2lgcW0Dkb5DZNBc9SlRM=
+        b=iDCTkh/1/E1uZc/tqou3A6rB2nStNdNkZlbjRl1yaqf7u1HW5kh896eV2bRuN4iTh
+         Z9hzE2CtP/OGQ/feMxVwbS4jkyyOiDN0EXJsx0lzCV5ozoa8Ld7gzQy+AIkRQBW+RM
+         /mwT1P3WmMe/VQjxkKBj3+4JaOB3a5N8e3dAesQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 094/779] powerpc/fsl-pci: Fix Class Code of PCIe Root Port
-Date:   Mon, 15 Aug 2022 19:55:38 +0200
-Message-Id: <20220815180341.312144139@linuxfoundation.org>
+Subject: [PATCH 5.15 095/779] powerpc/ptdump: Fix display of RW pages on FSL_BOOK3E
+Date:   Mon, 15 Aug 2022 19:55:39 +0200
+Message-Id: <20220815180341.361786474@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,83 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 0c551abfa004ce154d487d91777bf221c808a64f upstream.
+commit dd8de84b57b02ba9c1fe530a6d916c0853f136bd upstream.
 
-By default old pre-3.0 Freescale PCIe controllers reports invalid PCI Class
-Code 0x0b20 for PCIe Root Port. It can be seen by lspci -b output on P2020
-board which has this pre-3.0 controller:
+On FSL_BOOK3E, _PAGE_RW is defined with two bits, one for user and one
+for supervisor. As soon as one of the two bits is set, the page has
+to be display as RW. But the way it is implemented today requires both
+bits to be set in order to display it as RW.
 
-  $ lspci -bvnn
-  00:00.0 Power PC [0b20]: Freescale Semiconductor Inc P2020E [1957:0070] (rev 21)
-          !!! Invalid class 0b20 for header type 01
-          Capabilities: [4c] Express Root Port (Slot-), MSI 00
+Instead of display RW when _PAGE_RW bits are set and R otherwise,
+reverse the logic and display R when _PAGE_RW bits are all 0 and
+RW otherwise.
 
-Fix this issue by programming correct PCI Class Code 0x0604 for PCIe Root
-Port to the Freescale specific PCIe register 0x474.
+This change has no impact on other platforms as _PAGE_RW is a single
+bit on all of them.
 
-With this change lspci -b output is:
-
-  $ lspci -bvnn
-  00:00.0 PCI bridge [0604]: Freescale Semiconductor Inc P2020E [1957:0070] (rev 21) (prog-if 00 [Normal decode])
-          Capabilities: [4c] Express Root Port (Slot-), MSI 00
-
-Without any "Invalid class" error. So class code was properly reflected
-into standard (read-only) PCI register 0x08.
-
-Same fix is already implemented in U-Boot pcie_fsl.c driver in commit:
-http://source.denx.de/u-boot/u-boot/-/commit/d18d06ac35229345a0af80977a408cfbe1d1015b
-
-Fix activated by U-Boot stay active also after booting Linux kernel.
-But boards which use older U-Boot version without that fix are affected and
-still require this fix.
-
-So implement this class code fix also in kernel fsl_pci.c driver.
-
+Fixes: 8eb07b187000 ("powerpc/mm: Dump linux pagetables")
 Cc: stable@vger.kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220706101043.4867-1-pali@kernel.org
+Link: https://lore.kernel.org/r/0c33b96317811edf691e81698aaee8fa45ec3449.1656427391.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/sysdev/fsl_pci.c |    8 ++++++++
- arch/powerpc/sysdev/fsl_pci.h |    1 +
- 2 files changed, 9 insertions(+)
+ arch/powerpc/mm/ptdump/shared.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/sysdev/fsl_pci.c
-+++ b/arch/powerpc/sysdev/fsl_pci.c
-@@ -520,6 +520,7 @@ int fsl_add_bridge(struct platform_devic
- 	struct resource rsrc;
- 	const int *bus_range;
- 	u8 hdr_type, progif;
-+	u32 class_code;
- 	struct device_node *dev;
- 	struct ccsr_pci __iomem *pci;
- 	u16 temp;
-@@ -593,6 +594,13 @@ int fsl_add_bridge(struct platform_devic
- 			PPC_INDIRECT_TYPE_SURPRESS_PRIMARY_BUS;
- 		if (fsl_pcie_check_link(hose))
- 			hose->indirect_type |= PPC_INDIRECT_TYPE_NO_PCIE_LINK;
-+		/* Fix Class Code to PCI_CLASS_BRIDGE_PCI_NORMAL for pre-3.0 controller */
-+		if (in_be32(&pci->block_rev1) < PCIE_IP_REV_3_0) {
-+			early_read_config_dword(hose, 0, 0, PCIE_FSL_CSR_CLASSCODE, &class_code);
-+			class_code &= 0xff;
-+			class_code |= PCI_CLASS_BRIDGE_PCI_NORMAL << 8;
-+			early_write_config_dword(hose, 0, 0, PCIE_FSL_CSR_CLASSCODE, class_code);
-+		}
- 	} else {
- 		/*
- 		 * Set PBFR(PCI Bus Function Register)[10] = 1 to
---- a/arch/powerpc/sysdev/fsl_pci.h
-+++ b/arch/powerpc/sysdev/fsl_pci.h
-@@ -18,6 +18,7 @@ struct platform_device;
- 
- #define PCIE_LTSSM	0x0404		/* PCIE Link Training and Status */
- #define PCIE_LTSSM_L0	0x16		/* L0 state */
-+#define PCIE_FSL_CSR_CLASSCODE	0x474	/* FSL GPEX CSR */
- #define PCIE_IP_REV_2_2		0x02080202 /* PCIE IP block version Rev2.2 */
- #define PCIE_IP_REV_3_0		0x02080300 /* PCIE IP block version Rev3.0 */
- #define PIWAR_EN		0x80000000	/* Enable */
+--- a/arch/powerpc/mm/ptdump/shared.c
++++ b/arch/powerpc/mm/ptdump/shared.c
+@@ -17,9 +17,9 @@ static const struct flag_info flag_array
+ 		.clear	= "    ",
+ 	}, {
+ 		.mask	= _PAGE_RW,
+-		.val	= _PAGE_RW,
+-		.set	= "rw",
+-		.clear	= "r ",
++		.val	= 0,
++		.set	= "r ",
++		.clear	= "rw",
+ 	}, {
+ 		.mask	= _PAGE_EXEC,
+ 		.val	= _PAGE_EXEC,
 
 
