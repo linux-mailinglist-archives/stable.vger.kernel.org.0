@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 861A8593A1F
+	by mail.lfdr.de (Postfix) with ESMTP id 146B6593A1E
 	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233190AbiHOTcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:32:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38004 "EHLO
+        id S233004AbiHOTcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:32:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344468AbiHOTba (ORCPT
+        with ESMTP id S1344471AbiHOTba (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:31:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95A1061103;
-        Mon, 15 Aug 2022 11:44:39 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB93961107;
+        Mon, 15 Aug 2022 11:44:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B75DCB81057;
-        Mon, 15 Aug 2022 18:44:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CCB0C433D6;
-        Mon, 15 Aug 2022 18:44:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18E53611E6;
+        Mon, 15 Aug 2022 18:44:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06438C433D7;
+        Mon, 15 Aug 2022 18:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589076;
-        bh=39xC/sPcvcPzbSKHtZDJSlpE6SSTmB0YMk336LQU+2Q=;
+        s=korg; t=1660589079;
+        bh=BE+qFjw6qKenTUdK2eHcBqM74EQDU1O2m42p5rJePb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dWctEwpdvO9TeeBlhDtXx0k1r662q/Q/eEeqTLgFvynZ56TtZcrijy/lAqnguAFiP
-         bvZ6sznOs0FWRnNqDluRQVWnbpc9xZ3XU+q3Fo4zMlu+2BqLYsqbmh+pFf1/gcu0a2
-         5gStZUxtpnqMVgARxbtXKCeISYhC7AmJiOLFaINI=
+        b=TgjQQcCVsLvueZOEpMlvioDUYxAg42wrH5vD1Nq/xbIb3FkJ6GHNFt7QfUN9wWjBg
+         9h+UXQ66+Nn7LvrocxrUGuAiQN3dzmUJkDbUCJghTmLj/PYvMzEapnCnLFDu3O1vz9
+         rJ8S7yLp9M6eAfVJ0PZi2wwD52wRTlvrgzBILNZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        Eric Van Hensbergen <ericvh@gmail.com>,
-        Latchesar Ionkov <lucho@ionkov.net>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
         Dominique Martinet <asmadeus@codewreck.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 606/779] 9p: Add client parameter to p9_req_put()
-Date:   Mon, 15 Aug 2022 20:04:10 +0200
-Message-Id: <20220815180403.257883961@linuxfoundation.org>
+Subject: [PATCH 5.15 607/779] net: 9p: fix refcount leak in p9_read_work() error handling
+Date:   Mon, 15 Aug 2022 20:04:11 +0200
+Message-Id: <20220815180403.298006742@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,196 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kent Overstreet <kent.overstreet@gmail.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 8b11ff098af42b1fa57fc817daadd53c8b244a0c ]
+[ Upstream commit 4ac7573e1f9333073fa8d303acc941c9b7ab7f61 ]
 
-This is to aid in adding mempools, in the next patch.
+p9_req_put need to be called when m->rreq->rc.sdata is NULL to avoid
+temporary refcount leak.
 
-Link: https://lkml.kernel.org/r/20220704014243.153050-2-kent.overstreet@gmail.com
-Signed-off-by: Kent Overstreet <kent.overstreet@gmail.com>
-Cc: Eric Van Hensbergen <ericvh@gmail.com>
-Cc: Latchesar Ionkov <lucho@ionkov.net>
+Link: https://lkml.kernel.org/r/20220712104438.30800-1-hbh25y@gmail.com
+Fixes: 728356dedeff ("9p: Add refcount to p9_req_t")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+[Dominique: commit wording adjustments, p9_req_put argument fixes for rebase]
 Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/9p/client.h |  2 +-
- net/9p/client.c         | 12 ++++++------
- net/9p/trans_fd.c       | 12 ++++++------
- net/9p/trans_rdma.c     |  2 +-
- net/9p/trans_virtio.c   |  4 ++--
- net/9p/trans_xen.c      |  2 +-
- 6 files changed, 17 insertions(+), 17 deletions(-)
+ net/9p/trans_fd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/net/9p/client.h b/include/net/9p/client.h
-index 67c854d07d7e..7060de84c559 100644
---- a/include/net/9p/client.h
-+++ b/include/net/9p/client.h
-@@ -237,7 +237,7 @@ static inline int p9_req_try_get(struct p9_req_t *r)
- 	return refcount_inc_not_zero(&r->refcount);
- }
- 
--int p9_req_put(struct p9_req_t *r);
-+int p9_req_put(struct p9_client *c, struct p9_req_t *r);
- 
- void p9_client_cb(struct p9_client *c, struct p9_req_t *req, int status);
- 
-diff --git a/net/9p/client.c b/net/9p/client.c
-index 5835fe4aebd7..866f02e88c79 100644
---- a/net/9p/client.c
-+++ b/net/9p/client.c
-@@ -343,7 +343,7 @@ struct p9_req_t *p9_tag_lookup(struct p9_client *c, u16 tag)
- 		if (!p9_req_try_get(req))
- 			goto again;
- 		if (req->tc.tag != tag) {
--			p9_req_put(req);
-+			p9_req_put(c, req);
- 			goto again;
- 		}
- 	}
-@@ -369,10 +369,10 @@ static int p9_tag_remove(struct p9_client *c, struct p9_req_t *r)
- 	spin_lock_irqsave(&c->lock, flags);
- 	idr_remove(&c->reqs, tag);
- 	spin_unlock_irqrestore(&c->lock, flags);
--	return p9_req_put(r);
-+	return p9_req_put(c, r);
- }
- 
--int p9_req_put(struct p9_req_t *r)
-+int p9_req_put(struct p9_client *c, struct p9_req_t *r)
- {
- 	if (refcount_dec_and_test(&r->refcount)) {
- 		p9_fcall_fini(&r->tc);
-@@ -425,7 +425,7 @@ void p9_client_cb(struct p9_client *c, struct p9_req_t *req, int status)
- 
- 	wake_up(&req->wq);
- 	p9_debug(P9_DEBUG_MUX, "wakeup: %d\n", req->tc.tag);
--	p9_req_put(req);
-+	p9_req_put(c, req);
- }
- EXPORT_SYMBOL(p9_client_cb);
- 
-@@ -708,7 +708,7 @@ static struct p9_req_t *p9_client_prepare_req(struct p9_client *c,
- reterr:
- 	p9_tag_remove(c, req);
- 	/* We have to put also the 2nd reference as it won't be used */
--	p9_req_put(req);
-+	p9_req_put(c, req);
- 	return ERR_PTR(err);
- }
- 
-@@ -745,7 +745,7 @@ p9_client_rpc(struct p9_client *c, int8_t type, const char *fmt, ...)
- 	err = c->trans_mod->request(c, req);
- 	if (err < 0) {
- 		/* write won't happen */
--		p9_req_put(req);
-+		p9_req_put(c, req);
- 		if (err != -ERESTARTSYS && err != -EFAULT)
- 			c->status = Disconnected;
- 		goto recalc_sigpending;
 diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
-index 007bbcc68010..c55c8a608bc7 100644
+index c55c8a608bc7..6fe3719c1fc6 100644
 --- a/net/9p/trans_fd.c
 +++ b/net/9p/trans_fd.c
-@@ -380,7 +380,7 @@ static void p9_read_work(struct work_struct *work)
- 		m->rc.sdata = NULL;
- 		m->rc.offset = 0;
- 		m->rc.capacity = 0;
--		p9_req_put(m->rreq);
-+		p9_req_put(m->client, m->rreq);
- 		m->rreq = NULL;
- 	}
- 
-@@ -494,7 +494,7 @@ static void p9_write_work(struct work_struct *work)
- 	m->wpos += err;
- 	if (m->wpos == m->wsize) {
- 		m->wpos = m->wsize = 0;
--		p9_req_put(m->wreq);
-+		p9_req_put(m->client, m->wreq);
- 		m->wreq = NULL;
- 	}
- 
-@@ -697,7 +697,7 @@ static int p9_fd_cancel(struct p9_client *client, struct p9_req_t *req)
- 	if (req->status == REQ_STATUS_UNSENT) {
- 		list_del(&req->req_list);
- 		req->status = REQ_STATUS_FLSHD;
--		p9_req_put(req);
-+		p9_req_put(client, req);
- 		ret = 0;
- 	}
- 	spin_unlock(&client->lock);
-@@ -724,7 +724,7 @@ static int p9_fd_cancelled(struct p9_client *client, struct p9_req_t *req)
- 	list_del(&req->req_list);
- 	req->status = REQ_STATUS_FLSHD;
- 	spin_unlock(&client->lock);
--	p9_req_put(req);
-+	p9_req_put(client, req);
- 
- 	return 0;
- }
-@@ -885,12 +885,12 @@ static void p9_conn_destroy(struct p9_conn *m)
- 	p9_mux_poll_stop(m);
- 	cancel_work_sync(&m->rq);
- 	if (m->rreq) {
--		p9_req_put(m->rreq);
-+		p9_req_put(m->client, m->rreq);
- 		m->rreq = NULL;
- 	}
- 	cancel_work_sync(&m->wq);
- 	if (m->wreq) {
--		p9_req_put(m->wreq);
-+		p9_req_put(m->client, m->wreq);
- 		m->wreq = NULL;
- 	}
- 
-diff --git a/net/9p/trans_rdma.c b/net/9p/trans_rdma.c
-index af0a8a6cd3fd..f6d145873b49 100644
---- a/net/9p/trans_rdma.c
-+++ b/net/9p/trans_rdma.c
-@@ -352,7 +352,7 @@ send_done(struct ib_cq *cq, struct ib_wc *wc)
- 			    c->busa, c->req->tc.size,
- 			    DMA_TO_DEVICE);
- 	up(&rdma->sq_sem);
--	p9_req_put(c->req);
-+	p9_req_put(client, c->req);
- 	kfree(c);
- }
- 
-diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
-index 490a4c900339..d110df3cb4e1 100644
---- a/net/9p/trans_virtio.c
-+++ b/net/9p/trans_virtio.c
-@@ -199,7 +199,7 @@ static int p9_virtio_cancel(struct p9_client *client, struct p9_req_t *req)
- /* Reply won't come, so drop req ref */
- static int p9_virtio_cancelled(struct p9_client *client, struct p9_req_t *req)
- {
--	p9_req_put(req);
-+	p9_req_put(client, req);
- 	return 0;
- }
- 
-@@ -523,7 +523,7 @@ p9_virtio_zc_request(struct p9_client *client, struct p9_req_t *req,
- 	kvfree(out_pages);
- 	if (!kicked) {
- 		/* reply won't come */
--		p9_req_put(req);
-+		p9_req_put(client, req);
- 	}
- 	return err;
- }
-diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
-index 432ac5a16f2e..427f6caefa29 100644
---- a/net/9p/trans_xen.c
-+++ b/net/9p/trans_xen.c
-@@ -186,7 +186,7 @@ static int p9_xen_request(struct p9_client *client, struct p9_req_t *p9_req)
- 	ring->intf->out_prod = prod;
- 	spin_unlock_irqrestore(&ring->lock, flags);
- 	notify_remote_via_irq(ring->irq);
--	p9_req_put(p9_req);
-+	p9_req_put(client, p9_req);
- 
- 	return 0;
- }
+@@ -345,6 +345,7 @@ static void p9_read_work(struct work_struct *work)
+ 			p9_debug(P9_DEBUG_ERROR,
+ 				 "No recv fcall for tag %d (req %p), disconnecting!\n",
+ 				 m->rc.tag, m->rreq);
++			p9_req_put(m->client, m->rreq);
+ 			m->rreq = NULL;
+ 			err = -EIO;
+ 			goto error;
 -- 
 2.35.1
 
