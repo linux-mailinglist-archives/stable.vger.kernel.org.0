@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 883E1594D2C
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7D55594C5E
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243809AbiHPA7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:59:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46124 "EHLO
+        id S244209AbiHPA7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:59:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244068AbiHPAyM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:54:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1246B7286;
-        Mon, 15 Aug 2022 13:47:48 -0700 (PDT)
+        with ESMTP id S1345249AbiHPA4l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:56:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF4CEDAA3C;
+        Mon, 15 Aug 2022 13:48:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7358B811A6;
-        Mon, 15 Aug 2022 20:47:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DFACC433C1;
-        Mon, 15 Aug 2022 20:47:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ECB6861255;
+        Mon, 15 Aug 2022 20:48:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEB1EC433C1;
+        Mon, 15 Aug 2022 20:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596465;
-        bh=0J+RU9t2EJdVMNMlvOZVwlYfDsPQl/hnucuwC90pG7Y=;
+        s=korg; t=1660596500;
+        bh=4BnIrXYRqN01St2n7dxsaGgN/+3PG5oNAtHvK8qvYCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KWGFB2u7jhnYKIK/SGS2apLUeHzYqWNGdEOmHH8BMc4PSnG6Zg6amUxPB2tGvMCTG
-         jBWO3m2OYCJXq+BwZu0lDn0Lwe7VaUTTbUvsAm9YJYsnVYU1LMqzVh1lwDbeOlVeHd
-         PBuQZBYAxOjbuzvI9di+KaiGJR6VoYkqqRF7KMFU=
+        b=rds2EpvM5ANOqpbKz3Rm2cJ/kgRDKeiftgohLRlX7xgPqfv6Mb1tl3I0XGwooBNNH
+         UFbAFxj0s14AWu0sYT3HIBeOgmHtF95OoAzfkUlCXS3bebTY5CuZowdacnt5z5W8bO
+         t3G/2jcynM2po4E9fwxkca720RyQgJ7F5lpwcZA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1081/1157] btrfs: fix error handling of fallback uncompress write
-Date:   Mon, 15 Aug 2022 20:07:17 +0200
-Message-Id: <20220815180523.395924256@linuxfoundation.org>
+Subject: [PATCH 5.19 1082/1157] btrfs: reset block group chunk force if we have to wait
+Date:   Mon, 15 Aug 2022 20:07:18 +0200
+Message-Id: <20220815180523.442276351@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,70 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 71aa147b4d9d81fa65afa6016f50d7818b64a54f ]
+[ Upstream commit 1314ca78b2c35d3e7d0f097268a2ee6dc0d369ef ]
 
-When cow_file_range() fails in the middle of the allocation loop, it
-unlocks the pages but leaves the ordered extents intact. Thus, we need
-to call btrfs_cleanup_ordered_extents() to finish the created ordered
-extents.
+If you try to force a chunk allocation, but you race with another chunk
+allocation, you will end up waiting on the chunk allocation that just
+occurred and then allocate another chunk.  If you have many threads all
+doing this at once you can way over-allocate chunks.
 
-Also, we need to call end_extent_writepage() if locked_page is available
-because btrfs_cleanup_ordered_extents() never processes the region on
-the locked_page.
+Fix this by resetting force to NO_FORCE, that way if we think we need to
+allocate we can, otherwise we don't force another chunk allocation if
+one is already happening.
 
-Furthermore, we need to set the mapping as error if locked_page is
-unavailable before unlocking the pages, so that the errno is properly
-propagated to the user space.
-
-CC: stable@vger.kernel.org # 5.18+
 Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ fs/btrfs/block-group.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 52b2d1b48d2e..25872ee8594e 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -927,8 +927,18 @@ static int submit_uncompressed_range(struct btrfs_inode *inode,
- 		goto out;
- 	}
- 	if (ret < 0) {
--		if (locked_page)
-+		btrfs_cleanup_ordered_extents(inode, locked_page, start, end - start + 1);
-+		if (locked_page) {
-+			const u64 page_start = page_offset(locked_page);
-+			const u64 page_end = page_start + PAGE_SIZE - 1;
-+
-+			btrfs_page_set_error(inode->root->fs_info, locked_page,
-+					     page_start, PAGE_SIZE);
-+			set_page_writeback(locked_page);
-+			end_page_writeback(locked_page);
-+			end_extent_writepage(locked_page, ret, page_start, page_end);
- 			unlock_page(locked_page);
-+		}
- 		goto out;
- 	}
- 
-@@ -1377,9 +1387,12 @@ static noinline int cow_file_range(struct btrfs_inode *inode,
- 	 * However, in case of unlock == 0, we still need to unlock the pages
- 	 * (except @locked_page) to ensure all the pages are unlocked.
- 	 */
--	if (!unlock && orig_start < start)
-+	if (!unlock && orig_start < start) {
-+		if (!locked_page)
-+			mapping_set_error(inode->vfs_inode.i_mapping, ret);
- 		extent_clear_unlock_delalloc(inode, orig_start, start - 1,
- 					     locked_page, 0, page_ops);
-+	}
- 
- 	/*
- 	 * For the range (2). If we reserved an extent for our delalloc range
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index ede389f2602d..13358fbc1629 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -3761,6 +3761,7 @@ int btrfs_chunk_alloc(struct btrfs_trans_handle *trans, u64 flags,
+ 			 * attempt.
+ 			 */
+ 			wait_for_alloc = true;
++			force = CHUNK_ALLOC_NO_FORCE;
+ 			spin_unlock(&space_info->lock);
+ 			mutex_lock(&fs_info->chunk_mutex);
+ 			mutex_unlock(&fs_info->chunk_mutex);
 -- 
 2.35.1
 
