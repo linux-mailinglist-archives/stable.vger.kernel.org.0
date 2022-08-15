@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47146594666
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 758C35946B5
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352307AbiHOWzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:55:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44976 "EHLO
+        id S1352578AbiHOXAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:00:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242683AbiHOWyB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:54:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4E3E7F11F;
-        Mon, 15 Aug 2022 12:54:49 -0700 (PDT)
+        with ESMTP id S1352512AbiHOW6f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:58:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E401474E0;
+        Mon, 15 Aug 2022 12:56:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0FBC6113B;
-        Mon, 15 Aug 2022 19:54:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3EE8C433D6;
-        Mon, 15 Aug 2022 19:54:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F800B80EAB;
+        Mon, 15 Aug 2022 19:56:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55B02C433D6;
+        Mon, 15 Aug 2022 19:56:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593288;
-        bh=Zs8uX0XxC7l9T7Gv2eAAYMFzEiCbxZ8p6gV3+tEkSGg=;
+        s=korg; t=1660593409;
+        bh=Jl6YcRGxZmnFIQ7S0vKwAI423njHCiOFiSTN7qLkT9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iKALp9hg5EVCoM2ZcAv95swNMolNPw5TWVFQtVNSrT+kkK33kSYM+XzdJgyv80mpp
-         5rMkZ9qjBzXjJoBY3dzgQv9TeRM9tm60p8hillKeaAxpHJnKK4XjeVAAR9HywQ8Ev+
-         t+O+a/3QCFhmn6dQyYLfKo41Eij2Gnmj1CmZr/aI=
+        b=eO5dRmm3PrY26leKDntummwSKQsNDY2F47jqEkZIYf7Pz6D+dmmtfhfb0Eqy49a6J
+         1uTnHf/WsoiGOdTtYfMsFXCNf5zl4Hfv8dxPwfsTNztnVpKxU3J/inljMjFD2a+odo
+         f/83e0NxQwLXyU44zQeL4MfASJnhkNmhJa+aOVSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Sherry Sun <sherry.sun@nxp.com>,
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0923/1095] tty: serial: fsl_lpuart: correct the count of break characters
-Date:   Mon, 15 Aug 2022 20:05:22 +0200
-Message-Id: <20220815180507.445957567@linuxfoundation.org>
+Subject: [PATCH 5.18 0924/1095] s390/smp: enforce lowcore protection on CPU restart
+Date:   Mon, 15 Aug 2022 20:05:23 +0200
+Message-Id: <20220815180507.484901030@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,60 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit 707f816f25590c20e056b3bd4a17ce69b03fe856 ]
+[ Upstream commit 6f5c672d17f583b081e283927f5040f726c54598 ]
 
-The LPUART can't distinguish between a break signal and a framing error,
-so need to count the break characters if there is a framing error and
-received data is zero instead of the parity error.
+As result of commit 915fea04f932 ("s390/smp: enable DAT before
+CPU restart callback is called") the low-address protection bit
+gets mistakenly unset in control register 0 save area of the
+absolute zero memory. That area is used when manual PSW restart
+happened to hit an offline CPU. In this case the low-address
+protection for that CPU will be dropped.
 
-Fixes: 5541a9bacfe5 ("serial: fsl_lpuart: handle break and make sysrq work")
-Reviewed-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20220725050115.12396-1-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Fixes: 915fea04f932 ("s390/smp: enable DAT before CPU restart callback is called")
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/s390/kernel/setup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index 2cb89491dd09..65b76adf107c 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -990,12 +990,12 @@ static void lpuart32_rxint(struct lpuart_port *sport)
- 
- 		if (sr & (UARTSTAT_PE | UARTSTAT_OR | UARTSTAT_FE)) {
- 			if (sr & UARTSTAT_PE) {
-+				sport->port.icount.parity++;
-+			} else if (sr & UARTSTAT_FE) {
- 				if (is_break)
- 					sport->port.icount.brk++;
- 				else
--					sport->port.icount.parity++;
--			} else if (sr & UARTSTAT_FE) {
--				sport->port.icount.frame++;
-+					sport->port.icount.frame++;
- 			}
- 
- 			if (sr & UARTSTAT_OR)
-@@ -1010,12 +1010,12 @@ static void lpuart32_rxint(struct lpuart_port *sport)
- 			sr &= sport->port.read_status_mask;
- 
- 			if (sr & UARTSTAT_PE) {
-+				flg = TTY_PARITY;
-+			} else if (sr & UARTSTAT_FE) {
- 				if (is_break)
- 					flg = TTY_BREAK;
- 				else
--					flg = TTY_PARITY;
--			} else if (sr & UARTSTAT_FE) {
--				flg = TTY_FRAME;
-+					flg = TTY_FRAME;
- 			}
- 
- 			if (sr & UARTSTAT_OR)
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 2cef49983e9e..3327412f82a6 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -508,8 +508,8 @@ static void __init setup_lowcore_dat_on(void)
+ 	S390_lowcore.svc_new_psw.mask |= PSW_MASK_DAT;
+ 	S390_lowcore.program_new_psw.mask |= PSW_MASK_DAT;
+ 	S390_lowcore.io_new_psw.mask |= PSW_MASK_DAT;
+-	__ctl_store(S390_lowcore.cregs_save_area, 0, 15);
+ 	__ctl_set_bit(0, 28);
++	__ctl_store(S390_lowcore.cregs_save_area, 0, 15);
+ 	put_abs_lowcore(restart_flags, RESTART_FLAG_CTLREGS);
+ 	put_abs_lowcore(program_new_psw, lc->program_new_psw);
+ 	for (cr = 0; cr < ARRAY_SIZE(lc->cregs_save_area); cr++)
 -- 
 2.35.1
 
