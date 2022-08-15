@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 861E35947B9
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:04:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72EE35947C2
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:04:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353671AbiHOXms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:42:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34202 "EHLO
+        id S1353868AbiHOXmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:42:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354153AbiHOXl3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ABC213263F;
-        Mon, 15 Aug 2022 13:10:48 -0700 (PDT)
+        with ESMTP id S1354171AbiHOXle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A2A1BC9;
+        Mon, 15 Aug 2022 13:10:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04E1C60B6E;
-        Mon, 15 Aug 2022 20:10:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11464C433D6;
-        Mon, 15 Aug 2022 20:10:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08283B80EA9;
+        Mon, 15 Aug 2022 20:10:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DC45C433C1;
+        Mon, 15 Aug 2022 20:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594247;
-        bh=vDkvebUt7MZA8+U3hS5joEOkD7qc/yPP/d1mBQwSSSQ=;
+        s=korg; t=1660594253;
+        bh=RZ1/XKi6ZZB/5Yh58YWyGEnCsTUCnClIq0g2pJhdLjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=knRDWrs4cwEwisOzd9V0laaCCsJS3E98QZ4K+20hjQOjPcvMZD4WX6toC8eUZoQI7
-         2L9s3/LU8MHYQscLM/5tJFrwzE5E1n7kY5LmOk17utfaoJ4VQUAGF1KdiotFIGHMxo
-         cTFqIy/yPxWcsbHc8JjVFJNq/xudHS+55Wpcadjk=
+        b=KeFuE6cyAuR343bBVOsTpoR83IXVLUUshFvzyFyeeD/nLOl1MsxvLf3mEUUtE3RAD
+         OhlWpWBA3mj/PMLP2L8eslkhUnmubTZSIi2sJlvi46LWzrCmw/PJE/AhGel6iYtOlJ
+         QMWbuuBeK4NAtlxHUW9UfI9MX/WbWUO36TTzTs7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.18 1078/1095] crypto: lib/blake2s - reduce stack frame usage in self test
-Date:   Mon, 15 Aug 2022 20:07:57 +0200
-Message-Id: <20220815180513.639968639@linuxfoundation.org>
+        Eric Dumazet <edumazet@google.com>,
+        Jonathan Lemon <jonathan.lemon@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.18 1079/1095] raw: remove unused variables from raw6_icmp_error()
+Date:   Mon, 15 Aug 2022 20:07:58 +0200
+Message-Id: <20220815180513.671224904@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,53 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit d6c14da474bf260d73953fbf7992c98d9112aec7 upstream.
+commit c4fceb46add65481ef0dfb79cad24c3c269b4cad upstream.
 
-Using 3 blocks here doesn't give us much more than using 2, and it
-causes a stack frame size warning on certain compiler/config/arch
-combinations:
+saddr and daddr are set but not used.
 
-   lib/crypto/blake2s-selftest.c: In function 'blake2s_selftest':
->> lib/crypto/blake2s-selftest.c:632:1: warning: the frame size of 1088 bytes is larger than 1024 bytes [-Wframe-larger-than=]
-     632 | }
-         | ^
-
-So this patch just reduces the block from 3 to 2, which makes the
-warning go away.
-
+Fixes: ba44f8182ec2 ("raw: use more conventional iterators")
 Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/linux-crypto/202206200851.gE3MHCgd-lkp@intel.com
-Fixes: 2d16803c562e ("crypto: blake2s - remove shash module")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Jonathan Lemon <jonathan.lemon@gmail.com>
+Link: https://lore.kernel.org/r/20220622032303.159394-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/crypto/blake2s-selftest.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/ipv6/raw.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/lib/crypto/blake2s-selftest.c
-+++ b/lib/crypto/blake2s-selftest.c
-@@ -593,7 +593,7 @@ bool __init blake2s_selftest(void)
- 		enum { TEST_ALIGNMENT = 16 };
- 		u8 unaligned_block[BLAKE2S_BLOCK_SIZE + TEST_ALIGNMENT - 1]
- 					__aligned(TEST_ALIGNMENT);
--		u8 blocks[BLAKE2S_BLOCK_SIZE * 3];
-+		u8 blocks[BLAKE2S_BLOCK_SIZE * 2];
- 		struct blake2s_state state1, state2;
+--- a/net/ipv6/raw.c
++++ b/net/ipv6/raw.c
+@@ -332,7 +332,6 @@ static void rawv6_err(struct sock *sk, s
+ void raw6_icmp_error(struct sk_buff *skb, int nexthdr,
+ 		u8 type, u8 code, int inner_offset, __be32 info)
+ {
+-	const struct in6_addr *saddr, *daddr;
+ 	struct net *net = dev_net(skb->dev);
+ 	struct hlist_nulls_head *hlist;
+ 	struct hlist_nulls_node *hnode;
+@@ -345,8 +344,6 @@ void raw6_icmp_error(struct sk_buff *skb
+ 	hlist_nulls_for_each_entry(sk, hnode, hlist, sk_nulls_node) {
+ 		/* Note: ipv6_hdr(skb) != skb->data */
+ 		const struct ipv6hdr *ip6h = (const struct ipv6hdr *)skb->data;
+-		saddr = &ip6h->saddr;
+-		daddr = &ip6h->daddr;
  
- 		get_random_bytes(blocks, sizeof(blocks));
-@@ -603,8 +603,8 @@ bool __init blake2s_selftest(void)
-     defined(CONFIG_CRYPTO_ARCH_HAVE_LIB_BLAKE2S)
- 		memcpy(&state1, &state, sizeof(state1));
- 		memcpy(&state2, &state, sizeof(state2));
--		blake2s_compress(&state1, blocks, 3, BLAKE2S_BLOCK_SIZE);
--		blake2s_compress_generic(&state2, blocks, 3, BLAKE2S_BLOCK_SIZE);
-+		blake2s_compress(&state1, blocks, 2, BLAKE2S_BLOCK_SIZE);
-+		blake2s_compress_generic(&state2, blocks, 2, BLAKE2S_BLOCK_SIZE);
- 		if (memcmp(&state1, &state2, sizeof(state1))) {
- 			pr_err("blake2s random compress self-test %d: FAIL\n",
- 			       i + 1);
+ 		if (!raw_v6_match(net, sk, nexthdr, &ip6h->saddr, &ip6h->daddr,
+ 				  inet6_iif(skb), inet6_iif(skb)))
 
 
