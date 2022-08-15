@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B095593C61
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65DFB593C95
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346157AbiHOUNV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:13:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52414 "EHLO
+        id S238975AbiHOUNa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:13:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346108AbiHOUKr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:10:47 -0400
+        with ESMTP id S1346112AbiHOUKs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:10:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AD8F64ED;
-        Mon, 15 Aug 2022 11:56:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 692FB64FD;
+        Mon, 15 Aug 2022 11:56:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6D35B8105C;
-        Mon, 15 Aug 2022 18:56:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C1A5C433C1;
-        Mon, 15 Aug 2022 18:56:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12D0EB81082;
+        Mon, 15 Aug 2022 18:56:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3E7FC433D6;
+        Mon, 15 Aug 2022 18:56:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589801;
-        bh=pTtIM64RdILeVy25ARrvbKCjUMJ6DkCoiulUOCyVutE=;
+        s=korg; t=1660589804;
+        bh=Wujj5i866p9om6sVU/5OKGHjwQgKQ35nherAfS8OOgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o81CxyRpGLO6VdE3NnJ464wgUFLyFobjOzhuyM0mdsbGRNtlZM0ixrKN2gwfcJf/G
-         xrsX9XE4d9xe96AQbBoKogtYGGeEGTGlpPRs7dNmJIPIY3qgjs+IQgl7jWJceKu4oa
-         pORoMxS03lVPAlHN0kTvLIh8xBo1xPf/NPQiJYIg=
+        b=1b69kOmwzoLvxg5QBId2FYNh3F2K8WOv2CwxLMH5rW1jGGb7dbQr5jYWrgZgSGJou
+         uT4beftPI9j4XOxXxrr3Qn2UQ07G+sexqf2sxCHXtp9+S4EZJhVbEpsZIHqpZFCLXa
+         7NKgoAK8Cg/q4NGlFW98l1X6Ht4uYqxY1UjHYfK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Lukas Wunner <lukas@wunner.de>,
-        Oliver Neukum <oneukum@suse.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.18 0052/1095] usbnet: Fix linkwatch use-after-free on disconnect
-Date:   Mon, 15 Aug 2022 19:50:51 +0200
-Message-Id: <20220815180431.625608326@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>, stable@kernel.org
+Subject: [PATCH 5.18 0053/1095] fix short copy handling in copy_mc_pipe_to_iter()
+Date:   Mon, 15 Aug 2022 19:50:52 +0200
+Message-Id: <20220815180431.667421965@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,85 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit a69e617e533edddf3fa3123149900f36e0a6dc74 upstream.
+commit c3497fd009ef2c59eea60d21c3ac22de3585ed7d upstream.
 
-usbnet uses the work usbnet_deferred_kevent() to perform tasks which may
-sleep.  On disconnect, completion of the work was originally awaited in
-->ndo_stop().  But in 2003, that was moved to ->disconnect() by historic
-commit "[PATCH] USB: usbnet, prevent exotic rtnl deadlock":
+Unlike other copying operations on ITER_PIPE, copy_mc_to_iter() can
+result in a short copy.  In that case we need to trim the unused
+buffers, as well as the length of partially filled one - it's not
+enough to set ->head, ->iov_offset and ->count to reflect how
+much had we copied.  Not hard to fix, fortunately...
 
-  https://git.kernel.org/tglx/history/c/0f138bbfd83c
+I'd put a helper (pipe_discard_from(pipe, head)) into pipe_fs_i.h,
+rather than iov_iter.c - it has nothing to do with iov_iter and
+having it will allow us to avoid an ugly kludge in fs/splice.c.
+We could put it into lib/iov_iter.c for now and move it later,
+but I don't see the point going that way...
 
-The change was made because back then, the kernel's workqueue
-implementation did not allow waiting for a single work.  One had to wait
-for completion of *all* work by calling flush_scheduled_work(), and that
-could deadlock when waiting for usbnet_deferred_kevent() with rtnl_mutex
-held in ->ndo_stop().
-
-The commit solved one problem but created another:  It causes a
-use-after-free in USB Ethernet drivers aqc111.c, asix_devices.c,
-ax88179_178a.c, ch9200.c and smsc75xx.c:
-
-* If the drivers receive a link change interrupt immediately before
-  disconnect, they raise EVENT_LINK_RESET in their (non-sleepable)
-  ->status() callback and schedule usbnet_deferred_kevent().
-* usbnet_deferred_kevent() invokes the driver's ->link_reset() callback,
-  which calls netif_carrier_{on,off}().
-* That in turn schedules the work linkwatch_event().
-
-Because usbnet_deferred_kevent() is awaited after unregister_netdev(),
-netif_carrier_{on,off}() may operate on an unregistered netdev and
-linkwatch_event() may run after free_netdev(), causing a use-after-free.
-
-In 2010, usbnet was changed to only wait for a single instance of
-usbnet_deferred_kevent() instead of *all* work by commit 23f333a2bfaf
-("drivers/net: don't use flush_scheduled_work()").
-
-Unfortunately the commit neglected to move the wait back to
-->ndo_stop().  Rectify that omission at long last.
-
-Reported-by: Jann Horn <jannh@google.com>
-Link: https://lore.kernel.org/netdev/CAG48ez0MHBbENX5gCdHAUXZ7h7s20LnepBF-pa5M=7Bi-jZrEA@mail.gmail.com/
-Reported-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/netdev/20220315113841.GA22337@pengutronix.de/
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/d1c87ebe9fc502bffcd1576e238d685ad08321e4.1655987888.git.lukas@wunner.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: stable@kernel.org # 4.19+
+Fixes: ca146f6f091e "lib/iov_iter: Fix pipe handling in _copy_to_iter_mcsafe()"
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/usbnet.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ include/linux/pipe_fs_i.h |    9 +++++++++
+ lib/iov_iter.c            |   15 +++++++++++----
+ 2 files changed, 20 insertions(+), 4 deletions(-)
 
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -849,13 +849,11 @@ int usbnet_stop (struct net_device *net)
+--- a/include/linux/pipe_fs_i.h
++++ b/include/linux/pipe_fs_i.h
+@@ -229,6 +229,15 @@ static inline bool pipe_buf_try_steal(st
+ 	return buf->ops->try_steal(pipe, buf);
+ }
  
- 	mpn = !test_and_clear_bit(EVENT_NO_RUNTIME_PM, &dev->flags);
++static inline void pipe_discard_from(struct pipe_inode_info *pipe,
++		unsigned int old_head)
++{
++	unsigned int mask = pipe->ring_size - 1;
++
++	while (pipe->head > old_head)
++		pipe_buf_release(pipe, &pipe->bufs[--pipe->head & mask]);
++}
++
+ /* Differs from PIPE_BUF in that PIPE_SIZE is the length of the actual
+    memory allocation, whereas PIPE_BUF makes atomicity guarantees.  */
+ #define PIPE_SIZE		PAGE_SIZE
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -689,6 +689,7 @@ static size_t copy_mc_pipe_to_iter(const
+ 	struct pipe_inode_info *pipe = i->pipe;
+ 	unsigned int p_mask = pipe->ring_size - 1;
+ 	unsigned int i_head;
++	unsigned int valid = pipe->head;
+ 	size_t n, off, xfer = 0;
  
--	/* deferred work (task, timer, softirq) must also stop.
--	 * can't flush_scheduled_work() until we drop rtnl (later),
--	 * else workers could deadlock; so make workers a NOP.
--	 */
-+	/* deferred work (timer, softirq, task) must also stop */
- 	dev->flags = 0;
- 	del_timer_sync (&dev->delay);
- 	tasklet_kill (&dev->bh);
-+	cancel_work_sync(&dev->kevent);
- 	if (!pm)
- 		usb_autopm_put_interface(dev->intf);
- 
-@@ -1619,8 +1617,6 @@ void usbnet_disconnect (struct usb_inter
- 	net = dev->net;
- 	unregister_netdev (net);
- 
--	cancel_work_sync(&dev->kevent);
--
- 	usb_scuttle_anchored_urbs(&dev->deferred);
- 
- 	if (dev->driver_info->unbind)
+ 	if (!sanity(i))
+@@ -702,11 +703,17 @@ static size_t copy_mc_pipe_to_iter(const
+ 		rem = copy_mc_to_kernel(p + off, addr + xfer, chunk);
+ 		chunk -= rem;
+ 		kunmap_local(p);
+-		i->head = i_head;
+-		i->iov_offset = off + chunk;
+-		xfer += chunk;
+-		if (rem)
++		if (chunk) {
++			i->head = i_head;
++			i->iov_offset = off + chunk;
++			xfer += chunk;
++			valid = i_head + 1;
++		}
++		if (rem) {
++			pipe->bufs[i_head & p_mask].len -= rem;
++			pipe_discard_from(pipe, valid);
+ 			break;
++		}
+ 		n -= chunk;
+ 		off = 0;
+ 		i_head++;
 
 
