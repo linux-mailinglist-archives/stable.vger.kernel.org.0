@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC0D6594C4D
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 564B7594DEF
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:35:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344049AbiHPArR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:47:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57422 "EHLO
+        id S233960AbiHPArb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:47:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346765AbiHPApr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:45:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAA5DAE9CC;
-        Mon, 15 Aug 2022 13:41:03 -0700 (PDT)
+        with ESMTP id S1347368AbiHPApz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:45:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FF61193547;
+        Mon, 15 Aug 2022 13:41:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66BC160F60;
-        Mon, 15 Aug 2022 20:41:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D947C433C1;
-        Mon, 15 Aug 2022 20:41:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36CA2B8113E;
+        Mon, 15 Aug 2022 20:41:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67B15C433C1;
+        Mon, 15 Aug 2022 20:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596062;
-        bh=f1yBoZdlxrrj+e56t5SpYyY3+I6Cwa8ohg4maem5XqM=;
+        s=korg; t=1660596065;
+        bh=Da0gbbdZzQ1GHA0R171QoB/svWQr1XAmx/vQ/xxRN9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hCg77N3uWRv3i5OGBIU+BlsJtnt8CkfmnVPoY9zWAnx8YkPnu6dexyO9UAD9PRY1C
-         Wf0oKfKJQtbOg88WtucKDrh8RwXXgkdBI49mAGkpRX1lZRAhYpnbWCTGysDBTyDsFp
-         5U6cQHWhBuAfLhOmRPTY6mkbW1LZdJ5pJEGuIp0Y=
+        b=kxhKJCpTggncLx7LcX7PWHonXAiLb7yB6bCK7Yks08Zc/whhJO0sTHangpnIcpf2y
+         vfaWrwrQMgghW8idYNthA3VJt60M5cX6XnK8nW0sXLrIjI7++sUB7tmpW7SyUIbuGL
+         W/VTNjjtn8/R5V5CTnktljxvaw2APECDcZu9hb9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0961/1157] MIPS: Fixed __debug_virt_addr_valid()
-Date:   Mon, 15 Aug 2022 20:05:17 +0200
-Message-Id: <20220815180518.081863333@linuxfoundation.org>
+Subject: [PATCH 5.19 0962/1157] rpmsg: qcom_smd: Fix refcount leak in qcom_smd_parse_edge
+Date:   Mon, 15 Aug 2022 20:05:18 +0200
+Message-Id: <20220815180518.131158560@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,70 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 8a2b456665d1e797123669581524cbb095fb003b ]
+[ Upstream commit 65382585f067d4256ba087934f30f85c9b6984de ]
 
-It is permissible for kernel code to call virt_to_phys() against virtual
-addresses that are in KSEG0 or KSEG1 and we need to be dealing with both
-types. Rewrite the test condition to ensure that the kernel virtual
-addresses are above PAGE_OFFSET which they must be, and below KSEG2
-where the non-linear mapping starts.
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
 
-For EVA, there is not much that we can do given the linear address range
-that is offered, so just return any virtual address as being valid.
-
-Finally, when HIGHMEM is not enabled, all virtual addresses are assumed
-to be valid as well.
-
-Fixes: dfad83cb7193 ("MIPS: Add support for CONFIG_DEBUG_VIRTUAL")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 53e2822e56c7 ("rpmsg: Introduce Qualcomm SMD backend")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220511120737.57374-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mm/physaddr.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ drivers/rpmsg/qcom_smd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/mm/physaddr.c b/arch/mips/mm/physaddr.c
-index a1ced5e44951..f9b8c85e9843 100644
---- a/arch/mips/mm/physaddr.c
-+++ b/arch/mips/mm/physaddr.c
-@@ -5,6 +5,7 @@
- #include <linux/mmdebug.h>
- #include <linux/mm.h>
+diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
+index 1957b27c4cf3..f7af53891ef9 100644
+--- a/drivers/rpmsg/qcom_smd.c
++++ b/drivers/rpmsg/qcom_smd.c
+@@ -1383,6 +1383,7 @@ static int qcom_smd_parse_edge(struct device *dev,
+ 		}
  
-+#include <asm/addrspace.h>
- #include <asm/sections.h>
- #include <asm/io.h>
- #include <asm/page.h>
-@@ -12,15 +13,6 @@
- 
- static inline bool __debug_virt_addr_valid(unsigned long x)
- {
--	/* high_memory does not get immediately defined, and there
--	 * are early callers of __pa() against PAGE_OFFSET
--	 */
--	if (!high_memory && x >= PAGE_OFFSET)
--		return true;
--
--	if (high_memory && x >= PAGE_OFFSET && x < (unsigned long)high_memory)
--		return true;
--
- 	/*
- 	 * MAX_DMA_ADDRESS is a virtual address that may not correspond to an
- 	 * actual physical address. Enough code relies on
-@@ -30,7 +22,9 @@ static inline bool __debug_virt_addr_valid(unsigned long x)
- 	if (x == MAX_DMA_ADDRESS)
- 		return true;
- 
--	return false;
-+	return x >= PAGE_OFFSET && (KSEGX(x) < KSEG2 ||
-+	       IS_ENABLED(CONFIG_EVA) ||
-+	       !IS_ENABLED(CONFIG_HIGHMEM));
- }
- 
- phys_addr_t __virt_to_phys(volatile const void *x)
+ 		edge->ipc_regmap = syscon_node_to_regmap(syscon_np);
++		of_node_put(syscon_np);
+ 		if (IS_ERR(edge->ipc_regmap)) {
+ 			ret = PTR_ERR(edge->ipc_regmap);
+ 			goto put_node;
 -- 
 2.35.1
 
