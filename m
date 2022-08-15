@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC4D593EF9
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE91C59402B
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243256AbiHOUwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:52:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49320 "EHLO
+        id S1346274AbiHOUwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:52:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347072AbiHOUv2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:51:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBF75BC12B;
-        Mon, 15 Aug 2022 12:10:13 -0700 (PDT)
+        with ESMTP id S1347327AbiHOUvw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:51:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CBCE5F9C;
+        Mon, 15 Aug 2022 12:10:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EDEE460693;
-        Mon, 15 Aug 2022 19:10:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00CA4C433D7;
-        Mon, 15 Aug 2022 19:10:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14B1D60BBF;
+        Mon, 15 Aug 2022 19:10:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02F91C433D6;
+        Mon, 15 Aug 2022 19:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590611;
-        bh=VBA4o0Mb7y8Az4iYRvFH18ZYSc8JyfxdBkwdZbQ+Q28=;
+        s=korg; t=1660590614;
+        bh=6xO0dtf62kZWzM4FlVGVCYWpoIe5YdSyyqKESUm66QE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qKDWCppXw/WjLlz5Uy+tXPVcpyxH3PYjfxaIQL+zZlhQrvmZ2ddNJyG0X/wUleBbd
-         YB9orDKWdsCemE8yUNPApIjsScCUeDGJ2k79Xx6NlVSFdnAl/XfFBm68MYsS2EQ3lv
-         aCbTbWpCjqIjKOb/SBKpE/utioMaoP0qUIbyNq1I=
+        b=GaYjfbmlaWs3zLHFqg5sNELk1/+CK9qEKX6TUK22cs42GODVy3dJCTDUlWki5zo5J
+         4jYL/H5J/z3ry639+5j2CL8uWtO6TadddxV3t4gvINlEFyXG407GCiZ9sfp1yfBaFE
+         n3+t3cNt1zhi/6pOXbtZ3XDRV4BdxVjRpRY9Y8Ik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunhao Tian <t123yh.xyz@gmail.com>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        stable@vger.kernel.org, Yuntao Wang <ytcoode@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0314/1095] drm/mipi-dbi: align max_chunk to 2 in spi_transfer
-Date:   Mon, 15 Aug 2022 19:55:13 +0200
-Message-Id: <20220815180442.789065395@linuxfoundation.org>
+Subject: [PATCH 5.18 0315/1095] selftests/bpf: Fix test_run logic in fexit_stress.c
+Date:   Mon, 15 Aug 2022 19:55:14 +0200
+Message-Id: <20220815180442.825390550@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,46 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunhao Tian <t123yh.xyz@gmail.com>
+From: Yuntao Wang <ytcoode@gmail.com>
 
-[ Upstream commit 435c249008cba04ed6a7975e9411f3b934620204 ]
+[ Upstream commit eb7b36ce47f830a01ad9405e673b563cc3638d5d ]
 
-In __spi_validate, there's a validation that no partial transfers
-are accepted (xfer->len % w_size must be zero). When
-max_chunk is not a multiple of bpw (e.g. max_chunk = 65535,
-bpw = 16), the transfer will be rejected.
+In the commit da00d2f117a0 ("bpf: Add test ops for BPF_PROG_TYPE_TRACING"),
+the bpf_fentry_test1 function was moved into bpf_prog_test_run_tracing(),
+which is the test_run function of the tracing BPF programs.
 
-This patch aligns max_chunk to 2 bytes (the maximum value of bpw is 16),
-so that no partial transfer will occur.
+Thus calling 'bpf_prog_test_run_opts(filter_fd, &topts)' will not trigger
+bpf_fentry_test1 function as filter_fd is a sk_filter BPF program.
 
-Fixes: d23d4d4dac01 ("drm/tinydrm: Move tinydrm_spi_transfer()")
+Fix it by replacing filter_fd with fexit_fd in the bpf_prog_test_run_opts()
+function.
 
-Signed-off-by: Yunhao Tian <t123yh.xyz@gmail.com>
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220510030219.2486687-1-t123yh.xyz@gmail.com
+Fixes: da00d2f117a0 ("bpf: Add test ops for BPF_PROG_TYPE_TRACING")
+Signed-off-by: Yuntao Wang <ytcoode@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220521151329.648013-1-ytcoode@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mipi_dbi.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ .../selftests/bpf/prog_tests/fexit_stress.c   | 32 +++----------------
+ 1 file changed, 4 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
-index 9314f2ead79f..09e4edb5a992 100644
---- a/drivers/gpu/drm/drm_mipi_dbi.c
-+++ b/drivers/gpu/drm/drm_mipi_dbi.c
-@@ -1199,6 +1199,13 @@ int mipi_dbi_spi_transfer(struct spi_device *spi, u32 speed_hz,
- 	size_t chunk;
- 	int ret;
+diff --git a/tools/testing/selftests/bpf/prog_tests/fexit_stress.c b/tools/testing/selftests/bpf/prog_tests/fexit_stress.c
+index 3ee2107bbf7a..58b03d1a70c8 100644
+--- a/tools/testing/selftests/bpf/prog_tests/fexit_stress.c
++++ b/tools/testing/selftests/bpf/prog_tests/fexit_stress.c
+@@ -7,11 +7,9 @@
  
-+	/* In __spi_validate, there's a validation that no partial transfers
-+	 * are accepted (xfer->len % w_size must be zero).
-+	 * Here we align max_chunk to multiple of 2 (16bits),
-+	 * to prevent transfers from being rejected.
-+	 */
-+	max_chunk = ALIGN_DOWN(max_chunk, 2);
-+
- 	spi_message_init_with_transfers(&m, &tr, 1);
+ void test_fexit_stress(void)
+ {
+-	char test_skb[128] = {};
+ 	int fexit_fd[CNT] = {};
+ 	int link_fd[CNT] = {};
+-	char error[4096];
+-	int err, i, filter_fd;
++	int err, i;
  
- 	while (len) {
+ 	const struct bpf_insn trace_program[] = {
+ 		BPF_MOV64_IMM(BPF_REG_0, 0),
+@@ -20,25 +18,9 @@ void test_fexit_stress(void)
+ 
+ 	LIBBPF_OPTS(bpf_prog_load_opts, trace_opts,
+ 		.expected_attach_type = BPF_TRACE_FEXIT,
+-		.log_buf = error,
+-		.log_size = sizeof(error),
+ 	);
+ 
+-	const struct bpf_insn skb_program[] = {
+-		BPF_MOV64_IMM(BPF_REG_0, 0),
+-		BPF_EXIT_INSN(),
+-	};
+-
+-	LIBBPF_OPTS(bpf_prog_load_opts, skb_opts,
+-		.log_buf = error,
+-		.log_size = sizeof(error),
+-	);
+-
+-	LIBBPF_OPTS(bpf_test_run_opts, topts,
+-		.data_in = test_skb,
+-		.data_size_in = sizeof(test_skb),
+-		.repeat = 1,
+-	);
++	LIBBPF_OPTS(bpf_test_run_opts, topts);
+ 
+ 	err = libbpf_find_vmlinux_btf_id("bpf_fentry_test1",
+ 					 trace_opts.expected_attach_type);
+@@ -58,15 +40,9 @@ void test_fexit_stress(void)
+ 			goto out;
+ 	}
+ 
+-	filter_fd = bpf_prog_load(BPF_PROG_TYPE_SOCKET_FILTER, NULL, "GPL",
+-				  skb_program, sizeof(skb_program) / sizeof(struct bpf_insn),
+-				  &skb_opts);
+-	if (!ASSERT_GE(filter_fd, 0, "test_program_loaded"))
+-		goto out;
++	err = bpf_prog_test_run_opts(fexit_fd[0], &topts);
++	ASSERT_OK(err, "bpf_prog_test_run_opts");
+ 
+-	err = bpf_prog_test_run_opts(filter_fd, &topts);
+-	close(filter_fd);
+-	CHECK_FAIL(err);
+ out:
+ 	for (i = 0; i < CNT; i++) {
+ 		if (link_fd[i])
 -- 
 2.35.1
 
