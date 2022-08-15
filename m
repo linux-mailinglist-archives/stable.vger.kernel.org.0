@@ -2,52 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DD36594631
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37410594525
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344785AbiHOVza (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:55:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45004 "EHLO
+        id S232306AbiHOV46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:56:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347320AbiHOVxi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:53:38 -0400
+        with ESMTP id S1346968AbiHOVyy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:54:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB1D5108943;
-        Mon, 15 Aug 2022 12:33:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55653108FB5;
+        Mon, 15 Aug 2022 12:33:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF07061187;
-        Mon, 15 Aug 2022 19:33:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8D58C433C1;
-        Mon, 15 Aug 2022 19:33:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 318E16114B;
+        Mon, 15 Aug 2022 19:33:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3715BC433C1;
+        Mon, 15 Aug 2022 19:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592008;
-        bh=+DOIPjxFBZsLKTl55bLl3qi9FtpzQIsy81DOa3gFw8U=;
+        s=korg; t=1660592014;
+        bh=jahaXvlamd6CWdDN+U8JYYu8gmqVURZdg6CocvUtzAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0hu6w8vwxmyVklc0zdkUb/PEQ3AbC3INK5A/kMpoBvPKZ23CHf6wfOEIUGT/nu7Ir
-         7kE6rrFuiL4BPXv9g8bPQtdAgLxM6HfzTNHZFQOXdP540j6bC1OjnEL/QeVeb18Rc2
-         t7Ywb9fA0GI2Nzh1szhQmNRrC/q3q/LvaacscGaY=
+        b=b//HfzCSyUmR1wZQA/j001g6X+/pwIk3oCTcgUSibpkTcNk7ymNhr1JB32EvC32sp
+         mpJBmbegNxbjhYhU0e9SEsIohPp6wrQwcGYmaxqzyUxgbBwaRTS1RD1+9i/4Azl9Bd
+         lSH2bO6r+JqdnPZm33J7cGN7W+DEnwAMB9UkIEcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        David Hildenbrand <david@redhat.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Lameter <cl@linux.com>,
-        David Howells <dhowells@redhat.com>,
-        Huang Ying <ying.huang@intel.com>,
-        kernel test robot <lkp@intel.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Peter Xu <peterx@redhat.com>,
+        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
+        Marco Elver <elver@google.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0717/1095] mm/migration: fix potential pte_unmap on an not mapped pte
-Date:   Mon, 15 Aug 2022 20:01:56 +0200
-Message-Id: <20220815180459.050073088@linuxfoundation.org>
+Subject: [PATCH 5.18 0718/1095] kasan: fix zeroing vmalloc memory with HW_TAGS
+Date:   Mon, 15 Aug 2022 20:01:57 +0200
+Message-Id: <20220815180459.099775057@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -65,127 +58,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Andrey Konovalov <andreyknvl@google.com>
 
-[ Upstream commit ad1ac596e8a8c4b06715dfbd89853eb73c9886b2 ]
+[ Upstream commit 6c2f761dad7851d8088b91063ccaea3c970efe78 ]
 
-__migration_entry_wait and migration_entry_wait_on_locked assume pte is
-always mapped from caller.  But this is not the case when it's called from
-migration_entry_wait_huge and follow_huge_pmd.  Add a hugetlbfs variant
-that calls hugetlb_migration_entry_wait(ptep == NULL) to fix this issue.
+HW_TAGS KASAN skips zeroing page_alloc allocations backing vmalloc
+mappings via __GFP_SKIP_ZERO.  Instead, these pages are zeroed via
+kasan_unpoison_vmalloc() by passing the KASAN_VMALLOC_INIT flag.
 
-Link: https://lkml.kernel.org/r/20220530113016.16663-5-linmiaohe@huawei.com
-Fixes: 30dad30922cc ("mm: migration: add migrate_entry_wait_huge()")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Suggested-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Huang Ying <ying.huang@intel.com>
-Cc: kernel test robot <lkp@intel.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Peter Xu <peterx@redhat.com>
+The problem is that __kasan_unpoison_vmalloc() does not zero pages when
+either kasan_vmalloc_enabled() or is_vmalloc_or_module_addr() fail.
+
+Thus:
+
+1. Change __vmalloc_node_range() to only set KASAN_VMALLOC_INIT when
+   __GFP_SKIP_ZERO is set.
+
+2. Change __kasan_unpoison_vmalloc() to always zero pages when the
+   KASAN_VMALLOC_INIT flag is set.
+
+3. Add WARN_ON() asserts to check that KASAN_VMALLOC_INIT cannot be set
+   in other early return paths of __kasan_unpoison_vmalloc().
+
+Also clean up the comment in __kasan_unpoison_vmalloc.
+
+Link: https://lkml.kernel.org/r/4bc503537efdc539ffc3f461c1b70162eea31cf6.1654798516.git.andreyknvl@google.com
+Fixes: 23689e91fb22 ("kasan, vmalloc: add vmalloc tagging for HW_TAGS")
+Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+Cc: Marco Elver <elver@google.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/swapops.h | 12 ++++++++----
- mm/hugetlb.c            |  4 ++--
- mm/migrate.c            | 23 +++++++++++++++++++----
- 3 files changed, 29 insertions(+), 10 deletions(-)
+ mm/kasan/hw_tags.c | 32 +++++++++++++++++++++++---------
+ mm/vmalloc.c       | 10 +++++-----
+ 2 files changed, 28 insertions(+), 14 deletions(-)
 
-diff --git a/include/linux/swapops.h b/include/linux/swapops.h
-index d356ab4047f7..f99f0bd85724 100644
---- a/include/linux/swapops.h
-+++ b/include/linux/swapops.h
-@@ -216,8 +216,10 @@ extern void __migration_entry_wait(struct mm_struct *mm, pte_t *ptep,
- 					spinlock_t *ptl);
- extern void migration_entry_wait(struct mm_struct *mm, pmd_t *pmd,
- 					unsigned long address);
--extern void migration_entry_wait_huge(struct vm_area_struct *vma,
--		struct mm_struct *mm, pte_t *pte);
-+#ifdef CONFIG_HUGETLB_PAGE
-+extern void __migration_entry_wait_huge(pte_t *ptep, spinlock_t *ptl);
-+extern void migration_entry_wait_huge(struct vm_area_struct *vma, pte_t *pte);
-+#endif
- #else
- static inline swp_entry_t make_readable_migration_entry(pgoff_t offset)
- {
-@@ -238,8 +240,10 @@ static inline void __migration_entry_wait(struct mm_struct *mm, pte_t *ptep,
- 					spinlock_t *ptl) { }
- static inline void migration_entry_wait(struct mm_struct *mm, pmd_t *pmd,
- 					 unsigned long address) { }
--static inline void migration_entry_wait_huge(struct vm_area_struct *vma,
--		struct mm_struct *mm, pte_t *pte) { }
-+#ifdef CONFIG_HUGETLB_PAGE
-+static inline void __migration_entry_wait_huge(pte_t *ptep, spinlock_t *ptl) { }
-+static inline void migration_entry_wait_huge(struct vm_area_struct *vma, pte_t *pte) { }
-+#endif
- static inline int is_writable_migration_entry(swp_entry_t entry)
- {
- 	return 0;
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 0090d7f98dee..19063dbed332 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5602,7 +5602,7 @@ vm_fault_t hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
- 		 */
- 		entry = huge_ptep_get(ptep);
- 		if (unlikely(is_hugetlb_entry_migration(entry))) {
--			migration_entry_wait_huge(vma, mm, ptep);
-+			migration_entry_wait_huge(vma, ptep);
- 			return 0;
- 		} else if (unlikely(is_hugetlb_entry_hwpoisoned(entry)))
- 			return VM_FAULT_HWPOISON_LARGE |
-@@ -6725,7 +6725,7 @@ follow_huge_pmd(struct mm_struct *mm, unsigned long address,
- 	} else {
- 		if (is_hugetlb_entry_migration(pte)) {
- 			spin_unlock(ptl);
--			__migration_entry_wait(mm, (pte_t *)pmd, ptl);
-+			__migration_entry_wait_huge((pte_t *)pmd, ptl);
- 			goto retry;
- 		}
- 		/*
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 796502d0eeb9..5aba3fb612d4 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -309,13 +309,28 @@ void migration_entry_wait(struct mm_struct *mm, pmd_t *pmd,
- 	__migration_entry_wait(mm, ptep, ptl);
+diff --git a/mm/kasan/hw_tags.c b/mm/kasan/hw_tags.c
+index 9e1b6544bfa8..9ad8eff71b28 100644
+--- a/mm/kasan/hw_tags.c
++++ b/mm/kasan/hw_tags.c
+@@ -257,27 +257,37 @@ static void unpoison_vmalloc_pages(const void *addr, u8 tag)
+ 	}
  }
  
--void migration_entry_wait_huge(struct vm_area_struct *vma,
--		struct mm_struct *mm, pte_t *pte)
-+#ifdef CONFIG_HUGETLB_PAGE
-+void __migration_entry_wait_huge(pte_t *ptep, spinlock_t *ptl)
- {
--	spinlock_t *ptl = huge_pte_lockptr(hstate_vma(vma), mm, pte);
--	__migration_entry_wait(mm, pte, ptl);
-+	pte_t pte;
-+
-+	spin_lock(ptl);
-+	pte = huge_ptep_get(ptep);
-+
-+	if (unlikely(!is_hugetlb_entry_migration(pte)))
-+		spin_unlock(ptl);
-+	else
-+		migration_entry_wait_on_locked(pte_to_swp_entry(pte), NULL, ptl);
- }
- 
-+void migration_entry_wait_huge(struct vm_area_struct *vma, pte_t *pte)
++static void init_vmalloc_pages(const void *start, unsigned long size)
 +{
-+	spinlock_t *ptl = huge_pte_lockptr(hstate_vma(vma), vma->vm_mm, pte);
++	const void *addr;
 +
-+	__migration_entry_wait_huge(pte, ptl);
++	for (addr = start; addr < start + size; addr += PAGE_SIZE) {
++		struct page *page = virt_to_page(addr);
++
++		clear_highpage_kasan_tagged(page);
++	}
 +}
-+#endif
 +
- #ifdef CONFIG_ARCH_ENABLE_THP_MIGRATION
- void pmd_migration_entry_wait(struct mm_struct *mm, pmd_t *pmd)
+ void *__kasan_unpoison_vmalloc(const void *start, unsigned long size,
+ 				kasan_vmalloc_flags_t flags)
  {
+ 	u8 tag;
+ 	unsigned long redzone_start, redzone_size;
+ 
+-	if (!kasan_vmalloc_enabled())
+-		return (void *)start;
+-
+-	if (!is_vmalloc_or_module_addr(start))
++	if (!kasan_vmalloc_enabled() || !is_vmalloc_or_module_addr(start)) {
++		if (flags & KASAN_VMALLOC_INIT)
++			init_vmalloc_pages(start, size);
+ 		return (void *)start;
++	}
+ 
+ 	/*
+-	 * Skip unpoisoning and assigning a pointer tag for non-VM_ALLOC
+-	 * mappings as:
++	 * Don't tag non-VM_ALLOC mappings, as:
+ 	 *
+ 	 * 1. Unlike the software KASAN modes, hardware tag-based KASAN only
+ 	 *    supports tagging physical memory. Therefore, it can only tag a
+ 	 *    single mapping of normal physical pages.
+ 	 * 2. Hardware tag-based KASAN can only tag memory mapped with special
+-	 *    mapping protection bits, see arch_vmalloc_pgprot_modify().
++	 *    mapping protection bits, see arch_vmap_pgprot_tagged().
+ 	 *    As non-VM_ALLOC mappings can be mapped outside of vmalloc code,
+ 	 *    providing these bits would require tracking all non-VM_ALLOC
+ 	 *    mappers.
+@@ -289,15 +299,19 @@ void *__kasan_unpoison_vmalloc(const void *start, unsigned long size,
+ 	 *
+ 	 * For non-VM_ALLOC allocations, page_alloc memory is tagged as usual.
+ 	 */
+-	if (!(flags & KASAN_VMALLOC_VM_ALLOC))
++	if (!(flags & KASAN_VMALLOC_VM_ALLOC)) {
++		WARN_ON(flags & KASAN_VMALLOC_INIT);
+ 		return (void *)start;
++	}
+ 
+ 	/*
+ 	 * Don't tag executable memory.
+ 	 * The kernel doesn't tolerate having the PC register tagged.
+ 	 */
+-	if (!(flags & KASAN_VMALLOC_PROT_NORMAL))
++	if (!(flags & KASAN_VMALLOC_PROT_NORMAL)) {
++		WARN_ON(flags & KASAN_VMALLOC_INIT);
+ 		return (void *)start;
++	}
+ 
+ 	tag = kasan_random_tag();
+ 	start = set_tag(start, tag);
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index cadfbb5155ea..06c555fc5be0 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -3170,15 +3170,15 @@ void *__vmalloc_node_range(unsigned long size, unsigned long align,
+ 
+ 	/*
+ 	 * Mark the pages as accessible, now that they are mapped.
+-	 * The init condition should match the one in post_alloc_hook()
+-	 * (except for the should_skip_init() check) to make sure that memory
+-	 * is initialized under the same conditions regardless of the enabled
+-	 * KASAN mode.
++	 * The condition for setting KASAN_VMALLOC_INIT should complement the
++	 * one in post_alloc_hook() with regards to the __GFP_SKIP_ZERO check
++	 * to make sure that memory is initialized under the same conditions.
+ 	 * Tag-based KASAN modes only assign tags to normal non-executable
+ 	 * allocations, see __kasan_unpoison_vmalloc().
+ 	 */
+ 	kasan_flags |= KASAN_VMALLOC_VM_ALLOC;
+-	if (!want_init_on_free() && want_init_on_alloc(gfp_mask))
++	if (!want_init_on_free() && want_init_on_alloc(gfp_mask) &&
++	    (gfp_mask & __GFP_SKIP_ZERO))
+ 		kasan_flags |= KASAN_VMALLOC_INIT;
+ 	/* KASAN_VMALLOC_PROT_NORMAL already set if required. */
+ 	area->addr = kasan_unpoison_vmalloc(area->addr, real_size, kasan_flags);
 -- 
 2.35.1
 
