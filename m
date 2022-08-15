@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6356595080
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61955595082
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231925AbiHPEmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:42:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39856 "EHLO
+        id S231945AbiHPEmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:42:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232533AbiHPElY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:41:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A6A0BE1B;
-        Mon, 15 Aug 2022 13:32:46 -0700 (PDT)
+        with ESMTP id S232607AbiHPEl2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:41:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BDDE15A1F;
+        Mon, 15 Aug 2022 13:32:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A89A61135;
-        Mon, 15 Aug 2022 20:32:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5467FC433D6;
-        Mon, 15 Aug 2022 20:32:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD21C6117D;
+        Mon, 15 Aug 2022 20:32:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1530C433C1;
+        Mon, 15 Aug 2022 20:32:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595564;
-        bh=iA3kgPdrYq8HZkBGT4PqxpGRtbzq58obzUta28Y1qg4=;
+        s=korg; t=1660595568;
+        bh=HB/vk8Qoz+XSTuiT2poyCefyOFs3Kp6xf++IUnlOm4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnPp15OHFgIuWAG2GMmcmoPNkBOEIUvJMkUO7xNe/soay5QcnlVEtNt6KWRlXdZ6b
-         NW92h+BSuBn7L6Biz37NXBfzJcKhDHCm2kBczesAR+7jktQH9gte4BxyeG1XRhvNxL
-         bozc4cjQoKjAVNg5yUbNcbq3qedVatlpe2hwHhfM=
+        b=XoFY2EAE7NTag8oHxA46boCYCAnwMXSQM8IiASHV4H5AdVdhHw7EMWh4BXMk+LLgw
+         VeLYFr1sDdqDd9ZBEN9/J3XNn82BZwTK/uZu9KXMQQ+Jt8MUPHeJB9GAcHjHu+J5SP
+         Sc1K3qsZkJpHmSJloirkxGIsI2ZpzgfcBtiNRyI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Benesh <scott.benesh@microchip.com>,
-        Scott Teel <scott.teel@microchip.com>,
-        Mike McGowen <mike.mcgowen@microchip.com>,
-        Kevin Barnett <kevin.barnett@microchip.com>,
-        Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>,
-        Don Brace <don.brace@microchip.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0805/1157] scsi: smartpqi: Fix DMA direction for RAID requests
-Date:   Mon, 15 Aug 2022 20:02:41 +0200
-Message-Id: <20220815180511.689130614@linuxfoundation.org>
+Subject: [PATCH 5.19 0806/1157] xtensa: iss/network: provide release() callback
+Date:   Mon, 15 Aug 2022 20:02:42 +0200
+Message-Id: <20220815180511.727657761@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -59,66 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-[ Upstream commit 69695aeaa6621bc49cdd7a8e5a8d1042461e496e ]
+[ Upstream commit 8864fb8359682912ee99235db7db916733a1fd7b ]
 
-Correct a SOP READ and WRITE DMA flags for some requests.
+Provide release() callback for the platform device embedded into struct
+iss_net_private and registered in the iss_net_configure so that
+platform_device_unregister could be called for it.
 
-This update corrects DMA direction issues with SCSI commands removed from
-the controller's internal lookup table.
-
-Currently, SCSI READ BLOCK LIMITS (0x5) was removed from the controller
-lookup table and exposed a DMA direction flag issue.
-
-SCSI READ BLOCK LIMITS was recently removed from our controller lookup
-table so the controller uses the respective IU flag field to set the DMA
-data direction. Since the DMA direction is incorrect the FW never completes
-the request causing a hang.
-
-Some SCSI commands which use SCSI READ BLOCK LIMITS
-
-      * sg_map
-      * mt -f /dev/stX status
-
-After updating controller firmware, users may notice their tape units
-failing. This patch resolves the issue.
-
-Also, the AIO path DMA direction is correct.
-
-The DMA direction flag is a day-one bug with no reported BZ.
-
-Fixes: 6c223761eb54 ("smartpqi: initial commit of Microsemi smartpqi driver")
-Link: https://lore.kernel.org/r/165730605618.177165.9054223644512926624.stgit@brunhilda
-Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
-Reviewed-by: Scott Teel <scott.teel@microchip.com>
-Reviewed-by: Mike McGowen <mike.mcgowen@microchip.com>
-Reviewed-by: Kevin Barnett <kevin.barnett@microchip.com>
-Signed-off-by: Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>
-Signed-off-by: Don Brace <don.brace@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/smartpqi/smartpqi_init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/xtensa/platforms/iss/network.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
-index 7c0d069a3158..e1fc6f5b9612 100644
---- a/drivers/scsi/smartpqi/smartpqi_init.c
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c
-@@ -5484,10 +5484,10 @@ static int pqi_raid_submit_scsi_cmd_with_io_request(
- 	}
+diff --git a/arch/xtensa/platforms/iss/network.c b/arch/xtensa/platforms/iss/network.c
+index fd84d4891758..f0c652c1b438 100644
+--- a/arch/xtensa/platforms/iss/network.c
++++ b/arch/xtensa/platforms/iss/network.c
+@@ -472,6 +472,15 @@ static const struct net_device_ops iss_netdev_ops = {
+ 	.ndo_set_rx_mode	= iss_net_set_multicast_list,
+ };
  
- 	switch (scmd->sc_data_direction) {
--	case DMA_TO_DEVICE:
-+	case DMA_FROM_DEVICE:
- 		request->data_direction = SOP_READ_FLAG;
- 		break;
--	case DMA_FROM_DEVICE:
-+	case DMA_TO_DEVICE:
- 		request->data_direction = SOP_WRITE_FLAG;
- 		break;
- 	case DMA_NONE:
++static void iss_net_pdev_release(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct iss_net_private *lp =
++		container_of(pdev, struct iss_net_private, pdev);
++
++	free_netdev(lp->dev);
++}
++
+ static int iss_net_configure(int index, char *init)
+ {
+ 	struct net_device *dev;
+@@ -527,6 +536,7 @@ static int iss_net_configure(int index, char *init)
+ 
+ 	lp->pdev.id = index;
+ 	lp->pdev.name = DRIVER_NAME;
++	lp->pdev.dev.release = iss_net_pdev_release;
+ 	platform_device_register(&lp->pdev);
+ 	SET_NETDEV_DEV(dev, &lp->pdev.dev);
+ 
 -- 
 2.35.1
 
