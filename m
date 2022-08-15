@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE91C59402B
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E52AC593F07
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346274AbiHOUwW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:52:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49838 "EHLO
+        id S1346401AbiHOUwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:52:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347327AbiHOUvw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:51:52 -0400
+        with ESMTP id S1347392AbiHOUvz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:51:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CBCE5F9C;
-        Mon, 15 Aug 2022 12:10:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC7C0B876;
+        Mon, 15 Aug 2022 12:10:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14B1D60BBF;
-        Mon, 15 Aug 2022 19:10:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02F91C433D6;
-        Mon, 15 Aug 2022 19:10:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6429860BB5;
+        Mon, 15 Aug 2022 19:10:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6923FC433D7;
+        Mon, 15 Aug 2022 19:10:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590614;
-        bh=6xO0dtf62kZWzM4FlVGVCYWpoIe5YdSyyqKESUm66QE=;
+        s=korg; t=1660590617;
+        bh=Y9GDYJGTUHPrxHBpY+wSUMwQDWvSENsK0Fje2HaRYaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GaYjfbmlaWs3zLHFqg5sNELk1/+CK9qEKX6TUK22cs42GODVy3dJCTDUlWki5zo5J
-         4jYL/H5J/z3ry639+5j2CL8uWtO6TadddxV3t4gvINlEFyXG407GCiZ9sfp1yfBaFE
-         n3+t3cNt1zhi/6pOXbtZ3XDRV4BdxVjRpRY9Y8Ik=
+        b=NXfm54cJaQqY14HEiSlzv9r+ve3uero0bFueBwjSElaDXjVaLyDkrImTgyi2oQVn1
+         zfABVPzve6ev4jk8IBVaI97mdkneWLRFiUhPdaGGve6iUZxBI0c5mC2OpG5lRqX67y
+         wu33AMkRnfk8yWq4u1p//YrbPNh/XX5ieESUwKNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuntao Wang <ytcoode@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0315/1095] selftests/bpf: Fix test_run logic in fexit_stress.c
-Date:   Mon, 15 Aug 2022 19:55:14 +0200
-Message-Id: <20220815180442.825390550@linuxfoundation.org>
+Subject: [PATCH 5.18 0316/1095] selftests/bpf: Fix tc_redirect_dtime
+Date:   Mon, 15 Aug 2022 19:55:15 +0200
+Message-Id: <20220815180442.863797763@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,91 +55,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuntao Wang <ytcoode@gmail.com>
+From: Martin KaFai Lau <kafai@fb.com>
 
-[ Upstream commit eb7b36ce47f830a01ad9405e673b563cc3638d5d ]
+[ Upstream commit e6ff92f41b65fce07365f1066fb13b5e42aca08d ]
 
-In the commit da00d2f117a0 ("bpf: Add test ops for BPF_PROG_TYPE_TRACING"),
-the bpf_fentry_test1 function was moved into bpf_prog_test_run_tracing(),
-which is the test_run function of the tracing BPF programs.
+tc_redirect_dtime was reported flaky from time to time.  It
+always fails at the udp test and complains about the bpf@tc-ingress
+got a skb->tstamp when handling udp packet.  It is unexpected
+because the skb->tstamp should have been cleared when crossing
+different netns.
 
-Thus calling 'bpf_prog_test_run_opts(filter_fd, &topts)' will not trigger
-bpf_fentry_test1 function as filter_fd is a sk_filter BPF program.
+The most likely cause is that the skb is actually a tcp packet
+from the earlier tcp test.  It could be the final TCP_FIN handling.
 
-Fix it by replacing filter_fd with fexit_fd in the bpf_prog_test_run_opts()
-function.
+This patch tightens the skb->tstamp check in the bpf prog.  It ensures
+the skb is the current testing traffic.  First, it checks that skb
+matches the IPPROTO of the running test (i.e. tcp vs udp).
+Second, it checks the server port (dst_ns_port).  The server
+port is unique for each test (50000 + test_enum).
 
-Fixes: da00d2f117a0 ("bpf: Add test ops for BPF_PROG_TYPE_TRACING")
-Signed-off-by: Yuntao Wang <ytcoode@gmail.com>
+Also fixed a typo in test_udp_dtime(): s/P100/P101/
+
+Fixes: c803475fd8dd ("bpf: selftests: test skb->tstamp in redirect_neigh")
+Reported-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Martin KaFai Lau <kafai@fb.com>
 Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220521151329.648013-1-ytcoode@gmail.com
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20220601234050.2572671-1-kafai@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/prog_tests/fexit_stress.c   | 32 +++----------------
- 1 file changed, 4 insertions(+), 28 deletions(-)
+ .../selftests/bpf/prog_tests/tc_redirect.c    |  8 +--
+ .../selftests/bpf/progs/test_tc_dtime.c       | 53 ++++++++++++++++++-
+ 2 files changed, 55 insertions(+), 6 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/fexit_stress.c b/tools/testing/selftests/bpf/prog_tests/fexit_stress.c
-index 3ee2107bbf7a..58b03d1a70c8 100644
---- a/tools/testing/selftests/bpf/prog_tests/fexit_stress.c
-+++ b/tools/testing/selftests/bpf/prog_tests/fexit_stress.c
-@@ -7,11 +7,9 @@
+diff --git a/tools/testing/selftests/bpf/prog_tests/tc_redirect.c b/tools/testing/selftests/bpf/prog_tests/tc_redirect.c
+index 7ad66a247c02..b2e415647bd7 100644
+--- a/tools/testing/selftests/bpf/prog_tests/tc_redirect.c
++++ b/tools/testing/selftests/bpf/prog_tests/tc_redirect.c
+@@ -646,7 +646,7 @@ static void test_tcp_clear_dtime(struct test_tc_dtime *skel)
+ 	__u32 *errs = skel->bss->errs[t];
  
- void test_fexit_stress(void)
+ 	skel->bss->test = t;
+-	test_inet_dtime(AF_INET6, SOCK_STREAM, IP6_DST, 0);
++	test_inet_dtime(AF_INET6, SOCK_STREAM, IP6_DST, 50000 + t);
+ 
+ 	ASSERT_EQ(dtimes[INGRESS_FWDNS_P100], 0,
+ 		  dtime_cnt_str(t, INGRESS_FWDNS_P100));
+@@ -683,7 +683,7 @@ static void test_tcp_dtime(struct test_tc_dtime *skel, int family, bool bpf_fwd)
+ 	errs = skel->bss->errs[t];
+ 
+ 	skel->bss->test = t;
+-	test_inet_dtime(family, SOCK_STREAM, addr, 0);
++	test_inet_dtime(family, SOCK_STREAM, addr, 50000 + t);
+ 
+ 	/* fwdns_prio100 prog does not read delivery_time_type, so
+ 	 * kernel puts the (rcv) timetamp in __sk_buff->tstamp
+@@ -715,13 +715,13 @@ static void test_udp_dtime(struct test_tc_dtime *skel, int family, bool bpf_fwd)
+ 	errs = skel->bss->errs[t];
+ 
+ 	skel->bss->test = t;
+-	test_inet_dtime(family, SOCK_DGRAM, addr, 0);
++	test_inet_dtime(family, SOCK_DGRAM, addr, 50000 + t);
+ 
+ 	ASSERT_EQ(dtimes[INGRESS_FWDNS_P100], 0,
+ 		  dtime_cnt_str(t, INGRESS_FWDNS_P100));
+ 	/* non mono delivery time is not forwarded */
+ 	ASSERT_EQ(dtimes[INGRESS_FWDNS_P101], 0,
+-		  dtime_cnt_str(t, INGRESS_FWDNS_P100));
++		  dtime_cnt_str(t, INGRESS_FWDNS_P101));
+ 	for (i = EGRESS_FWDNS_P100; i < SET_DTIME; i++)
+ 		ASSERT_GT(dtimes[i], 0, dtime_cnt_str(t, i));
+ 
+diff --git a/tools/testing/selftests/bpf/progs/test_tc_dtime.c b/tools/testing/selftests/bpf/progs/test_tc_dtime.c
+index 06f300d06dbd..b596479a9ebe 100644
+--- a/tools/testing/selftests/bpf/progs/test_tc_dtime.c
++++ b/tools/testing/selftests/bpf/progs/test_tc_dtime.c
+@@ -11,6 +11,8 @@
+ #include <linux/in.h>
+ #include <linux/ip.h>
+ #include <linux/ipv6.h>
++#include <linux/tcp.h>
++#include <linux/udp.h>
+ #include <bpf/bpf_helpers.h>
+ #include <bpf/bpf_endian.h>
+ #include <sys/socket.h>
+@@ -115,6 +117,19 @@ static bool bpf_fwd(void)
+ 	return test < TCP_IP4_RT_FWD;
+ }
+ 
++static __u8 get_proto(void)
++{
++	switch (test) {
++	case UDP_IP4:
++	case UDP_IP6:
++	case UDP_IP4_RT_FWD:
++	case UDP_IP6_RT_FWD:
++		return IPPROTO_UDP;
++	default:
++		return IPPROTO_TCP;
++	}
++}
++
+ /* -1: parse error: TC_ACT_SHOT
+  *  0: not testing traffic: TC_ACT_OK
+  * >0: first byte is the inet_proto, second byte has the netns
+@@ -122,11 +137,16 @@ static bool bpf_fwd(void)
+  */
+ static int skb_get_type(struct __sk_buff *skb)
  {
--	char test_skb[128] = {};
- 	int fexit_fd[CNT] = {};
- 	int link_fd[CNT] = {};
--	char error[4096];
--	int err, i, filter_fd;
-+	int err, i;
++	__u16 dst_ns_port = __bpf_htons(50000 + test);
+ 	void *data_end = ctx_ptr(skb->data_end);
+ 	void *data = ctx_ptr(skb->data);
+ 	__u8 inet_proto = 0, ns = 0;
+ 	struct ipv6hdr *ip6h;
++	__u16 sport, dport;
+ 	struct iphdr *iph;
++	struct tcphdr *th;
++	struct udphdr *uh;
++	void *trans;
  
- 	const struct bpf_insn trace_program[] = {
- 		BPF_MOV64_IMM(BPF_REG_0, 0),
-@@ -20,25 +18,9 @@ void test_fexit_stress(void)
- 
- 	LIBBPF_OPTS(bpf_prog_load_opts, trace_opts,
- 		.expected_attach_type = BPF_TRACE_FEXIT,
--		.log_buf = error,
--		.log_size = sizeof(error),
- 	);
- 
--	const struct bpf_insn skb_program[] = {
--		BPF_MOV64_IMM(BPF_REG_0, 0),
--		BPF_EXIT_INSN(),
--	};
--
--	LIBBPF_OPTS(bpf_prog_load_opts, skb_opts,
--		.log_buf = error,
--		.log_size = sizeof(error),
--	);
--
--	LIBBPF_OPTS(bpf_test_run_opts, topts,
--		.data_in = test_skb,
--		.data_size_in = sizeof(test_skb),
--		.repeat = 1,
--	);
-+	LIBBPF_OPTS(bpf_test_run_opts, topts);
- 
- 	err = libbpf_find_vmlinux_btf_id("bpf_fentry_test1",
- 					 trace_opts.expected_attach_type);
-@@ -58,15 +40,9 @@ void test_fexit_stress(void)
- 			goto out;
+ 	switch (skb->protocol) {
+ 	case __bpf_htons(ETH_P_IP):
+@@ -138,6 +158,7 @@ static int skb_get_type(struct __sk_buff *skb)
+ 		else if (iph->saddr == ip4_dst)
+ 			ns = DST_NS;
+ 		inet_proto = iph->protocol;
++		trans = iph + 1;
+ 		break;
+ 	case __bpf_htons(ETH_P_IPV6):
+ 		ip6h = data + sizeof(struct ethhdr);
+@@ -148,15 +169,43 @@ static int skb_get_type(struct __sk_buff *skb)
+ 		else if (v6_equal(ip6h->saddr, (struct in6_addr)ip6_dst))
+ 			ns = DST_NS;
+ 		inet_proto = ip6h->nexthdr;
++		trans = ip6h + 1;
+ 		break;
+ 	default:
+ 		return 0;
  	}
  
--	filter_fd = bpf_prog_load(BPF_PROG_TYPE_SOCKET_FILTER, NULL, "GPL",
--				  skb_program, sizeof(skb_program) / sizeof(struct bpf_insn),
--				  &skb_opts);
--	if (!ASSERT_GE(filter_fd, 0, "test_program_loaded"))
--		goto out;
-+	err = bpf_prog_test_run_opts(fexit_fd[0], &topts);
-+	ASSERT_OK(err, "bpf_prog_test_run_opts");
+-	if ((inet_proto != IPPROTO_TCP && inet_proto != IPPROTO_UDP) || !ns)
++	/* skb is not from src_ns or dst_ns.
++	 * skb is not the testing IPPROTO.
++	 */
++	if (!ns || inet_proto != get_proto())
+ 		return 0;
  
--	err = bpf_prog_test_run_opts(filter_fd, &topts);
--	close(filter_fd);
--	CHECK_FAIL(err);
- out:
- 	for (i = 0; i < CNT; i++) {
- 		if (link_fd[i])
+-	return (ns << 8 | inet_proto);
++	switch (inet_proto) {
++	case IPPROTO_TCP:
++		th = trans;
++		if (th + 1 > data_end)
++			return -1;
++		sport = th->source;
++		dport = th->dest;
++		break;
++	case IPPROTO_UDP:
++		uh = trans;
++		if (uh + 1 > data_end)
++			return -1;
++		sport = uh->source;
++		dport = uh->dest;
++		break;
++	default:
++		return 0;
++	}
++
++	/* The skb is the testing traffic */
++	if ((ns == SRC_NS && dport == dst_ns_port) ||
++	    (ns == DST_NS && sport == dst_ns_port))
++		return (ns << 8 | inet_proto);
++
++	return 0;
+ }
+ 
+ /* format: direction@iface@netns
 -- 
 2.35.1
 
