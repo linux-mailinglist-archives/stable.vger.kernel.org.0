@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B777594662
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47146594666
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352128AbiHOWzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:55:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36340 "EHLO
+        id S1352307AbiHOWzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:55:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352162AbiHOWxI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:53:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C14DA7F10C;
-        Mon, 15 Aug 2022 12:54:44 -0700 (PDT)
+        with ESMTP id S242683AbiHOWyB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:54:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4E3E7F11F;
+        Mon, 15 Aug 2022 12:54:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3FB42B81144;
-        Mon, 15 Aug 2022 19:54:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F727C433D7;
-        Mon, 15 Aug 2022 19:54:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D0FBC6113B;
+        Mon, 15 Aug 2022 19:54:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3EE8C433D6;
+        Mon, 15 Aug 2022 19:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593281;
-        bh=keQl0RqzTCXOjfuUaTm3QR3v50m15zFuKa0dQ4j6y1c=;
+        s=korg; t=1660593288;
+        bh=Zs8uX0XxC7l9T7Gv2eAAYMFzEiCbxZ8p6gV3+tEkSGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9j8aEMAR5LCQNrfKbKnfoxyq4Pr/HIs4z3RsrOY9R254XN24jgH0kwHarp95xnaJ
-         7pt3d3USjMx1e6TtU9cl7DYzrUX+rsDiFRPdHR9FVdnFT16M52a00Pt7jDdoVS5L6y
-         Jlc1xTW1Xm2PiNFXBLOIEk32c5yLPdlhVPERj9os=
+        b=iKALp9hg5EVCoM2ZcAv95swNMolNPw5TWVFQtVNSrT+kkK33kSYM+XzdJgyv80mpp
+         5rMkZ9qjBzXjJoBY3dzgQv9TeRM9tm60p8hillKeaAxpHJnKK4XjeVAAR9HywQ8Ev+
+         t+O+a/3QCFhmn6dQyYLfKo41Eij2Gnmj1CmZr/aI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Guo Mengqi <guomengqi3@huawei.com>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Sherry Sun <sherry.sun@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0922/1095] serial: 8250_bcm2835aux: Add missing clk_disable_unprepare()
-Date:   Mon, 15 Aug 2022 20:05:21 +0200
-Message-Id: <20220815180507.406769177@linuxfoundation.org>
+Subject: [PATCH 5.18 0923/1095] tty: serial: fsl_lpuart: correct the count of break characters
+Date:   Mon, 15 Aug 2022 20:05:22 +0200
+Message-Id: <20220815180507.445957567@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,52 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Mengqi <guomengqi3@huawei.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit b9f1736e475dba0d6da48fdcb831248ab1597886 ]
+[ Upstream commit 707f816f25590c20e056b3bd4a17ce69b03fe856 ]
 
-The error path when get clock frequency fails in bcm2835aux_serial
-driver does not correctly disable the clock.
+The LPUART can't distinguish between a break signal and a framing error,
+so need to count the break characters if there is a framing error and
+received data is zero instead of the parity error.
 
-This flaw was found using a static analysis tool "Hulk Robot", which
-reported the following warning when analyzing linux-next/master:
-
-    drivers/tty/serial/8250/8250_bcm2835aux.c:
-    warning: clk_disable_unprepare_missing.cocci
-
-The cocci script checks for the existence of clk_disable_unprepare()
-paired with clk_prepare_enable().
-
-Add the missing clk_disable_unprepare() to the error path.
-
-Fixes: fcc446c8aa63 ("serial: 8250_bcm2835aux: Add ACPI support")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Guo Mengqi <guomengqi3@huawei.com>
-Link: https://lore.kernel.org/r/20220715023312.37808-1-guomengqi3@huawei.com
+Fixes: 5541a9bacfe5 ("serial: fsl_lpuart: handle break and make sysrq work")
+Reviewed-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20220725050115.12396-1-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_bcm2835aux.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_bcm2835aux.c b/drivers/tty/serial/8250/8250_bcm2835aux.c
-index 2a1226a78a0c..21939bb44613 100644
---- a/drivers/tty/serial/8250/8250_bcm2835aux.c
-+++ b/drivers/tty/serial/8250/8250_bcm2835aux.c
-@@ -166,8 +166,10 @@ static int bcm2835aux_serial_probe(struct platform_device *pdev)
- 	uartclk = clk_get_rate(data->clk);
- 	if (!uartclk) {
- 		ret = device_property_read_u32(&pdev->dev, "clock-frequency", &uartclk);
--		if (ret)
--			return dev_err_probe(&pdev->dev, ret, "could not get clk rate\n");
-+		if (ret) {
-+			dev_err_probe(&pdev->dev, ret, "could not get clk rate\n");
-+			goto dis_clk;
-+		}
- 	}
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 2cb89491dd09..65b76adf107c 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -990,12 +990,12 @@ static void lpuart32_rxint(struct lpuart_port *sport)
  
- 	/* the HW-clock divider for bcm2835aux is 8,
+ 		if (sr & (UARTSTAT_PE | UARTSTAT_OR | UARTSTAT_FE)) {
+ 			if (sr & UARTSTAT_PE) {
++				sport->port.icount.parity++;
++			} else if (sr & UARTSTAT_FE) {
+ 				if (is_break)
+ 					sport->port.icount.brk++;
+ 				else
+-					sport->port.icount.parity++;
+-			} else if (sr & UARTSTAT_FE) {
+-				sport->port.icount.frame++;
++					sport->port.icount.frame++;
+ 			}
+ 
+ 			if (sr & UARTSTAT_OR)
+@@ -1010,12 +1010,12 @@ static void lpuart32_rxint(struct lpuart_port *sport)
+ 			sr &= sport->port.read_status_mask;
+ 
+ 			if (sr & UARTSTAT_PE) {
++				flg = TTY_PARITY;
++			} else if (sr & UARTSTAT_FE) {
+ 				if (is_break)
+ 					flg = TTY_BREAK;
+ 				else
+-					flg = TTY_PARITY;
+-			} else if (sr & UARTSTAT_FE) {
+-				flg = TTY_FRAME;
++					flg = TTY_FRAME;
+ 			}
+ 
+ 			if (sr & UARTSTAT_OR)
 -- 
 2.35.1
 
