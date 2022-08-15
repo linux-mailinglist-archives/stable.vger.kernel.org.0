@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 457D8594A2B
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:17:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C1E8594CB4
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345679AbiHOXI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:08:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57574 "EHLO
+        id S238973AbiHPAsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:48:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353231AbiHOXHa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:07:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64C82250;
-        Mon, 15 Aug 2022 12:59:31 -0700 (PDT)
+        with ESMTP id S1350293AbiHPAqx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:46:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63C68B6014;
+        Mon, 15 Aug 2022 13:45:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 600A7B80EB1;
-        Mon, 15 Aug 2022 19:59:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA4DC433C1;
-        Mon, 15 Aug 2022 19:59:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E4F9B80EAD;
+        Mon, 15 Aug 2022 20:45:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D412FC433D6;
+        Mon, 15 Aug 2022 20:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593568;
-        bh=/SbU5TgNUUjW574cJkQIC7C8/S1kgwxyehokC/ht1GA=;
+        s=korg; t=1660596330;
+        bh=Twa0gzM3qRhyKJMKgVlGB90hzGENGo3dT9+dADTAQRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xd6mCglr8NfET1J3hauQ7mqfVUpQpCvKScElygYo7xqFpBKqFlIUrJzKaMMy0Ou6c
-         7YTGXshh1Cc0qDPGeHHSQ7G7QxZZTct4BF5WwM8L/lgsmWkFzqHkC9Du00lyR6pjjq
-         3Aa7YAw9Lrn+ArBMyaO/rkgyFpmRm7bkvoYzrT14=
+        b=MVAxp/ELQyzvZy+OltJFhW0gKFSxGcivQqYjqMVVUCpxZka32EjSiY3asABrm2qS0
+         zwuAbcXW+Tzy8sJVRfFC842ou6cO1R56q5mlgdJrF3vj2gRWIpQOxAeKaM8VIR1A3B
+         AsRnZUQG82h+NKjp60WgTSr5gLD17kiLiIAHltvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.18 0969/1095] scsi: qla2xxx: Fix losing target when it reappears during delete
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 1012/1157] powerpc/cell/axon_msi: Fix refcount leak in setup_msi_msg_address
 Date:   Mon, 15 Aug 2022 20:06:08 +0200
-Message-Id: <20220815180509.144944018@linuxfoundation.org>
+Message-Id: <20220815180520.352489382@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 118b0c863c8f5629cc5271fc24d72d926e0715d9 upstream.
+[ Upstream commit df5d4b616ee76abc97e5bd348e22659c2b095b1c ]
 
-FC target disappeared during port perturbation tests due to a race that
-tramples target state.  Fix the issue by adding state checks before
-proceeding.
+of_get_next_parent() returns a node pointer with refcount incremented,
+we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() in the error path to avoid refcount leak.
 
-Link: https://lore.kernel.org/r/20220616053508.27186-8-njavali@marvell.com
-Fixes: 44c57f205876 ("scsi: qla2xxx: Changes to support FCP2 Target")
-Cc: stable@vger.kernel.org
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ce21b3c9648a ("[CELL] add support for MSI on Axon-based Cell systems")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220605065129.63906-1-linmq006@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_attr.c |   24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ arch/powerpc/platforms/cell/axon_msi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -2716,17 +2716,24 @@ qla2x00_dev_loss_tmo_callbk(struct fc_rp
- 	if (!fcport)
- 		return;
- 
--	/* Now that the rport has been deleted, set the fcport state to
--	   FCS_DEVICE_DEAD */
--	qla2x00_set_fcport_state(fcport, FCS_DEVICE_DEAD);
-+
-+	/*
-+	 * Now that the rport has been deleted, set the fcport state to
-+	 * FCS_DEVICE_DEAD, if the fcport is still lost.
-+	 */
-+	if (fcport->scan_state != QLA_FCPORT_FOUND)
-+		qla2x00_set_fcport_state(fcport, FCS_DEVICE_DEAD);
- 
- 	/*
- 	 * Transport has effectively 'deleted' the rport, clear
- 	 * all local references.
- 	 */
- 	spin_lock_irqsave(host->host_lock, flags);
--	fcport->rport = fcport->drport = NULL;
--	*((fc_port_t **)rport->dd_data) = NULL;
-+	/* Confirm port has not reappeared before clearing pointers. */
-+	if (rport->port_state != FC_PORTSTATE_ONLINE) {
-+		fcport->rport = fcport->drport = NULL;
-+		*((fc_port_t **)rport->dd_data) = NULL;
-+	}
- 	spin_unlock_irqrestore(host->host_lock, flags);
- 
- 	if (test_bit(ABORT_ISP_ACTIVE, &fcport->vha->dpc_flags))
-@@ -2759,9 +2766,12 @@ qla2x00_terminate_rport_io(struct fc_rpo
- 	/*
- 	 * At this point all fcport's software-states are cleared.  Perform any
- 	 * final cleanup of firmware resources (PCBs and XCBs).
-+	 *
-+	 * Attempt to cleanup only lost devices.
- 	 */
- 	if (fcport->loop_id != FC_NO_LOOP_ID) {
--		if (IS_FWI2_CAPABLE(fcport->vha->hw)) {
-+		if (IS_FWI2_CAPABLE(fcport->vha->hw) &&
-+		    fcport->scan_state != QLA_FCPORT_FOUND) {
- 			if (fcport->loop_id != FC_NO_LOOP_ID)
- 				fcport->logout_on_delete = 1;
- 
-@@ -2771,7 +2781,7 @@ qla2x00_terminate_rport_io(struct fc_rpo
- 				       __LINE__);
- 				qlt_schedule_sess_for_deletion(fcport);
- 			}
--		} else {
-+		} else if (!IS_FWI2_CAPABLE(fcport->vha->hw)) {
- 			qla2x00_port_logout(fcport->vha, fcport);
- 		}
+diff --git a/arch/powerpc/platforms/cell/axon_msi.c b/arch/powerpc/platforms/cell/axon_msi.c
+index f3291e957a19..5b012abca773 100644
+--- a/arch/powerpc/platforms/cell/axon_msi.c
++++ b/arch/powerpc/platforms/cell/axon_msi.c
+@@ -223,6 +223,7 @@ static int setup_msi_msg_address(struct pci_dev *dev, struct msi_msg *msg)
+ 	if (!prop) {
+ 		dev_dbg(&dev->dev,
+ 			"axon_msi: no msi-address-(32|64) properties found\n");
++		of_node_put(dn);
+ 		return -ENOENT;
  	}
+ 
+-- 
+2.35.1
+
 
 
