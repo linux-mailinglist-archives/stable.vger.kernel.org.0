@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0C2A5946CF
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3B0D5946D8
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242010AbiHOXCE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:02:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51402 "EHLO
+        id S1345353AbiHOXCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:02:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352847AbiHOXBQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:01:16 -0400
+        with ESMTP id S1352940AbiHOXBg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:01:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA473857F3;
-        Mon, 15 Aug 2022 12:57:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DD6313E9B0;
+        Mon, 15 Aug 2022 12:57:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB533B8114A;
-        Mon, 15 Aug 2022 19:57:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F539C433C1;
-        Mon, 15 Aug 2022 19:57:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2AF12B80EB1;
+        Mon, 15 Aug 2022 19:57:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C3F7C433D6;
+        Mon, 15 Aug 2022 19:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593468;
-        bh=fCYDI+F88UGUTrDjbcNz8uPK++EHHjAD50nTwpOJZGo=;
+        s=korg; t=1660593474;
+        bh=IKW68nveAglgeNnym+vgT6nzaVOyqVoVUfARrjdeb+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YsvtdqR+JtbGWywOsxNwOdDAQZ57ljPaTtf0PoFW4ZrUH17v3GgHy9r6fyUPeC6ZT
-         2k2EHKORV6vrD+ZG4++/QWPa9B87ouq57IjgcfJ4WhIQhSHZumtb8CPe2cwKEKnNS4
-         lVGj8RJKsTkvVJxBvEFgPnWtnjd9SCyejcikEPy4=
+        b=AaTDLN87IFzh/0VGUECDtHBkqxCvhITKJblqEoacybHtyTvXFXB44sdPUq56gk4LD
+         zK8Ei7wzH05pA3jPTS6lUh8U4IuDWxoVa8kg3CZFXi4HZc1f6ncVju5+pIlybmDkqj
+         rlnW+AJMPw528WNUJGbdbPzd/JnLkKDENRGRPZiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0272/1157] hwmon: (sch56xx-common) Add DMI override table
-Date:   Mon, 15 Aug 2022 19:53:48 +0200
-Message-Id: <20220815180450.494000788@linuxfoundation.org>
+Subject: [PATCH 5.19 0273/1157] hwmon: (drivetemp) Add module alias
+Date:   Mon, 15 Aug 2022 19:53:49 +0200
+Message-Id: <20220815180450.532689681@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,93 +54,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit fd2d53c367ae9983c2100ac733a834e0c79d7537 ]
+[ Upstream commit 5918036cfa8ded7aa8094db70295011ce2275447 ]
 
-Some devices like the Fujitsu Celsius W380 do contain
-a working sch56xx hardware monitoring device, but do
-not contain the necessary DMI onboard device.
+Adding a MODULE_ALIAS() to drivetemp will make the driver easier
+for modprobe to autoprobe.
 
-Do not check for the presence of an suitable onboard device
-on these machines. The list of affected machines was created
-using data collected by the Linux Hardware Project.
-
-Tested on a Fujitsu Esprimo P720, but sadly not on a affected
-machine.
-
-Fixes: 393935baa45e (hwmon: (sch56xx-common) Add automatic module loading on supported devices)
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220604220200.2567-1-W_Armin@gmx.de
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220712214624.1845158-1-linus.walleij@linaro.org
+Fixes: 5b46903d8bf3 ("hwmon: Driver for disk and solid state drives with temperature sensors")
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/sch56xx-common.c | 44 ++++++++++++++++++++++++++--------
- 1 file changed, 34 insertions(+), 10 deletions(-)
+ drivers/hwmon/drivetemp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hwmon/sch56xx-common.c b/drivers/hwmon/sch56xx-common.c
-index 3ece53adabd6..de3a0886c2f7 100644
---- a/drivers/hwmon/sch56xx-common.c
-+++ b/drivers/hwmon/sch56xx-common.c
-@@ -523,6 +523,28 @@ static int __init sch56xx_device_add(int address, const char *name)
- 	return PTR_ERR_OR_ZERO(sch56xx_pdev);
- }
- 
-+static const struct dmi_system_id sch56xx_dmi_override_table[] __initconst = {
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "CELSIUS W380"),
-+		},
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ESPRIMO P710"),
-+		},
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ESPRIMO E9900"),
-+		},
-+	},
-+	{ }
-+};
-+
- /* For autoloading only */
- static const struct dmi_system_id sch56xx_dmi_table[] __initconst = {
- 	{
-@@ -543,16 +565,18 @@ static int __init sch56xx_init(void)
- 		if (!dmi_check_system(sch56xx_dmi_table))
- 			return -ENODEV;
- 
--		/*
--		 * Some machines like the Esprimo P720 and Esprimo C700 have
--		 * onboard devices named " Antiope"/" Theseus" instead of
--		 * "Antiope"/"Theseus", so we need to check for both.
--		 */
--		if (!dmi_find_device(DMI_DEV_TYPE_OTHER, "Antiope", NULL) &&
--		    !dmi_find_device(DMI_DEV_TYPE_OTHER, " Antiope", NULL) &&
--		    !dmi_find_device(DMI_DEV_TYPE_OTHER, "Theseus", NULL) &&
--		    !dmi_find_device(DMI_DEV_TYPE_OTHER, " Theseus", NULL))
--			return -ENODEV;
-+		if (!dmi_check_system(sch56xx_dmi_override_table)) {
-+			/*
-+			 * Some machines like the Esprimo P720 and Esprimo C700 have
-+			 * onboard devices named " Antiope"/" Theseus" instead of
-+			 * "Antiope"/"Theseus", so we need to check for both.
-+			 */
-+			if (!dmi_find_device(DMI_DEV_TYPE_OTHER, "Antiope", NULL) &&
-+			    !dmi_find_device(DMI_DEV_TYPE_OTHER, " Antiope", NULL) &&
-+			    !dmi_find_device(DMI_DEV_TYPE_OTHER, "Theseus", NULL) &&
-+			    !dmi_find_device(DMI_DEV_TYPE_OTHER, " Theseus", NULL))
-+				return -ENODEV;
-+		}
- 	}
- 
- 	/*
+diff --git a/drivers/hwmon/drivetemp.c b/drivers/hwmon/drivetemp.c
+index 1eb37106a220..5bac2b0fc7bb 100644
+--- a/drivers/hwmon/drivetemp.c
++++ b/drivers/hwmon/drivetemp.c
+@@ -621,3 +621,4 @@ module_exit(drivetemp_exit);
+ MODULE_AUTHOR("Guenter Roeck <linus@roeck-us.net>");
+ MODULE_DESCRIPTION("Hard drive temperature monitor");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:drivetemp");
 -- 
 2.35.1
 
