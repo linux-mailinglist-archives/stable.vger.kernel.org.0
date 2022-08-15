@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A64A59413D
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 461AB593EED
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344801AbiHOUqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:46:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35734 "EHLO
+        id S233406AbiHOUqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:46:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344933AbiHOUpa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:45:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75C9BB5E7E;
-        Mon, 15 Aug 2022 12:08:17 -0700 (PDT)
+        with ESMTP id S1345694AbiHOUo3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:44:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D800EB6016;
+        Mon, 15 Aug 2022 12:08:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB3BDB81106;
-        Mon, 15 Aug 2022 19:08:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19853C433C1;
-        Mon, 15 Aug 2022 19:08:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B52386069F;
+        Mon, 15 Aug 2022 19:08:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DA92C4314C;
+        Mon, 15 Aug 2022 19:08:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590494;
-        bh=VgMoTdeM27KVRPXO4E7YPhY2Lw8hSEWmBEss6I8f9bw=;
+        s=korg; t=1660590498;
+        bh=rO6j8LMjktGpC8KRSmNNYA45x/kxmmEIE5Y/UjH+cug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zkuzDjsflpkzmchny+a8FdG8ff9zXnCAQzepkIsmDl8w16QQPWiD+h5QdTK5h9cjB
-         kByDvqVGOIGvRksUoFCbkcZJdZZL7kMAVd7UKlRihtb4cI7wEohig3ZLNH3y1RbBPP
-         Z+MPBraf3h+HcKfHrVIBizPyFXR7tAk1CUAmc+YY=
+        b=SlBUa6fT6v2913QBWofRH8bPIwWHT8a5uQjz8bTu4FGrlSZahFinn48wu00pkJ0bb
+         yL0UBOMyYdGb7m4qcmfr2ZeaQGerm4KooK81McJWy8eDmU64EBZHKWhAyyXggakp/i
+         KOUFLxKuBGUbaOKpJhit3iE9VTN4v0fby4Sx2ILM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0278/1095] dm writecache: count number of blocks discarded, not number of discard bios
-Date:   Mon, 15 Aug 2022 19:54:37 +0200
-Message-Id: <20220815180441.281543770@linuxfoundation.org>
+Subject: [PATCH 5.18 0279/1095] regulator: of: Fix refcount leak bug in of_get_regulation_constraints()
+Date:   Mon, 15 Aug 2022 19:54:38 +0200
+Message-Id: <20220815180441.317863224@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,50 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 2ee73ef60db4d79b9f9b8cd501e8188b5179449f ]
+[ Upstream commit 66efb665cd5ad69b27dca8571bf89fc6b9c628a4 ]
 
-Change dm-writecache, so that it counts the number of blocks discarded
-instead of the number of discard bios. Make it consistent with the
-read and write statistics counters that were changed to count the
-number of blocks instead of bios.
+We should call the of_node_put() for the reference returned by
+of_get_child_by_name() which has increased the refcount.
 
-Fixes: e3a35d03407c ("dm writecache: add event counters")
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Fixes: 40e20d68bb3f ("regulator: of: Add support for parsing regulator_state for suspend state")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220715111027.391032-1-windhl@126.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/device-mapper/writecache.rst | 2 +-
- drivers/md/dm-writecache.c                             | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/regulator/of_regulator.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/admin-guide/device-mapper/writecache.rst b/Documentation/admin-guide/device-mapper/writecache.rst
-index 6c9a2c74df8a..724e028d1858 100644
---- a/Documentation/admin-guide/device-mapper/writecache.rst
-+++ b/Documentation/admin-guide/device-mapper/writecache.rst
-@@ -87,7 +87,7 @@ Status:
- 11. the number of write blocks that are allocated in the cache
- 12. the number of write requests that are blocked on the freelist
- 13. the number of flush requests
--14. the number of discard requests
-+14. the number of discarded blocks
+diff --git a/drivers/regulator/of_regulator.c b/drivers/regulator/of_regulator.c
+index f54d4f176882..e12b681c72e5 100644
+--- a/drivers/regulator/of_regulator.c
++++ b/drivers/regulator/of_regulator.c
+@@ -264,8 +264,12 @@ static int of_get_regulation_constraints(struct device *dev,
+ 		}
  
- Messages:
- 	flush
-diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
-index 98df6327990a..e5acb393f70b 100644
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -1513,7 +1513,7 @@ static enum wc_map_op writecache_map_flush(struct dm_writecache *wc, struct bio
+ 		suspend_np = of_get_child_by_name(np, regulator_states[i]);
+-		if (!suspend_np || !suspend_state)
++		if (!suspend_np)
+ 			continue;
++		if (!suspend_state) {
++			of_node_put(suspend_np);
++			continue;
++		}
  
- static enum wc_map_op writecache_map_discard(struct dm_writecache *wc, struct bio *bio)
- {
--	wc->stats.discards++;
-+	wc->stats.discards += bio->bi_iter.bi_size >> wc->block_size_bits;
- 
- 	if (writecache_has_error(wc))
- 		return WC_MAP_ERROR;
+ 		if (!of_property_read_u32(suspend_np, "regulator-mode",
+ 					  &pval)) {
 -- 
 2.35.1
 
