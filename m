@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC649594FCA
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:33:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB41594FD0
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:33:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230053AbiHPEcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:32:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51418 "EHLO
+        id S229725AbiHPEdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:33:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229540AbiHPEcP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:32:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AFFD98A6A;
-        Mon, 15 Aug 2022 13:22:29 -0700 (PDT)
+        with ESMTP id S230155AbiHPEc3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:32:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50B3798D0E;
+        Mon, 15 Aug 2022 13:22:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2ACFB80EAD;
-        Mon, 15 Aug 2022 20:22:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27F12C433D6;
-        Mon, 15 Aug 2022 20:22:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BB8360F60;
+        Mon, 15 Aug 2022 20:22:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E64FC433B5;
+        Mon, 15 Aug 2022 20:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594946;
-        bh=oJPBOZbTLqjwAY3V+cE4v4X+ZSxA2feGqqazogwrNxU=;
+        s=korg; t=1660594949;
+        bh=CLb2CRwmF9oXdd5E1XXg3gFkEkQLgB9jbgr+dMD0jfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=leAa17qKQUrkwkNQArn0EabSoMeWzaqE92i9mwfpXK1Sl80kOUSwfiq1EXeotEX+s
-         KwI7StOLo+W9jFjwULYcyIzHhEuyKbsqWDicJlztqv/o7mq2lMHLvLpvQLafItYJU/
-         Gt3m6HcoBLAS2S2syrX5QUuX5JJ5M90XNdTVgzGo=
+        b=xBXx1JFA8a/crXfCzIpgqX73FDPgs7hIUB1jy/9/qNFqSoiUxdBra0cBz5W842ZKO
+         QGSoAqnBvUnluz0U7CBWMX0gstpLMQd8i3Vmt2ukqBvMHVCQ9WItBsUQi4NuLIAZpc
+         OcaZwkelfI0Mp8OiOqf8GUQDiJay6R1TqiZbUVic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Li <Frank.Li@nxp.com>,
+        stable@vger.kernel.org,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0608/1157] usb: cdns3: fix random warning message when driver load
-Date:   Mon, 15 Aug 2022 19:59:24 +0200
-Message-Id: <20220815180503.984655166@linuxfoundation.org>
+Subject: [PATCH 5.19 0609/1157] usb: gadget: uvc: Fix comment blocks style
+Date:   Mon, 15 Aug 2022 19:59:25 +0200
+Message-Id: <20220815180504.016302518@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -53,65 +55,204 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Li <Frank.Li@nxp.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 8659ab3d936fcf0084676f98b75b317017aa8f82 ]
+[ Upstream commit c5d337a358b3e41bb4f7abd99a79b68a28eafaa2 ]
 
-Warning log:
-[    4.141392] Unexpected gfp: 0x4 (GFP_DMA32). Fixing up to gfp: 0xa20 (GFP_ATOMIC). Fix your code!
-[    4.150340] CPU: 1 PID: 175 Comm: 1-0050 Not tainted 5.15.5-00039-g2fd9ae1b568c #20
-[    4.158010] Hardware name: Freescale i.MX8QXP MEK (DT)
-[    4.163155] Call trace:
-[    4.165600]  dump_backtrace+0x0/0x1b0
-[    4.169286]  show_stack+0x18/0x68
-[    4.172611]  dump_stack_lvl+0x68/0x84
-[    4.176286]  dump_stack+0x18/0x34
-[    4.179613]  kmalloc_fix_flags+0x60/0x88
-[    4.183550]  new_slab+0x334/0x370
-[    4.186878]  ___slab_alloc.part.108+0x4d4/0x748
-[    4.191419]  __slab_alloc.isra.109+0x30/0x78
-[    4.195702]  kmem_cache_alloc+0x40c/0x420
-[    4.199725]  dma_pool_alloc+0xac/0x1f8
-[    4.203486]  cdns3_allocate_trb_pool+0xb4/0xd0
+The UVC gadget driver historically uses the
 
-pool_alloc_page(struct dma_pool *pool, gfp_t mem_flags)
-{
-	...
-	page = kmalloc(sizeof(*page), mem_flags);
-	page->vaddr = dma_alloc_coherent(pool->dev, pool->allocation,
-					 &page->dma, mem_flags);
-	...
-}
+/* Comment
+ * style
+ */
 
-kmalloc was called with mem_flags, which is passed down in
-cdns3_allocate_trb_pool() and have GFP_DMA32 flags.
-kmall_fix_flags() report warning.
+for multi-line block comments, which is frowned upon. Patches for the
+driver are required to use the more standard
 
-GFP_DMA32 is not useful at all. dma_alloc_coherent() will handle
-DMA memory region correctly by pool->dev. GFP_DMA32 can be removed
-safely.
+/*
+ * Comment
+ * style
+ */
 
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Link: https://lore.kernel.org/r/20220609154456.2871672-1-Frank.Li@nxp.com
+style. This result in inconsistencies. Fix it by converting all
+remaining instances of the old style.
+
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/20220608174918.14656-1-laurent.pinchart@ideasonboard.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/cdns3/cdns3-gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_uvc.c     | 30 ++++++++++++++++---------
+ drivers/usb/gadget/function/uvc_queue.c |  6 +++--
+ drivers/usb/gadget/function/uvc_video.c | 12 ++++++----
+ 3 files changed, 31 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/usb/cdns3/cdns3-gadget.c b/drivers/usb/cdns3/cdns3-gadget.c
-index 5c15c48952a6..f5f5fbbefec0 100644
---- a/drivers/usb/cdns3/cdns3-gadget.c
-+++ b/drivers/usb/cdns3/cdns3-gadget.c
-@@ -220,7 +220,7 @@ int cdns3_allocate_trb_pool(struct cdns3_endpoint *priv_ep)
+diff --git a/drivers/usb/gadget/function/f_uvc.c b/drivers/usb/gadget/function/f_uvc.c
+index d3feeeb50841..71669e0e4d00 100644
+--- a/drivers/usb/gadget/function/f_uvc.c
++++ b/drivers/usb/gadget/function/f_uvc.c
+@@ -141,7 +141,8 @@ static struct usb_endpoint_descriptor uvc_fs_streaming_ep = {
+ 	.bEndpointAddress	= USB_DIR_IN,
+ 	.bmAttributes		= USB_ENDPOINT_SYNC_ASYNC
+ 				| USB_ENDPOINT_XFER_ISOC,
+-	/* The wMaxPacketSize and bInterval values will be initialized from
++	/*
++	 * The wMaxPacketSize and bInterval values will be initialized from
+ 	 * module parameters.
+ 	 */
+ };
+@@ -152,7 +153,8 @@ static struct usb_endpoint_descriptor uvc_hs_streaming_ep = {
+ 	.bEndpointAddress	= USB_DIR_IN,
+ 	.bmAttributes		= USB_ENDPOINT_SYNC_ASYNC
+ 				| USB_ENDPOINT_XFER_ISOC,
+-	/* The wMaxPacketSize and bInterval values will be initialized from
++	/*
++	 * The wMaxPacketSize and bInterval values will be initialized from
+ 	 * module parameters.
+ 	 */
+ };
+@@ -164,7 +166,8 @@ static struct usb_endpoint_descriptor uvc_ss_streaming_ep = {
+ 	.bEndpointAddress	= USB_DIR_IN,
+ 	.bmAttributes		= USB_ENDPOINT_SYNC_ASYNC
+ 				| USB_ENDPOINT_XFER_ISOC,
+-	/* The wMaxPacketSize and bInterval values will be initialized from
++	/*
++	 * The wMaxPacketSize and bInterval values will be initialized from
+ 	 * module parameters.
+ 	 */
+ };
+@@ -172,7 +175,8 @@ static struct usb_endpoint_descriptor uvc_ss_streaming_ep = {
+ static struct usb_ss_ep_comp_descriptor uvc_ss_streaming_comp = {
+ 	.bLength		= sizeof(uvc_ss_streaming_comp),
+ 	.bDescriptorType	= USB_DT_SS_ENDPOINT_COMP,
+-	/* The bMaxBurst, bmAttributes and wBytesPerInterval values will be
++	/*
++	 * The bMaxBurst, bmAttributes and wBytesPerInterval values will be
+ 	 * initialized from module parameters.
+ 	 */
+ };
+@@ -234,7 +238,8 @@ uvc_function_setup(struct usb_function *f, const struct usb_ctrlrequest *ctrl)
+ 	if (le16_to_cpu(ctrl->wLength) > UVC_MAX_REQUEST_SIZE)
+ 		return -EINVAL;
  
- 	if (!priv_ep->trb_pool) {
- 		priv_ep->trb_pool = dma_pool_alloc(priv_dev->eps_dma_pool,
--						   GFP_DMA32 | GFP_ATOMIC,
-+						   GFP_ATOMIC,
- 						   &priv_ep->trb_pool_dma);
+-	/* Tell the complete callback to generate an event for the next request
++	/*
++	 * Tell the complete callback to generate an event for the next request
+ 	 * that will be enqueued by UVCIOC_SEND_RESPONSE.
+ 	 */
+ 	uvc->event_setup_out = !(ctrl->bRequestType & USB_DIR_IN);
+@@ -500,7 +505,8 @@ uvc_copy_descriptors(struct uvc_device *uvc, enum usb_device_speed speed)
+ 	if (!uvc_control_desc || !uvc_streaming_cls)
+ 		return ERR_PTR(-ENODEV);
  
- 		if (!priv_ep->trb_pool)
+-	/* Descriptors layout
++	/*
++	 * Descriptors layout
+ 	 *
+ 	 * uvc_iad
+ 	 * uvc_control_intf
+@@ -597,8 +603,7 @@ uvc_function_bind(struct usb_configuration *c, struct usb_function *f)
+ 	uvcg_info(f, "%s()\n", __func__);
+ 
+ 	opts = fi_to_f_uvc_opts(f->fi);
+-	/* Sanity check the streaming endpoint module parameters.
+-	 */
++	/* Sanity check the streaming endpoint module parameters. */
+ 	opts->streaming_interval = clamp(opts->streaming_interval, 1U, 16U);
+ 	opts->streaming_maxpacket = clamp(opts->streaming_maxpacket, 1U, 3072U);
+ 	opts->streaming_maxburst = min(opts->streaming_maxburst, 15U);
+@@ -611,7 +616,8 @@ uvc_function_bind(struct usb_configuration *c, struct usb_function *f)
+ 			  opts->streaming_maxpacket);
+ 	}
+ 
+-	/* Fill in the FS/HS/SS Video Streaming specific descriptors from the
++	/*
++	 * Fill in the FS/HS/SS Video Streaming specific descriptors from the
+ 	 * module parameters.
+ 	 *
+ 	 * NOTE: We assume that the user knows what they are doing and won't
+@@ -895,7 +901,8 @@ static void uvc_function_unbind(struct usb_configuration *c,
+ 
+ 	uvcg_info(f, "%s()\n", __func__);
+ 
+-	/* If we know we're connected via v4l2, then there should be a cleanup
++	/*
++	 * If we know we're connected via v4l2, then there should be a cleanup
+ 	 * of the device from userspace either via UVC_EVENT_DISCONNECT or
+ 	 * though the video device removal uevent. Allow some time for the
+ 	 * application to close out before things get deleted.
+@@ -912,7 +919,8 @@ static void uvc_function_unbind(struct usb_configuration *c,
+ 	v4l2_device_unregister(&uvc->v4l2_dev);
+ 
+ 	if (uvc->func_connected) {
+-		/* Wait for the release to occur to ensure there are no longer any
++		/*
++		 * Wait for the release to occur to ensure there are no longer any
+ 		 * pending operations that may cause panics when resources are cleaned
+ 		 * up.
+ 		 */
+diff --git a/drivers/usb/gadget/function/uvc_queue.c b/drivers/usb/gadget/function/uvc_queue.c
+index d25edc3d2174..951934aa4454 100644
+--- a/drivers/usb/gadget/function/uvc_queue.c
++++ b/drivers/usb/gadget/function/uvc_queue.c
+@@ -104,7 +104,8 @@ static void uvc_buffer_queue(struct vb2_buffer *vb)
+ 	if (likely(!(queue->flags & UVC_QUEUE_DISCONNECTED))) {
+ 		list_add_tail(&buf->queue, &queue->irqqueue);
+ 	} else {
+-		/* If the device is disconnected return the buffer to userspace
++		/*
++		 * If the device is disconnected return the buffer to userspace
+ 		 * directly. The next QBUF call will fail with -ENODEV.
+ 		 */
+ 		buf->state = UVC_BUF_STATE_ERROR;
+@@ -255,7 +256,8 @@ void uvcg_queue_cancel(struct uvc_video_queue *queue, int disconnect)
+ 	}
+ 	queue->buf_used = 0;
+ 
+-	/* This must be protected by the irqlock spinlock to avoid race
++	/*
++	 * This must be protected by the irqlock spinlock to avoid race
+ 	 * conditions between uvc_queue_buffer and the disconnection event that
+ 	 * could result in an interruptible wait in uvc_dequeue_buffer. Do not
+ 	 * blindly replace this logic by checking for the UVC_DEV_DISCONNECTED
+diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
+index d42bb3346745..ce421d9cc241 100644
+--- a/drivers/usb/gadget/function/uvc_video.c
++++ b/drivers/usb/gadget/function/uvc_video.c
+@@ -378,7 +378,8 @@ static void uvcg_video_pump(struct work_struct *work)
+ 	int ret;
+ 
+ 	while (video->ep->enabled) {
+-		/* Retrieve the first available USB request, protected by the
++		/*
++		 * Retrieve the first available USB request, protected by the
+ 		 * request lock.
+ 		 */
+ 		spin_lock_irqsave(&video->req_lock, flags);
+@@ -391,7 +392,8 @@ static void uvcg_video_pump(struct work_struct *work)
+ 		list_del(&req->list);
+ 		spin_unlock_irqrestore(&video->req_lock, flags);
+ 
+-		/* Retrieve the first available video buffer and fill the
++		/*
++		 * Retrieve the first available video buffer and fill the
+ 		 * request, protected by the video queue irqlock.
+ 		 */
+ 		spin_lock_irqsave(&queue->irqlock, flags);
+@@ -403,9 +405,11 @@ static void uvcg_video_pump(struct work_struct *work)
+ 
+ 		video->encode(req, video, buf);
+ 
+-		/* With usb3 we have more requests. This will decrease the
++		/*
++		 * With usb3 we have more requests. This will decrease the
+ 		 * interrupt load to a quarter but also catches the corner
+-		 * cases, which needs to be handled */
++		 * cases, which needs to be handled.
++		 */
+ 		if (list_empty(&video->req_free) ||
+ 		    buf->state == UVC_BUF_STATE_DONE ||
+ 		    !(video->req_int_count %
 -- 
 2.35.1
 
