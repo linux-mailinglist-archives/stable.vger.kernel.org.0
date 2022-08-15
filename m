@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3917C594987
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:14:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C3F7594A13
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:17:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244274AbiHOXcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:32:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43532 "EHLO
+        id S245140AbiHOXci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:32:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353520AbiHOX2T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:28:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658A714ECA3;
-        Mon, 15 Aug 2022 13:07:49 -0700 (PDT)
+        with ESMTP id S245013AbiHOX3H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:29:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16A60BB908;
+        Mon, 15 Aug 2022 13:07:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BD3B60B69;
-        Mon, 15 Aug 2022 20:07:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EFEFC433D6;
-        Mon, 15 Aug 2022 20:07:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD16AB81142;
+        Mon, 15 Aug 2022 20:07:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A91FC433D6;
+        Mon, 15 Aug 2022 20:07:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594068;
-        bh=Ycp0s2Glg8mhvTj7X08fjKGg5VeHENMBJ1BiPadpejc=;
+        s=korg; t=1660594074;
+        bh=PubY1hmrGCf0b7CV+WmrD1xQ9cFgoAo/s7Yj5UkVxNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1ZsTV26xlaci6EevSOFWAn5Ny/oRo5vfCF6c5UzPXn8I37x4BYvIXvEhO1ZI5S4F
-         6aQMZ0AbZwYrE/MgpB1MUo9AfGeUN0DpwIih/RCLNLFyPCeHE50UviiWfy+VHclBzW
-         UHNo6EHeLMv5gmT/LajrUa+FN0vrHb8uEq31is1o=
+        b=margB09aOgF1l4NRzrTpPWFqnGcSUaJDufbfn1A4/D1sfuLIPj6TMC1C79tC4pFBD
+         7IIsWXCzYyZ2Z24tDmy6SZ5bs6fTbTI78ev8XWMR0sIpGkfZ0BRIMlj0cVkTYmfjCi
+         uAEltIyYGt1mh+ndTu+L3cvc7wK2FqodP/GXiC00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
+        stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
+        Hyunchul Lee <hyc.lee@gmail.com>,
         Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1050/1095] ksmbd: smbd: introduce read/write credits for RDMA read/write
-Date:   Mon, 15 Aug 2022 20:07:29 +0200
-Message-Id: <20220815180512.513026047@linuxfoundation.org>
+Subject: [PATCH 5.18 1051/1095] ksmbd: add smbd max io size parameter
+Date:   Mon, 15 Aug 2022 20:07:30 +0200
+Message-Id: <20220815180512.555659116@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,292 +55,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunchul Lee <hyc.lee@gmail.com>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-[ Upstream commit ddbdc861e37c168cf2fb8a7b7477f5d18b4daf76 ]
+[ Upstream commit 65bb45b97b578c8eed1ffa80caec84708df49729 ]
 
-SMB2_READ/SMB2_WRITE request has to be granted the number
-of rw credits, the pages the request wants to transfer
-/ the maximum pages which can be registered with one
-MR to read and write a file.
-And allocate enough RDMA resources for the maximum
-number of rw credits allowed by ksmbd.
+Add 'smbd max io size' parameter to adjust smbd-direct max read/write
+size.
 
-Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/transport_rdma.c | 120 ++++++++++++++++++++++----------------
- 1 file changed, 71 insertions(+), 49 deletions(-)
+ fs/ksmbd/ksmbd_netlink.h  | 3 ++-
+ fs/ksmbd/transport_ipc.c  | 3 +++
+ fs/ksmbd/transport_rdma.c | 8 +++++++-
+ fs/ksmbd/transport_rdma.h | 6 ++++++
+ 4 files changed, 18 insertions(+), 2 deletions(-)
 
+diff --git a/fs/ksmbd/ksmbd_netlink.h b/fs/ksmbd/ksmbd_netlink.h
+index ebe6ca08467a..52aa0adeb951 100644
+--- a/fs/ksmbd/ksmbd_netlink.h
++++ b/fs/ksmbd/ksmbd_netlink.h
+@@ -104,7 +104,8 @@ struct ksmbd_startup_request {
+ 					 */
+ 	__u32	sub_auth[3];		/* Subauth value for Security ID */
+ 	__u32	smb2_max_credits;	/* MAX credits */
+-	__u32	reserved[128];		/* Reserved room */
++	__u32	smbd_max_io_size;	/* smbd read write size */
++	__u32	reserved[127];		/* Reserved room */
+ 	__u32	ifc_list_sz;		/* interfaces list size */
+ 	__s8	____payload[];
+ };
+diff --git a/fs/ksmbd/transport_ipc.c b/fs/ksmbd/transport_ipc.c
+index 3ad6881e0f7e..7cb0eeb07c80 100644
+--- a/fs/ksmbd/transport_ipc.c
++++ b/fs/ksmbd/transport_ipc.c
+@@ -26,6 +26,7 @@
+ #include "mgmt/ksmbd_ida.h"
+ #include "connection.h"
+ #include "transport_tcp.h"
++#include "transport_rdma.h"
+ 
+ #define IPC_WAIT_TIMEOUT	(2 * HZ)
+ 
+@@ -303,6 +304,8 @@ static int ipc_server_config_on_startup(struct ksmbd_startup_request *req)
+ 		init_smb2_max_trans_size(req->smb2_max_trans);
+ 	if (req->smb2_max_credits)
+ 		init_smb2_max_credits(req->smb2_max_credits);
++	if (req->smbd_max_io_size)
++		init_smbd_max_io_size(req->smbd_max_io_size);
+ 
+ 	ret = ksmbd_set_netbios_name(req->netbios_name);
+ 	ret |= ksmbd_set_server_string(req->server_string);
 diff --git a/fs/ksmbd/transport_rdma.c b/fs/ksmbd/transport_rdma.c
-index 479d279ee146..b44a5e584bac 100644
+index b44a5e584bac..afc66b9765e7 100644
 --- a/fs/ksmbd/transport_rdma.c
 +++ b/fs/ksmbd/transport_rdma.c
-@@ -80,9 +80,7 @@ static int smb_direct_max_fragmented_recv_size = 1024 * 1024;
+@@ -80,7 +80,7 @@ static int smb_direct_max_fragmented_recv_size = 1024 * 1024;
  /*  The maximum single-message size which can be received */
  static int smb_direct_max_receive_size = 8192;
  
--static int smb_direct_max_read_write_size = 524224;
--
--static int smb_direct_max_outstanding_rw_ops = 8;
-+static int smb_direct_max_read_write_size = 8 * 1024 * 1024;
+-static int smb_direct_max_read_write_size = 8 * 1024 * 1024;
++static int smb_direct_max_read_write_size = SMBD_DEFAULT_IOSIZE;
  
  static LIST_HEAD(smb_direct_device_list);
  static DEFINE_RWLOCK(smb_direct_device_lock);
-@@ -147,10 +145,12 @@ struct smb_direct_transport {
- 	atomic_t		send_credits;
- 	spinlock_t		lock_new_recv_credits;
- 	int			new_recv_credits;
--	atomic_t		rw_avail_ops;
-+	int			max_rw_credits;
-+	int			pages_per_rw_credit;
-+	atomic_t		rw_credits;
+@@ -214,6 +214,12 @@ struct smb_direct_rdma_rw_msg {
+ 	struct scatterlist	sg_list[];
+ };
  
- 	wait_queue_head_t	wait_send_credits;
--	wait_queue_head_t	wait_rw_avail_ops;
-+	wait_queue_head_t	wait_rw_credits;
- 
- 	mempool_t		*sendmsg_mempool;
- 	struct kmem_cache	*sendmsg_cache;
-@@ -377,7 +377,7 @@ static struct smb_direct_transport *alloc_transport(struct rdma_cm_id *cm_id)
- 	t->reassembly_queue_length = 0;
- 	init_waitqueue_head(&t->wait_reassembly_queue);
- 	init_waitqueue_head(&t->wait_send_credits);
--	init_waitqueue_head(&t->wait_rw_avail_ops);
-+	init_waitqueue_head(&t->wait_rw_credits);
- 
- 	spin_lock_init(&t->receive_credit_lock);
- 	spin_lock_init(&t->recvmsg_queue_lock);
-@@ -984,18 +984,19 @@ static int smb_direct_flush_send_list(struct smb_direct_transport *t,
- }
- 
- static int wait_for_credits(struct smb_direct_transport *t,
--			    wait_queue_head_t *waitq, atomic_t *credits)
-+			    wait_queue_head_t *waitq, atomic_t *total_credits,
-+			    int needed)
++void init_smbd_max_io_size(unsigned int sz)
++{
++	sz = clamp_val(sz, SMBD_MIN_IOSIZE, SMBD_MAX_IOSIZE);
++	smb_direct_max_read_write_size = sz;
++}
++
+ static inline int get_buf_page_count(void *buf, int size)
  {
- 	int ret;
+ 	return DIV_ROUND_UP((uintptr_t)buf + size, PAGE_SIZE) -
+diff --git a/fs/ksmbd/transport_rdma.h b/fs/ksmbd/transport_rdma.h
+index 5567d93a6f96..e7b4e6790fab 100644
+--- a/fs/ksmbd/transport_rdma.h
++++ b/fs/ksmbd/transport_rdma.h
+@@ -7,6 +7,10 @@
+ #ifndef __KSMBD_TRANSPORT_RDMA_H__
+ #define __KSMBD_TRANSPORT_RDMA_H__
  
- 	do {
--		if (atomic_dec_return(credits) >= 0)
-+		if (atomic_sub_return(needed, total_credits) >= 0)
- 			return 0;
- 
--		atomic_inc(credits);
-+		atomic_add(needed, total_credits);
- 		ret = wait_event_interruptible(*waitq,
--					       atomic_read(credits) > 0 ||
--						t->status != SMB_DIRECT_CS_CONNECTED);
-+					       atomic_read(total_credits) >= needed ||
-+					       t->status != SMB_DIRECT_CS_CONNECTED);
- 
- 		if (t->status != SMB_DIRECT_CS_CONNECTED)
- 			return -ENOTCONN;
-@@ -1016,7 +1017,19 @@ static int wait_for_send_credits(struct smb_direct_transport *t,
- 			return ret;
- 	}
- 
--	return wait_for_credits(t, &t->wait_send_credits, &t->send_credits);
-+	return wait_for_credits(t, &t->wait_send_credits, &t->send_credits, 1);
-+}
++#define SMBD_DEFAULT_IOSIZE (8 * 1024 * 1024)
++#define SMBD_MIN_IOSIZE (512 * 1024)
++#define SMBD_MAX_IOSIZE (16 * 1024 * 1024)
 +
-+static int wait_for_rw_credits(struct smb_direct_transport *t, int credits)
-+{
-+	return wait_for_credits(t, &t->wait_rw_credits, &t->rw_credits, credits);
-+}
-+
-+static int calc_rw_credits(struct smb_direct_transport *t,
-+			   char *buf, unsigned int len)
-+{
-+	return DIV_ROUND_UP(get_buf_page_count(buf, len),
-+			    t->pages_per_rw_credit);
- }
+ /* SMB DIRECT negotiation request packet [MS-SMBD] 2.2.1 */
+ struct smb_direct_negotiate_req {
+ 	__le16 min_version;
+@@ -52,10 +56,12 @@ struct smb_direct_data_transfer {
+ int ksmbd_rdma_init(void);
+ void ksmbd_rdma_destroy(void);
+ bool ksmbd_rdma_capable_netdev(struct net_device *netdev);
++void init_smbd_max_io_size(unsigned int sz);
+ #else
+ static inline int ksmbd_rdma_init(void) { return 0; }
+ static inline int ksmbd_rdma_destroy(void) { return 0; }
+ static inline bool ksmbd_rdma_capable_netdev(struct net_device *netdev) { return false; }
++static inline void init_smbd_max_io_size(unsigned int sz) { }
+ #endif
  
- static int smb_direct_create_header(struct smb_direct_transport *t,
-@@ -1332,8 +1345,8 @@ static void read_write_done(struct ib_cq *cq, struct ib_wc *wc,
- 		smb_direct_disconnect_rdma_connection(t);
- 	}
- 
--	if (atomic_inc_return(&t->rw_avail_ops) > 0)
--		wake_up(&t->wait_rw_avail_ops);
-+	if (atomic_inc_return(&t->rw_credits) > 0)
-+		wake_up(&t->wait_rw_credits);
- 
- 	rdma_rw_ctx_destroy(&msg->rw_ctx, t->qp, t->qp->port,
- 			    msg->sg_list, msg->sgt.nents, dir);
-@@ -1364,8 +1377,10 @@ static int smb_direct_rdma_xmit(struct smb_direct_transport *t,
- 	struct ib_send_wr *first_wr = NULL;
- 	u32 remote_key = le32_to_cpu(desc[0].token);
- 	u64 remote_offset = le64_to_cpu(desc[0].offset);
-+	int credits_needed;
- 
--	ret = wait_for_credits(t, &t->wait_rw_avail_ops, &t->rw_avail_ops);
-+	credits_needed = calc_rw_credits(t, buf, buf_len);
-+	ret = wait_for_rw_credits(t, credits_needed);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -1373,7 +1388,7 @@ static int smb_direct_rdma_xmit(struct smb_direct_transport *t,
- 	msg = kmalloc(offsetof(struct smb_direct_rdma_rw_msg, sg_list) +
- 		      sizeof(struct scatterlist) * SG_CHUNK_SIZE, GFP_KERNEL);
- 	if (!msg) {
--		atomic_inc(&t->rw_avail_ops);
-+		atomic_add(credits_needed, &t->rw_credits);
- 		return -ENOMEM;
- 	}
- 
-@@ -1382,7 +1397,7 @@ static int smb_direct_rdma_xmit(struct smb_direct_transport *t,
- 				     get_buf_page_count(buf, buf_len),
- 				     msg->sg_list, SG_CHUNK_SIZE);
- 	if (ret) {
--		atomic_inc(&t->rw_avail_ops);
-+		atomic_add(credits_needed, &t->rw_credits);
- 		kfree(msg);
- 		return -ENOMEM;
- 	}
-@@ -1418,7 +1433,7 @@ static int smb_direct_rdma_xmit(struct smb_direct_transport *t,
- 	return 0;
- 
- err:
--	atomic_inc(&t->rw_avail_ops);
-+	atomic_add(credits_needed, &t->rw_credits);
- 	if (first_wr)
- 		rdma_rw_ctx_destroy(&msg->rw_ctx, t->qp, t->qp->port,
- 				    msg->sg_list, msg->sgt.nents,
-@@ -1643,11 +1658,19 @@ static int smb_direct_prepare_negotiation(struct smb_direct_transport *t)
- 	return ret;
- }
- 
-+static unsigned int smb_direct_get_max_fr_pages(struct smb_direct_transport *t)
-+{
-+	return min_t(unsigned int,
-+		     t->cm_id->device->attrs.max_fast_reg_page_list_len,
-+		     256);
-+}
-+
- static int smb_direct_init_params(struct smb_direct_transport *t,
- 				  struct ib_qp_cap *cap)
- {
- 	struct ib_device *device = t->cm_id->device;
--	int max_send_sges, max_pages, max_rw_wrs, max_send_wrs;
-+	int max_send_sges, max_rw_wrs, max_send_wrs;
-+	unsigned int max_sge_per_wr, wrs_per_credit;
- 
- 	/* need 2 more sge. because a SMB_DIRECT header will be mapped,
- 	 * and maybe a send buffer could be not page aligned.
-@@ -1659,25 +1682,31 @@ static int smb_direct_init_params(struct smb_direct_transport *t,
- 		return -EINVAL;
- 	}
- 
--	/*
--	 * allow smb_direct_max_outstanding_rw_ops of in-flight RDMA
--	 * read/writes. HCA guarantees at least max_send_sge of sges for
--	 * a RDMA read/write work request, and if memory registration is used,
--	 * we need reg_mr, local_inv wrs for each read/write.
-+	/* Calculate the number of work requests for RDMA R/W.
-+	 * The maximum number of pages which can be registered
-+	 * with one Memory region can be transferred with one
-+	 * R/W credit. And at least 4 work requests for each credit
-+	 * are needed for MR registration, RDMA R/W, local & remote
-+	 * MR invalidation.
- 	 */
- 	t->max_rdma_rw_size = smb_direct_max_read_write_size;
--	max_pages = DIV_ROUND_UP(t->max_rdma_rw_size, PAGE_SIZE) + 1;
--	max_rw_wrs = DIV_ROUND_UP(max_pages, SMB_DIRECT_MAX_SEND_SGES);
--	max_rw_wrs += rdma_rw_mr_factor(device, t->cm_id->port_num,
--			max_pages) * 2;
--	max_rw_wrs *= smb_direct_max_outstanding_rw_ops;
-+	t->pages_per_rw_credit = smb_direct_get_max_fr_pages(t);
-+	t->max_rw_credits = DIV_ROUND_UP(t->max_rdma_rw_size,
-+					 (t->pages_per_rw_credit - 1) *
-+					 PAGE_SIZE);
-+
-+	max_sge_per_wr = min_t(unsigned int, device->attrs.max_send_sge,
-+			       device->attrs.max_sge_rd);
-+	wrs_per_credit = max_t(unsigned int, 4,
-+			       DIV_ROUND_UP(t->pages_per_rw_credit,
-+					    max_sge_per_wr) + 1);
-+	max_rw_wrs = t->max_rw_credits * wrs_per_credit;
- 
- 	max_send_wrs = smb_direct_send_credit_target + max_rw_wrs;
- 	if (max_send_wrs > device->attrs.max_cqe ||
- 	    max_send_wrs > device->attrs.max_qp_wr) {
--		pr_err("consider lowering send_credit_target = %d, or max_outstanding_rw_ops = %d\n",
--		       smb_direct_send_credit_target,
--		       smb_direct_max_outstanding_rw_ops);
-+		pr_err("consider lowering send_credit_target = %d\n",
-+		       smb_direct_send_credit_target);
- 		pr_err("Possible CQE overrun, device reporting max_cqe %d max_qp_wr %d\n",
- 		       device->attrs.max_cqe, device->attrs.max_qp_wr);
- 		return -EINVAL;
-@@ -1712,7 +1741,7 @@ static int smb_direct_init_params(struct smb_direct_transport *t,
- 
- 	t->send_credit_target = smb_direct_send_credit_target;
- 	atomic_set(&t->send_credits, 0);
--	atomic_set(&t->rw_avail_ops, smb_direct_max_outstanding_rw_ops);
-+	atomic_set(&t->rw_credits, t->max_rw_credits);
- 
- 	t->max_send_size = smb_direct_max_send_size;
- 	t->max_recv_size = smb_direct_max_receive_size;
-@@ -1720,12 +1749,10 @@ static int smb_direct_init_params(struct smb_direct_transport *t,
- 
- 	cap->max_send_wr = max_send_wrs;
- 	cap->max_recv_wr = t->recv_credit_max;
--	cap->max_send_sge = SMB_DIRECT_MAX_SEND_SGES;
-+	cap->max_send_sge = max_sge_per_wr;
- 	cap->max_recv_sge = SMB_DIRECT_MAX_RECV_SGES;
- 	cap->max_inline_data = 0;
--	cap->max_rdma_ctxs =
--		rdma_rw_mr_factor(device, t->cm_id->port_num, max_pages) *
--		smb_direct_max_outstanding_rw_ops;
-+	cap->max_rdma_ctxs = t->max_rw_credits;
- 	return 0;
- }
- 
-@@ -1818,7 +1845,8 @@ static int smb_direct_create_qpair(struct smb_direct_transport *t,
- 	}
- 
- 	t->send_cq = ib_alloc_cq(t->cm_id->device, t,
--				 t->send_credit_target, 0, IB_POLL_WORKQUEUE);
-+				 smb_direct_send_credit_target + cap->max_rdma_ctxs,
-+				 0, IB_POLL_WORKQUEUE);
- 	if (IS_ERR(t->send_cq)) {
- 		pr_err("Can't create RDMA send CQ\n");
- 		ret = PTR_ERR(t->send_cq);
-@@ -1827,8 +1855,7 @@ static int smb_direct_create_qpair(struct smb_direct_transport *t,
- 	}
- 
- 	t->recv_cq = ib_alloc_cq(t->cm_id->device, t,
--				 cap->max_send_wr + cap->max_rdma_ctxs,
--				 0, IB_POLL_WORKQUEUE);
-+				 t->recv_credit_max, 0, IB_POLL_WORKQUEUE);
- 	if (IS_ERR(t->recv_cq)) {
- 		pr_err("Can't create RDMA recv CQ\n");
- 		ret = PTR_ERR(t->recv_cq);
-@@ -1857,17 +1884,12 @@ static int smb_direct_create_qpair(struct smb_direct_transport *t,
- 
- 	pages_per_rw = DIV_ROUND_UP(t->max_rdma_rw_size, PAGE_SIZE) + 1;
- 	if (pages_per_rw > t->cm_id->device->attrs.max_sgl_rd) {
--		int pages_per_mr, mr_count;
--
--		pages_per_mr = min_t(int, pages_per_rw,
--				     t->cm_id->device->attrs.max_fast_reg_page_list_len);
--		mr_count = DIV_ROUND_UP(pages_per_rw, pages_per_mr) *
--			atomic_read(&t->rw_avail_ops);
--		ret = ib_mr_pool_init(t->qp, &t->qp->rdma_mrs, mr_count,
--				      IB_MR_TYPE_MEM_REG, pages_per_mr, 0);
-+		ret = ib_mr_pool_init(t->qp, &t->qp->rdma_mrs,
-+				      t->max_rw_credits, IB_MR_TYPE_MEM_REG,
-+				      t->pages_per_rw_credit, 0);
- 		if (ret) {
- 			pr_err("failed to init mr pool count %d pages %d\n",
--			       mr_count, pages_per_mr);
-+			       t->max_rw_credits, t->pages_per_rw_credit);
- 			goto err;
- 		}
- 	}
+ #endif /* __KSMBD_TRANSPORT_RDMA_H__ */
 -- 
 2.35.1
 
