@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BABC259370F
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:26:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1B7259370D
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:26:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243465AbiHOSev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:34:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40114 "EHLO
+        id S243703AbiHOSfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:35:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243208AbiHOSeW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:34:22 -0400
+        with ESMTP id S243532AbiHOSeY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:34:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D6D2AE3A;
-        Mon, 15 Aug 2022 11:22:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FC312CCA0;
+        Mon, 15 Aug 2022 11:22:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76719B8107D;
-        Mon, 15 Aug 2022 18:22:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A90F5C433D6;
-        Mon, 15 Aug 2022 18:22:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B4D8B8105B;
+        Mon, 15 Aug 2022 18:22:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2C77C433C1;
+        Mon, 15 Aug 2022 18:22:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587730;
-        bh=httprFRWS2IWljd7AHDAQs1mveoWNaulkMZGUEXjL2g=;
+        s=korg; t=1660587733;
+        bh=ZADaNa64nCvQs7O60nGPkeGkYO17owC8vXFL0IFB5uI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NHKsSNBsO1XSrz0eKeEsh+ugaGclulvPZaMtLlCcgo7N6KVj1VzzNQT2X984qAs/2
-         JrcqxZ78hGM9QlaHe9qS1I/2Cvex1MPXUwHuUK77jOF0VYBBVdg3q2GMaiOV1oB8Cr
-         qDBzJriZxEc9Cw0HTh0l4Gw2JQ94+nOau0TpUXaE=
+        b=t6mvgv11DQUQXKDc0OP6/k5wG6tGDlbr9EdS78zUwp0SRUWCFa4padJ57Z+CbD5k/
+         Z86urBPURah3M+HTxwYw0+5aV5F0GwRbrwq4bKWq6g/BqPzHsXf5la5MCT7P9KTx9h
+         31PCqLXF+22N5kIhKw1axHj42TGHoa/2Evw3xP+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Arnd Bergmann <arnd@arndb.de>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 176/779] arm64: dts: qcom: sc7180: Remove ipa_fw_mem node on trogdor
-Date:   Mon, 15 Aug 2022 19:57:00 +0200
-Message-Id: <20220815180344.801087363@linuxfoundation.org>
+Subject: [PATCH 5.15 177/779] soc: fsl: guts: machine variable might be unset
+Date:   Mon, 15 Aug 2022 19:57:01 +0200
+Message-Id: <20220815180344.837217230@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,43 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit e60414644cf3a703e10ed4429c15263095945ffe ]
+[ Upstream commit ab3f045774f704c4e7b6a878102f4e9d4ae7bc74 ]
 
-We don't use this carveout on trogdor boards, and having it defined in
-the sc7180 SoC file causes an overlap message to be printed at boot.
+If both the model and the compatible properties are missing, then
+machine will not be set. Initialize it with NULL.
 
- OF: reserved mem: OVERLAP DETECTED!
- memory@86000000 (0x0000000086000000--0x000000008ec00000) overlaps with memory@8b700000 (0x000000008b700000--0x000000008b710000)
-
-Delete the node in the trogdor dtsi file to fix the overlap problem and
-remove the error message.
-
-Cc: Alex Elder <elder@linaro.org>
-Cc: Matthias Kaehlcke <mka@chromium.org>
-Fixes: 310b266655a3 ("arm64: dts: qcom: sc7180: define ipa_fw_mem node")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Alex Elder <elder@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220517193307.3034602-1-swboyd@chromium.org
+Fixes: 34c1c21e94ac ("soc: fsl: fix section mismatch build warnings")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/soc/fsl/guts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-index 70c88c37de32..a9d36ac6cb90 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-@@ -42,6 +42,7 @@ charger-crit {
-  */
+diff --git a/drivers/soc/fsl/guts.c b/drivers/soc/fsl/guts.c
+index 75eabfb916cb..0b2c7fdbaa5b 100644
+--- a/drivers/soc/fsl/guts.c
++++ b/drivers/soc/fsl/guts.c
+@@ -141,7 +141,7 @@ static int fsl_guts_probe(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	struct resource *res;
+ 	const struct fsl_soc_die_attr *soc_die;
+-	const char *machine;
++	const char *machine = NULL;
+ 	u32 svr;
  
- /delete-node/ &hyp_mem;
-+/delete-node/ &ipa_fw_mem;
- /delete-node/ &xbl_mem;
- /delete-node/ &aop_mem;
- /delete-node/ &sec_apps_mem;
+ 	/* Initialize guts */
 -- 
 2.35.1
 
