@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D00BD5945D4
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:01:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41AA2594433
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:58:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351476AbiHOWwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:52:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60480 "EHLO
+        id S1351633AbiHOWwM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:52:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352131AbiHOWu5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:50:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D1BD13790B;
-        Mon, 15 Aug 2022 12:54:03 -0700 (PDT)
+        with ESMTP id S1352247AbiHOWvO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:51:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F217613793D;
+        Mon, 15 Aug 2022 12:54:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB00FB80EB1;
-        Mon, 15 Aug 2022 19:54:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D60C7C433C1;
-        Mon, 15 Aug 2022 19:53:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DFAB9B81142;
+        Mon, 15 Aug 2022 19:54:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38BAEC433D6;
+        Mon, 15 Aug 2022 19:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593240;
-        bh=+5i3Ku8ynmuTRvV2CSEcO5qjFU81rtcPqBZQ8aw0a6o=;
+        s=korg; t=1660593246;
+        bh=Tc4WXDymJ2CTXI4iMTKoY3fQcpSHQK9LM9L2XSipGUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tyshf22hQDUt7az4ejbPceFhmkoTyCGb+ibG+er91cwT9qEorcX2gyimiD4SzVlLx
-         NtjI6PzVQlpaqIYPZK6daVYfEMUThzmycwLHeByHiysSYRKkOc8jEryCo9Kbtml3Ej
-         6uyBp6ENqiN8ANXiUmP7Ryd2FMTrqPmLzAzUhUQI=
+        b=VfY1fKP7yAkF0Lvc0oAvSDDajKaY30341en6KGTpd9CVO0HIhFjFhkLrzYhWjbG1c
+         wyNRD7kFYiSgDujc7NQ4Crt91npSOPc62+XaYOmPgO4ZZzag+M2OLaiqLna7cNTDb0
+         YuuKbN6NTvToKkNiEG1vAZGA2Ji/vOMznMR58eig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
+        stable@vger.kernel.org,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0916/1095] powerpc/32s: Fix boot failure with KASAN + SMP + JUMP_LABEL_FEATURE_CHECK_DEBUG
-Date:   Mon, 15 Aug 2022 20:05:15 +0200
-Message-Id: <20220815180507.174163072@linuxfoundation.org>
+Subject: [PATCH 5.18 0917/1095] powerpc/32: Do not allow selection of e5500 or e6500 CPUs on PPC32
+Date:   Mon, 15 Aug 2022 20:05:16 +0200
+Message-Id: <20220815180507.213650069@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,50 +57,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 6042a1652d643d1d34fa89bb314cb102960c0800 ]
+[ Upstream commit 9be013b2a9ecb29b5168e4b9db0e48ed53acf37c ]
 
-Since commit 4291d085b0b0 ("powerpc/32s: Make pte_update() non
-atomic on 603 core"), pte_update() has been using
-mmu_has_feature(MMU_FTR_HPTE_TABLE) to avoid a useless atomic
-operation on 603 cores.
+Commit 0e00a8c9fd92 ("powerpc: Allow CPU selection also on PPC32")
+enlarged the CPU selection logic to PPC32 by removing depend to
+PPC64, and failed to restrict that depend to E5500_CPU and E6500_CPU.
+Fortunately that got unnoticed because -mcpu=8540 will override the
+-mcpu=e500mc64 or -mpcu=e6500 as they are ealier, but that's
+fragile and may no be right in the future.
 
-When kasan_early_init() sets up the early zero shadow, it uses
-__set_pte_at(). On book3s/32, __set_pte_at() calls pte_update()
-when CONFIG_SMP is selected in order to ensure the preservation of
-_PAGE_HASHPTE in case of concurrent update of the PTE. But that's
-too early for mmu_has_feature(), so when
-CONFIG_JUMP_LABEL_FEATURE_CHECK_DEBUG is selected, mmu_has_feature()
-calls printk(). That's too early to call printk() because KASAN
-early zero shadow page is not set up yet. It leads to a deadlock.
+Add back the depend PPC64 on E5500_CPU and E6500_CPU.
 
-However, when kasan_early_init() is called, there is only one CPU
-running and no risk of concurrent PTE update. So __set_pte_at() can
-be called with the 'percpu' flag. With that flag set, the PTE is
-written directly instead of being written via pte_update().
-
-Fixes: 4291d085b0b0 ("powerpc/32s: Make pte_update() non atomic on 603 core")
-Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Fixes: 0e00a8c9fd92 ("powerpc: Allow CPU selection also on PPC32")
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/2ee707512b8b212b079b877f4ceb525a1606a3fb.1656655567.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/8abab4888da69ff78b73a56f64d9678a7bf684e9.1657549153.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/kasan/kasan_init_32.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/Kconfig.cputype | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/mm/kasan/kasan_init_32.c b/arch/powerpc/mm/kasan/kasan_init_32.c
-index f3e4d069e0ba..a70828a6d935 100644
---- a/arch/powerpc/mm/kasan/kasan_init_32.c
-+++ b/arch/powerpc/mm/kasan/kasan_init_32.c
-@@ -25,7 +25,7 @@ static void __init kasan_populate_pte(pte_t *ptep, pgprot_t prot)
- 	int i;
+diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
+index e2e1fec91c6e..660309559bd8 100644
+--- a/arch/powerpc/platforms/Kconfig.cputype
++++ b/arch/powerpc/platforms/Kconfig.cputype
+@@ -173,11 +173,11 @@ config POWER9_CPU
  
- 	for (i = 0; i < PTRS_PER_PTE; i++, ptep++)
--		__set_pte_at(&init_mm, va, ptep, pfn_pte(PHYS_PFN(pa), prot), 0);
-+		__set_pte_at(&init_mm, va, ptep, pfn_pte(PHYS_PFN(pa), prot), 1);
- }
+ config E5500_CPU
+ 	bool "Freescale e5500"
+-	depends on E500
++	depends on PPC64 && E500
  
- int __init kasan_init_shadow_page_tables(unsigned long k_start, unsigned long k_end)
+ config E6500_CPU
+ 	bool "Freescale e6500"
+-	depends on E500
++	depends on PPC64 && E500
+ 
+ config 860_CPU
+ 	bool "8xx family"
 -- 
 2.35.1
 
