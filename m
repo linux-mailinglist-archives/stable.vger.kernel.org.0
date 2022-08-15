@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDB265949FF
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:16:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AE0B594955
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354698AbiHOXzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:55:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49504 "EHLO
+        id S1354327AbiHOXyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:54:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355336AbiHOXvz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:51:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1961292F44;
-        Mon, 15 Aug 2022 13:16:33 -0700 (PDT)
+        with ESMTP id S1355363AbiHOXv5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:51:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE38923F9;
+        Mon, 15 Aug 2022 13:16:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6BFDB80EB1;
-        Mon, 15 Aug 2022 20:16:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20BA6C433D6;
-        Mon, 15 Aug 2022 20:16:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4012B8115B;
+        Mon, 15 Aug 2022 20:16:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27A72C433C1;
+        Mon, 15 Aug 2022 20:16:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594590;
-        bh=791j+2hWy8TOd/D1gDSC01GR07M5nk56qoSUdhg5FAU=;
+        s=korg; t=1660594596;
+        bh=PS1CEPi4D0XfEoJqZTUTPxUsMO7CgGty1wu9A4YK6Ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QxOkdGnxngnk3GLR8e84SPujyN9EwOECSLqRNLraA8gqW5rfs/Tf+vMTCD4Hus99L
-         lpjPf0lIfYPGN/5tcbSP6y9LCWheEGV0qX22WCK3RZNmYCoQ0bWzU1oqCANg04JXXD
-         c0GY9CD3+UHu80Dmq+nDMktRBKHoUicI1whK1mZY=
+        b=XEjg2Xbb18uJQWnoZUoEx4/b4Xy7InDR65YH/WVpp7qxzecF3gYXj1efzB0wqgzO0
+         A9I+Bru8rHa7uivSH+kxWxJDPAlKaTdPjf1om+kc9nClmMsp/4oeW9DJ6GvaxAQC8N
+         IiAh4WtDx6rik0hpJfp8cx7Hy5zvt2k29SAjPHj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        John Stultz <jstultz@google.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>, Yonghong Song <yhs@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0496/1157] selftests: timers: valid-adjtimex: build fix for newer toolchains
-Date:   Mon, 15 Aug 2022 19:57:32 +0200
-Message-Id: <20220815180459.503776273@linuxfoundation.org>
+Subject: [PATCH 5.19 0498/1157] bpf: Fix subprog names in stack traces.
+Date:   Mon, 15 Aug 2022 19:57:34 +0200
+Message-Id: <20220815180459.596420397@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,37 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Alexei Starovoitov <ast@kernel.org>
 
-[ Upstream commit 9a162977d20436be5678a8e21a8e58eb4616d86a ]
+[ Upstream commit 9c7c48d6a1e2eb5192ad5294c1c4dbd42a88e88b ]
 
-Toolchains with an include file 'sys/timex.h' based on 3.18 will have a
-'clock_adjtime' definition added, so it can't be static in the code:
+The commit 7337224fc150 ("bpf: Improve the info.func_info and info.func_info_rec_size behavior")
+accidently made bpf_prog_ksym_set_name() conservative for bpf subprograms.
+Fixed it so instead of "bpf_prog_tag_F" the stack traces print "bpf_prog_tag_full_subprog_name".
 
-valid-adjtimex.c:43:12: error: static declaration of ‘clock_adjtime’ follows non-static declaration
-
-Fixes: e03a58c320e1 ("kselftests: timers: Add adjtimex SETOFFSET validity tests")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: John Stultz <jstultz@google.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 7337224fc150 ("bpf: Improve the info.func_info and info.func_info_rec_size behavior")
+Reported-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20220714211637.17150-1-alexei.starovoitov@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/timers/valid-adjtimex.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/bpf/verifier.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/timers/valid-adjtimex.c b/tools/testing/selftests/timers/valid-adjtimex.c
-index 5397de708d3c..48b9a803235a 100644
---- a/tools/testing/selftests/timers/valid-adjtimex.c
-+++ b/tools/testing/selftests/timers/valid-adjtimex.c
-@@ -40,7 +40,7 @@
- #define ADJ_SETOFFSET 0x0100
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 602366bc230f..e91d2faef160 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -13526,6 +13526,7 @@ static int jit_subprogs(struct bpf_verifier_env *env)
+ 		/* Below members will be freed only at prog->aux */
+ 		func[i]->aux->btf = prog->aux->btf;
+ 		func[i]->aux->func_info = prog->aux->func_info;
++		func[i]->aux->func_info_cnt = prog->aux->func_info_cnt;
+ 		func[i]->aux->poke_tab = prog->aux->poke_tab;
+ 		func[i]->aux->size_poke_tab = prog->aux->size_poke_tab;
  
- #include <sys/syscall.h>
--static int clock_adjtime(clockid_t id, struct timex *tx)
-+int clock_adjtime(clockid_t id, struct timex *tx)
- {
- 	return syscall(__NR_clock_adjtime, id, tx);
- }
+@@ -13538,9 +13539,6 @@ static int jit_subprogs(struct bpf_verifier_env *env)
+ 				poke->aux = func[i]->aux;
+ 		}
+ 
+-		/* Use bpf_prog_F_tag to indicate functions in stack traces.
+-		 * Long term would need debug info to populate names
+-		 */
+ 		func[i]->aux->name[0] = 'F';
+ 		func[i]->aux->stack_depth = env->subprog_info[i].stack_depth;
+ 		func[i]->jit_requested = 1;
 -- 
 2.35.1
 
