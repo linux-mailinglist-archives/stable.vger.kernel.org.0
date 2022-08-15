@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78081593FD4
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:46:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA84B5940BE
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346117AbiHOUwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:52:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44252 "EHLO
+        id S1346138AbiHOUwG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:52:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346569AbiHOUus (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:50:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D8E8BA9F3;
-        Mon, 15 Aug 2022 12:09:41 -0700 (PDT)
+        with ESMTP id S1346557AbiHOUur (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:50:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F74ABB02A;
+        Mon, 15 Aug 2022 12:09:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E8DC60BD8;
-        Mon, 15 Aug 2022 19:09:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2462C433C1;
-        Mon, 15 Aug 2022 19:09:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43CB3B81104;
+        Mon, 15 Aug 2022 19:09:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 732DFC433C1;
+        Mon, 15 Aug 2022 19:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590579;
-        bh=+8Q92+MH6sqv7j0NhspQcG/PhDxZECR6G5xE4YY1TWU=;
+        s=korg; t=1660590582;
+        bh=YUgwdv0ha6GfdedNy50XsgnM/nrwLiae3iEawstv30M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zVcGnxbgWdYxuPFst7wZYfkZ3Qo2m8NBs+8qXupTUF3rue4v3VYd5vpgNRJUY0rm8
-         emEYAjXyDc7DQm6mZqnjoPKH7SagL20UONgH/uKwjyA6jI0E++8gZoh++9oTW8wHKl
-         4zuwUPJMet7Nz2B0jeUe4MEX0V0Ei1hfKaVngQA4=
+        b=TPffX3D2H8t0AOsSlaO/ZkQdMTGW/A7lKhH2If9mnZ0tEww6frJld+myYFSi9LHwN
+         iM+uroDfbKk4fNsLJa8HYDkKECP2Bthxy6/cfbzg8ouc5pQkBvIfSmCBfbspHHIQH9
+         DKv0HRghT3DX0JRJprN1NnLajeSWNaGnd8YlM7Yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Marek Vasut <marex@denx.de>, Jonas Karlman <jonas@kwiboo.se>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Steev Klimaszewski <steev@kali.org>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0305/1095] drm/bridge: tc358767: Make sure Refclk clock are enabled
-Date:   Mon, 15 Aug 2022 19:55:04 +0200
-Message-Id: <20220815180442.405202606@linuxfoundation.org>
+Subject: [PATCH 5.18 0306/1095] ath10k: do not enforce interrupt trigger type
+Date:   Mon, 15 Aug 2022 19:55:05 +0200
+Message-Id: <20220815180442.454980721@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -59,90 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 0b4c48f3e315d172e4cc06e10f2c8ba180788baf ]
+[ Upstream commit 1ee6c5abebd3cacf2ac4378d0ed4f57fd4850421 ]
 
-The Refclk may be supplied by SoC clock output instead of crystal
-oscillator, make sure the clock are enabled before any other action
-is performed with the bridge chip, otherwise it may either fail to
-operate at all, or miss reset GPIO toggle.
+Interrupt line can be configured on different hardware in different way,
+even inverted.  Therefore driver should not enforce specific trigger
+type - edge rising - but instead rely on Devicetree to configure it.
 
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Fixes: 7caff0fc4296e ("drm/bridge: tc358767: Add DPI to eDP bridge driver")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Jonas Karlman <jonas@kwiboo.se>
-Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Cc: Marek Vasut <marex@denx.de>
-Cc: Maxime Ripard <maxime@cerno.tech>
-Cc: Neil Armstrong <narmstrong@baylibre.com>
-Cc: Robert Foss <robert.foss@linaro.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Reviewed-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220520121543.11550-1-marex@denx.de
+All Qualcomm DTSI with WCN3990 define the interrupt type as level high,
+so the mismatch between DTSI and driver causes rebind issues:
+
+  $ echo 18800000.wifi > /sys/bus/platform/drivers/ath10k_snoc/unbind
+  $ echo 18800000.wifi > /sys/bus/platform/drivers/ath10k_snoc/bind
+  [   44.763114] irq: type mismatch, failed to map hwirq-446 for interrupt-controller@17a00000!
+  [   44.763130] ath10k_snoc 18800000.wifi: error -ENXIO: IRQ index 0 not found
+  [   44.763140] ath10k_snoc 18800000.wifi: failed to initialize resource: -6
+
+Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.3.2.0.c8-00009-QCAHLSWSC8180XMTPLZ-1
+Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.2.0-01387-QCAHLSWMTPLZ-1
+
+Fixes: c963a683e701 ("ath10k: add resource init and deinit for WCN3990")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Tested-by: Steev Klimaszewski <steev@kali.org>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220513151516.357549-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/tc358767.c | 32 ++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ drivers/net/wireless/ath/ath10k/snoc.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/tc358767.c b/drivers/gpu/drm/bridge/tc358767.c
-index 835a146a0196..5a51c1699b29 100644
---- a/drivers/gpu/drm/bridge/tc358767.c
-+++ b/drivers/gpu/drm/bridge/tc358767.c
-@@ -1576,6 +1576,13 @@ static int tc_probe_edp_bridge_endpoint(struct tc_data *tc)
- 	return ret;
- }
- 
-+static void tc_clk_disable(void *data)
-+{
-+	struct clk *refclk = data;
-+
-+	clk_disable_unprepare(refclk);
-+}
-+
- static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
+diff --git a/drivers/net/wireless/ath/ath10k/snoc.c b/drivers/net/wireless/ath/ath10k/snoc.c
+index 8328966a0471..603dc7bebc0c 100644
+--- a/drivers/net/wireless/ath/ath10k/snoc.c
++++ b/drivers/net/wireless/ath/ath10k/snoc.c
+@@ -1249,13 +1249,12 @@ static void ath10k_snoc_init_napi(struct ath10k *ar)
+ static int ath10k_snoc_request_irq(struct ath10k *ar)
  {
- 	struct device *dev = &client->dev;
-@@ -1592,6 +1599,24 @@ static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	if (ret)
- 		return ret;
+ 	struct ath10k_snoc *ar_snoc = ath10k_snoc_priv(ar);
+-	int irqflags = IRQF_TRIGGER_RISING;
+ 	int ret, id;
  
-+	tc->refclk = devm_clk_get(dev, "ref");
-+	if (IS_ERR(tc->refclk)) {
-+		ret = PTR_ERR(tc->refclk);
-+		dev_err(dev, "Failed to get refclk: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = clk_prepare_enable(tc->refclk);
-+	if (ret)
-+		return ret;
-+
-+	ret = devm_add_action_or_reset(dev, tc_clk_disable, tc->refclk);
-+	if (ret)
-+		return ret;
-+
-+	/* tRSTW = 100 cycles , at 13 MHz that is ~7.69 us */
-+	usleep_range(10, 15);
-+
- 	/* Shut down GPIO is optional */
- 	tc->sd_gpio = devm_gpiod_get_optional(dev, "shutdown", GPIOD_OUT_HIGH);
- 	if (IS_ERR(tc->sd_gpio))
-@@ -1612,13 +1637,6 @@ static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		usleep_range(5000, 10000);
- 	}
- 
--	tc->refclk = devm_clk_get(dev, "ref");
--	if (IS_ERR(tc->refclk)) {
--		ret = PTR_ERR(tc->refclk);
--		dev_err(dev, "Failed to get refclk: %d\n", ret);
--		return ret;
--	}
--
- 	tc->regmap = devm_regmap_init_i2c(client, &tc_regmap_config);
- 	if (IS_ERR(tc->regmap)) {
- 		ret = PTR_ERR(tc->regmap);
+ 	for (id = 0; id < CE_COUNT_MAX; id++) {
+ 		ret = request_irq(ar_snoc->ce_irqs[id].irq_line,
+-				  ath10k_snoc_per_engine_handler,
+-				  irqflags, ce_name[id], ar);
++				  ath10k_snoc_per_engine_handler, 0,
++				  ce_name[id], ar);
+ 		if (ret) {
+ 			ath10k_err(ar,
+ 				   "failed to register IRQ handler for CE %d: %d\n",
 -- 
 2.35.1
 
