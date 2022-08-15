@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E34B5594D91
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F21B2594D77
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244484AbiHPArJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:47:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56620 "EHLO
+        id S243884AbiHPArI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:47:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244497AbiHPApc (ORCPT
+        with ESMTP id S243501AbiHPApc (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:45:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E913B4E868;
-        Mon, 15 Aug 2022 13:42:02 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86443ABF3B;
+        Mon, 15 Aug 2022 13:42:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC64FB80EA9;
-        Mon, 15 Aug 2022 20:42:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00E2CC433C1;
-        Mon, 15 Aug 2022 20:41:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C2A361234;
+        Mon, 15 Aug 2022 20:42:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 105DAC433C1;
+        Mon, 15 Aug 2022 20:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596120;
-        bh=lCT1j9g6C8VJGJ3kCsSS9uDzFCCqHmR/3FmqLXKyelw=;
+        s=korg; t=1660596123;
+        bh=6WQcaD39Z7X1fJpxXq9yMC2ENvQGk6DSE/u5decyplU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+xJip+soStYJCJpSs0mEBC3q1l7vyari3bEnQ+GOBPSUEG4UXdPTZDcXGdc4c2j3
-         ALMy6q9fF9VGAoSOF+/6Pib4S9wZsSIt46+VW8ZAoY78rUw7o4od0RZ8hJnKt7jJ6Q
-         xobTTPbdFfOXSFIJGS+sCn3vIsexlkTaRJfs0VFA=
+        b=im+qtrggvkL6oZkZvo01nhUb6pbzf1oABoTqIUUSlbIZINjJX3x1HR+rDBuEOYqxN
+         ykU3mC+AWZvIhRvJFibftKEiHbiRx6B/9YfjuhcxFWU2Z5HBzn8x6RMY2o8UpF2m8E
+         NoqrEpOOmaMDLlS/8NWXJ+nj3HRbg4/9u+GIJnNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0972/1157] iommu/arm-smmu: qcom_iommu: Add of_node_put() when breaking out of loop
-Date:   Mon, 15 Aug 2022 20:05:28 +0200
-Message-Id: <20220815180518.588991920@linuxfoundation.org>
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0981/1157] ASoC: imx-card: use snd_pcm_format_t type for asrc_format
+Date:   Mon, 15 Aug 2022 20:05:37 +0200
+Message-Id: <20220815180518.985866253@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -53,42 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit a91eb6803c1c715738682fece095145cbd68fe0b ]
+[ Upstream commit 409a8652e909e323c715f3088e6c3133e37c8881 ]
 
-In qcom_iommu_has_secure_context(), we should call of_node_put()
-for the reference 'child' when breaking out of for_each_child_of_node()
-which will automatically increase and decrease the refcount.
+Fix sparse warning:
+sound/soc/fsl/imx-card.c:653:59: sparse: warning: incorrect type in assignment (different base types)
+sound/soc/fsl/imx-card.c:653:59: sparse:    expected unsigned int [usertype] asrc_format
+sound/soc/fsl/imx-card.c:653:59: sparse:    got restricted snd_pcm_format_t [usertype]
+sound/soc/fsl/imx-card.c:655:59: sparse: warning: incorrect type in assignment (different base types)
+sound/soc/fsl/imx-card.c:655:59: sparse:    expected unsigned int [usertype] asrc_format
+sound/soc/fsl/imx-card.c:655:59: sparse:    got restricted snd_pcm_format_t [usertype]
 
-Fixes: d051f28c8807 ("iommu/qcom: Initialize secure page table")
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220719124955.1242171-1-windhl@126.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: aa736700f42f ("ASoC: imx-card: Add imx-card machine driver")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1658399393-28777-6-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm/arm-smmu/qcom_iommu.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ sound/soc/fsl/imx-card.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/arm/arm-smmu/qcom_iommu.c b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-index 4c077c38fbd6..c11d2c2cbb62 100644
---- a/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-+++ b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-@@ -750,9 +750,12 @@ static bool qcom_iommu_has_secure_context(struct qcom_iommu_dev *qcom_iommu)
- {
- 	struct device_node *child;
+diff --git a/sound/soc/fsl/imx-card.c b/sound/soc/fsl/imx-card.c
+index c0eb218a254b..4a8609b0d700 100644
+--- a/sound/soc/fsl/imx-card.c
++++ b/sound/soc/fsl/imx-card.c
+@@ -118,7 +118,7 @@ struct imx_card_data {
+ 	struct snd_soc_card card;
+ 	int num_dapm_routes;
+ 	u32 asrc_rate;
+-	u32 asrc_format;
++	snd_pcm_format_t asrc_format;
+ };
  
--	for_each_child_of_node(qcom_iommu->dev->of_node, child)
--		if (of_device_is_compatible(child, "qcom,msm-iommu-v1-sec"))
-+	for_each_child_of_node(qcom_iommu->dev->of_node, child) {
-+		if (of_device_is_compatible(child, "qcom,msm-iommu-v1-sec")) {
-+			of_node_put(child);
- 			return true;
-+		}
-+	}
+ static struct imx_akcodec_fs_mul ak4458_fs_mul[] = {
+@@ -474,7 +474,7 @@ static int be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
  
- 	return false;
+ 	mask = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
+ 	snd_mask_none(mask);
+-	snd_mask_set(mask, data->asrc_format);
++	snd_mask_set(mask, (__force unsigned int)data->asrc_format);
+ 
+ 	return 0;
  }
+@@ -493,6 +493,7 @@ static int imx_card_parse_of(struct imx_card_data *data)
+ 	struct dai_link_data *link_data;
+ 	struct of_phandle_args args;
+ 	int ret, num_links;
++	u32 asrc_fmt = 0;
+ 	u32 width;
+ 
+ 	ret = snd_soc_of_parse_card_name(card, "model");
+@@ -639,7 +640,8 @@ static int imx_card_parse_of(struct imx_card_data *data)
+ 				goto err;
+ 			}
+ 
+-			ret = of_property_read_u32(args.np, "fsl,asrc-format", &data->asrc_format);
++			ret = of_property_read_u32(args.np, "fsl,asrc-format", &asrc_fmt);
++			data->asrc_format = (__force snd_pcm_format_t)asrc_fmt;
+ 			if (ret) {
+ 				/* Fallback to old binding; translate to asrc_format */
+ 				ret = of_property_read_u32(args.np, "fsl,asrc-width", &width);
 -- 
 2.35.1
 
