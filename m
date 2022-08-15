@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB6EA594B67
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:23:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 988BB594B6D
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:23:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233247AbiHPARb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:17:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38128 "EHLO
+        id S1345080AbiHPARm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:17:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357655AbiHPAN7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:13:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A70D1782AE;
-        Mon, 15 Aug 2022 13:30:25 -0700 (PDT)
+        with ESMTP id S1353110AbiHPAQC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:16:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6651178C18;
+        Mon, 15 Aug 2022 13:30:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A6A7611B1;
-        Mon, 15 Aug 2022 20:30:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A126C433C1;
-        Mon, 15 Aug 2022 20:30:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9634261057;
+        Mon, 15 Aug 2022 20:30:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8468BC433C1;
+        Mon, 15 Aug 2022 20:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595423;
-        bh=bZ788B6z466vmlS6LVITTCvYlqYe/U/IhX4N2/r73Is=;
+        s=korg; t=1660595427;
+        bh=BbXz+ox2h5kTAn0erYbR5JWQLTX37Bno+Z1CFv8e5lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EoroEjCmFOVGV5KfVxdfwd8dedhu8kGHYMjmIBcB3rNjCQDHO37n2Jdj6IRIvWkAM
-         hbmfwogzabzDD1HBNa4J4DBdfsJi7+K92bZCrUNfVr6e105oYWbWcm/74S4V2JT8wQ
-         Tv8jhaf22ppsSVJoXNCYukFvI7XqnB5Q2i5ukdM0=
+        b=v1sQlsaMnqG8ZsaL7hFK7pZGqQ/YXc+os0l8QSTtBwEheOwrZyzbj4UIPbUUmYrRD
+         N9CrUzL0zuqYFXOYzBH3wkvgdAjV6a+8nJWnodBPGykfh/EI65ASdp/dgELajq4Pux
+         pSVi4U0khSYmE37FycnBmywhNI+TRrJYRclQnX0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Jerome Glisse <jglisse@redhat.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Ralph Campbell <rcampbell@nvidia.com>,
+        Dan Williams <dan.j.williams@intel.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0727/1157] lib/test_hmm: avoid accessing uninitialized pages
-Date:   Mon, 15 Aug 2022 20:01:23 +0200
-Message-Id: <20220815180508.560058174@linuxfoundation.org>
+Subject: [PATCH 5.19 0728/1157] mm/memremap: fix memunmap_pages() race with get_dev_pagemap()
+Date:   Mon, 15 Aug 2022 20:01:24 +0200
+Message-Id: <20220815180508.590799365@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -60,57 +57,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit ed913b055a74b723976f8e885a3395162a0371e6 ]
+[ Upstream commit 1e57ffb6e3fd9583268c6462c4e3853575b21701 ]
 
-If make_device_exclusive_range() fails or returns pages marked for
-exclusive access less than required, remaining fields of pages will left
-uninitialized.  So dmirror_atomic_map() will access those yet
-uninitialized fields of pages.  To fix it, do dmirror_atomic_map() iff all
-pages are marked for exclusive access (we will break if mapped is less
-than required anyway) so we won't access those uninitialized fields of
-pages.
+Think about the below scene:
 
-Link: https://lkml.kernel.org/r/20220609130835.35110-1-linmiaohe@huawei.com
-Fixes: b659baea7546 ("mm: selftests for exclusive device memory")
+ CPU1			CPU2
+ memunmap_pages
+   percpu_ref_exit
+     __percpu_ref_exit
+       free_percpu(percpu_count);
+         /* percpu_count is freed here! */
+			 get_dev_pagemap
+			   xa_load(&pgmap_array, PHYS_PFN(phys))
+			     /* pgmap still in the pgmap_array */
+			   percpu_ref_tryget_live(&pgmap->ref)
+			     if __ref_is_percpu
+			       /* __PERCPU_REF_ATOMIC_DEAD not set yet */
+			       this_cpu_inc(*percpu_count)
+			         /* access freed percpu_count here! */
+      ref->percpu_count_ptr = __PERCPU_REF_ATOMIC_DEAD;
+        /* too late... */
+   pageunmap_range
+
+To fix the issue, do percpu_ref_exit() after pgmap_array is emptied. So
+we won't do percpu_ref_tryget_live() against a being freed percpu_ref.
+
+Link: https://lkml.kernel.org/r/20220609121305.2508-1-linmiaohe@huawei.com
+Fixes: b7b3c01b1915 ("mm/memremap_pages: support multiple ranges per invocation")
 Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_hmm.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ mm/memremap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/test_hmm.c b/lib/test_hmm.c
-index cfe632047839..f2c3015c5c82 100644
---- a/lib/test_hmm.c
-+++ b/lib/test_hmm.c
-@@ -732,7 +732,7 @@ static int dmirror_exclusive(struct dmirror *dmirror,
+diff --git a/mm/memremap.c b/mm/memremap.c
+index 745eea0f99c3..2bdb66854832 100644
+--- a/mm/memremap.c
++++ b/mm/memremap.c
+@@ -141,10 +141,10 @@ void memunmap_pages(struct dev_pagemap *pgmap)
+ 	for (i = 0; i < pgmap->nr_range; i++)
+ 		percpu_ref_put_many(&pgmap->ref, pfn_len(pgmap, i));
+ 	wait_for_completion(&pgmap->done);
+-	percpu_ref_exit(&pgmap->ref);
  
- 	mmap_read_lock(mm);
- 	for (addr = start; addr < end; addr = next) {
--		unsigned long mapped;
-+		unsigned long mapped = 0;
- 		int i;
+ 	for (i = 0; i < pgmap->nr_range; i++)
+ 		pageunmap_range(pgmap, i);
++	percpu_ref_exit(&pgmap->ref);
  
- 		if (end < addr + (ARRAY_SIZE(pages) << PAGE_SHIFT))
-@@ -741,7 +741,13 @@ static int dmirror_exclusive(struct dmirror *dmirror,
- 			next = addr + (ARRAY_SIZE(pages) << PAGE_SHIFT);
- 
- 		ret = make_device_exclusive_range(mm, addr, next, pages, NULL);
--		mapped = dmirror_atomic_map(addr, next, pages, dmirror);
-+		/*
-+		 * Do dmirror_atomic_map() iff all pages are marked for
-+		 * exclusive access to avoid accessing uninitialized
-+		 * fields of pages.
-+		 */
-+		if (ret == (next - addr) >> PAGE_SHIFT)
-+			mapped = dmirror_atomic_map(addr, next, pages, dmirror);
- 		for (i = 0; i < ret; i++) {
- 			if (pages[i]) {
- 				unlock_page(pages[i]);
+ 	WARN_ONCE(pgmap->altmap.alloc, "failed to free all reserved pages\n");
+ 	devmap_managed_enable_put(pgmap);
 -- 
 2.35.1
 
