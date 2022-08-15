@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E50A594800
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1370D5947AB
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:04:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354480AbiHOXsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:48:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40466 "EHLO
+        id S1354319AbiHOXrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:47:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354816AbiHOXq2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:46:28 -0400
+        with ESMTP id S1354862AbiHOXqe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:46:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 062D6C0B72;
-        Mon, 15 Aug 2022 13:14:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D18CF8E45E;
+        Mon, 15 Aug 2022 13:14:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98FCDB80EA9;
-        Mon, 15 Aug 2022 20:14:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC623C433C1;
-        Mon, 15 Aug 2022 20:14:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B2E4B80EAB;
+        Mon, 15 Aug 2022 20:14:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72ACCC433D6;
+        Mon, 15 Aug 2022 20:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594488;
-        bh=Dor7/W3ES3QsiTFumcjQzHudAmM9Yj25fTUrxd5js+s=;
+        s=korg; t=1660594494;
+        bh=++0gQvoVEsES9czLKXdr0jf/8o4LNf21BoHpAo3XYVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mhUg9RUObj5uLh574YPfHiuFZiMc8IbfL70m9gXJHudmrKgfhgzuaFcb3JmG+eZGq
-         jxVYeiPIb/NedkrCcoqx5svtkjJgrTyGEmtYMi+IpzNc0eA26b1VR38VH+VCPvDGrp
-         oCM8yO13gavHnk6Zb16pYnyKwI4jQQVXBhSR8590=
+        b=1gWKuW0jFzmUvvcIVgw2hkX3632//DJGaV+7rYx4RGR0anQulJgsauZdI4aSnfnTS
+         s0bgsZPQ9b/oIAWF2fGwofeTZfg4Tz5kYTZmMAjPHTXt4A+KmxcCjQf22seHaEDY23
+         4t1cfpBlu6yIQJFnX6mCUe3TjMlQLc/kP8C5YS0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Qian <ming.qian@nxp.com>,
+        stable@vger.kernel.org,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0463/1157] media: amphion: defer setting last_buffer_dequeued until resolution changes are processed
-Date:   Mon, 15 Aug 2022 19:56:59 +0200
-Message-Id: <20220815180458.136446630@linuxfoundation.org>
+Subject: [PATCH 5.19 0465/1157] media: hantro: Fix RK3399 H.264 format advertising
+Date:   Mon, 15 Aug 2022 19:57:01 +0200
+Message-Id: <20220815180458.209647716@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,133 +57,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
 
-[ Upstream commit afba6e20801ad9a2f863c52c21e609e021269d83 ]
+[ Upstream commit 177d841fa19542eb35aa5ec9579c4abb989c9255 ]
 
-Don't set last_buffer_dequeued during dynamic resolution change,
-otherwise it may be cleared in handling resolution change,
-as streamoff may be called in dynamic resolution change.
+Commit 1f82f2df523cb ("media: hantro: Enable H.264 on Rockchip VDPU2")
+enabled H.264 on some SoCs with VDPU2 cores. This had the side-effect
+of exposing H.264 coded format as supported on RK3399.
 
-Normally, this does not happen.
-But we encounter a special testcase,
-User issue V4L2_DEC_CMD_STOP after enqueue one buffer
-that only contains codec config header, but not any frame data.
-So VPU report the parsed resolution, then report the eos event.
+Fix this and clarify how the codec is explicitly disabled on RK3399 on
+this driver.
 
-So driver should notify user to handle resolution change first,
-after it's handled, set the last_buffer_dequeued.
-then the user can exit decoding normally.
-
-Otherwise the user may be stalled.
-
-Fixes: 6de8d628df6ef ("media: amphion: add v4l2 m2m vpu decoder stateful driver")
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
+Fixes: 1f82f2df523cb ("media: hantro: Enable H.264 on Rockchip VDPU2")
+Signed-off-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Tested-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Reviewed-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/amphion/vdec.c     | 36 ++++++++++++++---------
- drivers/media/platform/amphion/vpu_v4l2.c |  2 +-
- 2 files changed, 23 insertions(+), 15 deletions(-)
+ .../staging/media/hantro/rockchip_vpu_hw.c    | 60 ++++++++++++++++---
+ 1 file changed, 53 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/platform/amphion/vdec.c b/drivers/media/platform/amphion/vdec.c
-index 3c02aa2a54aa..a5bb997b000b 100644
---- a/drivers/media/platform/amphion/vdec.c
-+++ b/drivers/media/platform/amphion/vdec.c
-@@ -178,16 +178,6 @@ static int vdec_ctrl_init(struct vpu_inst *inst)
- 	return 0;
- }
+diff --git a/drivers/staging/media/hantro/rockchip_vpu_hw.c b/drivers/staging/media/hantro/rockchip_vpu_hw.c
+index 098486b9ec27..26e16b5a6a70 100644
+--- a/drivers/staging/media/hantro/rockchip_vpu_hw.c
++++ b/drivers/staging/media/hantro/rockchip_vpu_hw.c
+@@ -182,7 +182,7 @@ static const struct hantro_fmt rk3288_vpu_dec_fmts[] = {
+ 	},
+ };
  
--static void vdec_set_last_buffer_dequeued(struct vpu_inst *inst)
--{
--	struct vdec_t *vdec = inst->priv;
--
--	if (vdec->eos_received) {
--		if (!vpu_set_last_buffer_dequeued(inst))
--			vdec->eos_received--;
--	}
--}
--
- static void vdec_handle_resolution_change(struct vpu_inst *inst)
+-static const struct hantro_fmt rk3399_vpu_dec_fmts[] = {
++static const struct hantro_fmt rockchip_vdpu2_dec_fmts[] = {
+ 	{
+ 		.fourcc = V4L2_PIX_FMT_NV12,
+ 		.codec_mode = HANTRO_MODE_NONE,
+@@ -236,6 +236,47 @@ static const struct hantro_fmt rk3399_vpu_dec_fmts[] = {
+ 	},
+ };
+ 
++static const struct hantro_fmt rk3399_vpu_dec_fmts[] = {
++	{
++		.fourcc = V4L2_PIX_FMT_NV12,
++		.codec_mode = HANTRO_MODE_NONE,
++		.frmsize = {
++			.min_width = FMT_MIN_WIDTH,
++			.max_width = FMT_FHD_WIDTH,
++			.step_width = MB_DIM,
++			.min_height = FMT_MIN_HEIGHT,
++			.max_height = FMT_FHD_HEIGHT,
++			.step_height = MB_DIM,
++		},
++	},
++	{
++		.fourcc = V4L2_PIX_FMT_MPEG2_SLICE,
++		.codec_mode = HANTRO_MODE_MPEG2_DEC,
++		.max_depth = 2,
++		.frmsize = {
++			.min_width = FMT_MIN_WIDTH,
++			.max_width = FMT_FHD_WIDTH,
++			.step_width = MB_DIM,
++			.min_height = FMT_MIN_HEIGHT,
++			.max_height = FMT_FHD_HEIGHT,
++			.step_height = MB_DIM,
++		},
++	},
++	{
++		.fourcc = V4L2_PIX_FMT_VP8_FRAME,
++		.codec_mode = HANTRO_MODE_VP8_DEC,
++		.max_depth = 2,
++		.frmsize = {
++			.min_width = FMT_MIN_WIDTH,
++			.max_width = FMT_UHD_WIDTH,
++			.step_width = MB_DIM,
++			.min_height = FMT_MIN_HEIGHT,
++			.max_height = FMT_UHD_HEIGHT,
++			.step_height = MB_DIM,
++		},
++	},
++};
++
+ static irqreturn_t rockchip_vpu1_vepu_irq(int irq, void *dev_id)
  {
- 	struct vdec_t *vdec = inst->priv;
-@@ -234,6 +224,21 @@ static int vdec_update_state(struct vpu_inst *inst, enum vpu_codec_state state,
- 	return 0;
- }
+ 	struct hantro_dev *vpu = dev_id;
+@@ -548,8 +589,8 @@ const struct hantro_variant rk3288_vpu_variant = {
  
-+static void vdec_set_last_buffer_dequeued(struct vpu_inst *inst)
-+{
-+	struct vdec_t *vdec = inst->priv;
-+
-+	if (inst->state == VPU_CODEC_STATE_DYAMIC_RESOLUTION_CHANGE)
-+		return;
-+
-+	if (vdec->eos_received) {
-+		if (!vpu_set_last_buffer_dequeued(inst)) {
-+			vdec->eos_received--;
-+			vdec_update_state(inst, VPU_CODEC_STATE_DRAIN, 0);
-+		}
-+	}
-+}
-+
- static int vdec_querycap(struct file *file, void *fh, struct v4l2_capability *cap)
- {
- 	strscpy(cap->driver, "amphion-vpu", sizeof(cap->driver));
-@@ -493,6 +498,8 @@ static int vdec_drain(struct vpu_inst *inst)
+ const struct hantro_variant rk3328_vpu_variant = {
+ 	.dec_offset = 0x400,
+-	.dec_fmts = rk3399_vpu_dec_fmts,
+-	.num_dec_fmts = ARRAY_SIZE(rk3399_vpu_dec_fmts),
++	.dec_fmts = rockchip_vdpu2_dec_fmts,
++	.num_dec_fmts = ARRAY_SIZE(rockchip_vdpu2_dec_fmts),
+ 	.codec = HANTRO_MPEG2_DECODER | HANTRO_VP8_DECODER |
+ 		 HANTRO_H264_DECODER,
+ 	.codec_ops = rk3399_vpu_codec_ops,
+@@ -560,6 +601,11 @@ const struct hantro_variant rk3328_vpu_variant = {
+ 	.num_clocks = ARRAY_SIZE(rockchip_vpu_clk_names),
+ };
  
- static int vdec_cmd_start(struct vpu_inst *inst)
- {
-+	struct vdec_t *vdec = inst->priv;
-+
- 	switch (inst->state) {
- 	case VPU_CODEC_STATE_STARTED:
- 	case VPU_CODEC_STATE_DRAIN:
-@@ -503,6 +510,8 @@ static int vdec_cmd_start(struct vpu_inst *inst)
- 		break;
- 	}
- 	vpu_process_capture_buffer(inst);
-+	if (vdec->eos_received)
-+		vdec_set_last_buffer_dequeued(inst);
- 	return 0;
- }
++/*
++ * H.264 decoding explicitly disabled in RK3399.
++ * This ensures userspace applications use the Rockchip VDEC core,
++ * which has better performance.
++ */
+ const struct hantro_variant rk3399_vpu_variant = {
+ 	.enc_offset = 0x0,
+ 	.enc_fmts = rockchip_vpu_enc_fmts,
+@@ -579,8 +625,8 @@ const struct hantro_variant rk3399_vpu_variant = {
  
-@@ -1203,7 +1212,6 @@ static void vdec_event_eos(struct vpu_inst *inst)
- 	vdec->eos_received++;
- 	vdec->fixed_fmt = false;
- 	inst->min_buffer_cap = VDEC_MIN_BUFFER_CAP;
--	vdec_update_state(inst, VPU_CODEC_STATE_DRAIN, 0);
- 	vdec_set_last_buffer_dequeued(inst);
- 	vpu_inst_unlock(inst);
- }
-@@ -1480,10 +1488,10 @@ static int vdec_stop_session(struct vpu_inst *inst, u32 type)
- 		vdec_update_state(inst, VPU_CODEC_STATE_SEEK, 0);
- 		vdec->drain = 0;
- 	} else {
--		if (inst->state != VPU_CODEC_STATE_DYAMIC_RESOLUTION_CHANGE)
-+		if (inst->state != VPU_CODEC_STATE_DYAMIC_RESOLUTION_CHANGE) {
- 			vdec_abort(inst);
--
--		vdec->eos_received = 0;
-+			vdec->eos_received = 0;
-+		}
- 		vdec_clear_slots(inst);
- 	}
- 
-diff --git a/drivers/media/platform/amphion/vpu_v4l2.c b/drivers/media/platform/amphion/vpu_v4l2.c
-index da455e5ab337..8a3eed957ae6 100644
---- a/drivers/media/platform/amphion/vpu_v4l2.c
-+++ b/drivers/media/platform/amphion/vpu_v4l2.c
-@@ -500,8 +500,8 @@ static int vpu_vb2_start_streaming(struct vb2_queue *q, unsigned int count)
- 		  fmt->sizeimage[1], fmt->bytesperline[1],
- 		  fmt->sizeimage[2], fmt->bytesperline[2],
- 		  q->num_buffers);
--	ret = call_vop(inst, start, q->type);
- 	vb2_clear_last_buffer_dequeued(q);
-+	ret = call_vop(inst, start, q->type);
- 	if (ret)
- 		vpu_vb2_buffers_return(inst, q->type, VB2_BUF_STATE_QUEUED);
- 
+ const struct hantro_variant rk3568_vpu_variant = {
+ 	.dec_offset = 0x400,
+-	.dec_fmts = rk3399_vpu_dec_fmts,
+-	.num_dec_fmts = ARRAY_SIZE(rk3399_vpu_dec_fmts),
++	.dec_fmts = rockchip_vdpu2_dec_fmts,
++	.num_dec_fmts = ARRAY_SIZE(rockchip_vdpu2_dec_fmts),
+ 	.codec = HANTRO_MPEG2_DECODER |
+ 		 HANTRO_VP8_DECODER | HANTRO_H264_DECODER,
+ 	.codec_ops = rk3399_vpu_codec_ops,
+@@ -596,8 +642,8 @@ const struct hantro_variant px30_vpu_variant = {
+ 	.enc_fmts = rockchip_vpu_enc_fmts,
+ 	.num_enc_fmts = ARRAY_SIZE(rockchip_vpu_enc_fmts),
+ 	.dec_offset = 0x400,
+-	.dec_fmts = rk3399_vpu_dec_fmts,
+-	.num_dec_fmts = ARRAY_SIZE(rk3399_vpu_dec_fmts),
++	.dec_fmts = rockchip_vdpu2_dec_fmts,
++	.num_dec_fmts = ARRAY_SIZE(rockchip_vdpu2_dec_fmts),
+ 	.codec = HANTRO_JPEG_ENCODER | HANTRO_MPEG2_DECODER |
+ 		 HANTRO_VP8_DECODER | HANTRO_H264_DECODER,
+ 	.codec_ops = rk3399_vpu_codec_ops,
 -- 
 2.35.1
 
