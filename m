@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A15C1593623
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:24:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFEE459365D
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:24:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232554AbiHOScb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:32:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39306 "EHLO
+        id S243553AbiHOSeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:34:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242033AbiHOSbg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:31:36 -0400
+        with ESMTP id S243634AbiHOSdy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:33:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E01FF33404;
-        Mon, 15 Aug 2022 11:21:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06BA637FA6;
+        Mon, 15 Aug 2022 11:22:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36273B8107B;
-        Mon, 15 Aug 2022 18:21:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71CE7C433D6;
-        Mon, 15 Aug 2022 18:21:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6B1FB81074;
+        Mon, 15 Aug 2022 18:21:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A727C433D7;
+        Mon, 15 Aug 2022 18:21:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587681;
-        bh=2ovyApPiME4/c5U9s2pafwbgUslndUbYq4uX2bqjewE=;
+        s=korg; t=1660587716;
+        bh=lC1PDtOD4kVcf3eDjo4yBR1rOPmdYM1OQZgn1WPyCNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LrR4XVEA9skn3QTNc5IdLITZA0lcfASO4RknZnveyimGUyFpCZfQGaMjHV+fLQIen
-         FnEDLPLEF/ilR89zPlJi530fnSzasGT1gSeVjInmrEf6PdT2VgYiYr5GHX+8V6/Vak
-         GY9Bb2b+QedSoS0rClkk7DLN08iVO+zuJ5o92THU=
+        b=c1NFdBa2RxBSDr/Tvdt5maO47mjS0+noafwBOEzuKD/zZvTE/VaaEKIl0Km4S+juG
+         LJFca0mthf5VbD3VHou0y7cpM6eUni7+h5ngPfBMvp3XccNvK4/e9rKLOL47GFR88h
+         kUq4tPluTCNuYmDS/qtRL43wM+Yb2hgOwbBWUfAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 154/779] netfilter: nf_tables: add rescheduling points during loop detection walks
-Date:   Mon, 15 Aug 2022 19:56:38 +0200
-Message-Id: <20220815180343.899696572@linuxfoundation.org>
+Subject: [PATCH 5.15 155/779] ARM: findbit: fix overflowing offset
+Date:   Mon, 15 Aug 2022 19:56:39 +0200
+Message-Id: <20220815180343.948725163@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,50 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 81ea010667417ef3f218dfd99b69769fe66c2b67 ]
+[ Upstream commit ec85bd369fd2bfaed6f45dd678706429d4f75b48 ]
 
-Add explicit rescheduling points during ruleset walk.
+When offset is larger than the size of the bit array, we should not
+attempt to access the array as we can perform an access beyond the
+end of the array. Fix this by changing the pre-condition.
 
-Switching to a faster algorithm is possible but this is a much
-smaller change, suitable for nf tree.
+Using "cmp r2, r1; bhs ..." covers us for the size == 0 case, since
+this will always take the branch when r1 is zero, irrespective of
+the value of r2. This means we can fix this bug without adding any
+additional code!
 
-Link: https://bugzilla.netfilter.org/show_bug.cgi?id=1460
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/lib/findbit.S | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 13d14fcc2371..3d52a08bd560 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -3248,6 +3248,8 @@ int nft_chain_validate(const struct nft_ctx *ctx, const struct nft_chain *chain)
- 			if (err < 0)
- 				return err;
- 		}
-+
-+		cond_resched();
- 	}
+diff --git a/arch/arm/lib/findbit.S b/arch/arm/lib/findbit.S
+index b5e8b9ae4c7d..7fd3600db8ef 100644
+--- a/arch/arm/lib/findbit.S
++++ b/arch/arm/lib/findbit.S
+@@ -40,8 +40,8 @@ ENDPROC(_find_first_zero_bit_le)
+  * Prototype: int find_next_zero_bit(void *addr, unsigned int maxbit, int offset)
+  */
+ ENTRY(_find_next_zero_bit_le)
+-		teq	r1, #0
+-		beq	3b
++		cmp	r2, r1
++		bhs	3b
+ 		ands	ip, r2, #7
+ 		beq	1b			@ If new byte, goto old routine
+  ARM(		ldrb	r3, [r0, r2, lsr #3]	)
+@@ -81,8 +81,8 @@ ENDPROC(_find_first_bit_le)
+  * Prototype: int find_next_zero_bit(void *addr, unsigned int maxbit, int offset)
+  */
+ ENTRY(_find_next_bit_le)
+-		teq	r1, #0
+-		beq	3b
++		cmp	r2, r1
++		bhs	3b
+ 		ands	ip, r2, #7
+ 		beq	1b			@ If new byte, goto old routine
+  ARM(		ldrb	r3, [r0, r2, lsr #3]	)
+@@ -115,8 +115,8 @@ ENTRY(_find_first_zero_bit_be)
+ ENDPROC(_find_first_zero_bit_be)
  
- 	return 0;
-@@ -9225,9 +9227,13 @@ static int nf_tables_check_loops(const struct nft_ctx *ctx,
- 				break;
- 			}
- 		}
-+
-+		cond_resched();
- 	}
+ ENTRY(_find_next_zero_bit_be)
+-		teq	r1, #0
+-		beq	3b
++		cmp	r2, r1
++		bhs	3b
+ 		ands	ip, r2, #7
+ 		beq	1b			@ If new byte, goto old routine
+ 		eor	r3, r2, #0x18		@ big endian byte ordering
+@@ -149,8 +149,8 @@ ENTRY(_find_first_bit_be)
+ ENDPROC(_find_first_bit_be)
  
- 	list_for_each_entry(set, &ctx->table->sets, list) {
-+		cond_resched();
-+
- 		if (!nft_is_active_next(ctx->net, set))
- 			continue;
- 		if (!(set->flags & NFT_SET_MAP) ||
+ ENTRY(_find_next_bit_be)
+-		teq	r1, #0
+-		beq	3b
++		cmp	r2, r1
++		bhs	3b
+ 		ands	ip, r2, #7
+ 		beq	1b			@ If new byte, goto old routine
+ 		eor	r3, r2, #0x18		@ big endian byte ordering
 -- 
 2.35.1
 
