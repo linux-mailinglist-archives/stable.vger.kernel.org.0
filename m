@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE817592E97
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 14:01:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 221A9592E9A
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 14:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231552AbiHOMBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 08:01:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44796 "EHLO
+        id S232659AbiHOMCA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 08:02:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbiHOMBg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 08:01:36 -0400
+        with ESMTP id S231629AbiHOMBh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 08:01:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C6FA22B3E
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 05:01:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F010D22B3F
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 05:01:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0CBB6106C
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 12:01:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D33EEC433D6;
-        Mon, 15 Aug 2022 12:01:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 903D261170
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 12:01:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96A3FC433D6;
+        Mon, 15 Aug 2022 12:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660564893;
-        bh=+pGc92d+kInmcjcxnxG6tF/Zb4WQ85+iU0txz/iB32M=;
+        s=korg; t=1660564896;
+        bh=rp1BBFD9LYoQqc3QnaB8l7jNwn3r5IbaHVVcT2K2gDM=;
         h=Subject:To:Cc:From:Date:From;
-        b=yvMZqn2vMiC67dT1y3zngvQQH9HwdT7Run6EY1ahFc8j4qfTjom3+zqJ0r+fgUYEd
-         RfT5YOeG3z4g0G4Tx+qk5VXVur/qrCMbA4G7lOITlbcOn75ZEWl2boriPHZabVNetK
-         htbfWowCEvweKnk7ouDHYXpGJq2VKJwLLIEtubmk=
-Subject: FAILED: patch "[PATCH] crypto: memneq - move into lib/" failed to apply to 5.15-stable tree
+        b=QTmcSDtPT7Dg4RLNtS9v1Q/u+B/BlT1vVt5/x/DSOewka8Z2cF4WLlLzPXyj03n/C
+         slFGJ2g/wCMGWMSPY5sTFI+BNqUOGFPmeob92JvdAGKPyVf7ZALBfRMPZ5ffjNcc1Y
+         yrlUdbp2NXmqPDB1lKSF/neFVKWxpT9pFyHWtpaU=
+Subject: FAILED: patch "[PATCH] crypto: memneq - move into lib/" failed to apply to 5.10-stable tree
 To:     Jason@zx2c4.com, ebiggers@google.com, ebiggers@kernel.org,
         herbert@gondor.apana.org.au, zhengbin13@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Aug 2022 14:01:20 +0200
-Message-ID: <1660564880237127@kroah.com>
+Date:   Mon, 15 Aug 2022 14:01:21 +0200
+Message-ID: <1660564881112169@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
