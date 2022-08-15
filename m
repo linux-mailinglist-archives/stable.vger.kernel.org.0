@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 879D65949C0
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:15:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E65C5947DB
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233384AbiHOXWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:22:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33220 "EHLO
+        id S233677AbiHOXWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:22:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245258AbiHOXUe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:20:34 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EE35B4E8E;
-        Mon, 15 Aug 2022 13:04:13 -0700 (PDT)
+        with ESMTP id S1344767AbiHOXUz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:20:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 891F57E033;
+        Mon, 15 Aug 2022 13:04:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 47ED8CE12C5;
-        Mon, 15 Aug 2022 20:04:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FFFEC433D6;
-        Mon, 15 Aug 2022 20:04:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44F5FB80EA8;
+        Mon, 15 Aug 2022 20:04:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE59DC433C1;
+        Mon, 15 Aug 2022 20:04:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593849;
-        bh=I+I2wzV0Z+MxOytYnSFYZBmG2OVavB/tYy6DM0PO2BQ=;
+        s=korg; t=1660593856;
+        bh=sFF/GLrtKkldifMSHkZh0cLIrumrBiRtQIFmzUP1GiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vml4N3bB6nZrIwRaaWgyMctMLkieNYwTgsL/E6dZjulgfFy1V/nNHU5Hr0ly9OrTs
-         IQAdGrA7lhxeE+FuMbk9gKATEu+Zhb6M9/Yp8saOfuY2TWF1YZrxI159h0ULJSZkcz
-         K9X99v0jJ/s2XFZUcxNtpt/Des7A7cmjb1Kv/MpE=
+        b=s7e2BMbtwsQqqUjS+6uTffCoR7lw/uiiXWzS/lOjMIvTtaZT/NK8sjVnpQuN/BwN3
+         a20Y/zGBOFqsDpTicQwhFBe+Mb9nyUsi3HvzsGy6Cuqmc7zEVLEd+63MLzq2SfyTcU
+         5DrsIef+a2rCvEObxLtG08RH9D+ja7lzhjqZffvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Manikanta Pubbisetty <quic_mpubbise@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        Alexey Kodanev <aleksei.kodanev@bell-sw.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0335/1157] ath11k: Avoid REO CMD failed prints during firmware recovery
-Date:   Mon, 15 Aug 2022 19:54:51 +0200
-Message-Id: <20220815180453.069184063@linuxfoundation.org>
+Subject: [PATCH 5.19 0336/1157] drm/radeon: fix potential buffer overflow in ni_set_mc_special_registers()
+Date:   Mon, 15 Aug 2022 19:54:52 +0200
+Message-Id: <20220815180453.110296283@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,47 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manikanta Pubbisetty <quic_mpubbise@quicinc.com>
+From: Alexey Kodanev <aleksei.kodanev@bell-sw.com>
 
-[ Upstream commit 0ab52b2bd7be8fd49c8ade7703c1faa15359c6c5 ]
+[ Upstream commit 136f614931a2bb73616b292cf542da3a18daefd5 ]
 
-Currently when firmware recovery is in progress, we do not queue REO
-commands to the firmware, instead -ESHUTDOWN will be returned to the
-caller leading to a failure print on the console. The REO command in
-the problem scenario is sent for all tids of a peer in which case we
-will have 16 failure prints on the console for a single peer. For an
-AP usecase, this count would be even higher in a worst case scenario.
-Since these commands are bound to fail during firmware recovery, it
-is better to avoid printing these failures and thereby avoid message
-flooding on the console.
+The last case label can write two buffers 'mc_reg_address[j]' and
+'mc_data[j]' with 'j' offset equal to SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE
+since there are no checks for this value in both case labels after the
+last 'j++'.
 
-Tested-on: WCN6750 hw1.0 AHB WLAN.MSL.1.0.1-00887-QCAMSLSWPLZ-1
+Instead of changing '>' to '>=' there, add the bounds check at the start
+of the second 'case' (the first one already has it).
 
-Fixes: 8ee8d38ca472 ("ath11k: Fix crash during firmware recovery on reo cmd ring access")
-Signed-off-by: Manikanta Pubbisetty <quic_mpubbise@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220602122929.18896-1-quic_mpubbise@quicinc.com
+Also, remove redundant last checks for 'j' index bigger than array size.
+The expression is always false. Moreover, before or after the patch
+'table->last' can be equal to SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE and it
+seems it can be a valid value.
+
+Detected using the static analysis tool - Svace.
+Fixes: 69e0b57a91ad ("drm/radeon/kms: add dpm support for cayman (v5)")
+Signed-off-by: Alexey Kodanev <aleksei.kodanev@bell-sw.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/dp_rx.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/radeon/ni_dpm.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
-index 049774cc158c..b3e133add1ce 100644
---- a/drivers/net/wireless/ath/ath11k/dp_rx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
-@@ -835,8 +835,9 @@ void ath11k_peer_rx_tid_delete(struct ath11k *ar,
- 					HAL_REO_CMD_UPDATE_RX_QUEUE, &cmd,
- 					ath11k_dp_rx_tid_del_func);
- 	if (ret) {
--		ath11k_err(ar->ab, "failed to send HAL_REO_CMD_UPDATE_RX_QUEUE cmd, tid %d (%d)\n",
--			   tid, ret);
-+		if (ret != -ESHUTDOWN)
-+			ath11k_err(ar->ab, "failed to send HAL_REO_CMD_UPDATE_RX_QUEUE cmd, tid %d (%d)\n",
-+				   tid, ret);
- 		dma_unmap_single(ar->ab->dev, rx_tid->paddr, rx_tid->size,
- 				 DMA_BIDIRECTIONAL);
- 		kfree(rx_tid->vaddr);
+diff --git a/drivers/gpu/drm/radeon/ni_dpm.c b/drivers/gpu/drm/radeon/ni_dpm.c
+index 769f666335ac..672d2239293e 100644
+--- a/drivers/gpu/drm/radeon/ni_dpm.c
++++ b/drivers/gpu/drm/radeon/ni_dpm.c
+@@ -2741,10 +2741,10 @@ static int ni_set_mc_special_registers(struct radeon_device *rdev,
+ 					table->mc_reg_table_entry[k].mc_data[j] |= 0x100;
+ 			}
+ 			j++;
+-			if (j > SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE)
+-				return -EINVAL;
+ 			break;
+ 		case MC_SEQ_RESERVE_M >> 2:
++			if (j >= SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE)
++				return -EINVAL;
+ 			temp_reg = RREG32(MC_PMG_CMD_MRS1);
+ 			table->mc_reg_address[j].s1 = MC_PMG_CMD_MRS1 >> 2;
+ 			table->mc_reg_address[j].s0 = MC_SEQ_PMG_CMD_MRS1_LP >> 2;
+@@ -2753,8 +2753,6 @@ static int ni_set_mc_special_registers(struct radeon_device *rdev,
+ 					(temp_reg & 0xffff0000) |
+ 					(table->mc_reg_table_entry[k].mc_data[i] & 0x0000ffff);
+ 			j++;
+-			if (j > SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE)
+-				return -EINVAL;
+ 			break;
+ 		default:
+ 			break;
 -- 
 2.35.1
 
