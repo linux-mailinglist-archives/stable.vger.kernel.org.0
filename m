@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D47FB59474E
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90AAC594729
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344170AbiHOXn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:43:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60754 "EHLO
+        id S1354136AbiHOXn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:43:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354321AbiHOXlx (ORCPT
+        with ESMTP id S1354322AbiHOXlx (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93EEC2C65C;
-        Mon, 15 Aug 2022 13:12:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BF9F2C660;
+        Mon, 15 Aug 2022 13:12:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E3586077B;
-        Mon, 15 Aug 2022 20:12:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 172F1C433C1;
-        Mon, 15 Aug 2022 20:12:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 294EB60B9B;
+        Mon, 15 Aug 2022 20:12:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 192AFC433C1;
+        Mon, 15 Aug 2022 20:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594344;
-        bh=AUx0DyP1wpvcM7jw+zKjJqfB5eCKGEC5MqiBsClfykY=;
+        s=korg; t=1660594350;
+        bh=18v+vZT0Ed/9QFymO9brtDowoMMCn/h3TPlulZeogO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bB32JaJZn1KOdcNmZvHvW/+uYW9MiZy9jXMDOVM+zRamHpZY8vWRV3BqH50PAiep+
-         HS4S2Z81J1cJ1+Lu+blyxjP/gIyixFukdjlSLp1DoCg75UV1/nohiRhP9sadZPDLcf
-         d9URKVT7FaWzGGEXmQ8oyGi3yzlcNJQj1ChJ4A+A=
+        b=o+CPzbWjGlBwbWOFN/bfbNMfF5/+aVeNil2ucPqgwljBJdcLZAE9vgLROYnzQVY96
+         RkMfIm4niG288oFKmSMwOeAQcBNGsMDnapnQBGMKfkIMZRzIlPVdBgys3JocBvVQdS
+         JL7Qr3k7YkzyQMrIEE574LzXmTFXPLwrUCd9hTrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dom Cobley <popcornmix@gmail.com>,
+        stable@vger.kernel.org,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0417/1157] drm/vc4: hdmi: Avoid full hdmi audio fifo writes
-Date:   Mon, 15 Aug 2022 19:56:13 +0200
-Message-Id: <20220815180456.329569159@linuxfoundation.org>
+Subject: [PATCH 5.19 0419/1157] drm/vc4: hdmi: Switch to pm_runtime_status_suspended
+Date:   Mon, 15 Aug 2022 19:56:15 +0200
+Message-Id: <20220815180456.434613174@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,44 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dom Cobley <popcornmix@gmail.com>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit 1c594eeccf92368177c2e22f1d3ee4933dfb8567 ]
+[ Upstream commit fcef97e70094a33ded73b3eb9bef06698c6e9c12 ]
 
-We are getting occasional VC4_HD_MAI_CTL_ERRORF in
-HDMI_MAI_CTL which seem to correspond with audio dropouts.
+If the controller isn't clocked or its domain powered up, the register
+accesses will either stall the CPU or return garbage, respectively.
 
-Reduce the threshold where we deassert DREQ to avoid the fifo
-overfilling
+Thus, we had a warning in our register access function to complain when
+that kind of risky accesses were performed.
 
-Fixes: bb7d78568814 ("drm/vc4: Add HDMI audio support")
-Signed-off-by: Dom Cobley <popcornmix@gmail.com>
-Link: https://lore.kernel.org/r/20220613144800.326124-21-maxime@cerno.tech
+In order to check the runtime_pm power state, we were using
+pm_runtime_active(), but it turns out that it will become active only
+once the runtime_resume hook has been executed.
+
+This prevents us from doing any WARN-free register access in our
+runtime_resume() implementation, while this is valid.
+
+Let's switch to pm_runtime_status_suspended() instead.
+
+Fixes: 14e193b95604 ("drm/vc4: hdmi: Warn if we access the controller while disabled")
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Link: https://lore.kernel.org/r/20220613144800.326124-23-maxime@cerno.tech
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hdmi_regs.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index ecd49214bd92..d0921f832f19 100644
---- a/drivers/gpu/drm/vc4/vc4_hdmi.c
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -1956,10 +1956,10 @@ static int vc4_hdmi_audio_prepare(struct device *dev, void *data,
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi_regs.h b/drivers/gpu/drm/vc4/vc4_hdmi_regs.h
+index 549cc63dab39..0198de96c7b2 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi_regs.h
++++ b/drivers/gpu/drm/vc4/vc4_hdmi_regs.h
+@@ -423,7 +423,7 @@ static inline u32 vc4_hdmi_read(struct vc4_hdmi *hdmi,
+ 	const struct vc4_hdmi_variant *variant = hdmi->variant;
+ 	void __iomem *base;
  
- 	/* Set the MAI threshold */
- 	HDMI_WRITE(HDMI_MAI_THR,
--		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_PANICHIGH) |
--		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_PANICLOW) |
--		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_DREQHIGH) |
--		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_DREQLOW));
-+		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_PANICHIGH) |
-+		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_PANICLOW) |
-+		   VC4_SET_FIELD(0x06, VC4_HD_MAI_THR_DREQHIGH) |
-+		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_DREQLOW));
+-	WARN_ON(!pm_runtime_active(&hdmi->pdev->dev));
++	WARN_ON(pm_runtime_status_suspended(&hdmi->pdev->dev));
  
- 	HDMI_WRITE(HDMI_MAI_CONFIG,
- 		   VC4_HDMI_MAI_CONFIG_BIT_REVERSE |
+ 	if (reg >= variant->num_registers) {
+ 		dev_warn(&hdmi->pdev->dev,
+@@ -453,7 +453,7 @@ static inline void vc4_hdmi_write(struct vc4_hdmi *hdmi,
+ 
+ 	lockdep_assert_held(&hdmi->hw_lock);
+ 
+-	WARN_ON(!pm_runtime_active(&hdmi->pdev->dev));
++	WARN_ON(pm_runtime_status_suspended(&hdmi->pdev->dev));
+ 
+ 	if (reg >= variant->num_registers) {
+ 		dev_warn(&hdmi->pdev->dev,
 -- 
 2.35.1
 
