@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AD55594B82
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:23:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86C67594B6E
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:23:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244970AbiHPATa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:19:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43372 "EHLO
+        id S1346312AbiHPARn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:17:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345410AbiHPARa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:17:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AF62179E18;
-        Mon, 15 Aug 2022 13:30:55 -0700 (PDT)
+        with ESMTP id S1353204AbiHPAQC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:16:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D27C5179E2E;
+        Mon, 15 Aug 2022 13:30:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D124861089;
-        Mon, 15 Aug 2022 20:30:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB4E4C433C1;
-        Mon, 15 Aug 2022 20:30:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E398961135;
+        Mon, 15 Aug 2022 20:30:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0886C433D6;
+        Mon, 15 Aug 2022 20:30:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595454;
-        bh=VectoRnel6ZxlxWCEKAW8w1l70sUcU5royMSTDmQfLo=;
+        s=korg; t=1660595457;
+        bh=0wrrhUS/yrhbpDRp/29eoecL0CIsdPgCiNB8JkyesjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GAFEqObxRHamco8jEcYDsDnHJ+IVaP3EABVSyqCHxBdremKXZgPGkDajXFoKhu453
-         HNzWSCWLKtQ3VZkekZ2R8UCLPaG59VXmlpYRNr+5XMB/K2O7+BY6r92rQExIF0Oh35
-         IWRLW0D+N0bCwQqVKFluZjVsd5I+rn3Q9KYuqICI=
+        b=VLHnqfi8IiSSjCf4Had9w/aXPeS5wmwiGdtO3LvzmnAN2dgKSmNJS92QIYxZaNZvY
+         b12FAuh2LvHnwLM3rcNJkwo7h9uoSCXAHcy7S8LeafYol2Vu13DrsnZ56YM3eahuVd
+         YYkfRdM3KWecFEVI+3YysvYB7t2iQb1IoLoE5zb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Geis <pgwipeout@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0770/1157] phy: rockchip-inno-usb2: Sync initial otg state
-Date:   Mon, 15 Aug 2022 20:02:06 +0200
-Message-Id: <20220815180510.296325766@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0771/1157] PCI: dwc: Stop link on host_init errors and de-initialization
+Date:   Mon, 15 Aug 2022 20:02:07 +0200
+Message-Id: <20220815180510.339570389@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,41 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Geis <pgwipeout@gmail.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 8dc60f8da22fdbaa1fafcfb5ff6d24bc9eff56aa ]
+[ Upstream commit 113fa857b74c947137d845e7e635afcf6a59c43a ]
 
-The initial otg state for the phy defaults to device mode. The actual
-state isn't detected until an ID IRQ fires. Fix this by syncing the ID
-state during initialization.
+It's logically correct to undo everything that was done when an error is
+discovered or in the corresponding cleanup counterpart. Otherwise the host
+controller will be left in an undetermined state. Since the link is set up
+in the host_init method, deactivate it there in the cleanup-on-error block
+and stop the link in the antagonistic routine - dw_pcie_host_deinit(). Link
+deactivation is platform-specific and should be implemented in
+dw_pcie_ops.stop_link().
 
-Fixes: 51a9b2c03dd3 ("phy: rockchip-inno-usb2: Handle ID IRQ")
-Signed-off-by: Peter Geis <pgwipeout@gmail.com>
-Reviewed-by: Samuel Holland <samuel@sholland.org>
-Link: https://lore.kernel.org/r/20220622003140.30365-1-pgwipeout@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 886a9c134755 ("PCI: dwc: Move link handling into common code")
+Link: https://lore.kernel.org/r/20220624143428.8334-2-Sergey.Semin@baikalelectronics.ru
+Tested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/rockchip/phy-rockchip-inno-usb2.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../pci/controller/dwc/pcie-designware-host.c    | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-index 6711659f727c..6e44069617df 100644
---- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-+++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-@@ -1162,6 +1162,12 @@ static int rockchip_usb2phy_otg_port_init(struct rockchip_usb2phy *rphy,
- 					EXTCON_USB_HOST, &rport->event_nb);
- 		if (ret)
- 			dev_err(rphy->dev, "register USB HOST notifier failed\n");
-+
-+		if (!of_property_read_bool(rphy->dev->of_node, "extcon")) {
-+			/* do initial sync of usb state */
-+			ret = property_enabled(rphy->grf, &rport->port_cfg->utmi_id);
-+			extcon_set_state_sync(rphy->edev, EXTCON_USB_HOST, !ret);
-+		}
- 	}
+diff --git a/drivers/pci/controller/dwc/pcie-designware-host.c b/drivers/pci/controller/dwc/pcie-designware-host.c
+index 9979302532b7..bc9a7df130ef 100644
+--- a/drivers/pci/controller/dwc/pcie-designware-host.c
++++ b/drivers/pci/controller/dwc/pcie-designware-host.c
+@@ -421,8 +421,14 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 	bridge->sysdata = pp;
  
- out:
+ 	ret = pci_host_probe(bridge);
+-	if (!ret)
+-		return 0;
++	if (ret)
++		goto err_stop_link;
++
++	return 0;
++
++err_stop_link:
++	if (pci->ops && pci->ops->stop_link)
++		pci->ops->stop_link(pci);
+ 
+ err_free_msi:
+ 	if (pp->has_msi_ctrl)
+@@ -433,8 +439,14 @@ EXPORT_SYMBOL_GPL(dw_pcie_host_init);
+ 
+ void dw_pcie_host_deinit(struct pcie_port *pp)
+ {
++	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
++
+ 	pci_stop_root_bus(pp->bridge->bus);
+ 	pci_remove_root_bus(pp->bridge->bus);
++
++	if (pci->ops && pci->ops->stop_link)
++		pci->ops->stop_link(pci);
++
+ 	if (pp->has_msi_ctrl)
+ 		dw_pcie_free_msi(pp);
+ }
 -- 
 2.35.1
 
