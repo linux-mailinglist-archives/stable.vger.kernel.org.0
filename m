@@ -1,42 +1,43 @@
 Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
-Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEA9559366B
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:24:58 +0200 (CEST)
+Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
+	by mail.lfdr.de (Postfix) with ESMTP id CCB3559356A
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242872AbiHOS3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:29:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57590 "EHLO
+        id S241520AbiHOSYS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:24:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242533AbiHOS2y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:28:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C6B2241;
-        Mon, 15 Aug 2022 11:20:15 -0700 (PDT)
+        with ESMTP id S241453AbiHOSXw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:23:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A12982ED44;
+        Mon, 15 Aug 2022 11:17:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9DA2AB8105B;
-        Mon, 15 Aug 2022 18:19:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDAEBC433C1;
-        Mon, 15 Aug 2022 18:19:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7ABC4B81063;
+        Mon, 15 Aug 2022 18:17:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBB3DC433D6;
+        Mon, 15 Aug 2022 18:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587573;
-        bh=qW6yXE9ud1P1tuP49WumpWs1UmmGtf+87D75l29Nzf0=;
+        s=korg; t=1660587469;
+        bh=k99rQfAN/Lt2RYkkU5H2EoGW+vQy2MUMH4d2va9jXms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=waKhJ+qEh5naNgq17V6IxWgbYNIx20gtKk1spk9fbtaIlrK3Ty/Pi+Tfa4RsS11xK
-         pMW/OhqyywsSkLOsGX+v2HBCKHhVAUBFJm2Phz+27rzlvFFNs+veHYw2RIGICaviXm
-         8gt5SgjyZ3vhnsEpCCZUd41ubct8CPWJcphtyrEk=
+        b=scDyuHF75ou4xVkK7qUF0Bw7GB5ee9AiUHaTEv2NTK8+Hk+Q5h+fY3HeNGjCKRnBW
+         8OOXngS47gaORaR1qKzNV4kXZ53vQMoiJiYfO6XJbUcTe3EvltRQGQBb92Iblchhgl
+         6QFkoTi7h7qN7NgkoCDoDQspiqIH632qzaDmAN8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20Kohlsch=C3=BCtter?= 
-        <christian@kohlschutter.com>, Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.15 086/779] fuse: ioctl: translate ENOSYS
-Date:   Mon, 15 Aug 2022 19:55:30 +0200
-Message-Id: <20220815180340.960636094@linuxfoundation.org>
+        stable@vger.kernel.org, Yi Guo <yi.guo@cavium.com>,
+        Nadav Haklai <nadavh@marvell.com>,
+        Narendra Hadke <nhadke@marvell.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 5.15 087/779] serial: mvebu-uart: uart2 error bits clearing
+Date:   Mon, 15 Aug 2022 19:55:31 +0200
+Message-Id: <20220815180340.999276684@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,81 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Narendra Hadke <nhadke@marvell.com>
 
-commit 02c0cab8e7345b06f1c0838df444e2902e4138d3 upstream.
+commit a7209541239e5dd44d981289e5f9059222d40fd1 upstream.
 
-Overlayfs may fail to complete updates when a filesystem lacks
-fileattr/xattr syscall support and responds with an ENOSYS error code,
-resulting in an unexpected "Function not implemented" error.
+For mvebu uart2, error bits are not cleared on buffer read.
+This causes interrupt loop and system hang.
 
-This bug may occur with FUSE filesystems, such as davfs2.
-
-Steps to reproduce:
-
-  # install davfs2, e.g., apk add davfs2
-  mkdir /test mkdir /test/lower /test/upper /test/work /test/mnt
-  yes '' | mount -t davfs -o ro http://some-web-dav-server/path \
-    /test/lower
-  mount -t overlay -o upperdir=/test/upper,lowerdir=/test/lower \
-    -o workdir=/test/work overlay /test/mnt
-
-  # when "some-file" exists in the lowerdir, this fails with "Function
-  # not implemented", with dmesg showing "overlayfs: failed to retrieve
-  # lower fileattr (/some-file, err=-38)"
-  touch /test/mnt/some-file
-
-The underlying cause of this regresion is actually in FUSE, which fails to
-translate the ENOSYS error code returned by userspace filesystem (which
-means that the ioctl operation is not supported) to ENOTTY.
-
-Reported-by: Christian Kohlschütter <christian@kohlschutter.com>
-Fixes: 72db82115d2b ("ovl: copy up sync/noatime fileattr flags")
-Fixes: 59efec7b9039 ("fuse: implement ioctl support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Yi Guo <yi.guo@cavium.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+Signed-off-by: Narendra Hadke <nhadke@marvell.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20220726091221.12358-1-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/ioctl.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/tty/serial/mvebu-uart.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/fs/fuse/ioctl.c
-+++ b/fs/fuse/ioctl.c
-@@ -9,6 +9,17 @@
- #include <linux/compat.h>
- #include <linux/fileattr.h>
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -237,6 +237,7 @@ static void mvebu_uart_rx_chars(struct u
+ 	struct tty_port *tport = &port->state->port;
+ 	unsigned char ch = 0;
+ 	char flag = 0;
++	int ret;
  
-+static ssize_t fuse_send_ioctl(struct fuse_mount *fm, struct fuse_args *args)
-+{
-+	ssize_t ret = fuse_simple_request(fm, args);
-+
-+	/* Translate ENOSYS, which shouldn't be returned from fs */
-+	if (ret == -ENOSYS)
-+		ret = -ENOTTY;
-+
-+	return ret;
-+}
-+
- /*
-  * CUSE servers compiled on 32bit broke on 64bit kernels because the
-  * ABI was defined to be 'struct iovec' which is different on 32bit
-@@ -259,7 +270,7 @@ long fuse_do_ioctl(struct file *file, un
- 	ap.args.out_pages = true;
- 	ap.args.out_argvar = true;
+ 	do {
+ 		if (status & STAT_RX_RDY(port)) {
+@@ -249,6 +250,16 @@ static void mvebu_uart_rx_chars(struct u
+ 				port->icount.parity++;
+ 		}
  
--	transferred = fuse_simple_request(fm, &ap.args);
-+	transferred = fuse_send_ioctl(fm, &ap.args);
- 	err = transferred;
- 	if (transferred < 0)
- 		goto out;
-@@ -393,7 +404,7 @@ static int fuse_priv_ioctl(struct inode
- 	args.out_args[1].size = inarg.out_size;
- 	args.out_args[1].value = ptr;
- 
--	err = fuse_simple_request(fm, &args);
-+	err = fuse_send_ioctl(fm, &args);
- 	if (!err) {
- 		if (outarg.result < 0)
- 			err = outarg.result;
++		/*
++		 * For UART2, error bits are not cleared on buffer read.
++		 * This causes interrupt loop and system hang.
++		 */
++		if (IS_EXTENDED(port) && (status & STAT_BRK_ERR)) {
++			ret = readl(port->membase + UART_STAT);
++			ret |= STAT_BRK_ERR;
++			writel(ret, port->membase + UART_STAT);
++		}
++
+ 		if (status & STAT_BRK_DET) {
+ 			port->icount.brk++;
+ 			status &= ~(STAT_FRM_ERR | STAT_PAR_ERR);
 
 
