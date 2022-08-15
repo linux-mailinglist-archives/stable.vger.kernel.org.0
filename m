@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B08B595069
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEED7595067
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231624AbiHPEmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:42:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42020 "EHLO
+        id S231678AbiHPEmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:42:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231834AbiHPEk2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:40:28 -0400
+        with ESMTP id S231939AbiHPEkj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:40:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5393BD1E0E;
-        Mon, 15 Aug 2022 13:33:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C919D1E1D;
+        Mon, 15 Aug 2022 13:33:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE7EFB80EA8;
-        Mon, 15 Aug 2022 20:33:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B150C433C1;
-        Mon, 15 Aug 2022 20:33:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C71E3B81197;
+        Mon, 15 Aug 2022 20:33:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A111C433C1;
+        Mon, 15 Aug 2022 20:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595593;
-        bh=imMcvGzzPpr3rWTwGM7Bb11ZJvZPVZIPQT6qdLY3okI=;
+        s=korg; t=1660595599;
+        bh=jmK2cpuZJgzfFUBDT4X/tT4K1ZIqlymHVLMD9MRYZTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZcHfPnHehCmb/JWChVOQtAmEEfKBuQBAOAse0mjL7Wlk/b0p9WMafEABatFkAi4f
-         Q+3cDCUfWf2QWxriJ3WQvVsy3vAFJAR50KnUa6rlXdPi5PRXxHI3L0L0soACM6ueju
-         Lbqhm+KusO5Ghhvv8LhWdNHvlLrOBUWXRTLgy3N0=
+        b=xPLduvZRcHWT/K5p2Ba0G+tCWHtl42P3GuxpxBvjBczvDEVf5bBu1xAdlGmfpLzIG
+         h6NFC6WQDJGPnIcLByFCbZ0x5po5XUwXCq1Dn5uURD940HtpjfYkXOfsp3xpFh9s8q
+         eVit9G+y33DwZ3lefCEujZU2lQtJAzrjERhXyCfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Serge Semin <fancer.lancer@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0813/1157] eeprom: idt_89hpesx: uninitialized data in idt_dbgfs_csr_write()
-Date:   Mon, 15 Aug 2022 20:02:49 +0200
-Message-Id: <20220815180512.019919000@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
+        Samuel Holland <samuel@sholland.org>,
+        Peter Geis <pgwipeout@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0815/1157] phy: rockchip-inno-usb2: Ignore OTG IRQs in host mode
+Date:   Mon, 15 Aug 2022 20:02:51 +0200
+Message-Id: <20220815180512.092521896@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,53 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit 71d46f1ff2212ced4852c7e77c5176382a1bdcec ]
+[ Upstream commit fd7d47484125c7d04578de9294faa7fec6e5df0a ]
 
-The simple_write_to_buffer() function will return positive/success if it
-is able to write a single byte anywhere within the buffer.  However that
-potentially leaves a lot of the buffer uninitialized.
+When the OTG port is fixed to host mode, the driver does not request its
+IRQs, nor does it enable those IRQs in hardware. Similarly, the driver
+should ignore the OTG port IRQs when handling the shared interrupt.
 
-In this code it's better to return 0 if the offset is non-zero.  This
-code is not written to support partial writes.  And then return -EFAULT
-if the buffer is not completely initialized.
+Otherwise, it would update the extcon based on an ID pin which may be in
+an undefined state, or try to queue a uninitialized work item.
 
-Fixes: cfad6425382e ("eeprom: Add IDT 89HPESx EEPROM/CSR driver")
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/Ysg1Pu/nzSMe3r1q@kili
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6a98df08ccd5 ("phy: rockchip-inno-usb2: Fix muxed interrupt support")
+Reported-by: Frank Wunderlich <frank-w@public-files.de>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Tested-by: Peter Geis <pgwipeout@gmail.com>
+Tested-by: Frank Wunderlich <frank-w@public-files.de>
+Link: https://lore.kernel.org/r/20220708061434.38115-1-samuel@sholland.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/eeprom/idt_89hpesx.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/phy/rockchip/phy-rockchip-inno-usb2.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/eeprom/idt_89hpesx.c b/drivers/misc/eeprom/idt_89hpesx.c
-index b0cff4b152da..7f430742ce2b 100644
---- a/drivers/misc/eeprom/idt_89hpesx.c
-+++ b/drivers/misc/eeprom/idt_89hpesx.c
-@@ -909,14 +909,18 @@ static ssize_t idt_dbgfs_csr_write(struct file *filep, const char __user *ubuf,
- 	u32 csraddr, csrval;
- 	char *buf;
+diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+index 6e44069617df..5223d4c9afdf 100644
+--- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
++++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+@@ -978,7 +978,9 @@ static irqreturn_t rockchip_usb2phy_irq(int irq, void *data)
  
-+	if (*offp)
-+		return 0;
-+
- 	/* Copy data from User-space */
- 	buf = kmalloc(count + 1, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
- 
--	ret = simple_write_to_buffer(buf, count, offp, ubuf, count);
--	if (ret < 0)
-+	if (copy_from_user(buf, ubuf, count)) {
-+		ret = -EFAULT;
- 		goto free_buf;
-+	}
- 	buf[count] = 0;
- 
- 	/* Find position of colon in the buffer */
+ 		switch (rport->port_id) {
+ 		case USB2PHY_PORT_OTG:
+-			ret |= rockchip_usb2phy_otg_mux_irq(irq, rport);
++			if (rport->mode != USB_DR_MODE_HOST &&
++			    rport->mode != USB_DR_MODE_UNKNOWN)
++				ret |= rockchip_usb2phy_otg_mux_irq(irq, rport);
+ 			break;
+ 		case USB2PHY_PORT_HOST:
+ 			ret |= rockchip_usb2phy_linestate_irq(irq, rport);
 -- 
 2.35.1
 
