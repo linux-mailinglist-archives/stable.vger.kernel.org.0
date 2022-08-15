@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CA1E5939EF
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:35:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C469A5939EC
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245692AbiHOT3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:29:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37284 "EHLO
+        id S245286AbiHOT3L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:29:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344864AbiHOT1V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:27:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BAB95B06E;
-        Mon, 15 Aug 2022 11:43:12 -0700 (PDT)
+        with ESMTP id S1344879AbiHOT1Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:27:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE8A95B074;
+        Mon, 15 Aug 2022 11:43:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05EB5B8105D;
-        Mon, 15 Aug 2022 18:43:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46F1FC433D7;
-        Mon, 15 Aug 2022 18:43:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59603611E3;
+        Mon, 15 Aug 2022 18:43:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6035AC433C1;
+        Mon, 15 Aug 2022 18:43:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588989;
-        bh=nUtCaeffMCvmWQbyHKlf7NyVMga44HMxbZ1Rwk1aclw=;
+        s=korg; t=1660588992;
+        bh=yL9JrACkjVTIEMIH6qNEY4LXIxEtqVAeLLxT0WWprIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eMAFsiCmDTmwgD1QEmCokH18MJuv4tURi1BfJBaxGDpBh23eQ2nuH8Wl6+XC+vE71
-         pJuGlFRFUxwi3N6yhkujzbdkljweHA0nc2hq1Y0Kq8N/IwLj+lokcJhJjCDcOt6fSj
-         +vTNtyuJ3DVAkdAJ2+x6WpHcPZntBQRIyqbOVBsA=
+        b=joOItXO4vCGVkjKfvr0UXTv5PYy1hlEmfVZGgMHUVa3HT7hxwDJcwTYFBnS7gRa3w
+         oyN2V5rTaOY3Usqf5cUuKqYfnPrwAhJxpPm6Et63F2fY0xSMshVfaDwEiu9+nItTkI
+         3mex6xz9OMGpM4yVUgoQRmr4D/6v1Vq0yJtCfNkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 578/779] remoteproc: imx_rproc: Fix refcount leak in imx_rproc_addr_init
-Date:   Mon, 15 Aug 2022 20:03:42 +0200
-Message-Id: <20220815180402.041792259@linuxfoundation.org>
+Subject: [PATCH 5.15 579/779] ASoC: samsung: h1940_uda1380: include proepr GPIO consumer header
+Date:   Mon, 15 Aug 2022 20:03:43 +0200
+Message-Id: <20220815180402.086350747@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,49 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 61afafe8b938bc74841cf4b1a73dd08b9d287c5a ]
+[ Upstream commit bd10b0dafdcf0ec1677cad70101e1f97b9e28f2e ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not needed anymore.
-This function has two paths missing of_node_put().
+h1940_uda1380 uses gpiod*/GPIOD* so it should include GPIO consumer
+header.
 
-Fixes: 6e962bfe56b9 ("remoteproc: imx_rproc: add missing of_node_put")
-Fixes: a0ff4aa6f010 ("remoteproc: imx_rproc: add a NXP/Freescale imx_rproc driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220512045558.7142-1-linmq006@gmail.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Fixes: 9666e27f90b9 ("ASoC: samsung: h1940: turn into platform driver")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220627141900.470469-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/imx_rproc.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/soc/samsung/h1940_uda1380.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/remoteproc/imx_rproc.c b/drivers/remoteproc/imx_rproc.c
-index 59eae605ad59..e8a170ad43c1 100644
---- a/drivers/remoteproc/imx_rproc.c
-+++ b/drivers/remoteproc/imx_rproc.c
-@@ -586,16 +586,17 @@ static int imx_rproc_addr_init(struct imx_rproc *priv,
+diff --git a/sound/soc/samsung/h1940_uda1380.c b/sound/soc/samsung/h1940_uda1380.c
+index c994e67d1eaf..ca086243fcfd 100644
+--- a/sound/soc/samsung/h1940_uda1380.c
++++ b/sound/soc/samsung/h1940_uda1380.c
+@@ -8,7 +8,7 @@
+ // Based on version from Arnaud Patard <arnaud.patard@rtp-net.org>
  
- 		node = of_parse_phandle(np, "memory-region", a);
- 		/* Not map vdevbuffer, vdevring region */
--		if (!strncmp(node->name, "vdev", strlen("vdev")))
-+		if (!strncmp(node->name, "vdev", strlen("vdev"))) {
-+			of_node_put(node);
- 			continue;
-+		}
- 		err = of_address_to_resource(node, 0, &res);
-+		of_node_put(node);
- 		if (err) {
- 			dev_err(dev, "unable to resolve memory region\n");
- 			return err;
- 		}
+ #include <linux/types.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/module.h>
  
--		of_node_put(node);
--
- 		if (b >= IMX_RPROC_MEM_MAX)
- 			break;
- 
+ #include <sound/soc.h>
 -- 
 2.35.1
 
