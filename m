@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30C155936F3
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:26:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC8A593744
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233710AbiHOSrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:47:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49964 "EHLO
+        id S243563AbiHOSrI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:47:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243978AbiHOSqO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:46:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF7BB3FA29;
-        Mon, 15 Aug 2022 11:27:57 -0700 (PDT)
+        with ESMTP id S244003AbiHOSqU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:46:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E82833FA28;
+        Mon, 15 Aug 2022 11:27:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BF2BB8106C;
-        Mon, 15 Aug 2022 18:27:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E914C433D6;
-        Mon, 15 Aug 2022 18:27:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DF9861028;
+        Mon, 15 Aug 2022 18:27:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 342F6C433C1;
+        Mon, 15 Aug 2022 18:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588075;
-        bh=hYBvICLMS9A7g+4gD3UtJkpPzToAMIOOW5sERuULXvQ=;
+        s=korg; t=1660588078;
+        bh=A/7L7qdPZrdDnu57+1oW0UmXRuUAqgLCJZWnb6neBG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q08h0VUtnSeUR8ni9Ajkm8G6nDELeqBiy3kBQm1UQ4vKTEqEWKJY8y+aw29IrNvak
-         4k8ILVoBVlNXRwe99ImUaVofYolVLM5cfSP7W/gkVw+iDxUhFu2KojSX7YDYPz11vU
-         ka/3OO0tDSmIVSOnn+GMYDMJI07OcGMxoD9Z3HwY=
+        b=QEE0tSGQzmVDfO4gqcEiPEXWFtQzuUkPXKnoPtLvVb7tPv5isAea+3K2m1Qg9ULGI
+         +t17c0bh1LLgwD0bolRk8dR0ktXZxFttEYA+uzkr1SPzQyZfTUH7SR1X2MSzsYBI+H
+         K1/oPNjuoljsCxWb5Yxekk8cJxRHFwJodj11qRuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 286/779] crypto: ccp - During shutdown, check SEV data pointer before using
-Date:   Mon, 15 Aug 2022 19:58:50 +0200
-Message-Id: <20220815180349.525914719@linuxfoundation.org>
+Subject: [PATCH 5.15 287/779] drm: bridge: adv7511: Add check for mipi_dsi_driver_register
+Date:   Mon, 15 Aug 2022 19:58:51 +0200
+Message-Id: <20220815180349.566051226@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,42 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 1b05ece0c931536c0a38a9385e243a7962e933f6 ]
+[ Upstream commit 831463667b5f4f1e5bce9c3b94e9e794d2bc8923 ]
 
-On shutdown, each CCP device instance performs shutdown processing.
-However, __sev_platform_shutdown_locked() uses the controlling psp
-structure to obtain the pointer to the sev_device structure. However,
-during driver initialization, it is possible that an error can be received
-from the firmware that results in the sev_data pointer being cleared from
-the controlling psp structure. The __sev_platform_shutdown_locked()
-function does not check for this situation and will segfault.
+As mipi_dsi_driver_register could return error if fails,
+it should be better to check the return value and return error
+if fails.
+Moreover, if i2c_add_driver fails,  mipi_dsi_driver_register
+should be reverted.
 
-While not common, this scenario should be accounted for. Add a check for a
-NULL sev_device structure before attempting to use it.
-
-Fixes: 5441a07a127f ("crypto: ccp - shutdown SEV firmware on kexec")
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 1e4d58cd7f88 ("drm/bridge: adv7533: Create a MIPI DSI device")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220602103401.2980938-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/sev-dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
-index 8cf86dae20a4..900727b5edda 100644
---- a/drivers/crypto/ccp/sev-dev.c
-+++ b/drivers/crypto/ccp/sev-dev.c
-@@ -314,7 +314,7 @@ static int __sev_platform_shutdown_locked(int *error)
- 	struct sev_device *sev = psp_master->sev_data;
- 	int ret;
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+index 1aadc6e94fde..7e3f6633f255 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+@@ -1379,10 +1379,21 @@ static struct i2c_driver adv7511_driver = {
  
--	if (sev->state == SEV_STATE_UNINIT)
-+	if (!sev || sev->state == SEV_STATE_UNINIT)
- 		return 0;
+ static int __init adv7511_init(void)
+ {
+-	if (IS_ENABLED(CONFIG_DRM_MIPI_DSI))
+-		mipi_dsi_driver_register(&adv7533_dsi_driver);
++	int ret;
++
++	if (IS_ENABLED(CONFIG_DRM_MIPI_DSI)) {
++		ret = mipi_dsi_driver_register(&adv7533_dsi_driver);
++		if (ret)
++			return ret;
++	}
  
- 	ret = __sev_do_cmd_locked(SEV_CMD_SHUTDOWN, NULL, error);
+-	return i2c_add_driver(&adv7511_driver);
++	ret = i2c_add_driver(&adv7511_driver);
++	if (ret) {
++		if (IS_ENABLED(CONFIG_DRM_MIPI_DSI))
++			mipi_dsi_driver_unregister(&adv7533_dsi_driver);
++	}
++
++	return ret;
+ }
+ module_init(adv7511_init);
+ 
 -- 
 2.35.1
 
