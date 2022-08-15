@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19768593ED8
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAD93594202
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243852AbiHOVT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:19:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60678 "EHLO
+        id S240974AbiHOVKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:10:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243360AbiHOVP0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:15:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F082BDD74D;
-        Mon, 15 Aug 2022 12:20:01 -0700 (PDT)
+        with ESMTP id S1348086AbiHOVIF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:08:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BEAD3C8FF;
+        Mon, 15 Aug 2022 12:18:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6AD0CB80FD3;
-        Mon, 15 Aug 2022 19:20:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB864C433D6;
-        Mon, 15 Aug 2022 19:19:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E92F060F6A;
+        Mon, 15 Aug 2022 19:18:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCFEDC433C1;
+        Mon, 15 Aug 2022 19:18:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591199;
-        bh=leaJCV8zypGw3gSJdo5jPsu49r3nMcYAxTlGjvMqcjs=;
+        s=korg; t=1660591099;
+        bh=kecoAhspe8ZOIjQtbaMol+JU8+XTX0SpoPNFUJlo3Vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZMZF6MesoOlL3jPXqDqwtM5F6gBNF3fME0L4Deu4DI2v4KTZrwn9N2o60w9xq8EG5
-         QPfAVzRlkaH3gwuFLVW/bBpQYFWCCqJDEr9sinDJ0WIUA5/sntBFmx9WlWDiUhqaKY
-         P2VV5si2JN+pmNJnEFZgN74qtItianoHbfAqymHY=
+        b=TS/XgkOgx0UGs5BmjV6xIJDki6KSnOXsqTQSJ/YvQlHOTIqmPf9OGwWbTux28nYFo
+         XyCGrEQRgKa4j07iO3fLlu70eeY2i81wRitcFoUDybgbpgeSXkRKp9FH/qoymcEa4A
+         pmqJFscHVGmVFFaFqm2Wz1Ita/lHeM5QAyXFezu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kent Russell <kent.russell@amd.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Shashank Sharma <shashank.sharma@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0471/1095] drm/amdgpu: use the same HDP flush registers for all nbio 2.3.x
-Date:   Mon, 15 Aug 2022 19:57:50 +0200
-Message-Id: <20220815180449.065185548@linuxfoundation.org>
+Subject: [PATCH 5.18 0472/1095] drm/amdgpu: cleanup ctx implementation
+Date:   Mon, 15 Aug 2022 19:57:51 +0200
+Message-Id: <20220815180449.100544012@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,91 +56,237 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit 98a90f1f0fdd112b85b16ef6ceee69f319ab9311 ]
+[ Upstream commit 69493c034d2455204dfcd370de8c4dc204374a94 ]
 
-Align RDNA2.x with other asics.  One HDP bit per SDMA instance,
-aligned with firmware.  This is effectively a revert of
-commit 369b7d04baf3 ("drm/amdgpu/nbio2.3: don't use GPU_HDP_FLUSH bit 12").
-On further discussions with the relevant hardware teams,
-re-align the bits for SDMA.
+Let each context have a pointer to the ctx manager and properly
+initialize the adev pointer inside the context manager.
 
-Fixes: 369b7d04baf3 ("drm/amdgpu/nbio2.3: don't use GPU_HDP_FLUSH bit 12")
-Reviewed-by: Kent Russell <kent.russell@amd.com>
+Reduce the BUG_ON() in amdgpu_ctx_add_fence() into a WARN_ON() and
+directly return the sequence number instead of writing into a parmeter.
+
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Shashank Sharma <shashank.sharma@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c |  5 +----
- drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c        | 21 -------------------
- drivers/gpu/drm/amd/amdgpu/nbio_v2_3.h        |  1 -
- 3 files changed, 1 insertion(+), 26 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c  |  2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c | 46 ++++++++++++-------------
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.h | 11 +++---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |  2 +-
+ 4 files changed, 30 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c
-index 918bb7fef6ba..d68db66d969b 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c
-@@ -1907,15 +1907,12 @@ int amdgpu_discovery_set_ip_blocks(struct amdgpu_device *adev)
- 	case IP_VERSION(2, 3, 0):
- 	case IP_VERSION(2, 3, 1):
- 	case IP_VERSION(2, 3, 2):
--		adev->nbio.funcs = &nbio_v2_3_funcs;
--		adev->nbio.hdp_flush_reg = &nbio_v2_3_hdp_flush_reg;
--		break;
- 	case IP_VERSION(3, 3, 0):
- 	case IP_VERSION(3, 3, 1):
- 	case IP_VERSION(3, 3, 2):
- 	case IP_VERSION(3, 3, 3):
- 		adev->nbio.funcs = &nbio_v2_3_funcs;
--		adev->nbio.hdp_flush_reg = &nbio_v2_3_hdp_flush_reg_sc;
-+		adev->nbio.hdp_flush_reg = &nbio_v2_3_hdp_flush_reg;
- 		break;
- 	default:
- 		break;
-diff --git a/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c b/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
-index ee7cab37dfd5..dae78a1e88e6 100644
---- a/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
-+++ b/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
-@@ -328,27 +328,6 @@ const struct nbio_hdp_flush_reg nbio_v2_3_hdp_flush_reg = {
- 	.ref_and_mask_sdma1 = BIF_BX_PF_GPU_HDP_FLUSH_DONE__SDMA1_MASK,
- };
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
+index 2019622191b5..ee0cbc6ccbfb 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
+@@ -1260,7 +1260,7 @@ static int amdgpu_cs_submit(struct amdgpu_cs_parser *p,
  
--const struct nbio_hdp_flush_reg nbio_v2_3_hdp_flush_reg_sc = {
--	.ref_and_mask_cp0 = BIF_BX_PF_GPU_HDP_FLUSH_DONE__CP0_MASK,
--	.ref_and_mask_cp1 = BIF_BX_PF_GPU_HDP_FLUSH_DONE__CP1_MASK,
--	.ref_and_mask_cp2 = BIF_BX_PF_GPU_HDP_FLUSH_DONE__CP2_MASK,
--	.ref_and_mask_cp3 = BIF_BX_PF_GPU_HDP_FLUSH_DONE__CP3_MASK,
--	.ref_and_mask_cp4 = BIF_BX_PF_GPU_HDP_FLUSH_DONE__CP4_MASK,
--	.ref_and_mask_cp5 = BIF_BX_PF_GPU_HDP_FLUSH_DONE__CP5_MASK,
--	.ref_and_mask_cp6 = BIF_BX_PF_GPU_HDP_FLUSH_DONE__CP6_MASK,
--	.ref_and_mask_cp7 = BIF_BX_PF_GPU_HDP_FLUSH_DONE__CP7_MASK,
--	.ref_and_mask_cp8 = BIF_BX_PF_GPU_HDP_FLUSH_DONE__CP8_MASK,
--	.ref_and_mask_cp9 = BIF_BX_PF_GPU_HDP_FLUSH_DONE__CP9_MASK,
--	.ref_and_mask_sdma0 = GPU_HDP_FLUSH_DONE__RSVD_ENG1_MASK,
--	.ref_and_mask_sdma1 = GPU_HDP_FLUSH_DONE__RSVD_ENG2_MASK,
--	.ref_and_mask_sdma2 = GPU_HDP_FLUSH_DONE__RSVD_ENG3_MASK,
--	.ref_and_mask_sdma3 = GPU_HDP_FLUSH_DONE__RSVD_ENG4_MASK,
--	.ref_and_mask_sdma4 = GPU_HDP_FLUSH_DONE__RSVD_ENG5_MASK,
--	.ref_and_mask_sdma5 = GPU_HDP_FLUSH_DONE__RSVD_ENG6_MASK,
--	.ref_and_mask_sdma6 = GPU_HDP_FLUSH_DONE__RSVD_ENG7_MASK,
--	.ref_and_mask_sdma7 = GPU_HDP_FLUSH_DONE__RSVD_ENG8_MASK,
--};
--
- static void nbio_v2_3_init_registers(struct amdgpu_device *adev)
+ 	p->fence = dma_fence_get(&job->base.s_fence->finished);
+ 
+-	amdgpu_ctx_add_fence(p->ctx, entity, p->fence, &seq);
++	seq = amdgpu_ctx_add_fence(p->ctx, entity, p->fence);
+ 	amdgpu_cs_post_dependencies(p);
+ 
+ 	if ((job->preamble_status & AMDGPU_PREAMBLE_IB_PRESENT) &&
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
+index c317078d1afd..a61e4c83a545 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
+@@ -135,9 +135,9 @@ static enum amdgpu_ring_priority_level amdgpu_ctx_sched_prio_to_ring_prio(int32_
+ 
+ static unsigned int amdgpu_ctx_get_hw_prio(struct amdgpu_ctx *ctx, u32 hw_ip)
  {
- 	uint32_t def, data;
-diff --git a/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.h b/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.h
-index 6074dd3a1ed8..a43b60acf7f6 100644
---- a/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.h
-+++ b/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.h
-@@ -27,7 +27,6 @@
- #include "soc15_common.h"
+-	struct amdgpu_device *adev = ctx->adev;
+-	int32_t ctx_prio;
++	struct amdgpu_device *adev = ctx->mgr->adev;
+ 	unsigned int hw_prio;
++	int32_t ctx_prio;
  
- extern const struct nbio_hdp_flush_reg nbio_v2_3_hdp_flush_reg;
--extern const struct nbio_hdp_flush_reg nbio_v2_3_hdp_flush_reg_sc;
- extern const struct amdgpu_nbio_funcs nbio_v2_3_funcs;
+ 	ctx_prio = (ctx->override_priority == AMDGPU_CTX_PRIORITY_UNSET) ?
+ 			ctx->init_priority : ctx->override_priority;
+@@ -166,7 +166,7 @@ static unsigned int amdgpu_ctx_get_hw_prio(struct amdgpu_ctx *ctx, u32 hw_ip)
+ static int amdgpu_ctx_init_entity(struct amdgpu_ctx *ctx, u32 hw_ip,
+ 				  const u32 ring)
+ {
+-	struct amdgpu_device *adev = ctx->adev;
++	struct amdgpu_device *adev = ctx->mgr->adev;
+ 	struct amdgpu_ctx_entity *entity;
+ 	struct drm_gpu_scheduler **scheds = NULL, *sched = NULL;
+ 	unsigned num_scheds = 0;
+@@ -220,10 +220,8 @@ static int amdgpu_ctx_init_entity(struct amdgpu_ctx *ctx, u32 hw_ip,
+ 	return r;
+ }
  
- #endif
+-static int amdgpu_ctx_init(struct amdgpu_device *adev,
+-			   int32_t priority,
+-			   struct drm_file *filp,
+-			   struct amdgpu_ctx *ctx)
++static int amdgpu_ctx_init(struct amdgpu_ctx_mgr *mgr, int32_t priority,
++			   struct drm_file *filp, struct amdgpu_ctx *ctx)
+ {
+ 	int r;
+ 
+@@ -233,15 +231,14 @@ static int amdgpu_ctx_init(struct amdgpu_device *adev,
+ 
+ 	memset(ctx, 0, sizeof(*ctx));
+ 
+-	ctx->adev = adev;
+-
+ 	kref_init(&ctx->refcount);
++	ctx->mgr = mgr;
+ 	spin_lock_init(&ctx->ring_lock);
+ 	mutex_init(&ctx->lock);
+ 
+-	ctx->reset_counter = atomic_read(&adev->gpu_reset_counter);
++	ctx->reset_counter = atomic_read(&mgr->adev->gpu_reset_counter);
+ 	ctx->reset_counter_query = ctx->reset_counter;
+-	ctx->vram_lost_counter = atomic_read(&adev->vram_lost_counter);
++	ctx->vram_lost_counter = atomic_read(&mgr->adev->vram_lost_counter);
+ 	ctx->init_priority = priority;
+ 	ctx->override_priority = AMDGPU_CTX_PRIORITY_UNSET;
+ 	ctx->stable_pstate = AMDGPU_CTX_STABLE_PSTATE_NONE;
+@@ -266,7 +263,7 @@ static void amdgpu_ctx_fini_entity(struct amdgpu_ctx_entity *entity)
+ static int amdgpu_ctx_get_stable_pstate(struct amdgpu_ctx *ctx,
+ 					u32 *stable_pstate)
+ {
+-	struct amdgpu_device *adev = ctx->adev;
++	struct amdgpu_device *adev = ctx->mgr->adev;
+ 	enum amd_dpm_forced_level current_level;
+ 
+ 	current_level = amdgpu_dpm_get_performance_level(adev);
+@@ -294,7 +291,7 @@ static int amdgpu_ctx_get_stable_pstate(struct amdgpu_ctx *ctx,
+ static int amdgpu_ctx_set_stable_pstate(struct amdgpu_ctx *ctx,
+ 					u32 stable_pstate)
+ {
+-	struct amdgpu_device *adev = ctx->adev;
++	struct amdgpu_device *adev = ctx->mgr->adev;
+ 	enum amd_dpm_forced_level level;
+ 	u32 current_stable_pstate;
+ 	int r;
+@@ -345,7 +342,8 @@ static int amdgpu_ctx_set_stable_pstate(struct amdgpu_ctx *ctx,
+ static void amdgpu_ctx_fini(struct kref *ref)
+ {
+ 	struct amdgpu_ctx *ctx = container_of(ref, struct amdgpu_ctx, refcount);
+-	struct amdgpu_device *adev = ctx->adev;
++	struct amdgpu_ctx_mgr *mgr = ctx->mgr;
++	struct amdgpu_device *adev = mgr->adev;
+ 	unsigned i, j, idx;
+ 
+ 	if (!adev)
+@@ -421,7 +419,7 @@ static int amdgpu_ctx_alloc(struct amdgpu_device *adev,
+ 	}
+ 
+ 	*id = (uint32_t)r;
+-	r = amdgpu_ctx_init(adev, priority, filp, ctx);
++	r = amdgpu_ctx_init(mgr, priority, filp, ctx);
+ 	if (r) {
+ 		idr_remove(&mgr->ctx_handles, *id);
+ 		*id = 0;
+@@ -671,9 +669,9 @@ int amdgpu_ctx_put(struct amdgpu_ctx *ctx)
+ 	return 0;
+ }
+ 
+-void amdgpu_ctx_add_fence(struct amdgpu_ctx *ctx,
+-			  struct drm_sched_entity *entity,
+-			  struct dma_fence *fence, uint64_t *handle)
++uint64_t amdgpu_ctx_add_fence(struct amdgpu_ctx *ctx,
++			      struct drm_sched_entity *entity,
++			      struct dma_fence *fence)
+ {
+ 	struct amdgpu_ctx_entity *centity = to_amdgpu_ctx_entity(entity);
+ 	uint64_t seq = centity->sequence;
+@@ -682,8 +680,7 @@ void amdgpu_ctx_add_fence(struct amdgpu_ctx *ctx,
+ 
+ 	idx = seq & (amdgpu_sched_jobs - 1);
+ 	other = centity->fences[idx];
+-	if (other)
+-		BUG_ON(!dma_fence_is_signaled(other));
++	WARN_ON(other && !dma_fence_is_signaled(other));
+ 
+ 	dma_fence_get(fence);
+ 
+@@ -693,8 +690,7 @@ void amdgpu_ctx_add_fence(struct amdgpu_ctx *ctx,
+ 	spin_unlock(&ctx->ring_lock);
+ 
+ 	dma_fence_put(other);
+-	if (handle)
+-		*handle = seq;
++	return seq;
+ }
+ 
+ struct dma_fence *amdgpu_ctx_get_fence(struct amdgpu_ctx *ctx,
+@@ -731,7 +727,7 @@ static void amdgpu_ctx_set_entity_priority(struct amdgpu_ctx *ctx,
+ 					   int hw_ip,
+ 					   int32_t priority)
+ {
+-	struct amdgpu_device *adev = ctx->adev;
++	struct amdgpu_device *adev = ctx->mgr->adev;
+ 	unsigned int hw_prio;
+ 	struct drm_gpu_scheduler **scheds = NULL;
+ 	unsigned num_scheds;
+@@ -796,8 +792,10 @@ int amdgpu_ctx_wait_prev_fence(struct amdgpu_ctx *ctx,
+ 	return r;
+ }
+ 
+-void amdgpu_ctx_mgr_init(struct amdgpu_ctx_mgr *mgr)
++void amdgpu_ctx_mgr_init(struct amdgpu_ctx_mgr *mgr,
++			 struct amdgpu_device *adev)
+ {
++	mgr->adev = adev;
+ 	mutex_init(&mgr->lock);
+ 	idr_init(&mgr->ctx_handles);
+ }
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.h
+index 142f2f87d44c..681050bc828c 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.h
+@@ -40,7 +40,7 @@ struct amdgpu_ctx_entity {
+ 
+ struct amdgpu_ctx {
+ 	struct kref			refcount;
+-	struct amdgpu_device		*adev;
++	struct amdgpu_ctx_mgr		*mgr;
+ 	unsigned			reset_counter;
+ 	unsigned			reset_counter_query;
+ 	uint32_t			vram_lost_counter;
+@@ -70,9 +70,9 @@ int amdgpu_ctx_put(struct amdgpu_ctx *ctx);
+ 
+ int amdgpu_ctx_get_entity(struct amdgpu_ctx *ctx, u32 hw_ip, u32 instance,
+ 			  u32 ring, struct drm_sched_entity **entity);
+-void amdgpu_ctx_add_fence(struct amdgpu_ctx *ctx,
+-			  struct drm_sched_entity *entity,
+-			  struct dma_fence *fence, uint64_t *seq);
++uint64_t amdgpu_ctx_add_fence(struct amdgpu_ctx *ctx,
++			      struct drm_sched_entity *entity,
++			      struct dma_fence *fence);
+ struct dma_fence *amdgpu_ctx_get_fence(struct amdgpu_ctx *ctx,
+ 				       struct drm_sched_entity *entity,
+ 				       uint64_t seq);
+@@ -85,7 +85,8 @@ int amdgpu_ctx_ioctl(struct drm_device *dev, void *data,
+ int amdgpu_ctx_wait_prev_fence(struct amdgpu_ctx *ctx,
+ 			       struct drm_sched_entity *entity);
+ 
+-void amdgpu_ctx_mgr_init(struct amdgpu_ctx_mgr *mgr);
++void amdgpu_ctx_mgr_init(struct amdgpu_ctx_mgr *mgr,
++			 struct amdgpu_device *adev);
+ void amdgpu_ctx_mgr_entity_fini(struct amdgpu_ctx_mgr *mgr);
+ long amdgpu_ctx_mgr_entity_flush(struct amdgpu_ctx_mgr *mgr, long timeout);
+ void amdgpu_ctx_mgr_fini(struct amdgpu_ctx_mgr *mgr);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+index 49c55d82cba8..20a432a774c1 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+@@ -1142,7 +1142,7 @@ int amdgpu_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
+ 	mutex_init(&fpriv->bo_list_lock);
+ 	idr_init(&fpriv->bo_list_handles);
+ 
+-	amdgpu_ctx_mgr_init(&fpriv->ctx_mgr);
++	amdgpu_ctx_mgr_init(&fpriv->ctx_mgr, adev);
+ 
+ 	file_priv->driver_priv = fpriv;
+ 	goto out_suspend;
 -- 
 2.35.1
 
