@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9753259357B
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25854593591
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240199AbiHOSZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:25:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55664 "EHLO
+        id S241559AbiHOS1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:27:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240476AbiHOSY7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:24:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E12E02F01C;
-        Mon, 15 Aug 2022 11:18:28 -0700 (PDT)
+        with ESMTP id S241963AbiHOSZq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:25:46 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 735072B193;
+        Mon, 15 Aug 2022 11:18:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4832F6068D;
-        Mon, 15 Aug 2022 18:18:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39D16C433D6;
-        Mon, 15 Aug 2022 18:18:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8CB10CE125C;
+        Mon, 15 Aug 2022 18:18:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7569FC433C1;
+        Mon, 15 Aug 2022 18:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587501;
-        bh=x2i5Ts8YzBr9qGHwch9dGyICGNpTc4V6+o6yggRv1oQ=;
+        s=korg; t=1660587507;
+        bh=MTPNmHz9GGC+2k+8p97JNSJcsEQhKpEKHIE/J6vWr4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JoMka8wAHRkl0euyu6QuH9U2F/uNGOlJ0r6FRcleSRXOMtY8lrkjsMXfb2vlLXb0J
-         oh8Fq+2R2ke3WFuA+aLgvQpEEo0sSjQ8mn0ve84tkCNrSnXvJ4pnP4d/KeOg5U0qmp
-         4p/ZVSMLiyHsQRIacUu6fxjTfG8sQ4I42lubiJJc=
+        b=ugCTuwydAET275RyQ96EZRyyNdx23RztM/+Agp51+AfQ1BdN28BlNE7NEoYG4WC4W
+         qwID3vQRkMX8exrJE161GQ6mu2prpE3n0Z/kKDgPv6mkyh95pDfM/37OMFPG3XbZsA
+         TVTit87cpSXOvCqllvjXUxY+qbQ4wAudNRjLcTS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>
-Subject: [PATCH 5.15 105/779] usb: dwc3: gadget: fix high speed multiplier setting
-Date:   Mon, 15 Aug 2022 19:55:49 +0200
-Message-Id: <20220815180341.812914884@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.15 106/779] netfilter: nf_tables: do not allow SET_ID to refer to another table
+Date:   Mon, 15 Aug 2022 19:55:50 +0200
+Message-Id: <20220815180341.851846272@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,38 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit 8affe37c525d800a2628c4ecfaed13b77dc5634a upstream.
+commit 470ee20e069a6d05ae549f7d0ef2bdbcee6a81b2 upstream.
 
-For High-Speed Transfers the prepare_one_trb function is calculating the
-multiplier setting for the trb based on the length parameter of the trb
-currently prepared. This assumption is wrong. For trbs with a sg list,
-the length of the actual request has to be taken instead.
+When doing lookups for sets on the same batch by using its ID, a set from a
+different table can be used.
 
-Fixes: 40d829fb2ec6 ("usb: dwc3: gadget: Correct ISOC DATA PIDs for short packets")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Link: https://lore.kernel.org/r/20220704141812.1532306-3-m.grzeschik@pengutronix.de
+Then, when the table is removed, a reference to the set may be kept after
+the set is freed, leading to a potential use-after-free.
+
+When looking for sets by ID, use the table that was used for the lookup by
+name, and only return sets belonging to that same table.
+
+This fixes CVE-2022-2586, also reported as ZDI-CAN-17470.
+
+Reported-by: Team Orca of Sea Security (@seasecresponse)
+Fixes: 958bee14d071 ("netfilter: nf_tables: use new transaction infrastructure to handle sets")
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nf_tables_api.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1251,10 +1251,10 @@ static void dwc3_prepare_one_trb(struct
- 				unsigned int mult = 2;
- 				unsigned int maxp = usb_endpoint_maxp(ep->desc);
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -3745,6 +3745,7 @@ static struct nft_set *nft_set_lookup_by
+ }
  
--				if (trb_length <= (2 * maxp))
-+				if (req->request.length <= (2 * maxp))
- 					mult--;
+ static struct nft_set *nft_set_lookup_byid(const struct net *net,
++					   const struct nft_table *table,
+ 					   const struct nlattr *nla, u8 genmask)
+ {
+ 	struct nftables_pernet *nft_net = nft_pernet(net);
+@@ -3756,6 +3757,7 @@ static struct nft_set *nft_set_lookup_by
+ 			struct nft_set *set = nft_trans_set(trans);
  
--				if (trb_length <= maxp)
-+				if (req->request.length <= maxp)
- 					mult--;
+ 			if (id == nft_trans_set_id(trans) &&
++			    set->table == table &&
+ 			    nft_active_genmask(set, genmask))
+ 				return set;
+ 		}
+@@ -3776,7 +3778,7 @@ struct nft_set *nft_set_lookup_global(co
+ 		if (!nla_set_id)
+ 			return set;
  
- 				trb->size |= DWC3_TRB_SIZE_PCM1(mult);
+-		set = nft_set_lookup_byid(net, nla_set_id, genmask);
++		set = nft_set_lookup_byid(net, table, nla_set_id, genmask);
+ 	}
+ 	return set;
+ }
 
 
