@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8000A594310
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:54:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 019D9594590
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350600AbiHOWTG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:19:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51858 "EHLO
+        id S233407AbiHOWTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:19:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347010AbiHOWPg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:15:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8BA111F771;
-        Mon, 15 Aug 2022 12:39:46 -0700 (PDT)
+        with ESMTP id S1348183AbiHOWQV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:16:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E9707A75C;
+        Mon, 15 Aug 2022 12:40:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3174CB81141;
-        Mon, 15 Aug 2022 19:39:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FD1EC433B5;
-        Mon, 15 Aug 2022 19:39:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C845B611F6;
+        Mon, 15 Aug 2022 19:39:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4A74C433C1;
+        Mon, 15 Aug 2022 19:39:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592384;
-        bh=AcJrX1xUykEM0PUZFgTpse9dGF07x7CuOQftmr59ePw=;
+        s=korg; t=1660592394;
+        bh=Lt3I10bBaab6peJvJL+7PA1gYSbRnSA2Jze6Kx9+sVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x8gwfAPk6Utxl/Bu7Fxsa2Fw6lS555OoeJT7NRpJxBW2e0ajUpfCs5XPyNTuBqDt9
-         6EZetjyLv2zMiBQQub+YXIPxrAWjz8VjTyxuJBB1m+/48mHjI0vz1setPUmTvhhnjQ
-         cAlyYtlmQieYeIKLrP38plKBpfHLAz/7228TI9/0=
+        b=PmPxvpXWHMww+jpn09hObe32/+sWaBSLvZ7thlNqmpfLropxZK6dISWyGD9dN7c+P
+         tm7V0nHNnFsMtPUdpKkV34o1ugNkrAPn5ssNzNR4zWu6khO8n0/tfGl0rgUuHwg5gd
+         KR2BtRu8YG7rPdLLpOmepxg9L5uTQ0iGt72UwHzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0779/1095] HID: mcp2221: prevent a buffer overflow in mcp_smbus_write()
-Date:   Mon, 15 Aug 2022 20:02:58 +0200
-Message-Id: <20220815180501.492424937@linuxfoundation.org>
+Subject: [PATCH 5.18 0780/1095] HID: amd_sfh: Add NULL check for hid device
+Date:   Mon, 15 Aug 2022 20:02:59 +0200
+Message-Id: <20220815180501.524385994@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,42 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 
-[ Upstream commit 62ac2473553a00229e67bdf3cb023b62cf7f5a9a ]
+[ Upstream commit 06aa2a43c307cf4096f422dcb575e5d2913e528f ]
 
-Smatch Warning:
-drivers/hid/hid-mcp2221.c:388 mcp_smbus_write() error: __memcpy()
-'&mcp->txbuf[5]' too small (59 vs 255)
-drivers/hid/hid-mcp2221.c:388 mcp_smbus_write() error: __memcpy() 'buf'
-too small (34 vs 255)
+On removal of hid device during SFH set report may cause NULL pointer
+exception. Hence add NULL check for hid device before accessing.
 
-The 'len' variable can take a value between 0-255 as it can come from
-data->block[0] and it is user data. So add an bound check to prevent a
-buffer overflow in memcpy().
-
-Fixes: 67a95c21463d ("HID: mcp2221: add usb to i2c-smbus host bridge")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Fixes: 4b2c53d93a4b ("SFH:Transport Driver to add support of AMD Sensor Fusion Hub (SFH)")
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-mcp2221.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/amd-sfh-hid/amd_sfh_hid.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index 4211b9839209..de52e9f7bb8c 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -385,6 +385,9 @@ static int mcp_smbus_write(struct mcp2221 *mcp, u16 addr,
- 		data_len = 7;
- 		break;
- 	default:
-+		if (len > I2C_SMBUS_BLOCK_MAX)
-+			return -EINVAL;
-+
- 		memcpy(&mcp->txbuf[5], buf, len);
- 		data_len = len + 5;
- 	}
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_hid.c b/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
+index e2a9679e32be..54fe224050f9 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_hid.c
+@@ -100,11 +100,15 @@ static int amdtp_wait_for_response(struct hid_device *hid)
+ 
+ void amdtp_hid_wakeup(struct hid_device *hid)
+ {
+-	struct amdtp_hid_data *hid_data = hid->driver_data;
+-	struct amdtp_cl_data *cli_data = hid_data->cli_data;
++	struct amdtp_hid_data *hid_data;
++	struct amdtp_cl_data *cli_data;
+ 
+-	cli_data->request_done[cli_data->cur_hid_dev] = true;
+-	wake_up_interruptible(&hid_data->hid_wait);
++	if (hid) {
++		hid_data = hid->driver_data;
++		cli_data = hid_data->cli_data;
++		cli_data->request_done[cli_data->cur_hid_dev] = true;
++		wake_up_interruptible(&hid_data->hid_wait);
++	}
+ }
+ 
+ static struct hid_ll_driver amdtp_hid_ll_driver = {
 -- 
 2.35.1
 
