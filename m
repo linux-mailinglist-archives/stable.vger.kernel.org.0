@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2B6E593A69
+	by mail.lfdr.de (Postfix) with ESMTP id 857F8593A68
 	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:36:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241955AbiHOTgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:36:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56510 "EHLO
+        id S241621AbiHOTgq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:36:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245755AbiHOTfM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:35:12 -0400
+        with ESMTP id S1343567AbiHOTfT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:35:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03E2F13E23;
-        Mon, 15 Aug 2022 11:45:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 655F52C106;
+        Mon, 15 Aug 2022 11:45:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE279611C1;
-        Mon, 15 Aug 2022 18:45:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3837C433D7;
-        Mon, 15 Aug 2022 18:45:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FAEC611C1;
+        Mon, 15 Aug 2022 18:45:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 447F8C433D6;
+        Mon, 15 Aug 2022 18:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589126;
-        bh=ezq9bND8emS5xMQV7ZmKm2wM1mVM8Yl7j5xThVo+uFE=;
+        s=korg; t=1660589132;
+        bh=mQCrq2ntPhCcnbK41SusLBAMdtiHg3E1dAxiOPm3NqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=coKxv9tMgHJnYTEqTre5wosSKgvRBq3iwNXpOPeqhojCT2bZ+usUvDCTVAwyJhT31
-         MW3DxMT/ObjKuUWV1wdbfaqRXdFReJvBzpKSj9pdaT01xMiteBJzyIQzZdOn4CDZvx
-         RcOp7rycApHcz5BLEsFFdqAHmMvOWyIOwpCUyMeM=
+        b=0bEho7NGW93XSDxOcQ76m3UDyWGP5IlSmLVofIas/jwIRlXHeULA+caJbKpnCaPDN
+         yDybB46avztVk0MzGFPGGUbfE9vKEZyo8YckW0BGWX/r5UO5mR9qUDikvn/SIZTWZx
+         NjHWV839brwPQl5fe2AwBPTQ1Q1ugWQ/NarXo4tA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 621/779] s390/crash: fix incorrect number of bytes to copy to user space
-Date:   Mon, 15 Aug 2022 20:04:25 +0200
-Message-Id: <20220815180403.929995313@linuxfoundation.org>
+Subject: [PATCH 5.15 622/779] s390/zcore: fix race when reading from hardware system area
+Date:   Mon, 15 Aug 2022 20:04:26 +0200
+Message-Id: <20220815180403.978669981@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,32 +58,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit f6749da17a34eb08c9665f072ce7c812ff68aad2 ]
+[ Upstream commit 9ffed254d938c9e99eb7761c7f739294c84e0367 ]
 
-The number of bytes in a chunk is correctly calculated, but instead
-the total number of bytes is passed to copy_to_user_real() function.
+Memory buffer used for reading out data from hardware system
+area is not protected against concurrent access.
 
 Reported-by: Matthew Wilcox <willy@infradead.org>
-Fixes: df9694c7975f ("s390/dump: streamline oldmem copy functions")
+Fixes: 411ed3225733 ("[S390] zfcpdump support.")
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Link: https://lore.kernel.org/r/e68137f0f9a0d2558f37becc20af18e2939934f6.1658206891.git.agordeev@linux.ibm.com
 Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/crash_dump.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/char/zcore.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index 199f136d1644..f17ad2daab07 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -198,7 +198,7 @@ static int copy_oldmem_user(void __user *dst, unsigned long src, size_t count)
- 			} else {
- 				len = count;
- 			}
--			rc = copy_to_user_real(dst, src, count);
-+			rc = copy_to_user_real(dst, src, len);
- 			if (rc)
- 				return rc;
+diff --git a/drivers/s390/char/zcore.c b/drivers/s390/char/zcore.c
+index 516783ba950f..92b32ce645b9 100644
+--- a/drivers/s390/char/zcore.c
++++ b/drivers/s390/char/zcore.c
+@@ -50,6 +50,7 @@ static struct dentry *zcore_reipl_file;
+ static struct dentry *zcore_hsa_file;
+ static struct ipl_parameter_block *zcore_ipl_block;
+ 
++static DEFINE_MUTEX(hsa_buf_mutex);
+ static char hsa_buf[PAGE_SIZE] __aligned(PAGE_SIZE);
+ 
+ /*
+@@ -66,19 +67,24 @@ int memcpy_hsa_user(void __user *dest, unsigned long src, size_t count)
+ 	if (!hsa_available)
+ 		return -ENODATA;
+ 
++	mutex_lock(&hsa_buf_mutex);
+ 	while (count) {
+ 		if (sclp_sdias_copy(hsa_buf, src / PAGE_SIZE + 2, 1)) {
+ 			TRACE("sclp_sdias_copy() failed\n");
++			mutex_unlock(&hsa_buf_mutex);
+ 			return -EIO;
  		}
+ 		offset = src % PAGE_SIZE;
+ 		bytes = min(PAGE_SIZE - offset, count);
+-		if (copy_to_user(dest, hsa_buf + offset, bytes))
++		if (copy_to_user(dest, hsa_buf + offset, bytes)) {
++			mutex_unlock(&hsa_buf_mutex);
+ 			return -EFAULT;
++		}
+ 		src += bytes;
+ 		dest += bytes;
+ 		count -= bytes;
+ 	}
++	mutex_unlock(&hsa_buf_mutex);
+ 	return 0;
+ }
+ 
+@@ -96,9 +102,11 @@ int memcpy_hsa_kernel(void *dest, unsigned long src, size_t count)
+ 	if (!hsa_available)
+ 		return -ENODATA;
+ 
++	mutex_lock(&hsa_buf_mutex);
+ 	while (count) {
+ 		if (sclp_sdias_copy(hsa_buf, src / PAGE_SIZE + 2, 1)) {
+ 			TRACE("sclp_sdias_copy() failed\n");
++			mutex_unlock(&hsa_buf_mutex);
+ 			return -EIO;
+ 		}
+ 		offset = src % PAGE_SIZE;
+@@ -108,6 +116,7 @@ int memcpy_hsa_kernel(void *dest, unsigned long src, size_t count)
+ 		dest += bytes;
+ 		count -= bytes;
+ 	}
++	mutex_unlock(&hsa_buf_mutex);
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
