@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 821D0593919
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 901B95937DE
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343928AbiHOTTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:19:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43772 "EHLO
+        id S1343839AbiHOTTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:19:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344947AbiHOTRv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:17:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C6FD558FB;
-        Mon, 15 Aug 2022 11:39:06 -0700 (PDT)
+        with ESMTP id S1344926AbiHOTRt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:17:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50EE4564C5;
+        Mon, 15 Aug 2022 11:39:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 337FFB81088;
-        Mon, 15 Aug 2022 18:39:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8341BC433D6;
-        Mon, 15 Aug 2022 18:39:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 896F761120;
+        Mon, 15 Aug 2022 18:39:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EB05C433D6;
+        Mon, 15 Aug 2022 18:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588742;
-        bh=1/L9E/HWhXwNZo+8775NT4/HZHMFFz51S99HxU4lLJE=;
+        s=korg; t=1660588745;
+        bh=JKHcDBZsZRMwwOITBiCJ9ZA2CMg2W48vTA7rzjDmilU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D3BrnLtWY4eYoSl18ZFtbAnspZbCAv2cCqgaM/2JPNOTmZiRXcgGZB4vn56ddxSxB
-         OG1tcoGqQU3I2oIgyEAF8le5AtdwvjQySi+uwUFzA+Hfy5M5tNuJU8hOFs6HEYm+J8
-         F3lGP6Pb/dPfuANSKopwo66PVAsazr0iiKHqCAFo=
+        b=JUzFYUBrIJVBaAXl0HhFe3+zPpZg9cKOhCHaKA2cazn/2u4ILfnn5qR5UzklQkNtb
+         Htmd/N4JV8RDMSWX+ZpIu2uhrRnRPIUTtX7Joipr26ntXs7E2KRyt3+C8KdZ1da5Md
+         7BxDLHYC63ksEjdV8wSHsuQIZm5vFjvEkaksaHnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mustafa Ismail <mustafa.ismail@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
+        stable@vger.kernel.org, jinpu.wang@ionos.com,
+        Md Haris Iqbal <haris.iqbal@ionos.com>,
+        Aleksei Marov <aleksei.marov@ionos.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 501/779] RDMA/irdma: Fix setting of QP context err_rq_idx_valid field
-Date:   Mon, 15 Aug 2022 20:02:25 +0200
-Message-Id: <20220815180358.690324779@linuxfoundation.org>
+Subject: [PATCH 5.15 502/779] RDMA/rtrs-srv: Fix modinfo output for stringify
+Date:   Mon, 15 Aug 2022 20:02:26 +0200
+Message-Id: <20220815180358.721711054@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,71 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mustafa Ismail <mustafa.ismail@intel.com>
+From: Jack Wang <jinpu.wang@ionos.com>
 
-[ Upstream commit 3a844596ed71b7c12ac602f6f6b7b0f17e4d6a90 ]
+[ Upstream commit ed6e53820ee4f68ed927de17e5675ff2a07a47e2 ]
 
-Setting err_rq_idx_valid field in QP context when the AE source of the
-AEQE is not associated with an RQ causes the firmware flush to fail.
+stringify works with define, not enum.
 
-Set err_rq_idx_valid field in QP context only if it is associated with an
-RQ. Additionally, cleanup the redundant setting of this field in
-irdma_process_aeq.
-
-Fixes: 44d9e52977a1 ("RDMA/irdma: Implement device initialization definitions")
-Link: https://lore.kernel.org/r/20220705230815.265-8-shiraz.saleem@intel.com
-Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Fixes: 91fddedd439c ("RDMA/rtrs: private headers with rtrs protocol structs and helpers")
+Cc: jinpu.wang@ionos.com
+Link: https://lore.kernel.org/r/20220712103113.617754-2-haris.iqbal@ionos.com
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Md Haris Iqbal <haris.iqbal@ionos.com>
+Reviewed-by: Aleksei Marov <aleksei.marov@ionos.com>
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/hw.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ drivers/infiniband/ulp/rtrs/rtrs-pri.h | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/infiniband/hw/irdma/hw.c b/drivers/infiniband/hw/irdma/hw.c
-index 4f763e552eae..3d5d3f8d5ded 100644
---- a/drivers/infiniband/hw/irdma/hw.c
-+++ b/drivers/infiniband/hw/irdma/hw.c
-@@ -257,10 +257,6 @@ static void irdma_process_aeq(struct irdma_pci_f *rf)
- 				iwqp->last_aeq = info->ae_id;
- 			spin_unlock_irqrestore(&iwqp->lock, flags);
- 			ctx_info = &iwqp->ctx_info;
--			if (rdma_protocol_roce(&iwqp->iwdev->ibdev, 1))
--				ctx_info->roce_info->err_rq_idx_valid = true;
--			else
--				ctx_info->iwarp_info->err_rq_idx_valid = true;
- 		} else {
- 			if (info->ae_id != IRDMA_AE_CQ_OPERATION_ERROR)
- 				continue;
-@@ -370,16 +366,12 @@ static void irdma_process_aeq(struct irdma_pci_f *rf)
- 		case IRDMA_AE_LCE_FUNCTION_CATASTROPHIC:
- 		case IRDMA_AE_LCE_CQ_CATASTROPHIC:
- 		case IRDMA_AE_UDA_XMIT_DGRAM_TOO_LONG:
--			if (rdma_protocol_roce(&iwdev->ibdev, 1))
--				ctx_info->roce_info->err_rq_idx_valid = false;
--			else
--				ctx_info->iwarp_info->err_rq_idx_valid = false;
--			fallthrough;
- 		default:
- 			ibdev_err(&iwdev->ibdev, "abnormal ae_id = 0x%x bool qp=%d qp_id = %d\n",
- 				  info->ae_id, info->qp, info->qp_cq_id);
- 			if (rdma_protocol_roce(&iwdev->ibdev, 1)) {
--				if (!info->sq && ctx_info->roce_info->err_rq_idx_valid) {
-+				ctx_info->roce_info->err_rq_idx_valid = info->rq;
-+				if (info->rq) {
- 					ctx_info->roce_info->err_rq_idx = info->wqe_idx;
- 					irdma_sc_qp_setctx_roce(&iwqp->sc_qp, iwqp->host_ctx.va,
- 								ctx_info);
-@@ -388,7 +380,8 @@ static void irdma_process_aeq(struct irdma_pci_f *rf)
- 				irdma_cm_disconn(iwqp);
- 				break;
- 			}
--			if (!info->sq && ctx_info->iwarp_info->err_rq_idx_valid) {
-+			ctx_info->iwarp_info->err_rq_idx_valid = info->rq;
-+			if (info->rq) {
- 				ctx_info->iwarp_info->err_rq_idx = info->wqe_idx;
- 				ctx_info->tcp_info_valid = false;
- 				ctx_info->iwarp_info_valid = true;
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-pri.h b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
+index d12ddfa50747..e39267bccce8 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-pri.h
++++ b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
+@@ -23,6 +23,17 @@
+ #define RTRS_PROTO_VER_STRING __stringify(RTRS_PROTO_VER_MAJOR) "." \
+ 			       __stringify(RTRS_PROTO_VER_MINOR)
+ 
++/*
++ * Max IB immediate data size is 2^28 (MAX_IMM_PAYL_BITS)
++ * and the minimum chunk size is 4096 (2^12).
++ * So the maximum sess_queue_depth is 65536 (2^16) in theory.
++ * But mempool_create, create_qp and ib_post_send fail with
++ * "cannot allocate memory" error if sess_queue_depth is too big.
++ * Therefore the pratical max value of sess_queue_depth is
++ * somewhere between 1 and 65534 and it depends on the system.
++ */
++#define MAX_SESS_QUEUE_DEPTH 65535
++
+ enum rtrs_imm_const {
+ 	MAX_IMM_TYPE_BITS = 4,
+ 	MAX_IMM_TYPE_MASK = ((1 << MAX_IMM_TYPE_BITS) - 1),
+@@ -46,16 +57,6 @@ enum {
+ 
+ 	MAX_PATHS_NUM = 128,
+ 
+-	/*
+-	 * Max IB immediate data size is 2^28 (MAX_IMM_PAYL_BITS)
+-	 * and the minimum chunk size is 4096 (2^12).
+-	 * So the maximum sess_queue_depth is 65536 (2^16) in theory.
+-	 * But mempool_create, create_qp and ib_post_send fail with
+-	 * "cannot allocate memory" error if sess_queue_depth is too big.
+-	 * Therefore the pratical max value of sess_queue_depth is
+-	 * somewhere between 1 and 65534 and it depends on the system.
+-	 */
+-	MAX_SESS_QUEUE_DEPTH = 65535,
+ 	MIN_CHUNK_SIZE = 8192,
+ 
+ 	RTRS_HB_INTERVAL_MS = 5000,
 -- 
 2.35.1
 
