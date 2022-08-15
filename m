@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE2ED59416F
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A03D593F03
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232298AbiHOVMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:12:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46788 "EHLO
+        id S232553AbiHOVMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:12:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243585AbiHOVKF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:10:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C27315509F;
-        Mon, 15 Aug 2022 12:18:59 -0700 (PDT)
+        with ESMTP id S244573AbiHOVK4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:10:56 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A575C558C9;
+        Mon, 15 Aug 2022 12:19:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 126E1B81120;
-        Mon, 15 Aug 2022 19:18:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 625B7C433C1;
-        Mon, 15 Aug 2022 19:18:56 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 957AACE12C4;
+        Mon, 15 Aug 2022 19:19:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A3A9C433C1;
+        Mon, 15 Aug 2022 19:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591136;
-        bh=zo472JXDZC4ztxKvqyyytsSeGVG+XJDGa+4eATKg5Ug=;
+        s=korg; t=1660591139;
+        bh=JYVX+japmWo6QkvwKxE7PofA1DxPVMaWjvU8+Bwxme0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rclxg+/wJferl0senWSDyT4tmR0r4yXs8eVFPi44i7UZ/7hh43HRcMioXKGOTPTEl
-         WSIfyHnMeh0wEuB7FfM+Ad8qRkVnN1FlYvsRIBdH/euniQvmkrySOCnlplefux8PNL
-         f9sA52ltqI2Wky60QXfNdVsH7XD6VkNqg5F0jx+c=
+        b=UJSuEFBTdB5P5usijTlDveuaO+xuFxqfYKp7MpPwT3u9ZUxi2OmKApn5WOwgF66Fr
+         RtvE47vLF+Ojr5i/lqq6TrJjQB2sWyPJJT0rG9HXdBEiIL3lbR2Rh4tLllkDeijGKP
+         c7Qr/YRs/O5khJ1vtYri6NmnN9gW6lhAs3d/7Qqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Martin KaFai Lau <kafai@fb.com>,
         Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0483/1095] selftests/bpf: fix a test for snprintf() overflow
-Date:   Mon, 15 Aug 2022 19:58:02 +0200
-Message-Id: <20220815180449.544839968@linuxfoundation.org>
+Subject: [PATCH 5.18 0484/1095] libbpf: fix an snprintf() overflow check
+Date:   Mon, 15 Aug 2022 19:58:03 +0200
+Message-Id: <20220815180449.583538580@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,35 +57,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c5d22f4cfe8dfb93f1db0a1e7e2e7ebc41395d98 ]
+[ Upstream commit b77ffb30cfc5f58e957571d8541c6a7e3da19221 ]
 
-The snprintf() function returns the number of bytes which *would*
-have been copied if there were space.  In other words, it can be
-> sizeof(pin_path).
+The snprintf() function returns the number of bytes it *would* have
+copied if there were enough space.  So it can return > the
+sizeof(gen->attach_target).
 
-Fixes: c0fa1b6c3efc ("bpf: btf: Add BTF tests")
+Fixes: 67234743736a ("libbpf: Generate loader program out of BPF ELF file.")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/r/YtZ+aD/tZMkgOUw+@kili
+Link: https://lore.kernel.org/r/YtZ+oAySqIhFl6/J@kili
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/btf.c | 2 +-
+ tools/lib/bpf/gen_loader.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/btf.c b/tools/testing/selftests/bpf/prog_tests/btf.c
-index ec823561b912..a294176f8a9d 100644
---- a/tools/testing/selftests/bpf/prog_tests/btf.c
-+++ b/tools/testing/selftests/bpf/prog_tests/btf.c
-@@ -5226,7 +5226,7 @@ static void do_test_pprint(int test_num)
- 	ret = snprintf(pin_path, sizeof(pin_path), "%s/%s",
- 		       "/sys/fs/bpf", test->map_name);
+diff --git a/tools/lib/bpf/gen_loader.c b/tools/lib/bpf/gen_loader.c
+index 927745b08014..23f5c46708f8 100644
+--- a/tools/lib/bpf/gen_loader.c
++++ b/tools/lib/bpf/gen_loader.c
+@@ -533,7 +533,7 @@ void bpf_gen__record_attach_target(struct bpf_gen *gen, const char *attach_name,
+ 	gen->attach_kind = kind;
+ 	ret = snprintf(gen->attach_target, sizeof(gen->attach_target), "%s%s",
+ 		       prefix, attach_name);
+-	if (ret == sizeof(gen->attach_target))
++	if (ret >= sizeof(gen->attach_target))
+ 		gen->error = -ENOSPC;
+ }
  
--	if (CHECK(ret == sizeof(pin_path), "pin_path %s/%s is too long",
-+	if (CHECK(ret >= sizeof(pin_path), "pin_path %s/%s is too long",
- 		  "/sys/fs/bpf", test->map_name)) {
- 		err = -1;
- 		goto done;
 -- 
 2.35.1
 
