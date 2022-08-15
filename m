@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2567B595128
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60C4C595117
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232674AbiHPEt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:49:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56790 "EHLO
+        id S232933AbiHPEtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:49:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232662AbiHPErl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:47:41 -0400
+        with ESMTP id S231669AbiHPEsP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:48:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3419B07C2;
-        Mon, 15 Aug 2022 13:43:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59B50B08BC;
+        Mon, 15 Aug 2022 13:43:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF88860F60;
-        Mon, 15 Aug 2022 20:43:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1D9DC433C1;
-        Mon, 15 Aug 2022 20:43:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8DE86127C;
+        Mon, 15 Aug 2022 20:43:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3B88C433C1;
+        Mon, 15 Aug 2022 20:43:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596198;
-        bh=8h8eRryY+Nlcy5QakMX7qwQudFKSukdR+46jHwLhkvk=;
+        s=korg; t=1660596201;
+        bh=/qLeM6O+hsKWkm56b8NdyqMMrg/DKwhFZQtIKkk3yxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MQHMQWAMLFVhqExyA1393Fe1KH/uIrirAmcYGKhRsCVVYNT1tIzBk1vcfb4CFcWVj
-         QMlYylzR5zgKgjrsm1FIgx6YzmGJOCEHnSo7h4qcnF/S7SectZ0+u2HwEZ3TclQWPi
-         gqujlRYKtKO2HRzFZqv7nWzwaXOm9dU5XawrPLnQ=
+        b=XPIYxXg5WjWVsCmYyEVYNs4XHMnXCBp1HKO9YDxXInDqbZ++t2aluUy68k8ZlhzBi
+         91qhcCm/2efLPx6ji6BbK5eQ2CjOZRzVVIMdhk1kQYtvaNa9RvCapQAbqVgY0DkqQk
+         dRvMYhp/HfiuWMgF8dRAAABtTb0FnoGQwvzA/E94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Vijaya Krishna Nivarthi <quic_vnivarth@quicinc.com>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Sherry Sun <sherry.sun@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1002/1157] tty: serial: qcom-geni-serial: Fix get_clk_div_rate() which otherwise could return a sub-optimal clock rate.
-Date:   Mon, 15 Aug 2022 20:05:58 +0200
-Message-Id: <20220815180519.873396149@linuxfoundation.org>
+Subject: [PATCH 5.19 1003/1157] tty: serial: fsl_lpuart: correct the count of break characters
+Date:   Mon, 15 Aug 2022 20:05:59 +0200
+Message-Id: <20220815180519.918305358@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,148 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijaya Krishna Nivarthi <quic_vnivarth@quicinc.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit c474c775716edd46a51bf8161142bbd1545f8733 ]
+[ Upstream commit 707f816f25590c20e056b3bd4a17ce69b03fe856 ]
 
-In the logic around call to clk_round_rate(), for some corner conditions,
-get_clk_div_rate() could return an sub-optimal clock rate. Also, if an
-exact clock rate was not found lowest clock was being returned.
+The LPUART can't distinguish between a break signal and a framing error,
+so need to count the break characters if there is a framing error and
+received data is zero instead of the parity error.
 
-Search for suitable clock rate in 2 steps
-a) exact match or within 2% tolerance
-b) within 5% tolerance
-This also takes care of corner conditions.
-
-Fixes: c2194bc999d4 ("tty: serial: qcom-geni-serial: Remove uart frequency table. Instead, find suitable frequency with call to clk_round_rate")
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Vijaya Krishna Nivarthi <quic_vnivarth@quicinc.com>
-Link: https://lore.kernel.org/r/1657911343-1909-1-git-send-email-quic_vnivarth@quicinc.com
+Fixes: 5541a9bacfe5 ("serial: fsl_lpuart: handle break and make sysrq work")
+Reviewed-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20220725050115.12396-1-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/qcom_geni_serial.c | 88 ++++++++++++++++-----------
- 1 file changed, 53 insertions(+), 35 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
-index f8f950641ad9..f754619451dc 100644
---- a/drivers/tty/serial/qcom_geni_serial.c
-+++ b/drivers/tty/serial/qcom_geni_serial.c
-@@ -940,52 +940,63 @@ static int qcom_geni_serial_startup(struct uart_port *uport)
- 	return 0;
- }
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 0d6e62f6bb07..561d6d0b7c94 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -990,12 +990,12 @@ static void lpuart32_rxint(struct lpuart_port *sport)
  
--static unsigned long get_clk_div_rate(struct clk *clk, unsigned int baud,
--			unsigned int sampling_rate, unsigned int *clk_div)
-+static unsigned long find_clk_rate_in_tol(struct clk *clk, unsigned int desired_clk,
-+			unsigned int *clk_div, unsigned int percent_tol)
- {
--	unsigned long ser_clk;
--	unsigned long desired_clk;
--	unsigned long freq, prev;
-+	unsigned long freq;
- 	unsigned long div, maxdiv;
--	int64_t mult;
--
--	desired_clk = baud * sampling_rate;
--	if (!desired_clk) {
--		pr_err("%s: Invalid frequency\n", __func__);
--		return 0;
--	}
-+	u64 mult;
-+	unsigned long offset, abs_tol, achieved;
+ 		if (sr & (UARTSTAT_PE | UARTSTAT_OR | UARTSTAT_FE)) {
+ 			if (sr & UARTSTAT_PE) {
++				sport->port.icount.parity++;
++			} else if (sr & UARTSTAT_FE) {
+ 				if (is_break)
+ 					sport->port.icount.brk++;
+ 				else
+-					sport->port.icount.parity++;
+-			} else if (sr & UARTSTAT_FE) {
+-				sport->port.icount.frame++;
++					sport->port.icount.frame++;
+ 			}
  
-+	abs_tol = div_u64((u64)desired_clk * percent_tol, 100);
- 	maxdiv = CLK_DIV_MSK >> CLK_DIV_SHFT;
--	prev = 0;
--
--	for (div = 1; div <= maxdiv; div++) {
--		mult = div * desired_clk;
--		if (mult > ULONG_MAX)
-+	div = 1;
-+	while (div <= maxdiv) {
-+		mult = (u64)div * desired_clk;
-+		if (mult != (unsigned long)mult)
- 			break;
+ 			if (sr & UARTSTAT_OR)
+@@ -1010,12 +1010,12 @@ static void lpuart32_rxint(struct lpuart_port *sport)
+ 			sr &= sport->port.read_status_mask;
  
--		freq = clk_round_rate(clk, (unsigned long)mult);
--		if (!(freq % desired_clk)) {
--			ser_clk = freq;
--			break;
--		}
-+		offset = div * abs_tol;
-+		freq = clk_round_rate(clk, mult - offset);
+ 			if (sr & UARTSTAT_PE) {
++				flg = TTY_PARITY;
++			} else if (sr & UARTSTAT_FE) {
+ 				if (is_break)
+ 					flg = TTY_BREAK;
+ 				else
+-					flg = TTY_PARITY;
+-			} else if (sr & UARTSTAT_FE) {
+-				flg = TTY_FRAME;
++					flg = TTY_FRAME;
+ 			}
  
--		if (!prev)
--			ser_clk = freq;
--		else if (prev == freq)
-+		/* Can only get lower if we're done */
-+		if (freq < mult - offset)
- 			break;
- 
--		prev = freq;
--	}
-+		/*
-+		 * Re-calculate div in case rounding skipped rates but we
-+		 * ended up at a good one, then check for a match.
-+		 */
-+		div = DIV_ROUND_CLOSEST(freq, desired_clk);
-+		achieved = DIV_ROUND_CLOSEST(freq, div);
-+		if (achieved <= desired_clk + abs_tol &&
-+		    achieved >= desired_clk - abs_tol) {
-+			*clk_div = div;
-+			return freq;
-+		}
- 
--	if (!ser_clk) {
--		pr_err("%s: Can't find matching DFS entry for baud %d\n",
--								__func__, baud);
--		return ser_clk;
-+		div = DIV_ROUND_UP(freq, desired_clk);
- 	}
- 
--	*clk_div = ser_clk / desired_clk;
--	if (!(*clk_div))
--		*clk_div = 1;
-+	return 0;
-+}
-+
-+static unsigned long get_clk_div_rate(struct clk *clk, unsigned int baud,
-+			unsigned int sampling_rate, unsigned int *clk_div)
-+{
-+	unsigned long ser_clk;
-+	unsigned long desired_clk;
-+
-+	desired_clk = baud * sampling_rate;
-+	if (!desired_clk)
-+		return 0;
-+
-+	/*
-+	 * try to find a clock rate within 2% tolerance, then within 5%
-+	 */
-+	ser_clk = find_clk_rate_in_tol(clk, desired_clk, clk_div, 2);
-+	if (!ser_clk)
-+		ser_clk = find_clk_rate_in_tol(clk, desired_clk, clk_div, 5);
- 
- 	return ser_clk;
- }
-@@ -1020,8 +1031,15 @@ static void qcom_geni_serial_set_termios(struct uart_port *uport,
- 
- 	clk_rate = get_clk_div_rate(port->se.clk, baud,
- 		sampling_rate, &clk_div);
--	if (!clk_rate)
-+	if (!clk_rate) {
-+		dev_err(port->se.dev,
-+			"Couldn't find suitable clock rate for %lu\n",
-+			baud * sampling_rate);
- 		goto out_restart_rx;
-+	}
-+
-+	dev_dbg(port->se.dev, "desired_rate-%lu, clk_rate-%lu, clk_div-%u\n",
-+			baud * sampling_rate, clk_rate, clk_div);
- 
- 	uport->uartclk = clk_rate;
- 	dev_pm_opp_set_rate(uport->dev, clk_rate);
+ 			if (sr & UARTSTAT_OR)
 -- 
 2.35.1
 
