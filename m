@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF0E8594A07
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD65E59488A
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347378AbiHOXFH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:05:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51512 "EHLO
+        id S1347964AbiHOXPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:15:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352469AbiHOXDE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:03:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC99D8606F;
-        Mon, 15 Aug 2022 12:58:21 -0700 (PDT)
+        with ESMTP id S1346380AbiHOXO0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:14:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3A3079A72;
+        Mon, 15 Aug 2022 13:01:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70EFCB81154;
-        Mon, 15 Aug 2022 19:58:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6369C433C1;
-        Mon, 15 Aug 2022 19:58:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD1BC612B9;
+        Mon, 15 Aug 2022 20:01:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4A48C433D7;
+        Mon, 15 Aug 2022 20:01:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593499;
-        bh=geNftA5eZVmPTFeqJgby+ENz25ytyj+I5h5a3CstBus=;
+        s=korg; t=1660593690;
+        bh=XSbGAAKBx6WpXWobFza0TGpTgiFN3vMeX8OvdglASHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZdljFoIs9xWYWbzr5kHCOFuYZv0Zb+RNI7eAbdEiUK00zHw7yFnzdatItRoJMu590
-         4n5lkSBWEeB3AH3rQlG9+BeMap85QhroYy0oh4mWyvEE5lz76An9vXrPHqKldcMSK4
-         4YgVovDMKGteL8qNtUXD1E4O3XkQldmy/0E1iI1M=
+        b=vv1i0sNl6GyoL2SbyCk+7UjqyN0GWJFeMMT60n/vP2vHnieO4oPxi6FoqgDEdSTou
+         W2J0O5wbSX3MoVRvZNxIp2YR112iqDT25TA1AGpo4LGXGsyCjcOLKaA696RKt0oU0I
+         HFsJriP8FmTsXNrspbCdaJwSk29+RRz5LZcaX9h8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        "GONG, Ruiqi" <gongruiqi1@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, GONG@vger.kernel.org
-Subject: [PATCH 5.19 0248/1157] stack: Declare {randomize_,}kstack_offset to fix Sparse warnings
-Date:   Mon, 15 Aug 2022 19:53:24 +0200
-Message-Id: <20220815180449.510854671@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0279/1157] dm writecache: count number of blocks discarded, not number of discard bios
+Date:   Mon, 15 Aug 2022 19:53:55 +0200
+Message-Id: <20220815180450.772707980@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -57,45 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GONG, Ruiqi <gongruiqi1@huawei.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 375561bd6195a31bf4c109732bd538cb97a941f4 ]
+[ Upstream commit 2ee73ef60db4d79b9f9b8cd501e8188b5179449f ]
 
-Fix the following Sparse warnings that got noticed when the PPC-dev
-patchwork was checking another patch (see the link below):
+Change dm-writecache, so that it counts the number of blocks discarded
+instead of the number of discard bios. Make it consistent with the
+read and write statistics counters that were changed to count the
+number of blocks instead of bios.
 
-init/main.c:862:1: warning: symbol 'randomize_kstack_offset' was not declared. Should it be static?
-init/main.c:864:1: warning: symbol 'kstack_offset' was not declared. Should it be static?
-
-Which in fact are triggered on all architectures that have
-HAVE_ARCH_RANDOMIZE_KSTACK_OFFSET support (for instances x86, arm64
-etc).
-
-Link: https://lore.kernel.org/lkml/e7b0d68b-914d-7283-827c-101988923929@huawei.com/T/#m49b2d4490121445ce4bf7653500aba59eefcb67f
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Xiu Jianfeng <xiujianfeng@huawei.com>
-Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Fixes: 39218ff4c625 ("stack: Optionally randomize kernel stack offset each syscall")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220629060423.2515693-1-gongruiqi1@huawei.com
+Fixes: e3a35d03407c ("dm writecache: add event counters")
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/main.c | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/admin-guide/device-mapper/writecache.rst | 2 +-
+ drivers/md/dm-writecache.c                             | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/init/main.c b/init/main.c
-index 0ee39cdcfcac..91642a4e69be 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -99,6 +99,7 @@
- #include <linux/kcsan.h>
- #include <linux/init_syscalls.h>
- #include <linux/stackdepot.h>
-+#include <linux/randomize_kstack.h>
- #include <net/net_namespace.h>
+diff --git a/Documentation/admin-guide/device-mapper/writecache.rst b/Documentation/admin-guide/device-mapper/writecache.rst
+index 6c9a2c74df8a..724e028d1858 100644
+--- a/Documentation/admin-guide/device-mapper/writecache.rst
++++ b/Documentation/admin-guide/device-mapper/writecache.rst
+@@ -87,7 +87,7 @@ Status:
+ 11. the number of write blocks that are allocated in the cache
+ 12. the number of write requests that are blocked on the freelist
+ 13. the number of flush requests
+-14. the number of discard requests
++14. the number of discarded blocks
  
- #include <asm/io.h>
+ Messages:
+ 	flush
+diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
+index d1dca8f44028..b4d5bab8d68b 100644
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -1514,7 +1514,7 @@ static enum wc_map_op writecache_map_flush(struct dm_writecache *wc, struct bio
+ 
+ static enum wc_map_op writecache_map_discard(struct dm_writecache *wc, struct bio *bio)
+ {
+-	wc->stats.discards++;
++	wc->stats.discards += bio->bi_iter.bi_size >> wc->block_size_bits;
+ 
+ 	if (writecache_has_error(wc))
+ 		return WC_MAP_ERROR;
 -- 
 2.35.1
 
