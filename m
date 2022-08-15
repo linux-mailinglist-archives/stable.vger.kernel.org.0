@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03065593914
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D84C25937AF
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240822AbiHOSmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:42:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38108 "EHLO
+        id S242753AbiHOSnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:43:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242581AbiHOSkj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:40:39 -0400
+        with ESMTP id S242904AbiHOSkp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:40:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4EDC3DBF5;
-        Mon, 15 Aug 2022 11:24:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 491DB2A95B;
+        Mon, 15 Aug 2022 11:24:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BBF5B80F99;
-        Mon, 15 Aug 2022 18:24:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B52A3C433C1;
-        Mon, 15 Aug 2022 18:24:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD52CB8107D;
+        Mon, 15 Aug 2022 18:24:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07AE0C433C1;
+        Mon, 15 Aug 2022 18:24:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587856;
-        bh=puVQCDxV+dBSjrwYCK79NSsZDZj3njSZ6AHPcdAQAN0=;
+        s=korg; t=1660587862;
+        bh=JDDcoCnPxmg7DVjWNm1DOZfDcTV9TzDW0XJCx77XjG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DLafvVNoDlYR1fWQxNjtkKqBS11EtuLGB3CsZV8od0yIqL5CeWAcHA+vwEpyTTOkl
-         zWePwcU4mLI7zHCrm5YzfFKWiASCCvdmNKBXVYZgoJdxh0YEqH4q1l7JvfmWWl6jRc
-         g9zlDgr2k8gZT9GaxecYYirJynNWyhsDjtBBhgLY=
+        b=Ehlw5uGwbk2OSlgsYO/otzFCrJY2Orf6p5s7Sbe8/w6julEKP2Gr1Vxq0ufgUV9tc
+         s5gV+ntPPsKLl00ulvJ8KLjLNdnJyW2zW2H86j0UwYVQxOgQCZU+G75aDaWJHpj0rF
+         Sskil0C5tXtl9e1LwQs+Y31cTEjDZIhYl66Wtpss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai1@huaweicloud.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
         Mike Snitzer <snitzer@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 216/779] dm writecache: count number of blocks written, not number of write bios
-Date:   Mon, 15 Aug 2022 19:57:40 +0200
-Message-Id: <20220815180346.504719896@linuxfoundation.org>
+Subject: [PATCH 5.15 217/779] dm writecache: count number of blocks discarded, not number of discard bios
+Date:   Mon, 15 Aug 2022 19:57:41 +0200
+Message-Id: <20220815180346.549831036@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,91 +56,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit b2676e1482af89714af6988ce5d31a84692e2530 ]
+[ Upstream commit 2ee73ef60db4d79b9f9b8cd501e8188b5179449f ]
 
-Change dm-writecache, so that it counts the number of blocks written
-instead of the number of write bios. Bios can be split and requeued
-using the dm_accept_partial_bio function, so counting bios caused
-inaccurate results.
+Change dm-writecache, so that it counts the number of blocks discarded
+instead of the number of discard bios. Make it consistent with the
+read and write statistics counters that were changed to count the
+number of blocks instead of bios.
 
 Fixes: e3a35d03407c ("dm writecache: add event counters")
-Reported-by: Yu Kuai <yukuai1@huaweicloud.com>
 Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
 Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../admin-guide/device-mapper/writecache.rst         | 10 +++++-----
- drivers/md/dm-writecache.c                           | 12 +++++++++---
- 2 files changed, 14 insertions(+), 8 deletions(-)
+ Documentation/admin-guide/device-mapper/writecache.rst | 2 +-
+ drivers/md/dm-writecache.c                             | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/Documentation/admin-guide/device-mapper/writecache.rst b/Documentation/admin-guide/device-mapper/writecache.rst
-index 7bead3b52690..6c9a2c74df8a 100644
+index 6c9a2c74df8a..724e028d1858 100644
 --- a/Documentation/admin-guide/device-mapper/writecache.rst
 +++ b/Documentation/admin-guide/device-mapper/writecache.rst
-@@ -80,11 +80,11 @@ Status:
- 4. the number of blocks under writeback
- 5. the number of read blocks
- 6. the number of read blocks that hit the cache
--7. the number of write requests
--8. the number of write requests that hit uncommitted block
--9. the number of write requests that hit committed block
--10. the number of write requests that bypass the cache
--11. the number of write requests that are allocated in the cache
-+7. the number of write blocks
-+8. the number of write blocks that hit uncommitted block
-+9. the number of write blocks that hit committed block
-+10. the number of write blocks that bypass the cache
-+11. the number of write blocks that are allocated in the cache
+@@ -87,7 +87,7 @@ Status:
+ 11. the number of write blocks that are allocated in the cache
  12. the number of write requests that are blocked on the freelist
  13. the number of flush requests
- 14. the number of discard requests
+-14. the number of discard requests
++14. the number of discarded blocks
+ 
+ Messages:
+ 	flush
 diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
-index 9d6b7b706a65..c90408eb9c3a 100644
+index c90408eb9c3a..c3e59d8af76f 100644
 --- a/drivers/md/dm-writecache.c
 +++ b/drivers/md/dm-writecache.c
-@@ -1412,6 +1412,9 @@ static void writecache_bio_copy_ssd(struct dm_writecache *wc, struct bio *bio,
- 	bio->bi_iter.bi_sector = start_cache_sec;
- 	dm_accept_partial_bio(bio, bio_size >> SECTOR_SHIFT);
+@@ -1513,7 +1513,7 @@ static enum wc_map_op writecache_map_flush(struct dm_writecache *wc, struct bio
  
-+	wc->stats.writes += bio->bi_iter.bi_size >> wc->block_size_bits;
-+	wc->stats.writes_allocate += (bio->bi_iter.bi_size - wc->block_size) >> wc->block_size_bits;
-+
- 	if (unlikely(wc->uncommitted_blocks >= wc->autocommit_blocks)) {
- 		wc->uncommitted_blocks = 0;
- 		queue_work(wc->writeback_wq, &wc->flush_work);
-@@ -1427,9 +1430,10 @@ static enum wc_map_op writecache_map_write(struct dm_writecache *wc, struct bio
- 	do {
- 		bool found_entry = false;
- 		bool search_used = false;
--		wc->stats.writes++;
--		if (writecache_has_error(wc))
-+		if (writecache_has_error(wc)) {
-+			wc->stats.writes += bio->bi_iter.bi_size >> wc->block_size_bits;
- 			return WC_MAP_ERROR;
-+		}
- 		e = writecache_find_entry(wc, bio->bi_iter.bi_sector, 0);
- 		if (e) {
- 			if (!writecache_entry_is_committed(wc, e)) {
-@@ -1453,9 +1457,10 @@ static enum wc_map_op writecache_map_write(struct dm_writecache *wc, struct bio
- 		if (unlikely(!e)) {
- 			if (!WC_MODE_PMEM(wc) && !found_entry) {
- direct_write:
--				wc->stats.writes_around++;
- 				e = writecache_find_entry(wc, bio->bi_iter.bi_sector, WFE_RETURN_FOLLOWING);
- 				writecache_map_remap_origin(wc, bio, e);
-+				wc->stats.writes_around += bio->bi_iter.bi_size >> wc->block_size_bits;
-+				wc->stats.writes += bio->bi_iter.bi_size >> wc->block_size_bits;
- 				return WC_MAP_REMAP_ORIGIN;
- 			}
- 			wc->stats.writes_blocked_on_freelist++;
-@@ -1469,6 +1474,7 @@ static enum wc_map_op writecache_map_write(struct dm_writecache *wc, struct bio
- bio_copy:
- 		if (WC_MODE_PMEM(wc)) {
- 			bio_copy_block(wc, bio, memory_data(wc, e));
-+			wc->stats.writes++;
- 		} else {
- 			writecache_bio_copy_ssd(wc, bio, e, search_used);
- 			return WC_MAP_REMAP;
+ static enum wc_map_op writecache_map_discard(struct dm_writecache *wc, struct bio *bio)
+ {
+-	wc->stats.discards++;
++	wc->stats.discards += bio->bi_iter.bi_size >> wc->block_size_bits;
+ 
+ 	if (writecache_has_error(wc))
+ 		return WC_MAP_ERROR;
 -- 
 2.35.1
 
