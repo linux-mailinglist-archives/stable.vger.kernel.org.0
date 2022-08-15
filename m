@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 326955945BA
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:01:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57DA259434C
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:55:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351639AbiHOWwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:52:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60474 "EHLO
+        id S1351709AbiHOWwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:52:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352263AbiHOWvS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:51:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96DE57F094;
-        Mon, 15 Aug 2022 12:54:11 -0700 (PDT)
+        with ESMTP id S1352350AbiHOWvb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:51:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5188C13894B;
+        Mon, 15 Aug 2022 12:54:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E0156113B;
-        Mon, 15 Aug 2022 19:54:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6151EC433C1;
-        Mon, 15 Aug 2022 19:54:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 840FF61178;
+        Mon, 15 Aug 2022 19:54:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 710A6C433C1;
+        Mon, 15 Aug 2022 19:54:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593250;
-        bh=1gm89znpul3M7Mq6PsQpbMptuNLADq3XNqrD31rIi4M=;
+        s=korg; t=1660593256;
+        bh=MmaqZzJMFfhczwdG6lBI7PY17ZXYb9+bNAo7nLLp8qw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FofJOu1Ky+iC5ximmm/Y7PkuhxZvrQYZXKN3eEOFniSQxD3AeyBLKrcHbftCur4yt
-         4CuTUlUh7ALbMcN9qY+YmLGTjUm26gYCuBdiOxGtvx6qLtx8ODCSfqDnNwgBMvxtjM
-         qLgGIuIHw5oRVfZbB5nMWvs527K6FAucweaPAA7s=
+        b=wC+KIxfOr6Ls4q/cs8fPjc5EI3UuXfZRrqV6nvSDDvISCmbRWhmpmbOIKfz7rSNMd
+         LRRyCtVC3QuGM0+ifmxkb1MCt8Dx7VaOGEuI/hF4wQJRINELV59VbSIN0D2S53h9Vd
+         JXbs+kcZPMKiCTui25J2/LzYeKOS7sJLO10C18F0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Chris Paterson <chris.paterson2@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0236/1157] arm64: dts: renesas: r9a07g054l2-smarc: Correct SoC name in comment
-Date:   Mon, 15 Aug 2022 19:53:12 +0200
-Message-Id: <20220815180449.006561795@linuxfoundation.org>
+Subject: [PATCH 5.19 0237/1157] regulator: qcom_smd: Fix pm8916_pldo range
+Date:   Mon, 15 Aug 2022 19:53:13 +0200
+Message-Id: <20220815180449.045594664@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,33 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Paterson <chris.paterson2@renesas.com>
+From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
 
-[ Upstream commit d1273f541ab409242e08da6bb836bb564021274c ]
+[ Upstream commit e8977917e116d1571dacb8e9864474551c1c12bd ]
 
-This dts is for the RZ/V2L SMARC EVK, not RZ/G2L.
+The PM8916 device specification [1] documents a programmable range of
+1.75V to 3.337V with 12.5mV steps for the PMOS LDOs in PM8916. This
+range is also used when controlling the regulator directly using the
+qcom_spmi-regulator driver ("ult_pldo" there).
 
-Fixes: f91c4c74796a ("arm64: dts: renesas: Add initial device tree for RZ/V2L SMARC EVK")
-Signed-off-by: Chris Paterson <chris.paterson2@renesas.com>
-Link: https://lore.kernel.org/r/20220623103024.24222-1-chris.paterson2@renesas.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+However, for some reason the qcom_smd-regulator driver allows a much
+larger range for the same hardware component. This could be simply a
+typo, since the start of the range is essentially just missing a '1'.
+
+In practice this does not cause any major problems, since the driver
+just sends the actual voltage to the RPM firmware instead of making use
+of the incorrect voltage selector. Still, having the wrong range there
+is confusing and prevents the regulator core from validating requests
+correctly.
+
+[1]: https://developer.qualcomm.com/download/sd410/pm8916pm8916-1-power-management-ic-device-specification.pdf
+
+Fixes: 57d6567680ed ("regulator: qcom-smd: Add PM8916 support")
+Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+Link: https://lore.kernel.org/r/20220623094614.1410180-2-stephan.gerhold@kernkonzept.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r9a07g054l2-smarc.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/qcom_smd-regulator.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r9a07g054l2-smarc.dts b/arch/arm64/boot/dts/renesas/r9a07g054l2-smarc.dts
-index 4e07e1a0fb66..3d01a4cf0fbe 100644
---- a/arch/arm64/boot/dts/renesas/r9a07g054l2-smarc.dts
-+++ b/arch/arm64/boot/dts/renesas/r9a07g054l2-smarc.dts
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
- /*
-- * Device Tree Source for the RZ/G2L SMARC EVK board
-+ * Device Tree Source for the RZ/V2L SMARC EVK board
-  *
-  * Copyright (C) 2021 Renesas Electronics Corp.
-  */
+diff --git a/drivers/regulator/qcom_smd-regulator.c b/drivers/regulator/qcom_smd-regulator.c
+index ef6e47d025ca..60f3513f7038 100644
+--- a/drivers/regulator/qcom_smd-regulator.c
++++ b/drivers/regulator/qcom_smd-regulator.c
+@@ -357,10 +357,10 @@ static const struct regulator_desc pm8941_switch = {
+ 
+ static const struct regulator_desc pm8916_pldo = {
+ 	.linear_ranges = (struct linear_range[]) {
+-		REGULATOR_LINEAR_RANGE(750000, 0, 208, 12500),
++		REGULATOR_LINEAR_RANGE(1750000, 0, 127, 12500),
+ 	},
+ 	.n_linear_ranges = 1,
+-	.n_voltages = 209,
++	.n_voltages = 128,
+ 	.ops = &rpm_smps_ldo_ops,
+ };
+ 
 -- 
 2.35.1
 
