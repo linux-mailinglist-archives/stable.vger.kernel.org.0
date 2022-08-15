@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4027594D71
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0F40594D07
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243876AbiHPAdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:33:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40756 "EHLO
+        id S1349904AbiHPAdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:33:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354200AbiHPAbd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:31:33 -0400
+        with ESMTP id S1354276AbiHPAbf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:31:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54DC01863C6;
-        Mon, 15 Aug 2022 13:36:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B1FC1863CC;
+        Mon, 15 Aug 2022 13:36:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41B07611FC;
-        Mon, 15 Aug 2022 20:36:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EB30C433D6;
-        Mon, 15 Aug 2022 20:36:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A427C611E2;
+        Mon, 15 Aug 2022 20:36:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26941C433C1;
+        Mon, 15 Aug 2022 20:36:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595778;
-        bh=cfS4LzqGH/rZMcbVLuMFUkaIzMKrRGLQzVcvKPvDyjE=;
+        s=korg; t=1660595782;
+        bh=i+usJMXzcolzFskcxzkuh3NOCeVE3/JMKNvGxJ33YvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2b+b7RDM9+PwZa+62YK93lBL9cSB+/jADZHy49AXpIYA7yoZwq+cd8lOOnOaHsJ22
-         QBM4eI3VVf9r0uErivs8hdFYtJ0/mdeoVW7dI0F9d2eE30RPz3Ku5UIaDjcX2PU5Hk
-         LylJUAEise6hcE5lRbhKnFCrmut06ujXgcqI9EZY=
+        b=DF3/kYDGBRIp5Ma5wZQMSRMb2fau8DhCXNS4RMqK0D6yKyVfsWiPs+MU5WBYOpmgS
+         wLJtqEdDJ3gmq16YpvTi+G5Mx4heIeDN4SHrpNAJc28GM8Cte+EceyGhQvuqxORO5C
+         3vpJ0PV+ywGhQLlO1X9Il9e2re38WB0A5V6/Q8r4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0873/1157] of/fdt: declared return type does not match actual return type
-Date:   Mon, 15 Aug 2022 20:03:49 +0200
-Message-Id: <20220815180514.381841548@linuxfoundation.org>
+        stable@vger.kernel.org, Itay Aveksis <itayav@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0874/1157] RDMA/mlx5: Add missing check for return value in get namespace flow
+Date:   Mon, 15 Aug 2022 20:03:50 +0200
+Message-Id: <20220815180514.427123341@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -53,41 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Qiang <xuqiang36@huawei.com>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-[ Upstream commit 7913145afa51bbed9eaf8e5b4ee55fa9884a71e5 ]
+[ Upstream commit c9776457bd5eaad4ce4ecb17af8d8f3cc6957c0b ]
 
-The commit 649cab56de8e (“of: properly check for error returned
-by fdt_get_name()”) changed the return value type from bool to int,
-but forgot to change the return value simultaneously.
+Add missing check for return value when calling to
+mlx5_ib_ft_type_to_namespace, even though it can't really fail in this
+specific call.
 
-populate_node was only called in unflatten_dt_nodes, and returns
-with values greater than or equal to 0 were discarded without further
-processing. Considering that return 0 usually indicates success,
-return 0 instead of return true.
-
-Fixes: 649cab56de8e (“of: properly check for error returned by fdt_get_name()”)
-Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20220801120506.11461-2-xuqiang36@huawei.com
+Fixes: 52438be44112 ("RDMA/mlx5: Allow inserting a steering rule to the FDB")
+Link: https://lore.kernel.org/r/7b9ceda217d9368a51dc47a46b769bad4af9ac92.1659256069.git.leonro@nvidia.com
+Reviewed-by: Itay Aveksis <itayav@nvidia.com>
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/fdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx5/fs.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
-index a8f5b6532165..520ed965bb7a 100644
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -246,7 +246,7 @@ static int populate_node(const void *blob,
+diff --git a/drivers/infiniband/hw/mlx5/fs.c b/drivers/infiniband/hw/mlx5/fs.c
+index 39ffb363ba0c..531aa35ba67c 100644
+--- a/drivers/infiniband/hw/mlx5/fs.c
++++ b/drivers/infiniband/hw/mlx5/fs.c
+@@ -2050,12 +2050,10 @@ static int mlx5_ib_matcher_ns(struct uverbs_attr_bundle *attrs,
+ 		if (err)
+ 			return err;
+ 
+-		if (flags) {
+-			mlx5_ib_ft_type_to_namespace(
++		if (flags)
++			return mlx5_ib_ft_type_to_namespace(
+ 				MLX5_IB_UAPI_FLOW_TABLE_TYPE_NIC_TX,
+ 				&obj->ns_type);
+-			return 0;
+-		}
  	}
  
- 	*pnp = np;
--	return true;
-+	return 0;
- }
- 
- static void reverse_nodes(struct device_node *parent)
+ 	obj->ns_type = MLX5_FLOW_NAMESPACE_BYPASS;
 -- 
 2.35.1
 
