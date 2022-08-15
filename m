@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36BF9594901
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:10:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FC76594D59
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244051AbiHOXRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:17:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45276 "EHLO
+        id S245638AbiHPAsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:48:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352987AbiHOXPr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:15:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3184D9D664;
-        Mon, 15 Aug 2022 13:02:46 -0700 (PDT)
+        with ESMTP id S1349034AbiHPAq3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:46:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF318D87D2;
+        Mon, 15 Aug 2022 13:44:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6228B80EAD;
-        Mon, 15 Aug 2022 20:02:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45FD6C433B5;
-        Mon, 15 Aug 2022 20:02:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CE6161255;
+        Mon, 15 Aug 2022 20:44:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08840C433D6;
+        Mon, 15 Aug 2022 20:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593763;
-        bh=PYKDtfJN7xItE80ybdVMebvz/REKeuxmoiaYOjlu43Q=;
+        s=korg; t=1660596296;
+        bh=RiMHovBZYHCGWtaHr4fLln1x+ZrPOtYFkzQIgJvlNg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jH3K+9Y5tY64sZ41xt+VGK0yf8Pvgql6/5LlTEw22CoLEAqgqkGgpEvE/jqiLeFD/
-         6Dwb/a9uPb6PqpdNiTtmcsY5lhT4R4v4iFyUoJk1/qOVnOxrio0A2ZoAaB0/B09G4g
-         MgRGHn82RcwJuZ6Un5iGItUns9dB4FLpDn20soSA=
+        b=ZNXF0LyB4fM/cLUhVF08wkwawRWQYAsbRvMHlkxY4IhDPSykq8Apg2CeiZIjktEQa
+         36k9RBtgdn1zVTaPUh3WBfsmLHy2FkpVc22TDR0tsoCsIO12g/kRIRWLU/sGXkSp5V
+         aiaQfZjm+DBlFEc0ce9XKtu17q1fd7KjbBETOd9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, huhai <huhai@kylinos.cn>,
-        Jackie Liu <liuyun01@kylinos.cn>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0989/1095] firmware: arm_scpi: Ensure scpi_info is not assigned if the probe fails
-Date:   Mon, 15 Aug 2022 20:06:28 +0200
-Message-Id: <20220815180510.022504747@linuxfoundation.org>
+        stable@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.19 1034/1157] scsi: zfcp: Fix missing auto port scan and thus missing target ports
+Date:   Mon, 15 Aug 2022 20:06:30 +0200
+Message-Id: <20220815180521.324351393@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,155 +54,232 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Steffen Maier <maier@linux.ibm.com>
 
-[ Upstream commit 689640efc0a2c4e07e6f88affe6d42cd40cc3f85 ]
+commit 4da8c5f76825269f28d6a89fa752934a4bcb6dfa upstream.
 
-When scpi probe fails, at any point, we need to ensure that the scpi_info
-is not set and will remain NULL until the probe succeeds. If it is not
-taken care, then it could result use-after-free as the value is exported
-via get_scpi_ops() and could refer to a memory allocated via devm_kzalloc()
-but freed when the probe fails.
+Case (1):
+  The only waiter on wka_port->completion_wq is zfcp_fc_wka_port_get()
+  trying to open a WKA port. As such it should only be woken up by WKA port
+  *open* responses, not by WKA port close responses.
 
-Link: https://lore.kernel.org/r/20220701160310.148344-1-sudeep.holla@arm.com
-Cc: stable@vger.kernel.org # 4.19+
-Reported-by: huhai <huhai@kylinos.cn>
-Reviewed-by: Jackie Liu <liuyun01@kylinos.cn>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Case (2):
+  A close WKA port response coming in just after having sent a new open WKA
+  port request and before blocking for the open response with wait_event()
+  in zfcp_fc_wka_port_get() erroneously renders the wait_event a NOP
+  because the close handler overwrites wka_port->status. Hence the
+  wait_event condition is erroneously true and it does not enter blocking
+  state.
+
+With non-negligible probability, the following time space sequence happens
+depending on timing without this fix:
+
+user process        ERP thread zfcp work queue tasklet system work queue
+============        ========== =============== ======= =================
+$ echo 1 > online
+zfcp_ccw_set_online
+zfcp_ccw_activate
+zfcp_erp_adapter_reopen
+msleep scan backoff zfcp_erp_strategy
+|                   ...
+|                   zfcp_erp_action_cleanup
+|                   ...
+|                   queue delayed scan_work
+|                   queue ns_up_work
+|                              ns_up_work:
+|                              zfcp_fc_wka_port_get
+|                               open wka request
+|                                              open response
+|                              GSPN FC-GS
+|                              RSPN FC-GS [NPIV-only]
+|                              zfcp_fc_wka_port_put
+|                               (--wka->refcount==0)
+|                               sched delayed wka->work
+|
+~~~Case (1)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+zfcp_erp_wait
+flush scan_work
+|                                                      wka->work:
+|                                                      wka->status=CLOSING
+|                                                      close wka request
+|                              scan_work:
+|                              zfcp_fc_wka_port_get
+|                               (wka->status==CLOSING)
+|                               wka->status=OPENING
+|                               open wka request
+|                               wait_event
+|                               |              close response
+|                               |              wka->status=OFFLINE
+|                               |              wake_up /*WRONG*/
+~~~Case (2)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+|                                                      wka->work:
+|                                                      wka->status=CLOSING
+|                                                      close wka request
+zfcp_erp_wait
+flush scan_work
+|                              scan_work:
+|                              zfcp_fc_wka_port_get
+|                               (wka->status==CLOSING)
+|                               wka->status=OPENING
+|                               open wka request
+|                                              close response
+|                                              wka->status=OFFLINE
+|                                              wake_up /*WRONG&NOP*/
+|                               wait_event /*NOP*/
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+|                               (wka->status!=ONLINE)
+|                               return -EIO
+|                              return early
+                                               open response
+                                               wka->status=ONLINE
+                                               wake_up /*NOP*/
+
+So we erroneously end up with no automatic port scan. This is a big problem
+when it happens during boot. The timing is influenced by v3.19 commit
+18f87a67e6d6 ("zfcp: auto port scan resiliency").
+
+Fix it by fully mutually excluding zfcp_fc_wka_port_get() and
+zfcp_fc_wka_port_offline(). For that to work, we make the latter block
+until we got the response for a close WKA port. In order not to penalize
+the system workqueue, we move wka_port->work to our own adapter workqueue.
+Note that before v2.6.30 commit 828bc1212a68 ("[SCSI] zfcp: Set WKA-port to
+offline on adapter deactivation"), zfcp did block in
+zfcp_fc_wka_port_offline() as well, but with a different condition.
+
+While at it, make non-functional cleanups to improve code reading in
+zfcp_fc_wka_port_get(). If we cannot send the WKA port open request, don't
+rely on the subsequent wait_event condition to immediately let this case
+pass without blocking. Also don't want to rely on the additional condition
+handling the refcount to be skipped just to finally return with -EIO.
+
+Link: https://lore.kernel.org/r/20220729162529.1620730-1-maier@linux.ibm.com
+Fixes: 5ab944f97e09 ("[SCSI] zfcp: attach and release SAN nameserver port on demand")
+Cc: <stable@vger.kernel.org> #v2.6.28+
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/arm_scpi.c | 61 +++++++++++++++++++++----------------
- 1 file changed, 35 insertions(+), 26 deletions(-)
+ drivers/s390/scsi/zfcp_fc.c  |   29 ++++++++++++++++++++---------
+ drivers/s390/scsi/zfcp_fc.h  |    6 ++++--
+ drivers/s390/scsi/zfcp_fsf.c |    4 ++--
+ 3 files changed, 26 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/firmware/arm_scpi.c b/drivers/firmware/arm_scpi.c
-index ddf0b9ff9e15..435d0e2658a4 100644
---- a/drivers/firmware/arm_scpi.c
-+++ b/drivers/firmware/arm_scpi.c
-@@ -815,7 +815,7 @@ static int scpi_init_versions(struct scpi_drvinfo *info)
- 		info->firmware_version = le32_to_cpu(caps.platform_version);
- 	}
- 	/* Ignore error if not implemented */
--	if (scpi_info->is_legacy && ret == -EOPNOTSUPP)
-+	if (info->is_legacy && ret == -EOPNOTSUPP)
- 		return 0;
+--- a/drivers/s390/scsi/zfcp_fc.c
++++ b/drivers/s390/scsi/zfcp_fc.c
+@@ -145,27 +145,33 @@ void zfcp_fc_enqueue_event(struct zfcp_a
  
- 	return ret;
-@@ -913,13 +913,14 @@ static int scpi_probe(struct platform_device *pdev)
- 	struct resource res;
- 	struct device *dev = &pdev->dev;
- 	struct device_node *np = dev->of_node;
-+	struct scpi_drvinfo *scpi_drvinfo;
- 
--	scpi_info = devm_kzalloc(dev, sizeof(*scpi_info), GFP_KERNEL);
--	if (!scpi_info)
-+	scpi_drvinfo = devm_kzalloc(dev, sizeof(*scpi_drvinfo), GFP_KERNEL);
-+	if (!scpi_drvinfo)
- 		return -ENOMEM;
- 
- 	if (of_match_device(legacy_scpi_of_match, &pdev->dev))
--		scpi_info->is_legacy = true;
-+		scpi_drvinfo->is_legacy = true;
- 
- 	count = of_count_phandle_with_args(np, "mboxes", "#mbox-cells");
- 	if (count < 0) {
-@@ -927,19 +928,19 @@ static int scpi_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
- 
--	scpi_info->channels = devm_kcalloc(dev, count, sizeof(struct scpi_chan),
--					   GFP_KERNEL);
--	if (!scpi_info->channels)
-+	scpi_drvinfo->channels =
-+		devm_kcalloc(dev, count, sizeof(struct scpi_chan), GFP_KERNEL);
-+	if (!scpi_drvinfo->channels)
- 		return -ENOMEM;
- 
--	ret = devm_add_action(dev, scpi_free_channels, scpi_info);
-+	ret = devm_add_action(dev, scpi_free_channels, scpi_drvinfo);
- 	if (ret)
- 		return ret;
- 
--	for (; scpi_info->num_chans < count; scpi_info->num_chans++) {
-+	for (; scpi_drvinfo->num_chans < count; scpi_drvinfo->num_chans++) {
- 		resource_size_t size;
--		int idx = scpi_info->num_chans;
--		struct scpi_chan *pchan = scpi_info->channels + idx;
-+		int idx = scpi_drvinfo->num_chans;
-+		struct scpi_chan *pchan = scpi_drvinfo->channels + idx;
- 		struct mbox_client *cl = &pchan->cl;
- 		struct device_node *shmem = of_parse_phandle(np, "shmem", idx);
- 
-@@ -986,45 +987,53 @@ static int scpi_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	scpi_info->commands = scpi_std_commands;
-+	scpi_drvinfo->commands = scpi_std_commands;
- 
--	platform_set_drvdata(pdev, scpi_info);
-+	platform_set_drvdata(pdev, scpi_drvinfo);
- 
--	if (scpi_info->is_legacy) {
-+	if (scpi_drvinfo->is_legacy) {
- 		/* Replace with legacy variants */
- 		scpi_ops.clk_set_val = legacy_scpi_clk_set_val;
--		scpi_info->commands = scpi_legacy_commands;
-+		scpi_drvinfo->commands = scpi_legacy_commands;
- 
- 		/* Fill priority bitmap */
- 		for (idx = 0; idx < ARRAY_SIZE(legacy_hpriority_cmds); idx++)
- 			set_bit(legacy_hpriority_cmds[idx],
--				scpi_info->cmd_priority);
-+				scpi_drvinfo->cmd_priority);
- 	}
- 
--	ret = scpi_init_versions(scpi_info);
-+	scpi_info = scpi_drvinfo;
+ static int zfcp_fc_wka_port_get(struct zfcp_fc_wka_port *wka_port)
+ {
++	int ret = -EIO;
 +
-+	ret = scpi_init_versions(scpi_drvinfo);
- 	if (ret) {
- 		dev_err(dev, "incorrect or no SCP firmware found\n");
-+		scpi_info = NULL;
- 		return ret;
+ 	if (mutex_lock_interruptible(&wka_port->mutex))
+ 		return -ERESTARTSYS;
+ 
+ 	if (wka_port->status == ZFCP_FC_WKA_PORT_OFFLINE ||
+ 	    wka_port->status == ZFCP_FC_WKA_PORT_CLOSING) {
+ 		wka_port->status = ZFCP_FC_WKA_PORT_OPENING;
+-		if (zfcp_fsf_open_wka_port(wka_port))
++		if (zfcp_fsf_open_wka_port(wka_port)) {
++			/* could not even send request, nothing to wait for */
+ 			wka_port->status = ZFCP_FC_WKA_PORT_OFFLINE;
++			goto out;
++		}
  	}
  
--	if (scpi_info->is_legacy && !scpi_info->protocol_version &&
--	    !scpi_info->firmware_version)
-+	if (scpi_drvinfo->is_legacy && !scpi_drvinfo->protocol_version &&
-+	    !scpi_drvinfo->firmware_version)
- 		dev_info(dev, "SCP Protocol legacy pre-1.0 firmware\n");
- 	else
- 		dev_info(dev, "SCP Protocol %lu.%lu Firmware %lu.%lu.%lu version\n",
- 			 FIELD_GET(PROTO_REV_MAJOR_MASK,
--				   scpi_info->protocol_version),
-+				   scpi_drvinfo->protocol_version),
- 			 FIELD_GET(PROTO_REV_MINOR_MASK,
--				   scpi_info->protocol_version),
-+				   scpi_drvinfo->protocol_version),
- 			 FIELD_GET(FW_REV_MAJOR_MASK,
--				   scpi_info->firmware_version),
-+				   scpi_drvinfo->firmware_version),
- 			 FIELD_GET(FW_REV_MINOR_MASK,
--				   scpi_info->firmware_version),
-+				   scpi_drvinfo->firmware_version),
- 			 FIELD_GET(FW_REV_PATCH_MASK,
--				   scpi_info->firmware_version));
--	scpi_info->scpi_ops = &scpi_ops;
-+				   scpi_drvinfo->firmware_version));
-+
-+	scpi_drvinfo->scpi_ops = &scpi_ops;
+-	mutex_unlock(&wka_port->mutex);
+-
+-	wait_event(wka_port->completion_wq,
++	wait_event(wka_port->opened,
+ 		   wka_port->status == ZFCP_FC_WKA_PORT_ONLINE ||
+ 		   wka_port->status == ZFCP_FC_WKA_PORT_OFFLINE);
  
--	return devm_of_platform_populate(dev);
-+	ret = devm_of_platform_populate(dev);
-+	if (ret)
-+		scpi_info = NULL;
-+
+ 	if (wka_port->status == ZFCP_FC_WKA_PORT_ONLINE) {
+ 		atomic_inc(&wka_port->refcount);
+-		return 0;
++		ret = 0;
++		goto out;
+ 	}
+-	return -EIO;
++out:
++	mutex_unlock(&wka_port->mutex);
 +	return ret;
  }
  
- static const struct of_device_id scpi_of_match[] = {
--- 
-2.35.1
-
+ static void zfcp_fc_wka_port_offline(struct work_struct *work)
+@@ -181,9 +187,12 @@ static void zfcp_fc_wka_port_offline(str
+ 
+ 	wka_port->status = ZFCP_FC_WKA_PORT_CLOSING;
+ 	if (zfcp_fsf_close_wka_port(wka_port)) {
++		/* could not even send request, nothing to wait for */
+ 		wka_port->status = ZFCP_FC_WKA_PORT_OFFLINE;
+-		wake_up(&wka_port->completion_wq);
++		goto out;
+ 	}
++	wait_event(wka_port->closed,
++		   wka_port->status == ZFCP_FC_WKA_PORT_OFFLINE);
+ out:
+ 	mutex_unlock(&wka_port->mutex);
+ }
+@@ -193,13 +202,15 @@ static void zfcp_fc_wka_port_put(struct
+ 	if (atomic_dec_return(&wka_port->refcount) != 0)
+ 		return;
+ 	/* wait 10 milliseconds, other reqs might pop in */
+-	schedule_delayed_work(&wka_port->work, HZ / 100);
++	queue_delayed_work(wka_port->adapter->work_queue, &wka_port->work,
++			   msecs_to_jiffies(10));
+ }
+ 
+ static void zfcp_fc_wka_port_init(struct zfcp_fc_wka_port *wka_port, u32 d_id,
+ 				  struct zfcp_adapter *adapter)
+ {
+-	init_waitqueue_head(&wka_port->completion_wq);
++	init_waitqueue_head(&wka_port->opened);
++	init_waitqueue_head(&wka_port->closed);
+ 
+ 	wka_port->adapter = adapter;
+ 	wka_port->d_id = d_id;
+--- a/drivers/s390/scsi/zfcp_fc.h
++++ b/drivers/s390/scsi/zfcp_fc.h
+@@ -185,7 +185,8 @@ enum zfcp_fc_wka_status {
+ /**
+  * struct zfcp_fc_wka_port - representation of well-known-address (WKA) FC port
+  * @adapter: Pointer to adapter structure this WKA port belongs to
+- * @completion_wq: Wait for completion of open/close command
++ * @opened: Wait for completion of open command
++ * @closed: Wait for completion of close command
+  * @status: Current status of WKA port
+  * @refcount: Reference count to keep port open as long as it is in use
+  * @d_id: FC destination id or well-known-address
+@@ -195,7 +196,8 @@ enum zfcp_fc_wka_status {
+  */
+ struct zfcp_fc_wka_port {
+ 	struct zfcp_adapter	*adapter;
+-	wait_queue_head_t	completion_wq;
++	wait_queue_head_t	opened;
++	wait_queue_head_t	closed;
+ 	enum zfcp_fc_wka_status	status;
+ 	atomic_t		refcount;
+ 	u32			d_id;
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -1907,7 +1907,7 @@ static void zfcp_fsf_open_wka_port_handl
+ 		wka_port->status = ZFCP_FC_WKA_PORT_ONLINE;
+ 	}
+ out:
+-	wake_up(&wka_port->completion_wq);
++	wake_up(&wka_port->opened);
+ }
+ 
+ /**
+@@ -1966,7 +1966,7 @@ static void zfcp_fsf_close_wka_port_hand
+ 	}
+ 
+ 	wka_port->status = ZFCP_FC_WKA_PORT_OFFLINE;
+-	wake_up(&wka_port->completion_wq);
++	wake_up(&wka_port->closed);
+ }
+ 
+ /**
 
 
