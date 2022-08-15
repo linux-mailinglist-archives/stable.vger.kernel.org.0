@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B48A593D22
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2C3B593AE0
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244984AbiHOTg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:36:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56528 "EHLO
+        id S245482AbiHOThI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:37:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344295AbiHOTg3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:36:29 -0400
+        with ESMTP id S1344344AbiHOTgf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:36:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 091AC30544;
-        Mon, 15 Aug 2022 11:45:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 811CC642E3;
+        Mon, 15 Aug 2022 11:45:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 52779611C1;
-        Mon, 15 Aug 2022 18:45:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22483C433D6;
-        Mon, 15 Aug 2022 18:45:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 73100611EF;
+        Mon, 15 Aug 2022 18:45:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60131C433C1;
+        Mon, 15 Aug 2022 18:45:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589151;
-        bh=7NiuDdZp+VFXZf96F2eqTvZlHVtKr2r82h+BlquUbbE=;
+        s=korg; t=1660589154;
+        bh=qV18CXrqDsPNUqyyYXpbc7vK2XRoYEx8HCVgIpmxHzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y76iTdc9trS6YJjX2GuHS4DngfoQ8q/5hnV5RaeK5xlSz+qaMZH9swm5iu+YCGEZJ
-         u5rI40gRqd1sncZU6yEZl10myNdythdzvnV+lF0i3tDlyrhireNmqEXYN7zlQvPI7Q
-         Umrr+Msdfh1KvkRwAMmGSApZfoiWK2883cIzzic4=
+        b=iyiik0wiZaOIDPtmZkWwzVDpiwkhY0nTpdFg+peaLCiO76vNhCnVW84ipjP9fd7Oq
+         gtSTiF4/78P3ETVJVGmWNoSgMTvuFW0MhbguI4iNZ6eG5ZzhGQrOzf/I2AwMPrSfkf
+         j7cT0q8/7516NjxAlMXmS0ERotObBEcvueEuVPmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
+        stable@vger.kernel.org, Greg Ungerer <gerg@kernel.org>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 598/779] tty: n_gsm: fix missing corner cases in gsmld_poll()
-Date:   Mon, 15 Aug 2022 20:04:02 +0200
-Message-Id: <20220815180402.919621462@linuxfoundation.org>
+Subject: [PATCH 5.15 599/779] MIPS: vdso: Utilize __pa() for gic_pfn
+Date:   Mon, 15 Aug 2022 20:04:03 +0200
+Message-Id: <20220815180402.958097458@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,47 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 7e5b4322cde067e1d0f1bf8f490e93f664a7c843 ]
+[ Upstream commit 8baa65126e19af5ee9f3c07e7bb53da41c39e4b1 ]
 
-gsmld_poll() currently fails to handle the following corner cases correctly:
-- remote party closed the associated tty
+The GIC user offset is mapped into every process' virtual address and is
+therefore part of the hot-path of arch_setup_additional_pages(). Utilize
+__pa() such that we are more optimal even when CONFIG_DEBUG_VIRTUAL is
+enabled, and while at it utilize PFN_DOWN() instead of open-coding the
+right shift by PAGE_SHIFT.
 
-Add the missing checks and map those to EPOLLHUP.
-Reorder the checks to group them by their reaction.
-
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220707113223.3685-4-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Greg Ungerer <gerg@kernel.org>
+Suggested-by: Serge Semin <fancer.lancer@gmail.com>
+Fixes: dfad83cb7193 ("MIPS: Add support for CONFIG_DEBUG_VIRTUAL")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Greg Ungerer <gerg@kernel.org>
+Tested-by: Greg Ungerer <gerg@kernel.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/mips/kernel/vdso.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 7a82fff7f5fe..b89655f585f1 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -2954,12 +2954,15 @@ static __poll_t gsmld_poll(struct tty_struct *tty, struct file *file,
+diff --git a/arch/mips/kernel/vdso.c b/arch/mips/kernel/vdso.c
+index 3d0cf471f2fe..b2cc2c2dd4bf 100644
+--- a/arch/mips/kernel/vdso.c
++++ b/arch/mips/kernel/vdso.c
+@@ -159,7 +159,7 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
+ 	/* Map GIC user page. */
+ 	if (gic_size) {
+ 		gic_base = (unsigned long)mips_gic_base + MIPS_GIC_USER_OFS;
+-		gic_pfn = virt_to_phys((void *)gic_base) >> PAGE_SHIFT;
++		gic_pfn = PFN_DOWN(__pa(gic_base));
  
- 	poll_wait(file, &tty->read_wait, wait);
- 	poll_wait(file, &tty->write_wait, wait);
-+
-+	if (gsm->dead)
-+		mask |= EPOLLHUP;
- 	if (tty_hung_up_p(file))
- 		mask |= EPOLLHUP;
-+	if (test_bit(TTY_OTHER_CLOSED, &tty->flags))
-+		mask |= EPOLLHUP;
- 	if (!tty_is_writelocked(tty) && tty_write_room(tty) > 0)
- 		mask |= EPOLLOUT | EPOLLWRNORM;
--	if (gsm->dead)
--		mask |= EPOLLHUP;
- 	return mask;
- }
- 
+ 		ret = io_remap_pfn_range(vma, base, gic_pfn, gic_size,
+ 					 pgprot_noncached(vma->vm_page_prot));
 -- 
 2.35.1
 
