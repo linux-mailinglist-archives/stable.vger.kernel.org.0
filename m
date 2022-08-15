@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E65C5947DB
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2724E5948A5
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:09:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233677AbiHOXWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:22:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54086 "EHLO
+        id S241858AbiHOXWq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:22:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344767AbiHOXUz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:20:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 891F57E033;
-        Mon, 15 Aug 2022 13:04:18 -0700 (PDT)
+        with ESMTP id S1347664AbiHOXVo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:21:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73AD87E031;
+        Mon, 15 Aug 2022 13:04:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44F5FB80EA8;
-        Mon, 15 Aug 2022 20:04:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE59DC433C1;
-        Mon, 15 Aug 2022 20:04:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18B3060693;
+        Mon, 15 Aug 2022 20:04:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ED95C433D7;
+        Mon, 15 Aug 2022 20:04:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593856;
-        bh=sFF/GLrtKkldifMSHkZh0cLIrumrBiRtQIFmzUP1GiI=;
+        s=korg; t=1660593886;
+        bh=0FUqD62hQs6exSXDr4fldjl1BY2vI18VB5zREhVNW5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s7e2BMbtwsQqqUjS+6uTffCoR7lw/uiiXWzS/lOjMIvTtaZT/NK8sjVnpQuN/BwN3
-         a20Y/zGBOFqsDpTicQwhFBe+Mb9nyUsi3HvzsGy6Cuqmc7zEVLEd+63MLzq2SfyTcU
-         5DrsIef+a2rCvEObxLtG08RH9D+ja7lzhjqZffvc=
+        b=T+OqwmB8+sfYC78akMm0Hxu1j0DNIYi1Fw7jXzoDcagXD48oNQqrMeCl6tLDhtCvr
+         1aqsRLhUKurZ7Alw6aKuGFEptFwXrJD4X1NV+rjmZUjX3mNCspM7hF7mPpj7VgZSOT
+         oPJ4wyRA4Xh87NRH1Gv2fdXDhEU0sKHpRIrbNsKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexey Kodanev <aleksei.kodanev@bell-sw.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Jitao Shi <jitao.shi@mediatek.com>,
+        Xinlei Lee <xinlei.lee@mediatek.com>,
+        Rex-BC Chen <rex-bc.chen@mediatek.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0336/1157] drm/radeon: fix potential buffer overflow in ni_set_mc_special_registers()
-Date:   Mon, 15 Aug 2022 19:54:52 +0200
-Message-Id: <20220815180453.110296283@linuxfoundation.org>
+Subject: [PATCH 5.19 0339/1157] drm/mediatek: Add pull-down MIPI operation in mtk_dsi_poweroff function
+Date:   Mon, 15 Aug 2022 19:54:55 +0200
+Message-Id: <20220815180453.227337592@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,58 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kodanev <aleksei.kodanev@bell-sw.com>
+From: Xinlei Lee <xinlei.lee@mediatek.com>
 
-[ Upstream commit 136f614931a2bb73616b292cf542da3a18daefd5 ]
+[ Upstream commit fa5d0a0205c34734c5b8daa77e39ac2817f63a10 ]
 
-The last case label can write two buffers 'mc_reg_address[j]' and
-'mc_data[j]' with 'j' offset equal to SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE
-since there are no checks for this value in both case labels after the
-last 'j++'.
+In the dsi_enable function, mtk_dsi_rxtx_control is to
+pull up the MIPI signal operation. Before dsi_disable,
+MIPI should also be pulled down by writing a register
+instead of disabling dsi.
 
-Instead of changing '>' to '>=' there, add the bounds check at the start
-of the second 'case' (the first one already has it).
+If disable dsi without pulling the mipi signal low, the value of
+the register will still maintain the setting of the mipi signal being
+pulled high.
+After resume, even if the mipi signal is not pulled high, it will still
+be in the high state.
 
-Also, remove redundant last checks for 'j' index bigger than array size.
-The expression is always false. Moreover, before or after the patch
-'table->last' can be equal to SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE and it
-seems it can be a valid value.
+Fixes: 2e54c14e310f ("drm/mediatek: Add DSI sub driver")
 
-Detected using the static analysis tool - Svace.
-Fixes: 69e0b57a91ad ("drm/radeon/kms: add dpm support for cayman (v5)")
-Signed-off-by: Alexey Kodanev <aleksei.kodanev@bell-sw.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://patchwork.kernel.org/project/linux-mediatek/patch/1653012007-11854-5-git-send-email-xinlei.lee@mediatek.com/
+Signed-off-by: Jitao Shi <jitao.shi@mediatek.com>
+Signed-off-by: Xinlei Lee <xinlei.lee@mediatek.com>
+Reviewed-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/ni_dpm.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_dsi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/radeon/ni_dpm.c b/drivers/gpu/drm/radeon/ni_dpm.c
-index 769f666335ac..672d2239293e 100644
---- a/drivers/gpu/drm/radeon/ni_dpm.c
-+++ b/drivers/gpu/drm/radeon/ni_dpm.c
-@@ -2741,10 +2741,10 @@ static int ni_set_mc_special_registers(struct radeon_device *rdev,
- 					table->mc_reg_table_entry[k].mc_data[j] |= 0x100;
- 			}
- 			j++;
--			if (j > SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE)
--				return -EINVAL;
- 			break;
- 		case MC_SEQ_RESERVE_M >> 2:
-+			if (j >= SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE)
-+				return -EINVAL;
- 			temp_reg = RREG32(MC_PMG_CMD_MRS1);
- 			table->mc_reg_address[j].s1 = MC_PMG_CMD_MRS1 >> 2;
- 			table->mc_reg_address[j].s0 = MC_SEQ_PMG_CMD_MRS1_LP >> 2;
-@@ -2753,8 +2753,6 @@ static int ni_set_mc_special_registers(struct radeon_device *rdev,
- 					(temp_reg & 0xffff0000) |
- 					(table->mc_reg_table_entry[k].mc_data[i] & 0x0000ffff);
- 			j++;
--			if (j > SMC_NISLANDS_MC_REGISTER_ARRAY_SIZE)
--				return -EINVAL;
- 			break;
- 		default:
- 			break;
+diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
+index 966a4729bb41..e9764c2e0262 100644
+--- a/drivers/gpu/drm/mediatek/mtk_dsi.c
++++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
+@@ -694,6 +694,8 @@ static void mtk_dsi_poweroff(struct mtk_dsi *dsi)
+ 	mtk_dsi_reset_engine(dsi);
+ 	mtk_dsi_lane0_ulp_mode_enter(dsi);
+ 	mtk_dsi_clk_ulp_mode_enter(dsi);
++	/* set the lane number as 0 to pull down mipi */
++	writel(0, dsi->regs + DSI_TXRX_CTRL);
+ 
+ 	mtk_dsi_disable(dsi);
+ 
 -- 
 2.35.1
 
