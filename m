@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13087593674
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 774E9593662
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:24:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243426AbiHOSgp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:36:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50820 "EHLO
+        id S241961AbiHOSmf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:42:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243821AbiHOSfy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:35:54 -0400
+        with ESMTP id S243746AbiHOSlV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:41:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABA103AE5C;
-        Mon, 15 Aug 2022 11:22:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D0EE3F321;
+        Mon, 15 Aug 2022 11:24:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F192EB8107E;
-        Mon, 15 Aug 2022 18:22:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31201C433C1;
-        Mon, 15 Aug 2022 18:22:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADD4FB8107D;
+        Mon, 15 Aug 2022 18:24:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F36FEC433C1;
+        Mon, 15 Aug 2022 18:24:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587764;
-        bh=14BO3jFRo9LTUBo+dV5YyJ4Ptn7JKSUmnCiFGI1LRj8=;
+        s=korg; t=1660587893;
+        bh=+g4G3oT1kbUpJNzmT4Ho/D7lCja7yauDPgdHOvtnxbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGJfoLC1Nt9/jXcYDvjXIoOVZ25H2EK8OrSyOgQ6Ld9t+L8Th1Gyv4m0Lfx6lZ9F3
-         n9ejdrNxv0RkpidNp+Xnj8GTxhOt9qJSgBtZ4Y2eis1rrygXNpk4t+INOROkiiB2h3
-         oOXEqaimZgK82BJW9eUyJSLKl8XFqH3vjorAMEDQ=
+        b=FSVH54mX/4Gibzi7JTvltjZMF83768h0lYsyaXRCjN+glj0dtrhmqbivP+OoyNRFK
+         Z37vdlHizTCtlK4NcKyS90HSDxI2dgrVxPd3iTzG5bgFE+6dcnAQB9f+c3BLtIzhnn
+         sKsM2pkJLQqYNlY0qjdUtylJcdZo0FuRD/smI6go=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Michal Simek <michal.simek@amd.com>,
+        stable@vger.kernel.org,
+        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 186/779] cpufreq: zynq: Fix refcount leak in zynq_get_revision
-Date:   Mon, 15 Aug 2022 19:57:10 +0200
-Message-Id: <20220815180345.220794309@linuxfoundation.org>
+Subject: [PATCH 5.15 187/779] regulator: qcom_smd: Fix pm8916_pldo range
+Date:   Mon, 15 Aug 2022 19:57:11 +0200
+Message-Id: <20220815180345.252710227@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,35 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
 
-[ Upstream commit d1ff2559cef0f6f8d97fba6337b28adb10689e16 ]
+[ Upstream commit e8977917e116d1571dacb8e9864474551c1c12bd ]
 
-of_find_compatible_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+The PM8916 device specification [1] documents a programmable range of
+1.75V to 3.337V with 12.5mV steps for the PMOS LDOs in PM8916. This
+range is also used when controlling the regulator directly using the
+qcom_spmi-regulator driver ("ult_pldo" there).
 
-Fixes: 00f7dc636366 ("ARM: zynq: Add support for SOC_BUS")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220605082807.21526-1-linmq006@gmail.com
-Signed-off-by: Michal Simek <michal.simek@amd.com>
+However, for some reason the qcom_smd-regulator driver allows a much
+larger range for the same hardware component. This could be simply a
+typo, since the start of the range is essentially just missing a '1'.
+
+In practice this does not cause any major problems, since the driver
+just sends the actual voltage to the RPM firmware instead of making use
+of the incorrect voltage selector. Still, having the wrong range there
+is confusing and prevents the regulator core from validating requests
+correctly.
+
+[1]: https://developer.qualcomm.com/download/sd410/pm8916pm8916-1-power-management-ic-device-specification.pdf
+
+Fixes: 57d6567680ed ("regulator: qcom-smd: Add PM8916 support")
+Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+Link: https://lore.kernel.org/r/20220623094614.1410180-2-stephan.gerhold@kernkonzept.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-zynq/common.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/regulator/qcom_smd-regulator.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-zynq/common.c b/arch/arm/mach-zynq/common.c
-index e1ca6a5732d2..15e8a321a713 100644
---- a/arch/arm/mach-zynq/common.c
-+++ b/arch/arm/mach-zynq/common.c
-@@ -77,6 +77,7 @@ static int __init zynq_get_revision(void)
- 	}
+diff --git a/drivers/regulator/qcom_smd-regulator.c b/drivers/regulator/qcom_smd-regulator.c
+index eb974b9c0b19..2fe13c765eff 100644
+--- a/drivers/regulator/qcom_smd-regulator.c
++++ b/drivers/regulator/qcom_smd-regulator.c
+@@ -357,10 +357,10 @@ static const struct regulator_desc pm8941_switch = {
  
- 	zynq_devcfg_base = of_iomap(np, 0);
-+	of_node_put(np);
- 	if (!zynq_devcfg_base) {
- 		pr_err("%s: Unable to map I/O memory\n", __func__);
- 		return -1;
+ static const struct regulator_desc pm8916_pldo = {
+ 	.linear_ranges = (struct linear_range[]) {
+-		REGULATOR_LINEAR_RANGE(750000, 0, 208, 12500),
++		REGULATOR_LINEAR_RANGE(1750000, 0, 127, 12500),
+ 	},
+ 	.n_linear_ranges = 1,
+-	.n_voltages = 209,
++	.n_voltages = 128,
+ 	.ops = &rpm_smps_ldo_ops,
+ };
+ 
 -- 
 2.35.1
 
