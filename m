@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AACDF592E1C
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:24:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EB1C592E1D
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:25:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231199AbiHOLYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 07:24:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41430 "EHLO
+        id S230407AbiHOLZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 07:25:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232045AbiHOLYq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:24:46 -0400
+        with ESMTP id S241773AbiHOLYy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:24:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 173E522BFA
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:24:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69EFB22B2E
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:24:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 591D96106B
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:24:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 676F1C433C1;
-        Mon, 15 Aug 2022 11:24:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 017C161155
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:24:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05311C433D6;
+        Mon, 15 Aug 2022 11:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660562683;
-        bh=KaFyuQ42vw/APepvdoAjhaTqE0eeHuDiy7ea3jAvIVE=;
+        s=korg; t=1660562692;
+        bh=uOteamPHCSOXUDcNeJPIHAhXV7dUdqyjJenXiSfEee4=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ai1vPc3bo8JGSLtLWpBGfmC5adguGN9d+9FbanAUDGhQ1ClfjF4+A8CsNqNuFur3s
-         xoABUPF0Y4j9Ta0isKKn8/ET5G+AlYzK5VP9xSopCZqvL/3K9Kfo/nujzGx6DCt+Fm
-         cPRhcqjhltcas0XGoPwRH5eu/1dFeAF/grajj67Y=
-Subject: FAILED: patch "[PATCH] ext4: unindent codeblock in ext4_xattr_block_set()" failed to apply to 5.10-stable tree
+        b=tKpPvh+pGkomqBjdb3R/ukBgelqNp26MlRet/VrleftN7nRu/DAc4cYJ/+4947KG/
+         4iuV+C3bitdRWv1q8BrWGHEFlLszvJjWCYcDyad+cEngEs6Aucn+9hGH6rFBIvxv4t
+         RUG9DCB5tI4ZqfEAQp8+et/g9TICJ+Fx1fpN/d2Q=
+Subject: FAILED: patch "[PATCH] ext4: unindent codeblock in ext4_xattr_block_set()" failed to apply to 5.4-stable tree
 To:     jack@suse.cz, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 15 Aug 2022 13:24:41 +0200
-Message-ID: <1660562681170120@kroah.com>
+Message-ID: <1660562681106188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
