@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF9A59432D
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:55:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E3C95942DB
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:54:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233497AbiHOWcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:32:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
+        id S1344599AbiHOWca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:32:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349590AbiHOWbD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:31:03 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEDAAD7D27;
-        Mon, 15 Aug 2022 12:48:22 -0700 (PDT)
+        with ESMTP id S1350159AbiHOWb2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:31:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D1CC719A0;
+        Mon, 15 Aug 2022 12:48:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C13FDCE12E1;
-        Mon, 15 Aug 2022 19:48:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BB10C433D6;
-        Mon, 15 Aug 2022 19:48:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8CF3B81144;
+        Mon, 15 Aug 2022 19:48:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 200A9C433C1;
+        Mon, 15 Aug 2022 19:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592899;
-        bh=VNrgWDWeGuoXAxyxWEQ/kH7r5U6avZqdm5orjP6BqDY=;
+        s=korg; t=1660592905;
+        bh=tFMruD26R0zJmsKIkmvOkf54yAsxhFD3bcYpfWVgLpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1nmSRERI2XwMxbTRdU0npZzYUhkfkcSaHV+kXt64VK4S5hXmlltxCBKBnbZFnRrWa
-         YcNevuBTJhzpRgKfk+HUH3v2tMmr5ua77r7TUUhX3xxGLz9B1CywB+mYTjPotQOCQg
-         RkxxUFXS9GnPD62RgMURtc7+wx872s6iJy4V3zpo=
+        b=gI2t37zLghxy12bUcdRePOLGLUGjJQqbA3YLsC7VAqFJOZHWGc4kbm7D9//FwEq8T
+         dYuOTNYQB/MDKiCFTL5cCyGM+xuQYVlBMv7bI52C35CQJECczFR8DFm7lo8JQEzVXb
+         S6sU+VBQ3yKrH0M5EMTuGe6m5CI4zZrZ5wXJ63A0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Miaoqian Lin <linmq006@gmail.com>
-Subject: [PATCH 5.18 0863/1095] ASoC: qcom: Fix missing of_node_put() in asoc_qcom_lpass_cpu_platform_probe()
-Date:   Mon, 15 Aug 2022 20:04:22 +0200
-Message-Id: <20220815180505.044102979@linuxfoundation.org>
+        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0864/1095] MIPS: Loongson64: Fix section mismatch warning
+Date:   Mon, 15 Aug 2022 20:04:23 +0200
+Message-Id: <20220815180505.100421388@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,35 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit f507c0c67dac57d2bcd5dcae4b6139b0305d8957 ]
+[ Upstream commit 08472f6ebdc23334ad11dcd761d2d52c32897793 ]
 
-We should call of_node_put() for the reference 'dsp_of_node' returned by
-of_parse_phandle() which will increase the refcount.
+prom_init_numa_memory() is annotated __init and not used by any module,
+thus don't export it.
 
-Fixes: 9bae4880acee ("ASoC: qcom: move ipq806x specific bits out of lpass driver.")
-Co-authored-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220702020109.263980-1-windhl@126.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Remove not needed EXPORT_SYMBOL for prom_init_numa_memory() to fix the
+following section mismatch warning:
+
+  LD      vmlinux.o
+  MODPOST vmlinux.symvers
+WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0): Section mismatch in reference
+from the variable __ksymtab_prom_init_numa_memory to the function .init.text:prom_init_numa_memory()
+The symbol prom_init_numa_memory is exported and annotated __init
+Fix this by removing the __init annotation of prom_init_numa_memory or drop the export.
+
+This is build on Linux 5.19-rc4.
+
+Fixes: 6fbde6b492df ("MIPS: Loongson64: Move files to the top-level directory")
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Reviewed-by: Huacai Chen <chenhuacai@kernel.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/lpass-cpu.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/loongson64/numa.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/sound/soc/qcom/lpass-cpu.c b/sound/soc/qcom/lpass-cpu.c
-index e6846ad2b5fa..964eb07f46d6 100644
---- a/sound/soc/qcom/lpass-cpu.c
-+++ b/sound/soc/qcom/lpass-cpu.c
-@@ -1090,6 +1090,7 @@ int asoc_qcom_lpass_cpu_platform_probe(struct platform_device *pdev)
- 	dsp_of_node = of_parse_phandle(pdev->dev.of_node, "qcom,adsp", 0);
- 	if (dsp_of_node) {
- 		dev_err(dev, "DSP exists and holds audio resources\n");
-+		of_node_put(dsp_of_node);
- 		return -EBUSY;
- 	}
+diff --git a/arch/mips/loongson64/numa.c b/arch/mips/loongson64/numa.c
+index 69a533148efd..8f61e93c0c5b 100644
+--- a/arch/mips/loongson64/numa.c
++++ b/arch/mips/loongson64/numa.c
+@@ -196,7 +196,6 @@ void __init prom_init_numa_memory(void)
+ 	pr_info("CP0_PageGrain: CP0 5.1 (0x%x)\n", read_c0_pagegrain());
+ 	prom_meminit();
+ }
+-EXPORT_SYMBOL(prom_init_numa_memory);
  
+ pg_data_t * __init arch_alloc_nodedata(int nid)
+ {
 -- 
 2.35.1
 
