@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F2E594B95
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:24:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAFB9594B94
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:24:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346712AbiHPAW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:22:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43934 "EHLO
+        id S1346193AbiHPAW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:22:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350989AbiHPAUH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:20:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC9717B814;
-        Mon, 15 Aug 2022 13:33:32 -0700 (PDT)
+        with ESMTP id S1353101AbiHPAUn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:20:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C220717B822;
+        Mon, 15 Aug 2022 13:33:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15FF3B8114A;
-        Mon, 15 Aug 2022 20:33:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A35CC433D6;
-        Mon, 15 Aug 2022 20:33:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C4CF6117D;
+        Mon, 15 Aug 2022 20:33:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74EA3C433D6;
+        Mon, 15 Aug 2022 20:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595608;
-        bh=hwUVotYLPPfsowZItZNAHswZcEHPnU+JPQbbWO55Yh0=;
+        s=korg; t=1660595611;
+        bh=3DYUns0bvxVARDYeCIucXBYeeHnzF1psCJsi+8eGx64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wDZVkQcUBElgn39qdDhdXxAw3iU4XCSz1rXbB7QX8gf2P8lAu9VzeahLjS8hbLobP
-         4rvpdJ5ItDNBAkoaPY3qJzWta1z5otHzuXl6/El7QMVbEAecw48R6ruRIsfh4Nk0CR
-         gxcAimB2RXDmNeu9ZZ4HFhFmDCmsoxbhAh8yqSm0=
+        b=PKxrsOOkUB5HmtOu4i5MxqWBg1VXMODRJnvNAyaihnKSQ2L3UmvLDFBdSKmz1R9tq
+         UmjgDECoiA0FcCa8lYsEoKWOuk+F8K5t+jZdRbtceZzuw+Vmb2PYeME2VpyGhxo928
+         CnXDMDfFKy03i+QYbSSbKBAFkvke/xPUb4j1prWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Christopher Obbard <chris.obbard@collabora.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Patrick Wang <patrick.wang.shcn@gmail.com>,
+        Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Christoph Lameter <cl@linux.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0818/1157] um: random: Dont initialise hwrng struct with zero
-Date:   Mon, 15 Aug 2022 20:02:54 +0200
-Message-Id: <20220815180512.202761718@linuxfoundation.org>
+Subject: [PATCH 5.19 0819/1157] mm: percpu: use kmemleak_ignore_phys() instead of kmemleak_free()
+Date:   Mon, 15 Aug 2022 20:02:55 +0200
+Message-Id: <20220815180512.251603428@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,44 +57,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christopher Obbard <chris.obbard@collabora.com>
+From: Patrick Wang <patrick.wang.shcn@gmail.com>
 
-[ Upstream commit 9e70cbd11b03889c92462cf52edb2bd023c798fa ]
+[ Upstream commit a317ebccaa3609917a2c021af870cf3fa607ab0c ]
 
-Initialising the hwrng struct with zeros causes a
-compile-time sparse warning:
+Kmemleak recently added a rbtree to store the objects allocted with
+physical address.  Those objects can't be freed with kmemleak_free().
 
- $ ARCH=um make -j10 W=1 C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__'
- ...
- CHECK   arch/um/drivers/random.c
- arch/um/drivers/random.c:31:31: sparse: warning: Using plain integer as NULL pointer
+According to the comments, percpu allocations are tracked by kmemleak
+separately.  Kmemleak_free() was used to avoid the unnecessary
+tracking.  If kmemleak_free() fails, those objects would be scanned by
+kmemleak, which is unnecessary but shouldn't lead to other effects.
 
-Fix the warning by not initialising the hwrng struct
-with zeros as it is initialised anyway during module
-init.
+Use kmemleak_ignore_phys() instead of kmemleak_free() for those
+objects.
 
-Fixes: 72d3e093afae ("um: random: Register random as hwrng-core device")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Christopher Obbard <chris.obbard@collabora.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Link: https://lkml.kernel.org/r/20220705113158.127600-1-patrick.wang.shcn@gmail.com
+Fixes: 0c24e061196c ("mm: kmemleak: add rbtree and store physical address for objects allocated with PA")
+Signed-off-by: Patrick Wang <patrick.wang.shcn@gmail.com>
+Cc: Dennis Zhou <dennis@kernel.org>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/random.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/percpu.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/um/drivers/random.c b/arch/um/drivers/random.c
-index 433a3f8f2ef3..32b3341fe970 100644
---- a/arch/um/drivers/random.c
-+++ b/arch/um/drivers/random.c
-@@ -28,7 +28,7 @@
-  * protects against a module being loaded twice at the same time.
-  */
- static int random_fd = -1;
--static struct hwrng hwrng = { 0, };
-+static struct hwrng hwrng;
- static DECLARE_COMPLETION(have_data);
+diff --git a/mm/percpu.c b/mm/percpu.c
+index 3633eeefaa0d..27697b2429c2 100644
+--- a/mm/percpu.c
++++ b/mm/percpu.c
+@@ -3104,7 +3104,7 @@ int __init pcpu_embed_first_chunk(size_t reserved_size, size_t dyn_size,
+ 			goto out_free_areas;
+ 		}
+ 		/* kmemleak tracks the percpu allocations separately */
+-		kmemleak_free(ptr);
++		kmemleak_ignore_phys(__pa(ptr));
+ 		areas[group] = ptr;
  
- static int rng_dev_read(struct hwrng *rng, void *buf, size_t max, bool block)
+ 		base = min(ptr, base);
+@@ -3304,7 +3304,7 @@ int __init pcpu_page_first_chunk(size_t reserved_size, pcpu_fc_cpu_to_node_fn_t
+ 				goto enomem;
+ 			}
+ 			/* kmemleak tracks the percpu allocations separately */
+-			kmemleak_free(ptr);
++			kmemleak_ignore_phys(__pa(ptr));
+ 			pages[j++] = virt_to_page(ptr);
+ 		}
+ 	}
+@@ -3417,7 +3417,7 @@ void __init setup_per_cpu_areas(void)
+ 	if (!ai || !fc)
+ 		panic("Failed to allocate memory for percpu areas.");
+ 	/* kmemleak tracks the percpu allocations separately */
+-	kmemleak_free(fc);
++	kmemleak_ignore_phys(__pa(fc));
+ 
+ 	ai->dyn_size = unit_size;
+ 	ai->unit_size = unit_size;
 -- 
 2.35.1
 
