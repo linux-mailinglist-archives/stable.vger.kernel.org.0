@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAE69594C83
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2BCB5948E8
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:10:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344661AbiHPBEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 21:04:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56294 "EHLO
+        id S243722AbiHOXmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:42:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348623AbiHPBCT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 21:02:19 -0400
+        with ESMTP id S1354082AbiHOXlJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4563EDCFE0;
-        Mon, 15 Aug 2022 13:50:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A95AF48D;
+        Mon, 15 Aug 2022 13:10:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7CF46126B;
-        Mon, 15 Aug 2022 20:50:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5672C433C1;
-        Mon, 15 Aug 2022 20:50:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 802746069F;
+        Mon, 15 Aug 2022 20:10:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 878E2C433D6;
+        Mon, 15 Aug 2022 20:10:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596614;
-        bh=XWBmiAxb19ga4H+9vslptrWvq1ZtZkqOxtJZ0xhkqIE=;
+        s=korg; t=1660594228;
+        bh=iBlodVhxIf0LxzgFBWgv4W30nDtMAnVEY5Fng0C0a7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DvVpVf/thjjEHo34ONSsymRtblm1asW1QkM0LOg13gqJ6unUs1iXtV+6+YRtpycxA
-         uQUXqQHkS8yQJin65HQqVYR3rZdc5ivPhqhi505s7C1eY8cVHdhhl8yeBy2PvG96kM
-         9ZOScmeRrLCJKjjuGcRXOtGO0Ety3xvbOm7lQiwU=
+        b=Vy+moCRcXiNaCVSxeDnGb2CrWad2aEmHltzReBCsdwydGsTgri2amuzmfU1qjo5Qa
+         4YyK3CBPwT3yUf7oWL2n5aVepFks+aQrR+zei3nA6ZKI9cyCLChim8YotuboFJKNLZ
+         uA/SQFZJoOzyxM4OCokPq1Kg4Po7Onu5r/QccaU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Ye Bin <yebin10@huawei.com>, Eric Whitney <enwlinux@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1118/1157] ext4: fix extent status tree race in writeback error recovery path
+        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.18 1075/1095] btrfs: convert count_max_extents() to use fs_info->max_extent_size
 Date:   Mon, 15 Aug 2022 20:07:54 +0200
-Message-Id: <20220815180525.055708452@linuxfoundation.org>
+Message-Id: <20220815180513.510007223@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +53,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Whitney <enwlinux@gmail.com>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-[ Upstream commit 7f0d8e1d607c1a4fa9a27362a108921d82230874 ]
+commit 7d7672bc5d1038c745716c397d892d21e29de71c upstream.
 
-A race can occur in the unlikely event ext4 is unable to allocate a
-physical cluster for a delayed allocation in a bigalloc file system
-during writeback.  Failure to allocate a cluster forces error recovery
-that includes a call to mpage_release_unused_pages().  That function
-removes any corresponding delayed allocated blocks from the extent
-status tree.  If a new delayed write is in progress on the same cluster
-simultaneously, resulting in the addition of an new extent containing
-one or more blocks in that cluster to the extent status tree, delayed
-block accounting can be thrown off if that delayed write then encounters
-a similar cluster allocation failure during future writeback.
+If count_max_extents() uses BTRFS_MAX_EXTENT_SIZE to calculate the number
+of extents needed, btrfs release the metadata reservation too much on its
+way to write out the data.
 
-Write lock the i_data_sem in mpage_release_unused_pages() to fix this
-problem.  Ext4's block/cluster accounting code for bigalloc relies on
-i_data_sem for mutual exclusion, as is found in the delayed write path,
-and the locking in mpage_release_unused_pages() is missing.
+Now that BTRFS_MAX_EXTENT_SIZE is replaced with fs_info->max_extent_size,
+convert count_max_extents() to use it instead, and fix the calculation of
+the metadata reservation.
 
-Cc: stable@kernel.org
-Reported-by: Ye Bin <yebin10@huawei.com>
-Signed-off-by: Eric Whitney <enwlinux@gmail.com>
-Link: https://lore.kernel.org/r/20220615160530.1928801-1-enwlinux@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org # 5.12+
+Fixes: d8e3fb106f39 ("btrfs: zoned: use ZONE_APPEND write for zoned mode")
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/btrfs/ctree.h          |   21 +++++++++++++--------
+ fs/btrfs/delalloc-space.c |    6 +++---
+ fs/btrfs/inode.c          |   16 ++++++++--------
+ 3 files changed, 24 insertions(+), 19 deletions(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 84c0eb55071d..0ccff6214fc8 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -1571,7 +1571,14 @@ static void mpage_release_unused_pages(struct mpage_da_data *mpd,
- 		ext4_lblk_t start, last;
- 		start = index << (PAGE_SHIFT - inode->i_blkbits);
- 		last = end << (PAGE_SHIFT - inode->i_blkbits);
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -107,14 +107,6 @@ struct btrfs_ioctl_encoded_io_args;
+ #define BTRFS_STAT_CURR		0
+ #define BTRFS_STAT_PREV		1
+ 
+-/*
+- * Count how many BTRFS_MAX_EXTENT_SIZE cover the @size
+- */
+-static inline u32 count_max_extents(u64 size)
+-{
+-	return div_u64(size + BTRFS_MAX_EXTENT_SIZE - 1, BTRFS_MAX_EXTENT_SIZE);
+-}
+-
+ static inline unsigned long btrfs_chunk_item_size(int num_stripes)
+ {
+ 	BUG_ON(num_stripes == 0);
+@@ -3945,6 +3937,19 @@ static inline bool btrfs_is_zoned(const
+ 	return fs_info->zoned != 0;
+ }
+ 
++/*
++ * Count how many fs_info->max_extent_size cover the @size
++ */
++static inline u32 count_max_extents(struct btrfs_fs_info *fs_info, u64 size)
++{
++#ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
++	if (!fs_info)
++		return div_u64(size + BTRFS_MAX_EXTENT_SIZE - 1, BTRFS_MAX_EXTENT_SIZE);
++#endif
 +
-+		/*
-+		 * avoid racing with extent status tree scans made by
-+		 * ext4_insert_delayed_block()
-+		 */
-+		down_write(&EXT4_I(inode)->i_data_sem);
- 		ext4_es_remove_extent(inode, start, last - start + 1);
-+		up_write(&EXT4_I(inode)->i_data_sem);
++	return div_u64(size + fs_info->max_extent_size - 1, fs_info->max_extent_size);
++}
++
+ static inline bool btrfs_is_data_reloc_root(const struct btrfs_root *root)
+ {
+ 	return root->root_key.objectid == BTRFS_DATA_RELOC_TREE_OBJECTID;
+--- a/fs/btrfs/delalloc-space.c
++++ b/fs/btrfs/delalloc-space.c
+@@ -273,7 +273,7 @@ static void calc_inode_reservations(stru
+ 				    u64 num_bytes, u64 disk_num_bytes,
+ 				    u64 *meta_reserve, u64 *qgroup_reserve)
+ {
+-	u64 nr_extents = count_max_extents(num_bytes);
++	u64 nr_extents = count_max_extents(fs_info, num_bytes);
+ 	u64 csum_leaves = btrfs_csum_bytes_to_leaves(fs_info, disk_num_bytes);
+ 	u64 inode_update = btrfs_calc_metadata_size(fs_info, 1);
+ 
+@@ -349,7 +349,7 @@ int btrfs_delalloc_reserve_metadata(stru
+ 	 * needs to free the reservation we just made.
+ 	 */
+ 	spin_lock(&inode->lock);
+-	nr_extents = count_max_extents(num_bytes);
++	nr_extents = count_max_extents(fs_info, num_bytes);
+ 	btrfs_mod_outstanding_extents(inode, nr_extents);
+ 	inode->csum_bytes += disk_num_bytes;
+ 	btrfs_calculate_inode_block_rsv_size(fs_info, inode);
+@@ -412,7 +412,7 @@ void btrfs_delalloc_release_extents(stru
+ 	unsigned num_extents;
+ 
+ 	spin_lock(&inode->lock);
+-	num_extents = count_max_extents(num_bytes);
++	num_extents = count_max_extents(fs_info, num_bytes);
+ 	btrfs_mod_outstanding_extents(inode, -num_extents);
+ 	btrfs_calculate_inode_block_rsv_size(fs_info, inode);
+ 	spin_unlock(&inode->lock);
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -2159,10 +2159,10 @@ void btrfs_split_delalloc_extent(struct
+ 		 * applies here, just in reverse.
+ 		 */
+ 		new_size = orig->end - split + 1;
+-		num_extents = count_max_extents(new_size);
++		num_extents = count_max_extents(fs_info, new_size);
+ 		new_size = split - orig->start;
+-		num_extents += count_max_extents(new_size);
+-		if (count_max_extents(size) >= num_extents)
++		num_extents += count_max_extents(fs_info, new_size);
++		if (count_max_extents(fs_info, size) >= num_extents)
+ 			return;
  	}
  
- 	pagevec_init(&pvec);
--- 
-2.35.1
-
+@@ -2219,10 +2219,10 @@ void btrfs_merge_delalloc_extent(struct
+ 	 * this case.
+ 	 */
+ 	old_size = other->end - other->start + 1;
+-	num_extents = count_max_extents(old_size);
++	num_extents = count_max_extents(fs_info, old_size);
+ 	old_size = new->end - new->start + 1;
+-	num_extents += count_max_extents(old_size);
+-	if (count_max_extents(new_size) >= num_extents)
++	num_extents += count_max_extents(fs_info, old_size);
++	if (count_max_extents(fs_info, new_size) >= num_extents)
+ 		return;
+ 
+ 	spin_lock(&BTRFS_I(inode)->lock);
+@@ -2301,7 +2301,7 @@ void btrfs_set_delalloc_extent(struct in
+ 	if (!(state->state & EXTENT_DELALLOC) && (*bits & EXTENT_DELALLOC)) {
+ 		struct btrfs_root *root = BTRFS_I(inode)->root;
+ 		u64 len = state->end + 1 - state->start;
+-		u32 num_extents = count_max_extents(len);
++		u32 num_extents = count_max_extents(fs_info, len);
+ 		bool do_list = !btrfs_is_free_space_inode(BTRFS_I(inode));
+ 
+ 		spin_lock(&BTRFS_I(inode)->lock);
+@@ -2343,7 +2343,7 @@ void btrfs_clear_delalloc_extent(struct
+ 	struct btrfs_inode *inode = BTRFS_I(vfs_inode);
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(vfs_inode->i_sb);
+ 	u64 len = state->end + 1 - state->start;
+-	u32 num_extents = count_max_extents(len);
++	u32 num_extents = count_max_extents(fs_info, len);
+ 
+ 	if ((state->state & EXTENT_DEFRAG) && (*bits & EXTENT_DEFRAG)) {
+ 		spin_lock(&inode->lock);
 
 
