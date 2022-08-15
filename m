@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A08A95940CA
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE53A593F74
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:45:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239594AbiHOVS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:18:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37452 "EHLO
+        id S231167AbiHOVTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:19:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346297AbiHOVSD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:18:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EDAE5A147;
-        Mon, 15 Aug 2022 12:21:20 -0700 (PDT)
+        with ESMTP id S1346418AbiHOVSE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:18:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E7172E9D9;
+        Mon, 15 Aug 2022 12:21:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FC10B810C6;
-        Mon, 15 Aug 2022 19:21:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4926AC433D6;
-        Mon, 15 Aug 2022 19:21:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F6D1B81120;
+        Mon, 15 Aug 2022 19:21:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69D20C433C1;
+        Mon, 15 Aug 2022 19:21:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591277;
-        bh=2rlkvR+VSCNZxJ9MpCjFN9T0LkYJDu75Wd2nel5TUv8=;
+        s=korg; t=1660591280;
+        bh=yvkrzACW/qrxgj1lX7sug5NglxA19jWHmopMFD2FfTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oW+RQWsuB0XOvYx9LhU4t0EYhtaMghyJKnhLHZyCk4wr8Yj/nvkoBpFrtnMyVbWTx
-         S11V4B0Davo6lovVCOLlUbac+362atI+FZ2+Hkl195PPmAHy/ECVF5ybnF+NBuHUDT
-         1lLRRXsPXvAcVeTgSijjUEnOY+fdhpW5jyG4YAus=
+        b=UQanQNQcWxSOWebk+7djiyA4tLMIX79x0PUb1N/W0huSnFseTo29b/EBnzyjRTZwl
+         Us+IPsXLL5gJ47Xzp7s2IFovuP94JgKDx4SOg7BPwClm7Eokyh3fGixtfd5nb5BF1L
+         NjX7xjEI6cl1Q7qABkIp8wtwPSwtY17XVcdwHD3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        Amit Cohen <amcohen@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0527/1095] netdevsim: fib: Fix reference count leak on route deletion failure
-Date:   Mon, 15 Aug 2022 19:58:46 +0200
-Message-Id: <20220815180451.357535785@linuxfoundation.org>
+        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
+        William Dean <williamsukatube@gmail.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0528/1095] wifi: rtw88: check the return value of alloc_workqueue()
+Date:   Mon, 15 Aug 2022 19:58:47 +0200
+Message-Id: <20220815180451.387059444@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,115 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: William Dean <williamsukatube@gmail.com>
 
-[ Upstream commit 180a6a3ee60a7cb69ed1232388460644f6a21f00 ]
+[ Upstream commit 42bbf810e155efc6129a3a648ae5300f00b79d7b ]
 
-As part of FIB offload simulation, netdevsim stores IPv4 and IPv6 routes
-and holds a reference on FIB info structures that in turn hold a
-reference on the associated nexthop device(s).
+The function alloc_workqueue() in rtw_core_init() can fail, but
+there is no check of its return value. To fix this bug, its return value
+should be checked with new error handling code.
 
-In the unlikely case where we are unable to allocate memory to process a
-route deletion request, netdevsim will not release the reference from
-the associated FIB info structure, thereby preventing the associated
-nexthop device(s) from ever being removed [1].
-
-Fix this by scheduling a work item that will flush netdevsim's FIB table
-upon route deletion failure. This will cause netdevsim to release its
-reference from all the FIB info structures in its table.
-
-Reported by Lucas Leong of Trend Micro Zero Day Initiative.
-
-Fixes: 0ae3eb7b4611 ("netdevsim: fib: Perform the route programming in a non-atomic context")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Amit Cohen <amcohen@nvidia.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: fe101716c7c9d ("rtw88: replace tx tasklet with work queue")
+Reported-by: Hacash Robot <hacashRobot@santino.com>
+Signed-off-by: William Dean <williamsukatube@gmail.com>
+Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220723063756.2956189-1-williamsukatube@163.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/netdevsim/fib.c | 27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtw88/main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/netdevsim/fib.c b/drivers/net/netdevsim/fib.c
-index 378ee779061c..14787d17f703 100644
---- a/drivers/net/netdevsim/fib.c
-+++ b/drivers/net/netdevsim/fib.c
-@@ -53,6 +53,7 @@ struct nsim_fib_data {
- 	struct rhashtable nexthop_ht;
- 	struct devlink *devlink;
- 	struct work_struct fib_event_work;
-+	struct work_struct fib_flush_work;
- 	struct list_head fib_event_queue;
- 	spinlock_t fib_event_queue_lock; /* Protects fib event queue list */
- 	struct mutex nh_lock; /* Protects NH HT */
-@@ -977,7 +978,7 @@ static int nsim_fib_event_schedule_work(struct nsim_fib_data *data,
- 
- 	fib_event = kzalloc(sizeof(*fib_event), GFP_ATOMIC);
- 	if (!fib_event)
--		return NOTIFY_BAD;
-+		goto err_fib_event_alloc;
- 
- 	fib_event->data = data;
- 	fib_event->event = event;
-@@ -1005,6 +1006,9 @@ static int nsim_fib_event_schedule_work(struct nsim_fib_data *data,
- 
- err_fib_prepare_event:
- 	kfree(fib_event);
-+err_fib_event_alloc:
-+	if (event == FIB_EVENT_ENTRY_DEL)
-+		schedule_work(&data->fib_flush_work);
- 	return NOTIFY_BAD;
- }
- 
-@@ -1482,6 +1486,24 @@ static void nsim_fib_event_work(struct work_struct *work)
- 	mutex_unlock(&data->fib_lock);
- }
- 
-+static void nsim_fib_flush_work(struct work_struct *work)
-+{
-+	struct nsim_fib_data *data = container_of(work, struct nsim_fib_data,
-+						  fib_flush_work);
-+	struct nsim_fib_rt *fib_rt, *fib_rt_tmp;
-+
-+	/* Process pending work. */
-+	flush_work(&data->fib_event_work);
-+
-+	mutex_lock(&data->fib_lock);
-+	list_for_each_entry_safe(fib_rt, fib_rt_tmp, &data->fib_rt_list, list) {
-+		rhashtable_remove_fast(&data->fib_rt_ht, &fib_rt->ht_node,
-+				       nsim_fib_rt_ht_params);
-+		nsim_fib_rt_free(fib_rt, data);
+diff --git a/drivers/net/wireless/realtek/rtw88/main.c b/drivers/net/wireless/realtek/rtw88/main.c
+index 8b9899e41b0b..ded952913ae6 100644
+--- a/drivers/net/wireless/realtek/rtw88/main.c
++++ b/drivers/net/wireless/realtek/rtw88/main.c
+@@ -1974,6 +1974,10 @@ int rtw_core_init(struct rtw_dev *rtwdev)
+ 	timer_setup(&rtwdev->tx_report.purge_timer,
+ 		    rtw_tx_report_purge_timer, 0);
+ 	rtwdev->tx_wq = alloc_workqueue("rtw_tx_wq", WQ_UNBOUND | WQ_HIGHPRI, 0);
++	if (!rtwdev->tx_wq) {
++		rtw_warn(rtwdev, "alloc_workqueue rtw_tx_wq failed\n");
++		return -ENOMEM;
 +	}
-+	mutex_unlock(&data->fib_lock);
-+}
-+
- static int
- nsim_fib_debugfs_init(struct nsim_fib_data *data, struct nsim_dev *nsim_dev)
- {
-@@ -1540,6 +1562,7 @@ struct nsim_fib_data *nsim_fib_create(struct devlink *devlink,
- 		goto err_rhashtable_nexthop_destroy;
  
- 	INIT_WORK(&data->fib_event_work, nsim_fib_event_work);
-+	INIT_WORK(&data->fib_flush_work, nsim_fib_flush_work);
- 	INIT_LIST_HEAD(&data->fib_event_queue);
- 	spin_lock_init(&data->fib_event_queue_lock);
- 
-@@ -1586,6 +1609,7 @@ struct nsim_fib_data *nsim_fib_create(struct devlink *devlink,
- err_nexthop_nb_unregister:
- 	unregister_nexthop_notifier(devlink_net(devlink), &data->nexthop_nb);
- err_rhashtable_fib_destroy:
-+	cancel_work_sync(&data->fib_flush_work);
- 	flush_work(&data->fib_event_work);
- 	rhashtable_free_and_destroy(&data->fib_rt_ht, nsim_fib_rt_free,
- 				    data);
-@@ -1615,6 +1639,7 @@ void nsim_fib_destroy(struct devlink *devlink, struct nsim_fib_data *data)
- 					    NSIM_RESOURCE_IPV4_FIB);
- 	unregister_fib_notifier(devlink_net(devlink), &data->fib_nb);
- 	unregister_nexthop_notifier(devlink_net(devlink), &data->nexthop_nb);
-+	cancel_work_sync(&data->fib_flush_work);
- 	flush_work(&data->fib_event_work);
- 	rhashtable_free_and_destroy(&data->fib_rt_ht, nsim_fib_rt_free,
- 				    data);
+ 	INIT_DELAYED_WORK(&rtwdev->watch_dog_work, rtw_watch_dog_work);
+ 	INIT_DELAYED_WORK(&coex->bt_relink_work, rtw_coex_bt_relink_work);
 -- 
 2.35.1
 
