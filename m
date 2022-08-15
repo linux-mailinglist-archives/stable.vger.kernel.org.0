@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C2CA592CC2
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 12:52:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0C5A592C27
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 12:51:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231546AbiHOJqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 05:46:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39330 "EHLO
+        id S232111AbiHOJrg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 05:47:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230462AbiHOJql (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 05:46:41 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5310618398
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 02:46:39 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id x23so5930362pll.7
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 02:46:39 -0700 (PDT)
+        with ESMTP id S231974AbiHOJre (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 05:47:34 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 529B6186F1
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 02:47:32 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id q7-20020a17090a7a8700b001f300db8677so6292515pjf.5
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 02:47:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc;
-        bh=diVeOpF5l2BFKgSdpHLRS0s473WFbUY+qf32vFz+sz8=;
-        b=LlBVgtcMcNwHKR/6qoJ2G91DMr227CcrXYmHPoxrOU049RxHxMLtO2twpAuQ2fKROF
-         OSiDKXspdA9TqSFxNGIt3qrG3k9gPQCaz20PYIJyqxD9nPFrQltVQYcl6lxx57eeAxu/
-         to9PhbxGZyOV307YLgFMRXYiYj4ukMynvDoN1nkx/iu4oj+GrCUxfQt3jJ+g2vzMPCPx
-         vjo9kuVa7NxCgtipRBBMRu/NLgnGvSm+qJBzrnqVKW97+QWwFcMFsfbSXmCSLgxsbj/5
-         8oii3wcMIgafJjBdgtJNgqbjVX1xhHvqBcehf1Rv3VUwtiA2T25amlQRXDt9cA+MdX9s
-         /HJQ==
+        bh=kNRdAa18KExMf2MFH+pq9AXtoRnFft4QWSgNooF1zhE=;
+        b=H1grr9SrOwhcrk67Lgl0W5uiTMoJkwLaj2+lU83zGt8NacfLgqVp6p5TAGhioR47zy
+         0ZWuoNtsdi5EX8/7J0Ok4+DJszK/GSfhdyMSWRV82efy8okMmqZEUGw8/2VJHct/0a2S
+         vgl+fUUp0yDvzWh2cBgtJvFb496zsn6geDGSiO9xHojpWJ//eK05oGbxo+Z1g1sAoWRa
+         oO3cBib6I35klHA0nFxWCjPX4Qz0i50yd29sYZQnrSRds9b8uZypwbLChRYiOxFBusEV
+         /k0FfdC488MCcknUde2WosDx1uT6TKkyUhteH0CDfO4ssofMC+UTkqsIt7Xb9zivwQJn
+         MKHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc;
-        bh=diVeOpF5l2BFKgSdpHLRS0s473WFbUY+qf32vFz+sz8=;
-        b=qy4XX2P1ziIRvz3um2kykZi0ga/xH8iFufMs8wREYfKM1CA8DJtltBTA3ZMmuw/8rU
-         qVyPU8KozmDl0AQf7aIaw7EP+zj2apGO8Eyp+ZA/Sv/IPK2ijB2osTG08lB7WqxVKBNH
-         T/SNwKDUJfSGXxkMI5nf27smh1eW1A5fsP/8kIHZBchc7ex6TDJn9q4m5TBR7DO48urr
-         /VpS27IXrUPyNcq04wmkjd0nKKznZ/oS2rssZkZFfJ21wIlTnsRuj4nqVUdfwaA4JyR2
-         Q90FVv0CnI5sFFinAnhF/+HmcfbovHEpUMQMqhTn8f/f36n0AaPrOKAQ3DC0PfZDDLhS
-         UTdg==
-X-Gm-Message-State: ACgBeo1BbO2BsiUgb4aiVcMj9w2XRQkcC5jnEu01BE7z9qi9FmHo5wo3
-        YH5Yrt5cVidH80LqUv2BxpPKEgxJunC7C1xa
-X-Google-Smtp-Source: AA6agR682yx21TgMNdPixLSnZzKPJ2xDPd4mnUKxLRDF90mUqKUALwmCLOrDvlcnTuC1ZPSenuG16A==
-X-Received: by 2002:a17:90a:c402:b0:1f7:75ce:1206 with SMTP id i2-20020a17090ac40200b001f775ce1206mr17513482pjt.68.1660556797979;
-        Mon, 15 Aug 2022 02:46:37 -0700 (PDT)
+        bh=kNRdAa18KExMf2MFH+pq9AXtoRnFft4QWSgNooF1zhE=;
+        b=64Ha+lW7WvNKtaqmpHwbSyEUwh8oleC98qimbTci18zPib69txuHvx6OAtLb6szTiT
+         aTKjOCZ4FqR9S9Em+CPTkDwy3iXcG0B4+m9Lt/3g5OJ7pYhiZT36q5mKemWuPVvaGoAo
+         WNVohHBroPCdSh431y/ncycH/NYoGYMbO8wwCTXXXzmq+zjb7jqvZHo8AWbIhkCD+aDT
+         w3YI+OlSwYLGGsw2/LBFS+1ux5mCYlpmsrbs/tzl9dGCr8fb9OSFDZhMlVnMMr4hZNVS
+         OT5xh6sXecGIEA3h8oTD17/KUi22aTgyzi0LkNzrTRUElgcyACgvNfYm6XYr41AqLZwj
+         Da6w==
+X-Gm-Message-State: ACgBeo036N7rZuQOmajCfD2h339XuexMOOqVPqIaIcfTapovrSXp8zmJ
+        qcKViZcYBIHcNPNA/+qxHBK/4lvnr5wSHx/E
+X-Google-Smtp-Source: AA6agR5U6X5AWES1UF0ko7JFUV/0jnDkj78UWVeqU/NxkOr059Xeyw/m659RELIiBojgZtMEqiYkkg==
+X-Received: by 2002:a17:902:e887:b0:16e:ef31:416b with SMTP id w7-20020a170902e88700b0016eef31416bmr16201973plg.51.1660556851073;
+        Mon, 15 Aug 2022 02:47:31 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b14-20020a170902d50e00b0016f12cc0ecdsm6710478plg.274.2022.08.15.02.46.37
+        by smtp.gmail.com with ESMTPSA id u26-20020a63455a000000b0041c45d76b6bsm5454789pgk.38.2022.08.15.02.47.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Aug 2022 02:46:37 -0700 (PDT)
-Message-ID: <62fa15fd.170a0220.56b85.ab9f@mx.google.com>
-Date:   Mon, 15 Aug 2022 02:46:37 -0700 (PDT)
+        Mon, 15 Aug 2022 02:47:30 -0700 (PDT)
+Message-ID: <62fa1632.630a0220.4283.87de@mx.google.com>
+Date:   Mon, 15 Aug 2022 02:47:30 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Tree: stable-rc
 X-Kernelci-Branch: queue/4.14
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.14.290-25-gbc7b4d3fdf350
-Subject: stable-rc/queue/4.14 build: 192 builds: 3 failed, 189 passed, 2 errors,
- 28 warnings (v4.14.290-25-gbc7b4d3fdf350)
+X-Kernelci-Kernel: v4.14.290-152-ga1616983bfc34
+Subject: stable-rc/queue/4.14 build: 188 builds: 3 failed, 185 passed, 2 errors,
+ 32 warnings (v4.14.290-152-ga1616983bfc34)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,16 +70,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 build: 192 builds: 3 failed, 189 passed, 2 errors, 28 =
-warnings (v4.14.290-25-gbc7b4d3fdf350)
+stable-rc/queue/4.14 build: 188 builds: 3 failed, 185 passed, 2 errors, 32 =
+warnings (v4.14.290-152-ga1616983bfc34)
 
 Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-4/kernel/v4.14.290-25-gbc7b4d3fdf350/
+4/kernel/v4.14.290-152-ga1616983bfc34/
 
 Tree: stable-rc
 Branch: queue/4.14
-Git Describe: v4.14.290-25-gbc7b4d3fdf350
-Git Commit: bc7b4d3fdf350232a5ff641672aef57bffe7500f
+Git Describe: v4.14.290-152-ga1616983bfc34
+Git Commit: a1616983bfc34dda5aba6f24c0f7e473d1876fb9
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
@@ -98,9 +98,11 @@ Errors and Warnings Detected:
 arc:
 
 arm64:
+    defconfig+arm64-chromebook (gcc-10): 1 warning
 
 arm:
     mini2440_defconfig (gcc-10): 1 warning
+    multi_v7_defconfig (gcc-10): 1 warning
     omap1_defconfig (gcc-10): 1 warning
     rpc_defconfig (gcc-10): 2 errors
     s3c2410_defconfig (gcc-10): 1 warning
@@ -108,16 +110,16 @@ arm:
 i386:
     allnoconfig (gcc-10): 3 warnings
     i386_defconfig (gcc-10): 3 warnings
-    tinyconfig (gcc-10): 3 warnings
 
 mips:
-    malta_qemu_32r6_defconfig (gcc-10): 1 warning
+    malta_kvm_guest_defconfig (gcc-10): 2 warnings
     mtx1_defconfig (gcc-10): 3 warnings
 
 x86_64:
     allnoconfig (gcc-10): 4 warnings
     tinyconfig (gcc-10): 4 warnings
     x86_64_defconfig (gcc-10): 4 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 4 warnings
 
 Errors summary:
 
@@ -128,22 +130,24 @@ h=3D=E2=80=99
 Warnings summary:
 
     6    ld: warning: creating DT_TEXTREL in a PIE
-    3    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
 d-only section `.head.text'
-    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
-d-only section `.head.text'
-    3    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic s=
+    4    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic s=
 uffix given and no register operands; using default for `sysret'
-    3    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
-    3    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
+    4    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
 ' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
+    2    warning: (MIPS_GIC) selects GENERIC_IRQ_IPI which has unmet direct=
+ dependencies (SMP)
     2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    2    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+d-only section `.head.text'
     2    drivers/tty/serial/samsung.c:1790:34: warning: array =E2=80=98s3c2=
 4xx_uart_dt_match=E2=80=99 assumed to have one element
-    1    {standard input}:30: Warning: macro instruction expanded into mult=
-iple instructions
+    2    drivers/gpu/drm/msm/hdmi/hdmi.c:362:20: warning: =E2=80=98pwr_reg_=
+names_none=E2=80=99 defined but not used [-Wunused-variable]
+    2    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic su=
+ffix given and no register operands; using default for `btr'
     1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
     1    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpi=
@@ -151,7 +155,7 @@ o_match=E2=80=99 assumed to have one element
 
 Section mismatches summary:
 
-    13   WARNING: modpost: Found 1 section mismatch(es).
+    10   WARNING: modpost: Found 1 section mismatch(es).
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -196,11 +200,6 @@ y section `.head.text'
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
 mismatches
 
@@ -224,6 +223,11 @@ n mismatches
 ---------------------------------------------------------------------------=
 -----
 aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
 ---------------------------------------------------------------------------=
@@ -368,16 +372,12 @@ decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 1 warn=
+ing, 0 section mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
-ings, 0 section mismatches
+Warnings:
+    drivers/gpu/drm/msm/hdmi/hdmi.c:362:20: warning: =E2=80=98pwr_reg_names=
+_none=E2=80=99 defined but not used [-Wunused-variable]
 
 Section mismatches:
     WARNING: modpost: Found 1 section mismatch(es).
@@ -474,6 +474,11 @@ tion mismatches
 -----
 haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -652,17 +657,14 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnin=
 gs, 0 section mismatches
 
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
-g, 0 section mismatches
-
 Warnings:
-    {standard input}:30: Warning: macro instruction expanded into multiple =
-instructions
+    warning: (MIPS_GIC) selects GENERIC_IRQ_IPI which has unmet direct depe=
+ndencies (SMP)
+    warning: (MIPS_GIC) selects GENERIC_IRQ_IPI which has unmet direct depe=
+ndencies (SMP)
 
 ---------------------------------------------------------------------------=
 -----
@@ -761,8 +763,12 @@ Section mismatches:
 
 ---------------------------------------------------------------------------=
 -----
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/gpu/drm/msm/hdmi/hdmi.c:362:20: warning: =E2=80=98pwr_reg_names=
+_none=E2=80=99 defined but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -814,6 +820,11 @@ ction mismatches
 -----
 nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -990,22 +1001,6 @@ art_dt_match=E2=80=99 assumed to have one element
 
 ---------------------------------------------------------------------------=
 -----
-s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
 sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
@@ -1013,11 +1008,6 @@ on mismatches
 -----
 sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
  0 section mismatches
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1121,23 +1111,6 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
-ismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
 trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
@@ -1201,6 +1174,20 @@ ction mismatches
 -----
 x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 s=
 ection mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
+4 warnings, 0 section mismatches
 
 Warnings:
     Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
