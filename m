@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AE0B594955
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:11:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29CB25949FA
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:16:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354327AbiHOXyy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:54:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53370 "EHLO
+        id S1355459AbiHOX4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:56:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355363AbiHOXv5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:51:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE38923F9;
-        Mon, 15 Aug 2022 13:16:39 -0700 (PDT)
+        with ESMTP id S1355369AbiHOXwA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:52:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BD8592F4C;
+        Mon, 15 Aug 2022 13:16:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4012B8115B;
-        Mon, 15 Aug 2022 20:16:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27A72C433C1;
-        Mon, 15 Aug 2022 20:16:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAA24B81135;
+        Mon, 15 Aug 2022 20:16:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22EA3C433C1;
+        Mon, 15 Aug 2022 20:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594596;
-        bh=PS1CEPi4D0XfEoJqZTUTPxUsMO7CgGty1wu9A4YK6Ls=;
+        s=korg; t=1660594599;
+        bh=/HDOzt1fxq18AH8twZPBlkZvpI2voQRH1kRapURW0Q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XEjg2Xbb18uJQWnoZUoEx4/b4Xy7InDR65YH/WVpp7qxzecF3gYXj1efzB0wqgzO0
-         A9I+Bru8rHa7uivSH+kxWxJDPAlKaTdPjf1om+kc9nClmMsp/4oeW9DJ6GvaxAQC8N
-         IiAh4WtDx6rik0hpJfp8cx7Hy5zvt2k29SAjPHj8=
+        b=dydQNzT5HsIbr4/SCl27P5CKJAq6pjT/b7ti+RxD205uEcFu6QkJhg8xck2v2VTMP
+         o8i6D0tTnbEYWXCoM5G0+1V+c5K4Kg3h6+dN5Rp9CVHVottg0yXcGmGqGBSSpMswxj
+         MfTW5zJ8kSPEDnwx1xhUH2FS5HrB2pe/1/I5lVdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>, Yonghong Song <yhs@fb.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0498/1157] bpf: Fix subprog names in stack traces.
-Date:   Mon, 15 Aug 2022 19:57:34 +0200
-Message-Id: <20220815180459.596420397@linuxfoundation.org>
+Subject: [PATCH 5.19 0499/1157] wifi: nl80211: acquire wdev mutex for dump_survey
+Date:   Mon, 15 Aug 2022 19:57:35 +0200
+Message-Id: <20220815180459.646326974@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,48 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexei Starovoitov <ast@kernel.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 9c7c48d6a1e2eb5192ad5294c1c4dbd42a88e88b ]
+[ Upstream commit 284b38b6902a7154e3675482418a7b6df47808fe ]
 
-The commit 7337224fc150 ("bpf: Improve the info.func_info and info.func_info_rec_size behavior")
-accidently made bpf_prog_ksym_set_name() conservative for bpf subprograms.
-Fixed it so instead of "bpf_prog_tag_F" the stack traces print "bpf_prog_tag_full_subprog_name".
+At least the quantenna driver calls wdev_chandef() here
+which now requires the lock, so acquire it.
 
-Fixes: 7337224fc150 ("bpf: Improve the info.func_info and info.func_info_rec_size behavior")
-Reported-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20220714211637.17150-1-alexei.starovoitov@gmail.com
+Fixes: 7b0a0e3c3a88 ("wifi: cfg80211: do some rework towards MLO link APIs")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/wireless/nl80211.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 602366bc230f..e91d2faef160 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -13526,6 +13526,7 @@ static int jit_subprogs(struct bpf_verifier_env *env)
- 		/* Below members will be freed only at prog->aux */
- 		func[i]->aux->btf = prog->aux->btf;
- 		func[i]->aux->func_info = prog->aux->func_info;
-+		func[i]->aux->func_info_cnt = prog->aux->func_info_cnt;
- 		func[i]->aux->poke_tab = prog->aux->poke_tab;
- 		func[i]->aux->size_poke_tab = prog->aux->size_poke_tab;
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index af31978fc9cc..c4014ee3f667 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -10126,7 +10126,9 @@ static int nl80211_dump_survey(struct sk_buff *skb, struct netlink_callback *cb)
+ 	}
  
-@@ -13538,9 +13539,6 @@ static int jit_subprogs(struct bpf_verifier_env *env)
- 				poke->aux = func[i]->aux;
- 		}
- 
--		/* Use bpf_prog_F_tag to indicate functions in stack traces.
--		 * Long term would need debug info to populate names
--		 */
- 		func[i]->aux->name[0] = 'F';
- 		func[i]->aux->stack_depth = env->subprog_info[i].stack_depth;
- 		func[i]->jit_requested = 1;
+ 	while (1) {
++		wdev_lock(wdev);
+ 		res = rdev_dump_survey(rdev, wdev->netdev, survey_idx, &survey);
++		wdev_unlock(wdev);
+ 		if (res == -ENOENT)
+ 			break;
+ 		if (res)
 -- 
 2.35.1
 
