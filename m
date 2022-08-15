@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BD0D5937C0
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02B035937E2
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240801AbiHOSbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:31:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40910 "EHLO
+        id S242532AbiHOSbi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:31:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243063AbiHOSai (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:30:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 412072AE0C;
-        Mon, 15 Aug 2022 11:20:47 -0700 (PDT)
+        with ESMTP id S243431AbiHOSbF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:31:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DFA932B94;
+        Mon, 15 Aug 2022 11:21:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2405560693;
-        Mon, 15 Aug 2022 18:20:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F3B0C433C1;
-        Mon, 15 Aug 2022 18:20:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BB1D4B81071;
+        Mon, 15 Aug 2022 18:21:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28F9EC433C1;
+        Mon, 15 Aug 2022 18:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587645;
-        bh=UkgRBGRGiND0e5vjUxLk3kZH+BsEyc38Jo903maH+RY=;
+        s=korg; t=1660587660;
+        bh=fIyATlflZQYS902OJM0Ronnev54d2XGnLkNgc18G4cI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1cN178jiQzkJJXwStn8VggaggE0IOSQE1nnVtRtoAVZ7+kUiYGHJJ4lWTcdCxDl5x
-         R6sEFMucHGgsHw8i28l7W25Y60B2Q0jC3/P56ue32BfJEZB3F4EdJUzVaal6T3FwBw
-         M5QBhgMKp7iyOSOnQL+zSiqE45fEEfR13abspHz4=
+        b=Nv/1slKaPFNxEe5pe+6ykg1uEEKY47E0fJAn/iXMsjLbqKGRJyTkDzT04aT5sxkEF
+         ARRc8taT6XTFNu+JiRG3sRKVtPTpHCMLxOtJmnBiLn3/6rJ0Ey2exoobwIirtej3WZ
+         hqxeer+dV4uZRbpoLd5MCAcdnFrnX4K+5bJvDylY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
-        William Dean <williamsukatube@163.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 122/779] irqchip/mips-gic: Check the return value of ioremap() in gic_of_init()
-Date:   Mon, 15 Aug 2022 19:56:06 +0200
-Message-Id: <20220815180342.526837221@linuxfoundation.org>
+        stable@vger.kernel.org, Bruno Goncalves <bgoncalv@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 123/779] wait: Fix __wait_event_hrtimeout for RT/DL tasks
+Date:   Mon, 15 Aug 2022 19:56:07 +0200
+Message-Id: <20220815180342.557600521@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,37 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Dean <williamsukatube@163.com>
+From: Juri Lelli <juri.lelli@redhat.com>
 
-[ Upstream commit 71349cc85e5930dce78ed87084dee098eba24b59 ]
+[ Upstream commit cceeeb6a6d02e7b9a74ddd27a3225013b34174aa ]
 
-The function ioremap() in gic_of_init() can fail, so
-its return value should be checked.
+Changes to hrtimer mode (potentially made by __hrtimer_init_sleeper on
+PREEMPT_RT) are not visible to hrtimer_start_range_ns, thus not
+accounted for by hrtimer_start_expires call paths. In particular,
+__wait_event_hrtimeout suffers from this problem as we have, for
+example:
 
-Reported-by: Hacash Robot <hacashRobot@santino.com>
-Signed-off-by: William Dean <williamsukatube@163.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220723100128.2964304-1-williamsukatube@163.com
+fs/aio.c::read_events
+  wait_event_interruptible_hrtimeout
+    __wait_event_hrtimeout
+      hrtimer_init_sleeper_on_stack <- this might "mode |= HRTIMER_MODE_HARD"
+                                       on RT if task runs at RT/DL priority
+        hrtimer_start_range_ns
+          WARN_ON_ONCE(!(mode & HRTIMER_MODE_HARD) ^ !timer->is_hard)
+          fires since the latter doesn't see the change of mode done by
+          init_sleeper
+
+Fix it by making __wait_event_hrtimeout call hrtimer_sleeper_start_expires,
+which is aware of the special RT/DL case, instead of hrtimer_start_range_ns.
+
+Reported-by: Bruno Goncalves <bgoncalv@redhat.com>
+Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Reviewed-by: Valentin Schneider <vschneid@redhat.com>
+Link: https://lore.kernel.org/r/20220627095051.42470-1-juri.lelli@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-mips-gic.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/wait.h | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/irqchip/irq-mips-gic.c b/drivers/irqchip/irq-mips-gic.c
-index f03f47ffea1e..d815285f1efe 100644
---- a/drivers/irqchip/irq-mips-gic.c
-+++ b/drivers/irqchip/irq-mips-gic.c
-@@ -767,6 +767,10 @@ static int __init gic_of_init(struct device_node *node,
- 	}
- 
- 	mips_gic_base = ioremap(gic_base, gic_len);
-+	if (!mips_gic_base) {
-+		pr_err("Failed to ioremap gic_base\n");
-+		return -ENOMEM;
-+	}
- 
- 	gicconfig = read_gic_config();
- 	gic_shared_intrs = gicconfig & GIC_CONFIG_NUMINTERRUPTS;
+diff --git a/include/linux/wait.h b/include/linux/wait.h
+index d22cf2985b8f..21044562aab7 100644
+--- a/include/linux/wait.h
++++ b/include/linux/wait.h
+@@ -544,10 +544,11 @@ do {										\
+ 										\
+ 	hrtimer_init_sleeper_on_stack(&__t, CLOCK_MONOTONIC,			\
+ 				      HRTIMER_MODE_REL);			\
+-	if ((timeout) != KTIME_MAX)						\
+-		hrtimer_start_range_ns(&__t.timer, timeout,			\
+-				       current->timer_slack_ns,			\
+-				       HRTIMER_MODE_REL);			\
++	if ((timeout) != KTIME_MAX) {						\
++		hrtimer_set_expires_range_ns(&__t.timer, timeout,		\
++					current->timer_slack_ns);		\
++		hrtimer_sleeper_start_expires(&__t, HRTIMER_MODE_REL);		\
++	}									\
+ 										\
+ 	__ret = ___wait_event(wq_head, condition, state, 0, 0,			\
+ 		if (!__t.task) {						\
 -- 
 2.35.1
 
