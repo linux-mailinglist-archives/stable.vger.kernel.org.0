@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8F0B593AF6
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92A64593B4D
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344460AbiHOU3a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:29:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56912 "EHLO
+        id S1346476AbiHOU23 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:28:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347476AbiHOU2B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:28:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C68CFA1D31;
-        Mon, 15 Aug 2022 12:04:20 -0700 (PDT)
+        with ESMTP id S1347112AbiHOU1R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:27:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED77CA00E3;
+        Mon, 15 Aug 2022 12:04:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FFFFB81104;
-        Mon, 15 Aug 2022 19:04:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0406C433D6;
-        Mon, 15 Aug 2022 19:04:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F99EB81062;
+        Mon, 15 Aug 2022 19:04:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6F5CC433D6;
+        Mon, 15 Aug 2022 19:04:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590241;
-        bh=Sja0o4WT94abP/9yeowwf/8JUqSGSH1x3gwkaizUJp0=;
+        s=korg; t=1660590244;
+        bh=PT+al3/X/j0Hg/eZTwUwoGO/zO2403tlyPrSpTLoZ2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qUfcYe/V5LYMsAiQXvAd9ndpxuDwwfbBM850dtFvR2CrREFuJRZUSWdNeHwSNd1FW
-         WGQqxppe51VP72+FzW1o5t2ALnU5fGx+R7wc7WLMy1l9VNdOxBqMRB7eKqjHgkTVp4
-         bgMbKisXyT27gU1ErEyZHrSEnzciYoOvTSHd0o3M=
+        b=QOmNc5PclooqDcj1TElGjNXbiJTIyMYBV6IOwRn1Ov/LVT8pVkCCsCcavWnqxmT2x
+         hNzp8ug/0RUOWKnE/nv0GjB2Rba+UooJ43rtp96rhkooqT/lhJ4h3Mo8fUfJeemxlN
+         18LAC1pzaSHXb2e60v5W/yuDdUMY/sbLVLutu5ZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, huhai <huhai@kylinos.cn>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0167/1095] ACPI: LPSS: Fix missing check in register_device_clock()
-Date:   Mon, 15 Aug 2022 19:52:46 +0200
-Message-Id: <20220815180436.516565608@linuxfoundation.org>
+Subject: [PATCH 5.18 0168/1095] ARM: dts: qcom: sdx55: Fix the IRQ trigger type for UART
+Date:   Mon, 15 Aug 2022 19:52:47 +0200
+Message-Id: <20220815180436.560138832@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,34 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: huhai <huhai@kylinos.cn>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit b4f1f61ed5928b1128e60e38d0dffa16966f06dc ]
+[ Upstream commit ae500b351ab0006d933d804a2b7507fe1e98cecc ]
 
-register_device_clock() misses a check for platform_device_register_simple().
-Add a check to fix it.
+The trigger type should be LEVEL_HIGH. So fix it!
 
-Signed-off-by: huhai <huhai@kylinos.cn>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220530080842.37024-2-manivannan.sadhasivam@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_lpss.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/qcom-sdx55.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
-index fbe0756259c5..c4d4d21391d7 100644
---- a/drivers/acpi/acpi_lpss.c
-+++ b/drivers/acpi/acpi_lpss.c
-@@ -422,6 +422,9 @@ static int register_device_clock(struct acpi_device *adev,
- 	if (!lpss_clk_dev)
- 		lpt_register_clock_device();
- 
-+	if (IS_ERR(lpss_clk_dev))
-+		return PTR_ERR(lpss_clk_dev);
-+
- 	clk_data = platform_get_drvdata(lpss_clk_dev);
- 	if (!clk_data)
- 		return -ENODEV;
+diff --git a/arch/arm/boot/dts/qcom-sdx55.dtsi b/arch/arm/boot/dts/qcom-sdx55.dtsi
+index d455795da44c..b75e672c239d 100644
+--- a/arch/arm/boot/dts/qcom-sdx55.dtsi
++++ b/arch/arm/boot/dts/qcom-sdx55.dtsi
+@@ -206,7 +206,7 @@ gcc: clock-controller@100000 {
+ 		blsp1_uart3: serial@831000 {
+ 			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
+ 			reg = <0x00831000 0x200>;
+-			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_LOW>;
++			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&gcc 30>,
+ 				 <&gcc 9>;
+ 			clock-names = "core", "iface";
 -- 
 2.35.1
 
