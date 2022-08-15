@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EB63594025
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEC83593ED6
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244098AbiHOU4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:56:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57470 "EHLO
+        id S243687AbiHOU4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:56:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346931AbiHOU4C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:56:02 -0400
+        with ESMTP id S1346951AbiHOU4H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:56:07 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE8E24F196;
-        Mon, 15 Aug 2022 12:11:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B579A2DA94;
+        Mon, 15 Aug 2022 12:11:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78886B810A3;
-        Mon, 15 Aug 2022 19:11:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE827C433B5;
-        Mon, 15 Aug 2022 19:11:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78FE2B810A3;
+        Mon, 15 Aug 2022 19:11:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6595C433C1;
+        Mon, 15 Aug 2022 19:11:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590695;
-        bh=65ljVjHidvP03ijUNO/zjfxop07YULtw68E7rTTUr9s=;
+        s=korg; t=1660590698;
+        bh=7ZxS7jGKRr+fV61GISzQduPft6Zbuh8vkk9x+jopIpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=daz7cqvfAvSkCXJ6qB38vPUZuKa4t0T54BL66TewtDr1IhCks1sQtnCe4B38IM9tG
-         4yp6oKfwHyVYE33GZv5cFB7a1qccPp25vZ+qbSadg5NS4Cnjm3RmoWAXZvMZLYYsTN
-         UcwpV03+xDhPkP6CT35x90qReQ88/7o3TysNK/LQ=
+        b=Iiy+/usMntatwr9Ke/HL5uVe+wo4heayKeEBlRqgI3moHY2ed1HXZMOy8oKhxzT3Y
+         dgqg+noK96oHvAUpAgoVcZAl9JDxQPfshU4/8neRxM+paN386yBraDnqNNsAVrtITO
+         r1LubfjpdV3syMyEUelXAN4nbe+TWh8bxKE+ohF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0342/1095] crypto: sun8i-ss - fix infinite loop in sun8i_ss_setup_ivs()
-Date:   Mon, 15 Aug 2022 19:55:41 +0200
-Message-Id: <20220815180443.950668835@linuxfoundation.org>
+Subject: [PATCH 5.18 0343/1095] net: ag71xx: fix discards const qualifier warning
+Date:   Mon, 15 Aug 2022 19:55:42 +0200
+Message-Id: <20220815180443.994844594@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,36 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit d61a7b3decf7f0cf4121a7204303deefd2c7151b ]
+[ Upstream commit 225b0ed27e6ac523e5e98e7395392446859c7f20 ]
 
-There is no i decrement in while (i >= 0) loop.
+Current kernel will compile this driver with warnings. This patch will
+fix it.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+drivers/net/ethernet/atheros/ag71xx.c: In function 'ag71xx_fast_reset':
+drivers/net/ethernet/atheros/ag71xx.c:996:31: warning: passing argument 2 of 'ag71xx_hw_set
+_macaddr' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  996 |  ag71xx_hw_set_macaddr(ag, dev->dev_addr);
+      |                            ~~~^~~~~~~~~~
+drivers/net/ethernet/atheros/ag71xx.c:951:69: note: expected 'unsigned char *' but argument
+ is of type 'const unsigned char *'
+  951 | static void ag71xx_hw_set_macaddr(struct ag71xx *ag, unsigned char *mac)
+      |                                                      ~~~~~~~~~~~~~~~^~~
+drivers/net/ethernet/atheros/ag71xx.c: In function 'ag71xx_open':
+drivers/net/ethernet/atheros/ag71xx.c:1441:32: warning: passing argument 2 of 'ag71xx_hw_se
+t_macaddr' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1441 |  ag71xx_hw_set_macaddr(ag, ndev->dev_addr);
+      |                            ~~~~^~~~~~~~~~
+drivers/net/ethernet/atheros/ag71xx.c:951:69: note: expected 'unsigned char *' but argument
+ is of type 'const unsigned char *'
+  951 | static void ag71xx_hw_set_macaddr(struct ag71xx *ag, unsigned char *mac)
+      |                                                      ~~~~~~~~~~~~~~~^~~
 
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Fixes: 359e893e8af4 ("crypto: sun8i-ss - rework handling of IV")
-Acked-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: adeef3e32146 ("net: constify netdev->dev_addr")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/atheros/ag71xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
-index 70e2e6e37389..3c46ad8c3a1c 100644
---- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
-+++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
-@@ -151,6 +151,7 @@ static int sun8i_ss_setup_ivs(struct skcipher_request *areq)
- 	while (i >= 0) {
- 		dma_unmap_single(ss->dev, rctx->p_iv[i], ivsize, DMA_TO_DEVICE);
- 		memzero_explicit(sf->iv[i], ivsize);
-+		i--;
- 	}
- 	return err;
+diff --git a/drivers/net/ethernet/atheros/ag71xx.c b/drivers/net/ethernet/atheros/ag71xx.c
+index ec167af0e3b2..5041265f4226 100644
+--- a/drivers/net/ethernet/atheros/ag71xx.c
++++ b/drivers/net/ethernet/atheros/ag71xx.c
+@@ -946,7 +946,7 @@ static unsigned int ag71xx_max_frame_len(unsigned int mtu)
+ 	return ETH_HLEN + VLAN_HLEN + mtu + ETH_FCS_LEN;
  }
+ 
+-static void ag71xx_hw_set_macaddr(struct ag71xx *ag, unsigned char *mac)
++static void ag71xx_hw_set_macaddr(struct ag71xx *ag, const unsigned char *mac)
+ {
+ 	u32 t;
+ 
 -- 
 2.35.1
 
