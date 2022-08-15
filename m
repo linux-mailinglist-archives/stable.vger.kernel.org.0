@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17B545943CF
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:57:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 555475944F6
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233521AbiHOWc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:32:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51544 "EHLO
+        id S1348222AbiHOW3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:29:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349654AbiHOWbD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:31:03 -0400
+        with ESMTP id S1349755AbiHOW0I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:26:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F073B12AD24;
-        Mon, 15 Aug 2022 12:48:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CC1D127BDF;
+        Mon, 15 Aug 2022 12:44:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD278B80EAD;
-        Mon, 15 Aug 2022 19:48:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20267C433C1;
-        Mon, 15 Aug 2022 19:48:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8B43B81145;
+        Mon, 15 Aug 2022 19:44:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA3AEC433D6;
+        Mon, 15 Aug 2022 19:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592892;
-        bh=TyFNt0yGMX+HCgNReElfeOZCISJv3dIiyMGCwZjmTq8=;
+        s=korg; t=1660592689;
+        bh=CQV3gtFCOEyCWtZCTkXMTvy003w/H2jNvTviBBARrVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v67NsUBBvRVZkArEPzYrsobbJKwOTLt2y2VOOuvkaIMpLLGKjgb89wZBLshbk21st
-         57GQvrmwSLeFt27Ty0bkge2YdN6h0W8uWG+npOz4O+3TCzGSOh9DB0Z+7iNQzFY5uN
-         FAMRK6okZs58eTi8EOsnT5KFZhJSeLcUXxk+xOTI=
+        b=Qk9xudA/hx57GE0mKnPUuCo3wje5LXqCQgLtmX1BmRNMq7DdAJcH9iHM0jCtzfsDe
+         rSgP4HE0X9VypquIgqj+cVuZ5RfYakZSkfqO+x1SEKjX7zok1XCdJ+VBykjbB4wmGw
+         TG/qzLBuCHtwnW2GjFbFkazMNztR08EKabG8t8W4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Tang Bin <tangbin@cmss.chinamobile.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0825/1095] usb: cdns3: Dont use priv_dev uninitialized in cdns3_gadget_ep_enable()
-Date:   Mon, 15 Aug 2022 20:03:44 +0200
-Message-Id: <20220815180503.436147661@linuxfoundation.org>
+Subject: [PATCH 5.18 0826/1095] opp: Fix error check in dev_pm_opp_attach_genpd()
+Date:   Mon, 15 Aug 2022 20:03:45 +0200
+Message-Id: <20220815180503.476260372@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,79 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Tang Bin <tangbin@cmss.chinamobile.com>
 
-[ Upstream commit 78acd4ca433425e6dd4032cfc2156c60e34931f2 ]
+[ Upstream commit 4ea9496cbc959eb5c78f3e379199aca9ef4e386b ]
 
-Clang warns:
+dev_pm_domain_attach_by_name() may return NULL in some cases,
+so IS_ERR() doesn't meet the requirements. Thus fix it.
 
-  drivers/usb/cdns3/cdns3-gadget.c:2290:11: error: variable 'priv_dev' is uninitialized when used here [-Werror,-Wuninitialized]
-                  dev_dbg(priv_dev->dev, "usbss: invalid parameters\n");
-                          ^~~~~~~~
-  include/linux/dev_printk.h:155:18: note: expanded from macro 'dev_dbg'
-          dynamic_dev_dbg(dev, dev_fmt(fmt), ##__VA_ARGS__)
-                          ^~~
-  include/linux/dynamic_debug.h:167:7: note: expanded from macro 'dynamic_dev_dbg'
-                          dev, fmt, ##__VA_ARGS__)
-                          ^~~
-  include/linux/dynamic_debug.h:152:56: note: expanded from macro '_dynamic_func_call'
-          __dynamic_func_call(__UNIQUE_ID(ddebug), fmt, func, ##__VA_ARGS__)
-                                                              ^~~~~~~~~~~
-  include/linux/dynamic_debug.h:134:15: note: expanded from macro '__dynamic_func_call'
-                  func(&id, ##__VA_ARGS__);               \
-                              ^~~~~~~~~~~
-  drivers/usb/cdns3/cdns3-gadget.c:2278:31: note: initialize the variable 'priv_dev' to silence this warning
-          struct cdns3_device *priv_dev;
-                                      ^
-                                      = NULL
-  1 error generated.
-
-The priv_dev assignment was moved below the if statement to avoid
-potentially dereferencing ep before it was checked but priv_dev is used
-in the dev_dbg() call.
-
-To fix this, move the priv_dev and comp_desc assignments back to their
-original spot and hoist the ep check above those assignments with a call
-to pr_debug() instead of dev_dbg().
-
-Fixes: c3ffc9c4ca44 ("usb: cdns3: change place of 'priv_ep' assignment in cdns3_gadget_ep_dequeue(), cdns3_gadget_ep_enable()")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1680
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 6319aee10e53 ("opp: Attach genpds to devices from within OPP core")
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+[ Viresh: Replace ENODATA with ENODEV ]
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/cdns3/cdns3-gadget.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/opp/core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/cdns3/cdns3-gadget.c b/drivers/usb/cdns3/cdns3-gadget.c
-index e0cf62e65075..ae049eb28b93 100644
---- a/drivers/usb/cdns3/cdns3-gadget.c
-+++ b/drivers/usb/cdns3/cdns3-gadget.c
-@@ -2280,16 +2280,20 @@ static int cdns3_gadget_ep_enable(struct usb_ep *ep,
- 	int ret = 0;
- 	int val;
+diff --git a/drivers/opp/core.c b/drivers/opp/core.c
+index 740407252298..e154b18ec4b1 100644
+--- a/drivers/opp/core.c
++++ b/drivers/opp/core.c
+@@ -2413,8 +2413,8 @@ struct opp_table *dev_pm_opp_attach_genpd(struct device *dev,
+ 		}
  
-+	if (!ep) {
-+		pr_debug("usbss: ep not configured?\n");
-+		return -EINVAL;
-+	}
-+
- 	priv_ep = ep_to_cdns3_ep(ep);
-+	priv_dev = priv_ep->cdns3_dev;
-+	comp_desc = priv_ep->endpoint.comp_desc;
- 
--	if (!ep || !desc || desc->bDescriptorType != USB_DT_ENDPOINT) {
-+	if (!desc || desc->bDescriptorType != USB_DT_ENDPOINT) {
- 		dev_dbg(priv_dev->dev, "usbss: invalid parameters\n");
- 		return -EINVAL;
- 	}
- 
--	comp_desc = priv_ep->endpoint.comp_desc;
--	priv_dev = priv_ep->cdns3_dev;
--
- 	if (!desc->wMaxPacketSize) {
- 		dev_err(priv_dev->dev, "usbss: missing wMaxPacketSize\n");
- 		return -EINVAL;
+ 		virt_dev = dev_pm_domain_attach_by_name(dev, *name);
+-		if (IS_ERR(virt_dev)) {
+-			ret = PTR_ERR(virt_dev);
++		if (IS_ERR_OR_NULL(virt_dev)) {
++			ret = PTR_ERR(virt_dev) ? : -ENODEV;
+ 			dev_err(dev, "Couldn't attach to pm_domain: %d\n", ret);
+ 			goto err;
+ 		}
 -- 
 2.35.1
 
