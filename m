@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78BF6593DFC
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ED76593E7A
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:45:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345692AbiHOUdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:33:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43948 "EHLO
+        id S1344887AbiHOUnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:43:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348339AbiHOUcc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:32:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2FE185FB8;
-        Mon, 15 Aug 2022 12:05:38 -0700 (PDT)
+        with ESMTP id S1347181AbiHOUmh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:42:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C990B2494;
+        Mon, 15 Aug 2022 12:07:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A931E61281;
-        Mon, 15 Aug 2022 19:05:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0D61C433C1;
-        Mon, 15 Aug 2022 19:05:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AED4C61281;
+        Mon, 15 Aug 2022 19:07:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4EAAC433D6;
+        Mon, 15 Aug 2022 19:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590338;
-        bh=esD0rQV8wZIFlZqYk+UwjZZhg1rXQIzw+OF5KHdrJ2Y=;
+        s=korg; t=1660590466;
+        bh=nopleTF8fMQXk8bNd5NGN8KmEIJTFbLHWc4+tjhqO4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sGk5T7XgdkORR/MKiY6YNu4s55V8vwKODoa2xiQ9YBqiepJSINJ0gFT8KFeOXZVzB
-         H2sT514gHmQ1SC4opFQnurHBPT0H9Xm0QgbTcyvIpYFZ9jz7nBJ9U8uX0iQFr5WRSr
-         YGmG2vibE3NsvoEALAnMm4G94kItzSCJOtrRqXfM=
+        b=Q6goLsMqFcY3YuMThpPIa2VHiIThBO3O/LqPhybCa+vPbyElQvZa4QktNq3CMtHDw
+         e2JWFdI8xAF9dWYP6oU04vqzdTorAyU2IfZQX6zmrz/3QHTN7xJHMmmo/R9NRXtzwr
+         i3yzmoW75hXTsU00ml04S9YBxiNYrLE5VHcnV/Yg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Konrad Dybcio <konrad.dybcio@somainline.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0227/1095] ARM: dts: qcom-msm8974*: Fix UART naming
-Date:   Mon, 15 Aug 2022 19:53:46 +0200
-Message-Id: <20220815180439.107102982@linuxfoundation.org>
+Subject: [PATCH 5.18 0228/1095] ARM: dts: qcom-msm8974*: Fix I2C labels
+Date:   Mon, 15 Aug 2022 19:53:47 +0200
+Message-Id: <20220815180439.156592149@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,135 +57,85 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit b905c34ae7db6b564589f02fa7eac7afaa0294e9 ]
+[ Upstream commit bb167546d06847a8729c973fe5165a231fd5c39d ]
 
-It's either uart10, or blsp2_uart4, not blsp2_uart10, as there aren't 10
-UARTs on BLSP2. Fix the naming to align with what's done in arm64/qcom.
+Fix up the label names and add missing ones.
 
 Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220415115633.575010-4-konrad.dybcio@somainline.org
+Link: https://lore.kernel.org/r/20220415115633.575010-5-konrad.dybcio@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts    |  6 +++---
- arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts        | 10 +++++-----
- arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts  |  2 +-
- arch/arm/boot/dts/qcom-msm8974.dtsi                    |  6 +++---
- 4 files changed, 12 insertions(+), 12 deletions(-)
+ arch/arm/boot/dts/qcom-msm8974.dtsi | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts b/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
-index 5fbdba73c07f..dd2d0647d4be 100644
---- a/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
-@@ -12,7 +12,7 @@ / {
- 
- 	aliases {
- 		serial0 = &blsp1_uart1;
--		serial1 = &blsp2_uart10;
-+		serial1 = &blsp2_uart4;
- 	};
- 
- 	chosen {
-@@ -395,7 +395,7 @@ shutdown {
- 			};
- 		};
- 
--		blsp2_uart10_pin_a: blsp2-uart10-pin-active {
-+		blsp2_uart4_pin_a: blsp2-uart4-pin-active {
- 			tx {
- 				pins = "gpio53";
- 				function = "blsp_uart10";
-@@ -473,7 +473,7 @@ serial@f9960000 {
- 		status = "okay";
- 
- 		pinctrl-names = "default";
--		pinctrl-0 = <&blsp2_uart10_pin_a>;
-+		pinctrl-0 = <&blsp2_uart4_pin_a>;
- 
- 		bluetooth {
- 			compatible = "brcm,bcm43438-bt";
-diff --git a/arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts b/arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts
-index 1f630120c01f..95ae30d06554 100644
---- a/arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts
-@@ -358,13 +358,13 @@ serial@f991e000 {
- 		status = "okay";
- 	};
- 
--	/* blsp2_uart8 */
-+	/* blsp2_uart2 */
- 	serial@f995e000 {
- 		status = "okay";
- 
- 		pinctrl-names = "default", "sleep";
--		pinctrl-0 = <&blsp2_uart8_pins_active>;
--		pinctrl-1 = <&blsp2_uart8_pins_sleep>;
-+		pinctrl-0 = <&blsp2_uart2_pins_active>;
-+		pinctrl-1 = <&blsp2_uart2_pins_sleep>;
- 
- 		bluetooth {
- 			compatible = "brcm,bcm43540-bt";
-@@ -380,14 +380,14 @@ bluetooth {
- 	};
- 
- 	pinctrl@fd510000 {
--		blsp2_uart8_pins_active: blsp2-uart8-pins-active {
-+		blsp2_uart2_pins_active: blsp2-uart2-pins-active {
- 			pins = "gpio45", "gpio46", "gpio47", "gpio48";
- 			function = "blsp_uart8";
- 			drive-strength = <8>;
- 			bias-disable;
- 		};
- 
--		blsp2_uart8_pins_sleep: blsp2-uart8-pins-sleep {
-+		blsp2_uart2_pins_sleep: blsp2-uart2-pins-sleep {
- 			pins = "gpio45", "gpio46", "gpio47", "gpio48";
- 			function = "gpio";
- 			drive-strength = <2>;
-diff --git a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts
-index 3c4a7d760ba9..e27b360951fd 100644
---- a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts
-@@ -11,7 +11,7 @@ / {
- 
- 	aliases {
- 		serial0 = &blsp1_uart2;
--		serial1 = &blsp2_uart7;
-+		serial1 = &blsp2_uart1;
- 	};
- 
- 	chosen {
 diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi b/arch/arm/boot/dts/qcom-msm8974.dtsi
-index 08497783757a..689ddaabf463 100644
+index 689ddaabf463..6e99903bb5f9 100644
 --- a/arch/arm/boot/dts/qcom-msm8974.dtsi
 +++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
-@@ -715,7 +715,7 @@ blsp1_uart2: serial@f991e000 {
- 			status = "disabled";
+@@ -959,7 +959,7 @@ msmgpio: pinctrl@fd510000 {
+ 			interrupts = <GIC_SPI 208 IRQ_TYPE_LEVEL_HIGH>;
  		};
  
--		blsp2_uart7: serial@f995d000 {
-+		blsp2_uart1: serial@f995d000 {
- 			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
- 			reg = <0xf995d000 0x1000>;
- 			interrupts = <GIC_SPI 113 IRQ_TYPE_NONE>;
-@@ -724,7 +724,7 @@ blsp2_uart7: serial@f995d000 {
+-		i2c@f9923000 {
++		blsp1_i2c1: i2c@f9923000 {
  			status = "disabled";
+ 			compatible = "qcom,i2c-qup-v2.1.1";
+ 			reg = <0xf9923000 0x1000>;
+@@ -970,7 +970,7 @@ i2c@f9923000 {
+ 			#size-cells = <0>;
  		};
  
--		blsp2_uart8: serial@f995e000 {
-+		blsp2_uart2: serial@f995e000 {
- 			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
- 			reg = <0xf995e000 0x1000>;
- 			interrupts = <GIC_SPI 114 IRQ_TYPE_LEVEL_HIGH>;
-@@ -733,7 +733,7 @@ blsp2_uart8: serial@f995e000 {
+-		i2c@f9924000 {
++		blsp1_i2c2: i2c@f9924000 {
  			status = "disabled";
+ 			compatible = "qcom,i2c-qup-v2.1.1";
+ 			reg = <0xf9924000 0x1000>;
+@@ -981,7 +981,7 @@ i2c@f9924000 {
+ 			#size-cells = <0>;
  		};
  
--		blsp2_uart10: serial@f9960000 {
-+		blsp2_uart4: serial@f9960000 {
- 			compatible = "qcom,msm-uartdm-v1.4", "qcom,msm-uartdm";
- 			reg = <0xf9960000 0x1000>;
- 			interrupts = <GIC_SPI 116 IRQ_TYPE_LEVEL_HIGH>;
+-		blsp_i2c3: i2c@f9925000 {
++		blsp1_i2c3: i2c@f9925000 {
+ 			status = "disabled";
+ 			compatible = "qcom,i2c-qup-v2.1.1";
+ 			reg = <0xf9925000 0x1000>;
+@@ -992,7 +992,7 @@ blsp_i2c3: i2c@f9925000 {
+ 			#size-cells = <0>;
+ 		};
+ 
+-		blsp_i2c6: i2c@f9928000 {
++		blsp1_i2c6: i2c@f9928000 {
+ 			status = "disabled";
+ 			compatible = "qcom,i2c-qup-v2.1.1";
+ 			reg = <0xf9928000 0x1000>;
+@@ -1003,7 +1003,7 @@ blsp_i2c6: i2c@f9928000 {
+ 			#size-cells = <0>;
+ 		};
+ 
+-		blsp_i2c8: i2c@f9964000 {
++		blsp2_i2c2: i2c@f9964000 {
+ 			status = "disabled";
+ 			compatible = "qcom,i2c-qup-v2.1.1";
+ 			reg = <0xf9964000 0x1000>;
+@@ -1014,7 +1014,7 @@ blsp_i2c8: i2c@f9964000 {
+ 			#size-cells = <0>;
+ 		};
+ 
+-		blsp_i2c11: i2c@f9967000 {
++		blsp2_i2c5: i2c@f9967000 {
+ 			status = "disabled";
+ 			compatible = "qcom,i2c-qup-v2.1.1";
+ 			reg = <0xf9967000 0x1000>;
+@@ -1027,7 +1027,7 @@ blsp_i2c11: i2c@f9967000 {
+ 			dma-names = "tx", "rx";
+ 		};
+ 
+-		blsp_i2c12: i2c@f9968000 {
++		blsp2_i2c6: i2c@f9968000 {
+ 			status = "disabled";
+ 			compatible = "qcom,i2c-qup-v2.1.1";
+ 			reg = <0xf9968000 0x1000>;
 -- 
 2.35.1
 
