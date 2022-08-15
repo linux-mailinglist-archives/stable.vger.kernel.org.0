@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DC9B59410F
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6F0D59410A
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346148AbiHOUwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1346151AbiHOUwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Aug 2022 16:52:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40666 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346859AbiHOUvI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:51:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE631BBA60;
-        Mon, 15 Aug 2022 12:09:55 -0700 (PDT)
+        with ESMTP id S1346896AbiHOUvN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:51:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6720CBBA7B;
+        Mon, 15 Aug 2022 12:09:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C173B810A3;
-        Mon, 15 Aug 2022 19:09:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6DF0C433C1;
-        Mon, 15 Aug 2022 19:09:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD83360BB5;
+        Mon, 15 Aug 2022 19:09:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D235FC433C1;
+        Mon, 15 Aug 2022 19:09:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590592;
-        bh=676krTAO+HL4576ThtRweo4aBukNbMS1ytPm871r0PQ=;
+        s=korg; t=1660590595;
+        bh=LMkp6NyyuV2Ez/uJw716SkPh5MsLtM2lf94sqx8wvtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zm+oY3s93kxGGazV8TkSVcLDTUD/Uwdr7a6lXMzQ8VUTNKt+nQwqIrV2A9Veb0ACW
-         qs47BajCU7PofWZRmnf44lWCmzQPJ99vCiNPcQWQFi3chREGQ/BzjrCufx/Q/ZHnnh
-         UddswtWgdFlpJBpBjUQJxLtmHPAJ3pDmMGQlKDjg=
+        b=NPkYTJG/JnE0pMXmKDQSv/+1qAaOMKijsIiICyo1/BFnUVAgOBJD7o3ISqd45Y89O
+         1Q6jxcD7tr+noNx5Q0EL3iCOAsGVXvg5lWtGTFY5SrZDCsA2Ip2sAScokmNyP7PXo4
+         i+hcq1gYTWt7+2DvyIhWWGW6gZzKK1XP+rheSM9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Gao Chao <gaochao49@huawei.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0309/1095] drm/panel: Fix build error when CONFIG_DRM_PANEL_SAMSUNG_ATNA33XC20=y && CONFIG_DRM_DISPLAY_HELPER=m
-Date:   Mon, 15 Aug 2022 19:55:08 +0200
-Message-Id: <20220815180442.585574345@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0310/1095] wifi: rtlwifi: fix error codes in rtl_debugfs_set_write_h2c()
+Date:   Mon, 15 Aug 2022 19:55:09 +0200
+Message-Id: <20220815180442.629180620@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,45 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Chao <gaochao49@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a67664860f7833015a683ea295f7c79ac2901332 ]
+[ Upstream commit b88d28146c30a8e14f0f012d56ebf19b68a348f4 ]
 
-If CONFIG_DRM_PANEL_SAMSUNG_ATNA33XC20=y && CONFIG_DRM_DISPLAY_HELPER=m,
-bulding fails:
+If the copy_from_user() fails or the user gives invalid date then the
+correct thing to do is to return a negative error code.  (Currently it
+returns success).
 
-drivers/gpu/drm/panel/panel-samsung-atna33xc20.o: In function `atana33xc20_probe':
-panel-samsung-atna33xc20.c:(.text+0x744): undefined reference to
- `drm_panel_dp_aux_backlight'
-make: *** [vmlinux] Error 1
+I made a copy additional related cleanups:
+1) There is no need to check "buffer" for NULL.  That's handled by
+copy_from_user().
+2) The "h2c_len" variable cannot be negative because it is unsigned
+and because sscanf() does not return negative error codes.
 
-Let CONFIG_DRM_PANEL_SAMSUNG_ATNA33XC20 select DRM_DISPLAY_DP_HELPER and
-CONFIG_DRM_DISPLAY_HELPER to fix this error.
-
-Fixes: 32ce3b320343 ("drm/panel: atna33xc20: Introduce the Samsung ATNA33XC20 panel")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Gao Chao <gaochao49@huawei.com>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220524024551.539-1-gaochao49@huawei.com
+Fixes: 610247f46feb ("rtlwifi: Improve debugging by using debugfs")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/YoOLnDkHgVltyXK7@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/realtek/rtlwifi/debug.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/panel/Kconfig b/drivers/gpu/drm/panel/Kconfig
-index ddf5f38e8731..abc5271af4eb 100644
---- a/drivers/gpu/drm/panel/Kconfig
-+++ b/drivers/gpu/drm/panel/Kconfig
-@@ -428,6 +428,8 @@ config DRM_PANEL_SAMSUNG_ATNA33XC20
- 	depends on OF
- 	depends on BACKLIGHT_CLASS_DEVICE
- 	depends on PM
-+	select DRM_DISPLAY_DP_HELPER
-+	select DRM_DISPLAY_HELPER
- 	select DRM_DP_AUX_BUS
- 	help
- 	  DRM panel driver for the Samsung ATNA33XC20 panel. This panel can't
+diff --git a/drivers/net/wireless/realtek/rtlwifi/debug.c b/drivers/net/wireless/realtek/rtlwifi/debug.c
+index 901cdfe3723c..0b1bc04cb6ad 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/debug.c
++++ b/drivers/net/wireless/realtek/rtlwifi/debug.c
+@@ -329,8 +329,8 @@ static ssize_t rtl_debugfs_set_write_h2c(struct file *filp,
+ 
+ 	tmp_len = (count > sizeof(tmp) - 1 ? sizeof(tmp) - 1 : count);
+ 
+-	if (!buffer || copy_from_user(tmp, buffer, tmp_len))
+-		return count;
++	if (copy_from_user(tmp, buffer, tmp_len))
++		return -EFAULT;
+ 
+ 	tmp[tmp_len] = '\0';
+ 
+@@ -340,8 +340,8 @@ static ssize_t rtl_debugfs_set_write_h2c(struct file *filp,
+ 			 &h2c_data[4], &h2c_data[5],
+ 			 &h2c_data[6], &h2c_data[7]);
+ 
+-	if (h2c_len <= 0)
+-		return count;
++	if (h2c_len == 0)
++		return -EINVAL;
+ 
+ 	for (i = 0; i < h2c_len; i++)
+ 		h2c_data_packed[i] = (u8)h2c_data[i];
 -- 
 2.35.1
 
