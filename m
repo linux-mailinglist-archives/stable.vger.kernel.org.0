@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 719EA594C64
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB460594D6E
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245366AbiHPArN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:47:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60692 "EHLO
+        id S242722AbiHPArP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:47:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231464AbiHPApk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:45:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1906193560;
-        Mon, 15 Aug 2022 13:41:27 -0700 (PDT)
+        with ESMTP id S1345757AbiHPApm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:45:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60384193564;
+        Mon, 15 Aug 2022 13:41:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80599B80EAD;
-        Mon, 15 Aug 2022 20:41:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D63EDC433C1;
-        Mon, 15 Aug 2022 20:41:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBBED61233;
+        Mon, 15 Aug 2022 20:41:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9A11C433D6;
+        Mon, 15 Aug 2022 20:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596085;
-        bh=s4A1Jy/S8LXvZAeUlaIQ8UiQ7aw0H0x3aKCk6dSoVOc=;
+        s=korg; t=1660596088;
+        bh=0uKQ4XlDoVmec3sjjPuLPu/Rai684n2yPKBqpnW4JQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ca3yoNnRiBg/W63cH50b0wS5v7loVNyajbRxoKAorThCeRrSiyJbnImapQXwBj0iV
-         +10k3dbPDynMUKaPkXHevvPnbXSHYomgi3I7Wc9ykx0C5wMBuWn6KnHtXxse2ICAHC
-         MLJ8CKopIYAfJ2ulVkLdS91o4rty5Y2QsmoW7iPY=
+        b=xjcJ9CeAzU3auZTeip9qPMck9oh5mvzRkO6MJ1HE2fstcHijO3YDmtI7yerYCX1Wv
+         gHlC6hL5OcGW1KBOkxr3gW+wxCY4WzP6T7Yd4DT53sCzgX+p87GyZ5NJU50LXuEhwE
+         UH6gB3BJujNHkHhuws/Uow4jEgWC6/acKdnxEg8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Siddharth Gupta <sidgup@codeaurora.org>,
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
         Sibi Sankar <quic_sibis@quicinc.com>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0967/1157] remoteproc: qcom: pas: Check if coredump is enabled
-Date:   Mon, 15 Aug 2022 20:05:23 +0200
-Message-Id: <20220815180518.356773031@linuxfoundation.org>
+Subject: [PATCH 5.19 0968/1157] remoteproc: sysmon: Wait for SSCTL service to come up
+Date:   Mon, 15 Aug 2022 20:05:24 +0200
+Message-Id: <20220815180518.404555643@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,38 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddharth Gupta <sidgup@codeaurora.org>
+From: Sibi Sankar <quic_sibis@quicinc.com>
 
-[ Upstream commit 7b6ece968fca4ec9e42d34caff7e06dc84c45717 ]
+[ Upstream commit 47c04e00eff86a81cd357c3feed04c86089bcb85 ]
 
-Client drivers need to check if coredump is enabled for the rproc before
-continuing with coredump generation. This change adds a check in the PAS
-driver.
+The SSCTL service comes up after a finite time when the remote Q6 comes
+out of reset. Any graceful shutdowns requested during this period will
+be a NOP and abrupt tearing down of the glink channel might lead to pending
+transactions on the remote Q6 side and will ultimately lead to a fatal
+error. Fix this by waiting for the SSCTL service when a graceful shutdown
+is requested.
 
-Fixes: 8ed8485c4f05 ("remoteproc: qcom: Add capability to collect minidumps")
-Signed-off-by: Siddharth Gupta <sidgup@codeaurora.org>
+Fixes: 1fb82ee806d1 ("remoteproc: qcom: Introduce sysmon")
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
 Signed-off-by: Sibi Sankar <quic_sibis@quicinc.com>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/1657022900-2049-5-git-send-email-quic_sibis@quicinc.com
+Link: https://lore.kernel.org/r/1657022900-2049-7-git-send-email-quic_sibis@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_q6v5_pas.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/remoteproc/qcom_sysmon.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/remoteproc/qcom_q6v5_pas.c b/drivers/remoteproc/qcom_q6v5_pas.c
-index 6ae39c5653b1..1c170d278b29 100644
---- a/drivers/remoteproc/qcom_q6v5_pas.c
-+++ b/drivers/remoteproc/qcom_q6v5_pas.c
-@@ -87,6 +87,9 @@ static void adsp_minidump(struct rproc *rproc)
- {
- 	struct qcom_adsp *adsp = rproc->priv;
+diff --git a/drivers/remoteproc/qcom_sysmon.c b/drivers/remoteproc/qcom_sysmon.c
+index 9fca81492863..a9f04dd83ab6 100644
+--- a/drivers/remoteproc/qcom_sysmon.c
++++ b/drivers/remoteproc/qcom_sysmon.c
+@@ -41,6 +41,7 @@ struct qcom_sysmon {
+ 	struct completion comp;
+ 	struct completion ind_comp;
+ 	struct completion shutdown_comp;
++	struct completion ssctl_comp;
+ 	struct mutex lock;
  
-+	if (rproc->dump_conf == RPROC_COREDUMP_DISABLED)
-+		return;
+ 	bool ssr_ack;
+@@ -445,6 +446,8 @@ static int ssctl_new_server(struct qmi_handle *qmi, struct qmi_service *svc)
+ 
+ 	svc->priv = sysmon;
+ 
++	complete(&sysmon->ssctl_comp);
 +
- 	qcom_minidump(rproc, adsp->minidump_id);
+ 	return 0;
  }
+ 
+@@ -501,6 +504,7 @@ static int sysmon_start(struct rproc_subdev *subdev)
+ 		.ssr_event = SSCTL_SSR_EVENT_AFTER_POWERUP
+ 	};
+ 
++	reinit_completion(&sysmon->ssctl_comp);
+ 	mutex_lock(&sysmon->state_lock);
+ 	sysmon->state = SSCTL_SSR_EVENT_AFTER_POWERUP;
+ 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
+@@ -545,6 +549,11 @@ static void sysmon_stop(struct rproc_subdev *subdev, bool crashed)
+ 	if (crashed)
+ 		return;
+ 
++	if (sysmon->ssctl_instance) {
++		if (!wait_for_completion_timeout(&sysmon->ssctl_comp, HZ / 2))
++			dev_err(sysmon->dev, "timeout waiting for ssctl service\n");
++	}
++
+ 	if (sysmon->ssctl_version)
+ 		sysmon->shutdown_acked = ssctl_request_shutdown(sysmon);
+ 	else if (sysmon->ept)
+@@ -631,6 +640,7 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
+ 	init_completion(&sysmon->comp);
+ 	init_completion(&sysmon->ind_comp);
+ 	init_completion(&sysmon->shutdown_comp);
++	init_completion(&sysmon->ssctl_comp);
+ 	mutex_init(&sysmon->lock);
+ 	mutex_init(&sysmon->state_lock);
  
 -- 
 2.35.1
