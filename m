@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39BB8594B66
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:23:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F6CB594B69
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:23:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357001AbiHPAR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:17:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36126 "EHLO
+        id S233533AbiHPARf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:17:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357631AbiHPAN5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:13:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 147C8178C34;
-        Mon, 15 Aug 2022 13:30:35 -0700 (PDT)
+        with ESMTP id S1350194AbiHPAOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:14:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A04FCD782;
+        Mon, 15 Aug 2022 13:30:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32BB3B80EB1;
-        Mon, 15 Aug 2022 20:30:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81BBCC433D7;
-        Mon, 15 Aug 2022 20:30:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FBF5611CA;
+        Mon, 15 Aug 2022 20:30:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0528C43143;
+        Mon, 15 Aug 2022 20:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595432;
-        bh=94xa95o8KqgbjETlbVwuPqDvmR7RMIi6Gf8mC9KqAAg=;
+        s=korg; t=1660595436;
+        bh=dU3Yp/V+6qpGDMr3f9HjjrsK2rxqAXzqXy9P4nzRVnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KzGHOxpndLkRBVAqtN52TBgNsZsftMuPviFP9kJjd6YBOufAsY3B9wCccNzL5vSb8
-         fZlhqqwnb4Fz4fodm7bXF+vflq0pr0074TJbgL/Zr3Mm01m1PhDcwzfCckULa+pHW5
-         lUVg4o0JPtGcIxzkvJSnXCdXbqnxM5i13J/X7Gz8=
+        b=MVesqC1SyUgOS/4/Cdeun9qXmzEvIb4YM8Evmjw6Ol+zPaPDZ0Pa51VNrUDVWP+/1
+         1iedxom5eWY7bYUXGPH/zqKSQrE16sBajNOdgziQoGRwfpC3Fj8YDiBAsGO3kX70GY
+         EHCbd6WcbZ/8U3FuI0S+AJx8AbuqMm5pR+4qKVI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0730/1157] KVM: selftests: Convert s390x/diag318_test_handler away from VCPU_ID
-Date:   Mon, 15 Aug 2022 20:01:26 +0200
-Message-Id: <20220815180508.661549997@linuxfoundation.org>
+Subject: [PATCH 5.19 0731/1157] KVM: selftests: Use vm_create_with_vcpus() in max_guest_memory_test
+Date:   Mon, 15 Aug 2022 20:01:27 +0200
+Message-Id: <20220815180508.703859658@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,55 +56,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 7cdcdfe50d8d68b7b9ba2e1b0345ff47fdda390f ]
+[ Upstream commit 3468fd7d883110e481dfb8c8c7b802dc252ab186 ]
 
-Convert diag318_test_handler to use vm_create_with_vcpus() and pass around a
-'struct kvm_vcpu' object instead of passing around vCPU IDs.  Note, this is
-a "functional" change in the sense that the test now creates a vCPU with
-vcpu_id==0 instead of vcpu_id==6.  The non-zero VCPU_ID was 100% arbitrary
-and added little to no validation coverage.  If testing non-zero vCPU IDs
-is desirable for generic tests, that can be done in the future by tweaking
-the VM creation helpers.
+Use vm_create_with_vcpus() in max_guest_memory_test and reference vCPUs
+by their 'struct kvm_vcpu' object instead of their ID.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/kvm/lib/s390x/diag318_test_handler.c       | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ .../selftests/kvm/max_guest_memory_test.c     | 26 ++++++++++++-------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/lib/s390x/diag318_test_handler.c b/tools/testing/selftests/kvm/lib/s390x/diag318_test_handler.c
-index 86b9e611ad87..21c31fe10c1a 100644
---- a/tools/testing/selftests/kvm/lib/s390x/diag318_test_handler.c
-+++ b/tools/testing/selftests/kvm/lib/s390x/diag318_test_handler.c
-@@ -8,8 +8,6 @@
- #include "test_util.h"
- #include "kvm_util.h"
+diff --git a/tools/testing/selftests/kvm/max_guest_memory_test.c b/tools/testing/selftests/kvm/max_guest_memory_test.c
+index 15f046e19cb2..d59918d5cbe2 100644
+--- a/tools/testing/selftests/kvm/max_guest_memory_test.c
++++ b/tools/testing/selftests/kvm/max_guest_memory_test.c
+@@ -28,8 +28,7 @@ static void guest_code(uint64_t start_gpa, uint64_t end_gpa, uint64_t stride)
+ }
  
--#define VCPU_ID	6
--
- #define ICPT_INSTRUCTION	0x04
- #define IPA0_DIAG		0x8300
- 
-@@ -27,14 +25,15 @@ static void guest_code(void)
-  */
- static uint64_t diag318_handler(void)
- {
+ struct vcpu_info {
+-	struct kvm_vm *vm;
+-	uint32_t id;
 +	struct kvm_vcpu *vcpu;
+ 	uint64_t start_gpa;
+ 	uint64_t end_gpa;
+ };
+@@ -60,12 +59,13 @@ static void run_vcpu(struct kvm_vm *vm, uint32_t vcpu_id)
+ 
+ static void *vcpu_worker(void *data)
+ {
+-	struct vcpu_info *vcpu = data;
++	struct vcpu_info *info = data;
++	struct kvm_vcpu *vcpu = info->vcpu;
+ 	struct kvm_vm *vm = vcpu->vm;
+ 	struct kvm_sregs sregs;
+ 	struct kvm_regs regs;
+ 
+-	vcpu_args_set(vm, vcpu->id, 3, vcpu->start_gpa, vcpu->end_gpa,
++	vcpu_args_set(vm, vcpu->id, 3, info->start_gpa, info->end_gpa,
+ 		      vm_get_page_size(vm));
+ 
+ 	/* Snapshot regs before the first run. */
+@@ -89,8 +89,8 @@ static void *vcpu_worker(void *data)
+ 	return NULL;
+ }
+ 
+-static pthread_t *spawn_workers(struct kvm_vm *vm, uint64_t start_gpa,
+-				uint64_t end_gpa)
++static pthread_t *spawn_workers(struct kvm_vm *vm, struct kvm_vcpu **vcpus,
++				uint64_t start_gpa, uint64_t end_gpa)
+ {
+ 	struct vcpu_info *info;
+ 	uint64_t gpa, nr_bytes;
+@@ -108,8 +108,7 @@ static pthread_t *spawn_workers(struct kvm_vm *vm, uint64_t start_gpa,
+ 	TEST_ASSERT(nr_bytes, "C'mon, no way you have %d CPUs", nr_vcpus);
+ 
+ 	for (i = 0, gpa = start_gpa; i < nr_vcpus; i++, gpa += nr_bytes) {
+-		info[i].vm = vm;
+-		info[i].id = i;
++		info[i].vcpu = vcpus[i];
+ 		info[i].start_gpa = gpa;
+ 		info[i].end_gpa = gpa + nr_bytes;
+ 		pthread_create(&threads[i], NULL, vcpu_worker, &info[i]);
+@@ -172,6 +171,7 @@ int main(int argc, char *argv[])
+ 	uint64_t max_gpa, gpa, slot_size, max_mem, i;
+ 	int max_slots, slot, opt, fd;
+ 	bool hugepages = false;
++	struct kvm_vcpu **vcpus;
+ 	pthread_t *threads;
  	struct kvm_vm *vm;
- 	struct kvm_run *run;
- 	uint64_t reg;
- 	uint64_t diag318_info;
+ 	void *mem;
+@@ -215,7 +215,10 @@ int main(int argc, char *argv[])
+ 		}
+ 	}
  
--	vm = vm_create_default(VCPU_ID, 0, guest_code);
--	vcpu_run(vm, VCPU_ID);
--	run = vcpu_state(vm, VCPU_ID);
-+	vm = vm_create_with_one_vcpu(&vcpu, guest_code);
-+	vcpu_run(vm, vcpu->id);
-+	run = vcpu->run;
+-	vm = vm_create_default_with_vcpus(nr_vcpus, 0, 0, guest_code, NULL);
++	vcpus = malloc(nr_vcpus * sizeof(*vcpus));
++	TEST_ASSERT(vcpus, "Failed to allocate vCPU array");
++
++	vm = vm_create_with_vcpus(nr_vcpus, guest_code, vcpus);
  
- 	TEST_ASSERT(run->exit_reason == KVM_EXIT_S390_SIEIC,
- 		    "DIAGNOSE 0x0318 instruction was not intercepted");
+ 	max_gpa = vm_get_max_gfn(vm) << vm_get_page_shift(vm);
+ 	TEST_ASSERT(max_gpa > (4 * slot_size), "MAXPHYADDR <4gb ");
+@@ -252,7 +255,10 @@ int main(int argc, char *argv[])
+ 	}
+ 
+ 	atomic_set(&rendezvous, nr_vcpus + 1);
+-	threads = spawn_workers(vm, start_gpa, gpa);
++	threads = spawn_workers(vm, vcpus, start_gpa, gpa);
++
++	free(vcpus);
++	vcpus = NULL;
+ 
+ 	pr_info("Running with %lugb of guest memory and %u vCPUs\n",
+ 		(gpa - start_gpa) / size_1gb, nr_vcpus);
 -- 
 2.35.1
 
