@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7DBD594238
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFACC59423D
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244157AbiHOVrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:47:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32790 "EHLO
+        id S1349306AbiHOVr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:47:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349971AbiHOVq6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:46:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F32C33349;
-        Mon, 15 Aug 2022 12:30:39 -0700 (PDT)
+        with ESMTP id S1350017AbiHOVrD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:47:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAC2852DDC;
+        Mon, 15 Aug 2022 12:30:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8014B8107A;
-        Mon, 15 Aug 2022 19:30:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16558C433C1;
-        Mon, 15 Aug 2022 19:30:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 588FA610E7;
+        Mon, 15 Aug 2022 19:30:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62ABFC433C1;
+        Mon, 15 Aug 2022 19:30:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591836;
-        bh=6ef/Zsm6xEKJGQpRu6eAMimCjHH1f+bfuuoRh5fCEkE=;
+        s=korg; t=1660591846;
+        bh=OWPSdIFm61z5E2K4vT0EJcS4iLQ5Z8SLJgsG9Gpzgiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Bgyo0A3mwaQObQNkr3Z8zt5PECx6qdgCa5BcSffa8kyeoec5P+oTaQpxXJtJ1kh6
-         kVHRE1n6/9h9teY19UywsoTXYJJdyBbcXHZgh7RgjkTqJmk8LlKQsopIpYoETUv+Na
-         Sr5AahWqiKHo5Kc8szwEpQEQ1AJKbq6wffrz5cYo=
+        b=wIML5KEVcxxOGfn/nDlckkj/ivxNiyCJVGD7L+fPuWQVyp0DBkEnfpTlnst+otL7P
+         t0GVRlVEkhCr14fda2fdwrzuSqmyo+aaK5E5//o+fN2g7coIfFU09sxvEAQ8xILPNm
+         cdQh852cLN86VE8usyRAve3oE9IF1GhN8pY5EOnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nilesh Javali <njavali@marvell.com>,
-        Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0688/1095] scsi: iscsi: Fix session removal on shutdown
-Date:   Mon, 15 Aug 2022 20:01:27 +0200
-Message-Id: <20220815180457.839616001@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Frank Li <Frank.Li@nxp.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0689/1095] dmaengine: dw-edma: Fix eDMA Rd/Wr-channels and DMA-direction semantics
+Date:   Mon, 15 Aug 2022 20:01:28 +0200
+Message-Id: <20220815180457.894073085@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,196 +57,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 31500e902759322ba3c64b60dabae2704e738df8 ]
+[ Upstream commit c1e33979171da63cf47e56243ccb8ba82363c7d3 ]
 
-When the system is shutting down, iscsid is not running so we will not get
-a response to the ISCSI_ERR_INVALID_HOST error event. The system shutdown
-will then hang waiting on userspace to remove the session.
+In accordance with [1, 2] the DW eDMA controller has been created to be
+part of the DW PCIe Root Port and DW PCIe End-point controllers and to
+offload the transferring of large blocks of data between application and
+remote PCIe domains leaving the system CPU free for other tasks. In the
+first case (eDMA being part of DW PCIe Root Port) the eDMA controller is
+always accessible via the CPU DBI interface and never over the PCIe wire.
 
-This has libiscsi force the destruction of the session from the kernel when
-iscsi_host_remove() is called from a driver's shutdown callout.
+The latter case is more complex. Depending on the DW PCIe End-Point IP-core
+synthesize parameters it's possible to have the eDMA registers accessible
+not only from the application CPU side, but also via mapping the eDMA CSRs
+over a dedicated endpoint BAR. So based on the specifics denoted above the
+eDMA driver is supposed to support two types of the DMA controller setups:
 
-This fixes a regression added in qedi boot with commit d1f2ce77638d ("scsi:
-qedi: Fix host removal with running sessions") which made qedi use the
-common session removal function that waits on userspace instead of rolling
-its own kernel based removal.
+  1) eDMA embedded into the DW PCIe Root Port/End-point and accessible over
+     the local CPU from the application side.
 
-Link: https://lore.kernel.org/r/20220616222738.5722-7-michael.christie@oracle.com
-Fixes: d1f2ce77638d ("scsi: qedi: Fix host removal with running sessions")
-Tested-by: Nilesh Javali <njavali@marvell.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  2) eDMA embedded into the DW PCIe End-point and accessible via the PCIe
+     wire with MWr/MRd TLPs generated by the CPU PCIe host controller.
+
+Since the CPU memory resides different sides in these cases the semantics
+of the MEM_TO_DEV and DEV_TO_MEM operations is flipped with respect to the
+Tx and Rx DMA channels. So MEM_TO_DEV/DEV_TO_MEM corresponds to the Tx/Rx
+channels in setup 1) and to the Rx/Tx channels in case of setup 2).
+
+The DW eDMA driver has supported the case 2) since e63d79d1ffcd
+("dmaengine: Add Synopsys eDMA IP core driver") in the framework of the
+drivers/dma/dw-edma/dw-edma-pcie.c driver.
+
+The case 1) support was added later by bd96f1b2f43a ("dmaengine: dw-edma:
+support local dma device transfer semantics").  Afterwards the driver was
+supposed to cover the both possible eDMA setups, but the latter commit
+turned out to be not fully correct.
+
+The problem was that the commit together with the new functionality support
+also changed the channel direction semantics so the eDMA Read-channel
+(corresponding to the DMA_DEV_TO_MEM direction for case 1) now uses the
+sgl/cyclic base addresses as the Source addresses of the DMA transfers and
+dma_slave_config.dst_addr as the Destination address of the DMA transfers.
+
+Similarly the eDMA Write-channel (corresponding to the DMA_MEM_TO_DEV
+direction for case 1) now uses dma_slave_config.src_addr as a source
+address of the DMA transfers and sgl/cyclic base address as the Destination
+address of the DMA transfers. This contradicts the logic of the
+DMA-interface, which implies that DEV side is supposed to belong to the
+PCIe device memory and MEM - to the CPU/Application memory. Indeed it seems
+irrational to have the SG-list defined in the PCIe bus space, while
+expecting a contiguous buffer allocated in the CPU memory. Moreover the
+passed SG-list and cyclic DMA buffers are supposed to be mapped in a way so
+to be seen by the DW eDMA Application (CPU) interface.
+
+So in order to have the correct DW eDMA interface we need to invert the
+eDMA Rd/Wr-channels and DMA-slave directions semantics by selecting the
+src/dst addresses based on the DMA transfer direction instead of using the
+channel direction capability.
+
+[1] DesignWare Cores PCI Express Controller Databook - DWC PCIe Root Port,
+    v.5.40a, March 2019, p.1092
+[2] DesignWare Cores PCI Express Controller Databook - DWC PCIe Endpoint,
+    v.5.40a, March 2019, p.1189
+
+Co-developed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Fixes: bd96f1b2f43a ("dmaengine: dw-edma: support local dma device transfer semantics")
+Link: https://lore.kernel.org/r/20220524152159.2370739-7-Frank.Li@nxp.com
+Tested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Signed-off-by: Frank Li <Frank.Li@nxp.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-By: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/iser/iscsi_iser.c | 4 ++--
- drivers/scsi/be2iscsi/be_main.c          | 2 +-
- drivers/scsi/bnx2i/bnx2i_iscsi.c         | 2 +-
- drivers/scsi/cxgbi/libcxgbi.c            | 2 +-
- drivers/scsi/iscsi_tcp.c                 | 4 ++--
- drivers/scsi/libiscsi.c                  | 9 +++++++--
- drivers/scsi/qedi/qedi_main.c            | 9 ++++++---
- include/scsi/libiscsi.h                  | 2 +-
- 8 files changed, 21 insertions(+), 13 deletions(-)
+ drivers/dma/dw-edma/dw-edma-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/ulp/iser/iscsi_iser.c b/drivers/infiniband/ulp/iser/iscsi_iser.c
-index f8d0bab4424c..e36036b8f386 100644
---- a/drivers/infiniband/ulp/iser/iscsi_iser.c
-+++ b/drivers/infiniband/ulp/iser/iscsi_iser.c
-@@ -568,7 +568,7 @@ static void iscsi_iser_session_destroy(struct iscsi_cls_session *cls_session)
- 	struct Scsi_Host *shost = iscsi_session_to_shost(cls_session);
+diff --git a/drivers/dma/dw-edma/dw-edma-core.c b/drivers/dma/dw-edma/dw-edma-core.c
+index 468d1097a1ec..f23569e4b0bd 100644
+--- a/drivers/dma/dw-edma/dw-edma-core.c
++++ b/drivers/dma/dw-edma/dw-edma-core.c
+@@ -423,7 +423,7 @@ dw_edma_device_transfer(struct dw_edma_transfer *xfer)
+ 		chunk->ll_region.sz += burst->sz;
+ 		desc->alloc_sz += burst->sz;
  
- 	iscsi_session_teardown(cls_session);
--	iscsi_host_remove(shost);
-+	iscsi_host_remove(shost, false);
- 	iscsi_host_free(shost);
- }
- 
-@@ -685,7 +685,7 @@ iscsi_iser_session_create(struct iscsi_endpoint *ep,
- 	return cls_session;
- 
- remove_host:
--	iscsi_host_remove(shost);
-+	iscsi_host_remove(shost, false);
- free_host:
- 	iscsi_host_free(shost);
- 	return NULL;
-diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
-index 3bb0adefbe06..02026476c39c 100644
---- a/drivers/scsi/be2iscsi/be_main.c
-+++ b/drivers/scsi/be2iscsi/be_main.c
-@@ -5745,7 +5745,7 @@ static void beiscsi_remove(struct pci_dev *pcidev)
- 	cancel_work_sync(&phba->sess_work);
- 
- 	beiscsi_iface_destroy_default(phba);
--	iscsi_host_remove(phba->shost);
-+	iscsi_host_remove(phba->shost, false);
- 	beiscsi_disable_port(phba, 1);
- 
- 	/* after cancelling boot_work */
-diff --git a/drivers/scsi/bnx2i/bnx2i_iscsi.c b/drivers/scsi/bnx2i/bnx2i_iscsi.c
-index 15fbd09baa94..a3c800e04a2e 100644
---- a/drivers/scsi/bnx2i/bnx2i_iscsi.c
-+++ b/drivers/scsi/bnx2i/bnx2i_iscsi.c
-@@ -909,7 +909,7 @@ void bnx2i_free_hba(struct bnx2i_hba *hba)
- {
- 	struct Scsi_Host *shost = hba->shost;
- 
--	iscsi_host_remove(shost);
-+	iscsi_host_remove(shost, false);
- 	INIT_LIST_HEAD(&hba->ep_ofld_list);
- 	INIT_LIST_HEAD(&hba->ep_active_list);
- 	INIT_LIST_HEAD(&hba->ep_destroy_list);
-diff --git a/drivers/scsi/cxgbi/libcxgbi.c b/drivers/scsi/cxgbi/libcxgbi.c
-index 4365d52c6430..32abdf0fa9aa 100644
---- a/drivers/scsi/cxgbi/libcxgbi.c
-+++ b/drivers/scsi/cxgbi/libcxgbi.c
-@@ -328,7 +328,7 @@ void cxgbi_hbas_remove(struct cxgbi_device *cdev)
- 		chba = cdev->hbas[i];
- 		if (chba) {
- 			cdev->hbas[i] = NULL;
--			iscsi_host_remove(chba->shost);
-+			iscsi_host_remove(chba->shost, false);
- 			pci_dev_put(cdev->pdev);
- 			iscsi_host_free(chba->shost);
- 		}
-diff --git a/drivers/scsi/iscsi_tcp.c b/drivers/scsi/iscsi_tcp.c
-index 9fee70d6434a..52c6f70d60ec 100644
---- a/drivers/scsi/iscsi_tcp.c
-+++ b/drivers/scsi/iscsi_tcp.c
-@@ -898,7 +898,7 @@ iscsi_sw_tcp_session_create(struct iscsi_endpoint *ep, uint16_t cmds_max,
- remove_session:
- 	iscsi_session_teardown(cls_session);
- remove_host:
--	iscsi_host_remove(shost);
-+	iscsi_host_remove(shost, false);
- free_host:
- 	iscsi_host_free(shost);
- 	return NULL;
-@@ -915,7 +915,7 @@ static void iscsi_sw_tcp_session_destroy(struct iscsi_cls_session *cls_session)
- 	iscsi_tcp_r2tpool_free(cls_session->dd_data);
- 	iscsi_session_teardown(cls_session);
- 
--	iscsi_host_remove(shost);
-+	iscsi_host_remove(shost, false);
- 	iscsi_host_free(shost);
- }
- 
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index 797abf4f5399..3ddb701cd29c 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -2828,11 +2828,12 @@ static void iscsi_notify_host_removed(struct iscsi_cls_session *cls_session)
- /**
-  * iscsi_host_remove - remove host and sessions
-  * @shost: scsi host
-+ * @is_shutdown: true if called from a driver shutdown callout
-  *
-  * If there are any sessions left, this will initiate the removal and wait
-  * for the completion.
-  */
--void iscsi_host_remove(struct Scsi_Host *shost)
-+void iscsi_host_remove(struct Scsi_Host *shost, bool is_shutdown)
- {
- 	struct iscsi_host *ihost = shost_priv(shost);
- 	unsigned long flags;
-@@ -2841,7 +2842,11 @@ void iscsi_host_remove(struct Scsi_Host *shost)
- 	ihost->state = ISCSI_HOST_REMOVED;
- 	spin_unlock_irqrestore(&ihost->lock, flags);
- 
--	iscsi_host_for_each_session(shost, iscsi_notify_host_removed);
-+	if (!is_shutdown)
-+		iscsi_host_for_each_session(shost, iscsi_notify_host_removed);
-+	else
-+		iscsi_host_for_each_session(shost, iscsi_force_destroy_session);
-+
- 	wait_event_interruptible(ihost->session_removal_wq,
- 				 ihost->num_sessions == 0);
- 	if (signal_pending(current))
-diff --git a/drivers/scsi/qedi/qedi_main.c b/drivers/scsi/qedi/qedi_main.c
-index 83ffba7f51da..780d975c85b5 100644
---- a/drivers/scsi/qedi/qedi_main.c
-+++ b/drivers/scsi/qedi/qedi_main.c
-@@ -2414,9 +2414,12 @@ static void __qedi_remove(struct pci_dev *pdev, int mode)
- 	int rval;
- 	u16 retry = 10;
- 
--	if (mode == QEDI_MODE_NORMAL || mode == QEDI_MODE_SHUTDOWN) {
--		iscsi_host_remove(qedi->shost);
-+	if (mode == QEDI_MODE_NORMAL)
-+		iscsi_host_remove(qedi->shost, false);
-+	else if (mode == QEDI_MODE_SHUTDOWN)
-+		iscsi_host_remove(qedi->shost, true);
- 
-+	if (mode == QEDI_MODE_NORMAL || mode == QEDI_MODE_SHUTDOWN) {
- 		if (qedi->tmf_thread) {
- 			destroy_workqueue(qedi->tmf_thread);
- 			qedi->tmf_thread = NULL;
-@@ -2791,7 +2794,7 @@ static int __qedi_probe(struct pci_dev *pdev, int mode)
- #ifdef CONFIG_DEBUG_FS
- 	qedi_dbg_host_exit(&qedi->dbg_ctx);
- #endif
--	iscsi_host_remove(qedi->shost);
-+	iscsi_host_remove(qedi->shost, false);
- stop_iscsi_func:
- 	qedi_ops->stop(qedi->cdev);
- stop_slowpath:
-diff --git a/include/scsi/libiscsi.h b/include/scsi/libiscsi.h
-index c0703cd20a99..9758a4a9923f 100644
---- a/include/scsi/libiscsi.h
-+++ b/include/scsi/libiscsi.h
-@@ -411,7 +411,7 @@ extern int iscsi_host_add(struct Scsi_Host *shost, struct device *pdev);
- extern struct Scsi_Host *iscsi_host_alloc(struct scsi_host_template *sht,
- 					  int dd_data_size,
- 					  bool xmit_can_sleep);
--extern void iscsi_host_remove(struct Scsi_Host *shost);
-+extern void iscsi_host_remove(struct Scsi_Host *shost, bool is_shutdown);
- extern void iscsi_host_free(struct Scsi_Host *shost);
- extern int iscsi_target_alloc(struct scsi_target *starget);
- extern int iscsi_host_get_max_scsi_cmds(struct Scsi_Host *shost,
+-		if (chan->dir == EDMA_DIR_WRITE) {
++		if (dir == DMA_DEV_TO_MEM) {
+ 			burst->sar = src_addr;
+ 			if (xfer->type == EDMA_XFER_CYCLIC) {
+ 				burst->dar = xfer->xfer.cyclic.paddr;
 -- 
 2.35.1
 
