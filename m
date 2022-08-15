@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFACC59423D
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E785594255
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349306AbiHOVr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:47:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33780 "EHLO
+        id S1349778AbiHOVsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:48:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350017AbiHOVrD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:47:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAC2852DDC;
-        Mon, 15 Aug 2022 12:30:47 -0700 (PDT)
+        with ESMTP id S1350074AbiHOVrI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:47:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E08EF5E33B;
+        Mon, 15 Aug 2022 12:30:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 588FA610E7;
-        Mon, 15 Aug 2022 19:30:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62ABFC433C1;
-        Mon, 15 Aug 2022 19:30:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8442B81126;
+        Mon, 15 Aug 2022 19:30:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21F9DC433D6;
+        Mon, 15 Aug 2022 19:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591846;
-        bh=OWPSdIFm61z5E2K4vT0EJcS4iLQ5Z8SLJgsG9Gpzgiw=;
+        s=korg; t=1660591852;
+        bh=0n30SQV2oTUexFgmstOps5qTzO9d1a9NzMVVVLjrvdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wIML5KEVcxxOGfn/nDlckkj/ivxNiyCJVGD7L+fPuWQVyp0DBkEnfpTlnst+otL7P
-         t0GVRlVEkhCr14fda2fdwrzuSqmyo+aaK5E5//o+fN2g7coIfFU09sxvEAQ8xILPNm
-         cdQh852cLN86VE8usyRAve3oE9IF1GhN8pY5EOnc=
+        b=szpve99RwVC20m01gVfm66m+gXoRhQub4LZmNmd9KGTLLivUOkvvSWj/ViJwcn55r
+         mKodYzOyjV2+YMA/YNpCkf5HGbJcpoA13CQt/YUkGwj0jepRNKLcAk7HaS4CQptKfo
+         VELCHyJBIxhz9FuvqIPzgtjWD7aPIolHVE0CTDzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Frank Li <Frank.Li@nxp.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0689/1095] dmaengine: dw-edma: Fix eDMA Rd/Wr-channels and DMA-direction semantics
-Date:   Mon, 15 Aug 2022 20:01:28 +0200
-Message-Id: <20220815180457.894073085@linuxfoundation.org>
+        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
+        Peter Xu <peterx@redhat.com>, Ben Gardon <bgardon@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0690/1095] KVM: x86: Fix errant brace in KVM capability handling
+Date:   Mon, 15 Aug 2022 20:01:29 +0200
+Message-Id: <20220815180457.924813944@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,97 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Ben Gardon <bgardon@google.com>
 
-[ Upstream commit c1e33979171da63cf47e56243ccb8ba82363c7d3 ]
+[ Upstream commit 1c4dc57328bf218e999951824dce75c6125c4f3c ]
 
-In accordance with [1, 2] the DW eDMA controller has been created to be
-part of the DW PCIe Root Port and DW PCIe End-point controllers and to
-offload the transferring of large blocks of data between application and
-remote PCIe domains leaving the system CPU free for other tasks. In the
-first case (eDMA being part of DW PCIe Root Port) the eDMA controller is
-always accessible via the CPU DBI interface and never over the PCIe wire.
+The braces around the KVM_CAP_XSAVE2 block also surround the
+KVM_CAP_PMU_CAPABILITY block, likely the result of a merge issue. Simply
+move the curly brace back to where it belongs.
 
-The latter case is more complex. Depending on the DW PCIe End-Point IP-core
-synthesize parameters it's possible to have the eDMA registers accessible
-not only from the application CPU side, but also via mapping the eDMA CSRs
-over a dedicated endpoint BAR. So based on the specifics denoted above the
-eDMA driver is supposed to support two types of the DMA controller setups:
+Fixes: ba7bb663f5547 ("KVM: x86: Provide per VM capability for disabling PMU virtualization")
 
-  1) eDMA embedded into the DW PCIe Root Port/End-point and accessible over
-     the local CPU from the application side.
-
-  2) eDMA embedded into the DW PCIe End-point and accessible via the PCIe
-     wire with MWr/MRd TLPs generated by the CPU PCIe host controller.
-
-Since the CPU memory resides different sides in these cases the semantics
-of the MEM_TO_DEV and DEV_TO_MEM operations is flipped with respect to the
-Tx and Rx DMA channels. So MEM_TO_DEV/DEV_TO_MEM corresponds to the Tx/Rx
-channels in setup 1) and to the Rx/Tx channels in case of setup 2).
-
-The DW eDMA driver has supported the case 2) since e63d79d1ffcd
-("dmaengine: Add Synopsys eDMA IP core driver") in the framework of the
-drivers/dma/dw-edma/dw-edma-pcie.c driver.
-
-The case 1) support was added later by bd96f1b2f43a ("dmaengine: dw-edma:
-support local dma device transfer semantics").  Afterwards the driver was
-supposed to cover the both possible eDMA setups, but the latter commit
-turned out to be not fully correct.
-
-The problem was that the commit together with the new functionality support
-also changed the channel direction semantics so the eDMA Read-channel
-(corresponding to the DMA_DEV_TO_MEM direction for case 1) now uses the
-sgl/cyclic base addresses as the Source addresses of the DMA transfers and
-dma_slave_config.dst_addr as the Destination address of the DMA transfers.
-
-Similarly the eDMA Write-channel (corresponding to the DMA_MEM_TO_DEV
-direction for case 1) now uses dma_slave_config.src_addr as a source
-address of the DMA transfers and sgl/cyclic base address as the Destination
-address of the DMA transfers. This contradicts the logic of the
-DMA-interface, which implies that DEV side is supposed to belong to the
-PCIe device memory and MEM - to the CPU/Application memory. Indeed it seems
-irrational to have the SG-list defined in the PCIe bus space, while
-expecting a contiguous buffer allocated in the CPU memory. Moreover the
-passed SG-list and cyclic DMA buffers are supposed to be mapped in a way so
-to be seen by the DW eDMA Application (CPU) interface.
-
-So in order to have the correct DW eDMA interface we need to invert the
-eDMA Rd/Wr-channels and DMA-slave directions semantics by selecting the
-src/dst addresses based on the DMA transfer direction instead of using the
-channel direction capability.
-
-[1] DesignWare Cores PCI Express Controller Databook - DWC PCIe Root Port,
-    v.5.40a, March 2019, p.1092
-[2] DesignWare Cores PCI Express Controller Databook - DWC PCIe Endpoint,
-    v.5.40a, March 2019, p.1189
-
-Co-developed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Fixes: bd96f1b2f43a ("dmaengine: dw-edma: support local dma device transfer semantics")
-Link: https://lore.kernel.org/r/20220524152159.2370739-7-Frank.Li@nxp.com
-Tested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-By: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: David Matlack <dmatlack@google.com>
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Ben Gardon <bgardon@google.com>
+Message-Id: <20220613212523.3436117-8-bgardon@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dw-edma/dw-edma-core.c | 2 +-
+ arch/x86/kvm/x86.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/dw-edma/dw-edma-core.c b/drivers/dma/dw-edma/dw-edma-core.c
-index 468d1097a1ec..f23569e4b0bd 100644
---- a/drivers/dma/dw-edma/dw-edma-core.c
-+++ b/drivers/dma/dw-edma/dw-edma-core.c
-@@ -423,7 +423,7 @@ dw_edma_device_transfer(struct dw_edma_transfer *xfer)
- 		chunk->ll_region.sz += burst->sz;
- 		desc->alloc_sz += burst->sz;
- 
--		if (chan->dir == EDMA_DIR_WRITE) {
-+		if (dir == DMA_DEV_TO_MEM) {
- 			burst->sar = src_addr;
- 			if (xfer->type == EDMA_XFER_CYCLIC) {
- 				burst->dar = xfer->xfer.cyclic.paddr;
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index cc2c89c08d85..767a61e29f51 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -4377,10 +4377,10 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 		if (r < sizeof(struct kvm_xsave))
+ 			r = sizeof(struct kvm_xsave);
+ 		break;
++	}
+ 	case KVM_CAP_PMU_CAPABILITY:
+ 		r = enable_pmu ? KVM_CAP_PMU_VALID_MASK : 0;
+ 		break;
+-	}
+ 	case KVM_CAP_DISABLE_QUIRKS2:
+ 		r = KVM_X86_VALID_QUIRKS;
+ 		break;
 -- 
 2.35.1
 
