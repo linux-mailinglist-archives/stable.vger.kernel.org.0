@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7501A5937E9
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A15C1593623
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:24:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243686AbiHOSgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:36:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50636 "EHLO
+        id S232554AbiHOScb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:32:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244017AbiHOSgS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:36:18 -0400
+        with ESMTP id S242033AbiHOSbg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:31:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C6AB3C15B;
-        Mon, 15 Aug 2022 11:23:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E01FF33404;
+        Mon, 15 Aug 2022 11:21:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87F0EB81071;
-        Mon, 15 Aug 2022 18:23:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5398C433C1;
-        Mon, 15 Aug 2022 18:23:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36273B8107B;
+        Mon, 15 Aug 2022 18:21:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71CE7C433D6;
+        Mon, 15 Aug 2022 18:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587786;
-        bh=PYfW4qUNcV0ql8wYHgPWd/Nrk4am9nAFnFvDd23OFxw=;
+        s=korg; t=1660587681;
+        bh=2ovyApPiME4/c5U9s2pafwbgUslndUbYq4uX2bqjewE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rYQJGFI4InGsrqLZLWkkVEauqo4Q8hCXIcQatIxMq7xbCqH411lcuxyB4dSZ1pmqa
-         bWhd99veAqatGPeV7OwGHqLcn3PlxJvgX4pdGumY/Q6gHJYK5AeifwSwff1z9WLI4J
-         mGHW9JOGce+Bsh0QMubx8vUwSXExKhgJgiwvNBD0=
+        b=LrR4XVEA9skn3QTNc5IdLITZA0lcfASO4RknZnveyimGUyFpCZfQGaMjHV+fLQIen
+         FnEDLPLEF/ilR89zPlJi530fnSzasGT1gSeVjInmrEf6PdT2VgYiYr5GHX+8V6/Vak
+         GY9Bb2b+QedSoS0rClkk7DLN08iVO+zuJ5o92THU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 153/779] spi: spi-rspi: Fix PIO fallback on RZ platforms
-Date:   Mon, 15 Aug 2022 19:56:37 +0200
-Message-Id: <20220815180343.858223258@linuxfoundation.org>
+Subject: [PATCH 5.15 154/779] netfilter: nf_tables: add rescheduling points during loop detection walks
+Date:   Mon, 15 Aug 2022 19:56:38 +0200
+Message-Id: <20220815180343.899696572@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,45 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit b620aa3a7be346f04ae7789b165937615c6ee8d3 ]
+[ Upstream commit 81ea010667417ef3f218dfd99b69769fe66c2b67 ]
 
-RSPI IP on RZ/{A, G2L} SoC's has the same signal for both interrupt
-and DMA transfer request. Setting DMARS register for DMA transfer
-makes the signal to work as a DMA transfer request signal and
-subsequent interrupt requests to the interrupt controller
-are masked.
+Add explicit rescheduling points during ruleset walk.
 
-PIO fallback does not work as interrupt signal is disabled.
+Switching to a faster algorithm is possible but this is a much
+smaller change, suitable for nf tree.
 
-This patch fixes this issue by re-enabling the interrupts by
-calling dmaengine_synchronize().
-
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20220721143449.879257-1-biju.das.jz@bp.renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://bugzilla.netfilter.org/show_bug.cgi?id=1460
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rspi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/netfilter/nf_tables_api.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/spi/spi-rspi.c b/drivers/spi/spi-rspi.c
-index d575c935e9f0..f634a405382c 100644
---- a/drivers/spi/spi-rspi.c
-+++ b/drivers/spi/spi-rspi.c
-@@ -612,6 +612,10 @@ static int rspi_dma_transfer(struct rspi_data *rspi, struct sg_table *tx,
- 					       rspi->dma_callbacked, HZ);
- 	if (ret > 0 && rspi->dma_callbacked) {
- 		ret = 0;
-+		if (tx)
-+			dmaengine_synchronize(rspi->ctlr->dma_tx);
-+		if (rx)
-+			dmaengine_synchronize(rspi->ctlr->dma_rx);
- 	} else {
- 		if (!ret) {
- 			dev_err(&rspi->ctlr->dev, "DMA timeout\n");
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 13d14fcc2371..3d52a08bd560 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -3248,6 +3248,8 @@ int nft_chain_validate(const struct nft_ctx *ctx, const struct nft_chain *chain)
+ 			if (err < 0)
+ 				return err;
+ 		}
++
++		cond_resched();
+ 	}
+ 
+ 	return 0;
+@@ -9225,9 +9227,13 @@ static int nf_tables_check_loops(const struct nft_ctx *ctx,
+ 				break;
+ 			}
+ 		}
++
++		cond_resched();
+ 	}
+ 
+ 	list_for_each_entry(set, &ctx->table->sets, list) {
++		cond_resched();
++
+ 		if (!nft_is_active_next(ctx->net, set))
+ 			continue;
+ 		if (!(set->flags & NFT_SET_MAP) ||
 -- 
 2.35.1
 
