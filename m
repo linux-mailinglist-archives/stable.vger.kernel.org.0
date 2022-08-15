@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49EC2593D10
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A33AF593C5E
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346236AbiHOUNX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:13:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32878 "EHLO
+        id S239980AbiHOUNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:13:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346562AbiHOULn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:11:43 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9086C491C8;
-        Mon, 15 Aug 2022 11:57:56 -0700 (PDT)
+        with ESMTP id S1346601AbiHOULr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:11:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A49C491E1;
+        Mon, 15 Aug 2022 11:57:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A7E2CCE129D;
-        Mon, 15 Aug 2022 18:57:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62D8DC433C1;
-        Mon, 15 Aug 2022 18:57:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 772AAB810C6;
+        Mon, 15 Aug 2022 18:57:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAD52C433C1;
+        Mon, 15 Aug 2022 18:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589872;
-        bh=Qk6A5z5Pblx3Ub+fE3xuwH7Ai2Bhm0bhJE/MIKtqHqc=;
+        s=korg; t=1660589876;
+        bh=F/80Z00HgPKwa+mQQROHnQglAMuvNfxtONvqOduOywU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IcuoVy93Fsj2RmE9W9/mt/+Mh6pK0FW6AwJNUOgoGvm6q/aTkKFQrp+Dl8Kqu641S
-         LPe/wsWsdkXVC0aLC3YH2l99TQVTLQklWUUCDsuZNHgAqh+RwYOW8Ep97vU+3xiBOS
-         7N/FCVm+qF9BX8Lag8pFBzUgbIZqYE1LQEB8x34U=
+        b=LAkSq+mz0P6BCYD8BwZOHyKZvOU1V0hwLybNMG+dsPIzvMH/FG8rUinb8HjUWebWl
+         feQdww8wSRhaLiZcnX8XtJEEgKjSH7lQeDNBfYHXvhK4Az27MLb3xKogondaR5jgMB
+         TzocfwtP5Ki8DL9SOp6sAem9j13G3lsCENVggFTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.18 0076/1095] drm/shmem-helper: Add missing vunmap on error
-Date:   Mon, 15 Aug 2022 19:51:15 +0200
-Message-Id: <20220815180432.679327225@linuxfoundation.org>
+        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.org>,
+        Maxime Ripard <maxime@cerno.tech>
+Subject: [PATCH 5.18 0077/1095] drm/vc4: hdmi: Disable audio if dmas property is present but empty
+Date:   Mon, 15 Aug 2022 19:51:16 +0200
+Message-Id: <20220815180432.721242684@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,33 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+From: Phil Elwell <phil@raspberrypi.org>
 
-commit df4aaf015775221dde8a51ee09edb919981f091e upstream.
+commit db2b927f8668adf3ac765e0921cd2720f5c04172 upstream.
 
-The vmapping of dma-buf may succeed, but DRM SHMEM rejects the IOMEM
-mapping, and thus, drm_gem_shmem_vmap_locked() should unvmap the IOMEM
-before erroring out.
+The dmas property is used to hold the dmaengine channel used for audio
+output.
 
-Cc: stable@vger.kernel.org
-Fixes: 49a3f51dfeee ("drm/gem: Use struct dma_buf_map in GEM vmap ops and convert GEM backends")
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220630200058.1883506-2-dmitry.osipenko@collabora.com
+Older device trees were missing that property, so if it's not there we
+disable the audio output entirely.
+
+However, some overlays have set an empty value to that property, mostly
+to workaround the fact that overlays cannot remove a property. Let's add
+a test for that case and if it's empty, let's disable it as well.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Phil Elwell <phil@raspberrypi.org>
+Link: https://lore.kernel.org/r/20220613144800.326124-18-maxime@cerno.tech
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_gem_shmem_helper.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/vc4/vc4_hdmi.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -302,6 +302,7 @@ static int drm_gem_shmem_vmap_locked(str
- 		ret = dma_buf_vmap(obj->import_attach->dmabuf, map);
- 		if (!ret) {
- 			if (WARN_ON(map->is_iomem)) {
-+				dma_buf_vunmap(obj->import_attach->dmabuf, map);
- 				ret = -EIO;
- 				goto err_put_pages;
- 			}
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -1705,12 +1705,12 @@ static int vc4_hdmi_audio_init(struct vc
+ 	struct device *dev = &vc4_hdmi->pdev->dev;
+ 	struct platform_device *codec_pdev;
+ 	const __be32 *addr;
+-	int index;
++	int index, len;
+ 	int ret;
+ 
+-	if (!of_find_property(dev->of_node, "dmas", NULL)) {
++	if (!of_find_property(dev->of_node, "dmas", &len) || !len) {
+ 		dev_warn(dev,
+-			 "'dmas' DT property is missing, no HDMI audio\n");
++			 "'dmas' DT property is missing or empty, no HDMI audio\n");
+ 		return 0;
+ 	}
+ 
 
 
