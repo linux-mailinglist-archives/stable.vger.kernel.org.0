@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9683C5948E7
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:10:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 944AF5948D0
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354023AbiHOXrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:47:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42166 "EHLO
+        id S1354176AbiHOXrg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:47:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354541AbiHOXpu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:45:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E3928C01E;
-        Mon, 15 Aug 2022 13:14:26 -0700 (PDT)
+        with ESMTP id S1354608AbiHOXqB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:46:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F3038C039;
+        Mon, 15 Aug 2022 13:14:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F0ADB80EAB;
-        Mon, 15 Aug 2022 20:14:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A12ECC433D6;
-        Mon, 15 Aug 2022 20:14:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BDAE360F0C;
+        Mon, 15 Aug 2022 20:14:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3A61C43140;
+        Mon, 15 Aug 2022 20:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594463;
-        bh=nXZeYBp97SFK8kYhMdUs3YHMALM+8suLMoNuom0wygM=;
+        s=korg; t=1660594466;
+        bh=QmY7IY0N8v9tui8zXSS90JphJI9wW2dfzECDf4wggX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LETnqG12cz8MOZahEPVgqMc8+otiiKFkl83GRJ3fWfIOEDTLCfEI+EtCubt7/CgcR
-         lLvOSG7zqr33gmUpMD5fPm/eSUOG37R2Qy2nOEJRyTa9NT5S6tenfc3yrIm8q83syo
-         su3bKgvw91wwGC+OUjwO2UYJ45cz/pvV5S+kOe/0=
+        b=197K9dbeoyv9AANhg0X23O2aZG8SG5wcrcr3C8NHlbmCtG94P1/6Zo/vKPwjtWSqs
+         lKB6l8eHNYXPvo//wLfY7fn+L5rgCqE39JHf37KuJYPlyacR13s+VkWthl/0U3qG7N
+         VQTKlZ/rRlsvt4nBEmLR5hj63+EbL+V3/jlDv34g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0456/1157] drm/msm/dpu: Fix for non-visible planes
-Date:   Mon, 15 Aug 2022 19:56:52 +0200
-Message-Id: <20220815180457.836986086@linuxfoundation.org>
+Subject: [PATCH 5.19 0457/1157] media: atomisp: revert "dont pass a pointer to a local variable"
+Date:   Mon, 15 Aug 2022 19:56:53 +0200
+Message-Id: <20220815180457.875359702@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,49 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit cb77085b1f0a86ef9dfba86b5f3ed6c3340c2ea3 ]
+[ Upstream commit a3b36a8ce3d0c277fe243fa1be6bd3f606ed130f ]
 
-Fixes `kms_cursor_crc --run-subtest cursor-offscreen`.. when the cursor
-moves offscreen the plane becomes non-visible, so we need to skip over
-it in crtc atomic test and mixer setup.
+The gcc is warning about returning a pointer to a local variable
+is a false positive.
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/492819/
-Link: https://lore.kernel.org/r/20220707212003.1710163-1-robdclark@gmail.com
+The type of handle is "struct ia_css_rmgr_vbuf_handle **" and
+"h.vptr" is left to NULL, so the "if ((*handle)->vptr == 0x0)"
+check always succeeds when the "*handle = &h;" statement which
+gcc warns about executes. Leading to this statement being executed:
+
+	rmgr_pop_handle(pool, handle);
+
+If that succeeds,  then *handle has been set to point to one of
+the pre-allocated array of handles, so it no longer points to h.
+
+If that fails the following statement will be executed:
+
+	/* Note that handle will change to an internally maintained one */
+	ia_css_rmgr_refcount_retain_vbuf(handle);
+
+Which allocated a new handle from the array of pre-allocated handles
+and then makes *handle point to this. So the address of h is actually
+never returned.
+
+The fix for the false-postive compiler warning actually breaks the code,
+the new:
+
+	**handle = h;
+
+is part of a "if (pool->copy_on_write) { ... }" which means that the
+handle where *handle points to should be treated read-only, IOW
+**handle must never be set, instead *handle must be set to point to
+a new handle (with a copy of the contents of the old handle).
+
+The old code correctly did this and the new fixed code gets this wrong.
+
+Note there is another patch in this series, which fixes the warning
+in another way.
+
+Link: https://lore.kernel.org/linux-media/20220612160556.108264-2-hdegoede@redhat.com
+Fixes: fa1451374ebf ("media: atomisp: don't pass a pointer to a local variable")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../staging/media/atomisp/pci/runtime/rmgr/src/rmgr_vbuf.c    | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-index b56f777dbd0e..4c5c1f627cb8 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-@@ -361,6 +361,9 @@ static void _dpu_crtc_blend_setup_mixer(struct drm_crtc *crtc,
- 		if (!state)
- 			continue;
+diff --git a/drivers/staging/media/atomisp/pci/runtime/rmgr/src/rmgr_vbuf.c b/drivers/staging/media/atomisp/pci/runtime/rmgr/src/rmgr_vbuf.c
+index 39604752785b..d96aaa4bc75d 100644
+--- a/drivers/staging/media/atomisp/pci/runtime/rmgr/src/rmgr_vbuf.c
++++ b/drivers/staging/media/atomisp/pci/runtime/rmgr/src/rmgr_vbuf.c
+@@ -254,7 +254,7 @@ void rmgr_pop_handle(struct ia_css_rmgr_vbuf_pool *pool,
+ void ia_css_rmgr_acq_vbuf(struct ia_css_rmgr_vbuf_pool *pool,
+ 			  struct ia_css_rmgr_vbuf_handle **handle)
+ {
+-	struct ia_css_rmgr_vbuf_handle h = { 0 };
++	struct ia_css_rmgr_vbuf_handle h;
  
-+		if (!state->visible)
-+			continue;
-+
- 		pstate = to_dpu_plane_state(state);
- 		fb = state->fb;
- 
-@@ -1134,6 +1137,9 @@ static int dpu_crtc_atomic_check(struct drm_crtc *crtc,
- 		if (cnt >= DPU_STAGE_MAX * 4)
- 			continue;
- 
-+		if (!pstate->visible)
-+			continue;
-+
- 		pstates[cnt].dpu_pstate = dpu_pstate;
- 		pstates[cnt].drm_pstate = pstate;
- 		pstates[cnt].stage = pstate->normalized_zpos;
+ 	if ((!pool) || (!handle) || (!*handle)) {
+ 		IA_CSS_LOG("Invalid inputs");
+@@ -272,7 +272,7 @@ void ia_css_rmgr_acq_vbuf(struct ia_css_rmgr_vbuf_pool *pool,
+ 			h.size = (*handle)->size;
+ 			/* release ref to current buffer */
+ 			ia_css_rmgr_refcount_release_vbuf(handle);
+-			**handle = h;
++			*handle = &h;
+ 		}
+ 		/* get new buffer for needed size */
+ 		if ((*handle)->vptr == 0x0) {
 -- 
 2.35.1
 
