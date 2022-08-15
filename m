@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D37A594285
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8135D594280
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346365AbiHOVvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:51:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43914 "EHLO
+        id S232743AbiHOVvu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:51:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350218AbiHOVuw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:50:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF530DEB57;
-        Mon, 15 Aug 2022 12:32:21 -0700 (PDT)
+        with ESMTP id S1350348AbiHOVvC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:51:02 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65959104B24;
+        Mon, 15 Aug 2022 12:32:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76B89B81126;
-        Mon, 15 Aug 2022 19:32:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC52AC433C1;
-        Mon, 15 Aug 2022 19:32:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 463EECE12DB;
+        Mon, 15 Aug 2022 19:32:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7D3EC433C1;
+        Mon, 15 Aug 2022 19:32:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591939;
-        bh=Sl8pAt6Q0dhidSZAmwSvNFkkV5IgZon/SaDP+uWCIr0=;
+        s=korg; t=1660591945;
+        bh=exXlSyE6+QPcILp+nxmGivamKTdZ39q0PQQr8Zupu9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JF4CRkpFMQRi/6zirq/w9cGhy/l40AIDNwNerQsxoCInHzvBVfgOnJTvSJZcLTSRZ
-         5EUzPaZA6D0GuXhGhgU5L1eNBHMQ0PajVIcu94ALiqMD+XRujtJMpY38nLGDbMJE0n
-         TKjUAa56W9uxo3EaH0SqlLGYe80WlErgFaC7fwDM=
+        b=cFZWbY3+/XlNxBUkgyiEpFi3kJuYnh59rhShxtM6vOgqmOL4U8YnAHcFvQ+DbDRe7
+         vPCZ4UbIyPC33UOs73GFWvZcgBOytnB/1HoWa8MObWS38KXolRrCBNj/c8QeLx1yKi
+         kc4DuXasggjHduFAX5VPxb5I+KrIRgTs+YiAMVww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Robert Marko <robimarko@gmail.com>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0707/1095] clk: qcom: ipq8074: SW workaround for UBI32 PLL lock
-Date:   Mon, 15 Aug 2022 20:01:46 +0200
-Message-Id: <20220815180458.639328837@linuxfoundation.org>
+Subject: [PATCH 5.18 0708/1095] clk: qcom: ipq8074: fix NSS port frequency tables
+Date:   Mon, 15 Aug 2022 20:01:47 +0200
+Message-Id: <20220815180458.671139666@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,40 +56,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Robert Marko <robimarko@gmail.com>
 
-[ Upstream commit 3401ea2856ef84f39b75f0dc5ebcaeda81cb90ec ]
+[ Upstream commit 0e9e61a2815b5cd34f1b495b2d72e8127ce9b794 ]
 
-UBI32 Huayra PLL fails to lock in 5 us in some SoC silicon and thus it
-will cause the wait_for_pll() to timeout and thus return the error
-indicating that the PLL failed to lock.
+NSS port 5 and 6 frequency tables are currently broken and are causing a
+wide ranges of issue like 1G not working at all on port 6 or port 5 being
+clocked with 312 instead of 125 MHz as UNIPHY1 gets selected.
 
-This is bug in Huayra PLL HW for which SW workaround
-is to set bit 26 of TEST_CTL register.
+So, update the frequency tables with the ones from the downstream QCA 5.4
+based kernel which has already fixed this.
 
-This is ported from the QCA 5.4 based downstream kernel.
-
-Fixes: b8e7e519625f ("clk: qcom: ipq8074: add remaining PLL’s")
+Fixes: 7117a51ed303 ("clk: qcom: ipq8074: add NSS ethernet port clocks")
 Signed-off-by: Robert Marko <robimarko@gmail.com>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220515210048.483898-2-robimarko@gmail.com
+Link: https://lore.kernel.org/r/20220515210048.483898-3-robimarko@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-ipq8074.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/clk/qcom/gcc-ipq8074.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/drivers/clk/qcom/gcc-ipq8074.c b/drivers/clk/qcom/gcc-ipq8074.c
-index 1a5141da7e23..b4291ba53c78 100644
+index b4291ba53c78..f1017f2e61bd 100644
 --- a/drivers/clk/qcom/gcc-ipq8074.c
 +++ b/drivers/clk/qcom/gcc-ipq8074.c
-@@ -4805,6 +4805,9 @@ static int gcc_ipq8074_probe(struct platform_device *pdev)
- 	if (IS_ERR(regmap))
- 		return PTR_ERR(regmap);
+@@ -1788,8 +1788,10 @@ static struct clk_regmap_div nss_port4_tx_div_clk_src = {
+ static const struct freq_tbl ftbl_nss_port5_rx_clk_src[] = {
+ 	F(19200000, P_XO, 1, 0, 0),
+ 	F(25000000, P_UNIPHY1_RX, 12.5, 0, 0),
++	F(25000000, P_UNIPHY0_RX, 5, 0, 0),
+ 	F(78125000, P_UNIPHY1_RX, 4, 0, 0),
+ 	F(125000000, P_UNIPHY1_RX, 2.5, 0, 0),
++	F(125000000, P_UNIPHY0_RX, 1, 0, 0),
+ 	F(156250000, P_UNIPHY1_RX, 2, 0, 0),
+ 	F(312500000, P_UNIPHY1_RX, 1, 0, 0),
+ 	{ }
+@@ -1828,8 +1830,10 @@ static struct clk_regmap_div nss_port5_rx_div_clk_src = {
+ static const struct freq_tbl ftbl_nss_port5_tx_clk_src[] = {
+ 	F(19200000, P_XO, 1, 0, 0),
+ 	F(25000000, P_UNIPHY1_TX, 12.5, 0, 0),
++	F(25000000, P_UNIPHY0_TX, 5, 0, 0),
+ 	F(78125000, P_UNIPHY1_TX, 4, 0, 0),
+ 	F(125000000, P_UNIPHY1_TX, 2.5, 0, 0),
++	F(125000000, P_UNIPHY0_TX, 1, 0, 0),
+ 	F(156250000, P_UNIPHY1_TX, 2, 0, 0),
+ 	F(312500000, P_UNIPHY1_TX, 1, 0, 0),
+ 	{ }
+@@ -1867,8 +1871,10 @@ static struct clk_regmap_div nss_port5_tx_div_clk_src = {
  
-+	/* SW Workaround for UBI32 Huayra PLL */
-+	regmap_update_bits(regmap, 0x2501c, BIT(26), BIT(26));
-+
- 	clk_alpha_pll_configure(&ubi32_pll_main, regmap, &ubi32_pll_config);
- 	clk_alpha_pll_configure(&nss_crypto_pll_main, regmap,
- 				&nss_crypto_pll_config);
+ static const struct freq_tbl ftbl_nss_port6_rx_clk_src[] = {
+ 	F(19200000, P_XO, 1, 0, 0),
++	F(25000000, P_UNIPHY2_RX, 5, 0, 0),
+ 	F(25000000, P_UNIPHY2_RX, 12.5, 0, 0),
+ 	F(78125000, P_UNIPHY2_RX, 4, 0, 0),
++	F(125000000, P_UNIPHY2_RX, 1, 0, 0),
+ 	F(125000000, P_UNIPHY2_RX, 2.5, 0, 0),
+ 	F(156250000, P_UNIPHY2_RX, 2, 0, 0),
+ 	F(312500000, P_UNIPHY2_RX, 1, 0, 0),
+@@ -1907,8 +1913,10 @@ static struct clk_regmap_div nss_port6_rx_div_clk_src = {
+ 
+ static const struct freq_tbl ftbl_nss_port6_tx_clk_src[] = {
+ 	F(19200000, P_XO, 1, 0, 0),
++	F(25000000, P_UNIPHY2_TX, 5, 0, 0),
+ 	F(25000000, P_UNIPHY2_TX, 12.5, 0, 0),
+ 	F(78125000, P_UNIPHY2_TX, 4, 0, 0),
++	F(125000000, P_UNIPHY2_TX, 1, 0, 0),
+ 	F(125000000, P_UNIPHY2_TX, 2.5, 0, 0),
+ 	F(156250000, P_UNIPHY2_TX, 2, 0, 0),
+ 	F(312500000, P_UNIPHY2_TX, 1, 0, 0),
 -- 
 2.35.1
 
