@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 911FB594720
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28AA3594595
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355540AbiHOX4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:56:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57382 "EHLO
+        id S1345211AbiHOWAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:00:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356586AbiHOXyo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:54:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E297F162C65;
-        Mon, 15 Aug 2022 13:19:48 -0700 (PDT)
+        with ESMTP id S1347213AbiHOV73 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:59:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11A5910DCE9;
+        Mon, 15 Aug 2022 12:35:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56442B81136;
-        Mon, 15 Aug 2022 20:19:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CA9DC433D6;
-        Mon, 15 Aug 2022 20:19:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29B1561184;
+        Mon, 15 Aug 2022 19:34:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C7FCC433C1;
+        Mon, 15 Aug 2022 19:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594787;
-        bh=YxnjGagAXKYwl9x1vFjIhlV6RfgjGjLrQnuVa5abR54=;
+        s=korg; t=1660592081;
+        bh=bOmIgRM4vNz3Df9Jf/OuuxejBYT6qZkU/b0bYL8I7/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TWg1J/eirIa7cOvqgNWs0YczZBopDwGiK3u9wDB7WczbzVRoVGH1hxRDXD5f2KnPe
-         0IgZtC2X8V54OyWkxETTKSoqJZv4yr6CNKT+f7RJVJgMUDxO4fvJ2DixUb367NW+iW
-         7RrH+zXDlo4m5MNEpozA0eMe24CH3aXzhhdSrGjg=
+        b=tmJ/Hn0Y7VPD1ZxOrbMhfJDQjYmWXa5IoMSUPbZmoOi/ZmjSVRVzyNhvQ+J3dwQAj
+         5oOXTHPMoZVADEZLI4KIlo9f5QnR7Cxo/Dkie/Ir4JBdhZ8Z5Vgq3My7CWsUVbv/Tm
+         Kfjh70JGEUCbYmCKvU1OU/cU5c8P3NJ4uyIpyJ3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kai Ye <yekai13@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0559/1157] crypto: hisilicon/sec - fix auth key size error
-Date:   Mon, 15 Aug 2022 19:58:35 +0200
-Message-Id: <20220815180501.978638099@linuxfoundation.org>
+Subject: [PATCH 5.18 0692/1095] mtd: dataflash: Add SPI ID table
+Date:   Mon, 15 Aug 2022 20:01:31 +0200
+Message-Id: <20220815180458.001073972@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Ye <yekai13@huawei.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 45f5d0176d8426cc1ab0bab84fbd8ef5c57526c6 ]
+[ Upstream commit ac4f83482afbfd927d0fe118151b747cf175e724 ]
 
-The authentication algorithm supports a maximum of 128-byte keys.
-The allocated key memory is insufficient.
+Currently autoloading for SPI devices does not use the DT ID table, it uses
+SPI modalises. Supporting OF modalises is going to be difficult if not
+impractical, an attempt was made but has been reverted, so ensure that
+module autoloading works for this driver by adding an id_table listing the
+SPI IDs for everything.
 
-Fixes: 2f072d75d1ab ("crypto: hisilicon - Add aead support on SEC2")
-Signed-off-by: Kai Ye <yekai13@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 96c8395e2166 ("spi: Revert modalias changes")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220620152313.708768-1-broonie@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/sec2/sec_crypto.c | 6 +++---
- drivers/crypto/hisilicon/sec2/sec_crypto.h | 1 +
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/mtd/devices/mtd_dataflash.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/crypto/hisilicon/sec2/sec_crypto.c b/drivers/crypto/hisilicon/sec2/sec_crypto.c
-index 71dfa7db6394..77c9f13cf69a 100644
---- a/drivers/crypto/hisilicon/sec2/sec_crypto.c
-+++ b/drivers/crypto/hisilicon/sec2/sec_crypto.c
-@@ -620,7 +620,7 @@ static int sec_auth_init(struct sec_ctx *ctx)
- {
- 	struct sec_auth_ctx *a_ctx = &ctx->a_ctx;
+diff --git a/drivers/mtd/devices/mtd_dataflash.c b/drivers/mtd/devices/mtd_dataflash.c
+index 134e27328597..25bad4318305 100644
+--- a/drivers/mtd/devices/mtd_dataflash.c
++++ b/drivers/mtd/devices/mtd_dataflash.c
+@@ -112,6 +112,13 @@ static const struct of_device_id dataflash_dt_ids[] = {
+ MODULE_DEVICE_TABLE(of, dataflash_dt_ids);
+ #endif
  
--	a_ctx->a_key = dma_alloc_coherent(ctx->dev, SEC_MAX_KEY_SIZE,
-+	a_ctx->a_key = dma_alloc_coherent(ctx->dev, SEC_MAX_AKEY_SIZE,
- 					  &a_ctx->a_key_dma, GFP_KERNEL);
- 	if (!a_ctx->a_key)
- 		return -ENOMEM;
-@@ -632,8 +632,8 @@ static void sec_auth_uninit(struct sec_ctx *ctx)
- {
- 	struct sec_auth_ctx *a_ctx = &ctx->a_ctx;
++static const struct spi_device_id dataflash_spi_ids[] = {
++	{ .name = "at45", },
++	{ .name = "dataflash", },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(spi, dataflash_spi_ids);
++
+ /* ......................................................................... */
  
--	memzero_explicit(a_ctx->a_key, SEC_MAX_KEY_SIZE);
--	dma_free_coherent(ctx->dev, SEC_MAX_KEY_SIZE,
-+	memzero_explicit(a_ctx->a_key, SEC_MAX_AKEY_SIZE);
-+	dma_free_coherent(ctx->dev, SEC_MAX_AKEY_SIZE,
- 			  a_ctx->a_key, a_ctx->a_key_dma);
- }
+ /*
+@@ -936,6 +943,7 @@ static struct spi_driver dataflash_driver = {
  
-diff --git a/drivers/crypto/hisilicon/sec2/sec_crypto.h b/drivers/crypto/hisilicon/sec2/sec_crypto.h
-index 5e039b50e9d4..d033f63b583f 100644
---- a/drivers/crypto/hisilicon/sec2/sec_crypto.h
-+++ b/drivers/crypto/hisilicon/sec2/sec_crypto.h
-@@ -7,6 +7,7 @@
- #define SEC_AIV_SIZE		12
- #define SEC_IV_SIZE		24
- #define SEC_MAX_KEY_SIZE	64
-+#define SEC_MAX_AKEY_SIZE	128
- #define SEC_COMM_SCENE		0
- #define SEC_MIN_BLOCK_SZ	1
+ 	.probe		= dataflash_probe,
+ 	.remove		= dataflash_remove,
++	.id_table	= dataflash_spi_ids,
  
+ 	/* FIXME:  investigate suspend and resume... */
+ };
 -- 
 2.35.1
 
