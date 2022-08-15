@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6E1E593D66
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5595B593D3F
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239779AbiHOUNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:13:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33092 "EHLO
+        id S241207AbiHOUOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:14:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347025AbiHOUMr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:12:47 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BFF289CF9;
-        Mon, 15 Aug 2022 11:58:49 -0700 (PDT)
+        with ESMTP id S1347039AbiHOUMs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:12:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE50E8A6DD;
+        Mon, 15 Aug 2022 11:58:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D3496CE129D;
-        Mon, 15 Aug 2022 18:58:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCBB5C433D6;
-        Mon, 15 Aug 2022 18:58:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57934B8109E;
+        Mon, 15 Aug 2022 18:58:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1272C433D7;
+        Mon, 15 Aug 2022 18:58:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589926;
-        bh=/Uxe+l8gUs8wUOcFTLTxxqtvEkCdZRTt4cEZRSDrAr0=;
+        s=korg; t=1660589929;
+        bh=72iw2wQ65KIGB4P3ShPzgBQnjxHwzejp/XEhvwJNXXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZNhRrlm/FGMvlu6q1x775FKszWoxF7LcAAdXCnwLdCIuwQQL6LzNhpkP+YIyk0JJk
-         fEwONfJPDZ2Gl7w2VIS5o25gSs41SNBEls7fR0cEbmNirv3FwGlL0Mq/lmejeJdryU
-         s4a1yu3eE3q2ceJiHxeiaMHkd3aRBcSdrdNlTSvE=
+        b=a1XA/N6LgXn6nIa85f6a/k9Eztrr+RU0Tn4xxUv51wSgzk4NLdYa30J2CfJ1EA7DC
+         4BueSnOY6XVrZ6/WmkyiwogTBiu4zISeb5S0ANTElkwzIieS+39t5ALZmsXUu93m6p
+         QPfu4EiQwZuRqv9q7VoS9HvBzK4i1k63KubHKSck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fawzi Khaber <fawzi.khaber@tdk.com>,
-        Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.18 0092/1095] iio: fix iio_format_avail_range() printing for none IIO_VAL_INT
-Date:   Mon, 15 Aug 2022 19:51:31 +0200
-Message-Id: <20220815180433.342708066@linuxfoundation.org>
+Subject: [PATCH 5.18 0093/1095] iio: light: isl29028: Fix the warning in isl29028_remove()
+Date:   Mon, 15 Aug 2022 19:51:32 +0200
+Message-Id: <20220815180433.391445328@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,54 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fawzi Khaber <fawzi.khaber@tdk.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit 5e1f91850365de55ca74945866c002fda8f00331 upstream.
+commit 06674fc7c003b9d0aa1d37fef7ab2c24802cc6ad upstream.
 
-iio_format_avail_range() should print range as follow [min, step, max], so
-the function was previously calling iio_format_list() with length = 3,
-length variable refers to the array size of values not the number of
-elements. In case of non IIO_VAL_INT values each element has integer part
-and decimal part. With length = 3 this would cause premature end of loop
-and result in printing only one element.
+The driver use the non-managed form of the register function in
+isl29028_remove(). To keep the release order as mirroring the ordering
+in probe, the driver should use non-managed form in probe, too.
 
-Signed-off-by: Fawzi Khaber <fawzi.khaber@tdk.com>
-Signed-off-by: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
-Fixes: eda20ba1e25e ("iio: core: Consolidate iio_format_avail_{list,range}()")
-Link: https://lore.kernel.org/r/20220718130706.32571-1-jmaneyrol@invensense.com
+The following log reveals it:
+
+[   32.374955] isl29028 0-0010: remove
+[   32.376861] general protection fault, probably for non-canonical address 0xdffffc0000000006: 0000 [#1] PREEMPT SMP KASAN PTI
+[   32.377676] KASAN: null-ptr-deref in range [0x0000000000000030-0x0000000000000037]
+[   32.379432] RIP: 0010:kernfs_find_and_get_ns+0x28/0xe0
+[   32.385461] Call Trace:
+[   32.385807]  sysfs_unmerge_group+0x59/0x110
+[   32.386110]  dpm_sysfs_remove+0x58/0xc0
+[   32.386391]  device_del+0x296/0xe50
+[   32.386959]  cdev_device_del+0x1d/0xd0
+[   32.387231]  devm_iio_device_unreg+0x27/0xb0
+[   32.387542]  devres_release_group+0x319/0x3d0
+[   32.388162]  i2c_device_remove+0x93/0x1f0
+
+Fixes: 2db5054ac28d ("staging: iio: isl29028: add runtime power management support")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220717004241.2281028-1-zheyuma97@gmail.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/industrialio-core.c |   18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/iio/light/isl29028.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/industrialio-core.c
-+++ b/drivers/iio/industrialio-core.c
-@@ -821,7 +821,23 @@ static ssize_t iio_format_avail_list(cha
+--- a/drivers/iio/light/isl29028.c
++++ b/drivers/iio/light/isl29028.c
+@@ -625,7 +625,7 @@ static int isl29028_probe(struct i2c_cli
+ 					 ISL29028_POWER_OFF_DELAY_MS);
+ 	pm_runtime_use_autosuspend(&client->dev);
  
- static ssize_t iio_format_avail_range(char *buf, const int *vals, int type)
- {
--	return iio_format_list(buf, vals, type, 3, "[", "]");
-+	int length;
-+
-+	/*
-+	 * length refers to the array size , not the number of elements.
-+	 * The purpose is to print the range [min , step ,max] so length should
-+	 * be 3 in case of int, and 6 for other types.
-+	 */
-+	switch (type) {
-+	case IIO_VAL_INT:
-+		length = 3;
-+		break;
-+	default:
-+		length = 6;
-+		break;
-+	}
-+
-+	return iio_format_list(buf, vals, type, length, "[", "]");
- }
- 
- static ssize_t iio_read_channel_info_avail(struct device *dev,
+-	ret = devm_iio_device_register(indio_dev->dev.parent, indio_dev);
++	ret = iio_device_register(indio_dev);
+ 	if (ret < 0) {
+ 		dev_err(&client->dev,
+ 			"%s(): iio registration failed with error %d\n",
 
 
