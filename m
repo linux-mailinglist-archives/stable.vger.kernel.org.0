@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 758C35946B5
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDBE15946DA
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:04:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352578AbiHOXAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:00:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50268 "EHLO
+        id S1346384AbiHOXC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:02:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352512AbiHOW6f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:58:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E401474E0;
-        Mon, 15 Aug 2022 12:56:52 -0700 (PDT)
+        with ESMTP id S1352954AbiHOXBl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:01:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C728913E9B6;
+        Mon, 15 Aug 2022 12:57:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F800B80EAB;
-        Mon, 15 Aug 2022 19:56:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55B02C433D6;
-        Mon, 15 Aug 2022 19:56:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C96E8612A3;
+        Mon, 15 Aug 2022 19:57:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72A7DC433D6;
+        Mon, 15 Aug 2022 19:57:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593409;
-        bh=Jl6YcRGxZmnFIQ7S0vKwAI423njHCiOFiSTN7qLkT9A=;
+        s=korg; t=1660593478;
+        bh=fd2NqLhV7jAcFydZ9fuYH0BYRdt2hT/O1lKLkQvdzK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eO5dRmm3PrY26leKDntummwSKQsNDY2F47jqEkZIYf7Pz6D+dmmtfhfb0Eqy49a6J
-         1uTnHf/WsoiGOdTtYfMsFXCNf5zl4Hfv8dxPwfsTNztnVpKxU3J/inljMjFD2a+odo
-         f/83e0NxQwLXyU44zQeL4MfASJnhkNmhJa+aOVSY=
+        b=amTZUmqmYZWrRtLl0rwNwtfpE+qqsijDq0tJxpnlrTRGfB0IK8HkmEkzzYmcsMqLe
+         c3jBQoNgk3KQMNfA0qazw32ykeje1VCu330Ss6RSXs2vhjodMqX6Ts6c8Rdq+Ufmj6
+         ZTd2b+N3ERK29HPB7kSRS4kqINq8TS5/+aRkOPjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0924/1095] s390/smp: enforce lowcore protection on CPU restart
-Date:   Mon, 15 Aug 2022 20:05:23 +0200
-Message-Id: <20220815180507.484901030@linuxfoundation.org>
+Subject: [PATCH 5.18 0925/1095] perf stat: Revert "perf stat: Add default hybrid events"
+Date:   Mon, 15 Aug 2022 20:05:24 +0200
+Message-Id: <20220815180507.516164896@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,39 +61,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 6f5c672d17f583b081e283927f5040f726c54598 ]
+[ Upstream commit ace3e31e653e79cae9b047e85f567e6b44c98532 ]
 
-As result of commit 915fea04f932 ("s390/smp: enable DAT before
-CPU restart callback is called") the low-address protection bit
-gets mistakenly unset in control register 0 save area of the
-absolute zero memory. That area is used when manual PSW restart
-happened to hit an offline CPU. In this case the low-address
-protection for that CPU will be dropped.
+This reverts commit Fixes: ac2dc29edd21f9ec ("perf stat: Add default
+hybrid events")
 
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Fixes: 915fea04f932 ("s390/smp: enable DAT before CPU restart callback is called")
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Between this patch and the reverted patch, the commit 6c1912898ed21bef
+("perf parse-events: Rename parse_events_error functions") and the
+commit 07eafd4e053a41d7 ("perf parse-event: Add init and exit to
+parse_event_error") clean up the parse_events_error_*() codes. The
+related change is also reverted.
+
+The reverted patch is hard to be extended to support new default events,
+e.g., Topdown events, and the existing "--detailed" option on a hybrid
+platform.
+
+A new solution will be proposed in the following patch to enable the
+perf stat default on a hybrid platform.
+
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220721065706.2886112-2-zhengjun.xing@linux.intel.com
+Signed-off-by: Xing Zhengjun <zhengjun.xing@linux.intel.com>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/setup.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/builtin-stat.c | 30 ------------------------------
+ 1 file changed, 30 deletions(-)
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 2cef49983e9e..3327412f82a6 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -508,8 +508,8 @@ static void __init setup_lowcore_dat_on(void)
- 	S390_lowcore.svc_new_psw.mask |= PSW_MASK_DAT;
- 	S390_lowcore.program_new_psw.mask |= PSW_MASK_DAT;
- 	S390_lowcore.io_new_psw.mask |= PSW_MASK_DAT;
--	__ctl_store(S390_lowcore.cregs_save_area, 0, 15);
- 	__ctl_set_bit(0, 28);
-+	__ctl_store(S390_lowcore.cregs_save_area, 0, 15);
- 	put_abs_lowcore(restart_flags, RESTART_FLAG_CTLREGS);
- 	put_abs_lowcore(program_new_psw, lc->program_new_psw);
- 	for (cr = 0; cr < ARRAY_SIZE(lc->cregs_save_area); cr++)
+diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
+index f058e8cddfa8..e15fd6f9f7ea 100644
+--- a/tools/perf/builtin-stat.c
++++ b/tools/perf/builtin-stat.c
+@@ -1663,12 +1663,6 @@ static int add_default_attributes(void)
+   { .type = PERF_TYPE_HARDWARE, .config = PERF_COUNT_HW_BRANCH_INSTRUCTIONS	},
+   { .type = PERF_TYPE_HARDWARE, .config = PERF_COUNT_HW_BRANCH_MISSES		},
+ 
+-};
+-	struct perf_event_attr default_sw_attrs[] = {
+-  { .type = PERF_TYPE_SOFTWARE, .config = PERF_COUNT_SW_TASK_CLOCK		},
+-  { .type = PERF_TYPE_SOFTWARE, .config = PERF_COUNT_SW_CONTEXT_SWITCHES	},
+-  { .type = PERF_TYPE_SOFTWARE, .config = PERF_COUNT_SW_CPU_MIGRATIONS		},
+-  { .type = PERF_TYPE_SOFTWARE, .config = PERF_COUNT_SW_PAGE_FAULTS		},
+ };
+ 
+ /*
+@@ -1910,30 +1904,6 @@ static int add_default_attributes(void)
+ 	}
+ 
+ 	if (!evsel_list->core.nr_entries) {
+-		if (perf_pmu__has_hybrid()) {
+-			struct parse_events_error errinfo;
+-			const char *hybrid_str = "cycles,instructions,branches,branch-misses";
+-
+-			if (target__has_cpu(&target))
+-				default_sw_attrs[0].config = PERF_COUNT_SW_CPU_CLOCK;
+-
+-			if (evlist__add_default_attrs(evsel_list,
+-						      default_sw_attrs) < 0) {
+-				return -1;
+-			}
+-
+-			parse_events_error__init(&errinfo);
+-			err = parse_events(evsel_list, hybrid_str, &errinfo);
+-			if (err) {
+-				fprintf(stderr,
+-					"Cannot set up hybrid events %s: %d\n",
+-					hybrid_str, err);
+-				parse_events_error__print(&errinfo, hybrid_str);
+-			}
+-			parse_events_error__exit(&errinfo);
+-			return err ? -1 : 0;
+-		}
+-
+ 		if (target__has_cpu(&target))
+ 			default_attrs0[0].config = PERF_COUNT_SW_CPU_CLOCK;
+ 
 -- 
 2.35.1
 
