@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 130AA594D53
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BD905949C2
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:15:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243248AbiHPArs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:47:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56680 "EHLO
+        id S232967AbiHOXOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:14:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347730AbiHPAqG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:46:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1D1ED807E;
-        Mon, 15 Aug 2022 13:44:29 -0700 (PDT)
+        with ESMTP id S245556AbiHOXNl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:13:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3359779EF8;
+        Mon, 15 Aug 2022 13:01:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E43660F60;
-        Mon, 15 Aug 2022 20:44:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED82FC433C1;
-        Mon, 15 Aug 2022 20:44:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC9B3B80EB1;
+        Mon, 15 Aug 2022 20:01:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34A66C433D6;
+        Mon, 15 Aug 2022 20:01:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596268;
-        bh=gbikcW3/ovAVUSnTG+Col6Z41vxGjzqNOJlepU2FnPk=;
+        s=korg; t=1660593665;
+        bh=DpIsB85cAaX72M1feI13jcsxfwUbFB17TZwzeEvMRtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UuqMCvXvMgFi/HEeuCj7Sje6JSE1RoIjmyrIu2ZU04Wb65mKUZFiZDvFZ5710q4hE
-         m6Uscj9Yq87ocyMhHbqhM6t8XkfxNwOFyNbkU6L4PxYSNy5/qni/ggmXIccAhazPYO
-         Rttq8e6l8B9QBlr1ztbhS6XK97zyJeIlZyeqdB/E=
+        b=LmSoWZPbP6Fp7TN4Y5OfdZieLZhiPhqdS0h/CMZhOOk5BAO9i3PR8lst4fC09rK1S
+         nVO9hRHLht3eb5Xv7MiyPuffwf9zYIWiajJIXvAKqi5ICufMszUlUN4vV3t5tSmzhR
+         fEr+t4upj+RllfagoA7dG51kcL46DYIgqABr+hQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianchen Ding <dtcccc@linux.alibaba.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <vschneid@redhat.com>,
+        stable@vger.kernel.org,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1026/1157] sched: Remove the limitation of WF_ON_CPU on wakelist if wakee cpu is idle
-Date:   Mon, 15 Aug 2022 20:06:22 +0200
-Message-Id: <20220815180520.980184811@linuxfoundation.org>
+Subject: [PATCH 5.18 0984/1095] drm/vc4: drv: Adopt the dma configuration from the HVS or V3D component
+Date:   Mon, 15 Aug 2022 20:06:23 +0200
+Message-Id: <20220815180509.832340319@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,233 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianchen Ding <dtcccc@linux.alibaba.com>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit f3dd3f674555bd9455c5ae7fafce0696bd9931b3 ]
+[ Upstream commit da8e393e23efb60eba8959856c7df88f9859f6eb ]
 
-Wakelist can help avoid cache bouncing and offload the overhead of waker
-cpu. So far, using wakelist within the same llc only happens on
-WF_ON_CPU, and this limitation could be removed to further improve
-wakeup performance.
+vc4_drv isn't necessarily under the /soc node in DT as it is a
+virtual device, but it is the one that does the allocations.
+The DMA addresses are consumed by primarily the HVS or V3D, and
+those require VideoCore cache alias address mapping, and so will be
+under /soc.
 
-The commit 518cd6234178 ("sched: Only queue remote wakeups when
-crossing cache boundaries") disabled queuing tasks on wakelist when
-the cpus share llc. This is because, at that time, the scheduler must
-send IPIs to do ttwu_queue_wakelist. Nowadays, ttwu_queue_wakelist also
-supports TIF_POLLING, so this is not a problem now when the wakee cpu is
-in idle polling.
+During probe find the a suitable device node for HVS or V3D,
+and adopt the DMA configuration of that node.
 
-Benefits:
-  Queuing the task on idle cpu can help improving performance on waker cpu
-  and utilization on wakee cpu, and further improve locality because
-  the wakee cpu can handle its own rq. This patch helps improving rt on
-  our real java workloads where wakeup happens frequently.
-
-  Consider the normal condition (CPU0 and CPU1 share same llc)
-  Before this patch:
-
-         CPU0                                       CPU1
-
-    select_task_rq()                                idle
-    rq_lock(CPU1->rq)
-    enqueue_task(CPU1->rq)
-    notify CPU1 (by sending IPI or CPU1 polling)
-
-                                                    resched()
-
-  After this patch:
-
-         CPU0                                       CPU1
-
-    select_task_rq()                                idle
-    add to wakelist of CPU1
-    notify CPU1 (by sending IPI or CPU1 polling)
-
-                                                    rq_lock(CPU1->rq)
-                                                    enqueue_task(CPU1->rq)
-                                                    resched()
-
-  We see CPU0 can finish its work earlier. It only needs to put task to
-  wakelist and return.
-  While CPU1 is idle, so let itself handle its own runqueue data.
-
-This patch brings no difference about IPI.
-  This patch only takes effect when the wakee cpu is:
-  1) idle polling
-  2) idle not polling
-
-  For 1), there will be no IPI with or without this patch.
-
-  For 2), there will always be an IPI before or after this patch.
-  Before this patch: waker cpu will enqueue task and check preempt. Since
-  "idle" will be sure to be preempted, waker cpu must send a resched IPI.
-  After this patch: waker cpu will put the task to the wakelist of wakee
-  cpu, and send an IPI.
-
-Benchmark:
-We've tested schbench, unixbench, and hachbench on both x86 and arm64.
-
-On x86 (Intel Xeon Platinum 8269CY):
-  schbench -m 2 -t 8
-
-    Latency percentiles (usec)              before        after
-        50.0000th:                             8            6
-        75.0000th:                            10            7
-        90.0000th:                            11            8
-        95.0000th:                            12            8
-        *99.0000th:                           13           10
-        99.5000th:                            15           11
-        99.9000th:                            18           14
-
-  Unixbench with full threads (104)
-                                            before        after
-    Dhrystone 2 using register variables  3011862938    3009935994  -0.06%
-    Double-Precision Whetstone              617119.3      617298.5   0.03%
-    Execl Throughput                         27667.3       27627.3  -0.14%
-    File Copy 1024 bufsize 2000 maxblocks   785871.4      784906.2  -0.12%
-    File Copy 256 bufsize 500 maxblocks     210113.6      212635.4   1.20%
-    File Copy 4096 bufsize 8000 maxblocks  2328862.2     2320529.1  -0.36%
-    Pipe Throughput                      145535622.8   145323033.2  -0.15%
-    Pipe-based Context Switching           3221686.4     3583975.4  11.25%
-    Process Creation                        101347.1      103345.4   1.97%
-    Shell Scripts (1 concurrent)            120193.5      123977.8   3.15%
-    Shell Scripts (8 concurrent)             17233.4       17138.4  -0.55%
-    System Call Overhead                   5300604.8     5312213.6   0.22%
-
-  hackbench -g 1 -l 100000
-                                            before        after
-    Time                                     3.246        2.251
-
-On arm64 (Ampere Altra):
-  schbench -m 2 -t 8
-
-    Latency percentiles (usec)              before        after
-        50.0000th:                            14           10
-        75.0000th:                            19           14
-        90.0000th:                            22           16
-        95.0000th:                            23           16
-        *99.0000th:                           24           17
-        99.5000th:                            24           17
-        99.9000th:                            28           25
-
-  Unixbench with full threads (80)
-                                            before        after
-    Dhrystone 2 using register variables  3536194249    3537019613   0.02%
-    Double-Precision Whetstone              629383.6      629431.6   0.01%
-    Execl Throughput                         65920.5       65846.2  -0.11%
-    File Copy 1024 bufsize 2000 maxblocks  1063722.8     1064026.8   0.03%
-    File Copy 256 bufsize 500 maxblocks     322684.5      318724.5  -1.23%
-    File Copy 4096 bufsize 8000 maxblocks  2348285.3     2328804.8  -0.83%
-    Pipe Throughput                      133542875.3   131619389.8  -1.44%
-    Pipe-based Context Switching           3215356.1     3576945.1  11.25%
-    Process Creation                        108520.5      120184.6  10.75%
-    Shell Scripts (1 concurrent)            122636.3        121888  -0.61%
-    Shell Scripts (8 concurrent)             17462.1       17381.4  -0.46%
-    System Call Overhead                   4429998.9     4435006.7   0.11%
-
-  hackbench -g 1 -l 100000
-                                            before        after
-    Time                                     4.217        2.916
-
-Our patch has improvement on schbench, hackbench
-and Pipe-based Context Switching of unixbench
-when there exists idle cpus,
-and no obvious regression on other tests of unixbench.
-This can help improve rt in scenes where wakeup happens frequently.
-
-Signed-off-by: Tianchen Ding <dtcccc@linux.alibaba.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <vschneid@redhat.com>
-Link: https://lore.kernel.org/r/20220608233412.327341-3-dtcccc@linux.alibaba.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Link: https://lore.kernel.org/r/20220613144800.326124-2-maxime@cerno.tech
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c  | 26 ++++++++++++++------------
- kernel/sched/sched.h |  1 -
- 2 files changed, 14 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/vc4/vc4_drv.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 6f1e3eef9346..0066b9d66e25 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -3808,7 +3808,7 @@ bool cpus_share_cache(int this_cpu, int that_cpu)
- 	return per_cpu(sd_llc_id, this_cpu) == per_cpu(sd_llc_id, that_cpu);
+diff --git a/drivers/gpu/drm/vc4/vc4_drv.c b/drivers/gpu/drm/vc4/vc4_drv.c
+index 162bc18e7497..14a7d529144d 100644
+--- a/drivers/gpu/drm/vc4/vc4_drv.c
++++ b/drivers/gpu/drm/vc4/vc4_drv.c
+@@ -209,6 +209,15 @@ static void vc4_match_add_drivers(struct device *dev,
+ 	}
  }
  
--static inline bool ttwu_queue_cond(int cpu, int wake_flags)
-+static inline bool ttwu_queue_cond(int cpu)
- {
- 	/*
- 	 * Do not complicate things with the async wake_list while the CPU is
-@@ -3824,17 +3824,21 @@ static inline bool ttwu_queue_cond(int cpu, int wake_flags)
- 	if (!cpus_share_cache(smp_processor_id(), cpu))
- 		return true;
- 
-+	if (cpu == smp_processor_id())
-+		return false;
++const struct of_device_id vc4_dma_range_matches[] = {
++	{ .compatible = "brcm,bcm2711-hvs" },
++	{ .compatible = "brcm,bcm2835-hvs" },
++	{ .compatible = "brcm,bcm2835-v3d" },
++	{ .compatible = "brcm,cygnus-v3d" },
++	{ .compatible = "brcm,vc4-v3d" },
++	{}
++};
 +
- 	/*
--	 * If the task is descheduling and the only running task on the
--	 * CPU then use the wakelist to offload the task activation to
--	 * the soon-to-be-idle CPU as the current CPU is likely busy.
--	 * nr_running is checked to avoid unnecessary task stacking.
-+	 * If the wakee cpu is idle, or the task is descheduling and the
-+	 * only running task on the CPU, then use the wakelist to offload
-+	 * the task activation to the idle (or soon-to-be-idle) CPU as
-+	 * the current CPU is likely busy. nr_running is checked to
-+	 * avoid unnecessary task stacking.
- 	 *
- 	 * Note that we can only get here with (wakee) p->on_rq=0,
- 	 * p->on_cpu can be whatever, we've done the dequeue, so
- 	 * the wakee has been accounted out of ->nr_running.
- 	 */
--	if ((wake_flags & WF_ON_CPU) && !cpu_rq(cpu)->nr_running)
-+	if (!cpu_rq(cpu)->nr_running)
- 		return true;
- 
- 	return false;
-@@ -3842,10 +3846,7 @@ static inline bool ttwu_queue_cond(int cpu, int wake_flags)
- 
- static bool ttwu_queue_wakelist(struct task_struct *p, int cpu, int wake_flags)
+ static int vc4_drm_bind(struct device *dev)
  {
--	if (sched_feat(TTWU_QUEUE) && ttwu_queue_cond(cpu, wake_flags)) {
--		if (WARN_ON_ONCE(cpu == smp_processor_id()))
--			return false;
--
-+	if (sched_feat(TTWU_QUEUE) && ttwu_queue_cond(cpu)) {
- 		sched_clock_cpu(cpu); /* Sync clocks across CPUs */
- 		__ttwu_queue_wakelist(p, cpu, wake_flags);
- 		return true;
-@@ -4167,7 +4168,7 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
- 	 * scheduling.
- 	 */
- 	if (smp_load_acquire(&p->on_cpu) &&
--	    ttwu_queue_wakelist(p, task_cpu(p), wake_flags | WF_ON_CPU))
-+	    ttwu_queue_wakelist(p, task_cpu(p), wake_flags))
- 		goto unlock;
+ 	struct platform_device *pdev = to_platform_device(dev);
+@@ -227,6 +236,16 @@ static int vc4_drm_bind(struct device *dev)
+ 		vc4_drm_driver.driver_features &= ~DRIVER_RENDER;
+ 	of_node_put(node);
  
- 	/*
-@@ -4757,7 +4758,8 @@ static inline void prepare_task(struct task_struct *next)
- 	 * Claim the task as running, we do this before switching to it
- 	 * such that any running task will have this set.
- 	 *
--	 * See the ttwu() WF_ON_CPU case and its ordering comment.
-+	 * See the smp_load_acquire(&p->on_cpu) case in ttwu() and
-+	 * its ordering comment.
- 	 */
- 	WRITE_ONCE(next->on_cpu, 1);
- #endif
-diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index 47b89a0fc6e5..7b19a72408b1 100644
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -2044,7 +2044,6 @@ static inline int task_on_rq_migrating(struct task_struct *p)
- 
- #define WF_SYNC     0x10 /* Waker goes to sleep after wakeup */
- #define WF_MIGRATED 0x20 /* Internal use, task got migrated */
--#define WF_ON_CPU   0x40 /* Wakee is on_cpu */
- 
- #ifdef CONFIG_SMP
- static_assert(WF_EXEC == SD_BALANCE_EXEC);
++	node = of_find_matching_node_and_match(NULL, vc4_dma_range_matches,
++					       NULL);
++	if (node) {
++		ret = of_dma_configure(dev, node, true);
++		of_node_put(node);
++
++		if (ret)
++			return ret;
++	}
++
+ 	vc4 = devm_drm_dev_alloc(dev, &vc4_drm_driver, struct vc4_dev, base);
+ 	if (IS_ERR(vc4))
+ 		return PTR_ERR(vc4);
 -- 
 2.35.1
 
