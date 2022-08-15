@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EF9E59492D
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA8CB594DC4
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243583AbiHOX2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:28:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38662 "EHLO
+        id S242589AbiHPAxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:53:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245481AbiHOXZt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:25:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA8DBA168;
-        Mon, 15 Aug 2022 13:06:05 -0700 (PDT)
+        with ESMTP id S1347674AbiHPAvw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:51:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96009DA3F3;
+        Mon, 15 Aug 2022 13:47:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4F3FB81135;
-        Mon, 15 Aug 2022 20:06:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A2CAC433D6;
-        Mon, 15 Aug 2022 20:06:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B734B60F60;
+        Mon, 15 Aug 2022 20:47:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4976C433D6;
+        Mon, 15 Aug 2022 20:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593962;
-        bh=1XOe91fxNjGIb2u9g3lgu/kzddDaw0ZvQ1Xl6XRc3yk=;
+        s=korg; t=1660596440;
+        bh=AXxqXUKNIERoCew8Y87JYI1nbz3dGpMZarK68vSCs0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=evaDNqB9QF9C/jNwSjmm/FNDqg3wMpTnZwbnSXTvfERcQHx2E0uDQwCqTww+CbvWu
-         BV5KBhriCOD26Dvp81jfrcON9T6JwCgHfAkguHNkatvZTathJqSHJ55nIUwCllxmje
-         KZBm6RLVfbLrMGNJDyF/YLQxIK3lzz69F9fNi1ig=
+        b=PsbZyJuPzwufhfY81tRvCHpBt+0oSgNFsdH69FOkSgkOfs2YGzdRJuqShLhUSaZnq
+         w7QfTwJsfgHGrbq7FqZufBPyoyeK/0dWv440xFWHs3XSA6gsgjQFwGFs7G5JiEjfDo
+         mID/WDhjlutGlaDf3viTcroZ4NiDE7TwjCXhgK8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Sachin Sant <sachinp@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1035/1095] powerpc/powernv/kvm: Use darn for H_RANDOM on Power9
-Date:   Mon, 15 Aug 2022 20:07:14 +0200
-Message-Id: <20220815180511.894527899@linuxfoundation.org>
+Subject: [PATCH 5.19 1079/1157] btrfs: tree-log: make the return value for log syncing consistent
+Date:   Mon, 15 Aug 2022 20:07:15 +0200
+Message-Id: <20220815180523.311733735@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,143 +55,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 7ef3d06f1bc4a5e62273726f3dc2bd258ae1c71f ]
+[ Upstream commit f31f09f6be1c6c1a673e0566e258281a7bbaaa51 ]
 
-The existing logic in KVM to support guests calling H_RANDOM only works
-on Power8, because it looks for an RNG in the device tree, but on Power9
-we just use darn.
+Currently we will return 1 or -EAGAIN if we decide we need to commit
+the transaction rather than sync the log.  In practice this doesn't
+really matter, we interpret any !0 and !BTRFS_NO_LOG_SYNC as needing to
+commit the transaction.  However this makes it hard to figure out what
+the correct thing to do is.
 
-In addition the existing code needs to work in real mode, so we have the
-special cased powernv_get_random_real_mode() to deal with that.
+Fix this up by defining BTRFS_LOG_FORCE_COMMIT and using this in all the
+places where we want to force the transaction to be committed.
 
-Instead just have KVM call ppc_md.get_random_seed(), and do the real
-mode check inside of there, that way we use whatever RNG is available,
-including darn on Power9.
-
-Fixes: e928e9cb3601 ("KVM: PPC: Book3S HV: Add fast real-mode H_RANDOM implementation.")
-Cc: stable@vger.kernel.org # v4.1+
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Tested-by: Sachin Sant <sachinp@linux.ibm.com>
-[mpe: Rebase on previous commit, update change log appropriately]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220727143219.2684192-2-mpe@ellerman.id.au
+CC: stable@vger.kernel.org # 5.15+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/archrandom.h |  5 ----
- arch/powerpc/kvm/book3s_hv_builtin.c  |  7 +++---
- arch/powerpc/platforms/powernv/rng.c  | 36 ++++++---------------------
- 3 files changed, 12 insertions(+), 36 deletions(-)
+ fs/btrfs/file.c     |  2 +-
+ fs/btrfs/tree-log.c | 18 +++++++++---------
+ fs/btrfs/tree-log.h |  3 +++
+ 3 files changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
-index 9a53e29680f4..258174304904 100644
---- a/arch/powerpc/include/asm/archrandom.h
-+++ b/arch/powerpc/include/asm/archrandom.h
-@@ -38,12 +38,7 @@ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
- #endif /* CONFIG_ARCH_RANDOM */
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index 9dfde1af8a64..89c6d7ff1987 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -2308,7 +2308,7 @@ int btrfs_sync_file(struct file *file, loff_t start, loff_t end, int datasync)
+ 	btrfs_release_log_ctx_extents(&ctx);
+ 	if (ret < 0) {
+ 		/* Fallthrough and commit/free transaction. */
+-		ret = 1;
++		ret = BTRFS_LOG_FORCE_COMMIT;
+ 	}
  
- #ifdef CONFIG_PPC_POWERNV
--int powernv_hwrng_present(void);
- int powernv_get_random_long(unsigned long *v);
--int powernv_get_random_real_mode(unsigned long *v);
--#else
--static inline int powernv_hwrng_present(void) { return 0; }
--static inline int powernv_get_random_real_mode(unsigned long *v) { return 0; }
- #endif
+ 	/* we've logged all the items and now have a consistent
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 370388fadf96..c94713c811bb 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -171,7 +171,7 @@ static int start_log_trans(struct btrfs_trans_handle *trans,
+ 		int index = (root->log_transid + 1) % 2;
  
- #endif /* _ASM_POWERPC_ARCHRANDOM_H */
-diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
-index 7e52d0beee77..5e4251b76e75 100644
---- a/arch/powerpc/kvm/book3s_hv_builtin.c
-+++ b/arch/powerpc/kvm/book3s_hv_builtin.c
-@@ -19,7 +19,7 @@
- #include <asm/interrupt.h>
- #include <asm/kvm_ppc.h>
- #include <asm/kvm_book3s.h>
--#include <asm/archrandom.h>
-+#include <asm/machdep.h>
- #include <asm/xics.h>
- #include <asm/xive.h>
- #include <asm/dbell.h>
-@@ -176,13 +176,14 @@ EXPORT_SYMBOL_GPL(kvmppc_hcall_impl_hv_realmode);
+ 		if (btrfs_need_log_full_commit(trans)) {
+-			ret = -EAGAIN;
++			ret = BTRFS_LOG_FORCE_COMMIT;
+ 			goto out;
+ 		}
  
- int kvmppc_hwrng_present(void)
- {
--	return powernv_hwrng_present();
-+	return ppc_md.get_random_seed != NULL;
- }
- EXPORT_SYMBOL_GPL(kvmppc_hwrng_present);
+@@ -194,7 +194,7 @@ static int start_log_trans(struct btrfs_trans_handle *trans,
+ 		 * writing.
+ 		 */
+ 		if (zoned && !created) {
+-			ret = -EAGAIN;
++			ret = BTRFS_LOG_FORCE_COMMIT;
+ 			goto out;
+ 		}
  
- long kvmppc_rm_h_random(struct kvm_vcpu *vcpu)
- {
--	if (powernv_get_random_real_mode(&vcpu->arch.regs.gpr[4]))
-+	if (ppc_md.get_random_seed &&
-+	    ppc_md.get_random_seed(&vcpu->arch.regs.gpr[4]))
- 		return H_SUCCESS;
+@@ -3121,7 +3121,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans,
  
- 	return H_HARDWARE;
-diff --git a/arch/powerpc/platforms/powernv/rng.c b/arch/powerpc/platforms/powernv/rng.c
-index 2287c9cd0cd5..d19305292e1e 100644
---- a/arch/powerpc/platforms/powernv/rng.c
-+++ b/arch/powerpc/platforms/powernv/rng.c
-@@ -29,15 +29,6 @@ struct powernv_rng {
+ 	/* bail out if we need to do a full commit */
+ 	if (btrfs_need_log_full_commit(trans)) {
+-		ret = -EAGAIN;
++		ret = BTRFS_LOG_FORCE_COMMIT;
+ 		mutex_unlock(&root->log_mutex);
+ 		goto out;
+ 	}
+@@ -3222,7 +3222,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans,
+ 		}
+ 		btrfs_wait_tree_log_extents(log, mark);
+ 		mutex_unlock(&log_root_tree->log_mutex);
+-		ret = -EAGAIN;
++		ret = BTRFS_LOG_FORCE_COMMIT;
+ 		goto out;
+ 	}
  
- static DEFINE_PER_CPU(struct powernv_rng *, powernv_rng);
+@@ -3261,7 +3261,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans,
+ 		blk_finish_plug(&plug);
+ 		btrfs_wait_tree_log_extents(log, mark);
+ 		mutex_unlock(&log_root_tree->log_mutex);
+-		ret = -EAGAIN;
++		ret = BTRFS_LOG_FORCE_COMMIT;
+ 		goto out_wake_log_root;
+ 	}
  
--int powernv_hwrng_present(void)
--{
--	struct powernv_rng *rng;
--
--	rng = get_cpu_var(powernv_rng);
--	put_cpu_var(rng);
--	return rng != NULL;
--}
--
- static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
- {
- 	unsigned long parity;
-@@ -58,19 +49,6 @@ static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
- 	return val;
- }
+@@ -5848,7 +5848,7 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
+ 	    inode_only == LOG_INODE_ALL &&
+ 	    inode->last_unlink_trans >= trans->transid) {
+ 		btrfs_set_log_full_commit(trans);
+-		ret = 1;
++		ret = BTRFS_LOG_FORCE_COMMIT;
+ 		goto out_unlock;
+ 	}
  
--int powernv_get_random_real_mode(unsigned long *v)
--{
--	struct powernv_rng *rng;
--
--	rng = raw_cpu_read(powernv_rng);
--	if (!rng)
--		return 0;
--
--	*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
--
--	return 1;
--}
--
- static int powernv_get_random_darn(unsigned long *v)
- {
- 	unsigned long val;
-@@ -107,12 +85,14 @@ int powernv_get_random_long(unsigned long *v)
- {
- 	struct powernv_rng *rng;
+@@ -6562,12 +6562,12 @@ static int btrfs_log_inode_parent(struct btrfs_trans_handle *trans,
+ 	bool log_dentries = false;
  
--	rng = get_cpu_var(powernv_rng);
--
--	*v = rng_whiten(rng, in_be64(rng->regs));
--
--	put_cpu_var(rng);
--
-+	if (mfmsr() & MSR_DR) {
-+		rng = get_cpu_var(powernv_rng);
-+		*v = rng_whiten(rng, in_be64(rng->regs));
-+		put_cpu_var(rng);
-+	} else {
-+		rng = raw_cpu_read(powernv_rng);
-+		*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
-+	}
- 	return 1;
- }
- EXPORT_SYMBOL_GPL(powernv_get_random_long);
+ 	if (btrfs_test_opt(fs_info, NOTREELOG)) {
+-		ret = 1;
++		ret = BTRFS_LOG_FORCE_COMMIT;
+ 		goto end_no_trans;
+ 	}
+ 
+ 	if (btrfs_root_refs(&root->root_item) == 0) {
+-		ret = 1;
++		ret = BTRFS_LOG_FORCE_COMMIT;
+ 		goto end_no_trans;
+ 	}
+ 
+@@ -6665,7 +6665,7 @@ static int btrfs_log_inode_parent(struct btrfs_trans_handle *trans,
+ end_trans:
+ 	if (ret < 0) {
+ 		btrfs_set_log_full_commit(trans);
+-		ret = 1;
++		ret = BTRFS_LOG_FORCE_COMMIT;
+ 	}
+ 
+ 	if (ret)
+diff --git a/fs/btrfs/tree-log.h b/fs/btrfs/tree-log.h
+index 1620f8170629..57ab5f3b8dc7 100644
+--- a/fs/btrfs/tree-log.h
++++ b/fs/btrfs/tree-log.h
+@@ -12,6 +12,9 @@
+ /* return value for btrfs_log_dentry_safe that means we don't need to log it at all */
+ #define BTRFS_NO_LOG_SYNC 256
+ 
++/* We can't use the tree log for whatever reason, force a transaction commit */
++#define BTRFS_LOG_FORCE_COMMIT				(1)
++
+ struct btrfs_log_ctx {
+ 	int log_ret;
+ 	int log_transid;
 -- 
 2.35.1
 
