@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E9D35940E7
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFDB75941EE
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231486AbiHOVKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:10:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46072 "EHLO
+        id S231506AbiHOVJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:09:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347995AbiHOVHy (ORCPT
+        with ESMTP id S1347994AbiHOVHy (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:07:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 727572DA93;
-        Mon, 15 Aug 2022 12:17:27 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45BA62E681;
+        Mon, 15 Aug 2022 12:17:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0210160EF0;
-        Mon, 15 Aug 2022 19:17:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2C2DC433C1;
-        Mon, 15 Aug 2022 19:17:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6D916009B;
+        Mon, 15 Aug 2022 19:17:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFF7CC433D6;
+        Mon, 15 Aug 2022 19:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591046;
-        bh=IG97x3kT7IDBVNhEo+u6d/Usu23pv+nco+K29YmFSjc=;
+        s=korg; t=1660591049;
+        bh=fNf3lYZ3JXkcpaPS13aW1IHh+HAR/gsUqnLFHXNzqIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LY/uIzg3gYeRFHMvjv1Os7Bu7BgKOlevCTNl1gCKXnfWGIKm/O56qq35oijbU65h3
-         C4aHjtxIM3nKuyBZ/ki76Y3oHjSASff3NcuXbjyefRuO6lFY/Hn/eRZS1d2dqkTG6a
-         NU7rdmHEoZMkZe7a/IuFTEuz1naB+/dLh6fgWn7g=
+        b=dsYmP9qZ30Y+vXmrFaa0rijYfoDFkIwMrykdWafwixhu77pjjMh6zOCcYtswR7vX7
+         zmoxpW1FlWCrX6qKw5/bBQzgIu+Tr493ZiHtoQ88CIfHm4THAt4ycd6MlV1CTbAv9c
+         wNrX1qNMUsDizOYiL8ti3vzB5lkyg8N3Kb90Z8Kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kui-Feng Lee <kuifeng@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Tony Ambardar <Tony.Ambardar@gmail.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0454/1095] bpf, x86: Generate trampolines from bpf_tramp_links
-Date:   Mon, 15 Aug 2022 19:57:33 +0200
-Message-Id: <20220815180448.404598919@linuxfoundation.org>
+Subject: [PATCH 5.18 0455/1095] bpf, x64: Add predicate for bpf2bpf with tailcalls support in JIT
+Date:   Mon, 15 Aug 2022 19:57:34 +0200
+Message-Id: <20220815180448.447796708@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,787 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kui-Feng Lee <kuifeng@fb.com>
+From: Tony Ambardar <tony.ambardar@gmail.com>
 
-[ Upstream commit f7e0beaf39d3868dc700d4954b26cf8443c5d423 ]
+[ Upstream commit 95acd8817e66d031d2e6ee7def3f1e1874819317 ]
 
-Replace struct bpf_tramp_progs with struct bpf_tramp_links to collect
-struct bpf_tramp_link(s) for a trampoline.  struct bpf_tramp_link
-extends bpf_link to act as a linked list node.
+The BPF core/verifier is hard-coded to permit mixing bpf2bpf and tail
+calls for only x86-64. Change the logic to instead rely on a new weak
+function 'bool bpf_jit_supports_subprog_tailcalls(void)', which a capable
+JIT backend can override.
 
-arch_prepare_bpf_trampoline() accepts a struct bpf_tramp_links to
-collects all bpf_tramp_link(s) that a trampoline should call.
+Update the x86-64 eBPF JIT to reflect this.
 
-Change BPF trampoline and bpf_struct_ops to pass bpf_tramp_links
-instead of bpf_tramp_progs.
-
-Signed-off-by: Kui-Feng Lee <kuifeng@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220510205923.3206889-2-kuifeng@fb.com
+Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
+[jakub: drop MIPS bits and tweak patch subject]
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220617105735.733938-2-jakub@cloudflare.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/net/bpf_jit_comp.c    | 36 +++++++++--------
- include/linux/bpf.h            | 36 +++++++++++------
- include/linux/bpf_types.h      |  1 +
- include/uapi/linux/bpf.h       |  1 +
- kernel/bpf/bpf_struct_ops.c    | 71 +++++++++++++++++++++++----------
- kernel/bpf/syscall.c           | 23 ++++-------
- kernel/bpf/trampoline.c        | 73 +++++++++++++++++++---------------
- net/bpf/bpf_dummy_struct_ops.c | 24 ++++++++---
- tools/bpf/bpftool/link.c       |  1 +
- tools/include/uapi/linux/bpf.h |  1 +
- 10 files changed, 164 insertions(+), 103 deletions(-)
+ arch/x86/net/bpf_jit_comp.c | 6 ++++++
+ include/linux/filter.h      | 1 +
+ kernel/bpf/core.c           | 6 ++++++
+ kernel/bpf/verifier.c       | 3 ++-
+ 4 files changed, 15 insertions(+), 1 deletion(-)
 
 diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index 2dab2816b3f7..9ec96d5a8239 100644
+index 9ec96d5a8239..124456bb23b9 100644
 --- a/arch/x86/net/bpf_jit_comp.c
 +++ b/arch/x86/net/bpf_jit_comp.c
-@@ -1777,10 +1777,12 @@ static void restore_regs(const struct btf_func_model *m, u8 **prog, int nr_args,
- }
- 
- static int invoke_bpf_prog(const struct btf_func_model *m, u8 **pprog,
--			   struct bpf_prog *p, int stack_size, bool save_ret)
-+			   struct bpf_tramp_link *l, int stack_size,
-+			   bool save_ret)
- {
- 	u8 *prog = *pprog;
- 	u8 *jmp_insn;
-+	struct bpf_prog *p = l->link.prog;
- 
- 	/* arg1: mov rdi, progs[i] */
- 	emit_mov_imm64(&prog, BPF_REG_1, (long) p >> 32, (u32) (long) p);
-@@ -1865,14 +1867,14 @@ static int emit_cond_near_jump(u8 **pprog, void *func, void *ip, u8 jmp_cond)
- }
- 
- static int invoke_bpf(const struct btf_func_model *m, u8 **pprog,
--		      struct bpf_tramp_progs *tp, int stack_size,
-+		      struct bpf_tramp_links *tl, int stack_size,
- 		      bool save_ret)
- {
- 	int i;
- 	u8 *prog = *pprog;
- 
--	for (i = 0; i < tp->nr_progs; i++) {
--		if (invoke_bpf_prog(m, &prog, tp->progs[i], stack_size,
-+	for (i = 0; i < tl->nr_links; i++) {
-+		if (invoke_bpf_prog(m, &prog, tl->links[i], stack_size,
- 				    save_ret))
- 			return -EINVAL;
- 	}
-@@ -1881,7 +1883,7 @@ static int invoke_bpf(const struct btf_func_model *m, u8 **pprog,
- }
- 
- static int invoke_bpf_mod_ret(const struct btf_func_model *m, u8 **pprog,
--			      struct bpf_tramp_progs *tp, int stack_size,
-+			      struct bpf_tramp_links *tl, int stack_size,
- 			      u8 **branches)
- {
- 	u8 *prog = *pprog;
-@@ -1892,8 +1894,8 @@ static int invoke_bpf_mod_ret(const struct btf_func_model *m, u8 **pprog,
- 	 */
- 	emit_mov_imm32(&prog, false, BPF_REG_0, 0);
- 	emit_stx(&prog, BPF_DW, BPF_REG_FP, BPF_REG_0, -8);
--	for (i = 0; i < tp->nr_progs; i++) {
--		if (invoke_bpf_prog(m, &prog, tp->progs[i], stack_size, true))
-+	for (i = 0; i < tl->nr_links; i++) {
-+		if (invoke_bpf_prog(m, &prog, tl->links[i], stack_size, true))
- 			return -EINVAL;
- 
- 		/* mod_ret prog stored return value into [rbp - 8]. Emit:
-@@ -1995,14 +1997,14 @@ static bool is_valid_bpf_tramp_flags(unsigned int flags)
-  */
- int arch_prepare_bpf_trampoline(struct bpf_tramp_image *im, void *image, void *image_end,
- 				const struct btf_func_model *m, u32 flags,
--				struct bpf_tramp_progs *tprogs,
-+				struct bpf_tramp_links *tlinks,
- 				void *orig_call)
- {
- 	int ret, i, nr_args = m->nr_args;
- 	int regs_off, ip_off, args_off, stack_size = nr_args * 8;
--	struct bpf_tramp_progs *fentry = &tprogs[BPF_TRAMP_FENTRY];
--	struct bpf_tramp_progs *fexit = &tprogs[BPF_TRAMP_FEXIT];
--	struct bpf_tramp_progs *fmod_ret = &tprogs[BPF_TRAMP_MODIFY_RETURN];
-+	struct bpf_tramp_links *fentry = &tlinks[BPF_TRAMP_FENTRY];
-+	struct bpf_tramp_links *fexit = &tlinks[BPF_TRAMP_FEXIT];
-+	struct bpf_tramp_links *fmod_ret = &tlinks[BPF_TRAMP_MODIFY_RETURN];
- 	u8 **branches = NULL;
- 	u8 *prog;
- 	bool save_ret;
-@@ -2093,13 +2095,13 @@ int arch_prepare_bpf_trampoline(struct bpf_tramp_image *im, void *image, void *i
- 		}
- 	}
- 
--	if (fentry->nr_progs)
-+	if (fentry->nr_links)
- 		if (invoke_bpf(m, &prog, fentry, regs_off,
- 			       flags & BPF_TRAMP_F_RET_FENTRY_RET))
- 			return -EINVAL;
- 
--	if (fmod_ret->nr_progs) {
--		branches = kcalloc(fmod_ret->nr_progs, sizeof(u8 *),
-+	if (fmod_ret->nr_links) {
-+		branches = kcalloc(fmod_ret->nr_links, sizeof(u8 *),
- 				   GFP_KERNEL);
- 		if (!branches)
- 			return -ENOMEM;
-@@ -2126,7 +2128,7 @@ int arch_prepare_bpf_trampoline(struct bpf_tramp_image *im, void *image, void *i
- 		prog += X86_PATCH_SIZE;
- 	}
- 
--	if (fmod_ret->nr_progs) {
-+	if (fmod_ret->nr_links) {
- 		/* From Intel 64 and IA-32 Architectures Optimization
- 		 * Reference Manual, 3.4.1.4 Code Alignment, Assembly/Compiler
- 		 * Coding Rule 11: All branch targets should be 16-byte
-@@ -2136,12 +2138,12 @@ int arch_prepare_bpf_trampoline(struct bpf_tramp_image *im, void *image, void *i
- 		/* Update the branches saved in invoke_bpf_mod_ret with the
- 		 * aligned address of do_fexit.
- 		 */
--		for (i = 0; i < fmod_ret->nr_progs; i++)
-+		for (i = 0; i < fmod_ret->nr_links; i++)
- 			emit_cond_near_jump(&branches[i], prog, branches[i],
- 					    X86_JNE);
- 	}
- 
--	if (fexit->nr_progs)
-+	if (fexit->nr_links)
- 		if (invoke_bpf(m, &prog, fexit, regs_off, false)) {
- 			ret = -EINVAL;
- 			goto cleanup;
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index 83bd5598ec4d..b5d19a6f7d24 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -674,11 +674,11 @@ struct btf_func_model {
- /* Each call __bpf_prog_enter + call bpf_func + call __bpf_prog_exit is ~50
-  * bytes on x86.
-  */
--#define BPF_MAX_TRAMP_PROGS 38
-+#define BPF_MAX_TRAMP_LINKS 38
- 
--struct bpf_tramp_progs {
--	struct bpf_prog *progs[BPF_MAX_TRAMP_PROGS];
--	int nr_progs;
-+struct bpf_tramp_links {
-+	struct bpf_tramp_link *links[BPF_MAX_TRAMP_LINKS];
-+	int nr_links;
- };
- 
- /* Different use cases for BPF trampoline:
-@@ -704,7 +704,7 @@ struct bpf_tramp_progs {
- struct bpf_tramp_image;
- int arch_prepare_bpf_trampoline(struct bpf_tramp_image *tr, void *image, void *image_end,
- 				const struct btf_func_model *m, u32 flags,
--				struct bpf_tramp_progs *tprogs,
-+				struct bpf_tramp_links *tlinks,
- 				void *orig_call);
- /* these two functions are called from generated trampoline */
- u64 notrace __bpf_prog_enter(struct bpf_prog *prog);
-@@ -803,9 +803,10 @@ static __always_inline __nocfi unsigned int bpf_dispatcher_nop_func(
- {
- 	return bpf_func(ctx, insnsi);
+@@ -2477,3 +2477,9 @@ void *bpf_arch_text_copy(void *dst, void *src, size_t len)
+ 		return ERR_PTR(-EINVAL);
+ 	return dst;
  }
 +
- #ifdef CONFIG_BPF_JIT
--int bpf_trampoline_link_prog(struct bpf_prog *prog, struct bpf_trampoline *tr);
--int bpf_trampoline_unlink_prog(struct bpf_prog *prog, struct bpf_trampoline *tr);
-+int bpf_trampoline_link_prog(struct bpf_tramp_link *link, struct bpf_trampoline *tr);
-+int bpf_trampoline_unlink_prog(struct bpf_tramp_link *link, struct bpf_trampoline *tr);
- struct bpf_trampoline *bpf_trampoline_get(u64 key,
- 					  struct bpf_attach_target_info *tgt_info);
- void bpf_trampoline_put(struct bpf_trampoline *tr);
-@@ -856,12 +857,12 @@ int bpf_jit_charge_modmem(u32 size);
- void bpf_jit_uncharge_modmem(u32 size);
- bool bpf_prog_has_trampoline(const struct bpf_prog *prog);
- #else
--static inline int bpf_trampoline_link_prog(struct bpf_prog *prog,
-+static inline int bpf_trampoline_link_prog(struct bpf_tramp_link *link,
- 					   struct bpf_trampoline *tr)
- {
- 	return -ENOTSUPP;
- }
--static inline int bpf_trampoline_unlink_prog(struct bpf_prog *prog,
-+static inline int bpf_trampoline_unlink_prog(struct bpf_tramp_link *link,
- 					     struct bpf_trampoline *tr)
- {
- 	return -ENOTSUPP;
-@@ -960,7 +961,6 @@ struct bpf_prog_aux {
- 	bool tail_call_reachable;
- 	bool xdp_has_frags;
- 	bool use_bpf_prog_pack;
--	struct hlist_node tramp_hlist;
- 	/* BTF_KIND_FUNC_PROTO for valid attach_btf_id */
- 	const struct btf_type *attach_func_proto;
- 	/* function name for valid attach_btf_id */
-@@ -1047,6 +1047,18 @@ struct bpf_link_ops {
- 			      struct bpf_link_info *info);
- };
- 
-+struct bpf_tramp_link {
-+	struct bpf_link link;
-+	struct hlist_node tramp_hlist;
-+};
-+
-+struct bpf_tracing_link {
-+	struct bpf_tramp_link link;
-+	enum bpf_attach_type attach_type;
-+	struct bpf_trampoline *trampoline;
-+	struct bpf_prog *tgt_prog;
-+};
-+
- struct bpf_link_primer {
- 	struct bpf_link *link;
- 	struct file *file;
-@@ -1084,8 +1096,8 @@ bool bpf_struct_ops_get(const void *kdata);
- void bpf_struct_ops_put(const void *kdata);
- int bpf_struct_ops_map_sys_lookup_elem(struct bpf_map *map, void *key,
- 				       void *value);
--int bpf_struct_ops_prepare_trampoline(struct bpf_tramp_progs *tprogs,
--				      struct bpf_prog *prog,
-+int bpf_struct_ops_prepare_trampoline(struct bpf_tramp_links *tlinks,
-+				      struct bpf_tramp_link *link,
- 				      const struct btf_func_model *model,
- 				      void *image, void *image_end);
- static inline bool bpf_try_module_get(const void *data, struct module *owner)
-diff --git a/include/linux/bpf_types.h b/include/linux/bpf_types.h
-index 3e24ad0c4b3c..2b9112b80171 100644
---- a/include/linux/bpf_types.h
-+++ b/include/linux/bpf_types.h
-@@ -141,3 +141,4 @@ BPF_LINK_TYPE(BPF_LINK_TYPE_XDP, xdp)
- BPF_LINK_TYPE(BPF_LINK_TYPE_PERF_EVENT, perf)
- #endif
- BPF_LINK_TYPE(BPF_LINK_TYPE_KPROBE_MULTI, kprobe_multi)
-+BPF_LINK_TYPE(BPF_LINK_TYPE_STRUCT_OPS, struct_ops)
-diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
-index d14b10b85e51..a4f557338af7 100644
---- a/include/uapi/linux/bpf.h
-+++ b/include/uapi/linux/bpf.h
-@@ -1013,6 +1013,7 @@ enum bpf_link_type {
- 	BPF_LINK_TYPE_XDP = 6,
- 	BPF_LINK_TYPE_PERF_EVENT = 7,
- 	BPF_LINK_TYPE_KPROBE_MULTI = 8,
-+	BPF_LINK_TYPE_STRUCT_OPS = 9,
- 
- 	MAX_BPF_LINK_TYPE,
- };
-diff --git a/kernel/bpf/bpf_struct_ops.c b/kernel/bpf/bpf_struct_ops.c
-index 21069dbe9138..310b0591d91f 100644
---- a/kernel/bpf/bpf_struct_ops.c
-+++ b/kernel/bpf/bpf_struct_ops.c
-@@ -32,15 +32,15 @@ struct bpf_struct_ops_map {
- 	const struct bpf_struct_ops *st_ops;
- 	/* protect map_update */
- 	struct mutex lock;
--	/* progs has all the bpf_prog that is populated
-+	/* link has all the bpf_links that is populated
- 	 * to the func ptr of the kernel's struct
- 	 * (in kvalue.data).
- 	 */
--	struct bpf_prog **progs;
-+	struct bpf_link **links;
- 	/* image is a page that has all the trampolines
- 	 * that stores the func args before calling the bpf_prog.
- 	 * A PAGE_SIZE "image" is enough to store all trampoline for
--	 * "progs[]".
-+	 * "links[]".
- 	 */
- 	void *image;
- 	/* uvalue->data stores the kernel struct
-@@ -282,9 +282,9 @@ static void bpf_struct_ops_map_put_progs(struct bpf_struct_ops_map *st_map)
- 	u32 i;
- 
- 	for (i = 0; i < btf_type_vlen(t); i++) {
--		if (st_map->progs[i]) {
--			bpf_prog_put(st_map->progs[i]);
--			st_map->progs[i] = NULL;
-+		if (st_map->links[i]) {
-+			bpf_link_put(st_map->links[i]);
-+			st_map->links[i] = NULL;
- 		}
- 	}
- }
-@@ -315,18 +315,34 @@ static int check_zero_holes(const struct btf_type *t, void *data)
- 	return 0;
- }
- 
--int bpf_struct_ops_prepare_trampoline(struct bpf_tramp_progs *tprogs,
--				      struct bpf_prog *prog,
-+static void bpf_struct_ops_link_release(struct bpf_link *link)
++/* Indicate the JIT backend supports mixing bpf2bpf and tailcalls. */
++bool bpf_jit_supports_subprog_tailcalls(void)
 +{
++	return true;
++}
+diff --git a/include/linux/filter.h b/include/linux/filter.h
+index ed0c0ff42ad5..d9a0db845b50 100644
+--- a/include/linux/filter.h
++++ b/include/linux/filter.h
+@@ -948,6 +948,7 @@ u64 __bpf_call_base(u64 r1, u64 r2, u64 r3, u64 r4, u64 r5);
+ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog);
+ void bpf_jit_compile(struct bpf_prog *prog);
+ bool bpf_jit_needs_zext(void);
++bool bpf_jit_supports_subprog_tailcalls(void);
+ bool bpf_jit_supports_kfunc_call(void);
+ bool bpf_helper_changes_pkt_data(void *func);
+ 
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index 3adff3831c04..7a1ce697689b 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -2712,6 +2712,12 @@ bool __weak bpf_jit_needs_zext(void)
+ 	return false;
+ }
+ 
++/* Return TRUE if the JIT backend supports mixing bpf2bpf and tailcalls. */
++bool __weak bpf_jit_supports_subprog_tailcalls(void)
++{
++	return false;
 +}
 +
-+static void bpf_struct_ops_link_dealloc(struct bpf_link *link)
-+{
-+	struct bpf_tramp_link *tlink = container_of(link, struct bpf_tramp_link, link);
-+
-+	kfree(tlink);
-+}
-+
-+const struct bpf_link_ops bpf_struct_ops_link_lops = {
-+	.release = bpf_struct_ops_link_release,
-+	.dealloc = bpf_struct_ops_link_dealloc,
-+};
-+
-+int bpf_struct_ops_prepare_trampoline(struct bpf_tramp_links *tlinks,
-+				      struct bpf_tramp_link *link,
- 				      const struct btf_func_model *model,
- 				      void *image, void *image_end)
+ bool __weak bpf_jit_supports_kfunc_call(void)
  {
- 	u32 flags;
+ 	return false;
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index d04147a5efa5..a6d3a8972355 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -5696,7 +5696,8 @@ static bool may_update_sockmap(struct bpf_verifier_env *env, int func_id)
  
--	tprogs[BPF_TRAMP_FENTRY].progs[0] = prog;
--	tprogs[BPF_TRAMP_FENTRY].nr_progs = 1;
-+	tlinks[BPF_TRAMP_FENTRY].links[0] = link;
-+	tlinks[BPF_TRAMP_FENTRY].nr_links = 1;
- 	flags = model->ret_size > 0 ? BPF_TRAMP_F_RET_FENTRY_RET : 0;
- 	return arch_prepare_bpf_trampoline(NULL, image, image_end,
--					   model, flags, tprogs, NULL);
-+					   model, flags, tlinks, NULL);
+ static bool allow_tail_call_in_subprogs(struct bpf_verifier_env *env)
+ {
+-	return env->prog->jit_requested && IS_ENABLED(CONFIG_X86_64);
++	return env->prog->jit_requested &&
++	       bpf_jit_supports_subprog_tailcalls();
  }
  
- static int bpf_struct_ops_map_update_elem(struct bpf_map *map, void *key,
-@@ -337,7 +353,7 @@ static int bpf_struct_ops_map_update_elem(struct bpf_map *map, void *key,
- 	struct bpf_struct_ops_value *uvalue, *kvalue;
- 	const struct btf_member *member;
- 	const struct btf_type *t = st_ops->type;
--	struct bpf_tramp_progs *tprogs = NULL;
-+	struct bpf_tramp_links *tlinks = NULL;
- 	void *udata, *kdata;
- 	int prog_fd, err = 0;
- 	void *image, *image_end;
-@@ -361,8 +377,8 @@ static int bpf_struct_ops_map_update_elem(struct bpf_map *map, void *key,
- 	if (uvalue->state || refcount_read(&uvalue->refcnt))
- 		return -EINVAL;
- 
--	tprogs = kcalloc(BPF_TRAMP_MAX, sizeof(*tprogs), GFP_KERNEL);
--	if (!tprogs)
-+	tlinks = kcalloc(BPF_TRAMP_MAX, sizeof(*tlinks), GFP_KERNEL);
-+	if (!tlinks)
- 		return -ENOMEM;
- 
- 	uvalue = (struct bpf_struct_ops_value *)st_map->uvalue;
-@@ -385,6 +401,7 @@ static int bpf_struct_ops_map_update_elem(struct bpf_map *map, void *key,
- 	for_each_member(i, t, member) {
- 		const struct btf_type *mtype, *ptype;
- 		struct bpf_prog *prog;
-+		struct bpf_tramp_link *link;
- 		u32 moff;
- 
- 		moff = __btf_member_bit_offset(t, member) / 8;
-@@ -438,16 +455,26 @@ static int bpf_struct_ops_map_update_elem(struct bpf_map *map, void *key,
- 			err = PTR_ERR(prog);
- 			goto reset_unlock;
- 		}
--		st_map->progs[i] = prog;
- 
- 		if (prog->type != BPF_PROG_TYPE_STRUCT_OPS ||
- 		    prog->aux->attach_btf_id != st_ops->type_id ||
- 		    prog->expected_attach_type != i) {
-+			bpf_prog_put(prog);
- 			err = -EINVAL;
- 			goto reset_unlock;
- 		}
- 
--		err = bpf_struct_ops_prepare_trampoline(tprogs, prog,
-+		link = kzalloc(sizeof(*link), GFP_USER);
-+		if (!link) {
-+			bpf_prog_put(prog);
-+			err = -ENOMEM;
-+			goto reset_unlock;
-+		}
-+		bpf_link_init(&link->link, BPF_LINK_TYPE_STRUCT_OPS,
-+			      &bpf_struct_ops_link_lops, prog);
-+		st_map->links[i] = &link->link;
-+
-+		err = bpf_struct_ops_prepare_trampoline(tlinks, link,
- 							&st_ops->func_models[i],
- 							image, image_end);
- 		if (err < 0)
-@@ -490,7 +517,7 @@ static int bpf_struct_ops_map_update_elem(struct bpf_map *map, void *key,
- 	memset(uvalue, 0, map->value_size);
- 	memset(kvalue, 0, map->value_size);
- unlock:
--	kfree(tprogs);
-+	kfree(tlinks);
- 	mutex_unlock(&st_map->lock);
- 	return err;
- }
-@@ -545,9 +572,9 @@ static void bpf_struct_ops_map_free(struct bpf_map *map)
- {
- 	struct bpf_struct_ops_map *st_map = (struct bpf_struct_ops_map *)map;
- 
--	if (st_map->progs)
-+	if (st_map->links)
- 		bpf_struct_ops_map_put_progs(st_map);
--	bpf_map_area_free(st_map->progs);
-+	bpf_map_area_free(st_map->links);
- 	bpf_jit_free_exec(st_map->image);
- 	bpf_map_area_free(st_map->uvalue);
- 	bpf_map_area_free(st_map);
-@@ -596,11 +623,11 @@ static struct bpf_map *bpf_struct_ops_map_alloc(union bpf_attr *attr)
- 	map = &st_map->map;
- 
- 	st_map->uvalue = bpf_map_area_alloc(vt->size, NUMA_NO_NODE);
--	st_map->progs =
--		bpf_map_area_alloc(btf_type_vlen(t) * sizeof(struct bpf_prog *),
-+	st_map->links =
-+		bpf_map_area_alloc(btf_type_vlen(t) * sizeof(struct bpf_links *),
- 				   NUMA_NO_NODE);
- 	st_map->image = bpf_jit_alloc_exec(PAGE_SIZE);
--	if (!st_map->uvalue || !st_map->progs || !st_map->image) {
-+	if (!st_map->uvalue || !st_map->links || !st_map->image) {
- 		bpf_struct_ops_map_free(map);
- 		return ERR_PTR(-ENOMEM);
- 	}
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index cdaa1152436a..3078c0c9317f 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -2640,19 +2640,12 @@ struct bpf_link *bpf_link_get_from_fd(u32 ufd)
- }
- EXPORT_SYMBOL(bpf_link_get_from_fd);
- 
--struct bpf_tracing_link {
--	struct bpf_link link;
--	enum bpf_attach_type attach_type;
--	struct bpf_trampoline *trampoline;
--	struct bpf_prog *tgt_prog;
--};
--
- static void bpf_tracing_link_release(struct bpf_link *link)
- {
- 	struct bpf_tracing_link *tr_link =
--		container_of(link, struct bpf_tracing_link, link);
-+		container_of(link, struct bpf_tracing_link, link.link);
- 
--	WARN_ON_ONCE(bpf_trampoline_unlink_prog(link->prog,
-+	WARN_ON_ONCE(bpf_trampoline_unlink_prog(&tr_link->link,
- 						tr_link->trampoline));
- 
- 	bpf_trampoline_put(tr_link->trampoline);
-@@ -2665,7 +2658,7 @@ static void bpf_tracing_link_release(struct bpf_link *link)
- static void bpf_tracing_link_dealloc(struct bpf_link *link)
- {
- 	struct bpf_tracing_link *tr_link =
--		container_of(link, struct bpf_tracing_link, link);
-+		container_of(link, struct bpf_tracing_link, link.link);
- 
- 	kfree(tr_link);
- }
-@@ -2674,7 +2667,7 @@ static void bpf_tracing_link_show_fdinfo(const struct bpf_link *link,
- 					 struct seq_file *seq)
- {
- 	struct bpf_tracing_link *tr_link =
--		container_of(link, struct bpf_tracing_link, link);
-+		container_of(link, struct bpf_tracing_link, link.link);
- 
- 	seq_printf(seq,
- 		   "attach_type:\t%d\n",
-@@ -2685,7 +2678,7 @@ static int bpf_tracing_link_fill_link_info(const struct bpf_link *link,
- 					   struct bpf_link_info *info)
- {
- 	struct bpf_tracing_link *tr_link =
--		container_of(link, struct bpf_tracing_link, link);
-+		container_of(link, struct bpf_tracing_link, link.link);
- 
- 	info->tracing.attach_type = tr_link->attach_type;
- 	bpf_trampoline_unpack_key(tr_link->trampoline->key,
-@@ -2766,7 +2759,7 @@ static int bpf_tracing_prog_attach(struct bpf_prog *prog,
- 		err = -ENOMEM;
- 		goto out_put_prog;
- 	}
--	bpf_link_init(&link->link, BPF_LINK_TYPE_TRACING,
-+	bpf_link_init(&link->link.link, BPF_LINK_TYPE_TRACING,
- 		      &bpf_tracing_link_lops, prog);
- 	link->attach_type = prog->expected_attach_type;
- 
-@@ -2836,11 +2829,11 @@ static int bpf_tracing_prog_attach(struct bpf_prog *prog,
- 		tgt_prog = prog->aux->dst_prog;
- 	}
- 
--	err = bpf_link_prime(&link->link, &link_primer);
-+	err = bpf_link_prime(&link->link.link, &link_primer);
- 	if (err)
- 		goto out_unlock;
- 
--	err = bpf_trampoline_link_prog(prog, tr);
-+	err = bpf_trampoline_link_prog(&link->link, tr);
- 	if (err) {
- 		bpf_link_cleanup(&link_primer);
- 		link = NULL;
-diff --git a/kernel/bpf/trampoline.c b/kernel/bpf/trampoline.c
-index 5d8bfb5ef239..e3bcad5a7c68 100644
---- a/kernel/bpf/trampoline.c
-+++ b/kernel/bpf/trampoline.c
-@@ -168,30 +168,30 @@ static int register_fentry(struct bpf_trampoline *tr, void *new_addr)
- 	return ret;
- }
- 
--static struct bpf_tramp_progs *
-+static struct bpf_tramp_links *
- bpf_trampoline_get_progs(const struct bpf_trampoline *tr, int *total, bool *ip_arg)
- {
--	const struct bpf_prog_aux *aux;
--	struct bpf_tramp_progs *tprogs;
--	struct bpf_prog **progs;
-+	struct bpf_tramp_link *link;
-+	struct bpf_tramp_links *tlinks;
-+	struct bpf_tramp_link **links;
- 	int kind;
- 
- 	*total = 0;
--	tprogs = kcalloc(BPF_TRAMP_MAX, sizeof(*tprogs), GFP_KERNEL);
--	if (!tprogs)
-+	tlinks = kcalloc(BPF_TRAMP_MAX, sizeof(*tlinks), GFP_KERNEL);
-+	if (!tlinks)
- 		return ERR_PTR(-ENOMEM);
- 
- 	for (kind = 0; kind < BPF_TRAMP_MAX; kind++) {
--		tprogs[kind].nr_progs = tr->progs_cnt[kind];
-+		tlinks[kind].nr_links = tr->progs_cnt[kind];
- 		*total += tr->progs_cnt[kind];
--		progs = tprogs[kind].progs;
-+		links = tlinks[kind].links;
- 
--		hlist_for_each_entry(aux, &tr->progs_hlist[kind], tramp_hlist) {
--			*ip_arg |= aux->prog->call_get_func_ip;
--			*progs++ = aux->prog;
-+		hlist_for_each_entry(link, &tr->progs_hlist[kind], tramp_hlist) {
-+			*ip_arg |= link->link.prog->call_get_func_ip;
-+			*links++ = link;
- 		}
- 	}
--	return tprogs;
-+	return tlinks;
- }
- 
- static void __bpf_tramp_image_put_deferred(struct work_struct *work)
-@@ -330,14 +330,14 @@ static struct bpf_tramp_image *bpf_tramp_image_alloc(u64 key, u32 idx)
- static int bpf_trampoline_update(struct bpf_trampoline *tr)
- {
- 	struct bpf_tramp_image *im;
--	struct bpf_tramp_progs *tprogs;
-+	struct bpf_tramp_links *tlinks;
- 	u32 flags = BPF_TRAMP_F_RESTORE_REGS;
- 	bool ip_arg = false;
- 	int err, total;
- 
--	tprogs = bpf_trampoline_get_progs(tr, &total, &ip_arg);
--	if (IS_ERR(tprogs))
--		return PTR_ERR(tprogs);
-+	tlinks = bpf_trampoline_get_progs(tr, &total, &ip_arg);
-+	if (IS_ERR(tlinks))
-+		return PTR_ERR(tlinks);
- 
- 	if (total == 0) {
- 		err = unregister_fentry(tr, tr->cur_image->image);
-@@ -353,15 +353,15 @@ static int bpf_trampoline_update(struct bpf_trampoline *tr)
- 		goto out;
- 	}
- 
--	if (tprogs[BPF_TRAMP_FEXIT].nr_progs ||
--	    tprogs[BPF_TRAMP_MODIFY_RETURN].nr_progs)
-+	if (tlinks[BPF_TRAMP_FEXIT].nr_links ||
-+	    tlinks[BPF_TRAMP_MODIFY_RETURN].nr_links)
- 		flags = BPF_TRAMP_F_CALL_ORIG | BPF_TRAMP_F_SKIP_FRAME;
- 
- 	if (ip_arg)
- 		flags |= BPF_TRAMP_F_IP_ARG;
- 
- 	err = arch_prepare_bpf_trampoline(im, im->image, im->image + PAGE_SIZE,
--					  &tr->func.model, flags, tprogs,
-+					  &tr->func.model, flags, tlinks,
- 					  tr->func.addr);
- 	if (err < 0)
- 		goto out;
-@@ -381,7 +381,7 @@ static int bpf_trampoline_update(struct bpf_trampoline *tr)
- 	tr->cur_image = im;
- 	tr->selector++;
- out:
--	kfree(tprogs);
-+	kfree(tlinks);
- 	return err;
- }
- 
-@@ -407,13 +407,14 @@ static enum bpf_tramp_prog_type bpf_attach_type_to_tramp(struct bpf_prog *prog)
- 	}
- }
- 
--int bpf_trampoline_link_prog(struct bpf_prog *prog, struct bpf_trampoline *tr)
-+int bpf_trampoline_link_prog(struct bpf_tramp_link *link, struct bpf_trampoline *tr)
- {
- 	enum bpf_tramp_prog_type kind;
-+	struct bpf_tramp_link *link_exiting;
- 	int err = 0;
- 	int cnt = 0, i;
- 
--	kind = bpf_attach_type_to_tramp(prog);
-+	kind = bpf_attach_type_to_tramp(link->link.prog);
- 	mutex_lock(&tr->mutex);
- 	if (tr->extension_prog) {
- 		/* cannot attach fentry/fexit if extension prog is attached.
-@@ -432,25 +433,33 @@ int bpf_trampoline_link_prog(struct bpf_prog *prog, struct bpf_trampoline *tr)
- 			err = -EBUSY;
- 			goto out;
- 		}
--		tr->extension_prog = prog;
-+		tr->extension_prog = link->link.prog;
- 		err = bpf_arch_text_poke(tr->func.addr, BPF_MOD_JUMP, NULL,
--					 prog->bpf_func);
-+					 link->link.prog->bpf_func);
- 		goto out;
- 	}
--	if (cnt >= BPF_MAX_TRAMP_PROGS) {
-+	if (cnt >= BPF_MAX_TRAMP_LINKS) {
- 		err = -E2BIG;
- 		goto out;
- 	}
--	if (!hlist_unhashed(&prog->aux->tramp_hlist)) {
-+	if (!hlist_unhashed(&link->tramp_hlist)) {
- 		/* prog already linked */
- 		err = -EBUSY;
- 		goto out;
- 	}
--	hlist_add_head(&prog->aux->tramp_hlist, &tr->progs_hlist[kind]);
-+	hlist_for_each_entry(link_exiting, &tr->progs_hlist[kind], tramp_hlist) {
-+		if (link_exiting->link.prog != link->link.prog)
-+			continue;
-+		/* prog already linked */
-+		err = -EBUSY;
-+		goto out;
-+	}
-+
-+	hlist_add_head(&link->tramp_hlist, &tr->progs_hlist[kind]);
- 	tr->progs_cnt[kind]++;
- 	err = bpf_trampoline_update(tr);
- 	if (err) {
--		hlist_del_init(&prog->aux->tramp_hlist);
-+		hlist_del_init(&link->tramp_hlist);
- 		tr->progs_cnt[kind]--;
- 	}
- out:
-@@ -459,12 +468,12 @@ int bpf_trampoline_link_prog(struct bpf_prog *prog, struct bpf_trampoline *tr)
- }
- 
- /* bpf_trampoline_unlink_prog() should never fail. */
--int bpf_trampoline_unlink_prog(struct bpf_prog *prog, struct bpf_trampoline *tr)
-+int bpf_trampoline_unlink_prog(struct bpf_tramp_link *link, struct bpf_trampoline *tr)
- {
- 	enum bpf_tramp_prog_type kind;
- 	int err;
- 
--	kind = bpf_attach_type_to_tramp(prog);
-+	kind = bpf_attach_type_to_tramp(link->link.prog);
- 	mutex_lock(&tr->mutex);
- 	if (kind == BPF_TRAMP_REPLACE) {
- 		WARN_ON_ONCE(!tr->extension_prog);
-@@ -473,7 +482,7 @@ int bpf_trampoline_unlink_prog(struct bpf_prog *prog, struct bpf_trampoline *tr)
- 		tr->extension_prog = NULL;
- 		goto out;
- 	}
--	hlist_del_init(&prog->aux->tramp_hlist);
-+	hlist_del_init(&link->tramp_hlist);
- 	tr->progs_cnt[kind]--;
- 	err = bpf_trampoline_update(tr);
- out:
-@@ -641,7 +650,7 @@ void notrace __bpf_tramp_exit(struct bpf_tramp_image *tr)
- int __weak
- arch_prepare_bpf_trampoline(struct bpf_tramp_image *tr, void *image, void *image_end,
- 			    const struct btf_func_model *m, u32 flags,
--			    struct bpf_tramp_progs *tprogs,
-+			    struct bpf_tramp_links *tlinks,
- 			    void *orig_call)
- {
- 	return -ENOTSUPP;
-diff --git a/net/bpf/bpf_dummy_struct_ops.c b/net/bpf/bpf_dummy_struct_ops.c
-index d0e54e30658a..e78dadfc5829 100644
---- a/net/bpf/bpf_dummy_struct_ops.c
-+++ b/net/bpf/bpf_dummy_struct_ops.c
-@@ -72,13 +72,16 @@ static int dummy_ops_call_op(void *image, struct bpf_dummy_ops_test_args *args)
- 		    args->args[3], args->args[4]);
- }
- 
-+extern const struct bpf_link_ops bpf_struct_ops_link_lops;
-+
- int bpf_struct_ops_test_run(struct bpf_prog *prog, const union bpf_attr *kattr,
- 			    union bpf_attr __user *uattr)
- {
- 	const struct bpf_struct_ops *st_ops = &bpf_bpf_dummy_ops;
- 	const struct btf_type *func_proto;
- 	struct bpf_dummy_ops_test_args *args;
--	struct bpf_tramp_progs *tprogs;
-+	struct bpf_tramp_links *tlinks;
-+	struct bpf_tramp_link *link = NULL;
- 	void *image = NULL;
- 	unsigned int op_idx;
- 	int prog_ret;
-@@ -92,8 +95,8 @@ int bpf_struct_ops_test_run(struct bpf_prog *prog, const union bpf_attr *kattr,
- 	if (IS_ERR(args))
- 		return PTR_ERR(args);
- 
--	tprogs = kcalloc(BPF_TRAMP_MAX, sizeof(*tprogs), GFP_KERNEL);
--	if (!tprogs) {
-+	tlinks = kcalloc(BPF_TRAMP_MAX, sizeof(*tlinks), GFP_KERNEL);
-+	if (!tlinks) {
- 		err = -ENOMEM;
- 		goto out;
- 	}
-@@ -105,8 +108,17 @@ int bpf_struct_ops_test_run(struct bpf_prog *prog, const union bpf_attr *kattr,
- 	}
- 	set_vm_flush_reset_perms(image);
- 
-+	link = kzalloc(sizeof(*link), GFP_USER);
-+	if (!link) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+	/* prog doesn't take the ownership of the reference from caller */
-+	bpf_prog_inc(prog);
-+	bpf_link_init(&link->link, BPF_LINK_TYPE_STRUCT_OPS, &bpf_struct_ops_link_lops, prog);
-+
- 	op_idx = prog->expected_attach_type;
--	err = bpf_struct_ops_prepare_trampoline(tprogs, prog,
-+	err = bpf_struct_ops_prepare_trampoline(tlinks, link,
- 						&st_ops->func_models[op_idx],
- 						image, image + PAGE_SIZE);
- 	if (err < 0)
-@@ -124,7 +136,9 @@ int bpf_struct_ops_test_run(struct bpf_prog *prog, const union bpf_attr *kattr,
- out:
- 	kfree(args);
- 	bpf_jit_free_exec(image);
--	kfree(tprogs);
-+	if (link)
-+		bpf_link_put(&link->link);
-+	kfree(tlinks);
- 	return err;
- }
- 
-diff --git a/tools/bpf/bpftool/link.c b/tools/bpf/bpftool/link.c
-index 8fb0116f9136..6353a789322b 100644
---- a/tools/bpf/bpftool/link.c
-+++ b/tools/bpf/bpftool/link.c
-@@ -23,6 +23,7 @@ static const char * const link_type_name[] = {
- 	[BPF_LINK_TYPE_XDP]			= "xdp",
- 	[BPF_LINK_TYPE_PERF_EVENT]		= "perf_event",
- 	[BPF_LINK_TYPE_KPROBE_MULTI]		= "kprobe_multi",
-+	[BPF_LINK_TYPE_STRUCT_OPS]               = "struct_ops",
- };
- 
- static struct hashmap *link_table;
-diff --git a/tools/include/uapi/linux/bpf.h b/tools/include/uapi/linux/bpf.h
-index d14b10b85e51..a4f557338af7 100644
---- a/tools/include/uapi/linux/bpf.h
-+++ b/tools/include/uapi/linux/bpf.h
-@@ -1013,6 +1013,7 @@ enum bpf_link_type {
- 	BPF_LINK_TYPE_XDP = 6,
- 	BPF_LINK_TYPE_PERF_EVENT = 7,
- 	BPF_LINK_TYPE_KPROBE_MULTI = 8,
-+	BPF_LINK_TYPE_STRUCT_OPS = 9,
- 
- 	MAX_BPF_LINK_TYPE,
- };
+ static int check_map_func_compatibility(struct bpf_verifier_env *env,
 -- 
 2.35.1
 
