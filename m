@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0C57593C49
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BDD9593C17
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:37:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344826AbiHOTre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:47:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58700 "EHLO
+        id S1344426AbiHOTrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:47:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345209AbiHOTqN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:46:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D4766E2D8;
-        Mon, 15 Aug 2022 11:48:57 -0700 (PDT)
+        with ESMTP id S1345260AbiHOTqS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:46:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AF846DFB5;
+        Mon, 15 Aug 2022 11:48:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2ADBB81057;
-        Mon, 15 Aug 2022 18:48:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02CFBC433C1;
-        Mon, 15 Aug 2022 18:48:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2237761124;
+        Mon, 15 Aug 2022 18:48:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2863DC433D7;
+        Mon, 15 Aug 2022 18:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589330;
-        bh=StjgcR6nA87Jhlh+ZwYMvS8/tCMtuZEn7F+G7iUqQg8=;
+        s=korg; t=1660589333;
+        bh=qQSA96vhbW3gjTNJAjGIG1SqfEp/08zASt479+5WVtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5cf+3qHvAyR8uS9j8xu4yMluUBDcpiV7MkkH8YMW7w7EIP6xXg3VBi8+dPHLPsxa
-         3dA0tcv5g1CjFgHIGh4qSj9sINVPA5l04KQicl7xTbDBaYWV+waX8Ma16fIV065dFw
-         kGZDiSqmpKfme4wpFC0HXwBobzZb9bytrG/P4OD0=
+        b=O4K0m2FA/tqLJ0TY30BDzHs+CG3Pe6uqytR8u4RqsueuGOZVvF9HiOJjdyw4GKGSH
+         zG9ZyH+Z/Z7WefWtJTLl13KDXU6qN8MiftUb8VZFDeaFaXvL3wxGr55dxSFnUn4yuh
+         P2P76eWpwPChAovOhROs2inc+drLKUwyBY/G6c6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        kernel test robot <lkp@intel.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Yury Norov <yury.norov@gmail.com>
-Subject: [PATCH 5.15 684/779] x86/olpc: fix logical not is only applied to the left hand side
-Date:   Mon, 15 Aug 2022 20:05:28 +0200
-Message-Id: <20220815180406.602991701@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Bharath SM <bharathsm@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 685/779] SMB3: fix lease break timeout when multiple deferred close handles for the same file.
+Date:   Mon, 15 Aug 2022 20:05:29 +0200
+Message-Id: <20220815180406.645771646@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,49 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Bharath SM <bharathsm@microsoft.com>
 
-commit 3a2ba42cbd0b669ce3837ba400905f93dd06c79f upstream.
+commit 9e31678fb403eae0f4fe37c6374be098835c73cd upstream.
 
-The bitops compile-time optimization series revealed one more
-problem in olpc-xo1-sci.c:send_ebook_state(), resulted in GCC
-warnings:
+Solution is to send lease break ack immediately even in case of
+deferred close handles to avoid lease break request timing out
+and let deferred closed handle gets closed as scheduled.
+Later patches could optimize cases where we then close some
+of these handles sooner for the cases where lease break is to 'none'
 
-arch/x86/platform/olpc/olpc-xo1-sci.c: In function 'send_ebook_state':
-arch/x86/platform/olpc/olpc-xo1-sci.c:83:63: warning: logical not is only applied to the left hand side of comparison [-Wlogical-not-parentheses]
-   83 |         if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
-      |                                                               ^~
-arch/x86/platform/olpc/olpc-xo1-sci.c:83:13: note: add parentheses around left hand side expression to silence this warning
-
-Despite this code working as intended, this redundant double
-negation of boolean value, together with comparing to `char`
-with no explicit conversion to bool, makes compilers think
-the author made some unintentional logical mistakes here.
-Make it the other way around and negate the char instead
-to silence the warnings.
-
-Fixes: d2aa37411b8e ("x86/olpc/xo1/sci: Produce wakeup events for buttons and switches")
-Cc: stable@vger.kernel.org # 3.5+
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-and-tested-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
+Cc: stable@kernel.org
+Signed-off-by: Bharath SM <bharathsm@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/platform/olpc/olpc-xo1-sci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/file.c |   20 +-------------------
+ 1 file changed, 1 insertion(+), 19 deletions(-)
 
---- a/arch/x86/platform/olpc/olpc-xo1-sci.c
-+++ b/arch/x86/platform/olpc/olpc-xo1-sci.c
-@@ -80,7 +80,7 @@ static void send_ebook_state(void)
- 		return;
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -4855,8 +4855,6 @@ void cifs_oplock_break(struct work_struc
+ 	struct TCP_Server_Info *server = tcon->ses->server;
+ 	int rc = 0;
+ 	bool purge_cache = false;
+-	bool is_deferred = false;
+-	struct cifs_deferred_close *dclose;
+ 
+ 	wait_on_bit(&cinode->flags, CIFS_INODE_PENDING_WRITERS,
+ 			TASK_UNINTERRUPTIBLE);
+@@ -4893,22 +4891,6 @@ void cifs_oplock_break(struct work_struc
+ 
+ oplock_break_ack:
+ 	/*
+-	 * When oplock break is received and there are no active
+-	 * file handles but cached, then schedule deferred close immediately.
+-	 * So, new open will not use cached handle.
+-	 */
+-	spin_lock(&CIFS_I(inode)->deferred_lock);
+-	is_deferred = cifs_is_deferred_close(cfile, &dclose);
+-	spin_unlock(&CIFS_I(inode)->deferred_lock);
+-	if (is_deferred &&
+-	    cfile->deferred_close_scheduled &&
+-	    delayed_work_pending(&cfile->deferred)) {
+-		if (cancel_delayed_work(&cfile->deferred)) {
+-			_cifsFileInfo_put(cfile, false, false);
+-			goto oplock_break_done;
+-		}
+-	}
+-	/*
+ 	 * releasing stale oplock after recent reconnect of smb session using
+ 	 * a now incorrect file handle is not a data integrity issue but do
+ 	 * not bother sending an oplock release if session to server still is
+@@ -4919,7 +4901,7 @@ oplock_break_ack:
+ 							     cinode);
+ 		cifs_dbg(FYI, "Oplock release rc = %d\n", rc);
  	}
- 
--	if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
-+	if (test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == !!state)
- 		return; /* Nothing new to report. */
- 
- 	input_report_switch(ebook_switch_idev, SW_TABLET_MODE, state);
+-oplock_break_done:
++
+ 	_cifsFileInfo_put(cfile, false /* do not wait for ourself */, false);
+ 	cifs_done_oplock_break(cinode);
+ }
 
 
