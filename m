@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AC66593EDC
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 435AE59416B
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233688AbiHOU46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:56:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55372 "EHLO
+        id S240356AbiHOVCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:02:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347038AbiHOU4O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:56:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CDCE3C172;
-        Mon, 15 Aug 2022 12:12:05 -0700 (PDT)
+        with ESMTP id S1347049AbiHOU4P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:56:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BFBE4F688;
+        Mon, 15 Aug 2022 12:12:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CCDD560BC2;
-        Mon, 15 Aug 2022 19:12:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3C48C433D6;
-        Mon, 15 Aug 2022 19:12:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE9C2B81106;
+        Mon, 15 Aug 2022 19:12:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CEBFC433D6;
+        Mon, 15 Aug 2022 19:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590724;
-        bh=7ipuau29OrxC/JxYf2KFZ2+Br8E6WRvnE93hYM3LSwA=;
+        s=korg; t=1660590727;
+        bh=hHCohr2pvT6665QyvBJWeiuo0wm6VPzuTJD4FG3o8RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a5LfUXwd7uLT0eudp5Y6skffQ9vSEPzvEK749bwgvp4cKT36W2GvMpg1nnYCXmhM7
-         WxKAt10YNg0sZV/FClXXbyHUErSUCMqb1rWnVV35kOm0gm7EajRNCr0KlDYrgyoTtK
-         4D+6ZvrBgso2KfJ7AsTik6MtWQaEGlpugC5ytjTM=
+        b=u1C9dhP18lb6YuSI3CL+RapagO/UAKjuIjpoZmJuMif6+W9JsuYzdEoYPRk596BuC
+         kDwunPAtk0YvlYE13obUUV++hpAGNuXbzrtqhNLbR3lzzwkvLnh+iihpSpjRzVCw+E
+         VLeNrzIOjVfhgbQ6K6ZTZiMPeV2LN9BcQSsVK4bI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Qian <ming.qian@nxp.com>,
+        stable@vger.kernel.org,
+        Benjamin Gaignard <benjamin.gaignard@collabora.com>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0350/1095] media: amphion: return error if format is unsupported by vpu
-Date:   Mon, 15 Aug 2022 19:55:49 +0200
-Message-Id: <20220815180444.248436828@linuxfoundation.org>
+Subject: [PATCH 5.18 0351/1095] media: Hantro: Correct G2 init qp field
+Date:   Mon, 15 Aug 2022 19:55:50 +0200
+Message-Id: <20220815180444.286333757@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,55 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Benjamin Gaignard <benjamin.gaignard@collabora.com>
 
-[ Upstream commit a3a2efca36a3a1ddba229a7be7991e8b5de4ac35 ]
+[ Upstream commit 300065f966d30baa59a13849753305aac8c320c3 ]
 
-return error if format is unsupported by vpu,
-otherwise the vpu will be stalled at decoding
+Documentation said that g2 init_qp field use bits 24 to 30 of
+the 8th register.
+Change the field mask to be able to set 7 bits and not only 6 of them.
 
-Fixes: 3cd084519c6f9 ("media: amphion: add vpu v4l2 m2m support")
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
+Conformance test INITQP_B_Main10_Sony_1 decoding is OK with this
+patch.
+
+Fixes: cb5dd5a0fa518 ("media: hantro: Introduce G2/HEVC decoder")
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@collabora.com>
+Reviewed-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/amphion/vpu_malone.c | 2 ++
- drivers/media/platform/amphion/vpu_v4l2.c   | 6 ++++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/staging/media/hantro/hantro_g2_regs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/amphion/vpu_malone.c b/drivers/media/platform/amphion/vpu_malone.c
-index 446a9de0cc11..d91be0ece961 100644
---- a/drivers/media/platform/amphion/vpu_malone.c
-+++ b/drivers/media/platform/amphion/vpu_malone.c
-@@ -609,6 +609,8 @@ static int vpu_malone_set_params(struct vpu_shared_addr *shared,
- 	enum vpu_malone_format malone_format;
+diff --git a/drivers/staging/media/hantro/hantro_g2_regs.h b/drivers/staging/media/hantro/hantro_g2_regs.h
+index b7c6f9877b9d..0f43516d0805 100644
+--- a/drivers/staging/media/hantro/hantro_g2_regs.h
++++ b/drivers/staging/media/hantro/hantro_g2_regs.h
+@@ -107,7 +107,7 @@
  
- 	malone_format = vpu_malone_format_remap(params->codec_format);
-+	if (WARN_ON(malone_format == MALONE_FMT_NULL))
-+		return -EINVAL;
- 	iface->udata_buffer[instance].base = params->udata.base;
- 	iface->udata_buffer[instance].slot_size = params->udata.size;
- 
-diff --git a/drivers/media/platform/amphion/vpu_v4l2.c b/drivers/media/platform/amphion/vpu_v4l2.c
-index 9c0704cd5766..4183a3994d30 100644
---- a/drivers/media/platform/amphion/vpu_v4l2.c
-+++ b/drivers/media/platform/amphion/vpu_v4l2.c
-@@ -440,10 +440,12 @@ static int vpu_vb2_start_streaming(struct vb2_queue *q, unsigned int count)
- 		  fmt->sizeimage[1], fmt->bytesperline[1],
- 		  fmt->sizeimage[2], fmt->bytesperline[2],
- 		  q->num_buffers);
--	call_void_vop(inst, start, q->type);
-+	ret = call_vop(inst, start, q->type);
- 	vb2_clear_last_buffer_dequeued(q);
-+	if (ret)
-+		vpu_vb2_buffers_return(inst, q->type, VB2_BUF_STATE_QUEUED);
- 
--	return 0;
-+	return ret;
- }
- 
- static void vpu_vb2_stop_streaming(struct vb2_queue *q)
+ #define g2_start_code_e		G2_DEC_REG(10, 31, 0x1)
+ #define g2_init_qp_old		G2_DEC_REG(10, 25, 0x3f)
+-#define g2_init_qp		G2_DEC_REG(10, 24, 0x3f)
++#define g2_init_qp		G2_DEC_REG(10, 24, 0x7f)
+ #define g2_num_tile_cols_old	G2_DEC_REG(10, 20, 0x1f)
+ #define g2_num_tile_cols	G2_DEC_REG(10, 19, 0x1f)
+ #define g2_num_tile_rows_old	G2_DEC_REG(10, 15, 0x1f)
 -- 
 2.35.1
 
