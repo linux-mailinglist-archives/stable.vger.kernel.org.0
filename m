@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCDE8594C21
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A6DA594C42
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239561AbiHPAmX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:42:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53520 "EHLO
+        id S1343632AbiHPAm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:42:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349079AbiHPAlV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:41:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B201518EC25;
-        Mon, 15 Aug 2022 13:39:14 -0700 (PDT)
+        with ESMTP id S1349695AbiHPAld (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:41:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 999ED7D1D2;
+        Mon, 15 Aug 2022 13:39:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF992B80EA9;
-        Mon, 15 Aug 2022 20:39:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27E26C433C1;
-        Mon, 15 Aug 2022 20:39:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A30761227;
+        Mon, 15 Aug 2022 20:39:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7859FC433D6;
+        Mon, 15 Aug 2022 20:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595951;
-        bh=ZqnfYDGRdxhnsuWlBwqWsl53LM0H85pNz2+6oKLxjxg=;
+        s=korg; t=1660595958;
+        bh=DfWgohC7suDSL0n1rFNXgTIr0wp+Ji3Ao9eR2xdJ/jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JYfMqlzKyPo+deIv76b0P/MuzoDverWRTkrwOLbwTMWdBKlHSJgQHZ/R8Y5V2Gzow
-         6a8N+XUNF2fJ+ASRzuhEJU1YaPRS33HMVmm/W3km1e4sTNMS2G5PpKgD5H9WsPWlG6
-         cLc53QS4pa2UDj9ufYrBe2zWrnCqJNz6NXpedlDY=
+        b=2m6P8XiPjPMg9KGKUql/ujusgj0DTqy8OK03yr/t2AQnJP+xfM7ojiOOPwH0SkUX9
+         NB2+QLrkjFx15+T/kCHACQtPtYQDeym3HVvuM7bu22ncK/OisLwCYqa/J4FfLZC4UF
+         09psA5QMkpIMB6bIEAZ8CTkHWAvL0oeukSjiuPfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0926/1157] tty: n_gsm: fix tty registration before control channel open
-Date:   Mon, 15 Aug 2022 20:04:42 +0200
-Message-Id: <20220815180516.508479429@linuxfoundation.org>
+Subject: [PATCH 5.19 0927/1157] tty: n_gsm: fix wrong queuing behavior in gsm_dlci_data_output()
+Date:   Mon, 15 Aug 2022 20:04:43 +0200
+Message-Id: <20220815180516.543642578@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,224 +55,120 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit 01aecd917114577c423f07cec0d186ad007d76fc ]
+[ Upstream commit 556fc8ac06513cced381588d6d58c184d95cc4fe ]
 
-The current implementation registers/deregisters the user ttys at mux
-attach/detach. That means that the user devices are available before any
-control channel is open. However, user channel initialization requires an
-open control channel. Furthermore, the user is not informed if the mux
-restarts due to configuration changes.
-Put the registration/deregistration procedure into separate function to
-improve readability.
-Move registration to mux activation and deregistration to mux cleanup to
-keep the user devices only open as long as a control channel exists. The
-user will be informed via the device driver if the mux was reconfigured in
-a way that required a mux re-activation.
-This makes it necessary to add T2 initialization to gsmld_open() for the
-ldisc open code path (not the reconfiguration code path) to avoid deletion
-of an uninitialized T2 at mux cleanup.
+1) The function drains the fifo for the given user tty/DLCI without
+considering 'TX_THRESH_HI' and different to gsm_dlci_data_output_framed(),
+which moves only one packet from the user side to the internal transmission
+queue. We can only handle one packet at a time here if we want to allow
+DLCI priority handling in gsm_dlci_data_sweep() to avoid link starvation.
+2) Furthermore, the additional header octet from convergence layer type 2
+is not counted against MTU. It is part of the UI/UIH frame message which
+needs to be limited to MTU. Hence, it is wrong not to consider this octet.
+3) Finally, the waiting user tty is not informed about freed space in its
+send queue.
 
-Fixes: d50f6dcaf22a ("tty: n_gsm: expose gsmtty device nodes at ldisc open time")
+Take at most one packet worth of data out of the DLCI fifo to fix 1).
+Limit the max user data size per packet to MTU - 1 in case of convergence
+layer type 2 to leave space for the control signal octet which is added in
+the later part of the function. This fixes 2).
+Add tty_port_tty_wakeup() to wake up the user tty if new write space has
+been made available to fix 3).
+
+Fixes: 268e526b935e ("tty/n_gsm: avoid fifo overflow in gsm_dlci_data_output")
 Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220701061652.39604-2-daniel.starke@siemens.com
+Link: https://lore.kernel.org/r/20220701061652.39604-3-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 117 ++++++++++++++++++++++++++++++--------------
- 1 file changed, 79 insertions(+), 38 deletions(-)
+ drivers/tty/n_gsm.c | 74 +++++++++++++++++++++++++--------------------
+ 1 file changed, 42 insertions(+), 32 deletions(-)
 
 diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 5a0fd35ce1f9..e8c0ce114c07 100644
+index e8c0ce114c07..d056b15b4d61 100644
 --- a/drivers/tty/n_gsm.c
 +++ b/drivers/tty/n_gsm.c
-@@ -235,6 +235,7 @@ struct gsm_mux {
- 	struct gsm_dlci *dlci[NUM_DLCI];
- 	int old_c_iflag;		/* termios c_iflag value before attach */
- 	bool constipated;		/* Asked by remote to shut up */
-+	bool has_devices;		/* Devices were registered */
- 
- 	spinlock_t tx_lock;
- 	unsigned int tx_bytes;		/* TX data outstanding */
-@@ -463,6 +464,68 @@ static void gsm_hex_dump_bytes(const char *fname, const u8 *data,
- 	kfree(prefix);
- }
- 
-+/**
-+ *	gsm_register_devices	-	register all tty devices for a given mux index
-+ *
-+ *	@driver: the tty driver that describes the tty devices
-+ *	@index:  the mux number is used to calculate the minor numbers of the
-+ *	         ttys for this mux and may differ from the position in the
-+ *	         mux array.
-+ */
-+static int gsm_register_devices(struct tty_driver *driver, unsigned int index)
-+{
-+	struct device *dev;
-+	int i;
-+	unsigned int base;
-+
-+	if (!driver || index >= MAX_MUX)
-+		return -EINVAL;
-+
-+	base = index * NUM_DLCI; /* first minor for this index */
-+	for (i = 1; i < NUM_DLCI; i++) {
-+		/* Don't register device 0 - this is the control channel
-+		 * and not a usable tty interface
-+		 */
-+		dev = tty_register_device(gsm_tty_driver, base + i, NULL);
-+		if (IS_ERR(dev)) {
-+			if (debug & 8)
-+				pr_info("%s failed to register device minor %u",
-+					__func__, base + i);
-+			for (i--; i >= 1; i--)
-+				tty_unregister_device(gsm_tty_driver, base + i);
-+			return PTR_ERR(dev);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ *	gsm_unregister_devices	-	unregister all tty devices for a given mux index
-+ *
-+ *	@driver: the tty driver that describes the tty devices
-+ *	@index:  the mux number is used to calculate the minor numbers of the
-+ *	         ttys for this mux and may differ from the position in the
-+ *	         mux array.
-+ */
-+static void gsm_unregister_devices(struct tty_driver *driver,
-+				   unsigned int index)
-+{
-+	int i;
-+	unsigned int base;
-+
-+	if (!driver || index >= MAX_MUX)
-+		return;
-+
-+	base = index * NUM_DLCI; /* first minor for this index */
-+	for (i = 1; i < NUM_DLCI; i++) {
-+		/* Don't unregister device 0 - this is the control
-+		 * channel and not a usable tty interface
-+		 */
-+		tty_unregister_device(gsm_tty_driver, base + i);
-+	}
-+}
-+
- /**
-  *	gsm_print_packet	-	display a frame for debug
-  *	@hdr: header to print before decode
-@@ -2204,6 +2267,10 @@ static void gsm_cleanup_mux(struct gsm_mux *gsm, bool disc)
- 	del_timer_sync(&gsm->t2_timer);
- 
- 	/* Free up any link layer users and finally the control channel */
-+	if (gsm->has_devices) {
-+		gsm_unregister_devices(gsm_tty_driver, gsm->num);
-+		gsm->has_devices = false;
-+	}
- 	for (i = NUM_DLCI - 1; i >= 0; i--)
- 		if (gsm->dlci[i])
- 			gsm_dlci_release(gsm->dlci[i]);
-@@ -2227,6 +2294,7 @@ static void gsm_cleanup_mux(struct gsm_mux *gsm, bool disc)
- static int gsm_activate_mux(struct gsm_mux *gsm)
+@@ -886,41 +886,51 @@ static int gsm_dlci_data_output(struct gsm_mux *gsm, struct gsm_dlci *dlci)
  {
- 	struct gsm_dlci *dlci;
-+	int ret;
+ 	struct gsm_msg *msg;
+ 	u8 *dp;
+-	int len, total_size, size;
+-	int h = dlci->adaption - 1;
++	int h, len, size;
  
- 	timer_setup(&gsm->t2_timer, gsm_control_retransmit, 0);
- 	init_waitqueue_head(&gsm->event);
-@@ -2238,9 +2306,14 @@ static int gsm_activate_mux(struct gsm_mux *gsm)
- 	else
- 		gsm->receive = gsm1_receive;
- 
-+	ret = gsm_register_devices(gsm_tty_driver, gsm->num);
-+	if (ret)
-+		return ret;
-+
- 	dlci = gsm_dlci_alloc(gsm, 0);
- 	if (dlci == NULL)
- 		return -ENOMEM;
-+	gsm->has_devices = true;
- 	gsm->dead = false;		/* Tty opens are now permissible */
- 	return 0;
- }
-@@ -2500,39 +2573,14 @@ static int gsmld_output(struct gsm_mux *gsm, u8 *data, int len)
-  *	will need moving to an ioctl path.
-  */
- 
--static int gsmld_attach_gsm(struct tty_struct *tty, struct gsm_mux *gsm)
-+static void gsmld_attach_gsm(struct tty_struct *tty, struct gsm_mux *gsm)
- {
--	unsigned int base;
--	int ret, i;
+-	total_size = 0;
+-	while (1) {
+-		len = kfifo_len(&dlci->fifo);
+-		if (len == 0)
+-			return total_size;
 -
- 	gsm->tty = tty_kref_get(tty);
- 	/* Turn off tty XON/XOFF handling to handle it explicitly. */
- 	gsm->old_c_iflag = tty->termios.c_iflag;
- 	tty->termios.c_iflag &= (IXON | IXOFF);
--	ret =  gsm_activate_mux(gsm);
--	if (ret != 0)
--		tty_kref_put(gsm->tty);
--	else {
--		/* Don't register device 0 - this is the control channel and not
--		   a usable tty interface */
--		base = mux_num_to_base(gsm); /* Base for this MUX */
--		for (i = 1; i < NUM_DLCI; i++) {
--			struct device *dev;
+-		/* MTU/MRU count only the data bits */
+-		if (len > gsm->mtu)
+-			len = gsm->mtu;
 -
--			dev = tty_register_device(gsm_tty_driver,
--							base + i, NULL);
--			if (IS_ERR(dev)) {
--				for (i--; i >= 1; i--)
--					tty_unregister_device(gsm_tty_driver,
--								base + i);
--				return PTR_ERR(dev);
--			}
+-		size = len + h;
+-
+-		msg = gsm_data_alloc(gsm, dlci->addr, size, gsm->ftype);
+-		/* FIXME: need a timer or something to kick this so it can't
+-		   get stuck with no work outstanding and no buffer free */
+-		if (msg == NULL)
+-			return -ENOMEM;
+-		dp = msg->data;
+-		switch (dlci->adaption) {
+-		case 1:	/* Unstructured */
+-			break;
+-		case 2:	/* Unstructed with modem bits.
+-		Always one byte as we never send inline break data */
+-			*dp++ = (gsm_encode_modem(dlci) << 1) | EA;
+-			break;
 -		}
--	}
--	return ret;
- }
- 
--
- /**
-  *	gsmld_detach_gsm	-	stop doing 0710 mux
-  *	@tty: tty attached to the mux
-@@ -2543,12 +2591,7 @@ static int gsmld_attach_gsm(struct tty_struct *tty, struct gsm_mux *gsm)
- 
- static void gsmld_detach_gsm(struct tty_struct *tty, struct gsm_mux *gsm)
- {
--	unsigned int base = mux_num_to_base(gsm); /* Base for this MUX */
--	int i;
--
- 	WARN_ON(tty != gsm->tty);
--	for (i = 1; i < NUM_DLCI; i++)
--		tty_unregister_device(gsm_tty_driver, base + i);
- 	/* Restore tty XON/XOFF handling. */
- 	gsm->tty->termios.c_iflag = gsm->old_c_iflag;
- 	tty_kref_put(gsm->tty);
-@@ -2640,7 +2683,6 @@ static void gsmld_close(struct tty_struct *tty)
- static int gsmld_open(struct tty_struct *tty)
- {
- 	struct gsm_mux *gsm;
--	int ret;
- 
- 	if (tty->ops->write == NULL)
- 		return -EINVAL;
-@@ -2656,12 +2698,11 @@ static int gsmld_open(struct tty_struct *tty)
- 	/* Attach the initial passive connection */
- 	gsm->encoding = 1;
- 
--	ret = gsmld_attach_gsm(tty, gsm);
--	if (ret != 0) {
--		gsm_cleanup_mux(gsm, false);
--		mux_put(gsm);
--	}
--	return ret;
-+	gsmld_attach_gsm(tty, gsm);
+-		WARN_ON(kfifo_out_locked(&dlci->fifo, dp , len, &dlci->lock) != len);
+-		__gsm_data_queue(dlci, msg);
+-		total_size += size;
++	/* for modem bits without break data */
++	h = ((dlci->adaption == 1) ? 0 : 1);
 +
-+	timer_setup(&gsm->t2_timer, gsm_control_retransmit, 0);
++	len = kfifo_len(&dlci->fifo);
++	if (len == 0)
++		return 0;
 +
-+	return 0;
++	/* MTU/MRU count only the data bits but watch adaption mode */
++	if ((len + h) > gsm->mtu)
++		len = gsm->mtu - h;
++
++	size = len + h;
++
++	msg = gsm_data_alloc(gsm, dlci->addr, size, gsm->ftype);
++	/* FIXME: need a timer or something to kick this so it can't
++	 * get stuck with no work outstanding and no buffer free
++	 */
++	if (!msg)
++		return -ENOMEM;
++	dp = msg->data;
++	switch (dlci->adaption) {
++	case 1: /* Unstructured */
++		break;
++	case 2: /* Unstructured with modem bits.
++		 * Always one byte as we never send inline break data
++		 */
++		*dp++ = (gsm_encode_modem(dlci) << 1) | EA;
++		break;
++	default:
++		pr_err("%s: unsupported adaption %d\n", __func__,
++		       dlci->adaption);
++		break;
+ 	}
++
++	WARN_ON(len != kfifo_out_locked(&dlci->fifo, dp, len,
++		&dlci->lock));
++
++	/* Notify upper layer about available send space. */
++	tty_port_tty_wakeup(&dlci->port);
++
++	__gsm_data_queue(dlci, msg);
+ 	/* Bytes of data we used up */
+-	return total_size;
++	return size;
  }
  
  /**
