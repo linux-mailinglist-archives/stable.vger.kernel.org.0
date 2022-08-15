@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F27D59472D
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D47FB59474E
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353876AbiHOXmw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:42:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35658 "EHLO
+        id S1344170AbiHOXn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:43:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354172AbiHOXle (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:34 -0400
+        with ESMTP id S1354321AbiHOXlx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11EB7155CAC;
-        Mon, 15 Aug 2022 13:10:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93EEC2C65C;
+        Mon, 15 Aug 2022 13:12:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A91560F0C;
-        Mon, 15 Aug 2022 20:10:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 640E7C433D6;
-        Mon, 15 Aug 2022 20:10:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E3586077B;
+        Mon, 15 Aug 2022 20:12:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 172F1C433C1;
+        Mon, 15 Aug 2022 20:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594256;
-        bh=uw//HsiRMHBa899GZSRbrnUZcOQGxjsDm5ULzHnOqJM=;
+        s=korg; t=1660594344;
+        bh=AUx0DyP1wpvcM7jw+zKjJqfB5eCKGEC5MqiBsClfykY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQwqYYEWiRNsEofHxse2jRC0GEN1EYRgEox+7NPYTY/mULlThaZlA5Vdyg5itsIgY
-         xTBzFdiCIIY06H5CgDjk+5ies0QrnY9tjvJR557tIK5pvCeqV317n3/jdNCL8U0Dnr
-         vLoOLUstNXGIF9G9soJrbI6CNJYVXktrPBkqCHag=
+        b=bB32JaJZn1KOdcNmZvHvW/+uYW9MiZy9jXMDOVM+zRamHpZY8vWRV3BqH50PAiep+
+         HS4S2Z81J1cJ1+Lu+blyxjP/gIyixFukdjlSLp1DoCg75UV1/nohiRhP9sadZPDLcf
+         d9URKVT7FaWzGGEXmQ8oyGi3yzlcNJQj1ChJ4A+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Dom Cobley <popcornmix@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0402/1157] media: mediatek: vcodec: Skip SOURCE_CHANGE & EOS events for stateless
-Date:   Mon, 15 Aug 2022 19:55:58 +0200
-Message-Id: <20220815180455.755899657@linuxfoundation.org>
+Subject: [PATCH 5.19 0417/1157] drm/vc4: hdmi: Avoid full hdmi audio fifo writes
+Date:   Mon, 15 Aug 2022 19:56:13 +0200
+Message-Id: <20220815180456.329569159@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,47 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Dom Cobley <popcornmix@gmail.com>
 
-[ Upstream commit e13ca460e20ed42fe57a3845b0bb9a82f81f05cd ]
+[ Upstream commit 1c594eeccf92368177c2e22f1d3ee4933dfb8567 ]
 
-The stateless decoder API does not specify the usage of SOURCE_CHANGE
-and EOF events. These events are used by stateful decoders to signal
-changes in the bitstream. They do not make sense for stateless decoders.
+We are getting occasional VC4_HD_MAI_CTL_ERRORF in
+HDMI_MAI_CTL which seem to correspond with audio dropouts.
 
-Do not handle subscription for these two types of events for stateless
-decoder instances. This fixes the last v4l2-compliance error:
+Reduce the threshold where we deassert DREQ to avoid the fifo
+overfilling
 
-Control ioctls:
-		fail: v4l2-test-controls.cpp(946): have_source_change || have_eos
-	test VIDIOC_(UN)SUBSCRIBE_EVENT/DQEVENT: FAIL
-
-Fixes: 8cdc3794b2e3 ("media: mtk-vcodec: vdec: support stateless API")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: bb7d78568814 ("drm/vc4: Add HDMI audio support")
+Signed-off-by: Dom Cobley <popcornmix@gmail.com>
+Link: https://lore.kernel.org/r/20220613144800.326124-21-maxime@cerno.tech
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
-index 50cfb18f85ae..01836a1c7d3f 100644
---- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
-+++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
-@@ -196,6 +196,11 @@ static int vidioc_vdec_querycap(struct file *file, void *priv,
- static int vidioc_vdec_subscribe_evt(struct v4l2_fh *fh,
- 				     const struct v4l2_event_subscription *sub)
- {
-+	struct mtk_vcodec_ctx *ctx = fh_to_ctx(fh);
-+
-+	if (ctx->dev->vdec_pdata->uses_stateless_api)
-+		return v4l2_ctrl_subscribe_event(fh, sub);
-+
- 	switch (sub->type) {
- 	case V4L2_EVENT_EOS:
- 		return v4l2_event_subscribe(fh, sub, 2, NULL);
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index ecd49214bd92..d0921f832f19 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -1956,10 +1956,10 @@ static int vc4_hdmi_audio_prepare(struct device *dev, void *data,
+ 
+ 	/* Set the MAI threshold */
+ 	HDMI_WRITE(HDMI_MAI_THR,
+-		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_PANICHIGH) |
+-		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_PANICLOW) |
+-		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_DREQHIGH) |
+-		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_DREQLOW));
++		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_PANICHIGH) |
++		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_PANICLOW) |
++		   VC4_SET_FIELD(0x06, VC4_HD_MAI_THR_DREQHIGH) |
++		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_DREQLOW));
+ 
+ 	HDMI_WRITE(HDMI_MAI_CONFIG,
+ 		   VC4_HDMI_MAI_CONFIG_BIT_REVERSE |
 -- 
 2.35.1
 
