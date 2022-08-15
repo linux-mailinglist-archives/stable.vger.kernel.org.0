@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3016C594584
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FB73594520
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348683AbiHOW3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:29:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43142 "EHLO
+        id S1348354AbiHOWac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:30:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351070AbiHOW1d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:27:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57961422D1;
-        Mon, 15 Aug 2022 12:46:59 -0700 (PDT)
+        with ESMTP id S1351078AbiHOW1e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:27:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D817641D39;
+        Mon, 15 Aug 2022 12:47:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 197E0B80EB2;
-        Mon, 15 Aug 2022 19:46:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54EB7C433D6;
-        Mon, 15 Aug 2022 19:46:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94CBAB80EB2;
+        Mon, 15 Aug 2022 19:47:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C38A5C433D7;
+        Mon, 15 Aug 2022 19:47:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592816;
-        bh=DxR5Te+0hr5YPpVC4TDSEMJ/BVrdzLv1VvmTAOdfL3I=;
+        s=korg; t=1660592823;
+        bh=ZcY8ootTVmsrvVa0ppEC/BOYMKO/1AIrNuHec3gCNc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdhUyics8wCDWsDBg/SbQ8KqDx+7D5ac7aTuLHBsqzzhdi6Z15FzO9nwuyJdVhw6o
-         haCNjveIowU8LICgWHRPo2h3Rk6C2jbUIgB88bAIWBJwu2wEMS4sf/lq2z+oczf1Rk
-         RA3oDDjOJlfmNpdlYaBnGoSiZi4eKeC84Uat5NjA=
+        b=XF89TOx+3yg9qB3iOyReuI2VvefZxYKntM3o2qbiFriR4j1uL3d95qib0JN9lR7z9
+         IGsNPmA1/qZDwP5BMe/VggLQSiA/ViccbHPxBUWfDvWvdHia5WgNfnk+Dx/X36DWae
+         0oVKCIkoEsxXk56EnIiWfdPS2DlLjXrTPjbmk1Iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0849/1095] ASoC: samsung: change gpiod_speaker_power and rx1950_audio from global to static variables
-Date:   Mon, 15 Aug 2022 20:04:08 +0200
-Message-Id: <20220815180504.456123383@linuxfoundation.org>
+Subject: [PATCH 5.18 0850/1095] ASoC: codecs: wsa881x: handle timeouts in resume path
+Date:   Mon, 15 Aug 2022 20:04:09 +0200
+Message-Id: <20220815180504.497172715@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,49 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit d2294461b90e0c5b3bbfaaf2c8baff4fd3e2bb13 ]
+[ Upstream commit cf6af24b54903f9f70c29b3e5b19cb72cc862d60 ]
 
-sparse reports
-sound/soc/samsung/rx1950_uda1380.c:131:18: warning: symbol 'gpiod_speaker_power' was not declared. Should it be static?
-sound/soc/samsung/rx1950_uda1380.c:231:24: warning: symbol 'rx1950_audio' was not declared. Should it be static?
+Currently we do not check if SoundWire slave initialization timeout
+expired before continuing to access its registers.
 
-Both gpiod_speaker_power and rx1950_audio are only used in rx1950_uda1380.c,
-so their storage class specifiers should be static.
+Its possible that the registers are not accessible if timeout is
+expired. Handle this by returning timeout in resume path.
 
-Fixes: 83d74e354200 ("ASoC: samsung: rx1950: turn into platform driver")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220629185345.910406-1-trix@redhat.com
+Reported-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Fixes: 8dd552458361 ("ASoC: codecs: wsa881x: add runtime pm support")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220630130023.9308-1-srinivas.kandagatla@linaro.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/samsung/rx1950_uda1380.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/wsa881x.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/samsung/rx1950_uda1380.c b/sound/soc/samsung/rx1950_uda1380.c
-index 6ea1c8cc9167..2820097b00b9 100644
---- a/sound/soc/samsung/rx1950_uda1380.c
-+++ b/sound/soc/samsung/rx1950_uda1380.c
-@@ -128,7 +128,7 @@ static int rx1950_startup(struct snd_pcm_substream *substream)
- 					&hw_rates);
- }
+diff --git a/sound/soc/codecs/wsa881x.c b/sound/soc/codecs/wsa881x.c
+index 616b26c70c3b..649c7e73f774 100644
+--- a/sound/soc/codecs/wsa881x.c
++++ b/sound/soc/codecs/wsa881x.c
+@@ -1174,11 +1174,17 @@ static int __maybe_unused wsa881x_runtime_resume(struct device *dev)
+ 	struct sdw_slave *slave = dev_to_sdw_dev(dev);
+ 	struct regmap *regmap = dev_get_regmap(dev, NULL);
+ 	struct wsa881x_priv *wsa881x = dev_get_drvdata(dev);
++	unsigned long time;
  
--struct gpio_desc *gpiod_speaker_power;
-+static struct gpio_desc *gpiod_speaker_power;
+ 	gpiod_direction_output(wsa881x->sd_n, 1);
  
- static int rx1950_spk_power(struct snd_soc_dapm_widget *w,
- 				struct snd_kcontrol *kcontrol, int event)
-@@ -227,7 +227,7 @@ static int rx1950_probe(struct platform_device *pdev)
- 	return devm_snd_soc_register_card(dev, &rx1950_asoc);
- }
+-	wait_for_completion_timeout(&slave->initialization_complete,
+-				    msecs_to_jiffies(WSA881X_PROBE_TIMEOUT));
++	time = wait_for_completion_timeout(&slave->initialization_complete,
++					   msecs_to_jiffies(WSA881X_PROBE_TIMEOUT));
++	if (!time) {
++		dev_err(dev, "Initialization not complete, timed out\n");
++		gpiod_direction_output(wsa881x->sd_n, 0);
++		return -ETIMEDOUT;
++	}
  
--struct platform_driver rx1950_audio = {
-+static struct platform_driver rx1950_audio = {
- 	.driver = {
- 		.name = "rx1950-audio",
- 		.pm = &snd_soc_pm_ops,
+ 	regcache_cache_only(regmap, false);
+ 	regcache_sync(regmap);
 -- 
 2.35.1
 
