@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D41985943B0
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:57:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E9859448F
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:58:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348393AbiHOWad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:30:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34314 "EHLO
+        id S1348038AbiHOW21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:28:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348287AbiHOWYv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:24:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63759125D73;
-        Mon, 15 Aug 2022 12:44:20 -0700 (PDT)
+        with ESMTP id S1348520AbiHOWZi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:25:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D86D126949;
+        Mon, 15 Aug 2022 12:44:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F724B80EAB;
-        Mon, 15 Aug 2022 19:44:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E440CC433C1;
-        Mon, 15 Aug 2022 19:44:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36347610A3;
+        Mon, 15 Aug 2022 19:44:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 245C9C433D6;
+        Mon, 15 Aug 2022 19:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592658;
-        bh=sWem4P/NPWh3xaM32TtZWFwItHMbGgeKGUW+8VSoeHg=;
+        s=korg; t=1660592667;
+        bh=1nyJF6tS4IDL2t+3hw/6H7P10fs3MNbMX922x6MthPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DBJSlpB9CC2IdruCRC4QImZVt3fYWMqmlbZlEXVph1i2w5f9FiffLSqCGMgJSVMnm
-         +tPjF2i6MDWYQJWSM4NcEqtySImO+nPPR6MUdi58q+fRx1Bv5jcIHA2rUrQKTRlk+c
-         TRJr/uVPN+mLmLYTWV64lrehVodWw6MCmwzpOXE0=
+        b=jwvMdp5VrbFhjLEm8zCN+kV53u29vXJjgSXyn22weB6sx7zW5AG2YM3VnJm2eO/jc
+         Cy1IxaO0I1aHan/6LiemPSy8AeGv34X6BR8WA53Zvgc7r5Ex/Qph0WsNxYVCKRrRiw
+         S8ohYDJxnFAdVVrpY896ZTd9T8MXuQCqWM60gsuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.19 0144/1157] netfilter: nf_tables: disallow jump to implicit chain from set element
-Date:   Mon, 15 Aug 2022 19:51:40 +0200
-Message-Id: <20220815180445.395122647@linuxfoundation.org>
+        stable@vger.kernel.org, mingi cho <mgcho.minic@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.19 0145/1157] netfilter: nf_tables: fix null deref due to zeroed list head
+Date:   Mon, 15 Aug 2022 19:51:41 +0200
+Message-Id: <20220815180445.432580001@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -52,61 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Florian Westphal <fw@strlen.de>
 
-commit f323ef3a0d49e147365284bc1f02212e617b7f09 upstream.
+commit 580077855a40741cf511766129702d97ff02f4d9 upstream.
 
-Extend struct nft_data_desc to add a flag field that specifies
-nft_data_init() is being called for set element data.
+In nf_tables_updtable, if nf_tables_table_enable returns an error,
+nft_trans_destroy is called to free the transaction object.
 
-Use it to disallow jump to implicit chain from set element, only jump
-to chain via immediate expression is allowed.
+nft_trans_destroy() calls list_del(), but the transaction was never
+placed on a list -- the list head is all zeroes, this results in
+a null dereference:
 
-Fixes: d0e2c7de92c7 ("netfilter: nf_tables: add NFT_CHAIN_BINDING")
+BUG: KASAN: null-ptr-deref in nft_trans_destroy+0x26/0x59
+Call Trace:
+ nft_trans_destroy+0x26/0x59
+ nf_tables_newtable+0x4bc/0x9bc
+ [..]
+
+Its sane to assume that nft_trans_destroy() can be called
+on the transaction object returned by nft_trans_alloc(), so
+make sure the list head is initialised.
+
+Fixes: 55dd6f93076b ("netfilter: nf_tables: use new transaction infrastructure to handle table")
+Reported-by: mingi cho <mgcho.minic@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/netfilter/nf_tables.h |    5 +++++
- net/netfilter/nf_tables_api.c     |    4 ++++
- 2 files changed, 9 insertions(+)
+ net/netfilter/nf_tables_api.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -206,10 +206,15 @@ struct nft_ctx {
- 	bool				report;
- };
- 
-+enum nft_data_desc_flags {
-+	NFT_DATA_DESC_SETELEM	= (1 << 0),
-+};
-+
- struct nft_data_desc {
- 	enum nft_data_types		type;
- 	unsigned int			size;
- 	unsigned int			len;
-+	unsigned int			flags;
- };
- 
- int nft_data_init(const struct nft_ctx *ctx, struct nft_data *data,
 --- a/net/netfilter/nf_tables_api.c
 +++ b/net/netfilter/nf_tables_api.c
-@@ -5226,6 +5226,7 @@ static int nft_setelem_parse_data(struct
- 	desc->type = dtype;
- 	desc->size = NFT_DATA_VALUE_MAXLEN;
- 	desc->len = set->dlen;
-+	desc->flags = NFT_DATA_DESC_SETELEM;
+@@ -153,6 +153,7 @@ static struct nft_trans *nft_trans_alloc
+ 	if (trans == NULL)
+ 		return NULL;
  
- 	return nft_data_init(ctx, data, desc, attr);
- }
-@@ -9611,6 +9612,9 @@ static int nft_verdict_init(const struct
- 			return PTR_ERR(chain);
- 		if (nft_is_base_chain(chain))
- 			return -EOPNOTSUPP;
-+		if (desc->flags & NFT_DATA_DESC_SETELEM &&
-+		    chain->flags & NFT_CHAIN_BINDING)
-+			return -EINVAL;
++	INIT_LIST_HEAD(&trans->list);
+ 	trans->msg_type = msg_type;
+ 	trans->ctx	= *ctx;
  
- 		chain->use++;
- 		data->verdict.chain = chain;
 
 
