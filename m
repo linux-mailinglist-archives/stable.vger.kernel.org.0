@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65FD359489C
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B9D65949A7
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:15:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233757AbiHOXeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:34:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50944 "EHLO
+        id S1353990AbiHOXhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:37:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353651AbiHOXcK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:32:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105DC150B81;
-        Mon, 15 Aug 2022 13:08:23 -0700 (PDT)
+        with ESMTP id S1345952AbiHOXdr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:33:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51E8E6176;
+        Mon, 15 Aug 2022 13:08:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0BE160DEB;
-        Mon, 15 Aug 2022 20:08:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECAA9C433D6;
-        Mon, 15 Aug 2022 20:08:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DA1CB80EAB;
+        Mon, 15 Aug 2022 20:08:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54CAFC433D6;
+        Mon, 15 Aug 2022 20:08:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594102;
-        bh=+3E+NhvBufXGI/SnEC2niRAaLRAmDGmZRXWc+haofkQ=;
+        s=korg; t=1660594114;
+        bh=BokTBTMkZ4346PaQMeY33bF5LXXEd68/+dwp0v89MXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jgg8likHLBKLe+k7iyRNqlfWyWTMFitAlm6v98hHjtqX9U3Kq5Ad6YOYPWBP+IHg5
-         TMG3CM06/rMt9agqey1VLKnkrBZO4W097qrcu8YLNEHsI6vjKgDSqCR3LcMi9Wx5O/
-         mwh5JDZ2QWj+GoyonhRoqoHzGhkykRmTvn8EpYYg=
+        b=k07TWh9UDMS+OcceikrBlAgdty6muLPEcOcpr8kIy2BQdrLgX2pvaJjkWkmnIVVOB
+         uvh5rcMf1tiVvk7kbNAyFCoOueMfQgb1EyJuG5TATL3/RJcnQvZ4RC9y6MM2OK3z/V
+         Ex86a3v4ts7JJxCALgBAq2NkFWfaQ1/rzT+c1spE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Qian <ming.qian@nxp.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0379/1157] media: imx-jpeg: Implement drain using v4l2-mem2mem helpers
-Date:   Mon, 15 Aug 2022 19:55:35 +0200
-Message-Id: <20220815180454.896574356@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+03110230a11411024147@syzkaller.appspotmail.com,
+        syzbot+c6dde1f690b60e0b9fbe@syzkaller.appspotmail.com
+Subject: [PATCH 5.19 0381/1157] ath9k: fix use-after-free in ath9k_hif_usb_rx_cb
+Date:   Mon, 15 Aug 2022 19:55:37 +0200
+Message-Id: <20220815180454.977398548@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,307 +57,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 4911c5acf9351c4caf692895c7cf6a4fa46c26b0 ]
+[ Upstream commit 0ac4827f78c7ffe8eef074bc010e7e34bc22f533 ]
 
-v4l2 m2m has supplied some helper function to handle drain,
-so the driver can use the helper function directly.
+Syzbot reported use-after-free Read in ath9k_hif_usb_rx_cb() [0]. The
+problem was in incorrect htc_handle->drv_priv initialization.
 
-Fixes: d8ebe298d008c ("media: imx-jpeg: Set V4L2_BUF_FLAG_LAST at eos")
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Probable call trace which can trigger use-after-free:
+
+ath9k_htc_probe_device()
+  /* htc_handle->drv_priv = priv; */
+  ath9k_htc_wait_for_target()      <--- Failed
+  ieee80211_free_hw()		   <--- priv pointer is freed
+
+<IRQ>
+...
+ath9k_hif_usb_rx_cb()
+  ath9k_hif_usb_rx_stream()
+   RX_STAT_INC()		<--- htc_handle->drv_priv access
+
+In order to not add fancy protection for drv_priv we can move
+htc_handle->drv_priv initialization at the end of the
+ath9k_htc_probe_device() and add helper macro to make
+all *_STAT_* macros NULL safe, since syzbot has reported related NULL
+deref in that macros [1]
+
+Link: https://syzkaller.appspot.com/bug?id=6ead44e37afb6866ac0c7dd121b4ce07cb665f60 [0]
+Link: https://syzkaller.appspot.com/bug?id=b8101ffcec107c0567a0cd8acbbacec91e9ee8de [1]
+Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
+Reported-and-tested-by: syzbot+03110230a11411024147@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+c6dde1f690b60e0b9fbe@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/d57bbedc857950659bfacac0ab48790c1eda00c8.1655145743.git.paskripkin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../media/platform/nxp/imx-jpeg/mxc-jpeg.c    | 155 +++++++++---------
- .../media/platform/nxp/imx-jpeg/mxc-jpeg.h    |   2 -
- 2 files changed, 73 insertions(+), 84 deletions(-)
+ drivers/net/wireless/ath/ath9k/htc.h          | 10 +++++-----
+ drivers/net/wireless/ath/ath9k/htc_drv_init.c |  3 ++-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
-index 9b8451b56657..9a2fb0dc77a4 100644
---- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
-+++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
-@@ -559,6 +559,18 @@ static void mxc_jpeg_free_slot_data(struct mxc_jpeg_dev *jpeg,
- 	jpeg->slot_data[slot].used = false;
+diff --git a/drivers/net/wireless/ath/ath9k/htc.h b/drivers/net/wireless/ath/ath9k/htc.h
+index 6b45e63fae4b..e3d546ef71dd 100644
+--- a/drivers/net/wireless/ath/ath9k/htc.h
++++ b/drivers/net/wireless/ath/ath9k/htc.h
+@@ -327,11 +327,11 @@ static inline struct ath9k_htc_tx_ctl *HTC_SKB_CB(struct sk_buff *skb)
  }
  
-+static void mxc_jpeg_check_and_set_last_buffer(struct mxc_jpeg_ctx *ctx,
-+					       struct vb2_v4l2_buffer *src_buf,
-+					       struct vb2_v4l2_buffer *dst_buf)
-+{
-+	if (v4l2_m2m_is_last_draining_src_buf(ctx->fh.m2m_ctx, src_buf)) {
-+		dst_buf->flags |= V4L2_BUF_FLAG_LAST;
-+		v4l2_m2m_mark_stopped(ctx->fh.m2m_ctx);
-+		notify_eos(ctx);
-+		ctx->header_parsed = false;
-+	}
-+}
-+
- static irqreturn_t mxc_jpeg_dec_irq(int irq, void *priv)
- {
- 	struct mxc_jpeg_dev *jpeg = priv;
-@@ -633,6 +645,7 @@ static irqreturn_t mxc_jpeg_dec_irq(int irq, void *priv)
- 		dev_dbg(dev, "Decoder DHT cfg finished. Start decoding...\n");
- 		goto job_unlock;
- 	}
-+
- 	if (jpeg->mode == MXC_JPEG_ENCODE) {
- 		payload = readl(reg + MXC_SLOT_OFFSET(slot, SLOT_BUF_PTR));
- 		vb2_set_plane_payload(&dst_buf->vb2_buf, 0, payload);
-@@ -661,6 +674,7 @@ static irqreturn_t mxc_jpeg_dec_irq(int irq, void *priv)
- 
- buffers_done:
- 	jpeg->slot_data[slot].used = false; /* unused, but don't free */
-+	mxc_jpeg_check_and_set_last_buffer(ctx, src_buf, dst_buf);
- 	v4l2_m2m_src_buf_remove(ctx->fh.m2m_ctx);
- 	v4l2_m2m_dst_buf_remove(ctx->fh.m2m_ctx);
- 	v4l2_m2m_buf_done(src_buf, buf_state);
-@@ -1034,6 +1048,7 @@ static void mxc_jpeg_device_run(void *priv)
- 		jpeg_src_buf->jpeg_parse_error = true;
- 	}
- 	if (jpeg_src_buf->jpeg_parse_error) {
-+		mxc_jpeg_check_and_set_last_buffer(ctx, src_buf, dst_buf);
- 		v4l2_m2m_src_buf_remove(ctx->fh.m2m_ctx);
- 		v4l2_m2m_dst_buf_remove(ctx->fh.m2m_ctx);
- 		v4l2_m2m_buf_done(src_buf, VB2_BUF_STATE_ERROR);
-@@ -1084,45 +1099,33 @@ static void mxc_jpeg_device_run(void *priv)
- 	spin_unlock_irqrestore(&ctx->mxc_jpeg->hw_lock, flags);
- }
- 
--static void mxc_jpeg_set_last_buffer_dequeued(struct mxc_jpeg_ctx *ctx)
--{
--	struct vb2_queue *q;
+ #ifdef CONFIG_ATH9K_HTC_DEBUGFS
 -
--	ctx->stopped = 1;
--	q = v4l2_m2m_get_dst_vq(ctx->fh.m2m_ctx);
--	if (!list_empty(&q->done_list))
--		return;
--
--	q->last_buffer_dequeued = true;
--	wake_up(&q->done_wq);
--	ctx->stopped = 0;
--	ctx->header_parsed = false;
--}
--
- static int mxc_jpeg_decoder_cmd(struct file *file, void *priv,
- 				struct v4l2_decoder_cmd *cmd)
- {
- 	struct v4l2_fh *fh = file->private_data;
- 	struct mxc_jpeg_ctx *ctx = mxc_jpeg_fh_to_ctx(fh);
--	struct device *dev = ctx->mxc_jpeg->dev;
- 	int ret;
+-#define TX_STAT_INC(c) (hif_dev->htc_handle->drv_priv->debug.tx_stats.c++)
+-#define TX_STAT_ADD(c, a) (hif_dev->htc_handle->drv_priv->debug.tx_stats.c += a)
+-#define RX_STAT_INC(c) (hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c++)
+-#define RX_STAT_ADD(c, a) (hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c += a)
++#define __STAT_SAFE(expr) (hif_dev->htc_handle->drv_priv ? (expr) : 0)
++#define TX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c++)
++#define TX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c += a)
++#define RX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c++)
++#define RX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c += a)
+ #define CAB_STAT_INC   priv->debug.tx_stats.cab_queued++
  
- 	ret = v4l2_m2m_ioctl_try_decoder_cmd(file, fh, cmd);
- 	if (ret < 0)
- 		return ret;
+ #define TX_QSTAT_INC(q) (priv->debug.tx_stats.queue_stats[q]++)
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+index ff61ae34ecdf..07ac88fb1c57 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+@@ -944,7 +944,6 @@ int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
+ 	priv->hw = hw;
+ 	priv->htc = htc_handle;
+ 	priv->dev = dev;
+-	htc_handle->drv_priv = priv;
+ 	SET_IEEE80211_DEV(hw, priv->dev);
  
--	if (cmd->cmd == V4L2_DEC_CMD_STOP) {
--		dev_dbg(dev, "Received V4L2_DEC_CMD_STOP");
--		if (v4l2_m2m_num_src_bufs_ready(fh->m2m_ctx) == 0) {
--			/* No more src bufs, notify app EOS */
--			notify_eos(ctx);
--			mxc_jpeg_set_last_buffer_dequeued(ctx);
--		} else {
--			/* will send EOS later*/
--			ctx->stopping = 1;
--		}
-+	if (!vb2_is_streaming(v4l2_m2m_get_src_vq(fh->m2m_ctx)))
-+		return 0;
+ 	ret = ath9k_htc_wait_for_target(priv);
+@@ -965,6 +964,8 @@ int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
+ 	if (ret)
+ 		goto err_init;
+ 
++	htc_handle->drv_priv = priv;
 +
-+	ret = v4l2_m2m_ioctl_decoder_cmd(file, priv, cmd);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (cmd->cmd == V4L2_DEC_CMD_STOP &&
-+	    v4l2_m2m_has_stopped(fh->m2m_ctx)) {
-+		notify_eos(ctx);
-+		ctx->header_parsed = false;
- 	}
- 
-+	if (cmd->cmd == V4L2_DEC_CMD_START &&
-+	    v4l2_m2m_has_stopped(fh->m2m_ctx))
-+		vb2_clear_last_buffer_dequeued(&fh->m2m_ctx->cap_q_ctx.q);
  	return 0;
- }
  
-@@ -1131,24 +1134,27 @@ static int mxc_jpeg_encoder_cmd(struct file *file, void *priv,
- {
- 	struct v4l2_fh *fh = file->private_data;
- 	struct mxc_jpeg_ctx *ctx = mxc_jpeg_fh_to_ctx(fh);
--	struct device *dev = ctx->mxc_jpeg->dev;
- 	int ret;
- 
- 	ret = v4l2_m2m_ioctl_try_encoder_cmd(file, fh, cmd);
- 	if (ret < 0)
- 		return ret;
- 
--	if (cmd->cmd == V4L2_ENC_CMD_STOP) {
--		dev_dbg(dev, "Received V4L2_ENC_CMD_STOP");
--		if (v4l2_m2m_num_src_bufs_ready(fh->m2m_ctx) == 0) {
--			/* No more src bufs, notify app EOS */
--			notify_eos(ctx);
--			mxc_jpeg_set_last_buffer_dequeued(ctx);
--		} else {
--			/* will send EOS later*/
--			ctx->stopping = 1;
--		}
--	}
-+	if (!vb2_is_streaming(v4l2_m2m_get_src_vq(fh->m2m_ctx)) ||
-+	    !vb2_is_streaming(v4l2_m2m_get_dst_vq(fh->m2m_ctx)))
-+		return 0;
-+
-+	ret = v4l2_m2m_ioctl_encoder_cmd(file, fh, cmd);
-+	if (ret < 0)
-+		return 0;
-+
-+	if (cmd->cmd == V4L2_ENC_CMD_STOP &&
-+	    v4l2_m2m_has_stopped(fh->m2m_ctx))
-+		notify_eos(ctx);
-+
-+	if (cmd->cmd == V4L2_ENC_CMD_START &&
-+	    v4l2_m2m_has_stopped(fh->m2m_ctx))
-+		vb2_clear_last_buffer_dequeued(&fh->m2m_ctx->cap_q_ctx.q);
- 
- 	return 0;
- }
-@@ -1204,6 +1210,8 @@ static int mxc_jpeg_start_streaming(struct vb2_queue *q, unsigned int count)
- 	struct mxc_jpeg_q_data *q_data = mxc_jpeg_get_q_data(ctx, q->type);
- 	int ret;
- 
-+	v4l2_m2m_update_start_streaming_state(ctx->fh.m2m_ctx, q);
-+
- 	if (ctx->mxc_jpeg->mode == MXC_JPEG_DECODE && V4L2_TYPE_IS_CAPTURE(q->type))
- 		ctx->source_change = 0;
- 	dev_dbg(ctx->mxc_jpeg->dev, "Start streaming ctx=%p", ctx);
-@@ -1235,11 +1243,15 @@ static void mxc_jpeg_stop_streaming(struct vb2_queue *q)
- 			break;
- 		v4l2_m2m_buf_done(vbuf, VB2_BUF_STATE_ERROR);
- 	}
--	pm_runtime_put_sync(&ctx->mxc_jpeg->pdev->dev);
--	if (V4L2_TYPE_IS_OUTPUT(q->type)) {
--		ctx->stopping = 0;
--		ctx->stopped = 0;
-+
-+	v4l2_m2m_update_stop_streaming_state(ctx->fh.m2m_ctx, q);
-+	if (V4L2_TYPE_IS_OUTPUT(q->type) &&
-+	    v4l2_m2m_has_stopped(ctx->fh.m2m_ctx)) {
-+		notify_eos(ctx);
-+		ctx->header_parsed = false;
- 	}
-+
-+	pm_runtime_put_sync(&ctx->mxc_jpeg->pdev->dev);
- }
- 
- static int mxc_jpeg_valid_comp_id(struct device *dev,
-@@ -1438,6 +1450,20 @@ static void mxc_jpeg_buf_queue(struct vb2_buffer *vb)
- 	struct mxc_jpeg_ctx *ctx = vb2_get_drv_priv(vb->vb2_queue);
- 	struct mxc_jpeg_src_buf *jpeg_src_buf;
- 
-+	if (V4L2_TYPE_IS_CAPTURE(vb->vb2_queue->type) &&
-+	    vb2_is_streaming(vb->vb2_queue) &&
-+	    v4l2_m2m_dst_buf_is_last(ctx->fh.m2m_ctx)) {
-+		struct mxc_jpeg_q_data *q_data;
-+
-+		q_data = mxc_jpeg_get_q_data(ctx, vb->vb2_queue->type);
-+		vbuf->field = V4L2_FIELD_NONE;
-+		vbuf->sequence = q_data->sequence++;
-+		v4l2_m2m_last_buffer_done(ctx->fh.m2m_ctx, vbuf);
-+		notify_eos(ctx);
-+		ctx->header_parsed = false;
-+		return;
-+	}
-+
- 	if (vb->vb2_queue->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
- 		goto end;
- 
-@@ -1486,24 +1512,11 @@ static int mxc_jpeg_buf_prepare(struct vb2_buffer *vb)
- 			return -EINVAL;
- 		}
- 	}
--	return 0;
--}
--
--static void mxc_jpeg_buf_finish(struct vb2_buffer *vb)
--{
--	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
--	struct mxc_jpeg_ctx *ctx = vb2_get_drv_priv(vb->vb2_queue);
--	struct vb2_queue *q = vb->vb2_queue;
--
--	if (V4L2_TYPE_IS_OUTPUT(vb->type))
--		return;
--	if (!ctx->stopped)
--		return;
--	if (list_empty(&q->done_list)) {
--		vbuf->flags |= V4L2_BUF_FLAG_LAST;
--		ctx->stopped = 0;
--		ctx->header_parsed = false;
-+	if (V4L2_TYPE_IS_CAPTURE(vb->vb2_queue->type)) {
-+		vb2_set_plane_payload(vb, 0, 0);
-+		vb2_set_plane_payload(vb, 1, 0);
- 	}
-+	return 0;
- }
- 
- static const struct vb2_ops mxc_jpeg_qops = {
-@@ -1512,7 +1525,6 @@ static const struct vb2_ops mxc_jpeg_qops = {
- 	.wait_finish		= vb2_ops_wait_finish,
- 	.buf_out_validate	= mxc_jpeg_buf_out_validate,
- 	.buf_prepare		= mxc_jpeg_buf_prepare,
--	.buf_finish             = mxc_jpeg_buf_finish,
- 	.start_streaming	= mxc_jpeg_start_streaming,
- 	.stop_streaming		= mxc_jpeg_stop_streaming,
- 	.buf_queue		= mxc_jpeg_buf_queue,
-@@ -1956,27 +1968,6 @@ static int mxc_jpeg_subscribe_event(struct v4l2_fh *fh,
- 	}
- }
- 
--static int mxc_jpeg_dqbuf(struct file *file, void *priv,
--			  struct v4l2_buffer *buf)
--{
--	struct v4l2_fh *fh = file->private_data;
--	struct mxc_jpeg_ctx *ctx = mxc_jpeg_fh_to_ctx(priv);
--	struct device *dev = ctx->mxc_jpeg->dev;
--	int num_src_ready = v4l2_m2m_num_src_bufs_ready(fh->m2m_ctx);
--	int ret;
--
--	dev_dbg(dev, "DQBUF type=%d, index=%d", buf->type, buf->index);
--	if (ctx->stopping == 1 && num_src_ready == 0) {
--		/* No more src bufs, notify app EOS */
--		notify_eos(ctx);
--		ctx->stopping = 0;
--		mxc_jpeg_set_last_buffer_dequeued(ctx);
--	}
--
--	ret = v4l2_m2m_dqbuf(file, fh->m2m_ctx, buf);
--	return ret;
--}
--
- static const struct v4l2_ioctl_ops mxc_jpeg_ioctl_ops = {
- 	.vidioc_querycap		= mxc_jpeg_querycap,
- 	.vidioc_enum_fmt_vid_cap	= mxc_jpeg_enum_fmt_vid_cap,
-@@ -2000,7 +1991,7 @@ static const struct v4l2_ioctl_ops mxc_jpeg_ioctl_ops = {
- 	.vidioc_encoder_cmd		= mxc_jpeg_encoder_cmd,
- 
- 	.vidioc_qbuf			= v4l2_m2m_ioctl_qbuf,
--	.vidioc_dqbuf			= mxc_jpeg_dqbuf,
-+	.vidioc_dqbuf			= v4l2_m2m_ioctl_dqbuf,
- 
- 	.vidioc_create_bufs		= v4l2_m2m_ioctl_create_bufs,
- 	.vidioc_prepare_buf		= v4l2_m2m_ioctl_prepare_buf,
-diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.h b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.h
-index 760eaf5387a1..1d41cb8ffb6c 100644
---- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.h
-+++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.h
-@@ -92,8 +92,6 @@ struct mxc_jpeg_ctx {
- 	struct mxc_jpeg_q_data		cap_q;
- 	struct v4l2_fh			fh;
- 	enum mxc_jpeg_enc_state		enc_state;
--	unsigned int			stopping;
--	unsigned int			stopped;
- 	unsigned int			slot;
- 	unsigned int			source_change;
- 	bool				header_parsed;
+ err_init:
 -- 
 2.35.1
 
