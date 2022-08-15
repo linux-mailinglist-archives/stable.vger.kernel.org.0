@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D98DE593B91
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50399593D57
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242909AbiHOUJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:09:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52456 "EHLO
+        id S231435AbiHOUE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:04:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243473AbiHOUIo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:08:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE9A482F9E;
-        Mon, 15 Aug 2022 11:55:41 -0700 (PDT)
+        with ESMTP id S1345851AbiHOUEd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:04:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9EC47E811;
+        Mon, 15 Aug 2022 11:54:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D662D611ED;
-        Mon, 15 Aug 2022 18:55:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D893AC433D6;
-        Mon, 15 Aug 2022 18:55:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 732B3B810A1;
+        Mon, 15 Aug 2022 18:54:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4C2BC433D6;
+        Mon, 15 Aug 2022 18:54:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589740;
-        bh=bIhvwJ0cO3l3RJdTOuGmzssh9wbYGfWA10vvMIuUm+o=;
+        s=korg; t=1660589664;
+        bh=IRM5qCrAuEhQTcKNPhCPmPKbR9Vm7+BGI5WzTw2siqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n8qV2fvkzZW6BXCinxDryItaj+UfvDSPaH4tdZEexGImWRiuvIuV7OLasrAO3Zovg
-         EM60ISy4D0nznJyPupZ+ocl/kZcj06XxqOkhMg7SBNCxLcFwI2aPPQpkGCx0DI/WEx
-         nMmK7V0CAkdQwatqPMFYpoiQbUPKDXGmq3EmCcMA=
+        b=B4ZDrzb2CY5pYGBBiBrNkFvuURtv7jgoErxz5o661zLIDIBDkekuvAxaIgHzWXRgW
+         +qgMbF3s+RrbmpTYVwbP/dDg+xE9Ww7CU5Zh/l4mClHBaWMR0ku6vxWdiRTDNzFj0x
+         KKwbkq93dqIEAO0TDsDC2VXMWJpvH9KpB8r7i/uA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.18 0009/1095] ALSA: bcd2000: Fix a UAF bug on the error path of probing
-Date:   Mon, 15 Aug 2022 19:50:08 +0200
-Message-Id: <20220815180429.695236203@linuxfoundation.org>
+Subject: [PATCH 5.18 0010/1095] ALSA: hda/realtek: Add quirk for Clevo NV45PZ
+Date:   Mon, 15 Aug 2022 19:50:09 +0200
+Message-Id: <20220815180429.741750838@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -53,43 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Tim Crawford <tcrawford@system76.com>
 
-commit ffb2759df7efbc00187bfd9d1072434a13a54139 upstream.
+commit be561ffad708f0cee18aee4231f80ffafaf7a419 upstream.
 
-When the driver fails in snd_card_register() at probe time, it will free
-the 'bcd2k->midi_out_urb' before killing it, which may cause a UAF bug.
+Fixes headset detection on Clevo NV45PZ.
 
-The following log can reveal it:
-
-[   50.727020] BUG: KASAN: use-after-free in bcd2000_input_complete+0x1f1/0x2e0 [snd_bcd2000]
-[   50.727623] Read of size 8 at addr ffff88810fab0e88 by task swapper/4/0
-[   50.729530] Call Trace:
-[   50.732899]  bcd2000_input_complete+0x1f1/0x2e0 [snd_bcd2000]
-
-Fix this by adding usb_kill_urb() before usb_free_urb().
-
-Fixes: b47a22290d58 ("ALSA: MIDI driver for Behringer BCD2000 USB device")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Tim Crawford <tcrawford@system76.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220715010515.2087925-1-zheyuma97@gmail.com
+Link: https://lore.kernel.org/r/20220731032243.4300-1-tcrawford@system76.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/bcd2000/bcd2000.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/usb/bcd2000/bcd2000.c
-+++ b/sound/usb/bcd2000/bcd2000.c
-@@ -348,7 +348,8 @@ static int bcd2000_init_midi(struct bcd2
- static void bcd2000_free_usb_related_resources(struct bcd2000 *bcd2k,
- 						struct usb_interface *interface)
- {
--	/* usb_kill_urb not necessary, urb is aborted automatically */
-+	usb_kill_urb(bcd2k->midi_out_urb);
-+	usb_kill_urb(bcd2k->midi_in_urb);
- 
- 	usb_free_urb(bcd2k->midi_out_urb);
- 	usb_free_urb(bcd2k->midi_in_urb);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9255,6 +9255,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1558, 0x4018, "Clevo NV40M[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x4019, "Clevo NV40MZ", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x4020, "Clevo NV40MB", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x1558, 0x4041, "Clevo NV4[15]PZ", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x40a1, "Clevo NL40GU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x40c1, "Clevo NL40[CZ]U", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x40d1, "Clevo NL41DU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
 
 
