@@ -2,86 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B52592CCF
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 12:52:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CC43592BB2
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 12:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241736AbiHOIQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 04:16:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43038 "EHLO
+        id S241036AbiHOIjz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 04:39:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231163AbiHOIPh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 04:15:37 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10DBF639E;
-        Mon, 15 Aug 2022 01:15:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Transfer-Encoding:
-        Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
-        Sender:Reply-To:Content-ID:Content-Description;
-        bh=8Ewz/NjlMw51NrevL6mP6tY09Paxwi5mAgndnXxIDBg=; b=l0fFEmCLMSXx9W2xsG+a7cIUXK
-        Wa/U1dxWGmmtRQ5aP1D0E55ZzWtF6se5QPpXFADHuyFZtEG3qBMDdpkI+44S5+lVHDWZcKopE57Se
-        zrPO8UKMLMRtUEbhd9j7+c7i23fyo6IFAtuVZbStiVxy6d23p2e5UKD/JzJYxta7Pp82UN1ql/a7W
-        TIzHyUpthpkFuErAFlCh6t/LcHzj95hJgoxf+JHTb5I/REVOqnFVxVzE8xzp1FqjnKw9WEdIJCrvI
-        +gH1SqrnnhhXpNMYwRAXxJU2pwyEgnZ+CaKBZR53RQsf6NvwKPp/+wbSG3EttTq+F6dPmJRHPH8Mr
-        RGFVfGfA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=worktop.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oNVFk-002cVb-B6; Mon, 15 Aug 2022 08:15:16 +0000
-Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 3D37B980153; Mon, 15 Aug 2022 10:15:15 +0200 (CEST)
-Date:   Mon, 15 Aug 2022 10:15:15 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Li Hua <hucool.lihua@huawei.com>
-Cc:     mingo@redhat.com, juri.lelli@redhat.com,
-        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-        rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de,
-        bristot@redhat.com, vschneid@redhat.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH -next] sched/cputime: Fix the bug of reading time
- backward from /proc/stat
-Message-ID: <YvoAk1pnU4gZcFJ1@worktop.programming.kicks-ass.net>
-References: <20220813000102.42051-1-hucool.lihua@huawei.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220813000102.42051-1-hucool.lihua@huawei.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S233314AbiHOIjy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 04:39:54 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C53A1FCDE
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 01:39:54 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 200FDCE0E77
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 08:39:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D596C433C1;
+        Mon, 15 Aug 2022 08:39:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1660552790;
+        bh=N6a6DLioaPiYI1MMmpRqdfIrJ2C1HRVzJ3VxY+eZ42g=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=TcyFVR0OORDXOpPn4BXe1IGtXQJKqwrcZZdqfhAImey/SF0zPkAPwxVj/6tQ+XkfA
+         fiBI4hKpWDtNWpsi7Gqf00TGhTHossGaQn6I4Jcp/B7rKAiDMwM0BmjFPq2rMqN4m1
+         gTiW0qENxX7zI9lv+hEycxcLOVc/h10oGEfwzY6dgEnHsXeZf/1Xyf+SnUTe8TKr95
+         H2/Ruzpk5G8BB0J83Sgetuz/m0BfxZsRVmJ7aR2C9torHG2QrtqQLjwq1xlHh4jASG
+         lts0rHPx/s3+mo487lE9dKxRtS4LH/5nFrxG35NJeE22O6JRCOazILVoTrer5Tx5Xr
+         O0Ryf7yKTeT+w==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=why.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1oNVdT-0032Sa-Qo;
+        Mon, 15 Aug 2022 09:39:47 +0100
+Date:   Mon, 15 Aug 2022 09:39:47 +0100
+Message-ID: <87edxhvr1o.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Samuel Holland <samuel@sholland.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: Patch "genirq: GENERIC_IRQ_IPI depends on SMP" has been added to the 5.4-stable tree
+In-Reply-To: <089a8281-000e-d275-1b50-77c03a5eb06c@sholland.org>
+References: <20220813225008.2015117-1-sashal@kernel.org>
+        <089a8281-000e-d275-1b50-77c03a5eb06c@sholland.org>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: samuel@sholland.org, sashal@kernel.org, stable@vger.kernel.org, tglx@linutronix.de
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Aug 13, 2022 at 08:01:02AM +0800, Li Hua wrote:
-> The problem that the statistical time goes backward, the value read first is 319, and the value read again is 318. As follows：
-> first：
-> cat /proc/stat |  grep cpu1
-> cpu1    319    0    496    41665    0    0    0    0    0    0
-> then：
-> cat /proc/stat |  grep cpu1
-> cpu1    318    0    497    41674    0    0    0    0    0    0
+On Mon, 15 Aug 2022 05:21:51 +0100,
+Samuel Holland <samuel@sholland.org> wrote:
 > 
-> Time goes back, which is counterintuitive.
+> Hi Sasha,
 > 
-> After debug this, The problem is caused by the implementation of kcpustat_cpu_fetch_vtime. As follows：
+> On 8/13/22 5:50 PM, Sasha Levin wrote:
+> > This is a note to let you know that I've just added the patch titled
+> > 
+> >     genirq: GENERIC_IRQ_IPI depends on SMP
+> > 
+> > to the 5.4-stable tree which can be found at:
+> >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> > 
+> > The filename of the patch is:
+> >      genirq-generic_irq_ipi-depends-on-smp.patch
+> > and it can be found in the queue-5.4 subdirectory.
+> > 
+> > If you, or anyone else, feels it should not be added to the stable tree,
+> > please let <stable@vger.kernel.org> know about it.
 > 
->                               CPU0                                                                          CPU1
-> First:
-> show_stat():
->     ->kcpustat_cpu_fetch()
->         ->kcpustat_cpu_fetch_vtime()
->             ->cpustat[CPUTIME_USER] = kcpustat_cpu(cpu) + vtime->utime + delta;              rq->curr is in user mod
->              ---> When CPU1 rq->curr running on userspace, need add utime and delta
->                                                                                              --->  rq->curr->vtime->utime is less than 1 tick
-> Then:
-> show_stat():
->     ->kcpustat_cpu_fetch()
->         ->kcpustat_cpu_fetch_vtime()
->             ->cpustat[CPUTIME_USER] = kcpustat_cpu(cpu);                                     rq->curr is in kernel mod
->             ---> When CPU1 rq->curr running on kernel space, just got kcpustat
+> This commit should not be backported further than 8190cc572981
+> ("irqchip/mips-gic: Only register IPI domain when SMP is enabled"), which it
+> depends on. It looks like that commit only went back to 5.10.
 
-This is unreadable, what?!?
+I also wonder why these commits were backported *at all*. On their
+own, they don't fix anything, but allowed further improvements that
+are not backport candidates either.
+
+Honestly, if I wanted these backported to stable, I'd have put a 'Cc:
+stable' tag. These patches don't even have a 'Fixes:' tag, for the
+same reason.
+
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
