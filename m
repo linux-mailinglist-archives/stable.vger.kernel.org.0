@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F1FE5944F1
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5B30594301
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:54:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346803AbiHOV75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:59:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55924 "EHLO
+        id S1344381AbiHOV7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:59:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346807AbiHOV7S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:59:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F019310E94E;
-        Mon, 15 Aug 2022 12:35:05 -0700 (PDT)
+        with ESMTP id S1346350AbiHOV7R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:59:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E31CC10DCFE;
+        Mon, 15 Aug 2022 12:35:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A591B80EAB;
-        Mon, 15 Aug 2022 19:34:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9698BC433D6;
-        Mon, 15 Aug 2022 19:34:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54363B8113A;
+        Mon, 15 Aug 2022 19:35:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE761C433D6;
+        Mon, 15 Aug 2022 19:35:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592097;
-        bh=pTtIM64RdILeVy25ARrvbKCjUMJ6DkCoiulUOCyVutE=;
+        s=korg; t=1660592103;
+        bh=6Y+n1Fh34nlI40YE6bpSHkRZMigYHMZUwQxs++D7Uno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jv5Vibf4hcbmU/QEbt01McMU4n15WDT8G6dC6akDlHKRpph++FWOO9j+aC/CmgNHh
-         o86+djOpAhcS2iE6X4xOkHywfkeULIA3bfdlM62PME1PCpWywytonosBceQoAp/Vg+
-         q9JHP34R995Od1XKSBr2AqccNfujkaCpqwPOoeDM=
+        b=CWBmhtgLsFIqZkCHT/TGyTMrKvprEM7SSXJCDJHAGyKzrlY3Z36OB8lv4Lh3iq7DU
+         mQYvzII007lRtQ7/KEqOxBKE007G872Z+cIscOglXnFQm210WvdfRSIH94X3Jkxlm3
+         gFmm+Lhb5HGWfobo4Zt9apI4b+IA/E/Ys/zB9pO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Lukas Wunner <lukas@wunner.de>,
-        Oliver Neukum <oneukum@suse.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 0058/1157] usbnet: Fix linkwatch use-after-free on disconnect
-Date:   Mon, 15 Aug 2022 19:50:14 +0200
-Message-Id: <20220815180441.803765540@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Andre Edich <andre.edich@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.19 0059/1157] usbnet: smsc95xx: Fix deadlock on runtime resume
+Date:   Mon, 15 Aug 2022 19:50:15 +0200
+Message-Id: <20220815180441.851269397@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -58,83 +56,186 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lukas Wunner <lukas@wunner.de>
 
-commit a69e617e533edddf3fa3123149900f36e0a6dc74 upstream.
+commit 7b960c967f2aa01ab8f45c5a0bd78e754cffdeee upstream.
 
-usbnet uses the work usbnet_deferred_kevent() to perform tasks which may
-sleep.  On disconnect, completion of the work was originally awaited in
-->ndo_stop().  But in 2003, that was moved to ->disconnect() by historic
-commit "[PATCH] USB: usbnet, prevent exotic rtnl deadlock":
+Commit 05b35e7eb9a1 ("smsc95xx: add phylib support") amended
+smsc95xx_resume() to call phy_init_hw().  That function waits for the
+device to runtime resume even though it is placed in the runtime resume
+path, causing a deadlock.
 
-  https://git.kernel.org/tglx/history/c/0f138bbfd83c
+The problem is that phy_init_hw() calls down to smsc95xx_mdiobus_read(),
+which never uses the _nopm variant of usbnet_read_cmd().
 
-The change was made because back then, the kernel's workqueue
-implementation did not allow waiting for a single work.  One had to wait
-for completion of *all* work by calling flush_scheduled_work(), and that
-could deadlock when waiting for usbnet_deferred_kevent() with rtnl_mutex
-held in ->ndo_stop().
+Commit b4df480f68ae ("usbnet: smsc95xx: add reset_resume function with
+reset operation") causes a similar deadlock on resume if the device was
+already runtime suspended when entering system sleep:
 
-The commit solved one problem but created another:  It causes a
-use-after-free in USB Ethernet drivers aqc111.c, asix_devices.c,
-ax88179_178a.c, ch9200.c and smsc75xx.c:
+That's because the commit introduced smsc95xx_reset_resume(), which
+calls down to smsc95xx_reset(), which neglects to use _nopm accessors.
 
-* If the drivers receive a link change interrupt immediately before
-  disconnect, they raise EVENT_LINK_RESET in their (non-sleepable)
-  ->status() callback and schedule usbnet_deferred_kevent().
-* usbnet_deferred_kevent() invokes the driver's ->link_reset() callback,
-  which calls netif_carrier_{on,off}().
-* That in turn schedules the work linkwatch_event().
+Fix by auto-detecting whether a device access is performed by the
+suspend/resume task_struct and use the _nopm variant if so.  This works
+because the PM core guarantees that suspend/resume callbacks are run in
+task context.
 
-Because usbnet_deferred_kevent() is awaited after unregister_netdev(),
-netif_carrier_{on,off}() may operate on an unregistered netdev and
-linkwatch_event() may run after free_netdev(), causing a use-after-free.
+Stacktrace for posterity:
 
-In 2010, usbnet was changed to only wait for a single instance of
-usbnet_deferred_kevent() instead of *all* work by commit 23f333a2bfaf
-("drivers/net: don't use flush_scheduled_work()").
+  INFO: task kworker/2:1:49 blocked for more than 122 seconds.
+  Workqueue: usb_hub_wq hub_event
+  schedule
+  rpm_resume
+  __pm_runtime_resume
+  usb_autopm_get_interface
+  usbnet_read_cmd
+  __smsc95xx_read_reg
+  __smsc95xx_phy_wait_not_busy
+  __smsc95xx_mdio_read
+  smsc95xx_mdiobus_read
+  __mdiobus_read
+  mdiobus_read
+  smsc_phy_reset
+  phy_init_hw
+  smsc95xx_resume
+  usb_resume_interface
+  usb_resume_both
+  usb_runtime_resume
+  __rpm_callback
+  rpm_callback
+  rpm_resume
+  __pm_runtime_resume
+  usb_autoresume_device
+  hub_event
+  process_one_work
 
-Unfortunately the commit neglected to move the wait back to
-->ndo_stop().  Rectify that omission at long last.
-
-Reported-by: Jann Horn <jannh@google.com>
-Link: https://lore.kernel.org/netdev/CAG48ez0MHBbENX5gCdHAUXZ7h7s20LnepBF-pa5M=7Bi-jZrEA@mail.gmail.com/
-Reported-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/netdev/20220315113841.GA22337@pengutronix.de/
+Fixes: b4df480f68ae ("usbnet: smsc95xx: add reset_resume function with reset operation")
 Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/d1c87ebe9fc502bffcd1576e238d685ad08321e4.1655987888.git.lukas@wunner.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: stable@vger.kernel.org # v3.16+
+Cc: Andre Edich <andre.edich@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/usbnet.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/net/usb/smsc95xx.c |   26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -849,13 +849,11 @@ int usbnet_stop (struct net_device *net)
+--- a/drivers/net/usb/smsc95xx.c
++++ b/drivers/net/usb/smsc95xx.c
+@@ -71,6 +71,7 @@ struct smsc95xx_priv {
+ 	struct fwnode_handle *irqfwnode;
+ 	struct mii_bus *mdiobus;
+ 	struct phy_device *phydev;
++	struct task_struct *pm_task;
+ };
  
- 	mpn = !test_and_clear_bit(EVENT_NO_RUNTIME_PM, &dev->flags);
+ static bool turbo_mode = true;
+@@ -80,13 +81,14 @@ MODULE_PARM_DESC(turbo_mode, "Enable mul
+ static int __must_check __smsc95xx_read_reg(struct usbnet *dev, u32 index,
+ 					    u32 *data, int in_pm)
+ {
++	struct smsc95xx_priv *pdata = dev->driver_priv;
+ 	u32 buf;
+ 	int ret;
+ 	int (*fn)(struct usbnet *, u8, u8, u16, u16, void *, u16);
  
--	/* deferred work (task, timer, softirq) must also stop.
--	 * can't flush_scheduled_work() until we drop rtnl (later),
--	 * else workers could deadlock; so make workers a NOP.
--	 */
-+	/* deferred work (timer, softirq, task) must also stop */
- 	dev->flags = 0;
- 	del_timer_sync (&dev->delay);
- 	tasklet_kill (&dev->bh);
-+	cancel_work_sync(&dev->kevent);
- 	if (!pm)
- 		usb_autopm_put_interface(dev->intf);
+ 	BUG_ON(!dev);
  
-@@ -1619,8 +1617,6 @@ void usbnet_disconnect (struct usb_inter
- 	net = dev->net;
- 	unregister_netdev (net);
+-	if (!in_pm)
++	if (current != pdata->pm_task)
+ 		fn = usbnet_read_cmd;
+ 	else
+ 		fn = usbnet_read_cmd_nopm;
+@@ -110,13 +112,14 @@ static int __must_check __smsc95xx_read_
+ static int __must_check __smsc95xx_write_reg(struct usbnet *dev, u32 index,
+ 					     u32 data, int in_pm)
+ {
++	struct smsc95xx_priv *pdata = dev->driver_priv;
+ 	u32 buf;
+ 	int ret;
+ 	int (*fn)(struct usbnet *, u8, u8, u16, u16, const void *, u16);
  
--	cancel_work_sync(&dev->kevent);
--
- 	usb_scuttle_anchored_urbs(&dev->deferred);
+ 	BUG_ON(!dev);
  
- 	if (dev->driver_info->unbind)
+-	if (!in_pm)
++	if (current != pdata->pm_task)
+ 		fn = usbnet_write_cmd;
+ 	else
+ 		fn = usbnet_write_cmd_nopm;
+@@ -1490,9 +1493,12 @@ static int smsc95xx_suspend(struct usb_i
+ 	u32 val, link_up;
+ 	int ret;
+ 
++	pdata->pm_task = current;
++
+ 	ret = usbnet_suspend(intf, message);
+ 	if (ret < 0) {
+ 		netdev_warn(dev->net, "usbnet_suspend error\n");
++		pdata->pm_task = NULL;
+ 		return ret;
+ 	}
+ 
+@@ -1732,6 +1738,7 @@ done:
+ 	if (ret && PMSG_IS_AUTO(message))
+ 		usbnet_resume(intf);
+ 
++	pdata->pm_task = NULL;
+ 	return ret;
+ }
+ 
+@@ -1752,29 +1759,31 @@ static int smsc95xx_resume(struct usb_in
+ 	/* do this first to ensure it's cleared even in error case */
+ 	pdata->suspend_flags = 0;
+ 
++	pdata->pm_task = current;
++
+ 	if (suspend_flags & SUSPEND_ALLMODES) {
+ 		/* clear wake-up sources */
+ 		ret = smsc95xx_read_reg_nopm(dev, WUCSR, &val);
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 
+ 		val &= ~(WUCSR_WAKE_EN_ | WUCSR_MPEN_);
+ 
+ 		ret = smsc95xx_write_reg_nopm(dev, WUCSR, val);
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 
+ 		/* clear wake-up status */
+ 		ret = smsc95xx_read_reg_nopm(dev, PM_CTRL, &val);
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 
+ 		val &= ~PM_CTL_WOL_EN_;
+ 		val |= PM_CTL_WUPS_;
+ 
+ 		ret = smsc95xx_write_reg_nopm(dev, PM_CTRL, val);
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 	}
+ 
+ 	phy_init_hw(pdata->phydev);
+@@ -1783,15 +1792,20 @@ static int smsc95xx_resume(struct usb_in
+ 	if (ret < 0)
+ 		netdev_warn(dev->net, "usbnet_resume error\n");
+ 
++done:
++	pdata->pm_task = NULL;
+ 	return ret;
+ }
+ 
+ static int smsc95xx_reset_resume(struct usb_interface *intf)
+ {
+ 	struct usbnet *dev = usb_get_intfdata(intf);
++	struct smsc95xx_priv *pdata = dev->driver_priv;
+ 	int ret;
+ 
++	pdata->pm_task = current;
+ 	ret = smsc95xx_reset(dev);
++	pdata->pm_task = NULL;
+ 	if (ret < 0)
+ 		return ret;
+ 
 
 
