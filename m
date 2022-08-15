@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5F785942AA
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4E14593DCA
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349960AbiHOVxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:53:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44232 "EHLO
+        id S1343988AbiHOTiU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:38:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349970AbiHOVwJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:52:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47107107F1B;
-        Mon, 15 Aug 2022 12:33:17 -0700 (PDT)
+        with ESMTP id S1344437AbiHOTgk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:36:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A615B30F6B;
+        Mon, 15 Aug 2022 11:46:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D0416114B;
-        Mon, 15 Aug 2022 19:33:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17C7EC433C1;
-        Mon, 15 Aug 2022 19:33:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 514D5B81071;
+        Mon, 15 Aug 2022 18:46:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACD77C433C1;
+        Mon, 15 Aug 2022 18:46:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591995;
-        bh=g1Bx1HzdKI7GlDoXKpbcU4VMK32z9g/6QCn0thKghpY=;
+        s=korg; t=1660589165;
+        bh=NQ/7lkw2mnIkkDW+T812q2jdHGkwZYAPQVpi7RPSVnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F2smWI5GT0vrNB+BuDYCh5iWsiVHLbmdhYXJjM3tYZ+CUdJEN7eIY3+H7TwODzI8U
-         RouW+0KC+teKeCuC26iMmULeIxQMzDBW4lD62irqmtM/a4PCEelZq1pClv4Kk7Ytaw
-         NTcjp4W6oo9Tb/uNl3Hh6RvwL+/GW0r8uUEjQBYc=
+        b=xhvZxD6JBY4IRjD7gSluDFw0MGyDBvRYoWzr2ATCj5LCqTa3tdN3b6WhWwJzlM2jS
+         bX2Jesw0afpIV/pofEJsl8H9baGSiNT3RyCre26OdFGBfwEnRzo8RH6WGyLCH7pwre
+         hHyfZf00GtFO4jKHYqzdvUwT0fgsWcqlqMkGgVMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Shi <shy828301@gmail.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0715/1095] mm: rmap: use the correct parameter name for DEFINE_PAGE_VMA_WALK
-Date:   Mon, 15 Aug 2022 20:01:54 +0200
-Message-Id: <20220815180458.976610783@linuxfoundation.org>
+Subject: [PATCH 5.15 592/779] ASoC: imx-card: Fix DSD/PDM mclk frequency
+Date:   Mon, 15 Aug 2022 20:03:56 +0200
+Message-Id: <20220815180402.631828875@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
+References: <20220815180337.130757997@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <shy828301@gmail.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 507db7927cd181d409dd495c8384b8e14c21c600 ]
+[ Upstream commit c0fabd12a8570cb932f13d9388f3d887ad44369b ]
 
-The parameter used by DEFINE_PAGE_VMA_WALK is _page not page, fix the
-parameter name.  It didn't cause any build error, it is probably because
-the only caller is write_protect_page() from ksm.c, which pass in page.
+The DSD/PDM rate not only DSD64/128/256/512, which are the
+multiple rate of 44.1kHz,  but also support the multiple
+rate of 8kHz, so can't force all mclk frequency to be
+22579200Hz, need to assign the frequency according to
+rate.
 
-Link: https://lkml.kernel.org/r/20220512174551.81279-1-shy828301@gmail.com
-Fixes: 2aff7a4755be ("mm: Convert page_vma_mapped_walk to work on PFNs")
-Signed-off-by: Yang Shi <shy828301@gmail.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: aa736700f42f ("ASoC: imx-card: Add imx-card machine driver")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1657100575-8261-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/rmap.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/fsl/imx-card.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/rmap.h b/include/linux/rmap.h
-index 17230c458341..a0c4a870bb48 100644
---- a/include/linux/rmap.h
-+++ b/include/linux/rmap.h
-@@ -220,8 +220,8 @@ struct page_vma_mapped_walk {
- #define DEFINE_PAGE_VMA_WALK(name, _page, _vma, _address, _flags)	\
- 	struct page_vma_mapped_walk name = {				\
- 		.pfn = page_to_pfn(_page),				\
--		.nr_pages = compound_nr(page),				\
--		.pgoff = page_to_pgoff(page),				\
-+		.nr_pages = compound_nr(_page),				\
-+		.pgoff = page_to_pgoff(_page),				\
- 		.vma = _vma,						\
- 		.address = _address,					\
- 		.flags = _flags,					\
+diff --git a/sound/soc/fsl/imx-card.c b/sound/soc/fsl/imx-card.c
+index 55bc1bb0dbbd..b28b30c69a3f 100644
+--- a/sound/soc/fsl/imx-card.c
++++ b/sound/soc/fsl/imx-card.c
+@@ -17,6 +17,9 @@
+ 
+ #include "fsl_sai.h"
+ 
++#define IMX_CARD_MCLK_22P5792MHZ  22579200
++#define IMX_CARD_MCLK_24P576MHZ   24576000
++
+ enum codec_type {
+ 	CODEC_DUMMY = 0,
+ 	CODEC_AK5558 = 1,
+@@ -353,9 +356,14 @@ static int imx_aif_hw_params(struct snd_pcm_substream *substream,
+ 		mclk_freq = akcodec_get_mclk_rate(substream, params, slots, slot_width);
+ 	else
+ 		mclk_freq = params_rate(params) * slots * slot_width;
+-	/* Use the maximum freq from DSD512 (512*44100 = 22579200) */
+-	if (format_is_dsd(params))
+-		mclk_freq = 22579200;
++
++	if (format_is_dsd(params)) {
++		/* Use the maximum freq from DSD512 (512*44100 = 22579200) */
++		if (!(params_rate(params) % 11025))
++			mclk_freq = IMX_CARD_MCLK_22P5792MHZ;
++		else
++			mclk_freq = IMX_CARD_MCLK_24P576MHZ;
++	}
+ 
+ 	ret = snd_soc_dai_set_sysclk(cpu_dai, link_data->cpu_sysclk_id, mclk_freq,
+ 				     SND_SOC_CLOCK_OUT);
 -- 
 2.35.1
 
