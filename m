@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5CA2594486
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:58:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5471C594593
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239288AbiHOW2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:28:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38724 "EHLO
+        id S233959AbiHOWaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:30:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351055AbiHOW1b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:27:31 -0400
+        with ESMTP id S1351237AbiHOW14 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:27:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BD2E6D56E;
-        Mon, 15 Aug 2022 12:46:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 965066F56F;
+        Mon, 15 Aug 2022 12:47:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAE856122E;
-        Mon, 15 Aug 2022 19:46:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8139C433C1;
-        Mon, 15 Aug 2022 19:46:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2E856122C;
+        Mon, 15 Aug 2022 19:47:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0AA6C433C1;
+        Mon, 15 Aug 2022 19:47:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592794;
-        bh=pqbpWM0ovuucZKEV5C40+B3/2rDpOTNZlRfpRdD2Tu0=;
+        s=korg; t=1660592864;
+        bh=yhuN0DL0yv2xRFCMow4wX3R8JWRCMkUfnbUAKDjrUfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E4KjQHmfE/LN1mUkgOjvvnPrzPfx9nduQJG8RD9RsBZooxC3bsrzxHGZYxSb0MDQF
-         lYfj8hy1yFtS4jv5fpfxG4Hu/eDnYi4PPRUqXRSdADHgEWGPPPciALUnW/ojoauKBx
-         cTcthegTaUdxpzYEY+JnxiuOT3O64sH0zxdszQ6I=
+        b=Exun67G81V2XPHJxiKtDxFxVMaCfuGybNbpfecSPZgzZOMVCV79ONBS6+AuX4I0ZA
+         j0fQ6k64B/eRGQB8mcij+/ox5I16U+pf3qrbIeKrbkxvssl/CqeXSJPwikyRaBwHfg
+         oGgVCc3m4FnJgdzVsrzGvbz5+IBAk8yQZORFIHXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Fabio Estevam <festevam@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0828/1095] ASoC: samsung: Fix error handling in aries_audio_probe
-Date:   Mon, 15 Aug 2022 20:03:47 +0200
-Message-Id: <20220815180503.568896056@linuxfoundation.org>
+Subject: [PATCH 5.18 0829/1095] ASoC: imx-audmux: Silence a clang warning
+Date:   Mon, 15 Aug 2022 20:03:48 +0200
+Message-Id: <20220815180503.608132466@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,42 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit 3e2649c5e8643bea0867bb1dd970fedadb0eb7f3 ]
+[ Upstream commit 2f4a8171da06609bb6a063630ed546ee3d93dad7 ]
 
-of_get_child_by_name() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-This function is missing of_node_put(cpu) in the error path.
-Fix this by goto out label. of_node_put() will check NULL pointer.
+Change the of_device_get_match_data() cast to (uintptr_t)
+to silence the following clang warning:
 
-Fixes: 7a3a7671fa6c ("ASoC: samsung: Add driver for Aries boards")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220603130640.37624-1-linmq006@gmail.com
+sound/soc/fsl/imx-audmux.c:301:16: warning: cast to smaller integer type 'enum imx_audmux_type' from 'const void *' [-Wvoid-pointer-to-enum-cast]
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 6a8b8b582db1 ("ASoC: imx-audmux: Remove unused .id_table")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20220526010543.1164793-1-festevam@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/samsung/aries_wm8994.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/soc/fsl/imx-audmux.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/samsung/aries_wm8994.c b/sound/soc/samsung/aries_wm8994.c
-index 83acbe57b248..a0825da9fff9 100644
---- a/sound/soc/samsung/aries_wm8994.c
-+++ b/sound/soc/samsung/aries_wm8994.c
-@@ -628,8 +628,10 @@ static int aries_audio_probe(struct platform_device *pdev)
- 		return -EINVAL;
+diff --git a/sound/soc/fsl/imx-audmux.c b/sound/soc/fsl/imx-audmux.c
+index dfa05d40b276..a8e5e0f57faf 100644
+--- a/sound/soc/fsl/imx-audmux.c
++++ b/sound/soc/fsl/imx-audmux.c
+@@ -298,7 +298,7 @@ static int imx_audmux_probe(struct platform_device *pdev)
+ 		audmux_clk = NULL;
+ 	}
  
- 	codec = of_get_child_by_name(dev->of_node, "codec");
--	if (!codec)
--		return -EINVAL;
-+	if (!codec) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
+-	audmux_type = (enum imx_audmux_type)of_device_get_match_data(&pdev->dev);
++	audmux_type = (uintptr_t)of_device_get_match_data(&pdev->dev);
  
- 	for_each_card_prelinks(card, i, dai_link) {
- 		dai_link->codecs->of_node = of_parse_phandle(codec,
+ 	switch (audmux_type) {
+ 	case IMX31_AUDMUX:
 -- 
 2.35.1
 
