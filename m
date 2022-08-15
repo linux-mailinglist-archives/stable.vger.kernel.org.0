@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C90E594243
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B378F594259
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349488AbiHOVsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:48:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49446 "EHLO
+        id S1349812AbiHOVsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:48:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349486AbiHOVoL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:44:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED3B110228B;
-        Mon, 15 Aug 2022 12:29:49 -0700 (PDT)
+        with ESMTP id S1346706AbiHOVo1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:44:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38A871022B1;
+        Mon, 15 Aug 2022 12:29:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 486B8B81062;
-        Mon, 15 Aug 2022 19:29:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A0C6C433C1;
-        Mon, 15 Aug 2022 19:29:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C693B60EF0;
+        Mon, 15 Aug 2022 19:29:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B97A6C433D6;
+        Mon, 15 Aug 2022 19:29:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591787;
-        bh=tSG5BZiS7wjhmXMXzV5/Gy6ukN5wWDyGwnZ1mUmPQps=;
+        s=korg; t=1660591793;
+        bh=bZ788B6z466vmlS6LVITTCvYlqYe/U/IhX4N2/r73Is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TF5nKCizpYV1zk7jbvSLc46wrisoQGxdCeHMlHHLl+5j4nklmKNinWyMGqJ+GzdcM
-         nUO5P9k6JDM1fnw8vT3mbfADwrjbTVaqnDq4o229B0MI/clSAwd+Os34Nbf3XqKBoC
-         BTI053I2sPvA+s8yL5Jm5gMxQwW0rltnvCH4krtY=
+        b=JArRvkp0Iarwi1tZkms2ephH3WB5Jef8NshxDiVpWhnoj+Nc3G/mUT3QNJECvpXbp
+         LNJHeEHbyRhPThDrWrylc9gBPuwUn8T/sDbQ8wsYIlBYfBGGI4w0FPsWswS67u/kN5
+         9W3VIXGh7OflOr/duyCRAMSEjIrBI8vUTbS4iMHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Bob Pearson <rpearsonhpe@gmail.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Jerome Glisse <jglisse@redhat.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0681/1095] RDMA/rxe: fix xa_alloc_cycle() error return value check again
-Date:   Mon, 15 Aug 2022 20:01:20 +0200
-Message-Id: <20220815180457.546859444@linuxfoundation.org>
+Subject: [PATCH 5.18 0682/1095] lib/test_hmm: avoid accessing uninitialized pages
+Date:   Mon, 15 Aug 2022 20:01:21 +0200
+Message-Id: <20220815180457.586158042@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,47 +58,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 1a685940e6200e9def6e34bbaa19dd31dc5aeaf8 ]
+[ Upstream commit ed913b055a74b723976f8e885a3395162a0371e6 ]
 
-Currently rxe_alloc checks ret to indicate error, but 1 is also a valid
-return and just indicates that the allocation succeeded with a wrap.
+If make_device_exclusive_range() fails or returns pages marked for
+exclusive access less than required, remaining fields of pages will left
+uninitialized.  So dmirror_atomic_map() will access those yet
+uninitialized fields of pages.  To fix it, do dmirror_atomic_map() iff all
+pages are marked for exclusive access (we will break if mapped is less
+than required anyway) so we won't access those uninitialized fields of
+pages.
 
-Fix this by modifying the check to be < 0.
-
-Link: https://lore.kernel.org/r/20220609070656.1446121-1-dzm91@hust.edu.cn
-Fixes: 3225717f6dfa ("RDMA/rxe: Replace red-black trees by xarrays")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Reviewed-by: Bob Pearson <rpearsonhpe@gmail.com>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Link: https://lkml.kernel.org/r/20220609130835.35110-1-linmiaohe@huawei.com
+Fixes: b659baea7546 ("mm: selftests for exclusive device memory")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_pool.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/test_hmm.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_pool.c b/drivers/infiniband/sw/rxe/rxe_pool.c
-index 87066d04ed18..69db28944567 100644
---- a/drivers/infiniband/sw/rxe/rxe_pool.c
-+++ b/drivers/infiniband/sw/rxe/rxe_pool.c
-@@ -140,7 +140,7 @@ void *rxe_alloc(struct rxe_pool *pool)
+diff --git a/lib/test_hmm.c b/lib/test_hmm.c
+index cfe632047839..f2c3015c5c82 100644
+--- a/lib/test_hmm.c
++++ b/lib/test_hmm.c
+@@ -732,7 +732,7 @@ static int dmirror_exclusive(struct dmirror *dmirror,
  
- 	err = xa_alloc_cyclic(&pool->xa, &elem->index, elem, pool->limit,
- 			      &pool->next, GFP_KERNEL);
--	if (err)
-+	if (err < 0)
- 		goto err_free;
+ 	mmap_read_lock(mm);
+ 	for (addr = start; addr < end; addr = next) {
+-		unsigned long mapped;
++		unsigned long mapped = 0;
+ 		int i;
  
- 	return obj;
-@@ -168,7 +168,7 @@ int __rxe_add_to_pool(struct rxe_pool *pool, struct rxe_pool_elem *elem)
+ 		if (end < addr + (ARRAY_SIZE(pages) << PAGE_SHIFT))
+@@ -741,7 +741,13 @@ static int dmirror_exclusive(struct dmirror *dmirror,
+ 			next = addr + (ARRAY_SIZE(pages) << PAGE_SHIFT);
  
- 	err = xa_alloc_cyclic(&pool->xa, &elem->index, elem, pool->limit,
- 			      &pool->next, GFP_KERNEL);
--	if (err)
-+	if (err < 0)
- 		goto err_cnt;
- 
- 	return 0;
+ 		ret = make_device_exclusive_range(mm, addr, next, pages, NULL);
+-		mapped = dmirror_atomic_map(addr, next, pages, dmirror);
++		/*
++		 * Do dmirror_atomic_map() iff all pages are marked for
++		 * exclusive access to avoid accessing uninitialized
++		 * fields of pages.
++		 */
++		if (ret == (next - addr) >> PAGE_SHIFT)
++			mapped = dmirror_atomic_map(addr, next, pages, dmirror);
+ 		for (i = 0; i < ret; i++) {
+ 			if (pages[i]) {
+ 				unlock_page(pages[i]);
 -- 
 2.35.1
 
