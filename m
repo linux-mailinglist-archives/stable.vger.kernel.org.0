@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E005594808
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5CA594A42
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:18:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344821AbiHOXTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:19:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53858 "EHLO
+        id S229747AbiHOXTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:19:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353579AbiHOXQ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:16:58 -0400
+        with ESMTP id S234174AbiHOXRH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:17:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 881557C18D;
-        Mon, 15 Aug 2022 13:03:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA44149A15;
+        Mon, 15 Aug 2022 13:03:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A52861226;
-        Mon, 15 Aug 2022 20:03:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D145C433C1;
-        Mon, 15 Aug 2022 20:03:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59A7C612DA;
+        Mon, 15 Aug 2022 20:03:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6259DC433C1;
+        Mon, 15 Aug 2022 20:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593814;
-        bh=/BFaRg1u6qCe8vxEaMLKAqBdBVsQGZo/dzYZ3T2e9as=;
+        s=korg; t=1660593819;
+        bh=AwT3hcAJvFxenTj1NVvhczIFkFp0UrMMz3+/fm3VJqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ghoN2hBUO1NQ1Jbx6IAqP7BTFNuTgj8ZLOfIVmiuP9OB9tGOf8kJuSpF28DXfVO76
-         h7fMwUUqhNtTF0M/GNuNUsdLcgAr5Oxz9InjT65AzOq+q8SKRTi7jsBhuNQgvJfUgr
-         kzAHSDkPjaCH5hmKoBJN8DYpfWQ1EAyfLmpqn/V0=
+        b=CLDQNZUrX6wFUFph7R5/J3kTquN8ReRyi3Kh5aL1Ow2WyRjspaQTmY6bW++Zaz1bA
+         4FiyUf+BER0Bv38Q8w6EvJnYSCySqrOz7+6+QdMIerCBYiNhgxhxXlRq47n6s6M2ri
+         kNmr3uyAB1ULvEHw8VDdZLNCDQ8FrHlFYKnYniVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1010/1095] block: serialize all debugfs operations using q->debugfs_mutex
-Date:   Mon, 15 Aug 2022 20:06:49 +0200
-Message-Id: <20220815180510.893822245@linuxfoundation.org>
+        stable@vger.kernel.org, Jinke Han <hanjinke.666@bytedance.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 1011/1095] block: dont allow the same type rq_qos add more than once
+Date:   Mon, 15 Aug 2022 20:06:50 +0200
+Message-Id: <20220815180510.943662166@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -53,332 +55,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Jinke Han <hanjinke.666@bytedance.com>
 
-[ Upstream commit 5cf9c91ba927119fc6606b938b1895bb2459d3bc ]
+[ Upstream commit 14a6e2eb7df5c7897c15b109cba29ab0c4a791b6 ]
 
-Various places like I/O schedulers or the QOS infrastructure try to
-register debugfs files on demans, which can race with creating and
-removing the main queue debugfs directory.  Use the existing
-debugfs_mutex to serialize all debugfs operations that rely on
-q->debugfs_dir or the directories hanging off it.
+In our test of iocost, we encountered some list add/del corruptions of
+inner_walk list in ioc_timer_fn.
 
-To make the teardown code a little simpler declare all debugfs dentry
-pointers and not just the main one uncoditionally in blkdev.h.
+The reason can be described as follows:
 
-Move debugfs_mutex next to the dentries that it protects and document
-what it is used for.
+cpu 0					cpu 1
+ioc_qos_write				ioc_qos_write
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220614074827.458955-3-hch@lst.de
+ioc = q_to_ioc(queue);
+if (!ioc) {
+        ioc = kzalloc();
+					ioc = q_to_ioc(queue);
+					if (!ioc) {
+						ioc = kzalloc();
+						...
+						rq_qos_add(q, rqos);
+					}
+        ...
+        rq_qos_add(q, rqos);
+        ...
+}
+
+When the io.cost.qos file is written by two cpus concurrently, rq_qos may
+be added to one disk twice. In that case, there will be two iocs enabled
+and running on one disk. They own different iocgs on their active list. In
+the ioc_timer_fn function, because of the iocgs from two iocs have the
+same root iocg, the root iocg's walk_list may be overwritten by each other
+and this leads to list add/del corruptions in building or destroying the
+inner_walk list.
+
+And so far, the blk-rq-qos framework works in case that one instance for
+one type rq_qos per queue by default. This patch make this explicit and
+also fix the crash above.
+
+Signed-off-by: Jinke Han <hanjinke.666@bytedance.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220720093616.70584-1-hanjinke.666@bytedance.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-debugfs.c  | 25 ++++++++++++++++++++-----
- block/blk-mq-debugfs.h  |  5 -----
- block/blk-mq-sched.c    | 11 +++++++++++
- block/blk-rq-qos.c      |  2 ++
- block/blk-rq-qos.h      |  7 ++++++-
- block/blk-sysfs.c       | 20 +++++++++-----------
- include/linux/blkdev.h  |  8 ++++----
- kernel/trace/blktrace.c |  3 ---
- 8 files changed, 52 insertions(+), 29 deletions(-)
+ block/blk-iocost.c    | 20 +++++++++++++-------
+ block/blk-iolatency.c | 18 +++++++++++-------
+ block/blk-rq-qos.h    | 11 ++++++++++-
+ block/blk-wbt.c       | 12 +++++++++++-
+ 4 files changed, 45 insertions(+), 16 deletions(-)
 
-diff --git a/block/blk-mq-debugfs.c b/block/blk-mq-debugfs.c
-index 34bee263936c..d491b6eb0ab9 100644
---- a/block/blk-mq-debugfs.c
-+++ b/block/blk-mq-debugfs.c
-@@ -713,11 +713,6 @@ void blk_mq_debugfs_register(struct request_queue *q)
- 	}
+diff --git a/block/blk-iocost.c b/block/blk-iocost.c
+index 16705fbd0699..a19f2db4eeb2 100644
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -2893,15 +2893,21 @@ static int blk_iocost_init(struct request_queue *q)
+ 	 * called before policy activation completion, can't assume that the
+ 	 * target bio has an iocg associated and need to test for NULL iocg.
+ 	 */
+-	rq_qos_add(q, rqos);
++	ret = rq_qos_add(q, rqos);
++	if (ret)
++		goto err_free_ioc;
++
+ 	ret = blkcg_activate_policy(q, &blkcg_policy_iocost);
+-	if (ret) {
+-		rq_qos_del(q, rqos);
+-		free_percpu(ioc->pcpu_stat);
+-		kfree(ioc);
+-		return ret;
+-	}
++	if (ret)
++		goto err_del_qos;
+ 	return 0;
++
++err_del_qos:
++	rq_qos_del(q, rqos);
++err_free_ioc:
++	free_percpu(ioc->pcpu_stat);
++	kfree(ioc);
++	return ret;
  }
  
--void blk_mq_debugfs_unregister(struct request_queue *q)
--{
--	q->sched_debugfs_dir = NULL;
--}
+ static struct blkcg_policy_data *ioc_cpd_alloc(gfp_t gfp)
+diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
+index 9568bf8dfe82..7845dca5fcfd 100644
+--- a/block/blk-iolatency.c
++++ b/block/blk-iolatency.c
+@@ -773,19 +773,23 @@ int blk_iolatency_init(struct request_queue *q)
+ 	rqos->ops = &blkcg_iolatency_ops;
+ 	rqos->q = q;
+ 
+-	rq_qos_add(q, rqos);
 -
- static void blk_mq_debugfs_register_ctx(struct blk_mq_hw_ctx *hctx,
- 					struct blk_mq_ctx *ctx)
- {
-@@ -751,6 +746,8 @@ void blk_mq_debugfs_register_hctx(struct request_queue *q,
++	ret = rq_qos_add(q, rqos);
++	if (ret)
++		goto err_free;
+ 	ret = blkcg_activate_policy(q, &blkcg_policy_iolatency);
+-	if (ret) {
+-		rq_qos_del(q, rqos);
+-		kfree(blkiolat);
+-		return ret;
+-	}
++	if (ret)
++		goto err_qos_del;
  
- void blk_mq_debugfs_unregister_hctx(struct blk_mq_hw_ctx *hctx)
- {
-+	if (!hctx->queue->debugfs_dir)
-+		return;
- 	debugfs_remove_recursive(hctx->debugfs_dir);
- 	hctx->sched_debugfs_dir = NULL;
- 	hctx->debugfs_dir = NULL;
-@@ -778,6 +775,8 @@ void blk_mq_debugfs_register_sched(struct request_queue *q)
- {
- 	struct elevator_type *e = q->elevator->type;
- 
-+	lockdep_assert_held(&q->debugfs_mutex);
-+
- 	/*
- 	 * If the parent directory has not been created yet, return, we will be
- 	 * called again later on and the directory/files will be created then.
-@@ -795,6 +794,8 @@ void blk_mq_debugfs_register_sched(struct request_queue *q)
- 
- void blk_mq_debugfs_unregister_sched(struct request_queue *q)
- {
-+	lockdep_assert_held(&q->debugfs_mutex);
-+
- 	debugfs_remove_recursive(q->sched_debugfs_dir);
- 	q->sched_debugfs_dir = NULL;
- }
-@@ -816,6 +817,10 @@ static const char *rq_qos_id_to_name(enum rq_qos_id id)
- 
- void blk_mq_debugfs_unregister_rqos(struct rq_qos *rqos)
- {
-+	lockdep_assert_held(&rqos->q->debugfs_mutex);
-+
-+	if (!rqos->q->debugfs_dir)
-+		return;
- 	debugfs_remove_recursive(rqos->debugfs_dir);
- 	rqos->debugfs_dir = NULL;
- }
-@@ -825,6 +830,8 @@ void blk_mq_debugfs_register_rqos(struct rq_qos *rqos)
- 	struct request_queue *q = rqos->q;
- 	const char *dir_name = rq_qos_id_to_name(rqos->id);
- 
-+	lockdep_assert_held(&q->debugfs_mutex);
-+
- 	if (rqos->debugfs_dir || !rqos->ops->debugfs_attrs)
- 		return;
- 
-@@ -840,6 +847,8 @@ void blk_mq_debugfs_register_rqos(struct rq_qos *rqos)
- 
- void blk_mq_debugfs_unregister_queue_rqos(struct request_queue *q)
- {
-+	lockdep_assert_held(&q->debugfs_mutex);
-+
- 	debugfs_remove_recursive(q->rqos_debugfs_dir);
- 	q->rqos_debugfs_dir = NULL;
- }
-@@ -849,6 +858,8 @@ void blk_mq_debugfs_register_sched_hctx(struct request_queue *q,
- {
- 	struct elevator_type *e = q->elevator->type;
- 
-+	lockdep_assert_held(&q->debugfs_mutex);
-+
- 	/*
- 	 * If the parent debugfs directory has not been created yet, return;
- 	 * We will be called again later on with appropriate parent debugfs
-@@ -868,6 +879,10 @@ void blk_mq_debugfs_register_sched_hctx(struct request_queue *q,
- 
- void blk_mq_debugfs_unregister_sched_hctx(struct blk_mq_hw_ctx *hctx)
- {
-+	lockdep_assert_held(&hctx->queue->debugfs_mutex);
-+
-+	if (!hctx->queue->debugfs_dir)
-+		return;
- 	debugfs_remove_recursive(hctx->sched_debugfs_dir);
- 	hctx->sched_debugfs_dir = NULL;
- }
-diff --git a/block/blk-mq-debugfs.h b/block/blk-mq-debugfs.h
-index 69918f4170d6..771d45832878 100644
---- a/block/blk-mq-debugfs.h
-+++ b/block/blk-mq-debugfs.h
-@@ -21,7 +21,6 @@ int __blk_mq_debugfs_rq_show(struct seq_file *m, struct request *rq);
- int blk_mq_debugfs_rq_show(struct seq_file *m, void *v);
- 
- void blk_mq_debugfs_register(struct request_queue *q);
--void blk_mq_debugfs_unregister(struct request_queue *q);
- void blk_mq_debugfs_register_hctx(struct request_queue *q,
- 				  struct blk_mq_hw_ctx *hctx);
- void blk_mq_debugfs_unregister_hctx(struct blk_mq_hw_ctx *hctx);
-@@ -42,10 +41,6 @@ static inline void blk_mq_debugfs_register(struct request_queue *q)
- {
- }
- 
--static inline void blk_mq_debugfs_unregister(struct request_queue *q)
--{
--}
--
- static inline void blk_mq_debugfs_register_hctx(struct request_queue *q,
- 						struct blk_mq_hw_ctx *hctx)
- {
-diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
-index 9e56a69422b6..e84bec39fd3a 100644
---- a/block/blk-mq-sched.c
-+++ b/block/blk-mq-sched.c
-@@ -593,7 +593,9 @@ int blk_mq_init_sched(struct request_queue *q, struct elevator_type *e)
- 	if (ret)
- 		goto err_free_map_and_rqs;
- 
-+	mutex_lock(&q->debugfs_mutex);
- 	blk_mq_debugfs_register_sched(q);
-+	mutex_unlock(&q->debugfs_mutex);
- 
- 	queue_for_each_hw_ctx(q, hctx, i) {
- 		if (e->ops.init_hctx) {
-@@ -606,7 +608,9 @@ int blk_mq_init_sched(struct request_queue *q, struct elevator_type *e)
- 				return ret;
- 			}
- 		}
-+		mutex_lock(&q->debugfs_mutex);
- 		blk_mq_debugfs_register_sched_hctx(q, hctx);
-+		mutex_unlock(&q->debugfs_mutex);
- 	}
+ 	timer_setup(&blkiolat->timer, blkiolatency_timer_fn, 0);
+ 	INIT_WORK(&blkiolat->enable_work, blkiolatency_enable_work_fn);
  
  	return 0;
-@@ -647,14 +651,21 @@ void blk_mq_exit_sched(struct request_queue *q, struct elevator_queue *e)
- 	unsigned int flags = 0;
- 
- 	queue_for_each_hw_ctx(q, hctx, i) {
-+		mutex_lock(&q->debugfs_mutex);
- 		blk_mq_debugfs_unregister_sched_hctx(hctx);
-+		mutex_unlock(&q->debugfs_mutex);
 +
- 		if (e->type->ops.exit_hctx && hctx->sched_data) {
- 			e->type->ops.exit_hctx(hctx, i);
- 			hctx->sched_data = NULL;
- 		}
- 		flags = hctx->flags;
- 	}
-+
-+	mutex_lock(&q->debugfs_mutex);
- 	blk_mq_debugfs_unregister_sched(q);
-+	mutex_unlock(&q->debugfs_mutex);
-+
- 	if (e->type->ops.exit_sched)
- 		e->type->ops.exit_sched(e);
- 	blk_mq_sched_tags_teardown(q, flags);
-diff --git a/block/blk-rq-qos.c b/block/blk-rq-qos.c
-index e83af7bc7591..249a6f05dd3b 100644
---- a/block/blk-rq-qos.c
-+++ b/block/blk-rq-qos.c
-@@ -294,7 +294,9 @@ void rq_qos_wait(struct rq_wait *rqw, void *private_data,
++err_qos_del:
++	rq_qos_del(q, rqos);
++err_free:
++	kfree(blkiolat);
++	return ret;
+ }
  
- void rq_qos_exit(struct request_queue *q)
- {
-+	mutex_lock(&q->debugfs_mutex);
- 	blk_mq_debugfs_unregister_queue_rqos(q);
-+	mutex_unlock(&q->debugfs_mutex);
- 
- 	while (q->rq_qos) {
- 		struct rq_qos *rqos = q->rq_qos;
+ static void iolatency_set_min_lat_nsec(struct blkcg_gq *blkg, u64 val)
 diff --git a/block/blk-rq-qos.h b/block/blk-rq-qos.h
-index 68267007da1c..0e46052b018a 100644
+index 0e46052b018a..08b856570ad1 100644
 --- a/block/blk-rq-qos.h
 +++ b/block/blk-rq-qos.h
-@@ -104,8 +104,11 @@ static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
+@@ -86,7 +86,7 @@ static inline void rq_wait_init(struct rq_wait *rq_wait)
+ 	init_waitqueue_head(&rq_wait->wait);
+ }
  
- 	blk_mq_unfreeze_queue(q);
+-static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
++static inline int rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
+ {
+ 	/*
+ 	 * No IO can be in-flight when adding rqos, so freeze queue, which
+@@ -98,6 +98,8 @@ static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
+ 	blk_mq_freeze_queue(q);
  
--	if (rqos->ops->debugfs_attrs)
-+	if (rqos->ops->debugfs_attrs) {
-+		mutex_lock(&q->debugfs_mutex);
+ 	spin_lock_irq(&q->queue_lock);
++	if (rq_qos_id(q, rqos->id))
++		goto ebusy;
+ 	rqos->next = q->rq_qos;
+ 	q->rq_qos = rqos;
+ 	spin_unlock_irq(&q->queue_lock);
+@@ -109,6 +111,13 @@ static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
  		blk_mq_debugfs_register_rqos(rqos);
-+		mutex_unlock(&q->debugfs_mutex);
-+	}
+ 		mutex_unlock(&q->debugfs_mutex);
+ 	}
++
++	return 0;
++ebusy:
++	spin_unlock_irq(&q->queue_lock);
++	blk_mq_unfreeze_queue(q);
++	return -EBUSY;
++
  }
  
  static inline void rq_qos_del(struct request_queue *q, struct rq_qos *rqos)
-@@ -129,7 +132,9 @@ static inline void rq_qos_del(struct request_queue *q, struct rq_qos *rqos)
- 
- 	blk_mq_unfreeze_queue(q);
- 
-+	mutex_lock(&q->debugfs_mutex);
- 	blk_mq_debugfs_unregister_rqos(rqos);
-+	mutex_unlock(&q->debugfs_mutex);
- }
- 
- typedef bool (acquire_inflight_cb_t)(struct rq_wait *rqw, void *private_data);
-diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index 88bd41d4cb59..6e4801b217a7 100644
---- a/block/blk-sysfs.c
-+++ b/block/blk-sysfs.c
-@@ -779,14 +779,13 @@ static void blk_release_queue(struct kobject *kobj)
- 	if (queue_is_mq(q))
- 		blk_mq_release(q);
- 
--	blk_trace_shutdown(q);
- 	mutex_lock(&q->debugfs_mutex);
-+	blk_trace_shutdown(q);
- 	debugfs_remove_recursive(q->debugfs_dir);
-+	q->debugfs_dir = NULL;
-+	q->sched_debugfs_dir = NULL;
- 	mutex_unlock(&q->debugfs_mutex);
- 
--	if (queue_is_mq(q))
--		blk_mq_debugfs_unregister(q);
--
- 	bioset_exit(&q->bio_split);
- 
- 	if (blk_queue_has_srcu(q))
-@@ -836,17 +835,16 @@ int blk_register_queue(struct gendisk *disk)
- 		goto unlock;
- 	}
- 
-+	if (queue_is_mq(q))
-+		__blk_mq_register_dev(dev, q);
-+	mutex_lock(&q->sysfs_lock);
-+
- 	mutex_lock(&q->debugfs_mutex);
- 	q->debugfs_dir = debugfs_create_dir(kobject_name(q->kobj.parent),
- 					    blk_debugfs_root);
--	mutex_unlock(&q->debugfs_mutex);
--
--	if (queue_is_mq(q)) {
--		__blk_mq_register_dev(dev, q);
-+	if (queue_is_mq(q))
- 		blk_mq_debugfs_register(q);
--	}
--
--	mutex_lock(&q->sysfs_lock);
-+	mutex_unlock(&q->debugfs_mutex);
- 
- 	ret = disk_register_independent_access_ranges(disk, NULL);
- 	if (ret)
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 108e3d114bfc..cc6b24a5098f 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -466,7 +466,6 @@ struct request_queue {
- #endif /* CONFIG_BLK_DEV_ZONED */
- 
- 	int			node;
--	struct mutex		debugfs_mutex;
- #ifdef CONFIG_BLK_DEV_IO_TRACE
- 	struct blk_trace __rcu	*blk_trace;
- #endif
-@@ -510,11 +509,12 @@ struct request_queue {
- 	struct bio_set		bio_split;
- 
- 	struct dentry		*debugfs_dir;
--
--#ifdef CONFIG_BLK_DEBUG_FS
- 	struct dentry		*sched_debugfs_dir;
- 	struct dentry		*rqos_debugfs_dir;
--#endif
-+	/*
-+	 * Serializes all debugfs metadata operations using the above dentries.
-+	 */
-+	struct mutex		debugfs_mutex;
- 
- 	bool			mq_sysfs_init_done;
- 
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index f22219495541..f0500b5cfefe 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -770,14 +770,11 @@ int blk_trace_ioctl(struct block_device *bdev, unsigned cmd, char __user *arg)
-  **/
- void blk_trace_shutdown(struct request_queue *q)
+diff --git a/block/blk-wbt.c b/block/blk-wbt.c
+index 0c119be0e813..ae6ea0b54579 100644
+--- a/block/blk-wbt.c
++++ b/block/blk-wbt.c
+@@ -820,6 +820,7 @@ int wbt_init(struct request_queue *q)
  {
--	mutex_lock(&q->debugfs_mutex);
- 	if (rcu_dereference_protected(q->blk_trace,
- 				      lockdep_is_held(&q->debugfs_mutex))) {
- 		__blk_trace_startstop(q, 0);
- 		__blk_trace_remove(q);
- 	}
--
--	mutex_unlock(&q->debugfs_mutex);
- }
+ 	struct rq_wb *rwb;
+ 	int i;
++	int ret;
  
- #ifdef CONFIG_BLK_CGROUP
+ 	rwb = kzalloc(sizeof(*rwb), GFP_KERNEL);
+ 	if (!rwb)
+@@ -846,7 +847,10 @@ int wbt_init(struct request_queue *q)
+ 	/*
+ 	 * Assign rwb and add the stats callback.
+ 	 */
+-	rq_qos_add(q, &rwb->rqos);
++	ret = rq_qos_add(q, &rwb->rqos);
++	if (ret)
++		goto err_free;
++
+ 	blk_stat_add_callback(q, rwb->cb);
+ 
+ 	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
+@@ -855,4 +859,10 @@ int wbt_init(struct request_queue *q)
+ 	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
+ 
+ 	return 0;
++
++err_free:
++	blk_stat_free_callback(rwb->cb);
++	kfree(rwb);
++	return ret;
++
+ }
 -- 
 2.35.1
 
