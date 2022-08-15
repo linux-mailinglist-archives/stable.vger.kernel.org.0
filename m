@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFDB75941EE
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ACB3594046
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231506AbiHOVJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:09:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46050 "EHLO
+        id S238721AbiHOVKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:10:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347994AbiHOVHy (ORCPT
+        with ESMTP id S1348002AbiHOVHy (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:07:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45BA62E681;
-        Mon, 15 Aug 2022 12:17:30 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 585453C15C;
+        Mon, 15 Aug 2022 12:17:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6D916009B;
-        Mon, 15 Aug 2022 19:17:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFF7CC433D6;
-        Mon, 15 Aug 2022 19:17:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 033CDB8107A;
+        Mon, 15 Aug 2022 19:17:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0809C433D6;
+        Mon, 15 Aug 2022 19:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591049;
-        bh=fNf3lYZ3JXkcpaPS13aW1IHh+HAR/gsUqnLFHXNzqIs=;
+        s=korg; t=1660591052;
+        bh=AQDYzwGiehn4kY3j/Lg/+TToLWwVHNYXnACyJZVJfNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dsYmP9qZ30Y+vXmrFaa0rijYfoDFkIwMrykdWafwixhu77pjjMh6zOCcYtswR7vX7
-         zmoxpW1FlWCrX6qKw5/bBQzgIu+Tr493ZiHtoQ88CIfHm4THAt4ycd6MlV1CTbAv9c
-         wNrX1qNMUsDizOYiL8ti3vzB5lkyg8N3Kb90Z8Kk=
+        b=pLK/p0iozPXxAbCEKzBWjrrrAkXt4YkA9Pex9dPQfVQAtr6HVwh77dJxEr5t/g+Aq
+         iZB5zsizFi58Z8+roQ1tistjPToipUSKGkYP96lebgR/GPiOU+XETcpIqw2Cevw8OO
+         rZf8ELPmA7sYrOoXH+z5H52eA605hS/v2TmOZ1Wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Ambardar <Tony.Ambardar@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org,
+        syzbot+2f649ec6d2eea1495a8f@syzkaller.appspotmail.com,
+        syzbot+87f65c75f4a72db05445@syzkaller.appspotmail.com,
+        Song Liu <song@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0455/1095] bpf, x64: Add predicate for bpf2bpf with tailcalls support in JIT
-Date:   Mon, 15 Aug 2022 19:57:34 +0200
-Message-Id: <20220815180448.447796708@linuxfoundation.org>
+Subject: [PATCH 5.18 0456/1095] bpf, x86: fix freeing of not-finalized bpf_prog_pack
+Date:   Mon, 15 Aug 2022 19:57:35 +0200
+Message-Id: <20220815180448.478426047@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,87 +57,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Ambardar <tony.ambardar@gmail.com>
+From: Song Liu <song@kernel.org>
 
-[ Upstream commit 95acd8817e66d031d2e6ee7def3f1e1874819317 ]
+[ Upstream commit 1d5f82d9dd477d5c66e0214a68c3e4f308eadd6d ]
 
-The BPF core/verifier is hard-coded to permit mixing bpf2bpf and tail
-calls for only x86-64. Change the logic to instead rely on a new weak
-function 'bool bpf_jit_supports_subprog_tailcalls(void)', which a capable
-JIT backend can override.
+syzbot reported a few issues with bpf_prog_pack [1], [2]. This only happens
+with multiple subprogs. In jit_subprogs(), we first call bpf_int_jit_compile()
+on each sub program. And then, we call it on each sub program again. jit_data
+is not freed in the first call of bpf_int_jit_compile(). Similarly we don't
+call bpf_jit_binary_pack_finalize() in the first call of bpf_int_jit_compile().
 
-Update the x86-64 eBPF JIT to reflect this.
+If bpf_int_jit_compile() failed for one sub program, we will call
+bpf_jit_binary_pack_finalize() for this sub program. However, we don't have a
+chance to call it for other sub programs. Then we will hit "goto out_free" in
+jit_subprogs(), and call bpf_jit_free on some subprograms that haven't got
+bpf_jit_binary_pack_finalize() yet.
 
-Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
-[jakub: drop MIPS bits and tweak patch subject]
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220617105735.733938-2-jakub@cloudflare.com
+At this point, bpf_jit_binary_pack_free() is called and the whole 2MB page is
+freed erroneously.
+
+Fix this with a custom bpf_jit_free() for x86_64, which calls
+bpf_jit_binary_pack_finalize() if necessary. Also, with custom
+bpf_jit_free(), bpf_prog_aux->use_bpf_prog_pack is not needed any more,
+remove it.
+
+Fixes: 1022a5498f6f ("bpf, x86_64: Use bpf_jit_binary_pack_alloc")
+[1] https://syzkaller.appspot.com/bug?extid=2f649ec6d2eea1495a8f
+[2] https://syzkaller.appspot.com/bug?extid=87f65c75f4a72db05445
+Reported-by: syzbot+2f649ec6d2eea1495a8f@syzkaller.appspotmail.com
+Reported-by: syzbot+87f65c75f4a72db05445@syzkaller.appspotmail.com
+Signed-off-by: Song Liu <song@kernel.org>
+Link: https://lore.kernel.org/r/20220706002612.4013790-1-song@kernel.org
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/net/bpf_jit_comp.c | 6 ++++++
- include/linux/filter.h      | 1 +
- kernel/bpf/core.c           | 6 ++++++
- kernel/bpf/verifier.c       | 3 ++-
- 4 files changed, 15 insertions(+), 1 deletion(-)
+ arch/x86/net/bpf_jit_comp.c | 25 +++++++++++++++++++++++++
+ include/linux/bpf.h         |  1 -
+ include/linux/filter.h      |  8 ++++++++
+ kernel/bpf/core.c           | 29 ++++++++++++-----------------
+ 4 files changed, 45 insertions(+), 18 deletions(-)
 
 diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index 9ec96d5a8239..124456bb23b9 100644
+index 124456bb23b9..400117f630b8 100644
 --- a/arch/x86/net/bpf_jit_comp.c
 +++ b/arch/x86/net/bpf_jit_comp.c
-@@ -2477,3 +2477,9 @@ void *bpf_arch_text_copy(void *dst, void *src, size_t len)
- 		return ERR_PTR(-EINVAL);
- 	return dst;
+@@ -2483,3 +2483,28 @@ bool bpf_jit_supports_subprog_tailcalls(void)
+ {
+ 	return true;
  }
 +
-+/* Indicate the JIT backend supports mixing bpf2bpf and tailcalls. */
-+bool bpf_jit_supports_subprog_tailcalls(void)
++void bpf_jit_free(struct bpf_prog *prog)
 +{
-+	return true;
++	if (prog->jited) {
++		struct x64_jit_data *jit_data = prog->aux->jit_data;
++		struct bpf_binary_header *hdr;
++
++		/*
++		 * If we fail the final pass of JIT (from jit_subprogs),
++		 * the program may not be finalized yet. Call finalize here
++		 * before freeing it.
++		 */
++		if (jit_data) {
++			bpf_jit_binary_pack_finalize(prog, jit_data->header,
++						     jit_data->rw_header);
++			kvfree(jit_data->addrs);
++			kfree(jit_data);
++		}
++		hdr = bpf_jit_binary_pack_hdr(prog);
++		bpf_jit_binary_pack_free(hdr, NULL);
++		WARN_ON_ONCE(!bpf_prog_kallsyms_verify_off(prog));
++	}
++
++	bpf_prog_unlock_free(prog);
 +}
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index b5d19a6f7d24..492e114b4e32 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -960,7 +960,6 @@ struct bpf_prog_aux {
+ 	bool sleepable;
+ 	bool tail_call_reachable;
+ 	bool xdp_has_frags;
+-	bool use_bpf_prog_pack;
+ 	/* BTF_KIND_FUNC_PROTO for valid attach_btf_id */
+ 	const struct btf_type *attach_func_proto;
+ 	/* function name for valid attach_btf_id */
 diff --git a/include/linux/filter.h b/include/linux/filter.h
-index ed0c0ff42ad5..d9a0db845b50 100644
+index d9a0db845b50..8fd2e2f58eeb 100644
 --- a/include/linux/filter.h
 +++ b/include/linux/filter.h
-@@ -948,6 +948,7 @@ u64 __bpf_call_base(u64 r1, u64 r2, u64 r3, u64 r4, u64 r5);
- struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog);
- void bpf_jit_compile(struct bpf_prog *prog);
- bool bpf_jit_needs_zext(void);
-+bool bpf_jit_supports_subprog_tailcalls(void);
- bool bpf_jit_supports_kfunc_call(void);
- bool bpf_helper_changes_pkt_data(void *func);
+@@ -1061,6 +1061,14 @@ u64 bpf_jit_alloc_exec_limit(void);
+ void *bpf_jit_alloc_exec(unsigned long size);
+ void bpf_jit_free_exec(void *addr);
+ void bpf_jit_free(struct bpf_prog *fp);
++struct bpf_binary_header *
++bpf_jit_binary_pack_hdr(const struct bpf_prog *fp);
++
++static inline bool bpf_prog_kallsyms_verify_off(const struct bpf_prog *fp)
++{
++	return list_empty(&fp->aux->ksym.lnode) ||
++	       fp->aux->ksym.lnode.prev == LIST_POISON2;
++}
  
+ struct bpf_binary_header *
+ bpf_jit_binary_pack_alloc(unsigned int proglen, u8 **ro_image,
 diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index 3adff3831c04..7a1ce697689b 100644
+index 7a1ce697689b..483bee45ead5 100644
 --- a/kernel/bpf/core.c
 +++ b/kernel/bpf/core.c
-@@ -2712,6 +2712,12 @@ bool __weak bpf_jit_needs_zext(void)
- 	return false;
+@@ -649,12 +649,6 @@ static bool bpf_prog_kallsyms_candidate(const struct bpf_prog *fp)
+ 	return fp->jited && !bpf_prog_was_classic(fp);
  }
  
-+/* Return TRUE if the JIT backend supports mixing bpf2bpf and tailcalls. */
-+bool __weak bpf_jit_supports_subprog_tailcalls(void)
+-static bool bpf_prog_kallsyms_verify_off(const struct bpf_prog *fp)
+-{
+-	return list_empty(&fp->aux->ksym.lnode) ||
+-	       fp->aux->ksym.lnode.prev == LIST_POISON2;
+-}
+-
+ void bpf_prog_kallsyms_add(struct bpf_prog *fp)
+ {
+ 	if (!bpf_prog_kallsyms_candidate(fp) ||
+@@ -1149,7 +1143,6 @@ int bpf_jit_binary_pack_finalize(struct bpf_prog *prog,
+ 		bpf_prog_pack_free(ro_header);
+ 		return PTR_ERR(ptr);
+ 	}
+-	prog->aux->use_bpf_prog_pack = true;
+ 	return 0;
+ }
+ 
+@@ -1173,17 +1166,23 @@ void bpf_jit_binary_pack_free(struct bpf_binary_header *ro_header,
+ 	bpf_jit_uncharge_modmem(size);
+ }
+ 
++struct bpf_binary_header *
++bpf_jit_binary_pack_hdr(const struct bpf_prog *fp)
 +{
-+	return false;
++	unsigned long real_start = (unsigned long)fp->bpf_func;
++	unsigned long addr;
++
++	addr = real_start & BPF_PROG_CHUNK_MASK;
++	return (void *)addr;
 +}
 +
- bool __weak bpf_jit_supports_kfunc_call(void)
+ static inline struct bpf_binary_header *
+ bpf_jit_binary_hdr(const struct bpf_prog *fp)
  {
- 	return false;
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index d04147a5efa5..a6d3a8972355 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5696,7 +5696,8 @@ static bool may_update_sockmap(struct bpf_verifier_env *env, int func_id)
+ 	unsigned long real_start = (unsigned long)fp->bpf_func;
+ 	unsigned long addr;
  
- static bool allow_tail_call_in_subprogs(struct bpf_verifier_env *env)
- {
--	return env->prog->jit_requested && IS_ENABLED(CONFIG_X86_64);
-+	return env->prog->jit_requested &&
-+	       bpf_jit_supports_subprog_tailcalls();
+-	if (fp->aux->use_bpf_prog_pack)
+-		addr = real_start & BPF_PROG_CHUNK_MASK;
+-	else
+-		addr = real_start & PAGE_MASK;
+-
++	addr = real_start & PAGE_MASK;
+ 	return (void *)addr;
  }
  
- static int check_map_func_compatibility(struct bpf_verifier_env *env,
+@@ -1196,11 +1195,7 @@ void __weak bpf_jit_free(struct bpf_prog *fp)
+ 	if (fp->jited) {
+ 		struct bpf_binary_header *hdr = bpf_jit_binary_hdr(fp);
+ 
+-		if (fp->aux->use_bpf_prog_pack)
+-			bpf_jit_binary_pack_free(hdr, NULL /* rw_buffer */);
+-		else
+-			bpf_jit_binary_free(hdr);
+-
++		bpf_jit_binary_free(hdr);
+ 		WARN_ON_ONCE(!bpf_prog_kallsyms_verify_off(fp));
+ 	}
+ 
 -- 
 2.35.1
 
