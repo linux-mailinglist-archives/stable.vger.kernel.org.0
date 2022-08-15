@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06658593B81
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2B4D593C24
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:37:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345544AbiHOTyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:54:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43008 "EHLO
+        id S1345554AbiHOTy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:54:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344856AbiHOTxX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:53:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 093D343E62;
-        Mon, 15 Aug 2022 11:51:13 -0700 (PDT)
+        with ESMTP id S1345167AbiHOTxZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:53:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DBD43E76;
+        Mon, 15 Aug 2022 11:51:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA86FB81057;
-        Mon, 15 Aug 2022 18:51:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F25AFC433C1;
-        Mon, 15 Aug 2022 18:51:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFFDCB81057;
+        Mon, 15 Aug 2022 18:51:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CB2BC433D6;
+        Mon, 15 Aug 2022 18:51:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589470;
-        bh=xwqlsyLT4+wEgeoymS/IaazHbOUWacD/OGFbiM81irw=;
+        s=korg; t=1660589473;
+        bh=PYKDtfJN7xItE80ybdVMebvz/REKeuxmoiaYOjlu43Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CtUARHuty1oB7hPZSiN7qfBGf+OZdSySdMlOMpRKNV1znHxRlpi/uaAf9NGE/zEyD
-         o/Cfz15SoPJ4hFI9nTQKnv1Dyiq4TupiELO9Yv071O66riaxuKqjPw8ez4ZOp4j23b
-         pYd0edt6oi575nyUKZSX8bJKr7X0LmBvQgkjN34A=
+        b=H8iwITNrPjUhSTw1reZe99V4TnnJFNHrJDlBeeqktXj8HXaAiM/4IIS9aGqTBzd/a
+         HDywSR8eCmIO5m9YTDeDkTjprNHHPLrZ21PbD+kpp5J4KunitrPvWItSKLyEZWtpv9
+         NgyGAcRHscPgXRNGxYfftkMA5bhEg88zaa4TxwFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Andre Edich <andre.edich@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, huhai <huhai@kylinos.cn>,
+        Jackie Liu <liuyun01@kylinos.cn>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 698/779] usbnet: smsc95xx: Fix deadlock on runtime resume
-Date:   Mon, 15 Aug 2022 20:05:42 +0200
-Message-Id: <20220815180407.188032005@linuxfoundation.org>
+Subject: [PATCH 5.15 699/779] firmware: arm_scpi: Ensure scpi_info is not assigned if the probe fails
+Date:   Mon, 15 Aug 2022 20:05:43 +0200
+Message-Id: <20220815180407.238598936@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,191 +55,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 7b960c967f2aa01ab8f45c5a0bd78e754cffdeee ]
+[ Upstream commit 689640efc0a2c4e07e6f88affe6d42cd40cc3f85 ]
 
-Commit 05b35e7eb9a1 ("smsc95xx: add phylib support") amended
-smsc95xx_resume() to call phy_init_hw().  That function waits for the
-device to runtime resume even though it is placed in the runtime resume
-path, causing a deadlock.
+When scpi probe fails, at any point, we need to ensure that the scpi_info
+is not set and will remain NULL until the probe succeeds. If it is not
+taken care, then it could result use-after-free as the value is exported
+via get_scpi_ops() and could refer to a memory allocated via devm_kzalloc()
+but freed when the probe fails.
 
-The problem is that phy_init_hw() calls down to smsc95xx_mdiobus_read(),
-which never uses the _nopm variant of usbnet_read_cmd().
-
-Commit b4df480f68ae ("usbnet: smsc95xx: add reset_resume function with
-reset operation") causes a similar deadlock on resume if the device was
-already runtime suspended when entering system sleep:
-
-That's because the commit introduced smsc95xx_reset_resume(), which
-calls down to smsc95xx_reset(), which neglects to use _nopm accessors.
-
-Fix by auto-detecting whether a device access is performed by the
-suspend/resume task_struct and use the _nopm variant if so.  This works
-because the PM core guarantees that suspend/resume callbacks are run in
-task context.
-
-Stacktrace for posterity:
-
-  INFO: task kworker/2:1:49 blocked for more than 122 seconds.
-  Workqueue: usb_hub_wq hub_event
-  schedule
-  rpm_resume
-  __pm_runtime_resume
-  usb_autopm_get_interface
-  usbnet_read_cmd
-  __smsc95xx_read_reg
-  __smsc95xx_phy_wait_not_busy
-  __smsc95xx_mdio_read
-  smsc95xx_mdiobus_read
-  __mdiobus_read
-  mdiobus_read
-  smsc_phy_reset
-  phy_init_hw
-  smsc95xx_resume
-  usb_resume_interface
-  usb_resume_both
-  usb_runtime_resume
-  __rpm_callback
-  rpm_callback
-  rpm_resume
-  __pm_runtime_resume
-  usb_autoresume_device
-  hub_event
-  process_one_work
-
-Fixes: b4df480f68ae ("usbnet: smsc95xx: add reset_resume function with reset operation")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v3.16+
-Cc: Andre Edich <andre.edich@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20220701160310.148344-1-sudeep.holla@arm.com
+Cc: stable@vger.kernel.org # 4.19+
+Reported-by: huhai <huhai@kylinos.cn>
+Reviewed-by: Jackie Liu <liuyun01@kylinos.cn>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc95xx.c | 26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
+ drivers/firmware/arm_scpi.c | 61 +++++++++++++++++++++----------------
+ 1 file changed, 35 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index 3eb62197c2f5..460e90eb528f 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -69,6 +69,7 @@ struct smsc95xx_priv {
- 	struct fwnode_handle *irqfwnode;
- 	struct mii_bus *mdiobus;
- 	struct phy_device *phydev;
-+	struct task_struct *pm_task;
- };
+diff --git a/drivers/firmware/arm_scpi.c b/drivers/firmware/arm_scpi.c
+index ddf0b9ff9e15..435d0e2658a4 100644
+--- a/drivers/firmware/arm_scpi.c
++++ b/drivers/firmware/arm_scpi.c
+@@ -815,7 +815,7 @@ static int scpi_init_versions(struct scpi_drvinfo *info)
+ 		info->firmware_version = le32_to_cpu(caps.platform_version);
+ 	}
+ 	/* Ignore error if not implemented */
+-	if (scpi_info->is_legacy && ret == -EOPNOTSUPP)
++	if (info->is_legacy && ret == -EOPNOTSUPP)
+ 		return 0;
  
- static bool turbo_mode = true;
-@@ -78,13 +79,14 @@ MODULE_PARM_DESC(turbo_mode, "Enable multiple frames per Rx transaction");
- static int __must_check __smsc95xx_read_reg(struct usbnet *dev, u32 index,
- 					    u32 *data, int in_pm)
- {
-+	struct smsc95xx_priv *pdata = dev->driver_priv;
- 	u32 buf;
- 	int ret;
- 	int (*fn)(struct usbnet *, u8, u8, u16, u16, void *, u16);
+ 	return ret;
+@@ -913,13 +913,14 @@ static int scpi_probe(struct platform_device *pdev)
+ 	struct resource res;
+ 	struct device *dev = &pdev->dev;
+ 	struct device_node *np = dev->of_node;
++	struct scpi_drvinfo *scpi_drvinfo;
  
- 	BUG_ON(!dev);
+-	scpi_info = devm_kzalloc(dev, sizeof(*scpi_info), GFP_KERNEL);
+-	if (!scpi_info)
++	scpi_drvinfo = devm_kzalloc(dev, sizeof(*scpi_drvinfo), GFP_KERNEL);
++	if (!scpi_drvinfo)
+ 		return -ENOMEM;
  
--	if (!in_pm)
-+	if (current != pdata->pm_task)
- 		fn = usbnet_read_cmd;
- 	else
- 		fn = usbnet_read_cmd_nopm;
-@@ -108,13 +110,14 @@ static int __must_check __smsc95xx_read_reg(struct usbnet *dev, u32 index,
- static int __must_check __smsc95xx_write_reg(struct usbnet *dev, u32 index,
- 					     u32 data, int in_pm)
- {
-+	struct smsc95xx_priv *pdata = dev->driver_priv;
- 	u32 buf;
- 	int ret;
- 	int (*fn)(struct usbnet *, u8, u8, u16, u16, const void *, u16);
+ 	if (of_match_device(legacy_scpi_of_match, &pdev->dev))
+-		scpi_info->is_legacy = true;
++		scpi_drvinfo->is_legacy = true;
  
- 	BUG_ON(!dev);
+ 	count = of_count_phandle_with_args(np, "mboxes", "#mbox-cells");
+ 	if (count < 0) {
+@@ -927,19 +928,19 @@ static int scpi_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
  
--	if (!in_pm)
-+	if (current != pdata->pm_task)
- 		fn = usbnet_write_cmd;
- 	else
- 		fn = usbnet_write_cmd_nopm;
-@@ -1482,9 +1485,12 @@ static int smsc95xx_suspend(struct usb_interface *intf, pm_message_t message)
- 	u32 val, link_up;
- 	int ret;
+-	scpi_info->channels = devm_kcalloc(dev, count, sizeof(struct scpi_chan),
+-					   GFP_KERNEL);
+-	if (!scpi_info->channels)
++	scpi_drvinfo->channels =
++		devm_kcalloc(dev, count, sizeof(struct scpi_chan), GFP_KERNEL);
++	if (!scpi_drvinfo->channels)
+ 		return -ENOMEM;
  
-+	pdata->pm_task = current;
-+
- 	ret = usbnet_suspend(intf, message);
- 	if (ret < 0) {
- 		netdev_warn(dev->net, "usbnet_suspend error\n");
-+		pdata->pm_task = NULL;
+-	ret = devm_add_action(dev, scpi_free_channels, scpi_info);
++	ret = devm_add_action(dev, scpi_free_channels, scpi_drvinfo);
+ 	if (ret)
+ 		return ret;
+ 
+-	for (; scpi_info->num_chans < count; scpi_info->num_chans++) {
++	for (; scpi_drvinfo->num_chans < count; scpi_drvinfo->num_chans++) {
+ 		resource_size_t size;
+-		int idx = scpi_info->num_chans;
+-		struct scpi_chan *pchan = scpi_info->channels + idx;
++		int idx = scpi_drvinfo->num_chans;
++		struct scpi_chan *pchan = scpi_drvinfo->channels + idx;
+ 		struct mbox_client *cl = &pchan->cl;
+ 		struct device_node *shmem = of_parse_phandle(np, "shmem", idx);
+ 
+@@ -986,45 +987,53 @@ static int scpi_probe(struct platform_device *pdev)
  		return ret;
  	}
  
-@@ -1724,6 +1730,7 @@ static int smsc95xx_suspend(struct usb_interface *intf, pm_message_t message)
- 	if (ret && PMSG_IS_AUTO(message))
- 		usbnet_resume(intf);
+-	scpi_info->commands = scpi_std_commands;
++	scpi_drvinfo->commands = scpi_std_commands;
  
-+	pdata->pm_task = NULL;
- 	return ret;
- }
+-	platform_set_drvdata(pdev, scpi_info);
++	platform_set_drvdata(pdev, scpi_drvinfo);
  
-@@ -1744,29 +1751,31 @@ static int smsc95xx_resume(struct usb_interface *intf)
- 	/* do this first to ensure it's cleared even in error case */
- 	pdata->suspend_flags = 0;
+-	if (scpi_info->is_legacy) {
++	if (scpi_drvinfo->is_legacy) {
+ 		/* Replace with legacy variants */
+ 		scpi_ops.clk_set_val = legacy_scpi_clk_set_val;
+-		scpi_info->commands = scpi_legacy_commands;
++		scpi_drvinfo->commands = scpi_legacy_commands;
  
-+	pdata->pm_task = current;
-+
- 	if (suspend_flags & SUSPEND_ALLMODES) {
- 		/* clear wake-up sources */
- 		ret = smsc95xx_read_reg_nopm(dev, WUCSR, &val);
- 		if (ret < 0)
--			return ret;
-+			goto done;
- 
- 		val &= ~(WUCSR_WAKE_EN_ | WUCSR_MPEN_);
- 
- 		ret = smsc95xx_write_reg_nopm(dev, WUCSR, val);
- 		if (ret < 0)
--			return ret;
-+			goto done;
- 
- 		/* clear wake-up status */
- 		ret = smsc95xx_read_reg_nopm(dev, PM_CTRL, &val);
- 		if (ret < 0)
--			return ret;
-+			goto done;
- 
- 		val &= ~PM_CTL_WOL_EN_;
- 		val |= PM_CTL_WUPS_;
- 
- 		ret = smsc95xx_write_reg_nopm(dev, PM_CTRL, val);
- 		if (ret < 0)
--			return ret;
-+			goto done;
+ 		/* Fill priority bitmap */
+ 		for (idx = 0; idx < ARRAY_SIZE(legacy_hpriority_cmds); idx++)
+ 			set_bit(legacy_hpriority_cmds[idx],
+-				scpi_info->cmd_priority);
++				scpi_drvinfo->cmd_priority);
  	}
  
- 	phy_init_hw(pdata->phydev);
-@@ -1775,15 +1784,20 @@ static int smsc95xx_resume(struct usb_interface *intf)
- 	if (ret < 0)
- 		netdev_warn(dev->net, "usbnet_resume error\n");
+-	ret = scpi_init_versions(scpi_info);
++	scpi_info = scpi_drvinfo;
++
++	ret = scpi_init_versions(scpi_drvinfo);
+ 	if (ret) {
+ 		dev_err(dev, "incorrect or no SCP firmware found\n");
++		scpi_info = NULL;
+ 		return ret;
+ 	}
  
-+done:
-+	pdata->pm_task = NULL;
- 	return ret;
+-	if (scpi_info->is_legacy && !scpi_info->protocol_version &&
+-	    !scpi_info->firmware_version)
++	if (scpi_drvinfo->is_legacy && !scpi_drvinfo->protocol_version &&
++	    !scpi_drvinfo->firmware_version)
+ 		dev_info(dev, "SCP Protocol legacy pre-1.0 firmware\n");
+ 	else
+ 		dev_info(dev, "SCP Protocol %lu.%lu Firmware %lu.%lu.%lu version\n",
+ 			 FIELD_GET(PROTO_REV_MAJOR_MASK,
+-				   scpi_info->protocol_version),
++				   scpi_drvinfo->protocol_version),
+ 			 FIELD_GET(PROTO_REV_MINOR_MASK,
+-				   scpi_info->protocol_version),
++				   scpi_drvinfo->protocol_version),
+ 			 FIELD_GET(FW_REV_MAJOR_MASK,
+-				   scpi_info->firmware_version),
++				   scpi_drvinfo->firmware_version),
+ 			 FIELD_GET(FW_REV_MINOR_MASK,
+-				   scpi_info->firmware_version),
++				   scpi_drvinfo->firmware_version),
+ 			 FIELD_GET(FW_REV_PATCH_MASK,
+-				   scpi_info->firmware_version));
+-	scpi_info->scpi_ops = &scpi_ops;
++				   scpi_drvinfo->firmware_version));
++
++	scpi_drvinfo->scpi_ops = &scpi_ops;
+ 
+-	return devm_of_platform_populate(dev);
++	ret = devm_of_platform_populate(dev);
++	if (ret)
++		scpi_info = NULL;
++
++	return ret;
  }
  
- static int smsc95xx_reset_resume(struct usb_interface *intf)
- {
- 	struct usbnet *dev = usb_get_intfdata(intf);
-+	struct smsc95xx_priv *pdata = dev->driver_priv;
- 	int ret;
- 
-+	pdata->pm_task = current;
- 	ret = smsc95xx_reset(dev);
-+	pdata->pm_task = NULL;
- 	if (ret < 0)
- 		return ret;
- 
+ static const struct of_device_id scpi_of_match[] = {
 -- 
 2.35.1
 
