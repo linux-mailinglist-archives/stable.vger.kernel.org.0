@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1486593D1F
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 511D4593DD7
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:43:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229456AbiHOUPN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:15:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33610 "EHLO
+        id S1347167AbiHOUQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:16:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243590AbiHOUNh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:13:37 -0400
+        with ESMTP id S243555AbiHOUOl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:14:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3969F8F976;
-        Mon, 15 Aug 2022 11:59:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B987890199;
+        Mon, 15 Aug 2022 11:59:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76D7CB81109;
-        Mon, 15 Aug 2022 18:59:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A60B2C433D6;
-        Mon, 15 Aug 2022 18:59:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7144AB8109E;
+        Mon, 15 Aug 2022 18:59:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C20A7C433C1;
+        Mon, 15 Aug 2022 18:59:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589956;
-        bh=qW6yXE9ud1P1tuP49WumpWs1UmmGtf+87D75l29Nzf0=;
+        s=korg; t=1660589959;
+        bh=Dh+emGNHm1D8DGNCBwnBuEUQw+j66ciJrWboMiUcFmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bMdV/wBXGzqSYufty5QjmTBb42VIuvTRpzjbMhVLtzQtnzD2oPJhSjRCu/Ch7k6We
-         GQP9S7h9Iu+CWJkWYjLZCQs4FKvaPDGue6thLCanLypUegsJEQc0KhISXClCiUeNg0
-         1gj3qW6GBc6pBuCBY7YK0/4sF7hjgf+VzF/JOxPA=
+        b=OH+OUO6RlatWLtZKS/GI4qptL3WxCUTm9YDXMKWTVXo9jwbIhowRvzVusZrqtjR4v
+         eR5/53UDFEM6zKm4SPJRehjxwoz/YPI6m2dao4TcihnSpI/D7glk0W/SHBExaIbxHU
+         qz9qmxYGY4nhTZzskoLgdKC6vifnzdUf48cBqx10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20Kohlsch=C3=BCtter?= 
-        <christian@kohlschutter.com>, Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.18 0104/1095] fuse: ioctl: translate ENOSYS
-Date:   Mon, 15 Aug 2022 19:51:43 +0200
-Message-Id: <20220815180433.860641078@linuxfoundation.org>
+        syzbot+6e1efbd8efaaa6860e91@syzkaller.appspotmail.com,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.18 0105/1095] fuse: write inode in fuse_release()
+Date:   Mon, 15 Aug 2022 19:51:44 +0200
+Message-Id: <20220815180433.905210062@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,79 +56,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 02c0cab8e7345b06f1c0838df444e2902e4138d3 upstream.
+commit 035ff33cf4db101250fb980a3941bf078f37a544 upstream.
 
-Overlayfs may fail to complete updates when a filesystem lacks
-fileattr/xattr syscall support and responds with an ENOSYS error code,
-resulting in an unexpected "Function not implemented" error.
+A race between write(2) and close(2) allows pages to be dirtied after
+fuse_flush -> write_inode_now().  If these pages are not flushed from
+fuse_release(), then there might not be a writable open file later.  So any
+remaining dirty pages must be written back before the file is released.
 
-This bug may occur with FUSE filesystems, such as davfs2.
+This is a partial revert of the blamed commit.
 
-Steps to reproduce:
-
-  # install davfs2, e.g., apk add davfs2
-  mkdir /test mkdir /test/lower /test/upper /test/work /test/mnt
-  yes '' | mount -t davfs -o ro http://some-web-dav-server/path \
-    /test/lower
-  mount -t overlay -o upperdir=/test/upper,lowerdir=/test/lower \
-    -o workdir=/test/work overlay /test/mnt
-
-  # when "some-file" exists in the lowerdir, this fails with "Function
-  # not implemented", with dmesg showing "overlayfs: failed to retrieve
-  # lower fileattr (/some-file, err=-38)"
-  touch /test/mnt/some-file
-
-The underlying cause of this regresion is actually in FUSE, which fails to
-translate the ENOSYS error code returned by userspace filesystem (which
-means that the ioctl operation is not supported) to ENOTTY.
-
-Reported-by: Christian Kohlschütter <christian@kohlschutter.com>
-Fixes: 72db82115d2b ("ovl: copy up sync/noatime fileattr flags")
-Fixes: 59efec7b9039 ("fuse: implement ioctl support")
-Cc: <stable@vger.kernel.org>
+Reported-by: syzbot+6e1efbd8efaaa6860e91@syzkaller.appspotmail.com
+Fixes: 36ea23374d1f ("fuse: write inode in fuse_vma_close() instead of fuse_release()")
+Cc: <stable@vger.kernel.org> # v5.16
 Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/ioctl.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ fs/fuse/file.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/fs/fuse/ioctl.c
-+++ b/fs/fuse/ioctl.c
-@@ -9,6 +9,17 @@
- #include <linux/compat.h>
- #include <linux/fileattr.h>
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -338,6 +338,15 @@ static int fuse_open(struct inode *inode
  
-+static ssize_t fuse_send_ioctl(struct fuse_mount *fm, struct fuse_args *args)
-+{
-+	ssize_t ret = fuse_simple_request(fm, args);
+ static int fuse_release(struct inode *inode, struct file *file)
+ {
++	struct fuse_conn *fc = get_fuse_conn(inode);
 +
-+	/* Translate ENOSYS, which shouldn't be returned from fs */
-+	if (ret == -ENOSYS)
-+		ret = -ENOTTY;
++	/*
++	 * Dirty pages might remain despite write_inode_now() call from
++	 * fuse_flush() due to writes racing with the close.
++	 */
++	if (fc->writeback_cache)
++		write_inode_now(inode, 1);
 +
-+	return ret;
-+}
-+
- /*
-  * CUSE servers compiled on 32bit broke on 64bit kernels because the
-  * ABI was defined to be 'struct iovec' which is different on 32bit
-@@ -259,7 +270,7 @@ long fuse_do_ioctl(struct file *file, un
- 	ap.args.out_pages = true;
- 	ap.args.out_argvar = true;
+ 	fuse_release_common(file, false);
  
--	transferred = fuse_simple_request(fm, &ap.args);
-+	transferred = fuse_send_ioctl(fm, &ap.args);
- 	err = transferred;
- 	if (transferred < 0)
- 		goto out;
-@@ -393,7 +404,7 @@ static int fuse_priv_ioctl(struct inode
- 	args.out_args[1].size = inarg.out_size;
- 	args.out_args[1].value = ptr;
- 
--	err = fuse_simple_request(fm, &args);
-+	err = fuse_send_ioctl(fm, &args);
- 	if (!err) {
- 		if (outarg.result < 0)
- 			err = outarg.result;
+ 	/* return value is ignored by VFS */
 
 
