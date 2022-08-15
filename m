@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6A4E594254
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1193E594248
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349727AbiHOVsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:48:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33676 "EHLO
+        id S1349554AbiHOVsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:48:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349877AbiHOVqt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:46:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB18B1D2;
-        Mon, 15 Aug 2022 12:30:24 -0700 (PDT)
+        with ESMTP id S1349939AbiHOVqz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:46:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DCDC1707B;
+        Mon, 15 Aug 2022 12:30:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E11F060FBE;
-        Mon, 15 Aug 2022 19:30:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2DDCC433D6;
-        Mon, 15 Aug 2022 19:30:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A270FB810C6;
+        Mon, 15 Aug 2022 19:30:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04B4BC433C1;
+        Mon, 15 Aug 2022 19:30:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591823;
-        bh=uqZcaJCwpR4tvAkaLzZ8vTWBYN/99OrptHDtyN8vDYQ=;
+        s=korg; t=1660591830;
+        bh=SHvDN0xdtf/T4fnzzE6qjyxX6hjji2NDLwj2gXivZOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mAH17giFwrHl9mF9TXIasTOfCcZKljMZb+qnPEd9x4PRrYEdYiom4PYDa/08Z2WRy
-         kG6EMo3IUFoEzdqZo2LUbXDgK4RyPzCRySI5K5+y6wnAfwlbbDA613odnzIQr5lPpm
-         feAgckCHWphwqzJB2VfVP6wn2NS16kmrIx4bOPO4=
+        b=UcsreZF6ODK1H+1L7r5rRc3/nKblFjHiVittOfleeC02mlw8sW20Jz+OvIOL6qify
+         rZgkC8IPvHOCNzybHRFp8DAHegs5uPiOkdbMRqLQ63NeSBC7HCDB6arYpF3dY/PsKn
+         RztelUHV/i2W9uBlPB73P/sbBWU45MNZGja1cxCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mike Christie <michael.christie@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0686/1095] scsi: iscsi: Allow iscsi_if_stop_conn() to be called from kernel
-Date:   Mon, 15 Aug 2022 20:01:25 +0200
-Message-Id: <20220815180457.749693212@linuxfoundation.org>
+Subject: [PATCH 5.18 0687/1095] scsi: iscsi: Add helper to remove a session from the kernel
+Date:   Mon, 15 Aug 2022 20:01:26 +0200
+Message-Id: <20220815180457.799825797@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,60 +57,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 3328333b47f4163504267440ec0a36087a407a5f ]
+[ Upstream commit bb42856bfd54fda1cbc7c470fcf5db1596938f4f ]
 
-iscsi_if_stop_conn() is only called from the userspace interface but in a
-subsequent commit we will want to call it from the kernel interface to
-allow drivers like qedi to remove sessions from inside the kernel during
-shutdown. This removes the iscsi_uevent code from iscsi_if_stop_conn() so we
-can call it in a new helper.
+During qedi shutdown we need to stop the iSCSI layer from sending new nops
+as pings and from responding to target ones and make sure there is no
+running connection cleanups. Commit d1f2ce77638d ("scsi: qedi: Fix host
+removal with running sessions") converted the driver to use the libicsi
+helper to drive session removal, so the above issues could be handled. The
+problem is that during system shutdown iscsid will not be running so when
+we try to remove the root session we will hang waiting for userspace to
+reply.
 
-Link: https://lore.kernel.org/r/20220616222738.5722-3-michael.christie@oracle.com
+Add a helper that will drive the destruction of sessions like these during
+system shutdown.
+
+Link: https://lore.kernel.org/r/20220616222738.5722-5-michael.christie@oracle.com
 Tested-by: Nilesh Javali <njavali@marvell.com>
 Reviewed-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 49 +++++++++++++++++++++++++++++
+ include/scsi/scsi_transport_iscsi.h |  1 +
+ 2 files changed, 50 insertions(+)
 
 diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 5d21f07456c6..a410d0b8a445 100644
+index a410d0b8a445..2a38cd2d24ef 100644
 --- a/drivers/scsi/scsi_transport_iscsi.c
 +++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2264,16 +2264,8 @@ static void iscsi_if_disconnect_bound_ep(struct iscsi_cls_conn *conn,
- 	}
+@@ -2341,6 +2341,55 @@ static void iscsi_cleanup_conn_work_fn(struct work_struct *work)
+ 	ISCSI_DBG_TRANS_CONN(conn, "cleanup done.\n");
  }
  
--static int iscsi_if_stop_conn(struct iscsi_transport *transport,
--			      struct iscsi_uevent *ev)
-+static int iscsi_if_stop_conn(struct iscsi_cls_conn *conn, int flag)
- {
--	int flag = ev->u.stop_conn.flag;
--	struct iscsi_cls_conn *conn;
--
--	conn = iscsi_conn_lookup(ev->u.stop_conn.sid, ev->u.stop_conn.cid);
--	if (!conn)
--		return -EINVAL;
--
- 	ISCSI_DBG_TRANS_CONN(conn, "iscsi if conn stop.\n");
- 	/*
- 	 * If this is a termination we have to call stop_conn with that flag
-@@ -3720,7 +3712,12 @@ static int iscsi_if_transport_conn(struct iscsi_transport *transport,
- 	case ISCSI_UEVENT_DESTROY_CONN:
- 		return iscsi_if_destroy_conn(transport, ev);
- 	case ISCSI_UEVENT_STOP_CONN:
--		return iscsi_if_stop_conn(transport, ev);
-+		conn = iscsi_conn_lookup(ev->u.stop_conn.sid,
-+					 ev->u.stop_conn.cid);
-+		if (!conn)
-+			return -EINVAL;
++static int iscsi_iter_force_destroy_conn_fn(struct device *dev, void *data)
++{
++	struct iscsi_transport *transport;
++	struct iscsi_cls_conn *conn;
 +
-+		return iscsi_if_stop_conn(conn, ev->u.stop_conn.flag);
- 	}
- 
- 	/*
++	if (!iscsi_is_conn_dev(dev))
++		return 0;
++
++	conn = iscsi_dev_to_conn(dev);
++	transport = conn->transport;
++
++	if (READ_ONCE(conn->state) != ISCSI_CONN_DOWN)
++		iscsi_if_stop_conn(conn, STOP_CONN_TERM);
++
++	transport->destroy_conn(conn);
++	return 0;
++}
++
++/**
++ * iscsi_force_destroy_session - destroy a session from the kernel
++ * @session: session to destroy
++ *
++ * Force the destruction of a session from the kernel. This should only be
++ * used when userspace is no longer running during system shutdown.
++ */
++void iscsi_force_destroy_session(struct iscsi_cls_session *session)
++{
++	struct iscsi_transport *transport = session->transport;
++	unsigned long flags;
++
++	WARN_ON_ONCE(system_state == SYSTEM_RUNNING);
++
++	spin_lock_irqsave(&sesslock, flags);
++	if (list_empty(&session->sess_list)) {
++		spin_unlock_irqrestore(&sesslock, flags);
++		/*
++		 * Conn/ep is already freed. Session is being torn down via
++		 * async path. For shutdown we don't care about it so return.
++		 */
++		return;
++	}
++	spin_unlock_irqrestore(&sesslock, flags);
++
++	device_for_each_child(&session->dev, NULL,
++			      iscsi_iter_force_destroy_conn_fn);
++	transport->destroy_session(session);
++}
++EXPORT_SYMBOL_GPL(iscsi_force_destroy_session);
++
+ void iscsi_free_session(struct iscsi_cls_session *session)
+ {
+ 	ISCSI_DBG_TRANS_SESSION(session, "Freeing session\n");
+diff --git a/include/scsi/scsi_transport_iscsi.h b/include/scsi/scsi_transport_iscsi.h
+index 9acb8422f680..d6eab7cb221a 100644
+--- a/include/scsi/scsi_transport_iscsi.h
++++ b/include/scsi/scsi_transport_iscsi.h
+@@ -442,6 +442,7 @@ extern struct iscsi_cls_session *iscsi_create_session(struct Scsi_Host *shost,
+ 						struct iscsi_transport *t,
+ 						int dd_size,
+ 						unsigned int target_id);
++extern void iscsi_force_destroy_session(struct iscsi_cls_session *session);
+ extern void iscsi_remove_session(struct iscsi_cls_session *session);
+ extern void iscsi_free_session(struct iscsi_cls_session *session);
+ extern struct iscsi_cls_conn *iscsi_alloc_conn(struct iscsi_cls_session *sess,
 -- 
 2.35.1
 
