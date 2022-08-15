@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A44C5947E0
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9EF0594D11
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345246AbiHOXnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:43:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59792 "EHLO
+        id S233262AbiHPBCu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 21:02:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354283AbiHOXlr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 244CAB86B;
-        Mon, 15 Aug 2022 13:11:34 -0700 (PDT)
+        with ESMTP id S1344044AbiHPBAj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 21:00:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFCE8DC08B;
+        Mon, 15 Aug 2022 13:50:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4ED06077B;
-        Mon, 15 Aug 2022 20:11:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA20AC433C1;
-        Mon, 15 Aug 2022 20:11:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 118E6B8114A;
+        Mon, 15 Aug 2022 20:50:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58B44C433D6;
+        Mon, 15 Aug 2022 20:50:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594293;
-        bh=m6tmQ3fcvqEazC3ml2tP0P8yC/apYVAOn4jfufH1sJ0=;
+        s=korg; t=1660596600;
+        bh=NkKMkHknrqEudYOT5PSgk8GZD5Ar1acRpy+li8bhK/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tjp8GdQThCTq0OsWotrGBEoZ04KsIiLE2Ewu0rqN3H/W8P5QyUnvAEuRnCm6IrYMe
-         3gRCJ/sg+ox56h2cT3F96k2BowJMq83KkGn+GSck2+5lnVL9bLspwswb2VNA/lyCrU
-         bL4Wm/s1IKa05iU3GlVAJQqxmQdRDVExW4vYPcAQ=
+        b=AF/4DYqPZb/KX0MCpzhrxZZjsxuLqn7as7oRTdbhiFHa6WlQPw25yG2MLbPYGI3nv
+         scDo8RFqVO515xpEyV+wIAxPRgF5W3zewtp48U44Nod4BnNH550Uc4hdONlmvYI0R2
+         B9Gdpn66UZ44izxiYMhJhJdHEKFQd1uDnGds4PsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.18 1088/1095] bpf: Fix sparse warning for bpf_kptr_xchg_proto
-Date:   Mon, 15 Aug 2022 20:08:07 +0200
-Message-Id: <20220815180514.042329632@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?M=C3=A5rten=20Lindahl?= <marten.lindahl@axis.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 1132/1157] tpm: Add check for Failure mode for TPM2 modules
+Date:   Mon, 15 Aug 2022 20:08:08 +0200
+Message-Id: <20220815180525.685846400@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Mårten Lindahl <marten.lindahl@axis.com>
 
-commit 5b74c690e1c55953ec99fd9dab74f72dbee4fe95 upstream.
+[ Upstream commit 863ed94c589fcd1984f4e3080f069d30508044bb ]
 
-Kernel Test Robot complained about missing static storage class
-annotation for bpf_kptr_xchg_proto variable.
+In commit 0aa698787aa2 ("tpm: Add Upgrade/Reduced mode support for
+TPM2 modules") it was said that:
 
-sparse: symbol 'bpf_kptr_xchg_proto' was not declared. Should it be static?
+"If the TPM is in Failure mode, it will successfully respond to both
+tpm2_do_selftest() and tpm2_startup() calls. Although, will fail to
+answer to tpm2_get_cc_attrs_tbl(). Use this fact to conclude that TPM
+is in Failure mode."
 
-This caused by missing extern definition in the header. Add it to
-suppress the sparse warning.
+But a check was never added in the commit when calling
+tpm2_get_cc_attrs_tbl() to conclude that the TPM is in Failure mode.
+This commit corrects this by adding a check.
 
-Fixes: c0a5a21c25f3 ("bpf: Allow storing referenced kptr in map")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Link: https://lore.kernel.org/r/20220511194654.765705-2-memxor@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0aa698787aa2 ("tpm: Add Upgrade/Reduced mode support for TPM2 modules")
+Cc: stable@vger.kernel.org # v5.17+
+Signed-off-by: Mårten Lindahl <marten.lindahl@axis.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bpf.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/tpm/tpm2-cmd.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -2228,6 +2228,7 @@ extern const struct bpf_func_proto bpf_f
- extern const struct bpf_func_proto bpf_loop_proto;
- extern const struct bpf_func_proto bpf_strncmp_proto;
- extern const struct bpf_func_proto bpf_copy_from_user_task_proto;
-+extern const struct bpf_func_proto bpf_kptr_xchg_proto;
+diff --git a/drivers/char/tpm/tpm2-cmd.c b/drivers/char/tpm/tpm2-cmd.c
+index c1eb5d223839..65d03867e114 100644
+--- a/drivers/char/tpm/tpm2-cmd.c
++++ b/drivers/char/tpm/tpm2-cmd.c
+@@ -752,6 +752,12 @@ int tpm2_auto_startup(struct tpm_chip *chip)
+ 	}
  
- const struct bpf_func_proto *tracing_prog_func_proto(
-   enum bpf_func_id func_id, const struct bpf_prog *prog);
+ 	rc = tpm2_get_cc_attrs_tbl(chip);
++	if (rc == TPM2_RC_FAILURE || (rc < 0 && rc != -ENOMEM)) {
++		dev_info(&chip->dev,
++			 "TPM in field failure mode, requires firmware upgrade\n");
++		chip->flags |= TPM_CHIP_FLAG_FIRMWARE_UPGRADE;
++		rc = 0;
++	}
+ 
+ out:
+ 	/*
+-- 
+2.35.1
+
 
 
