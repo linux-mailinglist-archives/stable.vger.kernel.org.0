@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0EFF59350F
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:27:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDD255934BB
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238838AbiHOSTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:19:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58224 "EHLO
+        id S233351AbiHOSPS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:15:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233444AbiHOSSY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:18:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9D642B252;
-        Mon, 15 Aug 2022 11:15:57 -0700 (PDT)
+        with ESMTP id S233564AbiHOSOx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:14:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F17962AC68;
+        Mon, 15 Aug 2022 11:14:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87F496129E;
-        Mon, 15 Aug 2022 18:15:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FD4DC433D6;
-        Mon, 15 Aug 2022 18:15:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87D0CB81074;
+        Mon, 15 Aug 2022 18:14:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFB2BC433D6;
+        Mon, 15 Aug 2022 18:14:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587357;
-        bh=neXb9KTr9GRL9Tu9sQdl0k7yuZVxlsmpLVStMiQm83g=;
+        s=korg; t=1660587252;
+        bh=llpMxHGJXWP5cf7sbBkd+Qs7oAxQTdYK6TfLN8Q4UGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y0vd2kyIdgqTdKTyO01wPA2cThlg6vl3WVUJvbyJuLcBfyVajOzPTBLU4/+Tjts4d
-         yDNoRhsFfeLJg5T+yIk2wjpqUyljkscILfD697hJJwyXo5a+Wwt03ljAkpc4SJ4spE
-         vTQ5/gkYZQGlEEWgPKQCNJGxiFuFMH9WLLK5YlLI=
+        b=y0tZAEUnSCkBrSGyVFJz5KsGds3kox0Ge+U/BY+o/EJHpy7fSQdct8oWbO1xjL/O9
+         67oKGyD7O8nFnByASVT8pqnzsJScpESIIQnlChpuz6EN9TXE5Sf7vDuJhCnnOFD2uW
+         i+Vs4QjJKHV2D4+ufLrlW9QgN+uubsqr2iI5YVxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
         Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.15 017/779] HID: hid-input: add Surface Go battery quirk
-Date:   Mon, 15 Aug 2022 19:54:21 +0200
-Message-Id: <20220815180337.929205479@linuxfoundation.org>
+Subject: [PATCH 5.15 018/779] HID: wacom: Only report rotation for art pen
+Date:   Mon, 15 Aug 2022 19:54:22 +0200
+Message-Id: <20220815180337.971403646@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,47 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Ping Cheng <pinglinux@gmail.com>
 
-commit db925d809011c37b246434fdce71209fc2e6c0c2 upstream.
+commit 7ccced33a0ba39b0103ae1dfbf7f1dffdc0a1bc2 upstream.
 
-Similar to the Surface Go (1), the (Elantech) touchscreen/digitizer in
-the Surface Go 2 mistakenly reports the battery of the stylus. Instead
-of over the touchscreen device, battery information is provided via
-bluetooth and the touchscreen device reports an empty battery.
+The generic routine, wacom_wac_pen_event, turns rotation value 90
+degree anti-clockwise before posting the events. This non-zero
+event trggers a non-zero ABS_Z event for non art pen tools. However,
+HID_DG_TWIST is only supported by art pen.
 
-Apply the HID_BATTERY_QUIRK_IGNORE quirk to ignore this battery and
-prevent the erroneous low battery warnings.
-
+[jkosina@suse.cz: fix build: add missing brace]
 Cc: stable@vger.kernel.org
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-ids.h   |    1 +
- drivers/hid/hid-input.c |    2 ++
- 2 files changed, 3 insertions(+)
+ drivers/hid/wacom_wac.c |   29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -398,6 +398,7 @@
- #define USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN	0x2544
- #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
- #define I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN	0x261A
-+#define I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN	0x2A1C
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -638,9 +638,26 @@ static int wacom_intuos_id_mangle(int to
+ 	return (tool_id & ~0xFFF) << 4 | (tool_id & 0xFFF);
+ }
  
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -333,6 +333,8 @@ static const struct hid_device_id hid_ba
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
++static bool wacom_is_art_pen(int tool_id)
++{
++	bool is_art_pen = false;
++
++	switch (tool_id) {
++	case 0x885:	/* Intuos3 Marker Pen */
++	case 0x804:	/* Intuos4/5 13HD/24HD Marker Pen */
++	case 0x10804:	/* Intuos4/5 13HD/24HD Art Pen */
++		is_art_pen = true;
++		break;
++	}
++	return is_art_pen;
++}
++
+ static int wacom_intuos_get_tool_type(int tool_id)
+ {
+-	int tool_type;
++	int tool_type = BTN_TOOL_PEN;
++
++	if (wacom_is_art_pen(tool_id))
++		return tool_type;
  
+ 	switch (tool_id) {
+ 	case 0x812: /* Inking pen */
+@@ -655,12 +672,9 @@ static int wacom_intuos_get_tool_type(in
+ 	case 0x852:
+ 	case 0x823: /* Intuos3 Grip Pen */
+ 	case 0x813: /* Intuos3 Classic Pen */
+-	case 0x885: /* Intuos3 Marker Pen */
+ 	case 0x802: /* Intuos4/5 13HD/24HD General Pen */
+-	case 0x804: /* Intuos4/5 13HD/24HD Marker Pen */
+ 	case 0x8e2: /* IntuosHT2 pen */
+ 	case 0x022:
+-	case 0x10804: /* Intuos4/5 13HD/24HD Art Pen */
+ 	case 0x10842: /* MobileStudio Pro Pro Pen slim */
+ 	case 0x14802: /* Intuos4/5 13HD/24HD Classic Pen */
+ 	case 0x16802: /* Cintiq 13HD Pro Pen */
+@@ -718,10 +732,6 @@ static int wacom_intuos_get_tool_type(in
+ 	case 0x10902: /* Intuos4/5 13HD/24HD Airbrush */
+ 		tool_type = BTN_TOOL_AIRBRUSH;
+ 		break;
+-
+-	default: /* Unknown tool */
+-		tool_type = BTN_TOOL_PEN;
+-		break;
+ 	}
+ 	return tool_type;
+ }
+@@ -2323,6 +2333,9 @@ static void wacom_wac_pen_event(struct h
+ 		}
+ 		return;
+ 	case HID_DG_TWIST:
++		/* don't modify the value if the pen doesn't support the feature */
++		if (!wacom_is_art_pen(wacom_wac->id[0])) return;
++
+ 		/*
+ 		 * Userspace expects pen twist to have its zero point when
+ 		 * the buttons/finger is on the tablet's left. HID values
 
 
