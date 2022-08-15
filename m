@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A911C593C76
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E835593DB6
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347298AbiHOUYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:24:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56912 "EHLO
+        id S1347199AbiHOUYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:24:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347299AbiHOUYD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:24:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B1894BD13;
-        Mon, 15 Aug 2022 12:02:53 -0700 (PDT)
+        with ESMTP id S1347181AbiHOUXg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:23:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B0684C62C;
+        Mon, 15 Aug 2022 12:02:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17400B81106;
-        Mon, 15 Aug 2022 19:02:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 731C1C433D6;
-        Mon, 15 Aug 2022 19:02:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69442612A3;
+        Mon, 15 Aug 2022 19:02:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DBCBC433D6;
+        Mon, 15 Aug 2022 19:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590170;
-        bh=oF4xWoSbIFPJ8tM34EAHPqzQikSWy54TF/PD7GuhNQU=;
+        s=korg; t=1660590173;
+        bh=4pNbcfBY7sSXixtKDEXaS8TRXL9OvdOoDNaQXO+z7ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wvX2H23ZZTxMcm1eUSvDe8uovMMiCRiEazwRJfhCPjV3DXZJEib9LKsPwVnyf3wB/
-         yU8qYWmQan26AylFEvdw2O16LsiyFCM5z/qwQESJcDOTIJCqglse3P60O7N5P6/1vy
-         TtGxw0TdCoZtjJUIr5IALxae8QZ88qWWgpQ+FQMQ=
+        b=PIkT9X6+lbPJX3aZ7uZspuAcSjl76jlB2Hw9knZuoKBikP0WHj6sahWmZsy4K8EZK
+         R99ERPdX4tmJRwoKZ8u9sQTr775jKHrMfXfP1ocmVN8s7MJOZUvhEXIzzqraCv6XdG
+         ILmzacrCJGpG3nvAETKddt1CsagWPcHqEIcLbYMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Ben Greening <bgreening@gmail.com>
-Subject: [PATCH 5.18 0175/1095] ACPI: video: Use native backlight on Dell Inspiron N4010
-Date:   Mon, 15 Aug 2022 19:52:54 +0200
-Message-Id: <20220815180436.875092102@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0176/1095] hwmon: (sht15) Fix wrong assumptions in device remove callback
+Date:   Mon, 15 Aug 2022 19:52:55 +0200
+Message-Id: <20220815180436.916251708@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,45 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 03c440a26cba6cfa540d65924e9db86fcea362b2 ]
+[ Upstream commit 7d4edccc9bbfe1dcdff641343f7b0c6763fbe774 ]
 
-The Dell Inspiron N4010 does not have ACPI backlight control,
-so acpi_video_get_backlight_type()'s heuristics return vendor as
-the type to use.
+Taking a lock at the beginning of .remove() doesn't prevent new readers.
+With the existing approach it can happen, that a read occurs just when
+the lock was taken blocking the reader until the lock is released at the
+end of the remove callback which then accessed *data that is already
+freed then.
 
-But the vendor interface is broken, where as the native (intel_backlight)
-works well, add a quirk to use native.
+To actually fix this problem the hwmon core needs some adaption. Until
+this is implemented take the optimistic approach of assuming that all
+readers are gone after hwmon_device_unregister() and
+sysfs_remove_group() as most other drivers do. (And once the core
+implements that, taking the lock would deadlock.)
 
-Link: https://lore.kernel.org/regressions/CALF=6jEe5G8+r1Wo0vvz4GjNQQhdkLT5p8uCHn6ZXhg4nsOWow@mail.gmail.com/
-Reported-and-tested-by: Ben Greening <bgreening@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+So drop the lock, move the reset to after device unregistration to keep
+the device in a workable state until it's deregistered. Also add a error
+message in case the reset fails and return 0 anyhow. (Returning an error
+code, doesn't stop the platform device unregistration and only results
+in a little helpful error message before the devm cleanup handlers are
+called.)
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20220725194344.150098-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/video_detect.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hwmon/sht15.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
-index 6615f59ab7fd..5d7f38016a24 100644
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -347,6 +347,14 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
- 		DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro12,1"),
- 		},
- 	},
-+	{
-+	 .callback = video_detect_force_native,
-+	 /* Dell Inspiron N4010 */
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron N4010"),
-+		},
-+	},
- 	{
- 	 .callback = video_detect_force_native,
- 	 /* Dell Vostro V131 */
+diff --git a/drivers/hwmon/sht15.c b/drivers/hwmon/sht15.c
+index 7f4a63959730..ae4d14257a11 100644
+--- a/drivers/hwmon/sht15.c
++++ b/drivers/hwmon/sht15.c
+@@ -1020,25 +1020,20 @@ static int sht15_probe(struct platform_device *pdev)
+ static int sht15_remove(struct platform_device *pdev)
+ {
+ 	struct sht15_data *data = platform_get_drvdata(pdev);
++	int ret;
+ 
+-	/*
+-	 * Make sure any reads from the device are done and
+-	 * prevent new ones beginning
+-	 */
+-	mutex_lock(&data->read_lock);
+-	if (sht15_soft_reset(data)) {
+-		mutex_unlock(&data->read_lock);
+-		return -EFAULT;
+-	}
+ 	hwmon_device_unregister(data->hwmon_dev);
+ 	sysfs_remove_group(&pdev->dev.kobj, &sht15_attr_group);
++
++	ret = sht15_soft_reset(data);
++	if (ret)
++		dev_err(&pdev->dev, "Failed to reset device (%pe)\n", ERR_PTR(ret));
++
+ 	if (!IS_ERR(data->reg)) {
+ 		regulator_unregister_notifier(data->reg, &data->nb);
+ 		regulator_disable(data->reg);
+ 	}
+ 
+-	mutex_unlock(&data->read_lock);
+-
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
