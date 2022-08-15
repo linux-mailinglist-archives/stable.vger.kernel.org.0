@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E503593C98
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07BF8593DF8
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344761AbiHOUdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:33:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38988 "EHLO
+        id S1345546AbiHOUdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:33:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347252AbiHOUbD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:31:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 099EFA4046;
-        Mon, 15 Aug 2022 12:04:37 -0700 (PDT)
+        with ESMTP id S1347148AbiHOUbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:31:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF985A4B08;
+        Mon, 15 Aug 2022 12:04:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29256612BE;
-        Mon, 15 Aug 2022 19:04:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31130C433D6;
-        Mon, 15 Aug 2022 19:04:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4B8DB8110B;
+        Mon, 15 Aug 2022 19:04:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 162A8C43143;
+        Mon, 15 Aug 2022 19:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590262;
-        bh=PPKlFE3ND5uq7QSeTU/xSmPJVmUGIqw1ut9sjre9/U4=;
+        s=korg; t=1660590265;
+        bh=rx8tBdlS4PuAi21PIO2gDMc5pLYpRji2eOvSJm4wlIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O8uJJzgCylHXMs+fhNWBa8Iqed9fKfOt4lAasuUOTqbuPlYbIUZ9jVOVuSkizm0hv
-         KaShFFuO5/vzXEUDR6Gw0RXaTB7AHqb7Ksq06FhoD9GgVNW3wdL1K/XP/0DpTrprBH
-         2tlPr7C5bBNtUYrhAgseg58Hbl7Fuc2UecnLA2HA=
+        b=z/m7xuqwdVqt/GuWUUdrckuIKkmB+39e+szujyx1l/o5mZQVZrYvIn+Ov6kLjOMhT
+         Ed3VetFhJMeGmno86DzdCpqsG5rKHLTGRtCVJgVFmpeZSp8povM586lEzl+oo7vIMF
+         IhJ/jZRmqidqHACHBWsTmer7cIw2NytPqXZsYwGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0205/1095] arm64: cpufeature: Allow different PMU versions in ID_DFR0_EL1
-Date:   Mon, 15 Aug 2022 19:53:24 +0200
-Message-Id: <20220815180438.150739474@linuxfoundation.org>
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0206/1095] locking/lockdep: Fix lockdep_init_map_*() confusion
+Date:   Mon, 15 Aug 2022 19:53:25 +0200
+Message-Id: <20220815180438.193194149@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,59 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Elisei <alexandru.elisei@arm.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 506506cad3947b942425b119ffa2b06715d5d804 ]
+[ Upstream commit eae6d58d67d9739be5f7ae2dbead1d0ef6528243 ]
 
-Commit b20d1ba3cf4b ("arm64: cpufeature: allow for version discrepancy in
-PMU implementations") made it possible to run Linux on a machine with PMUs
-with different versions without tainting the kernel. The patch relaxed the
-restriction only for the ID_AA64DFR0_EL1.PMUVer field, and missed doing the
-same for ID_DFR0_EL1.PerfMon , which also reports the PMU version, but for
-the AArch32 state.
+Commit dfd5e3f5fe27 ("locking/lockdep: Mark local_lock_t") added yet
+another lockdep_init_map_*() variant, but forgot to update all the
+existing users of the most complicated version.
 
-For example, with Linux running on two clusters with different PMU
-versions, the kernel is tainted when bringing up secondaries with the
-following message:
+This could lead to a loss of lock_type and hence an incorrect report.
+Given the relative rarity of both local_lock and these annotations,
+this is unlikely to happen in practise, still, best fix things.
 
-[    0.097027] smp: Bringing up secondary CPUs ...
-[..]
-[    0.142805] Detected PIPT I-cache on CPU4
-[    0.142805] CPU features: SANITY CHECK: Unexpected variation in SYS_ID_DFR0_EL1. Boot CPU: 0x00000004011088, CPU4: 0x00000005011088
-[    0.143555] CPU features: Unsupported CPU feature variation detected.
-[    0.143702] GICv3: CPU4: found redistributor 10000 region 0:0x000000002f180000
-[    0.143702] GICv3: CPU4: using allocated LPI pending table @0x00000008800d0000
-[    0.144888] CPU4: Booted secondary processor 0x0000010000 [0x410fd0f0]
-
-The boot CPU implements FEAT_PMUv3p1 (ID_DFR0_EL1.PerfMon, bits 27:24, is
-0b0100), but CPU4, part of the other cluster, implements FEAT_PMUv3p4
-(ID_DFR0_EL1.PerfMon = 0b0101).
-
-Treat the PerfMon field as FTR_NONSTRICT and FTR_EXACT to pass the sanity
-check and to match how PMUVer is treated for the 64bit ID register.
-
-Fixes: b20d1ba3cf4b ("arm64: cpufeature: allow for version discrepancy in PMU implementations")
-Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
-Link: https://lore.kernel.org/r/20220617111332.203061-1-alexandru.elisei@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: dfd5e3f5fe27 ("locking/lockdep: Mark local_lock_t")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/YqyEDtoan20K0CVD@worktop.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpufeature.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/lockdep.h  | 30 +++++++++++++++++-------------
+ kernel/locking/lockdep.c |  7 ++++---
+ 2 files changed, 21 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 5357ba7ea3c7..a54f34aa36e0 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -541,7 +541,7 @@ static const struct arm64_ftr_bits ftr_id_pfr2[] = {
+diff --git a/include/linux/lockdep.h b/include/linux/lockdep.h
+index 467b94257105..0a9afe84ea44 100644
+--- a/include/linux/lockdep.h
++++ b/include/linux/lockdep.h
+@@ -192,7 +192,7 @@ static inline void
+ lockdep_init_map_waits(struct lockdep_map *lock, const char *name,
+ 		       struct lock_class_key *key, int subclass, u8 inner, u8 outer)
+ {
+-	lockdep_init_map_type(lock, name, key, subclass, inner, LD_WAIT_INV, LD_LOCK_NORMAL);
++	lockdep_init_map_type(lock, name, key, subclass, inner, outer, LD_LOCK_NORMAL);
+ }
  
- static const struct arm64_ftr_bits ftr_id_dfr0[] = {
- 	/* [31:28] TraceFilt */
--	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_DFR0_PERFMON_SHIFT, 4, 0xf),
-+	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_EXACT, ID_DFR0_PERFMON_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_DFR0_MPROFDBG_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_DFR0_MMAPTRC_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_DFR0_COPTRC_SHIFT, 4, 0),
+ static inline void
+@@ -215,24 +215,28 @@ static inline void lockdep_init_map(struct lockdep_map *lock, const char *name,
+  * or they are too narrow (they suffer from a false class-split):
+  */
+ #define lockdep_set_class(lock, key)				\
+-	lockdep_init_map_waits(&(lock)->dep_map, #key, key, 0,	\
+-			       (lock)->dep_map.wait_type_inner,	\
+-			       (lock)->dep_map.wait_type_outer)
++	lockdep_init_map_type(&(lock)->dep_map, #key, key, 0,	\
++			      (lock)->dep_map.wait_type_inner,	\
++			      (lock)->dep_map.wait_type_outer,	\
++			      (lock)->dep_map.lock_type)
+ 
+ #define lockdep_set_class_and_name(lock, key, name)		\
+-	lockdep_init_map_waits(&(lock)->dep_map, name, key, 0,	\
+-			       (lock)->dep_map.wait_type_inner,	\
+-			       (lock)->dep_map.wait_type_outer)
++	lockdep_init_map_type(&(lock)->dep_map, name, key, 0,	\
++			      (lock)->dep_map.wait_type_inner,	\
++			      (lock)->dep_map.wait_type_outer,	\
++			      (lock)->dep_map.lock_type)
+ 
+ #define lockdep_set_class_and_subclass(lock, key, sub)		\
+-	lockdep_init_map_waits(&(lock)->dep_map, #key, key, sub,\
+-			       (lock)->dep_map.wait_type_inner,	\
+-			       (lock)->dep_map.wait_type_outer)
++	lockdep_init_map_type(&(lock)->dep_map, #key, key, sub,	\
++			      (lock)->dep_map.wait_type_inner,	\
++			      (lock)->dep_map.wait_type_outer,	\
++			      (lock)->dep_map.lock_type)
+ 
+ #define lockdep_set_subclass(lock, sub)					\
+-	lockdep_init_map_waits(&(lock)->dep_map, #lock, (lock)->dep_map.key, sub,\
+-			       (lock)->dep_map.wait_type_inner,		\
+-			       (lock)->dep_map.wait_type_outer)
++	lockdep_init_map_type(&(lock)->dep_map, #lock, (lock)->dep_map.key, sub,\
++			      (lock)->dep_map.wait_type_inner,		\
++			      (lock)->dep_map.wait_type_outer,		\
++			      (lock)->dep_map.lock_type)
+ 
+ #define lockdep_set_novalidate_class(lock) \
+ 	lockdep_set_class_and_name(lock, &__lockdep_no_validate__, #lock)
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index c06cab6546ed..e45ec82b42e6 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -5214,9 +5214,10 @@ __lock_set_class(struct lockdep_map *lock, const char *name,
+ 		return 0;
+ 	}
+ 
+-	lockdep_init_map_waits(lock, name, key, 0,
+-			       lock->wait_type_inner,
+-			       lock->wait_type_outer);
++	lockdep_init_map_type(lock, name, key, 0,
++			      lock->wait_type_inner,
++			      lock->wait_type_outer,
++			      lock->lock_type);
+ 	class = register_lock_class(lock, subclass, 0);
+ 	hlock->class_idx = class - lock_classes;
+ 
 -- 
 2.35.1
 
