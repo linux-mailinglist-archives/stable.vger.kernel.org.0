@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEEBA59355E
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1358D59355F
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240914AbiHOSXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:23:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43396 "EHLO
+        id S240662AbiHOSXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:23:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240900AbiHOSW7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:22:59 -0400
+        with ESMTP id S241164AbiHOSXC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:23:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A652DAB1;
-        Mon, 15 Aug 2022 11:17:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 772112DABA;
+        Mon, 15 Aug 2022 11:17:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 836316068C;
-        Mon, 15 Aug 2022 18:17:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8559EC433C1;
-        Mon, 15 Aug 2022 18:17:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CB1C60685;
+        Mon, 15 Aug 2022 18:17:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59AA3C4347C;
+        Mon, 15 Aug 2022 18:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587442;
-        bh=Rc5Op+0myWs6Q/Jv3mGOh1rKnK6qSxCpqCXzJBr4HGg=;
+        s=korg; t=1660587445;
+        bh=AICtVT5BSqME0mJF4xJXxsjnLdJMwqvSiqa4MFAvTH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WqvFEZZF/XkpaCbxSFP02MSc8g3YPiC0+YOP17Z/KvfXHKlC3ChIZDp6RnX7nzF3A
-         aL0TqA2BgG33SUN687QDYBynGq5Xh4xh+abHxmTgxfMGFQrGaAfJKU7emPNLgm4EO7
-         AUVtlpVZMuKw8lZ+KUFfQpO80MWqRlqYInup06ms=
+        b=0WKbnExdnuv9F3x6ANqrOAaLjTnr7NuS9ZMhcgTSLAbhqR2SdVZkD59EbcqxMF3kI
+         QaSz//tJMb524uTNmiah4fGPWMkaDKxlBkgPTg2meWBwt+xlJjtoEzqIW5IiojQStm
+         V22WxL+2P1bkughLySu11oKolAjR3T5eCKgmEjOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Guo Ren <guoren@kernel.org>,
+        Heiko Stuebner <heiko@sntech.de>,
         Xianting Tian <xianting.tian@linux.alibaba.com>,
         Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.15 057/779] RISC-V: Fixup schedule out issue in machine_crash_shutdown()
-Date:   Mon, 15 Aug 2022 19:55:01 +0200
-Message-Id: <20220815180339.695055218@linuxfoundation.org>
+Subject: [PATCH 5.15 058/779] RISC-V: Add modules to virtual kernel memory layout dump
+Date:   Mon, 15 Aug 2022 19:55:02 +0200
+Message-Id: <20220815180339.741245916@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,117 +57,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xianting Tian <xianting.tian@linux.alibaba.com>
 
-commit ad943893d5f1d0aeea892bf7b781cf8062b36d58 upstream.
+commit f9293ad46d8ba9909187a37b7215324420ad4596 upstream.
 
-Current task of executing crash kexec will be schedule out when panic is
-triggered by RCU Stall, as it needs to wait rcu completion. It lead to
-inability to enter the crash system.
+Modules always live before the kernel, MODULES_END is fixed but
+MODULES_VADDR isn't fixed, it depends on the kernel size.
+Let's add it to virtual kernel memory layout dump.
 
-The implementation of machine_crash_shutdown() is non-standard for RISC-V
-according to other Arch's implementation(eg, x86, arm64), we need to send
-IPI to stop secondary harts.
+As MODULES is only defined for CONFIG_64BIT, so we dump it when
+CONFIG_64BIT=y.
 
-[224521.877268] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
-[224521.883471] rcu: 	0-...0: (3 GPs behind) idle=cfa/0/0x1 softirq=3968793/3968793 fqs=2495
-[224521.891742] 	(detected by 2, t=5255 jiffies, g=60855593, q=328)
-[224521.897754] Task dump for CPU 0:
-[224521.901074] task:swapper/0     state:R  running task   stack:  0 pid:  0 ppid:   0 flags:0x00000008
-[224521.911090] Call Trace:
-[224521.913638] [<ffffffe000c432de>] __schedule+0x208/0x5ea
-[224521.918957] Kernel panic - not syncing: RCU Stall
-[224521.923773] bad: scheduling from the idle thread!
-[224521.928571] CPU: 2 PID: 0 Comm: swapper/2 Kdump: loaded Tainted: G   O  5.10.113-yocto-standard #1
-[224521.938658] Call Trace:
-[224521.941200] [<ffffffe00020395c>] walk_stackframe+0x0/0xaa
-[224521.946689] [<ffffffe000c34f8e>] show_stack+0x32/0x3e
-[224521.951830] [<ffffffe000c39020>] dump_stack_lvl+0x7e/0xa2
-[224521.957317] [<ffffffe000c39058>] dump_stack+0x14/0x1c
-[224521.962459] [<ffffffe000243884>] dequeue_task_idle+0x2c/0x40
-[224521.968207] [<ffffffe000c434f4>] __schedule+0x41e/0x5ea
-[224521.973520] [<ffffffe000c43826>] schedule+0x34/0xe4
-[224521.978487] [<ffffffe000c46cae>] schedule_timeout+0xc6/0x170
-[224521.984234] [<ffffffe000c4491e>] wait_for_completion+0x98/0xf2
-[224521.990157] [<ffffffe00026d9e2>] __wait_rcu_gp+0x148/0x14a
-[224521.995733] [<ffffffe0002761c4>] synchronize_rcu+0x5c/0x66
-[224522.001307] [<ffffffe00026f1a6>] rcu_sync_enter+0x54/0xe6
-[224522.006795] [<ffffffe00025a436>] percpu_down_write+0x32/0x11c
-[224522.012629] [<ffffffe000c4266a>] _cpu_down+0x92/0x21a
-[224522.017771] [<ffffffe000219a0a>] smp_shutdown_nonboot_cpus+0x90/0x118
-[224522.024299] [<ffffffe00020701e>] machine_crash_shutdown+0x30/0x4a
-[224522.030483] [<ffffffe00029a3f8>] __crash_kexec+0x62/0xa6
-[224522.035884] [<ffffffe000c3515e>] panic+0xfa/0x2b6
-[224522.040678] [<ffffffe0002772be>] rcu_sched_clock_irq+0xc26/0xcb8
-[224522.046774] [<ffffffe00027fc7a>] update_process_times+0x62/0x8a
-[224522.052785] [<ffffffe00028d522>] tick_sched_timer+0x9e/0x102
-[224522.058533] [<ffffffe000280c3a>] __hrtimer_run_queues+0x16a/0x318
-[224522.064716] [<ffffffe0002812ec>] hrtimer_interrupt+0xd4/0x228
-[224522.070551] [<ffffffe0009a69b6>] riscv_timer_interrupt+0x3c/0x48
-[224522.076646] [<ffffffe000268f8c>] handle_percpu_devid_irq+0xb0/0x24c
-[224522.083004] [<ffffffe00026428e>] __handle_domain_irq+0xa8/0x122
-[224522.089014] [<ffffffe00062f954>] riscv_intc_irq+0x38/0x60
-[224522.094501] [<ffffffe000201bd4>] ret_from_exception+0x0/0xc
-[224522.100161] [<ffffffe000c42146>] rcu_eqs_enter.constprop.0+0x8c/0xb8
+eg,
+MODULES_VADDR - MODULES_END
+0xffffffff01133000 - 0xffffffff80000000
 
-With the patch, it can enter crash system when RCU Stall occur.
-
-Fixes: e53d28180d4d ("RISC-V: Add kdump support")
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20220811074150.3020189-4-xianting.tian@linux.alibaba.com
+Link: https://lore.kernel.org/r/20220811074150.3020189-5-xianting.tian@linux.alibaba.com
 Cc: stable@vger.kernel.org
+Fixes: 2bfc6cd81bd1 ("riscv: Move kernel mapping outside of linear mapping")
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/machine_kexec.c | 26 ++++++++++++++++++++++----
- 1 file changed, 22 insertions(+), 4 deletions(-)
+ arch/riscv/mm/init.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/riscv/kernel/machine_kexec.c b/arch/riscv/kernel/machine_kexec.c
-index 86d1b5f9dfb5..ee79e6839b86 100644
---- a/arch/riscv/kernel/machine_kexec.c
-+++ b/arch/riscv/kernel/machine_kexec.c
-@@ -138,19 +138,37 @@ void machine_shutdown(void)
- #endif
- }
- 
-+/* Override the weak function in kernel/panic.c */
-+void crash_smp_send_stop(void)
-+{
-+	static int cpus_stopped;
-+
-+	/*
-+	 * This function can be called twice in panic path, but obviously
-+	 * we execute this only once.
-+	 */
-+	if (cpus_stopped)
-+		return;
-+
-+	smp_send_stop();
-+	cpus_stopped = 1;
-+}
-+
- /*
-  * machine_crash_shutdown - Prepare to kexec after a kernel crash
-  *
-  * This function is called by crash_kexec just before machine_kexec
-- * below and its goal is similar to machine_shutdown, but in case of
-- * a kernel crash. Since we don't handle such cases yet, this function
-- * is empty.
-+ * and its goal is to shutdown non-crashing cpus and save registers.
-  */
- void
- machine_crash_shutdown(struct pt_regs *regs)
- {
-+	local_irq_disable();
-+
-+	/* shutdown non-crashing cpus */
-+	crash_smp_send_stop();
-+
- 	crash_save_cpu(regs, smp_processor_id());
--	machine_shutdown();
- 	pr_info("Starting crashdump kernel...\n");
- }
- 
--- 
-2.37.1
-
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -100,6 +100,10 @@ static void __init print_vm_layout(void)
+ 		  (unsigned long)VMEMMAP_END);
+ 	print_mlm("vmalloc", (unsigned long)VMALLOC_START,
+ 		  (unsigned long)VMALLOC_END);
++#ifdef CONFIG_64BIT
++	print_mlm("modules", (unsigned long)MODULES_VADDR,
++		  (unsigned long)MODULES_END);
++#endif
+ 	print_mlm("lowmem", (unsigned long)PAGE_OFFSET,
+ 		  (unsigned long)high_memory);
+ #ifdef CONFIG_64BIT
 
 
