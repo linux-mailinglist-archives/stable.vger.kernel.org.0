@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F6E0593BBF
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E5BB593D81
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232743AbiHOUOb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:14:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52770 "EHLO
+        id S1345851AbiHOUNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:13:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346983AbiHOUMn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:12:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7553B89914;
-        Mon, 15 Aug 2022 11:58:43 -0700 (PDT)
+        with ESMTP id S1347046AbiHOUMt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:12:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 298328A6F6;
+        Mon, 15 Aug 2022 11:58:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F112B8109E;
-        Mon, 15 Aug 2022 18:58:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B4EAC433D7;
-        Mon, 15 Aug 2022 18:58:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6655B6126A;
+        Mon, 15 Aug 2022 18:58:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 745F3C433D6;
+        Mon, 15 Aug 2022 18:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589920;
-        bh=AG+Uiec8voQAxe4xbm6dYZ5iaa1ZLFeWAYPNJDAg5og=;
+        s=korg; t=1660589931;
+        bh=+GXNjbHUTKV1L2+1A30K3LneaVHLN5tQdbVxlRebuCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PuCNnrSiZPSVQpD9Ssf528fKP+CTepLhKvVFMcpbUMBlSVDcXdLCFgzGUUtroaSP2
-         q0a2DnOt/QBwcltrt41+jID0tjFhNtZn4x4bbRbV80ZJVmhamDPHK+eXghOXLF4ebq
-         KU8nnPo8PBW2TsdS3lyMZLlyuBujq7lk5/XqjOVM=
+        b=YFzGYtgJUEbaydHODiXDRUORx151z2ZMoi1Au3+lqTvxAYbYI79OzX5GY48P7778t
+         TUWrm7SM+QeChE5J8CzTbPk2PMVqY8yWNij8pSJmJvu5GrPdtSTQtu61SHV9STAFIW
+         fVuBHxrk9tmrtrFWgMlemADOfr4l3HcgNGOQKjCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ben Dooks <ben.dooks@sifive.com>,
         Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.18 0064/1095] RISC-V: cpu_ops_spinwait.c should include head.h
-Date:   Mon, 15 Aug 2022 19:51:03 +0200
-Message-Id: <20220815180432.143299948@linuxfoundation.org>
+Subject: [PATCH 5.18 0065/1095] RISC-V: Declare cpu_ops_spinwait in <asm/cpu_ops.h>
+Date:   Mon, 15 Aug 2022 19:51:04 +0200
+Message-Id: <20220815180432.187936691@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,34 +55,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ben Dooks <ben.dooks@sifive.com>
 
-commit e4aa991c05aedc3ead92d1352af86db74090dc3c upstream.
+commit da6d2128e56a50a0d497c8e41ca1d33d88bcc0aa upstream.
 
-Running sparse shows cpu_ops_spinwait.c is missing two definitions
-found in head.h, so include it to stop the following warnings:
+The cpu_ops_spinwait is used in a couple of places in arch/riscv
+and is causing a sparse warning due to no declaration. Add this
+to <asm/cpu_ops.h> with the others to fix the following:
 
-arch/riscv/kernel/cpu_ops_spinwait.c:15:6: warning: symbol '__cpu_spinwait_stack_pointer' was not declared. Should it be static?
-arch/riscv/kernel/cpu_ops_spinwait.c:16:6: warning: symbol '__cpu_spinwait_task_pointer' was not declared. Should it be static?
+arch/riscv/kernel/cpu_ops_spinwait.c:16:29: warning: symbol 'cpu_ops_spinwait' was not declared. Should it be static?
 
 Signed-off-by: Ben Dooks <ben.dooks@sifive.com>
-Link: https://lore.kernel.org/r/20220713215306.94675-1-ben.dooks@sifive.com
-Fixes: c78f94f35cf6 ("RISC-V: Use __cpu_up_stack/task_pointer only for spinwait method")
+Link: https://lore.kernel.org/r/20220714071811.187491-1-ben.dooks@sifive.com
+[Palmer: Drop the extern from cpu_ops.c]
+Fixes: 2ffc48fc7071 ("RISC-V: Move spinwait booting method to its own config")
 Cc: stable@vger.kernel.org
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/cpu_ops_spinwait.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/riscv/include/asm/cpu_ops.h | 1 +
+ arch/riscv/kernel/cpu_ops.c      | 4 +---
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
---- a/arch/riscv/kernel/cpu_ops_spinwait.c
-+++ b/arch/riscv/kernel/cpu_ops_spinwait.c
-@@ -11,6 +11,8 @@
- #include <asm/sbi.h>
- #include <asm/smp.h>
+diff --git a/arch/riscv/include/asm/cpu_ops.h b/arch/riscv/include/asm/cpu_ops.h
+index 134590f1b843..aa128466c4d4 100644
+--- a/arch/riscv/include/asm/cpu_ops.h
++++ b/arch/riscv/include/asm/cpu_ops.h
+@@ -38,6 +38,7 @@ struct cpu_operations {
+ #endif
+ };
  
-+#include "head.h"
-+
- const struct cpu_operations cpu_ops_spinwait;
- void *__cpu_spinwait_stack_pointer[NR_CPUS] __section(".data");
- void *__cpu_spinwait_task_pointer[NR_CPUS] __section(".data");
++extern const struct cpu_operations cpu_ops_spinwait;
+ extern const struct cpu_operations *cpu_ops[NR_CPUS];
+ void __init cpu_set_ops(int cpu);
+ 
+diff --git a/arch/riscv/kernel/cpu_ops.c b/arch/riscv/kernel/cpu_ops.c
+index 170d07e57721..f92c0e6eddb1 100644
+--- a/arch/riscv/kernel/cpu_ops.c
++++ b/arch/riscv/kernel/cpu_ops.c
+@@ -15,9 +15,7 @@
+ const struct cpu_operations *cpu_ops[NR_CPUS] __ro_after_init;
+ 
+ extern const struct cpu_operations cpu_ops_sbi;
+-#ifdef CONFIG_RISCV_BOOT_SPINWAIT
+-extern const struct cpu_operations cpu_ops_spinwait;
+-#else
++#ifndef CONFIG_RISCV_BOOT_SPINWAIT
+ const struct cpu_operations cpu_ops_spinwait = {
+ 	.name		= "",
+ 	.cpu_prepare	= NULL,
+-- 
+2.37.1
+
 
 
