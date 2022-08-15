@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 169C759399C
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E46059382B
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244007AbiHOTYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:24:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55182 "EHLO
+        id S1344023AbiHOTS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:18:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245060AbiHOTWb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:22:31 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6633B59270;
-        Mon, 15 Aug 2022 11:40:39 -0700 (PDT)
+        with ESMTP id S1344802AbiHOTRa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:17:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BBE4550AD;
+        Mon, 15 Aug 2022 11:38:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2AA2BCE1268;
-        Mon, 15 Aug 2022 18:40:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12EC6C433C1;
-        Mon, 15 Aug 2022 18:40:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 924FCB8105C;
+        Mon, 15 Aug 2022 18:38:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6258C433C1;
+        Mon, 15 Aug 2022 18:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588835;
-        bh=+xyQPqQ4x+0wzOxEiX4hNX96Q1C0zM0bt8z0jZmfowU=;
+        s=korg; t=1660588729;
+        bh=Ec5/oyhb00vaR4L1rErP9tSGFiWzLz6wckzSUZUh9pY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nFlCN/iCs2uPBGH1OWBJ6YDKyCfbxQHxKYTmzgSOtoPpyeck72cldVaoKwILAObyf
-         ls4nzzVUsTum6F3ryevDrfqpha9s8e5o3sl0CLlZuV+0OucHecdeSKKhTGr4NNWmcf
-         O2XLbZsQEzcV87WLmrl14VHD3YIt4CIXSsa4M/i0=
+        b=EKvcyYVNqLnvbBNboXL6aPeEihDSKypkeC0gS8nHpjvsSW6F65BmjdCTSAKtt7Jn/
+         IIy6Ll8JdI9ynBwnHGGmO11FDUzc3OsxebOqn/IGRWH+onOGag/fcGpQL9cuvAfoDk
+         LD6WeS71lzrUvRyfK1+K/HDFSNu9qVprHaFyrKRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 488/779] xtensa: iss/network: provide release() callback
-Date:   Mon, 15 Aug 2022 20:02:12 +0200
-Message-Id: <20220815180358.122109382@linuxfoundation.org>
+Subject: [PATCH 5.15 489/779] xtensa: iss: fix handling error cases in iss_net_configure()
+Date:   Mon, 15 Aug 2022 20:02:13 +0200
+Message-Id: <20220815180358.171051787@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,48 +55,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 8864fb8359682912ee99235db7db916733a1fd7b ]
+[ Upstream commit 628ccfc8f5f79dd548319408fcc53949fe97b258 ]
 
-Provide release() callback for the platform device embedded into struct
-iss_net_private and registered in the iss_net_configure so that
-platform_device_unregister could be called for it.
+The 'pdev' and 'netdev' need to be released in error cases of
+iss_net_configure().
 
+Change the return type of iss_net_configure() to void, because it's
+not used.
+
+Fixes: 7282bee78798 ("[PATCH] xtensa: Architecture support for Tensilica Xtensa Part 8")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/platforms/iss/network.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/xtensa/platforms/iss/network.c | 32 ++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 17 deletions(-)
 
 diff --git a/arch/xtensa/platforms/iss/network.c b/arch/xtensa/platforms/iss/network.c
-index 4986226a5ab2..4801df4e73e1 100644
+index 4801df4e73e1..08d70c868c13 100644
 --- a/arch/xtensa/platforms/iss/network.c
 +++ b/arch/xtensa/platforms/iss/network.c
-@@ -502,6 +502,15 @@ static const struct net_device_ops iss_netdev_ops = {
- 	.ndo_set_rx_mode	= iss_net_set_multicast_list,
- };
+@@ -511,16 +511,15 @@ static void iss_net_pdev_release(struct device *dev)
+ 	free_netdev(lp->dev);
+ }
  
-+static void iss_net_pdev_release(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct iss_net_private *lp =
-+		container_of(pdev, struct iss_net_private, pdev);
-+
-+	free_netdev(lp->dev);
-+}
-+
- static int iss_net_configure(int index, char *init)
+-static int iss_net_configure(int index, char *init)
++static void iss_net_configure(int index, char *init)
  {
  	struct net_device *dev;
-@@ -558,6 +567,7 @@ static int iss_net_configure(int index, char *init)
+ 	struct iss_net_private *lp;
+-	int err;
  
+ 	dev = alloc_etherdev(sizeof(*lp));
+ 	if (dev == NULL) {
+ 		pr_err("eth_configure: failed to allocate device\n");
+-		return 1;
++		return;
+ 	}
+ 
+ 	/* Initialize private element. */
+@@ -549,7 +548,7 @@ static int iss_net_configure(int index, char *init)
+ 	if (!tuntap_probe(lp, index, init)) {
+ 		pr_err("%s: invalid arguments. Skipping device!\n",
+ 		       dev->name);
+-		goto errout;
++		goto err_free_netdev;
+ 	}
+ 
+ 	pr_info("Netdevice %d (%pM)\n", index, dev->dev_addr);
+@@ -557,7 +556,8 @@ static int iss_net_configure(int index, char *init)
+ 	/* sysfs register */
+ 
+ 	if (!driver_registered) {
+-		platform_driver_register(&iss_net_driver);
++		if (platform_driver_register(&iss_net_driver))
++			goto err_free_netdev;
+ 		driver_registered = 1;
+ 	}
+ 
+@@ -568,7 +568,8 @@ static int iss_net_configure(int index, char *init)
  	lp->pdev.id = index;
  	lp->pdev.name = DRIVER_NAME;
-+	lp->pdev.dev.release = iss_net_pdev_release;
- 	platform_device_register(&lp->pdev);
+ 	lp->pdev.dev.release = iss_net_pdev_release;
+-	platform_device_register(&lp->pdev);
++	if (platform_device_register(&lp->pdev))
++		goto err_free_netdev;
  	SET_NETDEV_DEV(dev, &lp->pdev.dev);
  
+ 	dev->netdev_ops = &iss_netdev_ops;
+@@ -577,23 +578,20 @@ static int iss_net_configure(int index, char *init)
+ 	dev->irq = -1;
+ 
+ 	rtnl_lock();
+-	err = register_netdevice(dev);
+-	rtnl_unlock();
+-
+-	if (err) {
++	if (register_netdevice(dev)) {
++		rtnl_unlock();
+ 		pr_err("%s: error registering net device!\n", dev->name);
+-		/* XXX: should we call ->remove() here? */
+-		free_netdev(dev);
+-		return 1;
++		platform_device_unregister(&lp->pdev);
++		return;
+ 	}
++	rtnl_unlock();
+ 
+ 	timer_setup(&lp->tl, iss_net_user_timer_expire, 0);
+ 
+-	return 0;
++	return;
+ 
+-errout:
+-	/* FIXME: unregister; free, etc.. */
+-	return -EIO;
++err_free_netdev:
++	free_netdev(dev);
+ }
+ 
+ /* ------------------------------------------------------------------------- */
 -- 
 2.35.1
 
