@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA9D5594A8A
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:18:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12393594AD8
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:20:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348681AbiHPAEb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:04:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34136 "EHLO
+        id S1356045AbiHPAGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:06:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353774AbiHOX6u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:58:50 -0400
+        with ESMTP id S1354935AbiHPAAk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:00:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93C1410B4;
-        Mon, 15 Aug 2022 13:22:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6F434A83E;
+        Mon, 15 Aug 2022 13:22:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F1F861073;
-        Mon, 15 Aug 2022 20:22:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33931C433C1;
-        Mon, 15 Aug 2022 20:22:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6126160F71;
+        Mon, 15 Aug 2022 20:22:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48A77C433D7;
+        Mon, 15 Aug 2022 20:22:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594927;
-        bh=CXsiMlpxl/lPeiBhHDsWcyx72OmLP0Buq3FF1+bOVWY=;
+        s=korg; t=1660594930;
+        bh=Uwyp5EW6TYI61pBEDHY7/etR6TOT11hZlllBdjAsKrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h3/hspFhrFmQ0BMlPcpjNeeqCpdxxlohtNpO1nl3N+ywrznB1aYqMAdJ+tQdCUMCq
-         8SneZ7q8YjT9r+CCy8+Ggsmrvrrml8eijTvSoSjZlKeK59NFHjrTd2w+kC7gT4UL0t
-         P21SYJC+VvFKuAFuub0N1epPuE/NBvG4KMNekWGY=
+        b=oTP846YyrBLJaRAgPjT3LgSHOLvaDJKbl3sTEbowTttIupkM5qsLjik5GZqdhamlz
+         NCB7cesEF4z3RWmM/kWVEtvzOB/J0kU+73orbFNACNxidVS96hbmOfPKWjgM8rISxh
+         n2VWJLqhr52ICGqehCf/9j+Px6uo14OG99ZULa9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <u.kleine-koenig@pengutronix.de>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0602/1157] mtd: spear_smi: Drop if with an always false condition
-Date:   Mon, 15 Aug 2022 19:59:18 +0200
-Message-Id: <20220815180503.745446258@linuxfoundation.org>
+Subject: [PATCH 5.19 0603/1157] mtd: st_spi_fsm: Warn about failure to unregister mtd device
+Date:   Mon, 15 Aug 2022 19:59:19 +0200
+Message-Id: <20220815180503.791225435@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -58,37 +58,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 279d719be39d8edb37c9178c15e167a94c7bc0a0 ]
+[ Upstream commit cfa7847f150c4343903d8ff2cd219418c1768205 ]
 
-The remove callback is only called after probe completed successfully.
-In this case platform_set_drvdata() was called with a non-NULL argument
-and so dev is never NULL.
+mtd_device_unregister() shouldn't fail. Wail loudly if it does anyhow.
+
+This matches how other drivers (e.g. nand/raw/nandsim.c) use
+mtd_device_unregister().
+
+By returning 0 in the platform remove callback a generic error message
+by the device core is suppressed, nothing else changes.
 
 This is a preparation for making platform remove callbacks return void.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220603210758.148493-8-u.kleine-koenig@pengutronix.de
+Link: https://lore.kernel.org/linux-mtd/20220607152458.232847-3-u.kleine-koenig@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/devices/spear_smi.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/mtd/devices/st_spi_fsm.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/devices/spear_smi.c b/drivers/mtd/devices/spear_smi.c
-index f6febe6662db..f58742486d3d 100644
---- a/drivers/mtd/devices/spear_smi.c
-+++ b/drivers/mtd/devices/spear_smi.c
-@@ -1048,10 +1048,6 @@ static int spear_smi_remove(struct platform_device *pdev)
- 	int i;
+diff --git a/drivers/mtd/devices/st_spi_fsm.c b/drivers/mtd/devices/st_spi_fsm.c
+index 52a799cae402..a5a4b612480c 100644
+--- a/drivers/mtd/devices/st_spi_fsm.c
++++ b/drivers/mtd/devices/st_spi_fsm.c
+@@ -2130,7 +2130,9 @@ static int stfsm_remove(struct platform_device *pdev)
  
- 	dev = platform_get_drvdata(pdev);
--	if (!dev) {
--		dev_err(&pdev->dev, "dev is null\n");
--		return -ENODEV;
--	}
+ 	clk_disable_unprepare(fsm->clk);
  
- 	/* clean up for all nor flash */
- 	for (i = 0; i < dev->num_flashes; i++) {
+-	return mtd_device_unregister(&fsm->mtd);
++	WARN_ON(mtd_device_unregister(&fsm->mtd));
++
++	return 0;
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
 -- 
 2.35.1
 
