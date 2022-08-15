@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B937959450B
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 088685944A2
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351574AbiHOWpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:45:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49408 "EHLO
+        id S1350526AbiHOWsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:48:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351381AbiHOWnm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:43:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C787C53B;
-        Mon, 15 Aug 2022 12:52:33 -0700 (PDT)
+        with ESMTP id S1350518AbiHOWoa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:44:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 033B1133A62;
+        Mon, 15 Aug 2022 12:52:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA82DB80EAD;
-        Mon, 15 Aug 2022 19:52:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4414EC433C1;
-        Mon, 15 Aug 2022 19:52:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D38461206;
+        Mon, 15 Aug 2022 19:52:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AFF6C433D6;
+        Mon, 15 Aug 2022 19:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593150;
-        bh=6WQcaD39Z7X1fJpxXq9yMC2ENvQGk6DSE/u5decyplU=;
+        s=korg; t=1660593156;
+        bh=ELguIUk4SGcF73osMAg65DOO9y8WrYs9XvjG4oFTOso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iZVB/zn3h1zmuAkHN0cOhbFNqC6lOY4UYltqOAYSIxIdojR/1RuYaioi5WQwk1VaN
-         /yBPwuYecqAK5tFNd+p7//s59f5DevmbHTbEPyHJWesnRbHyXfO7CWN9p9/nZ+fZ0Z
-         HNx5nbD4f+E8jmm0mf2hWdN11PKM1AT7HWMtkdK4=
+        b=Hop7YbLBhmkzSKN6N8WRGefhwpgZZXKSrLtD6HxYzYpNKMlUvSH13gF2XlBeGQLH4
+         /bGlMH+SoVYgRgSqe8LBea8vfAPSB4/xi3Oi3eKsqGani5u5adwj/QVmNNaexDqj0g
+         qBzX4aGXFdXK1t6y3O3wf6EDbSiIHB0DTU4XTsPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0903/1095] ASoC: imx-card: use snd_pcm_format_t type for asrc_format
-Date:   Mon, 15 Aug 2022 20:05:02 +0200
-Message-Id: <20220815180506.658906582@linuxfoundation.org>
+Subject: [PATCH 5.18 0904/1095] ASoC: qcom: q6dsp: Fix an off-by-one in q6adm_alloc_copp()
+Date:   Mon, 15 Aug 2022 20:05:03 +0200
+Message-Id: <20220815180506.699055084@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,67 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 409a8652e909e323c715f3088e6c3133e37c8881 ]
+[ Upstream commit 673f58f62ca6fc98979d1cf3fe89c3ff33f29b2e ]
 
-Fix sparse warning:
-sound/soc/fsl/imx-card.c:653:59: sparse: warning: incorrect type in assignment (different base types)
-sound/soc/fsl/imx-card.c:653:59: sparse:    expected unsigned int [usertype] asrc_format
-sound/soc/fsl/imx-card.c:653:59: sparse:    got restricted snd_pcm_format_t [usertype]
-sound/soc/fsl/imx-card.c:655:59: sparse: warning: incorrect type in assignment (different base types)
-sound/soc/fsl/imx-card.c:655:59: sparse:    expected unsigned int [usertype] asrc_format
-sound/soc/fsl/imx-card.c:655:59: sparse:    got restricted snd_pcm_format_t [usertype]
+find_first_zero_bit() returns MAX_COPPS_PER_PORT at max here.
+So 'idx' should be tested with ">=" or the test can't match.
 
-Fixes: aa736700f42f ("ASoC: imx-card: Add imx-card machine driver")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Link: https://lore.kernel.org/r/1658399393-28777-6-git-send-email-shengjiu.wang@nxp.com
+Fixes: 7b20b2be51e1 ("ASoC: qdsp6: q6adm: Add q6adm driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/0fca3271649736053eb9649d87e1ca01b056be40.1658394124.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/imx-card.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ sound/soc/qcom/qdsp6/q6adm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/fsl/imx-card.c b/sound/soc/fsl/imx-card.c
-index c0eb218a254b..4a8609b0d700 100644
---- a/sound/soc/fsl/imx-card.c
-+++ b/sound/soc/fsl/imx-card.c
-@@ -118,7 +118,7 @@ struct imx_card_data {
- 	struct snd_soc_card card;
- 	int num_dapm_routes;
- 	u32 asrc_rate;
--	u32 asrc_format;
-+	snd_pcm_format_t asrc_format;
- };
+diff --git a/sound/soc/qcom/qdsp6/q6adm.c b/sound/soc/qcom/qdsp6/q6adm.c
+index 72c5719f1d25..a0678e8cf20a 100644
+--- a/sound/soc/qcom/qdsp6/q6adm.c
++++ b/sound/soc/qcom/qdsp6/q6adm.c
+@@ -217,7 +217,7 @@ static struct q6copp *q6adm_alloc_copp(struct q6adm *adm, int port_idx)
+ 	idx = find_first_zero_bit(&adm->copp_bitmap[port_idx],
+ 				  MAX_COPPS_PER_PORT);
  
- static struct imx_akcodec_fs_mul ak4458_fs_mul[] = {
-@@ -474,7 +474,7 @@ static int be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
+-	if (idx > MAX_COPPS_PER_PORT)
++	if (idx >= MAX_COPPS_PER_PORT)
+ 		return ERR_PTR(-EBUSY);
  
- 	mask = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
- 	snd_mask_none(mask);
--	snd_mask_set(mask, data->asrc_format);
-+	snd_mask_set(mask, (__force unsigned int)data->asrc_format);
- 
- 	return 0;
- }
-@@ -493,6 +493,7 @@ static int imx_card_parse_of(struct imx_card_data *data)
- 	struct dai_link_data *link_data;
- 	struct of_phandle_args args;
- 	int ret, num_links;
-+	u32 asrc_fmt = 0;
- 	u32 width;
- 
- 	ret = snd_soc_of_parse_card_name(card, "model");
-@@ -639,7 +640,8 @@ static int imx_card_parse_of(struct imx_card_data *data)
- 				goto err;
- 			}
- 
--			ret = of_property_read_u32(args.np, "fsl,asrc-format", &data->asrc_format);
-+			ret = of_property_read_u32(args.np, "fsl,asrc-format", &asrc_fmt);
-+			data->asrc_format = (__force snd_pcm_format_t)asrc_fmt;
- 			if (ret) {
- 				/* Fallback to old binding; translate to asrc_format */
- 				ret = of_property_read_u32(args.np, "fsl,asrc-width", &width);
+ 	c = kzalloc(sizeof(*c), GFP_ATOMIC);
 -- 
 2.35.1
 
