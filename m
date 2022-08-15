@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48DB15940BD
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBCC659401B
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243106AbiHOVJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:09:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45580 "EHLO
+        id S239428AbiHOVJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:09:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347940AbiHOVHr (ORCPT
+        with ESMTP id S1347942AbiHOVHr (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:07:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 095B22D1F0;
-        Mon, 15 Aug 2022 12:16:54 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C43D72D1D5;
+        Mon, 15 Aug 2022 12:16:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B934FB81106;
-        Mon, 15 Aug 2022 19:16:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05348C433C1;
-        Mon, 15 Aug 2022 19:16:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C88AB8107A;
+        Mon, 15 Aug 2022 19:16:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B640DC433C1;
+        Mon, 15 Aug 2022 19:16:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591011;
-        bh=tM4SDSdgsL1BoKw3VU2X2UxP5u4uYpyQPMV0hmBuJvQ=;
+        s=korg; t=1660591015;
+        bh=UiwS0woC9t2O9OGl5uIZCvA0IgPGyEzpElFJIVaIBUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FReGgXUZu2H0cRIMvzX6om+oIyiRk5/oWZC3m78BQK4UalR4ck87r4tx3Khi7lDKN
-         SbXkDRejjqXWS4nsUPMGW/U0ekb44CrU7IEkNxnVOOjOD5E216Sd39J7L4dGuV7Avy
-         cs/tLcx0IgnOq4XUIujcDzkJHqNI+pHYlxf2GBiw=
+        b=l0srZjpWYH5kRaz6uqSkQtBaMV+JYVVxm2Bs1/Xevx/W4EBKvw67JqCJCKi90LUMa
+         /xN0K3GjaRoQ80sa53t7WE4PKPr9s0NbZL4o/e0LWzwqRInd2NvvspmXqhY2Nk3XWl
+         ivJ7bCgiMCqXsCQum7ucUySztjRbHwVLLkc9baL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0444/1095] mt76: mt7921: do not update pm states in case of error
-Date:   Mon, 15 Aug 2022 19:57:23 +0200
-Message-Id: <20220815180448.008789243@linuxfoundation.org>
+        stable@vger.kernel.org, YN Chen <YN.Chen@mediatek.com>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Deren Wu <deren.wu@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0445/1095] mt76: mt7921s: fix possible sdio deadlock in command fail
+Date:   Mon, 15 Aug 2022 19:57:24 +0200
+Message-Id: <20220815180448.051714585@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -53,36 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Deren Wu <deren.wu@mediatek.com>
 
-[ Upstream commit f4a92547fb9818ff272e1e2f0c79cd6b0bc99ce8 ]
+[ Upstream commit 364718c94ac2ea4e51958ac0aa15c9092c785a3a ]
 
-Do not update pm stats if mt7921e_mcu_fw_pmctrl routine returns an
-error.
+Move sdio_release_host() to final resource handing
 
-Fixes: 36873246f78a2 ("mt76: mt7921: add awake and doze time accounting")
+Fixes: b12deb5e86fa ("mt76: mt7921s: fix mt7921s_mcu_[fw|drv]_pmctrl")
+Reported-by: YN Chen <YN.Chen@mediatek.com>
+Co-developed-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/pci_mcu.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/pci_mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/pci_mcu.c
-index 36669e5aeef3..a1ab5f878f81 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/pci_mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/pci_mcu.c
-@@ -102,7 +102,7 @@ int mt7921e_mcu_fw_pmctrl(struct mt7921_dev *dev)
- {
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c
+index 54a5c712a3c3..c572a3107b8b 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c
+@@ -136,8 +136,8 @@ int mt7921s_mcu_fw_pmctrl(struct mt7921_dev *dev)
+ 	struct sdio_func *func = dev->mt76.sdio.func;
  	struct mt76_phy *mphy = &dev->mt76.phy;
  	struct mt76_connac_pm *pm = &dev->pm;
--	int i, err = 0;
-+	int i;
+-	int err = 0;
+ 	u32 status;
++	int err;
  
- 	for (i = 0; i < MT7921_DRV_OWN_RETRY_COUNT; i++) {
- 		mt76_wr(dev, MT_CONN_ON_LPCTL, PCIE_LPCR_HOST_SET_OWN);
-@@ -114,12 +114,12 @@ int mt7921e_mcu_fw_pmctrl(struct mt7921_dev *dev)
- 	if (i == MT7921_DRV_OWN_RETRY_COUNT) {
+ 	sdio_claim_host(func);
+ 
+@@ -148,7 +148,7 @@ int mt7921s_mcu_fw_pmctrl(struct mt7921_dev *dev)
+ 					 2000, 1000000);
+ 		if (err < 0) {
+ 			dev_err(dev->mt76.dev, "mailbox ACK not cleared\n");
+-			goto err;
++			goto out;
+ 		}
+ 	}
+ 
+@@ -156,18 +156,18 @@ int mt7921s_mcu_fw_pmctrl(struct mt7921_dev *dev)
+ 
+ 	err = readx_poll_timeout(mt76s_read_pcr, &dev->mt76, status,
+ 				 !(status & WHLPCR_IS_DRIVER_OWN), 2000, 1000000);
++out:
+ 	sdio_release_host(func);
+ 
+-err:
+ 	if (err < 0) {
  		dev_err(dev->mt76.dev, "firmware own failed\n");
  		clear_bit(MT76_STATE_PM, &mphy->state);
 -		err = -EIO;
