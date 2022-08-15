@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7BDD594B39
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7842594B40
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:22:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357670AbiHPAOB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:14:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54364 "EHLO
+        id S1344935AbiHPAOO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:14:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351823AbiHPAIc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:08:32 -0400
+        with ESMTP id S1347107AbiHPAKR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:10:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D086D173A0A;
-        Mon, 15 Aug 2022 13:29:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11A42173A36;
+        Mon, 15 Aug 2022 13:29:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E72F611A1;
-        Mon, 15 Aug 2022 20:29:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2ECAC433D6;
-        Mon, 15 Aug 2022 20:29:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34F2C61184;
+        Mon, 15 Aug 2022 20:29:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B70FC433C1;
+        Mon, 15 Aug 2022 20:29:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595352;
-        bh=sxFls+DEIE/5Au1qzQoTG72ZJ/mCtssf17FvHJv4ZJ8=;
+        s=korg; t=1660595355;
+        bh=7Lvbr3yWglt5qIfD10p3dizhg1TsWM9D8DoP5cAkLTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gFZ99AORf4Xe1Azs0xGK5Z3I80ubAqlQn5iRdFR/QbLs291+RI3cH+voh7T651A1D
-         Cegq6rt3FnysNiNdu0T1Zl6PJbC8xbq8yvrsHSQxawCTBUAT8p6ztuaHwQRByOzJCr
-         JLfATQwebMo7NpNDZZNoMQQDkGXkDWhr2EQgTYbY=
+        b=FHQCalVx0W+DeBhVMYo/wcHaOcqePCpXSPzVGHP/58XL/we0uYHb24XvYAfWQWCKH
+         /zHQgpxAh2YCuOBstcVTfA0BBq0zKa1Uoa519m64RnQJ1tsWDw2VtCCyJddPpfxVCL
+         V2gaXG6kncLMkleyuF2ryd6t1CISp+JDBcOAg+FE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
-        Peter Xu <peterx@redhat.com>, Ben Gardon <bgardon@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0738/1157] KVM: x86: Fix errant brace in KVM capability handling
-Date:   Mon, 15 Aug 2022 20:01:34 +0200
-Message-Id: <20220815180509.001857237@linuxfoundation.org>
+Subject: [PATCH 5.19 0739/1157] mtd: hyperbus: rpc-if: Fix RPM imbalance in probe error path
+Date:   Mon, 15 Aug 2022 20:01:35 +0200
+Message-Id: <20220815180509.032707517@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,42 +58,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Gardon <bgardon@google.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 1c4dc57328bf218e999951824dce75c6125c4f3c ]
+[ Upstream commit c223a38d62e57aa60a890ea7247e3c58a54478e6 ]
 
-The braces around the KVM_CAP_XSAVE2 block also surround the
-KVM_CAP_PMU_CAPABILITY block, likely the result of a merge issue. Simply
-move the curly brace back to where it belongs.
+If rpcif_hw_init() fails, Runtime PM is left enabled.
 
-Fixes: ba7bb663f5547 ("KVM: x86: Provide per VM capability for disabling PMU virtualization")
-
-Reviewed-by: David Matlack <dmatlack@google.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Ben Gardon <bgardon@google.com>
-Message-Id: <20220613212523.3436117-8-bgardon@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: b04cc0d912eb80d3 ("memory: renesas-rpc-if: Add support for RZ/G2L")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/f3070e1af480cb252ae183d479a593dbbf947685.1655457790.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/hyperbus/rpc-if.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 583fe0dffcd8..3ed0e86bf305 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -4398,10 +4398,10 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 		if (r < sizeof(struct kvm_xsave))
- 			r = sizeof(struct kvm_xsave);
- 		break;
-+	}
- 	case KVM_CAP_PMU_CAPABILITY:
- 		r = enable_pmu ? KVM_CAP_PMU_VALID_MASK : 0;
- 		break;
--	}
- 	case KVM_CAP_DISABLE_QUIRKS2:
- 		r = KVM_X86_VALID_QUIRKS;
- 		break;
+diff --git a/drivers/mtd/hyperbus/rpc-if.c b/drivers/mtd/hyperbus/rpc-if.c
+index 6e08ec1d4f09..b70d259e48a7 100644
+--- a/drivers/mtd/hyperbus/rpc-if.c
++++ b/drivers/mtd/hyperbus/rpc-if.c
+@@ -134,7 +134,7 @@ static int rpcif_hb_probe(struct platform_device *pdev)
+ 
+ 	error = rpcif_hw_init(&hyperbus->rpc, true);
+ 	if (error)
+-		return error;
++		goto out_disable_rpm;
+ 
+ 	hyperbus->hbdev.map.size = hyperbus->rpc.size;
+ 	hyperbus->hbdev.map.virt = hyperbus->rpc.dirmap;
+@@ -145,8 +145,12 @@ static int rpcif_hb_probe(struct platform_device *pdev)
+ 	hyperbus->hbdev.np = of_get_next_child(pdev->dev.parent->of_node, NULL);
+ 	error = hyperbus_register_device(&hyperbus->hbdev);
+ 	if (error)
+-		rpcif_disable_rpm(&hyperbus->rpc);
++		goto out_disable_rpm;
++
++	return 0;
+ 
++out_disable_rpm:
++	rpcif_disable_rpm(&hyperbus->rpc);
+ 	return error;
+ }
+ 
 -- 
 2.35.1
 
