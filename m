@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 217D25941DD
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3441D594051
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346922AbiHOV2t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:28:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49410 "EHLO
+        id S233747AbiHOV2s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:28:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348435AbiHOV1j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:27:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D5E5EA8A9;
-        Mon, 15 Aug 2022 12:23:21 -0700 (PDT)
+        with ESMTP id S1348439AbiHOV1k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:27:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38709EA8AA;
+        Mon, 15 Aug 2022 12:23:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 648FEB80FD3;
-        Mon, 15 Aug 2022 19:23:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A5DC433C1;
-        Mon, 15 Aug 2022 19:23:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0FC060FBE;
+        Mon, 15 Aug 2022 19:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B90B1C433C1;
+        Mon, 15 Aug 2022 19:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591399;
-        bh=CXgv/mwnDeY7ZKskEA+lAuZOc1xXfXxQx4KsFMlI+pU=;
+        s=korg; t=1660591402;
+        bh=UA4CGN5pQUGKiJSR+n6oMVNpzJodTwCIgeiovrvABLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AB8m6qY01CfEzQMHJyY9zMvkc4vIMEiH86Nze/ACgOWgk/ZEdYpz57+uY92FXI8w2
-         vewymdgCYGxDWjuIYFTPTHteNFtwVVp86gDeYoLklraIw3kB23oZ1M6RpFvZzPD8Z7
-         vp66Z7fzer45rjZ3etFHVJJuSthDivumOobkXrSo=
+        b=InHLUGGuCBic7HKAYQkqdiaYcotMgw9+Be8unnPR5XWdq6pgpl6bmGLq6wAuYX7fx
+         jPgTKQh2mjcs4jIB0Rfc05ijRM8ywC6+iLpsEqJtgQkKcBdF6eDsMd7WgB3fPvIiJY
+         NA/yz+ynCRX8wGEnkQcNSQs23ZWvV2YJVtkP/CMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Miles Chen <miles.chen@mediatek.com>,
+        Jianjun Wang <jianjun.wang@mediatek.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0566/1095] mtd: st_spi_fsm: Add a clk_disable_unprepare() in .probe()s error path
-Date:   Mon, 15 Aug 2022 19:59:25 +0200
-Message-Id: <20220815180452.988843466@linuxfoundation.org>
+Subject: [PATCH 5.18 0567/1095] PCI: mediatek-gen3: Fix refcount leak in mtk_pcie_init_irq_domains()
+Date:   Mon, 15 Aug 2022 19:59:26 +0200
+Message-Id: <20220815180453.036262195@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,40 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 28607b426c3d050714f250d0faeb99d2e9106e90 ]
+[ Upstream commit bf038503d5fe90189743124233fe7aeb0984e961 ]
 
-For all but one error path clk_disable_unprepare() is already there. Add
-it to the one location where it's missing.
+of_get_child_by_name() returns a node pointer with refcount incremented, so
+we should use of_node_put() on it when we don't need it anymore.
 
-Fixes: 481815a6193b ("mtd: st_spi_fsm: Handle clk_prepare_enable/clk_disable_unprepare.")
-Fixes: 69d5af8d016c ("mtd: st_spi_fsm: Obtain and use EMI clock")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220607152458.232847-2-u.kleine-koenig@pengutronix.de
+Add missing of_node_put() to avoid refcount leak.
+
+Fixes: 814cceebba9b ("PCI: mediatek-gen3: Add INTx support")
+Link: https://lore.kernel.org/r/20220601041259.56185-1-linmq006@gmail.com
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Miles Chen <miles.chen@mediatek.com>
+Acked-by: Jianjun Wang <jianjun.wang@mediatek.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/devices/st_spi_fsm.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/pci/controller/pcie-mediatek-gen3.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/devices/st_spi_fsm.c b/drivers/mtd/devices/st_spi_fsm.c
-index 983999c020d6..48bda2dd1bb5 100644
---- a/drivers/mtd/devices/st_spi_fsm.c
-+++ b/drivers/mtd/devices/st_spi_fsm.c
-@@ -2115,10 +2115,12 @@ static int stfsm_probe(struct platform_device *pdev)
- 		(long long)fsm->mtd.size, (long long)(fsm->mtd.size >> 20),
- 		fsm->mtd.erasesize, (fsm->mtd.erasesize >> 10));
+diff --git a/drivers/pci/controller/pcie-mediatek-gen3.c b/drivers/pci/controller/pcie-mediatek-gen3.c
+index 5d9fd36b02d1..a02c466a597c 100644
+--- a/drivers/pci/controller/pcie-mediatek-gen3.c
++++ b/drivers/pci/controller/pcie-mediatek-gen3.c
+@@ -600,7 +600,8 @@ static int mtk_pcie_init_irq_domains(struct mtk_gen3_pcie *pcie)
+ 						  &intx_domain_ops, pcie);
+ 	if (!pcie->intx_domain) {
+ 		dev_err(dev, "failed to create INTx IRQ domain\n");
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto out_put_node;
+ 	}
  
--	return mtd_device_register(&fsm->mtd, NULL, 0);
+ 	/* Setup MSI */
+@@ -623,13 +624,15 @@ static int mtk_pcie_init_irq_domains(struct mtk_gen3_pcie *pcie)
+ 		goto err_msi_domain;
+ 	}
+ 
++	of_node_put(intc_node);
+ 	return 0;
+ 
+ err_msi_domain:
+ 	irq_domain_remove(pcie->msi_bottom_domain);
+ err_msi_bottom_domain:
+ 	irq_domain_remove(pcie->intx_domain);
 -
-+	ret = mtd_device_register(&fsm->mtd, NULL, 0);
-+	if (ret) {
- err_clk_unprepare:
--	clk_disable_unprepare(fsm->clk);
-+		clk_disable_unprepare(fsm->clk);
-+	}
-+
++out_put_node:
++	of_node_put(intc_node);
  	return ret;
  }
  
