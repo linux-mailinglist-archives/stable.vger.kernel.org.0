@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07AD35937D5
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 630FF5936F9
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:26:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244946AbiHOTC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:02:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60376 "EHLO
+        id S244933AbiHOTC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:02:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245360AbiHOTBv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:01:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BDFA4BD1E;
-        Mon, 15 Aug 2022 11:33:10 -0700 (PDT)
+        with ESMTP id S245477AbiHOTCJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:02:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D41834C61F;
+        Mon, 15 Aug 2022 11:33:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED306B8106C;
-        Mon, 15 Aug 2022 18:33:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DF7DC433C1;
-        Mon, 15 Aug 2022 18:33:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B757610A5;
+        Mon, 15 Aug 2022 18:33:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59B0FC4347C;
+        Mon, 15 Aug 2022 18:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588386;
-        bh=jGYDKm0Tw+bfYKYZH5hqWm2mnwiYORDMGSxt/7Z6A0k=;
+        s=korg; t=1660588398;
+        bh=5UDTB5oRrpIWgtYefT1GAb2JQyq7hd543v1XzvjHopk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e2itnGBRP/8Ps4gyFvhJHG7K7fesmFCpvnKFk+Ta96Buwox2e9+I4cU2x9WN+fdZ4
-         VNCoS3p2YqKjVX7WULRxpsyfx4CCas5aMe3vdnR9UMUPRIvR5r7/VjS1sgn4cwqanY
-         xov8X/RREU+QZIaHsdjfeXQygfAXmKPjtP9FhVD0=
+        b=hFZ7Zx3sj6gWnm3+X15AeQ/M3J5u4mb66tRs+oItQgOUo2fpPEAGFNtcnMZX9tgT1
+         jK/d8vHY4PUCISfFUuIe9gJyaCDmEB7ahmSCJAk45YwoGKc2OOJOu4fDGcrka1+4AK
+         VukMOlAc3MQm4epRkQHAuHiBvEg4r7ge/ZUERJoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
         Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 359/779] can: error: specify the values of data[5..7] of CAN error frames
-Date:   Mon, 15 Aug 2022 20:00:03 +0200
-Message-Id: <20220815180352.587551937@linuxfoundation.org>
+Subject: [PATCH 5.15 360/779] can: pch_can: pch_can_error(): initialize errc before using it
+Date:   Mon, 15 Aug 2022 20:00:04 +0200
+Message-Id: <20220815180352.626529057@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,45 +57,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit e70a3263a7eed768d5f947b8f2aff8d2a79c9d97 ]
+[ Upstream commit 9950f11211331180269867aef848c7cf56861742 ]
 
-Currently, data[5..7] of struct can_frame, when used as a CAN error
-frame, are defined as being "controller specific". Device specific
-behaviours are problematic because it prevents someone from writing
-code which is portable between devices.
+After commit 3a5c7e4611dd, the variable errc is accessed before being
+initialized, c.f. below W=2 warning:
 
-As a matter of fact, data[5] is never used, data[6] is always used to
-report TX error counter and data[7] is always used to report RX error
-counter. can-utils also relies on this.
+| In function 'pch_can_error',
+|     inlined from 'pch_can_poll' at drivers/net/can/pch_can.c:739:4:
+| drivers/net/can/pch_can.c:501:29: warning: 'errc' may be used uninitialized [-Wmaybe-uninitialized]
+|   501 |                 cf->data[6] = errc & PCH_TEC;
+|       |                             ^
+| drivers/net/can/pch_can.c: In function 'pch_can_poll':
+| drivers/net/can/pch_can.c:484:13: note: 'errc' was declared here
+|   484 |         u32 errc, lec;
+|       |             ^~~~
 
-This patch updates the comment in the uapi header to specify that
-data[5] is reserved (and thus should not be used) and that data[6..7]
-are used for error counters.
+Moving errc initialization up solves this issue.
 
-Fixes: 0d66548a10cb ("[CAN]: Add PF_CAN core module")
-Link: https://lore.kernel.org/all/20220719143550.3681-11-mailhol.vincent@wanadoo.fr
+Fixes: 3a5c7e4611dd ("can: pch_can: do not report txerr and rxerr during bus-off")
+Reported-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/all/20220721160032.9348-1-mailhol.vincent@wanadoo.fr
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/can/error.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/can/pch_can.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/can/error.h b/include/uapi/linux/can/error.h
-index 34633283de64..a1000cb63063 100644
---- a/include/uapi/linux/can/error.h
-+++ b/include/uapi/linux/can/error.h
-@@ -120,6 +120,9 @@
- #define CAN_ERR_TRX_CANL_SHORT_TO_GND  0x70 /* 0111 0000 */
- #define CAN_ERR_TRX_CANL_SHORT_TO_CANH 0x80 /* 1000 0000 */
+diff --git a/drivers/net/can/pch_can.c b/drivers/net/can/pch_can.c
+index f20e75eb1ce0..cd8d536c6fb2 100644
+--- a/drivers/net/can/pch_can.c
++++ b/drivers/net/can/pch_can.c
+@@ -489,6 +489,7 @@ static void pch_can_error(struct net_device *ndev, u32 status)
+ 	if (!skb)
+ 		return;
  
--/* controller specific additional information / data[5..7] */
-+/* data[5] is reserved (do not use) */
-+
-+/* TX error counter / data[6] */
-+/* RX error counter / data[7] */
++	errc = ioread32(&priv->regs->errc);
+ 	if (status & PCH_BUS_OFF) {
+ 		pch_can_set_tx_all(priv, 0);
+ 		pch_can_set_rx_all(priv, 0);
+@@ -501,7 +502,6 @@ static void pch_can_error(struct net_device *ndev, u32 status)
+ 		cf->data[7] = (errc & PCH_REC) >> 8;
+ 	}
  
- #endif /* _UAPI_CAN_ERROR_H */
+-	errc = ioread32(&priv->regs->errc);
+ 	/* Warning interrupt. */
+ 	if (status & PCH_EWARN) {
+ 		state = CAN_STATE_ERROR_WARNING;
 -- 
 2.35.1
 
