@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E8F9594494
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55798594338
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:55:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345184AbiHOWkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:40:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35762 "EHLO
+        id S1349667AbiHOWkb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:40:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351364AbiHOWiD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:38:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C20D013263E;
-        Mon, 15 Aug 2022 12:51:07 -0700 (PDT)
+        with ESMTP id S1349654AbiHOWib (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:38:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D06D72EF1;
+        Mon, 15 Aug 2022 12:51:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DBFD6122B;
-        Mon, 15 Aug 2022 19:51:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 468DCC433D6;
-        Mon, 15 Aug 2022 19:51:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 322A2B80EA9;
+        Mon, 15 Aug 2022 19:51:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D084C433D6;
+        Mon, 15 Aug 2022 19:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593065;
-        bh=Da0gbbdZzQ1GHA0R171QoB/svWQr1XAmx/vQ/xxRN9A=;
+        s=korg; t=1660593074;
+        bh=JLzz5dq88jRbBg6ItZt/44TfxmNsOXXimPAGwGAhAmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABT+zv6HQKN2PWzFlc4pmNYzZ//+UPTM8SA4sHgXPis7LyPQNPuhNW5EBNTF2tWiv
-         CEGEzb2vejhF8OHiAmF24xVGVB65OMCVK3WMMnwQrIa+8V9X79ip/i4asAZ+u4bFiv
-         nu/X9ypaf/Mz95eW5ggw+WykCa4rABDhCADMke2I=
+        b=LwEBUxUmt89ReIq91HbG3cJz0hTT8NlCJcN8HX63j6XDeE9nS9o1/iZP7Y2XoTocW
+         Zjt6MfAEOFPwkw/rHC0/st1ZozZoPKhZD+Lk0MpEdN6a5WFQJad341coUnMzzh3VOb
+         +07VenOjkFRm4wGGHQ+jWBbYO5jsadI4UXJLYpYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Stefani Seibold <stefani@seibold.net>,
+        Randy Dunlap <randy.dunlap@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0887/1095] rpmsg: qcom_smd: Fix refcount leak in qcom_smd_parse_edge
-Date:   Mon, 15 Aug 2022 20:04:46 +0200
-Message-Id: <20220815180506.030325207@linuxfoundation.org>
+Subject: [PATCH 5.18 0888/1095] kfifo: fix kfifo_to_user() return type
+Date:   Mon, 15 Aug 2022 20:04:47 +0200
+Message-Id: <20220815180506.061462353@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,34 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 65382585f067d4256ba087934f30f85c9b6984de ]
+[ Upstream commit 045ed31e23aea840648c290dbde04797064960db ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
+The kfifo_to_user() macro is supposed to return zero for success or
+negative error codes.  Unfortunately, there is a signedness bug so it
+returns unsigned int.  This only affects callers which try to save the
+result in ssize_t and as far as I can see the only place which does that
+is line6_hwdep_read().
 
-Fixes: 53e2822e56c7 ("rpmsg: Introduce Qualcomm SMD backend")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220511120737.57374-1-linmq006@gmail.com
+TL;DR: s/_uint/_int/.
+
+Link: https://lkml.kernel.org/r/YrVL3OJVLlNhIMFs@kili
+Fixes: 144ecf310eb5 ("kfifo: fix kfifo_alloc() to return a signed int value")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Stefani Seibold <stefani@seibold.net>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rpmsg/qcom_smd.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/kfifo.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
-index 1957b27c4cf3..f7af53891ef9 100644
---- a/drivers/rpmsg/qcom_smd.c
-+++ b/drivers/rpmsg/qcom_smd.c
-@@ -1383,6 +1383,7 @@ static int qcom_smd_parse_edge(struct device *dev,
- 		}
- 
- 		edge->ipc_regmap = syscon_node_to_regmap(syscon_np);
-+		of_node_put(syscon_np);
- 		if (IS_ERR(edge->ipc_regmap)) {
- 			ret = PTR_ERR(edge->ipc_regmap);
- 			goto put_node;
+diff --git a/include/linux/kfifo.h b/include/linux/kfifo.h
+index 86249476b57f..0b35a41440ff 100644
+--- a/include/linux/kfifo.h
++++ b/include/linux/kfifo.h
+@@ -688,7 +688,7 @@ __kfifo_uint_must_check_helper( \
+  * writer, you don't need extra locking to use these macro.
+  */
+ #define	kfifo_to_user(fifo, to, len, copied) \
+-__kfifo_uint_must_check_helper( \
++__kfifo_int_must_check_helper( \
+ ({ \
+ 	typeof((fifo) + 1) __tmp = (fifo); \
+ 	void __user *__to = (to); \
 -- 
 2.35.1
 
