@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 221A9592E9A
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 14:02:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 530B2592EA7
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 14:04:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232659AbiHOMCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 08:02:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44814 "EHLO
+        id S229612AbiHOMEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 08:04:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231629AbiHOMBh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 08:01:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F010D22B3F
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 05:01:36 -0700 (PDT)
+        with ESMTP id S229605AbiHOMEh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 08:04:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98597255AB
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 05:04:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 903D261170
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 12:01:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96A3FC433D6;
-        Mon, 15 Aug 2022 12:01:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58706B80E59
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 12:04:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B08AAC433C1;
+        Mon, 15 Aug 2022 12:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660564896;
-        bh=rp1BBFD9LYoQqc3QnaB8l7jNwn3r5IbaHVVcT2K2gDM=;
-        h=Subject:To:Cc:From:Date:From;
-        b=QTmcSDtPT7Dg4RLNtS9v1Q/u+B/BlT1vVt5/x/DSOewka8Z2cF4WLlLzPXyj03n/C
-         slFGJ2g/wCMGWMSPY5sTFI+BNqUOGFPmeob92JvdAGKPyVf7ZALBfRMPZ5ffjNcc1Y
-         yrlUdbp2NXmqPDB1lKSF/neFVKWxpT9pFyHWtpaU=
-Subject: FAILED: patch "[PATCH] crypto: memneq - move into lib/" failed to apply to 5.10-stable tree
-To:     Jason@zx2c4.com, ebiggers@google.com, ebiggers@kernel.org,
-        herbert@gondor.apana.org.au, zhengbin13@huawei.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Aug 2022 14:01:21 +0200
-Message-ID: <1660564881112169@kroah.com>
+        s=korg; t=1660565073;
+        bh=fMQ0T2B6cXIuhg1f1r9P5tm1eXz6wghN2CFs8QrCrqY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=oRpwerUYNAdvHgFcoI4/a4DiE8116hitdLQTChjvDs3OVg4QrcIBOSCghRmE8K93s
+         TKpCiYwrwNnlHrOsfBU0kMoNZ2tGW2qPc88ZFKsMqbfhhcZZwCa996RFdBaqZzv75w
+         fsB7bsh5/D4y2zkHKYCgeYtJ7/K21ps4PzdRyQE4=
+Date:   Mon, 15 Aug 2022 14:04:30 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Alexander Grund <theflamefire89@gmail.com>
+Cc:     stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Subject: Re: [PATCH 4.9 1/1] LSM: Initialize security_hook_heads upon
+ registration.
+Message-ID: <Yvo2TnrUGoLKEY+v@kroah.com>
+References: <20220811115340.137901-1-theflamefire89@gmail.com>
+ <20220811115340.137901-2-theflamefire89@gmail.com>
+ <YvTzZM499PnOTMZD@kroah.com>
+ <da7d4c6f-0010-6f77-e64e-20f3ebfb57dd@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <da7d4c6f-0010-6f77-e64e-20f3ebfb57dd@gmail.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -48,109 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Aug 12, 2022 at 12:50:42PM +0200, Alexander Grund wrote:
+> On 11.08.22 14:17, Greg KH wrote:
+> > As this fixes no bug or real issue that anyone is having with 4.9, why
+> > is this needed?
+> 
+> This makes it easier to maintain the kernel by removing error-prone code.
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Not really, we only add commits that we have to add.  We don't add
+things that are "just nice".  Don't do work you don't have to do for a
+task right now please.
+
+> I mentioned this patch earlier and you seemed to be interested to at least
+> have a look at [1].
+
+Sure, for real bugfixes.  That's not what this patch is.
+
+> The 4.9.y branch is also used by the Civil Infrastructure Project (CIP) to maintain
+> a SLTS (Super Long Term Support) 4.4.y branch which is e.g. used by a community
+> maintaining alternative Android builds for devices no longer supported by their
+> vendors.
+
+Yes, again, I know all about the crazy plans of CIP and my statements on
+why it is looney and not a good idea are quite public.  It also has
+nothing to do with how we currently maintain the stable/LTS kernel
+trees, so it's not relevant to us at all.
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 920b0442b9f884f55f4745b53430c80e71e90275 Mon Sep 17 00:00:00 2001
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Sat, 28 May 2022 12:24:29 +0200
-Subject: [PATCH] crypto: memneq - move into lib/
-
-This is used by code that doesn't need CONFIG_CRYPTO, so move this into
-lib/ with a Kconfig option so that it can be selected by whatever needs
-it.
-
-This fixes a linker error Zheng pointed out when
-CRYPTO_MANAGER_DISABLE_TESTS!=y and CRYPTO=m:
-
-  lib/crypto/curve25519-selftest.o: In function `curve25519_selftest':
-  curve25519-selftest.c:(.init.text+0x60): undefined reference to `__crypto_memneq'
-  curve25519-selftest.c:(.init.text+0xec): undefined reference to `__crypto_memneq'
-  curve25519-selftest.c:(.init.text+0x114): undefined reference to `__crypto_memneq'
-  curve25519-selftest.c:(.init.text+0x154): undefined reference to `__crypto_memneq'
-
-Reported-by: Zheng Bin <zhengbin13@huawei.com>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: aa127963f1ca ("crypto: lib/curve25519 - re-add selftests")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-diff --git a/crypto/Kconfig b/crypto/Kconfig
-index 9b654984de79..6e30e8138057 100644
---- a/crypto/Kconfig
-+++ b/crypto/Kconfig
-@@ -15,6 +15,7 @@ source "crypto/async_tx/Kconfig"
- #
- menuconfig CRYPTO
- 	tristate "Cryptographic API"
-+	select LIB_MEMNEQ
- 	help
- 	  This option provides the core Cryptographic API.
- 
-diff --git a/crypto/Makefile b/crypto/Makefile
-index 3bbc0dd49160..1f529704fe80 100644
---- a/crypto/Makefile
-+++ b/crypto/Makefile
-@@ -4,7 +4,7 @@
- #
- 
- obj-$(CONFIG_CRYPTO) += crypto.o
--crypto-y := api.o cipher.o compress.o memneq.o
-+crypto-y := api.o cipher.o compress.o
- 
- obj-$(CONFIG_CRYPTO_ENGINE) += crypto_engine.o
- obj-$(CONFIG_CRYPTO_FIPS) += fips.o
-diff --git a/lib/Kconfig b/lib/Kconfig
-index 6a843639814f..eaaad4d85bf2 100644
---- a/lib/Kconfig
-+++ b/lib/Kconfig
-@@ -120,6 +120,9 @@ config INDIRECT_IOMEM_FALLBACK
- 
- source "lib/crypto/Kconfig"
- 
-+config LIB_MEMNEQ
-+	bool
-+
- config CRC_CCITT
- 	tristate "CRC-CCITT functions"
- 	help
-diff --git a/lib/Makefile b/lib/Makefile
-index ea54294d73bf..f99bf61f8bbc 100644
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -251,6 +251,7 @@ obj-$(CONFIG_DIMLIB) += dim/
- obj-$(CONFIG_SIGNATURE) += digsig.o
- 
- lib-$(CONFIG_CLZ_TAB) += clz_tab.o
-+lib-$(CONFIG_LIB_MEMNEQ) += memneq.o
- 
- obj-$(CONFIG_GENERIC_STRNCPY_FROM_USER) += strncpy_from_user.o
- obj-$(CONFIG_GENERIC_STRNLEN_USER) += strnlen_user.o
-diff --git a/lib/crypto/Kconfig b/lib/crypto/Kconfig
-index 9856e291f414..2082af43d51f 100644
---- a/lib/crypto/Kconfig
-+++ b/lib/crypto/Kconfig
-@@ -71,6 +71,7 @@ config CRYPTO_LIB_CURVE25519
- 	tristate "Curve25519 scalar multiplication library"
- 	depends on CRYPTO_ARCH_HAVE_LIB_CURVE25519 || !CRYPTO_ARCH_HAVE_LIB_CURVE25519
- 	select CRYPTO_LIB_CURVE25519_GENERIC if CRYPTO_ARCH_HAVE_LIB_CURVE25519=n
-+	select LIB_MEMNEQ
- 	help
- 	  Enable the Curve25519 library interface. This interface may be
- 	  fulfilled by either the generic implementation or an arch-specific
-diff --git a/crypto/memneq.c b/lib/memneq.c
-similarity index 100%
-rename from crypto/memneq.c
-rename to lib/memneq.c
-
