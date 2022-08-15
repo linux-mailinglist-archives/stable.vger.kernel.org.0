@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB460594D6E
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B308E594D86
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242722AbiHPArP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:47:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56658 "EHLO
+        id S244366AbiHPAr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:47:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345757AbiHPApm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:45:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60384193564;
-        Mon, 15 Aug 2022 13:41:29 -0700 (PDT)
+        with ESMTP id S1347279AbiHPApz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:45:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95B54193571;
+        Mon, 15 Aug 2022 13:41:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DBBED61233;
-        Mon, 15 Aug 2022 20:41:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9A11C433D6;
-        Mon, 15 Aug 2022 20:41:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32C7A611FA;
+        Mon, 15 Aug 2022 20:41:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CCF5C433C1;
+        Mon, 15 Aug 2022 20:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596088;
-        bh=0uKQ4XlDoVmec3sjjPuLPu/Rai684n2yPKBqpnW4JQ0=;
+        s=korg; t=1660596092;
+        bh=hyTcSWCJpM8XrR++nPsIwaPrLzF9BBedKqDgX0Srn/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjcJ9CeAzU3auZTeip9qPMck9oh5mvzRkO6MJ1HE2fstcHijO3YDmtI7yerYCX1Wv
-         gHlC6hL5OcGW1KBOkxr3gW+wxCY4WzP6T7Yd4DT53sCzgX+p87GyZ5NJU50LXuEhwE
-         UH6gB3BJujNHkHhuws/Uow4jEgWC6/acKdnxEg8Y=
+        b=H1w8xUF1yYbjQjGghiBXsSrQCFdRt7H+MGX5pCZe8U7aUKaK82HfPedNvGnGFqh3G
+         rZyaMZ5CmWncWjMoDNyHIHvnNmI4n9MMkHv6Nn0f7bIEpaYNO5AHj+8/yG+pvp1nfL
+         RCBzvaYSLvRrVTJuKy+0aXWtOgrUwenQSRCBxZQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Sibi Sankar <quic_sibis@quicinc.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0968/1157] remoteproc: sysmon: Wait for SSCTL service to come up
-Date:   Mon, 15 Aug 2022 20:05:24 +0200
-Message-Id: <20220815180518.404555643@linuxfoundation.org>
+Subject: [PATCH 5.19 0969/1157] mfd: t7l66xb: Drop platform disable callback
+Date:   Mon, 15 Aug 2022 20:05:25 +0200
+Message-Id: <20220815180518.453720081@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,75 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sibi Sankar <quic_sibis@quicinc.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 47c04e00eff86a81cd357c3feed04c86089bcb85 ]
+[ Upstream commit 128ac294e1b437cb8a7f2ff8ede1cde9082bddbe ]
 
-The SSCTL service comes up after a finite time when the remote Q6 comes
-out of reset. Any graceful shutdowns requested during this period will
-be a NOP and abrupt tearing down of the glink channel might lead to pending
-transactions on the remote Q6 side and will ultimately lead to a fatal
-error. Fix this by waiting for the SSCTL service when a graceful shutdown
-is requested.
+None of the in-tree instantiations of struct t7l66xb_platform_data
+provides a disable callback. So better don't dereference this function
+pointer unconditionally. As there is no user, drop it completely instead
+of calling it conditional.
 
-Fixes: 1fb82ee806d1 ("remoteproc: qcom: Introduce sysmon")
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Sibi Sankar <quic_sibis@quicinc.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/1657022900-2049-7-git-send-email-quic_sibis@quicinc.com
+This is a preparation for making platform remove callbacks return void.
+
+Fixes: 1f192015ca5b ("mfd: driver for the T7L66XB TMIO SoC")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220530192430.2108217-3-u.kleine-koenig@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_sysmon.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/mfd/t7l66xb.c       | 6 +-----
+ include/linux/mfd/t7l66xb.h | 1 -
+ 2 files changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/remoteproc/qcom_sysmon.c b/drivers/remoteproc/qcom_sysmon.c
-index 9fca81492863..a9f04dd83ab6 100644
---- a/drivers/remoteproc/qcom_sysmon.c
-+++ b/drivers/remoteproc/qcom_sysmon.c
-@@ -41,6 +41,7 @@ struct qcom_sysmon {
- 	struct completion comp;
- 	struct completion ind_comp;
- 	struct completion shutdown_comp;
-+	struct completion ssctl_comp;
- 	struct mutex lock;
+diff --git a/drivers/mfd/t7l66xb.c b/drivers/mfd/t7l66xb.c
+index 5369c67e3280..663ffd4b8570 100644
+--- a/drivers/mfd/t7l66xb.c
++++ b/drivers/mfd/t7l66xb.c
+@@ -397,11 +397,8 @@ static int t7l66xb_probe(struct platform_device *dev)
  
- 	bool ssr_ack;
-@@ -445,6 +446,8 @@ static int ssctl_new_server(struct qmi_handle *qmi, struct qmi_service *svc)
+ static int t7l66xb_remove(struct platform_device *dev)
+ {
+-	struct t7l66xb_platform_data *pdata = dev_get_platdata(&dev->dev);
+ 	struct t7l66xb *t7l66xb = platform_get_drvdata(dev);
+-	int ret;
  
- 	svc->priv = sysmon;
+-	ret = pdata->disable(dev);
+ 	clk_disable_unprepare(t7l66xb->clk48m);
+ 	clk_put(t7l66xb->clk48m);
+ 	clk_disable_unprepare(t7l66xb->clk32k);
+@@ -412,8 +409,7 @@ static int t7l66xb_remove(struct platform_device *dev)
+ 	mfd_remove_devices(&dev->dev);
+ 	kfree(t7l66xb);
  
-+	complete(&sysmon->ssctl_comp);
-+
- 	return 0;
+-	return ret;
+-
++	return 0;
  }
  
-@@ -501,6 +504,7 @@ static int sysmon_start(struct rproc_subdev *subdev)
- 		.ssr_event = SSCTL_SSR_EVENT_AFTER_POWERUP
- 	};
+ static struct platform_driver t7l66xb_platform_driver = {
+diff --git a/include/linux/mfd/t7l66xb.h b/include/linux/mfd/t7l66xb.h
+index 69632c1b07bd..ae3e7a5c5219 100644
+--- a/include/linux/mfd/t7l66xb.h
++++ b/include/linux/mfd/t7l66xb.h
+@@ -12,7 +12,6 @@
  
-+	reinit_completion(&sysmon->ssctl_comp);
- 	mutex_lock(&sysmon->state_lock);
- 	sysmon->state = SSCTL_SSR_EVENT_AFTER_POWERUP;
- 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
-@@ -545,6 +549,11 @@ static void sysmon_stop(struct rproc_subdev *subdev, bool crashed)
- 	if (crashed)
- 		return;
- 
-+	if (sysmon->ssctl_instance) {
-+		if (!wait_for_completion_timeout(&sysmon->ssctl_comp, HZ / 2))
-+			dev_err(sysmon->dev, "timeout waiting for ssctl service\n");
-+	}
-+
- 	if (sysmon->ssctl_version)
- 		sysmon->shutdown_acked = ssctl_request_shutdown(sysmon);
- 	else if (sysmon->ept)
-@@ -631,6 +640,7 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
- 	init_completion(&sysmon->comp);
- 	init_completion(&sysmon->ind_comp);
- 	init_completion(&sysmon->shutdown_comp);
-+	init_completion(&sysmon->ssctl_comp);
- 	mutex_init(&sysmon->lock);
- 	mutex_init(&sysmon->state_lock);
+ struct t7l66xb_platform_data {
+ 	int (*enable)(struct platform_device *dev);
+-	int (*disable)(struct platform_device *dev);
+ 	int (*suspend)(struct platform_device *dev);
+ 	int (*resume)(struct platform_device *dev);
  
 -- 
 2.35.1
