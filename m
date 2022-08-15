@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E43E5947D7
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE78E59486D
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244247AbiHOXRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:17:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52968 "EHLO
+        id S245032AbiHOXRU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:17:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353050AbiHOXPt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:15:49 -0400
+        with ESMTP id S1353099AbiHOXPz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:15:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F003146CC2;
-        Mon, 15 Aug 2022 13:02:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21E96146CCC;
+        Mon, 15 Aug 2022 13:02:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0F48B80EA8;
-        Mon, 15 Aug 2022 20:02:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42218C433C1;
-        Mon, 15 Aug 2022 20:02:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC851B80EA8;
+        Mon, 15 Aug 2022 20:02:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23F52C433D6;
+        Mon, 15 Aug 2022 20:02:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593766;
-        bh=xUM//LR8mCZ5HV/uPUUTtp7F7cgtfU222nJBmpBQiGQ=;
+        s=korg; t=1660593772;
+        bh=LMkp6NyyuV2Ez/uJw716SkPh5MsLtM2lf94sqx8wvtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BRHIALxyoXAT2GfCKBfX74zu5m1ipsaRedMaBUuxYzou32Kb8Aa1WAG0o2lxb1NVI
-         ie/as9OHqOcQ8PulC/nvbnPEnJSLFLErBWQ8eIqnCu6uVKCIDOoNiGAbzIrdDULocT
-         376TJqkMA5LN2DIBiU2D5jEXwzB3jJdIpP2txWxI=
+        b=XkjqOiDuOgvAxZYh1Rx5zVQ+UiHf2OtF+jf527GKmlR8EKjHz0UPN/MGOZnk+0/dl
+         b3iQz+4giD3LV/901RaVWNilviA6Z1KDPD/KT1FkUoDKN3nTVmg6hjgG2N4W3Hmlyg
+         724w7RVTOwl4CIFlM0b1GmaMxgFTBe1pAuLSjdzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0322/1157] drm: bridge: adv7511: Move CEC definitions to adv7511_cec.c
-Date:   Mon, 15 Aug 2022 19:54:38 +0200
-Message-Id: <20220815180452.535207812@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0323/1157] wifi: rtlwifi: fix error codes in rtl_debugfs_set_write_h2c()
+Date:   Mon, 15 Aug 2022 19:54:39 +0200
+Message-Id: <20220815180452.578637490@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,77 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 91776af1d8deb8f36cbec6bf2bf24b661b2b5cbb ]
+[ Upstream commit b88d28146c30a8e14f0f012d56ebf19b68a348f4 ]
 
-ADV7511_REG_CEC_RX_FRAME_HDR[] and ADV7511_REG_CEC_RX_FRAME_LEN[]
-are only used inside adv7511_cec.c.
+If the copy_from_user() fails or the user gives invalid date then the
+correct thing to do is to return a negative error code.  (Currently it
+returns success).
 
-Move their definitions to this file to avoid the following build
-warnings when CONFIG_DRM_I2C_ADV7511_CEC is not selected:
+I made a copy additional related cleanups:
+1) There is no need to check "buffer" for NULL.  That's handled by
+copy_from_user().
+2) The "h2c_len" variable cannot be negative because it is unsigned
+and because sscanf() does not return negative error codes.
 
-drivers/gpu/drm/bridge/adv7511/adv7511.h:229:17: warning: 'ADV7511_REG_CEC_RX_FRAME_HDR' defined but not used [-Wunused-const-variable=]
-drivers/gpu/drm/bridge/adv7511/adv7511.h:235:17: warning: 'ADV7511_REG_CEC_RX_FRAME_LEN' defined but not used [-Wunused-const-variable=]
-
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: ab0af093bf90 ("drm: bridge: adv7511: use non-legacy mode for CEC RX")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Alvin Šipraga <alsi@bang-olufsen.dk>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220525215316.1133057-1-festevam@gmail.com
+Fixes: 610247f46feb ("rtlwifi: Improve debugging by using debugfs")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/YoOLnDkHgVltyXK7@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/adv7511/adv7511.h     | 12 ------------
- drivers/gpu/drm/bridge/adv7511/adv7511_cec.c | 12 ++++++++++++
- 2 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/debug.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511.h b/drivers/gpu/drm/bridge/adv7511/adv7511.h
-index 9e3bb8a8ee40..a031a0cd1f18 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511.h
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511.h
-@@ -226,18 +226,6 @@
- #define ADV7511_REG_CEC_CLK_DIV		0x4e
- #define ADV7511_REG_CEC_SOFT_RESET	0x50
+diff --git a/drivers/net/wireless/realtek/rtlwifi/debug.c b/drivers/net/wireless/realtek/rtlwifi/debug.c
+index 901cdfe3723c..0b1bc04cb6ad 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/debug.c
++++ b/drivers/net/wireless/realtek/rtlwifi/debug.c
+@@ -329,8 +329,8 @@ static ssize_t rtl_debugfs_set_write_h2c(struct file *filp,
  
--static const u8 ADV7511_REG_CEC_RX_FRAME_HDR[] = {
--	ADV7511_REG_CEC_RX1_FRAME_HDR,
--	ADV7511_REG_CEC_RX2_FRAME_HDR,
--	ADV7511_REG_CEC_RX3_FRAME_HDR,
--};
--
--static const u8 ADV7511_REG_CEC_RX_FRAME_LEN[] = {
--	ADV7511_REG_CEC_RX1_FRAME_LEN,
--	ADV7511_REG_CEC_RX2_FRAME_LEN,
--	ADV7511_REG_CEC_RX3_FRAME_LEN,
--};
--
- #define ADV7533_REG_CEC_OFFSET		0x70
+ 	tmp_len = (count > sizeof(tmp) - 1 ? sizeof(tmp) - 1 : count);
  
- enum adv7511_input_clock {
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c b/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
-index 399f625a50c8..0b266f28f150 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511_cec.c
-@@ -15,6 +15,18 @@
+-	if (!buffer || copy_from_user(tmp, buffer, tmp_len))
+-		return count;
++	if (copy_from_user(tmp, buffer, tmp_len))
++		return -EFAULT;
  
- #include "adv7511.h"
+ 	tmp[tmp_len] = '\0';
  
-+static const u8 ADV7511_REG_CEC_RX_FRAME_HDR[] = {
-+	ADV7511_REG_CEC_RX1_FRAME_HDR,
-+	ADV7511_REG_CEC_RX2_FRAME_HDR,
-+	ADV7511_REG_CEC_RX3_FRAME_HDR,
-+};
-+
-+static const u8 ADV7511_REG_CEC_RX_FRAME_LEN[] = {
-+	ADV7511_REG_CEC_RX1_FRAME_LEN,
-+	ADV7511_REG_CEC_RX2_FRAME_LEN,
-+	ADV7511_REG_CEC_RX3_FRAME_LEN,
-+};
-+
- #define ADV7511_INT1_CEC_MASK \
- 	(ADV7511_INT1_CEC_TX_READY | ADV7511_INT1_CEC_TX_ARBIT_LOST | \
- 	 ADV7511_INT1_CEC_TX_RETRY_TIMEOUT | ADV7511_INT1_CEC_RX_READY1 | \
+@@ -340,8 +340,8 @@ static ssize_t rtl_debugfs_set_write_h2c(struct file *filp,
+ 			 &h2c_data[4], &h2c_data[5],
+ 			 &h2c_data[6], &h2c_data[7]);
+ 
+-	if (h2c_len <= 0)
+-		return count;
++	if (h2c_len == 0)
++		return -EINVAL;
+ 
+ 	for (i = 0; i < h2c_len; i++)
+ 		h2c_data_packed[i] = (u8)h2c_data[i];
 -- 
 2.35.1
 
