@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E95C159506F
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E23A595070
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231771AbiHPEmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:42:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47312 "EHLO
+        id S231784AbiHPEmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:42:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232038AbiHPEkq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:40:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E872CA50FB;
-        Mon, 15 Aug 2022 13:32:07 -0700 (PDT)
+        with ESMTP id S232051AbiHPEkr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:40:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0914D330;
+        Mon, 15 Aug 2022 13:32:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8612861089;
-        Mon, 15 Aug 2022 20:32:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7728EC433C1;
-        Mon, 15 Aug 2022 20:32:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98CB461089;
+        Mon, 15 Aug 2022 20:32:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88FA8C433C1;
+        Mon, 15 Aug 2022 20:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595526;
-        bh=O+ZF0S3TxUZwPUpgyNNN8n7Tiwbji4dnIU/dpyt8iXk=;
+        s=korg; t=1660595530;
+        bh=Bd7fE8Kt4aaU6LVNR5gCH5ownrgcWeBzvZ5qrcrnwI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bF4HD1k98iynhGZ0ODgMGK+biiGrZkxXUGSb17wyzskChE6aDu42b9mHpq/h/Y4hK
-         oowq7Q7nNH5JCUwB7mOfxxOlpn4t6fWqg2aY3xZCrW9JXZBMJCcMwlUyg0DxHAwmz/
-         XurdIw82mNZeKnbXkHo8+IGmxmvv8sjRg31zayYw=
+        b=fSUHK1e3hQbguiifx3Sr4nR0lmhmvoyRGD9qm17Ck7iPuvsnyu02NkVcx5E1T5vT0
+         YcO+i8mBeYfauKhJQeZindKYAHZ/gAC3ToBeK8k6ipRJiPu27vHhMoNh2gfvVHOLnc
+         0CiQlC0nCuorkFicWbTzTF1kddEjs/kC4jCRkIE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Stephen Boyd <sboyd@kernel.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0761/1157] clk: qcom: clk-rcg2: Fail Duty-Cycle configuration if MND divider is not enabled.
-Date:   Mon, 15 Aug 2022 20:01:57 +0200
-Message-Id: <20220815180509.927263804@linuxfoundation.org>
+Subject: [PATCH 5.19 0762/1157] clk: qcom: clk-rcg2: Make sure to not write d=0 to the NMD register
+Date:   Mon, 15 Aug 2022 20:01:58 +0200
+Message-Id: <20220815180509.964648701@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -57,48 +57,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nikita Travkin <nikita@trvn.ru>
 
-[ Upstream commit bdafb609c3bb848d710ad9cd4debd2ee9d6a4049 ]
+[ Upstream commit d0696770cef35a1fd16ea2167e2198c18aa6fbfe ]
 
-In cases when MND is not enabled (e.g. when only Half Integer Divider is
-used), setting D registers makes no effect.
+Sometimes calculation of d value may result in 0 because of the
+rounding after integer division. This causes the following error:
 
-Fail instead of making ineffective write.
+[  113.969689] camss_gp1_clk_src: rcg didn't update its configuration.
+[  113.969754] WARNING: CPU: 3 PID: 35 at drivers/clk/qcom/clk-rcg2.c:122 update_config+0xc8/0xdc
+
+Make sure that D value is never zero.
 
 Fixes: 7f891faf596e ("clk: qcom: clk-rcg2: Add support for duty-cycle for RCG")
 Signed-off-by: Nikita Travkin <nikita@trvn.ru>
 Reviewed-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220612145955.385787-2-nikita@trvn.ru
+Link: https://lore.kernel.org/r/20220612145955.385787-3-nikita@trvn.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/clk-rcg2.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/clk/qcom/clk-rcg2.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/clk/qcom/clk-rcg2.c b/drivers/clk/qcom/clk-rcg2.c
-index 8e5dce09d162..2375e8122012 100644
+index 2375e8122012..28019edd2a50 100644
 --- a/drivers/clk/qcom/clk-rcg2.c
 +++ b/drivers/clk/qcom/clk-rcg2.c
-@@ -437,7 +437,7 @@ static int clk_rcg2_get_duty_cycle(struct clk_hw *hw, struct clk_duty *duty)
- static int clk_rcg2_set_duty_cycle(struct clk_hw *hw, struct clk_duty *duty)
- {
- 	struct clk_rcg2 *rcg = to_clk_rcg2(hw);
--	u32 notn_m, n, m, d, not2d, mask, duty_per;
-+	u32 notn_m, n, m, d, not2d, mask, duty_per, cfg;
- 	int ret;
+@@ -13,6 +13,7 @@
+ #include <linux/rational.h>
+ #include <linux/regmap.h>
+ #include <linux/math64.h>
++#include <linux/minmax.h>
+ #include <linux/slab.h>
  
- 	/* Duty-cycle cannot be modified for non-MND RCGs */
-@@ -448,6 +448,11 @@ static int clk_rcg2_set_duty_cycle(struct clk_hw *hw, struct clk_duty *duty)
+ #include <asm/div64.h>
+@@ -461,9 +462,11 @@ static int clk_rcg2_set_duty_cycle(struct clk_hw *hw, struct clk_duty *duty)
+ 	/* Calculate 2d value */
+ 	d = DIV_ROUND_CLOSEST(n * duty_per * 2, 100);
  
- 	regmap_read(rcg->clkr.regmap, RCG_N_OFFSET(rcg), &notn_m);
- 	regmap_read(rcg->clkr.regmap, RCG_M_OFFSET(rcg), &m);
-+	regmap_read(rcg->clkr.regmap, RCG_CFG_OFFSET(rcg), &cfg);
-+
-+	/* Duty-cycle cannot be modified if MND divider is in bypass mode. */
-+	if (!(cfg & CFG_MODE_MASK))
-+		return -EINVAL;
+-	 /* Check bit widths of 2d. If D is too big reduce duty cycle. */
+-	if (d > mask)
+-		d = mask;
++	/*
++	 * Check bit widths of 2d. If D is too big reduce duty cycle.
++	 * Also make sure it is never zero.
++	 */
++	d = clamp_val(d, 1, mask);
  
- 	n = (~(notn_m) + m) & mask;
- 
+ 	if ((d / 2) > (n - m))
+ 		d = (n - m) * 2;
 -- 
 2.35.1
 
