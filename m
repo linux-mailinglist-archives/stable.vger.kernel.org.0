@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3DB9593F4E
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:45:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3017C593FFF
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:47:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244500AbiHOVCl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:02:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55312 "EHLO
+        id S239728AbiHOU4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:56:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346677AbiHOUzb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:55:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 858483B94C;
-        Mon, 15 Aug 2022 12:11:12 -0700 (PDT)
+        with ESMTP id S1346834AbiHOUzz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:55:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D2ACBFE9D;
+        Mon, 15 Aug 2022 12:11:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D73460BB5;
-        Mon, 15 Aug 2022 19:11:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1868FC433C1;
-        Mon, 15 Aug 2022 19:11:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B153B810A3;
+        Mon, 15 Aug 2022 19:11:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43DE9C433C1;
+        Mon, 15 Aug 2022 19:11:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590669;
-        bh=hP/9KZye9mvWkD+qnzNh7Mn9ujOi/BfJgmHbNS6xy7k=;
+        s=korg; t=1660590672;
+        bh=EycReFXUTuN8kGxk+znQDQO0kila6gKFLFqmORdtqFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ntO2nN81cF3GIceOa6Qc/Bs2VhqrJ+37ThCcVIOl6Md60UfAqth2Rj9YbLDI4MU/4
-         wMJ/dUyH0kxyI3NFnT7OYsazHM+VQ00X9mA1VsIoBS3RK3p92ftvKEEzUPq1z/H+UQ
-         jxP+XOFJ/ezfAvbbVRsSs0txfIfiZee1iDuUcm1w=
+        b=w7E6Wrb8vL7Hit+k8WC9eR+UCfsnvq0Wp0tK5EdW5GowsWpAW+PVz9dSyUisC1CgN
+         yh2USwrhxqBKCu8kvBNuiZe5eqV0IYpKGNE5U+TJq3ZdSq6+xIHSC2SPzin58a6dhq
+         Q+zBolzNi4ix2xHclREFojxeKb1w3iUzZHASWUqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0302/1095] drm/meson: Fix refcount leak in meson_encoder_hdmi_init
-Date:   Mon, 15 Aug 2022 19:55:01 +0200
-Message-Id: <20220815180442.263636035@linuxfoundation.org>
+Subject: [PATCH 5.18 0303/1095] drm/dp: Export symbol / kerneldoc fixes for DP AUX bus
+Date:   Mon, 15 Aug 2022 19:55:02 +0200
+Message-Id: <20220815180442.306248039@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,42 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 7381076809586528e2a812a709e2758916318a99 ]
+[ Upstream commit 39c28cdfb719f0e306b447f0827dfd712f81858b ]
 
-of_find_device_by_node() takes reference, we should use put_device()
-to release it when not need anymore.
-Add missing put_device() in error path to avoid refcount
-leak.
+While working on the DP AUX bus code I found a few small things that
+should be fixed. Namely the non-devm version of
+of_dp_aux_populate_ep_devices() was missing an export. There was also
+an extra blank line in a kerneldoc and a kerneldoc that incorrectly
+documented a return value. Fix these.
 
-Fixes: 0af5e0b41110 ("drm/meson: encoder_hdmi: switch to bridge DRM_BRIDGE_ATTACH_NO_CONNECTOR")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220511054052.51981-1-linmq006@gmail.com
+Fixes: aeb33699fc2c ("drm: Introduce the DP AUX bus")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220510122726.v3.1.Ia91f4849adfc5eb9da1eb37ba79aa65fb3c95a0f@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_encoder_hdmi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/dp/drm_dp_aux_bus.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/meson/meson_encoder_hdmi.c b/drivers/gpu/drm/meson/meson_encoder_hdmi.c
-index 5e306de6f485..de87f02cd388 100644
---- a/drivers/gpu/drm/meson/meson_encoder_hdmi.c
-+++ b/drivers/gpu/drm/meson/meson_encoder_hdmi.c
-@@ -435,8 +435,10 @@ int meson_encoder_hdmi_init(struct meson_drm *priv)
- 		cec_fill_conn_info_from_drm(&conn_info, meson_encoder_hdmi->connector);
+diff --git a/drivers/gpu/drm/dp/drm_dp_aux_bus.c b/drivers/gpu/drm/dp/drm_dp_aux_bus.c
+index 415afce3cf96..5f06bc0a34ac 100644
+--- a/drivers/gpu/drm/dp/drm_dp_aux_bus.c
++++ b/drivers/gpu/drm/dp/drm_dp_aux_bus.c
+@@ -66,7 +66,6 @@ static int dp_aux_ep_probe(struct device *dev)
+  * @dev: The device to remove.
+  *
+  * Calls through to the endpoint driver remove.
+- *
+  */
+ static void dp_aux_ep_remove(struct device *dev)
+ {
+@@ -120,8 +119,6 @@ ATTRIBUTE_GROUPS(dp_aux_ep_dev);
+ /**
+  * dp_aux_ep_dev_release() - Free memory for the dp_aux_ep device
+  * @dev: The device to free.
+- *
+- * Return: 0 if no error or negative error code.
+  */
+ static void dp_aux_ep_dev_release(struct device *dev)
+ {
+@@ -256,6 +253,7 @@ int of_dp_aux_populate_ep_devices(struct drm_dp_aux *aux)
  
- 		notifier = cec_notifier_conn_register(&pdev->dev, NULL, &conn_info);
--		if (!notifier)
-+		if (!notifier) {
-+			put_device(&pdev->dev);
- 			return -ENOMEM;
-+		}
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(of_dp_aux_populate_ep_devices);
  
- 		meson_encoder_hdmi->cec_notifier = notifier;
- 	}
+ static void of_dp_aux_depopulate_ep_devices_void(void *data)
+ {
 -- 
 2.35.1
 
