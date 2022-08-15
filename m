@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9847594969
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:14:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA8E8594C6B
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353854AbiHOXmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:42:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35664 "EHLO
+        id S244116AbiHPA7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:59:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354177AbiHOXlf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ED87155CB0;
-        Mon, 15 Aug 2022 13:11:00 -0700 (PDT)
+        with ESMTP id S245528AbiHPA4C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:56:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D619719DAA1;
+        Mon, 15 Aug 2022 13:48:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9307860F0C;
-        Mon, 15 Aug 2022 20:11:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ADB8C433D6;
-        Mon, 15 Aug 2022 20:10:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 13B5761255;
+        Mon, 15 Aug 2022 20:48:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15417C433D6;
+        Mon, 15 Aug 2022 20:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594259;
-        bh=fURGpxVz5I525vPI7qpZ0McbgzYcZ8ZMftWrLfsrvYs=;
+        s=korg; t=1660596487;
+        bh=YWq48jiqHPOFwg9n/lD9ndH4dNZqvChrfb3NlpZVGXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gOJFRRYoMCL9PZNfXio41LVYwX/GgTfJAolmpsLVQMx8j/c5K1b8x9SNi+E5cpGs8
-         /Q6ROxIZuf7ifJW3JiWgSjGYC00ku0jxqyb+PHs9jPopgccoTB8rklqFJY9KynNOzk
-         ZeY11MF6ccVOGDG40DQSnPiuw+yx3AuJQuBuFk4Q=
+        b=jQP8uVRnS5b1rVLIRswzp7vaFRxMK4uDfO+W3rzpjN/bUSsSmms7OXI6PKGuRENfn
+         C+yn8omuhLWHIm6OFMU5tPBG2R9Sbw2ip6MVmbi7zBgb7Xk0LVbtWP+amQ+IrXs5GF
+         UCHzPdTbZexfhsVAdx818BsgV3YZKT+enMhs+EjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, zdi-disclosures@trendmicro.com
-Subject: [PATCH 5.18 1053/1095] ksmbd: prevent out of bound read for SMB2_WRITE
+        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 1096/1157] btrfs: zoned: wait until zone is finished when allocation didnt progress
 Date:   Mon, 15 Aug 2022 20:07:32 +0200
-Message-Id: <20220815180512.627050344@linuxfoundation.org>
+Message-Id: <20220815180524.083026615@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,125 +54,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunchul Lee <hyc.lee@gmail.com>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-[ Upstream commit ac60778b87e45576d7bfdbd6f53df902654e6f09 ]
+[ Upstream commit 2ce543f478433a0eec0f72090d7e814f1d53d456 ]
 
-OOB read memory can be written to a file,
-if DataOffset is 0 and Length is too large
-in SMB2_WRITE request of compound request.
+When the allocated position doesn't progress, we cannot submit IOs to
+finish a block group, but there should be ongoing IOs that will finish a
+block group. So, in that case, we wait for a zone to be finished and retry
+the allocation after that.
 
-To prevent this, when checking the length of
-the data area of SMB2_WRITE in smb2_get_data_area_len(),
-let the minimum of DataOffset be the size of
-SMB2 header + the size of SMB2_WRITE header.
+Introduce a new flag BTRFS_FS_NEED_ZONE_FINISH for fs_info->flags to
+indicate we need a zone finish to have proceeded. The flag is set when the
+allocator detected it cannot activate a new block group. And, it is cleared
+once a zone is finished.
 
-This bug can lead an oops looking something like:
-
-[  798.008715] BUG: KASAN: slab-out-of-bounds in copy_page_from_iter_atomic+0xd3d/0x14b0
-[  798.008724] Read of size 252 at addr ffff88800f863e90 by task kworker/0:2/2859
-...
-[  798.008754] Call Trace:
-[  798.008756]  <TASK>
-[  798.008759]  dump_stack_lvl+0x49/0x5f
-[  798.008764]  print_report.cold+0x5e/0x5cf
-[  798.008768]  ? __filemap_get_folio+0x285/0x6d0
-[  798.008774]  ? copy_page_from_iter_atomic+0xd3d/0x14b0
-[  798.008777]  kasan_report+0xaa/0x120
-[  798.008781]  ? copy_page_from_iter_atomic+0xd3d/0x14b0
-[  798.008784]  kasan_check_range+0x100/0x1e0
-[  798.008788]  memcpy+0x24/0x60
-[  798.008792]  copy_page_from_iter_atomic+0xd3d/0x14b0
-[  798.008795]  ? pagecache_get_page+0x53/0x160
-[  798.008799]  ? iov_iter_get_pages_alloc+0x1590/0x1590
-[  798.008803]  ? ext4_write_begin+0xfc0/0xfc0
-[  798.008807]  ? current_time+0x72/0x210
-[  798.008811]  generic_perform_write+0x2c8/0x530
-[  798.008816]  ? filemap_fdatawrite_wbc+0x180/0x180
-[  798.008820]  ? down_write+0xb4/0x120
-[  798.008824]  ? down_write_killable+0x130/0x130
-[  798.008829]  ext4_buffered_write_iter+0x137/0x2c0
-[  798.008833]  ext4_file_write_iter+0x40b/0x1490
-[  798.008837]  ? __fsnotify_parent+0x275/0xb20
-[  798.008842]  ? __fsnotify_update_child_dentry_flags+0x2c0/0x2c0
-[  798.008846]  ? ext4_buffered_write_iter+0x2c0/0x2c0
-[  798.008851]  __kernel_write+0x3a1/0xa70
-[  798.008855]  ? __x64_sys_preadv2+0x160/0x160
-[  798.008860]  ? security_file_permission+0x4a/0xa0
-[  798.008865]  kernel_write+0xbb/0x360
-[  798.008869]  ksmbd_vfs_write+0x27e/0xb90 [ksmbd]
-[  798.008881]  ? ksmbd_vfs_read+0x830/0x830 [ksmbd]
-[  798.008892]  ? _raw_read_unlock+0x2a/0x50
-[  798.008896]  smb2_write+0xb45/0x14e0 [ksmbd]
-[  798.008909]  ? __kasan_check_write+0x14/0x20
-[  798.008912]  ? _raw_spin_lock_bh+0xd0/0xe0
-[  798.008916]  ? smb2_read+0x15e0/0x15e0 [ksmbd]
-[  798.008927]  ? memcpy+0x4e/0x60
-[  798.008931]  ? _raw_spin_unlock+0x19/0x30
-[  798.008934]  ? ksmbd_smb2_check_message+0x16af/0x2350 [ksmbd]
-[  798.008946]  ? _raw_spin_lock_bh+0xe0/0xe0
-[  798.008950]  handle_ksmbd_work+0x30e/0x1020 [ksmbd]
-[  798.008962]  process_one_work+0x778/0x11c0
-[  798.008966]  ? _raw_spin_lock_irq+0x8e/0xe0
-[  798.008970]  worker_thread+0x544/0x1180
-[  798.008973]  ? __cpuidle_text_end+0x4/0x4
-[  798.008977]  kthread+0x282/0x320
-[  798.008982]  ? process_one_work+0x11c0/0x11c0
-[  798.008985]  ? kthread_complete_and_exit+0x30/0x30
-[  798.008989]  ret_from_fork+0x1f/0x30
-[  798.008995]  </TASK>
-
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Cc: stable@vger.kernel.org
-Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-17817
-Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: stable@vger.kernel.org # 5.16+
+Fixes: afba2bc036b0 ("btrfs: zoned: implement active zone tracking")
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/smb2misc.c | 7 +++++--
- fs/ksmbd/smb2pdu.c  | 8 +++-----
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ fs/btrfs/ctree.h   | 5 +++++
+ fs/btrfs/disk-io.c | 1 +
+ fs/btrfs/inode.c   | 9 +++++++--
+ fs/btrfs/zoned.c   | 6 ++++++
+ 4 files changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ksmbd/smb2misc.c b/fs/ksmbd/smb2misc.c
-index 03bcd7ce0c75..6e25ace36568 100644
---- a/fs/ksmbd/smb2misc.c
-+++ b/fs/ksmbd/smb2misc.c
-@@ -131,8 +131,11 @@ static int smb2_get_data_area_len(unsigned int *off, unsigned int *len,
- 		*len = le16_to_cpu(((struct smb2_read_req *)hdr)->ReadChannelInfoLength);
- 		break;
- 	case SMB2_WRITE:
--		if (((struct smb2_write_req *)hdr)->DataOffset) {
--			*off = le16_to_cpu(((struct smb2_write_req *)hdr)->DataOffset);
-+		if (((struct smb2_write_req *)hdr)->DataOffset ||
-+		    ((struct smb2_write_req *)hdr)->Length) {
-+			*off = max_t(unsigned int,
-+				     le16_to_cpu(((struct smb2_write_req *)hdr)->DataOffset),
-+				     offsetof(struct smb2_write_req, Buffer));
- 			*len = le32_to_cpu(((struct smb2_write_req *)hdr)->Length);
- 			break;
- 		}
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index 6c8dd718b5db..85a9ed7156ea 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -6505,14 +6505,12 @@ int smb2_write(struct ksmbd_work *work)
- 		writethrough = true;
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index d306db5dbdc2..3a51d0c13a95 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -627,6 +627,9 @@ enum {
+ 	/* Indicate we have half completed snapshot deletions pending. */
+ 	BTRFS_FS_UNFINISHED_DROPS,
  
- 	if (is_rdma_channel == false) {
--		if ((u64)le16_to_cpu(req->DataOffset) + length >
--		    get_rfc1002_len(work->request_buf)) {
--			pr_err("invalid write data offset %u, smb_len %u\n",
--			       le16_to_cpu(req->DataOffset),
--			       get_rfc1002_len(work->request_buf));
-+		if (le16_to_cpu(req->DataOffset) <
-+		    offsetof(struct smb2_write_req, Buffer)) {
- 			err = -EINVAL;
- 			goto out;
- 		}
++	/* Indicate we have to finish a zone to do next allocation. */
++	BTRFS_FS_NEED_ZONE_FINISH,
 +
- 		data_buf = (char *)(((char *)&req->hdr.ProtocolId) +
- 				    le16_to_cpu(req->DataOffset));
+ #if BITS_PER_LONG == 32
+ 	/* Indicate if we have error/warn message printed on 32bit systems */
+ 	BTRFS_FS_32BIT_ERROR,
+@@ -1063,6 +1066,8 @@ struct btrfs_fs_info {
+ 
+ 	spinlock_t zone_active_bgs_lock;
+ 	struct list_head zone_active_bgs;
++	/* Waiters when BTRFS_FS_NEED_ZONE_FINISH is set */
++	wait_queue_head_t zone_finish_wait;
+ 
+ #ifdef CONFIG_BTRFS_FS_REF_VERIFY
+ 	spinlock_t ref_verify_lock;
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index 804dcc69787d..bc3030661583 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3255,6 +3255,7 @@ void btrfs_init_fs_info(struct btrfs_fs_info *fs_info)
+ 	init_waitqueue_head(&fs_info->transaction_blocked_wait);
+ 	init_waitqueue_head(&fs_info->async_submit_wait);
+ 	init_waitqueue_head(&fs_info->delayed_iputs_wait);
++	init_waitqueue_head(&fs_info->zone_finish_wait);
+ 
+ 	/* Usable values until the real ones are cached from the superblock */
+ 	fs_info->nodesize = 4096;
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 4f5249f5cb34..61496ecb1e20 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -1642,8 +1642,13 @@ static noinline int run_delalloc_zoned(struct btrfs_inode *inode,
+ 		if (ret == 0)
+ 			done_offset = end;
+ 
+-		if (done_offset == start)
+-			return -ENOSPC;
++		if (done_offset == start) {
++			struct btrfs_fs_info *info = inode->root->fs_info;
++
++			wait_var_event(&info->zone_finish_wait,
++				       !test_bit(BTRFS_FS_NEED_ZONE_FINISH, &info->flags));
++			continue;
++		}
+ 
+ 		if (!locked_page_done) {
+ 			__set_page_dirty_nobuffers(locked_page);
+diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
+index 4df5b36dc574..31cb11daa8e8 100644
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -2007,6 +2007,9 @@ static int do_zone_finish(struct btrfs_block_group *block_group, bool fully_writ
+ 	/* For active_bg_list */
+ 	btrfs_put_block_group(block_group);
+ 
++	clear_bit(BTRFS_FS_NEED_ZONE_FINISH, &fs_info->flags);
++	wake_up_all(&fs_info->zone_finish_wait);
++
+ 	return 0;
+ }
+ 
+@@ -2043,6 +2046,9 @@ bool btrfs_can_activate_zone(struct btrfs_fs_devices *fs_devices, u64 flags)
+ 	}
+ 	mutex_unlock(&fs_info->chunk_mutex);
+ 
++	if (!ret)
++		set_bit(BTRFS_FS_NEED_ZONE_FINISH, &fs_info->flags);
++
+ 	return ret;
+ }
  
 -- 
 2.35.1
