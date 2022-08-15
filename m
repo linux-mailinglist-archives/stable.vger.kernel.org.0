@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5FE7594165
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40D08593F71
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:45:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243165AbiHOVC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:02:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37548 "EHLO
+        id S232933AbiHOVED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:04:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347681AbiHOVCQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:02:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86745CE496;
-        Mon, 15 Aug 2022 12:14:13 -0700 (PDT)
+        with ESMTP id S242801AbiHOVDc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:03:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C12A9D2EA4;
+        Mon, 15 Aug 2022 12:14:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B83A060EF0;
-        Mon, 15 Aug 2022 19:14:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFAE9C433C1;
-        Mon, 15 Aug 2022 19:14:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E81A1B81109;
+        Mon, 15 Aug 2022 19:14:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B33DC433C1;
+        Mon, 15 Aug 2022 19:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590852;
-        bh=0GoneA/qGJtls0aUIePvwzp+dy/pKMZAcfjAAZ2A3tM=;
+        s=korg; t=1660590867;
+        bh=Axapi9ZUMEYfwtt328vt8/8TF7uU1uOdwcal1zqH1e8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TiySknY54gVgjRw/9EQ8HRB1yqozhHJNebAoJbXQMtYNpQQTDXZzt1XWMD5NMEAW5
-         bU8hyWNAX6O+v0DrhuXLOaDRBmqlxkJdgiG6XIkee+SRHibBMqTwlYT+BHBzZm5xUl
-         38n91VpZVwwN6O8a5GMaUWngEvXjA1nULhq3eE0g=
+        b=AnJY/e4inu3ooTbQPwuyLgZtqYEAOqNiyVxej2bEVY9pB/DGwNkCbojy3qSirpECg
+         8uMG33YhIP3dSnsmvqVeJ/aDwzQxgrQvr7oEm17+QS+7CEjut1X1Tkehmie4NX+24x
+         XESva6ZmxktbYsZAaaCO4taLEbDs2L++gfna9bLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0364/1095] drm/radeon: fix incorrrect SPDX-License-Identifiers
-Date:   Mon, 15 Aug 2022 19:56:03 +0200
-Message-Id: <20220815180444.778790656@linuxfoundation.org>
+Subject: [PATCH 5.18 0365/1095] rcutorture: Make kvm.sh allow more memory for --kasan runs
+Date:   Mon, 15 Aug 2022 19:56:04 +0200
+Message-Id: <20220815180444.817283309@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -47,68 +45,60 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_FILL_THIS_FORM_SHORT,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-[ Upstream commit 1f43b8903f3aae4a26a603c36f6d5dd25d6edb51 ]
+[ Upstream commit 31015625768e6d8bc808a892b221b69afaaa8d07 ]
 
-radeon is MIT.  This were incorrectly changed in
-commit b24413180f56 ("License cleanup: add SPDX GPL-2.0 license identifier to files with no license")
-and
-commit d198b34f3855 (".gitignore: add SPDX License Identifier")
-and:
-commit ec8f24b7faaf ("treewide: Add SPDX license identifier - Makefile/Kconfig")
+KASAN allots significant memory to track allocation state, and the amount
+of memory has increased recently, which results in frequent OOMs on a
+few of the rcutorture scenarios.  This commit therefore provides 2G of
+memory for --kasan runs, up from the 512M default.
 
-Fixes: d198b34f3855 (".gitignore: add SPDX License Identifier")
-Fixes: ec8f24b7faaf ("treewide: Add SPDX license identifier - Makefile/Kconfig")
-Fixes: b24413180f56 ("License cleanup: add SPDX GPL-2.0 license identifier to files with no license")
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2053
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/.gitignore | 2 +-
- drivers/gpu/drm/radeon/Kconfig    | 2 +-
- drivers/gpu/drm/radeon/Makefile   | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ tools/testing/selftests/rcutorture/bin/kvm.sh | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/radeon/.gitignore b/drivers/gpu/drm/radeon/.gitignore
-index 9c1a94153983..d8777383a64a 100644
---- a/drivers/gpu/drm/radeon/.gitignore
-+++ b/drivers/gpu/drm/radeon/.gitignore
-@@ -1,4 +1,4 @@
--# SPDX-License-Identifier: GPL-2.0-only
-+# SPDX-License-Identifier: MIT
- mkregtable
- *_reg_safe.h
- 
-diff --git a/drivers/gpu/drm/radeon/Kconfig b/drivers/gpu/drm/radeon/Kconfig
-index 6f60f4840cc5..52819e7f1fca 100644
---- a/drivers/gpu/drm/radeon/Kconfig
-+++ b/drivers/gpu/drm/radeon/Kconfig
-@@ -1,4 +1,4 @@
--# SPDX-License-Identifier: GPL-2.0-only
-+# SPDX-License-Identifier: MIT
- config DRM_RADEON_USERPTR
- 	bool "Always enable userptr support"
- 	depends on DRM_RADEON
-diff --git a/drivers/gpu/drm/radeon/Makefile b/drivers/gpu/drm/radeon/Makefile
-index 11c97edde54d..3d502f1bbfcb 100644
---- a/drivers/gpu/drm/radeon/Makefile
-+++ b/drivers/gpu/drm/radeon/Makefile
-@@ -1,4 +1,4 @@
--# SPDX-License-Identifier: GPL-2.0
-+# SPDX-License-Identifier: MIT
- #
- # Makefile for the drm device driver.  This driver provides support for the
- # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
+diff --git a/tools/testing/selftests/rcutorture/bin/kvm.sh b/tools/testing/selftests/rcutorture/bin/kvm.sh
+index 55b2c1533282..b9f4d41da30e 100755
+--- a/tools/testing/selftests/rcutorture/bin/kvm.sh
++++ b/tools/testing/selftests/rcutorture/bin/kvm.sh
+@@ -44,6 +44,7 @@ TORTURE_KCONFIG_KASAN_ARG=""
+ TORTURE_KCONFIG_KCSAN_ARG=""
+ TORTURE_KMAKE_ARG=""
+ TORTURE_QEMU_MEM=512
++torture_qemu_mem_default=1
+ TORTURE_REMOTE=
+ TORTURE_SHUTDOWN_GRACE=180
+ TORTURE_SUITE=rcu
+@@ -180,6 +181,10 @@ do
+ 		;;
+ 	--kasan)
+ 		TORTURE_KCONFIG_KASAN_ARG="CONFIG_DEBUG_INFO=y CONFIG_KASAN=y"; export TORTURE_KCONFIG_KASAN_ARG
++		if test -n "$torture_qemu_mem_default"
++		then
++			TORTURE_QEMU_MEM=2G
++		fi
+ 		;;
+ 	--kconfig|--kconfigs)
+ 		checkarg --kconfig "(Kconfig options)" $# "$2" '^CONFIG_[A-Z0-9_]\+=\([ynm]\|[0-9]\+\)\( CONFIG_[A-Z0-9_]\+=\([ynm]\|[0-9]\+\)\)*$' '^error$'
+@@ -202,6 +207,7 @@ do
+ 	--memory)
+ 		checkarg --memory "(memory size)" $# "$2" '^[0-9]\+[MG]\?$' error
+ 		TORTURE_QEMU_MEM=$2
++		torture_qemu_mem_default=
+ 		shift
+ 		;;
+ 	--no-initrd)
 -- 
 2.35.1
 
