@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1340B594A25
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:17:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0476594C8E
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353890AbiHOXjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:39:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58922 "EHLO
+        id S244929AbiHPBAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 21:00:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346108AbiHOXhT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:37:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52D19152436;
-        Mon, 15 Aug 2022 13:09:48 -0700 (PDT)
+        with ESMTP id S1348626AbiHPA5q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:57:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01411DB062;
+        Mon, 15 Aug 2022 13:49:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09739B81135;
-        Mon, 15 Aug 2022 20:09:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53C3FC433C1;
-        Mon, 15 Aug 2022 20:09:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D766F6126A;
+        Mon, 15 Aug 2022 20:49:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0B31C433C1;
+        Mon, 15 Aug 2022 20:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594185;
-        bh=VcECr1scfMi6H8ackDqfW47OlIEhZMW7KEnHNf/qPdY=;
+        s=korg; t=1660596547;
+        bh=k/jl+hiL7h61ReI0pIPxD1nbi8Tvs1yvqiCnRfOIhME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rBVtPQj9O6H7UkzU0D15oZE6GayGUI7AfAyHcr9rJzPZ6etXGHnA7orR1xo4U8yei
-         bx8kcah5rqBMFFMuqIMfeeiF5tEMVbjj1JgpIpaaB+udMpF1Wl+gdJdPS/9IF+DRp3
-         gfmVIwV9PfGthbF4mYRcMYPiSAUs9XaHciENHBac=
+        b=J4eJBWPuxbY6xpQiElASrl8zB3WSnD6nxoCC52+oBIVqfJPb7CJ4tMM+4buR8Z1Lc
+         SebwG13sPfQQ+bxOm7X24z83lMcmLaZNqnXRf9gt0RXUNP75YKKc8/2z54UWk1iWgj
+         2zuL6ist79J2c1hnU7K7C2R3YDDWWT0GAZvsyPIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?M=C3=A5rten=20Lindahl?= <marten.lindahl@axis.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Kees Cook <keescook@chromium.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mina Almasry <almasrymina@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1069/1095] tpm: Add check for Failure mode for TPM2 modules
-Date:   Mon, 15 Aug 2022 20:07:48 +0200
-Message-Id: <20220815180513.262690780@linuxfoundation.org>
+Subject: [PATCH 5.19 1113/1157] hugetlb_cgroup: fix wrong hugetlb cgroup numa stat
+Date:   Mon, 15 Aug 2022 20:07:49 +0200
+Message-Id: <20220815180524.831965088@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +59,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mårten Lindahl <marten.lindahl@axis.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 863ed94c589fcd1984f4e3080f069d30508044bb ]
+[ Upstream commit 2727cfe4072a35ce813e3708f74c135de7da8897 ]
 
-In commit 0aa698787aa2 ("tpm: Add Upgrade/Reduced mode support for
-TPM2 modules") it was said that:
+We forget to set cft->private for numa stat file.  As a result, numa stat
+of hstates[0] is always showed for all hstates.  Encode the hstates index
+into cft->private to fix this issue.
 
-"If the TPM is in Failure mode, it will successfully respond to both
-tpm2_do_selftest() and tpm2_startup() calls. Although, will fail to
-answer to tpm2_get_cc_attrs_tbl(). Use this fact to conclude that TPM
-is in Failure mode."
-
-But a check was never added in the commit when calling
-tpm2_get_cc_attrs_tbl() to conclude that the TPM is in Failure mode.
-This commit corrects this by adding a check.
-
-Fixes: 0aa698787aa2 ("tpm: Add Upgrade/Reduced mode support for TPM2 modules")
-Cc: stable@vger.kernel.org # v5.17+
-Signed-off-by: Mårten Lindahl <marten.lindahl@axis.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Link: https://lkml.kernel.org/r/20220723073804.53035-1-linmiaohe@huawei.com
+Fixes: f47761999052 ("hugetlb: add hugetlb.*.numa_stat file")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Acked-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Mina Almasry <almasrymina@google.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm2-cmd.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ mm/hugetlb_cgroup.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/char/tpm/tpm2-cmd.c b/drivers/char/tpm/tpm2-cmd.c
-index 04a3e23a4afc..4419593d9531 100644
---- a/drivers/char/tpm/tpm2-cmd.c
-+++ b/drivers/char/tpm/tpm2-cmd.c
-@@ -752,6 +752,12 @@ int tpm2_auto_startup(struct tpm_chip *chip)
- 	}
+diff --git a/mm/hugetlb_cgroup.c b/mm/hugetlb_cgroup.c
+index f9942841df18..c86691c431fd 100644
+--- a/mm/hugetlb_cgroup.c
++++ b/mm/hugetlb_cgroup.c
+@@ -772,6 +772,7 @@ static void __init __hugetlb_cgroup_file_dfl_init(int idx)
+ 	/* Add the numa stat file */
+ 	cft = &h->cgroup_files_dfl[6];
+ 	snprintf(cft->name, MAX_CFTYPE_NAME, "%s.numa_stat", buf);
++	cft->private = MEMFILE_PRIVATE(idx, 0);
+ 	cft->seq_show = hugetlb_cgroup_read_numa_stat;
+ 	cft->flags = CFTYPE_NOT_ON_ROOT;
  
- 	rc = tpm2_get_cc_attrs_tbl(chip);
-+	if (rc == TPM2_RC_FAILURE || (rc < 0 && rc != -ENOMEM)) {
-+		dev_info(&chip->dev,
-+			 "TPM in field failure mode, requires firmware upgrade\n");
-+		chip->flags |= TPM_CHIP_FLAG_FIRMWARE_UPGRADE;
-+		rc = 0;
-+	}
- 
- out:
- 	if (rc == TPM2_RC_UPGRADE) {
 -- 
 2.35.1
 
