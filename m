@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 267E2594011
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE0E593FE6
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240408AbiHOVMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:12:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47248 "EHLO
+        id S231891AbiHOVMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:12:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243598AbiHOVI7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:08:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEFC254C92;
-        Mon, 15 Aug 2022 12:18:50 -0700 (PDT)
+        with ESMTP id S243926AbiHOVJ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:09:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D3D254CB5;
+        Mon, 15 Aug 2022 12:18:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF2DCB8110A;
-        Mon, 15 Aug 2022 19:18:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5329C433C1;
-        Mon, 15 Aug 2022 19:18:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88FBD60A52;
+        Mon, 15 Aug 2022 19:18:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B6D9C433D6;
+        Mon, 15 Aug 2022 19:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591127;
-        bh=6WDEfNG2SlEg4VX9iIS7KvXAg5MLkFrCyOsMhlwg7a0=;
+        s=korg; t=1660591134;
+        bh=YtyBoUIxn3QX5ba5O8rN16+/jqTBV3/xRXxJO7Nnqhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D4Vr8mBe2rbHb4yX9P10ULlctGrT5zwLMEURt8rTpZEoSlkpxcKewS6hwX7+Tz6fo
-         l1rkv9kG/mJQXr8SaiY2hFvSntRMjb5YC9IH06pwkM8ovPVyLGBdYgYqCyYEt1phGq
-         tIdmYxFdpEYZlCAbaZc/at6PSnlghUf/2/5qmuZQ=
+        b=SAULSfqrSXkx8TWS2BnJLHfBftZ6iy2URkyrPr3VE3R3bh1H8iFoQC1nYZtCd4Ugj
+         ZwQLCpIJVkmIM8XvQCrTOgn6YPxqFowCpyHpRtl7bdfZQV4wUQh5+Foe+0qeWhkrzf
+         2M4Fy1SLMrSRL82gNhj+h8caP5IP0W5yHe/NIFNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
         Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0481/1095] bpf: Wire up freeing of referenced kptr
-Date:   Mon, 15 Aug 2022 19:58:00 +0200
-Message-Id: <20220815180449.476382408@linuxfoundation.org>
+Subject: [PATCH 5.18 0482/1095] bpf: fix potential 32-bit overflow when accessing ARRAY map element
+Date:   Mon, 15 Aug 2022 19:58:01 +0200
+Message-Id: <20220815180449.508630492@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,516 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 14a324f6a67ef6a53e04362a70160a47eb8afffa ]
+[ Upstream commit 87ac0d600943994444e24382a87aa19acc4cd3d4 ]
 
-A destructor kfunc can be defined as void func(type *), where type may
-be void or any other pointer type as per convenience.
+If BPF array map is bigger than 4GB, element pointer calculation can
+overflow because both index and elem_size are u32. Fix this everywhere
+by forcing 64-bit multiplication. Extract this formula into separate
+small helper and use it consistently in various places.
 
-In this patch, we ensure that the type is sane and capture the function
-pointer into off_desc of ptr_off_tab for the specific pointer offset,
-with the invariant that the dtor pointer is always set when 'kptr_ref'
-tag is applied to the pointer's pointee type, which is indicated by the
-flag BPF_MAP_VALUE_OFF_F_REF.
+Speculative-preventing formula utilizing index_mask trick is left as is,
+but explicit u64 casts are added in both places.
 
-Note that only BTF IDs whose destructor kfunc is registered, thus become
-the allowed BTF IDs for embedding as referenced kptr. Hence it serves
-the purpose of finding dtor kfunc BTF ID, as well acting as a check
-against the whitelist of allowed BTF IDs for this purpose.
-
-Finally, wire up the actual freeing of the referenced pointer if any at
-all available offsets, so that no references are leaked after the BPF
-map goes away and the BPF program previously moved the ownership a
-referenced pointer into it.
-
-The behavior is similar to BPF timers, where bpf_map_{update,delete}_elem
-will free any existing referenced kptr. The same case is with LRU map's
-bpf_lru_push_free/htab_lru_push_free functions, which are extended to
-reset unreferenced and free referenced kptr.
-
-Note that unlike BPF timers, kptr is not reset or freed when map uref
-drops to zero.
-
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Fixes: c85d69135a91 ("bpf: move memory size checks to bpf_map_charge_init()")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/r/20220715053146.1291891-2-andrii@kernel.org
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220424214901.2743946-8-memxor@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bpf.h   |  4 ++
- include/linux/btf.h   |  2 +
- kernel/bpf/arraymap.c | 18 ++++++--
- kernel/bpf/btf.c      | 98 ++++++++++++++++++++++++++++++++++++++++++-
- kernel/bpf/hashtab.c  | 64 +++++++++++++++++++++-------
- kernel/bpf/syscall.c  | 49 ++++++++++++++++++++--
- 6 files changed, 210 insertions(+), 25 deletions(-)
+ kernel/bpf/arraymap.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index a3fe7f53e567..f3c38574c265 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -23,6 +23,7 @@
- #include <linux/slab.h>
- #include <linux/percpu-refcount.h>
- #include <linux/bpfptr.h>
-+#include <linux/btf.h>
- 
- struct bpf_verifier_env;
- struct bpf_verifier_log;
-@@ -173,6 +174,8 @@ struct bpf_map_value_off_desc {
- 	enum bpf_kptr_type type;
- 	struct {
- 		struct btf *btf;
-+		struct module *module;
-+		btf_dtor_kfunc_t dtor;
- 		u32 btf_id;
- 	} kptr;
- };
-@@ -1450,6 +1453,7 @@ struct bpf_map_value_off_desc *bpf_map_kptr_off_contains(struct bpf_map *map, u3
- void bpf_map_free_kptr_off_tab(struct bpf_map *map);
- struct bpf_map_value_off *bpf_map_copy_kptr_off_tab(const struct bpf_map *map);
- bool bpf_map_equal_kptr_off_tab(const struct bpf_map *map_a, const struct bpf_map *map_b);
-+void bpf_map_free_kptrs(struct bpf_map *map, void *map_value);
- 
- struct bpf_map *bpf_map_get(u32 ufd);
- struct bpf_map *bpf_map_get_with_uref(u32 ufd);
-diff --git a/include/linux/btf.h b/include/linux/btf.h
-index fea424681d66..f70625dd5bb4 100644
---- a/include/linux/btf.h
-+++ b/include/linux/btf.h
-@@ -45,6 +45,8 @@ struct btf_id_dtor_kfunc {
- 	u32 kfunc_btf_id;
- };
- 
-+typedef void (*btf_dtor_kfunc_t)(void *);
-+
- extern const struct file_operations btf_fops;
- 
- void btf_get(struct btf *btf);
 diff --git a/kernel/bpf/arraymap.c b/kernel/bpf/arraymap.c
-index 7f145aefbff8..c3de63ce574e 100644
+index c3de63ce574e..d015fce67865 100644
 --- a/kernel/bpf/arraymap.c
 +++ b/kernel/bpf/arraymap.c
-@@ -287,10 +287,12 @@ static int array_map_get_next_key(struct bpf_map *map, void *key, void *next_key
- 	return 0;
+@@ -155,6 +155,11 @@ static struct bpf_map *array_map_alloc(union bpf_attr *attr)
+ 	return &array->map;
  }
  
--static void check_and_free_timer_in_array(struct bpf_array *arr, void *val)
-+static void check_and_free_fields(struct bpf_array *arr, void *val)
- {
--	if (unlikely(map_value_has_timer(&arr->map)))
-+	if (map_value_has_timer(&arr->map))
- 		bpf_timer_cancel_and_free(val + arr->map.timer_off);
-+	if (map_value_has_kptrs(&arr->map))
-+		bpf_map_free_kptrs(&arr->map, val);
- }
- 
++static void *array_map_elem_ptr(struct bpf_array* array, u32 index)
++{
++	return array->value + (u64)array->elem_size * index;
++}
++
  /* Called from syscall or from eBPF program */
-@@ -327,7 +329,7 @@ static int array_map_update_elem(struct bpf_map *map, void *key, void *value,
+ static void *array_map_lookup_elem(struct bpf_map *map, void *key)
+ {
+@@ -164,7 +169,7 @@ static void *array_map_lookup_elem(struct bpf_map *map, void *key)
+ 	if (unlikely(index >= array->map.max_entries))
+ 		return NULL;
+ 
+-	return array->value + array->elem_size * (index & array->index_mask);
++	return array->value + (u64)array->elem_size * (index & array->index_mask);
+ }
+ 
+ static int array_map_direct_value_addr(const struct bpf_map *map, u64 *imm,
+@@ -324,7 +329,7 @@ static int array_map_update_elem(struct bpf_map *map, void *key, void *value,
+ 		       value, map->value_size);
+ 	} else {
+ 		val = array->value +
+-			array->elem_size * (index & array->index_mask);
++			(u64)array->elem_size * (index & array->index_mask);
+ 		if (map_flags & BPF_F_LOCK)
  			copy_map_value_locked(map, val, value, false);
  		else
- 			copy_map_value(map, val, value);
--		check_and_free_timer_in_array(array, val);
-+		check_and_free_fields(array, val);
- 	}
- 	return 0;
- }
-@@ -386,7 +388,8 @@ static void array_map_free_timers(struct bpf_map *map)
- 	struct bpf_array *array = container_of(map, struct bpf_array, map);
- 	int i;
- 
--	if (likely(!map_value_has_timer(map)))
-+	/* We don't reset or free kptr on uref dropping to zero. */
-+	if (!map_value_has_timer(map))
+@@ -393,8 +398,7 @@ static void array_map_free_timers(struct bpf_map *map)
  		return;
  
  	for (i = 0; i < array->map.max_entries; i++)
-@@ -398,6 +401,13 @@ static void array_map_free_timers(struct bpf_map *map)
- static void array_map_free(struct bpf_map *map)
- {
- 	struct bpf_array *array = container_of(map, struct bpf_array, map);
-+	int i;
-+
-+	if (map_value_has_kptrs(map)) {
-+		for (i = 0; i < array->map.max_entries; i++)
-+			bpf_map_free_kptrs(map, array->value + array->elem_size * i);
-+		bpf_map_free_kptr_off_tab(map);
-+	}
- 
- 	if (array->map.map_type == BPF_MAP_TYPE_PERCPU_ARRAY)
- 		bpf_array_free_percpu(array);
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index 57e3d9443ff3..7a593ecfbeec 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -3416,6 +3416,7 @@ struct bpf_map_value_off *btf_parse_kptrs(const struct btf *btf,
- 	struct btf_field_info info_arr[BPF_MAP_VALUE_OFF_MAX];
- 	struct bpf_map_value_off *tab;
- 	struct btf *kernel_btf = NULL;
-+	struct module *mod = NULL;
- 	int ret, i, nr_off;
- 
- 	ret = btf_find_field(btf, t, BTF_FIELD_KPTR, info_arr, ARRAY_SIZE(info_arr));
-@@ -3444,16 +3445,69 @@ struct bpf_map_value_off *btf_parse_kptrs(const struct btf *btf,
- 			goto end;
- 		}
- 
-+		/* Find and stash the function pointer for the destruction function that
-+		 * needs to be eventually invoked from the map free path.
-+		 */
-+		if (info_arr[i].type == BPF_KPTR_REF) {
-+			const struct btf_type *dtor_func;
-+			const char *dtor_func_name;
-+			unsigned long addr;
-+			s32 dtor_btf_id;
-+
-+			/* This call also serves as a whitelist of allowed objects that
-+			 * can be used as a referenced pointer and be stored in a map at
-+			 * the same time.
-+			 */
-+			dtor_btf_id = btf_find_dtor_kfunc(kernel_btf, id);
-+			if (dtor_btf_id < 0) {
-+				ret = dtor_btf_id;
-+				goto end_btf;
-+			}
-+
-+			dtor_func = btf_type_by_id(kernel_btf, dtor_btf_id);
-+			if (!dtor_func) {
-+				ret = -ENOENT;
-+				goto end_btf;
-+			}
-+
-+			if (btf_is_module(kernel_btf)) {
-+				mod = btf_try_get_module(kernel_btf);
-+				if (!mod) {
-+					ret = -ENXIO;
-+					goto end_btf;
-+				}
-+			}
-+
-+			/* We already verified dtor_func to be btf_type_is_func
-+			 * in register_btf_id_dtor_kfuncs.
-+			 */
-+			dtor_func_name = __btf_name_by_offset(kernel_btf, dtor_func->name_off);
-+			addr = kallsyms_lookup_name(dtor_func_name);
-+			if (!addr) {
-+				ret = -EINVAL;
-+				goto end_mod;
-+			}
-+			tab->off[i].kptr.dtor = (void *)addr;
-+		}
-+
- 		tab->off[i].offset = info_arr[i].off;
- 		tab->off[i].type = info_arr[i].type;
- 		tab->off[i].kptr.btf_id = id;
- 		tab->off[i].kptr.btf = kernel_btf;
-+		tab->off[i].kptr.module = mod;
- 	}
- 	tab->nr_off = nr_off;
- 	return tab;
-+end_mod:
-+	module_put(mod);
-+end_btf:
-+	btf_put(kernel_btf);
- end:
--	while (i--)
-+	while (i--) {
- 		btf_put(tab->off[i].kptr.btf);
-+		if (tab->off[i].kptr.module)
-+			module_put(tab->off[i].kptr.module);
-+	}
- 	kfree(tab);
- 	return ERR_PTR(ret);
- }
-@@ -7057,6 +7111,43 @@ s32 btf_find_dtor_kfunc(struct btf *btf, u32 btf_id)
- 	return dtor->kfunc_btf_id;
+-		bpf_timer_cancel_and_free(array->value + array->elem_size * i +
+-					  map->timer_off);
++		bpf_timer_cancel_and_free(array_map_elem_ptr(array, i) + map->timer_off);
  }
  
-+static int btf_check_dtor_kfuncs(struct btf *btf, const struct btf_id_dtor_kfunc *dtors, u32 cnt)
-+{
-+	const struct btf_type *dtor_func, *dtor_func_proto, *t;
-+	const struct btf_param *args;
-+	s32 dtor_btf_id;
-+	u32 nr_args, i;
-+
-+	for (i = 0; i < cnt; i++) {
-+		dtor_btf_id = dtors[i].kfunc_btf_id;
-+
-+		dtor_func = btf_type_by_id(btf, dtor_btf_id);
-+		if (!dtor_func || !btf_type_is_func(dtor_func))
-+			return -EINVAL;
-+
-+		dtor_func_proto = btf_type_by_id(btf, dtor_func->type);
-+		if (!dtor_func_proto || !btf_type_is_func_proto(dtor_func_proto))
-+			return -EINVAL;
-+
-+		/* Make sure the prototype of the destructor kfunc is 'void func(type *)' */
-+		t = btf_type_by_id(btf, dtor_func_proto->type);
-+		if (!t || !btf_type_is_void(t))
-+			return -EINVAL;
-+
-+		nr_args = btf_type_vlen(dtor_func_proto);
-+		if (nr_args != 1)
-+			return -EINVAL;
-+		args = btf_params(dtor_func_proto);
-+		t = btf_type_by_id(btf, args[0].type);
-+		/* Allow any pointer type, as width on targets Linux supports
-+		 * will be same for all pointer types (i.e. sizeof(void *))
-+		 */
-+		if (!t || !btf_type_is_ptr(t))
-+			return -EINVAL;
-+	}
-+	return 0;
-+}
-+
- /* This function must be invoked only from initcalls/module init functions */
- int register_btf_id_dtor_kfuncs(const struct btf_id_dtor_kfunc *dtors, u32 add_cnt,
- 				struct module *owner)
-@@ -7087,6 +7178,11 @@ int register_btf_id_dtor_kfuncs(const struct btf_id_dtor_kfunc *dtors, u32 add_c
- 		goto end;
+ /* Called when map->refcnt goes to zero, either from workqueue or from syscall */
+@@ -405,7 +409,7 @@ static void array_map_free(struct bpf_map *map)
+ 
+ 	if (map_value_has_kptrs(map)) {
+ 		for (i = 0; i < array->map.max_entries; i++)
+-			bpf_map_free_kptrs(map, array->value + array->elem_size * i);
++			bpf_map_free_kptrs(map, array_map_elem_ptr(array, i));
+ 		bpf_map_free_kptr_off_tab(map);
  	}
  
-+	/* Ensure that the prototype of dtor kfuncs being registered is sane */
-+	ret = btf_check_dtor_kfuncs(btf, dtors, add_cnt);
-+	if (ret < 0)
-+		goto end;
-+
- 	tab = btf->dtor_kfunc_tab;
- 	/* Only one call allowed for modules */
- 	if (WARN_ON_ONCE(tab && btf_is_module(btf))) {
-diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
-index 65877967f414..ea99c91f72b6 100644
---- a/kernel/bpf/hashtab.c
-+++ b/kernel/bpf/hashtab.c
-@@ -238,7 +238,7 @@ static void htab_free_prealloced_timers(struct bpf_htab *htab)
- 	u32 num_entries = htab->map.max_entries;
- 	int i;
- 
--	if (likely(!map_value_has_timer(&htab->map)))
-+	if (!map_value_has_timer(&htab->map))
- 		return;
- 	if (htab_has_extra_elems(htab))
- 		num_entries += num_possible_cpus();
-@@ -254,6 +254,25 @@ static void htab_free_prealloced_timers(struct bpf_htab *htab)
- 	}
+@@ -541,7 +545,7 @@ static void *bpf_array_map_seq_start(struct seq_file *seq, loff_t *pos)
+ 	index = info->index & array->index_mask;
+ 	if (info->percpu_value_buf)
+ 	       return array->pptrs[index];
+-	return array->value + array->elem_size * index;
++	return array_map_elem_ptr(array, index);
  }
  
-+static void htab_free_prealloced_kptrs(struct bpf_htab *htab)
-+{
-+	u32 num_entries = htab->map.max_entries;
-+	int i;
-+
-+	if (!map_value_has_kptrs(&htab->map))
-+		return;
-+	if (htab_has_extra_elems(htab))
-+		num_entries += num_possible_cpus();
-+
-+	for (i = 0; i < num_entries; i++) {
-+		struct htab_elem *elem;
-+
-+		elem = get_htab_elem(htab, i);
-+		bpf_map_free_kptrs(&htab->map, elem->key + round_up(htab->map.key_size, 8));
-+		cond_resched();
-+	}
-+}
-+
- static void htab_free_elems(struct bpf_htab *htab)
- {
- 	int i;
-@@ -725,12 +744,15 @@ static int htab_lru_map_gen_lookup(struct bpf_map *map,
- 	return insn - insn_buf;
+ static void *bpf_array_map_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -560,7 +564,7 @@ static void *bpf_array_map_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ 	index = info->index & array->index_mask;
+ 	if (info->percpu_value_buf)
+ 	       return array->pptrs[index];
+-	return array->value + array->elem_size * index;
++	return array_map_elem_ptr(array, index);
  }
  
--static void check_and_free_timer(struct bpf_htab *htab, struct htab_elem *elem)
-+static void check_and_free_fields(struct bpf_htab *htab,
-+				  struct htab_elem *elem)
- {
--	if (unlikely(map_value_has_timer(&htab->map)))
--		bpf_timer_cancel_and_free(elem->key +
--					  round_up(htab->map.key_size, 8) +
--					  htab->map.timer_off);
-+	void *map_value = elem->key + round_up(htab->map.key_size, 8);
-+
-+	if (map_value_has_timer(&htab->map))
-+		bpf_timer_cancel_and_free(map_value + htab->map.timer_off);
-+	if (map_value_has_kptrs(&htab->map))
-+		bpf_map_free_kptrs(&htab->map, map_value);
- }
- 
- /* It is called from the bpf_lru_list when the LRU needs to delete
-@@ -757,7 +779,7 @@ static bool htab_lru_map_delete_node(void *arg, struct bpf_lru_node *node)
- 	hlist_nulls_for_each_entry_rcu(l, n, head, hash_node)
- 		if (l == tgt_l) {
- 			hlist_nulls_del_rcu(&l->hash_node);
--			check_and_free_timer(htab, l);
-+			check_and_free_fields(htab, l);
- 			break;
- 		}
- 
-@@ -829,7 +851,7 @@ static void htab_elem_free(struct bpf_htab *htab, struct htab_elem *l)
- {
- 	if (htab->map.map_type == BPF_MAP_TYPE_PERCPU_HASH)
- 		free_percpu(htab_elem_get_ptr(l, htab->map.key_size));
--	check_and_free_timer(htab, l);
-+	check_and_free_fields(htab, l);
- 	kfree(l);
- }
- 
-@@ -857,7 +879,7 @@ static void free_htab_elem(struct bpf_htab *htab, struct htab_elem *l)
- 	htab_put_fd_value(htab, l);
- 
- 	if (htab_is_prealloc(htab)) {
--		check_and_free_timer(htab, l);
-+		check_and_free_fields(htab, l);
- 		__pcpu_freelist_push(&htab->freelist, &l->fnode);
- 	} else {
- 		atomic_dec(&htab->count);
-@@ -1104,7 +1126,7 @@ static int htab_map_update_elem(struct bpf_map *map, void *key, void *value,
- 		if (!htab_is_prealloc(htab))
- 			free_htab_elem(htab, l_old);
+ static int __bpf_array_map_seq_show(struct seq_file *seq, void *v)
+@@ -675,7 +679,7 @@ static int bpf_for_each_array_elem(struct bpf_map *map, bpf_callback_t callback_
+ 		if (is_percpu)
+ 			val = this_cpu_ptr(array->pptrs[i]);
  		else
--			check_and_free_timer(htab, l_old);
-+			check_and_free_fields(htab, l_old);
- 	}
- 	ret = 0;
- err:
-@@ -1114,7 +1136,7 @@ static int htab_map_update_elem(struct bpf_map *map, void *key, void *value,
- 
- static void htab_lru_push_free(struct bpf_htab *htab, struct htab_elem *elem)
- {
--	check_and_free_timer(htab, elem);
-+	check_and_free_fields(htab, elem);
- 	bpf_lru_push_free(&htab->lru, &elem->lru_node);
- }
- 
-@@ -1419,8 +1441,14 @@ static void htab_free_malloced_timers(struct bpf_htab *htab)
- 		struct hlist_nulls_node *n;
- 		struct htab_elem *l;
- 
--		hlist_nulls_for_each_entry(l, n, head, hash_node)
--			check_and_free_timer(htab, l);
-+		hlist_nulls_for_each_entry(l, n, head, hash_node) {
-+			/* We don't reset or free kptr on uref dropping to zero,
-+			 * hence just free timer.
-+			 */
-+			bpf_timer_cancel_and_free(l->key +
-+						  round_up(htab->map.key_size, 8) +
-+						  htab->map.timer_off);
-+		}
- 		cond_resched_rcu();
- 	}
- 	rcu_read_unlock();
-@@ -1430,7 +1458,8 @@ static void htab_map_free_timers(struct bpf_map *map)
- {
- 	struct bpf_htab *htab = container_of(map, struct bpf_htab, map);
- 
--	if (likely(!map_value_has_timer(&htab->map)))
-+	/* We don't reset or free kptr on uref dropping to zero. */
-+	if (!map_value_has_timer(&htab->map))
- 		return;
- 	if (!htab_is_prealloc(htab))
- 		htab_free_malloced_timers(htab);
-@@ -1453,11 +1482,14 @@ static void htab_map_free(struct bpf_map *map)
- 	 * not have executed. Wait for them.
- 	 */
- 	rcu_barrier();
--	if (!htab_is_prealloc(htab))
-+	if (!htab_is_prealloc(htab)) {
- 		delete_all_elements(htab);
--	else
-+	} else {
-+		htab_free_prealloced_kptrs(htab);
- 		prealloc_destroy(htab);
-+	}
- 
-+	bpf_map_free_kptr_off_tab(map);
- 	free_percpu(htab->extra_elems);
- 	bpf_map_area_free(htab->buckets);
- 	for (i = 0; i < HASHTAB_MAP_LOCK_COUNT; i++)
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 811bc71b0906..f4d1f974a8cd 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -507,8 +507,11 @@ void bpf_map_free_kptr_off_tab(struct bpf_map *map)
- 
- 	if (!map_value_has_kptrs(map))
- 		return;
--	for (i = 0; i < tab->nr_off; i++)
-+	for (i = 0; i < tab->nr_off; i++) {
-+		if (tab->off[i].kptr.module)
-+			module_put(tab->off[i].kptr.module);
- 		btf_put(tab->off[i].kptr.btf);
-+	}
- 	kfree(tab);
- 	map->kptr_off_tab = NULL;
- }
-@@ -525,8 +528,18 @@ struct bpf_map_value_off *bpf_map_copy_kptr_off_tab(const struct bpf_map *map)
- 	if (!new_tab)
- 		return ERR_PTR(-ENOMEM);
- 	/* Do a deep copy of the kptr_off_tab */
--	for (i = 0; i < tab->nr_off; i++)
-+	for (i = 0; i < tab->nr_off; i++) {
- 		btf_get(tab->off[i].kptr.btf);
-+		if (tab->off[i].kptr.module && !try_module_get(tab->off[i].kptr.module)) {
-+			while (i--) {
-+				if (tab->off[i].kptr.module)
-+					module_put(tab->off[i].kptr.module);
-+				btf_put(tab->off[i].kptr.btf);
-+			}
-+			kfree(new_tab);
-+			return ERR_PTR(-ENXIO);
-+		}
-+	}
- 	return new_tab;
- }
- 
-@@ -546,6 +559,33 @@ bool bpf_map_equal_kptr_off_tab(const struct bpf_map *map_a, const struct bpf_ma
- 	return !memcmp(tab_a, tab_b, size);
- }
- 
-+/* Caller must ensure map_value_has_kptrs is true. Note that this function can
-+ * be called on a map value while the map_value is visible to BPF programs, as
-+ * it ensures the correct synchronization, and we already enforce the same using
-+ * the bpf_kptr_xchg helper on the BPF program side for referenced kptrs.
-+ */
-+void bpf_map_free_kptrs(struct bpf_map *map, void *map_value)
-+{
-+	struct bpf_map_value_off *tab = map->kptr_off_tab;
-+	unsigned long *btf_id_ptr;
-+	int i;
-+
-+	for (i = 0; i < tab->nr_off; i++) {
-+		struct bpf_map_value_off_desc *off_desc = &tab->off[i];
-+		unsigned long old_ptr;
-+
-+		btf_id_ptr = map_value + off_desc->offset;
-+		if (off_desc->type == BPF_KPTR_UNREF) {
-+			u64 *p = (u64 *)btf_id_ptr;
-+
-+			WRITE_ONCE(p, 0);
-+			continue;
-+		}
-+		old_ptr = xchg(btf_id_ptr, 0);
-+		off_desc->kptr.dtor((void *)old_ptr);
-+	}
-+}
-+
- /* called from workqueue */
- static void bpf_map_free_deferred(struct work_struct *work)
- {
-@@ -553,9 +593,10 @@ static void bpf_map_free_deferred(struct work_struct *work)
- 
- 	security_bpf_map_free(map);
- 	kfree(map->off_arr);
--	bpf_map_free_kptr_off_tab(map);
- 	bpf_map_release_memcg(map);
--	/* implementation dependent freeing */
-+	/* implementation dependent freeing, map_free callback also does
-+	 * bpf_map_free_kptr_off_tab, if needed.
-+	 */
- 	map->ops->map_free(map);
- }
- 
+-			val = array->value + array->elem_size * i;
++			val = array_map_elem_ptr(array, i);
+ 		num_elems++;
+ 		key = i;
+ 		ret = callback_fn((u64)(long)map, (u64)(long)&key,
 -- 
 2.35.1
 
