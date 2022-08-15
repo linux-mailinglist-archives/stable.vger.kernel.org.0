@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5178E594E0D
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:35:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDBFF5949A5
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:15:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244677AbiHPBAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 21:00:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55540 "EHLO
+        id S1346146AbiHOXhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:37:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347906AbiHPA51 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:57:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 634CCDB04D;
-        Mon, 15 Aug 2022 13:49:01 -0700 (PDT)
+        with ESMTP id S1353929AbiHOXg5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:36:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C72A152411;
+        Mon, 15 Aug 2022 13:09:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EEAD1B811AC;
-        Mon, 15 Aug 2022 20:48:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45FC2C433D7;
-        Mon, 15 Aug 2022 20:48:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E67E260DE3;
+        Mon, 15 Aug 2022 20:09:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB6EBC433D7;
+        Mon, 15 Aug 2022 20:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596537;
-        bh=eGA4siiuVAGWxG6012+puccnSKBJVXQuhYiRAMVoPn8=;
+        s=korg; t=1660594173;
+        bh=kxzoYOEPOH9+Y+3lO+DaaJftUEo51nXgjw+Ns0g0fJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sk6ab+rfnNAedLqDFGby6Sdp2D9gOKmG8GjLO13vkvUQ5hTq8du32ja1IP+r21jBU
-         GwyVtU8AAsmGkGLxFy8FCLuMqs2TxCaxAX13ntPou01UQ/PObJQVnnExcAcl4k7VEI
-         i20vHfmP8UH1WkoqhrWLk6lt8Twd9VRkDccZ3Q68=
+        b=PBaGZb9ljwf2AccU0achhb3OJLG65Ratxl1Qt4XGE/5N6r8aTM6Yq4BXBW8QpWXVM
+         i96k1fOTu/2Zj00wiPgPpFvNSvFj6QtlTfKOFrIfMinl4L97xIaJ3ARxUzQKnlIA4k
+         HKiPliBgkuGWZKEgrKgWWNtLoGWWWUzcTLF5I1K4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1110/1157] dm raid: fix address sanitizer warning in raid_resume
+Subject: [PATCH 5.18 1067/1095] KEYS: asymmetric: enforce SM2 signature use pkey algo
 Date:   Mon, 15 Aug 2022 20:07:46 +0200
-Message-Id: <20220815180524.708973481@linuxfoundation.org>
+Message-Id: <20220815180513.186363638@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-[ Upstream commit 7dad24db59d2d2803576f2e3645728866a056dab ]
+[ Upstream commit 0815291a8fd66cdcf7db1445d4d99b0d16065829 ]
 
-There is a KASAN warning in raid_resume when running the lvm test
-lvconvert-raid.sh. The reason for the warning is that mddev->raid_disks
-is greater than rs->raid_disks, so the loop touches one entry beyond
-the allocated length.
+The signature verification of SM2 needs to add the Za value and
+recalculate sig->digest, which requires the detection of the pkey_algo
+in public_key_verify_signature(). As Eric Biggers said, the pkey_algo
+field in sig is attacker-controlled and should be use pkey->pkey_algo
+instead of sig->pkey_algo, and secondly, if sig->pkey_algo is NULL, it
+will also cause signature verification failure.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+The software_key_determine_akcipher() already forces the algorithms
+are matched, so the SM3 algorithm is enforced in the SM2 signature,
+although this has been checked, we still avoid using any algorithm
+information in the signature as input.
+
+Fixes: 215525639631 ("X.509: support OSCCA SM2-with-SM3 certificate verification")
+Reported-by: Eric Biggers <ebiggers@google.com>
+Cc: stable@vger.kernel.org # v5.10+
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-raid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/asymmetric_keys/public_key.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/dm-raid.c b/drivers/md/dm-raid.c
-index 4e7f870b2277..a55fc28d2a29 100644
---- a/drivers/md/dm-raid.c
-+++ b/drivers/md/dm-raid.c
-@@ -3819,7 +3819,7 @@ static void attempt_restore_of_faulty_devices(struct raid_set *rs)
+diff --git a/crypto/asymmetric_keys/public_key.c b/crypto/asymmetric_keys/public_key.c
+index 7c9e6be35c30..2f8352e88860 100644
+--- a/crypto/asymmetric_keys/public_key.c
++++ b/crypto/asymmetric_keys/public_key.c
+@@ -304,6 +304,10 @@ static int cert_sig_digest_update(const struct public_key_signature *sig,
  
- 	memset(cleared_failed_devices, 0, sizeof(cleared_failed_devices));
+ 	BUG_ON(!sig->data);
  
--	for (i = 0; i < mddev->raid_disks; i++) {
-+	for (i = 0; i < rs->raid_disks; i++) {
- 		r = &rs->dev[i].rdev;
- 		/* HM FIXME: enhance journal device recovery processing */
- 		if (test_bit(Journal, &r->flags))
++	/* SM2 signatures always use the SM3 hash algorithm */
++	if (!sig->hash_algo || strcmp(sig->hash_algo, "sm3") != 0)
++		return -EINVAL;
++
+ 	ret = sm2_compute_z_digest(tfm_pkey, SM2_DEFAULT_USERID,
+ 					SM2_DEFAULT_USERID_LEN, dgst);
+ 	if (ret)
+@@ -414,8 +418,7 @@ int public_key_verify_signature(const struct public_key *pkey,
+ 	if (ret)
+ 		goto error_free_key;
+ 
+-	if (sig->pkey_algo && strcmp(sig->pkey_algo, "sm2") == 0 &&
+-	    sig->data_size) {
++	if (strcmp(pkey->pkey_algo, "sm2") == 0 && sig->data_size) {
+ 		ret = cert_sig_digest_update(sig, tfm);
+ 		if (ret)
+ 			goto error_free_key;
 -- 
 2.35.1
 
