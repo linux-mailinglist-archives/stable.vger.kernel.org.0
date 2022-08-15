@@ -2,68 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DFD8593267
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 17:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F123A593272
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 17:50:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231289AbiHOPrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 11:47:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33942 "EHLO
+        id S229736AbiHOPt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 11:49:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230487AbiHOPqo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 11:46:44 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C61D418372
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 08:46:40 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id gp7so7248310pjb.4
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 08:46:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=digitalocean.com; s=google;
-        h=to:references:message-id:content-transfer-encoding:cc:date
-         :in-reply-to:from:subject:mime-version:from:to:cc;
-        bh=XRj0PDiSMZynH1zCQWiVZaBOl7oXuBXsH66ocbP/Vuw=;
-        b=F7TtGfnrlBum+rJkazEj/TAtZgpkyGjwRPhWlRkECnHGBtcEyMnRNBakk4wt7b6Y1x
-         9JmAafWwiJdYej0NFGzPrrOenVsusTQ9d6UGFAke+rPVaWmCGhdGB5myQ/DVfjaY4+RO
-         fcbowmlOD7w16kcMSui93Rlofhg4/xXy90m98=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:references:message-id:content-transfer-encoding:cc:date
-         :in-reply-to:from:subject:mime-version:x-gm-message-state:from:to:cc;
-        bh=XRj0PDiSMZynH1zCQWiVZaBOl7oXuBXsH66ocbP/Vuw=;
-        b=XrO9AwE6k16PIwzEIaVbTR2o3/o+mom0z4JVu+K4y17BDW0Pl/EeG/octHfBMHY2qO
-         Bplxm2J8O9CppuyFtC13Nj149Ans9H2AxLIgBIF9AWJ3qDKhc7Nj7WrDAiR5Q5bZnEjr
-         59PJUEUJtupBMGUA4v7uKmZk/WvCS38K0RR/BSbNoGMoCPpxR+gl510BYZnbKy8GcLRE
-         oygMZAwWStH9wIMmM275k9/U5iB9gbms0ewT0+JrBpFbEvrU0GQHnF9yWlZ77OzuYzGf
-         Yb8eJe3hlXSt6ZlJ3CIYZTTz/7NsuVB9XScm12zI5aKFmE8k9R08BnZbDnIDDs7aFkOG
-         3Wcg==
-X-Gm-Message-State: ACgBeo1qq4dtOu2JKwLuQ2E+swMwrH7FxxIomhC2++NO+o7+9cbBvgk9
-        MWIesildEh+/Y763Tx0Lnmy2EVWXozgvww==
-X-Google-Smtp-Source: AA6agR59rgz10UcqrkCCYcZ8/YekSq2pViqBSKyziEk0QofgJ02b0L9XOKKOmH6Ssxo53FgF2y2VXA==
-X-Received: by 2002:a17:902:b18e:b0:172:5c92:d8da with SMTP id s14-20020a170902b18e00b001725c92d8damr11000857plr.26.1660578400164;
-        Mon, 15 Aug 2022 08:46:40 -0700 (PDT)
-Received: from smtpclient.apple (ip72-201-141-123.ph.ph.cox.net. [72.201.141.123])
-        by smtp.gmail.com with ESMTPSA id s11-20020a170902ea0b00b0016be96e07d1sm7141083plg.121.2022.08.15.08.46.36
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 15 Aug 2022 08:46:39 -0700 (PDT)
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 14.0 \(3654.120.0.1.13\))
-Subject: Re: [REGRESSION] v5.17-rc1+: FIFREEZE ioctl system call hangs
-From:   Vishal Verma <vverma@digitalocean.com>
-In-Reply-To: <2a2d1075-aa22-8c4d-ca21-274200dce2fc@leemhuis.info>
-Date:   Mon, 15 Aug 2022 08:46:32 -0700
-Cc:     Song Liu <song@kernel.org>, stable@vger.kernel.org,
-        regressions@lists.linux.dev, Thomas Deutschmann <whissi@whissi.de>,
-        Jens Axboe <axboe@kernel.dk>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <0FBCAB10-545E-45E2-A0C8-D7620817651D@digitalocean.com>
-References: <000401d8a746$3eaca200$bc05e600$@whissi.de>
- <000001d8ad7e$c340ad70$49c20850$@whissi.de>
- <2a2d1075-aa22-8c4d-ca21-274200dce2fc@leemhuis.info>
-To:     Thorsten Leemhuis <regressions@leemhuis.info>
-X-Mailer: Apple Mail (2.3654.120.0.1.13)
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        with ESMTP id S230352AbiHOPtz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 11:49:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA34312AD7
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 08:49:53 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E528B80F92
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 15:49:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7684C433C1;
+        Mon, 15 Aug 2022 15:49:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1660578591;
+        bh=zNesuTmJrVDqdhiLxqFo7jdS36Vtzcf1R0kX9PLcsJg=;
+        h=Subject:To:Cc:From:Date:From;
+        b=XJ2rqD25tKUYc3dmih9S1BBETITMREZsHBwT9F2rylzwojqq7FmiBa6VTifd0iMve
+         ETdctDrocjdsjah2CLSXEFtoaHy4WfU9h9iettu3GXjD92O1dh3WEB3xdTy/OB63Fb
+         lP2MPx9nHM9V+M2RlZT/6TcQ6f6cg30GJQfAG/wU=
+Subject: FAILED: patch "[PATCH] pwm: ab8500: Fix register offset calculation to not depend on" failed to apply to 5.10-stable tree
+To:     u.kleine-koenig@pengutronix.de, linus.walleij@linaro.org,
+        thierry.reding@gmail.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 15 Aug 2022 17:49:48 +0200
+Message-ID: <1660578588167111@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,155 +48,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Just saw this. I=E2=80=99m trying to understand whether this happens =
-only on md array or individual nvme drives (without any raid) too?
-The commit you pointed added REQ_NOWAIT for md based arrays, but if it =
-is happening on individual nvme drives then that could point to =
-something with REQ_NOWAIT I think.
 
-> On Aug 15, 2022, at 3:58 AM, Thorsten Leemhuis =
-<regressions@leemhuis.info> wrote:
->=20
-> Hi, this is your Linux kernel regression tracker. Top-posting for =
-once,
-> to make this easily accessible to everyone.
->=20
-> [CCing Jens, as the top-level maintainer who in this case also =
-reviewed
-> the patch that causes this regression.]
->=20
-> Vishal, Song, what up here? Could you please look into this and at =
-least
-> comment on the issue, as it's a regression that was reported more than
-> 10 days ago already. Ideally at this point it would be good if the
-> regression was fixed already, as explained by "Prioritize work on =
-fixing
-> regressions" here:
-> =
-https://docs.kernel.org/process/handling-regressions.html#prioritize-work-=
-on-fixing-regressions
->=20
-> Ciao, Thorsten
->=20
-> On 11.08.22 14:34, Thomas Deutschmann wrote:
->=20
->>=20
->> Hi,
->>=20
->> any news on this? Is there anything else you need from me or I can =
-help
->> with?
->>=20
->> Thanks.
->>=20
->>=20
->> -- Regards, Thomas -----Original Message----- From: Thomas =
-Deutschmann
->> <whissi@whissi.de> Sent: Wednesday, August 3, 2022 4:35 PM To:
->> vverma@digitalocean.com; song@kernel.org Cc: stable@vger.kernel.org;
->> regressions@lists.linux.dev Subject: [REGRESSION] v5.17-rc1+: =
-FIFREEZE
->> ioctl system call hangs Hi, while trying to backup a Dell R7525 =
-system
->> running Debian bookworm/testing using LVM snapshots I noticed that =
-the
->> system will 'freeze' sometimes (not all the times) when creating the
->> snapshot. First I thought this was related to LVM so I created
->> https://listman.redhat.com/archives/linux-lvm/2022-July/026228.html
->> (continued at
->> =
-https://listman.redhat.com/archives/linux-lvm/2022-August/thread.html#2622=
-9) Long story short: I was even able to reproduce with fsfreeze, see =
-last strace lines
->>> [...]
->>> 14471 1659449870.984635 openat(AT_FDCWD, "/var/lib/machines", =
-O_RDONLY) =3D3
->>> 14471 1659449870.984658 newfstatat(3, "",
->> {st_mode=3DS_IFDIR|0700,st_size=3D4096, ...}, AT_EMPTY_PATH) =3D 0
->>> 14471 1659449870.984678 ioctl(3, FIFREEZE
->> so I started to bisect kernel and found the following bad commit:
->>=20
->>> md: add support for REQ_NOWAIT
->>>=20
->>> commit 021a24460dc2 ("block: add QUEUE_FLAG_NOWAIT") added support
->>> for checking whether a given bdev supports handling of REQ_NOWAIT or =
-not.
->>> Since then commit 6abc49468eea ("dm: add support for REQ_NOWAIT and =
-enable
->>> it for linear target") added support for REQ_NOWAIT for dm. This =
-uses
->>> a similar approach to incorporate REQ_NOWAIT for md based bios.
->>>=20
->>> This patch was tested using t/io_uring tool within FIO. A nvme drive
->>> was partitioned into 2 partitions and a simple raid 0 configuration
->>> /dev/md0 was created.
->>>=20
->>> md0 : active raid0 nvme4n1p1[1] nvme4n1p2[0]
->>>      937423872 blocks super 1.2 512k chunks
->>>=20
->>> Before patch:
->>>=20
->>> $ ./t/io_uring /dev/md0 -p 0 -a 0 -d 1 -r 100
->>>=20
->>> Running top while the above runs:
->>>=20
->>> $ ps -eL | grep $(pidof io_uring)
->>>=20
->>>  38396   38396 pts/2    00:00:00 io_uring
->>>  38396   38397 pts/2    00:00:15 io_uring
->>>  38396   38398 pts/2    00:00:13 iou-wrk-38397
->>>=20
->>> We can see iou-wrk-38397 io worker thread created which gets created
->>> when io_uring sees that the underlying device (/dev/md0 in this =
-case)
->>> doesn't support nowait.
->>>=20
->>> After patch:
->>>=20
->>> $ ./t/io_uring /dev/md0 -p 0 -a 0 -d 1 -r 100
->>>=20
->>> Running top while the above runs:
->>>=20
->>> $ ps -eL | grep $(pidof io_uring)
->>>=20
->>>  38341   38341 pts/2    00:10:22 io_uring
->>>  38341   38342 pts/2    00:10:37 io_uring
->>>=20
->>> After running this patch, we don't see any io worker thread
->>> being created which indicated that io_uring saw that the
->>> underlying device does support nowait. This is the exact behaviour
->>> noticed on a dm device which also supports nowait.
->>>=20
->>> For all the other raid personalities except raid0, we would need
->>> to train pieces which involves make_request fn in order for them
->>> to correctly handle REQ_NOWAIT.
->> =
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/=
-?i
->> d=3Df51d46d0e7cb5b8494aa534d276a9d8915a2443d
->>=20
->> After reverting this commit (and follow up commit
->> 0f9650bd838efe5c52f7e5f40c3204ad59f1964d)
->> v5.18.15 and v5.19 worked for me again.
->>=20
->> At this point I still wonder why I experienced the same problem even =
-after I
->> removed one nvme device from the mdraid array and tested it =
-separately. So
->> maybe there is another nowait/REQ_NOWAIT problem somewhere. During =
-bisect
->> I only tested against the mdraid array.
->>=20
->>=20
->> #regzbot introduced: f51d46d0e7cb5b8494aa534d276a9d8915a2443d
->> #regzbot link:
->> https://listman.redhat.com/archives/linux-lvm/2022-July/026228.html
->> #regzbot link:
->> =
-https://listman.redhat.com/archives/linux-lvm/2022-August/thread.html#2622=
-9
->>=20
->>=20
->> -- Regards, Thomas
->>=20
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From eb41f334589d66b9da6f2b1acf7963ef8ca8d94e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Date: Mon, 5 Jul 2021 18:55:10 +0200
+Subject: [PATCH] pwm: ab8500: Fix register offset calculation to not depend on
+ probe order
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The assumption that lead to commit 5e5da1e9fbee ("pwm: ab8500:
+Explicitly allocate pwm chip base dynamically") was wrong: The
+pwm-ab8500 devices are not directly instantiated from device tree, but
+from the ab8500 mfd driver. So the pdev->id isn't -1, but a number
+between 1 and 3. Now that pwmchip ids are always allocated dynamically,
+this cannot easily be reverted.
+
+Introduce a new member in the driver data struct that tracks the
+hardware id and use this to calculate the register offset.
+
+Side-note: Using chip->base to calculate the offset was never robust
+because if there was already a PWM with id 1 at the time ab8500-pwm.1
+was probed, the associated pwmchip would get assigned chip->base = 2 (or
+something bigger).
+
+Fixes: 5e5da1e9fbee ("pwm: ab8500: Explicitly allocate pwm chip base dynamically")
+Fixes: 6173f8f4ed9c ("pwm: Move AB8500 PWM driver to PWM framework")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+
+diff --git a/drivers/pwm/pwm-ab8500.c b/drivers/pwm/pwm-ab8500.c
+index e2a26d9da25b..281f74a1c50b 100644
+--- a/drivers/pwm/pwm-ab8500.c
++++ b/drivers/pwm/pwm-ab8500.c
+@@ -22,14 +22,21 @@
+ 
+ struct ab8500_pwm_chip {
+ 	struct pwm_chip chip;
++	unsigned int hwid;
+ };
+ 
++static struct ab8500_pwm_chip *ab8500_pwm_from_chip(struct pwm_chip *chip)
++{
++	return container_of(chip, struct ab8500_pwm_chip, chip);
++}
++
+ static int ab8500_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 			    const struct pwm_state *state)
+ {
+ 	int ret;
+ 	u8 reg;
+ 	unsigned int higher_val, lower_val;
++	struct ab8500_pwm_chip *ab8500 = ab8500_pwm_from_chip(chip);
+ 
+ 	if (state->polarity != PWM_POLARITY_NORMAL)
+ 		return -EINVAL;
+@@ -37,7 +44,7 @@ static int ab8500_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	if (!state->enabled) {
+ 		ret = abx500_mask_and_set_register_interruptible(chip->dev,
+ 					AB8500_MISC, AB8500_PWM_OUT_CTRL7_REG,
+-					1 << (chip->base - 1), 0);
++					1 << ab8500->hwid, 0);
+ 
+ 		if (ret < 0)
+ 			dev_err(chip->dev, "%s: Failed to disable PWM, Error %d\n",
+@@ -56,7 +63,7 @@ static int ab8500_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	 */
+ 	higher_val = ((state->duty_cycle & 0x0300) >> 8);
+ 
+-	reg = AB8500_PWM_OUT_CTRL1_REG + ((chip->base - 1) * 2);
++	reg = AB8500_PWM_OUT_CTRL1_REG + (ab8500->hwid * 2);
+ 
+ 	ret = abx500_set_register_interruptible(chip->dev, AB8500_MISC,
+ 			reg, (u8)lower_val);
+@@ -70,7 +77,7 @@ static int ab8500_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 
+ 	ret = abx500_mask_and_set_register_interruptible(chip->dev,
+ 				AB8500_MISC, AB8500_PWM_OUT_CTRL7_REG,
+-				1 << (chip->base - 1), 1 << (chip->base - 1));
++				1 << ab8500->hwid, 1 << ab8500->hwid);
+ 	if (ret < 0)
+ 		dev_err(chip->dev, "%s: Failed to enable PWM, Error %d\n",
+ 							pwm->label, ret);
+@@ -88,6 +95,9 @@ static int ab8500_pwm_probe(struct platform_device *pdev)
+ 	struct ab8500_pwm_chip *ab8500;
+ 	int err;
+ 
++	if (pdev->id < 1 || pdev->id > 31)
++		return dev_err_probe(&pdev->dev, EINVAL, "Invalid device id %d\n", pdev->id);
++
+ 	/*
+ 	 * Nothing to be done in probe, this is required to get the
+ 	 * device which is required for ab8500 read and write
+@@ -99,6 +109,7 @@ static int ab8500_pwm_probe(struct platform_device *pdev)
+ 	ab8500->chip.dev = &pdev->dev;
+ 	ab8500->chip.ops = &ab8500_pwm_ops;
+ 	ab8500->chip.npwm = 1;
++	ab8500->hwid = pdev->id - 1;
+ 
+ 	err = pwmchip_add(&ab8500->chip);
+ 	if (err < 0)
 
