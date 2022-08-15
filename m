@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87341594842
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F1AC5947A1
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:04:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354075AbiHOXnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:43:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40632 "EHLO
+        id S1345158AbiHOXnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:43:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354324AbiHOXlx (ORCPT
+        with ESMTP id S1354330AbiHOXlx (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86E7C2C66D;
-        Mon, 15 Aug 2022 13:12:45 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26D6C2C670;
+        Mon, 15 Aug 2022 13:12:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F43FB80EAD;
-        Mon, 15 Aug 2022 20:12:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85049C433C1;
-        Mon, 15 Aug 2022 20:12:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B837F6077B;
+        Mon, 15 Aug 2022 20:12:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6078C433C1;
+        Mon, 15 Aug 2022 20:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594363;
-        bh=d/52b45doYg9s/2ntpneHgZYLVevpz6UYW9ck9AIykk=;
+        s=korg; t=1660594366;
+        bh=OzJrhHoWezHSiKoUoOVlcSSDC8fVKfDYPyy4cgaLBnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mm2mPEot3N7ZPij+qQfbRZbFFRwTOI12KpD6iup/Zlxqwy4lPrp9LqtfKLJjg6025
-         ZoxhzBqSB3IpFesL1ttqDV7AQj6RLBNIguifI6t7by2CgNomZsTp1lxUjZplFZpUYT
-         L71fcHxO6FSrm81nostQ7H94dcUfRG6Wtl5835Mc=
+        b=BupXyloczGEliip6uj4sH/RhTDPYbQHgzTWqiBKPRxCEOkBV2Zvvl6xRpDmOxkUdn
+         riuDL4NVbsr0OMFJOfOnD3eWFfTY988GFRuznx3WGcZRtqd8lQA7e5uHddJdLyQpDY
+         kXhCcUJT5wQMPuqD4+OxcBTlGiZy4GELFdz+KeJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dom Cobley <popcornmix@gmail.com>,
+        stable@vger.kernel.org,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0422/1157] drm/vc4: hdmi: Force modeset when bpc or format changes
-Date:   Mon, 15 Aug 2022 19:56:18 +0200
-Message-Id: <20220815180456.543086316@linuxfoundation.org>
+Subject: [PATCH 5.19 0423/1157] drm/vc4: hdmi: Correct HDMI timing registers for interlaced modes
+Date:   Mon, 15 Aug 2022 19:56:19 +0200
+Message-Id: <20220815180456.592927553@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,77 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dom Cobley <popcornmix@gmail.com>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit c94cd0620a922156c9ff9af9c3301b174b287677 ]
+[ Upstream commit fb10dc451c0f15e3c19798a2f41d357f3f7576f5 ]
 
-Whenever the maximum BPC is changed, vc4_hdmi_encoder_compute_config()
-might pick up a different BPC or format depending on the display
-capabilities.
+For interlaced modes the timings were not being correctly
+programmed into the HDMI block, so correct them.
 
-That change will have a number of side effects, including the clock
-rates and whether the scrambling is enabled.
-
-However, only drm_crtc_state.connectors_changed will be set to true,
-since that properly only affects the connector.
-
-This means that while drm_atomic_crtc_needs_modeset() will return true,
-and thus drm_atomic_helper_commit_modeset_enables() will call our
-encoder atomic_enable() hook, mode_changed will be false.
-
-So crtc_set_mode() will not call our encoder .atomic_mode_set() hook. We
-use this hook in vc4 to set the vc4_hdmi_connector_state.output_bpc (and
-output_format), and will then reuse the value in .atomic_enable() to select
-whether or not scrambling should be enabled.
-
-However, since our clock rate is pre-computed during .atomic_check(), we
-end up with the clocks properly configured, but the scrambling disabled,
-leading to a blank screen.
-
-Let's set mode_changed to true in our HDMI driver to force the update of
-output_bpc, and thus prevent the issue entirely.
-
-Fixes: ba8c0faebbb0 ("drm/vc4: hdmi: Enable 10/12 bpc output")
-Signed-off-by: Dom Cobley <popcornmix@gmail.com>
-Link: https://lore.kernel.org/r/20220613144800.326124-32-maxime@cerno.tech
+Fixes: 8323989140f3 ("drm/vc4: hdmi: Support the BCM2711 HDMI controllers")
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Link: https://lore.kernel.org/r/20220613144800.326124-33-maxime@cerno.tech
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 674bd29a7cf2..3829e13c8627 100644
+index 3829e13c8627..ad7fcfa5a068 100644
 --- a/drivers/gpu/drm/vc4/vc4_hdmi.c
 +++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -1620,9 +1620,14 @@ static int vc4_hdmi_encoder_atomic_check(struct drm_encoder *encoder,
- 					 struct drm_crtc_state *crtc_state,
- 					 struct drm_connector_state *conn_state)
- {
-+	struct vc4_hdmi *vc4_hdmi = encoder_to_vc4_hdmi(encoder);
-+	struct drm_connector *connector = &vc4_hdmi->connector;
-+	struct drm_connector_state *old_conn_state =
-+		drm_atomic_get_old_connector_state(conn_state->state, connector);
-+	struct vc4_hdmi_connector_state *old_vc4_state =
-+		conn_state_to_vc4_hdmi_conn_state(old_conn_state);
- 	struct vc4_hdmi_connector_state *vc4_state = conn_state_to_vc4_hdmi_conn_state(conn_state);
- 	struct drm_display_mode *mode = &crtc_state->adjusted_mode;
--	struct vc4_hdmi *vc4_hdmi = encoder_to_vc4_hdmi(encoder);
- 	unsigned long long tmds_char_rate = mode->clock * 1000;
- 	unsigned long long tmds_bit_rate;
- 	int ret;
-@@ -1651,6 +1656,11 @@ static int vc4_hdmi_encoder_atomic_check(struct drm_encoder *encoder,
- 	if (ret)
- 		return ret;
- 
-+	/* vc4_hdmi_encoder_compute_config may have changed output_bpc and/or output_format */
-+	if (vc4_state->output_bpc != old_vc4_state->output_bpc ||
-+	    vc4_state->output_format != old_vc4_state->output_format)
-+		crtc_state->mode_changed = true;
-+
- 	return 0;
- }
- 
+@@ -1040,13 +1040,13 @@ static void vc5_hdmi_set_timings(struct vc4_hdmi *vc4_hdmi,
+ 		     VC4_SET_FIELD(mode->crtc_vsync_start - mode->crtc_vdisplay,
+ 				   VC5_HDMI_VERTA_VFP) |
+ 		     VC4_SET_FIELD(mode->crtc_vdisplay, VC5_HDMI_VERTA_VAL));
+-	u32 vertb = (VC4_SET_FIELD(0, VC5_HDMI_VERTB_VSPO) |
+-		     VC4_SET_FIELD(mode->crtc_vtotal - mode->crtc_vsync_end +
+-				   interlaced,
++	u32 vertb = (VC4_SET_FIELD(mode->htotal >> (2 - pixel_rep),
++				   VC5_HDMI_VERTB_VSPO) |
++		     VC4_SET_FIELD(mode->crtc_vtotal - mode->crtc_vsync_end,
+ 				   VC4_HDMI_VERTB_VBP));
+ 	u32 vertb_even = (VC4_SET_FIELD(0, VC5_HDMI_VERTB_VSPO) |
+ 			  VC4_SET_FIELD(mode->crtc_vtotal -
+-					mode->crtc_vsync_end,
++					mode->crtc_vsync_end - interlaced,
+ 					VC4_HDMI_VERTB_VBP));
+ 	unsigned long flags;
+ 	unsigned char gcp;
 -- 
 2.35.1
 
