@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BB3E59409C
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C227593EF5
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346102AbiHOUtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:49:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44004 "EHLO
+        id S1345681AbiHOUtF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:49:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346225AbiHOUsC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:48:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64AF7B81D5;
-        Mon, 15 Aug 2022 12:08:54 -0700 (PDT)
+        with ESMTP id S1345739AbiHOUsK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:48:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75B7EB81F6;
+        Mon, 15 Aug 2022 12:08:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 180AE60BB7;
-        Mon, 15 Aug 2022 19:08:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F17EAC433D7;
-        Mon, 15 Aug 2022 19:08:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AAAF4B810A3;
+        Mon, 15 Aug 2022 19:08:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 146E3C43140;
+        Mon, 15 Aug 2022 19:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590533;
-        bh=PVYg95K8bXaoHjFJOyN20GMXbqmpewhDRkPDYP4bChg=;
+        s=korg; t=1660590536;
+        bh=eUGW2Is/pHYPEz+f+EhA8vgHM3cR2Z6ILuc72rM9470=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1zPrQ4zjpHjmecvBuTpFVDHB1zjJL3Y2P8uCIyiosYms6sl/NfXCoOPMnjiDhsAP0
-         BKQMTsmRbfKVgozMzVftsRIEvy5CWp/LzOROaRWxX3UnTmCdBBenlnST3JnYqDbGEF
-         8GiOsXiHClVWBgXUEPVpgOmrzKDJhNYrrWBpGMJI=
+        b=zzsiYBh9uRsa0/DVWkpZJxakOhJGf1OvJ+cvUq1GegMgM91MFCHbhHjuNlrzlZ29U
+         BzisaSfNahYLw5va8cv2TQTlaf5Eh7f3hXP6Grz5hhJ+kyev/Z6Fc7KLxAwC9k6F2X
+         49BTGsQlOaVP1ikpzei3czf4uweC4G31TjA6Vt2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzju@redhat.com>,
+        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <vschneid@redhat.com>,
-        Phil Auld <pauld@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0289/1095] nohz/full, sched/rt: Fix missed tick-reenabling bug in dequeue_task_rt()
-Date:   Mon, 15 Aug 2022 19:54:48 +0200
-Message-Id: <20220815180441.752250231@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0290/1095] x86/extable: Fix ex_handler_msr() print condition
+Date:   Mon, 15 Aug 2022 19:54:49 +0200
+Message-Id: <20220815180441.790987652@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,115 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzju@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 5c66d1b9b30f737fcef85a0b75bfe0590e16b62a ]
+[ Upstream commit a1a5482a2c6e38a3ebed32e571625c56a8cc41a6 ]
 
-dequeue_task_rt() only decrements 'rt_rq->rt_nr_running' after having
-called sched_update_tick_dependency() preventing it from re-enabling the
-tick on systems that no longer have pending SCHED_RT tasks but have
-multiple runnable SCHED_OTHER tasks:
+On Fri, Jun 17, 2022 at 02:08:52PM +0300, Stephane Eranian wrote:
+> Some changes to the way invalid MSR accesses are reported by the
+> kernel is causing some problems with messages printed on the
+> console.
+>
+> We have seen several cases of ex_handler_msr() printing invalid MSR
+> accesses once but the callstack multiple times causing confusion on
+> the console.
 
-  dequeue_task_rt()
-    dequeue_rt_entity()
-      dequeue_rt_stack()
-        dequeue_top_rt_rq()
-	  sub_nr_running()	// decrements rq->nr_running
-	    sched_update_tick_dependency()
-	      sched_can_stop_tick()	// checks rq->rt.rt_nr_running,
-	      ...
-        __dequeue_rt_entity()
-          dec_rt_tasks()	// decrements rq->rt.rt_nr_running
-	  ...
+> The problem here is that another earlier commit (5.13):
+>
+> a358f40600b3 ("once: implement DO_ONCE_LITE for non-fast-path "do once" functionality")
+>
+> Modifies all the pr_*_once() calls to always return true claiming
+> that no caller is ever checking the return value of the functions.
+>
+> This is why we are seeing the callstack printed without the
+> associated printk() msg.
 
-Every other scheduler class performs the operation in the opposite
-order, and sched_update_tick_dependency() expects the values to be
-updated as such. So avoid the misbehaviour by inverting the order in
-which the above operations are performed in the RT scheduler.
+Extract the ONCE_IF(cond) part into __ONCE_LTE_IF() and use that to
+implement DO_ONCE_LITE_IF() and fix the extable code.
 
-Fixes: 76d92ac305f2 ("sched: Migrate sched to use new tick dependency mask model")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzju@redhat.com>
+Fixes: a358f40600b3 ("once: implement DO_ONCE_LITE for non-fast-path "do once" functionality")
+Reported-by: Stephane Eranian <eranian@google.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <vschneid@redhat.com>
-Reviewed-by: Phil Auld <pauld@redhat.com>
-Link: https://lore.kernel.org/r/20220628092259.330171-1-nsaenzju@redhat.com
+Tested-by: Stephane Eranian <eranian@google.com>
+Link: https://lkml.kernel.org/r/YqyVFsbviKjVGGZ9@worktop.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/rt.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ arch/x86/mm/extable.c     | 16 +++++++++-------
+ include/linux/once_lite.h | 20 ++++++++++++++++----
+ 2 files changed, 25 insertions(+), 11 deletions(-)
 
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index 7891c0f0e1ff..907a5d7507a8 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -430,7 +430,7 @@ static inline void rt_queue_push_tasks(struct rq *rq)
- #endif /* CONFIG_SMP */
- 
- static void enqueue_top_rt_rq(struct rt_rq *rt_rq);
--static void dequeue_top_rt_rq(struct rt_rq *rt_rq);
-+static void dequeue_top_rt_rq(struct rt_rq *rt_rq, unsigned int count);
- 
- static inline int on_rt_rq(struct sched_rt_entity *rt_se)
+diff --git a/arch/x86/mm/extable.c b/arch/x86/mm/extable.c
+index dba2197c05c3..331310c29349 100644
+--- a/arch/x86/mm/extable.c
++++ b/arch/x86/mm/extable.c
+@@ -94,16 +94,18 @@ static bool ex_handler_copy(const struct exception_table_entry *fixup,
+ static bool ex_handler_msr(const struct exception_table_entry *fixup,
+ 			   struct pt_regs *regs, bool wrmsr, bool safe, int reg)
  {
-@@ -551,7 +551,7 @@ static void sched_rt_rq_dequeue(struct rt_rq *rt_rq)
- 	rt_se = rt_rq->tg->rt_se[cpu];
+-	if (!safe && wrmsr &&
+-	    pr_warn_once("unchecked MSR access error: WRMSR to 0x%x (tried to write 0x%08x%08x) at rIP: 0x%lx (%pS)\n",
+-			 (unsigned int)regs->cx, (unsigned int)regs->dx,
+-			 (unsigned int)regs->ax,  regs->ip, (void *)regs->ip))
++	if (__ONCE_LITE_IF(!safe && wrmsr)) {
++		pr_warn("unchecked MSR access error: WRMSR to 0x%x (tried to write 0x%08x%08x) at rIP: 0x%lx (%pS)\n",
++			(unsigned int)regs->cx, (unsigned int)regs->dx,
++			(unsigned int)regs->ax,  regs->ip, (void *)regs->ip);
+ 		show_stack_regs(regs);
++	}
  
- 	if (!rt_se) {
--		dequeue_top_rt_rq(rt_rq);
-+		dequeue_top_rt_rq(rt_rq, rt_rq->rt_nr_running);
- 		/* Kick cpufreq (see the comment in kernel/sched/sched.h). */
- 		cpufreq_update_util(rq_of_rt_rq(rt_rq), 0);
- 	}
-@@ -637,7 +637,7 @@ static inline void sched_rt_rq_enqueue(struct rt_rq *rt_rq)
+-	if (!safe && !wrmsr &&
+-	    pr_warn_once("unchecked MSR access error: RDMSR from 0x%x at rIP: 0x%lx (%pS)\n",
+-			 (unsigned int)regs->cx, regs->ip, (void *)regs->ip))
++	if (__ONCE_LITE_IF(!safe && !wrmsr)) {
++		pr_warn("unchecked MSR access error: RDMSR from 0x%x at rIP: 0x%lx (%pS)\n",
++			(unsigned int)regs->cx, regs->ip, (void *)regs->ip);
+ 		show_stack_regs(regs);
++	}
  
- static inline void sched_rt_rq_dequeue(struct rt_rq *rt_rq)
- {
--	dequeue_top_rt_rq(rt_rq);
-+	dequeue_top_rt_rq(rt_rq, rt_rq->rt_nr_running);
- }
- 
- static inline int rt_rq_throttled(struct rt_rq *rt_rq)
-@@ -1039,7 +1039,7 @@ static void update_curr_rt(struct rq *rq)
- }
- 
- static void
--dequeue_top_rt_rq(struct rt_rq *rt_rq)
-+dequeue_top_rt_rq(struct rt_rq *rt_rq, unsigned int count)
- {
- 	struct rq *rq = rq_of_rt_rq(rt_rq);
- 
-@@ -1050,7 +1050,7 @@ dequeue_top_rt_rq(struct rt_rq *rt_rq)
- 
- 	BUG_ON(!rq->nr_running);
- 
--	sub_nr_running(rq, rt_rq->rt_nr_running);
-+	sub_nr_running(rq, count);
- 	rt_rq->rt_queued = 0;
- 
- }
-@@ -1436,18 +1436,21 @@ static void __dequeue_rt_entity(struct sched_rt_entity *rt_se, unsigned int flag
- static void dequeue_rt_stack(struct sched_rt_entity *rt_se, unsigned int flags)
- {
- 	struct sched_rt_entity *back = NULL;
-+	unsigned int rt_nr_running;
- 
- 	for_each_sched_rt_entity(rt_se) {
- 		rt_se->back = back;
- 		back = rt_se;
- 	}
- 
--	dequeue_top_rt_rq(rt_rq_of_se(back));
-+	rt_nr_running = rt_rq_of_se(back)->rt_nr_running;
- 
- 	for (rt_se = back; rt_se; rt_se = rt_se->back) {
- 		if (on_rt_rq(rt_se))
- 			__dequeue_rt_entity(rt_se, flags);
- 	}
+ 	if (!wrmsr) {
+ 		/* Pretend that the read succeeded and returned 0. */
+diff --git a/include/linux/once_lite.h b/include/linux/once_lite.h
+index 861e606b820f..b7bce4983638 100644
+--- a/include/linux/once_lite.h
++++ b/include/linux/once_lite.h
+@@ -9,15 +9,27 @@
+  */
+ #define DO_ONCE_LITE(func, ...)						\
+ 	DO_ONCE_LITE_IF(true, func, ##__VA_ARGS__)
+-#define DO_ONCE_LITE_IF(condition, func, ...)				\
 +
-+	dequeue_top_rt_rq(rt_rq_of_se(back), rt_nr_running);
- }
++#define __ONCE_LITE_IF(condition)					\
+ 	({								\
+ 		static bool __section(".data.once") __already_done;	\
+-		bool __ret_do_once = !!(condition);			\
++		bool __ret_cond = !!(condition);			\
++		bool __ret_once = false;				\
+ 									\
+-		if (unlikely(__ret_do_once && !__already_done)) {	\
++		if (unlikely(__ret_cond && !__already_done)) {		\
+ 			__already_done = true;				\
+-			func(__VA_ARGS__);				\
++			__ret_once = true;				\
+ 		}							\
++		unlikely(__ret_once);					\
++	})
++
++#define DO_ONCE_LITE_IF(condition, func, ...)				\
++	({								\
++		bool __ret_do_once = !!(condition);			\
++									\
++		if (__ONCE_LITE_IF(__ret_do_once))			\
++			func(__VA_ARGS__);				\
++									\
+ 		unlikely(__ret_do_once);				\
+ 	})
  
- static void enqueue_rt_entity(struct sched_rt_entity *rt_se, unsigned int flags)
 -- 
 2.35.1
 
