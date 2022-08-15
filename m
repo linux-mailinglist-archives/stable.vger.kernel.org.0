@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BDD9593C17
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:37:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4BA0593C79
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344426AbiHOTrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:47:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55100 "EHLO
+        id S1344692AbiHOTrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:47:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345260AbiHOTqS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:46:18 -0400
+        with ESMTP id S1345283AbiHOTqU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:46:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AF846DFB5;
-        Mon, 15 Aug 2022 11:48:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7DF41D3A;
+        Mon, 15 Aug 2022 11:48:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2237761124;
-        Mon, 15 Aug 2022 18:48:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2863DC433D7;
-        Mon, 15 Aug 2022 18:48:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F49C61200;
+        Mon, 15 Aug 2022 18:48:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C5E0C433C1;
+        Mon, 15 Aug 2022 18:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589333;
-        bh=qQSA96vhbW3gjTNJAjGIG1SqfEp/08zASt479+5WVtE=;
+        s=korg; t=1660589336;
+        bh=DBfHBJGjSyEq4AwZ7wV8PcjiXMuzz6rmByLGNk29E94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O4K0m2FA/tqLJ0TY30BDzHs+CG3Pe6uqytR8u4RqsueuGOZVvF9HiOJjdyw4GKGSH
-         zG9ZyH+Z/Z7WefWtJTLl13KDXU6qN8MiftUb8VZFDeaFaXvL3wxGr55dxSFnUn4yuh
-         P2P76eWpwPChAovOhROs2inc+drLKUwyBY/G6c6w=
+        b=vd+tfKvQWXHDIZ2+43bTjsNVpQL23WlE4llD4rWD1bphiwWa9yPDCl8Zu+ZsE1OlN
+         XkVP8ZNxt2rlgAQRvjQ7b4jB3FO4UBfJoamZQ9307xzSAKz1t0avUUYEeGbfxgRWDM
+         i1C8Td3gODdOO90HR+rS/XP2RJQdyzex4StgsLX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Bharath SM <bharathsm@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 685/779] SMB3: fix lease break timeout when multiple deferred close handles for the same file.
-Date:   Mon, 15 Aug 2022 20:05:29 +0200
-Message-Id: <20220815180406.645771646@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.15 686/779] posix-cpu-timers: Cleanup CPU timers before freeing them during exec
+Date:   Mon, 15 Aug 2022 20:05:30 +0200
+Message-Id: <20220815180406.680022485@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,66 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bharath SM <bharathsm@microsoft.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit 9e31678fb403eae0f4fe37c6374be098835c73cd upstream.
+commit e362359ace6f87c201531872486ff295df306d13 upstream.
 
-Solution is to send lease break ack immediately even in case of
-deferred close handles to avoid lease break request timing out
-and let deferred closed handle gets closed as scheduled.
-Later patches could optimize cases where we then close some
-of these handles sooner for the cases where lease break is to 'none'
+Commit 55e8c8eb2c7b ("posix-cpu-timers: Store a reference to a pid not a
+task") started looking up tasks by PID when deleting a CPU timer.
 
-Cc: stable@kernel.org
-Signed-off-by: Bharath SM <bharathsm@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+When a non-leader thread calls execve, it will switch PIDs with the leader
+process. Then, as it calls exit_itimers, posix_cpu_timer_del cannot find
+the task because the timer still points out to the old PID.
+
+That means that armed timers won't be disarmed, that is, they won't be
+removed from the timerqueue_list. exit_itimers will still release their
+memory, and when that list is later processed, it leads to a
+use-after-free.
+
+Clean up the timers from the de-threaded task before freeing them. This
+prevents a reported use-after-free.
+
+Fixes: 55e8c8eb2c7b ("posix-cpu-timers: Store a reference to a pid not a task")
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220809170751.164716-1-cascardo@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/file.c |   20 +-------------------
- 1 file changed, 1 insertion(+), 19 deletions(-)
+ fs/exec.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -4855,8 +4855,6 @@ void cifs_oplock_break(struct work_struc
- 	struct TCP_Server_Info *server = tcon->ses->server;
- 	int rc = 0;
- 	bool purge_cache = false;
--	bool is_deferred = false;
--	struct cifs_deferred_close *dclose;
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1298,6 +1298,9 @@ int begin_new_exec(struct linux_binprm *
+ 	bprm->mm = NULL;
  
- 	wait_on_bit(&cinode->flags, CIFS_INODE_PENDING_WRITERS,
- 			TASK_UNINTERRUPTIBLE);
-@@ -4893,22 +4891,6 @@ void cifs_oplock_break(struct work_struc
- 
- oplock_break_ack:
- 	/*
--	 * When oplock break is received and there are no active
--	 * file handles but cached, then schedule deferred close immediately.
--	 * So, new open will not use cached handle.
--	 */
--	spin_lock(&CIFS_I(inode)->deferred_lock);
--	is_deferred = cifs_is_deferred_close(cfile, &dclose);
--	spin_unlock(&CIFS_I(inode)->deferred_lock);
--	if (is_deferred &&
--	    cfile->deferred_close_scheduled &&
--	    delayed_work_pending(&cfile->deferred)) {
--		if (cancel_delayed_work(&cfile->deferred)) {
--			_cifsFileInfo_put(cfile, false, false);
--			goto oplock_break_done;
--		}
--	}
--	/*
- 	 * releasing stale oplock after recent reconnect of smb session using
- 	 * a now incorrect file handle is not a data integrity issue but do
- 	 * not bother sending an oplock release if session to server still is
-@@ -4919,7 +4901,7 @@ oplock_break_ack:
- 							     cinode);
- 		cifs_dbg(FYI, "Oplock release rc = %d\n", rc);
- 	}
--oplock_break_done:
-+
- 	_cifsFileInfo_put(cfile, false /* do not wait for ourself */, false);
- 	cifs_done_oplock_break(cinode);
- }
+ #ifdef CONFIG_POSIX_TIMERS
++	spin_lock_irq(&me->sighand->siglock);
++	posix_cpu_timers_exit(me);
++	spin_unlock_irq(&me->sighand->siglock);
+ 	exit_itimers(me);
+ 	flush_itimer_signals();
+ #endif
 
 
