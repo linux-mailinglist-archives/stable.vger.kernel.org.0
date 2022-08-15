@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09A9C5949E7
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 689F1594A4A
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244022AbiHOX2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:28:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44018 "EHLO
+        id S245147AbiHOX3J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:29:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345952AbiHOX06 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:26:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D2D280F7F;
-        Mon, 15 Aug 2022 13:07:04 -0700 (PDT)
+        with ESMTP id S1346702AbiHOX1Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:27:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 770A182847;
+        Mon, 15 Aug 2022 13:07:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B7DCB80EA9;
-        Mon, 15 Aug 2022 20:07:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFD1EC433C1;
-        Mon, 15 Aug 2022 20:07:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CFCEEB810C5;
+        Mon, 15 Aug 2022 20:07:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19FA8C433D6;
+        Mon, 15 Aug 2022 20:07:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594021;
-        bh=nZwBQrpKOrrBiHTXHEbNM8S3yRqLyVRgRX0ppWUJZIk=;
+        s=korg; t=1660594030;
+        bh=bNA+L8ZtPWK90hlTA0ywsViACbAwVY8ybVjhT9qqLuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fyu9D/+Yly+m9qOASGpb7lm262zeRAZzf2Pk5hUJofciCJ9xPjhcWz0W/cEZZAmAz
-         5vrtJVxnyoYRk9TEHofKSMO7XvDRYzgPTbiyUd9qKNhu5CXQfqKruUoYYRKGRUMygG
-         JK/gWb90JgB57CFiw9SH+b2RqzYFysPsvycuCc0k=
+        b=I94Oj4O5KQfKgfg20bAzWefJgwiammlyoeucnC0MI9a8TQN4X7QGVpPRYov7FxeCB
+         LvPy5Ro2vHzMhOwnIEmdCxGzJuirpnSOwo+bOodr1vorFGfV1UsU31X53haWksdltV
+         4kHSXiMY/EDlEfMnaah0eQRdmeLwvdYZfbvYxMoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Wei Wang <weiwan@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0363/1157] selftests/bpf: Dont force lld on non-x86 architectures
-Date:   Mon, 15 Aug 2022 19:55:19 +0200
-Message-Id: <20220815180454.244202893@linuxfoundation.org>
+Subject: [PATCH 5.19 0364/1157] tcp: fix possible freeze in tx path under memory pressure
+Date:   Mon, 15 Aug 2022 19:55:20 +0200
+Message-Id: <20220815180454.279576717@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,57 +57,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 08c79c9cd67fffd0d5538ddbd3a97b0a865b5eb5 ]
+[ Upstream commit 849b425cd091e1804af964b771761cfbefbafb43 ]
 
-LLVM's lld linker doesn't have a universal architecture support (e.g.,
-it definitely doesn't work on s390x), so be safe and force lld for
-urandom_read and liburandom_read.so only on x86 architectures.
+Blamed commit only dealt with applications issuing small writes.
 
-This should fix s390x CI runs.
+Issue here is that we allow to force memory schedule for the sk_buff
+allocation, but we have no guarantee that sendmsg() is able to
+copy some payload in it.
 
-Fixes: 3e6fe5ce4d48 ("libbpf: Fix internal USDT address translation logic for shared libraries")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220617045512.1339795-1-andrii@kernel.org
+In this patch, I make sure the socket can use up to tcp_wmem[0] bytes.
+
+For example, if we consider tcp_wmem[0] = 4096 (default on x86),
+and initial skb->truesize being 1280, tcp_sendmsg() is able to
+copy up to 2816 bytes under memory pressure.
+
+Before this patch a sendmsg() sending more than 2816 bytes
+would either block forever (if persistent memory pressure),
+or return -EAGAIN.
+
+For bigger MTU networks, it is advised to increase tcp_wmem[0]
+to avoid sending too small packets.
+
+v2: deal with zero copy paths.
+
+Fixes: 8e4d980ac215 ("tcp: fix behavior for epoll edge trigger")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Reviewed-by: Wei Wang <weiwan@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/Makefile | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ net/ipv4/tcp.c | 33 +++++++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
-index 19ad83d306e0..21be936dd1af 100644
---- a/tools/testing/selftests/bpf/Makefile
-+++ b/tools/testing/selftests/bpf/Makefile
-@@ -168,18 +168,25 @@ $(OUTPUT)/%:%.c
- 	$(call msg,BINARY,,$@)
- 	$(Q)$(LINK.c) $^ $(LDLIBS) -o $@
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 766881775abb..3ae2ea048883 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -952,6 +952,23 @@ static int tcp_downgrade_zcopy_pure(struct sock *sk, struct sk_buff *skb)
+ 	return 0;
+ }
  
-+# LLVM's ld.lld doesn't support all the architectures, so use it only on x86
-+ifeq ($(SRCARCH),x86)
-+LLD := lld
-+else
-+LLD := ld
-+endif
++static int tcp_wmem_schedule(struct sock *sk, int copy)
++{
++	int left;
 +
- # Filter out -static for liburandom_read.so and its dependent targets so that static builds
- # do not fail. Static builds leave urandom_read relying on system-wide shared libraries.
- $(OUTPUT)/liburandom_read.so: urandom_read_lib1.c urandom_read_lib2.c
- 	$(call msg,LIB,,$@)
- 	$(Q)$(CLANG) $(filter-out -static,$(CFLAGS) $(LDFLAGS)) $^ $(LDLIBS)   \
--		     -fuse-ld=lld -Wl,-znoseparate-code -fPIC -shared -o $@
-+		     -fuse-ld=$(LLD) -Wl,-znoseparate-code -fPIC -shared -o $@
++	if (likely(sk_wmem_schedule(sk, copy)))
++		return copy;
++
++	/* We could be in trouble if we have nothing queued.
++	 * Use whatever is left in sk->sk_forward_alloc and tcp_wmem[0]
++	 * to guarantee some progress.
++	 */
++	left = sock_net(sk)->ipv4.sysctl_tcp_wmem[0] - sk->sk_wmem_queued;
++	if (left > 0)
++		sk_forced_mem_schedule(sk, min(left, copy));
++	return min(copy, sk->sk_forward_alloc);
++}
++
+ static struct sk_buff *tcp_build_frag(struct sock *sk, int size_goal, int flags,
+ 				      struct page *page, int offset, size_t *size)
+ {
+@@ -987,7 +1004,11 @@ static struct sk_buff *tcp_build_frag(struct sock *sk, int size_goal, int flags,
+ 		tcp_mark_push(tp, skb);
+ 		goto new_segment;
+ 	}
+-	if (tcp_downgrade_zcopy_pure(sk, skb) || !sk_wmem_schedule(sk, copy))
++	if (tcp_downgrade_zcopy_pure(sk, skb))
++		return NULL;
++
++	copy = tcp_wmem_schedule(sk, copy);
++	if (!copy)
+ 		return NULL;
  
- $(OUTPUT)/urandom_read: urandom_read.c urandom_read_aux.c $(OUTPUT)/liburandom_read.so
- 	$(call msg,BINARY,,$@)
- 	$(Q)$(CLANG) $(filter-out -static,$(CFLAGS) $(LDFLAGS)) $(filter %.c,$^) \
- 		     liburandom_read.so $(LDLIBS)			       \
--		     -fuse-ld=lld -Wl,-znoseparate-code	       		       \
-+		     -fuse-ld=$(LLD) -Wl,-znoseparate-code		       \
- 		     -Wl,-rpath=. -Wl,--build-id=sha1 -o $@
+ 	if (can_coalesce) {
+@@ -1336,8 +1357,11 @@ int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)
  
- $(OUTPUT)/bpf_testmod.ko: $(VMLINUX_BTF) $(wildcard bpf_testmod/Makefile bpf_testmod/*.[ch])
+ 			copy = min_t(int, copy, pfrag->size - pfrag->offset);
+ 
+-			if (tcp_downgrade_zcopy_pure(sk, skb) ||
+-			    !sk_wmem_schedule(sk, copy))
++			if (tcp_downgrade_zcopy_pure(sk, skb))
++				goto wait_for_space;
++
++			copy = tcp_wmem_schedule(sk, copy);
++			if (!copy)
+ 				goto wait_for_space;
+ 
+ 			err = skb_copy_to_page_nocache(sk, &msg->msg_iter, skb,
+@@ -1364,7 +1388,8 @@ int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)
+ 				skb_shinfo(skb)->flags |= SKBFL_PURE_ZEROCOPY;
+ 
+ 			if (!skb_zcopy_pure(skb)) {
+-				if (!sk_wmem_schedule(sk, copy))
++				copy = tcp_wmem_schedule(sk, copy);
++				if (!copy)
+ 					goto wait_for_space;
+ 			}
+ 
 -- 
 2.35.1
 
