@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 547BB594733
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24C9059470A
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:58:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238779AbiHOXeF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:34:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51248 "EHLO
+        id S1346329AbiHOXhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:37:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243490AbiHOXcX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:32:23 -0400
+        with ESMTP id S1353488AbiHOXe6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:34:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B9E150BA6;
-        Mon, 15 Aug 2022 13:08:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E682265817;
+        Mon, 15 Aug 2022 13:09:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4797960B6E;
-        Mon, 15 Aug 2022 20:08:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A4F1C433D6;
-        Mon, 15 Aug 2022 20:08:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DD9E6069F;
+        Mon, 15 Aug 2022 20:09:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6744EC433C1;
+        Mon, 15 Aug 2022 20:09:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594108;
-        bh=K6Kh/KQR78vCUdXsrwlHCCao7bsXJW+uXFfWU4GRghM=;
+        s=korg; t=1660594142;
+        bh=xhkzJaIPw6uC5XDjaB+Qwpm4wrgUSw4VM161AgL9y7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tp4Y2EOtXaaSUbfW++8R/W09R2s/s+s1McTUUNphgOXZktIRWgpJ6EJaPGaLBEacs
-         CJE1FM9rgKOZ/bULKvZxU04ixstuXjd8FkWsEoZPbL9+sTVsANdXgf3uRGGGYdwDzs
-         WLYQIs3/m0Q79ojbSbGTguMUiQl9wD3Q8zagorzE=
+        b=K6XdLLw0n40tIdThYUBRwMf9d1ZBIWNmjASgDC3sdQXHVNfbM1XwvMKipsiB8sABo
+         YT+hiJUwcOj79U0IWl/mdBdlMerK1ZNz0Gy1dpZ/goT6JB3lRkye5EuOmtvWsMn9U4
+         cPnUSdTYDGm6nH3bQ/fHc3aS5cR4fOev7uFZq+48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0380/1157] media: rcar-vin: Fix channel routing for Ebisu
-Date:   Mon, 15 Aug 2022 19:55:36 +0200
-Message-Id: <20220815180454.939867845@linuxfoundation.org>
+Subject: [PATCH 5.19 0385/1157] drm/radeon: fix incorrrect SPDX-License-Identifiers
+Date:   Mon, 15 Aug 2022 19:55:41 +0200
+Message-Id: <20220815180455.113184781@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -58,39 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit 5b9b598453d3ae5fa66d7ab591008373a89b91a0 ]
+[ Upstream commit 1f43b8903f3aae4a26a603c36f6d5dd25d6edb51 ]
 
-When converting to full Virtual Channel routing an error crept into the
-routing table for Ebisu (r8a77990). The routing information is used at
-probe time preventing rcar-vin from probing correctly on this SoC, solve
-by correcting the routing table.
+radeon is MIT.  This were incorrectly changed in
+commit b24413180f56 ("License cleanup: add SPDX GPL-2.0 license identifier to files with no license")
+and
+commit d198b34f3855 (".gitignore: add SPDX License Identifier")
+and:
+commit ec8f24b7faaf ("treewide: Add SPDX license identifier - Makefile/Kconfig")
 
-Fixes: 3e52419ec04f9769 ("media: rcar-{csi2,vin}: Move to full Virtual Channel routing per CSI-2 IP")
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: d198b34f3855 (".gitignore: add SPDX License Identifier")
+Fixes: ec8f24b7faaf ("treewide: Add SPDX license identifier - Makefile/Kconfig")
+Fixes: b24413180f56 ("License cleanup: add SPDX GPL-2.0 license identifier to files with no license")
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2053
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/renesas/rcar-vin/rcar-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/radeon/.gitignore | 2 +-
+ drivers/gpu/drm/radeon/Kconfig    | 2 +-
+ drivers/gpu/drm/radeon/Makefile   | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/renesas/rcar-vin/rcar-core.c b/drivers/media/platform/renesas/rcar-vin/rcar-core.c
-index 49bdcfba010b..4b7a9743554a 100644
---- a/drivers/media/platform/renesas/rcar-vin/rcar-core.c
-+++ b/drivers/media/platform/renesas/rcar-vin/rcar-core.c
-@@ -1261,7 +1261,7 @@ static const struct rvin_info rcar_info_r8a77980 = {
- };
+diff --git a/drivers/gpu/drm/radeon/.gitignore b/drivers/gpu/drm/radeon/.gitignore
+index 9c1a94153983..d8777383a64a 100644
+--- a/drivers/gpu/drm/radeon/.gitignore
++++ b/drivers/gpu/drm/radeon/.gitignore
+@@ -1,4 +1,4 @@
+-# SPDX-License-Identifier: GPL-2.0-only
++# SPDX-License-Identifier: MIT
+ mkregtable
+ *_reg_safe.h
  
- static const struct rvin_group_route rcar_info_r8a77990_routes[] = {
--	{ .master = 0, .csi = RVIN_CSI40, .chsel = 0x03 },
-+	{ .master = 4, .csi = RVIN_CSI40, .chsel = 0x03 },
- 	{ /* Sentinel */ }
- };
- 
+diff --git a/drivers/gpu/drm/radeon/Kconfig b/drivers/gpu/drm/radeon/Kconfig
+index 6f60f4840cc5..52819e7f1fca 100644
+--- a/drivers/gpu/drm/radeon/Kconfig
++++ b/drivers/gpu/drm/radeon/Kconfig
+@@ -1,4 +1,4 @@
+-# SPDX-License-Identifier: GPL-2.0-only
++# SPDX-License-Identifier: MIT
+ config DRM_RADEON_USERPTR
+ 	bool "Always enable userptr support"
+ 	depends on DRM_RADEON
+diff --git a/drivers/gpu/drm/radeon/Makefile b/drivers/gpu/drm/radeon/Makefile
+index ea5380e24c3c..e3ab3aca1396 100644
+--- a/drivers/gpu/drm/radeon/Makefile
++++ b/drivers/gpu/drm/radeon/Makefile
+@@ -1,4 +1,4 @@
+-# SPDX-License-Identifier: GPL-2.0
++# SPDX-License-Identifier: MIT
+ #
+ # Makefile for the drm device driver.  This driver provides support for the
+ # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
 -- 
 2.35.1
 
