@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 579B0594599
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 615AD5944EB
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351530AbiHOWse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:48:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60440 "EHLO
+        id S1351537AbiHOWsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:48:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351868AbiHOWrQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:47:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FD2A134BA0;
-        Mon, 15 Aug 2022 12:52:58 -0700 (PDT)
+        with ESMTP id S1351904AbiHOWrU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:47:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE318134BB1;
+        Mon, 15 Aug 2022 12:53:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62227B81142;
-        Mon, 15 Aug 2022 19:52:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2096C433C1;
-        Mon, 15 Aug 2022 19:52:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9E9861206;
+        Mon, 15 Aug 2022 19:53:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDDA7C433C1;
+        Mon, 15 Aug 2022 19:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593175;
-        bh=NfEflS+XGbbTxMU1Q5X9tKOLlBZmZJ2ffzxDGM/bjCE=;
+        s=korg; t=1660593181;
+        bh=tJAnO42wOvjfzA6oc3W60FsYJ9qlzwG5YhKzZ2eZRWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XEMdlSdVorJdjhW4g5wvwtnvnYGB5gj70i54su/YXEKH7i0ociPNNK6jOfzhGbldP
-         AEWaJThruiB+VkN1UfYSx7qRv4ZtfF4Wgv1No3wWqq4zcm4vKyed0gHqoSCH/oQxCO
-         Lgh9MCxFsqOG3WLOsJigK/v2fuGAUyIA79uBh8AE=
+        b=NEm3Rz3nKpaEH5as4ioz45oDqTrTreFHS+iNOmzGezZM5Xu0nvLCBK2v2BBlQ8R+K
+         ComaxQRf7O9XJVMaWDCMukz7UuUaex28iyJ8GC+UxSkyDBQcIrdXckTv57bzuxS/JS
+         zODQ5HBVWjv83TK+HaM/A4f0bmHycyuUsQ4b0mPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0225/1157] block: fix infinite loop for invalid zone append
-Date:   Mon, 15 Aug 2022 19:53:01 +0200
-Message-Id: <20220815180448.589187534@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0226/1157] arm64: dts: qcom: sdm845-akatsuki: Round down l22a regulator voltage
+Date:   Mon, 15 Aug 2022 19:53:02 +0200
+Message-Id: <20220815180448.622647005@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,43 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit b82d9fa257cb3725c49d94d2aeafc4677c34448a ]
+[ Upstream commit 4148a9eeb15152865d60b0913d96beb7ca166f9a ]
 
-Returning 0 early from __bio_iov_append_get_pages() for the
-max_append_sectors warning just creates an infinite loop since 0 means
-success, and the bio will never fill from the unadvancing iov_iter. We
-could turn the return into an error value, but it will already be turned
-into an error value later on, so just remove the warning. Clearly no one
-ever hit it anyway.
+2700000 is not a multiple of pmic4_pldo's step size of 8000 (with base
+voltage 1664000), resulting in pm8998-rpmh-regulators not probing.  Just
+as we did with MSM8998's Sony Yoshino Poplar [1], round the voltages
+down to err on the cautious side and leave a comment in place to
+document this discrepancy wrt downstream sources.
 
-Fixes: 0512a75b98f84 ("block: Introduce REQ_OP_ZONE_APPEND")
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Link: https://lore.kernel.org/r/20220610195830.3574005-2-kbusch@fb.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[1]: https://lore.kernel.org/linux-arm-msm/20220507153627.1478268-1-marijn.suijten@somainline.org/
+
+Fixes: 30a7f99befc6 ("arm64: dts: qcom: Add support for SONY Xperia XZ2 / XZ2C / XZ3 (Tama platform)")
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220620211212.269956-1-marijn.suijten@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 3 ---
- 1 file changed, 3 deletions(-)
+ .../arm64/boot/dts/qcom/sdm845-sony-xperia-tama-akatsuki.dts | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index 51c99f2c5c90..d9ff51fc457e 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -1229,9 +1229,6 @@ static int __bio_iov_append_get_pages(struct bio *bio, struct iov_iter *iter)
- 	size_t offset;
- 	int ret = 0;
+diff --git a/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama-akatsuki.dts b/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama-akatsuki.dts
+index 8a0d94e7f598..2f5e12deaada 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama-akatsuki.dts
++++ b/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama-akatsuki.dts
+@@ -19,8 +19,9 @@ &vreg_l14a_1p8 {
+ };
  
--	if (WARN_ON_ONCE(!max_append_sectors))
--		return 0;
--
- 	/*
- 	 * Move page array up in the allocated memory for the bio vecs as far as
- 	 * possible so that we can start filling biovecs from the beginning
+ &vreg_l22a_2p8 {
+-	regulator-min-microvolt = <2700000>;
+-	regulator-max-microvolt = <2700000>;
++	/* Note: Round-down from 2700000 to be a multiple of PLDO step-size 8000 */
++	regulator-min-microvolt = <2696000>;
++	regulator-max-microvolt = <2696000>;
+ };
+ 
+ &vreg_l28a_2p8 {
 -- 
 2.35.1
 
