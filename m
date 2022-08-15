@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60EA1594A82
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:18:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A82C594A8C
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:18:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347753AbiHPAEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:04:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47834 "EHLO
+        id S1351692AbiHPAEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:04:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356014AbiHPABy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:01:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF761168147;
-        Mon, 15 Aug 2022 13:23:23 -0700 (PDT)
+        with ESMTP id S1356050AbiHPAB5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:01:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8071916814D;
+        Mon, 15 Aug 2022 13:23:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D3E2B8119D;
-        Mon, 15 Aug 2022 20:23:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0BEAC433C1;
-        Mon, 15 Aug 2022 20:23:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2DDA61058;
+        Mon, 15 Aug 2022 20:23:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3CB6C433D6;
+        Mon, 15 Aug 2022 20:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595001;
-        bh=deLeL89S1PDC0d+Bk9oRQzN77DD6XWdco28/ZFe8ajs=;
+        s=korg; t=1660595004;
+        bh=Bc1TolM682MDUtF/9AwyY7cOvy03uM8FRp6Z0YxCu+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JzSSULSCFbqaYPp1uD/t7XEuX0VgFv19PRGcj5kfOSBCFyZ8VmXFztP9rj7HNW2U+
-         oKCnRrYwgnDr9/Rd1KJjY/jYhkd3bA3yElTtkHPg88oKlope4xyZJARFt5WaRlbq6r
-         iJ6PUYgJ692+SffVxftpn1WRYMyZnFNioczbSUfE=
+        b=VpVWO1ObQOJqDA4g/H4DFvtsqn1sO1XKLCHvJ+XkniI6LW7w6UNYzVFXr/SsRw7RX
+         x1lYiAIVH3oc+cieGmz1QM64UykW41NrlzjMaS4a38Dn7CBWYwpwR0lFR53CA1RWFP
+         BH3kN+KuYUBDf2hpJZb+oybxnTbCM5RGCaXoLzQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rajat Jain <rajatja@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Tzung-Bi Shih <tzungbi@kernel.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Evan Green <evgreen@chromium.org>,
+        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
         Stephen Boyd <swboyd@chromium.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0626/1157] platform/chrome: cros_ec: Always expose last resume result
-Date:   Mon, 15 Aug 2022 19:59:42 +0200
-Message-Id: <20220815180504.705824534@linuxfoundation.org>
+Subject: [PATCH 5.19 0627/1157] iio: sx9324: Fix register field spelling
+Date:   Mon, 15 Aug 2022 19:59:43 +0200
+Message-Id: <20220815180504.742854725@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -59,62 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Gwendal Grignou <gwendal@chromium.org>
 
-[ Upstream commit 74bb746407bf0d7c7d126c7731dbcd66d467619b ]
+[ Upstream commit 0b24034c7ffa20bcfb4fdfece1df770ec5b0a634 ]
 
-The last resume result exposing logic in cros_ec_sleep_event()
-incorrectly requires S0ix support, which doesn't work on ARM based
-systems where S0ix doesn't exist. That's because cros_ec_sleep_event()
-only reports the last resume result when the EC indicates the last sleep
-event was an S0ix resume. On ARM systems, the last sleep event is always
-S3 resume, but the EC can still detect sleep hang events in case some
-other part of the AP is blocking sleep.
+Field for PROX_CTRL4 should contain PROX_CTRL4.
 
-Always expose the last resume result if the EC supports it so that this
-works on all devices regardless of S0ix support. This fixes sleep hang
-detection on ARM based chromebooks like Trogdor.
-
-Cc: Rajat Jain <rajatja@chromium.org>
-Cc: Matthias Kaehlcke <mka@chromium.org>
-Cc: Hsin-Yi Wang <hsinyi@chromium.org>
-Cc: Tzung-Bi Shih <tzungbi@kernel.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Reviewed-by: Evan Green <evgreen@chromium.org>
-Fixes: 7235560ac77a ("platform/chrome: Add support for v1 of host sleep event")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
-Link: https://lore.kernel.org/r/20220614075726.2729987-1-swboyd@chromium.org
+Fixes: 4c18a890dff8d ("iio:proximity:sx9324: Add SX9324 support")
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20220429220144.1476049-3-gwendal@chromium.org
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/iio/proximity/sx9324.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/chrome/cros_ec.c b/drivers/platform/chrome/cros_ec.c
-index b3e94cdf7d1a..00381490dd3e 100644
---- a/drivers/platform/chrome/cros_ec.c
-+++ b/drivers/platform/chrome/cros_ec.c
-@@ -135,16 +135,16 @@ static int cros_ec_sleep_event(struct cros_ec_device *ec_dev, u8 sleep_event)
- 	buf.msg.command = EC_CMD_HOST_SLEEP_EVENT;
- 
- 	ret = cros_ec_cmd_xfer_status(ec_dev, &buf.msg);
--
--	/* For now, report failure to transition to S0ix with a warning. */
-+	/* Report failure to transition to system wide suspend with a warning. */
- 	if (ret >= 0 && ec_dev->host_sleep_v1 &&
--	    (sleep_event == HOST_SLEEP_EVENT_S0IX_RESUME)) {
-+	    (sleep_event == HOST_SLEEP_EVENT_S0IX_RESUME ||
-+	     sleep_event == HOST_SLEEP_EVENT_S3_RESUME)) {
- 		ec_dev->last_resume_result =
- 			buf.u.resp1.resume_response.sleep_transitions;
- 
- 		WARN_ONCE(buf.u.resp1.resume_response.sleep_transitions &
- 			  EC_HOST_RESUME_SLEEP_TIMEOUT,
--			  "EC detected sleep transition timeout. Total slp_s0 transitions: %d",
-+			  "EC detected sleep transition timeout. Total sleep transitions: %d",
- 			  buf.u.resp1.resume_response.sleep_transitions &
- 			  EC_HOST_RESUME_SLEEP_TRANSITIONS_MASK);
- 	}
+diff --git a/drivers/iio/proximity/sx9324.c b/drivers/iio/proximity/sx9324.c
+index 63fbcaa4cac8..a30ac8007a3d 100644
+--- a/drivers/iio/proximity/sx9324.c
++++ b/drivers/iio/proximity/sx9324.c
+@@ -93,7 +93,7 @@
+ #define SX9324_REG_PROX_CTRL4_AVGNEGFILT_MASK	GENMASK(5, 3)
+ #define SX9324_REG_PROX_CTRL4_AVGNEG_FILT_2 0x08
+ #define SX9324_REG_PROX_CTRL4_AVGPOSFILT_MASK	GENMASK(2, 0)
+-#define SX9324_REG_PROX_CTRL3_AVGPOS_FILT_256 0x04
++#define SX9324_REG_PROX_CTRL4_AVGPOS_FILT_256 0x04
+ #define SX9324_REG_PROX_CTRL5		0x35
+ #define SX9324_REG_PROX_CTRL5_HYST_MASK			GENMASK(5, 4)
+ #define SX9324_REG_PROX_CTRL5_CLOSE_DEBOUNCE_MASK	GENMASK(3, 2)
+@@ -810,7 +810,7 @@ static const struct sx_common_reg_default sx9324_default_regs[] = {
+ 	{ SX9324_REG_PROX_CTRL3, SX9324_REG_PROX_CTRL3_AVGDEB_2SAMPLES |
+ 		SX9324_REG_PROX_CTRL3_AVGPOS_THRESH_16K },
+ 	{ SX9324_REG_PROX_CTRL4, SX9324_REG_PROX_CTRL4_AVGNEG_FILT_2 |
+-		SX9324_REG_PROX_CTRL3_AVGPOS_FILT_256 },
++		SX9324_REG_PROX_CTRL4_AVGPOS_FILT_256 },
+ 	{ SX9324_REG_PROX_CTRL5, 0x00 },
+ 	{ SX9324_REG_PROX_CTRL6, SX9324_REG_PROX_CTRL6_PROXTHRESH_32 },
+ 	{ SX9324_REG_PROX_CTRL7, SX9324_REG_PROX_CTRL6_PROXTHRESH_32 },
 -- 
 2.35.1
 
