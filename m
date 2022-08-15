@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88348592E6E
+	by mail.lfdr.de (Postfix) with ESMTP id 0AB44592E6D
 	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:48:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236413AbiHOLsT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 07:48:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33302 "EHLO
+        id S232454AbiHOLsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 07:48:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240751AbiHOLsR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:48:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9476625582
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:48:14 -0700 (PDT)
+        with ESMTP id S236413AbiHOLsM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:48:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D40425290
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:48:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2E7961179
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:48:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04559C43149;
-        Mon, 15 Aug 2022 11:48:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD48E6116A
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:48:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D96F3C433D6;
+        Mon, 15 Aug 2022 11:48:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660564093;
-        bh=tL8IajsVyF9WIqx+KKpMx5LOdlcGZMobivAA0Kv+SRs=;
+        s=korg; t=1660564090;
+        bh=NVQHvhBWFrxXsv1K5XnPHWW2HdgMczD/HLLUhM3qyCU=;
         h=Subject:To:Cc:From:Date:From;
-        b=0V2cQfjck9acFsmbmhXFrJYlYYwGaBfjizlRF42KSSdNmCCtote9SoghrvObtxDU3
-         dqjb+AuHQF/v2BModfEiMOukcxKxcZxZDW7tUsJTYv7MYYX02OZ9+NikgrJLR8HHiy
-         GkYrpE+jbZhKzc0I8Kw9UmQtk70iglS7SdUnhCEg=
-Subject: FAILED: patch "[PATCH] kexec: clean up arch_kexec_kernel_verify_sig" failed to apply to 5.10-stable tree
+        b=pcNubefN5am1waKTFo5EuMRmUXgTXtd2rqkX2K/FKU3Fviq7Rc6zQYHZxNp9N3/5T
+         jpXH3DpI2YUnNkO8viJyN3vP8Am48LRAAzS0soyU04KUyBUpwB2oLgaTOKy0FaBODQ
+         weA0QTbLyZEBtKjsx4/bqc19XqEsEZgf3fz6Zgvc=
+Subject: FAILED: patch "[PATCH] kexec: clean up arch_kexec_kernel_verify_sig" failed to apply to 5.4-stable tree
 To:     coxu@redhat.com, bhe@redhat.com, ebiederm@xmission.com,
         msuchanek@suse.de, zohar@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 15 Aug 2022 13:48:05 +0200
-Message-ID: <166056408514176@kroah.com>
+Message-ID: <1660564085218241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
