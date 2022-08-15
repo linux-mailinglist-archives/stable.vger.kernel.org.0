@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACC45593CEB
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BD2B593B95
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344116AbiHOUEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:04:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42004 "EHLO
+        id S1345773AbiHOUER (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:04:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345748AbiHOUDX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:03:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 159EF7E00A;
-        Mon, 15 Aug 2022 11:54:15 -0700 (PDT)
+        with ESMTP id S1345780AbiHOUD0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:03:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FF107E022;
+        Mon, 15 Aug 2022 11:54:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AEA97B81057;
-        Mon, 15 Aug 2022 18:54:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F32D6C433D6;
-        Mon, 15 Aug 2022 18:54:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91102611D6;
+        Mon, 15 Aug 2022 18:54:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16186C433D6;
+        Mon, 15 Aug 2022 18:54:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589651;
-        bh=bG6WZEtkvJKQQRwopgdToLYNGAltD+83E8byvLpG5wc=;
+        s=korg; t=1660589655;
+        bh=0dG4uuL291nO1aV8Tjx0Cq3qOuuLfuwV842Ght+TL5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T2T9K2OIy7b3SAWaolpI+F5jG7OX7RUS5XypPwxR/gh2LFNcMjSk4denlRnVGloQi
-         3pQq1mcgxzopBn6TS4GxvfO92BTmAi4HXh5iQmPLVOBbqJedH7kOpuxx1cSBG4OVIO
-         97PcT5RGrc1C4D5fRjZjWjsLUp01j/FsbW21WqC8=
+        b=Mac2T1PVCxmOtUJ1WiFKMJVHTVvUKAvZGGMWgQAEsJspn6v0L/LcO94ps8y4mGpFi
+         DhwRpf6kYrCWZg40NCyxmpWJAleQNVUDCRXzZAjd4i5ORE2XVqCIK26ZSsVLxL+RI8
+         0eb3oWG9oS0P+TvSMrEC1yGU4wkoX7diWgPVKl3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 5.15 769/779] drm/vc4: change vc4_dma_range_matches from a global to static
-Date:   Mon, 15 Aug 2022 20:06:53 +0200
-Message-Id: <20220815180410.252197458@linuxfoundation.org>
+        stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.15 770/779] tracing/perf: Avoid -Warray-bounds warning for __rel_loc macro
+Date:   Mon, 15 Aug 2022 20:06:54 +0200
+Message-Id: <20220815180410.302077206@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,35 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 63569d90863ff26c8b10c8971d1271c17a45224b upstream.
+commit c6d777acdf8f62d4ebaef0e5c6cd8fedbd6e8546 upstream.
 
-sparse reports
-drivers/gpu/drm/vc4/vc4_drv.c:270:27: warning: symbol 'vc4_dma_range_matches' was not declared. Should it be static?
+As done for trace_events.h, also fix the __rel_loc macro in perf.h,
+which silences the -Warray-bounds warning:
 
-vc4_dma_range_matches is only used in vc4_drv.c, so it's storage class specifier
-should be static.
+In file included from ./include/linux/string.h:253,
+                 from ./include/linux/bitmap.h:11,
+                 from ./include/linux/cpumask.h:12,
+                 from ./include/linux/mm_types_task.h:14,
+                 from ./include/linux/mm_types.h:5,
+                 from ./include/linux/buildid.h:5,
+                 from ./include/linux/module.h:14,
+                 from samples/trace_events/trace-events-sample.c:2:
+In function '__fortify_strcpy',
+    inlined from 'perf_trace_foo_rel_loc' at samples/trace_events/./trace-events-sample.h:519:1:
+./include/linux/fortify-string.h:47:33: warning: '__builtin_strcpy' offset 12 is out of the bounds [
+0, 4] [-Warray-bounds]
+   47 | #define __underlying_strcpy     __builtin_strcpy
+      |                                 ^
+./include/linux/fortify-string.h:445:24: note: in expansion of macro '__underlying_strcpy'
+  445 |                 return __underlying_strcpy(p, q);
+      |                        ^~~~~~~~~~~~~~~~~~~
 
-Fixes: da8e393e23ef ("drm/vc4: drv: Adopt the dma configuration from the HVS or V3D component")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220629200101.498138-1-trix@redhat.com
+Also make __data struct member a proper flexible array to avoid future
+problems.
+
+Link: https://lkml.kernel.org/r/20220125220037.2738923-1-keescook@chromium.org
+
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Fixes: 55de2c0b5610c ("tracing: Add '__rel_loc' using trace event macros")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vc4/vc4_drv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/trace/perf.h         |    5 +++--
+ include/trace/trace_events.h |    2 +-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/vc4/vc4_drv.c
-+++ b/drivers/gpu/drm/vc4/vc4_drv.c
-@@ -214,7 +214,7 @@ static void vc4_match_add_drivers(struct
- 	}
- }
+--- a/include/trace/perf.h
++++ b/include/trace/perf.h
+@@ -23,8 +23,9 @@
  
--const struct of_device_id vc4_dma_range_matches[] = {
-+static const struct of_device_id vc4_dma_range_matches[] = {
- 	{ .compatible = "brcm,bcm2711-hvs" },
- 	{ .compatible = "brcm,bcm2835-hvs" },
- 	{ .compatible = "brcm,bcm2835-v3d" },
+ #undef __get_rel_dynamic_array
+ #define __get_rel_dynamic_array(field)	\
+-		((void *)(&__entry->__rel_loc_##field) +	\
+-		 sizeof(__entry->__rel_loc_##field) +		\
++		((void *)__entry +					\
++		 offsetof(typeof(*__entry), __rel_loc_##field) +	\
++		 sizeof(__entry->__rel_loc_##field) +			\
+ 		 (__entry->__rel_loc_##field & 0xffff))
+ 
+ #undef __get_rel_dynamic_array_len
+--- a/include/trace/trace_events.h
++++ b/include/trace/trace_events.h
+@@ -128,7 +128,7 @@ TRACE_MAKE_SYSTEM_STR();
+ 	struct trace_event_raw_##name {					\
+ 		struct trace_entry	ent;				\
+ 		tstruct							\
+-		char			__data[0];			\
++		char			__data[];			\
+ 	};								\
+ 									\
+ 	static struct trace_event_class event_class_##name;
 
 
