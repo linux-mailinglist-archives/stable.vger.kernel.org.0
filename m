@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B99135936C2
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02D5A59376C
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:28:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244378AbiHOS5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:57:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49038 "EHLO
+        id S244472AbiHOS5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:57:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244896AbiHOS4N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:56:13 -0400
+        with ESMTP id S244916AbiHOS4P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:56:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E13692A73D;
-        Mon, 15 Aug 2022 11:30:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE9E32D95;
+        Mon, 15 Aug 2022 11:30:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 392B260F9F;
-        Mon, 15 Aug 2022 18:30:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 427C0C433C1;
-        Mon, 15 Aug 2022 18:30:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A22F606A1;
+        Mon, 15 Aug 2022 18:30:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32473C433C1;
+        Mon, 15 Aug 2022 18:30:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588237;
-        bh=ORph88blPiFZ+kkoAYxCbSsKbFMd7dm7uoia54TWeYk=;
+        s=korg; t=1660588240;
+        bh=zm49u6YjALaQGCdWKi28QKevV2pSXaFcAw/nSI9Mu/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZPqMo6mzoQg8Q2Wd6FliN10qNRk9rPKNDhAOMJXzPOccN362drQEHwhbEMwT+0IP
-         b3DZqq+khr0Et49haisy8tL0IXM3KRwSNIj7TPqPF9BhibbFePqF7u0NvGVyPf9VbD
-         M2eEUbTXqosPptWZuTU+JkboqdfDwyYeF+eriIbE=
+        b=yOc+c7n5QdkJkUsxiLIeVNQd77nMTGFgJzUL3ZY21I5cs/s0ZsUN6KbkOd1JHd0Td
+         B5GTjS+hZxrLNN9mFsxoH68AxLqVnsbaFc/cQ0i9zRfysei/qKA6eaOz2CpTRPtIMa
+         6jP++ozBkwdXz9WLV6xh3gKCGCwA4EGrE5bWRqhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>, Yonghong Song <yhs@fb.com>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 339/779] bpf: Fix subprog names in stack traces.
-Date:   Mon, 15 Aug 2022 19:59:43 +0200
-Message-Id: <20220815180351.764246993@linuxfoundation.org>
+Subject: [PATCH 5.15 340/779] fs: check FMODE_LSEEK to control internal pipe splicing
+Date:   Mon, 15 Aug 2022 19:59:44 +0200
+Message-Id: <20220815180351.801825867@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,48 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexei Starovoitov <ast@kernel.org>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 9c7c48d6a1e2eb5192ad5294c1c4dbd42a88e88b ]
+[ Upstream commit 97ef77c52b789ec1411d360ed99dca1efe4b2c81 ]
 
-The commit 7337224fc150 ("bpf: Improve the info.func_info and info.func_info_rec_size behavior")
-accidently made bpf_prog_ksym_set_name() conservative for bpf subprograms.
-Fixed it so instead of "bpf_prog_tag_F" the stack traces print "bpf_prog_tag_full_subprog_name".
+The original direct splicing mechanism from Jens required the input to
+be a regular file because it was avoiding the special socket case. It
+also recognized blkdevs as being close enough to a regular file. But it
+forgot about chardevs, which behave the same way and work fine here.
 
-Fixes: 7337224fc150 ("bpf: Improve the info.func_info and info.func_info_rec_size behavior")
-Reported-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20220714211637.17150-1-alexei.starovoitov@gmail.com
+This is an okayish heuristic, but it doesn't totally work. For example,
+a few chardevs should be spliceable here. And a few regular files
+shouldn't. This patch fixes this by instead checking whether FMODE_LSEEK
+is set, which represents decently enough what we need rewinding for when
+splicing to internal pipes.
+
+Fixes: b92ce5589374 ("[PATCH] splice: add direct fd <-> fd splicing support")
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/splice.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 346d36c905a9..c8b534a498b3 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -12445,6 +12445,7 @@ static int jit_subprogs(struct bpf_verifier_env *env)
- 		/* Below members will be freed only at prog->aux */
- 		func[i]->aux->btf = prog->aux->btf;
- 		func[i]->aux->func_info = prog->aux->func_info;
-+		func[i]->aux->func_info_cnt = prog->aux->func_info_cnt;
- 		func[i]->aux->poke_tab = prog->aux->poke_tab;
- 		func[i]->aux->size_poke_tab = prog->aux->size_poke_tab;
+diff --git a/fs/splice.c b/fs/splice.c
+index 5dbce4dcc1a7..3abcd7fbc9f2 100644
+--- a/fs/splice.c
++++ b/fs/splice.c
+@@ -814,17 +814,15 @@ ssize_t splice_direct_to_actor(struct file *in, struct splice_desc *sd,
+ {
+ 	struct pipe_inode_info *pipe;
+ 	long ret, bytes;
+-	umode_t i_mode;
+ 	size_t len;
+ 	int i, flags, more;
  
-@@ -12457,9 +12458,6 @@ static int jit_subprogs(struct bpf_verifier_env *env)
- 				poke->aux = func[i]->aux;
- 		}
+ 	/*
+-	 * We require the input being a regular file, as we don't want to
+-	 * randomly drop data for eg socket -> socket splicing. Use the
+-	 * piped splicing for that!
++	 * We require the input to be seekable, as we don't want to randomly
++	 * drop data for eg socket -> socket splicing. Use the piped splicing
++	 * for that!
+ 	 */
+-	i_mode = file_inode(in)->i_mode;
+-	if (unlikely(!S_ISREG(i_mode) && !S_ISBLK(i_mode)))
++	if (unlikely(!(in->f_mode & FMODE_LSEEK)))
+ 		return -EINVAL;
  
--		/* Use bpf_prog_F_tag to indicate functions in stack traces.
--		 * Long term would need debug info to populate names
--		 */
- 		func[i]->aux->name[0] = 'F';
- 		func[i]->aux->stack_depth = env->subprog_info[i].stack_depth;
- 		func[i]->jit_requested = 1;
+ 	/*
 -- 
 2.35.1
 
