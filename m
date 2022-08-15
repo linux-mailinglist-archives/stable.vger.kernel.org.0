@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47A01594C27
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E2CF594D18
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344511AbiHPAY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:24:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56582 "EHLO
+        id S1347788AbiHPAcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:32:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348929AbiHPAXA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:23:00 -0400
+        with ESMTP id S1353493AbiHPAbW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:31:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 719D517DAA3;
-        Mon, 15 Aug 2022 13:34:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856E2185C9C;
+        Mon, 15 Aug 2022 13:36:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B70E60EE9;
-        Mon, 15 Aug 2022 20:33:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15A13C433D6;
-        Mon, 15 Aug 2022 20:33:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF1FF6120E;
+        Mon, 15 Aug 2022 20:36:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB83BC433C1;
+        Mon, 15 Aug 2022 20:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595634;
-        bh=b7HQ7HYv3Nl1NaFZpDeZ1AnQeVV75qbUAncsk6g7D+M=;
+        s=korg; t=1660595769;
+        bh=879SVTF4CPuTDdHHJAZqEaC9dzhVX5nmvypw3+NjBfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MuUfSVuFIz3noToGz8EBWeQcZBlH8bRDjZPytF39RTzgLeUMDyGa3PHnBeO0+ovC5
-         Ml/aveIt36hCqKTTLXGzDQVZj/zSlk/iXyzF8MJ1fA0URnd43zVYEmY6UiHgjno5yo
-         Dxtm5pFoowhCrofWb/aQqPJMOKAI0rvMCssH3nIc=
+        b=aguJHxx5sBgygGfZ0lcB3orr/6mRWfBHBDfHkd2fLl+oqwoiJKeDMzbe6CjHml36i
+         ktDAWLpnVk9XyH0wyUFNnPpGvxzHFp/q1kF6dVw4TB36LfL2xA+NXLw2PgG8ARVN9E
+         kDglgbnOLj+S9G0CNa8KLgjELyh2Q0JFHItQYrQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        =?UTF-8?q?Michal=20Kalderon=C2=A0?= <michal.kalderon@marvell.com>,
+        stable@vger.kernel.org, Haoyue Xu <xuhaoyue1@hisilicon.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0825/1157] RDMA/qedr: Fix potential memory leak in __qedr_alloc_mr()
-Date:   Mon, 15 Aug 2022 20:03:01 +0200
-Message-Id: <20220815180512.491532380@linuxfoundation.org>
+Subject: [PATCH 5.19 0826/1157] RDMA/hns: Fix incorrect clearing of interrupt status register
+Date:   Mon, 15 Aug 2022 20:03:02 +0200
+Message-Id: <20220815180512.526681789@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,62 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Haoyue Xu <xuhaoyue1@hisilicon.com>
 
-[ Upstream commit b3236a64ddd125a455ef5b5316c1b9051b732974 ]
+[ Upstream commit ecb4db5c3590aa956b4b2c352081a5b632d1f9f9 ]
 
-__qedr_alloc_mr() allocates a memory chunk for "mr->info.pbl_table" with
-init_mr_info(). When rdma_alloc_tid() and rdma_register_tid() fail, "mr"
-is released while "mr->info.pbl_table" is not released, which will lead
-to a memory leak.
+The driver will clear all the interrupts in the same area
+when the driver handles the interrupt of type AEQ overflow.
+It should only set the interrupt status bit of type AEQ overflow.
 
-We should release the "mr->info.pbl_table" with qedr_free_pbl() when error
-occurs to fix the memory leak.
-
-Fixes: e0290cce6ac0 ("qedr: Add support for memory registeration verbs")
-Link: https://lore.kernel.org/r/20220714061505.2342759-1-niejianglei2021@163.com
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Acked-by: Michal Kalderon <michal.kalderon@marvell.com>
+Fixes: a5073d6054f7 ("RDMA/hns: Add eq support of hip08")
+Link: https://lore.kernel.org/r/20220714134353.16700-4-liangwenpeng@huawei.com
+Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qedr/verbs.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/qedr/verbs.c b/drivers/infiniband/hw/qedr/verbs.c
-index 03ed7c0fae50..d745ce9dc88a 100644
---- a/drivers/infiniband/hw/qedr/verbs.c
-+++ b/drivers/infiniband/hw/qedr/verbs.c
-@@ -3084,7 +3084,7 @@ static struct qedr_mr *__qedr_alloc_mr(struct ib_pd *ibpd,
- 		else
- 			DP_ERR(dev, "roce alloc tid returned error %d\n", rc);
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index ba3c742258ef..b354caeaa9b2 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -6000,8 +6000,8 @@ static irqreturn_t hns_roce_v2_msix_interrupt_abn(int irq, void *dev_id)
  
--		goto err0;
-+		goto err1;
- 	}
+ 		dev_err(dev, "AEQ overflow!\n");
  
- 	/* Index only, 18 bit long, lkey = itid << 8 | key */
-@@ -3108,7 +3108,7 @@ static struct qedr_mr *__qedr_alloc_mr(struct ib_pd *ibpd,
- 	rc = dev->ops->rdma_register_tid(dev->rdma_ctx, &mr->hw_mr);
- 	if (rc) {
- 		DP_ERR(dev, "roce register tid returned an error %d\n", rc);
--		goto err1;
-+		goto err2;
- 	}
+-		int_st |= 1 << HNS_ROCE_V2_VF_INT_ST_AEQ_OVERFLOW_S;
+-		roce_write(hr_dev, ROCEE_VF_ABN_INT_ST_REG, int_st);
++		roce_write(hr_dev, ROCEE_VF_ABN_INT_ST_REG,
++			   1 << HNS_ROCE_V2_VF_INT_ST_AEQ_OVERFLOW_S);
  
- 	mr->ibmr.lkey = mr->hw_mr.itid << 8 | mr->hw_mr.key;
-@@ -3117,8 +3117,10 @@ static struct qedr_mr *__qedr_alloc_mr(struct ib_pd *ibpd,
- 	DP_DEBUG(dev, QEDR_MSG_MR, "alloc frmr: %x\n", mr->ibmr.lkey);
- 	return mr;
- 
--err1:
-+err2:
- 	dev->ops->rdma_free_tid(dev->rdma_ctx, mr->hw_mr.itid);
-+err1:
-+	qedr_free_pbl(dev, &mr->info.pbl_info, mr->info.pbl_table);
- err0:
- 	kfree(mr);
- 	return ERR_PTR(rc);
+ 		/* Set reset level for reset_event() */
+ 		if (ops->set_default_reset_request)
 -- 
 2.35.1
 
