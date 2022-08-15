@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EB36594D27
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 520AE594D17
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347591AbiHPAcR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:32:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40786 "EHLO
+        id S1346640AbiHPAcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:32:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353182AbiHPAbO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:31:14 -0400
+        with ESMTP id S1353055AbiHPAbI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:31:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CC06185985;
-        Mon, 15 Aug 2022 13:36:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F49185278;
+        Mon, 15 Aug 2022 13:35:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE14C611FC;
-        Mon, 15 Aug 2022 20:35:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA6A8C433C1;
-        Mon, 15 Aug 2022 20:35:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B75936120E;
+        Mon, 15 Aug 2022 20:35:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE2CBC433C1;
+        Mon, 15 Aug 2022 20:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595732;
-        bh=LDycKYnW6ye4o2A+N5sKquPsWFCQPRnl7ImjLXfcl90=;
+        s=korg; t=1660595735;
+        bh=e4KOm9d/OmVns9dybbdo24RWHSeEPB0MP1xvHiONHL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uidPro0txmgm5UR4FYB9jgjAZ/N8lf+uqmgQP42sgv1zOsqb9torGRRsuRPUBBToV
-         lDw9ZWIW+Tojf+0eek4ShwAoTcTNCTvqduoeiw5/IWg34OMNFs9PYdjFXdRuJY9YBO
-         CLWbTUxML0t/nO8mB+k79KtVeZBzGnzL9r+KBG0k=
+        b=eD7ekyHBb6pikGD/dSHtXKrRxSlYj9Emw0apwc7KFxAMY4FjDgwIHL+Bc83QXrGkb
+         cZZOpJ1vOMPFVY4xt+ZCQUoECZJkaJQfy3hIV9gBqpUNWhaEsMgMlzQpgfbOKC/+l2
+         vHzPdkSuAxsnS8S9s2+kR3vWtaQNhIF7xnNWxvr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Michael=20Sch=C3=B6ne?= <michael.schoene@rhebo.com>,
+        Paul Spooren <paul.spooren@rhebo.com>,
+        "Matwey V. Kornilov" <matwey@sai.msu.ru>,
         Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0856/1157] tools/power/x86/intel-speed-select: Fix off by one check
-Date:   Mon, 15 Aug 2022 20:03:32 +0200
-Message-Id: <20220815180513.728398277@linuxfoundation.org>
+Subject: [PATCH 5.19 0857/1157] platform/x86: pmc_atom: Match all Lex BayTrail boards with critclk_systems DMI table
+Date:   Mon, 15 Aug 2022 20:03:33 +0200
+Message-Id: <20220815180513.761281028@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,35 +57,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit d9f74d98bbec978edbf860f729b531281ba0d8ff ]
+[ Upstream commit c9d959fc32a5f9312282817052d8986614f2dc08 ]
 
-Change > MAX_DIE_PER_PACKAGE to >= MAX_DIE_PER_PACKAGE to prevent
-accessing one element beyond the end of the array.
+The critclk_systems[] DMI match table already contains 2 Lex BayTrail
+boards and patches were just submitted to add 3 more entries for the
+following models: 3I380NX, 3I380A, 3I380CW.
 
-Fixes: 7fd786dfbd2c ("tools/power/x86/intel-speed-select: OOB daemon mode")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Looking at: https://www.lex.com.tw/products/embedded-ipc-board/
+we can see that Lex BayTrail makes many embedded boards with
+multiple ethernet boards and none of their products are battery
+powered so we don't need to worry (too much) about power consumption
+when suspended.
+
+Add a new DMI match which simply matches all Lex BayTrail boards and drop
+the 2 existing board specific quirks.
+
+Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
+Reported-by: Michael Schöne <michael.schoene@rhebo.com>
+Reported-by: Paul Spooren <paul.spooren@rhebo.com>
+Reported-by: Matwey V. Kornilov <matwey@sai.msu.ru>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/intel-speed-select/isst-daemon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/pmc_atom.c | 19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
-diff --git a/tools/power/x86/intel-speed-select/isst-daemon.c b/tools/power/x86/intel-speed-select/isst-daemon.c
-index dd372924bc82..d0400c6684ba 100644
---- a/tools/power/x86/intel-speed-select/isst-daemon.c
-+++ b/tools/power/x86/intel-speed-select/isst-daemon.c
-@@ -41,7 +41,7 @@ void process_level_change(int cpu)
- 	time_t tm;
- 	int ret;
- 
--	if (pkg_id >= MAX_PACKAGE_COUNT || die_id > MAX_DIE_PER_PACKAGE) {
-+	if (pkg_id >= MAX_PACKAGE_COUNT || die_id >= MAX_DIE_PER_PACKAGE) {
- 		debug_printf("Invalid package/die info for cpu:%d\n", cpu);
- 		return;
- 	}
+diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
+index b8b1ed1406de..154317e9910d 100644
+--- a/drivers/platform/x86/pmc_atom.c
++++ b/drivers/platform/x86/pmc_atom.c
+@@ -389,21 +389,16 @@ static const struct dmi_system_id critclk_systems[] = {
+ 		},
+ 	},
+ 	{
+-		/* pmc_plt_clk0 - 3 are used for the 4 ethernet controllers */
+-		.ident = "Lex 3I380D",
++		/*
++		 * Lex System / Lex Computech Co. makes a lot of Bay Trail
++		 * based embedded boards which often come with multiple
++		 * ethernet controllers using multiple pmc_plt_clks. See:
++		 * https://www.lex.com.tw/products/embedded-ipc-board/
++		 */
++		.ident = "Lex BayTrail",
+ 		.callback = dmi_callback,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "3I380D"),
+-		},
+-	},
+-	{
+-		/* pmc_plt_clk* - are used for ethernet controllers */
+-		.ident = "Lex 2I385SW",
+-		.callback = dmi_callback,
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "2I385SW"),
+ 		},
+ 	},
+ 	{
 -- 
 2.35.1
 
