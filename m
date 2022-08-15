@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93B6E5940A7
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 256555940FB
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346341AbiHOUt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:49:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43636 "EHLO
+        id S244946AbiHOUt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:49:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345628AbiHOUsr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:48:47 -0400
+        with ESMTP id S1346596AbiHOUs2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:48:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DC7B8F1F;
-        Mon, 15 Aug 2022 12:09:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80365DFFE;
+        Mon, 15 Aug 2022 12:09:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3589460BBF;
-        Mon, 15 Aug 2022 19:09:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20395C433D7;
-        Mon, 15 Aug 2022 19:09:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59DCF60693;
+        Mon, 15 Aug 2022 19:09:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49252C433C1;
+        Mon, 15 Aug 2022 19:09:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590542;
-        bh=b73m9hpZsq1LPof4CJ65b/MGPVplSqIlbYsDVlENReA=;
+        s=korg; t=1660590545;
+        bh=xMtcPeQKe46Skuop9aELY3NS1lc3uk2hAW+vMw8BryU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H0BVWg85ek9rDqxammAbu0q/Acsp01NELHopSR9PBk6Po7efX4Vr8JuO3Q0WMQL8H
-         KIu6w16gkHc9UxsJiS+XJQSglxuCuXBadSKHPy7FBYTy52UVo0cYa4nD92dFzmfVIV
-         CAb05D0mkqXUY563gX1eHPBLUpjJ8MoCv0bUkGyc=
+        b=YV5sYK657DkVWGY0/yZFGn9sFyrBRuuonuWW22IQjXrRXXqAOw+dC1FGg2XpAYkUN
+         gkP801xGnwMtLDE8Ymb9+PkJH+qaO5TclpXSHhBRs2OASey3eVJbr0XM6VeNWXtE/T
+         pXNP0rEJ51puE75dLbMc4ktb/SsHQ1Fo1YNs8qFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Muneendra Kumar <muneendra.kumar@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0291/1095] io_uring: move to separate directory
-Date:   Mon, 15 Aug 2022 19:54:50 +0200
-Message-Id: <20220815180441.830696103@linuxfoundation.org>
+Subject: [PATCH 5.18 0292/1095] scsi: nvme-fc: Add new routine nvme_fc_io_getuuid()
+Date:   Mon, 15 Aug 2022 19:54:51 +0200
+Message-Id: <20220815180441.871915550@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -53,133 +58,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Muneendra Kumar <muneendra.kumar@broadcom.com>
 
-[ Upstream commit ed29b0b4fd835b058ddd151c49d021e28d631ee6 ]
+[ Upstream commit 827fc630e4c8087df5a8e8ee013b686bd6f13736 ]
 
-In preparation for splitting io_uring up a bit, move it into its own
-top level directory. It didn't really belong in fs/ anyway, as it's
-not a file system only API.
+Add nvme_fc_io_getuuid() to the nvme-fc transport. The routine is invoked
+by the FC LLDD on a per-I/O request basis.  The routine translates from the
+FC-specific request structure to the bio and the cgroup structure in order
+to obtain the FC appid stored in the cgroup structure. If a value is not
+set or a bio is not found, a NULL appid (aka uuid) will be returned to the
+LLDD.
 
-This adds io_uring/ and moves the core files in there, and updates the
-MAINTAINERS file for the new location.
-
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/20220519123110.17361-2-jsmart2021@gmail.com
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Acked-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Muneendra Kumar <muneendra.kumar@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- MAINTAINERS                 | 7 +------
- Makefile                    | 1 +
- fs/Makefile                 | 2 --
- io_uring/Makefile           | 6 ++++++
- {fs => io_uring}/io-wq.c    | 0
- {fs => io_uring}/io-wq.h    | 0
- {fs => io_uring}/io_uring.c | 2 +-
- kernel/sched/core.c         | 2 +-
- 8 files changed, 10 insertions(+), 10 deletions(-)
- create mode 100644 io_uring/Makefile
- rename {fs => io_uring}/io-wq.c (100%)
- rename {fs => io_uring}/io-wq.h (100%)
- rename {fs => io_uring}/io_uring.c (99%)
+ drivers/nvme/host/fc.c         | 18 ++++++++++++++++++
+ include/linux/nvme-fc-driver.h | 14 ++++++++++++++
+ 2 files changed, 32 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2b70e2d21405..c7c7a96b62a8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7599,9 +7599,6 @@ F:	include/linux/fs.h
- F:	include/linux/fs_types.h
- F:	include/uapi/linux/fs.h
- F:	include/uapi/linux/openat2.h
--X:	fs/io-wq.c
--X:	fs/io-wq.h
--X:	fs/io_uring.c
+diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+index 080f85f4105f..05f9da251758 100644
+--- a/drivers/nvme/host/fc.c
++++ b/drivers/nvme/host/fc.c
+@@ -1899,6 +1899,24 @@ nvme_fc_ctrl_ioerr_work(struct work_struct *work)
+ 	nvme_fc_error_recovery(ctrl, "transport detected io error");
+ }
  
- FINTEK F75375S HARDWARE MONITOR AND FAN CONTROLLER DRIVER
- M:	Riku Voipio <riku.voipio@iki.fi>
-@@ -10277,9 +10274,7 @@ L:	io-uring@vger.kernel.org
- S:	Maintained
- T:	git git://git.kernel.dk/linux-block
- T:	git git://git.kernel.dk/liburing
--F:	fs/io-wq.c
--F:	fs/io-wq.h
--F:	fs/io_uring.c
-+F:	io_uring/
- F:	include/linux/io_uring.h
- F:	include/uapi/linux/io_uring.h
- F:	tools/io_uring/
-diff --git a/Makefile b/Makefile
-index 13dd4bd226cb..90e2129a3b80 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1100,6 +1100,7 @@ export MODULES_NSDEPS := $(extmod_prefix)modules.nsdeps
- ifeq ($(KBUILD_EXTMOD),)
- core-y			+= kernel/ certs/ mm/ fs/ ipc/ security/ crypto/
- core-$(CONFIG_BLOCK)	+= block/
-+core-$(CONFIG_IO_URING)	+= io_uring/
- 
- vmlinux-dirs	:= $(patsubst %/,%,$(filter %/, \
- 		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \
-diff --git a/fs/Makefile b/fs/Makefile
-index 208a74e0b00e..93b80529f8e8 100644
---- a/fs/Makefile
-+++ b/fs/Makefile
-@@ -34,8 +34,6 @@ obj-$(CONFIG_TIMERFD)		+= timerfd.o
- obj-$(CONFIG_EVENTFD)		+= eventfd.o
- obj-$(CONFIG_USERFAULTFD)	+= userfaultfd.o
- obj-$(CONFIG_AIO)               += aio.o
--obj-$(CONFIG_IO_URING)		+= io_uring.o
--obj-$(CONFIG_IO_WQ)		+= io-wq.o
- obj-$(CONFIG_FS_DAX)		+= dax.o
- obj-$(CONFIG_FS_ENCRYPTION)	+= crypto/
- obj-$(CONFIG_FS_VERITY)		+= verity/
-diff --git a/io_uring/Makefile b/io_uring/Makefile
-new file mode 100644
-index 000000000000..3680425df947
---- /dev/null
-+++ b/io_uring/Makefile
-@@ -0,0 +1,6 @@
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Makefile for io_uring
++/*
++ * nvme_fc_io_getuuid - Routine called to get the appid field
++ * associated with request by the lldd
++ * @req:IO request from nvme fc to driver
++ * Returns: UUID if there is an appid associated with VM or
++ * NULL if the user/libvirt has not set the appid to VM
++ */
++char *nvme_fc_io_getuuid(struct nvmefc_fcp_req *req)
++{
++	struct nvme_fc_fcp_op *op = fcp_req_to_fcp_op(req);
++	struct request *rq = op->rq;
 +
-+obj-$(CONFIG_IO_URING)		+= io_uring.o
-+obj-$(CONFIG_IO_WQ)		+= io-wq.o
-diff --git a/fs/io-wq.c b/io_uring/io-wq.c
-similarity index 100%
-rename from fs/io-wq.c
-rename to io_uring/io-wq.c
-diff --git a/fs/io-wq.h b/io_uring/io-wq.h
-similarity index 100%
-rename from fs/io-wq.h
-rename to io_uring/io-wq.h
-diff --git a/fs/io_uring.c b/io_uring/io_uring.c
-similarity index 99%
-rename from fs/io_uring.c
-rename to io_uring/io_uring.c
-index 3d97372e811e..b25e59da129f 100644
---- a/fs/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -86,7 +86,7 @@
++	if (!IS_ENABLED(CONFIG_BLK_CGROUP_FC_APPID) || !rq->bio)
++		return NULL;
++	return blkcg_get_fc_appid(rq->bio);
++}
++EXPORT_SYMBOL_GPL(nvme_fc_io_getuuid);
++
+ static void
+ nvme_fc_fcpio_done(struct nvmefc_fcp_req *req)
+ {
+diff --git a/include/linux/nvme-fc-driver.h b/include/linux/nvme-fc-driver.h
+index 5358a5facdee..fa092b9be2fd 100644
+--- a/include/linux/nvme-fc-driver.h
++++ b/include/linux/nvme-fc-driver.h
+@@ -564,6 +564,15 @@ int nvme_fc_rcv_ls_req(struct nvme_fc_remote_port *remoteport,
+ 			void *lsreqbuf, u32 lsreqbuf_len);
  
- #include <uapi/linux/io_uring.h>
  
--#include "internal.h"
-+#include "../fs/internal.h"
- #include "io-wq.h"
- 
- #define IORING_MAX_ENTRIES	32768
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 6baf96d2fa39..72b2f277b0dd 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -88,7 +88,7 @@
- #include "stats.h"
- 
- #include "../workqueue_internal.h"
--#include "../../fs/io-wq.h"
-+#include "../../io_uring/io-wq.h"
- #include "../smpboot.h"
++/*
++ * Routine called to get the appid field associated with request by the lldd
++ *
++ * If the return value is NULL : the user/libvirt has not set the appid to VM
++ * If the return value is non-zero: Returns the appid associated with VM
++ *
++ * @req: IO request from nvme fc to driver
++ */
++char *nvme_fc_io_getuuid(struct nvmefc_fcp_req *req);
  
  /*
+  * ***************  LLDD FC-NVME Target/Subsystem API ***************
+@@ -1048,5 +1057,10 @@ int nvmet_fc_rcv_fcp_req(struct nvmet_fc_target_port *tgtport,
+ 
+ void nvmet_fc_rcv_fcp_abort(struct nvmet_fc_target_port *tgtport,
+ 			struct nvmefc_tgt_fcp_req *fcpreq);
++/*
++ * add a define, visible to the compiler, that indicates support
++ * for feature. Allows for conditional compilation in LLDDs.
++ */
++#define NVME_FC_FEAT_UUID	0x0001
+ 
+ #endif /* _NVME_FC_DRIVER_H */
 -- 
 2.35.1
 
