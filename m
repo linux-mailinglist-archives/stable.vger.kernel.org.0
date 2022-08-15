@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6F12595083
+	by mail.lfdr.de (Postfix) with ESMTP id 19D9F595081
 	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231958AbiHPEmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:42:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43148 "EHLO
+        id S231903AbiHPEmf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:42:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232677AbiHPElc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:41:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C95235580;
-        Mon, 15 Aug 2022 13:32:39 -0700 (PDT)
+        with ESMTP id S232504AbiHPElV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:41:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E66216464;
+        Mon, 15 Aug 2022 13:32:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F63261135;
-        Mon, 15 Aug 2022 20:32:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AB0CC433C1;
-        Mon, 15 Aug 2022 20:32:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7752461089;
+        Mon, 15 Aug 2022 20:32:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64999C433C1;
+        Mon, 15 Aug 2022 20:32:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595558;
-        bh=TSsNCgelctt+58xqKftZUVvkb58cH3/mqhqsM63/6wk=;
+        s=korg; t=1660595561;
+        bh=Z5x/bgKmS0/vOZX8XEIEyFg53M3CVwZjkMG4cnKDPm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QqQiaaGzA0hvEz8sAkGtY9+GTqhQiKsafxx/o7tFyH+uiggUOMuaMg/EdvuEiehNx
-         2w5ncM7282X9hUe+J3JHFnt+e//Zy1G6Y0gZd1Ouzc7+6eMw9wynHGtQZdE890VQ+j
-         BduSPWAs9RNZjZZDFKTB80UjhXvt6sjGbT4xyglc=
+        b=WOprpL71Ko4lICLtiC1UXOqyHeMWeVOyNMckjezG4ML6+E+qOEqOQmdtL9uGRC+QG
+         +RNDQhtfOyJw4NnTYIbTS7laTbzA8YG/h9NnQb7ivWfhNkeMRBuwWnQK56yU9c+lVw
+         RXGZPeBBkmujMoEOr8PT8Z1hdC1CYcoXpnQY82wE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Roese <sr@denx.de>,
+        stable@vger.kernel.org, Christian Marangi <ansuelsmth@gmail.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Yao Hongbo <yaohongbo@linux.alibaba.com>,
-        Naveen Naidu <naveennaidu479@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0803/1157] PCI/portdrv: Dont disable AER reporting in get_port_device_capability()
-Date:   Mon, 15 Aug 2022 20:02:39 +0200
-Message-Id: <20220815180511.616572327@linuxfoundation.org>
+Subject: [PATCH 5.19 0804/1157] PCI: qcom: Set up rev 2.1.0 PARF_PHY before enabling clocks
+Date:   Mon, 15 Aug 2022 20:02:40 +0200
+Message-Id: <20220815180511.648991392@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -60,100 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Roese <sr@denx.de>
+From: Christian Marangi <ansuelsmth@gmail.com>
 
-[ Upstream commit 8795e182b02dc87e343c79e73af6b8b7f9c5e635 ]
+[ Upstream commit 38f897ae3d44900f627cad708a15db498ce2ca31 ]
 
-AER reporting is currently disabled in the DevCtl registers of all non Root
-Port PCIe devices on systems using pcie_ports_native || host->native_aer,
-disabling AER completely in such systems. This is because 2bd50dd800b5
-("PCI: PCIe: Disable PCIe port services during port initialization"), added
-a call to pci_disable_pcie_error_reporting() *after* the AER setup was
-completed for the PCIe device tree.
+We currently enable clocks BEFORE we write to PARF_PHY_CTRL reg to enable
+clocks and resets. This causes the driver to never set to a ready state
+with the error 'Phy link never came up'.
 
-Here a longer analysis about the current status of AER enabling /
-disabling upon bootup provided by Bjorn:
+This is caused by the PHY clock getting enabled before setting the required
+bits in the PARF regs.
 
-  pcie_portdrv_probe
-    pcie_port_device_register
-      get_port_device_capability
-        pci_disable_pcie_error_reporting
-          clear CERE NFERE FERE URRE               # <-- disable for RP USP DSP
-      pcie_device_init
-        device_register                            # new AER service device
-          aer_probe
-            aer_enable_rootport                    # RP only
-              set_downstream_devices_error_reporting
-                set_device_error_reporting         # self (RP)
-                  if (RP || USP || DSP)
-                    pci_enable_pcie_error_reporting
-                      set CERE NFERE FERE URRE     # <-- enable for RP
-                pci_walk_bus
-                  set_device_error_reporting
-                    if (RP || USP || DSP)
-                      pci_enable_pcie_error_reporting
-                        set CERE NFERE FERE URRE   # <-- enable for USP DSP
+A workaround for this was set but with this new discovery we can drop
+the workaround and use a proper solution to the problem by just enabling
+the clock only AFTER the PARF_PHY_CTRL bit is set.
 
-In a typical Root Port -> Endpoint hierarchy, the above:
-  - Disables Error Reporting for the Root Port,
-  - Enables Error Reporting for the Root Port,
-  - Does NOT enable Error Reporting for the Endpoint because it is not a
-    Root Port or Switch Port.
+This correctly sets up the PCIe link and makes it usable even when a
+bootloader leaves the PCIe link in an undefined state.
 
-In a deeper Root Port -> Upstream Switch Port -> Downstream Switch
-Port -> Endpoint hierarchy:
-  - Disables Error Reporting for the Root Port,
-  - Enables Error Reporting for the Root Port,
-  - Enables Error Reporting for both Switch Ports,
-  - Does NOT enable Error Reporting for the Endpoint because it is not a
-    Root Port or Switch Port,
-  - Disables Error Reporting for the Switch Ports when pcie_portdrv_probe()
-    claims them.  AER does not re-enable it because these are not Root
-    Ports.
-
-Remove this call to pci_disable_pcie_error_reporting() from
-get_port_device_capability(), leaving the already enabled AER configuration
-intact. With this change, AER is enabled in the Root Port and the PCIe
-switch upstream and downstream ports. Only the PCIe Endpoints don't have
-AER enabled yet. A follow-up patch will take care of this Endpoint
-enabling.
-
-Fixes: 2bd50dd800b5 ("PCI: PCIe: Disable PCIe port services during port initialization")
-Link: https://lore.kernel.org/r/20220125071820.2247260-3-sr@denx.de
-Signed-off-by: Stefan Roese <sr@denx.de>
+Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
+Link: https://lore.kernel.org/r/20220708222743.27019-1-ansuelsmth@gmail.com
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Pali Rohár <pali@kernel.org>
-Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
-Cc: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
-Cc: Michal Simek <michal.simek@xilinx.com>
-Cc: Yao Hongbo <yaohongbo@linux.alibaba.com>
-Cc: Naveen Naidu <naveennaidu479@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pcie/portdrv_core.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/pci/controller/dwc/pcie-qcom.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pci/pcie/portdrv_core.c b/drivers/pci/pcie/portdrv_core.c
-index 604feeb84ee4..1ac7fec47d6f 100644
---- a/drivers/pci/pcie/portdrv_core.c
-+++ b/drivers/pci/pcie/portdrv_core.c
-@@ -222,15 +222,8 @@ static int get_port_device_capability(struct pci_dev *dev)
+diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+index 2ea13750b492..da13a66ced14 100644
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -337,8 +337,6 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 	reset_control_assert(res->ext_reset);
+ 	reset_control_assert(res->phy_reset);
  
- #ifdef CONFIG_PCIEAER
- 	if (dev->aer_cap && pci_aer_available() &&
--	    (pcie_ports_native || host->native_aer)) {
-+	    (pcie_ports_native || host->native_aer))
- 		services |= PCIE_PORT_SERVICE_AER;
+-	writel(1, pcie->parf + PCIE20_PARF_PHY_CTRL);
 -
--		/*
--		 * Disable AER on this port in case it's been enabled by the
--		 * BIOS (the AER service driver will enable it when necessary).
--		 */
--		pci_disable_pcie_error_reporting(dev);
--	}
- #endif
+ 	ret = regulator_bulk_enable(ARRAY_SIZE(res->supplies), res->supplies);
+ 	if (ret < 0) {
+ 		dev_err(dev, "cannot enable regulators\n");
+@@ -381,15 +379,15 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 		goto err_deassert_axi;
+ 	}
  
- 	/* Root Ports and Root Complex Event Collectors may generate PMEs */
+-	ret = clk_bulk_prepare_enable(ARRAY_SIZE(res->clks), res->clks);
+-	if (ret)
+-		goto err_clks;
+-
+ 	/* enable PCIe clocks and resets */
+ 	val = readl(pcie->parf + PCIE20_PARF_PHY_CTRL);
+ 	val &= ~BIT(0);
+ 	writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
+ 
++	ret = clk_bulk_prepare_enable(ARRAY_SIZE(res->clks), res->clks);
++	if (ret)
++		goto err_clks;
++
+ 	if (of_device_is_compatible(node, "qcom,pcie-ipq8064") ||
+ 	    of_device_is_compatible(node, "qcom,pcie-ipq8064-v2")) {
+ 		writel(PCS_DEEMPH_TX_DEEMPH_GEN1(24) |
 -- 
 2.35.1
 
