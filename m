@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2261593581
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FEE0593584
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240702AbiHOS1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:27:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57718 "EHLO
+        id S241171AbiHOS1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:27:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242131AbiHOSZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:25:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BAA02F664;
-        Mon, 15 Aug 2022 11:19:01 -0700 (PDT)
+        with ESMTP id S242318AbiHOS0C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:26:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F8902F67F;
+        Mon, 15 Aug 2022 11:19:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F88F6068B;
-        Mon, 15 Aug 2022 18:18:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64B27C433D6;
-        Mon, 15 Aug 2022 18:18:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67252B80F99;
+        Mon, 15 Aug 2022 18:18:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D80DC433C1;
+        Mon, 15 Aug 2022 18:18:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587517;
-        bh=1nyJF6tS4IDL2t+3hw/6H7P10fs3MNbMX922x6MthPw=;
+        s=korg; t=1660587521;
+        bh=ktZ+YUfLo8CeU345XT9G1M7j/YCZnhlTFnxaB4h9gXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=drS5MyEBryUcRSH9sKlDXT030OiwP4Bkmr1K2LAYqpHv1Xwl+0+jLDWol6B4ra+oi
-         PeddlfWBeiplnwTEEjm5U0jaVLCbD2cyUUwBxqdpputZ7vGamuRgVy9jGoB/+UGrF5
-         zh7Oq436VeKu9C1QBXE5MyF2yCGinlWqAJyr9qjs=
+        b=RAYr4bsoBwILyJNoD/k3wk4EMnxa9EuVw9OKrYXkJkKvAQBJfp+z4YqqHUtbAH1YF
+         yfUvnlm1/gan7Kypa6iqj2B9Qt87F9Z33/F5sKMZIXknh/j4oCyXBI/zZohc4evKpd
+         6Sf8TXcM+v/XzNfc99OtOH4IafBroV6/crJ6fEQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, mingi cho <mgcho.minic@gmail.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.15 109/779] netfilter: nf_tables: fix null deref due to zeroed list head
-Date:   Mon, 15 Aug 2022 19:55:53 +0200
-Message-Id: <20220815180341.982021377@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Segall <bsegall@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Roman Penyaev <rpenyaev@suse.de>,
+        Jason Baron <jbaron@akamai.com>,
+        Khazhismel Kumykov <khazhy@google.com>, Heiher <r@hev.cc>,
+        stable@kernel.org, Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 110/779] epoll: autoremove wakers even more aggressively
+Date:   Mon, 15 Aug 2022 19:55:54 +0200
+Message-Id: <20220815180342.032766610@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,45 +60,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Benjamin Segall <bsegall@google.com>
 
-commit 580077855a40741cf511766129702d97ff02f4d9 upstream.
+commit a16ceb13961068f7209e34d7984f8e42d2c06159 upstream.
 
-In nf_tables_updtable, if nf_tables_table_enable returns an error,
-nft_trans_destroy is called to free the transaction object.
+If a process is killed or otherwise exits while having active network
+connections and many threads waiting on epoll_wait, the threads will all
+be woken immediately, but not removed from ep->wq.  Then when network
+traffic scans ep->wq in wake_up, every wakeup attempt will fail, and will
+not remove the entries from the list.
 
-nft_trans_destroy() calls list_del(), but the transaction was never
-placed on a list -- the list head is all zeroes, this results in
-a null dereference:
+This means that the cost of the wakeup attempt is far higher than usual,
+does not decrease, and this also competes with the dying threads trying to
+actually make progress and remove themselves from the wq.
 
-BUG: KASAN: null-ptr-deref in nft_trans_destroy+0x26/0x59
-Call Trace:
- nft_trans_destroy+0x26/0x59
- nf_tables_newtable+0x4bc/0x9bc
- [..]
+Handle this by removing visited epoll wq entries unconditionally, rather
+than only when the wakeup succeeds - the structure of ep_poll means that
+the only potential loss is the timed_out->eavail heuristic, which now can
+race and result in a redundant ep_send_events attempt.  (But only when
+incoming data and a timeout actually race, not on every timeout)
 
-Its sane to assume that nft_trans_destroy() can be called
-on the transaction object returned by nft_trans_alloc(), so
-make sure the list head is initialised.
+Shakeel added:
 
-Fixes: 55dd6f93076b ("netfilter: nf_tables: use new transaction infrastructure to handle table")
-Reported-by: mingi cho <mgcho.minic@gmail.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+: We are seeing this issue in production with real workloads and it has
+: caused hard lockups.  Particularly network heavy workloads with a lot
+: of threads in epoll_wait() can easily trigger this issue if they get
+: killed (oom-killed in our case).
+
+Link: https://lkml.kernel.org/r/xm26fsjotqda.fsf@google.com
+Signed-off-by: Ben Segall <bsegall@google.com>
+Tested-by: Shakeel Butt <shakeelb@google.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Roman Penyaev <rpenyaev@suse.de>
+Cc: Jason Baron <jbaron@akamai.com>
+Cc: Khazhismel Kumykov <khazhy@google.com>
+Cc: Heiher <r@hev.cc>
+Cc: <stable@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/eventpoll.c |   22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -153,6 +153,7 @@ static struct nft_trans *nft_trans_alloc
- 	if (trans == NULL)
- 		return NULL;
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -1740,6 +1740,21 @@ static struct timespec64 *ep_timeout_to_
+ 	return to;
+ }
  
-+	INIT_LIST_HEAD(&trans->list);
- 	trans->msg_type = msg_type;
- 	trans->ctx	= *ctx;
++/*
++ * autoremove_wake_function, but remove even on failure to wake up, because we
++ * know that default_wake_function/ttwu will only fail if the thread is already
++ * woken, and in that case the ep_poll loop will remove the entry anyways, not
++ * try to reuse it.
++ */
++static int ep_autoremove_wake_function(struct wait_queue_entry *wq_entry,
++				       unsigned int mode, int sync, void *key)
++{
++	int ret = default_wake_function(wq_entry, mode, sync, key);
++
++	list_del_init(&wq_entry->entry);
++	return ret;
++}
++
+ /**
+  * ep_poll - Retrieves ready events, and delivers them to the caller-supplied
+  *           event buffer.
+@@ -1821,8 +1836,15 @@ static int ep_poll(struct eventpoll *ep,
+ 		 * normal wakeup path no need to call __remove_wait_queue()
+ 		 * explicitly, thus ep->lock is not taken, which halts the
+ 		 * event delivery.
++		 *
++		 * In fact, we now use an even more aggressive function that
++		 * unconditionally removes, because we don't reuse the wait
++		 * entry between loop iterations. This lets us also avoid the
++		 * performance issue if a process is killed, causing all of its
++		 * threads to wake up without being removed normally.
+ 		 */
+ 		init_wait(&wait);
++		wait.func = ep_autoremove_wake_function;
  
+ 		write_lock_irq(&ep->lock);
+ 		/*
 
 
