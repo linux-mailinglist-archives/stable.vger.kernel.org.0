@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC167594954
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:11:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 457D8594A2B
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:17:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344244AbiHOXII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:08:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34726 "EHLO
+        id S1345679AbiHOXI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:08:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353169AbiHOXHU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:07:20 -0400
+        with ESMTP id S1353231AbiHOXHa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:07:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08846792C9;
-        Mon, 15 Aug 2022 12:59:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64C82250;
+        Mon, 15 Aug 2022 12:59:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6144AB80EAD;
-        Mon, 15 Aug 2022 19:59:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4142C433D6;
-        Mon, 15 Aug 2022 19:59:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 600A7B80EB1;
+        Mon, 15 Aug 2022 19:59:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA4DC433C1;
+        Mon, 15 Aug 2022 19:59:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593562;
-        bh=ckpDEeEgJ/UECDM9viJTkM7Sj1003rU4VIiNM4CXKbA=;
+        s=korg; t=1660593568;
+        bh=/SbU5TgNUUjW574cJkQIC7C8/S1kgwxyehokC/ht1GA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m51cPvfh2mK9aAyYJkd4qTCFujqWmfgdzBrPzHBKRV/NwCqnXCdBG//Qm3PZoPfVl
-         ZptxR5aWBXvRhOG37SnBBqRU8XQgR/8Ovm02XKmNUQ02XWe+KrVCFO2C9ywWKbt35Q
-         Wa4o7tdDKr2J6WeqYkAiWiz3DqC8FgllB6nffbmg=
+        b=Xd6mCglr8NfET1J3hauQ7mqfVUpQpCvKScElygYo7xqFpBKqFlIUrJzKaMMy0Ou6c
+         7YTGXshh1Cc0qDPGeHHSQ7G7QxZZTct4BF5WwM8L/lgsmWkFzqHkC9Du00lyR6pjjq
+         3Aa7YAw9Lrn+ArBMyaO/rkgyFpmRm7bkvoYzrT14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.18 0968/1095] scsi: qla2xxx: Fix losing FCP-2 targets on long port disable with I/Os
-Date:   Mon, 15 Aug 2022 20:06:07 +0200
-Message-Id: <20220815180509.109325954@linuxfoundation.org>
+Subject: [PATCH 5.18 0969/1095] scsi: qla2xxx: Fix losing target when it reappears during delete
+Date:   Mon, 15 Aug 2022 20:06:08 +0200
+Message-Id: <20220815180509.144944018@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,13 +56,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arun Easi <aeasi@marvell.com>
 
-commit 2416ccd3815ba1613e10a6da0a24ef21acfe5633 upstream.
+commit 118b0c863c8f5629cc5271fc24d72d926e0715d9 upstream.
 
-FCP-2 devices were not coming back online once they were lost, login
-retries exhausted, and then came back up.  Fix this by accepting RSCN when
-the device is not online.
+FC target disappeared during port perturbation tests due to a race that
+tramples target state.  Fix the issue by adding state checks before
+proceeding.
 
-Link: https://lore.kernel.org/r/20220616053508.27186-10-njavali@marvell.com
+Link: https://lore.kernel.org/r/20220616053508.27186-8-njavali@marvell.com
 Fixes: 44c57f205876 ("scsi: qla2xxx: Changes to support FCP2 Target")
 Cc: stable@vger.kernel.org
 Signed-off-by: Arun Easi <aeasi@marvell.com>
@@ -70,50 +70,63 @@ Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/scsi/qla2xxx/qla_attr.c |   24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -1834,7 +1834,8 @@ void qla2x00_handle_rscn(scsi_qla_host_t
- 	case RSCN_PORT_ADDR:
- 		fcport = qla2x00_find_fcport_by_nportid(vha, &ea->id, 1);
- 		if (fcport) {
--			if (fcport->flags & FCF_FCP2_DEVICE) {
-+			if (fcport->flags & FCF_FCP2_DEVICE &&
-+			    atomic_read(&fcport->state) == FCS_ONLINE) {
- 				ql_dbg(ql_dbg_disc, vha, 0x2115,
- 				       "Delaying session delete for FCP2 portid=%06x %8phC ",
- 					fcport->d_id.b24, fcport->port_name);
-@@ -1866,7 +1867,8 @@ void qla2x00_handle_rscn(scsi_qla_host_t
- 		break;
- 	case RSCN_AREA_ADDR:
- 		list_for_each_entry(fcport, &vha->vp_fcports, list) {
--			if (fcport->flags & FCF_FCP2_DEVICE)
-+			if (fcport->flags & FCF_FCP2_DEVICE &&
-+			    atomic_read(&fcport->state) == FCS_ONLINE)
- 				continue;
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -2716,17 +2716,24 @@ qla2x00_dev_loss_tmo_callbk(struct fc_rp
+ 	if (!fcport)
+ 		return;
  
- 			if ((ea->id.b24 & 0xffff00) == (fcport->d_id.b24 & 0xffff00)) {
-@@ -1877,7 +1879,8 @@ void qla2x00_handle_rscn(scsi_qla_host_t
- 		break;
- 	case RSCN_DOM_ADDR:
- 		list_for_each_entry(fcport, &vha->vp_fcports, list) {
--			if (fcport->flags & FCF_FCP2_DEVICE)
-+			if (fcport->flags & FCF_FCP2_DEVICE &&
-+			    atomic_read(&fcport->state) == FCS_ONLINE)
- 				continue;
+-	/* Now that the rport has been deleted, set the fcport state to
+-	   FCS_DEVICE_DEAD */
+-	qla2x00_set_fcport_state(fcport, FCS_DEVICE_DEAD);
++
++	/*
++	 * Now that the rport has been deleted, set the fcport state to
++	 * FCS_DEVICE_DEAD, if the fcport is still lost.
++	 */
++	if (fcport->scan_state != QLA_FCPORT_FOUND)
++		qla2x00_set_fcport_state(fcport, FCS_DEVICE_DEAD);
  
- 			if ((ea->id.b24 & 0xff0000) == (fcport->d_id.b24 & 0xff0000)) {
-@@ -1889,7 +1892,8 @@ void qla2x00_handle_rscn(scsi_qla_host_t
- 	case RSCN_FAB_ADDR:
- 	default:
- 		list_for_each_entry(fcport, &vha->vp_fcports, list) {
--			if (fcport->flags & FCF_FCP2_DEVICE)
-+			if (fcport->flags & FCF_FCP2_DEVICE &&
-+			    atomic_read(&fcport->state) == FCS_ONLINE)
- 				continue;
+ 	/*
+ 	 * Transport has effectively 'deleted' the rport, clear
+ 	 * all local references.
+ 	 */
+ 	spin_lock_irqsave(host->host_lock, flags);
+-	fcport->rport = fcport->drport = NULL;
+-	*((fc_port_t **)rport->dd_data) = NULL;
++	/* Confirm port has not reappeared before clearing pointers. */
++	if (rport->port_state != FC_PORTSTATE_ONLINE) {
++		fcport->rport = fcport->drport = NULL;
++		*((fc_port_t **)rport->dd_data) = NULL;
++	}
+ 	spin_unlock_irqrestore(host->host_lock, flags);
  
- 			fcport->scan_needed = 1;
+ 	if (test_bit(ABORT_ISP_ACTIVE, &fcport->vha->dpc_flags))
+@@ -2759,9 +2766,12 @@ qla2x00_terminate_rport_io(struct fc_rpo
+ 	/*
+ 	 * At this point all fcport's software-states are cleared.  Perform any
+ 	 * final cleanup of firmware resources (PCBs and XCBs).
++	 *
++	 * Attempt to cleanup only lost devices.
+ 	 */
+ 	if (fcport->loop_id != FC_NO_LOOP_ID) {
+-		if (IS_FWI2_CAPABLE(fcport->vha->hw)) {
++		if (IS_FWI2_CAPABLE(fcport->vha->hw) &&
++		    fcport->scan_state != QLA_FCPORT_FOUND) {
+ 			if (fcport->loop_id != FC_NO_LOOP_ID)
+ 				fcport->logout_on_delete = 1;
+ 
+@@ -2771,7 +2781,7 @@ qla2x00_terminate_rport_io(struct fc_rpo
+ 				       __LINE__);
+ 				qlt_schedule_sess_for_deletion(fcport);
+ 			}
+-		} else {
++		} else if (!IS_FWI2_CAPABLE(fcport->vha->hw)) {
+ 			qla2x00_port_logout(fcport->vha, fcport);
+ 		}
+ 	}
 
 
