@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8427F593F79
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:45:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4CD6593FA7
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:45:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230233AbiHOVOb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:14:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55112 "EHLO
+        id S233428AbiHOVOd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:14:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231310AbiHOVMv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:12:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 271FAD9EB9;
-        Mon, 15 Aug 2022 12:19:37 -0700 (PDT)
+        with ESMTP id S231867AbiHOVMy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:12:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E02D9E88;
+        Mon, 15 Aug 2022 12:19:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 740E7B810C6;
-        Mon, 15 Aug 2022 19:19:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B401EC43146;
-        Mon, 15 Aug 2022 19:19:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3F5860FAD;
+        Mon, 15 Aug 2022 19:19:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE307C433C1;
+        Mon, 15 Aug 2022 19:19:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591174;
-        bh=/Ep41pE7oDOpaDpBHOmpca5SEeozGMujjWwqQHauVtA=;
+        s=korg; t=1660591177;
+        bh=8TplkGd97N18pN9xdr3NQUO0P7WdvSM5cJZ6n9xVWmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gWAZWS+KGfGXBUSWVIyRjwwILtZrAmQBOcRJnCLIWNT8DTML6CqXurAsmzKoLV5Oa
-         amPFsUpKLDyYon3+Hxy+733LVcS7U+w1wqz+V5/YtmHmRR1WPDLvQhW+eSIe48yd3H
-         ervFcywt7sM0KZgnU+Q89AG2EchlS0Zb/tpjrbaw=
+        b=dco02L137gEjscKqSamDkC9myKKXkcfGKh2vsojkonO+5/VvbOa4Em3Z+OwMliZq0
+         q7ieW99x9K/lG8qV94xsNT2Jsyq/CCEe2VDiBiBI9KhWcIW3r/IU4kT39hK7VfXxkG
+         b7xbn9iW3fyOTUVfgHhwCh6vOlYkFFCzolTYajJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0494/1095] can: pch_can: pch_can_error(): initialize errc before using it
-Date:   Mon, 15 Aug 2022 19:58:13 +0200
-Message-Id: <20220815180449.970063047@linuxfoundation.org>
+Subject: [PATCH 5.18 0495/1095] Bluetooth: hci_intel: Add check for platform_driver_register
+Date:   Mon, 15 Aug 2022 19:58:14 +0200
+Message-Id: <20220815180450.002752306@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,56 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 9950f11211331180269867aef848c7cf56861742 ]
+[ Upstream commit ab2d2a982ff721f4b029282d9a40602ea46a745e ]
 
-After commit 3a5c7e4611dd, the variable errc is accessed before being
-initialized, c.f. below W=2 warning:
+As platform_driver_register() could fail, it should be better
+to deal with the return value in order to maintain the code
+consisitency.
 
-| In function 'pch_can_error',
-|     inlined from 'pch_can_poll' at drivers/net/can/pch_can.c:739:4:
-| drivers/net/can/pch_can.c:501:29: warning: 'errc' may be used uninitialized [-Wmaybe-uninitialized]
-|   501 |                 cf->data[6] = errc & PCH_TEC;
-|       |                             ^
-| drivers/net/can/pch_can.c: In function 'pch_can_poll':
-| drivers/net/can/pch_can.c:484:13: note: 'errc' was declared here
-|   484 |         u32 errc, lec;
-|       |             ^~~~
-
-Moving errc initialization up solves this issue.
-
-Fixes: 3a5c7e4611dd ("can: pch_can: do not report txerr and rxerr during bus-off")
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/all/20220721160032.9348-1-mailhol.vincent@wanadoo.fr
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 1ab1f239bf17 ("Bluetooth: hci_intel: Add support for platform driver")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/pch_can.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bluetooth/hci_intel.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/pch_can.c b/drivers/net/can/pch_can.c
-index 076b1339f806..17f8d67ddb18 100644
---- a/drivers/net/can/pch_can.c
-+++ b/drivers/net/can/pch_can.c
-@@ -489,6 +489,7 @@ static void pch_can_error(struct net_device *ndev, u32 status)
- 	if (!skb)
- 		return;
+diff --git a/drivers/bluetooth/hci_intel.c b/drivers/bluetooth/hci_intel.c
+index 7249b91d9b91..78afb9a348e7 100644
+--- a/drivers/bluetooth/hci_intel.c
++++ b/drivers/bluetooth/hci_intel.c
+@@ -1217,7 +1217,11 @@ static struct platform_driver intel_driver = {
  
-+	errc = ioread32(&priv->regs->errc);
- 	if (status & PCH_BUS_OFF) {
- 		pch_can_set_tx_all(priv, 0);
- 		pch_can_set_rx_all(priv, 0);
-@@ -501,7 +502,6 @@ static void pch_can_error(struct net_device *ndev, u32 status)
- 		cf->data[7] = (errc & PCH_REC) >> 8;
- 	}
+ int __init intel_init(void)
+ {
+-	platform_driver_register(&intel_driver);
++	int err;
++
++	err = platform_driver_register(&intel_driver);
++	if (err)
++		return err;
  
--	errc = ioread32(&priv->regs->errc);
- 	/* Warning interrupt. */
- 	if (status & PCH_EWARN) {
- 		state = CAN_STATE_ERROR_WARNING;
+ 	return hci_uart_register_proto(&intel_proto);
+ }
 -- 
 2.35.1
 
