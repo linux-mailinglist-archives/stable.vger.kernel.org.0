@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCB3559356A
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89B65593580
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241520AbiHOSYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:24:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54412 "EHLO
+        id S239938AbiHOS1O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:27:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241453AbiHOSXw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:23:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A12982ED44;
-        Mon, 15 Aug 2022 11:17:53 -0700 (PDT)
+        with ESMTP id S241848AbiHOSZm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:25:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0CDD2F648;
+        Mon, 15 Aug 2022 11:18:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7ABC4B81063;
-        Mon, 15 Aug 2022 18:17:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBB3DC433D6;
-        Mon, 15 Aug 2022 18:17:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF66BB81076;
+        Mon, 15 Aug 2022 18:18:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A57AC433C1;
+        Mon, 15 Aug 2022 18:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587469;
-        bh=k99rQfAN/Lt2RYkkU5H2EoGW+vQy2MUMH4d2va9jXms=;
+        s=korg; t=1660587504;
+        bh=RMT8ytOfZjSu0bN8FyZcF57Fp9VFOBE1H9lsAtGFPlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=scDyuHF75ou4xVkK7qUF0Bw7GB5ee9AiUHaTEv2NTK8+Hk+Q5h+fY3HeNGjCKRnBW
-         8OOXngS47gaORaR1qKzNV4kXZ53vQMoiJiYfO6XJbUcTe3EvltRQGQBb92Iblchhgl
-         6QFkoTi7h7qN7NgkoCDoDQspiqIH632qzaDmAN8s=
+        b=AT5FqB4Cwgeq5ez6Md3JgtEOqxGprFRDijvplbcWtg2EfisDfVrNt65oY2QRr4bgO
+         hji2qavSd9tzSGySZSVvNfIwr2lnFGTfVx53EgDAfhevi5f0NW0fRXwYKgDldSOgzm
+         EcgO34kla9+vnwYLwfB7cID4eNQOrmybr8IQRmM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Guo <yi.guo@cavium.com>,
-        Nadav Haklai <nadavh@marvell.com>,
-        Narendra Hadke <nhadke@marvell.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 5.15 087/779] serial: mvebu-uart: uart2 error bits clearing
-Date:   Mon, 15 Aug 2022 19:55:31 +0200
-Message-Id: <20220815180340.999276684@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Song Liu <song@kernel.org>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 088/779] md-raid: destroy the bitmap after destroying the thread
+Date:   Mon, 15 Aug 2022 19:55:32 +0200
+Message-Id: <20220815180341.047846128@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,50 +53,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Narendra Hadke <nhadke@marvell.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit a7209541239e5dd44d981289e5f9059222d40fd1 upstream.
+commit e151db8ecfb019b7da31d076130a794574c89f6f upstream.
 
-For mvebu uart2, error bits are not cleared on buffer read.
-This causes interrupt loop and system hang.
+When we ran the lvm test "shell/integrity-blocksize-3.sh" on a kernel with
+kasan, we got failure in write_page.
 
+The reason for the failure is that md_bitmap_destroy is called before
+destroying the thread and the thread may be waiting in the function
+write_page for the bio to complete. When the thread finishes waiting, it
+executes "if (test_bit(BITMAP_WRITE_ERROR, &bitmap->flags))", which
+triggers the kasan warning.
+
+Note that the commit 48df498daf62 that caused this bug claims that it is
+neede for md-cluster, you should check md-cluster and possibly find
+another bugfix for it.
+
+BUG: KASAN: use-after-free in write_page+0x18d/0x680 [md_mod]
+Read of size 8 at addr ffff889162030c78 by task mdX_raid1/5539
+
+CPU: 10 PID: 5539 Comm: mdX_raid1 Not tainted 5.19.0-rc2 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x34/0x44
+ print_report.cold+0x45/0x57a
+ ? __lock_text_start+0x18/0x18
+ ? write_page+0x18d/0x680 [md_mod]
+ kasan_report+0xa8/0xe0
+ ? write_page+0x18d/0x680 [md_mod]
+ kasan_check_range+0x13f/0x180
+ write_page+0x18d/0x680 [md_mod]
+ ? super_sync+0x4d5/0x560 [dm_raid]
+ ? md_bitmap_file_kick+0xa0/0xa0 [md_mod]
+ ? rs_set_dev_and_array_sectors+0x2e0/0x2e0 [dm_raid]
+ ? mutex_trylock+0x120/0x120
+ ? preempt_count_add+0x6b/0xc0
+ ? preempt_count_sub+0xf/0xc0
+ md_update_sb+0x707/0xe40 [md_mod]
+ md_reap_sync_thread+0x1b2/0x4a0 [md_mod]
+ md_check_recovery+0x533/0x960 [md_mod]
+ raid1d+0xc8/0x2a20 [raid1]
+ ? var_wake_function+0xe0/0xe0
+ ? psi_group_change+0x411/0x500
+ ? preempt_count_sub+0xf/0xc0
+ ? _raw_spin_lock_irqsave+0x78/0xc0
+ ? __lock_text_start+0x18/0x18
+ ? raid1_end_read_request+0x2a0/0x2a0 [raid1]
+ ? preempt_count_sub+0xf/0xc0
+ ? _raw_spin_unlock_irqrestore+0x19/0x40
+ ? del_timer_sync+0xa9/0x100
+ ? try_to_del_timer_sync+0xc0/0xc0
+ ? _raw_spin_lock_irqsave+0x78/0xc0
+ ? __lock_text_start+0x18/0x18
+ ? __list_del_entry_valid+0x68/0xa0
+ ? finish_wait+0xa3/0x100
+ md_thread+0x161/0x260 [md_mod]
+ ? unregister_md_personality+0xa0/0xa0 [md_mod]
+ ? _raw_spin_lock_irqsave+0x78/0xc0
+ ? prepare_to_wait_event+0x2c0/0x2c0
+ ? unregister_md_personality+0xa0/0xa0 [md_mod]
+ kthread+0x148/0x180
+ ? kthread_complete_and_exit+0x20/0x20
+ ret_from_fork+0x1f/0x30
+ </TASK>
+
+Allocated by task 5522:
+ kasan_save_stack+0x1e/0x40
+ __kasan_kmalloc+0x80/0xa0
+ md_bitmap_create+0xa8/0xe80 [md_mod]
+ md_run+0x777/0x1300 [md_mod]
+ raid_ctr+0x249c/0x4a30 [dm_raid]
+ dm_table_add_target+0x2b0/0x620 [dm_mod]
+ table_load+0x1c8/0x400 [dm_mod]
+ ctl_ioctl+0x29e/0x560 [dm_mod]
+ dm_compat_ctl_ioctl+0x7/0x20 [dm_mod]
+ __do_compat_sys_ioctl+0xfa/0x160
+ do_syscall_64+0x90/0xc0
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Freed by task 5680:
+ kasan_save_stack+0x1e/0x40
+ kasan_set_track+0x21/0x40
+ kasan_set_free_info+0x20/0x40
+ __kasan_slab_free+0xf7/0x140
+ kfree+0x80/0x240
+ md_bitmap_free+0x1c3/0x280 [md_mod]
+ __md_stop+0x21/0x120 [md_mod]
+ md_stop+0x9/0x40 [md_mod]
+ raid_dtr+0x1b/0x40 [dm_raid]
+ dm_table_destroy+0x98/0x1e0 [dm_mod]
+ __dm_destroy+0x199/0x360 [dm_mod]
+ dev_remove+0x10c/0x160 [dm_mod]
+ ctl_ioctl+0x29e/0x560 [dm_mod]
+ dm_compat_ctl_ioctl+0x7/0x20 [dm_mod]
+ __do_compat_sys_ioctl+0xfa/0x160
+ do_syscall_64+0x90/0xc0
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Yi Guo <yi.guo@cavium.com>
-Reviewed-by: Nadav Haklai <nadavh@marvell.com>
-Signed-off-by: Narendra Hadke <nhadke@marvell.com>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20220726091221.12358-1-pali@kernel.org
+Fixes: 48df498daf62 ("md: move bitmap_destroy to the beginning of __md_stop")
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/mvebu-uart.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/md/md.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -237,6 +237,7 @@ static void mvebu_uart_rx_chars(struct u
- 	struct tty_port *tport = &port->state->port;
- 	unsigned char ch = 0;
- 	char flag = 0;
-+	int ret;
- 
- 	do {
- 		if (status & STAT_RX_RDY(port)) {
-@@ -249,6 +250,16 @@ static void mvebu_uart_rx_chars(struct u
- 				port->icount.parity++;
- 		}
- 
-+		/*
-+		 * For UART2, error bits are not cleared on buffer read.
-+		 * This causes interrupt loop and system hang.
-+		 */
-+		if (IS_EXTENDED(port) && (status & STAT_BRK_ERR)) {
-+			ret = readl(port->membase + UART_STAT);
-+			ret |= STAT_BRK_ERR;
-+			writel(ret, port->membase + UART_STAT);
-+		}
-+
- 		if (status & STAT_BRK_DET) {
- 			port->icount.brk++;
- 			status &= ~(STAT_FRM_ERR | STAT_PAR_ERR);
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -6251,11 +6251,11 @@ static void mddev_detach(struct mddev *m
+ static void __md_stop(struct mddev *mddev)
+ {
+ 	struct md_personality *pers = mddev->pers;
+-	md_bitmap_destroy(mddev);
+ 	mddev_detach(mddev);
+ 	/* Ensure ->event_work is done */
+ 	if (mddev->event_work.func)
+ 		flush_workqueue(md_misc_wq);
++	md_bitmap_destroy(mddev);
+ 	spin_lock(&mddev->lock);
+ 	mddev->pers = NULL;
+ 	spin_unlock(&mddev->lock);
 
 
