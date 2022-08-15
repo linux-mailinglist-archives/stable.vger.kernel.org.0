@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28C225937FE
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8550B593995
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242138AbiHOSmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:42:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38466 "EHLO
+        id S242158AbiHOSmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:42:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243799AbiHOSlY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:41:24 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC2562657;
-        Mon, 15 Aug 2022 11:25:02 -0700 (PDT)
+        with ESMTP id S243815AbiHOSl0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:41:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 423123F32A;
+        Mon, 15 Aug 2022 11:25:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E646ACE125C;
-        Mon, 15 Aug 2022 18:25:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA1C6C433D6;
-        Mon, 15 Aug 2022 18:24:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CEB41B80F99;
+        Mon, 15 Aug 2022 18:25:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07CD3C433D6;
+        Mon, 15 Aug 2022 18:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587899;
-        bh=XAE+/OLaoY0GXqpevQP/rGZXBm8MGtL2ZRz1sE5nkBk=;
+        s=korg; t=1660587902;
+        bh=UF5GPIszFRHwpo/77bs1bWbnNvzx9uno6HUPVgnvNao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LgS+1Q14uEfCUrlF67lidyvpe/f7bYe8iErpqbfuJeIzQCwnO5K/rgZ/UgFYRZNb2
-         c8ylAps7RxUYe0dMciKcJktztwtjVufrj4hchhroOPWg1d2EhQm0hJW6VgX3Rlp8je
-         uwQZ81T+ceqZa6IFKcjh2lOvA+qM21LTs5S2M9mI=
+        b=xPf5cRvjf2EIFMPV7OauN6gY4yCMlT9VclNlyujHy8zAZyt/4Znku91ZoKdinvFQd
+         Lcx1A+y6VZ8Mu5TxU1KKYR3d23SmYXhbKc6xYvTh/BRAkYy0nHHPh6O36gcmuZgf66
+         edMjZLFwNQcJI5Ra4ZZZ/2lDyPFbFOmTeSXU+fCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <u.kleine-koenig@pengutronix.de>,
         Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 231/779] pwm: lpc18xx-sct: Reduce number of devm memory allocations
-Date:   Mon, 15 Aug 2022 19:57:55 +0200
-Message-Id: <20220815180347.162000913@linuxfoundation.org>
+Subject: [PATCH 5.15 232/779] pwm: lpc18xx-sct: Simplify driver by not using pwm_[gs]et_chip_data()
+Date:   Mon, 15 Aug 2022 19:57:56 +0200
+Message-Id: <20220815180347.200305319@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -58,65 +58,117 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 20d9de9c4d6642bb40c935233697723b56573cbc ]
+[ Upstream commit 9136a39e6cf69e49803ac6123a4ac4431bc915a2 ]
 
-Each devm allocations has an overhead of 24 bytes to store the related
-struct devres_node additionally to the fragmentation of the allocator.
-So allocating 16 struct lpc18xx_pwm_data (which only hold a single int)
-adds quite some overhead. Instead put the per-channel data into the
-driver data struct and allocate it in one go.
+The per-channel data is available directly in the driver data struct. So
+use it without making use of pwm_[gs]et_chip_data().
+
+The relevant change introduced by this patch to lpc18xx_pwm_disable() at
+the assembler level (for an arm lpc18xx_defconfig build) is:
+
+	push    {r3, r4, r5, lr}
+	mov     r4, r0
+	mov     r0, r1
+	mov     r5, r1
+	bl      0 <pwm_get_chip_data>
+	ldr     r3, [r0, #0]
+
+changes to
+
+	ldr     r3, [r1, #8]
+	push    {r4, lr}
+	add.w   r3, r0, r3, lsl #2
+	ldr     r3, [r3, #92]   ; 0x5c
+
+So this reduces stack usage, has an improved runtime behavior because of
+better pipeline usage, doesn't branch to an external function and the
+generated code is a bit smaller occupying less memory.
+
+The codesize of lpc18xx_pwm_probe() is reduced by 32 bytes.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-lpc18xx-sct.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/pwm/pwm-lpc18xx-sct.c | 23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/pwm/pwm-lpc18xx-sct.c b/drivers/pwm/pwm-lpc18xx-sct.c
-index 8cc8ae16553c..6cf02554066c 100644
+index 6cf02554066c..b909096dba2f 100644
 --- a/drivers/pwm/pwm-lpc18xx-sct.c
 +++ b/drivers/pwm/pwm-lpc18xx-sct.c
-@@ -76,6 +76,8 @@
- #define LPC18XX_PWM_EVENT_PERIOD	0
- #define LPC18XX_PWM_EVENT_MAX		16
+@@ -166,7 +166,7 @@ static void lpc18xx_pwm_config_duty(struct pwm_chip *chip,
+ 				    struct pwm_device *pwm, int duty_ns)
+ {
+ 	struct lpc18xx_pwm_chip *lpc18xx_pwm = to_lpc18xx_pwm_chip(chip);
+-	struct lpc18xx_pwm_data *lpc18xx_data = pwm_get_chip_data(pwm);
++	struct lpc18xx_pwm_data *lpc18xx_data = &lpc18xx_pwm->channeldata[pwm->hwpwm];
+ 	u64 val;
  
-+#define LPC18XX_NUM_PWMS		16
-+
- /* SCT conflict resolution */
- enum lpc18xx_pwm_res_action {
- 	LPC18XX_PWM_RES_NONE,
-@@ -101,6 +103,7 @@ struct lpc18xx_pwm_chip {
- 	unsigned long event_map;
- 	struct mutex res_lock;
- 	struct mutex period_lock;
-+	struct lpc18xx_pwm_data channeldata[LPC18XX_NUM_PWMS];
- };
+ 	val = (u64)duty_ns * lpc18xx_pwm->clk_rate;
+@@ -236,7 +236,7 @@ static int lpc18xx_pwm_set_polarity(struct pwm_chip *chip,
+ static int lpc18xx_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
+ {
+ 	struct lpc18xx_pwm_chip *lpc18xx_pwm = to_lpc18xx_pwm_chip(chip);
+-	struct lpc18xx_pwm_data *lpc18xx_data = pwm_get_chip_data(pwm);
++	struct lpc18xx_pwm_data *lpc18xx_data = &lpc18xx_pwm->channeldata[pwm->hwpwm];
+ 	enum lpc18xx_pwm_res_action res_action;
+ 	unsigned int set_event, clear_event;
  
- static inline struct lpc18xx_pwm_chip *
-@@ -370,7 +373,7 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+@@ -271,7 +271,7 @@ static int lpc18xx_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
+ static void lpc18xx_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
+ {
+ 	struct lpc18xx_pwm_chip *lpc18xx_pwm = to_lpc18xx_pwm_chip(chip);
+-	struct lpc18xx_pwm_data *lpc18xx_data = pwm_get_chip_data(pwm);
++	struct lpc18xx_pwm_data *lpc18xx_data = &lpc18xx_pwm->channeldata[pwm->hwpwm];
  
- 	lpc18xx_pwm->chip.dev = &pdev->dev;
- 	lpc18xx_pwm->chip.ops = &lpc18xx_pwm_ops;
--	lpc18xx_pwm->chip.npwm = 16;
-+	lpc18xx_pwm->chip.npwm = LPC18XX_NUM_PWMS;
+ 	lpc18xx_pwm_writel(lpc18xx_pwm,
+ 			   LPC18XX_PWM_EVCTRL(lpc18xx_data->duty_event), 0);
+@@ -282,7 +282,7 @@ static void lpc18xx_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
+ static int lpc18xx_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
+ {
+ 	struct lpc18xx_pwm_chip *lpc18xx_pwm = to_lpc18xx_pwm_chip(chip);
+-	struct lpc18xx_pwm_data *lpc18xx_data = pwm_get_chip_data(pwm);
++	struct lpc18xx_pwm_data *lpc18xx_data = &lpc18xx_pwm->channeldata[pwm->hwpwm];
+ 	unsigned long event;
  
- 	/* SCT counter must be in unify (32 bit) mode */
- 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_CONFIG,
-@@ -400,12 +403,7 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 	event = find_first_zero_bit(&lpc18xx_pwm->event_map,
+@@ -303,7 +303,7 @@ static int lpc18xx_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
+ static void lpc18xx_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
+ {
+ 	struct lpc18xx_pwm_chip *lpc18xx_pwm = to_lpc18xx_pwm_chip(chip);
+-	struct lpc18xx_pwm_data *lpc18xx_data = pwm_get_chip_data(pwm);
++	struct lpc18xx_pwm_data *lpc18xx_data = &lpc18xx_pwm->channeldata[pwm->hwpwm];
  
- 		pwm = &lpc18xx_pwm->chip.pwms[i];
+ 	clear_bit(lpc18xx_data->duty_event, &lpc18xx_pwm->event_map);
+ }
+@@ -327,8 +327,7 @@ MODULE_DEVICE_TABLE(of, lpc18xx_pwm_of_match);
+ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ {
+ 	struct lpc18xx_pwm_chip *lpc18xx_pwm;
+-	struct pwm_device *pwm;
+-	int ret, i;
++	int ret;
+ 	u64 val;
  
--		data = devm_kzalloc(lpc18xx_pwm->dev, sizeof(*data),
--				    GFP_KERNEL);
--		if (!data) {
--			ret = -ENOMEM;
--			goto disable_pwmclk;
--		}
-+		data = &lpc18xx_pwm->channeldata[i];
+ 	lpc18xx_pwm = devm_kzalloc(&pdev->dev, sizeof(*lpc18xx_pwm),
+@@ -398,16 +397,6 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_LIMIT,
+ 			   BIT(lpc18xx_pwm->period_event));
  
- 		pwm_set_chip_data(pwm, data);
- 	}
+-	for (i = 0; i < lpc18xx_pwm->chip.npwm; i++) {
+-		struct lpc18xx_pwm_data *data;
+-
+-		pwm = &lpc18xx_pwm->chip.pwms[i];
+-
+-		data = &lpc18xx_pwm->channeldata[i];
+-
+-		pwm_set_chip_data(pwm, data);
+-	}
+-
+ 	val = lpc18xx_pwm_readl(lpc18xx_pwm, LPC18XX_PWM_CTRL);
+ 	val &= ~LPC18XX_PWM_BIDIR;
+ 	val &= ~LPC18XX_PWM_CTRL_HALT;
 -- 
 2.35.1
 
