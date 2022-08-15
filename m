@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92875594B59
+	by mail.lfdr.de (Postfix) with ESMTP id 46585594B58
 	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:23:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352141AbiHPAOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:14:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37740 "EHLO
+        id S1352081AbiHPAOr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:14:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357445AbiHPANg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:13:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EF4515D888;
-        Mon, 15 Aug 2022 13:30:07 -0700 (PDT)
+        with ESMTP id S1357510AbiHPANn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:13:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 262F3CD512;
+        Mon, 15 Aug 2022 13:30:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2194B61057;
-        Mon, 15 Aug 2022 20:30:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 289F8C433D6;
-        Mon, 15 Aug 2022 20:30:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B74C4B80EB1;
+        Mon, 15 Aug 2022 20:30:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0F37C433D6;
+        Mon, 15 Aug 2022 20:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595406;
-        bh=FsTM63fKqrQhD58pgBUPeFDJ8S+3PWu0hrxKXaYf4pk=;
+        s=korg; t=1660595410;
+        bh=mJq6/XaVLzlOKrqgclNQJ9i0AJb/wuR83zZXtK4GqB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IY36NvoyrjGi8I3f6MXgxflsgU48QpmsYKpl4gBL6eK6lh5py23MqYLpBPnSQKqox
-         EuYRQHFEPbJB1BupevJ27loCGVsdAvBhhGLoHY0iJD3vl+xWI32/c7BrWmWX7ziPqy
-         QAa228nrH+07nu2WVtd2r1C+PjBJAhABzdxMLen8=
+        b=rdWQDOYD36WdtvGanZLlzh8r47fBEE/jc3mEy2F/6uM01pxoOoZJvDL1HQFuFwqiE
+         yhLY2mVFDls5w5dHyMzS3hD8eM8ftd5EOz6FIYL7mi5iwbtzWEkjkwSbKCgoOsg/9N
+         VzeE/Kq8urIKggHOSTTg2Z62A57VwYXmAfOyK1k0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Pearson <rpearsonhpe@gmail.com>,
+        stable@vger.kernel.org, Jenny Hack <jhack@hpe.com>,
+        Bob Pearson <rpearsonhpe@gmail.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0753/1157] RDMA/rxe: Add a responder state for atomic reply
-Date:   Mon, 15 Aug 2022 20:01:49 +0200
-Message-Id: <20220815180509.629844107@linuxfoundation.org>
+Subject: [PATCH 5.19 0754/1157] RDMA/rxe: Fix deadlock in rxe_do_local_ops()
+Date:   Mon, 15 Aug 2022 20:01:50 +0200
+Message-Id: <20220815180509.669694412@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,90 +57,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bob Pearson <rpearsonhpe@gmail.com>
 
-[ Upstream commit 0ed5493e430a1d887eb62b45c75dd5d6bb2dcf48 ]
+[ Upstream commit 7cb33d1bc1ac8e51fd88928f96674d392f8e07c4 ]
 
-Add a responder state for atomic reply similar to read reply and rename
-process_atomic() rxe_atomic_reply(). In preparation for merging the normal
-and retry atomic responder flows.
+When a local operation (invalidate mr, reg mr, bind mw) is finished there
+will be no ack packet coming from a responder to cause the wqe to be
+completed. This may happen anyway if a subsequent wqe performs
+IO. Currently if the wqe is signalled the completer tasklet is scheduled
+immediately but not otherwise.
 
-Link: https://lore.kernel.org/r/20220606143836.3323-3-rpearsonhpe@gmail.com
+This leads to a deadlock if the next wqe has the fence bit set in send
+flags and the operation is not signalled. This patch removes the condition
+that the wqe must be signalled in order to schedule the completer tasklet
+which is the simplest fix for this deadlock and is fairly low cost. This
+is the analog for local operations of always setting the ackreq bit in all
+last or only request packets even if the operation is not signalled.
+
+Link: https://lore.kernel.org/r/20220523223251.15350-1-rpearsonhpe@gmail.com
+Reported-by: Jenny Hack <jhack@hpe.com>
+Fixes: c1a411268a4b ("RDMA/rxe: Move local ops to subroutine")
 Signed-off-by: Bob Pearson <rpearsonhpe@gmail.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_resp.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_req.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
-index f4f6ee5d81fe..e38bf958ab48 100644
---- a/drivers/infiniband/sw/rxe/rxe_resp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_resp.c
-@@ -21,6 +21,7 @@ enum resp_states {
- 	RESPST_CHK_RKEY,
- 	RESPST_EXECUTE,
- 	RESPST_READ_REPLY,
-+	RESPST_ATOMIC_REPLY,
- 	RESPST_COMPLETE,
- 	RESPST_ACKNOWLEDGE,
- 	RESPST_CLEANUP,
-@@ -55,6 +56,7 @@ static char *resp_state_name[] = {
- 	[RESPST_CHK_RKEY]			= "CHK_RKEY",
- 	[RESPST_EXECUTE]			= "EXECUTE",
- 	[RESPST_READ_REPLY]			= "READ_REPLY",
-+	[RESPST_ATOMIC_REPLY]			= "ATOMIC_REPLY",
- 	[RESPST_COMPLETE]			= "COMPLETE",
- 	[RESPST_ACKNOWLEDGE]			= "ACKNOWLEDGE",
- 	[RESPST_CLEANUP]			= "CLEANUP",
-@@ -552,8 +554,8 @@ static enum resp_states write_data_in(struct rxe_qp *qp,
- /* Guarantee atomicity of atomic operations at the machine level. */
- static DEFINE_SPINLOCK(atomic_ops_lock);
+diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
+index 9d98237389cf..15fefc689ca3 100644
+--- a/drivers/infiniband/sw/rxe/rxe_req.c
++++ b/drivers/infiniband/sw/rxe/rxe_req.c
+@@ -581,9 +581,11 @@ static int rxe_do_local_ops(struct rxe_qp *qp, struct rxe_send_wqe *wqe)
+ 	wqe->status = IB_WC_SUCCESS;
+ 	qp->req.wqe_index = queue_next_index(qp->sq.queue, qp->req.wqe_index);
  
--static enum resp_states process_atomic(struct rxe_qp *qp,
--				       struct rxe_pkt_info *pkt)
-+static enum resp_states rxe_atomic_reply(struct rxe_qp *qp,
-+					 struct rxe_pkt_info *pkt)
- {
- 	u64 *vaddr;
- 	enum resp_states ret;
-@@ -585,7 +587,16 @@ static enum resp_states process_atomic(struct rxe_qp *qp,
+-	if ((wqe->wr.send_flags & IB_SEND_SIGNALED) ||
+-	    qp->sq_sig_type == IB_SIGNAL_ALL_WR)
+-		rxe_run_task(&qp->comp.task, 1);
++	/* There is no ack coming for local work requests
++	 * which can lead to a deadlock. So go ahead and complete
++	 * it now.
++	 */
++	rxe_run_task(&qp->comp.task, 1);
  
- 	spin_unlock_bh(&atomic_ops_lock);
- 
--	ret = RESPST_NONE;
-+	qp->resp.msn++;
-+
-+	/* next expected psn, read handles this separately */
-+	qp->resp.psn = (pkt->psn + 1) & BTH_PSN_MASK;
-+	qp->resp.ack_psn = qp->resp.psn;
-+
-+	qp->resp.opcode = pkt->opcode;
-+	qp->resp.status = IB_WC_SUCCESS;
-+
-+	ret = RESPST_ACKNOWLEDGE;
- out:
- 	return ret;
+ 	return 0;
  }
-@@ -858,9 +869,7 @@ static enum resp_states execute(struct rxe_qp *qp, struct rxe_pkt_info *pkt)
- 		qp->resp.msn++;
- 		return RESPST_READ_REPLY;
- 	} else if (pkt->mask & RXE_ATOMIC_MASK) {
--		err = process_atomic(qp, pkt);
--		if (err)
--			return err;
-+		return RESPST_ATOMIC_REPLY;
- 	} else {
- 		/* Unreachable */
- 		WARN_ON_ONCE(1);
-@@ -1316,6 +1325,9 @@ int rxe_responder(void *arg)
- 		case RESPST_READ_REPLY:
- 			state = read_reply(qp, pkt);
- 			break;
-+		case RESPST_ATOMIC_REPLY:
-+			state = rxe_atomic_reply(qp, pkt);
-+			break;
- 		case RESPST_ACKNOWLEDGE:
- 			state = acknowledge(qp, pkt);
- 			break;
 -- 
 2.35.1
 
