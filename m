@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9AF559459F
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AF9A59432D
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:55:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350042AbiHOWm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:42:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38780 "EHLO
+        id S233497AbiHOWcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:32:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350537AbiHOWjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:39:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B4834DB2A;
-        Mon, 15 Aug 2022 12:51:34 -0700 (PDT)
+        with ESMTP id S1349590AbiHOWbD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:31:03 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEDAAD7D27;
+        Mon, 15 Aug 2022 12:48:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94650B80EAD;
-        Mon, 15 Aug 2022 19:51:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEB59C433C1;
-        Mon, 15 Aug 2022 19:51:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C13FDCE12E1;
+        Mon, 15 Aug 2022 19:48:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BB10C433D6;
+        Mon, 15 Aug 2022 19:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593091;
-        bh=NMcjJwEwPiqeIaDe8zmQomMLRLCK3nydvXSKtNTM+6g=;
+        s=korg; t=1660592899;
+        bh=VNrgWDWeGuoXAxyxWEQ/kH7r5U6avZqdm5orjP6BqDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tm3yy2nEoA+inXMb+Z3N0Fi4RF6iTUwZx2yh0lTbrpGryqQglnizIEUf16D64B/JY
-         PsnNxwT/6/qU36xAhaeMcrMhGvQt4y3j8Eg+hTbeHzGYdy2bqtQ6CaIsJeBnqRbhHR
-         iSQtKsJzhuGq8vGOXRlUxyZSfET46yXV6bO4nR+o=
+        b=1nmSRERI2XwMxbTRdU0npZzYUhkfkcSaHV+kXt64VK4S5hXmlltxCBKBnbZFnRrWa
+         YcNevuBTJhzpRgKfk+HUH3v2tMmr5ua77r7TUUhX3xxGLz9B1CywB+mYTjPotQOCQg
+         RkxxUFXS9GnPD62RgMURtc7+wx872s6iJy4V3zpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0862/1095] tty: n_gsm: fix resource allocation order in gsm_activate_mux()
-Date:   Mon, 15 Aug 2022 20:04:21 +0200
-Message-Id: <20220815180504.996320151@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Miaoqian Lin <linmq006@gmail.com>
+Subject: [PATCH 5.18 0863/1095] ASoC: qcom: Fix missing of_node_put() in asoc_qcom_lpass_cpu_platform_probe()
+Date:   Mon, 15 Aug 2022 20:04:22 +0200
+Message-Id: <20220815180505.044102979@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -53,50 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 7349660438603ed19282e75949561406531785a5 ]
+[ Upstream commit f507c0c67dac57d2bcd5dcae4b6139b0305d8957 ]
 
-Within gsm_activate_mux() all timers and locks are initiated before the
-actual resource for the control channel is allocated. This can lead to race
-conditions.
+We should call of_node_put() for the reference 'dsp_of_node' returned by
+of_parse_phandle() which will increase the refcount.
 
-Allocate the control channel DLCI object first to avoid race conditions.
-
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220701122332.2039-2-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9bae4880acee ("ASoC: qcom: move ipq806x specific bits out of lpass driver.")
+Co-authored-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220702020109.263980-1-windhl@126.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/soc/qcom/lpass-cpu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index ab7765afab86..17927163790e 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -2501,6 +2501,10 @@ static int gsm_activate_mux(struct gsm_mux *gsm)
- 	struct gsm_dlci *dlci;
- 	int ret;
+diff --git a/sound/soc/qcom/lpass-cpu.c b/sound/soc/qcom/lpass-cpu.c
+index e6846ad2b5fa..964eb07f46d6 100644
+--- a/sound/soc/qcom/lpass-cpu.c
++++ b/sound/soc/qcom/lpass-cpu.c
+@@ -1090,6 +1090,7 @@ int asoc_qcom_lpass_cpu_platform_probe(struct platform_device *pdev)
+ 	dsp_of_node = of_parse_phandle(pdev->dev.of_node, "qcom,adsp", 0);
+ 	if (dsp_of_node) {
+ 		dev_err(dev, "DSP exists and holds audio resources\n");
++		of_node_put(dsp_of_node);
+ 		return -EBUSY;
+ 	}
  
-+	dlci = gsm_dlci_alloc(gsm, 0);
-+	if (dlci == NULL)
-+		return -ENOMEM;
-+
- 	timer_setup(&gsm->kick_timer, gsm_kick_timer, 0);
- 	timer_setup(&gsm->t2_timer, gsm_control_retransmit, 0);
- 	INIT_WORK(&gsm->tx_work, gsmld_write_task);
-@@ -2517,9 +2521,6 @@ static int gsm_activate_mux(struct gsm_mux *gsm)
- 	if (ret)
- 		return ret;
- 
--	dlci = gsm_dlci_alloc(gsm, 0);
--	if (dlci == NULL)
--		return -ENOMEM;
- 	gsm->has_devices = true;
- 	gsm->dead = false;		/* Tty opens are now permissible */
- 	return 0;
 -- 
 2.35.1
 
