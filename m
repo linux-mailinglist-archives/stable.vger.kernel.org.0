@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02545593E0E
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBE22593E18
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345115AbiHOUf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:35:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39442 "EHLO
+        id S1346924AbiHOUgx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:36:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345635AbiHOUdt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:33:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FF29AA4EE;
-        Mon, 15 Aug 2022 12:05:53 -0700 (PDT)
+        with ESMTP id S1345658AbiHOUdu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:33:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEF3EAA4D7;
+        Mon, 15 Aug 2022 12:05:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0628DB81109;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 284C6612A0;
+        Mon, 15 Aug 2022 19:05:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AE66C433C1;
         Mon, 15 Aug 2022 19:05:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C18EC433C1;
-        Mon, 15 Aug 2022 19:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590350;
-        bh=/Htb3ZOwxZsojfgr3qTTufDCDZpTC34cgAo3VeQ9GgI=;
+        s=korg; t=1660590353;
+        bh=/Lpxmh6bFSCDVgKDrnaHp/eYLGjXz40Fzy1gOOKNKF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aptPm6i/9V6FKJhoz1OQp5JBoj0H2hQwdB2y85bpe9KXYzfsrYD5wAhiHEe+JcACR
-         Jt8PYekJv50kSKMDUQiwtCCX0lQ+X7dTNr2qI1GFAy3HTlnJrs1C9mB6RrVaY1Zx4i
-         RIxrVQaNfzPWLaUmU+xLa48sClacVEsqeum88N/Y=
+        b=0xMzwWRCZyXozqBOo96/t9Wt83FLLPa6YFTjmzWhOHB/aD0cZpp0qigb+pgFBETOJ
+         un8whgAkV0WkOnz2mqv7qaxFL1k9CDQe9WNpZBqGbUUAMYMBXm6yhm03gLJh66v6pF
+         YoBGxnZKGPfu9Cvbxo6fvhiRA8WiMssxR0evJ9dE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -38,9 +38,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <angelogioacchino.delregno@collabora.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0202/1095] arm64: dts: mt8192: Fix idle-states nodes naming scheme
-Date:   Mon, 15 Aug 2022 19:53:21 +0200
-Message-Id: <20220815180438.001732507@linuxfoundation.org>
+Subject: [PATCH 5.18 0203/1095] arm64: dts: mt8192: Fix idle-states entry-method
+Date:   Mon, 15 Aug 2022 19:53:22 +0200
+Message-Id: <20220815180438.051533781@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -60,137 +60,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nícolas F. R. A. Prado <nfraprado@collabora.com>
 
-[ Upstream commit 399e23ad51caaf62400a531c9268ad3c453c3d76 ]
+[ Upstream commit 2e599740f7e423ee89fb027896cb2635dd43784f ]
 
-Tweak the name of the idle-states subnodes so that they follow the
-binding pattern, getting rid of dtbs_check warnings.
-
-Only the usage of "-" in the name was necessary, but "off" was also
-exchanged for "sleep" since that seems to be a more common wording in
-other dts files.
+The entry-method property of the idle-states node should be "psci" as
+described in the idle-states binding, since this is already the value of
+enable-method in the CPU nodes. Fix it to get rid of a dtbs_check
+warning.
 
 Fixes: 9260918d3a4f ("arm64: dts: mt8192: Add cpu-idle-states")
 Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
 Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220617233150.2466344-2-nfraprado@collabora.com
+Link: https://lore.kernel.org/r/20220617233150.2466344-3-nfraprado@collabora.com
 Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt8192.dtsi | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt8192.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt8192.dtsi b/arch/arm64/boot/dts/mediatek/mt8192.dtsi
-index bcecc7484453..12972828832e 100644
+index 12972828832e..96439a4bce09 100644
 --- a/arch/arm64/boot/dts/mediatek/mt8192.dtsi
 +++ b/arch/arm64/boot/dts/mediatek/mt8192.dtsi
-@@ -41,7 +41,7 @@ cpu0: cpu@0 {
- 			reg = <0x000>;
- 			enable-method = "psci";
- 			clock-frequency = <1701000000>;
--			cpu-idle-states = <&cpuoff_l &clusteroff_l>;
-+			cpu-idle-states = <&cpu_sleep_l &cluster_sleep_l>;
- 			next-level-cache = <&l2_0>;
- 			capacity-dmips-mhz = <530>;
+@@ -170,7 +170,7 @@ l3_0: l3-cache {
  		};
-@@ -52,7 +52,7 @@ cpu1: cpu@100 {
- 			reg = <0x100>;
- 			enable-method = "psci";
- 			clock-frequency = <1701000000>;
--			cpu-idle-states = <&cpuoff_l &clusteroff_l>;
-+			cpu-idle-states = <&cpu_sleep_l &cluster_sleep_l>;
- 			next-level-cache = <&l2_0>;
- 			capacity-dmips-mhz = <530>;
- 		};
-@@ -63,7 +63,7 @@ cpu2: cpu@200 {
- 			reg = <0x200>;
- 			enable-method = "psci";
- 			clock-frequency = <1701000000>;
--			cpu-idle-states = <&cpuoff_l &clusteroff_l>;
-+			cpu-idle-states = <&cpu_sleep_l &cluster_sleep_l>;
- 			next-level-cache = <&l2_0>;
- 			capacity-dmips-mhz = <530>;
- 		};
-@@ -74,7 +74,7 @@ cpu3: cpu@300 {
- 			reg = <0x300>;
- 			enable-method = "psci";
- 			clock-frequency = <1701000000>;
--			cpu-idle-states = <&cpuoff_l &clusteroff_l>;
-+			cpu-idle-states = <&cpu_sleep_l &cluster_sleep_l>;
- 			next-level-cache = <&l2_0>;
- 			capacity-dmips-mhz = <530>;
- 		};
-@@ -85,7 +85,7 @@ cpu4: cpu@400 {
- 			reg = <0x400>;
- 			enable-method = "psci";
- 			clock-frequency = <2171000000>;
--			cpu-idle-states = <&cpuoff_b &clusteroff_b>;
-+			cpu-idle-states = <&cpu_sleep_b &cluster_sleep_b>;
- 			next-level-cache = <&l2_1>;
- 			capacity-dmips-mhz = <1024>;
- 		};
-@@ -96,7 +96,7 @@ cpu5: cpu@500 {
- 			reg = <0x500>;
- 			enable-method = "psci";
- 			clock-frequency = <2171000000>;
--			cpu-idle-states = <&cpuoff_b &clusteroff_b>;
-+			cpu-idle-states = <&cpu_sleep_b &cluster_sleep_b>;
- 			next-level-cache = <&l2_1>;
- 			capacity-dmips-mhz = <1024>;
- 		};
-@@ -107,7 +107,7 @@ cpu6: cpu@600 {
- 			reg = <0x600>;
- 			enable-method = "psci";
- 			clock-frequency = <2171000000>;
--			cpu-idle-states = <&cpuoff_b &clusteroff_b>;
-+			cpu-idle-states = <&cpu_sleep_b &cluster_sleep_b>;
- 			next-level-cache = <&l2_1>;
- 			capacity-dmips-mhz = <1024>;
- 		};
-@@ -118,7 +118,7 @@ cpu7: cpu@700 {
- 			reg = <0x700>;
- 			enable-method = "psci";
- 			clock-frequency = <2171000000>;
--			cpu-idle-states = <&cpuoff_b &clusteroff_b>;
-+			cpu-idle-states = <&cpu_sleep_b &cluster_sleep_b>;
- 			next-level-cache = <&l2_1>;
- 			capacity-dmips-mhz = <1024>;
- 		};
-@@ -171,7 +171,7 @@ l3_0: l3-cache {
  
  		idle-states {
- 			entry-method = "arm,psci";
--			cpuoff_l: cpuoff_l {
-+			cpu_sleep_l: cpu-sleep-l {
+-			entry-method = "arm,psci";
++			entry-method = "psci";
+ 			cpu_sleep_l: cpu-sleep-l {
  				compatible = "arm,idle-state";
  				arm,psci-suspend-param = <0x00010001>;
- 				local-timer-stop;
-@@ -179,7 +179,7 @@ cpuoff_l: cpuoff_l {
- 				exit-latency-us = <140>;
- 				min-residency-us = <780>;
- 			};
--			cpuoff_b: cpuoff_b {
-+			cpu_sleep_b: cpu-sleep-b {
- 				compatible = "arm,idle-state";
- 				arm,psci-suspend-param = <0x00010001>;
- 				local-timer-stop;
-@@ -187,7 +187,7 @@ cpuoff_b: cpuoff_b {
- 				exit-latency-us = <145>;
- 				min-residency-us = <720>;
- 			};
--			clusteroff_l: clusteroff_l {
-+			cluster_sleep_l: cluster-sleep-l {
- 				compatible = "arm,idle-state";
- 				arm,psci-suspend-param = <0x01010002>;
- 				local-timer-stop;
-@@ -195,7 +195,7 @@ clusteroff_l: clusteroff_l {
- 				exit-latency-us = <155>;
- 				min-residency-us = <860>;
- 			};
--			clusteroff_b: clusteroff_b {
-+			cluster_sleep_b: cluster-sleep-b {
- 				compatible = "arm,idle-state";
- 				arm,psci-suspend-param = <0x01010002>;
- 				local-timer-stop;
 -- 
 2.35.1
 
