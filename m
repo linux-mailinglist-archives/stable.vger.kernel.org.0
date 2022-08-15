@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C645F59512F
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8572B595133
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232600AbiHPEw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:52:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39218 "EHLO
+        id S232689AbiHPEwd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:52:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233594AbiHPEvZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:51:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B747A19F4BF;
-        Mon, 15 Aug 2022 13:48:46 -0700 (PDT)
+        with ESMTP id S233658AbiHPEvb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:51:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39313DB064;
+        Mon, 15 Aug 2022 13:49:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10E106103F;
-        Mon, 15 Aug 2022 20:48:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4226C433C1;
-        Mon, 15 Aug 2022 20:48:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C210260FC4;
+        Mon, 15 Aug 2022 20:49:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F9B3C433D6;
+        Mon, 15 Aug 2022 20:49:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596525;
-        bh=65v5R84eOGAgGCGuIaLe2DkBsygBijgD/MYNP/um+EA=;
+        s=korg; t=1660596541;
+        bh=WxKy7OIihBZFfS6tzIpJMPQGFP/yMFa8G1Q4lBvrQmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vHbNEX2++Ig07j4Y0RvjCESs3rj0pC6Mqwx3NPjHfYdudy2yNASCte3DdBfdpgNGU
-         6FU5tYDOWlWotKRRJCnHzgnro5mS2TTndeEZWZTWGDNU+RjRGwrazfQkEWIOhZq5SS
-         nCyuWmUgmto+7nbJphWRrFAmLUUj6BCPk6EgluY8=
+        b=G9ev6CbuvQ1NPmuVW5+3qra3RXAQKblRd7qS1eXU9t+wqAmf2dD76f2pdIGpGcTeB
+         LM5/LFpRXJkfkSjSJOA6eP9V1hZcBHg0Jr9EN5BiRQDve41v32o8Gyn7nJ7IiQI1KN
+         AbiMifDdR/5J2mPG4/SLkw9+BW1DpzYvCEYCaZOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Mike Snitzer <snitzer@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1107/1157] KVM: VMX: Add helper to check if the guest PMU has PERF_GLOBAL_CTRL
-Date:   Mon, 15 Aug 2022 20:07:43 +0200
-Message-Id: <20220815180524.564356605@linuxfoundation.org>
+Subject: [PATCH 5.19 1111/1157] dm: fix dm-raid crash if md_handle_request() splits bio
+Date:   Mon, 15 Aug 2022 20:07:47 +0200
+Message-Id: <20220815180524.748652319@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,71 +53,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Mike Snitzer <snitzer@kernel.org>
 
-[ Upstream commit b663f0b5f3d665c261256d1f76e98f077c6e56af ]
+[ Upstream commit 9dd1cd3220eca534f2d47afad7ce85f4c40118d8 ]
 
-Add a helper to check of the guest PMU has PERF_GLOBAL_CTRL, which is
-unintuitive _and_ diverges from Intel's architecturally defined behavior.
-Even worse, KVM currently implements the check using two different (but
-equivalent) checks, _and_ there has been at least one attempt to add a
-_third_ flavor.
+Commit ca522482e3eaf ("dm: pass NULL bdev to bio_alloc_clone")
+introduced the optimization to _not_ perform bio_associate_blkg()'s
+relatively costly work when DM core clones its bio. But in doing so it
+exposed the possibility for DM's cloned bio to alter DM target
+behavior (e.g. crash) if a target were to issue IO without first
+calling bio_set_dev().
 
+The DM raid target can trigger an MD crash due to its need to split
+the DM bio that is passed to md_handle_request(). The split will
+recurse to submit_bio_noacct() using a bio with an uninitialized
+->bi_blkg. This NULL bio->bi_blkg causes blk_throtl_bio() to
+dereference a NULL blkg_to_tg(bio->bi_blkg).
+
+Fix this in DM core by adding a new 'needs_bio_set_dev' target flag that
+will make alloc_tio() call bio_set_dev() on behalf of the target.
+dm-raid is the only target that requires this flag. bio_set_dev()
+initializes the DM cloned bio's ->bi_blkg, using bio_associate_blkg,
+before passing the bio to md_handle_request().
+
+Long-term fix would be to audit and refactor MD code to rely on DM to
+split its bio, using dm_accept_partial_bio(), but there are MD raid
+personalities (e.g. raid1 and raid10) whose implementation are tightly
+coupled to handling the bio splitting inline.
+
+Fixes: ca522482e3eaf ("dm: pass NULL bdev to bio_alloc_clone")
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220722224409.1336532-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/pmu_intel.c |  4 ++--
- arch/x86/kvm/vmx/vmx.h       | 12 ++++++++++++
- 2 files changed, 14 insertions(+), 2 deletions(-)
+ drivers/md/dm-raid.c          |  1 +
+ drivers/md/dm.c               | 13 ++++++-------
+ include/linux/device-mapper.h |  6 ++++++
+ include/uapi/linux/dm-ioctl.h |  4 ++--
+ 4 files changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/pmu_intel.c b/arch/x86/kvm/vmx/pmu_intel.c
-index 8faac421171f..a9280ebf78f5 100644
---- a/arch/x86/kvm/vmx/pmu_intel.c
-+++ b/arch/x86/kvm/vmx/pmu_intel.c
-@@ -98,7 +98,7 @@ static bool intel_pmc_is_enabled(struct kvm_pmc *pmc)
+diff --git a/drivers/md/dm-raid.c b/drivers/md/dm-raid.c
+index a55fc28d2a29..ba3638d1d046 100644
+--- a/drivers/md/dm-raid.c
++++ b/drivers/md/dm-raid.c
+@@ -3097,6 +3097,7 @@ static int raid_ctr(struct dm_target *ti, unsigned int argc, char **argv)
+ 	INIT_WORK(&rs->md.event_work, do_table_event);
+ 	ti->private = rs;
+ 	ti->num_flush_bios = 1;
++	ti->needs_bio_set_dev = true;
+ 
+ 	/* Restore any requested new layout for conversion decision */
+ 	rs_config_restore(rs, &rs_layout);
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 2b75f1ef7386..36c704b50ac3 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -578,9 +578,6 @@ static struct dm_io *alloc_io(struct mapped_device *md, struct bio *bio)
+ 	struct bio *clone;
+ 
+ 	clone = bio_alloc_clone(NULL, bio, GFP_NOIO, &md->mempools->io_bs);
+-	/* Set default bdev, but target must bio_set_dev() before issuing IO */
+-	clone->bi_bdev = md->disk->part0;
+-
+ 	tio = clone_to_tio(clone);
+ 	tio->flags = 0;
+ 	dm_tio_set_flag(tio, DM_TIO_INSIDE_DM_IO);
+@@ -614,6 +611,7 @@ static void free_io(struct dm_io *io)
+ static struct bio *alloc_tio(struct clone_info *ci, struct dm_target *ti,
+ 			     unsigned target_bio_nr, unsigned *len, gfp_t gfp_mask)
  {
- 	struct kvm_pmu *pmu = pmc_to_pmu(pmc);
++	struct mapped_device *md = ci->io->md;
+ 	struct dm_target_io *tio;
+ 	struct bio *clone;
  
--	if (pmu->version < 2)
-+	if (!intel_pmu_has_perf_global_ctrl(pmu))
- 		return true;
+@@ -623,14 +621,10 @@ static struct bio *alloc_tio(struct clone_info *ci, struct dm_target *ti,
+ 		/* alloc_io() already initialized embedded clone */
+ 		clone = &tio->clone;
+ 	} else {
+-		struct mapped_device *md = ci->io->md;
+-
+ 		clone = bio_alloc_clone(NULL, ci->bio, gfp_mask,
+ 					&md->mempools->bs);
+ 		if (!clone)
+ 			return NULL;
+-		/* Set default bdev, but target must bio_set_dev() before issuing IO */
+-		clone->bi_bdev = md->disk->part0;
  
- 	return test_bit(pmc->idx, (unsigned long *)&pmu->global_ctrl);
-@@ -215,7 +215,7 @@ static bool intel_is_valid_msr(struct kvm_vcpu *vcpu, u32 msr)
- 	case MSR_CORE_PERF_GLOBAL_STATUS:
- 	case MSR_CORE_PERF_GLOBAL_CTRL:
- 	case MSR_CORE_PERF_GLOBAL_OVF_CTRL:
--		ret = pmu->version > 1;
-+		return intel_pmu_has_perf_global_ctrl(pmu);
- 		break;
- 	default:
- 		ret = get_gp_pmc(pmu, msr, MSR_IA32_PERFCTR0) ||
-diff --git a/arch/x86/kvm/vmx/vmx.h b/arch/x86/kvm/vmx/vmx.h
-index 1e7f9453894b..93aa1f3ea01e 100644
---- a/arch/x86/kvm/vmx/vmx.h
-+++ b/arch/x86/kvm/vmx/vmx.h
-@@ -92,6 +92,18 @@ union vmx_exit_reason {
- 	u32 full;
+ 		/* REQ_DM_POLL_LIST shouldn't be inherited */
+ 		clone->bi_opf &= ~REQ_DM_POLL_LIST;
+@@ -646,6 +640,11 @@ static struct bio *alloc_tio(struct clone_info *ci, struct dm_target *ti,
+ 	tio->len_ptr = len;
+ 	tio->old_sector = 0;
+ 
++	/* Set default bdev, but target must bio_set_dev() before issuing IO */
++	clone->bi_bdev = md->disk->part0;
++	if (unlikely(ti->needs_bio_set_dev))
++		bio_set_dev(clone, md->disk->part0);
++
+ 	if (len) {
+ 		clone->bi_iter.bi_size = to_bytes(*len);
+ 		if (bio_integrity(clone))
+diff --git a/include/linux/device-mapper.h b/include/linux/device-mapper.h
+index 47a01c7cffdf..e9c043f12e53 100644
+--- a/include/linux/device-mapper.h
++++ b/include/linux/device-mapper.h
+@@ -373,6 +373,12 @@ struct dm_target {
+ 	 * after returning DM_MAPIO_SUBMITTED from its map function.
+ 	 */
+ 	bool accounts_remapped_io:1;
++
++	/*
++	 * Set if the target will submit the DM bio without first calling
++	 * bio_set_dev(). NOTE: ideally a target should _not_ need this.
++	 */
++	bool needs_bio_set_dev:1;
  };
  
-+static inline bool intel_pmu_has_perf_global_ctrl(struct kvm_pmu *pmu)
-+{
-+	/*
-+	 * Architecturally, Intel's SDM states that IA32_PERF_GLOBAL_CTRL is
-+	 * supported if "CPUID.0AH: EAX[7:0] > 0", i.e. if the PMU version is
-+	 * greater than zero.  However, KVM only exposes and emulates the MSR
-+	 * to/for the guest if the guest PMU supports at least "Architectural
-+	 * Performance Monitoring Version 2".
-+	 */
-+	return pmu->version > 1;
-+}
-+
- #define vcpu_to_lbr_desc(vcpu) (&to_vmx(vcpu)->lbr_desc)
- #define vcpu_to_lbr_records(vcpu) (&to_vmx(vcpu)->lbr_desc.records)
+ void *dm_per_bio_data(struct bio *bio, size_t data_size);
+diff --git a/include/uapi/linux/dm-ioctl.h b/include/uapi/linux/dm-ioctl.h
+index 2e9550fef90f..27ad9671f2df 100644
+--- a/include/uapi/linux/dm-ioctl.h
++++ b/include/uapi/linux/dm-ioctl.h
+@@ -286,9 +286,9 @@ enum {
+ #define DM_DEV_SET_GEOMETRY	_IOWR(DM_IOCTL, DM_DEV_SET_GEOMETRY_CMD, struct dm_ioctl)
  
+ #define DM_VERSION_MAJOR	4
+-#define DM_VERSION_MINOR	46
++#define DM_VERSION_MINOR	47
+ #define DM_VERSION_PATCHLEVEL	0
+-#define DM_VERSION_EXTRA	"-ioctl (2022-02-22)"
++#define DM_VERSION_EXTRA	"-ioctl (2022-07-28)"
+ 
+ /* Status bits */
+ #define DM_READONLY_FLAG	(1 << 0) /* In/Out */
 -- 
 2.35.1
 
