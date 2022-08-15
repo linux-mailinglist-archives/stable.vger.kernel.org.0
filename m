@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BE6E594A9D
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:19:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43504594AA7
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:19:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352019AbiHPAFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:05:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47932 "EHLO
+        id S1353028AbiHPAFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:05:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356941AbiHPADX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:03:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4263D16CCD8;
-        Mon, 15 Aug 2022 13:25:07 -0700 (PDT)
+        with ESMTP id S1355795AbiHPABh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:01:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A1431677E6;
+        Mon, 15 Aug 2022 13:23:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 913B261093;
-        Mon, 15 Aug 2022 20:25:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DB65C433C1;
-        Mon, 15 Aug 2022 20:25:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A20D961073;
+        Mon, 15 Aug 2022 20:23:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F317C4347C;
+        Mon, 15 Aug 2022 20:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595106;
-        bh=mNt363BbGutMZ6Z1x/izic53rXbcVevjrO2YbmfMRKs=;
+        s=korg; t=1660594998;
+        bh=nm4OJZwJEZv1pIUYaeMBoUGeJreDgEESneK9E8E3b3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b6mE249Y0aUZ1F39Rko0G7Nq+EAoANxZe7rYMax2dQDC3T7kGLjYJfbsR0a7AaqZZ
-         3rkYTo+h3lIq0K5AN8gy9ZKb2AN42dHgA/KvDU8lv1RUjqFbSn3nTTeJaMnnOJdqap
-         Wx7WM8KauVdUoUYzXpu5XzoaNQYisR24+Z87GZ90=
+        b=lSAAncBPiQ2YgCq4e62Ecin6KV0I185U97hJryIcyI7cyk95gfT0PrYn2Q+uF80v5
+         Y5sv8Il153qjhpoN1H5h7gMILfbCH89lmuB4s34ZHncCbNPcUyhcHVq5QUyhEgIEaC
+         Ji12bYkNdhEVDzGbbRU4OzQnBMDU9xyHAtJh1zHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0616/1157] dmaengine: dw: dmamux: Fix build without CONFIG_OF
-Date:   Mon, 15 Aug 2022 19:59:32 +0200
-Message-Id: <20220815180504.291639276@linuxfoundation.org>
+        stable@vger.kernel.org, Manoj Basapathi <manojbm@codeaurora.org>,
+        Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        netfilter-devel@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0617/1157] netfilter: xtables: Bring SPDX identifier back
+Date:   Mon, 15 Aug 2022 19:59:33 +0200
+Message-Id: <20220815180504.337897081@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,46 +57,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 7811f2e7fd6a30d96eaa1fccf57b07694a8cad27 ]
+[ Upstream commit 20646f5b1e798bcc20044ae90ac3702f177bf254 ]
 
-When built without OF support, of_match_node() expands to NULL, which
-produces the following output:
->> drivers/dma/dw/rzn1-dmamux.c:105:34: warning: unused variable 'rzn1_dmac_match' [-Wunused-const-variable]
-   static const struct of_device_id rzn1_dmac_match[] = {
+Commit e2be04c7f995 ("License cleanup: add SPDX license identifier to
+uapi header files with a license") added the correct SPDX identifier to
+include/uapi/linux/netfilter/xt_IDLETIMER.h.
 
-One way to silence the warning is to enclose the structure definition
-with an #ifdef CONFIG_OF/#endif block.
+A subsequent commit removed it for no reason and reintroduced the UAPI
+license incorrectness as the file is now missing the UAPI exception
+again.
 
-Fixes: 134d9c52fca2 ("dmaengine: dw: dmamux: Introduce RZN1 DMA router support")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220609141455.300879-2-miquel.raynal@bootlin.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Add it back and remove the GPLv2 boilerplate while at it.
+
+Fixes: 68983a354a65 ("netfilter: xtables: Add snapshot of hardidletimer target")
+Cc: Manoj Basapathi <manojbm@codeaurora.org>
+Cc: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: netfilter-devel@vger.kernel.org
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dw/rzn1-dmamux.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/uapi/linux/netfilter/xt_IDLETIMER.h | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
 
-diff --git a/drivers/dma/dw/rzn1-dmamux.c b/drivers/dma/dw/rzn1-dmamux.c
-index 0ce4fb58185e..f9912c3dd4d7 100644
---- a/drivers/dma/dw/rzn1-dmamux.c
-+++ b/drivers/dma/dw/rzn1-dmamux.c
-@@ -102,10 +102,12 @@ static void *rzn1_dmamux_route_allocate(struct of_phandle_args *dma_spec,
- 	return ERR_PTR(ret);
- }
+diff --git a/include/uapi/linux/netfilter/xt_IDLETIMER.h b/include/uapi/linux/netfilter/xt_IDLETIMER.h
+index 49ddcdc61c09..7bfb31a66fc9 100644
+--- a/include/uapi/linux/netfilter/xt_IDLETIMER.h
++++ b/include/uapi/linux/netfilter/xt_IDLETIMER.h
+@@ -1,6 +1,5 @@
++/* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
+ /*
+- * linux/include/linux/netfilter/xt_IDLETIMER.h
+- *
+  * Header file for Xtables timer target module.
+  *
+  * Copyright (C) 2004, 2010 Nokia Corporation
+@@ -10,20 +9,6 @@
+  * by Luciano Coelho <luciano.coelho@nokia.com>
+  *
+  * Contact: Luciano Coelho <luciano.coelho@nokia.com>
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * version 2 as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope that it will be useful, but
+- * WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+- * General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+- * 02110-1301 USA
+  */
  
-+#ifdef CONFIG_OF
- static const struct of_device_id rzn1_dmac_match[] = {
- 	{ .compatible = "renesas,rzn1-dma" },
- 	{}
- };
-+#endif
- 
- static int rzn1_dmamux_probe(struct platform_device *pdev)
- {
+ #ifndef _XT_IDLETIMER_H
 -- 
 2.35.1
 
