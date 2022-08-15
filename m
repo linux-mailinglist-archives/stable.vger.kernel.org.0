@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7301159480B
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF9635949D6
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234174AbiHOXZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:25:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57036 "EHLO
+        id S244438AbiHOX3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:29:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241882AbiHOXXJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:23:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21267391E;
-        Mon, 15 Aug 2022 13:05:33 -0700 (PDT)
+        with ESMTP id S244651AbiHOXYP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:24:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54A5E83BC2;
+        Mon, 15 Aug 2022 13:05:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D547360690;
-        Mon, 15 Aug 2022 20:05:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDED8C433D6;
-        Mon, 15 Aug 2022 20:05:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 295F1B80EAB;
+        Mon, 15 Aug 2022 20:05:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83B50C433D6;
+        Mon, 15 Aug 2022 20:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593932;
-        bh=wzUTotmsOvyiM2qWLvIOatO2CoZfg/QgKijFCVNekYY=;
+        s=korg; t=1660593937;
+        bh=WrzGLFApLoZLo4blFQINQGoARKbOWdrNQe3OZezCUik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=osg9tDbXfB0v5yo4fxYDURkA1P2iTxpxDjkLyUNl5PtD17vALHM1Gcb0pGOIn3IfQ
-         1srGY6E75cEnyZO6YTyVm5XdyHqw2KW9S1H/Q7sY1bmWDz60KNOy/GZuyxyymeBMkA
-         Nl1Yb2bfOijiLgVrzbNGKvf8HzRDDaVynvIIAI7A=
+        b=bFUgOM2TV8oXsaWxBuWIrxqGN0SecwgTgzHYx9p4YPLrRU3OyFSq/fb7UK8IPh5vB
+         cK7J2SrsMHNAxZqoZfDSHEo1e1gMvu2EONz9QeidT/Yho5KBu7UWjyWh5XMwQjbvNl
+         77Je67IYyy4yLrywJYmWDCDhhGMzkmSV4iFgGXfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Riham Selim <rihams@fb.com>,
-        Alan Maguire <alan.maguire@oracle.com>,
+        stable@vger.kernel.org,
+        Antonio Borneo <antonio.borneo@foss.st.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0350/1157] libbpf: Fix uprobe symbol file offset calculation logic
-Date:   Mon, 15 Aug 2022 19:55:06 +0200
-Message-Id: <20220815180453.716772247@linuxfoundation.org>
+Subject: [PATCH 5.19 0351/1157] drm: adv7511: override i2c address of cec before accessing it
+Date:   Mon, 15 Aug 2022 19:55:07 +0200
+Message-Id: <20220815180453.758035376@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,118 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Antonio Borneo <antonio.borneo@foss.st.com>
 
-[ Upstream commit fe92833524e368e59bba9c57e00f7359f133667f ]
+[ Upstream commit 9cc4853e4781bf0dd0f35355dc92d97c9da02f5d ]
 
-Fix libbpf's bpf_program__attach_uprobe() logic of determining
-function's *file offset* (which is what kernel is actually expecting)
-when attaching uprobe/uretprobe by function name. Previously calculation
-was determining virtual address offset relative to base load address,
-which (offset) is not always the same as file offset (though very
-frequently it is which is why this went unnoticed for a while).
+Commit 680532c50bca ("drm: adv7511: Add support for
+i2c_new_secondary_device") allows a device tree node to override
+the default addresses of the secondary i2c devices. This is useful
+for solving address conflicts on the i2c bus.
 
-Fixes: 433966e3ae04 ("libbpf: Support function name-based attach uprobes")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Riham Selim <rihams@fb.com>
-Cc: Alan Maguire <alan.maguire@oracle.com>
-Link: https://lore.kernel.org/bpf/20220606220143.3796908-1-andrii@kernel.org
+In adv7511_init_cec_regmap() the new i2c address of cec device is
+read from device tree and immediately accessed, well before it is
+written in the proper register to override the default address.
+This can cause an i2c error during probe and a consequent probe
+failure.
+
+Once the new i2c address is read from the device tree, override
+the default address before any attempt to access the cec.
+
+Tested with adv7533 and stm32mp157f.
+
+Signed-off-by: Antonio Borneo <antonio.borneo@foss.st.com>
+Fixes: 680532c50bca ("drm: adv7511: Add support for i2c_new_secondary_device")
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220607213144.427177-1-antonio.borneo@foss.st.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 63 +++++++++++++++---------------------------
- 1 file changed, 22 insertions(+), 41 deletions(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index 526bd6cd84a0..b9245bf688fa 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -10983,43 +10983,6 @@ static int perf_event_uprobe_open_legacy(const char *probe_name, bool retprobe,
- 	return pfd;
- }
- 
--/* uprobes deal in relative offsets; subtract the base address associated with
-- * the mapped binary.  See Documentation/trace/uprobetracer.rst for more
-- * details.
-- */
--static long elf_find_relative_offset(const char *filename, Elf *elf, long addr)
--{
--	size_t n;
--	int i;
--
--	if (elf_getphdrnum(elf, &n)) {
--		pr_warn("elf: failed to find program headers for '%s': %s\n", filename,
--			elf_errmsg(-1));
--		return -ENOENT;
--	}
--
--	for (i = 0; i < n; i++) {
--		int seg_start, seg_end, seg_offset;
--		GElf_Phdr phdr;
--
--		if (!gelf_getphdr(elf, i, &phdr)) {
--			pr_warn("elf: failed to get program header %d from '%s': %s\n", i, filename,
--				elf_errmsg(-1));
--			return -ENOENT;
--		}
--		if (phdr.p_type != PT_LOAD || !(phdr.p_flags & PF_X))
--			continue;
--
--		seg_start = phdr.p_vaddr;
--		seg_end = seg_start + phdr.p_memsz;
--		seg_offset = phdr.p_offset;
--		if (addr >= seg_start && addr < seg_end)
--			return addr - seg_start + seg_offset;
--	}
--	pr_warn("elf: failed to find prog header containing 0x%lx in '%s'\n", addr, filename);
--	return -ENOENT;
--}
--
- /* Return next ELF section of sh_type after scn, or first of that type if scn is NULL. */
- static Elf_Scn *elf_find_next_scn_by_type(Elf *elf, int sh_type, Elf_Scn *scn)
- {
-@@ -11106,6 +11069,8 @@ static long elf_find_func_offset(const char *binary_path, const char *name)
- 		for (idx = 0; idx < nr_syms; idx++) {
- 			int curr_bind;
- 			GElf_Sym sym;
-+			Elf_Scn *sym_scn;
-+			GElf_Shdr sym_sh;
- 
- 			if (!gelf_getsym(symbols, idx, &sym))
- 				continue;
-@@ -11143,12 +11108,28 @@ static long elf_find_func_offset(const char *binary_path, const char *name)
- 					continue;
- 				}
- 			}
--			ret = sym.st_value;
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+index 5bb9300040dd..074c2e650cae 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+@@ -1065,6 +1065,10 @@ static int adv7511_init_cec_regmap(struct adv7511 *adv)
+ 						ADV7511_CEC_I2C_ADDR_DEFAULT);
+ 	if (IS_ERR(adv->i2c_cec))
+ 		return PTR_ERR(adv->i2c_cec);
 +
-+			/* Transform symbol's virtual address (absolute for
-+			 * binaries and relative for shared libs) into file
-+			 * offset, which is what kernel is expecting for
-+			 * uprobe/uretprobe attachment.
-+			 * See Documentation/trace/uprobetracer.rst for more
-+			 * details.
-+			 * This is done by looking up symbol's containing
-+			 * section's header and using it's virtual address
-+			 * (sh_addr) and corresponding file offset (sh_offset)
-+			 * to transform sym.st_value (virtual address) into
-+			 * desired final file offset.
-+			 */
-+			sym_scn = elf_getscn(elf, sym.st_shndx);
-+			if (!sym_scn)
-+				continue;
-+			if (!gelf_getshdr(sym_scn, &sym_sh))
-+				continue;
++	regmap_write(adv->regmap, ADV7511_REG_CEC_I2C_ADDR,
++		     adv->i2c_cec->addr << 1);
 +
-+			ret = sym.st_value - sym_sh.sh_addr + sym_sh.sh_offset;
- 			last_bind = curr_bind;
- 		}
--		/* For binaries that are not shared libraries, we need relative offset */
--		if (ret > 0 && !is_shared_lib)
--			ret = elf_find_relative_offset(binary_path, elf, ret);
- 		if (ret > 0)
- 			break;
- 	}
+ 	i2c_set_clientdata(adv->i2c_cec, adv);
+ 
+ 	adv->regmap_cec = devm_regmap_init_i2c(adv->i2c_cec,
+@@ -1271,9 +1275,6 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
+ 	if (ret)
+ 		goto err_i2c_unregister_packet;
+ 
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_I2C_ADDR,
+-		     adv7511->i2c_cec->addr << 1);
+-
+ 	INIT_WORK(&adv7511->hpd_work, adv7511_hpd_work);
+ 
+ 	if (i2c->irq) {
 -- 
 2.35.1
 
