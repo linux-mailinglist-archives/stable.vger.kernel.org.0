@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BE1B594566
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB83659436C
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:55:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233454AbiHOWc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:32:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52602 "EHLO
+        id S1348345AbiHOWab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:30:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348982AbiHOWaP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:30:15 -0400
+        with ESMTP id S1349951AbiHOW0M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:26:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E06B470E4B;
-        Mon, 15 Aug 2022 12:48:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF39D127BF7;
+        Mon, 15 Aug 2022 12:44:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0274761269;
-        Mon, 15 Aug 2022 19:48:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E77C9C433C1;
-        Mon, 15 Aug 2022 19:48:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F080610A3;
+        Mon, 15 Aug 2022 19:44:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0807EC433C1;
+        Mon, 15 Aug 2022 19:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592889;
-        bh=v+8BW4sU+DYYuLIMxucs4tnKqWv7E/wqEuADuGahClE=;
+        s=korg; t=1660592695;
+        bh=VnNBqVs1pLaOy6COvbcSfRz66B+e9FtCkBJlFPM059I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TsjIcO4LyXuwSbDNaLBSTUOy2u5KgYZS0zI+u1Dj7GcdLKxEWXLOSEUmJ/JMwXgJ3
-         zsXxm85oTOBwf0IYrpav5R5RbizTm+bTLn2qeFGK/JXMBfmkvmRUjdXTaMqEXQ9CgP
-         pIZAMAzcgzfJa9Py251u8+Ib5f7SCKYCquXiR8Tc=
+        b=hQp01WhQ2HeeYxcnaxWGhxYLnKqeptt5JSIZinR9YP0WZv5vk2cg1tXn+VqZz7T/A
+         dfd0PZJzzPZCJL4rLgSNsOQj0ooIaGncoO/2GQmGwr3b9PrgiKqtvLCoK1Uq5ZAhcS
+         REWJmT46rR7y6GAJaYHo/YSzbUzAg44PXcy6Q8iU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
+        stable@vger.kernel.org,
+        Francis Laniel <flaniel@linux.microsoft.com>,
         Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0150/1157] arm64: stacktrace: use non-atomic __set_bit
-Date:   Mon, 15 Aug 2022 19:51:46 +0200
-Message-Id: <20220815180445.663554581@linuxfoundation.org>
+Subject: [PATCH 5.19 0151/1157] arm64: Do not forget syscall when starting a new thread.
+Date:   Mon, 15 Aug 2022 19:51:47 +0200
+Message-Id: <20220815180445.702380652@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,39 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Konovalov <andreyknvl@google.com>
+From: Francis Laniel <flaniel@linux.microsoft.com>
 
-[ Upstream commit 446297b28a21244e4045026c4599d1b14a67e2ce ]
+[ Upstream commit de6921856f99c11d3986c6702d851e1328d4f7f6 ]
 
-Use the non-atomic version of set_bit() in arch/arm64/kernel/stacktrace.c,
-as there is no concurrent accesses to frame->prev_type.
+Enable tracing of the execve*() system calls with the
+syscalls:sys_exit_execve tracepoint by removing the call to
+forget_syscall() when starting a new thread and preserving the value of
+regs->syscallno across exec.
 
-This speeds up stack trace collection and improves the boot time of
-Generic KASAN by 2-5%.
-
-Suggested-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Link: https://lore.kernel.org/r/23dfa36d1cc91e4a1059945b7834eac22fb9854d.1653317461.git.andreyknvl@google.com
+Signed-off-by: Francis Laniel <flaniel@linux.microsoft.com>
+Link: https://lore.kernel.org/r/20220608162447.666494-2-flaniel@linux.microsoft.com
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/stacktrace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/processor.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/stacktrace.c b/arch/arm64/kernel/stacktrace.c
-index c246e8d9f95b..d6bef106e37e 100644
---- a/arch/arm64/kernel/stacktrace.c
-+++ b/arch/arm64/kernel/stacktrace.c
-@@ -117,7 +117,7 @@ static int notrace unwind_next(struct task_struct *tsk,
- 		if (fp <= state->prev_fp)
- 			return -EINVAL;
- 	} else {
--		set_bit(state->prev_type, state->stacks_done);
-+		__set_bit(state->prev_type, state->stacks_done);
- 	}
+diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
+index 9e58749db21d..86eb0bfe3b38 100644
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -272,8 +272,9 @@ void tls_preserve_current_state(void);
  
- 	/*
+ static inline void start_thread_common(struct pt_regs *regs, unsigned long pc)
+ {
++	s32 previous_syscall = regs->syscallno;
+ 	memset(regs, 0, sizeof(*regs));
+-	forget_syscall(regs);
++	regs->syscallno = previous_syscall;
+ 	regs->pc = pc;
+ 
+ 	if (system_uses_irq_prio_masking())
 -- 
 2.35.1
 
