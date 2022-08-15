@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12505594633
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:02:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BC985943D6
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:57:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347383AbiHOWTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:19:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53932 "EHLO
+        id S1344288AbiHOWTl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:19:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350345AbiHOWRp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:17:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7925440BC6;
-        Mon, 15 Aug 2022 12:41:02 -0700 (PDT)
+        with ESMTP id S1350437AbiHOWRu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:17:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A42C51232D2;
+        Mon, 15 Aug 2022 12:41:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB6DFB80EB2;
-        Mon, 15 Aug 2022 19:40:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FEAAC433D6;
-        Mon, 15 Aug 2022 19:40:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D033C611E0;
+        Mon, 15 Aug 2022 19:41:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF19CC433C1;
+        Mon, 15 Aug 2022 19:41:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592454;
-        bh=Jb5GjFZLTcVeXQn+3A9lDRbfEAoGBt20h7nDXicjZJA=;
+        s=korg; t=1660592464;
+        bh=0nr3dvpuE+TRL/Rv3+CcJjSKcgLnDpBsi++iakikz4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qGHYfF0t6Jv1XGnDygHEnQYcJTyGZPPSjm8nbXrs00Eqx7CPy1EgkWqVi9pAa06ns
-         1UYaqw0TkfsXsC3xsQCx6IsV/PA/XaG4P05l+/dVQy4vd5j8CY3Bvus/7xyIuKWEZq
-         C5PbXx3J0lnIHPqm6y3XoIOAt3As8XOtrYSA0XE4=
+        b=vh2RLvpdNuVAi+bmkO3jK4pXErNtde8C7gZECoTBHPwm+n7pDiC+Ea2sJUm1pc0dZ
+         emYTRrOPngnXW4oIKI1PezzdnhjhVHmd/CSRqsZNWD1EbPe6FABg2O4f2DPJ6V8zYY
+         QqcxcumZDYtQ6S/S2w2Likn4Tt0YT734yHReuxCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Pearson <rpearsonhpe@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Vidya Sagar <vidyas@nvidia.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0789/1095] RDMA/rxe: Fix rnr retry behavior
-Date:   Mon, 15 Aug 2022 20:03:08 +0200
-Message-Id: <20220815180501.875863590@linuxfoundation.org>
+Subject: [PATCH 5.18 0790/1095] PCI: tegra194: Fix Root Port interrupt handling
+Date:   Mon, 15 Aug 2022 20:03:09 +0200
+Message-Id: <20220815180501.915410366@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,127 +54,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Pearson <rpearsonhpe@gmail.com>
+From: Vidya Sagar <vidyas@nvidia.com>
 
-[ Upstream commit 445fd4f4fb76d513de6b05b08b3a4d0bb980fc80 ]
+[ Upstream commit 6646e99bcec627e866bc84365af37942c72b4b76 ]
 
-Currently the completer tasklet when retransmit timer or the rnr timer
-fires the same flag (qp->req.need_retry) is set so that if either timer
-fires it will attempt to perform a retry flow on the send queue.  This has
-the effect of responding to an RNR NAK at the first retransmit timer event
-which might not allow the requested rnr timeout.
+As part of Root Port interrupt handling, level-0 register is read first and
+based on the bits set in that, corresponding level-1 registers are read for
+further interrupt processing. Since both these values are currently read
+into the same 'val' variable, checking level-0 bits the second time around
+is happening on the 'val' variable value of level-1 register contents
+instead of freshly reading the level-0 value again.
 
-This patch adds a new flag (qp->req.wait_for_rnr_timer) which, if set,
-prevents a retry flow until the rnr nak timer fires.
+Fix by using different variables to store level-0 and level-1 registers
+contents.
 
-This patch fixes rnr retry errors which can be observed by running the
-pyverbs test_rdmacm_async_traffic_external_qp multiple times. With this
-patch applied they do not occur.
-
-Link: https://lore.kernel.org/linux-rdma/a8287823-1408-4273-bc22-99a0678db640@gmail.com/
-Link: https://lore.kernel.org/linux-rdma/2bafda9e-2bb6-186d-12a1-179e8f6a2678@talpey.com/
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20220630190425.2251-6-rpearsonhpe@gmail.com
-Signed-off-by: Bob Pearson <rpearsonhpe@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Link: https://lore.kernel.org/r/20220721142052.25971-11-vidyas@nvidia.com
+Fixes: 56e15a238d92 ("PCI: tegra: Add Tegra194 PCIe support")
+Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_comp.c  |  8 +++++++-
- drivers/infiniband/sw/rxe/rxe_qp.c    |  1 +
- drivers/infiniband/sw/rxe/rxe_req.c   | 15 +++++++++++++--
- drivers/infiniband/sw/rxe/rxe_verbs.h |  1 +
- 4 files changed, 22 insertions(+), 3 deletions(-)
+ drivers/pci/controller/dwc/pcie-tegra194.c | 46 +++++++++++-----------
+ 1 file changed, 22 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_comp.c b/drivers/infiniband/sw/rxe/rxe_comp.c
-index 138b3e7d3a5f..ec671e171f13 100644
---- a/drivers/infiniband/sw/rxe/rxe_comp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_comp.c
-@@ -114,6 +114,8 @@ void retransmit_timer(struct timer_list *t)
- {
- 	struct rxe_qp *qp = from_timer(qp, t, retrans_timer);
+diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
+index 0888c3726414..85d405057ba8 100644
+--- a/drivers/pci/controller/dwc/pcie-tegra194.c
++++ b/drivers/pci/controller/dwc/pcie-tegra194.c
+@@ -352,15 +352,14 @@ static irqreturn_t tegra_pcie_rp_irq_handler(int irq, void *arg)
+ 	struct tegra194_pcie *pcie = arg;
+ 	struct dw_pcie *pci = &pcie->pci;
+ 	struct pcie_port *pp = &pci->pp;
+-	u32 val, tmp;
++	u32 val, status_l0, status_l1;
+ 	u16 val_w;
  
-+	pr_debug("%s: fired for qp#%d\n", __func__, qp->elem.index);
-+
- 	if (qp->valid) {
- 		qp->comp.timeout = 1;
- 		rxe_run_task(&qp->comp.task, 1);
-@@ -729,11 +731,15 @@ int rxe_completer(void *arg)
- 			break;
- 
- 		case COMPST_RNR_RETRY:
-+			/* we come here if we received an RNR NAK */
- 			if (qp->comp.rnr_retry > 0) {
- 				if (qp->comp.rnr_retry != 7)
- 					qp->comp.rnr_retry--;
- 
--				qp->req.need_retry = 1;
-+				/* don't start a retry flow until the
-+				 * rnr timer has fired
-+				 */
-+				qp->req.wait_for_rnr_timer = 1;
- 				pr_debug("qp#%d set rnr nak timer\n",
- 					 qp_num(qp));
- 				mod_timer(&qp->rnr_nak_timer,
-diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
-index 62acf890af6c..7d0c4432d3fd 100644
---- a/drivers/infiniband/sw/rxe/rxe_qp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_qp.c
-@@ -513,6 +513,7 @@ static void rxe_qp_reset(struct rxe_qp *qp)
- 	atomic_set(&qp->ssn, 0);
- 	qp->req.opcode = -1;
- 	qp->req.need_retry = 0;
-+	qp->req.wait_for_rnr_timer = 0;
- 	qp->req.noack_pkts = 0;
- 	qp->resp.msn = 0;
- 	qp->resp.opcode = -1;
-diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
-index d574c47099b8..90669b3c56af 100644
---- a/drivers/infiniband/sw/rxe/rxe_req.c
-+++ b/drivers/infiniband/sw/rxe/rxe_req.c
-@@ -103,7 +103,11 @@ void rnr_nak_timer(struct timer_list *t)
- {
- 	struct rxe_qp *qp = from_timer(qp, t, rnr_nak_timer);
- 
--	pr_debug("qp#%d rnr nak timer fired\n", qp_num(qp));
-+	pr_debug("%s: fired for qp#%d\n", __func__, qp_num(qp));
-+
-+	/* request a send queue retry */
-+	qp->req.need_retry = 1;
-+	qp->req.wait_for_rnr_timer = 0;
- 	rxe_run_task(&qp->req.task, 1);
- }
- 
-@@ -626,10 +630,17 @@ int rxe_requester(void *arg)
- 		qp->req.need_rd_atomic = 0;
- 		qp->req.wait_psn = 0;
- 		qp->req.need_retry = 0;
-+		qp->req.wait_for_rnr_timer = 0;
- 		goto exit;
+-	val = appl_readl(pcie, APPL_INTR_STATUS_L0);
+-	if (val & APPL_INTR_STATUS_L0_LINK_STATE_INT) {
+-		val = appl_readl(pcie, APPL_INTR_STATUS_L1_0_0);
+-		if (val & APPL_INTR_STATUS_L1_0_0_LINK_REQ_RST_NOT_CHGED) {
+-			appl_writel(pcie, val, APPL_INTR_STATUS_L1_0_0);
+-
++	status_l0 = appl_readl(pcie, APPL_INTR_STATUS_L0);
++	if (status_l0 & APPL_INTR_STATUS_L0_LINK_STATE_INT) {
++		status_l1 = appl_readl(pcie, APPL_INTR_STATUS_L1_0_0);
++		appl_writel(pcie, status_l1, APPL_INTR_STATUS_L1_0_0);
++		if (status_l1 & APPL_INTR_STATUS_L1_0_0_LINK_REQ_RST_NOT_CHGED) {
+ 			/* SBR & Surprise Link Down WAR */
+ 			val = appl_readl(pcie, APPL_CAR_RESET_OVRD);
+ 			val &= ~APPL_CAR_RESET_OVRD_CYA_OVERRIDE_CORE_RST_N;
+@@ -376,15 +375,15 @@ static irqreturn_t tegra_pcie_rp_irq_handler(int irq, void *arg)
+ 		}
  	}
  
--	if (unlikely(qp->req.need_retry)) {
-+	/* we come here if the retransmot timer has fired
-+	 * or if the rnr timer has fired. If the retransmit
-+	 * timer fires while we are processing an RNR NAK wait
-+	 * until the rnr timer has fired before starting the
-+	 * retry flow
-+	 */
-+	if (unlikely(qp->req.need_retry && !qp->req.wait_for_rnr_timer)) {
- 		req_retry(qp);
- 		qp->req.need_retry = 0;
+-	if (val & APPL_INTR_STATUS_L0_INT_INT) {
+-		val = appl_readl(pcie, APPL_INTR_STATUS_L1_8_0);
+-		if (val & APPL_INTR_STATUS_L1_8_0_AUTO_BW_INT_STS) {
++	if (status_l0 & APPL_INTR_STATUS_L0_INT_INT) {
++		status_l1 = appl_readl(pcie, APPL_INTR_STATUS_L1_8_0);
++		if (status_l1 & APPL_INTR_STATUS_L1_8_0_AUTO_BW_INT_STS) {
+ 			appl_writel(pcie,
+ 				    APPL_INTR_STATUS_L1_8_0_AUTO_BW_INT_STS,
+ 				    APPL_INTR_STATUS_L1_8_0);
+ 			apply_bad_link_workaround(pp);
+ 		}
+-		if (val & APPL_INTR_STATUS_L1_8_0_BW_MGT_INT_STS) {
++		if (status_l1 & APPL_INTR_STATUS_L1_8_0_BW_MGT_INT_STS) {
+ 			appl_writel(pcie,
+ 				    APPL_INTR_STATUS_L1_8_0_BW_MGT_INT_STS,
+ 				    APPL_INTR_STATUS_L1_8_0);
+@@ -396,25 +395,24 @@ static irqreturn_t tegra_pcie_rp_irq_handler(int irq, void *arg)
+ 		}
  	}
-diff --git a/drivers/infiniband/sw/rxe/rxe_verbs.h b/drivers/infiniband/sw/rxe/rxe_verbs.h
-index e7eff1ca75e9..33e8d0547553 100644
---- a/drivers/infiniband/sw/rxe/rxe_verbs.h
-+++ b/drivers/infiniband/sw/rxe/rxe_verbs.h
-@@ -123,6 +123,7 @@ struct rxe_req_info {
- 	int			need_rd_atomic;
- 	int			wait_psn;
- 	int			need_retry;
-+	int			wait_for_rnr_timer;
- 	int			noack_pkts;
- 	struct rxe_task		task;
- };
+ 
+-	val = appl_readl(pcie, APPL_INTR_STATUS_L0);
+-	if (val & APPL_INTR_STATUS_L0_CDM_REG_CHK_INT) {
+-		val = appl_readl(pcie, APPL_INTR_STATUS_L1_18);
+-		tmp = dw_pcie_readl_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS);
+-		if (val & APPL_INTR_STATUS_L1_18_CDM_REG_CHK_CMPLT) {
++	if (status_l0 & APPL_INTR_STATUS_L0_CDM_REG_CHK_INT) {
++		status_l1 = appl_readl(pcie, APPL_INTR_STATUS_L1_18);
++		val = dw_pcie_readl_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS);
++		if (status_l1 & APPL_INTR_STATUS_L1_18_CDM_REG_CHK_CMPLT) {
+ 			dev_info(pci->dev, "CDM check complete\n");
+-			tmp |= PCIE_PL_CHK_REG_CHK_REG_COMPLETE;
++			val |= PCIE_PL_CHK_REG_CHK_REG_COMPLETE;
+ 		}
+-		if (val & APPL_INTR_STATUS_L1_18_CDM_REG_CHK_CMP_ERR) {
++		if (status_l1 & APPL_INTR_STATUS_L1_18_CDM_REG_CHK_CMP_ERR) {
+ 			dev_err(pci->dev, "CDM comparison mismatch\n");
+-			tmp |= PCIE_PL_CHK_REG_CHK_REG_COMPARISON_ERROR;
++			val |= PCIE_PL_CHK_REG_CHK_REG_COMPARISON_ERROR;
+ 		}
+-		if (val & APPL_INTR_STATUS_L1_18_CDM_REG_CHK_LOGIC_ERR) {
++		if (status_l1 & APPL_INTR_STATUS_L1_18_CDM_REG_CHK_LOGIC_ERR) {
+ 			dev_err(pci->dev, "CDM Logic error\n");
+-			tmp |= PCIE_PL_CHK_REG_CHK_REG_LOGIC_ERROR;
++			val |= PCIE_PL_CHK_REG_CHK_REG_LOGIC_ERROR;
+ 		}
+-		dw_pcie_writel_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS, tmp);
+-		tmp = dw_pcie_readl_dbi(pci, PCIE_PL_CHK_REG_ERR_ADDR);
+-		dev_err(pci->dev, "CDM Error Address Offset = 0x%08X\n", tmp);
++		dw_pcie_writel_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS, val);
++		val = dw_pcie_readl_dbi(pci, PCIE_PL_CHK_REG_ERR_ADDR);
++		dev_err(pci->dev, "CDM Error Address Offset = 0x%08X\n", val);
+ 	}
+ 
+ 	return IRQ_HANDLED;
 -- 
 2.35.1
 
