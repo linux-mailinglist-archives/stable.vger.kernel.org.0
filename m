@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B7259370D
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:26:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 634255937F4
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243703AbiHOSfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:35:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42522 "EHLO
+        id S243671AbiHOSfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:35:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243532AbiHOSeY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:34:24 -0400
+        with ESMTP id S243404AbiHOSek (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:34:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FC312CCA0;
-        Mon, 15 Aug 2022 11:22:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3251539BAA;
+        Mon, 15 Aug 2022 11:22:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B4D8B8105B;
-        Mon, 15 Aug 2022 18:22:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2C77C433C1;
-        Mon, 15 Aug 2022 18:22:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB697B81074;
+        Mon, 15 Aug 2022 18:22:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AF5DC433D6;
+        Mon, 15 Aug 2022 18:22:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587733;
-        bh=ZADaNa64nCvQs7O60nGPkeGkYO17owC8vXFL0IFB5uI=;
+        s=korg; t=1660587736;
+        bh=I0s1FfCSKS4Q7n/lumfgFGstKL5ewoslGKP/jBS5Qv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t6mvgv11DQUQXKDc0OP6/k5wG6tGDlbr9EdS78zUwp0SRUWCFa4padJ57Z+CbD5k/
-         Z86urBPURah3M+HTxwYw0+5aV5F0GwRbrwq4bKWq6g/BqPzHsXf5la5MCT7P9KTx9h
-         31PCqLXF+22N5kIhKw1axHj42TGHoa/2Evw3xP+Q=
+        b=0S9NbEnfYepc6g2a/LwxPQdY8GXKp+nLO7EHYi2YAzrlkT/6t+3M+OV4xAiDNXDHd
+         aTjGtNgJpZrq6nob2vmHaFw2jwwOMXWLSA4pCvL75Tw8J+AtgsdqJU1wDxCbrmgVPP
+         wZmqBu01YzJ35b8zBt9x/d/1ZR+xjyIFz8YfSE/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Arnd Bergmann <arnd@arndb.de>, Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 177/779] soc: fsl: guts: machine variable might be unset
-Date:   Mon, 15 Aug 2022 19:57:01 +0200
-Message-Id: <20220815180344.837217230@linuxfoundation.org>
+        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 178/779] block: fix infinite loop for invalid zone append
+Date:   Mon, 15 Aug 2022 19:57:02 +0200
+Message-Id: <20220815180344.875920711@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,35 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit ab3f045774f704c4e7b6a878102f4e9d4ae7bc74 ]
+[ Upstream commit b82d9fa257cb3725c49d94d2aeafc4677c34448a ]
 
-If both the model and the compatible properties are missing, then
-machine will not be set. Initialize it with NULL.
+Returning 0 early from __bio_iov_append_get_pages() for the
+max_append_sectors warning just creates an infinite loop since 0 means
+success, and the bio will never fill from the unadvancing iov_iter. We
+could turn the return into an error value, but it will already be turned
+into an error value later on, so just remove the warning. Clearly no one
+ever hit it anyway.
 
-Fixes: 34c1c21e94ac ("soc: fsl: fix section mismatch build warnings")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 0512a75b98f84 ("block: Introduce REQ_OP_ZONE_APPEND")
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Link: https://lore.kernel.org/r/20220610195830.3574005-2-kbusch@fb.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/fsl/guts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/bio.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/soc/fsl/guts.c b/drivers/soc/fsl/guts.c
-index 75eabfb916cb..0b2c7fdbaa5b 100644
---- a/drivers/soc/fsl/guts.c
-+++ b/drivers/soc/fsl/guts.c
-@@ -141,7 +141,7 @@ static int fsl_guts_probe(struct platform_device *pdev)
- 	struct device *dev = &pdev->dev;
- 	struct resource *res;
- 	const struct fsl_soc_die_attr *soc_die;
--	const char *machine;
-+	const char *machine = NULL;
- 	u32 svr;
+diff --git a/block/bio.c b/block/bio.c
+index b8a8bfba714f..b117765d58c0 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -1141,9 +1141,6 @@ static int __bio_iov_append_get_pages(struct bio *bio, struct iov_iter *iter)
+ 	size_t offset;
+ 	int ret = 0;
  
- 	/* Initialize guts */
+-	if (WARN_ON_ONCE(!max_append_sectors))
+-		return 0;
+-
+ 	/*
+ 	 * Move page array up in the allocated memory for the bio vecs as far as
+ 	 * possible so that we can start filling biovecs from the beginning
 -- 
 2.35.1
 
