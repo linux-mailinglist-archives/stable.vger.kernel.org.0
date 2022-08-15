@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09B725937D1
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BABC259370F
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:26:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243587AbiHOSeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:34:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39398 "EHLO
+        id S243465AbiHOSev (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:34:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243660AbiHOSeR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:34:17 -0400
+        with ESMTP id S243208AbiHOSeW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:34:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C0C639B81;
-        Mon, 15 Aug 2022 11:22:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D6D2AE3A;
+        Mon, 15 Aug 2022 11:22:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2111CB80F99;
-        Mon, 15 Aug 2022 18:22:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F709C433C1;
-        Mon, 15 Aug 2022 18:22:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76719B8107D;
+        Mon, 15 Aug 2022 18:22:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A90F5C433D6;
+        Mon, 15 Aug 2022 18:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587726;
-        bh=8K7a4B/rMAB9jXSrY6O6bL252uaeUFiBy4iV2O9dGKQ=;
+        s=korg; t=1660587730;
+        bh=httprFRWS2IWljd7AHDAQs1mveoWNaulkMZGUEXjL2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zooY/NqwTHwzRpokSGU0egnKIRlHH+il3lcyxq4Y8k+mD3b+0JQq7LXxID/HLOfV7
-         BmK7DULEWBqJrTjqzGj7KPem5LbzvptYVNK7HP9HFcJL6qbGTlT+s7ie1o2rRAUj2V
-         5xEEFXP678ypbAHo+83KvTHFYmVctq0RiIEzZfJc=
+        b=NHKsSNBsO1XSrz0eKeEsh+ugaGclulvPZaMtLlCcgo7N6KVj1VzzNQT2X984qAs/2
+         JrcqxZ78hGM9QlaHe9qS1I/2Cvex1MPXUwHuUK77jOF0VYBBVdg3q2GMaiOV1oB8Cr
+         qDBzJriZxEc9Cw0HTh0l4Gw2JQ94+nOau0TpUXaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 175/779] locking/lockdep: Fix lockdep_init_map_*() confusion
-Date:   Mon, 15 Aug 2022 19:56:59 +0200
-Message-Id: <20220815180344.762135625@linuxfoundation.org>
+Subject: [PATCH 5.15 176/779] arm64: dts: qcom: sc7180: Remove ipa_fw_mem node on trogdor
+Date:   Mon, 15 Aug 2022 19:57:00 +0200
+Message-Id: <20220815180344.801087363@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,99 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit eae6d58d67d9739be5f7ae2dbead1d0ef6528243 ]
+[ Upstream commit e60414644cf3a703e10ed4429c15263095945ffe ]
 
-Commit dfd5e3f5fe27 ("locking/lockdep: Mark local_lock_t") added yet
-another lockdep_init_map_*() variant, but forgot to update all the
-existing users of the most complicated version.
+We don't use this carveout on trogdor boards, and having it defined in
+the sc7180 SoC file causes an overlap message to be printed at boot.
 
-This could lead to a loss of lock_type and hence an incorrect report.
-Given the relative rarity of both local_lock and these annotations,
-this is unlikely to happen in practise, still, best fix things.
+ OF: reserved mem: OVERLAP DETECTED!
+ memory@86000000 (0x0000000086000000--0x000000008ec00000) overlaps with memory@8b700000 (0x000000008b700000--0x000000008b710000)
 
-Fixes: dfd5e3f5fe27 ("locking/lockdep: Mark local_lock_t")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/YqyEDtoan20K0CVD@worktop.programming.kicks-ass.net
+Delete the node in the trogdor dtsi file to fix the overlap problem and
+remove the error message.
+
+Cc: Alex Elder <elder@linaro.org>
+Cc: Matthias Kaehlcke <mka@chromium.org>
+Fixes: 310b266655a3 ("arm64: dts: qcom: sc7180: define ipa_fw_mem node")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220517193307.3034602-1-swboyd@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/lockdep.h  | 30 +++++++++++++++++-------------
- kernel/locking/lockdep.c |  7 ++++---
- 2 files changed, 21 insertions(+), 16 deletions(-)
+ arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/lockdep.h b/include/linux/lockdep.h
-index 9fe165beb0f9..aa0ecfc6cdb4 100644
---- a/include/linux/lockdep.h
-+++ b/include/linux/lockdep.h
-@@ -192,7 +192,7 @@ static inline void
- lockdep_init_map_waits(struct lockdep_map *lock, const char *name,
- 		       struct lock_class_key *key, int subclass, u8 inner, u8 outer)
- {
--	lockdep_init_map_type(lock, name, key, subclass, inner, LD_WAIT_INV, LD_LOCK_NORMAL);
-+	lockdep_init_map_type(lock, name, key, subclass, inner, outer, LD_LOCK_NORMAL);
- }
- 
- static inline void
-@@ -215,24 +215,28 @@ static inline void lockdep_init_map(struct lockdep_map *lock, const char *name,
-  * or they are too narrow (they suffer from a false class-split):
+diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
+index 70c88c37de32..a9d36ac6cb90 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
+@@ -42,6 +42,7 @@ charger-crit {
   */
- #define lockdep_set_class(lock, key)				\
--	lockdep_init_map_waits(&(lock)->dep_map, #key, key, 0,	\
--			       (lock)->dep_map.wait_type_inner,	\
--			       (lock)->dep_map.wait_type_outer)
-+	lockdep_init_map_type(&(lock)->dep_map, #key, key, 0,	\
-+			      (lock)->dep_map.wait_type_inner,	\
-+			      (lock)->dep_map.wait_type_outer,	\
-+			      (lock)->dep_map.lock_type)
  
- #define lockdep_set_class_and_name(lock, key, name)		\
--	lockdep_init_map_waits(&(lock)->dep_map, name, key, 0,	\
--			       (lock)->dep_map.wait_type_inner,	\
--			       (lock)->dep_map.wait_type_outer)
-+	lockdep_init_map_type(&(lock)->dep_map, name, key, 0,	\
-+			      (lock)->dep_map.wait_type_inner,	\
-+			      (lock)->dep_map.wait_type_outer,	\
-+			      (lock)->dep_map.lock_type)
- 
- #define lockdep_set_class_and_subclass(lock, key, sub)		\
--	lockdep_init_map_waits(&(lock)->dep_map, #key, key, sub,\
--			       (lock)->dep_map.wait_type_inner,	\
--			       (lock)->dep_map.wait_type_outer)
-+	lockdep_init_map_type(&(lock)->dep_map, #key, key, sub,	\
-+			      (lock)->dep_map.wait_type_inner,	\
-+			      (lock)->dep_map.wait_type_outer,	\
-+			      (lock)->dep_map.lock_type)
- 
- #define lockdep_set_subclass(lock, sub)					\
--	lockdep_init_map_waits(&(lock)->dep_map, #lock, (lock)->dep_map.key, sub,\
--			       (lock)->dep_map.wait_type_inner,		\
--			       (lock)->dep_map.wait_type_outer)
-+	lockdep_init_map_type(&(lock)->dep_map, #lock, (lock)->dep_map.key, sub,\
-+			      (lock)->dep_map.wait_type_inner,		\
-+			      (lock)->dep_map.wait_type_outer,		\
-+			      (lock)->dep_map.lock_type)
- 
- #define lockdep_set_novalidate_class(lock) \
- 	lockdep_set_class_and_name(lock, &__lockdep_no_validate__, #lock)
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index a30702b847ba..120bbdacd58b 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -5202,9 +5202,10 @@ __lock_set_class(struct lockdep_map *lock, const char *name,
- 		return 0;
- 	}
- 
--	lockdep_init_map_waits(lock, name, key, 0,
--			       lock->wait_type_inner,
--			       lock->wait_type_outer);
-+	lockdep_init_map_type(lock, name, key, 0,
-+			      lock->wait_type_inner,
-+			      lock->wait_type_outer,
-+			      lock->lock_type);
- 	class = register_lock_class(lock, subclass, 0);
- 	hlock->class_idx = class - lock_classes;
- 
+ /delete-node/ &hyp_mem;
++/delete-node/ &ipa_fw_mem;
+ /delete-node/ &xbl_mem;
+ /delete-node/ &aop_mem;
+ /delete-node/ &sec_apps_mem;
 -- 
 2.35.1
 
