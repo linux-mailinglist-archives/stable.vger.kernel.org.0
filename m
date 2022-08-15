@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D558B5939AA
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8887C5939B9
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243864AbiHOT2R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:28:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55938 "EHLO
+        id S244547AbiHOT2X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:28:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344344AbiHOT0n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:26:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06CAD2F025;
-        Mon, 15 Aug 2022 11:42:36 -0700 (PDT)
+        with ESMTP id S1344441AbiHOT0w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:26:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 958F13FA05;
+        Mon, 15 Aug 2022 11:42:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A74161120;
-        Mon, 15 Aug 2022 18:42:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AE78C433C1;
-        Mon, 15 Aug 2022 18:42:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DE2F60FEE;
+        Mon, 15 Aug 2022 18:42:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D611C433C1;
+        Mon, 15 Aug 2022 18:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588955;
-        bh=FpJB5bvoHtxoOMqSH9y0L+Uu18qnX9Iul8pE4PGs3mA=;
+        s=korg; t=1660588958;
+        bh=zZb3w4ZEQn3rVjMUEfbqtgtrFhNi4p7gFpwg8dCPZdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZuA5Y0/N9rXxyGKIVSMwsLk/tQUA7oy+DbimA+0eGD3a761bqlfrQ9jLs7GNA10Aw
-         yeSISY2ecr/NwHq3QVezL2SEYsn9Nod+uMehF1/A6I2GnE9/qxaT5eYVFGhSVA50+/
-         vRFnroH4mapjs4bUSaJRykAh4PY2aDGO8HGtHZ7k=
+        b=nb28TJvNIv8XJqe/Fyd/sLrk1cFbcRd/x6RdrEE8IygS1LGDD31EUuNbRmN+29NjM
+         IBr//jFmXfmKUvoltVoB0t9+Hzwefecd60Q+9QA0boFma2ZBErOGMEODz48kqE34d3
+         dCDIVSyeBbF7UHPRkXzRIVRA5ye8EV5J3iLaHgXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 568/779] serial: 8250: Export ICR access helpers for internal use
-Date:   Mon, 15 Aug 2022 20:03:32 +0200
-Message-Id: <20220815180401.606383226@linuxfoundation.org>
+Subject: [PATCH 5.15 569/779] serial: 8250: dma: Allow driver operations before starting DMA transfers
+Date:   Mon, 15 Aug 2022 20:03:33 +0200
+Message-Id: <20220815180401.657567808@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,108 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit cb5a40e3143bc64437858b337273fd63cc42e9c2 ]
+[ Upstream commit e4fb03fe10c5e7a5d9aef7cefe815253274fb9ee ]
 
-Make ICR access helpers available outside 8250_port.c, however retain
-them as ordinary static functions so as not to regress code generation.
+One situation where this could be used is when configuring the UART
+controller to be the DMA flow controller. This is a typical case where
+the driver might need to program a few more registers before starting a
+DMA transfer. Provide the necessary infrastructure to support this
+case.
 
-This is because `serial_icr_write' is currently automatically inlined by
-GCC, however `serial_icr_read' is not.  Making them both static inline
-would grow code produced, e.g.:
-
-$ i386-linux-gnu-size --format=gnu 8250_port-{old,new}.o
-      text       data        bss      total filename
-     15065       3378          0      18443 8250_port-old.o
-     15289       3378          0      18667 8250_port-new.o
-
-and:
-
-$ riscv64-linux-gnu-size --format=gnu 8250_port-{old,new}.o
-      text       data        bss      total filename
-     16980       5306          0      22286 8250_port-old.o
-     17124       5306          0      22430 8250_port-new.o
-
-while making them external would needlessly add a new module interface
-and lose the benefit from `serial_icr_write' getting inlined outside
-8250_port.o.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204181517500.9383@angie.orcam.me.uk
+Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20220422180615.9098-6-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250.h      | 22 ++++++++++++++++++++++
- drivers/tty/serial/8250/8250_port.c | 21 ---------------------
- 2 files changed, 22 insertions(+), 21 deletions(-)
+ drivers/tty/serial/8250/8250.h     | 18 ++++++++++++++++++
+ drivers/tty/serial/8250/8250_dma.c |  4 ++++
+ 2 files changed, 22 insertions(+)
 
 diff --git a/drivers/tty/serial/8250/8250.h b/drivers/tty/serial/8250/8250.h
-index 6473361525d1..0efe4df24622 100644
+index 0efe4df24622..b3abc29aa927 100644
 --- a/drivers/tty/serial/8250/8250.h
 +++ b/drivers/tty/serial/8250/8250.h
-@@ -120,6 +120,28 @@ static inline void serial_out(struct uart_8250_port *up, int offset, int value)
- 	up->port.serial_out(&up->port, offset, value);
- }
+@@ -17,6 +17,8 @@
+ struct uart_8250_dma {
+ 	int (*tx_dma)(struct uart_8250_port *p);
+ 	int (*rx_dma)(struct uart_8250_port *p);
++	void (*prepare_tx_dma)(struct uart_8250_port *p);
++	void (*prepare_rx_dma)(struct uart_8250_port *p);
  
-+/*
-+ * For the 16C950
-+ */
-+static void serial_icr_write(struct uart_8250_port *up, int offset, int value)
+ 	/* Filter function */
+ 	dma_filter_fn		fn;
+@@ -331,6 +333,22 @@ extern int serial8250_rx_dma(struct uart_8250_port *);
+ extern void serial8250_rx_dma_flush(struct uart_8250_port *);
+ extern int serial8250_request_dma(struct uart_8250_port *);
+ extern void serial8250_release_dma(struct uart_8250_port *);
++
++static inline void serial8250_do_prepare_tx_dma(struct uart_8250_port *p)
 +{
-+	serial_out(up, UART_SCR, offset);
-+	serial_out(up, UART_ICR, value);
++	struct uart_8250_dma *dma = p->dma;
++
++	if (dma->prepare_tx_dma)
++		dma->prepare_tx_dma(p);
 +}
 +
-+static unsigned int __maybe_unused serial_icr_read(struct uart_8250_port *up,
-+						   int offset)
++static inline void serial8250_do_prepare_rx_dma(struct uart_8250_port *p)
 +{
-+	unsigned int value;
++	struct uart_8250_dma *dma = p->dma;
 +
-+	serial_icr_write(up, UART_ACR, up->acr | UART_ACR_ICRRD);
-+	serial_out(up, UART_SCR, offset);
-+	value = serial_in(up, UART_ICR);
-+	serial_icr_write(up, UART_ACR, up->acr);
-+
-+	return value;
++	if (dma->prepare_rx_dma)
++		dma->prepare_rx_dma(p);
 +}
+ #else
+ static inline int serial8250_tx_dma(struct uart_8250_port *p)
+ {
+diff --git a/drivers/tty/serial/8250/8250_dma.c b/drivers/tty/serial/8250/8250_dma.c
+index b3c3f7e5851a..1bdc8d6432fe 100644
+--- a/drivers/tty/serial/8250/8250_dma.c
++++ b/drivers/tty/serial/8250/8250_dma.c
+@@ -86,6 +86,8 @@ int serial8250_tx_dma(struct uart_8250_port *p)
+ 
+ 	dma->tx_size = CIRC_CNT_TO_END(xmit->head, xmit->tail, UART_XMIT_SIZE);
+ 
++	serial8250_do_prepare_tx_dma(p);
 +
- void serial8250_clear_and_reinit_fifos(struct uart_8250_port *p);
+ 	desc = dmaengine_prep_slave_single(dma->txchan,
+ 					   dma->tx_addr + xmit->tail,
+ 					   dma->tx_size, DMA_MEM_TO_DEV,
+@@ -123,6 +125,8 @@ int serial8250_rx_dma(struct uart_8250_port *p)
+ 	if (dma->rx_running)
+ 		return 0;
  
- static inline int serial_dl_read(struct uart_8250_port *up)
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 4f66825abe67..a5496bd1b650 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -537,27 +537,6 @@ serial_port_out_sync(struct uart_port *p, int offset, int value)
- 	}
- }
- 
--/*
-- * For the 16C950
-- */
--static void serial_icr_write(struct uart_8250_port *up, int offset, int value)
--{
--	serial_out(up, UART_SCR, offset);
--	serial_out(up, UART_ICR, value);
--}
--
--static unsigned int serial_icr_read(struct uart_8250_port *up, int offset)
--{
--	unsigned int value;
--
--	serial_icr_write(up, UART_ACR, up->acr | UART_ACR_ICRRD);
--	serial_out(up, UART_SCR, offset);
--	value = serial_in(up, UART_ICR);
--	serial_icr_write(up, UART_ACR, up->acr);
--
--	return value;
--}
--
- /*
-  * FIFO support.
-  */
++	serial8250_do_prepare_rx_dma(p);
++
+ 	desc = dmaengine_prep_slave_single(dma->rxchan, dma->rx_addr,
+ 					   dma->rx_size, DMA_DEV_TO_MEM,
+ 					   DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
 -- 
 2.35.1
 
