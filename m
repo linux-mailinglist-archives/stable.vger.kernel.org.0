@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB8EA594715
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:58:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEC80594753
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354241AbiHOXoB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:44:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60968 "EHLO
+        id S1346690AbiHOXh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:37:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354232AbiHOXll (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4E4E614A;
-        Mon, 15 Aug 2022 13:11:18 -0700 (PDT)
+        with ESMTP id S1353690AbiHOXf5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:35:57 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A7815176D;
+        Mon, 15 Aug 2022 13:09:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 786796077B;
-        Mon, 15 Aug 2022 20:11:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63E5AC433C1;
-        Mon, 15 Aug 2022 20:11:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 67EB0CE1262;
+        Mon, 15 Aug 2022 20:09:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53E2EC433C1;
+        Mon, 15 Aug 2022 20:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594277;
-        bh=ECYLy6ZnFKRuF+2gIewQOS7C8kcMwJoNV5HEHpGO02I=;
+        s=korg; t=1660594151;
+        bh=Ohh3paW8dP4iCobD3rCYKby9TRKkA45xwCV8Vho5sgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oIbewXdUyfAcOZNuwzEBddBydJ1oW4G7l1IuZfpd5YkHs0mEBVL4xBB8JSlFehD2M
-         Otu0v7gG1pgIwlYaXS1SeFKKuRq1cjsxYiAmI+AQcUyuii5c5h2JRW8f9jHFRGLVgB
-         uCwvKE5+str4VFLe1OKhlTRqYVHyXJ7nhb6M9xBA=
+        b=VGtIFwRZh5BOUO7rnukeY/16OOfNmT89JqoNjCHqKJMzv/RPoz4CxCd/G5ddzYbi8
+         4m6c2X5h4X+WAanO0Lld3wv/brHCxV0Kr6ULuQzjEWDdfuKC5Q0iLDLeHHF0hPHbUB
+         vNBMukOmAmy4CZxp3aYjH0Exyq1gmNSOnKH7zrVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1054/1095] ext4: update s_overhead_clusters in the superblock during an on-line resize
-Date:   Mon, 15 Aug 2022 20:07:33 +0200
-Message-Id: <20220815180512.668476663@linuxfoundation.org>
+        stable@vger.kernel.org, Shuqi Zhang <zhangshuqi3@huawei.com>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 1064/1095] ext4: use kmemdup() to replace kmalloc + memcpy
+Date:   Mon, 15 Aug 2022 20:07:43 +0200
+Message-Id: <20220815180513.053676857@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,48 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Shuqi Zhang <zhangshuqi3@huawei.com>
 
-[ Upstream commit de394a86658ffe4e89e5328fd4993abfe41b7435 ]
+[ Upstream commit 4efd9f0d120c55b08852ee5605dbb02a77089a5d ]
 
-When doing an online resize, the on-disk superblock on-disk wasn't
-updated.  This means that when the file system is unmounted and
-remounted, and the on-disk overhead value is non-zero, this would
-result in the results of statfs(2) to be incorrect.
+Replace kmalloc + memcpy with kmemdup()
 
-This was partially fixed by Commits 10b01ee92df5 ("ext4: fix overhead
-calculation to account for the reserved gdt blocks"), 85d825dbf489
-("ext4: force overhead calculation if the s_overhead_cluster makes no
-sense"), and eb7054212eac ("ext4: update the cached overhead value in
-the superblock").
-
-However, since it was too expensive to forcibly recalculate the
-overhead for bigalloc file systems at every mount, this didn't fix the
-problem for bigalloc file systems.  This commit should address the
-problem when resizing file systems with the bigalloc feature enabled.
-
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20220629040026.112371-1-tytso@mit.edu
+Signed-off-by: Shuqi Zhang <zhangshuqi3@huawei.com>
+Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220525030120.803330-1-zhangshuqi3@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/resize.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/xattr.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/ext4/resize.c b/fs/ext4/resize.c
-index 8b70a4701293..e5c2713aa11a 100644
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -1484,6 +1484,7 @@ static void ext4_update_super(struct super_block *sb,
- 	 * Update the fs overhead information
- 	 */
- 	ext4_calculate_overhead(sb);
-+	es->s_overhead_clusters = cpu_to_le32(sbi->s_overhead);
+diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
+index b57fd07fbdba..d92d50de5a01 100644
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -1887,11 +1887,10 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
  
- 	if (test_opt(sb, DEBUG))
- 		printk(KERN_DEBUG "EXT4-fs: added group %u:"
+ 			unlock_buffer(bs->bh);
+ 			ea_bdebug(bs->bh, "cloning");
+-			s->base = kmalloc(bs->bh->b_size, GFP_NOFS);
++			s->base = kmemdup(BHDR(bs->bh), bs->bh->b_size, GFP_NOFS);
+ 			error = -ENOMEM;
+ 			if (s->base == NULL)
+ 				goto cleanup;
+-			memcpy(s->base, BHDR(bs->bh), bs->bh->b_size);
+ 			s->first = ENTRY(header(s->base)+1);
+ 			header(s->base)->h_refcount = cpu_to_le32(1);
+ 			s->here = ENTRY(s->base + offset);
 -- 
 2.35.1
 
