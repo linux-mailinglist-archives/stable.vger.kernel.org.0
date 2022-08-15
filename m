@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 155A759349A
+	by mail.lfdr.de (Postfix) with ESMTP id 80F2A59349B
 	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:26:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232603AbiHOSNb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232341AbiHOSNb (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Aug 2022 14:13:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57816 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232120AbiHOSN0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:13:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F19FA13E06;
-        Mon, 15 Aug 2022 11:13:25 -0700 (PDT)
+        with ESMTP id S232347AbiHOSN1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:13:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE5F2A256;
+        Mon, 15 Aug 2022 11:13:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1753CB8106E;
-        Mon, 15 Aug 2022 18:13:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A203C433C1;
-        Mon, 15 Aug 2022 18:13:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AFB361272;
+        Mon, 15 Aug 2022 18:13:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4060BC433C1;
+        Mon, 15 Aug 2022 18:13:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587202;
-        bh=fFfns6JJ81r8M2lqck6bmTm2UrAYKjcdD2sOD+1Um1U=;
+        s=korg; t=1660587205;
+        bh=ulstid4ojWlQHTZ7PLvlo200FTJNlbgUZefZgd4ayE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sxrTORMMfiUEZb35WOjPX6xW7k0yyn06h5BGeAa3MMabqp9htUYmLXzCAhxLHTaoE
-         9vsMqnxfdPmRFUc9qwFG+oTW4TArmd8FoyOIL7z7VDLhzb1RQnJryet4YNLoSEj9s5
-         ztLVpn7zX6tusS1LOdxnNEGrZsf6JPtLWMUApWrk=
+        b=TUjLyNSEE+oQ7IleUzF4+T1iS2KmMONH03rHveuA5aYOtX4EpFA+EuNmAae9l4vqF
+         /D0e/wMp78+upgJVbMv7IKjdIOaFpJ1F7a9vmNrGU5RlpYahf7eZG1ntmV3p/XdOUF
+         12cdBQpBgrVId4PCnsykqhNhBWGTzWQNS+jgRIYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
+        stable@vger.kernel.org,
+        Ivan Hasenkampf <ivan.hasenkampf@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 010/779] ALSA: hda/realtek: Add quirk for Clevo NV45PZ
-Date:   Mon, 15 Aug 2022 19:54:14 +0200
-Message-Id: <20220815180337.625559540@linuxfoundation.org>
+Subject: [PATCH 5.15 011/779] ALSA: hda/realtek: Add quirk for HP Spectre x360 15-eb0xxx
+Date:   Mon, 15 Aug 2022 19:54:15 +0200
+Message-Id: <20220815180337.675698978@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,30 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Crawford <tcrawford@system76.com>
+From: Ivan Hasenkampf <ivan.hasenkampf@gmail.com>
 
-commit be561ffad708f0cee18aee4231f80ffafaf7a419 upstream.
+commit 24df5428ef9d1ca1edd54eca7eb667110f2dfae3 upstream.
 
-Fixes headset detection on Clevo NV45PZ.
+Fixes speaker output on HP Spectre x360 15-eb0xxx
 
-Signed-off-by: Tim Crawford <tcrawford@system76.com>
+[ re-sorted in SSID order by tiwai ]
+
+Signed-off-by: Ivan Hasenkampf <ivan.hasenkampf@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220731032243.4300-1-tcrawford@system76.com
+Link: https://lore.kernel.org/r/20220803164001.290394-1-ivan.hasenkampf@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -8992,6 +8992,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1558, 0x4018, "Clevo NV40M[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x4019, "Clevo NV40MZ", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x4020, "Clevo NV40MB", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x4041, "Clevo NV4[15]PZ", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x40a1, "Clevo NL40GU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x40c1, "Clevo NL40[CZ]U", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x40d1, "Clevo NL41DU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+@@ -8852,6 +8852,8 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x861f, "HP Elite Dragonfly G1", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x86c7, "HP Envy AiO 32", ALC274_FIXUP_HP_ENVY_GPIO),
++	SND_PCI_QUIRK(0x103c, 0x86e7, "HP Spectre x360 15-eb0xxx", ALC285_FIXUP_HP_SPECTRE_X360_EB1),
++	SND_PCI_QUIRK(0x103c, 0x86e8, "HP Spectre x360 15-eb0xxx", ALC285_FIXUP_HP_SPECTRE_X360_EB1),
+ 	SND_PCI_QUIRK(0x103c, 0x8716, "HP Elite Dragonfly G2 Notebook PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8720, "HP EliteBook x360 1040 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
 
 
