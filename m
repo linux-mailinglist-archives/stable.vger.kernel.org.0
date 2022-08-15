@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8397659496C
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:14:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22A1C594948
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:11:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353585AbiHOXmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:42:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35658 "EHLO
+        id S1353630AbiHOXmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:42:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354056AbiHOXlE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28D3C98A4E;
-        Mon, 15 Aug 2022 13:10:24 -0700 (PDT)
+        with ESMTP id S1354091AbiHOXlK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49859103C5A;
+        Mon, 15 Aug 2022 13:10:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92F4460025;
-        Mon, 15 Aug 2022 20:10:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96A25C433D6;
-        Mon, 15 Aug 2022 20:10:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 75E24CE12E7;
+        Mon, 15 Aug 2022 20:10:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B79EC433D6;
+        Mon, 15 Aug 2022 20:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594223;
-        bh=AZdgHdd7Lzfg2eg8h8WDpyyCu/wK8MepgvhUm1bY0G8=;
+        s=korg; t=1660594231;
+        bh=a31WYOj3u0YxhhWWPGE8uaQmFHl6yu7OQLekdTH58ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4VsTexA1LwbA/pgQjnE02bqlDUQ/Tcvr7a7HhjpbM6XipFMmRiNA2dhttD4t3FMc
-         chjzbmHtfviw+uXTSM7bnhjTNu8VPUd7CkmsV6/Oxn+r3FaTyEVXcwL5f/twyJE+AL
-         jlM3iH7JBxYib4acx3jfgJrZkWUjz2oN/q4s4LyI=
+        b=sopqvlTKODPpyJkTHgXP/fl7IGbcrb6q+p5rZTM9t4mqaQs8PI6CG6MD1YeuJk9V7
+         lUOmi9MXRzEVMt69g+ra3pEgrr0PepBItuY5bxejPh/lwc72PcxhU386dIiE/rKkaX
+         cGd5CECUIQjcCP+qb9o98PMdOpq5rlgdxzRJBoHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0397/1157] drm/mcde: Fix refcount leak in mcde_dsi_bind
-Date:   Mon, 15 Aug 2022 19:55:53 +0200
-Message-Id: <20220815180455.551387286@linuxfoundation.org>
+Subject: [PATCH 5.19 0398/1157] media: hdpvr: fix error value returns in hdpvr_read
+Date:   Mon, 15 Aug 2022 19:55:54 +0200
+Message-Id: <20220815180455.590092009@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,36 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit 3a149169e4a2f9127022fec6ef5d71b4e804b3b9 ]
+[ Upstream commit 359c27c6ddbde404f44a9c0d3ec88ccd1e2042f2 ]
 
-Every iteration of for_each_available_child_of_node() decrements
-the reference counter of the previous node. There is no decrement
-when break out from the loop and results in refcount leak.
-Add missing of_node_put() to fix this.
+Error return values are supposed to be negative in hdpvr_read. Most
+error returns are currently handled via an unsigned integer "ret". When
+setting a negative error value to "ret", the value actually becomes a
+large positive value, because "ret" is unsigned. Later on, the "ret"
+value is returned. But as ssize_t is a 64-bit signed number, the error
+return value stays a large positive integer instead of a negative
+integer. This can cause an error value to be interpreted as the read
+size, which can cause a buffer overread for applications relying on the
+returned size.
 
-Fixes: 5fc537bfd000 ("drm/mcde: Add new driver for ST-Ericsson MCDE")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220525115411.65455-1-linmq006@gmail.com
+Fixes: 9aba42efe85b ("V4L/DVB (11096): V4L2 Driver for the Hauppauge HD PVR usb capture device")
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mcde/mcde_dsi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/hdpvr/hdpvr-video.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mcde/mcde_dsi.c b/drivers/gpu/drm/mcde/mcde_dsi.c
-index 5651734ce977..9f9ac8699310 100644
---- a/drivers/gpu/drm/mcde/mcde_dsi.c
-+++ b/drivers/gpu/drm/mcde/mcde_dsi.c
-@@ -1111,6 +1111,7 @@ static int mcde_dsi_bind(struct device *dev, struct device *master,
- 			bridge = of_drm_find_bridge(child);
- 			if (!bridge) {
- 				dev_err(dev, "failed to find bridge\n");
-+				of_node_put(child);
- 				return -EINVAL;
- 			}
- 		}
+diff --git a/drivers/media/usb/hdpvr/hdpvr-video.c b/drivers/media/usb/hdpvr/hdpvr-video.c
+index 60e57e0f1927..fd7d2a9d0449 100644
+--- a/drivers/media/usb/hdpvr/hdpvr-video.c
++++ b/drivers/media/usb/hdpvr/hdpvr-video.c
+@@ -409,7 +409,7 @@ static ssize_t hdpvr_read(struct file *file, char __user *buffer, size_t count,
+ 	struct hdpvr_device *dev = video_drvdata(file);
+ 	struct hdpvr_buffer *buf = NULL;
+ 	struct urb *urb;
+-	unsigned int ret = 0;
++	int ret = 0;
+ 	int rem, cnt;
+ 
+ 	if (*pos)
 -- 
 2.35.1
 
