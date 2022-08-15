@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A49425949D9
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:15:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A34595949D5
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355072AbiHOXzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:55:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48920 "EHLO
+        id S245201AbiHOXpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:45:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354728AbiHOXtz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:49:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E76E86077;
-        Mon, 15 Aug 2022 13:15:52 -0700 (PDT)
+        with ESMTP id S243255AbiHOXnp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:43:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3069386893;
+        Mon, 15 Aug 2022 13:14:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02F1560F0E;
-        Mon, 15 Aug 2022 20:15:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06BF4C433D6;
-        Mon, 15 Aug 2022 20:15:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DDCB9B810C5;
+        Mon, 15 Aug 2022 20:13:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D47CC433B5;
+        Mon, 15 Aug 2022 20:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594551;
-        bh=UQf+tKQkS6szeiWBjYbSKzcWe/vs1LZxCnIr6JbI4us=;
+        s=korg; t=1660594437;
+        bh=LZk7gSWpaSoUsHd/k9TE2xG/PGVAIeKrKwCihr/MDmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZzWweqMBM5V8KD69tP8blaGWV+LuqsczNdJBVl9UWqwT9BUaAXHB3M11fVtE2/KMv
-         e1buB3uXiv3crgAhci1XZCk9BKzjnjcv1H/S+vRffkNvRMMswwPPVX93lkr+ZA1PCx
-         usZy1ngSMYoMJkPwOJBzKVANpkhPyDIt5Cyjowzk=
+        b=EdrIiKBguDpaDDfOS5jWhwUWrr1lfgxux8qmJXOIAnMWMrchon//ugCFs5zaa8J2F
+         pkhbJqPF/aUzmyELGBLjFjh8jnW13AIiMJJNiopepe18bZYf1mPOf8RaCiyh0FMOuX
+         7jFGn4uWWwiHOrvuN8SfXb/mEQ9g4oCwLM8IfLwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0439/1157] drm/msm/hdmi: fill the pwr_regs bulk regulators
-Date:   Mon, 15 Aug 2022 19:56:35 +0200
-Message-Id: <20220815180457.193088196@linuxfoundation.org>
+Subject: [PATCH 5.19 0440/1157] drm: bridge: sii8620: fix possible off-by-one
+Date:   Mon, 15 Aug 2022 19:56:36 +0200
+Message-Id: <20220815180457.223749205@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,40 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit a18a44e9262d5c7f7fbccbc9458df64d69185d41 ]
+[ Upstream commit 21779cc21c732c5eff8ea1624be6590450baa30f ]
 
-Conversion to use bulk regulator API omitted filling the pwr_regs with
-proper regulator IDs. This was left unnoticed, since none of my testing
-platforms has used the pwr_regs. Fix this by propagating regulator ids
-properly.
+The next call to sii8620_burst_get_tx_buf will result in off-by-one
+When ctx->burst.tx_count + size == ARRAY_SIZE(ctx->burst.tx_buf). The same
+thing happens in sii8620_burst_get_rx_buf.
 
-Fixes: 31b3b1f5e352 ("drm/msm/hdmi: use bulk regulator API")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Patchwork: https://patchwork.freedesktop.org/patch/488847/
-Link: https://lore.kernel.org/r/20220609113148.3149194-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+This patch also change tx_count and tx_buf to rx_count and rx_buf in
+sii8620_burst_get_rx_buf. It is unreasonable to check tx_buf's size and
+use rx_buf.
+
+Fixes: e19e9c692f81 ("drm/bridge/sii8620: add support for burst eMSC transmissions")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220518065856.18936-1-hbh25y@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/hdmi/hdmi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/bridge/sil-sii8620.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
-index cf24e68864ba..73070ec1a936 100644
---- a/drivers/gpu/drm/msm/hdmi/hdmi.c
-+++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
-@@ -180,6 +180,9 @@ static struct hdmi *msm_hdmi_init(struct platform_device *pdev)
- 		goto fail;
- 	}
+diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
+index ec7745c31da0..ab0bce4a988c 100644
+--- a/drivers/gpu/drm/bridge/sil-sii8620.c
++++ b/drivers/gpu/drm/bridge/sil-sii8620.c
+@@ -605,7 +605,7 @@ static void *sii8620_burst_get_tx_buf(struct sii8620 *ctx, int len)
+ 	u8 *buf = &ctx->burst.tx_buf[ctx->burst.tx_count];
+ 	int size = len + 2;
  
-+	for (i = 0; i < config->pwr_reg_cnt; i++)
-+		hdmi->pwr_regs[i].supply = config->pwr_reg_names[i];
-+
- 	ret = devm_regulator_bulk_get(&pdev->dev, config->pwr_reg_cnt, hdmi->pwr_regs);
- 	if (ret) {
- 		DRM_DEV_ERROR(&pdev->dev, "failed to get pwr regulator: %d\n", ret);
+-	if (ctx->burst.tx_count + size > ARRAY_SIZE(ctx->burst.tx_buf)) {
++	if (ctx->burst.tx_count + size >= ARRAY_SIZE(ctx->burst.tx_buf)) {
+ 		dev_err(ctx->dev, "TX-BLK buffer exhausted\n");
+ 		ctx->error = -EINVAL;
+ 		return NULL;
+@@ -622,7 +622,7 @@ static u8 *sii8620_burst_get_rx_buf(struct sii8620 *ctx, int len)
+ 	u8 *buf = &ctx->burst.rx_buf[ctx->burst.rx_count];
+ 	int size = len + 1;
+ 
+-	if (ctx->burst.tx_count + size > ARRAY_SIZE(ctx->burst.tx_buf)) {
++	if (ctx->burst.rx_count + size >= ARRAY_SIZE(ctx->burst.rx_buf)) {
+ 		dev_err(ctx->dev, "RX-BLK buffer exhausted\n");
+ 		ctx->error = -EINVAL;
+ 		return NULL;
 -- 
 2.35.1
 
