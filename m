@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D88265945C1
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:01:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E630559440C
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:58:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240890AbiHOV5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:57:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44090 "EHLO
+        id S1344552AbiHOV5k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:57:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349771AbiHOVzE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:55:04 -0400
+        with ESMTP id S1350628AbiHOV4j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:56:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31B665C9EF;
-        Mon, 15 Aug 2022 12:33:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 106E810AE3A;
+        Mon, 15 Aug 2022 12:34:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C3D061185;
-        Mon, 15 Aug 2022 19:33:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CB6CC433C1;
-        Mon, 15 Aug 2022 19:33:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC4416113B;
+        Mon, 15 Aug 2022 19:34:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C98E7C433D6;
+        Mon, 15 Aug 2022 19:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592017;
-        bh=BYdkPs7pd6vq5aBQeItYiOjpSnUcIePo8X2AobeeMOU=;
+        s=korg; t=1660592052;
+        bh=g65Y0FS559Rvkft/CdVUJI8JMFlhXvOguP2WrPaED/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CK516Tv1bnUgr3cydlp+QVhX3pNUj7EiaaiwFjC/rKH7oj3B8//B162clnG9sc/7L
-         mHDM1To7zDNAAcHZuonE4B3Pwl7PrFSCFxhH5MhB1KmauEfQYmiyGxG3fxS6Ky3EQL
-         oYN9wB9nZRYZANGt/6q9MSFr6ISkma5bk6whPr6M=
+        b=uEw3xXVDSgdNfK95Zhe+sYnqr9qA4z+lCutQPdvl8EUgvZTStmDkrFSdZq3DwEBva
+         6sFE45sH3duSibHZI6oEQUJFqm1qBHUfvvmeT5MEp2DicPUPBkYxhNq7sZBbMtdPEg
+         YTChX4Y11fNH/LuOpv+ckYUtgJeILer8ktp1xQw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.19 0022/1157] HID: wacom: Dont register pad_input for touch switch
-Date:   Mon, 15 Aug 2022 19:49:38 +0200
-Message-Id: <20220815180440.318139182@linuxfoundation.org>
+        stable@vger.kernel.org, Lei Wang <lei4.wang@intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.19 0023/1157] KVM: nVMX: Snapshot pre-VM-Enter BNDCFGS for !nested_run_pending case
+Date:   Mon, 15 Aug 2022 19:49:39 +0200
+Message-Id: <20220815180440.357606776@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,107 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping Cheng <pinglinux@gmail.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit d6b675687a4ab4dba684716d97c8c6f81bf10905 upstream.
+commit fa578398a0ba2c079fa1170da21fa5baae0cedb2 upstream.
 
-Touch switch state is received through WACOM_PAD_FIELD. However, it
-is reported by touch_input. Don't register pad_input if no other pad
-events require the interface.
+If a nested run isn't pending, snapshot vmcs01.GUEST_BNDCFGS irrespective
+of whether or not VM_ENTRY_LOAD_BNDCFGS is set in vmcs12.  When restoring
+nested state, e.g. after migration, without a nested run pending,
+prepare_vmcs02() will propagate nested.vmcs01_guest_bndcfgs to vmcs02,
+i.e. will load garbage/zeros into vmcs02.GUEST_BNDCFGS.
 
+If userspace restores nested state before MSRs, then loading garbage is a
+non-issue as loading BNDCFGS will also update vmcs02.  But if usersepace
+restores MSRs first, then KVM is responsible for propagating L2's value,
+which is actually thrown into vmcs01, into vmcs02.
+
+Restoring L2 MSRs into vmcs01, i.e. loading all MSRs before nested state
+is all kinds of bizarre and ideally would not be supported.  Sadly, some
+VMMs do exactly that and rely on KVM to make things work.
+
+Note, there's still a lurking SMM bug, as propagating vmcs01.GUEST_BNDFGS
+to vmcs02 across RSM may corrupt L2's BNDCFGS.  But KVM's entire VMX+SMM
+emulation is flawed as SMI+RSM should not toouch _any_ VMCS when use the
+"default treatment of SMIs", i.e. when not using an SMI Transfer Monitor.
+
+Link: https://lore.kernel.org/all/Yobt1XwOfb5M6Dfa@google.com
+Fixes: 62cf9bd8118c ("KVM: nVMX: Fix emulation of VM_ENTRY_LOAD_BNDCFGS")
 Cc: stable@vger.kernel.org
-Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Cc: Lei Wang <lei4.wang@intel.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220614215831.3762138-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/wacom_sys.c |    2 +-
- drivers/hid/wacom_wac.c |   43 +++++++++++++++++++++++++------------------
- 2 files changed, 26 insertions(+), 19 deletions(-)
+ arch/x86/kvm/vmx/nested.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -2121,7 +2121,7 @@ static int wacom_register_inputs(struct
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -3376,7 +3376,8 @@ enum nvmx_vmentry_status nested_vmx_ente
+ 	if (!(vmcs12->vm_entry_controls & VM_ENTRY_LOAD_DEBUG_CONTROLS))
+ 		vmx->nested.vmcs01_debugctl = vmcs_read64(GUEST_IA32_DEBUGCTL);
+ 	if (kvm_mpx_supported() &&
+-		!(vmcs12->vm_entry_controls & VM_ENTRY_LOAD_BNDCFGS))
++	    (!vmx->nested.nested_run_pending ||
++	     !(vmcs12->vm_entry_controls & VM_ENTRY_LOAD_BNDCFGS)))
+ 		vmx->nested.vmcs01_guest_bndcfgs = vmcs_read64(GUEST_BNDCFGS);
  
- 	error = wacom_setup_pad_input_capabilities(pad_input_dev, wacom_wac);
- 	if (error) {
--		/* no pad in use on this interface */
-+		/* no pad events using this interface */
- 		input_free_device(pad_input_dev);
- 		wacom_wac->pad_input = NULL;
- 		pad_input_dev = NULL;
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2019,7 +2019,6 @@ static void wacom_wac_pad_usage_mapping(
- 		wacom_wac->has_mute_touch_switch = true;
- 		usage->type = EV_SW;
- 		usage->code = SW_MUTE_DEVICE;
--		features->device_type |= WACOM_DEVICETYPE_PAD;
- 		break;
- 	case WACOM_HID_WD_TOUCHSTRIP:
- 		wacom_map_usage(input, usage, field, EV_ABS, ABS_RX, 0);
-@@ -2099,6 +2098,30 @@ static void wacom_wac_pad_event(struct h
- 			wacom_wac->hid_data.inrange_state |= value;
- 	}
- 
-+	/* Process touch switch state first since it is reported through touch interface,
-+	 * which is indepentent of pad interface. In the case when there are no other pad
-+	 * events, the pad interface will not even be created.
-+	 */
-+	if ((equivalent_usage == WACOM_HID_WD_MUTE_DEVICE) ||
-+	   (equivalent_usage == WACOM_HID_WD_TOUCHONOFF)) {
-+		if (wacom_wac->shared->touch_input) {
-+			bool *is_touch_on = &wacom_wac->shared->is_touch_on;
-+
-+			if (equivalent_usage == WACOM_HID_WD_MUTE_DEVICE && value)
-+				*is_touch_on = !(*is_touch_on);
-+			else if (equivalent_usage == WACOM_HID_WD_TOUCHONOFF)
-+				*is_touch_on = value;
-+
-+			input_report_switch(wacom_wac->shared->touch_input,
-+					    SW_MUTE_DEVICE, !(*is_touch_on));
-+			input_sync(wacom_wac->shared->touch_input);
-+		}
-+		return;
-+	}
-+
-+	if (!input)
-+		return;
-+
- 	switch (equivalent_usage) {
- 	case WACOM_HID_WD_TOUCHRING:
- 		/*
-@@ -2134,22 +2157,6 @@ static void wacom_wac_pad_event(struct h
- 			input_event(input, usage->type, usage->code, 0);
- 		break;
- 
--	case WACOM_HID_WD_MUTE_DEVICE:
--	case WACOM_HID_WD_TOUCHONOFF:
--		if (wacom_wac->shared->touch_input) {
--			bool *is_touch_on = &wacom_wac->shared->is_touch_on;
--
--			if (equivalent_usage == WACOM_HID_WD_MUTE_DEVICE && value)
--				*is_touch_on = !(*is_touch_on);
--			else if (equivalent_usage == WACOM_HID_WD_TOUCHONOFF)
--				*is_touch_on = value;
--
--			input_report_switch(wacom_wac->shared->touch_input,
--					    SW_MUTE_DEVICE, !(*is_touch_on));
--			input_sync(wacom_wac->shared->touch_input);
--		}
--		break;
--
- 	case WACOM_HID_WD_MODE_CHANGE:
- 		if (wacom_wac->is_direct_mode != value) {
- 			wacom_wac->is_direct_mode = value;
-@@ -2835,7 +2842,7 @@ void wacom_wac_event(struct hid_device *
- 	/* usage tests must precede field tests */
- 	if (WACOM_BATTERY_USAGE(usage))
- 		wacom_wac_battery_event(hdev, field, usage, value);
--	else if (WACOM_PAD_FIELD(field) && wacom->wacom_wac.pad_input)
-+	else if (WACOM_PAD_FIELD(field))
- 		wacom_wac_pad_event(hdev, field, usage, value);
- 	else if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
- 		wacom_wac_pen_event(hdev, field, usage, value);
+ 	/*
 
 
