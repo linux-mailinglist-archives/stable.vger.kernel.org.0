@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0DFE59406F
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FCC65941FF
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243510AbiHOVC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:02:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35874 "EHLO
+        id S240924AbiHOVCs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:02:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347259AbiHOVBk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:01:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6887EC990F;
-        Mon, 15 Aug 2022 12:13:43 -0700 (PDT)
+        with ESMTP id S1347331AbiHOVBw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:01:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BA03C991A;
+        Mon, 15 Aug 2022 12:13:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6833B81113;
-        Mon, 15 Aug 2022 19:13:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 024AEC433D6;
-        Mon, 15 Aug 2022 19:13:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96019B81106;
+        Mon, 15 Aug 2022 19:13:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F260BC433D6;
+        Mon, 15 Aug 2022 19:13:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590820;
-        bh=zkcR0TpSskPaMHhtJO8TQPX3DUVVd6bVpF2lpjf73/c=;
+        s=korg; t=1660590823;
+        bh=HoKtzkTygzstL7GC29SCUfat8VCVZu8TXTYJkxcN2bg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VyEJImBZ/wEtn3I7u+upwV29PMN7r5gUp/CDvW8h6WXrI62aie4fTlaBdnZi8QPKs
-         0K42G0A+D3QzL4cOQfoTyTUfhRe1BmFoHWeWe6wd/cZ1HmT6XU1KdNotliwilBoeTy
-         v8n/U8FuFbI6S4bdmYE5zAZFhJEEP/TuiaSSgX5A=
+        b=cgyNNkAVQBYQFNtqm2LjCzqhfdqFYM7YwH2Mcy9mUnH4G32kMquKddmUxfuJ86D4t
+         n1plHC1aqFci2wvPhEE6LYCZZsepdckyFXRHQwpjUW40xFW95s6WVRFhCN5Gm5Wkca
+         13RhUPE2w2ipBr1OGd2Kh26qmWWlEoa6eqa4g2UA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Yunfei Dong <yunfei.dong@mediatek.com>,
+        Chen-Yu Tsai <wenst@chromium.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0381/1095] media: tw686x: Fix memory leak in tw686x_video_init
-Date:   Mon, 15 Aug 2022 19:56:20 +0200
-Message-Id: <20220815180445.446492358@linuxfoundation.org>
+Subject: [PATCH 5.18 0382/1095] media: mediatek: vcodec: Fix non subdev architecture open power fail
+Date:   Mon, 15 Aug 2022 19:56:21 +0200
+Message-Id: <20220815180445.490635507@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,39 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Yunfei Dong <yunfei.dong@mediatek.com>
 
-[ Upstream commit e0b212ec9d8177d6f7c404315293f6a085d6ee42 ]
+[ Upstream commit 083f54a7c9c66496b9d9f3c50dfdca24e6aa7012 ]
 
-video_device_alloc() allocates memory for vdev,
-when video_register_device() fails, it doesn't release the memory and
-leads to memory leak, call video_device_release() to fix this.
+According to subdev_bitmap bit value to open hardware power, need to
+set subdev_bitmap value for non subdev architecture.
 
-Fixes: 704a84ccdbf1 ("[media] media: Support Intersil/Techwell TW686x-based video capture cards")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Fixes: c05bada35f01 ("media: mtk-vcodec: Add to support multi hardware decode")
+Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
+Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
+Tested-by: Chen-Yu Tsai <wenst@chromium.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/tw686x/tw686x-video.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_drv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/pci/tw686x/tw686x-video.c b/drivers/media/pci/tw686x/tw686x-video.c
-index b227e9e78ebd..37a20fe24241 100644
---- a/drivers/media/pci/tw686x/tw686x-video.c
-+++ b/drivers/media/pci/tw686x/tw686x-video.c
-@@ -1282,8 +1282,10 @@ int tw686x_video_init(struct tw686x_dev *dev)
- 		video_set_drvdata(vdev, vc);
- 
- 		err = video_register_device(vdev, VFL_TYPE_VIDEO, -1);
--		if (err < 0)
-+		if (err < 0) {
-+			video_device_release(vdev);
- 			goto error;
-+		}
- 		vc->num = vdev->num;
+diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_drv.c b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_drv.c
+index bd1ee9901da0..d5c94845ea42 100644
+--- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_drv.c
++++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_drv.c
+@@ -393,6 +393,8 @@ static int mtk_vcodec_probe(struct platform_device *pdev)
+ 			mtk_v4l2_err("Main device of_platform_populate failed.");
+ 			goto err_reg_cont;
+ 		}
++	} else {
++		set_bit(MTK_VDEC_CORE, dev->subdev_bitmap);
  	}
  
+ 	ret = video_register_device(vfd_dec, VFL_TYPE_VIDEO, -1);
 -- 
 2.35.1
 
