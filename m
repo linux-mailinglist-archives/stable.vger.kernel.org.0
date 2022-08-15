@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1C0A594FDB
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:33:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF2CB594FE1
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230155AbiHPEd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:33:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52098 "EHLO
+        id S230273AbiHPEeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:34:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230176AbiHPEdS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:33:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0911C16ADD0;
-        Mon, 15 Aug 2022 13:24:22 -0700 (PDT)
+        with ESMTP id S230088AbiHPEdv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:33:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41FA04BD19;
+        Mon, 15 Aug 2022 13:24:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E773261089;
-        Mon, 15 Aug 2022 20:24:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D49E4C433C1;
-        Mon, 15 Aug 2022 20:24:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3ABBB8119A;
+        Mon, 15 Aug 2022 20:24:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0492AC433C1;
+        Mon, 15 Aug 2022 20:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595061;
-        bh=Y2GwHYK57VPhob4MMTy54v3pRXav3yAzyrwJQXChdOM=;
+        s=korg; t=1660595080;
+        bh=LqalBsGRa1zu1E5rLHt1XDvDX+e1QcLKHZ/M7/gLjvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9yyKLg1wbOPOi1kpYUsCJJupEJgpYpe4XanLFo8zJaONb502XMW6W4WQUnFKkorw
-         AGEh+fIMoTzl9/eJlgUBbwvakihcuUdN1Yf8an251a98H5n978bAUWlR2RFHYD83UO
-         mUuEPVoem/07MmvKPg+bK4eph18AF51UfCcifYvk=
+        b=IYspbKCjF1QbY17Xnt7J2p8R3LBIkkZbVZEiGoRd6Kv5jnxvMd4LjPhSTXa4dTPqa
+         GbTgQPsdJ2L6VfUJ56NZ0iZWqVJclt84ltuYTDH/6GyhI8Dl3pJL2XoJjSvnu/u6i2
+         tPw1WsoX2QMW8Z0QpRmIZYmUYxJN88XKmY9wNokc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
         =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0644/1157] iio: adc: ad7766: Fix alignment for DMA safety
-Date:   Mon, 15 Aug 2022 20:00:00 +0200
-Message-Id: <20220815180505.486480702@linuxfoundation.org>
+Subject: [PATCH 5.19 0649/1157] iio: adc: hi8435: Fix alignment for DMA safety
+Date:   Mon, 15 Aug 2022 20:00:05 +0200
+Message-Id: <20220815180505.698634919@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -58,45 +57,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 009ae227a1dace2d4d27c804e5bd65907e1d0557 ]
+[ Upstream commit 48e4ae96b0b10f93de23b86fd34e573c44e95ab3 ]
 
 ____cacheline_aligned is an insufficient guarantee for non-coherent DMA
 on platforms with 128 byte cachelines above L1.  Switch to the updated
 IIO_DMA_MINALIGN definition.
 
-Update the comment to reflect the fact DMA safety 'may' require
-separate cachelines.
-
-Fixes: aa16c6bd0e09 ("iio:adc: Add support for AD7766/AD7767")
+Fixes: 72aa29ce0a59 ("iio: adc: hi8435: Holt HI-8435 threshold detector")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Lars-Peter Clausen <lars@metafoo.de>
 Acked-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20220508175712.647246-16-jic23@kernel.org
+Link: https://lore.kernel.org/r/20220508175712.647246-21-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ad7766.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/iio/adc/hi8435.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/ad7766.c b/drivers/iio/adc/ad7766.c
-index 51ee9482e0df..3079a0872947 100644
---- a/drivers/iio/adc/ad7766.c
-+++ b/drivers/iio/adc/ad7766.c
-@@ -45,13 +45,12 @@ struct ad7766 {
- 	struct spi_message msg;
+diff --git a/drivers/iio/adc/hi8435.c b/drivers/iio/adc/hi8435.c
+index 8eb0140df133..771fa12bdc02 100644
+--- a/drivers/iio/adc/hi8435.c
++++ b/drivers/iio/adc/hi8435.c
+@@ -49,7 +49,7 @@ struct hi8435_priv {
  
- 	/*
--	 * DMA (thus cache coherency maintenance) requires the
-+	 * DMA (thus cache coherency maintenance) may require the
- 	 * transfer buffers to live in their own cache lines.
- 	 * Make the buffer large enough for one 24 bit sample and one 64 bit
- 	 * aligned 64 bit timestamp.
- 	 */
--	unsigned char data[ALIGN(3, sizeof(s64)) + sizeof(s64)]
--			____cacheline_aligned;
-+	unsigned char data[ALIGN(3, sizeof(s64)) + sizeof(s64)]	__aligned(IIO_DMA_MINALIGN);
+ 	unsigned threshold_lo[2]; /* GND-Open and Supply-Open thresholds */
+ 	unsigned threshold_hi[2]; /* GND-Open and Supply-Open thresholds */
+-	u8 reg_buffer[3] ____cacheline_aligned;
++	u8 reg_buffer[3] __aligned(IIO_DMA_MINALIGN);
  };
  
- /*
+ static int hi8435_readb(struct hi8435_priv *priv, u8 reg, u8 *val)
 -- 
 2.35.1
 
