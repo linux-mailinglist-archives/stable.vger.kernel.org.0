@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50BED59487C
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7BBB594BFC
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239529AbiHOXPc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:15:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51222 "EHLO
+        id S244359AbiHPArz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:47:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345283AbiHOXOZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:14:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BD1F7AC1D;
-        Mon, 15 Aug 2022 13:01:24 -0700 (PDT)
+        with ESMTP id S1348298AbiHPAqQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:46:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57BD5195801;
+        Mon, 15 Aug 2022 13:44:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2B3EB80EAD;
-        Mon, 15 Aug 2022 20:01:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11A33C433C1;
-        Mon, 15 Aug 2022 20:01:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C84C61234;
+        Mon, 15 Aug 2022 20:44:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3BD7C433D7;
+        Mon, 15 Aug 2022 20:44:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593681;
-        bh=DaELCTiURVygaN7KydWbsGgnuiXU/kiGrSZdk8PGV4E=;
+        s=korg; t=1660596281;
+        bh=Ef3xeZgzahB89Xng1bgwTCNC5rqHxTuILhQ5Jh5It2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vs2wa4vDtmNlsUE74amOP4HfGOSX73+dRy3GR2gYPPdwndgKKfkEq/u1ASvoQy+DN
-         ZBmQU1ag5jVGQzIWQnlLzpXOclpfI6G8qSllkJBESCnabtivNlanSNOPRkX5bpNEIT
-         2GwsSyGTwYZi22GTDN9SwJHVhVFOuZ8JN/spvaCg=
+        b=RqwCtg2Wg369OxiG7MbDAgli7P2eAzMIHjDUTQvAzDqdS405NTktSNPVY8ddy4J+t
+         g8/pJhyyxaPaVE4kXsrSV57Quu6bha5aWo8lnX399K+wChn4mcgRnvBta1e4NQS8OZ
+         rzyyPwPBC9qt9Vh3K/fsjUbyNTCricH2utp4OkRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Ferry Toth <fntoth@gmail.com>
-Subject: [PATCH 5.18 0986/1095] usbnet: smsc95xx: Avoid link settings race on interrupt reception
+        stable@vger.kernel.org, Junbeom Yeom <junbeom.yeom@samsung.com>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Youngjin Gil <youngjin.gil@samsung.com>,
+        Jaewook Kim <jw5454.kim@samsung.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 1029/1157] f2fs: do not allow to decompress files have FI_COMPRESS_RELEASED
 Date:   Mon, 15 Aug 2022 20:06:25 +0200
-Message-Id: <20220815180509.913191496@linuxfoundation.org>
+Message-Id: <20220815180521.104958541@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,120 +57,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Jaewook Kim <jw5454.kim@samsung.com>
 
-[ Upstream commit 8960f878e39fadc03d74292a6731f1e914cf2019 ]
+[ Upstream commit 90be48bd9d29ece3965e5e8b21499b6db166e57b ]
 
-When a PHY interrupt is signaled, the SMSC LAN95xx driver updates the
-MAC full duplex mode and PHY flow control registers based on cached data
-in struct phy_device:
+If a file has FI_COMPRESS_RELEASED, all writes for it should not be
+allowed. However, as of now, in case of compress_mode=user, writes
+triggered by IOCTLs like F2FS_IOC_DE/COMPRESS_FILE are allowed unexpectly,
+which could crash that file.
+To fix it, let's do not allow F2FS_IOC_DE/COMPRESS_IOCTL if a file already
+has FI_COMPRESS_RELEASED flag.
 
-  smsc95xx_status()                 # raises EVENT_LINK_RESET
-    usbnet_deferred_kevent()
-      smsc95xx_link_reset()         # uses cached data in phydev
+This is the reproduction process:
+1.  $ touch ./file
+2.  $ chattr +c ./file
+3.  $ dd if=/dev/random of=./file bs=4096 count=30 conv=notrunc
+4.  $ dd if=/dev/zero of=./file bs=4096 count=34 seek=30 conv=notrunc
+5.  $ sync
+6.  $ do_compress ./file      ; call F2FS_IOC_COMPRESS_FILE
+7.  $ get_compr_blocks ./file ; call F2FS_IOC_GET_COMPRESS_BLOCKS
+8.  $ release ./file          ; call F2FS_IOC_RELEASE_COMPRESS_BLOCKS
+9.  $ do_compress ./file      ; call F2FS_IOC_COMPRESS_FILE again
+10. $ get_compr_blocks ./file ; call F2FS_IOC_GET_COMPRESS_BLOCKS again
 
-Simultaneously, phylib polls link status once per second and updates
-that cached data:
+This reproduction process is tested in 128kb cluster size.
+You can find compr_blocks has a negative value.
 
-  phy_state_machine()
-    phy_check_link_status()
-      phy_read_status()
-        lan87xx_read_status()
-          genphy_read_status()      # updates cached data in phydev
+Fixes: 5fdb322ff2c2b ("f2fs: add F2FS_IOC_DECOMPRESS_FILE and F2FS_IOC_COMPRESS_FILE")
 
-If smsc95xx_link_reset() wins the race against genphy_read_status(),
-the registers may be updated based on stale data.
-
-E.g. if the link was previously down, phydev->duplex is set to
-DUPLEX_UNKNOWN and that's what smsc95xx_link_reset() will use, even
-though genphy_read_status() may update it to DUPLEX_FULL afterwards.
-
-PHY interrupts are currently only enabled on suspend to trigger wakeup,
-so the impact of the race is limited, but we're about to enable them
-perpetually.
-
-Avoid the race by delaying execution of smsc95xx_link_reset() until
-phy_state_machine() has done its job and calls back via
-smsc95xx_handle_link_change().
-
-Signaling EVENT_LINK_RESET on wakeup is not necessary because phylib
-picks up link status changes through polling.  So drop the declaration
-of a ->link_reset() callback.
-
-Note that the semicolon on a line by itself added in smsc95xx_status()
-is a placeholder for a function call which will be added in a subsequent
-commit.  That function call will actually handle the INT_ENP_PHY_INT_
-interrupt.
-
-Tested-by: Oleksij Rempel <o.rempel@pengutronix.de> # LAN9514/9512/9500
-Tested-by: Ferry Toth <fntoth@gmail.com> # LAN9514
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Junbeom Yeom <junbeom.yeom@samsung.com>
+Signed-off-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Youngjin Gil <youngjin.gil@samsung.com>
+Signed-off-by: Jaewook Kim <jw5454.kim@samsung.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc95xx.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ fs/f2fs/file.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index 2cb44d65bbc3..f5a208948d22 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -566,7 +566,7 @@ static int smsc95xx_phy_update_flowcontrol(struct usbnet *dev)
- 	return smsc95xx_write_reg(dev, AFC_CFG, afc_cfg);
- }
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index 110c459c78b6..fc0f30738b21 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -3938,6 +3938,11 @@ static int f2fs_ioc_decompress_file(struct file *filp, unsigned long arg)
+ 		goto out;
+ 	}
  
--static int smsc95xx_link_reset(struct usbnet *dev)
-+static void smsc95xx_mac_update_fullduplex(struct usbnet *dev)
- {
- 	struct smsc95xx_priv *pdata = dev->driver_priv;
- 	unsigned long flags;
-@@ -583,14 +583,16 @@ static int smsc95xx_link_reset(struct usbnet *dev)
- 	spin_unlock_irqrestore(&pdata->mac_cr_lock, flags);
- 
- 	ret = smsc95xx_write_reg(dev, MAC_CR, pdata->mac_cr);
--	if (ret < 0)
--		return ret;
-+	if (ret < 0) {
-+		if (ret != -ENODEV)
-+			netdev_warn(dev->net,
-+				    "Error updating MAC full duplex mode\n");
-+		return;
++	if (is_inode_flag_set(inode, FI_COMPRESS_RELEASED)) {
++		ret = -EINVAL;
++		goto out;
 +	}
++
+ 	ret = filemap_write_and_wait_range(inode->i_mapping, 0, LLONG_MAX);
+ 	if (ret)
+ 		goto out;
+@@ -4005,6 +4010,11 @@ static int f2fs_ioc_compress_file(struct file *filp, unsigned long arg)
+ 		goto out;
+ 	}
  
- 	ret = smsc95xx_phy_update_flowcontrol(dev);
- 	if (ret < 0)
- 		netdev_warn(dev->net, "Error updating PHY flow control\n");
--
--	return ret;
- }
- 
- static void smsc95xx_status(struct usbnet *dev, struct urb *urb)
-@@ -607,7 +609,7 @@ static void smsc95xx_status(struct usbnet *dev, struct urb *urb)
- 	netif_dbg(dev, link, dev->net, "intdata: 0x%08X\n", intdata);
- 
- 	if (intdata & INT_ENP_PHY_INT_)
--		usbnet_defer_kevent(dev, EVENT_LINK_RESET);
-+		;
- 	else
- 		netdev_warn(dev->net, "unexpected interrupt, intdata=0x%08X\n",
- 			    intdata);
-@@ -1088,6 +1090,7 @@ static void smsc95xx_handle_link_change(struct net_device *net)
- 	struct usbnet *dev = netdev_priv(net);
- 
- 	phy_print_status(net->phydev);
-+	smsc95xx_mac_update_fullduplex(dev);
- 	usbnet_defer_kevent(dev, EVENT_LINK_CHANGE);
- }
- 
-@@ -1993,7 +1996,6 @@ static const struct driver_info smsc95xx_info = {
- 	.description	= "smsc95xx USB 2.0 Ethernet",
- 	.bind		= smsc95xx_bind,
- 	.unbind		= smsc95xx_unbind,
--	.link_reset	= smsc95xx_link_reset,
- 	.reset		= smsc95xx_reset,
- 	.check_connect	= smsc95xx_start_phy,
- 	.stop		= smsc95xx_stop,
++	if (is_inode_flag_set(inode, FI_COMPRESS_RELEASED)) {
++		ret = -EINVAL;
++		goto out;
++	}
++
+ 	ret = filemap_write_and_wait_range(inode->i_mapping, 0, LLONG_MAX);
+ 	if (ret)
+ 		goto out;
 -- 
 2.35.1
 
