@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E568C593832
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92E945936B4
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243527AbiHOScl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:32:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39524 "EHLO
+        id S242913AbiHOSbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:31:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243087AbiHOSby (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:31:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 359D533415;
-        Mon, 15 Aug 2022 11:21:27 -0700 (PDT)
+        with ESMTP id S243545AbiHOSbU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:31:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66E0A32EC2;
+        Mon, 15 Aug 2022 11:21:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F6DF60ED3;
-        Mon, 15 Aug 2022 18:21:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F38FCC433D6;
-        Mon, 15 Aug 2022 18:21:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CDFE60F18;
+        Mon, 15 Aug 2022 18:21:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17830C433B5;
+        Mon, 15 Aug 2022 18:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587666;
-        bh=i2jhH5/szEKqI2jW51v3Ub9wFARlUPzzK8ZZbQhSzOU=;
+        s=korg; t=1660587669;
+        bh=H9BOwCrBvhJ2D/pmVP5DNxKN0ES8c7NcKffve4+d2QI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2gj7j/7UosS3fzNvpQPnrcD4K9PJc1UQ/sd4umlVRdpieSjOPw1jANODU3xBSVOXH
-         A0y/SaMH8f0RWTsf0c1G/mBKGlmLSKwpQ/d2uXTcg/pPWy+N14kdgb3QnFAFxl78v8
-         xbkhiMG9cNosRuvmp+T85V0bwRvHH65VGLdSoVLs=
+        b=dZcv8hqfgDmaewGrfF2tGih9nVzgPttP15iILozV9yiP6IzFfpasR5x60naWz5Qy0
+         KUp+nFgKVxGkLKlmvtvCGMpz3Sz8mlZDwNvVtaQ/BsChUeHmUPb9FpK25MnDKzed79
+         o34dyJprl3ZFRw/m8xaDJa0PYdnciEIcn866H+wU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexander Stein <alexander.stein@ew.tq-group.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 125/779] ARM: dts: imx6ul: change operating-points to uint32-matrix
-Date:   Mon, 15 Aug 2022 19:56:09 +0200
-Message-Id: <20220815180342.629882893@linuxfoundation.org>
+Subject: [PATCH 5.15 126/779] ARM: dts: imx6ul: fix keypad compatible
+Date:   Mon, 15 Aug 2022 19:56:10 +0200
+Message-Id: <20220815180342.675018411@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,59 +57,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit edb67843983bbdf61b4c8c3c50618003d38bb4ae ]
+[ Upstream commit 7d15e0c9a515494af2e3199741cdac7002928a0e ]
 
-operating-points is a uint32-matrix as per opp-v1.yaml. Change it
-accordingly. While at it, change fsl,soc-operating-points as well,
-although there is no bindings file (yet). But they should have the same
-format. Fixes the dt_binding_check warning:
-cpu@0: operating-points:0: [696000, 1275000, 528000, 1175000, 396000,
-1025000, 198000, 950000] is too long
-cpu@0: operating-points:0: Additional items are not allowed (528000,
-1175000, 396000, 1025000, 198000, 950000 were unexpected)
+According to binding, the compatible shall only contain imx6ul and imx21
+compatibles. Fixes the dt_binding_check warning:
+keypad@20b8000: compatible: 'oneOf' conditional failed, one must be fixed:
+['fsl,imx6ul-kpp', 'fsl,imx6q-kpp', 'fsl,imx21-kpp'] is too long
+Additional items are not allowed ('fsl,imx6q-kpp', 'fsl,imx21-kpp' were
+unexpected)
+Additional items are not allowed ('fsl,imx21-kpp' was unexpected)
+'fsl,imx21-kpp' was expected
 
 Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6ul.dtsi | 22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ arch/arm/boot/dts/imx6ul.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm/boot/dts/imx6ul.dtsi b/arch/arm/boot/dts/imx6ul.dtsi
-index 1d435a46fc5c..2fcbd9d91521 100644
+index 2fcbd9d91521..df8b4ad62418 100644
 --- a/arch/arm/boot/dts/imx6ul.dtsi
 +++ b/arch/arm/boot/dts/imx6ul.dtsi
-@@ -64,20 +64,18 @@ cpu0: cpu@0 {
- 			clock-frequency = <696000000>;
- 			clock-latency = <61036>; /* two CLK32 periods */
- 			#cooling-cells = <2>;
--			operating-points = <
-+			operating-points =
- 				/* kHz	uV */
--				696000	1275000
--				528000	1175000
--				396000	1025000
--				198000	950000
--			>;
--			fsl,soc-operating-points = <
-+				<696000	1275000>,
-+				<528000	1175000>,
-+				<396000	1025000>,
-+				<198000	950000>;
-+			fsl,soc-operating-points =
- 				/* KHz	uV */
--				696000	1275000
--				528000	1175000
--				396000	1175000
--				198000	1175000
--			>;
-+				<696000	1275000>,
-+				<528000	1175000>,
-+				<396000	1175000>,
-+				<198000	1175000>;
- 			clocks = <&clks IMX6UL_CLK_ARM>,
- 				 <&clks IMX6UL_CLK_PLL2_BUS>,
- 				 <&clks IMX6UL_CLK_PLL2_PFD2>,
+@@ -544,7 +544,7 @@ fec2: ethernet@20b4000 {
+ 			};
+ 
+ 			kpp: keypad@20b8000 {
+-				compatible = "fsl,imx6ul-kpp", "fsl,imx6q-kpp", "fsl,imx21-kpp";
++				compatible = "fsl,imx6ul-kpp", "fsl,imx21-kpp";
+ 				reg = <0x020b8000 0x4000>;
+ 				interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>;
+ 				clocks = <&clks IMX6UL_CLK_KPP>;
 -- 
 2.35.1
 
