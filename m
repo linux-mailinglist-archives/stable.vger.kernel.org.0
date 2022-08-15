@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80790593E70
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:45:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1582D59417F
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233790AbiHOUna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:43:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57066 "EHLO
+        id S242895AbiHOUwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:52:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345716AbiHOUkV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:40:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94394AF0F5;
-        Mon, 15 Aug 2022 12:07:24 -0700 (PDT)
+        with ESMTP id S1346052AbiHOUuU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:50:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A241B9FB1;
+        Mon, 15 Aug 2022 12:09:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA2C761281;
-        Mon, 15 Aug 2022 19:07:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D87F9C433D6;
-        Mon, 15 Aug 2022 19:07:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF9986009B;
+        Mon, 15 Aug 2022 19:09:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE69EC433C1;
+        Mon, 15 Aug 2022 19:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590443;
-        bh=wx3Pqq+F2h2jfSI8/LFoPCkQS2DBaKaEJmT2ns3U6iY=;
+        s=korg; t=1660590570;
+        bh=eyMwQc20GKsAVRNIZgBdwEAk8Ebl8Yb+E2k1OqTmU7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vaxvNLAuhysmiUBxDU3CL44Rm9Fzrpxp1DbTq8Fc0c8Msv2bkK7L6+2onJpLH0YcS
-         qULJSh8I7GdC5UKG7MhuDZDdgcrNezrMZF84b3aX9FaXbo9lpJOuUPx521nbW7SuLx
-         syFzRGLyTEcQcbO2AAoUWcAXwy47IaKhHsTSStKg=
+        b=sc73cpFmRYG4y2mWRu82jxOvxydCQLDLgU9x/V2jSjeUw0lKdy6nTvaqIQRDfyVH9
+         1bJm6+GHlvWfJPPXg0EZVqAm+84+e+V9r1kUgfUtu7iWnQ4NDVHc7FZ2EF0TRgPKGF
+         uCOp6aOqj8B0tdMjEcBX3v1RijRMSm3nSPYyh63c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, INAGAKI Hiroshi <musashino.open@gmail.com>,
-        Nick Hainke <vincent@systemli.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        stable@vger.kernel.org, Mikko Perttunen <mperttunen@nvidia.com>,
+        Yousaf Kaukab <ykaukab@suse.de>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0260/1095] arm64: dts: mt7622: fix BPI-R64 WPS button
-Date:   Mon, 15 Aug 2022 19:54:19 +0200
-Message-Id: <20220815180440.497785898@linuxfoundation.org>
+Subject: [PATCH 5.18 0261/1095] arm64: tegra: Mark BPMP channels as no-memory-wc
+Date:   Mon, 15 Aug 2022 19:54:20 +0200
+Message-Id: <20220815180440.548386034@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,50 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Hainke <vincent@systemli.org>
+From: Mikko Perttunen <mperttunen@nvidia.com>
 
-[ Upstream commit c98e6e683632386a3bd284acda4342e68aec4c41 ]
+[ Upstream commit 61192a9d8a6367ae1b8234876941b037910a2459 ]
 
-The bananapi R64 (BPI-R64) experiences wrong WPS button signals.
-In OpenWrt pushing the WPS button while powering on the device will set
-it to recovery mode. Currently, this also happens without any user
-interaction. In particular, the wrong signals appear while booting the
-device or restarting it, e.g. after doing a system upgrade. If the
-device is in recovery mode the user needs to manually power cycle or
-restart it.
+The Tegra SYSRAM contains regions access to which is restricted to
+certain hardware blocks on the system, and speculative accesses to
+those will cause issues.
 
-The official BPI-R64 sources set the WPS button to GPIO_ACTIVE_LOW in
-the device tree. This setting seems to suppress the unwanted WPS button
-press signals. So this commit changes the button from GPIO_ACTIVE_HIGH to
-GPIO_ACTIVE_LOW.
+Patch 'misc: sram: Only map reserved areas in Tegra SYSRAM' attempted
+to resolve this by only mapping the regions specified in the device
+tree on the assumption that there are no such restricted areas within
+the 64K-aligned area of memory that contains the memory we wish to map.
 
-The official BPI-R64 sources can be found on
-https://github.com/BPI-SINOVOIP/BPI-R64-openwrt
+Turns out this assumption is wrong, as there are such areas above the
+4K pages described in the device trees. As such, we need to use the
+bigger hammer that is no-memory-wc, which causes the memory to be
+mapped as Device memory to which speculative accesses are disallowed.
 
-Fixes: 0b6286dd96c0 ("arm64: dts: mt7622: add bananapi BPI-R64 board")
+As such, the previous patch in the series,
+  'firmware: tegra: bpmp: do only aligned access to IPC memory area',
+is required with this patch to make the BPMP driver only issue aligned
+memory accesses as those are also required with Device memory.
 
-Suggested-by: INAGAKI Hiroshi <musashino.open@gmail.com>
-Signed-off-by: Nick Hainke <vincent@systemli.org>
-Link: https://lore.kernel.org/r/20220630111746.4098-1-vincent@systemli.org
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: fec29bf04994 ("misc: sram: Only map reserved areas in Tegra SYSRAM")
+Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
+Reviewed-by: Yousaf Kaukab <ykaukab@suse.de>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/nvidia/tegra186.dtsi | 1 +
+ arch/arm64/boot/dts/nvidia/tegra194.dtsi | 1 +
+ arch/arm64/boot/dts/nvidia/tegra234.dtsi | 1 +
+ 3 files changed, 3 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts b/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts
-index 2b9bf8dd14ec..7538918c7a82 100644
---- a/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts
-+++ b/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts
-@@ -49,7 +49,7 @@ factory {
- 		wps {
- 			label = "wps";
- 			linux,code = <KEY_WPS_BUTTON>;
--			gpios = <&pio 102 GPIO_ACTIVE_HIGH>;
-+			gpios = <&pio 102 GPIO_ACTIVE_LOW>;
- 		};
- 	};
+diff --git a/arch/arm64/boot/dts/nvidia/tegra186.dtsi b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
+index e9b40f5d79ec..77c597a6386f 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra186.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
+@@ -1807,6 +1807,7 @@ sram@30000000 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+ 		ranges = <0x0 0x0 0x30000000 0x50000>;
++		no-memory-wc;
  
+ 		cpu_bpmp_tx: sram@4e000 {
+ 			reg = <0x4e000 0x1000>;
+diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
+index 751ebe5e9506..61465eb6cccd 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
+@@ -2648,6 +2648,7 @@ sram@40000000 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+ 		ranges = <0x0 0x0 0x40000000 0x50000>;
++		no-memory-wc;
+ 
+ 		cpu_bpmp_tx: sram@4e000 {
+ 			reg = <0x4e000 0x1000>;
+diff --git a/arch/arm64/boot/dts/nvidia/tegra234.dtsi b/arch/arm64/boot/dts/nvidia/tegra234.dtsi
+index aaace605bdaa..9916b87fa83f 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra234.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra234.dtsi
+@@ -1264,6 +1264,7 @@ sram@40000000 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+ 		ranges = <0x0 0x0 0x40000000 0x80000>;
++		no-memory-wc;
+ 
+ 		cpu_bpmp_tx: sram@70000 {
+ 			reg = <0x70000 0x1000>;
 -- 
 2.35.1
 
