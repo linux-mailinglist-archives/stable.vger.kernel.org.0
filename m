@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FC01594683
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07042594685
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352327AbiHOW5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:57:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40616 "EHLO
+        id S1352368AbiHOW5i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:57:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352718AbiHOW4j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:56:39 -0400
+        with ESMTP id S1352735AbiHOW4l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:56:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194A346DB8;
-        Mon, 15 Aug 2022 12:55:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF2D513DEA9;
+        Mon, 15 Aug 2022 12:56:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83E926113B;
-        Mon, 15 Aug 2022 19:55:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F40DC433D6;
-        Mon, 15 Aug 2022 19:55:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E5F461295;
+        Mon, 15 Aug 2022 19:56:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B9E7C433D6;
+        Mon, 15 Aug 2022 19:55:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593353;
-        bh=XaWrafOU5DIdzkvtKxrTyXkKxC1Ft11aAwTJwMtn/v8=;
+        s=korg; t=1660593360;
+        bh=AD1b7mfMgGwtW/zWqHOes73iBEik57omvCsoHrf0wS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qmse1TJtl15Sl48/B7Ruc8nDDX8sM7gx6oEw1Xv1YJmgn0SAjV9QuA6R273CZphdZ
-         wcAIoC87C0zpg1UzgXgKAdsxYl2Iqd17JSCumnGLZpZBPVqM/oBtHTN/Wm/OT1NBMV
-         2CESmkGPMRPLLr1hfNAP0vcoqgKMuVtKJcx7Jqu8=
+        b=FcdEJxoHDhMROU9HE4ayCIKiL84IQvkZXEWGzDTfnoK59oeVxQLHpGykQz9vIRqk1
+         XIzpKFJ4zzojjF5c70sYk+Q+Nblnn1p9K08HrCUvJs/e3yjFtP6080bDQ7GHpmFCyd
+         XK+mBbPZ/Ej0m4g8G6ry8eBcygide6TUCd18wo5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Laurent Vivier <laurent@vivier.eu>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0255/1157] m68k: virt: Fix missing platform_device_unregister() on error in virt_platform_init()
-Date:   Mon, 15 Aug 2022 19:53:31 +0200
-Message-Id: <20220815180449.795267297@linuxfoundation.org>
+Subject: [PATCH 5.19 0256/1157] arm64: dts: qcom: sm6125: Move sdc2 pinctrl from seine-pdx201 to sm6125
+Date:   Mon, 15 Aug 2022 19:53:32 +0200
+Message-Id: <20220815180449.835187309@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,121 +55,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit 566a2d6d8e429727832c7e347cbe736b12ad7297 ]
+[ Upstream commit 6990640a93ba4e76dd62ca3ea1082a7354db09d7 ]
 
-Add the missing platform_device_unregister() before return
-from virt_platform_init() in the error handling case.
+Both the sdc2-on and sdc2-off pinctrl nodes are used by the
+sdhci@4784000 node in sm6125.dtsi.  Surprisingly sdc2-off is defined in
+sm6125, yet its sdc2-on counterpart is only defined in board-specific DT
+for the Sony Seine PDX201 board/device resulting in an "undefined label
+&sdc2_state_on" error if sm6125.dtsi were included elsewhere.
+This sm6125 base dtsi should not rely on externally defined labels; the
+properties referencing it should then also be written externally.
+Since the sdc2-on pin configuration is board-independent just like
+sdc2-off, move it from seine-pdx201.dts into sm6125.dtsi.
 
-Fixes: 05d51e42df06 ("m68k: Introduce a virtual m68k machine")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Laurent Vivier <laurent@vivier.eu>
-Link: https://lore.kernel.org/r/20220628084903.3147123-1-yangyingliang@huawei.com
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+The SDCard-detect pin (gpio98) is however board-specific, and remains as
+an overwrite in seine-pdx201.dts for both the on and off state.
+
+As a drive-by cleanup, reorder bias- and drive-strength properties.
+
+Fixes: cff4bbaf2a2d ("arm64: dts: qcom: Add support for SM6125")
+Fixes: 82e1783890b7 ("arm64: dts: qcom: sm6125: Add support for Sony Xperia 10II")
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220508100336.127176-1-marijn.suijten@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/virt/platform.c | 58 ++++++++++++++++++++++-----------------
- 1 file changed, 33 insertions(+), 25 deletions(-)
+ .../qcom/sm6125-sony-xperia-seine-pdx201.dts  | 34 +++++--------------
+ arch/arm64/boot/dts/qcom/sm6125.dtsi          | 24 +++++++++++--
+ 2 files changed, 30 insertions(+), 28 deletions(-)
 
-diff --git a/arch/m68k/virt/platform.c b/arch/m68k/virt/platform.c
-index cb820f19a221..1560c4140ab9 100644
---- a/arch/m68k/virt/platform.c
-+++ b/arch/m68k/virt/platform.c
-@@ -8,20 +8,15 @@
- 
- #define VIRTIO_BUS_NB	128
- 
--static int __init virt_virtio_init(unsigned int id)
-+static struct platform_device * __init virt_virtio_init(unsigned int id)
- {
- 	const struct resource res[] = {
- 		DEFINE_RES_MEM(virt_bi_data.virtio.mmio + id * 0x200, 0x200),
- 		DEFINE_RES_IRQ(virt_bi_data.virtio.irq + id),
- 	};
--	struct platform_device *pdev;
- 
--	pdev = platform_device_register_simple("virtio-mmio", id,
-+	return platform_device_register_simple("virtio-mmio", id,
- 					       res, ARRAY_SIZE(res));
--	if (IS_ERR(pdev))
--		return PTR_ERR(pdev);
--
--	return 0;
- }
- 
- static int __init virt_platform_init(void)
-@@ -35,8 +30,10 @@ static int __init virt_platform_init(void)
- 		DEFINE_RES_MEM(virt_bi_data.rtc.mmio + 0x1000, 0x1000),
- 		DEFINE_RES_IRQ(virt_bi_data.rtc.irq + 1),
- 	};
--	struct platform_device *pdev;
-+	struct platform_device *pdev1, *pdev2;
-+	struct platform_device *pdevs[VIRTIO_BUS_NB];
- 	unsigned int i;
-+	int ret = 0;
- 
- 	if (!MACH_IS_VIRT)
- 		return -ENODEV;
-@@ -44,29 +41,40 @@ static int __init virt_platform_init(void)
- 	/* We need this to have DMA'able memory provided to goldfish-tty */
- 	min_low_pfn = 0;
- 
--	pdev = platform_device_register_simple("goldfish_tty",
--					       PLATFORM_DEVID_NONE,
--					       goldfish_tty_res,
--					       ARRAY_SIZE(goldfish_tty_res));
--	if (IS_ERR(pdev))
--		return PTR_ERR(pdev);
-+	pdev1 = platform_device_register_simple("goldfish_tty",
-+						PLATFORM_DEVID_NONE,
-+						goldfish_tty_res,
-+						ARRAY_SIZE(goldfish_tty_res));
-+	if (IS_ERR(pdev1))
-+		return PTR_ERR(pdev1);
- 
--	pdev = platform_device_register_simple("goldfish_rtc",
--					       PLATFORM_DEVID_NONE,
--					       goldfish_rtc_res,
--					       ARRAY_SIZE(goldfish_rtc_res));
--	if (IS_ERR(pdev))
--		return PTR_ERR(pdev);
-+	pdev2 = platform_device_register_simple("goldfish_rtc",
-+						PLATFORM_DEVID_NONE,
-+						goldfish_rtc_res,
-+						ARRAY_SIZE(goldfish_rtc_res));
-+	if (IS_ERR(pdev2)) {
-+		ret = PTR_ERR(pdev2);
-+		goto err_unregister_tty;
-+	}
- 
- 	for (i = 0; i < VIRTIO_BUS_NB; i++) {
--		int err;
--
--		err = virt_virtio_init(i);
--		if (err)
--			return err;
-+		pdevs[i] = virt_virtio_init(i);
-+		if (IS_ERR(pdevs[i])) {
-+			ret = PTR_ERR(pdevs[i]);
-+			goto err_unregister_rtc_virtio;
-+		}
- 	}
- 
- 	return 0;
+diff --git a/arch/arm64/boot/dts/qcom/sm6125-sony-xperia-seine-pdx201.dts b/arch/arm64/boot/dts/qcom/sm6125-sony-xperia-seine-pdx201.dts
+index 871ccbba445b..4916e6c8b625 100644
+--- a/arch/arm64/boot/dts/qcom/sm6125-sony-xperia-seine-pdx201.dts
++++ b/arch/arm64/boot/dts/qcom/sm6125-sony-xperia-seine-pdx201.dts
+@@ -91,8 +91,16 @@ &hsusb_phy1 {
+ &sdc2_state_off {
+ 	sd-cd {
+ 		pins = "gpio98";
++		drive-strength = <2>;
+ 		bias-disable;
++	};
++};
 +
-+err_unregister_rtc_virtio:
-+	while (i > 0)
-+		platform_device_unregister(pdevs[--i]);
-+	platform_device_unregister(pdev2);
-+err_unregister_tty:
-+	platform_device_unregister(pdev1);
-+
-+	return ret;
- }
++&sdc2_state_on {
++	sd-cd {
++		pins = "gpio98";
+ 		drive-strength = <2>;
++		bias-pull-up;
+ 	};
+ };
  
- arch_initcall(virt_platform_init);
+@@ -102,32 +110,6 @@ &sdhc_1 {
+ 
+ &tlmm {
+ 	gpio-reserved-ranges = <22 2>, <28 6>;
+-
+-	sdc2_state_on: sdc2-on {
+-		clk {
+-			pins = "sdc2_clk";
+-			bias-disable;
+-			drive-strength = <16>;
+-		};
+-
+-		cmd {
+-			pins = "sdc2_cmd";
+-			bias-pull-up;
+-			drive-strength = <10>;
+-		};
+-
+-		data {
+-			pins = "sdc2_data";
+-			bias-pull-up;
+-			drive-strength = <10>;
+-		};
+-
+-		sd-cd {
+-			pins = "gpio98";
+-			bias-pull-up;
+-			drive-strength = <2>;
+-		};
+-	};
+ };
+ 
+ &usb3 {
+diff --git a/arch/arm64/boot/dts/qcom/sm6125.dtsi b/arch/arm64/boot/dts/qcom/sm6125.dtsi
+index 135e6e0da27a..a0d8580739c5 100644
+--- a/arch/arm64/boot/dts/qcom/sm6125.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm6125.dtsi
+@@ -389,20 +389,40 @@ tlmm: pinctrl@500000 {
+ 			sdc2_state_off: sdc2-off {
+ 				clk {
+ 					pins = "sdc2_clk";
+-					bias-disable;
+ 					drive-strength = <2>;
++					bias-disable;
+ 				};
+ 
+ 				cmd {
+ 					pins = "sdc2_cmd";
++					drive-strength = <2>;
+ 					bias-pull-up;
++				};
++
++				data {
++					pins = "sdc2_data";
+ 					drive-strength = <2>;
++					bias-pull-up;
++				};
++			};
++
++			sdc2_state_on: sdc2-on {
++				clk {
++					pins = "sdc2_clk";
++					drive-strength = <16>;
++					bias-disable;
++				};
++
++				cmd {
++					pins = "sdc2_cmd";
++					drive-strength = <10>;
++					bias-pull-up;
+ 				};
+ 
+ 				data {
+ 					pins = "sdc2_data";
++					drive-strength = <10>;
+ 					bias-pull-up;
+-					drive-strength = <2>;
+ 				};
+ 			};
+ 		};
 -- 
 2.35.1
 
