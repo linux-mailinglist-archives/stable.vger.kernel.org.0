@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0CA6593525
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90376593529
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240058AbiHOSUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:20:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59156 "EHLO
+        id S240084AbiHOSUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:20:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240052AbiHOSSy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:18:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F8C22BB10;
-        Mon, 15 Aug 2022 11:16:18 -0700 (PDT)
+        with ESMTP id S239819AbiHOSS5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:18:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC7012BB15;
+        Mon, 15 Aug 2022 11:16:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EBDEE6129E;
-        Mon, 15 Aug 2022 18:16:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6027C43470;
-        Mon, 15 Aug 2022 18:16:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64FB7B81063;
+        Mon, 15 Aug 2022 18:16:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD08DC433D6;
+        Mon, 15 Aug 2022 18:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587377;
-        bh=y5dOMvY/vtWmTZ442l2tNq7mMPfl2pLTBxrmgWBug+g=;
+        s=korg; t=1660587380;
+        bh=lk6E3HO1m9rC2T2mQWrxN4dvmUWts8HkHyFZ9zjhZVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WU3oipX0VDGhbYtPg0QcCeq92WgfhEiUN6Wc+MTT4aeyUpWVVeCOVTxlDZc6TWHjw
-         xMlWOi4+So9GXHwumvlezf4V9DBOLnxCAJb+bwYlTaG+nm5xr7vQm4DzHT3eGtSzNJ
-         UQDWUJVFvizvO9YAqrkkTaLySDNJaUd61yxr0S5A=
+        b=U+Ib1274h5jvs5GsXXjw59HXOi8rgX7PNXLFtL2icL1rsjvyrWiScbXauQhg+qn7R
+         55bbJO2GHsPYzl6ofZAH60krJ+UmlHDMVUUsEgVtZvYxCXZvVN/ZQKV6FA7LK0xPlm
+         hnpQEjh+8KcjBm1/jitWVOqz0Ztfe54o3kt+PUz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        David Airlie <airlied@linux.ie>
-Subject: [PATCH 5.15 067/779] drm/nouveau/kms: Fix failure path for creating DP connectors
-Date:   Mon, 15 Aug 2022 19:55:11 +0200
-Message-Id: <20220815180340.137533901@linuxfoundation.org>
+        stable@vger.kernel.org, Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH 5.15 068/779] drm/amdgpu: Check BOs requested pinning domains against its preferred_domains
+Date:   Mon, 15 Aug 2022 19:55:12 +0200
+Message-Id: <20220815180340.188431192@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,46 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Leo Li <sunpeng.li@amd.com>
 
-commit ca0367ca5d9216644b41f86348d6661f8d9e32d8 upstream.
+commit f5ba14043621f4afdf3ad5f92ee2d8dbebbe4340 upstream.
 
-It looks like that when we moved nouveau over to using drm_dp_aux_init()
-and registering it's aux bus during late connector registration, we totally
-forgot to fix the failure codepath in nouveau_connector_create() - as it
-still seems to assume that drm_dp_aux_init() can fail (it can't).
+When pinning a buffer, we should check to see if there are any
+additional restrictions imposed by bo->preferred_domains. This will
+prevent the BO from being moved to an invalid domain when pinning.
 
-So, let's fix that and also add a missing check to ensure that we've
-properly allocated nv_connector->aux.name while we're at it.
+For example, this can happen if the user requests to create a BO in GTT
+domain for display scanout. amdgpu_dm will allow pinning to either VRAM
+or GTT domains, since DCN can scanout from either or. However, in
+amdgpu_bo_pin_restricted(), pinning to VRAM is preferred if there is
+adequate carveout. This can lead to pinning to VRAM despite the user
+requesting GTT placement for the BO.
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Reviewed-by: David Airlie <airlied@linux.ie>
-Fixes: fd43ad9d47e7 ("drm/nouveau/kms/nv50-: Move AUX adapter reg to connector late register/early unregister")
-Cc: <stable@vger.kernel.org> # v5.14+
-Link: https://patchwork.freedesktop.org/patch/msgid/20220526204313.656473-1-lyude@redhat.com
+v2: Allow the kernel to override the domain, which can happen when
+    exporting a BO to a V4L camera (for example).
+
+Signed-off-by: Leo Li <sunpeng.li@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_connector.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/nouveau/nouveau_connector.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
-@@ -1361,13 +1361,11 @@ nouveau_connector_create(struct drm_devi
- 		snprintf(aux_name, sizeof(aux_name), "sor-%04x-%04x",
- 			 dcbe->hasht, dcbe->hashm);
- 		nv_connector->aux.name = kstrdup(aux_name, GFP_KERNEL);
--		drm_dp_aux_init(&nv_connector->aux);
--		if (ret) {
--			NV_ERROR(drm, "Failed to init AUX adapter for sor-%04x-%04x: %d\n",
--				 dcbe->hasht, dcbe->hashm, ret);
-+		if (!nv_connector->aux.name) {
- 			kfree(nv_connector);
--			return ERR_PTR(ret);
-+			return ERR_PTR(-ENOMEM);
- 		}
-+		drm_dp_aux_init(&nv_connector->aux);
- 		fallthrough;
- 	default:
- 		funcs = &nouveau_connector_funcs;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+@@ -912,6 +912,10 @@ int amdgpu_bo_pin_restricted(struct amdg
+ 	if (WARN_ON_ONCE(min_offset > max_offset))
+ 		return -EINVAL;
+ 
++	/* Check domain to be pinned to against preferred domains */
++	if (bo->preferred_domains & domain)
++		domain = bo->preferred_domains & domain;
++
+ 	/* A shared bo cannot be migrated to VRAM */
+ 	if (bo->tbo.base.import_attach) {
+ 		if (domain & AMDGPU_GEM_DOMAIN_GTT)
 
 
