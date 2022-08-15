@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 010E7594367
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86FA5594528
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349989AbiHOWiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:38:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37414 "EHLO
+        id S1349867AbiHOWie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:38:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350190AbiHOWfz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:35:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5900371BF1;
-        Mon, 15 Aug 2022 12:49:58 -0700 (PDT)
+        with ESMTP id S1348953AbiHOWeM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:34:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9EB470E72;
+        Mon, 15 Aug 2022 12:49:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CB52B8114D;
-        Mon, 15 Aug 2022 19:49:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E22CC433D6;
-        Mon, 15 Aug 2022 19:49:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C89D06122B;
+        Mon, 15 Aug 2022 19:49:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E5FC433D6;
+        Mon, 15 Aug 2022 19:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592967;
-        bh=MNK7u5dyCfo7vAH0daYRM5AOYYJy+wYIqzg5aLVcy9A=;
+        s=korg; t=1660592974;
+        bh=HAgF+QZyq7BwwqLqpaRvWir0GnzA1N0v4RZ9HqRJ7ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WOZmHCspgGrBey04IOvCquv4ytgK9e8vWLYBTP5qQ2JWxEhDxNcvMCfJHcz3xjASw
-         c6AXFa0JNAFoADVH5urdlHfaXNJMFMzEC9617mpvapCRIebF1lo+6a7FA4NIeUIpCI
-         ODDsIX+Oe/Vrh5Y4GT7WJZhk4YJLYmnSnmM0FFsM=
+        b=iUQ12fr9DzSratNurm9taG/M/U0q9bOQfTY85XxK36BP0zjCwNOqF5zXW/0LboxlD
+         svvGirAcT/W6erj3IQppyzID8ckua+vf6Fi38ESASVAGTw3EawZUrCa88VSxY8ZRa5
+         uTo3/l84A8yHrY76Bn9C2qDQDLv8UY2ccktlWF5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0873/1095] tty: n_gsm: fix flow control handling in tx path
-Date:   Mon, 15 Aug 2022 20:04:32 +0200
-Message-Id: <20220815180505.489476843@linuxfoundation.org>
+Subject: [PATCH 5.18 0874/1095] tty: n_gsm: fix missing corner cases in gsmld_poll()
+Date:   Mon, 15 Aug 2022 20:04:33 +0200
+Message-Id: <20220815180505.522422313@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,37 +55,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit 59ff0680ecbfec742b1e0381e7cc46b41eb06647 ]
+[ Upstream commit 7e5b4322cde067e1d0f1bf8f490e93f664a7c843 ]
 
-The current implementation constipates all transmission paths during flow
-control except for flow control frames. However, these may not be located
-at the beginning of the transmission queue of the control channel.
-Ensure that flow control frames in the transmission queue for the control
-channel are always handled even if constipated by skipping through other
-messages.
+gsmld_poll() currently fails to handle the following corner cases correctly:
+- remote party closed the associated tty
 
-Fixes: 0af021678d5d ("tty: n_gsm: fix deadlock and link starvation in outgoing data path")
+Add the missing checks and map those to EPOLLHUP.
+Reorder the checks to group them by their reaction.
+
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
 Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220707113223.3685-3-daniel.starke@siemens.com
+Link: https://lore.kernel.org/r/20220707113223.3685-4-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/n_gsm.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 8b8c7312935f..7749de4f269a 100644
+index 7749de4f269a..3dd71ede4cd4 100644
 --- a/drivers/tty/n_gsm.c
 +++ b/drivers/tty/n_gsm.c
-@@ -891,7 +891,7 @@ static int gsm_data_kick(struct gsm_mux *gsm)
- 	/* Serialize control messages and control channel messages first */
- 	list_for_each_entry_safe(msg, nmsg, &gsm->tx_ctrl_list, list) {
- 		if (gsm->constipated && !gsm_is_flow_ctrl_msg(msg))
--			return -EAGAIN;
-+			continue;
- 		ret = gsm_send_packet(gsm, msg);
- 		switch (ret) {
- 		case -ENOSPC:
+@@ -3057,12 +3057,15 @@ static __poll_t gsmld_poll(struct tty_struct *tty, struct file *file,
+ 
+ 	poll_wait(file, &tty->read_wait, wait);
+ 	poll_wait(file, &tty->write_wait, wait);
++
++	if (gsm->dead)
++		mask |= EPOLLHUP;
+ 	if (tty_hung_up_p(file))
+ 		mask |= EPOLLHUP;
++	if (test_bit(TTY_OTHER_CLOSED, &tty->flags))
++		mask |= EPOLLHUP;
+ 	if (!tty_is_writelocked(tty) && tty_write_room(tty) > 0)
+ 		mask |= EPOLLOUT | EPOLLWRNORM;
+-	if (gsm->dead)
+-		mask |= EPOLLHUP;
+ 	return mask;
+ }
+ 
 -- 
 2.35.1
 
