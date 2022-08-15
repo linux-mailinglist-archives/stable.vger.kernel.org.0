@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAFB9594B94
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:24:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC692594B99
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:24:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346193AbiHPAW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:22:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48788 "EHLO
+        id S1345255AbiHPAXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:23:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353101AbiHPAUn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:20:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C220717B822;
-        Mon, 15 Aug 2022 13:33:33 -0700 (PDT)
+        with ESMTP id S1357140AbiHPAW3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:22:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B18917CF9C;
+        Mon, 15 Aug 2022 13:34:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C4CF6117D;
-        Mon, 15 Aug 2022 20:33:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74EA3C433D6;
-        Mon, 15 Aug 2022 20:33:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B423B811A0;
+        Mon, 15 Aug 2022 20:33:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A093DC433D6;
+        Mon, 15 Aug 2022 20:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595611;
-        bh=3DYUns0bvxVARDYeCIucXBYeeHnzF1psCJsi+8eGx64=;
+        s=korg; t=1660595615;
+        bh=BLxZlwgA6bUXBn40afykVCkJe/OvnRwH2/iMn++bFMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PKxrsOOkUB5HmtOu4i5MxqWBg1VXMODRJnvNAyaihnKSQ2L3UmvLDFBdSKmz1R9tq
-         UmjgDECoiA0FcCa8lYsEoKWOuk+F8K5t+jZdRbtceZzuw+Vmb2PYeME2VpyGhxo928
-         CnXDMDfFKy03i+QYbSSbKBAFkvke/xPUb4j1prWQ=
+        b=lmpYsKKsifexlCDkUjAslQpJxvJz+BMrqup+GFzuJblM2wKZtTrKvIPOpcyO0MptT
+         Lp90kl/IUseXhf5gQOStMJ5wNwEldV/xoW3SKsq8ydH1ZX+iPWPTy7paozxLo0Y9uB
+         xqJCnNwBWnhvFoBuhcorrOisMWxl+PKjMu8kEqh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patrick Wang <patrick.wang.shcn@gmail.com>,
-        Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-        Christoph Lameter <cl@linux.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Bartosz Sobczak <bartosz.sobczak@intel.com>,
+        Mustafa Ismail <mustafa.ismail@intel.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0819/1157] mm: percpu: use kmemleak_ignore_phys() instead of kmemleak_free()
-Date:   Mon, 15 Aug 2022 20:02:55 +0200
-Message-Id: <20220815180512.251603428@linuxfoundation.org>
+Subject: [PATCH 5.19 0820/1157] RDMA/irdma: Fix a window for use-after-free
+Date:   Mon, 15 Aug 2022 20:02:56 +0200
+Message-Id: <20220815180512.289849388@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -57,65 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Wang <patrick.wang.shcn@gmail.com>
+From: Mustafa Ismail <mustafa.ismail@intel.com>
 
-[ Upstream commit a317ebccaa3609917a2c021af870cf3fa607ab0c ]
+[ Upstream commit 8ecef7890b3aea78c8bbb501a4b5b8134367b821 ]
 
-Kmemleak recently added a rbtree to store the objects allocted with
-physical address.  Those objects can't be freed with kmemleak_free().
+During a destroy CQ an interrupt may cause processing of a CQE after CQ
+resources are freed by irdma_cq_free_rsrc(). Fix this by moving the call
+to irdma_cq_free_rsrc() after the irdma_sc_cleanup_ceqes(), which is
+called under the cq_lock.
 
-According to the comments, percpu allocations are tracked by kmemleak
-separately.  Kmemleak_free() was used to avoid the unnecessary
-tracking.  If kmemleak_free() fails, those objects would be scanned by
-kmemleak, which is unnecessary but shouldn't lead to other effects.
-
-Use kmemleak_ignore_phys() instead of kmemleak_free() for those
-objects.
-
-Link: https://lkml.kernel.org/r/20220705113158.127600-1-patrick.wang.shcn@gmail.com
-Fixes: 0c24e061196c ("mm: kmemleak: add rbtree and store physical address for objects allocated with PA")
-Signed-off-by: Patrick Wang <patrick.wang.shcn@gmail.com>
-Cc: Dennis Zhou <dennis@kernel.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
+Link: https://lore.kernel.org/r/20220705230815.265-6-shiraz.saleem@intel.com
+Signed-off-by: Bartosz Sobczak <bartosz.sobczak@intel.com>
+Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/percpu.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/irdma/verbs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/percpu.c b/mm/percpu.c
-index 3633eeefaa0d..27697b2429c2 100644
---- a/mm/percpu.c
-+++ b/mm/percpu.c
-@@ -3104,7 +3104,7 @@ int __init pcpu_embed_first_chunk(size_t reserved_size, size_t dyn_size,
- 			goto out_free_areas;
- 		}
- 		/* kmemleak tracks the percpu allocations separately */
--		kmemleak_free(ptr);
-+		kmemleak_ignore_phys(__pa(ptr));
- 		areas[group] = ptr;
+diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
+index 96135a228f26..227a799385d1 100644
+--- a/drivers/infiniband/hw/irdma/verbs.c
++++ b/drivers/infiniband/hw/irdma/verbs.c
+@@ -1776,11 +1776,11 @@ static int irdma_destroy_cq(struct ib_cq *ib_cq, struct ib_udata *udata)
+ 	spin_unlock_irqrestore(&iwcq->lock, flags);
  
- 		base = min(ptr, base);
-@@ -3304,7 +3304,7 @@ int __init pcpu_page_first_chunk(size_t reserved_size, pcpu_fc_cpu_to_node_fn_t
- 				goto enomem;
- 			}
- 			/* kmemleak tracks the percpu allocations separately */
--			kmemleak_free(ptr);
-+			kmemleak_ignore_phys(__pa(ptr));
- 			pages[j++] = virt_to_page(ptr);
- 		}
- 	}
-@@ -3417,7 +3417,7 @@ void __init setup_per_cpu_areas(void)
- 	if (!ai || !fc)
- 		panic("Failed to allocate memory for percpu areas.");
- 	/* kmemleak tracks the percpu allocations separately */
--	kmemleak_free(fc);
-+	kmemleak_ignore_phys(__pa(fc));
+ 	irdma_cq_wq_destroy(iwdev->rf, cq);
+-	irdma_cq_free_rsrc(iwdev->rf, iwcq);
  
- 	ai->dyn_size = unit_size;
- 	ai->unit_size = unit_size;
+ 	spin_lock_irqsave(&iwceq->ce_lock, flags);
+ 	irdma_sc_cleanup_ceqes(cq, ceq);
+ 	spin_unlock_irqrestore(&iwceq->ce_lock, flags);
++	irdma_cq_free_rsrc(iwdev->rf, iwcq);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
