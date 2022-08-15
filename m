@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AA09594748
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB8EA594715
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:58:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245408AbiHOX3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:29:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43684 "EHLO
+        id S1354241AbiHOXoB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:44:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353352AbiHOX14 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:27:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA1D114E113;
-        Mon, 15 Aug 2022 13:07:29 -0700 (PDT)
+        with ESMTP id S1354232AbiHOXll (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4E4E614A;
+        Mon, 15 Aug 2022 13:11:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57F20B81142;
-        Mon, 15 Aug 2022 20:07:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70FA7C433C1;
-        Mon, 15 Aug 2022 20:07:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 786796077B;
+        Mon, 15 Aug 2022 20:11:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63E5AC433C1;
+        Mon, 15 Aug 2022 20:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594046;
-        bh=fKV254h6rlaIOkZW+7MI6wx3Yxyt5S+adxZmtrAb6Ks=;
+        s=korg; t=1660594277;
+        bh=ECYLy6ZnFKRuF+2gIewQOS7C8kcMwJoNV5HEHpGO02I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfdhulPrNobuY0bmXMLIAgevj3ALf0SW/XRtFxsYIchArZF8qliXdm39RSXQxlIc7
-         zDzYByMxoRTppNAz2OR024dzWxcPvYd1NW6vcKnISOFiN6ZtMch4uLOVNZyShuS44T
-         sR0In83F8ybFljbKj0jRuoGFG+/z5U/0aub1yuwI=
+        b=oIbewXdUyfAcOZNuwzEBddBydJ1oW4G7l1IuZfpd5YkHs0mEBVL4xBB8JSlFehD2M
+         Otu0v7gG1pgIwlYaXS1SeFKKuRq1cjsxYiAmI+AQcUyuii5c5h2JRW8f9jHFRGLVgB
+         uCwvKE5+str4VFLe1OKhlTRqYVHyXJ7nhb6M9xBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org, Andreas Dilger <adilger@dilger.ca>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1047/1095] tracing: Use a struct alignof to determine trace event field alignment
-Date:   Mon, 15 Aug 2022 20:07:26 +0200
-Message-Id: <20220815180512.392209275@linuxfoundation.org>
+Subject: [PATCH 5.18 1054/1095] ext4: update s_overhead_clusters in the superblock during an on-line resize
+Date:   Mon, 15 Aug 2022 20:07:33 +0200
+Message-Id: <20220815180512.668476663@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -58,77 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit 4c3d2f9388d36eb28640a220a6f908328442d873 ]
+[ Upstream commit de394a86658ffe4e89e5328fd4993abfe41b7435 ]
 
-alignof() gives an alignment of types as they would be as standalone
-variables. But alignment in structures might be different, and when
-building the fields of events, the alignment must be the actual
-alignment otherwise the field offsets may not match what they actually
-are.
+When doing an online resize, the on-disk superblock on-disk wasn't
+updated.  This means that when the file system is unmounted and
+remounted, and the on-disk overhead value is non-zero, this would
+result in the results of statfs(2) to be incorrect.
 
-This caused trace-cmd to crash, as libtraceevent did not check if the
-field offset was bigger than the event. The write_msr and read_msr
-events on 32 bit had their fields incorrect, because it had a u64 field
-between two ints. alignof(u64) would give 8, but the u64 field was at a
-4 byte alignment.
+This was partially fixed by Commits 10b01ee92df5 ("ext4: fix overhead
+calculation to account for the reserved gdt blocks"), 85d825dbf489
+("ext4: force overhead calculation if the s_overhead_cluster makes no
+sense"), and eb7054212eac ("ext4: update the cached overhead value in
+the superblock").
 
-Define a macro as:
+However, since it was too expensive to forcibly recalculate the
+overhead for bigalloc file systems at every mount, this didn't fix the
+problem for bigalloc file systems.  This commit should address the
+problem when resizing file systems with the bigalloc feature enabled.
 
-   ALIGN_STRUCTFIELD(type) ((int)(offsetof(struct {char a; type b;}, b)))
-
-which gives the actual alignment of types in a structure.
-
-Link: https://lkml.kernel.org/r/20220731015928.7ab3a154@rorschach.local.home
-
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: 04ae87a52074e ("ftrace: Rework event_create_dir()")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Link: https://lore.kernel.org/r/20220629040026.112371-1-tytso@mit.edu
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/stages/stage4_event_fields.h | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/ext4/resize.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/trace/stages/stage4_event_fields.h b/include/trace/stages/stage4_event_fields.h
-index c3790ec7a453..80d34f396555 100644
---- a/include/trace/stages/stage4_event_fields.h
-+++ b/include/trace/stages/stage4_event_fields.h
-@@ -2,16 +2,18 @@
+diff --git a/fs/ext4/resize.c b/fs/ext4/resize.c
+index 8b70a4701293..e5c2713aa11a 100644
+--- a/fs/ext4/resize.c
++++ b/fs/ext4/resize.c
+@@ -1484,6 +1484,7 @@ static void ext4_update_super(struct super_block *sb,
+ 	 * Update the fs overhead information
+ 	 */
+ 	ext4_calculate_overhead(sb);
++	es->s_overhead_clusters = cpu_to_le32(sbi->s_overhead);
  
- /* Stage 4 definitions for creating trace events */
- 
-+#define ALIGN_STRUCTFIELD(type) ((int)(offsetof(struct {char a; type b;}, b)))
-+
- #undef __field_ext
- #define __field_ext(_type, _item, _filter_type) {			\
- 	.type = #_type, .name = #_item,					\
--	.size = sizeof(_type), .align = __alignof__(_type),		\
-+	.size = sizeof(_type), .align = ALIGN_STRUCTFIELD(_type),	\
- 	.is_signed = is_signed_type(_type), .filter_type = _filter_type },
- 
- #undef __field_struct_ext
- #define __field_struct_ext(_type, _item, _filter_type) {		\
- 	.type = #_type, .name = #_item,					\
--	.size = sizeof(_type), .align = __alignof__(_type),		\
-+	.size = sizeof(_type), .align = ALIGN_STRUCTFIELD(_type),	\
- 	0, .filter_type = _filter_type },
- 
- #undef __field
-@@ -23,7 +25,7 @@
- #undef __array
- #define __array(_type, _item, _len) {					\
- 	.type = #_type"["__stringify(_len)"]", .name = #_item,		\
--	.size = sizeof(_type[_len]), .align = __alignof__(_type),	\
-+	.size = sizeof(_type[_len]), .align = ALIGN_STRUCTFIELD(_type),	\
- 	.is_signed = is_signed_type(_type), .filter_type = FILTER_OTHER },
- 
- #undef __dynamic_array
+ 	if (test_opt(sb, DEBUG))
+ 		printk(KERN_DEBUG "EXT4-fs: added group %u:"
 -- 
 2.35.1
 
