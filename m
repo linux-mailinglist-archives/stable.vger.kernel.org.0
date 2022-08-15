@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F7F0593DEA
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:43:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6A61593C3E
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345174AbiHOUdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:33:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38656 "EHLO
+        id S233195AbiHOUcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:32:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348035AbiHOUb6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:31:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02D23A8320;
-        Mon, 15 Aug 2022 12:05:09 -0700 (PDT)
+        with ESMTP id S1348083AbiHOUcE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:32:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61374A8CC1;
+        Mon, 15 Aug 2022 12:05:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 659BF612B7;
-        Mon, 15 Aug 2022 19:05:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6800CC433D6;
-        Mon, 15 Aug 2022 19:05:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90549612BF;
+        Mon, 15 Aug 2022 19:05:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93BACC433D6;
+        Mon, 15 Aug 2022 19:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590306;
-        bh=wvNzw7DQdnhF+QKs3givu5smwTEe8WsQIiupZFUE5UM=;
+        s=korg; t=1660590311;
+        bh=14BO3jFRo9LTUBo+dV5YyJ4Ptn7JKSUmnCiFGI1LRj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xLu2xeZ7JTffgJzqhTpWagkgb4uiIuWrjWZo8E8KkrApvAwvoLYieW+QZQyNzH+Hr
-         keSAFDfv4hUq1kz6OngpD23bYEMEiMioLavAeE/smh7Mu8pEOswHkSsuF2ZNsz4g+Y
-         ZDRzgRhYvnjdO6ffP1St/XRhIjxTYiAFjHdKD5Ck=
+        b=Pduex8hPIBc+hnb9rJ9Y6N/TfN7l5SgexSyu3v2/bZcPj5pQ4VptcjRvXvwEm3V64
+         m9WO3mIbogD880TOqxcDn59NyTXBDowxBc0XHIei9spYP3iloPulP9+GFUOvfVeLI3
+         jIAH4PvGXqZuj/VgT9MxiRRuYLToqtEtdSkQFJtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Michal Simek <michal.simek@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0218/1095] arm64: dts: qcom: sdm636-sony-xperia-ganges-mermaid: correct sdc2 pinconf
-Date:   Mon, 15 Aug 2022 19:53:37 +0200
-Message-Id: <20220815180438.699410254@linuxfoundation.org>
+Subject: [PATCH 5.18 0219/1095] cpufreq: zynq: Fix refcount leak in zynq_get_revision
+Date:   Mon, 15 Aug 2022 19:53:38 +0200
+Message-Id: <20220815180438.748623275@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,37 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 3a04cec9cba393abfe70fc62e523f381c9baec2e ]
+[ Upstream commit d1ff2559cef0f6f8d97fba6337b28adb10689e16 ]
 
-Fix the device tree node in the &sdc2_state_on override. The sdm630 uses
-'clk' rather than 'pinconf-clk'.
+of_find_compatible_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 4c1d849ec047 ("arm64: dts: qcom: sdm630-xperia: Retire sdm630-sony-xperia-ganges.dtsi")
-Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220521202708.1509308-9-dmitry.baryshkov@linaro.org
+Fixes: 00f7dc636366 ("ARM: zynq: Add support for SOC_BUS")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220605082807.21526-1-linmq006@gmail.com
+Signed-off-by: Michal Simek <michal.simek@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm636-sony-xperia-ganges-mermaid.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-zynq/common.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm636-sony-xperia-ganges-mermaid.dts b/arch/arm64/boot/dts/qcom/sdm636-sony-xperia-ganges-mermaid.dts
-index b96da53f2f1e..58f687fc49e0 100644
---- a/arch/arm64/boot/dts/qcom/sdm636-sony-xperia-ganges-mermaid.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm636-sony-xperia-ganges-mermaid.dts
-@@ -19,7 +19,7 @@ / {
- };
+diff --git a/arch/arm/mach-zynq/common.c b/arch/arm/mach-zynq/common.c
+index e1ca6a5732d2..15e8a321a713 100644
+--- a/arch/arm/mach-zynq/common.c
++++ b/arch/arm/mach-zynq/common.c
+@@ -77,6 +77,7 @@ static int __init zynq_get_revision(void)
+ 	}
  
- &sdc2_state_on {
--	pinconf-clk {
-+	clk {
- 		drive-strength = <14>;
- 	};
- };
+ 	zynq_devcfg_base = of_iomap(np, 0);
++	of_node_put(np);
+ 	if (!zynq_devcfg_base) {
+ 		pr_err("%s: Unable to map I/O memory\n", __func__);
+ 		return -1;
 -- 
 2.35.1
 
