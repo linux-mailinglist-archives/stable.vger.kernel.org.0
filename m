@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0C5C5947C4
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:04:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9352359493D
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:11:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354161AbiHOXnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:43:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60968 "EHLO
+        id S1354170AbiHOXnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:43:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354333AbiHOXly (ORCPT
+        with ESMTP id S1354335AbiHOXly (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38C982C67A;
-        Mon, 15 Aug 2022 13:12:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 152692C67C;
+        Mon, 15 Aug 2022 13:12:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF537B80EAB;
-        Mon, 15 Aug 2022 20:12:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D94AC433D6;
-        Mon, 15 Aug 2022 20:12:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE905B80EA9;
+        Mon, 15 Aug 2022 20:12:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 250DDC433C1;
+        Mon, 15 Aug 2022 20:12:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594372;
-        bh=D0Kv8H6XorGh+j/hqdaLEAmyfP1fBTiLguzZ5ZJ4gUA=;
+        s=korg; t=1660594375;
+        bh=jV18IuuG2M1GWbVk7mRpWwZoaWpLoaIhVm8KhE8WCg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=srIrpDi+fNk3G3FEavlW5RUAc0v7Y/U9YZzKQhGDdkCnnw1NSUMPE1+X/l9teeArk
-         79mgiS/ai7Mb9xjUFG+cAPQcy4UIz2Qk787bdnXRiluMoXf3RTkW8AnBBhnwWMogbU
-         c3zJqagIjBCnpLJNQ5Lyp1SFMTav/EWmeSe6xebo=
+        b=VhrYoZr5kVBjAXY9smnkQngOQJQioMBrb74EIaKljm6o6NLIpKUHatLHu9uuKCF6e
+         hfM+M8IArSqrD3mGKx0k6qQ8luOkqM9NXt4cIvANm6vznLIMKdv/f9wgu1poCTRIiP
+         L2RK0eCPFlrESbylUIl2bhYyfpYw8T2C1bLR8d5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        stable@vger.kernel.org, Qian Cai <quic_qiancai@quicinc.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0425/1157] mm: Account dirty folios properly during splits
-Date:   Mon, 15 Aug 2022 19:56:21 +0200
-Message-Id: <20220815180456.662665693@linuxfoundation.org>
+Subject: [PATCH 5.19 0426/1157] crypto: arm64/gcm - Select AEAD for GHASH_ARM64_CE
+Date:   Mon, 15 Aug 2022 19:56:22 +0200
+Message-Id: <20220815180456.701948790@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,56 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Qian Cai <quic_qiancai@quicinc.com>
 
-[ Upstream commit fb5c2029f8221e904e604938171c4a8ef169aadb ]
+[ Upstream commit fac76f2260893dde5aa05bb693b4c13e8ed0454b ]
 
-If the last folio in a file is split as a result of truncation,
-we simply clear the dirty bits for the pages we're discarding.
-That causes NR_FILE_DIRTY (among other counters) to be thrown off
-and eventually Linux will hang in balance_dirty_pages_ratelimited()
+Otherwise, we could fail to compile.
 
-Reported-by: Dave Chinner <dchinner@redhat.com>
-Tested-by: Dave Chinner <dchinner@redhat.com>
-Tested-by: Darrick J. Wong <djwong@kernel.org>
-Fixes: d68eccad3706 ("mm/filemap: Allow large folios to be added to the page cache")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+ld: arch/arm64/crypto/ghash-ce-glue.o: in function 'ghash_ce_mod_exit':
+ghash-ce-glue.c:(.exit.text+0x24): undefined reference to 'crypto_unregister_aead'
+ld: arch/arm64/crypto/ghash-ce-glue.o: in function 'ghash_ce_mod_init':
+ghash-ce-glue.c:(.init.text+0x34): undefined reference to 'crypto_register_aead'
+
+Fixes: 537c1445ab0b ("crypto: arm64/gcm - implement native driver using v8 Crypto Extensions")
+Signed-off-by: Qian Cai <quic_qiancai@quicinc.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/huge_memory.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/arm64/crypto/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 834f288b3769..15965084816d 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -18,6 +18,7 @@
- #include <linux/shrinker.h>
- #include <linux/mm_inline.h>
- #include <linux/swapops.h>
-+#include <linux/backing-dev.h>
- #include <linux/dax.h>
- #include <linux/khugepaged.h>
- #include <linux/freezer.h>
-@@ -2440,11 +2441,15 @@ static void __split_huge_page(struct page *page, struct list_head *list,
- 		__split_huge_page_tail(head, i, lruvec, list);
- 		/* Some pages can be beyond EOF: drop them from page cache */
- 		if (head[i].index >= end) {
--			ClearPageDirty(head + i);
--			__delete_from_page_cache(head + i, NULL);
-+			struct folio *tail = page_folio(head + i);
-+
- 			if (shmem_mapping(head->mapping))
- 				shmem_uncharge(head->mapping->host, 1);
--			put_page(head + i);
-+			else if (folio_test_clear_dirty(tail))
-+				folio_account_cleaned(tail,
-+					inode_to_wb(folio->mapping->host));
-+			__filemap_remove_folio(tail, NULL);
-+			folio_put(tail);
- 		} else if (!PageAnon(page)) {
- 			__xa_store(&head->mapping->i_pages, head[i].index,
- 					head + i, 0);
+diff --git a/arch/arm64/crypto/Kconfig b/arch/arm64/crypto/Kconfig
+index ac85682c013c..e3aaa971d660 100644
+--- a/arch/arm64/crypto/Kconfig
++++ b/arch/arm64/crypto/Kconfig
+@@ -71,6 +71,7 @@ config CRYPTO_GHASH_ARM64_CE
+ 	select CRYPTO_HASH
+ 	select CRYPTO_GF128MUL
+ 	select CRYPTO_LIB_AES
++	select CRYPTO_AEAD
+ 
+ config CRYPTO_CRCT10DIF_ARM64_CE
+ 	tristate "CRCT10DIF digest algorithm using PMULL instructions"
 -- 
 2.35.1
 
