@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B180E594C9A
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87FDC594D8E
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346921AbiHPAaf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:30:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38796 "EHLO
+        id S241089AbiHPAcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:32:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346762AbiHPAaB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:30:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68697183490;
-        Mon, 15 Aug 2022 13:35:31 -0700 (PDT)
+        with ESMTP id S1352792AbiHPAbA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:31:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4AA3185267;
+        Mon, 15 Aug 2022 13:35:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CE4FB80EA8;
-        Mon, 15 Aug 2022 20:35:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75CC5C433D6;
-        Mon, 15 Aug 2022 20:35:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 81A1C611D6;
+        Mon, 15 Aug 2022 20:35:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88FFBC433C1;
+        Mon, 15 Aug 2022 20:35:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595722;
-        bh=mAhndZ58v9W0AkBZG9Q4H8Lw125PT5BmmTbkUSWufHk=;
+        s=korg; t=1660595725;
+        bh=tcxpQnCC4FWeaEHBirbSyphnFcmhMM+J6DV5eHnOI8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iyBJJ77KQ3jMMeT5q4U5Hkug8Fhm1M9N678+D/HvzUv2jTMba2Xq0X0skShQ5n+Hs
-         bMeBLJVzjiqjooqnUDLGqgVaSfqal0QVXNc4eQ3tbO/upUepSBOft98Li5c3LqCitS
-         H8ym2hh79amzW3HKn7iMLZzM2JQiv7cDj20TpeTc=
+        b=lb3xQSUWcUF87hp+KS3ANAeqmjBnknQRvpC3TrN1P/TRDoCOBaC2JwXoUJqyg9YVO
+         aJKVtlkiBfLqf5D/lWGONNXpyz/625ZXM4K5q2cfpQBeDYbpQeulFQbib3IzW504Vb
+         yBfhOIjDkKZvc8HuSQue47U1jFR1ZCiiPE/z98IQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Peter Suti <peter.suti@streamunlimited.com>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0854/1157] staging: fbtft: core: set smem_len before fb_deferred_io_init call
-Date:   Mon, 15 Aug 2022 20:03:30 +0200
-Message-Id: <20220815180513.654242834@linuxfoundation.org>
+Subject: [PATCH 5.19 0855/1157] KVM: nVMX: Set UMIP bit CR4_FIXED1 MSR when emulating UMIP
+Date:   Mon, 15 Aug 2022 20:03:31 +0200
+Message-Id: <20220815180513.685879966@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,44 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Suti <peter.suti@streamunlimited.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 81e878887ff82a7dd42f22951391069a5d520627 ]
+[ Upstream commit a910b5ab6b250a88fff1866bf708642d83317466 ]
 
-The fbtft_framebuffer_alloc() calls fb_deferred_io_init() before
-initializing info->fix.smem_len.  It is set to zero by the
-framebuffer_alloc() function.  It will trigger a WARN_ON() at the
-start of fb_deferred_io_init() and the function will not do anything.
+Make UMIP an "allowed-1" bit CR4_FIXED1 MSR when KVM is emulating UMIP.
+KVM emulates UMIP for both L1 and L2, and so should enumerate that L2 is
+allowed to have CR4.UMIP=1.  Not setting the bit doesn't immediately
+break nVMX, as KVM does set/clear the bit in CR4_FIXED1 in response to a
+guest CPUID update, i.e. KVM will correctly (dis)allow nested VM-Entry
+based on whether or not UMIP is exposed to L1.  That said, KVM should
+enumerate the bit as being allowed from time zero, e.g. userspace will
+see the wrong value if the MSR is read before CPUID is written.
 
-Fixes: 856082f021a2 ("fbdev: defio: fix the pagelist corruption")
-Signed-off-by: Peter Suti <peter.suti@streamunlimited.com>
-Link: https://lore.kernel.org/r/20220727073550.1491126-1-peter.suti@streamunlimited.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0367f205a3b7 ("KVM: vmx: add support for emulating UMIP")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220607213604.3346000-12-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/fbtft/fbtft-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/vmx/nested.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/staging/fbtft/fbtft-core.c b/drivers/staging/fbtft/fbtft-core.c
-index 60b2278d8b16..ebf4e8ce4de9 100644
---- a/drivers/staging/fbtft/fbtft-core.c
-+++ b/drivers/staging/fbtft/fbtft-core.c
-@@ -655,7 +655,6 @@ struct fb_info *fbtft_framebuffer_alloc(struct fbtft_display *display,
- 	fbdefio->delay =            HZ / fps;
- 	fbdefio->sort_pagereflist = true;
- 	fbdefio->deferred_io =      fbtft_deferred_io;
--	fb_deferred_io_init(info);
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 66735fbb791d..1b9e5bd2f941 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -6786,6 +6786,9 @@ void nested_vmx_setup_ctls_msrs(struct nested_vmx_msrs *msrs, u32 ept_caps)
+ 	rdmsrl(MSR_IA32_VMX_CR0_FIXED1, msrs->cr0_fixed1);
+ 	rdmsrl(MSR_IA32_VMX_CR4_FIXED1, msrs->cr4_fixed1);
  
- 	snprintf(info->fix.id, sizeof(info->fix.id), "%s", dev->driver->name);
- 	info->fix.type =           FB_TYPE_PACKED_PIXELS;
-@@ -666,6 +665,7 @@ struct fb_info *fbtft_framebuffer_alloc(struct fbtft_display *display,
- 	info->fix.line_length =    width * bpp / 8;
- 	info->fix.accel =          FB_ACCEL_NONE;
- 	info->fix.smem_len =       vmem_size;
-+	fb_deferred_io_init(info);
++	if (vmx_umip_emulated())
++		msrs->cr4_fixed1 |= X86_CR4_UMIP;
++
+ 	msrs->vmcs_enum = nested_vmx_calc_vmcs_enum_msr();
+ }
  
- 	info->var.rotate =         pdata->rotate;
- 	info->var.xres =           width;
 -- 
 2.35.1
 
