@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60CCA595075
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7233C59506E
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231810AbiHPEmR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:42:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43184 "EHLO
+        id S231807AbiHPEmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:42:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232244AbiHPEk7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:40:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6844A7220;
-        Mon, 15 Aug 2022 13:32:59 -0700 (PDT)
+        with ESMTP id S232113AbiHPEku (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:40:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD1EA8962;
+        Mon, 15 Aug 2022 13:33:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B33B611FE;
-        Mon, 15 Aug 2022 20:32:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D2DFC4314A;
-        Mon, 15 Aug 2022 20:32:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3CDB3B811B6;
+        Mon, 15 Aug 2022 20:33:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F3C6C433D7;
+        Mon, 15 Aug 2022 20:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595577;
-        bh=+J+Q8LniD2ZXHJOSoRNy/SiVung7frjPqTcLHzcd/cE=;
+        s=korg; t=1660595580;
+        bh=x2Q/VPXMTMOlYtsTJ5bhyz1bIV5MeBrA1CJrnxVUrKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tddFERDdRtharrdoFnU6dTc0aYwH6lC70qhO+l08mriyKNbbcTvM1dtgAEaSFZcJ+
-         b0F1nZON7bA7Afbursb2g36yY34htmn8n0h8hmatafOF5Ka2fR8VU9SU9AU7wL+Jah
-         GGM9ni+3PNVHMrEnZgBYUQd6P/jpv7wWzUUatddA=
+        b=ZnyIb2YdatmcFM6odJEDlR23QznmucF/oRfU2ehtYa1wMHCWenB6iaE1MBv7bCnDw
+         C+Qlmz1G5cVXSYM98YvZXb+LrovYATmPzY+6CyBublhndsknq/3niPUviL8goky9Mn
+         xriy6G/txwbZTlZa+nzjfDfvtlVZirmzCbP6VKhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0809/1157] usb: aspeed-vhub: Fix refcount leak bug in ast_vhub_init_desc()
-Date:   Mon, 15 Aug 2022 20:02:45 +0200
-Message-Id: <20220815180511.855035481@linuxfoundation.org>
+Subject: [PATCH 5.19 0810/1157] usb: dwc3: core: Deprecate GCTL.CORESOFTRESET
+Date:   Mon, 15 Aug 2022 20:02:46 +0200
+Message-Id: <20220815180511.894641368@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -53,38 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 220fafb4ed04187e9c17be4152da5a7f2ffbdd8c ]
+[ Upstream commit afbd04e66e5d16ca3c7ea2e3c56eca25558eacf3 ]
 
-We should call of_node_put() for the reference returned by
-of_get_child_by_name() which has increased the refcount.
+Synopsys IP DWC_usb32 and DWC_usb31 version 1.90a and above deprecated
+GCTL.CORESOFTRESET. The DRD mode switching flow is updated to remove the
+GCTL soft reset. Add version checks to prevent using deprecated setting
+in mode switching flow.
 
-Fixes: 30d2617fd7ed ("usb: gadget: aspeed: allow to set usb strings in device tree")
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220713120528.368168-1-windhl@126.com
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/9df529fde6e55f5508321b6bc26e92848044ef2b.1655338967.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/aspeed-vhub/hub.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/aspeed-vhub/hub.c b/drivers/usb/gadget/udc/aspeed-vhub/hub.c
-index 65cd4e46f031..e2207d014620 100644
---- a/drivers/usb/gadget/udc/aspeed-vhub/hub.c
-+++ b/drivers/usb/gadget/udc/aspeed-vhub/hub.c
-@@ -1059,8 +1059,10 @@ static int ast_vhub_init_desc(struct ast_vhub *vhub)
- 	/* Initialize vhub String Descriptors. */
- 	INIT_LIST_HEAD(&vhub->vhub_str_desc);
- 	desc_np = of_get_child_by_name(vhub_np, "vhub-strings");
--	if (desc_np)
-+	if (desc_np) {
- 		ret = ast_vhub_of_parse_str_desc(vhub, desc_np);
-+		of_node_put(desc_np);
-+	}
- 	else
- 		ret = ast_vhub_str_alloc_add(vhub, &ast_vhub_strings);
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index 573421984948..4c753cc0fa61 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -159,7 +159,8 @@ static void __dwc3_set_mode(struct work_struct *work)
+ 	}
  
+ 	/* For DRD host or device mode only */
+-	if (dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG) {
++	if ((DWC3_IP_IS(DWC3) || DWC3_VER_IS_PRIOR(DWC31, 190A)) &&
++	    dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG) {
+ 		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
+ 		reg |= DWC3_GCTL_CORESOFTRESET;
+ 		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
 -- 
 2.35.1
 
