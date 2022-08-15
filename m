@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F046159434E
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:55:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D94725943A4
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:57:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349272AbiHOWcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:32:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53192 "EHLO
+        id S1348972AbiHOWeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:34:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350774AbiHOWcL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:32:11 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D314812D2A3;
-        Mon, 15 Aug 2022 12:48:54 -0700 (PDT)
+        with ESMTP id S241207AbiHOWc2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:32:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F82312E253;
+        Mon, 15 Aug 2022 12:49:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C4387CE12E0;
-        Mon, 15 Aug 2022 19:48:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B08F5C433D6;
-        Mon, 15 Aug 2022 19:48:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DABFB81144;
+        Mon, 15 Aug 2022 19:48:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F13BC433C1;
+        Mon, 15 Aug 2022 19:48:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592918;
-        bh=EYeWNRRdqeLTH60vOeNeougrx1JxpB34+HdpnISTfl4=;
+        s=korg; t=1660592924;
+        bh=kVKp/t6i6DaXjN4J5IYS3k0hIz/ioS3Y5JvQrfcQXvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GfUilLVkh1zbakPGNJ0AhJeUTHh34KmGVTauTL5Xy7/A/aqW+FV+9D8rMb7AlS1w7
-         Kh9YIEzAUA3dm3QrXZMtla/gg5MJ+zmirD28r5Xpq5qqclNBa8IClxT3ddfZGaTeo0
-         yaEt8YueszpN33anwGKXA+nViduhndiNQz0as14w=
+        b=IpNAh/Kcrcf5ynyHwY0E6H6praPZi9SdiALY1Y7wyPgKCHsvsb/aTLFt8MqBZspB6
+         MuOItF6aObRcEB6kBlAo+tAUOu9Tx9H4IR+DMvzJuPN5kPeFi0ilpA3oNwd4vy7w7U
+         K1FOm30c52PnKb24E3067EFAiKIiELfoAaH+uRV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sireesh Kodali <sireeshkodali1@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0866/1095] remoteproc: qcom: wcnss: Fix handling of IRQs
-Date:   Mon, 15 Aug 2022 20:04:25 +0200
-Message-Id: <20220815180505.199454822@linuxfoundation.org>
+Subject: [PATCH 5.18 0867/1095] vfio/ccw: Fix FSM state if mdev probe fails
+Date:   Mon, 15 Aug 2022 20:04:26 +0200
+Message-Id: <20220815180505.232891227@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,58 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sireesh Kodali <sireeshkodali1@gmail.com>
+From: Eric Farman <farman@linux.ibm.com>
 
-[ Upstream commit bed0adac1ded4cb486ba19a3a7e730fbd9a1c9c6 ]
+[ Upstream commit f6c876d67e956de8d69349b0ee43bc7277c09e5c ]
 
-The wcnss_get_irq function is expected to return a value > 0 in the
-event that an IRQ is succssfully obtained, but it instead returns 0.
-This causes the stop and ready IRQs to never actually be used despite
-being defined in the device-tree. This patch fixes that.
+The FSM is in STANDBY state when arriving in vfio_ccw_mdev_probe(),
+and this routine converts it to IDLE as part of its processing.
+The error exit sets it to IDLE (again) but clears the private->mdev
+pointer.
 
-Fixes: aed361adca9f ("remoteproc: qcom: Introduce WCNSS peripheral image loader")
-Signed-off-by: Sireesh Kodali <sireeshkodali1@gmail.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220526141740.15834-2-sireeshkodali1@gmail.com
+The FSM should of course be managing the state itself, but the
+correct thing for vfio_ccw_mdev_probe() to do would be to put
+the state back the way it found it.
+
+The corresponding check of private->mdev in vfio_ccw_sch_io_todo()
+can be removed, since the distinction is unnecessary at this point.
+
+Fixes: 3bf1311f351ef ("vfio/ccw: Convert to use vfio_register_emulated_iommu_dev()")
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220707135737.720765-3-farman@linux.ibm.com
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_wcnss.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/s390/cio/vfio_ccw_drv.c | 5 +++--
+ drivers/s390/cio/vfio_ccw_ops.c | 2 +-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/remoteproc/qcom_wcnss.c b/drivers/remoteproc/qcom_wcnss.c
-index 9a223d394087..68f37296b151 100644
---- a/drivers/remoteproc/qcom_wcnss.c
-+++ b/drivers/remoteproc/qcom_wcnss.c
-@@ -467,6 +467,7 @@ static int wcnss_request_irq(struct qcom_wcnss *wcnss,
- 			     irq_handler_t thread_fn)
- {
- 	int ret;
-+	int irq_number;
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index ee182cfb467d..789175221e9a 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -107,9 +107,10 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 	/*
+ 	 * Reset to IDLE only if processing of a channel program
+ 	 * has finished. Do not overwrite a possible processing
+-	 * state if the final interrupt was for HSCH or CSCH.
++	 * state if the interrupt was unsolicited, or if the final
++	 * interrupt was for HSCH or CSCH.
+ 	 */
+-	if (private->mdev && cp_is_finished)
++	if (cp_is_finished)
+ 		private->state = VFIO_CCW_STATE_IDLE;
  
- 	ret = platform_get_irq_byname(pdev, name);
- 	if (ret < 0 && optional) {
-@@ -477,14 +478,19 @@ static int wcnss_request_irq(struct qcom_wcnss *wcnss,
- 		return ret;
- 	}
- 
-+	irq_number = ret;
-+
- 	ret = devm_request_threaded_irq(&pdev->dev, ret,
- 					NULL, thread_fn,
- 					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
- 					"wcnss", wcnss);
--	if (ret)
-+	if (ret) {
- 		dev_err(&pdev->dev, "request %s IRQ failed\n", name);
-+		return ret;
-+	}
- 
--	return ret;
-+	/* Return the IRQ number if the IRQ was successfully acquired */
-+	return irq_number;
+ 	if (private->io_trigger)
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index d8589afac272..8d76f5b26e2b 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -146,7 +146,7 @@ static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
+ 	vfio_uninit_group_dev(&private->vdev);
+ 	atomic_inc(&private->avail);
+ 	private->mdev = NULL;
+-	private->state = VFIO_CCW_STATE_IDLE;
++	private->state = VFIO_CCW_STATE_STANDBY;
+ 	return ret;
  }
  
- static int wcnss_alloc_memory_region(struct qcom_wcnss *wcnss)
 -- 
 2.35.1
 
