@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D99F9592E71
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:48:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63113592E73
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:48:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232094AbiHOLsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 07:48:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33292 "EHLO
+        id S232113AbiHOLso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 07:48:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240849AbiHOLsX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:48:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCA8124F2E
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:48:22 -0700 (PDT)
+        with ESMTP id S240452AbiHOLsn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:48:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDF0A24F28
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:48:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58AFE6116A
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:48:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C589C433D6;
-        Mon, 15 Aug 2022 11:48:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BA6FB80E23
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:48:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FC93C433C1;
+        Mon, 15 Aug 2022 11:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660564101;
-        bh=drcE6Nmd/1tOW5J+Js1CHA1ewiXU0PuxlcBgcd5YDOo=;
+        s=korg; t=1660564119;
+        bh=gb3hbZkRBkxbhu+fTmGxlyVZkBUpjVPS67iy3RVdwK8=;
         h=Subject:To:Cc:From:Date:From;
-        b=GxOYOfhWzt1SI6mjk6qqw0XmsbC/Z0rITqD7hD+DmXTUWhYPX+urhZwKC2d1JLkB3
-         NDAKa5M27i6AEaaLmLQE08QOOheDjkGJ7Jv95T7Ws1yHIQTD/umCjKYMm7IQlZ857f
-         f5LNgBEhg+RL0qXPhtoXeV0rLM0E8Vir3x1pJN08=
-Subject: FAILED: patch "[PATCH] kexec: clean up arch_kexec_kernel_verify_sig" failed to apply to 4.14-stable tree
-To:     coxu@redhat.com, bhe@redhat.com, ebiederm@xmission.com,
-        msuchanek@suse.de, zohar@linux.ibm.com
+        b=gV6tioSJuj7fLHK3MQ63iNLudftq4bbFHKLDpMswGWd+NUiu/qcxGI8UbkcJW7hUE
+         6YS1k808JOveAHUnm0ISV0sfy5qfsYw7nxtsr/pVqwSEM8Uc5osumt4IvGxkClJ9uM
+         BoyH04DQlgWTwbH+Skm3ZVEnbemwDeBjGWkaaRoU=
+Subject: FAILED: patch "[PATCH] firmware: arm_scpi: Ensure scpi_info is not assigned if the" failed to apply to 4.19-stable tree
+To:     sudeep.holla@arm.com, huhai@kylinos.cn, liuyun01@kylinos.cn
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Aug 2022 13:48:07 +0200
-Message-ID: <166056408722947@kroah.com>
+Date:   Mon, 15 Aug 2022 13:48:36 +0200
+Message-ID: <166056411623254@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,99 +59,149 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 689a71493bd2f31c024f8c0395f85a1fd4b2138e Mon Sep 17 00:00:00 2001
-From: Coiby Xu <coxu@redhat.com>
-Date: Thu, 14 Jul 2022 21:40:24 +0800
-Subject: [PATCH] kexec: clean up arch_kexec_kernel_verify_sig
+From 689640efc0a2c4e07e6f88affe6d42cd40cc3f85 Mon Sep 17 00:00:00 2001
+From: Sudeep Holla <sudeep.holla@arm.com>
+Date: Fri, 1 Jul 2022 17:03:10 +0100
+Subject: [PATCH] firmware: arm_scpi: Ensure scpi_info is not assigned if the
+ probe fails
 
-Before commit 105e10e2cf1c ("kexec_file: drop weak attribute from
-functions"), there was already no arch-specific implementation
-of arch_kexec_kernel_verify_sig. With weak attribute dropped by that
-commit, arch_kexec_kernel_verify_sig is completely useless. So clean it
-up.
+When scpi probe fails, at any point, we need to ensure that the scpi_info
+is not set and will remain NULL until the probe succeeds. If it is not
+taken care, then it could result use-after-free as the value is exported
+via get_scpi_ops() and could refer to a memory allocated via devm_kzalloc()
+but freed when the probe fails.
 
-Note later patches are dependent on this patch so it should be backported
-to the stable tree as well.
+Link: https://lore.kernel.org/r/20220701160310.148344-1-sudeep.holla@arm.com
+Cc: stable@vger.kernel.org # 4.19+
+Reported-by: huhai <huhai@kylinos.cn>
+Reviewed-by: Jackie Liu <liuyun01@kylinos.cn>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 
-Cc: stable@vger.kernel.org
-Suggested-by: Eric W. Biederman <ebiederm@xmission.com>
-Reviewed-by: Michal Suchanek <msuchanek@suse.de>
-Acked-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Coiby Xu <coxu@redhat.com>
-[zohar@linux.ibm.com: reworded patch description "Note"]
-Link: https://lore.kernel.org/linux-integrity/20220714134027.394370-1-coxu@redhat.com/
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-
-diff --git a/include/linux/kexec.h b/include/linux/kexec.h
-index 8107606ad1e8..7f710fb3712b 100644
---- a/include/linux/kexec.h
-+++ b/include/linux/kexec.h
-@@ -212,11 +212,6 @@ static inline void *arch_kexec_kernel_image_load(struct kimage *image)
- }
- #endif
+diff --git a/drivers/firmware/arm_scpi.c b/drivers/firmware/arm_scpi.c
+index ddf0b9ff9e15..435d0e2658a4 100644
+--- a/drivers/firmware/arm_scpi.c
++++ b/drivers/firmware/arm_scpi.c
+@@ -815,7 +815,7 @@ static int scpi_init_versions(struct scpi_drvinfo *info)
+ 		info->firmware_version = le32_to_cpu(caps.platform_version);
+ 	}
+ 	/* Ignore error if not implemented */
+-	if (scpi_info->is_legacy && ret == -EOPNOTSUPP)
++	if (info->is_legacy && ret == -EOPNOTSUPP)
+ 		return 0;
  
--#ifdef CONFIG_KEXEC_SIG
--int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
--				 unsigned long buf_len);
--#endif
--
- extern int kexec_add_buffer(struct kexec_buf *kbuf);
- int kexec_locate_mem_hole(struct kexec_buf *kbuf);
+ 	return ret;
+@@ -913,13 +913,14 @@ static int scpi_probe(struct platform_device *pdev)
+ 	struct resource res;
+ 	struct device *dev = &pdev->dev;
+ 	struct device_node *np = dev->of_node;
++	struct scpi_drvinfo *scpi_drvinfo;
  
-diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-index 0c27c81351ee..6dc1294c90fc 100644
---- a/kernel/kexec_file.c
-+++ b/kernel/kexec_file.c
-@@ -81,24 +81,6 @@ int kexec_image_post_load_cleanup_default(struct kimage *image)
- 	return image->fops->cleanup(image->image_loader_data);
- }
+-	scpi_info = devm_kzalloc(dev, sizeof(*scpi_info), GFP_KERNEL);
+-	if (!scpi_info)
++	scpi_drvinfo = devm_kzalloc(dev, sizeof(*scpi_drvinfo), GFP_KERNEL);
++	if (!scpi_drvinfo)
+ 		return -ENOMEM;
  
--#ifdef CONFIG_KEXEC_SIG
--static int kexec_image_verify_sig_default(struct kimage *image, void *buf,
--					  unsigned long buf_len)
--{
--	if (!image->fops || !image->fops->verify_sig) {
--		pr_debug("kernel loader does not support signature verification.\n");
--		return -EKEYREJECTED;
--	}
--
--	return image->fops->verify_sig(buf, buf_len);
--}
--
--int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf, unsigned long buf_len)
--{
--	return kexec_image_verify_sig_default(image, buf, buf_len);
--}
--#endif
--
- /*
-  * Free up memory used by kernel, initrd, and command line. This is temporary
-  * memory allocation which is not needed any more after these buffers have
-@@ -141,13 +123,24 @@ void kimage_file_post_load_cleanup(struct kimage *image)
- }
+ 	if (of_match_device(legacy_scpi_of_match, &pdev->dev))
+-		scpi_info->is_legacy = true;
++		scpi_drvinfo->is_legacy = true;
  
- #ifdef CONFIG_KEXEC_SIG
-+static int kexec_image_verify_sig(struct kimage *image, void *buf,
-+				  unsigned long buf_len)
-+{
-+	if (!image->fops || !image->fops->verify_sig) {
-+		pr_debug("kernel loader does not support signature verification.\n");
-+		return -EKEYREJECTED;
-+	}
+ 	count = of_count_phandle_with_args(np, "mboxes", "#mbox-cells");
+ 	if (count < 0) {
+@@ -927,19 +928,19 @@ static int scpi_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
+-	scpi_info->channels = devm_kcalloc(dev, count, sizeof(struct scpi_chan),
+-					   GFP_KERNEL);
+-	if (!scpi_info->channels)
++	scpi_drvinfo->channels =
++		devm_kcalloc(dev, count, sizeof(struct scpi_chan), GFP_KERNEL);
++	if (!scpi_drvinfo->channels)
+ 		return -ENOMEM;
+ 
+-	ret = devm_add_action(dev, scpi_free_channels, scpi_info);
++	ret = devm_add_action(dev, scpi_free_channels, scpi_drvinfo);
+ 	if (ret)
+ 		return ret;
+ 
+-	for (; scpi_info->num_chans < count; scpi_info->num_chans++) {
++	for (; scpi_drvinfo->num_chans < count; scpi_drvinfo->num_chans++) {
+ 		resource_size_t size;
+-		int idx = scpi_info->num_chans;
+-		struct scpi_chan *pchan = scpi_info->channels + idx;
++		int idx = scpi_drvinfo->num_chans;
++		struct scpi_chan *pchan = scpi_drvinfo->channels + idx;
+ 		struct mbox_client *cl = &pchan->cl;
+ 		struct device_node *shmem = of_parse_phandle(np, "shmem", idx);
+ 
+@@ -986,45 +987,53 @@ static int scpi_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	scpi_info->commands = scpi_std_commands;
++	scpi_drvinfo->commands = scpi_std_commands;
+ 
+-	platform_set_drvdata(pdev, scpi_info);
++	platform_set_drvdata(pdev, scpi_drvinfo);
+ 
+-	if (scpi_info->is_legacy) {
++	if (scpi_drvinfo->is_legacy) {
+ 		/* Replace with legacy variants */
+ 		scpi_ops.clk_set_val = legacy_scpi_clk_set_val;
+-		scpi_info->commands = scpi_legacy_commands;
++		scpi_drvinfo->commands = scpi_legacy_commands;
+ 
+ 		/* Fill priority bitmap */
+ 		for (idx = 0; idx < ARRAY_SIZE(legacy_hpriority_cmds); idx++)
+ 			set_bit(legacy_hpriority_cmds[idx],
+-				scpi_info->cmd_priority);
++				scpi_drvinfo->cmd_priority);
+ 	}
+ 
+-	ret = scpi_init_versions(scpi_info);
++	scpi_info = scpi_drvinfo;
 +
-+	return image->fops->verify_sig(buf, buf_len);
-+}
-+
- static int
- kimage_validate_signature(struct kimage *image)
- {
- 	int ret;
- 
--	ret = arch_kexec_kernel_verify_sig(image, image->kernel_buf,
--					   image->kernel_buf_len);
-+	ret = kexec_image_verify_sig(image, image->kernel_buf,
-+				     image->kernel_buf_len);
++	ret = scpi_init_versions(scpi_drvinfo);
  	if (ret) {
+ 		dev_err(dev, "incorrect or no SCP firmware found\n");
++		scpi_info = NULL;
+ 		return ret;
+ 	}
  
- 		if (sig_enforce) {
+-	if (scpi_info->is_legacy && !scpi_info->protocol_version &&
+-	    !scpi_info->firmware_version)
++	if (scpi_drvinfo->is_legacy && !scpi_drvinfo->protocol_version &&
++	    !scpi_drvinfo->firmware_version)
+ 		dev_info(dev, "SCP Protocol legacy pre-1.0 firmware\n");
+ 	else
+ 		dev_info(dev, "SCP Protocol %lu.%lu Firmware %lu.%lu.%lu version\n",
+ 			 FIELD_GET(PROTO_REV_MAJOR_MASK,
+-				   scpi_info->protocol_version),
++				   scpi_drvinfo->protocol_version),
+ 			 FIELD_GET(PROTO_REV_MINOR_MASK,
+-				   scpi_info->protocol_version),
++				   scpi_drvinfo->protocol_version),
+ 			 FIELD_GET(FW_REV_MAJOR_MASK,
+-				   scpi_info->firmware_version),
++				   scpi_drvinfo->firmware_version),
+ 			 FIELD_GET(FW_REV_MINOR_MASK,
+-				   scpi_info->firmware_version),
++				   scpi_drvinfo->firmware_version),
+ 			 FIELD_GET(FW_REV_PATCH_MASK,
+-				   scpi_info->firmware_version));
+-	scpi_info->scpi_ops = &scpi_ops;
++				   scpi_drvinfo->firmware_version));
++
++	scpi_drvinfo->scpi_ops = &scpi_ops;
+ 
+-	return devm_of_platform_populate(dev);
++	ret = devm_of_platform_populate(dev);
++	if (ret)
++		scpi_info = NULL;
++
++	return ret;
+ }
+ 
+ static const struct of_device_id scpi_of_match[] = {
 
