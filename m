@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53B0D5937AA
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC94A5936AF
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242321AbiHOSmm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:42:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37898 "EHLO
+        id S242336AbiHOSmo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:42:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243846AbiHOSl3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:41:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44E8B3FA05;
-        Mon, 15 Aug 2022 11:25:07 -0700 (PDT)
+        with ESMTP id S243883AbiHOSle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:41:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EAED2ED79;
+        Mon, 15 Aug 2022 11:25:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E126BB80F99;
-        Mon, 15 Aug 2022 18:25:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CC28C433C1;
-        Mon, 15 Aug 2022 18:25:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7244B8107A;
+        Mon, 15 Aug 2022 18:25:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C57EC433D6;
+        Mon, 15 Aug 2022 18:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587905;
-        bh=tyewOjfDvcMDuNc0n8mcfNqZN/2ho/mbC0GukSH0x9A=;
+        s=korg; t=1660587908;
+        bh=hPaoAoTABbJA0k59XLBjjONJsaLFqDVLNIXSySjz6vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h2aaNKTV1CA4gxJZCAtqw8h1ZSoddBOybBGo7wkuKJiVzO/0nbwWyXpPNMMf68Tln
-         8IZhYZcpkKVHoko/xWUHQTu2PAMhht6p3u5QFJloF/jC2Udy4TaHlPwb8QD7NrFdJK
-         LWRGJ3iOhPTGnawGINX3J5VSLgDTd5iEvKUhkZcg=
+        b=lNuM5MG1O/3TqSYQEBc/SPWQLy6NwVFlGdrNIdBoJzwXMrEW4tvP/YWXHdAIUf+pZ
+         zSKzONIlJcTGBeJY+DY3CeD8R34xadUQWhaGju+j2SDbTsc2RAbOfS6D7StgAQgM2F
+         4kL0BnFbivPUkTMXWjgrTtLCtAOdgFSUzGUVuyTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 233/779] pwm: lpc18xx: Fix period handling
-Date:   Mon, 15 Aug 2022 19:57:57 +0200
-Message-Id: <20220815180347.244304969@linuxfoundation.org>
+Subject: [PATCH 5.15 234/779] drm/dp: Export symbol / kerneldoc fixes for DP AUX bus
+Date:   Mon, 15 Aug 2022 19:57:58 +0200
+Message-Id: <20220815180347.292508079@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,140 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 8933d30c5f468d6cc1e4bf9bb535149da35f202e ]
+[ Upstream commit 39c28cdfb719f0e306b447f0827dfd712f81858b ]
 
-The calculation:
+While working on the DP AUX bus code I found a few small things that
+should be fixed. Namely the non-devm version of
+of_dp_aux_populate_ep_devices() was missing an export. There was also
+an extra blank line in a kerneldoc and a kerneldoc that incorrectly
+documented a return value. Fix these.
 
-	val = (u64)NSEC_PER_SEC * LPC18XX_PWM_TIMER_MAX;
-	do_div(val, lpc18xx_pwm->clk_rate);
-	lpc18xx_pwm->max_period_ns = val;
-
-is bogus because with NSEC_PER_SEC = 1000000000,
-LPC18XX_PWM_TIMER_MAX = 0xffffffff and clk_rate < NSEC_PER_SEC this
-overflows the (on lpc18xx (i.e. ARM32) 32 bit wide) unsigned int
-.max_period_ns. This results (dependant of the actual clk rate) in an
-arbitrary limitation of the maximal period.  E.g. for clkrate =
-333333333 (Hz) we get max_period_ns = 9 instead of 12884901897.
-
-So make .max_period_ns an u64 and pass period and duty as u64 to not
-discard relevant digits. And also make use of mul_u64_u64_div_u64()
-which prevents all overflows assuming clk_rate < NSEC_PER_SEC.
-
-Fixes: 841e6f90bb78 ("pwm: NXP LPC18xx PWM/SCT driver")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Fixes: aeb33699fc2c ("drm: Introduce the DP AUX bus")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220510122726.v3.1.Ia91f4849adfc5eb9da1eb37ba79aa65fb3c95a0f@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-lpc18xx-sct.c | 55 +++++++++++++++++++++++++----------
- 1 file changed, 39 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/drm_dp_aux_bus.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/pwm/pwm-lpc18xx-sct.c b/drivers/pwm/pwm-lpc18xx-sct.c
-index b909096dba2f..43b5509dde51 100644
---- a/drivers/pwm/pwm-lpc18xx-sct.c
-+++ b/drivers/pwm/pwm-lpc18xx-sct.c
-@@ -98,7 +98,7 @@ struct lpc18xx_pwm_chip {
- 	unsigned long clk_rate;
- 	unsigned int period_ns;
- 	unsigned int min_period_ns;
--	unsigned int max_period_ns;
-+	u64 max_period_ns;
- 	unsigned int period_event;
- 	unsigned long event_map;
- 	struct mutex res_lock;
-@@ -145,40 +145,48 @@ static void lpc18xx_pwm_set_conflict_res(struct lpc18xx_pwm_chip *lpc18xx_pwm,
- 	mutex_unlock(&lpc18xx_pwm->res_lock);
- }
- 
--static void lpc18xx_pwm_config_period(struct pwm_chip *chip, int period_ns)
-+static void lpc18xx_pwm_config_period(struct pwm_chip *chip, u64 period_ns)
+diff --git a/drivers/gpu/drm/drm_dp_aux_bus.c b/drivers/gpu/drm/drm_dp_aux_bus.c
+index 298ea7a49591..f7c03ad5a15a 100644
+--- a/drivers/gpu/drm/drm_dp_aux_bus.c
++++ b/drivers/gpu/drm/drm_dp_aux_bus.c
+@@ -66,7 +66,6 @@ static int dp_aux_ep_probe(struct device *dev)
+  * @dev: The device to remove.
+  *
+  * Calls through to the endpoint driver remove.
+- *
+  */
+ static void dp_aux_ep_remove(struct device *dev)
  {
- 	struct lpc18xx_pwm_chip *lpc18xx_pwm = to_lpc18xx_pwm_chip(chip);
--	u64 val;
-+	u32 val;
- 
--	val = (u64)period_ns * lpc18xx_pwm->clk_rate;
--	do_div(val, NSEC_PER_SEC);
-+	/*
-+	 * With clk_rate < NSEC_PER_SEC this cannot overflow.
-+	 * With period_ns < max_period_ns this also fits into an u32.
-+	 * As period_ns >= min_period_ns = DIV_ROUND_UP(NSEC_PER_SEC, lpc18xx_pwm->clk_rate);
-+	 * we have val >= 1.
-+	 */
-+	val = mul_u64_u64_div_u64(period_ns, lpc18xx_pwm->clk_rate, NSEC_PER_SEC);
- 
- 	lpc18xx_pwm_writel(lpc18xx_pwm,
- 			   LPC18XX_PWM_MATCH(lpc18xx_pwm->period_event),
--			   (u32)val - 1);
-+			   val - 1);
- 
- 	lpc18xx_pwm_writel(lpc18xx_pwm,
- 			   LPC18XX_PWM_MATCHREL(lpc18xx_pwm->period_event),
--			   (u32)val - 1);
-+			   val - 1);
- }
- 
- static void lpc18xx_pwm_config_duty(struct pwm_chip *chip,
--				    struct pwm_device *pwm, int duty_ns)
-+				    struct pwm_device *pwm, u64 duty_ns)
+@@ -120,8 +119,6 @@ ATTRIBUTE_GROUPS(dp_aux_ep_dev);
+ /**
+  * dp_aux_ep_dev_release() - Free memory for the dp_aux_ep device
+  * @dev: The device to free.
+- *
+- * Return: 0 if no error or negative error code.
+  */
+ static void dp_aux_ep_dev_release(struct device *dev)
  {
- 	struct lpc18xx_pwm_chip *lpc18xx_pwm = to_lpc18xx_pwm_chip(chip);
- 	struct lpc18xx_pwm_data *lpc18xx_data = &lpc18xx_pwm->channeldata[pwm->hwpwm];
--	u64 val;
-+	u32 val;
+@@ -256,6 +253,7 @@ int of_dp_aux_populate_ep_devices(struct drm_dp_aux *aux)
  
--	val = (u64)duty_ns * lpc18xx_pwm->clk_rate;
--	do_div(val, NSEC_PER_SEC);
-+	/*
-+	 * With clk_rate < NSEC_PER_SEC this cannot overflow.
-+	 * With duty_ns <= period_ns < max_period_ns this also fits into an u32.
-+	 */
-+	val = mul_u64_u64_div_u64(duty_ns, lpc18xx_pwm->clk_rate, NSEC_PER_SEC);
- 
- 	lpc18xx_pwm_writel(lpc18xx_pwm,
- 			   LPC18XX_PWM_MATCH(lpc18xx_data->duty_event),
--			   (u32)val);
-+			   val);
- 
- 	lpc18xx_pwm_writel(lpc18xx_pwm,
- 			   LPC18XX_PWM_MATCHREL(lpc18xx_data->duty_event),
--			   (u32)val);
-+			   val);
+ 	return 0;
  }
++EXPORT_SYMBOL_GPL(of_dp_aux_populate_ep_devices);
  
- static int lpc18xx_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
-@@ -360,12 +368,27 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
- 		goto disable_pwmclk;
- 	}
- 
-+	/*
-+	 * If clkrate is too fast, the calculations in .apply() might overflow.
-+	 */
-+	if (lpc18xx_pwm->clk_rate > NSEC_PER_SEC) {
-+		ret = dev_err_probe(&pdev->dev, -EINVAL, "pwm clock to fast\n");
-+		goto disable_pwmclk;
-+	}
-+
-+	/*
-+	 * If clkrate is too fast, the calculations in .apply() might overflow.
-+	 */
-+	if (lpc18xx_pwm->clk_rate > NSEC_PER_SEC) {
-+		ret = dev_err_probe(&pdev->dev, -EINVAL, "pwm clock to fast\n");
-+		goto disable_pwmclk;
-+	}
-+
- 	mutex_init(&lpc18xx_pwm->res_lock);
- 	mutex_init(&lpc18xx_pwm->period_lock);
- 
--	val = (u64)NSEC_PER_SEC * LPC18XX_PWM_TIMER_MAX;
--	do_div(val, lpc18xx_pwm->clk_rate);
--	lpc18xx_pwm->max_period_ns = val;
-+	lpc18xx_pwm->max_period_ns =
-+		mul_u64_u64_div_u64(NSEC_PER_SEC, LPC18XX_PWM_TIMER_MAX, lpc18xx_pwm->clk_rate);
- 
- 	lpc18xx_pwm->min_period_ns = DIV_ROUND_UP(NSEC_PER_SEC,
- 						  lpc18xx_pwm->clk_rate);
+ static void of_dp_aux_depopulate_ep_devices_void(void *data)
+ {
 -- 
 2.35.1
 
