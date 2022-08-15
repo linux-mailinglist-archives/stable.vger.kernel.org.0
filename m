@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28B01594392
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:57:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22C75594505
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244431AbiHOWCe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:02:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55928 "EHLO
+        id S244357AbiHOWCv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:02:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347512AbiHOWAn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:00:43 -0400
+        with ESMTP id S1348684AbiHOWBS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:01:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A73114D30;
-        Mon, 15 Aug 2022 12:35:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25ADBAEDA1;
+        Mon, 15 Aug 2022 12:35:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16A00610A3;
-        Mon, 15 Aug 2022 19:35:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E4B5C433C1;
-        Mon, 15 Aug 2022 19:35:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BDA06113B;
+        Mon, 15 Aug 2022 19:35:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92945C433C1;
+        Mon, 15 Aug 2022 19:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592125;
-        bh=pqBJ1NWS1RN2vBwc3PaPKuwfdOzMrRfU7YsQ6GivFJc=;
+        s=korg; t=1660592132;
+        bh=7M4uIosGCQ+JVXn5ixS/gPXhPLLzxgVy6nzH25ETjwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ns9hQLraPh4bH4XxgpZXkD/fMghSDMXqLbHmx9OLrzxGVFKv8YsfRofnuJGzO5rr6
-         GgobWeKJdNSLGeN9MehJEH1gV8sZEFv3Q+kOgjJrfk0E3ZMGYK1G+qLaFR07F0sSD5
-         74th3O5G4qvpXup/JwYu09EmUShKPfQdC+gGLUDg=
+        b=fSeUHA5XEMkRfPwD/Z03uDeFEfb0tZcHw5mSHuiAyy8uYcZ68DMphwGrd2evma83m
+         6eSpNO3mSjrBDFotn9ZFW7BZsOm1G+IPQQy/5rE6dOSD+sf7+BILma50anEG+e8THi
+         TmTh8CCFjfMz0/c+6tskQi5G6ip+/G7OSFY0HkeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hongbo Yin <yinhongbo@bytedance.com>,
-        Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>,
-        Tianci Zhang <zhangtianci.1997@bytedance.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.19 0062/1157] ovl: drop WARN_ON() dentry is NULL in ovl_encode_fh()
-Date:   Mon, 15 Aug 2022 19:50:18 +0200
-Message-Id: <20220815180441.981805922@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.19 0063/1157] parisc: Fix device names in /proc/iomem
+Date:   Mon, 15 Aug 2022 19:50:19 +0200
+Message-Id: <20220815180442.022281406@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,57 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>
+From: Helge Deller <deller@gmx.de>
 
-commit dd524b7f317de8d31d638cbfdc7be4cf9b770e42 upstream.
+commit cab56b51ec0e69128909cef4650e1907248d821b upstream.
 
-Some code paths cannot guarantee the inode have any dentry alias. So
-WARN_ON() all !dentry may flood the kernel logs.
+Fix the output of /proc/iomem to show the real hardware device name
+including the pa_pathname, e.g. "Merlin 160 Core Centronics [8:16:0]".
+Up to now only the pa_pathname ("[8:16.0]") was shown.
 
-For example, when an overlayfs inode is watched by inotifywait (1), and
-someone is trying to read the /proc/$(pidof inotifywait)/fdinfo/INOTIFY_FD,
-at that time if the dentry has been reclaimed by kernel (such as
-echo 2 > /proc/sys/vm/drop_caches), there will be a WARN_ON(). The
-printed call stack would be like:
-
-    ? show_mark_fhandle+0xf0/0xf0
-    show_mark_fhandle+0x4a/0xf0
-    ? show_mark_fhandle+0xf0/0xf0
-    ? seq_vprintf+0x30/0x50
-    ? seq_printf+0x53/0x70
-    ? show_mark_fhandle+0xf0/0xf0
-    inotify_fdinfo+0x70/0x90
-    show_fdinfo.isra.4+0x53/0x70
-    seq_show+0x130/0x170
-    seq_read+0x153/0x440
-    vfs_read+0x94/0x150
-    ksys_read+0x5f/0xe0
-    do_syscall_64+0x59/0x1e0
-    entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-So let's drop WARN_ON() to avoid kernel log flooding.
-
-Reported-by: Hongbo Yin <yinhongbo@bytedance.com>
-Signed-off-by: Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>
-Signed-off-by: Tianci Zhang <zhangtianci.1997@bytedance.com>
-Fixes: 8ed5eec9d6c4 ("ovl: encode pure upper file handles")
-Cc: <stable@vger.kernel.org> # v4.16
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org> # v4.9+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/overlayfs/export.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/parisc/kernel/drivers.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/fs/overlayfs/export.c
-+++ b/fs/overlayfs/export.c
-@@ -259,7 +259,7 @@ static int ovl_encode_fh(struct inode *i
- 		return FILEID_INVALID;
+--- a/arch/parisc/kernel/drivers.c
++++ b/arch/parisc/kernel/drivers.c
+@@ -520,7 +520,6 @@ alloc_pa_dev(unsigned long hpa, struct h
+ 	dev->id.hversion_rev = iodc_data[1] & 0x0f;
+ 	dev->id.sversion = ((iodc_data[4] & 0x0f) << 16) |
+ 			(iodc_data[5] << 8) | iodc_data[6];
+-	dev->hpa.name = parisc_pathname(dev);
+ 	dev->hpa.start = hpa;
+ 	/* This is awkward.  The STI spec says that gfx devices may occupy
+ 	 * 32MB or 64MB.  Unfortunately, we don't know how to tell whether
+@@ -534,10 +533,10 @@ alloc_pa_dev(unsigned long hpa, struct h
+ 		dev->hpa.end = hpa + 0xfff;
+ 	}
+ 	dev->hpa.flags = IORESOURCE_MEM;
+-	name = parisc_hardware_description(&dev->id);
+-	if (name) {
+-		strlcpy(dev->name, name, sizeof(dev->name));
+-	}
++	dev->hpa.name = dev->name;
++	name = parisc_hardware_description(&dev->id) ? : "unknown";
++	snprintf(dev->name, sizeof(dev->name), "%s [%s]",
++		name, parisc_pathname(dev));
  
- 	dentry = d_find_any_alias(inode);
--	if (WARN_ON(!dentry))
-+	if (!dentry)
- 		return FILEID_INVALID;
- 
- 	bytes = ovl_dentry_to_fid(ofs, dentry, fid, buflen);
+ 	/* Silently fail things like mouse ports which are subsumed within
+ 	 * the keyboard controller
 
 
