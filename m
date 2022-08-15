@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC8075939CD
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 559825939B7
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245288AbiHOT2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:28:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57996 "EHLO
+        id S244383AbiHOT2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:28:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244331AbiHOTZY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:25:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B87FE3DF3F;
-        Mon, 15 Aug 2022 11:41:10 -0700 (PDT)
+        with ESMTP id S245192AbiHOTZs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:25:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E0BB3E759;
+        Mon, 15 Aug 2022 11:41:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 690AEB8108B;
-        Mon, 15 Aug 2022 18:41:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7EBEC433D6;
-        Mon, 15 Aug 2022 18:41:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F02D161029;
+        Mon, 15 Aug 2022 18:41:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1483C433C1;
+        Mon, 15 Aug 2022 18:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588868;
-        bh=5pWfrt/jeU3UzOemzTFrVOklI4sIZ1fhq+ClWMCfkK8=;
+        s=korg; t=1660588874;
+        bh=0kvt60j2xLMDGX4/p5w7TBRFw0hJQ5k87RL9avNFBVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tfKp8uOr8F05z9NyPZs/vlBnx0cecbIxM+OUhIi/fl3fU7wCuOx7acaai0Ljl85EN
-         oIg82FeQ5rZyerd5PIx/iSnUEVno9TAs8D5bfJT09Y1PCZ/f5df3VvHlhOC4MpQQiF
-         IKGzpVfIVz84BMkznr91z+Ran6ajYcFKNhMeYXw4=
+        b=yeRZiq+P7OkMJb/snf+HdXWCrTMx0P2pHqoi43P4rV0fZKfo2/hHYnqvn6O8QByhc
+         VoIo5HgskgkwvTGaZKsdWjREdRw8KM6ZtYFVTAuWpAiagXDn1q0toFiTklj+5WxSlR
+         prc4PwlSM23tH0nB7A6a2vIXKDr/R4Z30g0nYxGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrei Vagin <avagin@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 541/779] selftests: kvm: set rax before vmcall
-Date:   Mon, 15 Aug 2022 20:03:05 +0200
-Message-Id: <20220815180400.445087721@linuxfoundation.org>
+        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 542/779] of/fdt: declared return type does not match actual return type
+Date:   Mon, 15 Aug 2022 20:03:06 +0200
+Message-Id: <20220815180400.484353850@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,44 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Vagin <avagin@google.com>
+From: Xu Qiang <xuqiang36@huawei.com>
 
-[ Upstream commit 281106f938d3daaea6f8b6723a8217a2a1ef6936 ]
+[ Upstream commit 7913145afa51bbed9eaf8e5b4ee55fa9884a71e5 ]
 
-kvm_hypercall has to place the hypercall number in rax.
+The commit 649cab56de8e (“of: properly check for error returned
+by fdt_get_name()”) changed the return value type from bool to int,
+but forgot to change the return value simultaneously.
 
-Trace events show that kvm_pv_test doesn't work properly:
-     kvm_pv_test-53132: kvm_hypercall: nr 0x0 a0 0x0 a1 0x0 a2 0x0 a3 0x0
-     kvm_pv_test-53132: kvm_hypercall: nr 0x0 a0 0x0 a1 0x0 a2 0x0 a3 0x0
-     kvm_pv_test-53132: kvm_hypercall: nr 0x0 a0 0x0 a1 0x0 a2 0x0 a3 0x0
+populate_node was only called in unflatten_dt_nodes, and returns
+with values greater than or equal to 0 were discarded without further
+processing. Considering that return 0 usually indicates success,
+return 0 instead of return true.
 
-With this change, it starts working as expected:
-     kvm_pv_test-54285: kvm_hypercall: nr 0x5 a0 0x0 a1 0x0 a2 0x0 a3 0x0
-     kvm_pv_test-54285: kvm_hypercall: nr 0xa a0 0x0 a1 0x0 a2 0x0 a3 0x0
-     kvm_pv_test-54285: kvm_hypercall: nr 0xb a0 0x0 a1 0x0 a2 0x0 a3 0x0
-
-Signed-off-by: Andrei Vagin <avagin@google.com>
-Message-Id: <20220722230241.1944655-5-avagin@google.com>
-Fixes: ac4a4d6de22e ("selftests: kvm: test enforcement of paravirtual cpuid features")
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 649cab56de8e (“of: properly check for error returned by fdt_get_name()”)
+Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20220801120506.11461-2-xuqiang36@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/lib/x86_64/processor.c | 2 +-
+ drivers/of/fdt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/kvm/lib/x86_64/processor.c b/tools/testing/selftests/kvm/lib/x86_64/processor.c
-index 46057079d8bb..4f1449fa9592 100644
---- a/tools/testing/selftests/kvm/lib/x86_64/processor.c
-+++ b/tools/testing/selftests/kvm/lib/x86_64/processor.c
-@@ -1326,7 +1326,7 @@ uint64_t kvm_hypercall(uint64_t nr, uint64_t a0, uint64_t a1, uint64_t a2,
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index 59a7a9ee58ef..d245628b15dd 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -245,7 +245,7 @@ static int populate_node(const void *blob,
+ 	}
  
- 	asm volatile("vmcall"
- 		     : "=a"(r)
--		     : "b"(a0), "c"(a1), "d"(a2), "S"(a3));
-+		     : "a"(nr), "b"(a0), "c"(a1), "d"(a2), "S"(a3));
- 	return r;
+ 	*pnp = np;
+-	return true;
++	return 0;
  }
  
+ static void reverse_nodes(struct device_node *parent)
 -- 
 2.35.1
 
