@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6A61593C3E
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6AB5593DF3
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233195AbiHOUcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:32:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41264 "EHLO
+        id S1344740AbiHOUdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:33:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348083AbiHOUcE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:32:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61374A8CC1;
-        Mon, 15 Aug 2022 12:05:13 -0700 (PDT)
+        with ESMTP id S1348180AbiHOUcN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:32:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BA891015;
+        Mon, 15 Aug 2022 12:05:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90549612BF;
-        Mon, 15 Aug 2022 19:05:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93BACC433D6;
-        Mon, 15 Aug 2022 19:05:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 376A7B81104;
+        Mon, 15 Aug 2022 19:05:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D75CC433C1;
+        Mon, 15 Aug 2022 19:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590311;
-        bh=14BO3jFRo9LTUBo+dV5YyJ4Ptn7JKSUmnCiFGI1LRj8=;
+        s=korg; t=1660590313;
+        bh=LxLBhQg37nYyCKF7FOM1vntAWlZt+MmydoeTWUDvHYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pduex8hPIBc+hnb9rJ9Y6N/TfN7l5SgexSyu3v2/bZcPj5pQ4VptcjRvXvwEm3V64
-         m9WO3mIbogD880TOqxcDn59NyTXBDowxBc0XHIei9spYP3iloPulP9+GFUOvfVeLI3
-         jIAH4PvGXqZuj/VgT9MxiRRuYLToqtEtdSkQFJtQ=
+        b=HieGVS6sktLbQfY94dALI/vrmfdm2NIJZtkDP2V4+qXIH2e9DM8DZz6GdSqM9ITPC
+         eC06TQAwDipl/06vPsEdooV4OBAvFb4cHEahlg3u1ngrUIVTkjGVT0/MUk28W/cm5v
+         Ty7L9xw72f6n7q1jlaa7w57tMHcVE37NdhwSVZjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Michal Simek <michal.simek@amd.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0219/1095] cpufreq: zynq: Fix refcount leak in zynq_get_revision
-Date:   Mon, 15 Aug 2022 19:53:38 +0200
-Message-Id: <20220815180438.748623275@linuxfoundation.org>
+Subject: [PATCH 5.18 0220/1095] arm64: dts: renesas: r8a779m8: Drop operating points above 1.5 GHz
+Date:   Mon, 15 Aug 2022 19:53:39 +0200
+Message-Id: <20220815180438.789946180@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,35 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit d1ff2559cef0f6f8d97fba6337b28adb10689e16 ]
+[ Upstream commit f48cb21a28c07d0754d5f2f85444cfb0e7b1fd05 ]
 
-of_find_compatible_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() to avoid refcount leak.
+The highest-performance mode for the Cortex-A57 CPU cores supported on
+R-Car H3Ne (R8A779M8) is the Power Optimized (1.5 GHz) mode.  The Normal
+(1.6 GHz) and High Performance (1.7 GHz) modes are not supported.
 
-Fixes: 00f7dc636366 ("ARM: zynq: Add support for SOC_BUS")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220605082807.21526-1-linmq006@gmail.com
-Signed-off-by: Michal Simek <michal.simek@amd.com>
+Hence drop the "turbo-mode" entries from the operating points table
+inherited from r8a77951.dtsi.
+
+Fixes: 6e87525d751fac57 ("arm64: dts: renesas: Add Renesas R8A779M8 SoC support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/aeb4530f7fbac8329b334dcb169382c836a5f32d.1655458564.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-zynq/common.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/renesas/r8a779m8.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm/mach-zynq/common.c b/arch/arm/mach-zynq/common.c
-index e1ca6a5732d2..15e8a321a713 100644
---- a/arch/arm/mach-zynq/common.c
-+++ b/arch/arm/mach-zynq/common.c
-@@ -77,6 +77,7 @@ static int __init zynq_get_revision(void)
- 	}
- 
- 	zynq_devcfg_base = of_iomap(np, 0);
-+	of_node_put(np);
- 	if (!zynq_devcfg_base) {
- 		pr_err("%s: Unable to map I/O memory\n", __func__);
- 		return -1;
+diff --git a/arch/arm64/boot/dts/renesas/r8a779m8.dtsi b/arch/arm64/boot/dts/renesas/r8a779m8.dtsi
+index 752440b0c40f..750bd8ccdb7f 100644
+--- a/arch/arm64/boot/dts/renesas/r8a779m8.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a779m8.dtsi
+@@ -10,3 +10,8 @@
+ / {
+ 	compatible = "renesas,r8a779m8", "renesas,r8a7795";
+ };
++
++&cluster0_opp {
++	/delete-node/ opp-1600000000;
++	/delete-node/ opp-1700000000;
++};
 -- 
 2.35.1
 
