@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27C51594331
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:55:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 494AD594446
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:58:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245171AbiHOWCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:02:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55966 "EHLO
+        id S230176AbiHOWCa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:02:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347537AbiHOWAo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:00:44 -0400
+        with ESMTP id S1347278AbiHOWA0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:00:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53877167F1;
-        Mon, 15 Aug 2022 12:35:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BAB5BD8;
+        Mon, 15 Aug 2022 12:35:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0DFE611E4;
-        Mon, 15 Aug 2022 19:35:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBBD4C433D6;
-        Mon, 15 Aug 2022 19:35:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31829611A1;
+        Mon, 15 Aug 2022 19:35:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39AFCC433D6;
+        Mon, 15 Aug 2022 19:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592109;
-        bh=Wujj5i866p9om6sVU/5OKGHjwQgKQ35nherAfS8OOgs=;
+        s=korg; t=1660592116;
+        bh=oaG8uRFFATYpJIIbw+3NNlxAQIMb14Wg6pkWXbXB2uw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Luna2qnUDcZ9YV/yIKjYA52ygw9clZOCo5BtYeUFaDGWmb22xTA+k5RZjaEFq4Z/9
-         POWslPxCmngccm4O1SpwB8Y4Cq/2MrSeVN5id85rVTfwxkgvFSPPCWHwbqKYj1XZ/X
-         eTKeC9o6ky3bNCzTP6CxyisIzTCnyyi8ggOzYOQQ=
+        b=xlWPHk4iEBy+uMWpYjHAFSDuRBVcafsUhUgL4OwBenKZOsc2Nqhvj2ckZCwd9H9BN
+         6O1CZRCKTV23P8cJ3JyGHDsBcd5smSOer2tMiIJDD9AlBEC7MS5RVm3dgvNfPPUUnu
+         xNaw9V6bj0a/EnSQTiSRdQNqy69VF84YXc+kG4h4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>, stable@kernel.org
-Subject: [PATCH 5.19 0060/1157] fix short copy handling in copy_mc_pipe_to_iter()
-Date:   Mon, 15 Aug 2022 19:50:16 +0200
-Message-Id: <20220815180441.901113302@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Nguyen <theflow@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Peter Gonda <pgonda@google.com>,
+        John Allen <john.allen@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.19 0061/1157] crypto: ccp - Use kzalloc for sev ioctl interfaces to prevent kernel memory leak
+Date:   Mon, 15 Aug 2022 19:50:17 +0200
+Message-Id: <20220815180441.951140835@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,82 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: John Allen <john.allen@amd.com>
 
-commit c3497fd009ef2c59eea60d21c3ac22de3585ed7d upstream.
+commit 13dc15a3f5fd7f884e4bfa8c011a0ae868df12ae upstream.
 
-Unlike other copying operations on ITER_PIPE, copy_mc_to_iter() can
-result in a short copy.  In that case we need to trim the unused
-buffers, as well as the length of partially filled one - it's not
-enough to set ->head, ->iov_offset and ->count to reflect how
-much had we copied.  Not hard to fix, fortunately...
+For some sev ioctl interfaces, input may be passed that is less than or
+equal to SEV_FW_BLOB_MAX_SIZE, but larger than the data that PSP
+firmware returns. In this case, kmalloc will allocate memory that is the
+size of the input rather than the size of the data. Since PSP firmware
+doesn't fully overwrite the buffer, the sev ioctl interfaces with the
+issue may return uninitialized slab memory.
 
-I'd put a helper (pipe_discard_from(pipe, head)) into pipe_fs_i.h,
-rather than iov_iter.c - it has nothing to do with iov_iter and
-having it will allow us to avoid an ugly kludge in fs/splice.c.
-We could put it into lib/iov_iter.c for now and move it later,
-but I don't see the point going that way...
+Currently, all of the ioctl interfaces in the ccp driver are safe, but
+to prevent future problems, change all ioctl interfaces that allocate
+memory with kmalloc to use kzalloc and memset the data buffer to zero
+in sev_ioctl_do_platform_status.
 
-Cc: stable@kernel.org # 4.19+
-Fixes: ca146f6f091e "lib/iov_iter: Fix pipe handling in _copy_to_iter_mcsafe()"
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: 38103671aad3 ("crypto: ccp: Use the stack and common buffer for status commands")
+Fixes: e799035609e15 ("crypto: ccp: Implement SEV_PEK_CSR ioctl command")
+Fixes: 76a2b524a4b1d ("crypto: ccp: Implement SEV_PDH_CERT_EXPORT ioctl command")
+Fixes: d6112ea0cb344 ("crypto: ccp - introduce SEV_GET_ID2 command")
+Cc: stable@vger.kernel.org
+Reported-by: Andy Nguyen <theflow@google.com>
+Suggested-by: David Rientjes <rientjes@google.com>
+Suggested-by: Peter Gonda <pgonda@google.com>
+Signed-off-by: John Allen <john.allen@amd.com>
+Reviewed-by: Peter Gonda <pgonda@google.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/pipe_fs_i.h |    9 +++++++++
- lib/iov_iter.c            |   15 +++++++++++----
- 2 files changed, 20 insertions(+), 4 deletions(-)
+ drivers/crypto/ccp/sev-dev.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/include/linux/pipe_fs_i.h
-+++ b/include/linux/pipe_fs_i.h
-@@ -229,6 +229,15 @@ static inline bool pipe_buf_try_steal(st
- 	return buf->ops->try_steal(pipe, buf);
- }
+--- a/drivers/crypto/ccp/sev-dev.c
++++ b/drivers/crypto/ccp/sev-dev.c
+@@ -577,6 +577,8 @@ static int sev_ioctl_do_platform_status(
+ 	struct sev_user_data_status data;
+ 	int ret;
  
-+static inline void pipe_discard_from(struct pipe_inode_info *pipe,
-+		unsigned int old_head)
-+{
-+	unsigned int mask = pipe->ring_size - 1;
++	memset(&data, 0, sizeof(data));
 +
-+	while (pipe->head > old_head)
-+		pipe_buf_release(pipe, &pipe->bufs[--pipe->head & mask]);
-+}
-+
- /* Differs from PIPE_BUF in that PIPE_SIZE is the length of the actual
-    memory allocation, whereas PIPE_BUF makes atomicity guarantees.  */
- #define PIPE_SIZE		PAGE_SIZE
---- a/lib/iov_iter.c
-+++ b/lib/iov_iter.c
-@@ -689,6 +689,7 @@ static size_t copy_mc_pipe_to_iter(const
- 	struct pipe_inode_info *pipe = i->pipe;
- 	unsigned int p_mask = pipe->ring_size - 1;
- 	unsigned int i_head;
-+	unsigned int valid = pipe->head;
- 	size_t n, off, xfer = 0;
+ 	ret = __sev_do_cmd_locked(SEV_CMD_PLATFORM_STATUS, &data, &argp->error);
+ 	if (ret)
+ 		return ret;
+@@ -630,7 +632,7 @@ static int sev_ioctl_do_pek_csr(struct s
+ 	if (input.length > SEV_FW_BLOB_MAX_SIZE)
+ 		return -EFAULT;
  
- 	if (!sanity(i))
-@@ -702,11 +703,17 @@ static size_t copy_mc_pipe_to_iter(const
- 		rem = copy_mc_to_kernel(p + off, addr + xfer, chunk);
- 		chunk -= rem;
- 		kunmap_local(p);
--		i->head = i_head;
--		i->iov_offset = off + chunk;
--		xfer += chunk;
--		if (rem)
-+		if (chunk) {
-+			i->head = i_head;
-+			i->iov_offset = off + chunk;
-+			xfer += chunk;
-+			valid = i_head + 1;
-+		}
-+		if (rem) {
-+			pipe->bufs[i_head & p_mask].len -= rem;
-+			pipe_discard_from(pipe, valid);
- 			break;
-+		}
- 		n -= chunk;
- 		off = 0;
- 		i_head++;
+-	blob = kmalloc(input.length, GFP_KERNEL);
++	blob = kzalloc(input.length, GFP_KERNEL);
+ 	if (!blob)
+ 		return -ENOMEM;
+ 
+@@ -854,7 +856,7 @@ static int sev_ioctl_do_get_id2(struct s
+ 	input_address = (void __user *)input.address;
+ 
+ 	if (input.address && input.length) {
+-		id_blob = kmalloc(input.length, GFP_KERNEL);
++		id_blob = kzalloc(input.length, GFP_KERNEL);
+ 		if (!id_blob)
+ 			return -ENOMEM;
+ 
+@@ -973,14 +975,14 @@ static int sev_ioctl_do_pdh_export(struc
+ 	if (input.cert_chain_len > SEV_FW_BLOB_MAX_SIZE)
+ 		return -EFAULT;
+ 
+-	pdh_blob = kmalloc(input.pdh_cert_len, GFP_KERNEL);
++	pdh_blob = kzalloc(input.pdh_cert_len, GFP_KERNEL);
+ 	if (!pdh_blob)
+ 		return -ENOMEM;
+ 
+ 	data.pdh_cert_address = __psp_pa(pdh_blob);
+ 	data.pdh_cert_len = input.pdh_cert_len;
+ 
+-	cert_blob = kmalloc(input.cert_chain_len, GFP_KERNEL);
++	cert_blob = kzalloc(input.cert_chain_len, GFP_KERNEL);
+ 	if (!cert_blob) {
+ 		ret = -ENOMEM;
+ 		goto e_free_pdh;
 
 
