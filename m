@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE54B594905
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:10:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E50A594800
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345301AbiHOXrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:47:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40418 "EHLO
+        id S1354480AbiHOXsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:48:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354764AbiHOXqX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:46:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE811C0B58;
-        Mon, 15 Aug 2022 13:14:44 -0700 (PDT)
+        with ESMTP id S1354816AbiHOXq2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:46:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 062D6C0B72;
+        Mon, 15 Aug 2022 13:14:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17D10B80EA8;
-        Mon, 15 Aug 2022 20:14:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E25EC433C1;
-        Mon, 15 Aug 2022 20:14:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98FCDB80EA9;
+        Mon, 15 Aug 2022 20:14:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC623C433C1;
+        Mon, 15 Aug 2022 20:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594481;
-        bh=nCiKlH4Fbxk6s64eGjkygA7hlHyQsFsuzpMOIZBmidY=;
+        s=korg; t=1660594488;
+        bh=Dor7/W3ES3QsiTFumcjQzHudAmM9Yj25fTUrxd5js+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/c0aNDqTW0YaRXfFRie0W7OTNspBBPzCG+TDni6y6hnrp6gurf4DosR1nP2TXMJZ
-         BNod85WQOYd9m0O26ZydZDFpYo8N2XIC2wJ0ypqcP4zy1whOKqBBc9rMcYjiiyW/Pa
-         IIjJQ1lULU3MlJ7hNt7TFSVHHt844ec7JD8XX6Jk=
+        b=mhUg9RUObj5uLh574YPfHiuFZiMc8IbfL70m9gXJHudmrKgfhgzuaFcb3JmG+eZGq
+         jxVYeiPIb/NedkrCcoqx5svtkjJgrTyGEmtYMi+IpzNc0eA26b1VR38VH+VCPvDGrp
+         oCM8yO13gavHnk6Zb16pYnyKwI4jQQVXBhSR8590=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
+        stable@vger.kernel.org, Ming Qian <ming.qian@nxp.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0461/1157] media: mediatek: vcodec: decoder: Drop max_{width,height} from mtk_vcodec_ctx
-Date:   Mon, 15 Aug 2022 19:56:57 +0200
-Message-Id: <20220815180458.051019128@linuxfoundation.org>
+Subject: [PATCH 5.19 0463/1157] media: amphion: defer setting last_buffer_dequeued until resolution changes are processed
+Date:   Mon, 15 Aug 2022 19:56:59 +0200
+Message-Id: <20220815180458.136446630@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -57,81 +55,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit e8d266d533b171387945f8a0bad1944a5609f63b ]
+[ Upstream commit afba6e20801ad9a2f863c52c21e609e021269d83 ]
 
-This partially reverts commit b018be06f3c7 ("media: mediatek: vcodec:
-Read max resolution from dec_capability").
+Don't set last_buffer_dequeued during dynamic resolution change,
+otherwise it may be cleared in handling resolution change,
+as streamoff may be called in dynamic resolution change.
 
-After the previous patches:
+Normally, this does not happen.
+But we encounter a special testcase,
+User issue V4L2_DEC_CMD_STOP after enqueue one buffer
+that only contains codec config header, but not any frame data.
+So VPU report the parsed resolution, then report the eos event.
 
-  - media: mediatek: vcodec: decoder: Fix 4K frame size enumeration
-  - media: mediatek: vcodec: decoder: Skip alignment for default resolution
-  - media: mediatek: vcodec: decoder: Fix resolution clamping in TRY_FMT
+So driver should notify user to handle resolution change first,
+after it's handled, set the last_buffer_dequeued.
+then the user can exit decoding normally.
 
-the max_{width,height} fields in |struct mtk_vcodec_ctx| no longer have
-any real users. Remove them.
+Otherwise the user may be stalled.
 
-Fixes: b018be06f3c7 ("media: mediatek: vcodec: Read max resolution from dec_capability")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Tested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Fixes: 6de8d628df6ef ("media: amphion: add v4l2 m2m vpu decoder stateful driver")
+Signed-off-by: Ming Qian <ming.qian@nxp.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c | 9 ---------
- drivers/media/platform/mediatek/vcodec/mtk_vcodec_drv.h | 4 ----
- 2 files changed, 13 deletions(-)
+ drivers/media/platform/amphion/vdec.c     | 36 ++++++++++++++---------
+ drivers/media/platform/amphion/vpu_v4l2.c |  2 +-
+ 2 files changed, 23 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
-index 7d654efabdfe..af3cd2e36451 100644
---- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
-+++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
-@@ -139,8 +139,6 @@ void mtk_vcodec_dec_set_default_params(struct mtk_vcodec_ctx *ctx)
- 	q_data->coded_height = DFT_CFG_HEIGHT;
- 	q_data->fmt = ctx->dev->vdec_pdata->default_cap_fmt;
- 	q_data->field = V4L2_FIELD_NONE;
--	ctx->max_width = MTK_VDEC_MAX_W;
--	ctx->max_height = MTK_VDEC_MAX_H;
+diff --git a/drivers/media/platform/amphion/vdec.c b/drivers/media/platform/amphion/vdec.c
+index 3c02aa2a54aa..a5bb997b000b 100644
+--- a/drivers/media/platform/amphion/vdec.c
++++ b/drivers/media/platform/amphion/vdec.c
+@@ -178,16 +178,6 @@ static int vdec_ctrl_init(struct vpu_inst *inst)
+ 	return 0;
+ }
  
- 	q_data->sizeimage[0] = q_data->coded_width * q_data->coded_height;
- 	q_data->bytesperline[0] = q_data->coded_width;
-@@ -455,13 +453,6 @@ static int vidioc_vdec_s_fmt(struct file *file, void *priv,
- 	if (fmt == NULL)
- 		return -EINVAL;
- 
--	if (!(ctx->dev->dec_capability & VCODEC_CAPABILITY_4K_DISABLED) &&
--	    fmt->fourcc != V4L2_PIX_FMT_VP8_FRAME) {
--		mtk_v4l2_debug(3, "4K is enabled");
--		ctx->max_width = VCODEC_DEC_4K_CODED_WIDTH;
--		ctx->max_height = VCODEC_DEC_4K_CODED_HEIGHT;
--	}
+-static void vdec_set_last_buffer_dequeued(struct vpu_inst *inst)
+-{
+-	struct vdec_t *vdec = inst->priv;
 -
- 	q_data->fmt = fmt;
- 	vidioc_try_fmt(ctx, f, q_data->fmt);
- 	if (f->type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) {
-diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_drv.h b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_drv.h
-index a29041a0b7e0..16e91d9568e9 100644
---- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_drv.h
-+++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_drv.h
-@@ -285,8 +285,6 @@ struct vdec_pic_info {
-  *	  mtk_video_dec_buf.
-  * @hw_id: hardware index used to identify different hardware.
-  *
-- * @max_width: hardware supported max width
-- * @max_height: hardware supported max height
-  * @msg_queue: msg queue used to store lat buffer information.
-  */
- struct mtk_vcodec_ctx {
-@@ -333,8 +331,6 @@ struct mtk_vcodec_ctx {
- 	struct mutex lock;
- 	int hw_id;
+-	if (vdec->eos_received) {
+-		if (!vpu_set_last_buffer_dequeued(inst))
+-			vdec->eos_received--;
+-	}
+-}
+-
+ static void vdec_handle_resolution_change(struct vpu_inst *inst)
+ {
+ 	struct vdec_t *vdec = inst->priv;
+@@ -234,6 +224,21 @@ static int vdec_update_state(struct vpu_inst *inst, enum vpu_codec_state state,
+ 	return 0;
+ }
  
--	unsigned int max_width;
--	unsigned int max_height;
- 	struct vdec_msg_queue msg_queue;
- };
++static void vdec_set_last_buffer_dequeued(struct vpu_inst *inst)
++{
++	struct vdec_t *vdec = inst->priv;
++
++	if (inst->state == VPU_CODEC_STATE_DYAMIC_RESOLUTION_CHANGE)
++		return;
++
++	if (vdec->eos_received) {
++		if (!vpu_set_last_buffer_dequeued(inst)) {
++			vdec->eos_received--;
++			vdec_update_state(inst, VPU_CODEC_STATE_DRAIN, 0);
++		}
++	}
++}
++
+ static int vdec_querycap(struct file *file, void *fh, struct v4l2_capability *cap)
+ {
+ 	strscpy(cap->driver, "amphion-vpu", sizeof(cap->driver));
+@@ -493,6 +498,8 @@ static int vdec_drain(struct vpu_inst *inst)
+ 
+ static int vdec_cmd_start(struct vpu_inst *inst)
+ {
++	struct vdec_t *vdec = inst->priv;
++
+ 	switch (inst->state) {
+ 	case VPU_CODEC_STATE_STARTED:
+ 	case VPU_CODEC_STATE_DRAIN:
+@@ -503,6 +510,8 @@ static int vdec_cmd_start(struct vpu_inst *inst)
+ 		break;
+ 	}
+ 	vpu_process_capture_buffer(inst);
++	if (vdec->eos_received)
++		vdec_set_last_buffer_dequeued(inst);
+ 	return 0;
+ }
+ 
+@@ -1203,7 +1212,6 @@ static void vdec_event_eos(struct vpu_inst *inst)
+ 	vdec->eos_received++;
+ 	vdec->fixed_fmt = false;
+ 	inst->min_buffer_cap = VDEC_MIN_BUFFER_CAP;
+-	vdec_update_state(inst, VPU_CODEC_STATE_DRAIN, 0);
+ 	vdec_set_last_buffer_dequeued(inst);
+ 	vpu_inst_unlock(inst);
+ }
+@@ -1480,10 +1488,10 @@ static int vdec_stop_session(struct vpu_inst *inst, u32 type)
+ 		vdec_update_state(inst, VPU_CODEC_STATE_SEEK, 0);
+ 		vdec->drain = 0;
+ 	} else {
+-		if (inst->state != VPU_CODEC_STATE_DYAMIC_RESOLUTION_CHANGE)
++		if (inst->state != VPU_CODEC_STATE_DYAMIC_RESOLUTION_CHANGE) {
+ 			vdec_abort(inst);
+-
+-		vdec->eos_received = 0;
++			vdec->eos_received = 0;
++		}
+ 		vdec_clear_slots(inst);
+ 	}
+ 
+diff --git a/drivers/media/platform/amphion/vpu_v4l2.c b/drivers/media/platform/amphion/vpu_v4l2.c
+index da455e5ab337..8a3eed957ae6 100644
+--- a/drivers/media/platform/amphion/vpu_v4l2.c
++++ b/drivers/media/platform/amphion/vpu_v4l2.c
+@@ -500,8 +500,8 @@ static int vpu_vb2_start_streaming(struct vb2_queue *q, unsigned int count)
+ 		  fmt->sizeimage[1], fmt->bytesperline[1],
+ 		  fmt->sizeimage[2], fmt->bytesperline[2],
+ 		  q->num_buffers);
+-	ret = call_vop(inst, start, q->type);
+ 	vb2_clear_last_buffer_dequeued(q);
++	ret = call_vop(inst, start, q->type);
+ 	if (ret)
+ 		vpu_vb2_buffers_return(inst, q->type, VB2_BUF_STATE_QUEUED);
  
 -- 
 2.35.1
