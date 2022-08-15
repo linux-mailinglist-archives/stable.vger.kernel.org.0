@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD8C0593D2A
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D4E3593BE5
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:37:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344699AbiHOTrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:47:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58424 "EHLO
+        id S244509AbiHOTrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:47:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345332AbiHOTq0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:46:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C728B422D2;
-        Mon, 15 Aug 2022 11:49:07 -0700 (PDT)
+        with ESMTP id S1345405AbiHOTqq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:46:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB15C6EF1B;
+        Mon, 15 Aug 2022 11:49:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E3E561212;
-        Mon, 15 Aug 2022 18:49:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7433FC433C1;
-        Mon, 15 Aug 2022 18:49:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA95A60FB8;
+        Mon, 15 Aug 2022 18:49:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C87B8C433D6;
+        Mon, 15 Aug 2022 18:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589346;
-        bh=SmZYZEpOelWUIJG7oTgTHs2s9xh0YRCxcCr5ctiy6do=;
+        s=korg; t=1660589352;
+        bh=Uwev548IYElSeCQTYrImO0QWItBgX9fBfs9V/XNmhns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPuHR647pZbbV2+b4zDUC3+G9wIO8XeY6cYGhml+tJEAbUmLm9qGQ93MzMH7YgtGQ
-         U3jI2loBwPFRVIE7M661TDX8IFHtXtChjqp3q8Ds8ZxONh+0IMCPLW/6Rru1wj03rs
-         WlpvWW0GRBH/YsePF0aHTxug0nTr7eE0jIWOTyyU=
+        b=yQtDxplajPUQomnqCtSGYniy3leZv+AocpZdatntfHjuR+IMgDR8DyZfs52tLrX44
+         t4i6h2PkUFzacdPx2d6KmNA3i0lvJ9WQJQKIe4Ke8INHMBN/0xHJcQ3PSoqEtsmJeV
+         25Qznnvi+Hk+mPNJmk6+XWi+s6/9efA9PTfmw9M4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        David Collins <quic_collinsd@quicinc.com>
-Subject: [PATCH 5.15 689/779] spmi: trace: fix stack-out-of-bound access in SPMI tracing functions
-Date:   Mon, 15 Aug 2022 20:05:33 +0200
-Message-Id: <20220815180406.793849752@linuxfoundation.org>
+        stable@vger.kernel.org, Julien STEPHAN <jstephan@baylibre.com>,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 690/779] drm/mediatek: Allow commands to be sent during video mode
+Date:   Mon, 15 Aug 2022 20:05:34 +0200
+Message-Id: <20220815180406.830645325@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,110 +57,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Collins <quic_collinsd@quicinc.com>
+From: Julien STEPHAN <jstephan@baylibre.com>
 
-commit 2af28b241eea816e6f7668d1954f15894b45d7e3 upstream.
+[ Upstream commit 81cc7e51c4f1686b71e30046437056ece6b2cb4d ]
 
-trace_spmi_write_begin() and trace_spmi_read_end() both call
-memcpy() with a length of "len + 1".  This leads to one extra
-byte being read beyond the end of the specified buffer.  Fix
-this out-of-bound memory access by using a length of "len"
-instead.
+Mipi dsi panel drivers can use mipi_dsi_dcs_{set,get}_display_brightness()
+to request backlight changes.
 
-Here is a KASAN log showing the issue:
+This can be done during panel initialization (dsi is in command mode)
+or afterwards (dsi is in Video Mode).
 
-BUG: KASAN: stack-out-of-bounds in trace_event_raw_event_spmi_read_end+0x1d0/0x234
-Read of size 2 at addr ffffffc0265b7540 by task thermal@2.0-ser/1314
-...
-Call trace:
- dump_backtrace+0x0/0x3e8
- show_stack+0x2c/0x3c
- dump_stack_lvl+0xdc/0x11c
- print_address_description+0x74/0x384
- kasan_report+0x188/0x268
- kasan_check_range+0x270/0x2b0
- memcpy+0x90/0xe8
- trace_event_raw_event_spmi_read_end+0x1d0/0x234
- spmi_read_cmd+0x294/0x3ac
- spmi_ext_register_readl+0x84/0x9c
- regmap_spmi_ext_read+0x144/0x1b0 [regmap_spmi]
- _regmap_raw_read+0x40c/0x754
- regmap_raw_read+0x3a0/0x514
- regmap_bulk_read+0x418/0x494
- adc5_gen3_poll_wait_hs+0xe8/0x1e0 [qcom_spmi_adc5_gen3]
- ...
- __arm64_sys_read+0x4c/0x60
- invoke_syscall+0x80/0x218
- el0_svc_common+0xec/0x1c8
- ...
+When the DSI is in Video Mode, all commands are rejected.
 
-addr ffffffc0265b7540 is located in stack of task thermal@2.0-ser/1314 at offset 32 in frame:
- adc5_gen3_poll_wait_hs+0x0/0x1e0 [qcom_spmi_adc5_gen3]
+Detect current DSI mode in mtk_dsi_host_transfer() and switch modes
+temporarily to allow commands to be sent.
 
-this frame has 1 object:
- [32, 33) 'status'
-
-Memory state around the buggy address:
- ffffffc0265b7400: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
- ffffffc0265b7480: 04 f3 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
->ffffffc0265b7500: 00 00 00 00 f1 f1 f1 f1 01 f3 f3 f3 00 00 00 00
-                                           ^
- ffffffc0265b7580: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffffffc0265b7600: f1 f1 f1 f1 01 f2 07 f2 f2 f2 01 f3 00 00 00 00
-==================================================================
-
-Fixes: a9fce374815d ("spmi: add command tracepoints for SPMI")
-Cc: stable@vger.kernel.org
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: David Collins <quic_collinsd@quicinc.com>
-Link: https://lore.kernel.org/r/20220627235512.2272783-1-quic_collinsd@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Julien STEPHAN <jstephan@baylibre.com>
+Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/spmi.h |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_dsi.c | 33 ++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
---- a/include/trace/events/spmi.h
-+++ b/include/trace/events/spmi.h
-@@ -21,15 +21,15 @@ TRACE_EVENT(spmi_write_begin,
- 		__field		( u8,         sid       )
- 		__field		( u16,        addr      )
- 		__field		( u8,         len       )
--		__dynamic_array	( u8,   buf,  len + 1   )
-+		__dynamic_array	( u8,   buf,  len       )
- 	),
+diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
+index b0cb0ba53589..ab51656d5dae 100644
+--- a/drivers/gpu/drm/mediatek/mtk_dsi.c
++++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
+@@ -910,24 +910,33 @@ static ssize_t mtk_dsi_host_transfer(struct mipi_dsi_host *host,
+ 	u8 read_data[16];
+ 	void *src_addr;
+ 	u8 irq_flag = CMD_DONE_INT_FLAG;
++	u32 dsi_mode;
++	int ret;
  
- 	TP_fast_assign(
- 		__entry->opcode = opcode;
- 		__entry->sid    = sid;
- 		__entry->addr   = addr;
--		__entry->len    = len + 1;
--		memcpy(__get_dynamic_array(buf), buf, len + 1);
-+		__entry->len    = len;
-+		memcpy(__get_dynamic_array(buf), buf, len);
- 	),
+-	if (readl(dsi->regs + DSI_MODE_CTRL) & MODE) {
+-		DRM_ERROR("dsi engine is not command mode\n");
+-		return -EINVAL;
++	dsi_mode = readl(dsi->regs + DSI_MODE_CTRL);
++	if (dsi_mode & MODE) {
++		mtk_dsi_stop(dsi);
++		ret = mtk_dsi_switch_to_cmd_mode(dsi, VM_DONE_INT_FLAG, 500);
++		if (ret)
++			goto restore_dsi_mode;
+ 	}
  
- 	TP_printk("opc=%d sid=%02d addr=0x%04x len=%d buf=0x[%*phD]",
-@@ -92,7 +92,7 @@ TRACE_EVENT(spmi_read_end,
- 		__field		( u16,        addr      )
- 		__field		( int,        ret       )
- 		__field		( u8,         len       )
--		__dynamic_array	( u8,   buf,  len + 1   )
-+		__dynamic_array	( u8,   buf,  len       )
- 	),
+ 	if (MTK_DSI_HOST_IS_READ(msg->type))
+ 		irq_flag |= LPRX_RD_RDY_INT_FLAG;
  
- 	TP_fast_assign(
-@@ -100,8 +100,8 @@ TRACE_EVENT(spmi_read_end,
- 		__entry->sid    = sid;
- 		__entry->addr   = addr;
- 		__entry->ret    = ret;
--		__entry->len    = len + 1;
--		memcpy(__get_dynamic_array(buf), buf, len + 1);
-+		__entry->len    = len;
-+		memcpy(__get_dynamic_array(buf), buf, len);
- 	),
+-	if (mtk_dsi_host_send_cmd(dsi, msg, irq_flag) < 0)
+-		return -ETIME;
++	ret = mtk_dsi_host_send_cmd(dsi, msg, irq_flag);
++	if (ret)
++		goto restore_dsi_mode;
  
- 	TP_printk("opc=%d sid=%02d addr=0x%04x ret=%d len=%02d buf=0x[%*phD]",
+-	if (!MTK_DSI_HOST_IS_READ(msg->type))
+-		return 0;
++	if (!MTK_DSI_HOST_IS_READ(msg->type)) {
++		recv_cnt = 0;
++		goto restore_dsi_mode;
++	}
+ 
+ 	if (!msg->rx_buf) {
+ 		DRM_ERROR("dsi receive buffer size may be NULL\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto restore_dsi_mode;
+ 	}
+ 
+ 	for (i = 0; i < 16; i++)
+@@ -952,7 +961,13 @@ static ssize_t mtk_dsi_host_transfer(struct mipi_dsi_host *host,
+ 	DRM_INFO("dsi get %d byte data from the panel address(0x%x)\n",
+ 		 recv_cnt, *((u8 *)(msg->tx_buf)));
+ 
+-	return recv_cnt;
++restore_dsi_mode:
++	if (dsi_mode & MODE) {
++		mtk_dsi_set_mode(dsi);
++		mtk_dsi_start(dsi);
++	}
++
++	return ret < 0 ? ret : recv_cnt;
+ }
+ 
+ static const struct mipi_dsi_host_ops mtk_dsi_ops = {
+-- 
+2.35.1
+
 
 
