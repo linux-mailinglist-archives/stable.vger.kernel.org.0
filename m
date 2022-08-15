@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32A64593CA5
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 598EB593CE3
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241014AbiHOUW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:22:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42588 "EHLO
+        id S235680AbiHOUWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:22:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343928AbiHOUTY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:19:24 -0400
+        with ESMTP id S229547AbiHOUTT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:19:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD85780516;
-        Mon, 15 Aug 2022 12:00:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E5D96768;
+        Mon, 15 Aug 2022 12:00:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F022EB81106;
-        Mon, 15 Aug 2022 19:00:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EE71C433D6;
-        Mon, 15 Aug 2022 19:00:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BCD8AB810A3;
+        Mon, 15 Aug 2022 19:00:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ABF6C433C1;
+        Mon, 15 Aug 2022 19:00:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590037;
-        bh=bqOWLUEtmJFZwXCw3UqJncyrYlm7mOE2OSE/xVhMHtg=;
+        s=korg; t=1660590040;
+        bh=pEg1GtkK46egxGc6yKcxjHl9FylMjMsYz88rOu1nqA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NqZaVyJzBqvjBFJeKFM9jOemJHD9cqZkrfvG1G+V0SonLdB/SRBTgApPrtcacAiSA
-         w29w/h9eIVZIhdCYaOS6RIIxuZjdMiScUb+77qoghAW3TvodKnpmFbmdQ+szWob+a3
-         O5Gm0yzZNj+fE32rq7jSI+Ref9VfE4jICt2I1utQ=
+        b=H4Qnn4t0w4Qs1GyGD+AScyi2sduMHAqzKRmqZan8lZkvrEYYBliVO04CPt1jgWWGv
+         6SriNycXruxSoDFsw8WOx0DwjrlQAbTKKLM+6N3F5XXS/wgKdmseOHCMw3TnHoi2ww
+         tm1kGXyLI8BGbvQIpt0gIt1lLjUrAfX5HEq95YEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
+        stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
+        Hyunchul Lee <hyc.lee@gmail.com>,
         Steve French <stfrench@microsoft.com>,
         zdi-disclosures@trendmicro.com
-Subject: [PATCH 5.18 0100/1095] ksmbd: prevent out of bound read for SMB2_TREE_CONNNECT
-Date:   Mon, 15 Aug 2022 19:51:39 +0200
-Message-Id: <20220815180433.689786833@linuxfoundation.org>
+Subject: [PATCH 5.18 0101/1095] ksmbd: fix use-after-free bug in smb2_tree_disconect
+Date:   Mon, 15 Aug 2022 19:51:40 +0200
+Message-Id: <20220815180433.723496121@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,69 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunchul Lee <hyc.lee@gmail.com>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-commit 824d4f64c20093275f72fc8101394d75ff6a249e upstream.
+commit cf6531d98190fa2cf92a6d8bbc8af0a4740a223c upstream.
 
-if Status is not 0 and PathLength is long,
-smb_strndup_from_utf16 could make out of bound
-read in smb2_tree_connnect.
+smb2_tree_disconnect() freed the struct ksmbd_tree_connect,
+but it left the dangling pointer. It can be accessed
+again under compound requests.
 
-This bug can lead an oops looking something like:
+This bug can lead an oops looking something link:
 
-[ 1553.882047] BUG: KASAN: slab-out-of-bounds in smb_strndup_from_utf16+0x469/0x4c0 [ksmbd]
-[ 1553.882064] Read of size 2 at addr ffff88802c4eda04 by task kworker/0:2/42805
+[ 1685.468014 ] BUG: KASAN: use-after-free in ksmbd_tree_conn_disconnect+0x131/0x160 [ksmbd]
+[ 1685.468068 ] Read of size 4 at addr ffff888102172180 by task kworker/1:2/4807
 ...
-[ 1553.882095] Call Trace:
-[ 1553.882098]  <TASK>
-[ 1553.882101]  dump_stack_lvl+0x49/0x5f
-[ 1553.882107]  print_report.cold+0x5e/0x5cf
-[ 1553.882112]  ? smb_strndup_from_utf16+0x469/0x4c0 [ksmbd]
-[ 1553.882122]  kasan_report+0xaa/0x120
-[ 1553.882128]  ? smb_strndup_from_utf16+0x469/0x4c0 [ksmbd]
-[ 1553.882139]  __asan_report_load_n_noabort+0xf/0x20
-[ 1553.882143]  smb_strndup_from_utf16+0x469/0x4c0 [ksmbd]
-[ 1553.882155]  ? smb_strtoUTF16+0x3b0/0x3b0 [ksmbd]
-[ 1553.882166]  ? __kmalloc_node+0x185/0x430
-[ 1553.882171]  smb2_tree_connect+0x140/0xab0 [ksmbd]
-[ 1553.882185]  handle_ksmbd_work+0x30e/0x1020 [ksmbd]
-[ 1553.882197]  process_one_work+0x778/0x11c0
-[ 1553.882201]  ? _raw_spin_lock_irq+0x8e/0xe0
-[ 1553.882206]  worker_thread+0x544/0x1180
-[ 1553.882209]  ? __cpuidle_text_end+0x4/0x4
-[ 1553.882214]  kthread+0x282/0x320
-[ 1553.882218]  ? process_one_work+0x11c0/0x11c0
-[ 1553.882221]  ? kthread_complete_and_exit+0x30/0x30
-[ 1553.882225]  ret_from_fork+0x1f/0x30
-[ 1553.882231]  </TASK>
-
-There is no need to check error request validation in server.
-This check allow invalid requests not to validate message.
+[ 1685.468130 ] Call Trace:
+[ 1685.468132 ]  <TASK>
+[ 1685.468135 ]  dump_stack_lvl+0x49/0x5f
+[ 1685.468141 ]  print_report.cold+0x5e/0x5cf
+[ 1685.468145 ]  ? ksmbd_tree_conn_disconnect+0x131/0x160 [ksmbd]
+[ 1685.468157 ]  kasan_report+0xaa/0x120
+[ 1685.468194 ]  ? ksmbd_tree_conn_disconnect+0x131/0x160 [ksmbd]
+[ 1685.468206 ]  __asan_report_load4_noabort+0x14/0x20
+[ 1685.468210 ]  ksmbd_tree_conn_disconnect+0x131/0x160 [ksmbd]
+[ 1685.468222 ]  smb2_tree_disconnect+0x175/0x250 [ksmbd]
+[ 1685.468235 ]  handle_ksmbd_work+0x30e/0x1020 [ksmbd]
+[ 1685.468247 ]  process_one_work+0x778/0x11c0
+[ 1685.468251 ]  ? _raw_spin_lock_irq+0x8e/0xe0
+[ 1685.468289 ]  worker_thread+0x544/0x1180
+[ 1685.468293 ]  ? __cpuidle_text_end+0x4/0x4
+[ 1685.468297 ]  kthread+0x282/0x320
+[ 1685.468301 ]  ? process_one_work+0x11c0/0x11c0
+[ 1685.468305 ]  ? kthread_complete_and_exit+0x30/0x30
+[ 1685.468309 ]  ret_from_fork+0x1f/0x30
 
 Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
 Cc: stable@vger.kernel.org
-Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-17818
-Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-17816
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/smb2misc.c |    5 -----
- 1 file changed, 5 deletions(-)
+ fs/ksmbd/smb2pdu.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ksmbd/smb2misc.c
-+++ b/fs/ksmbd/smb2misc.c
-@@ -90,11 +90,6 @@ static int smb2_get_data_area_len(unsign
- 	*off = 0;
- 	*len = 0;
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -2043,6 +2043,7 @@ int smb2_tree_disconnect(struct ksmbd_wo
  
--	/* error reqeusts do not have data area */
--	if (hdr->Status && hdr->Status != STATUS_MORE_PROCESSING_REQUIRED &&
--	    (((struct smb2_err_rsp *)hdr)->StructureSize) == SMB2_ERROR_STRUCTURE_SIZE2_LE)
--		return ret;
--
- 	/*
- 	 * Following commands have data areas so we have to get the location
- 	 * of the data buffer offset and data buffer length for the particular
+ 	ksmbd_close_tree_conn_fds(work);
+ 	ksmbd_tree_conn_disconnect(sess, tcon);
++	work->tcon = NULL;
+ 	return 0;
+ }
+ 
 
 
