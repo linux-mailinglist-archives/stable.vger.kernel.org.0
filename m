@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B69B5594AE4
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:20:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99985594AC3
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:19:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356170AbiHPAHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:07:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42850 "EHLO
+        id S1355833AbiHPAGa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:06:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356286AbiHPACN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:02:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 799CE168A4E;
-        Mon, 15 Aug 2022 13:23:34 -0700 (PDT)
+        with ESMTP id S1356455AbiHPACZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:02:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BD811617F9;
+        Mon, 15 Aug 2022 13:23:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D962260F71;
-        Mon, 15 Aug 2022 20:23:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D44CEC433D6;
-        Mon, 15 Aug 2022 20:23:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DEA27B81197;
+        Mon, 15 Aug 2022 20:23:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DC9FC433D7;
+        Mon, 15 Aug 2022 20:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595013;
-        bh=u7UG57GrgwKuwLPZmCNQNLaPEDo8dXBIxu1WInSy79k=;
+        s=korg; t=1660595016;
+        bh=fjEiExmNWA8cA1ZNP2zlT12lOW4HnJ0V/IJAgzmrpyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfG9jQl1rSCAbxq5HsQiE6cHy12/5qp/vNyfFSnxIbuk9Q8gZf841YrGm4vzXV8aw
-         T4llJR4RjB8t66QPpZjcfRqzpFCOjTXBLccMzL/mo9R3AYyhqTYXjqD0bVdbYe29oK
-         /4QDwz0QMkRtSQye1tG2cgWSdmfiVjegfPOVu3OI=
+        b=Dcz99SATIwQgWEFRNMp7QS9LJVBcg4mYi+6R4hOPSJgoms4DpQVETbKTvyoDWbR8R
+         n3thJx1OqXPrUoAqhG0WuDE3aPY9uBiR6KWHVZJ07R/wacVVr0D6xAzOqv5lG2dN2m
+         aipZ/binBrq1T4Kf1+ad+69YDy39yTlywEcjIydw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jagath Jog J <jagathjog1996@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0630/1157] iio: accel: bma400: Add triggered buffer support
-Date:   Mon, 15 Aug 2022 19:59:46 +0200
-Message-Id: <20220815180504.883946062@linuxfoundation.org>
+Subject: [PATCH 5.19 0631/1157] iio: core: Fix IIO_ALIGN and rename as it was not sufficiently large
+Date:   Mon, 15 Aug 2022 19:59:47 +0200
+Message-Id: <20220815180504.923599787@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,354 +55,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jagath Jog J <jagathjog1996@gmail.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit ffe0ab6a96988daa8b316290c15e1c7bbb9d4211 ]
+[ Upstream commit 12c4efe3509b8018e76ea3ebda8227cb53bf5887 ]
 
-Added trigger buffer support to read continuous acceleration
-and temperature data from device with data ready interrupt which
-is mapped to INT1 pin.
+Discussion of the series:
+https://lore.kernel.org/all/20220405135758.774016-1-catalin.marinas@arm.com/
+mm, arm64: Reduce ARCH_KMALLOC_MINALIGN brought to my attention that
+our current IIO usage of L1CACHE_ALIGN is insufficient as their are Arm
+platforms out their with non coherent DMA and larger cache lines at
+at higher levels of their cache hierarchy.
 
-Signed-off-by: Jagath Jog J <jagathjog1996@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220505133021.22362-5-jagathjog1996@gmail.com
+Rename the define to make it's purpose more explicit. It will be used
+much more widely going forwards (to replace incorrect ____cacheline_aligned
+markings.
+
+Note this patch will greatly reduce the padding on some architectures
+that have smaller requirements for DMA safe buffers.
+
+The history of changing values of ARCH_KMALLOC_MINALIGN via
+ARCH_DMA_MINALIGN on arm64 is rather complex. I'm not tagging this
+as fixing a particular patch from that route as it's not clear what to tag.
+
+Most recently a change to bring them back inline was reverted because
+of some Qualcomm Kryo cores with an L2 cache with 128-byte lines
+sitting above the point of coherency.
+
+c1132702c71f Revert "arm64: cache: Lower ARCH_DMA_MINALIGN to 64 (L1_CACHE_BYTES)"
+That reverts:
+65688d2a05de arm64: cache: Lower ARCH_DMA_MINALIGN to 64 (L1_CACHE_BYTES) which
+refers to the change originally being motivated by Thunder x1 performance
+rather than correctness.
+
+Fixes: 6f7c8ee585e9d ("staging:iio: Add ability to allocate private data space to iio_allocate_device")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20220508175712.647246-2-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/Kconfig       |   2 +
- drivers/iio/accel/bma400.h      |  10 +-
- drivers/iio/accel/bma400_core.c | 177 +++++++++++++++++++++++++++++++-
- drivers/iio/accel/bma400_i2c.c  |   2 +-
- drivers/iio/accel/bma400_spi.c  |   2 +-
- 5 files changed, 185 insertions(+), 8 deletions(-)
+ drivers/iio/accel/bma400_core.c |  2 +-
+ drivers/iio/adc/adi-axi-adc.c   |  7 ++++---
+ drivers/iio/industrialio-core.c |  4 ++--
+ include/linux/iio/iio.h         | 10 ++++++++--
+ 4 files changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/iio/accel/Kconfig b/drivers/iio/accel/Kconfig
-index b53f010f3e40..35798712f811 100644
---- a/drivers/iio/accel/Kconfig
-+++ b/drivers/iio/accel/Kconfig
-@@ -204,6 +204,8 @@ config BMA220
- config BMA400
- 	tristate "Bosch BMA400 3-Axis Accelerometer Driver"
- 	select REGMAP
-+	select IIO_BUFFER
-+	select IIO_TRIGGERED_BUFFER
- 	select BMA400_I2C if I2C
- 	select BMA400_SPI if SPI
- 	help
-diff --git a/drivers/iio/accel/bma400.h b/drivers/iio/accel/bma400.h
-index 1c8c47a9a317..907e1a6c0a38 100644
---- a/drivers/iio/accel/bma400.h
-+++ b/drivers/iio/accel/bma400.h
-@@ -62,6 +62,13 @@
- #define BMA400_ACC_CONFIG2_REG      0x1b
- #define BMA400_CMD_REG              0x7e
- 
-+/* Interrupt registers */
-+#define BMA400_INT_CONFIG0_REG	    0x1f
-+#define BMA400_INT_CONFIG1_REG	    0x20
-+#define BMA400_INT1_MAP_REG	    0x21
-+#define BMA400_INT_IO_CTRL_REG	    0x24
-+#define BMA400_INT_DRDY_MSK	    BIT(7)
-+
- /* Chip ID of BMA 400 devices found in the chip ID register. */
- #define BMA400_ID_REG_VAL           0x90
- 
-@@ -111,6 +118,7 @@
- 
- extern const struct regmap_config bma400_regmap_config;
- 
--int bma400_probe(struct device *dev, struct regmap *regmap, const char *name);
-+int bma400_probe(struct device *dev, struct regmap *regmap, int irq,
-+		 const char *name);
- 
- #endif
 diff --git a/drivers/iio/accel/bma400_core.c b/drivers/iio/accel/bma400_core.c
-index 07674d89d978..67e102c097bc 100644
+index 67e102c097bc..837f8671e00d 100644
 --- a/drivers/iio/accel/bma400_core.c
 +++ b/drivers/iio/accel/bma400_core.c
-@@ -11,6 +11,7 @@
-  *  - Create channel for sensor time
-  */
- 
-+#include <linux/bitfield.h>
- #include <linux/bitops.h>
- #include <linux/device.h>
- #include <linux/kernel.h>
-@@ -20,6 +21,10 @@
- #include <linux/regulator/consumer.h>
- 
- #include <linux/iio/iio.h>
-+#include <linux/iio/buffer.h>
-+#include <linux/iio/trigger.h>
-+#include <linux/iio/trigger_consumer.h>
-+#include <linux/iio/triggered_buffer.h>
- 
- #include "bma400.h"
- 
-@@ -46,6 +51,13 @@ enum bma400_power_mode {
- 	POWER_MODE_INVALID = 0x03,
+@@ -79,7 +79,7 @@ struct bma400_data {
+ 		__le16 buff[3];
+ 		u8 temperature;
+ 		s64 ts __aligned(8);
+-	} buffer __aligned(IIO_ALIGN);
++	} buffer __aligned(IIO_DMA_MINALIGN);
+ 	__le16 status;
  };
  
-+enum bma400_scan {
-+	BMA400_ACCL_X,
-+	BMA400_ACCL_Y,
-+	BMA400_ACCL_Z,
-+	BMA400_TEMP,
-+};
-+
- struct bma400_sample_freq {
- 	int hz;
- 	int uhz;
-@@ -61,6 +73,14 @@ struct bma400_data {
- 	struct bma400_sample_freq sample_freq;
- 	int oversampling_ratio;
- 	int scale;
-+	struct iio_trigger *trig;
-+	/* Correct time stamp alignment */
-+	struct {
-+		__le16 buff[3];
-+		u8 temperature;
-+		s64 ts __aligned(8);
-+	} buffer __aligned(IIO_ALIGN);
-+	__le16 status;
- };
- 
- static bool bma400_is_writable_reg(struct device *dev, unsigned int reg)
-@@ -152,7 +172,7 @@ static const struct iio_chan_spec_ext_info bma400_ext_info[] = {
- 	{ }
- };
- 
--#define BMA400_ACC_CHANNEL(_axis) { \
-+#define BMA400_ACC_CHANNEL(_index, _axis) { \
- 	.type = IIO_ACCEL, \
- 	.modified = 1, \
- 	.channel2 = IIO_MOD_##_axis, \
-@@ -164,17 +184,32 @@ static const struct iio_chan_spec_ext_info bma400_ext_info[] = {
- 		BIT(IIO_CHAN_INFO_SCALE) | \
- 		BIT(IIO_CHAN_INFO_OVERSAMPLING_RATIO), \
- 	.ext_info = bma400_ext_info, \
-+	.scan_index = _index,	\
-+	.scan_type = {		\
-+		.sign = 's',	\
-+		.realbits = 12,		\
-+		.storagebits = 16,	\
-+		.endianness = IIO_LE,	\
-+	},				\
- }
- 
- static const struct iio_chan_spec bma400_channels[] = {
--	BMA400_ACC_CHANNEL(X),
--	BMA400_ACC_CHANNEL(Y),
--	BMA400_ACC_CHANNEL(Z),
-+	BMA400_ACC_CHANNEL(0, X),
-+	BMA400_ACC_CHANNEL(1, Y),
-+	BMA400_ACC_CHANNEL(2, Z),
- 	{
- 		.type = IIO_TEMP,
- 		.info_mask_separate = BIT(IIO_CHAN_INFO_PROCESSED),
- 		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SAMP_FREQ),
-+		.scan_index = 3,
-+		.scan_type = {
-+			.sign = 's',
-+			.realbits = 8,
-+			.storagebits = 8,
-+			.endianness = IIO_LE,
-+		},
- 	},
-+	IIO_CHAN_SOFT_TIMESTAMP(4),
- };
- 
- static int bma400_get_temp_reg(struct bma400_data *data, int *val, int *val2)
-@@ -659,6 +694,10 @@ static int bma400_init(struct bma400_data *data)
- 	if (ret)
- 		return ret;
- 
-+	/* Configure INT1 pin to open drain */
-+	ret = regmap_write(data->regmap, BMA400_INT_IO_CTRL_REG, 0x06);
-+	if (ret)
-+		return ret;
- 	/*
- 	 * Once the interrupt engine is supported we might use the
- 	 * data_src_reg, but for now ensure this is set to the
-@@ -807,6 +846,31 @@ static int bma400_write_raw_get_fmt(struct iio_dev *indio_dev,
- 	}
- }
- 
-+static int bma400_data_rdy_trigger_set_state(struct iio_trigger *trig,
-+					     bool state)
-+{
-+	struct iio_dev *indio_dev = iio_trigger_get_drvdata(trig);
-+	struct bma400_data *data = iio_priv(indio_dev);
-+	int ret;
-+
-+	ret = regmap_update_bits(data->regmap, BMA400_INT_CONFIG0_REG,
-+				 BMA400_INT_DRDY_MSK,
-+				 FIELD_PREP(BMA400_INT_DRDY_MSK, state));
-+	if (ret)
-+		return ret;
-+
-+	return regmap_update_bits(data->regmap, BMA400_INT1_MAP_REG,
-+				  BMA400_INT_DRDY_MSK,
-+				  FIELD_PREP(BMA400_INT_DRDY_MSK, state));
-+}
-+
-+static const unsigned long bma400_avail_scan_masks[] = {
-+	BIT(BMA400_ACCL_X) | BIT(BMA400_ACCL_Y) | BIT(BMA400_ACCL_Z),
-+	BIT(BMA400_ACCL_X) | BIT(BMA400_ACCL_Y) | BIT(BMA400_ACCL_Z)
-+	| BIT(BMA400_TEMP),
-+	0
-+};
-+
- static const struct iio_info bma400_info = {
- 	.read_raw          = bma400_read_raw,
- 	.read_avail        = bma400_read_avail,
-@@ -814,7 +878,78 @@ static const struct iio_info bma400_info = {
- 	.write_raw_get_fmt = bma400_write_raw_get_fmt,
- };
- 
--int bma400_probe(struct device *dev, struct regmap *regmap, const char *name)
-+static const struct iio_trigger_ops bma400_trigger_ops = {
-+	.set_trigger_state = &bma400_data_rdy_trigger_set_state,
-+	.validate_device = &iio_trigger_validate_own_device,
-+};
-+
-+static irqreturn_t bma400_trigger_handler(int irq, void *p)
-+{
-+	struct iio_poll_func *pf = p;
-+	struct iio_dev *indio_dev = pf->indio_dev;
-+	struct bma400_data *data = iio_priv(indio_dev);
-+	int ret, temp;
-+
-+	/* Lock to protect the data->buffer */
-+	mutex_lock(&data->mutex);
-+
-+	/* bulk read six registers, with the base being the LSB register */
-+	ret = regmap_bulk_read(data->regmap, BMA400_X_AXIS_LSB_REG,
-+			       &data->buffer.buff, sizeof(data->buffer.buff));
-+	if (ret)
-+		goto unlock_err;
-+
-+	if (test_bit(BMA400_TEMP, indio_dev->active_scan_mask)) {
-+		ret = regmap_read(data->regmap, BMA400_TEMP_DATA_REG, &temp);
-+		if (ret)
-+			goto unlock_err;
-+
-+		data->buffer.temperature = temp;
-+	}
-+
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->buffer,
-+					   iio_get_time_ns(indio_dev));
-+
-+	mutex_unlock(&data->mutex);
-+	iio_trigger_notify_done(indio_dev->trig);
-+	return IRQ_HANDLED;
-+
-+unlock_err:
-+	mutex_unlock(&data->mutex);
-+	return IRQ_NONE;
-+}
-+
-+static irqreturn_t bma400_interrupt(int irq, void *private)
-+{
-+	struct iio_dev *indio_dev = private;
-+	struct bma400_data *data = iio_priv(indio_dev);
-+	int ret;
-+
-+	/* Lock to protect the data->status */
-+	mutex_lock(&data->mutex);
-+	ret = regmap_bulk_read(data->regmap, BMA400_INT_STAT0_REG,
-+			       &data->status,
-+			       sizeof(data->status));
-+	/*
-+	 * if none of the bit is set in the status register then it is
-+	 * spurious interrupt.
-+	 */
-+	if (ret || !data->status)
-+		goto unlock_err;
-+
-+	if (FIELD_GET(BMA400_INT_DRDY_MSK, le16_to_cpu(data->status))) {
-+		mutex_unlock(&data->mutex);
-+		iio_trigger_poll_chained(data->trig);
-+		return IRQ_HANDLED;
-+	}
-+
-+unlock_err:
-+	mutex_unlock(&data->mutex);
-+	return IRQ_NONE;
-+}
-+
-+int bma400_probe(struct device *dev, struct regmap *regmap, int irq,
-+		 const char *name)
+diff --git a/drivers/iio/adc/adi-axi-adc.c b/drivers/iio/adc/adi-axi-adc.c
+index a9e655e69eaa..8ffabdaf841e 100644
+--- a/drivers/iio/adc/adi-axi-adc.c
++++ b/drivers/iio/adc/adi-axi-adc.c
+@@ -84,7 +84,8 @@ void *adi_axi_adc_conv_priv(struct adi_axi_adc_conv *conv)
  {
- 	struct iio_dev *indio_dev;
- 	struct bma400_data *data;
-@@ -841,8 +976,40 @@ int bma400_probe(struct device *dev, struct regmap *regmap, const char *name)
- 	indio_dev->info = &bma400_info;
- 	indio_dev->channels = bma400_channels;
- 	indio_dev->num_channels = ARRAY_SIZE(bma400_channels);
-+	indio_dev->available_scan_masks = bma400_avail_scan_masks;
- 	indio_dev->modes = INDIO_DIRECT_MODE;
+ 	struct adi_axi_adc_client *cl = conv_to_client(conv);
  
-+	if (irq > 0) {
-+		data->trig = devm_iio_trigger_alloc(dev, "%s-dev%d",
-+						    indio_dev->name,
-+						    iio_device_id(indio_dev));
-+		if (!data->trig)
-+			return -ENOMEM;
-+
-+		data->trig->ops = &bma400_trigger_ops;
-+		iio_trigger_set_drvdata(data->trig, indio_dev);
-+
-+		ret = devm_iio_trigger_register(data->dev, data->trig);
-+		if (ret)
-+			return dev_err_probe(data->dev, ret,
-+					     "iio trigger register fail\n");
-+
-+		indio_dev->trig = iio_trigger_get(data->trig);
-+		ret = devm_request_threaded_irq(dev, irq, NULL,
-+						&bma400_interrupt,
-+						IRQF_TRIGGER_RISING | IRQF_ONESHOT,
-+						indio_dev->name, indio_dev);
-+		if (ret)
-+			return dev_err_probe(data->dev, ret,
-+					     "request irq %d failed\n", irq);
-+	}
-+
-+	ret = devm_iio_triggered_buffer_setup(dev, indio_dev, NULL,
-+					      &bma400_trigger_handler, NULL);
-+	if (ret)
-+		return dev_err_probe(data->dev, ret,
-+				     "iio triggered buffer setup failed\n");
-+
- 	return devm_iio_device_register(dev, indio_dev);
+-	return (char *)cl + ALIGN(sizeof(struct adi_axi_adc_client), IIO_ALIGN);
++	return (char *)cl + ALIGN(sizeof(struct adi_axi_adc_client),
++				  IIO_DMA_MINALIGN);
  }
- EXPORT_SYMBOL_NS(bma400_probe, IIO_BMA400);
-diff --git a/drivers/iio/accel/bma400_i2c.c b/drivers/iio/accel/bma400_i2c.c
-index 4f6e01a3b3a1..1ba2a982ea73 100644
---- a/drivers/iio/accel/bma400_i2c.c
-+++ b/drivers/iio/accel/bma400_i2c.c
-@@ -24,7 +24,7 @@ static int bma400_i2c_probe(struct i2c_client *client,
- 		return PTR_ERR(regmap);
+ EXPORT_SYMBOL_GPL(adi_axi_adc_conv_priv);
+ 
+@@ -169,9 +170,9 @@ static struct adi_axi_adc_conv *adi_axi_adc_conv_register(struct device *dev,
+ 	struct adi_axi_adc_client *cl;
+ 	size_t alloc_size;
+ 
+-	alloc_size = ALIGN(sizeof(struct adi_axi_adc_client), IIO_ALIGN);
++	alloc_size = ALIGN(sizeof(struct adi_axi_adc_client), IIO_DMA_MINALIGN);
+ 	if (sizeof_priv)
+-		alloc_size += ALIGN(sizeof_priv, IIO_ALIGN);
++		alloc_size += ALIGN(sizeof_priv, IIO_DMA_MINALIGN);
+ 
+ 	cl = kzalloc(alloc_size, GFP_KERNEL);
+ 	if (!cl)
+diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
+index 299ae3ad2fe5..ed36851d646b 100644
+--- a/drivers/iio/industrialio-core.c
++++ b/drivers/iio/industrialio-core.c
+@@ -1669,7 +1669,7 @@ struct iio_dev *iio_device_alloc(struct device *parent, int sizeof_priv)
+ 
+ 	alloc_size = sizeof(struct iio_dev_opaque);
+ 	if (sizeof_priv) {
+-		alloc_size = ALIGN(alloc_size, IIO_ALIGN);
++		alloc_size = ALIGN(alloc_size, IIO_DMA_MINALIGN);
+ 		alloc_size += sizeof_priv;
  	}
  
--	return bma400_probe(&client->dev, regmap, id->name);
-+	return bma400_probe(&client->dev, regmap, client->irq, id->name);
+@@ -1679,7 +1679,7 @@ struct iio_dev *iio_device_alloc(struct device *parent, int sizeof_priv)
+ 
+ 	indio_dev = &iio_dev_opaque->indio_dev;
+ 	indio_dev->priv = (char *)iio_dev_opaque +
+-		ALIGN(sizeof(struct iio_dev_opaque), IIO_ALIGN);
++		ALIGN(sizeof(struct iio_dev_opaque), IIO_DMA_MINALIGN);
+ 
+ 	indio_dev->dev.parent = parent;
+ 	indio_dev->dev.type = &iio_device_type;
+diff --git a/include/linux/iio/iio.h b/include/linux/iio/iio.h
+index 233d2e6b7721..a0db62297ea1 100644
+--- a/include/linux/iio/iio.h
++++ b/include/linux/iio/iio.h
+@@ -9,6 +9,7 @@
+ 
+ #include <linux/device.h>
+ #include <linux/cdev.h>
++#include <linux/slab.h>
+ #include <linux/iio/types.h>
+ #include <linux/of.h>
+ /* IIO TODO LIST */
+@@ -709,8 +710,13 @@ static inline void *iio_device_get_drvdata(const struct iio_dev *indio_dev)
+ 	return dev_get_drvdata(&indio_dev->dev);
  }
  
- static const struct i2c_device_id bma400_i2c_ids[] = {
-diff --git a/drivers/iio/accel/bma400_spi.c b/drivers/iio/accel/bma400_spi.c
-index 28e240400a3f..ec13c044b304 100644
---- a/drivers/iio/accel/bma400_spi.c
-+++ b/drivers/iio/accel/bma400_spi.c
-@@ -84,7 +84,7 @@ static int bma400_spi_probe(struct spi_device *spi)
- 	if (ret)
- 		dev_err(&spi->dev, "Failed to read chip id register\n");
+-/* Can we make this smaller? */
+-#define IIO_ALIGN L1_CACHE_BYTES
++/*
++ * Used to ensure the iio_priv() structure is aligned to allow that structure
++ * to in turn include IIO_DMA_MINALIGN'd elements such as buffers which
++ * must not share  cachelines with the rest of the structure, thus making
++ * them safe for use with non-coherent DMA.
++ */
++#define IIO_DMA_MINALIGN ARCH_KMALLOC_MINALIGN
+ struct iio_dev *iio_device_alloc(struct device *parent, int sizeof_priv);
  
--	return bma400_probe(&spi->dev, regmap, id->name);
-+	return bma400_probe(&spi->dev, regmap, spi->irq, id->name);
- }
- 
- static const struct spi_device_id bma400_spi_ids[] = {
+ /* The information at the returned address is guaranteed to be cacheline aligned */
 -- 
 2.35.1
 
