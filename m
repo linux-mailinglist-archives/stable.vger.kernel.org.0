@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F14635942FF
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:54:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ECF6594506
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343811AbiHOWGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:06:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35506 "EHLO
+        id S233036AbiHOWGl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:06:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346880AbiHOWEg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:04:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECC041156E9;
-        Mon, 15 Aug 2022 12:37:18 -0700 (PDT)
+        with ESMTP id S1347136AbiHOWFF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:05:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D05F5115B7A;
+        Mon, 15 Aug 2022 12:37:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1DEC611E4;
-        Mon, 15 Aug 2022 19:37:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB52DC433D6;
-        Mon, 15 Aug 2022 19:37:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C98C8B80EAB;
+        Mon, 15 Aug 2022 19:37:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13E80C433C1;
+        Mon, 15 Aug 2022 19:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592237;
-        bh=TAuUMR7MhN059r8wH39ZJ2WwqdyBclsgrNGwmEPdtag=;
+        s=korg; t=1660592243;
+        bh=+J+Q8LniD2ZXHJOSoRNy/SiVung7frjPqTcLHzcd/cE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YzivLhGlUZhN+Sn6ztgxULTvC9i7vqjltNLis1xXBxy5qc6NXl/CNUfmO+yqH/lpH
-         zlw6nDelCBmKnbFJDnOn6Fo+LKjDfQXiaYe0xbatAMJrshvwd6GypGI50vyRK/ErCK
-         jYq8zGaoptloOr8Sw4qqbyHKXFp0BDLIjciPiALU=
+        b=V5XUvfmqvpNTOnUo4MKCe1L/ZlQeJ31KJBohUgxQLZ7LQTa4BnyXT9YYDl2EZKzm/
+         mDuEFapokXEiaNKW+5Qrti3PYI3DgAILJ9QpRKg3+Zy/E1U4//ywMHe9cWjyERZmmE
+         Me7K22ZuOkOVko0KS3N226EVWgRu8LAoIv2x1E1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Raviteja Garimella <raviteja.garimella@broadcom.com>,
-        Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org,
-        Randy Dunlap <rdunlap@infradead.org>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0754/1095] usb: gadget: udc: amd5536 depends on HAS_DMA
-Date:   Mon, 15 Aug 2022 20:02:33 +0200
-Message-Id: <20220815180500.522087556@linuxfoundation.org>
+Subject: [PATCH 5.18 0755/1095] usb: aspeed-vhub: Fix refcount leak bug in ast_vhub_init_desc()
+Date:   Mon, 15 Aug 2022 20:02:34 +0200
+Message-Id: <20220815180500.551400079@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,47 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 8097cf2fb3b2205257f1c76f4808e3398d66b6d9 ]
+[ Upstream commit 220fafb4ed04187e9c17be4152da5a7f2ffbdd8c ]
 
-USB_AMD5536UDC should depend on HAS_DMA since it selects USB_SNP_CORE,
-which depends on HAS_DMA and since 'select' does not follow any
-dependency chains.
+We should call of_node_put() for the reference returned by
+of_get_child_by_name() which has increased the refcount.
 
-Fixes this kconfig warning:
-
-WARNING: unmet direct dependencies detected for USB_SNP_CORE
-  Depends on [n]: USB_SUPPORT [=y] && USB_GADGET [=y] && (USB_AMD5536UDC [=y] || USB_SNP_UDC_PLAT [=n]) && HAS_DMA [=n]
-  Selected by [y]:
-  - USB_AMD5536UDC [=y] && USB_SUPPORT [=y] && USB_GADGET [=y] && USB_PCI [=y]
-
-Fixes: 97b3ffa233b9 ("usb: gadget: udc: amd5536: split core and PCI layer")
-Cc: Raviteja Garimella <raviteja.garimella@broadcom.com>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: linux-usb@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20220709013601.7536-1-rdunlap@infradead.org
+Fixes: 30d2617fd7ed ("usb: gadget: aspeed: allow to set usb strings in device tree")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220713120528.368168-1-windhl@126.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/aspeed-vhub/hub.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/Kconfig b/drivers/usb/gadget/udc/Kconfig
-index 69394dc1cdfb..2cdd37be165a 100644
---- a/drivers/usb/gadget/udc/Kconfig
-+++ b/drivers/usb/gadget/udc/Kconfig
-@@ -311,7 +311,7 @@ source "drivers/usb/gadget/udc/bdc/Kconfig"
+diff --git a/drivers/usb/gadget/udc/aspeed-vhub/hub.c b/drivers/usb/gadget/udc/aspeed-vhub/hub.c
+index 65cd4e46f031..e2207d014620 100644
+--- a/drivers/usb/gadget/udc/aspeed-vhub/hub.c
++++ b/drivers/usb/gadget/udc/aspeed-vhub/hub.c
+@@ -1059,8 +1059,10 @@ static int ast_vhub_init_desc(struct ast_vhub *vhub)
+ 	/* Initialize vhub String Descriptors. */
+ 	INIT_LIST_HEAD(&vhub->vhub_str_desc);
+ 	desc_np = of_get_child_by_name(vhub_np, "vhub-strings");
+-	if (desc_np)
++	if (desc_np) {
+ 		ret = ast_vhub_of_parse_str_desc(vhub, desc_np);
++		of_node_put(desc_np);
++	}
+ 	else
+ 		ret = ast_vhub_str_alloc_add(vhub, &ast_vhub_strings);
  
- config USB_AMD5536UDC
- 	tristate "AMD5536 UDC"
--	depends on USB_PCI
-+	depends on USB_PCI && HAS_DMA
- 	select USB_SNP_CORE
- 	help
- 	   The AMD5536 UDC is part of the AMD Geode CS5536, an x86 southbridge.
 -- 
 2.35.1
 
