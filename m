@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11CAF594257
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA687594245
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349795AbiHOVsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:48:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32816 "EHLO
+        id S1349495AbiHOVsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:48:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349857AbiHOVqo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:46:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BEFE644E;
-        Mon, 15 Aug 2022 12:30:23 -0700 (PDT)
+        with ESMTP id S1349914AbiHOVqx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:46:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DAFEF5A8;
+        Mon, 15 Aug 2022 12:30:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE371B810C6;
-        Mon, 15 Aug 2022 19:30:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16DB2C433D6;
-        Mon, 15 Aug 2022 19:30:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D4C0B81062;
+        Mon, 15 Aug 2022 19:30:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA951C433D6;
+        Mon, 15 Aug 2022 19:30:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591820;
-        bh=U0Fp6bBZo1hCOVqL02YpZuqrGduWivDPT289EDLIBxg=;
+        s=korg; t=1660591826;
+        bh=gqZqvMMoU9PCHolnyKg7cH/DHSogTy0MjLC2kf95GtU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HWmNt/aekYl+c0hJj3yeFWG/tghHKKd5ItCYlipdG5iWPoBWeGjLgQIj4Wz2JFfZl
-         Nv/5twuHvw6RVlJSxw9qi9WX0G3XGS8YPYiMzJdLHVRE8ef5TJ+l/P6uvelx/NUXGq
-         7jKVvIzLHNSI7LS09gBhMUrdwGHqkwrA3ocZZ/IY=
+        b=qda69yediEgylxatPe0oZJ6lvxco/0Hmn+kNOKJ7BAYqxRGPlHDpIgwQZRjRQo4V2
+         LY+e6WRH3y7Ej6j1OI6BbPMf0YxESOYJOMzaQ4CTywToPi92fetLqJNjzFHDH963ZJ
+         49gKolIEkfupJp8BhbVBFLviPoq4F+Oti9HKjUZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Zolt=C3=A1n=20K=C5=91v=C3=A1g=C3=B3?= 
-        <dirty.ice.hu@gmail.com>, stable@kernel.org,
-        Zev Weiss <zev@bewilderbeest.net>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.19 0013/1157] hwmon: (nct6775) Fix platform driver suspend regression
-Date:   Mon, 15 Aug 2022 19:49:29 +0200
-Message-Id: <20220815180439.996384192@linuxfoundation.org>
+        stable@vger.kernel.org, Jeongik Cha <jeongik@google.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.19 0014/1157] wifi: mac80211_hwsim: fix race condition in pending packet
+Date:   Mon, 15 Aug 2022 19:49:30 +0200
+Message-Id: <20220815180440.034984794@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,88 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zev Weiss <zev@bewilderbeest.net>
+From: Jeongik Cha <jeongik@google.com>
 
-commit f4e6960f4f16b1ca5da16cec7612ecc86402ac05 upstream.
+commit 4ee186fa7e40ae06ebbfbad77e249e3746e14114 upstream.
 
-Commit c3963bc0a0cf ("hwmon: (nct6775) Split core and platform
-driver") introduced a slight change in nct6775_suspend() in order to
-avoid an otherwise-needless symbol export for nct6775_update_device(),
-replacing a call to that function with a simple dev_get_drvdata()
-instead.
+A pending packet uses a cookie as an unique key, but it can be duplicated
+because it didn't use atomic operators.
 
-As it turns out, there is no guarantee that nct6775_update_device()
-is ever called prior to suspend. If this happens, the resume function
-ends up writing bad data into the various chip registers, which results
-in a crash shortly after resume.
+And also, a pending packet can be null in hwsim_tx_info_frame_received_nl
+due to race condition with mac80211_hwsim_stop.
 
-To fix the problem, just add the symbol export and return to using
-nct6775_update_device() as was employed previously.
+For this,
+ * Use an atomic type and operator for a cookie
+ * Add a lock around the loop for pending packets
 
-Reported-by: Zoltán Kővágó <dirty.ice.hu@gmail.com>
-Tested-by: Zoltán Kővágó <dirty.ice.hu@gmail.com>
-Fixes: c3963bc0a0cf ("hwmon: (nct6775) Split core and platform driver")
-Cc: stable@kernel.org
-Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
-Link: https://lore.kernel.org/r/20220810052646.13825-1-zev@bewilderbeest.net
-[groeck: Updated description]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Jeongik Cha <jeongik@google.com>
+Link: https://lore.kernel.org/r/20220704084354.3556326-1-jeongik@google.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/nct6775-core.c     | 3 ++-
- drivers/hwmon/nct6775-platform.c | 2 +-
- drivers/hwmon/nct6775.h          | 2 ++
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mac80211_hwsim.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hwmon/nct6775-core.c b/drivers/hwmon/nct6775-core.c
-index 446964cbae4c..da9ec6983e13 100644
---- a/drivers/hwmon/nct6775-core.c
-+++ b/drivers/hwmon/nct6775-core.c
-@@ -1480,7 +1480,7 @@ static int nct6775_update_pwm_limits(struct device *dev)
- 	return 0;
- }
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -680,7 +680,7 @@ struct mac80211_hwsim_data {
+ 	bool ps_poll_pending;
+ 	struct dentry *debugfs;
  
--static struct nct6775_data *nct6775_update_device(struct device *dev)
-+struct nct6775_data *nct6775_update_device(struct device *dev)
- {
- 	struct nct6775_data *data = dev_get_drvdata(dev);
- 	int i, j, err = 0;
-@@ -1615,6 +1615,7 @@ static struct nct6775_data *nct6775_update_device(struct device *dev)
- 	mutex_unlock(&data->update_lock);
- 	return err ? ERR_PTR(err) : data;
- }
-+EXPORT_SYMBOL_GPL(nct6775_update_device);
+-	uintptr_t pending_cookie;
++	atomic64_t pending_cookie;
+ 	struct sk_buff_head pending;	/* packets pending */
+ 	/*
+ 	 * Only radios in the same group can communicate together (the
+@@ -1347,7 +1347,7 @@ static void mac80211_hwsim_tx_frame_nl(s
+ 	int i;
+ 	struct hwsim_tx_rate tx_attempts[IEEE80211_TX_MAX_RATES];
+ 	struct hwsim_tx_rate_flag tx_attempts_flags[IEEE80211_TX_MAX_RATES];
+-	uintptr_t cookie;
++	u64 cookie;
  
- /*
-  * Sysfs callback functions
-diff --git a/drivers/hwmon/nct6775-platform.c b/drivers/hwmon/nct6775-platform.c
-index ab30437221ce..41c97cfacfb8 100644
---- a/drivers/hwmon/nct6775-platform.c
-+++ b/drivers/hwmon/nct6775-platform.c
-@@ -359,7 +359,7 @@ static int __maybe_unused nct6775_suspend(struct device *dev)
- {
- 	int err;
- 	u16 tmp;
--	struct nct6775_data *data = dev_get_drvdata(dev);
-+	struct nct6775_data *data = nct6775_update_device(dev);
+ 	if (data->ps != PS_DISABLED)
+ 		hdr->frame_control |= cpu_to_le16(IEEE80211_FCTL_PM);
+@@ -1416,8 +1416,7 @@ static void mac80211_hwsim_tx_frame_nl(s
+ 		goto nla_put_failure;
  
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-diff --git a/drivers/hwmon/nct6775.h b/drivers/hwmon/nct6775.h
-index 93f708148e65..be41848c3cd2 100644
---- a/drivers/hwmon/nct6775.h
-+++ b/drivers/hwmon/nct6775.h
-@@ -196,6 +196,8 @@ static inline int nct6775_write_value(struct nct6775_data *data, u16 reg, u16 va
- 	return regmap_write(data->regmap, reg, value);
- }
+ 	/* We create a cookie to identify this skb */
+-	data->pending_cookie++;
+-	cookie = data->pending_cookie;
++	cookie = (u64)atomic64_inc_return(&data->pending_cookie);
+ 	info->rate_driver_data[0] = (void *)cookie;
+ 	if (nla_put_u64_64bit(skb, HWSIM_ATTR_COOKIE, cookie, HWSIM_ATTR_PAD))
+ 		goto nla_put_failure;
+@@ -4080,6 +4079,7 @@ static int hwsim_tx_info_frame_received_
+ 	const u8 *src;
+ 	unsigned int hwsim_flags;
+ 	int i;
++	unsigned long flags;
+ 	bool found = false;
  
-+struct nct6775_data *nct6775_update_device(struct device *dev);
-+
- bool nct6775_reg_is_word_sized(struct nct6775_data *data, u16 reg);
- int nct6775_probe(struct device *dev, struct nct6775_data *data,
- 		  const struct regmap_config *regmapcfg);
--- 
-2.37.1
-
+ 	if (!info->attrs[HWSIM_ATTR_ADDR_TRANSMITTER] ||
+@@ -4107,18 +4107,20 @@ static int hwsim_tx_info_frame_received_
+ 	}
+ 
+ 	/* look for the skb matching the cookie passed back from user */
++	spin_lock_irqsave(&data2->pending.lock, flags);
+ 	skb_queue_walk_safe(&data2->pending, skb, tmp) {
+ 		u64 skb_cookie;
+ 
+ 		txi = IEEE80211_SKB_CB(skb);
+-		skb_cookie = (u64)(uintptr_t)txi->rate_driver_data[0];
++		skb_cookie = (u64)txi->rate_driver_data[0];
+ 
+ 		if (skb_cookie == ret_skb_cookie) {
+-			skb_unlink(skb, &data2->pending);
++			__skb_unlink(skb, &data2->pending);
+ 			found = true;
+ 			break;
+ 		}
+ 	}
++	spin_unlock_irqrestore(&data2->pending.lock, flags);
+ 
+ 	/* not found */
+ 	if (!found)
 
 
