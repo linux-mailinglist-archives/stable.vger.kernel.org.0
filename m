@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FB7959378A
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1B4559363E
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:24:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242388AbiHOSmq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:42:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56370 "EHLO
+        id S242525AbiHOSmr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:42:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243893AbiHOSli (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:41:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36AC9BC;
-        Mon, 15 Aug 2022 11:25:14 -0700 (PDT)
+        with ESMTP id S243911AbiHOSlk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:41:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E223C1C;
+        Mon, 15 Aug 2022 11:25:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B7946B80F99;
-        Mon, 15 Aug 2022 18:25:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0275CC433C1;
-        Mon, 15 Aug 2022 18:25:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 46DE960FB5;
+        Mon, 15 Aug 2022 18:25:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E21CC433C1;
+        Mon, 15 Aug 2022 18:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587911;
-        bh=DNt4WbPxh9ZOJW2Cbt6ropOHdfsmBte4nCv3qnWluoo=;
+        s=korg; t=1660587914;
+        bh=MwQx0kl1Vvr/QAikUnONp1UQCcEMBPy/CsbZtyschfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0i5H5ytKXBPMzBBeQpkwJkUDKLzUcBViSZVCp/kuYF18JWZXKUxs0q2DFYf73rWE
-         +tisakBP1vyOAb6y1y7kZlXzoZU5B53NkznU7nYA35KLViXfOQqAbt21tWHGIMfv4T
-         hKsGFBTwIA2HNTL5dpLGEvahOf1ZqhMO5ZRbdGoA=
+        b=Gl2fZmopXa/pR0IzJdSBhPDKGDEYOBPfg55ToEyCQ6E5htNBnFPAHDAEoTRqMN0ac
+         QbCZ+t6jtv2h4j/aJm4gWGXreM29q5Hn6jT+i/s6KNV5uMXW6Znfchma+0tOwbeZZ8
+         a/JTsrAN101gdKDqsCDCBmGL46g3C6nJNUXgQ6x8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Marek Vasut <marex@denx.de>, Jonas Karlman <jonas@kwiboo.se>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Steev Klimaszewski <steev@kali.org>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 235/779] drm/bridge: tc358767: Move (e)DP bridge endpoint parsing into dedicated function
-Date:   Mon, 15 Aug 2022 19:57:59 +0200
-Message-Id: <20220815180347.324851023@linuxfoundation.org>
+Subject: [PATCH 5.15 236/779] ath10k: do not enforce interrupt trigger type
+Date:   Mon, 15 Aug 2022 19:58:00 +0200
+Message-Id: <20220815180347.366469325@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -59,84 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 8478095a8c4bcea3c83b0767d6c9127434160761 ]
+[ Upstream commit 1ee6c5abebd3cacf2ac4378d0ed4f57fd4850421 ]
 
-The TC358767/TC358867/TC9595 are all capable of operating in multiple
-modes, DPI-to-(e)DP, DSI-to-(e)DP, DSI-to-DPI. Only the first mode is
-currently supported. In order to support the rest of the modes without
-making the tc_probe() overly long, split the bridge endpoint parsing
-into dedicated function, where the necessary logic to detect the bridge
-mode based on which endpoints are connected, can be implemented.
+Interrupt line can be configured on different hardware in different way,
+even inverted.  Therefore driver should not enforce specific trigger
+type - edge rising - but instead rely on Devicetree to configure it.
 
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Tested-by: Lucas Stach <l.stach@pengutronix.de> # In both DPI to eDP and DSI to DPI mode.
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Jonas Karlman <jonas@kwiboo.se>
-Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-Cc: Maxime Ripard <maxime@cerno.tech>
-Cc: Neil Armstrong <narmstrong@baylibre.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220329085015.39159-7-marex@denx.de
+All Qualcomm DTSI with WCN3990 define the interrupt type as level high,
+so the mismatch between DTSI and driver causes rebind issues:
+
+  $ echo 18800000.wifi > /sys/bus/platform/drivers/ath10k_snoc/unbind
+  $ echo 18800000.wifi > /sys/bus/platform/drivers/ath10k_snoc/bind
+  [   44.763114] irq: type mismatch, failed to map hwirq-446 for interrupt-controller@17a00000!
+  [   44.763130] ath10k_snoc 18800000.wifi: error -ENXIO: IRQ index 0 not found
+  [   44.763140] ath10k_snoc 18800000.wifi: failed to initialize resource: -6
+
+Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.3.2.0.c8-00009-QCAHLSWSC8180XMTPLZ-1
+Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.2.0-01387-QCAHLSWMTPLZ-1
+
+Fixes: c963a683e701 ("ath10k: add resource init and deinit for WCN3990")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Tested-by: Steev Klimaszewski <steev@kali.org>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220513151516.357549-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/tc358767.c | 30 +++++++++++++++++++++---------
- 1 file changed, 21 insertions(+), 9 deletions(-)
+ drivers/net/wireless/ath/ath10k/snoc.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/tc358767.c b/drivers/gpu/drm/bridge/tc358767.c
-index 23a6f90b694b..a2d051ed6cd8 100644
---- a/drivers/gpu/drm/bridge/tc358767.c
-+++ b/drivers/gpu/drm/bridge/tc358767.c
-@@ -1549,19 +1549,12 @@ static irqreturn_t tc_irq_handler(int irq, void *arg)
- 	return IRQ_HANDLED;
- }
- 
--static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+static int tc_probe_edp_bridge_endpoint(struct tc_data *tc)
+diff --git a/drivers/net/wireless/ath/ath10k/snoc.c b/drivers/net/wireless/ath/ath10k/snoc.c
+index f79dd9a71690..73fe77e7824b 100644
+--- a/drivers/net/wireless/ath/ath10k/snoc.c
++++ b/drivers/net/wireless/ath/ath10k/snoc.c
+@@ -1249,13 +1249,12 @@ static void ath10k_snoc_init_napi(struct ath10k *ar)
+ static int ath10k_snoc_request_irq(struct ath10k *ar)
  {
--	struct device *dev = &client->dev;
-+	struct device *dev = tc->dev;
- 	struct drm_panel *panel;
--	struct tc_data *tc;
- 	int ret;
+ 	struct ath10k_snoc *ar_snoc = ath10k_snoc_priv(ar);
+-	int irqflags = IRQF_TRIGGER_RISING;
+ 	int ret, id;
  
--	tc = devm_kzalloc(dev, sizeof(*tc), GFP_KERNEL);
--	if (!tc)
--		return -ENOMEM;
--
--	tc->dev = dev;
--
- 	/* port@2 is the output port */
- 	ret = drm_of_find_panel_or_bridge(dev->of_node, 2, 0, &panel, NULL);
- 	if (ret && ret != -ENODEV)
-@@ -1580,6 +1573,25 @@ static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		tc->bridge.type = DRM_MODE_CONNECTOR_DisplayPort;
- 	}
- 
-+	return ret;
-+}
-+
-+static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+{
-+	struct device *dev = &client->dev;
-+	struct tc_data *tc;
-+	int ret;
-+
-+	tc = devm_kzalloc(dev, sizeof(*tc), GFP_KERNEL);
-+	if (!tc)
-+		return -ENOMEM;
-+
-+	tc->dev = dev;
-+
-+	ret = tc_probe_edp_bridge_endpoint(tc);
-+	if (ret)
-+		return ret;
-+
- 	/* Shut down GPIO is optional */
- 	tc->sd_gpio = devm_gpiod_get_optional(dev, "shutdown", GPIOD_OUT_HIGH);
- 	if (IS_ERR(tc->sd_gpio))
+ 	for (id = 0; id < CE_COUNT_MAX; id++) {
+ 		ret = request_irq(ar_snoc->ce_irqs[id].irq_line,
+-				  ath10k_snoc_per_engine_handler,
+-				  irqflags, ce_name[id], ar);
++				  ath10k_snoc_per_engine_handler, 0,
++				  ce_name[id], ar);
+ 		if (ret) {
+ 			ath10k_err(ar,
+ 				   "failed to register IRQ handler for CE %d: %d\n",
 -- 
 2.35.1
 
