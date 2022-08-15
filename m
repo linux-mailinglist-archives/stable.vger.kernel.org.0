@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0DEA595022
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:37:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96A35595018
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:37:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231352AbiHPEh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36666 "EHLO
+        id S230318AbiHPEhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:37:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230515AbiHPEgt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:36:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 128BAC743A;
-        Mon, 15 Aug 2022 13:27:29 -0700 (PDT)
+        with ESMTP id S231180AbiHPEgZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:36:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3211C6170B;
+        Mon, 15 Aug 2022 13:27:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1D676113B;
-        Mon, 15 Aug 2022 20:27:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2AC6C433D6;
-        Mon, 15 Aug 2022 20:27:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4B94B80EB1;
+        Mon, 15 Aug 2022 20:27:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30AE4C433D7;
+        Mon, 15 Aug 2022 20:27:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595248;
-        bh=rqdC4nZwbSnbxPw0o+7GJSE6FDRyxJqDCjoWH0/UZjQ=;
+        s=korg; t=1660595254;
+        bh=dYtzRbPPdLqJorc5v/DVHVdbr2kS8jGXbCpIM27gDQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O7PdGruRTUaLBGWazkk/s/i6RN5PUgmtx3SO36eeAxgdJASl+CVenClR6q1wLrSXI
-         emgjEO+43RWvNFcd92OXcxmu1NoHTBZac5AwuJ6WeOTg4CxnRZ+5OQ/17aIeEXuCBl
-         InrWuufKrq/Nu5FKHlwqIRgjGUbPZFyTrDiclqPA=
+        b=G6fU3hE4GFQCa1KcuuGRmC5LzwgmUH9bHaU8zvWlWgliG73EL4GiNOr2wrisWcqIa
+         dZgL2F4t8g98JghN7vPWbHy5Z8wHFugetTaA2nbiGcAJwHIXJwdZre2WAgbtDwtigj
+         dr24fxVDr+veJGGBjQFBVs5KOww1d0k1fKDFaptw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Robert Jones <rjones@gateworks.com>,
+        Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>,
         =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0705/1157] iio: imu: fxos8700: Fix alignment for DMA safety
-Date:   Mon, 15 Aug 2022 20:01:01 +0200
-Message-Id: <20220815180507.781462521@linuxfoundation.org>
+Subject: [PATCH 5.19 0706/1157] iio: imu: inv_icm42600: Fix alignment for DMA safety
+Date:   Mon, 15 Aug 2022 20:01:02 +0200
+Message-Id: <20220815180507.820895837@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -58,35 +58,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit c9a8417a13ed9c81383662fca8a4b89f84d31e78 ]
+[ Upstream commit 848847702bd10bf0bf547e38adc44c14e9742784 ]
+
+Partial fix for this driver as a second instance was introduced in
+a later patch.
 
 ____cacheline_aligned is an insufficient guarantee for non-coherent DMA
 on platforms with 128 byte cachelines above L1.  Switch to the updated
 IIO_DMA_MINALIGN definition.
 
-Fixes: 84e5ddd5c46e ("iio: imu: Add support for the FXOS8700 IMU")
+Fixes: a095fadb443b ("iio: imu: inv_icm42600: add gyroscope IIO device")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Robert Jones <rjones@gateworks.com>
+Acked-by: Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>
 Acked-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20220508175712.647246-77-jic23@kernel.org
+Link: https://lore.kernel.org/r/20220508175712.647246-78-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/fxos8700_core.c | 2 +-
+ drivers/iio/imu/inv_icm42600/inv_icm42600.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/imu/fxos8700_core.c b/drivers/iio/imu/fxos8700_core.c
-index ab288186f36e..423cfe526f2a 100644
---- a/drivers/iio/imu/fxos8700_core.c
-+++ b/drivers/iio/imu/fxos8700_core.c
-@@ -167,7 +167,7 @@
- struct fxos8700_data {
- 	struct regmap *regmap;
- 	struct iio_trigger *trig;
--	__be16 buf[FXOS8700_DATA_BUF_SIZE] ____cacheline_aligned;
-+	__be16 buf[FXOS8700_DATA_BUF_SIZE] __aligned(IIO_DMA_MINALIGN);
- };
- 
- /* Regmap info */
+diff --git a/drivers/iio/imu/inv_icm42600/inv_icm42600.h b/drivers/iio/imu/inv_icm42600/inv_icm42600.h
+index 995a9dc06521..3d91469beccb 100644
+--- a/drivers/iio/imu/inv_icm42600/inv_icm42600.h
++++ b/drivers/iio/imu/inv_icm42600/inv_icm42600.h
+@@ -141,7 +141,7 @@ struct inv_icm42600_state {
+ 	struct inv_icm42600_suspended suspended;
+ 	struct iio_dev *indio_gyro;
+ 	struct iio_dev *indio_accel;
+-	uint8_t buffer[2] ____cacheline_aligned;
++	uint8_t buffer[2] __aligned(IIO_DMA_MINALIGN);
+ 	struct inv_icm42600_fifo fifo;
+ 	struct {
+ 		int64_t gyro;
 -- 
 2.35.1
 
