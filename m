@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0730E594A0C
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60D05594D14
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244463AbiHOXTz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:19:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51222 "EHLO
+        id S239988AbiHPAw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:52:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242854AbiHOXSV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:18:21 -0400
+        with ESMTP id S244766AbiHPAuS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:50:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D98A47B90;
-        Mon, 15 Aug 2022 13:03:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 442DCD91DA;
+        Mon, 15 Aug 2022 13:46:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1787AB81154;
-        Mon, 15 Aug 2022 20:03:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D8DBC433D6;
-        Mon, 15 Aug 2022 20:03:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B26CEB80EAD;
+        Mon, 15 Aug 2022 20:46:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0941FC433C1;
+        Mon, 15 Aug 2022 20:45:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593825;
-        bh=FxJJEqP1tmkFWKmlZHUmnsWUH7SsVvsMr/bvbkSXlck=;
+        s=korg; t=1660596360;
+        bh=oCQoZ/p7DA6Hwbt7h9YnDmeAd2OfPIKQCnbiaHnZFeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kebNOPonG/+e9wXEqahaT+FRwnQgXMRatHRcUVGPUVAyGpTgEeuJMs1aHurjTuvI2
-         ZL/uj/X8EQIq7kC5tRmyny9QgddBXTarh0oNUe0IvbUCE7D5uRSZ8XWF3JXQHilbua
-         3fv6PQY9lDuunDd/OkhUgbUwvE/rFYUMURVMRnpU=
+        b=CgAxr1Gc9VWkjK+cbBJO83cM8LE0W6R8aatAmFz49andj5eFp5J2vigW0UI39bsua
+         fI5JHtAJXAaJ5qF77ny7Qjah6z4sG4jdXBhrtDHbkaALw9URfrkPEs7s2EF/Dp2Z3V
+         4MM3QN5J2VpTd4rigi+EYXR48evTXn1ZoDv/eNu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1012/1095] btrfs: tree-log: make the return value for log syncing consistent
-Date:   Mon, 15 Aug 2022 20:06:51 +0200
-Message-Id: <20220815180510.972639183@linuxfoundation.org>
+        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
+        Yury Norov <yury.norov@gmail.com>, Phil Auld <pauld@redhat.com>
+Subject: [PATCH 5.19 1056/1157] drivers/base: fix userspace break from using bin_attributes for cpumap and cpulist
+Date:   Mon, 15 Aug 2022 20:06:52 +0200
+Message-Id: <20220815180522.304029664@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,142 +53,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Phil Auld <pauld@redhat.com>
 
-[ Upstream commit f31f09f6be1c6c1a673e0566e258281a7bbaaa51 ]
+commit 7ee951acd31a88f941fd6535fbdee3a1567f1d63 upstream.
 
-Currently we will return 1 or -EAGAIN if we decide we need to commit
-the transaction rather than sync the log.  In practice this doesn't
-really matter, we interpret any !0 and !BTRFS_NO_LOG_SYNC as needing to
-commit the transaction.  However this makes it hard to figure out what
-the correct thing to do is.
+Using bin_attributes with a 0 size causes fstat and friends to return that
+0 size. This breaks userspace code that retrieves the size before reading
+the file. Rather than reverting 75bd50fa841 ("drivers/base/node.c: use
+bin_attribute to break the size limitation of cpumap ABI") let's put in a
+size value at compile time.
 
-Fix this up by defining BTRFS_LOG_FORCE_COMMIT and using this in all the
-places where we want to force the transaction to be committed.
+For cpulist the maximum size is on the order of
+	NR_CPUS * (ceil(log10(NR_CPUS)) + 1)/2
 
-CC: stable@vger.kernel.org # 5.15+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+which for 8192 is 20480 (8192 * 5)/2. In order to get near that you'd need
+a system with every other CPU on one node. For example: (0,2,4,8, ... ).
+To simplify the math and support larger NR_CPUS in the future we are using
+(NR_CPUS * 7)/2. We also set it to a min of PAGE_SIZE to retain the older
+behavior for smaller NR_CPUS.
+
+The cpumap file the size works out to be NR_CPUS/4 + NR_CPUS/32 - 1
+(or NR_CPUS * 9/32 - 1) including the ","s.
+
+Add a set of macros for these values to cpumask.h so they can be used in
+multiple places. Apply these to the handful of such files in
+drivers/base/topology.c as well as node.c.
+
+As an example, on an 80 cpu 4-node system (NR_CPUS == 8192):
+
+before:
+
+-r--r--r--. 1 root root 0 Jul 12 14:08 system/node/node0/cpulist
+-r--r--r--. 1 root root 0 Jul 11 17:25 system/node/node0/cpumap
+
+after:
+
+-r--r--r--. 1 root root 28672 Jul 13 11:32 system/node/node0/cpulist
+-r--r--r--. 1 root root  4096 Jul 13 11:31 system/node/node0/cpumap
+
+CONFIG_NR_CPUS = 16384
+-r--r--r--. 1 root root 57344 Jul 13 14:03 system/node/node0/cpulist
+-r--r--r--. 1 root root  4607 Jul 13 14:02 system/node/node0/cpumap
+
+The actual number of cpus doesn't matter for the reported size since they
+are based on NR_CPUS.
+
+Fixes: 75bd50fa841d ("drivers/base/node.c: use bin_attribute to break the size limitation of cpumap ABI")
+Fixes: bb9ec13d156e ("topology: use bin_attribute to break the size limitation of cpumap ABI")
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Yury Norov <yury.norov@gmail.com>
+Cc: stable@vger.kernel.org
+Acked-by: Yury Norov <yury.norov@gmail.com> (for include/linux/cpumask.h)
+Signed-off-by: Phil Auld <pauld@redhat.com>
+Link: https://lore.kernel.org/r/20220715134924.3466194-1-pauld@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/file.c     |  2 +-
- fs/btrfs/tree-log.c | 18 +++++++++---------
- fs/btrfs/tree-log.h |  3 +++
- 3 files changed, 13 insertions(+), 10 deletions(-)
+ drivers/base/node.c     |    4 ++--
+ drivers/base/topology.c |   32 ++++++++++++++++----------------
+ include/linux/cpumask.h |   18 ++++++++++++++++++
+ 3 files changed, 36 insertions(+), 18 deletions(-)
 
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index 153920acd226..2d24f2dcc0ea 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -2344,7 +2344,7 @@ int btrfs_sync_file(struct file *file, loff_t start, loff_t end, int datasync)
- 	btrfs_release_log_ctx_extents(&ctx);
- 	if (ret < 0) {
- 		/* Fallthrough and commit/free transaction. */
--		ret = 1;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 	}
+--- a/drivers/base/node.c
++++ b/drivers/base/node.c
+@@ -45,7 +45,7 @@ static inline ssize_t cpumap_read(struct
+ 	return n;
+ }
  
- 	/* we've logged all the items and now have a consistent
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index e65633686378..08917069a125 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -171,7 +171,7 @@ static int start_log_trans(struct btrfs_trans_handle *trans,
- 		int index = (root->log_transid + 1) % 2;
+-static BIN_ATTR_RO(cpumap, 0);
++static BIN_ATTR_RO(cpumap, CPUMAP_FILE_MAX_BYTES);
  
- 		if (btrfs_need_log_full_commit(trans)) {
--			ret = -EAGAIN;
-+			ret = BTRFS_LOG_FORCE_COMMIT;
- 			goto out;
- 		}
+ static inline ssize_t cpulist_read(struct file *file, struct kobject *kobj,
+ 				   struct bin_attribute *attr, char *buf,
+@@ -66,7 +66,7 @@ static inline ssize_t cpulist_read(struc
+ 	return n;
+ }
  
-@@ -194,7 +194,7 @@ static int start_log_trans(struct btrfs_trans_handle *trans,
- 		 * writing.
- 		 */
- 		if (zoned && !created) {
--			ret = -EAGAIN;
-+			ret = BTRFS_LOG_FORCE_COMMIT;
- 			goto out;
- 		}
+-static BIN_ATTR_RO(cpulist, 0);
++static BIN_ATTR_RO(cpulist, CPULIST_FILE_MAX_BYTES);
  
-@@ -3122,7 +3122,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans,
+ /**
+  * struct node_access_nodes - Access class device to hold user visible
+--- a/drivers/base/topology.c
++++ b/drivers/base/topology.c
+@@ -62,47 +62,47 @@ define_id_show_func(ppin, "0x%llx");
+ static DEVICE_ATTR_ADMIN_RO(ppin);
  
- 	/* bail out if we need to do a full commit */
- 	if (btrfs_need_log_full_commit(trans)) {
--		ret = -EAGAIN;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 		mutex_unlock(&root->log_mutex);
- 		goto out;
- 	}
-@@ -3223,7 +3223,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans,
- 		}
- 		btrfs_wait_tree_log_extents(log, mark);
- 		mutex_unlock(&log_root_tree->log_mutex);
--		ret = -EAGAIN;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 		goto out;
- 	}
+ define_siblings_read_func(thread_siblings, sibling_cpumask);
+-static BIN_ATTR_RO(thread_siblings, 0);
+-static BIN_ATTR_RO(thread_siblings_list, 0);
++static BIN_ATTR_RO(thread_siblings, CPUMAP_FILE_MAX_BYTES);
++static BIN_ATTR_RO(thread_siblings_list, CPULIST_FILE_MAX_BYTES);
  
-@@ -3262,7 +3262,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans,
- 		blk_finish_plug(&plug);
- 		btrfs_wait_tree_log_extents(log, mark);
- 		mutex_unlock(&log_root_tree->log_mutex);
--		ret = -EAGAIN;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 		goto out_wake_log_root;
- 	}
+ define_siblings_read_func(core_cpus, sibling_cpumask);
+-static BIN_ATTR_RO(core_cpus, 0);
+-static BIN_ATTR_RO(core_cpus_list, 0);
++static BIN_ATTR_RO(core_cpus, CPUMAP_FILE_MAX_BYTES);
++static BIN_ATTR_RO(core_cpus_list, CPULIST_FILE_MAX_BYTES);
  
-@@ -5849,7 +5849,7 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 	    inode_only == LOG_INODE_ALL &&
- 	    inode->last_unlink_trans >= trans->transid) {
- 		btrfs_set_log_full_commit(trans);
--		ret = 1;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 		goto out_unlock;
- 	}
+ define_siblings_read_func(core_siblings, core_cpumask);
+-static BIN_ATTR_RO(core_siblings, 0);
+-static BIN_ATTR_RO(core_siblings_list, 0);
++static BIN_ATTR_RO(core_siblings, CPUMAP_FILE_MAX_BYTES);
++static BIN_ATTR_RO(core_siblings_list, CPULIST_FILE_MAX_BYTES);
  
-@@ -6563,12 +6563,12 @@ static int btrfs_log_inode_parent(struct btrfs_trans_handle *trans,
- 	bool log_dentries = false;
+ #ifdef TOPOLOGY_CLUSTER_SYSFS
+ define_siblings_read_func(cluster_cpus, cluster_cpumask);
+-static BIN_ATTR_RO(cluster_cpus, 0);
+-static BIN_ATTR_RO(cluster_cpus_list, 0);
++static BIN_ATTR_RO(cluster_cpus, CPUMAP_FILE_MAX_BYTES);
++static BIN_ATTR_RO(cluster_cpus_list, CPULIST_FILE_MAX_BYTES);
+ #endif
  
- 	if (btrfs_test_opt(fs_info, NOTREELOG)) {
--		ret = 1;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 		goto end_no_trans;
- 	}
+ #ifdef TOPOLOGY_DIE_SYSFS
+ define_siblings_read_func(die_cpus, die_cpumask);
+-static BIN_ATTR_RO(die_cpus, 0);
+-static BIN_ATTR_RO(die_cpus_list, 0);
++static BIN_ATTR_RO(die_cpus, CPUMAP_FILE_MAX_BYTES);
++static BIN_ATTR_RO(die_cpus_list, CPULIST_FILE_MAX_BYTES);
+ #endif
  
- 	if (btrfs_root_refs(&root->root_item) == 0) {
--		ret = 1;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 		goto end_no_trans;
- 	}
+ define_siblings_read_func(package_cpus, core_cpumask);
+-static BIN_ATTR_RO(package_cpus, 0);
+-static BIN_ATTR_RO(package_cpus_list, 0);
++static BIN_ATTR_RO(package_cpus, CPUMAP_FILE_MAX_BYTES);
++static BIN_ATTR_RO(package_cpus_list, CPULIST_FILE_MAX_BYTES);
  
-@@ -6666,7 +6666,7 @@ static int btrfs_log_inode_parent(struct btrfs_trans_handle *trans,
- end_trans:
- 	if (ret < 0) {
- 		btrfs_set_log_full_commit(trans);
--		ret = 1;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 	}
+ #ifdef TOPOLOGY_BOOK_SYSFS
+ define_id_show_func(book_id, "%d");
+ static DEVICE_ATTR_RO(book_id);
+ define_siblings_read_func(book_siblings, book_cpumask);
+-static BIN_ATTR_RO(book_siblings, 0);
+-static BIN_ATTR_RO(book_siblings_list, 0);
++static BIN_ATTR_RO(book_siblings, CPUMAP_FILE_MAX_BYTES);
++static BIN_ATTR_RO(book_siblings_list, CPULIST_FILE_MAX_BYTES);
+ #endif
  
- 	if (ret)
-diff --git a/fs/btrfs/tree-log.h b/fs/btrfs/tree-log.h
-index 1620f8170629..57ab5f3b8dc7 100644
---- a/fs/btrfs/tree-log.h
-+++ b/fs/btrfs/tree-log.h
-@@ -12,6 +12,9 @@
- /* return value for btrfs_log_dentry_safe that means we don't need to log it at all */
- #define BTRFS_NO_LOG_SYNC 256
+ #ifdef TOPOLOGY_DRAWER_SYSFS
+ define_id_show_func(drawer_id, "%d");
+ static DEVICE_ATTR_RO(drawer_id);
+ define_siblings_read_func(drawer_siblings, drawer_cpumask);
+-static BIN_ATTR_RO(drawer_siblings, 0);
+-static BIN_ATTR_RO(drawer_siblings_list, 0);
++static BIN_ATTR_RO(drawer_siblings, CPUMAP_FILE_MAX_BYTES);
++static BIN_ATTR_RO(drawer_siblings_list, CPULIST_FILE_MAX_BYTES);
+ #endif
  
-+/* We can't use the tree log for whatever reason, force a transaction commit */
-+#define BTRFS_LOG_FORCE_COMMIT				(1)
+ static struct bin_attribute *bin_attrs[] = {
+--- a/include/linux/cpumask.h
++++ b/include/linux/cpumask.h
+@@ -1071,4 +1071,22 @@ cpumap_print_list_to_buf(char *buf, cons
+ 	[0] =  1UL							\
+ } }
+ 
++/*
++ * Provide a valid theoretical max size for cpumap and cpulist sysfs files
++ * to avoid breaking userspace which may allocate a buffer based on the size
++ * reported by e.g. fstat.
++ *
++ * for cpumap NR_CPUS * 9/32 - 1 should be an exact length.
++ *
++ * For cpulist 7 is (ceil(log10(NR_CPUS)) + 1) allowing for NR_CPUS to be up
++ * to 2 orders of magnitude larger than 8192. And then we divide by 2 to
++ * cover a worst-case of every other cpu being on one of two nodes for a
++ * very large NR_CPUS.
++ *
++ *  Use PAGE_SIZE as a minimum for smaller configurations.
++ */
++#define CPUMAP_FILE_MAX_BYTES  ((((NR_CPUS * 9)/32 - 1) > PAGE_SIZE) \
++					? (NR_CPUS * 9)/32 - 1 : PAGE_SIZE)
++#define CPULIST_FILE_MAX_BYTES  (((NR_CPUS * 7)/2 > PAGE_SIZE) ? (NR_CPUS * 7)/2 : PAGE_SIZE)
 +
- struct btrfs_log_ctx {
- 	int log_ret;
- 	int log_transid;
--- 
-2.35.1
-
+ #endif /* __LINUX_CPUMASK_H */
 
 
