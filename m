@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D66C59463D
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:02:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0859A5945F5
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351540AbiHOWsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:48:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60746 "EHLO
+        id S1351728AbiHOWtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:49:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352127AbiHOWry (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:47:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25269135AEB;
-        Mon, 15 Aug 2022 12:53:28 -0700 (PDT)
+        with ESMTP id S1352189AbiHOWsC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:48:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C69D37DF60;
+        Mon, 15 Aug 2022 12:53:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2DB83B81142;
-        Mon, 15 Aug 2022 19:53:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 732B8C433D7;
-        Mon, 15 Aug 2022 19:53:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6A4260FB9;
+        Mon, 15 Aug 2022 19:53:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96A1EC433D6;
+        Mon, 15 Aug 2022 19:53:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593205;
-        bh=T42vtNvZmfSxu+bANyz8LMcHBQaRj4p58WGreN/apcI=;
+        s=korg; t=1660593212;
+        bh=vo0TAGeRPJNhuCFG7rNuv/V9pYpe7Wt0kisbfUGzm10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQiGIVoODbvERF3HwuD1il+ULip4uAdR6ihoWydV6veR+i4WUI1d4KZIgkpU4XY0l
-         yknOlajUhtY4A5TiyKYvxkUt9KplWN6akYkvry+k93L+zUQyPKsEfRoOCI8A9oie3F
-         5KDvRstWONLuWDJrfrYiJlhSssYPvalpbIeeTVl8=
+        b=VXqOxrIXx3oEUVvfQ74LZS2LROyAvxrBQ495AYqKxxzIXB+kkAF4utxGkc5HRmaPQ
+         o5M+4OpLa+koFlYWHUyZaRQwqBXuE4mDbd/3yFDEW9BnxJf6C0ny75pI5Ej9k3Ex44
+         CuGwHn+cAI366MSgFSzv4zD/gorvcAOIbozIigrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Yong Zhi <yong.zhi@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0911/1095] ASoC: Intel: sof_rt5682: Perform quirk check first in card late probe
-Date:   Mon, 15 Aug 2022 20:05:10 +0200
-Message-Id: <20220815180506.966324573@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0912/1095] video: fbdev: amba-clcd: Fix refcount leak bugs
+Date:   Mon, 15 Aug 2022 20:05:11 +0200
+Message-Id: <20220815180507.015333870@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,60 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Zhi <yong.zhi@intel.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 371a3f01fc1862c23fae35cb2c98ffb2eec143f1 ]
+[ Upstream commit 26c2b7d9fac42eb8317f3ceefa4c1a9a9170ca69 ]
 
-The check of sof_rt5682_quirk should not be skipped unless the HDMI
-handling code exits with error, fix by moving the quirk check to the front.
+In clcdfb_of_init_display(), we should call of_node_put() for the
+references returned by of_graph_get_next_endpoint() and
+of_graph_get_remote_port_parent() which have increased the refcount.
 
-Fixes: 94d2d0897474 ("ASoC: Intel: Boards: tgl_max98373: add dai_trigger function")
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Yong Zhi <yong.zhi@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220725194909.145418-10-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Besides, we should call of_node_put() both in fail path or when
+the references are not used anymore.
+
+Fixes: d10715be03bd ("video: ARM CLCD: Add DT support")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_rt5682.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/video/fbdev/amba-clcd.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
-index 7126fcb63d90..d9f83b04be87 100644
---- a/sound/soc/intel/boards/sof_rt5682.c
-+++ b/sound/soc/intel/boards/sof_rt5682.c
-@@ -435,6 +435,15 @@ static int sof_card_late_probe(struct snd_soc_card *card)
- 	int err;
- 	int i = 0;
+diff --git a/drivers/video/fbdev/amba-clcd.c b/drivers/video/fbdev/amba-clcd.c
+index 8080116aea84..f65c96d1394d 100644
+--- a/drivers/video/fbdev/amba-clcd.c
++++ b/drivers/video/fbdev/amba-clcd.c
+@@ -698,16 +698,18 @@ static int clcdfb_of_init_display(struct clcd_fb *fb)
+ 		return -ENODEV;
  
-+	if (sof_rt5682_quirk & SOF_MAX98373_SPEAKER_AMP_PRESENT) {
-+		/* Disable Left and Right Spk pin after boot */
-+		snd_soc_dapm_disable_pin(dapm, "Left Spk");
-+		snd_soc_dapm_disable_pin(dapm, "Right Spk");
-+		err = snd_soc_dapm_sync(dapm);
-+		if (err < 0)
-+			return err;
+ 	panel = of_graph_get_remote_port_parent(endpoint);
+-	if (!panel)
+-		return -ENODEV;
++	if (!panel) {
++		err = -ENODEV;
++		goto out_endpoint_put;
++	}
+ 
+ 	err = clcdfb_of_get_backlight(&fb->dev->dev, fb->panel);
+ 	if (err)
+-		return err;
++		goto out_panel_put;
+ 
+ 	err = clcdfb_of_get_mode(&fb->dev->dev, panel, fb->panel);
+ 	if (err)
+-		return err;
++		goto out_panel_put;
+ 
+ 	err = of_property_read_u32(fb->dev->dev.of_node, "max-memory-bandwidth",
+ 			&max_bandwidth);
+@@ -736,11 +738,21 @@ static int clcdfb_of_init_display(struct clcd_fb *fb)
+ 
+ 	if (of_property_read_u32_array(endpoint,
+ 			"arm,pl11x,tft-r0g0b0-pads",
+-			tft_r0b0g0, ARRAY_SIZE(tft_r0b0g0)) != 0)
+-		return -ENOENT;
++			tft_r0b0g0, ARRAY_SIZE(tft_r0b0g0)) != 0) {
++		err = -ENOENT;
++		goto out_panel_put;
 +	}
 +
- 	/* HDMI is not supported by SOF on Baytrail/CherryTrail */
- 	if (is_legacy_cpu || !ctx->idisp_codec)
- 		return 0;
-@@ -468,15 +477,6 @@ static int sof_card_late_probe(struct snd_soc_card *card)
- 		i++;
- 	}
++	of_node_put(panel);
++	of_node_put(endpoint);
  
--	if (sof_rt5682_quirk & SOF_MAX98373_SPEAKER_AMP_PRESENT) {
--		/* Disable Left and Right Spk pin after boot */
--		snd_soc_dapm_disable_pin(dapm, "Left Spk");
--		snd_soc_dapm_disable_pin(dapm, "Right Spk");
--		err = snd_soc_dapm_sync(dapm);
--		if (err < 0)
--			return err;
--	}
--
- 	return hdac_hdmi_jack_port_init(component, &card->dapm);
+ 	return clcdfb_of_init_tft_panel(fb, tft_r0b0g0[0],
+ 					tft_r0b0g0[1],  tft_r0b0g0[2]);
++out_panel_put:
++	of_node_put(panel);
++out_endpoint_put:
++	of_node_put(endpoint);
++	return err;
  }
  
+ static int clcdfb_of_vram_setup(struct clcd_fb *fb)
 -- 
 2.35.1
 
