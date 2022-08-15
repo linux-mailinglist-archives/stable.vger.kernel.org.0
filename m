@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F8A7593777
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 187DF593657
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:24:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243058AbiHOSou (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:44:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35198 "EHLO
+        id S243027AbiHOSot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:44:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243004AbiHOSnL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:43:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9743D29CB8;
-        Mon, 15 Aug 2022 11:26:48 -0700 (PDT)
+        with ESMTP id S243033AbiHOSnO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:43:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 210322B635;
+        Mon, 15 Aug 2022 11:26:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 537D2B8107A;
-        Mon, 15 Aug 2022 18:26:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9521C433C1;
-        Mon, 15 Aug 2022 18:26:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B080860FC4;
+        Mon, 15 Aug 2022 18:26:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE863C433D6;
+        Mon, 15 Aug 2022 18:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588006;
-        bh=z/yU3AHakXSnub2TkT7CGnzttRrLNEnyvwIiYdqnSNc=;
+        s=korg; t=1660588009;
+        bh=waPJhJ6SojFPzfGmvO2QfFFRmbu4h7chPRsAD9faz1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mNcs/DR/cPVWg2Rfi0vtUtphgCKrGGCSd2oO0SnvdEOsvN7/h+EhOJ9XDvlVtIN9U
-         t/BP2ZGIs5fwIUg2VnjoLIOxUFdgRky1S/jPxsJ0IVllirl1cnetJj1JfSvzku2Bo/
-         b0tqODzHgLMCgGiZ/UYj66GnY2ZbDHow4YwsXcP8=
+        b=yolOCqAngAS0OgabI2czW0gRKsR3YIRaKpKZJwGCFem2PyIX95vo2uVXY25Mekih5
+         MLSH7i6cAUZqGqF4F0gsGSgU0fNHdSssRFS83JEmbgrtZMfAwZMfPWZqQ9vkCHsa34
+         xI8GSVoIphWko0o0QxL2i1/1EU6QTEK228ZvlYtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Eugen Hristev <eugen.hristev@microchip.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 266/779] media: atmel: atmel-sama7g5-isc: fix warning in configs without OF
-Date:   Mon, 15 Aug 2022 19:58:30 +0200
-Message-Id: <20220815180348.730259275@linuxfoundation.org>
+Subject: [PATCH 5.15 267/779] media: tw686x: Register the irq at the end of probe
+Date:   Mon, 15 Aug 2022 19:58:31 +0200
+Message-Id: <20220815180348.771223446@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,57 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit b2bae4b8e637dd751d27918a6b27bd5abcd08859 ]
+[ Upstream commit fb730334e0f759d00f72168fbc555e5a95e35210 ]
 
-All warnings (new ones prefixed by >>):
+We got the following warning when booting the kernel:
 
->> drivers/media/platform/atmel/atmel-sama7g5-isc.c:610:34: warning: unused variable 'microchip_xisc_of_match' [-Wunused-const-variable]
-   static const struct of_device_id microchip_xisc_of_match[] = {
-                                    ^
-   13 warnings generated.
+[    3.243674] INFO: trying to register non-static key.
+[    3.243922] The code is fine but needs lockdep annotation, or maybe
+[    3.244230] you didn't initialize this object before use?
+[    3.245642] Call Trace:
+[    3.247836]  lock_acquire+0xff/0x2d0
+[    3.248727]  tw686x_audio_irq+0x1a5/0xcc0 [tw686x]
+[    3.249211]  tw686x_irq+0x1f9/0x480 [tw686x]
 
-vim +/microchip_xisc_of_match +610 drivers/media/platform/atmel/atmel-sama7g5-isc.c
+The lock 'vc->qlock' will be initialized in tw686x_video_init(), but the
+driver registers the irq before calling the tw686x_video_init(), and we
+got the warning.
 
-   609
- > 610  static const struct of_device_id microchip_xisc_of_match[] = {
-   611          { .compatible = "microchip,sama7g5-isc" },
-   612          { }
-   613  };
-   614  MODULE_DEVICE_TABLE(of, microchip_xisc_of_match);
-   615
+Fix this by registering the irq at the end of probe
 
-Fixed warning by guarding the atmel_isc_of_match by CONFIG_OF.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: c9aa973884a1 ("media: atmel: atmel-isc: add microchip-xisc driver")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Fixes: 704a84ccdbf1 ("[media] media: Support Intersil/Techwell TW686x-based video capture cards")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/atmel/atmel-sama7g5-isc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/pci/tw686x/tw686x-core.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/media/platform/atmel/atmel-sama7g5-isc.c b/drivers/media/platform/atmel/atmel-sama7g5-isc.c
-index 6a5d3f7ce75e..a4defc30cf41 100644
---- a/drivers/media/platform/atmel/atmel-sama7g5-isc.c
-+++ b/drivers/media/platform/atmel/atmel-sama7g5-isc.c
-@@ -587,11 +587,13 @@ static const struct dev_pm_ops microchip_xisc_dev_pm_ops = {
- 	SET_RUNTIME_PM_OPS(xisc_runtime_suspend, xisc_runtime_resume, NULL)
- };
+diff --git a/drivers/media/pci/tw686x/tw686x-core.c b/drivers/media/pci/tw686x/tw686x-core.c
+index 6676e069b515..384d38754a4b 100644
+--- a/drivers/media/pci/tw686x/tw686x-core.c
++++ b/drivers/media/pci/tw686x/tw686x-core.c
+@@ -315,13 +315,6 @@ static int tw686x_probe(struct pci_dev *pci_dev,
  
-+#if IS_ENABLED(CONFIG_OF)
- static const struct of_device_id microchip_xisc_of_match[] = {
- 	{ .compatible = "microchip,sama7g5-isc" },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, microchip_xisc_of_match);
-+#endif
+ 	spin_lock_init(&dev->lock);
  
- static struct platform_driver microchip_xisc_driver = {
- 	.probe	= microchip_xisc_probe,
+-	err = request_irq(pci_dev->irq, tw686x_irq, IRQF_SHARED,
+-			  dev->name, dev);
+-	if (err < 0) {
+-		dev_err(&pci_dev->dev, "unable to request interrupt\n");
+-		goto iounmap;
+-	}
+-
+ 	timer_setup(&dev->dma_delay_timer, tw686x_dma_delay, 0);
+ 
+ 	/*
+@@ -333,18 +326,23 @@ static int tw686x_probe(struct pci_dev *pci_dev,
+ 	err = tw686x_video_init(dev);
+ 	if (err) {
+ 		dev_err(&pci_dev->dev, "can't register video\n");
+-		goto free_irq;
++		goto iounmap;
+ 	}
+ 
+ 	err = tw686x_audio_init(dev);
+ 	if (err)
+ 		dev_warn(&pci_dev->dev, "can't register audio\n");
+ 
++	err = request_irq(pci_dev->irq, tw686x_irq, IRQF_SHARED,
++			  dev->name, dev);
++	if (err < 0) {
++		dev_err(&pci_dev->dev, "unable to request interrupt\n");
++		goto iounmap;
++	}
++
+ 	pci_set_drvdata(pci_dev, dev);
+ 	return 0;
+ 
+-free_irq:
+-	free_irq(pci_dev->irq, dev);
+ iounmap:
+ 	pci_iounmap(pci_dev, dev->mmio);
+ free_region:
 -- 
 2.35.1
 
