@@ -1,42 +1,41 @@
 Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
-Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7365937AC
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:24 +0200 (CEST)
+Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
+	by mail.lfdr.de (Postfix) with ESMTP id B2EED59356E
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242797AbiHOS3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:29:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54412 "EHLO
+        id S240939AbiHOSY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:24:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233038AbiHOS2m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:28:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 897B9C36;
-        Mon, 15 Aug 2022 11:20:18 -0700 (PDT)
+        with ESMTP id S241464AbiHOSXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:23:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB3D82A95B;
+        Mon, 15 Aug 2022 11:17:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D76E060ABC;
-        Mon, 15 Aug 2022 18:19:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD849C433C1;
-        Mon, 15 Aug 2022 18:19:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A110EB81074;
+        Mon, 15 Aug 2022 18:17:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEB9BC433D6;
+        Mon, 15 Aug 2022 18:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587570;
-        bh=3C0nmz2bwUw/YhMXl/4vqecM80SkN232zvqvmAcwXbw=;
+        s=korg; t=1660587472;
+        bh=b09QnvDg7xfHPslMRVg7vHUSCPbJTeYQlqKvtTja7U4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iDCTkh/1/E1uZc/tqou3A6rB2nStNdNkZlbjRl1yaqf7u1HW5kh896eV2bRuN4iTh
-         Z9hzE2CtP/OGQ/feMxVwbS4jkyyOiDN0EXJsx0lzCV5ozoa8Ld7gzQy+AIkRQBW+RM
-         /mwT1P3WmMe/VQjxkKBj3+4JaOB3a5N8e3dAesQk=
+        b=jr8agBlt3qYTcPISecKCW+zo6QRJJP/rWplYocG6j50eP12r033o9YwHdIVQA1u10
+         I32LhDtIEtDvdM0+I5AtN1GjKj+OfPGaUMpRBwHRx/hnsrQy3zR0fxBf1pIPyuC6Dy
+         zgKL/LQ20KHnD5Ne/6CQ0OHuZ9skD56FfTB3jcw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 095/779] powerpc/ptdump: Fix display of RW pages on FSL_BOOK3E
-Date:   Mon, 15 Aug 2022 19:55:39 +0200
-Message-Id: <20220815180341.361786474@linuxfoundation.org>
+Subject: [PATCH 5.15 096/779] powerpc/powernv: Avoid crashing if rng is NULL
+Date:   Mon, 15 Aug 2022 19:55:40 +0200
+Message-Id: <20220815180341.411950132@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,46 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit dd8de84b57b02ba9c1fe530a6d916c0853f136bd upstream.
+commit 90b5d4fe0b3ba7f589c6723c6bfb559d9e83956a upstream.
 
-On FSL_BOOK3E, _PAGE_RW is defined with two bits, one for user and one
-for supervisor. As soon as one of the two bits is set, the page has
-to be display as RW. But the way it is implemented today requires both
-bits to be set in order to display it as RW.
+On a bare-metal Power8 system that doesn't have an "ibm,power-rng", a
+malicious QEMU and guest that ignore the absence of the
+KVM_CAP_PPC_HWRNG flag, and calls H_RANDOM anyway, will dereference a
+NULL pointer.
 
-Instead of display RW when _PAGE_RW bits are set and R otherwise,
-reverse the logic and display R when _PAGE_RW bits are all 0 and
-RW otherwise.
+In practice all Power8 machines have an "ibm,power-rng", but let's not
+rely on that, add a NULL check and early return in
+powernv_get_random_real_mode().
 
-This change has no impact on other platforms as _PAGE_RW is a single
-bit on all of them.
-
-Fixes: 8eb07b187000 ("powerpc/mm: Dump linux pagetables")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Fixes: e928e9cb3601 ("KVM: PPC: Book3S HV: Add fast real-mode H_RANDOM implementation.")
+Cc: stable@vger.kernel.org # v4.1+
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/0c33b96317811edf691e81698aaee8fa45ec3449.1656427391.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/20220727143219.2684192-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/mm/ptdump/shared.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/platforms/powernv/rng.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/powerpc/mm/ptdump/shared.c
-+++ b/arch/powerpc/mm/ptdump/shared.c
-@@ -17,9 +17,9 @@ static const struct flag_info flag_array
- 		.clear	= "    ",
- 	}, {
- 		.mask	= _PAGE_RW,
--		.val	= _PAGE_RW,
--		.set	= "rw",
--		.clear	= "r ",
-+		.val	= 0,
-+		.set	= "r ",
-+		.clear	= "rw",
- 	}, {
- 		.mask	= _PAGE_EXEC,
- 		.val	= _PAGE_EXEC,
+--- a/arch/powerpc/platforms/powernv/rng.c
++++ b/arch/powerpc/platforms/powernv/rng.c
+@@ -63,6 +63,8 @@ int powernv_get_random_real_mode(unsigne
+ 	struct powernv_rng *rng;
+ 
+ 	rng = raw_cpu_read(powernv_rng);
++	if (!rng)
++		return 0;
+ 
+ 	*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
+ 
 
 
