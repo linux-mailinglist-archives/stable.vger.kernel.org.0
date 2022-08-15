@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E45F593C1B
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:37:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A148593AA8
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344368AbiHOTkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:40:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52250 "EHLO
+        id S1344371AbiHOTkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:40:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343957AbiHOTiQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:38:16 -0400
+        with ESMTP id S1343991AbiHOTiU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:38:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F36031DC4;
-        Mon, 15 Aug 2022 11:46:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87A993ED72;
+        Mon, 15 Aug 2022 11:46:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D383611DB;
-        Mon, 15 Aug 2022 18:46:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A48FC433C1;
-        Mon, 15 Aug 2022 18:46:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2579F611DB;
+        Mon, 15 Aug 2022 18:46:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25AB4C433C1;
+        Mon, 15 Aug 2022 18:46:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589189;
-        bh=6He/nieo34FbAoePLRcPRcoYRJZGQDmNooBT9RKLjkU=;
+        s=korg; t=1660589192;
+        bh=DQqfjIPCusGfeXhHiEnPPDYHHL0EQoPeHiJRj6wvgJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NvUpYPVKjemBDeYkrXCZ3T1uEnx1+CPE0cK9rJpnpu+f22sm3q3mgJ0qIkcq7vR4r
-         x7JUWK0Qdih6lR5T8tfabyjpm38sN1lFUpBMtMe250goGMgV0oJUmQaFW+bw5BVgiE
-         eolfAxp/8gzC5eJA4H0zLdxiFugMG0b7bMFd3PuI=
+        b=tPXasR58sE+90u2/LePNj/asSGZhDi0had+c5Qg0HK/CyPQm/eErq6YAgBzB7/9S+
+         C4c0tIiM+MtUbl/lHWBchxRO2ErSOm475ciUg+n4R5yNnyo6ghnjN3grjJCDiKfMi6
+         n9lGXrziD6PC4HdURmaKGQTslyIaqOvsuvaKNFDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 641/779] s390/smp: cleanup target CPU callback starting
-Date:   Mon, 15 Aug 2022 20:04:45 +0200
-Message-Id: <20220815180404.755545770@linuxfoundation.org>
+Subject: [PATCH 5.15 642/779] s390/smp: cleanup control register update routines
+Date:   Mon, 15 Aug 2022 20:04:46 +0200
+Message-Id: <20220815180404.804207438@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,52 +57,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit dc2ab23b992c9d5dab93b9bf01b10b10465e537e ]
+[ Upstream commit 9097fc793f74ef9c677f8c4aed0c24f6f07f0133 ]
 
-Macro mem_assign_absolute() is used to initialize a target
-CPU lowcore callback parameters. But despite the macro name
-it writes to the absolute lowcore only if the target CPU is
-offline. In case the CPU is online the macro does implicitly
-write to the normal memory.
-
-That behaviour is correct, but extremely subtle. Sacrifice
-few program bits in favour of clarity and distinguish between
-online vs offline CPUs and normal vs absolute lowcore pointer.
+Get rid of duplicate code and redundant data.
 
 Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/smp.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/ctl_reg.h | 16 ++++++++++-----
+ arch/s390/kernel/smp.c          | 36 +++++++++++----------------------
+ 2 files changed, 23 insertions(+), 29 deletions(-)
 
+diff --git a/arch/s390/include/asm/ctl_reg.h b/arch/s390/include/asm/ctl_reg.h
+index 04dc65f8901d..80b93c06a2bb 100644
+--- a/arch/s390/include/asm/ctl_reg.h
++++ b/arch/s390/include/asm/ctl_reg.h
+@@ -72,8 +72,17 @@ static __always_inline void __ctl_clear_bit(unsigned int cr, unsigned int bit)
+ 	__ctl_load(reg, cr, cr);
+ }
+ 
+-void smp_ctl_set_bit(int cr, int bit);
+-void smp_ctl_clear_bit(int cr, int bit);
++void smp_ctl_set_clear_bit(int cr, int bit, bool set);
++
++static inline void ctl_set_bit(int cr, int bit)
++{
++	smp_ctl_set_clear_bit(cr, bit, true);
++}
++
++static inline void ctl_clear_bit(int cr, int bit)
++{
++	smp_ctl_set_clear_bit(cr, bit, false);
++}
+ 
+ union ctlreg0 {
+ 	unsigned long val;
+@@ -128,8 +137,5 @@ union ctlreg15 {
+ 	};
+ };
+ 
+-#define ctl_set_bit(cr, bit) smp_ctl_set_bit(cr, bit)
+-#define ctl_clear_bit(cr, bit) smp_ctl_clear_bit(cr, bit)
+-
+ #endif /* __ASSEMBLY__ */
+ #endif /* __ASM_CTL_REG_H */
 diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index e57eb2260b90..982b72ca677c 100644
+index 982b72ca677c..7bbcb5b8d3f6 100644
 --- a/arch/s390/kernel/smp.c
 +++ b/arch/s390/kernel/smp.c
-@@ -328,10 +328,17 @@ static void pcpu_delegate(struct pcpu *pcpu,
- 	/* Stop target cpu (if func returns this stops the current cpu). */
- 	pcpu_sigp_retry(pcpu, SIGP_STOP, 0);
- 	/* Restart func on the target cpu and stop the current cpu. */
--	mem_assign_absolute(lc->restart_stack, stack);
--	mem_assign_absolute(lc->restart_fn, (unsigned long) func);
--	mem_assign_absolute(lc->restart_data, (unsigned long) data);
--	mem_assign_absolute(lc->restart_source, source_cpu);
-+	if (lc) {
-+		lc->restart_stack = stack;
-+		lc->restart_fn = (unsigned long)func;
-+		lc->restart_data = (unsigned long)data;
-+		lc->restart_source = source_cpu;
+@@ -579,39 +579,27 @@ static void smp_ctl_bit_callback(void *info)
+ }
+ 
+ static DEFINE_SPINLOCK(ctl_lock);
+-static unsigned long ctlreg;
+ 
+-/*
+- * Set a bit in a control register of all cpus
+- */
+-void smp_ctl_set_bit(int cr, int bit)
++void smp_ctl_set_clear_bit(int cr, int bit, bool set)
+ {
+-	struct ec_creg_mask_parms parms = { 1UL << bit, -1UL, cr };
+-
+-	spin_lock(&ctl_lock);
+-	memcpy_absolute(&ctlreg, &S390_lowcore.cregs_save_area[cr], sizeof(ctlreg));
+-	__set_bit(bit, &ctlreg);
+-	memcpy_absolute(&S390_lowcore.cregs_save_area[cr], &ctlreg, sizeof(ctlreg));
+-	spin_unlock(&ctl_lock);
+-	on_each_cpu(smp_ctl_bit_callback, &parms, 1);
+-}
+-EXPORT_SYMBOL(smp_ctl_set_bit);
+-
+-/*
+- * Clear a bit in a control register of all cpus
+- */
+-void smp_ctl_clear_bit(int cr, int bit)
+-{
+-	struct ec_creg_mask_parms parms = { 0, ~(1UL << bit), cr };
++	struct ec_creg_mask_parms parms = { .cr = cr, };
++	u64 ctlreg;
+ 
++	if (set) {
++		parms.orval = 1UL << bit;
++		parms.andval = -1UL;
 +	} else {
-+		mem_assign_absolute(lc->restart_stack, stack);
-+		mem_assign_absolute(lc->restart_fn, (unsigned long)func);
-+		mem_assign_absolute(lc->restart_data, (unsigned long)data);
-+		mem_assign_absolute(lc->restart_source, source_cpu);
++		parms.orval = 0;
++		parms.andval = ~(1UL << bit);
 +	}
- 	__bpon();
- 	asm volatile(
- 		"0:	sigp	0,%0,%2	# sigp restart to target cpu\n"
+ 	spin_lock(&ctl_lock);
+ 	memcpy_absolute(&ctlreg, &S390_lowcore.cregs_save_area[cr], sizeof(ctlreg));
+-	__clear_bit(bit, &ctlreg);
++	ctlreg = (ctlreg & parms.andval) | parms.orval;
+ 	memcpy_absolute(&S390_lowcore.cregs_save_area[cr], &ctlreg, sizeof(ctlreg));
+ 	spin_unlock(&ctl_lock);
+ 	on_each_cpu(smp_ctl_bit_callback, &parms, 1);
+ }
+-EXPORT_SYMBOL(smp_ctl_clear_bit);
++EXPORT_SYMBOL(smp_ctl_set_clear_bit);
+ 
+ #ifdef CONFIG_CRASH_DUMP
+ 
 -- 
 2.35.1
 
