@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00E955943B3
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:57:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7BFF594552
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245355AbiHOWGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:06:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34986 "EHLO
+        id S1347527AbiHOWHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:07:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348919AbiHOWGN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:06:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98E85642E0;
-        Mon, 15 Aug 2022 12:37:45 -0700 (PDT)
+        with ESMTP id S1349667AbiHOWGW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:06:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BA68117778;
+        Mon, 15 Aug 2022 12:37:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9504B81136;
-        Mon, 15 Aug 2022 19:37:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00FDFC433C1;
-        Mon, 15 Aug 2022 19:37:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ABCE9B80EA8;
+        Mon, 15 Aug 2022 19:37:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 073C2C43470;
+        Mon, 15 Aug 2022 19:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592262;
-        bh=ANL6klqW/86IDG8pasVTOS+kTf2py8/R0aiAnbzkIjU=;
+        s=korg; t=1660592268;
+        bh=Qk6A5z5Pblx3Ub+fE3xuwH7Ai2Bhm0bhJE/MIKtqHqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yrFwg9iIzKnnIwlclIFCGn7tGIex0L0H6eNqzeI7H+MObv4FHjWp00GYAm+Lb2SUY
-         GYF/KYgIp7Q5MYEz6fq91nWuu1oRZiUPwXTXK4BYx02bMPkTlwzZm3Cqzd9VOmGCny
-         JjPorBtDmG1o1i1uDdzOnZ5tQAAgqheSHeFak4ck=
+        b=1Q5g36dIl0FNdXUCgPuA2kIi0Dp2b2vepvzyuAD/q4jOsinfKJtw8bW9UQrYfjh2o
+         ONHtx9KZXc+kR7ynabhxDLtpZ9H8lu5kuV/sRiomvyd28jHyq35TAYcHObifPMvJ3t
+         5KSpAzZAG+FTP1+smayMABHgiUTS6fHb49qTcZuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Dmitry Osipenko <dmitry.osipenko@collabora.com>,
         Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.19 0082/1157] drm/gem: Properly annotate WW context on drm_gem_lock_reservations() error
-Date:   Mon, 15 Aug 2022 19:50:38 +0200
-Message-Id: <20220815180442.818738923@linuxfoundation.org>
+Subject: [PATCH 5.19 0083/1157] drm/shmem-helper: Add missing vunmap on error
+Date:   Mon, 15 Aug 2022 19:50:39 +0200
+Message-Id: <20220815180442.858553113@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -59,45 +56,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-commit 2939deac1fa220bc82b89235f146df1d9b52e876 upstream.
+commit df4aaf015775221dde8a51ee09edb919981f091e upstream.
 
-Use ww_acquire_fini() in the error code paths. Otherwise lockdep
-thinks that lock is held when lock's memory is freed after the
-drm_gem_lock_reservations() error. The ww_acquire_context needs to be
-annotated as "released", which fixes the noisy "WARNING: held lock freed!"
-splat of VirtIO-GPU driver with CONFIG_DEBUG_MUTEXES=y and enabled lockdep.
+The vmapping of dma-buf may succeed, but DRM SHMEM rejects the IOMEM
+mapping, and thus, drm_gem_shmem_vmap_locked() should unvmap the IOMEM
+before erroring out.
 
 Cc: stable@vger.kernel.org
-Fixes: 7edc3e3b975b5 ("drm: Add helpers for locking an array of BO reservations.")
-Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
+Fixes: 49a3f51dfeee ("drm/gem: Use struct dma_buf_map in GEM vmap ops and convert GEM backends")
 Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220630200405.1883897-2-dmitry.osipenko@collabora.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20220630200058.1883506-2-dmitry.osipenko@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_gem.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_gem_shmem_helper.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/drm_gem.c
-+++ b/drivers/gpu/drm/drm_gem.c
-@@ -1226,7 +1226,7 @@ retry:
- 		ret = dma_resv_lock_slow_interruptible(obj->resv,
- 								 acquire_ctx);
- 		if (ret) {
--			ww_acquire_done(acquire_ctx);
-+			ww_acquire_fini(acquire_ctx);
- 			return ret;
- 		}
- 	}
-@@ -1251,7 +1251,7 @@ retry:
- 				goto retry;
+--- a/drivers/gpu/drm/drm_gem_shmem_helper.c
++++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+@@ -302,6 +302,7 @@ static int drm_gem_shmem_vmap_locked(str
+ 		ret = dma_buf_vmap(obj->import_attach->dmabuf, map);
+ 		if (!ret) {
+ 			if (WARN_ON(map->is_iomem)) {
++				dma_buf_vunmap(obj->import_attach->dmabuf, map);
+ 				ret = -EIO;
+ 				goto err_put_pages;
  			}
- 
--			ww_acquire_done(acquire_ctx);
-+			ww_acquire_fini(acquire_ctx);
- 			return ret;
- 		}
- 	}
 
 
