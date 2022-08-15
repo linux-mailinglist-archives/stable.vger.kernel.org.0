@@ -2,99 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9BC65930EA
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 16:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9CCB593105
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 16:52:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231438AbiHOOnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 10:43:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53380 "EHLO
+        id S232011AbiHOOwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 10:52:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230418AbiHOOnL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 10:43:11 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B192D15FFE
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 07:43:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660574589;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=z5mQ0hPi4AeyBfzZet0Uijp05MF1VufdFtq2pAuw55o=;
-        b=ao9lnzxSmb4GJR4dF7dO/FFklh9xOECHwex713otqx4ueLYEDOGMOeRKWrW+i/ozoFumZ6
-        Al+y6OeTS1q4oDVaZugzKp4CDNW6hWNWk72Qeu8qm2SwsBqhGigX2c16brJxl0GJCzPYt3
-        WmdNrz9qZB1h7IueJE17Ei9qcT50DYw=
-Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
- [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-360-p95PeCmPP8uTRIipTFWL9g-1; Mon, 15 Aug 2022 10:43:08 -0400
-X-MC-Unique: p95PeCmPP8uTRIipTFWL9g-1
-Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-32a144ac47fso62037257b3.8
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 07:43:08 -0700 (PDT)
+        with ESMTP id S231978AbiHOOwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 10:52:10 -0400
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FD5213E8B
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 07:52:08 -0700 (PDT)
+Received: by mail-wm1-x334.google.com with SMTP id z14-20020a7bc7ce000000b003a5db0388a8so1684096wmk.1
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 07:52:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=QyfInw3SinvvxHPXWWwPy0IkBa9nuBxYZKgCC5o+lhk=;
+        b=bFbbZx/A6FLFU9sjqyXpmNybVclvugcitztxieuHeIPMjNML457cSt9//hqmMtw/sN
+         9jSb51ulCqSUAiKmll568C+8ZjhoRfgckGlEwPTiQ6iYGvFlo7K1oidB8dmZ3TcTt/uM
+         8O+NAnr25Vu6BdW6gCmI4wnu+5/dS24ZFxGkMRLFI+DejKtIJobgTBz7csVGOS6j0ojG
+         hBU/tA6+zGVMTSfFVsuN66ZMLCwFlCCDv4nONtyE8rdfZV4mDYeTELG6Of4BLUbD7Dr8
+         erW2v707TOSim3eL32+U6srCs18yczdsOIA9JVb6uJr/OIbW7k3748CYheYwq37RN4is
+         L8Ow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=z5mQ0hPi4AeyBfzZet0Uijp05MF1VufdFtq2pAuw55o=;
-        b=nqw9OpJsZaRo+jL3m2dZnAIvxb7pCWeiyDHtQ8aKe8Kw/LEk0Ouha2bVHDl9zDgCPH
-         g9a4jYap/CgImtBYyemHTh45DVpZ/4j44ZbhTHNWxnkW43+CeEcAz5d/s++IYIBv1vlR
-         bfm0XWjoVjdgFjfqnN12cMkj/aKebiaw/m/Mjp+x38wMNNY7pXjgpqi1EFErF03CwtFP
-         BrmYfkcjWuVR3DQKNnb7lV3/km2oCrWa5TFt3FnHh/0D/MdLf1g8cyH+MJqs9tP5ckHY
-         BJAJl4BeLHHEgH2dmHOCIpRxUuLJDewpBuusNn+Rx4cFXuK/dt3zj0Dl3i0j9hSwFhwg
-         sLeA==
-X-Gm-Message-State: ACgBeo1Nq55AFcACsWZWsNrJGvJgutMHqlE7I1A6wGZ3g6NtMfI7wUKt
-        DfxVY0mwrsqMMK1SUcojq7cC6+yvCTzuGGsjkwvXasvy6GTzPL/3b4TZW1eamnRXPZcJ/CraWd0
-        1X78kRWAIrQgxm4ZVQb+ZMQ5qu8CW2Jk1
-X-Received: by 2002:a0d:d744:0:b0:321:fdb4:12a5 with SMTP id z65-20020a0dd744000000b00321fdb412a5mr13398559ywd.479.1660574588090;
-        Mon, 15 Aug 2022 07:43:08 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR4MS+dbitMoerpbYebp6DjUn8i3vjwRH3q21hXP/pKhcScEOu2pWwVlKBM19QZz0R3QM5VfRSYu3E0LAwaCZVE=
-X-Received: by 2002:a0d:d744:0:b0:321:fdb4:12a5 with SMTP id
- z65-20020a0dd744000000b00321fdb412a5mr13398543ywd.479.1660574587905; Mon, 15
- Aug 2022 07:43:07 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=QyfInw3SinvvxHPXWWwPy0IkBa9nuBxYZKgCC5o+lhk=;
+        b=J/WI7neE8O02L6W7vTjb8dHpJHFRVNlHM24gf2zce97VCVjqTnLOJ/jf/V55Bbh4Ce
+         HJnZz1MdT4IbansMY87TV1IXLrMgBpEsud7ulP/ZeiY9D9CB0x8t0Gqrfs9paEzXMBt0
+         4aB5myrDQgjf/pqR9LqrDnyEImvMDGzi6FVxlzRXjogV47P6yqxgkNo7ZTnbcs6eJvWT
+         g6nz+4bRRuLhrWr1kOHLj3l3AexH8kGGCrQzARCKkm9C9ufTh0o2589vQG5FbFRVYCRh
+         1HA7yH6Wt7n2zv9IZpbw4QStJZFkzHSn7WO1j/uxOPcTnYRoEjeQyA5gNL9H+lU45x/Z
+         vXoQ==
+X-Gm-Message-State: ACgBeo1j/0MjlS2/sKOx5HEtlW+8kX8K/SEbNxHu0nVt7Bqgl9IFbT0o
+        GRpkLbKzTp43bXFkRYzCvWE/rrOo9RE=
+X-Google-Smtp-Source: AA6agR4vHHHFcfSyIg+/BzZswNSpoI/ZqlbA9CIcfJeS15x1EGtlKPpLqosLmU5Td/XgSHsk3hYF3w==
+X-Received: by 2002:a05:600c:1d14:b0:3a5:e8ba:f394 with SMTP id l20-20020a05600c1d1400b003a5e8baf394mr5067050wms.137.1660575126307;
+        Mon, 15 Aug 2022 07:52:06 -0700 (PDT)
+Received: from 127.0.0.1localhost.com ([2620:10d:c092:600::2:886])
+        by smtp.gmail.com with ESMTPSA id r17-20020a05600c35d100b003a38606385esm16014213wmq.3.2022.08.15.07.52.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Aug 2022 07:52:05 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>, asml.silence@gmail.com
+Subject: [PATCH stable-5.15 1/1] io_uring: mem-account pbuf buckets
+Date:   Mon, 15 Aug 2022 15:50:12 +0100
+Message-Id: <97b8d519d72d5ec81e4b5f9cf35a38e7c56179ae.1660574466.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.37.0
 MIME-Version: 1.0
-From:   Veronika Kabatova <vkabatov@redhat.com>
-Date:   Mon, 15 Aug 2022 16:42:32 +0200
-Message-ID: <CA+tGwnk-zD0O_xV_LqUPa4XC-S9oCFbPvQf+8FkREqfZjqwHwg@mail.gmail.com>
-Subject: =?UTF-8?Q?5=2E18_queue_aarch64_build_issue=3A_kexec=5Fkernel=5Fverify=5F?=
-        =?UTF-8?Q?pe=5Fsig=E2=80=99_undeclared?=
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+[ upstream commit cc18cc5e82033d406f54144ad6f8092206004684 ]
 
-CKI has been hitting the following build issue on aarch64 with the
-latest queues:
+Potentially, someone may create as many pbuf bucket as there are indexes
+in an xarray without any other restrictions bounding our memory usage,
+put memory needed for the buckets under memory accounting.
 
-00:00:12 arch/arm64/kernel/kexec_image.c:136:23: error:
-=E2=80=98kexec_kernel_verify_pe_sig=E2=80=99 undeclared here (not in a func=
-tion)
-00:00:12   136 |         .verify_sig =3D kexec_kernel_verify_pe_sig,
-00:00:12       |                       ^~~~~~~~~~~~~~~~~~~~~~~~~~
-00:00:12 make[4]: *** [scripts/Makefile.build:289:
-arch/arm64/kernel/kexec_image.o] Error 1
-00:00:12 make[3]: *** [scripts/Makefile.build:551: arch/arm64/kernel] Error=
- 2
-00:00:12 make[2]: *** [Makefile:1844: arch/arm64] Error 2
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/d34c452e45793e978d26e2606211ec9070d329ea.1659622312.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Seems to be caused by
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/=
-commit/?h=3Dqueue/5.18&id=3D3d36f26a98be23c6fc48f4589030c87dc6e1a268
-
-Full build log and kernel config used is available at
-
-https://datawarehouse.cki-project.org/kcidb/builds/251196
-
-or with other recent stable queue checkouts in DataWarehouse.
-
-
-Veronika
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 9bff14c5e2b2..0ce1587df432 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4477,7 +4477,8 @@ static int io_provide_buffers(struct io_kiocb *req, unsigned int issue_flags)
+ 
+ 	ret = io_add_buffers(p, &head);
+ 	if (ret >= 0 && !list) {
+-		ret = xa_insert(&ctx->io_buffers, p->bgid, head, GFP_KERNEL);
++		ret = xa_insert(&ctx->io_buffers, p->bgid, head,
++				GFP_KERNEL_ACCOUNT);
+ 		if (ret < 0)
+ 			__io_remove_buffers(ctx, head, p->bgid, -1U);
+ 	}
+-- 
+2.37.0
 
