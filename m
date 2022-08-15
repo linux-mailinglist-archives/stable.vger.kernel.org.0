@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94362594DDD
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:35:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01B3D594DA7
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242116AbiHPArq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:47:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56596 "EHLO
+        id S243828AbiHPAs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:48:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347607AbiHPAp7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:45:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94F7DCCE2B;
-        Mon, 15 Aug 2022 13:41:13 -0700 (PDT)
+        with ESMTP id S1344310AbiHPAo3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:44:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C1EE193552;
+        Mon, 15 Aug 2022 13:41:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24A0B61233;
-        Mon, 15 Aug 2022 20:41:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 165DBC433C1;
-        Mon, 15 Aug 2022 20:41:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6D16B80EAD;
+        Mon, 15 Aug 2022 20:41:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36303C433D7;
+        Mon, 15 Aug 2022 20:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596072;
-        bh=j/BFoTsk82o3gdJ5J8f/QcpIjyfX3s+y4+Ck4YqHTms=;
+        s=korg; t=1660596075;
+        bh=JLzz5dq88jRbBg6ItZt/44TfxmNsOXXimPAGwGAhAmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KdjFe1DiliM57nKowYR44A68LtnL2WASYgEPvuob2qR4K89Iikoo8PSkM9YiIZykE
-         zOM/pwvoqzcuw1IAJc1GWddUtnYassIZrB19NL7NFJJ3QnvB64gAE7Vp3nmPvwiAwG
-         hcdGf7M3MqTmBiDVgGWD3i6GMTpEEjrSuaNbxj7w=
+        b=Ef0zvKInlc+YR6jjZp0q/UqrUlTYVeEIhGW0xTXZ4iGz+kOzAkvsM0pkScu24CNWa
+         boXoQaGmrA+ikrHbZ9zJq16K2z4kJgITiiIbHATCvDQB1Z2fs5nZ9Jzn5IDgNuZInF
+         EMMO3VsPPBFYAAWbouAXUArsu3bROZ92JQeYF5oc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0963/1157] leds: pwm-multicolor: Dont show -EPROBE_DEFER as errors
-Date:   Mon, 15 Aug 2022 20:05:19 +0200
-Message-Id: <20220815180518.176425275@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Stefani Seibold <stefani@seibold.net>,
+        Randy Dunlap <randy.dunlap@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0964/1157] kfifo: fix kfifo_to_user() return type
+Date:   Mon, 15 Aug 2022 20:05:20 +0200
+Message-Id: <20220815180518.225172147@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,38 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Renner Berthing <emil.renner.berthing@canonical.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 399e7aa82105ea46d8998fa535b047541c48030f ]
+[ Upstream commit 045ed31e23aea840648c290dbde04797064960db ]
 
-When requesting a PWM it might return -EPROBE_DEFER if it hasn't probed
-yet. This is not an error, so just propagate the -EPROBE_DEFER without
-logging anything. There is already dev_err_probe for exactly this
-situation.
+The kfifo_to_user() macro is supposed to return zero for success or
+negative error codes.  Unfortunately, there is a signedness bug so it
+returns unsigned int.  This only affects callers which try to save the
+result in ssize_t and as far as I can see the only place which does that
+is line6_hwdep_read().
 
-Fixes: 9fa2762110dd ("leds: Add PWM multicolor driver")
-Signed-off-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+TL;DR: s/_uint/_int/.
+
+Link: https://lkml.kernel.org/r/YrVL3OJVLlNhIMFs@kili
+Fixes: 144ecf310eb5 ("kfifo: fix kfifo_alloc() to return a signed int value")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Stefani Seibold <stefani@seibold.net>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/rgb/leds-pwm-multicolor.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ include/linux/kfifo.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/leds/rgb/leds-pwm-multicolor.c b/drivers/leds/rgb/leds-pwm-multicolor.c
-index 45e38708ecb1..eb67b89d28e9 100644
---- a/drivers/leds/rgb/leds-pwm-multicolor.c
-+++ b/drivers/leds/rgb/leds-pwm-multicolor.c
-@@ -72,8 +72,7 @@ static int iterate_subleds(struct device *dev, struct pwm_mc_led *priv,
- 		pwmled = &priv->leds[priv->mc_cdev.num_colors];
- 		pwmled->pwm = devm_fwnode_pwm_get(dev, fwnode, NULL);
- 		if (IS_ERR(pwmled->pwm)) {
--			ret = PTR_ERR(pwmled->pwm);
--			dev_err(dev, "unable to request PWM: %d\n", ret);
-+			ret = dev_err_probe(dev, PTR_ERR(pwmled->pwm), "unable to request PWM\n");
- 			goto release_fwnode;
- 		}
- 		pwm_init_state(pwmled->pwm, &pwmled->state);
+diff --git a/include/linux/kfifo.h b/include/linux/kfifo.h
+index 86249476b57f..0b35a41440ff 100644
+--- a/include/linux/kfifo.h
++++ b/include/linux/kfifo.h
+@@ -688,7 +688,7 @@ __kfifo_uint_must_check_helper( \
+  * writer, you don't need extra locking to use these macro.
+  */
+ #define	kfifo_to_user(fifo, to, len, copied) \
+-__kfifo_uint_must_check_helper( \
++__kfifo_int_must_check_helper( \
+ ({ \
+ 	typeof((fifo) + 1) __tmp = (fifo); \
+ 	void __user *__to = (to); \
 -- 
 2.35.1
 
