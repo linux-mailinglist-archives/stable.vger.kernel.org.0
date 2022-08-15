@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD14595165
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:57:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 361A2595179
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:58:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233894AbiHPE5F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:57:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56376 "EHLO
+        id S233755AbiHPE6J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:58:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234167AbiHPE40 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:56:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 879A6BB6A8;
-        Mon, 15 Aug 2022 13:51:23 -0700 (PDT)
+        with ESMTP id S233767AbiHPE47 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:56:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E085BC833;
+        Mon, 15 Aug 2022 13:51:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8225861089;
-        Mon, 15 Aug 2022 20:51:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71D06C433D6;
-        Mon, 15 Aug 2022 20:51:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2EC361239;
+        Mon, 15 Aug 2022 20:51:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C6D5C433C1;
+        Mon, 15 Aug 2022 20:51:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596681;
-        bh=eSju7C3yRhZNi5hkK0/J5yLVf4TRaMXFKrFi3jlI5tg=;
+        s=korg; t=1660596685;
+        bh=9V2Lh427dE0c3DVs2bzvA7D9zotqaw/O2V5rkXiOl68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nbhw+fo/PrWwYh3m9ohE5rU3dmDz5HEbDYYrIL7o6dbUORHDFnkOQHr6aBhSnlsuL
-         fAnL6MFjNaHjgK6fJm9aAN8bBBqnnCJyBB2lShPBfDQj9xmQD+FTIKiK0QMiqZ1djV
-         joah2hZaO3kR/XjPJuszHuFc/6tN/wAtJ2FbrLXI=
+        b=jHJOQ2MeJijf5Ly76fDeuo9j9EilorVZCxkDbpy7Lf5aGMCHz1WKEaG8wM5JFA5v0
+         XV3UvNQdoOGpnoosEYvDmF/JVaXKuSfdLNldg8nSB4h6VJ82cKxqd9tNaryz95lTN0
+         pTaQkGuGySeLwyso72xXSP9/bDri6bBIGKmLhdpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Wang Jianjian <wangjianjian3@huawei.com>,
-        linux-ext4@vger.kernel.org, Bagas Sanjaya <bagasdotme@gmail.com>,
+        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
+        Andreas Dilger <adilger@dilger.ca>,
         Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1124/1157] Documentation: ext4: fix cell spacing of table heading on blockmap table
-Date:   Mon, 15 Aug 2022 20:08:00 +0200
-Message-Id: <20220815180525.307454244@linuxfoundation.org>
+Subject: [PATCH 5.19 1125/1157] ext4: check if directory block is within i_size
+Date:   Mon, 15 Aug 2022 20:08:01 +0200
+Message-Id: <20220815180525.350164423@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -57,54 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bagas Sanjaya <bagasdotme@gmail.com>
+From: Lukas Czerner <lczerner@redhat.com>
 
-[ Upstream commit 442ec1e5bb7c46c72c41898e13a5744c84cadf51 ]
+[ Upstream commit 65f8ea4cd57dbd46ea13b41dc8bac03176b04233 ]
 
-Commit 3103084afcf234 ("ext4, doc: remove unnecessary escaping") removes
-redundant underscore escaping, however the cell spacing in heading row of
-blockmap table became not aligned anymore, hence triggers malformed table
-warning:
+Currently ext4 directory handling code implicitly assumes that the
+directory blocks are always within the i_size. In fact ext4_append()
+will attempt to allocate next directory block based solely on i_size and
+the i_size is then appropriately increased after a successful
+allocation.
 
-Documentation/filesystems/ext4/blockmap.rst:3: WARNING: Malformed table.
+However, for this to work it requires i_size to be correct. If, for any
+reason, the directory inode i_size is corrupted in a way that the
+directory tree refers to a valid directory block past i_size, we could
+end up corrupting parts of the directory tree structure by overwriting
+already used directory blocks when modifying the directory.
 
-+---------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| i.i_block Offset   | Where It Points                                                                                                                                                                                                              |
-<snipped>...
+Fix it by catching the corruption early in __ext4_read_dirblock().
 
-The warning caused the table not being loaded.
-
-Realign the heading row cell by adding missing space at the first cell
-to fix the warning.
-
-Fixes: 3103084afcf234 ("ext4, doc: remove unnecessary escaping")
-Cc: stable@kernel.org
-Cc: Andreas Dilger <adilger.kernel@dilger.ca>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Wang Jianjian <wangjianjian3@huawei.com>
-Cc: linux-ext4@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
-Link: https://lore.kernel.org/r/20220619072938.7334-1-bagasdotme@gmail.com
+Addresses Red-Hat-Bugzilla: #2070205
+CVE: CVE-2022-1184
+Signed-off-by: Lukas Czerner <lczerner@redhat.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Link: https://lore.kernel.org/r/20220704142721.157985-1-lczerner@redhat.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/filesystems/ext4/blockmap.rst | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/namei.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/filesystems/ext4/blockmap.rst b/Documentation/filesystems/ext4/blockmap.rst
-index 2bd990402a5c..cc596541ce79 100644
---- a/Documentation/filesystems/ext4/blockmap.rst
-+++ b/Documentation/filesystems/ext4/blockmap.rst
-@@ -1,7 +1,7 @@
- .. SPDX-License-Identifier: GPL-2.0
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index db4ba99d1ceb..cf460aa4f81d 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -110,6 +110,13 @@ static struct buffer_head *__ext4_read_dirblock(struct inode *inode,
+ 	struct ext4_dir_entry *dirent;
+ 	int is_dx_block = 0;
  
- +---------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
--| i.i_block Offset   | Where It Points                                                                                                                                                                                                              |
-+| i.i_block Offset    | Where It Points                                                                                                                                                                                                              |
- +=====================+==============================================================================================================================================================================================================================+
- | 0 to 11             | Direct map to file blocks 0 to 11.                                                                                                                                                                                           |
- +---------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
++	if (block >= inode->i_size) {
++		ext4_error_inode(inode, func, line, block,
++		       "Attempting to read directory block (%u) that is past i_size (%llu)",
++		       block, inode->i_size);
++		return ERR_PTR(-EFSCORRUPTED);
++	}
++
+ 	if (ext4_simulate_fail(inode->i_sb, EXT4_SIM_DIRBLOCK_EIO))
+ 		bh = ERR_PTR(-EIO);
+ 	else
 -- 
 2.35.1
 
