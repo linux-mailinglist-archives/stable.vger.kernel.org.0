@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8144859427A
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B842594282
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350113AbiHOVuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:50:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59050 "EHLO
+        id S233286AbiHOVvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:51:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349789AbiHOVsY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:48:24 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A452B2AE14;
-        Mon, 15 Aug 2022 12:32:04 -0700 (PDT)
+        with ESMTP id S1349876AbiHOVsz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:48:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 119FF606B8;
+        Mon, 15 Aug 2022 12:32:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E9735CE12C4;
-        Mon, 15 Aug 2022 19:32:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2C2DC433C1;
-        Mon, 15 Aug 2022 19:31:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2640461133;
+        Mon, 15 Aug 2022 19:32:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11D65C433C1;
+        Mon, 15 Aug 2022 19:32:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591920;
-        bh=rlc+TygH3/TDpI6G8/9xUMPvuJv/ForyaE2lXM7vA8c=;
+        s=korg; t=1660591926;
+        bh=cRcGwfrIuzA+tBZlDTT6JWtbArYGci7x41RI+xWkygM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1wawT3C1aSwX6ayJs/hfOobHUdS6EMEUnRXd7ilLG8QzEwAuIWplEQrpuPNpQcXG9
-         G2se+gsKZ7xF7yXYauLKd6MZ6hMK8786a/8iDuPIQ89ReUOkdae9Ds4iBNsaxxXXWv
-         fNRYFb7Lse+8SCgtLrIgW5aZVUULxfnk8AZDJOUg=
+        b=f3+KWOYgzLfiZ2g/LTKQPdRQkL3Y5OJI5A5HJnSLYpwgVc8R+dtwBBUzKkglzJm88
+         efI7MXD9O2isrfneKHtJh+RlqyfXx/gJnpfmDsnl7zqpA5xy7zmGVtQT/QRGGXxy25
+         x4Qy+c6d07530W1zioSRaTsNIosCnsikon3/i+dc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org, Jenny Hack <jhack@hpe.com>,
+        Bob Pearson <rpearsonhpe@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0704/1095] usb: host: xhci: use snprintf() in xhci_decode_trb()
-Date:   Mon, 15 Aug 2022 20:01:43 +0200
-Message-Id: <20220815180458.494210801@linuxfoundation.org>
+Subject: [PATCH 5.18 0705/1095] RDMA/rxe: Fix deadlock in rxe_do_local_ops()
+Date:   Mon, 15 Aug 2022 20:01:44 +0200
+Message-Id: <20220815180458.543648823@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,40 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Bob Pearson <rpearsonhpe@gmail.com>
 
-[ Upstream commit 1ce69c35b86038dd11d3a6115a04501c5b89a940 ]
+[ Upstream commit 7cb33d1bc1ac8e51fd88928f96674d392f8e07c4 ]
 
-Commit cbf286e8ef83 ("xhci: fix unsafe memory usage in xhci tracing")
-apparently missed one sprintf() call in xhci_decode_trb() -- replace
-it with the snprintf() call as well...
+When a local operation (invalidate mr, reg mr, bind mw) is finished there
+will be no ack packet coming from a responder to cause the wqe to be
+completed. This may happen anyway if a subsequent wqe performs
+IO. Currently if the wqe is signalled the completer tasklet is scheduled
+immediately but not otherwise.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE static
-analysis tool.
+This leads to a deadlock if the next wqe has the fence bit set in send
+flags and the operation is not signalled. This patch removes the condition
+that the wqe must be signalled in order to schedule the completer tasklet
+which is the simplest fix for this deadlock and is fairly low cost. This
+is the analog for local operations of always setting the ackreq bit in all
+last or only request packets even if the operation is not signalled.
 
-Fixes: cbf286e8ef83 ("xhci: fix unsafe memory usage in xhci tracing")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220630124645.1805902-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220523223251.15350-1-rpearsonhpe@gmail.com
+Reported-by: Jenny Hack <jhack@hpe.com>
+Fixes: c1a411268a4b ("RDMA/rxe: Move local ops to subroutine")
+Signed-off-by: Bob Pearson <rpearsonhpe@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/sw/rxe/rxe_req.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index 1f3f311d9951..1d60e62752f3 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -2393,7 +2393,7 @@ static inline const char *xhci_decode_trb(char *str, size_t size,
- 			field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_STOP_RING:
--		sprintf(str,
-+		snprintf(str, size,
- 			"%s: slot %d sp %d ep %d flags %c",
- 			xhci_trb_type_string(type),
- 			TRB_TO_SLOT_ID(field3),
+diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
+index 8a1cff80a68e..d574c47099b8 100644
+--- a/drivers/infiniband/sw/rxe/rxe_req.c
++++ b/drivers/infiniband/sw/rxe/rxe_req.c
+@@ -586,9 +586,11 @@ static int rxe_do_local_ops(struct rxe_qp *qp, struct rxe_send_wqe *wqe)
+ 	wqe->status = IB_WC_SUCCESS;
+ 	qp->req.wqe_index = queue_next_index(qp->sq.queue, qp->req.wqe_index);
+ 
+-	if ((wqe->wr.send_flags & IB_SEND_SIGNALED) ||
+-	    qp->sq_sig_type == IB_SIGNAL_ALL_WR)
+-		rxe_run_task(&qp->comp.task, 1);
++	/* There is no ack coming for local work requests
++	 * which can lead to a deadlock. So go ahead and complete
++	 * it now.
++	 */
++	rxe_run_task(&qp->comp.task, 1);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
