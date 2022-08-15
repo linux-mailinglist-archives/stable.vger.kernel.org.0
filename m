@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D772593A1C
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:35:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B28F593A31
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:35:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344875AbiHOTbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:31:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40910 "EHLO
+        id S244143AbiHOTcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:32:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244202AbiHOT32 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:29:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8A355E32A;
-        Mon, 15 Aug 2022 11:44:04 -0700 (PDT)
+        with ESMTP id S244984AbiHOTaD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:30:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FEFE5F10D;
+        Mon, 15 Aug 2022 11:44:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB07B611DD;
-        Mon, 15 Aug 2022 18:44:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C21D3C433D6;
-        Mon, 15 Aug 2022 18:44:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7E43B8105D;
+        Mon, 15 Aug 2022 18:44:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7622C433D6;
+        Mon, 15 Aug 2022 18:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589043;
-        bh=yhuN0DL0yv2xRFCMow4wX3R8JWRCMkUfnbUAKDjrUfk=;
+        s=korg; t=1660589046;
+        bh=Z0NR9/jU7NPzm9A8SgemrFstoeQ930lhwENoftfU0xY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkfOykeIpBV7596KxMb/efFs6T1mJtJNkiF1chrmu2gZZ5rM1+44FIqN189xhNE2T
-         Tfm2Cxl6tN6VtXjleUXEgiJ4YjKGw4DhYahU5FkvT+Zh/KuMFkM7MXsZHXJDT5p61D
-         qaSYyohjZB8ETGnF1yVjfiVAm2xj9DKxNHibhnU4=
+        b=lbqZCHW9AsuHbgA4giZOsZo2bVnzLohV79RCalDybmZd9rrQz9DnCbWDgVyTNNeuO
+         srAN2cyZLRc0yGarPeeAIoS2uLoZASd01KfKZYFLAIlTgyHGwpzC9UqCukSAFV8+2A
+         nZqejMYlRRcBWa73GbOuocukyZoga0r7LZMZKWiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Fabio Estevam <festevam@gmail.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 563/779] ASoC: imx-audmux: Silence a clang warning
-Date:   Mon, 15 Aug 2022 20:03:27 +0200
-Message-Id: <20220815180401.386328352@linuxfoundation.org>
+Subject: [PATCH 5.15 564/779] ASoC: mediatek: mt8173: Fix refcount leak in mt8173_rt5650_rt5676_dev_probe
+Date:   Mon, 15 Aug 2022 20:03:28 +0200
+Message-Id: <20220815180401.426152365@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,38 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 2f4a8171da06609bb6a063630ed546ee3d93dad7 ]
+[ Upstream commit ae4f11c1ed2d67192fdf3d89db719ee439827c11 ]
 
-Change the of_device_get_match_data() cast to (uintptr_t)
-to silence the following clang warning:
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Fix missing of_node_put() in error paths.
 
-sound/soc/fsl/imx-audmux.c:301:16: warning: cast to smaller integer type 'enum imx_audmux_type' from 'const void *' [-Wvoid-pointer-to-enum-cast]
-
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 6a8b8b582db1 ("ASoC: imx-audmux: Remove unused .id_table")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20220526010543.1164793-1-festevam@gmail.com
+Fixes: 94319ba10eca ("ASoC: mediatek: Use platform_of_node for machine drivers")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220602034144.60159-1-linmq006@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/imx-audmux.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/fsl/imx-audmux.c b/sound/soc/fsl/imx-audmux.c
-index dfa05d40b276..a8e5e0f57faf 100644
---- a/sound/soc/fsl/imx-audmux.c
-+++ b/sound/soc/fsl/imx-audmux.c
-@@ -298,7 +298,7 @@ static int imx_audmux_probe(struct platform_device *pdev)
- 		audmux_clk = NULL;
+diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
+index c8e4e85e1057..94a9bbf144d1 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
++++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
+@@ -256,14 +256,16 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
+ 	if (!mt8173_rt5650_rt5676_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_node;
+ 	}
+ 	mt8173_rt5650_rt5676_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node =
+ 		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 1);
+ 	if (!mt8173_rt5650_rt5676_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_node;
+ 	}
+ 	mt8173_rt5650_rt5676_codec_conf[0].dlc.of_node =
+ 		mt8173_rt5650_rt5676_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node;
+@@ -276,7 +278,8 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
+ 	if (!mt8173_rt5650_rt5676_dais[DAI_LINK_HDMI_I2S].codecs->of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_node;
  	}
  
--	audmux_type = (enum imx_audmux_type)of_device_get_match_data(&pdev->dev);
-+	audmux_type = (uintptr_t)of_device_get_match_data(&pdev->dev);
+ 	card->dev = &pdev->dev;
+@@ -286,6 +289,7 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
+ 			__func__, ret);
  
- 	switch (audmux_type) {
- 	case IMX31_AUDMUX:
++put_node:
+ 	of_node_put(platform_node);
+ 	return ret;
+ }
 -- 
 2.35.1
 
