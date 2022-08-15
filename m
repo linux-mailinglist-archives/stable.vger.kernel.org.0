@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BD945940DB
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B01EF5940F2
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347983AbiHOV3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:29:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55818 "EHLO
+        id S1348071AbiHOV3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:29:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348540AbiHOV1w (ORCPT
+        with ESMTP id S1348548AbiHOV1w (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:27:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F01AEC4FD;
-        Mon, 15 Aug 2022 12:23:49 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54AB6ED00C;
+        Mon, 15 Aug 2022 12:23:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5D41B810C6;
-        Mon, 15 Aug 2022 19:23:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3405AC433D6;
-        Mon, 15 Aug 2022 19:23:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 681B960693;
+        Mon, 15 Aug 2022 19:23:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 508BAC433D6;
+        Mon, 15 Aug 2022 19:23:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591426;
-        bh=h8Q516GPAhcvv277OwVBGuM0KfIRuOS34O8QA4RBpXw=;
+        s=korg; t=1660591429;
+        bh=BXbrf2VsO7sCBorUn5KdpawL5FlbDVwfKdOkkWueWDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hK8MHP89RbMbWBGdfCFRNiwk3WYuYNArG6vO+nHWqR5s/uA7cuHCxUghIs/YgJJXB
-         oZv/WygMUIC/AQovMtljLi0h+6C8emIock+FBSbZFPmzVMurW7cWHuiiZEd5ntwI37
-         EQKW088/ml43OgKn6UE0TnIi8zY7RS5u8BlVMpsU=
+        b=QsW2e1laMga6zo0+sLtQpmgwQTUHEbxN47QZf5/02/6iQJndfTx8Gur9nT5krmXCB
+         5BaT7OxjoFm+jC/Je0ZKlTemmagT2uyh7Bi/x7O7Bcwvy8qWmSH9GBbgcbMtP8NVks
+         Ss3iqzqobe2cS+IhoNTOuqxOoJqk1rYIqjqWUQec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0574/1095] scsi: qla2xxx: edif: Send LOGO for unexpected IKE message
-Date:   Mon, 15 Aug 2022 19:59:33 +0200
-Message-Id: <20220815180453.309795070@linuxfoundation.org>
+Subject: [PATCH 5.18 0575/1095] scsi: qla2xxx: edif: Reduce disruption due to multiple app start
+Date:   Mon, 15 Aug 2022 19:59:34 +0200
+Message-Id: <20220815180453.352026999@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -59,75 +59,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 2b659ed67a12f39f56d8dcad9b5d5a74d67c01b3 ]
+[ Upstream commit 0dbfce5255fe8d069a1a3b712a25b263264cfa58 ]
 
-If the session is down and the local port continues to receive AUTH ELS
-messages, the driver needs to send back LOGO so that the remote device
-knows to tear down its session. Terminate and clean up the AUTH ELS
-exchange followed by a passthrough LOGO.
+Multiple app start can trigger a session bounce. Make driver skip over
+session teardown if app start is seen more than once.
 
-Link: https://lore.kernel.org/r/20220608115849.16693-3-njavali@marvell.com
-Fixes: 225479296c4f ("scsi: qla2xxx: edif: Reject AUTH ELS on session down")
+Link: https://lore.kernel.org/r/20220608115849.16693-4-njavali@marvell.com
+Fixes: 7ebb336e45ef ("scsi: qla2xxx: edif: Add start + stop bsgs")
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_edif.c | 19 +++++++++++++++++--
- drivers/scsi/qla2xxx/qla_fw.h   |  2 +-
- 2 files changed, 18 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_edif.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/scsi/qla2xxx/qla_edif.c b/drivers/scsi/qla2xxx/qla_edif.c
-index c17e177864d3..0ead3d95f594 100644
+index 0ead3d95f594..208a16cb54f0 100644
 --- a/drivers/scsi/qla2xxx/qla_edif.c
 +++ b/drivers/scsi/qla2xxx/qla_edif.c
-@@ -2644,8 +2644,7 @@ void qla24xx_auth_els(scsi_qla_host_t *vha, void **pkt, struct rsp_que **rsp)
- 
- 	fcport = qla2x00_find_fcport_by_pid(host, &purex->pur_info.pur_sid);
- 
--	if (DBELL_INACTIVE(vha) ||
--	    (fcport && EDIF_SESSION_DOWN(fcport))) {
-+	if (DBELL_INACTIVE(vha)) {
- 		ql_dbg(ql_dbg_edif, host, 0x0910c, "%s e_dbell.db_flags =%x %06x\n",
- 		    __func__, host->e_dbell.db_flags,
- 		    fcport ? fcport->d_id.b24 : 0);
-@@ -2655,6 +2654,22 @@ void qla24xx_auth_els(scsi_qla_host_t *vha, void **pkt, struct rsp_que **rsp)
- 		return;
+@@ -510,8 +510,7 @@ qla_edif_app_start(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
+ 		/* mark doorbell as active since an app is now present */
+ 		vha->e_dbell.db_flags |= EDB_ACTIVE;
+ 	} else {
+-		ql_dbg(ql_dbg_edif, vha, 0x911e, "%s doorbell already active\n",
+-		     __func__);
++		goto out;
  	}
  
-+	if (fcport && EDIF_SESSION_DOWN(fcport)) {
-+		ql_dbg(ql_dbg_edif, host, 0x13b6,
-+		    "%s terminate exchange. Send logo to 0x%x\n",
-+		    __func__, a.did.b24);
-+
-+		a.tx_byte_count = a.tx_len = 0;
-+		a.tx_addr = 0;
-+		a.control_flags = EPD_RX_XCHG;  /* EPD_RX_XCHG = terminate cmd */
-+		qla_els_reject_iocb(host, (*rsp)->qpair, &a);
-+		qla_enode_free(host, ptr);
-+		/* send logo to let remote port knows to tear down session */
-+		fcport->send_els_logo = 1;
-+		qlt_schedule_sess_for_deletion(fcport);
-+		return;
-+	}
-+
- 	/* add the local enode to the list */
- 	qla_enode_add(host, ptr);
+ 	if (N2N_TOPO(vha->hw)) {
+@@ -578,6 +577,7 @@ qla_edif_app_start(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
+ 		     __func__);
+ 	}
  
-diff --git a/drivers/scsi/qla2xxx/qla_fw.h b/drivers/scsi/qla2xxx/qla_fw.h
-index 0bb1d562f0bf..361015b5763e 100644
---- a/drivers/scsi/qla2xxx/qla_fw.h
-+++ b/drivers/scsi/qla2xxx/qla_fw.h
-@@ -807,7 +807,7 @@ struct els_entry_24xx {
- #define EPD_ELS_COMMAND		(0 << 13)
- #define EPD_ELS_ACC		(1 << 13)
- #define EPD_ELS_RJT		(2 << 13)
--#define EPD_RX_XCHG		(3 << 13)
-+#define EPD_RX_XCHG		(3 << 13)  /* terminate exchange */
- #define ECF_CLR_PASSTHRU_PEND	BIT_12
- #define ECF_INCL_FRAME_HDR	BIT_11
- #define ECF_SEC_LOGIN		BIT_3
++out:
+ 	appreply.host_support_edif = vha->hw->flags.edif_enabled;
+ 	appreply.edif_enode_active = vha->pur_cinfo.enode_flags;
+ 	appreply.edif_edb_active = vha->e_dbell.db_flags;
 -- 
 2.35.1
 
