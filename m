@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 927CA5937A3
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADCE959381E
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241706AbiHOSm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:42:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56400 "EHLO
+        id S241782AbiHOSm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:42:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243407AbiHOSk7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:40:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E393A3ED53;
-        Mon, 15 Aug 2022 11:24:37 -0700 (PDT)
+        with ESMTP id S243454AbiHOSlG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:41:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB4813ED5D;
+        Mon, 15 Aug 2022 11:24:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 227C8B8107D;
-        Mon, 15 Aug 2022 18:24:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FC03C433D7;
-        Mon, 15 Aug 2022 18:24:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BAFB260FB1;
+        Mon, 15 Aug 2022 18:24:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0C42C433C1;
+        Mon, 15 Aug 2022 18:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587874;
-        bh=+71B/xPyFSD04nyum0BVG7RUBcf5hzJg6Y5VERD+m2k=;
+        s=korg; t=1660587878;
+        bh=16N7gqoDhgtgU26/uFo+Xnm3wcLCzPvXEWtJM8/2n9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=01lXly8A2LksSkgcEHPb4urPXLojuUfGToRzo3X7ukzSiw8mRhKe5JMZO8YMKZLgK
-         H3aemthWan458BvFLkFAn7/xGYVb2tC2N9s6X4lH+dPi8qyO+xCM7wn7yPnfFvCwk1
-         OM0yRGzNq142yhvr+ZYf+wXudkKR34MXuPa3JIZA=
+        b=Yj5BWUEkA256LUWIbUUtCq/VUMRO6mWXssiBUlHGHUlPLMdYjbLQtxJ9XOIw87/de
+         6QOK9dlWG530s2AtrJQ6v1F7Vz+nPQaGDx6/nSHW2GuNNxSxjLrCEE+nxx+5E5AK47
+         Umtupk8OWsdgE440zgdeknZm/7qWd9t65/r3t1pk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 191/779] soc: qcom: aoss: Fix refcount leak in qmp_cooling_devices_register
-Date:   Mon, 15 Aug 2022 19:57:15 +0200
-Message-Id: <20220815180345.413523594@linuxfoundation.org>
+Subject: [PATCH 5.15 192/779] ARM: dts: qcom: pm8841: add required thermal-sensor-cells
+Date:   Mon, 15 Aug 2022 19:57:16 +0200
+Message-Id: <20220815180345.462671614@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,41 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit e6e0951414a314e7db3e9e24fd924b3e15515288 ]
+[ Upstream commit e2759fa0676c9a32bbddb9aff955b54bb35066ad ]
 
-Every iteration of for_each_available_child_of_node() decrements
-the reference count of the previous node.
-When breaking early from a for_each_available_child_of_node() loop,
-we need to explicitly call of_node_put() on the child node.
-Add missing of_node_put() to avoid refcount leak.
+The PM8841 temperature sensor has to define thermal-sensor-cells.
 
-Fixes: 05589b30b21a ("soc: qcom: Extend AOSS QMP driver to support resources that are used to wake up the SoC.")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Fixes: dab8134ca072 ("ARM: dts: qcom: Add PM8841 functions device nodes")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220606064252.42595-1-linmq006@gmail.com
+Link: https://lore.kernel.org/r/20220608112702.80873-2-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/qcom_aoss.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/qcom-pm8841.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soc/qcom/qcom_aoss.c b/drivers/soc/qcom/qcom_aoss.c
-index 8583c1e558ae..3973accdc982 100644
---- a/drivers/soc/qcom/qcom_aoss.c
-+++ b/drivers/soc/qcom/qcom_aoss.c
-@@ -499,8 +499,10 @@ static int qmp_cooling_devices_register(struct qmp *qmp)
- 			continue;
- 		ret = qmp_cooling_device_add(qmp, &qmp->cooling_devs[count++],
- 					     child);
--		if (ret)
-+		if (ret) {
-+			of_node_put(child);
- 			goto unroll;
-+		}
- 	}
+diff --git a/arch/arm/boot/dts/qcom-pm8841.dtsi b/arch/arm/boot/dts/qcom-pm8841.dtsi
+index 2fd59c440903..c73e5b149ac5 100644
+--- a/arch/arm/boot/dts/qcom-pm8841.dtsi
++++ b/arch/arm/boot/dts/qcom-pm8841.dtsi
+@@ -25,6 +25,7 @@ temp-alarm@2400 {
+ 			compatible = "qcom,spmi-temp-alarm";
+ 			reg = <0x2400>;
+ 			interrupts = <4 0x24 0 IRQ_TYPE_EDGE_RISING>;
++			#thermal-sensor-cells = <0>;
+ 		};
+ 	};
  
- 	if (!count)
 -- 
 2.35.1
 
