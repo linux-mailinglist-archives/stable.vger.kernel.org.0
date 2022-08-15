@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E4A959476C
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF4DD59470C
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:58:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353481AbiHOXhc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:37:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50942 "EHLO
+        id S1354157AbiHOXpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:45:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353854AbiHOXgp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:36:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8037BCCF1;
-        Mon, 15 Aug 2022 13:09:23 -0700 (PDT)
+        with ESMTP id S1354152AbiHOXnk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:43:40 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A8EA8688C;
+        Mon, 15 Aug 2022 13:13:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02386B80EA8;
-        Mon, 15 Aug 2022 20:09:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56FE1C433D7;
-        Mon, 15 Aug 2022 20:09:20 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1EAC0CE12C5;
+        Mon, 15 Aug 2022 20:13:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE059C433D6;
+        Mon, 15 Aug 2022 20:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594160;
-        bh=FMs/sWj9WFMQUIEfGyLx6NRo6/tJlhfm8nDKhrM5/EY=;
+        s=korg; t=1660594434;
+        bh=HPQ3uqaqAfVf4S6PuzQ/p3Xy42uW6oBrQE6d2Cc8B6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0p1NqNdUJdaQ0+wdlTySLPCOAz/knS3tpvh9lQ6294w95ngOHTKZHRAmAn1p53UzR
-         aEPG4BO3NfDEuvGPZw7dDqEFmx8nsulCox+hv73OjWl/butlm/xhicaYsLOpieuUDq
-         xOkcqBSWlEqtJcHdX6fO5Y5CyCxt6su2f4cQsTGA=
+        b=A+A6i+uW4cNheT+2uiJ4SP4aJjYwdGX2IO/0viOOcwWnE2mfGRulsy8Nmxk595nb6
+         poRvT3fF+FH+C+JYUqaQwFKEwZcBaOfFGWn89ST6oK1Amc968MCARCggsJPQYKBlFo
+         qlaG2ySYGs6i/gwSfm22NSFTdJmIFFkOJ13LFWDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1065/1095] ext4: unindent codeblock in ext4_xattr_block_set()
-Date:   Mon, 15 Aug 2022 20:07:44 +0200
-Message-Id: <20220815180513.102937573@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.18 1082/1095] mptcp: refine memory scheduling
+Date:   Mon, 15 Aug 2022 20:08:01 +0200
+Message-Id: <20220815180513.787011365@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -53,125 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit fd48e9acdf26d0cbd80051de07d4a735d05d29b2 ]
+commit 69d93daec026cdda98e29e8edb12534bfa5b1a9b upstream.
 
-Remove unnecessary else (and thus indentation level) from a code block
-in ext4_xattr_block_set(). It will also make following code changes
-easier. No functional changes.
+Similar to commit 7c80b038d23e ("net: fix sk_wmem_schedule() and
+sk_rmem_schedule() errors"), let the MPTCP receive path schedule
+exactly the required amount of memory.
 
-CC: stable@vger.kernel.org
-Fixes: 82939d7999df ("ext4: convert to mbcache2")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220712105436.32204-4-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/xattr.c | 77 ++++++++++++++++++++++++-------------------------
- 1 file changed, 38 insertions(+), 39 deletions(-)
+ net/mptcp/protocol.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-index d92d50de5a01..a25942a74929 100644
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -1850,6 +1850,8 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
- #define header(x) ((struct ext4_xattr_header *)(x))
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -323,9 +323,10 @@ static bool mptcp_rmem_schedule(struct s
+ 	struct mptcp_sock *msk = mptcp_sk(sk);
+ 	int amt, amount;
  
- 	if (s->base) {
-+		int offset = (char *)s->here - bs->bh->b_data;
-+
- 		BUFFER_TRACE(bs->bh, "get_write_access");
- 		error = ext4_journal_get_write_access(handle, sb, bs->bh,
- 						      EXT4_JTR_NONE);
-@@ -1882,49 +1884,46 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
- 			if (error)
- 				goto cleanup;
- 			goto inserted;
--		} else {
--			int offset = (char *)s->here - bs->bh->b_data;
-+		}
-+		unlock_buffer(bs->bh);
-+		ea_bdebug(bs->bh, "cloning");
-+		s->base = kmemdup(BHDR(bs->bh), bs->bh->b_size, GFP_NOFS);
-+		error = -ENOMEM;
-+		if (s->base == NULL)
-+			goto cleanup;
-+		s->first = ENTRY(header(s->base)+1);
-+		header(s->base)->h_refcount = cpu_to_le32(1);
-+		s->here = ENTRY(s->base + offset);
-+		s->end = s->base + bs->bh->b_size;
+-	if (size < msk->rmem_fwd_alloc)
++	if (size <= msk->rmem_fwd_alloc)
+ 		return true;
  
--			unlock_buffer(bs->bh);
--			ea_bdebug(bs->bh, "cloning");
--			s->base = kmemdup(BHDR(bs->bh), bs->bh->b_size, GFP_NOFS);
--			error = -ENOMEM;
--			if (s->base == NULL)
-+		/*
-+		 * If existing entry points to an xattr inode, we need
-+		 * to prevent ext4_xattr_set_entry() from decrementing
-+		 * ref count on it because the reference belongs to the
-+		 * original block. In this case, make the entry look
-+		 * like it has an empty value.
-+		 */
-+		if (!s->not_found && s->here->e_value_inum) {
-+			ea_ino = le32_to_cpu(s->here->e_value_inum);
-+			error = ext4_xattr_inode_iget(inode, ea_ino,
-+				      le32_to_cpu(s->here->e_hash),
-+				      &tmp_inode);
-+			if (error)
- 				goto cleanup;
--			s->first = ENTRY(header(s->base)+1);
--			header(s->base)->h_refcount = cpu_to_le32(1);
--			s->here = ENTRY(s->base + offset);
--			s->end = s->base + bs->bh->b_size;
- 
--			/*
--			 * If existing entry points to an xattr inode, we need
--			 * to prevent ext4_xattr_set_entry() from decrementing
--			 * ref count on it because the reference belongs to the
--			 * original block. In this case, make the entry look
--			 * like it has an empty value.
--			 */
--			if (!s->not_found && s->here->e_value_inum) {
--				ea_ino = le32_to_cpu(s->here->e_value_inum);
--				error = ext4_xattr_inode_iget(inode, ea_ino,
--					      le32_to_cpu(s->here->e_hash),
--					      &tmp_inode);
--				if (error)
--					goto cleanup;
--
--				if (!ext4_test_inode_state(tmp_inode,
--						EXT4_STATE_LUSTRE_EA_INODE)) {
--					/*
--					 * Defer quota free call for previous
--					 * inode until success is guaranteed.
--					 */
--					old_ea_inode_quota = le32_to_cpu(
--							s->here->e_value_size);
--				}
--				iput(tmp_inode);
--
--				s->here->e_value_inum = 0;
--				s->here->e_value_size = 0;
-+			if (!ext4_test_inode_state(tmp_inode,
-+					EXT4_STATE_LUSTRE_EA_INODE)) {
-+				/*
-+				 * Defer quota free call for previous
-+				 * inode until success is guaranteed.
-+				 */
-+				old_ea_inode_quota = le32_to_cpu(
-+						s->here->e_value_size);
- 			}
-+			iput(tmp_inode);
-+
-+			s->here->e_value_inum = 0;
-+			s->here->e_value_size = 0;
- 		}
- 	} else {
- 		/* Allocate a buffer where we construct the new block. */
--- 
-2.35.1
-
++	size -= msk->rmem_fwd_alloc;
+ 	amt = sk_mem_pages(size);
+ 	amount = amt << SK_MEM_QUANTUM_SHIFT;
+ 	msk->rmem_fwd_alloc += amount;
 
 
