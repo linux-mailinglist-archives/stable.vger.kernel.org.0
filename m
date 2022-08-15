@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 059DB593D33
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D178E593D8E
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243845AbiHOTvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:51:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59210 "EHLO
+        id S232139AbiHOTvt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:51:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345328AbiHOTte (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:49:34 -0400
+        with ESMTP id S1345339AbiHOTt6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:49:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91AFA72EE3;
-        Mon, 15 Aug 2022 11:49:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B946472EFB;
+        Mon, 15 Aug 2022 11:49:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C98ECB810A2;
-        Mon, 15 Aug 2022 18:49:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EC13C433D7;
-        Mon, 15 Aug 2022 18:49:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03D8AB81057;
+        Mon, 15 Aug 2022 18:49:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47DF2C433D6;
+        Mon, 15 Aug 2022 18:49:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589390;
-        bh=ev8eCZf7nG2UYA4LnbFQTNpzxmmKDb0z0eXAbIoA9Po=;
+        s=korg; t=1660589393;
+        bh=ideHvfhDE9wq+JxMMdoFAQuD3viIDQ424rCtYQY44JA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3F9mYkahY6QsODM9Z1HXds+xaWtMVfbiTJX1uIVKSD4dshiefHHdYViS7F8RSVFI
-         0siRjOda+dWG9rRSIpGSNCffEcYeNDvHbDmO83sMF6maDrUeYMaoMVlk/BLu5lUqPG
-         VbF78yd/+gtphOyWijxB4HR/gx+ecHb7+Wi0dVRY=
+        b=tJKHqfgUnDztxh4lJIhPIHmiJ0p2KRlkkMQKkDuzemuC0+zykc8OS3apibl67UEM3
+         F2BZlUF4x2pXORwCIia86EE8+B4xkYuPHNe4t6IxLdUM77ruQUVHDS7xx7NZHkmreD
+         g1OBQvYgSvBim/FsxWo6vXDpMQH7nnQ/JtD00eF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable <stable@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 704/779] scsi: lpfc: Remove extra atomic_inc on cmd_pending in queuecommand after VMID
-Date:   Mon, 15 Aug 2022 20:05:48 +0200
-Message-Id: <20220815180407.487035010@linuxfoundation.org>
+Subject: [PATCH 5.15 705/779] intel_th: pci: Add Meteor Lake-P support
+Date:   Mon, 15 Aug 2022 20:05:49 +0200
+Message-Id: <20220815180407.540418544@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,37 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-[ Upstream commit 0948a9c5386095baae4012190a6b65aba684a907 ]
+[ Upstream commit 802a9a0b1d91274ef10d9fe429b4cc1e8c200aef ]
 
-VMID introduced an extra increment of cmd_pending, causing double-counting
-of the I/O. The normal increment ios performed in lpfc_get_scsi_buf.
+Add support for the Trace Hub in Meteor Lake-P.
 
-Link: https://lore.kernel.org/r/20220701211425.2708-5-jsmart2021@gmail.com
-Fixes: 33c79741deaf ("scsi: lpfc: vmid: Introduce VMID in I/O path")
-Cc: <stable@vger.kernel.org> # v5.14+
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Link: https://lore.kernel.org/r/20220705082637.59979-5-alexander.shishkin@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_scsi.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/hwtracing/intel_th/pci.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
-index b43dfcb81185..7da8e4c845df 100644
---- a/drivers/scsi/lpfc/lpfc_scsi.c
-+++ b/drivers/scsi/lpfc/lpfc_scsi.c
-@@ -5707,7 +5707,6 @@ lpfc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *cmnd)
- 				cur_iocbq->cmd_flag |= LPFC_IO_VMID;
- 		}
- 	}
--	atomic_inc(&ndlp->cmd_pending);
- 
- #ifdef CONFIG_SCSI_LPFC_DEBUG_FS
- 	if (unlikely(phba->hdwqstat_on & LPFC_CHECK_SCSI_IO))
+diff --git a/drivers/hwtracing/intel_th/pci.c b/drivers/hwtracing/intel_th/pci.c
+index fcd0aca75007..41a31c7f505f 100644
+--- a/drivers/hwtracing/intel_th/pci.c
++++ b/drivers/hwtracing/intel_th/pci.c
+@@ -284,6 +284,11 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x54a6),
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+ 	},
++	{
++		/* Meteor Lake-P */
++		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x7e24),
++		.driver_data = (kernel_ulong_t)&intel_th_2x,
++	},
+ 	{
+ 		/* Alder Lake CPU */
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x466f),
 -- 
 2.35.1
 
