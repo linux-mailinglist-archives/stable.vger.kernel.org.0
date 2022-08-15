@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFF355937F0
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AFFB593781
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244582AbiHOTCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:02:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60526 "EHLO
+        id S244964AbiHOTDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:03:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245230AbiHOTBf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:01:35 -0400
+        with ESMTP id S245277AbiHOTBo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:01:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B87B133A1D;
-        Mon, 15 Aug 2022 11:33:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC4114B4B9;
+        Mon, 15 Aug 2022 11:33:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19E5260F7A;
-        Mon, 15 Aug 2022 18:33:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15794C433C1;
-        Mon, 15 Aug 2022 18:32:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F40461029;
+        Mon, 15 Aug 2022 18:33:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CFE9C433D6;
+        Mon, 15 Aug 2022 18:33:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588380;
-        bh=HrPimmobdIk2vbtJv/TMugZDKgUGpjvpS3KaV+bxIQk=;
+        s=korg; t=1660588383;
+        bh=HlTfPbXchC5cAD7jsM/6p4KFPwSHFJtQRD++oV1z8MA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VikBquhg9sLn8uVIOtkpPOLlxszMI0fsRJLB8T72mMSDU/xsGYdTpwh5YN7BxXb43
-         GhbJYdRfUKsX33KkPJHS6GywOf5K2CzTyxHAgVv6HvlnoUbwhSmNKsvjLJGHQi4+8b
-         iA55iKbzcg/Lj2ZkRIeE98jetLTaOG4Y5NBYIiT4=
+        b=IsIYxZvoCcuTipC0wvZ5KPlNUK7eYA3mEmIR0rofJwRnpz8ELQh+s2XulVlUgzWR5
+         EDn4CLbvDzId73oFPirwEcSeFAlriH/vKKEmDaJY7yy2zPgvuZAvMy6b599BvjbYvu
+         pWjBevSg8xQ9BPe9vM/bxXzY567w4j+7XXAm3094=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Hayes Wang <hayeswang@realtek.com>,
         Jakub Kicinski <kuba@kernel.org>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 384/779] dccp: put dccp_qpolicy_full() and dccp_qpolicy_push() in the same lock
-Date:   Mon, 15 Aug 2022 20:00:28 +0200
-Message-Id: <20220815180353.698944137@linuxfoundation.org>
+Subject: [PATCH 5.15 385/779] net: usb: make USB_RTL8153_ECM non user configurable
+Date:   Mon, 15 Aug 2022 20:00:29 +0200
+Message-Id: <20220815180353.747685622@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,68 +58,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Maciej Żenczykowski <maze@google.com>
 
-[ Upstream commit a41b17ff9dacd22f5f118ee53d82da0f3e52d5e3 ]
+[ Upstream commit f56530dcdb0684406661ac9f1accf48319d07600 ]
 
-In the case of sk->dccps_qpolicy == DCCPQ_POLICY_PRIO, dccp_qpolicy_full
-will drop a skb when qpolicy is full. And the lock in dccp_sendmsg is
-released before sock_alloc_send_skb and then relocked after
-sock_alloc_send_skb. The following conditions may lead dccp_qpolicy_push
-to add skb to an already full sk_write_queue:
+This refixes:
 
-thread1--->lock
-thread1--->dccp_qpolicy_full: queue is full. drop a skb
-thread1--->unlock
-thread2--->lock
-thread2--->dccp_qpolicy_full: queue is not full. no need to drop.
-thread2--->unlock
-thread1--->lock
-thread1--->dccp_qpolicy_push: add a skb. queue is full.
-thread1--->unlock
-thread2--->lock
-thread2--->dccp_qpolicy_push: add a skb!
-thread2--->unlock
+    commit 7da17624e7948d5d9660b910f8079d26d26ce453
+    nt: usb: USB_RTL8153_ECM should not default to y
 
-Fix this by moving dccp_qpolicy_full.
+    In general, device drivers should not be enabled by default.
 
-Fixes: b1308dc015eb ("[DCCP]: Set TX Queue Length Bounds via Sysctl")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20220729110027.40569-1-hbh25y@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+which basically broke the commit it claimed to fix, ie:
+
+    commit 657bc1d10bfc23ac06d5d687ce45826c760744f9
+    r8153_ecm: avoid to be prior to r8152 driver
+
+    Avoid r8153_ecm is compiled as built-in, if r8152 driver is compiled
+    as modules. Otherwise, the r8153_ecm would be used, even though the
+    device is supported by r8152 driver.
+
+this commit amounted to:
+
+drivers/net/usb/Kconfig:
+
++config USB_RTL8153_ECM
++       tristate "RTL8153 ECM support"
++       depends on USB_NET_CDCETHER && (USB_RTL8152 || USB_RTL8152=n)
++       default y
++       help
++         This option supports ECM mode for RTL8153 ethernet adapter, when
++         CONFIG_USB_RTL8152 is not set, or the RTL8153 device is not
++         supported by r8152 driver.
+
+drivers/net/usb/Makefile:
+
+-obj-$(CONFIG_USB_NET_CDCETHER) += cdc_ether.o r8153_ecm.o
++obj-$(CONFIG_USB_NET_CDCETHER) += cdc_ether.o
++obj-$(CONFIG_USB_RTL8153_ECM)  += r8153_ecm.o
+
+And as can be seen it pulls a piece of the cdc_ether driver out into
+a separate config option to be able to make this piece modular in case
+cdc_ether is builtin, while r8152 is modular.
+
+While in general, device drivers should indeed not be enabled by default:
+this isn't a device driver per say, but rather this is support code for
+the CDCETHER (ECM) driver, and should thus be enabled if it is enabled.
+
+See also email thread at:
+  https://www.spinics.net/lists/netdev/msg767649.html
+
+In:
+  https://www.spinics.net/lists/netdev/msg768284.html
+
+Jakub wrote:
+  And when we say "removed" we can just hide it from what's prompted
+  to the user (whatever such internal options are called)? I believe
+  this way we don't bring back Marek's complaint.
+
+Side note: these incorrect defaults will result in Android 13
+on 5.15 GKI kernels lacking USB_RTL8153_ECM support while having
+USB_NET_CDCETHER (luckily we also have USB_RTL8150 and USB_RTL8152,
+so it's probably only an issue for very new RTL815x hardware with
+no native 5.15 driver).
+
+Fixes: 7da17624e7948d5d ("nt: usb: USB_RTL8153_ECM should not default to y")
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Hayes Wang <hayeswang@realtek.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Link: https://lore.kernel.org/r/20220730230113.4138858-1-zenczykowski@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dccp/proto.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/usb/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/dccp/proto.c b/net/dccp/proto.c
-index fc44dadc778b..c4de716f4994 100644
---- a/net/dccp/proto.c
-+++ b/net/dccp/proto.c
-@@ -747,11 +747,6 @@ int dccp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+diff --git a/drivers/net/usb/Kconfig b/drivers/net/usb/Kconfig
+index b554054a7560..8939e5fbd50a 100644
+--- a/drivers/net/usb/Kconfig
++++ b/drivers/net/usb/Kconfig
+@@ -636,8 +636,9 @@ config USB_NET_AQC111
+ 	  * Aquantia AQtion USB to 5GbE
  
- 	lock_sock(sk);
- 
--	if (dccp_qpolicy_full(sk)) {
--		rc = -EAGAIN;
--		goto out_release;
--	}
--
- 	timeo = sock_sndtimeo(sk, noblock);
- 
- 	/*
-@@ -770,6 +765,11 @@ int dccp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
- 	if (skb == NULL)
- 		goto out_release;
- 
-+	if (dccp_qpolicy_full(sk)) {
-+		rc = -EAGAIN;
-+		goto out_discard;
-+	}
-+
- 	if (sk->sk_state == DCCP_CLOSED) {
- 		rc = -ENOTCONN;
- 		goto out_discard;
+ config USB_RTL8153_ECM
+-	tristate "RTL8153 ECM support"
++	tristate
+ 	depends on USB_NET_CDCETHER && (USB_RTL8152 || USB_RTL8152=n)
++	default y
+ 	help
+ 	  This option supports ECM mode for RTL8153 ethernet adapter, when
+ 	  CONFIG_USB_RTL8152 is not set, or the RTL8153 device is not
 -- 
 2.35.1
 
