@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3B8659505F
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2B49595065
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231442AbiHPEmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:42:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35452 "EHLO
+        id S231574AbiHPEmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:42:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231733AbiHPEkX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:40:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 820DFA4B3F;
-        Mon, 15 Aug 2022 13:31:37 -0700 (PDT)
+        with ESMTP id S231795AbiHPEk0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:40:26 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57021A50D0;
+        Mon, 15 Aug 2022 13:31:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4528FB81197;
-        Mon, 15 Aug 2022 20:31:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83DC4C433C1;
-        Mon, 15 Aug 2022 20:31:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A8D6CCE1345;
+        Mon, 15 Aug 2022 20:31:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96331C433C1;
+        Mon, 15 Aug 2022 20:31:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595495;
-        bh=mZgyq4mZcLQWF74aSysmnrWML+QTOy4RTquSjSzQl3s=;
+        s=korg; t=1660595498;
+        bh=ULVdn1u+eHqJzYIKptQEe/KzAAMdb1EsJ3McvUFHKhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i3GL8No1b/J1bU3oJpaMbse0dOtBRznWGSmLUnk3XbF6bygc59UOEpQMNhkvgxKcg
-         8PlhEhuZIOTEwMEsLDivlyKqOrJOXZNveeIrEyPGFQYbN4VAXoXciqWtWM+6Ns2kQ+
-         CJFYhCuADszFnEdNGjyTOZ4eOepBNvTze2hsbeU0=
+        b=xm8jB3pjjGvX/q25U/ifYlzgQOEyxKGLYwtiYC1iFcz+Pa92CoH5jPMeVjRPtaVG6
+         q/Rl2VPd1uQ1K/e08SPwrqe5swlD0JYnddnLBzFDxCtgn/ZniWO8NBEZbIHhqZ8QV4
+         yTKQkY9S/KwvCYLhScWjzAzpHtpN38mMzzusKOcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0782/1157] phy: qcom-qmp: fix the QSERDES_V5_COM_CMN_MODE register
-Date:   Mon, 15 Aug 2022 20:02:18 +0200
-Message-Id: <20220815180510.773104483@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0783/1157] scsi: qla2xxx: Check correct variable in qla24xx_async_gffid()
+Date:   Mon, 15 Aug 2022 20:02:19 +0200
+Message-Id: <20220815180510.811465162@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,37 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 488987b2d5cade4e7680f7e81590435a848d1fa9 ]
+[ Upstream commit 7c33e477bd883f79cccec418980cb8f7f2d50347 ]
 
-Change QSERDES_V5_COM_CMN_MODE to be defined to 0x1a0 rather than 0x1a4.
-The only user of this register name (sm8450_qmp_gen4x2_pcie_serdes_tbl)
-should use the 0x1a0 register, as stated in the downstream dtsi tree.
+There is a copy and paste bug here.  It should check ".rsp" instead of
+".req".  The error message is copy and pasted as well so update that too.
 
-Fixes: 2c91bf6bf290 ("phy: qcom-qmp: Add SM8450 PCIe1 PHY support")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20220705094320.1313312-2-dmitry.baryshkov@linaro.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/YrK1A/t3L6HKnswO@kili
+Fixes: 9c40c36e75ff ("scsi: qla2xxx: edif: Reduce Initiator-Initiator thrashing")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_gs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.h b/drivers/phy/qualcomm/phy-qcom-qmp.h
-index 06b2556ed93a..b9a91520439c 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp.h
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp.h
-@@ -1116,7 +1116,8 @@
- #define QSERDES_V5_COM_CORE_CLK_EN			0x174
- #define QSERDES_V5_COM_CMN_CONFIG			0x17c
- #define QSERDES_V5_COM_CMN_MISC1			0x19c
--#define QSERDES_V5_COM_CMN_MODE				0x1a4
-+#define QSERDES_V5_COM_CMN_MODE				0x1a0
-+#define QSERDES_V5_COM_CMN_MODE_CONTD			0x1a4
- #define QSERDES_V5_COM_VCO_DC_LEVEL_CTRL		0x1a8
- #define QSERDES_V5_COM_BIN_VCOCAL_CMP_CODE1_MODE0	0x1ac
- #define QSERDES_V5_COM_BIN_VCOCAL_CMP_CODE2_MODE0	0x1b0
+diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
+index 574251b2e0ef..c914b5df9c12 100644
+--- a/drivers/scsi/qla2xxx/qla_gs.c
++++ b/drivers/scsi/qla2xxx/qla_gs.c
+@@ -3386,9 +3386,9 @@ int qla24xx_async_gffid(scsi_qla_host_t *vha, fc_port_t *fcport, bool wait)
+ 				sp->u.iocb_cmd.u.ctarg.rsp_allocated_size,
+ 				&sp->u.iocb_cmd.u.ctarg.rsp_dma,
+ 	    GFP_KERNEL);
+-	if (!sp->u.iocb_cmd.u.ctarg.req) {
++	if (!sp->u.iocb_cmd.u.ctarg.rsp) {
+ 		ql_log(ql_log_warn, vha, 0xd041,
+-		       "%s: Failed to allocate ct_sns request.\n",
++		       "%s: Failed to allocate ct_sns response.\n",
+ 		       __func__);
+ 		goto done_free_sp;
+ 	}
 -- 
 2.35.1
 
