@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FD77594559
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB14F5943E5
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:57:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348982AbiHOWiW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:38:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38772 "EHLO
+        id S1350259AbiHOWjD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:39:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350877AbiHOWhQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:37:16 -0400
+        with ESMTP id S1350912AbiHOWhT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:37:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D01DD5F12B;
-        Mon, 15 Aug 2022 12:50:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFBE457278;
+        Mon, 15 Aug 2022 12:50:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 37A5160FB5;
-        Mon, 15 Aug 2022 19:49:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09E40C433C1;
-        Mon, 15 Aug 2022 19:49:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A93566125C;
+        Mon, 15 Aug 2022 19:49:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60629C433D7;
+        Mon, 15 Aug 2022 19:49:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592987;
-        bh=u3MJlF94TEUlwGT6XhEOyGzd+wXV3YqFsvsnUO3j5f8=;
+        s=korg; t=1660592994;
+        bh=UAcZmHsa1cU50LdsSO23W6xVAhxVJVOJgExFm4nAcdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ld0sjg0NMsfMteaAwSPQyGG3+WPVE50Om7/lZ2o6voLHzC03sTa3qLHY0sNXkqACp
-         U+7GQv/qszIxZaAm1x8JndbF/cXivX6ew4nqYZI8w8SxvVFw4OSyWjdC/7+ZOCceuo
-         KvTC6CLZVH3L05GmApBVCRRuEerotYy788IXqv0M=
+        b=EFsfe9F0xjALY+2FEGQ/SEeustdnKgjqjHSQyp5VvvOfv7GHHHFOFAGsU4vSWw9jS
+         O7hrqf2PTcD/M+HgbKsr0FyXiLHpGA34c1xo5tb73kv/OwwYVaHDpK1MIt81b/bpN5
+         WBRefPyzSS9b426uti4nq3d8U7iMM4PgEQ33Pr2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        YC Hung <yc.hung@mediatek.com>, Li-Yu Yu <afg984@gmail.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        KuanHsun Cheng <Allen-KH.Cheng@mediatek.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0876/1095] ASoC: SOF: mediatek: fix mt8195 StatvectorSel wrong setting
-Date:   Mon, 15 Aug 2022 20:04:35 +0200
-Message-Id: <20220815180505.597440635@linuxfoundation.org>
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0877/1095] swiotlb: fail map correctly with failed io_tlb_default_mem
+Date:   Mon, 15 Aug 2022 20:04:36 +0200
+Message-Id: <20220815180505.637602545@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -59,39 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YC Hung <yc.hung@mediatek.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 99bad468846f7a255dcfc95454401c83ae02e89b ]
+[ Upstream commit c51ba246cb172c9e947dc6fb8868a1eaf0b2a913 ]
 
-Fix StatVectorSel wrong setting.
+In the failure case of trying to use a buffer which we'd previously
+failed to allocate, the "!mem" condition is no longer sufficient since
+io_tlb_default_mem became static and assigned by default. Update the
+condition to work as intended per the rest of that conversion.
 
-Fixes: b7f6503830 ("ASoC: SOF: mediatek: Add fw loader and mt8195 dsp ops to load firmware")
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: YC Hung <yc.hung@mediatek.com>
-Reviewed-by: Li-Yu Yu <afg984@gmail.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: KuanHsun Cheng <Allen-KH.Cheng@mediatek.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20220708203904.29214-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 463e862ac63e ("swiotlb: Convert io_default_tlb_mem to static allocation")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/mediatek/mt8195/mt8195-loader.c | 2 +-
+ kernel/dma/swiotlb.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/mediatek/mt8195/mt8195-loader.c b/sound/soc/sof/mediatek/mt8195/mt8195-loader.c
-index ed18d6379e92..ef2664c3cd47 100644
---- a/sound/soc/sof/mediatek/mt8195/mt8195-loader.c
-+++ b/sound/soc/sof/mediatek/mt8195/mt8195-loader.c
-@@ -21,7 +21,7 @@ void sof_hifixdsp_boot_sequence(struct snd_sof_dev *sdev, u32 boot_addr)
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index 73a41cec9e38..90e5f5c92fdc 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -588,7 +588,7 @@ phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
+ 	int index;
+ 	phys_addr_t tlb_addr;
  
- 	/* pull high StatVectorSel to use AltResetVec (set bit4 to 1) */
- 	snd_sof_dsp_update_bits(sdev, DSP_REG_BAR, DSP_RESET_SW,
--				DSP_RESET_SW, DSP_RESET_SW);
-+				STATVECTOR_SEL, STATVECTOR_SEL);
+-	if (!mem)
++	if (!mem || !mem->nslabs)
+ 		panic("Can not allocate SWIOTLB buffer earlier and can't now provide you with the DMA bounce buffer");
  
- 	/* toggle  DReset & BReset */
- 	/* pull high DReset & BReset */
+ 	if (cc_platform_has(CC_ATTR_MEM_ENCRYPT))
 -- 
 2.35.1
 
