@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5824659350B
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:27:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBAE3593509
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:27:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240097AbiHOSS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:18:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58790 "EHLO
+        id S240079AbiHOSSz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:18:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239594AbiHOSST (ORCPT
+        with ESMTP id S239596AbiHOSST (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:18:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3F822B276;
-        Mon, 15 Aug 2022 11:15:47 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B63622B600;
+        Mon, 15 Aug 2022 11:15:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C635B8106E;
-        Mon, 15 Aug 2022 18:15:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5484C433C1;
-        Mon, 15 Aug 2022 18:15:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F6AFB80F99;
+        Mon, 15 Aug 2022 18:15:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABB4CC433D6;
+        Mon, 15 Aug 2022 18:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587345;
-        bh=j5aW/JTwd9qXhbplIdOJKXwEwpf/ethjKxhspY1HJRY=;
+        s=korg; t=1660587348;
+        bh=JmnDMjwkWsvNqz6dp+MmN/LDD/MPsnsmOvEuvPBt5DU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=phyHy5e5v/M2qIJu64zcm0kwh++kslmsi/szd14EPDSyKEnLtPjBjwww0P3R1YAo+
-         1JzRyloGckKiakjWYpolAMhpRvdBocQHRrn4Z3/t7nG2txG+Npm8euEgzTAPDQVFkH
-         q3QkE5lilbQeQ3UlMncYk3eDeCi9Cnd+++SEfFso=
+        b=Dp+nX2s841eveU3CnSzPsvTvVX9aMsp7jhaCd8H8DvuviS7NIob6QCt7u9UI3T/0Q
+         XTIHfvuwLR5sSYdhceEKaOiAXXRrUHlOlIJHXWzAT2/vl3fWF33waTceFaBmijWGNj
+         XXbNGCTPNzBSIn97j8+2gOLFevy3f8/+DS39+KBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nico Boehr <nrb@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: [PATCH 5.15 023/779] KVM: s390: pv: dont present the ecall interrupt twice
-Date:   Mon, 15 Aug 2022 19:54:27 +0200
-Message-Id: <20220815180338.213784078@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 024/779] KVM: x86: Split kvm_is_valid_cr4() and export only the non-vendor bits
+Date:   Mon, 15 Aug 2022 19:54:28 +0200
+Message-Id: <20220815180338.250121372@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,100 +53,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nico Boehr <nrb@linux.ibm.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit c3f0e5fd2d33d80c5a5a8b5e5d2bab2841709cc8 upstream.
+commit c33f6f2228fe8517e38941a508e9f905f99ecba9 upstream.
 
-When the SIGP interpretation facility is present and a VCPU sends an
-ecall to another VCPU in enabled wait, the sending VCPU receives a 56
-intercept (partial execution), so KVM can wake up the receiving CPU.
-Note that the SIGP interpretation facility will take care of the
-interrupt delivery and KVM's only job is to wake the receiving VCPU.
+Split the common x86 parts of kvm_is_valid_cr4(), i.e. the reserved bits
+checks, into a separate helper, __kvm_is_valid_cr4(), and export only the
+inner helper to vendor code in order to prevent nested VMX from calling
+back into vmx_is_valid_cr4() via kvm_is_valid_cr4().
 
-For PV, the sending VCPU will receive a 108 intercept (pv notify) and
-should continue like in the non-PV case, i.e. wake the receiving VCPU.
+On SVM, this is a nop as SVM doesn't place any additional restrictions on
+CR4.
 
-For PV and non-PV guests the interrupt delivery will occur through the
-SIGP interpretation facility on SIE entry when SIE finds the X bit in
-the status field set.
+On VMX, this is also currently a nop, but only because nested VMX is
+missing checks on reserved CR4 bits for nested VM-Enter.  That bug will
+be fixed in a future patch, and could simply use kvm_is_valid_cr4() as-is,
+but nVMX has _another_ bug where VMXON emulation doesn't enforce VMX's
+restrictions on CR0/CR4.  The cleanest and most intuitive way to fix the
+VMXON bug is to use nested_host_cr{0,4}_valid().  If the CR4 variant
+routes through kvm_is_valid_cr4(), using nested_host_cr4_valid() won't do
+the right thing for the VMXON case as vmx_is_valid_cr4() enforces VMX's
+restrictions if and only if the vCPU is post-VMXON.
 
-However, in handle_pv_notification(), there was no special handling for
-SIGP, which leads to interrupt injection being requested by KVM for the
-next SIE entry. This results in the interrupt being delivered twice:
-once by the SIGP interpretation facility and once by KVM through the
-IICTL.
-
-Add the necessary special handling in handle_pv_notification(), similar
-to handle_partial_execution(), which simply wakes the receiving VCPU and
-leave interrupt delivery to the SIGP interpretation facility.
-
-In contrast to external calls, emergency calls are not interpreted but
-also cause a 108 intercept, which is why we still need to call
-handle_instruction() for SIGP orders other than ecall.
-
-Since kvm_s390_handle_sigp_pei() is now called for all SIGP orders which
-cause a 108 intercept - even if they are actually handled by
-handle_instruction() - move the tracepoint in kvm_s390_handle_sigp_pei()
-to avoid possibly confusing trace messages.
-
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-Cc: <stable@vger.kernel.org> # 5.7
-Fixes: da24a0cc58ed ("KVM: s390: protvirt: Instruction emulation")
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220718130434.73302-1-nrb@linux.ibm.com
-Message-Id: <20220718130434.73302-1-nrb@linux.ibm.com>
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220607213604.3346000-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kvm/intercept.c |   15 +++++++++++++++
- arch/s390/kvm/sigp.c      |    4 ++--
- 2 files changed, 17 insertions(+), 2 deletions(-)
+ arch/x86/kvm/svm/nested.c |    3 ++-
+ arch/x86/kvm/vmx/vmx.c    |    4 ++--
+ arch/x86/kvm/x86.c        |   12 +++++++++---
+ arch/x86/kvm/x86.h        |    2 +-
+ 4 files changed, 14 insertions(+), 7 deletions(-)
 
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -523,12 +523,27 @@ static int handle_pv_uvc(struct kvm_vcpu
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -275,7 +275,8 @@ static bool nested_vmcb_check_cr3_cr4(st
+ 			return false;
+ 	}
  
- static int handle_pv_notification(struct kvm_vcpu *vcpu)
+-	if (CC(!kvm_is_valid_cr4(vcpu, save->cr4)))
++	/* Note, SVM doesn't have any additional restrictions on CR4. */
++	if (CC(!__kvm_is_valid_cr4(vcpu, save->cr4)))
+ 		return false;
+ 
+ 	return true;
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -3213,8 +3213,8 @@ static bool vmx_is_valid_cr4(struct kvm_
  {
-+	int ret;
-+
- 	if (vcpu->arch.sie_block->ipa == 0xb210)
- 		return handle_pv_spx(vcpu);
- 	if (vcpu->arch.sie_block->ipa == 0xb220)
- 		return handle_pv_sclp(vcpu);
- 	if (vcpu->arch.sie_block->ipa == 0xb9a4)
- 		return handle_pv_uvc(vcpu);
-+	if (vcpu->arch.sie_block->ipa >> 8 == 0xae) {
-+		/*
-+		 * Besides external call, other SIGP orders also cause a
-+		 * 108 (pv notify) intercept. In contrast to external call,
-+		 * these orders need to be emulated and hence the appropriate
-+		 * place to handle them is in handle_instruction().
-+		 * So first try kvm_s390_handle_sigp_pei() and if that isn't
-+		 * successful, go on with handle_instruction().
-+		 */
-+		ret = kvm_s390_handle_sigp_pei(vcpu);
-+		if (!ret)
-+			return ret;
-+	}
- 
- 	return handle_instruction(vcpu);
+ 	/*
+ 	 * We operate under the default treatment of SMM, so VMX cannot be
+-	 * enabled under SMM.  Note, whether or not VMXE is allowed at all is
+-	 * handled by kvm_is_valid_cr4().
++	 * enabled under SMM.  Note, whether or not VMXE is allowed at all,
++	 * i.e. is a reserved bit, is handled by common x86 code.
+ 	 */
+ 	if ((cr4 & X86_CR4_VMXE) && is_smm(vcpu))
+ 		return false;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1031,7 +1031,7 @@ int kvm_emulate_xsetbv(struct kvm_vcpu *
  }
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -492,9 +492,9 @@ int kvm_s390_handle_sigp_pei(struct kvm_
- 	struct kvm_vcpu *dest_vcpu;
- 	u8 order_code = kvm_s390_get_base_disp_rs(vcpu, NULL);
+ EXPORT_SYMBOL_GPL(kvm_emulate_xsetbv);
  
--	trace_kvm_s390_handle_sigp_pei(vcpu, order_code, cpu_addr);
--
- 	if (order_code == SIGP_EXTERNAL_CALL) {
-+		trace_kvm_s390_handle_sigp_pei(vcpu, order_code, cpu_addr);
+-bool kvm_is_valid_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
++bool __kvm_is_valid_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
+ {
+ 	if (cr4 & cr4_reserved_bits)
+ 		return false;
+@@ -1039,9 +1039,15 @@ bool kvm_is_valid_cr4(struct kvm_vcpu *v
+ 	if (cr4 & vcpu->arch.cr4_guest_rsvd_bits)
+ 		return false;
+ 
+-	return static_call(kvm_x86_is_valid_cr4)(vcpu, cr4);
++	return true;
++}
++EXPORT_SYMBOL_GPL(__kvm_is_valid_cr4);
 +
- 		dest_vcpu = kvm_get_vcpu_by_id(vcpu->kvm, cpu_addr);
- 		BUG_ON(dest_vcpu == NULL);
++static bool kvm_is_valid_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
++{
++	return __kvm_is_valid_cr4(vcpu, cr4) &&
++	       static_call(kvm_x86_is_valid_cr4)(vcpu, cr4);
+ }
+-EXPORT_SYMBOL_GPL(kvm_is_valid_cr4);
  
+ void kvm_post_set_cr4(struct kvm_vcpu *vcpu, unsigned long old_cr4, unsigned long cr4)
+ {
+--- a/arch/x86/kvm/x86.h
++++ b/arch/x86/kvm/x86.h
+@@ -448,7 +448,7 @@ static inline void kvm_machine_check(voi
+ void kvm_load_guest_xsave_state(struct kvm_vcpu *vcpu);
+ void kvm_load_host_xsave_state(struct kvm_vcpu *vcpu);
+ int kvm_spec_ctrl_test_value(u64 value);
+-bool kvm_is_valid_cr4(struct kvm_vcpu *vcpu, unsigned long cr4);
++bool __kvm_is_valid_cr4(struct kvm_vcpu *vcpu, unsigned long cr4);
+ int kvm_handle_memory_failure(struct kvm_vcpu *vcpu, int r,
+ 			      struct x86_exception *e);
+ int kvm_handle_invpcid(struct kvm_vcpu *vcpu, unsigned long type, gva_t gva);
 
 
