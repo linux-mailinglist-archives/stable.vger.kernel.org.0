@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE7F95934B4
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:27:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 791595934B6
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:27:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234642AbiHOSOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:14:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58226 "EHLO
+        id S234808AbiHOSO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:14:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233092AbiHOSOX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:14:23 -0400
+        with ESMTP id S233396AbiHOSOY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:14:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 491502A940;
-        Mon, 15 Aug 2022 11:14:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F57B2A426;
+        Mon, 15 Aug 2022 11:14:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7AC66126D;
-        Mon, 15 Aug 2022 18:14:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5E31C433D6;
-        Mon, 15 Aug 2022 18:14:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C05F461281;
+        Mon, 15 Aug 2022 18:14:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C92C7C433C1;
+        Mon, 15 Aug 2022 18:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587242;
-        bh=OulFKFL7KovR2r6EPGY1gNLGYVPmkKMFn3kUuRZ3tqk=;
+        s=korg; t=1660587245;
+        bh=bIhvwJ0cO3l3RJdTOuGmzssh9wbYGfWA10vvMIuUm+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0GArjA4ClM1VUi0xwvcZFeZ8KoxSjY6+2OxumJTGZ79hLSEOMdzg1JZZ3gT0NqHqn
-         gsJ3eEgll+pO9BKFyvCiB2KdZ//No2r465yUg/IA36ctcMUEhmrfYEnqRktnReJV2u
-         m9ePgL1uF7aAZ7BKW7fiTJqmCF7J4r8jhJmLSE58=
+        b=JPs3UMnxPZynqcjMDHZeTE3eHptg1ToVNMLgWpTMfRBqWqdk76sUnjROZtQ7+uMth
+         6R6wB6HMrf8jiB7YpExzxFxk2jSPeKV3G/q+fuCK4uNQMeu/lURyhF0XK6kxYa7++t
+         kjpD4AKZaLlq/+SEUxJk+9pvrAYEdgDO135WOuFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 008/779] ALSA: usb-audio: Add quirk for Behringer UMC202HD
-Date:   Mon, 15 Aug 2022 19:54:12 +0200
-Message-Id: <20220815180337.528098567@linuxfoundation.org>
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 009/779] ALSA: bcd2000: Fix a UAF bug on the error path of probing
+Date:   Mon, 15 Aug 2022 19:54:13 +0200
+Message-Id: <20220815180337.577966557@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -52,32 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit e086c37f876fd1f551e2b4f9be97d4a1923cd219 upstream.
+commit ffb2759df7efbc00187bfd9d1072434a13a54139 upstream.
 
-Just like other Behringer models, UMC202HD (USB ID 1397:0507) requires
-the quirk for the stable streaming, too.
+When the driver fails in snd_card_register() at probe time, it will free
+the 'bcd2k->midi_out_urb' before killing it, which may cause a UAF bug.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215934
+The following log can reveal it:
+
+[   50.727020] BUG: KASAN: use-after-free in bcd2000_input_complete+0x1f1/0x2e0 [snd_bcd2000]
+[   50.727623] Read of size 8 at addr ffff88810fab0e88 by task swapper/4/0
+[   50.729530] Call Trace:
+[   50.732899]  bcd2000_input_complete+0x1f1/0x2e0 [snd_bcd2000]
+
+Fix this by adding usb_kill_urb() before usb_free_urb().
+
+Fixes: b47a22290d58 ("ALSA: MIDI driver for Behringer BCD2000 USB device")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220722143948.29804-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20220715010515.2087925-1-zheyuma97@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/usb/bcd2000/bcd2000.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1843,6 +1843,8 @@ static const struct usb_audio_quirk_flag
- 		   QUIRK_FLAG_SHARE_MEDIA_DEVICE | QUIRK_FLAG_ALIGN_TRANSFER),
- 	DEVICE_FLG(0x1395, 0x740a, /* Sennheiser DECT */
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
-+	DEVICE_FLG(0x1397, 0x0507, /* Behringer UMC202HD */
-+		   QUIRK_FLAG_PLAYBACK_FIRST | QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 	DEVICE_FLG(0x1397, 0x0508, /* Behringer UMC204HD */
- 		   QUIRK_FLAG_PLAYBACK_FIRST | QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 	DEVICE_FLG(0x1397, 0x0509, /* Behringer UMC404HD */
+--- a/sound/usb/bcd2000/bcd2000.c
++++ b/sound/usb/bcd2000/bcd2000.c
+@@ -348,7 +348,8 @@ static int bcd2000_init_midi(struct bcd2
+ static void bcd2000_free_usb_related_resources(struct bcd2000 *bcd2k,
+ 						struct usb_interface *interface)
+ {
+-	/* usb_kill_urb not necessary, urb is aborted automatically */
++	usb_kill_urb(bcd2k->midi_out_urb);
++	usb_kill_urb(bcd2k->midi_in_urb);
+ 
+ 	usb_free_urb(bcd2k->midi_out_urb);
+ 	usb_free_urb(bcd2k->midi_in_urb);
 
 
