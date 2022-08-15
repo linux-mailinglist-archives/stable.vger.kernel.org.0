@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D9A9593863
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 124CD59382A
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245660AbiHOTMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:12:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44344 "EHLO
+        id S1343540AbiHOTMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:12:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343656AbiHOTJs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:09:48 -0400
+        with ESMTP id S245705AbiHOTJw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:09:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C07FE18358;
-        Mon, 15 Aug 2022 11:36:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E55DF2D1C6;
+        Mon, 15 Aug 2022 11:36:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85485B8105C;
-        Mon, 15 Aug 2022 18:36:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3011C433C1;
-        Mon, 15 Aug 2022 18:36:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CBAFB80F99;
+        Mon, 15 Aug 2022 18:36:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE04BC433C1;
+        Mon, 15 Aug 2022 18:36:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588572;
-        bh=/EF4z/uxQCTHAXnRvEbMiDLRJBQ1km36r9FTaXO2r6g=;
+        s=korg; t=1660588575;
+        bh=z2ppMhTPiC/F2H1GoH0DGMhpTjqq0uo0VJ7PpbIH8zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jhjOeEHMCBEo7v/3+xz/btrQjlzfQRC6IGVPhxQ++1yOOFRF7M8UigstjJ5ZJ9RkJ
-         Y+NnogTfWeWZUkOcaHFO0x4dWC62VB8VV0Z5Q/lEkJ6JgFrzjt5mOt3onYm0oUDW62
-         T4R0QxrySX7SGrDZcLrr+DIGwfjtDSqVUvkyrMlI=
+        b=cXy/SueMBG9/LI8Gexhl7oFL9RGvvLqRC21j1cZuIM32YcCStv/e/54x3q4nfKgEt
+         OLVYl0nCFNyScpDp8Rq+Haks0wgZzIveIRw/9Ef4zdC01X05pZsAlUdoTzNePR/TC/
+         cK3MbgBBUJXF+fzsp3Dez9mTVmWGwhBSTkXfjjK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bryan ODonoghue <bryan.odonoghue@linaro.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 446/779] clk: qcom: gcc-msm8939: Add missing system_mm_noc_bfdcd_clk_src
-Date:   Mon, 15 Aug 2022 20:01:30 +0200
-Message-Id: <20220815180356.333258001@linuxfoundation.org>
+Subject: [PATCH 5.15 447/779] clk: qcom: gcc-msm8939: Point MM peripherals to system_mm_noc clock
+Date:   Mon, 15 Aug 2022 20:01:31 +0200
+Message-Id: <20220815180356.384075666@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,57 +57,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit dd363e2f7196278e7a30f509a0e8a841cb763b14 ]
+[ Upstream commit 05eed0990927aa9634682fec58660e30f7b7ae30 ]
 
-The msm8939 has an additional higher operating point for the multi-media
-peripherals. The higher throughput MM componets operate off of the
-system-mm noc not the system noc.
+Qcom docs indciate the following peripherals operating from System NOC
+MM not from System NOC clocks.
 
-system_mm_noc_bfdcd_clk_src is the source clock for the higher frequency
-capable system noc mm.
+- MDP
+- VFE
+- JPEGe
+- Venus
 
-Maximum frequency for the MM SNOC is 400 MHz.
+Switch over the relevant parent pointers.
 
 Fixes: 1664014e4679 ("clk: qcom: gcc-msm8939: Add MSM8939 Generic Clock Controller")
 Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220504163835.40130-4-bryan.odonoghue@linaro.org
+Link: https://lore.kernel.org/r/20220504163835.40130-5-bryan.odonoghue@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-msm8939.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/clk/qcom/gcc-msm8939.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/clk/qcom/gcc-msm8939.c b/drivers/clk/qcom/gcc-msm8939.c
-index 31568658d23d..12bab9067ea8 100644
+index 12bab9067ea8..c7377ec0f423 100644
 --- a/drivers/clk/qcom/gcc-msm8939.c
 +++ b/drivers/clk/qcom/gcc-msm8939.c
-@@ -644,6 +644,18 @@ static struct clk_rcg2 bimc_ddr_clk_src = {
- 	},
- };
- 
-+static struct clk_rcg2 system_mm_noc_bfdcd_clk_src = {
-+	.cmd_rcgr = 0x2600c,
-+	.hid_width = 5,
-+	.parent_map = gcc_xo_gpll0_gpll6a_map,
-+	.clkr.hw.init = &(struct clk_init_data){
-+		.name = "system_mm_noc_bfdcd_clk_src",
-+		.parent_data = gcc_xo_gpll0_gpll6a_parent_data,
-+		.num_parents = 3,
-+		.ops = &clk_rcg2_ops,
-+	},
-+};
-+
- static const struct freq_tbl ftbl_gcc_camss_ahb_clk[] = {
- 	F(40000000, P_GPLL0, 10, 1, 2),
- 	F(80000000, P_GPLL0, 10, 0, 0),
-@@ -3623,6 +3635,7 @@ static struct clk_regmap *gcc_msm8939_clocks[] = {
- 	[GPLL2_VOTE] = &gpll2_vote,
- 	[PCNOC_BFDCD_CLK_SRC] = &pcnoc_bfdcd_clk_src.clkr,
- 	[SYSTEM_NOC_BFDCD_CLK_SRC] = &system_noc_bfdcd_clk_src.clkr,
-+	[SYSTEM_MM_NOC_BFDCD_CLK_SRC] = &system_mm_noc_bfdcd_clk_src.clkr,
- 	[CAMSS_AHB_CLK_SRC] = &camss_ahb_clk_src.clkr,
- 	[APSS_AHB_CLK_SRC] = &apss_ahb_clk_src.clkr,
- 	[CSI0_CLK_SRC] = &csi0_clk_src.clkr,
+@@ -2453,7 +2453,7 @@ static struct clk_branch gcc_camss_jpeg_axi_clk = {
+ 		.hw.init = &(struct clk_init_data){
+ 			.name = "gcc_camss_jpeg_axi_clk",
+ 			.parent_data = &(const struct clk_parent_data){
+-				.hw = &system_noc_bfdcd_clk_src.clkr.hw,
++				.hw = &system_mm_noc_bfdcd_clk_src.clkr.hw,
+ 			},
+ 			.num_parents = 1,
+ 			.flags = CLK_SET_RATE_PARENT,
+@@ -2657,7 +2657,7 @@ static struct clk_branch gcc_camss_vfe_axi_clk = {
+ 		.hw.init = &(struct clk_init_data){
+ 			.name = "gcc_camss_vfe_axi_clk",
+ 			.parent_data = &(const struct clk_parent_data){
+-				.hw = &system_noc_bfdcd_clk_src.clkr.hw,
++				.hw = &system_mm_noc_bfdcd_clk_src.clkr.hw,
+ 			},
+ 			.num_parents = 1,
+ 			.flags = CLK_SET_RATE_PARENT,
+@@ -2813,7 +2813,7 @@ static struct clk_branch gcc_mdss_axi_clk = {
+ 		.hw.init = &(struct clk_init_data){
+ 			.name = "gcc_mdss_axi_clk",
+ 			.parent_data = &(const struct clk_parent_data){
+-				.hw = &system_noc_bfdcd_clk_src.clkr.hw,
++				.hw = &system_mm_noc_bfdcd_clk_src.clkr.hw,
+ 			},
+ 			.num_parents = 1,
+ 			.flags = CLK_SET_RATE_PARENT,
+@@ -3205,7 +3205,7 @@ static struct clk_branch gcc_mdp_tbu_clk = {
+ 		.hw.init = &(struct clk_init_data){
+ 			.name = "gcc_mdp_tbu_clk",
+ 			.parent_data = &(const struct clk_parent_data){
+-				.hw = &system_noc_bfdcd_clk_src.clkr.hw,
++				.hw = &system_mm_noc_bfdcd_clk_src.clkr.hw,
+ 			},
+ 			.num_parents = 1,
+ 			.flags = CLK_SET_RATE_PARENT,
+@@ -3223,7 +3223,7 @@ static struct clk_branch gcc_venus_tbu_clk = {
+ 		.hw.init = &(struct clk_init_data){
+ 			.name = "gcc_venus_tbu_clk",
+ 			.parent_data = &(const struct clk_parent_data){
+-				.hw = &system_noc_bfdcd_clk_src.clkr.hw,
++				.hw = &system_mm_noc_bfdcd_clk_src.clkr.hw,
+ 			},
+ 			.num_parents = 1,
+ 			.flags = CLK_SET_RATE_PARENT,
+@@ -3241,7 +3241,7 @@ static struct clk_branch gcc_vfe_tbu_clk = {
+ 		.hw.init = &(struct clk_init_data){
+ 			.name = "gcc_vfe_tbu_clk",
+ 			.parent_data = &(const struct clk_parent_data){
+-				.hw = &system_noc_bfdcd_clk_src.clkr.hw,
++				.hw = &system_mm_noc_bfdcd_clk_src.clkr.hw,
+ 			},
+ 			.num_parents = 1,
+ 			.flags = CLK_SET_RATE_PARENT,
+@@ -3259,7 +3259,7 @@ static struct clk_branch gcc_jpeg_tbu_clk = {
+ 		.hw.init = &(struct clk_init_data){
+ 			.name = "gcc_jpeg_tbu_clk",
+ 			.parent_data = &(const struct clk_parent_data){
+-				.hw = &system_noc_bfdcd_clk_src.clkr.hw,
++				.hw = &system_mm_noc_bfdcd_clk_src.clkr.hw,
+ 			},
+ 			.num_parents = 1,
+ 			.flags = CLK_SET_RATE_PARENT,
+@@ -3496,7 +3496,7 @@ static struct clk_branch gcc_venus0_axi_clk = {
+ 		.hw.init = &(struct clk_init_data){
+ 			.name = "gcc_venus0_axi_clk",
+ 			.parent_data = &(const struct clk_parent_data){
+-				.hw = &system_noc_bfdcd_clk_src.clkr.hw,
++				.hw = &system_mm_noc_bfdcd_clk_src.clkr.hw,
+ 			},
+ 			.num_parents = 1,
+ 			.flags = CLK_SET_RATE_PARENT,
 -- 
 2.35.1
 
