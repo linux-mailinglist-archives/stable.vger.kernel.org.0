@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4584B594CAE
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64EE95947FC
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243419AbiHPArs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:47:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56792 "EHLO
+        id S230266AbiHOXRE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:17:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347949AbiHPAqI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:46:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2C62195814;
-        Mon, 15 Aug 2022 13:44:46 -0700 (PDT)
+        with ESMTP id S1345281AbiHOXO1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:14:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E6F895C9;
+        Mon, 15 Aug 2022 13:01:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 730F2B8114A;
-        Mon, 15 Aug 2022 20:44:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5D61C433C1;
-        Mon, 15 Aug 2022 20:44:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 040646068D;
+        Mon, 15 Aug 2022 20:01:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D2EDC433D6;
+        Mon, 15 Aug 2022 20:01:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596284;
-        bh=ZkfPhjN2avtPFEMPzc3hA7bzstrynbp1NHZb4XLt1sc=;
+        s=korg; t=1660593698;
+        bh=lbqy4wHnoIt1xf61VddVniRbmSLd1OYAPpAf6exUzmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pNpgDJLKr51uXHOsUXfOCHq1wSUEhL7d62AFKBSCynqwtjQcx8+AuhQMKPNam43Nt
-         T7HMO1dLuVFPR+sKzH4OnASwtY47mAdkDwXFfj6ArMHGqWOBuHLm6Vw6OTWQvw6HPt
-         bkeFm7/PMoOT+++3TPg21KHGx5xLQ0P2KJ4Rb074=
+        b=w7GrRqM+5LOlyMMwDMvDMjnj367/yvehljbpCSXJ02vS1e+CfZtrzl5FxCZ6GvX4y
+         fnamq0jgx/wwzWwSUGdZquzvcVBCURzuFbIA352oIE1C39WICNRf9wU28POTRHmcb+
+         S8NHuTnpPTxYWuIlPyJXaDy7hN2p2b803+8DZXbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1030/1157] video: fbdev: vt8623fb: Check the size of screen before memset_io()
-Date:   Mon, 15 Aug 2022 20:06:26 +0200
-Message-Id: <20220815180521.157105252@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Andre Edich <andre.edich@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0988/1095] usbnet: smsc95xx: Fix deadlock on runtime resume
+Date:   Mon, 15 Aug 2022 20:06:27 +0200
+Message-Id: <20220815180509.992286291@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +55,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit ec0754c60217248fa77cc9005d66b2b55200ac06 ]
+[ Upstream commit 7b960c967f2aa01ab8f45c5a0bd78e754cffdeee ]
 
-In the function vt8623fb_set_par(), the value of 'screen_size' is
-calculated by the user input. If the user provides the improper value,
-the value of 'screen_size' may larger than 'info->screen_size', which
-may cause the following bug:
+Commit 05b35e7eb9a1 ("smsc95xx: add phylib support") amended
+smsc95xx_resume() to call phy_init_hw().  That function waits for the
+device to runtime resume even though it is placed in the runtime resume
+path, causing a deadlock.
 
-[  583.339036] BUG: unable to handle page fault for address: ffffc90005000000
-[  583.339049] #PF: supervisor write access in kernel mode
-[  583.339052] #PF: error_code(0x0002) - not-present page
-[  583.339074] RIP: 0010:memset_orig+0x33/0xb0
-[  583.339110] Call Trace:
-[  583.339118]  vt8623fb_set_par+0x11cd/0x21e0
-[  583.339146]  fb_set_var+0x604/0xeb0
-[  583.339181]  do_fb_ioctl+0x234/0x670
-[  583.339209]  fb_ioctl+0xdd/0x130
+The problem is that phy_init_hw() calls down to smsc95xx_mdiobus_read(),
+which never uses the _nopm variant of usbnet_read_cmd().
 
-Fix the this by checking the value of 'screen_size' before memset_io().
+Commit b4df480f68ae ("usbnet: smsc95xx: add reset_resume function with
+reset operation") causes a similar deadlock on resume if the device was
+already runtime suspended when entering system sleep:
 
-Fixes: 558b7bd86c32 ("vt8623fb: new framebuffer driver for VIA VT8623")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+That's because the commit introduced smsc95xx_reset_resume(), which
+calls down to smsc95xx_reset(), which neglects to use _nopm accessors.
+
+Fix by auto-detecting whether a device access is performed by the
+suspend/resume task_struct and use the _nopm variant if so.  This works
+because the PM core guarantees that suspend/resume callbacks are run in
+task context.
+
+Stacktrace for posterity:
+
+  INFO: task kworker/2:1:49 blocked for more than 122 seconds.
+  Workqueue: usb_hub_wq hub_event
+  schedule
+  rpm_resume
+  __pm_runtime_resume
+  usb_autopm_get_interface
+  usbnet_read_cmd
+  __smsc95xx_read_reg
+  __smsc95xx_phy_wait_not_busy
+  __smsc95xx_mdio_read
+  smsc95xx_mdiobus_read
+  __mdiobus_read
+  mdiobus_read
+  smsc_phy_reset
+  phy_init_hw
+  smsc95xx_resume
+  usb_resume_interface
+  usb_resume_both
+  usb_runtime_resume
+  __rpm_callback
+  rpm_callback
+  rpm_resume
+  __pm_runtime_resume
+  usb_autoresume_device
+  hub_event
+  process_one_work
+
+Fixes: b4df480f68ae ("usbnet: smsc95xx: add reset_resume function with reset operation")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v3.16+
+Cc: Andre Edich <andre.edich@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/vt8623fb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/usb/smsc95xx.c | 26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/video/fbdev/vt8623fb.c b/drivers/video/fbdev/vt8623fb.c
-index a92a8c670cf0..4274c6efb249 100644
---- a/drivers/video/fbdev/vt8623fb.c
-+++ b/drivers/video/fbdev/vt8623fb.c
-@@ -507,6 +507,8 @@ static int vt8623fb_set_par(struct fb_info *info)
- 			 (info->var.vmode & FB_VMODE_DOUBLE) ? 2 : 1, 1,
- 			 1, info->node);
+diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
+index 358b170cc8fb..515363d74078 100644
+--- a/drivers/net/usb/smsc95xx.c
++++ b/drivers/net/usb/smsc95xx.c
+@@ -71,6 +71,7 @@ struct smsc95xx_priv {
+ 	struct fwnode_handle *irqfwnode;
+ 	struct mii_bus *mdiobus;
+ 	struct phy_device *phydev;
++	struct task_struct *pm_task;
+ };
  
-+	if (screen_size > info->screen_size)
-+		screen_size = info->screen_size;
- 	memset_io(info->screen_base, 0x00, screen_size);
+ static bool turbo_mode = true;
+@@ -80,13 +81,14 @@ MODULE_PARM_DESC(turbo_mode, "Enable multiple frames per Rx transaction");
+ static int __must_check __smsc95xx_read_reg(struct usbnet *dev, u32 index,
+ 					    u32 *data, int in_pm)
+ {
++	struct smsc95xx_priv *pdata = dev->driver_priv;
+ 	u32 buf;
+ 	int ret;
+ 	int (*fn)(struct usbnet *, u8, u8, u16, u16, void *, u16);
  
- 	/* Device and screen back on */
+ 	BUG_ON(!dev);
+ 
+-	if (!in_pm)
++	if (current != pdata->pm_task)
+ 		fn = usbnet_read_cmd;
+ 	else
+ 		fn = usbnet_read_cmd_nopm;
+@@ -110,13 +112,14 @@ static int __must_check __smsc95xx_read_reg(struct usbnet *dev, u32 index,
+ static int __must_check __smsc95xx_write_reg(struct usbnet *dev, u32 index,
+ 					     u32 data, int in_pm)
+ {
++	struct smsc95xx_priv *pdata = dev->driver_priv;
+ 	u32 buf;
+ 	int ret;
+ 	int (*fn)(struct usbnet *, u8, u8, u16, u16, const void *, u16);
+ 
+ 	BUG_ON(!dev);
+ 
+-	if (!in_pm)
++	if (current != pdata->pm_task)
+ 		fn = usbnet_write_cmd;
+ 	else
+ 		fn = usbnet_write_cmd_nopm;
+@@ -1508,9 +1511,12 @@ static int smsc95xx_suspend(struct usb_interface *intf, pm_message_t message)
+ 	u32 val, link_up;
+ 	int ret;
+ 
++	pdata->pm_task = current;
++
+ 	ret = usbnet_suspend(intf, message);
+ 	if (ret < 0) {
+ 		netdev_warn(dev->net, "usbnet_suspend error\n");
++		pdata->pm_task = NULL;
+ 		return ret;
+ 	}
+ 
+@@ -1750,6 +1756,7 @@ static int smsc95xx_suspend(struct usb_interface *intf, pm_message_t message)
+ 	if (ret && PMSG_IS_AUTO(message))
+ 		usbnet_resume(intf);
+ 
++	pdata->pm_task = NULL;
+ 	return ret;
+ }
+ 
+@@ -1770,29 +1777,31 @@ static int smsc95xx_resume(struct usb_interface *intf)
+ 	/* do this first to ensure it's cleared even in error case */
+ 	pdata->suspend_flags = 0;
+ 
++	pdata->pm_task = current;
++
+ 	if (suspend_flags & SUSPEND_ALLMODES) {
+ 		/* clear wake-up sources */
+ 		ret = smsc95xx_read_reg_nopm(dev, WUCSR, &val);
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 
+ 		val &= ~(WUCSR_WAKE_EN_ | WUCSR_MPEN_);
+ 
+ 		ret = smsc95xx_write_reg_nopm(dev, WUCSR, val);
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 
+ 		/* clear wake-up status */
+ 		ret = smsc95xx_read_reg_nopm(dev, PM_CTRL, &val);
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 
+ 		val &= ~PM_CTL_WOL_EN_;
+ 		val |= PM_CTL_WUPS_;
+ 
+ 		ret = smsc95xx_write_reg_nopm(dev, PM_CTRL, val);
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 	}
+ 
+ 	phy_init_hw(pdata->phydev);
+@@ -1801,15 +1810,20 @@ static int smsc95xx_resume(struct usb_interface *intf)
+ 	if (ret < 0)
+ 		netdev_warn(dev->net, "usbnet_resume error\n");
+ 
++done:
++	pdata->pm_task = NULL;
+ 	return ret;
+ }
+ 
+ static int smsc95xx_reset_resume(struct usb_interface *intf)
+ {
+ 	struct usbnet *dev = usb_get_intfdata(intf);
++	struct smsc95xx_priv *pdata = dev->driver_priv;
+ 	int ret;
+ 
++	pdata->pm_task = current;
+ 	ret = smsc95xx_reset(dev);
++	pdata->pm_task = NULL;
+ 	if (ret < 0)
+ 		return ret;
+ 
 -- 
 2.35.1
 
