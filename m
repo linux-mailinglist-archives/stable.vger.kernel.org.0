@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F2E4594676
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C949959467B
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232252AbiHOW5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:57:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45056 "EHLO
+        id S1346173AbiHOW5L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:57:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352583AbiHOW4W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:56:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E373DF12;
-        Mon, 15 Aug 2022 12:55:40 -0700 (PDT)
+        with ESMTP id S1352677AbiHOW4f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:56:35 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8B1B12F733;
+        Mon, 15 Aug 2022 12:55:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FA3661299;
-        Mon, 15 Aug 2022 19:55:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7299EC433D6;
-        Mon, 15 Aug 2022 19:55:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 328A2CE12C3;
+        Mon, 15 Aug 2022 19:55:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB601C433C1;
+        Mon, 15 Aug 2022 19:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593337;
-        bh=4u9rt+QdDkILcLD1KYvH6bN5uEpsuSs4RqAANrQI8zM=;
+        s=korg; t=1660593347;
+        bh=So4KEy2R+io5ZynIl2AOA2Bc69IgEvmlEzIA5aE010w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r6N6ZseH4QbZtNl7KwMyqB92CUTANga5JzhV1Iir7MqxG0RZEZCDkNBhQgTmLAD4T
-         B2wW/06yI9p4VNlqo2HG+3wYoQNmmul+99cmZZ9rrNQ2QQwixZ8XjiyRcQhhEDU3lQ
-         pPEx522+zHnsKqKX5uoDT4l2u2BdZCnZSls4I6Xk=
+        b=Ot5VwNHTCOnB67Ak9aOSNo7GbrizxFyQLsqV998pBd9E7tCCVxw8BzEcUgx7qHNCZ
+         Juylxn4fknX2qVB+KJHWSg9ikS89JdFWeAmvn1t+HsfmeIWLrvJLCqgHJ7HPc+jGNa
+         CP38CgrJBPu3QY8QALJclccNm1nI4n9iqu1yseZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chanho Park <chanho61.park@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        Jin Liu <jinl@redhat.com>,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0253/1157] arm64: dts: exynosautov9: correct spi11 pin names
-Date:   Mon, 15 Aug 2022 19:53:29 +0200
-Message-Id: <20220815180449.728087866@linuxfoundation.org>
+Subject: [PATCH 5.19 0254/1157] ACPI: VIOT: Fix ACS setup
+Date:   Mon, 15 Aug 2022 19:53:30 +0200
+Message-Id: <20220815180449.759726806@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,50 +56,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chanho Park <chanho61.park@samsung.com>
+From: Eric Auger <eric.auger@redhat.com>
 
-[ Upstream commit ba205449828f47f80532a1453beef5eed2982176 ]
+[ Upstream commit 3dcb861dbc6ab101838a1548b1efddd00ca3c3ec ]
 
-They should be started with "gpp5-".
+Currently acpi_viot_init() gets called after the pci
+device has been scanned and pci_enable_acs() has been called.
+So pci_request_acs() fails to be taken into account leading
+to wrong single iommu group topologies when dealing with
+multi-function root ports for instance.
 
-Fixes: 31bbac5263aa ("arm64: dts: exynos: add initial support for exynosautov9 SoC")
-Signed-off-by: Chanho Park <chanho61.park@samsung.com>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220627005832.8709-1-chanho61.park@samsung.com
+We cannot simply move the acpi_viot_init() earlier, similarly
+as the IORT init because the VIOT parsing relies on the pci
+scan. However we can detect VIOT is present earlier and in
+such a case, request ACS. Introduce a new acpi_viot_early_init()
+routine that allows to call pci_request_acs() before the scan.
+
+While at it, guard the call to pci_request_acs() with #ifdef
+CONFIG_PCI.
+
+Fixes: 3cf485540e7b ("ACPI: Add driver for the VIOT table")
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Reported-by: Jin Liu <jinl@redhat.com>
+Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Tested-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/exynos/exynosautov9-pinctrl.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/acpi/bus.c        |  1 +
+ drivers/acpi/viot.c       | 26 ++++++++++++++++++++------
+ include/linux/acpi_viot.h |  2 ++
+ 3 files changed, 23 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/exynos/exynosautov9-pinctrl.dtsi b/arch/arm64/boot/dts/exynos/exynosautov9-pinctrl.dtsi
-index ef0349d1c3d0..68f4a0fae7cf 100644
---- a/arch/arm64/boot/dts/exynos/exynosautov9-pinctrl.dtsi
-+++ b/arch/arm64/boot/dts/exynos/exynosautov9-pinctrl.dtsi
-@@ -1089,21 +1089,21 @@ spi10_cs_func: spi10-cs-func-pins {
+diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+index e2db1bdd9dd2..1d36bb684f5c 100644
+--- a/drivers/acpi/bus.c
++++ b/drivers/acpi/bus.c
+@@ -1399,6 +1399,7 @@ static int __init acpi_init(void)
  
- 	/* PERIC1 USI11_SPI */
- 	spi11_bus: spi11-pins {
--		samsung,pins = "gpp3-6", "gpp3-5", "gpp3-4";
-+		samsung,pins = "gpp5-6", "gpp5-5", "gpp5-4";
- 		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
- 		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
- 		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
- 	};
+ 	pci_mmcfg_late_init();
+ 	acpi_iort_init();
++	acpi_viot_early_init();
+ 	acpi_hest_init();
+ 	acpi_ghes_init();
+ 	acpi_scan_init();
+diff --git a/drivers/acpi/viot.c b/drivers/acpi/viot.c
+index d2256326c73a..647f11cf165d 100644
+--- a/drivers/acpi/viot.c
++++ b/drivers/acpi/viot.c
+@@ -248,6 +248,26 @@ static int __init viot_parse_node(const struct acpi_viot_header *hdr)
+ 	return ret;
+ }
  
- 	spi11_cs: spi11-cs-pins {
--		samsung,pins = "gpp3-7";
-+		samsung,pins = "gpp5-7";
- 		samsung,pin-function = <EXYNOS_PIN_FUNC_OUTPUT>;
- 		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
- 		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
- 	};
++/**
++ * acpi_viot_early_init - Test the presence of VIOT and enable ACS
++ *
++ * If the VIOT does exist, ACS must be enabled. This cannot be
++ * done in acpi_viot_init() which is called after the bus scan
++ */
++void __init acpi_viot_early_init(void)
++{
++#ifdef CONFIG_PCI
++	acpi_status status;
++	struct acpi_table_header *hdr;
++
++	status = acpi_get_table(ACPI_SIG_VIOT, 0, &hdr);
++	if (ACPI_FAILURE(status))
++		return;
++	pci_request_acs();
++	acpi_put_table(hdr);
++#endif
++}
++
+ /**
+  * acpi_viot_init - Parse the VIOT table
+  *
+@@ -319,12 +339,6 @@ static int viot_pci_dev_iommu_init(struct pci_dev *pdev, u16 dev_id, void *data)
+ 			epid = ((domain_nr - ep->segment_start) << 16) +
+ 				dev_id - ep->bdf_start + ep->endpoint_id;
  
- 	spi11_cs_func: spi11-cs-func-pins {
--		samsung,pins = "gpp3-7";
-+		samsung,pins = "gpp5-7";
- 		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
- 		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
- 		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
+-			/*
+-			 * If we found a PCI range managed by the viommu, we're
+-			 * the one that has to request ACS.
+-			 */
+-			pci_request_acs();
+-
+ 			return viot_dev_iommu_init(&pdev->dev, ep->viommu,
+ 						   epid);
+ 		}
+diff --git a/include/linux/acpi_viot.h b/include/linux/acpi_viot.h
+index 1eb8ee5b0e5f..a5a122431563 100644
+--- a/include/linux/acpi_viot.h
++++ b/include/linux/acpi_viot.h
+@@ -6,9 +6,11 @@
+ #include <linux/acpi.h>
+ 
+ #ifdef CONFIG_ACPI_VIOT
++void __init acpi_viot_early_init(void);
+ void __init acpi_viot_init(void);
+ int viot_iommu_configure(struct device *dev);
+ #else
++static inline void acpi_viot_early_init(void) {}
+ static inline void acpi_viot_init(void) {}
+ static inline int viot_iommu_configure(struct device *dev)
+ {
 -- 
 2.35.1
 
