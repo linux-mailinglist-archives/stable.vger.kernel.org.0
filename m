@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 624F2593EDE
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B175941F5
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244215AbiHOVCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:02:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39586 "EHLO
+        id S242376AbiHOVCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:02:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346905AbiHOVBR (ORCPT
+        with ESMTP id S1346912AbiHOVBR (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:01:17 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DFD1C7BAE;
-        Mon, 15 Aug 2022 12:13:22 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F292EC7BBE;
+        Mon, 15 Aug 2022 12:13:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 218E4CE12C8;
-        Mon, 15 Aug 2022 19:13:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20C27C433C1;
-        Mon, 15 Aug 2022 19:13:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B75A60693;
+        Mon, 15 Aug 2022 19:13:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35A4BC433D6;
+        Mon, 15 Aug 2022 19:13:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590799;
-        bh=a31WYOj3u0YxhhWWPGE8uaQmFHl6yu7OQLekdTH58ts=;
+        s=korg; t=1660590802;
+        bh=3iDinCEBxPLiLOm5Rep+za2zuEXefAblH7Z3yL6QDHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ECOBIbqYy0GGof4UTsr4Kx2++7qIXuoVJqDKXtxzg8OFHh9wLVFE6jkF1RbQCJVPW
-         GV1kUEue5u073QxfVOVwd7OYVR/SJO2Mc2JSxz2QHgXDMSTIXDSJQRo27hJLQpDvVH
-         hn4FScFLU0l1fw0d2gUaCpnUsJT3McU2u38g2r5A=
+        b=gjGjeb2a0II/UTCe3AJYxIDKH/+rP8Si0eLEWSH6RAIR958CMP1nGAruIgKuc6x9e
+         fuxAHxP6LpqgwG/nx9vwGzPbRyjvPFY09ubpWSgiPOA4LUb7KEyXwFqfIGCxBg/Dp7
+         As/6T7d8O4DyG4DsFkEWIYSINg7r18I+AYDYwE3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        stable@vger.kernel.org, Ming Qian <ming.qian@nxp.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0375/1095] media: hdpvr: fix error value returns in hdpvr_read
-Date:   Mon, 15 Aug 2022 19:56:14 +0200
-Message-Id: <20220815180445.221584739@linuxfoundation.org>
+Subject: [PATCH 5.18 0376/1095] media: v4l2-mem2mem: prevent pollerr when last_buffer_dequeued is set
+Date:   Mon, 15 Aug 2022 19:56:15 +0200
+Message-Id: <20220815180445.252066139@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,42 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit 359c27c6ddbde404f44a9c0d3ec88ccd1e2042f2 ]
+[ Upstream commit d4de27a9b1eadd33a2e40de87a646d1bf5fef756 ]
 
-Error return values are supposed to be negative in hdpvr_read. Most
-error returns are currently handled via an unsigned integer "ret". When
-setting a negative error value to "ret", the value actually becomes a
-large positive value, because "ret" is unsigned. Later on, the "ret"
-value is returned. But as ssize_t is a 64-bit signed number, the error
-return value stays a large positive integer instead of a negative
-integer. This can cause an error value to be interpreted as the read
-size, which can cause a buffer overread for applications relying on the
-returned size.
+If the last buffer was dequeued from the capture queue,
+signal userspace. DQBUF(CAPTURE) will return -EPIPE.
 
-Fixes: 9aba42efe85b ("V4L/DVB (11096): V4L2 Driver for the Hauppauge HD PVR usb capture device")
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+But if output queue is empty and capture queue is empty,
+v4l2_m2m_poll_for_data will return EPOLLERR,
+This is very easy to happen in drain.
+
+When last_buffer_dequeued is set, we shouldn't return EPOLLERR,
+but return EPOLLIN | EPOLLRDNORM.
+
+Fixes: 1698a7f151126 ("media: v4l2-mem2mem: simplify poll logic")
+Signed-off-by: Ming Qian <ming.qian@nxp.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/hdpvr/hdpvr-video.c | 2 +-
+ drivers/media/v4l2-core/v4l2-mem2mem.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/hdpvr/hdpvr-video.c b/drivers/media/usb/hdpvr/hdpvr-video.c
-index 60e57e0f1927..fd7d2a9d0449 100644
---- a/drivers/media/usb/hdpvr/hdpvr-video.c
-+++ b/drivers/media/usb/hdpvr/hdpvr-video.c
-@@ -409,7 +409,7 @@ static ssize_t hdpvr_read(struct file *file, char __user *buffer, size_t count,
- 	struct hdpvr_device *dev = video_drvdata(file);
- 	struct hdpvr_buffer *buf = NULL;
- 	struct urb *urb;
--	unsigned int ret = 0;
-+	int ret = 0;
- 	int rem, cnt;
+diff --git a/drivers/media/v4l2-core/v4l2-mem2mem.c b/drivers/media/v4l2-core/v4l2-mem2mem.c
+index 675e22895ebe..094e1815209b 100644
+--- a/drivers/media/v4l2-core/v4l2-mem2mem.c
++++ b/drivers/media/v4l2-core/v4l2-mem2mem.c
+@@ -924,7 +924,7 @@ static __poll_t v4l2_m2m_poll_for_data(struct file *file,
+ 	if ((!src_q->streaming || src_q->error ||
+ 	     list_empty(&src_q->queued_list)) &&
+ 	    (!dst_q->streaming || dst_q->error ||
+-	     list_empty(&dst_q->queued_list)))
++	     (list_empty(&dst_q->queued_list) && !dst_q->last_buffer_dequeued)))
+ 		return EPOLLERR;
  
- 	if (*pos)
+ 	spin_lock_irqsave(&src_q->done_lock, flags);
 -- 
 2.35.1
 
