@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BED4959359A
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 133EA59359B
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241667AbiHOS1k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:27:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54520 "EHLO
+        id S241678AbiHOS1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:27:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243264AbiHOS07 (ORCPT
+        with ESMTP id S243274AbiHOS07 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:26:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FC7F31355;
-        Mon, 15 Aug 2022 11:19:46 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5B9F3136E;
+        Mon, 15 Aug 2022 11:19:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 294D16068D;
-        Mon, 15 Aug 2022 18:19:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18258C43145;
-        Mon, 15 Aug 2022 18:19:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 195CEB8106C;
+        Mon, 15 Aug 2022 18:19:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 606DDC433D6;
+        Mon, 15 Aug 2022 18:19:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587556;
-        bh=nunt+JU2j4MkkLoTkzivF571n8HJ9HbPahxcqNDdBjU=;
+        s=korg; t=1660587559;
+        bh=IXhazyxSf8qFkEWqNpcAf/o+mFmZVPfUW4G5bJNOKQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RySrJIFL+iHaRyL7Gws9lSNFHo4AisaYKIV3ck0FeJpE8IrQdmM4iGD3D2WK9d+i+
-         jf+F7MKWVb3MvzQ2nA7vRbec1LQSOLbbGDYnf0qEiyNyejfF5hPtVU52UthIwwjkPn
-         Cv6SzqMTkEMnzL3WgdRm7b5PhqyoGIllGZN/dB+Y=
+        b=KEaw1Fhe/zz55PZdF8ZbGLlpm385Y/DjQTWNisyrbwVp5L+UaFa20x1W/3PYlufO/
+         oBtzErY7TJTlsI2RqtM7hPxhzd0byZed3k4ttsK6QwywrVteCtbTfNE1pjQ1HExnEK
+         zTFa2aiQv9AY3+rV5weL6LHMWv6VaBNaSdgERQC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.15 091/779] mbcache: add functions to delete entry if unused
-Date:   Mon, 15 Aug 2022 19:55:35 +0200
-Message-Id: <20220815180341.176964164@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.15 092/779] media: [PATCH] pci: atomisp_cmd: fix three missing checks on list iterator
+Date:   Mon, 15 Aug 2022 19:55:36 +0200
+Message-Id: <20220815180341.219607667@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,148 +53,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit 3dc96bba65f53daa217f0a8f43edad145286a8f5 upstream.
+commit 09b204eb9de9fdf07d028c41c4331b5cfeb70dd7 upstream.
 
-Add function mb_cache_entry_delete_or_get() to delete mbcache entry if
-it is unused and also add a function to wait for entry to become unused
-- mb_cache_entry_wait_unused(). We do not share code between the two
-deleting function as one of them will go away soon.
+The three bugs are here:
+	__func__, s3a_buf->s3a_data->exp_id);
+	__func__, md_buf->metadata->exp_id);
+	__func__, dis_buf->dis_data->exp_id);
 
-CC: stable@vger.kernel.org
-Fixes: 82939d7999df ("ext4: convert to mbcache2")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220712105436.32204-2-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+The list iterator 's3a_buf/md_buf/dis_buf' will point to a bogus
+position containing HEAD if the list is empty or no element is found.
+This case must be checked before any use of the iterator, otherwise
+it will lead to a invalid memory access.
+
+To fix this bug, add an check. Use a new variable '*_iter' as the
+list iterator, while use the old variable '*_buf' as a dedicated
+pointer to point to the found element.
+
+Link: https://lore.kernel.org/linux-media/20220414041415.3342-1-xiam0nd.tong@gmail.com
+Cc: stable@vger.kernel.org
+Fixes: ad85094b293e4 ("Revert "media: staging: atomisp: Remove driver"")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/mbcache.c            |   66 ++++++++++++++++++++++++++++++++++++++++++++++--
- include/linux/mbcache.h |   10 ++++++-
- 2 files changed, 73 insertions(+), 3 deletions(-)
+ drivers/staging/media/atomisp/pci/atomisp_cmd.c |   57 +++++++++++++++---------
+ 1 file changed, 36 insertions(+), 21 deletions(-)
 
---- a/fs/mbcache.c
-+++ b/fs/mbcache.c
-@@ -11,7 +11,7 @@
- /*
-  * Mbcache is a simple key-value store. Keys need not be unique, however
-  * key-value pairs are expected to be unique (we use this fact in
-- * mb_cache_entry_delete()).
-+ * mb_cache_entry_delete_or_get()).
-  *
-  * Ext2 and ext4 use this cache for deduplication of extended attribute blocks.
-  * Ext4 also uses it for deduplication of xattr values stored in inodes.
-@@ -125,6 +125,19 @@ void __mb_cache_entry_free(struct mb_cac
- }
- EXPORT_SYMBOL(__mb_cache_entry_free);
+--- a/drivers/staging/media/atomisp/pci/atomisp_cmd.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_cmd.c
+@@ -899,9 +899,9 @@ void atomisp_buf_done(struct atomisp_sub
+ 	int err;
+ 	unsigned long irqflags;
+ 	struct ia_css_frame *frame = NULL;
+-	struct atomisp_s3a_buf *s3a_buf = NULL, *_s3a_buf_tmp;
+-	struct atomisp_dis_buf *dis_buf = NULL, *_dis_buf_tmp;
+-	struct atomisp_metadata_buf *md_buf = NULL, *_md_buf_tmp;
++	struct atomisp_s3a_buf *s3a_buf = NULL, *_s3a_buf_tmp, *s3a_iter;
++	struct atomisp_dis_buf *dis_buf = NULL, *_dis_buf_tmp, *dis_iter;
++	struct atomisp_metadata_buf *md_buf = NULL, *_md_buf_tmp, *md_iter;
+ 	enum atomisp_metadata_type md_type;
+ 	struct atomisp_device *isp = asd->isp;
+ 	struct v4l2_control ctrl;
+@@ -940,60 +940,75 @@ void atomisp_buf_done(struct atomisp_sub
  
-+/*
-+ * mb_cache_entry_wait_unused - wait to be the last user of the entry
-+ *
-+ * @entry - entry to work on
-+ *
-+ * Wait to be the last user of the entry.
-+ */
-+void mb_cache_entry_wait_unused(struct mb_cache_entry *entry)
-+{
-+	wait_var_event(&entry->e_refcnt, atomic_read(&entry->e_refcnt) <= 3);
-+}
-+EXPORT_SYMBOL(mb_cache_entry_wait_unused);
-+
- static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
- 					   struct mb_cache_entry *entry,
- 					   u32 key)
-@@ -217,7 +230,7 @@ out:
- }
- EXPORT_SYMBOL(mb_cache_entry_get);
+ 	switch (buf_type) {
+ 	case IA_CSS_BUFFER_TYPE_3A_STATISTICS:
+-		list_for_each_entry_safe(s3a_buf, _s3a_buf_tmp,
++		list_for_each_entry_safe(s3a_iter, _s3a_buf_tmp,
+ 					 &asd->s3a_stats_in_css, list) {
+-			if (s3a_buf->s3a_data ==
++			if (s3a_iter->s3a_data ==
+ 			    buffer.css_buffer.data.stats_3a) {
+-				list_del_init(&s3a_buf->list);
+-				list_add_tail(&s3a_buf->list,
++				list_del_init(&s3a_iter->list);
++				list_add_tail(&s3a_iter->list,
+ 					      &asd->s3a_stats_ready);
++				s3a_buf = s3a_iter;
+ 				break;
+ 			}
+ 		}
  
--/* mb_cache_entry_delete - remove a cache entry
-+/* mb_cache_entry_delete - try to remove a cache entry
-  * @cache - cache we work with
-  * @key - key
-  * @value - value
-@@ -254,6 +267,55 @@ void mb_cache_entry_delete(struct mb_cac
- }
- EXPORT_SYMBOL(mb_cache_entry_delete);
+ 		asd->s3a_bufs_in_css[css_pipe_id]--;
+ 		atomisp_3a_stats_ready_event(asd, buffer.css_buffer.exp_id);
+-		dev_dbg(isp->dev, "%s: s3a stat with exp_id %d is ready\n",
+-			__func__, s3a_buf->s3a_data->exp_id);
++		if (s3a_buf)
++			dev_dbg(isp->dev, "%s: s3a stat with exp_id %d is ready\n",
++				__func__, s3a_buf->s3a_data->exp_id);
++		else
++			dev_dbg(isp->dev, "%s: s3a stat is ready with no exp_id found\n",
++				__func__);
+ 		break;
+ 	case IA_CSS_BUFFER_TYPE_METADATA:
+ 		if (error)
+ 			break;
  
-+/* mb_cache_entry_delete_or_get - remove a cache entry if it has no users
-+ * @cache - cache we work with
-+ * @key - key
-+ * @value - value
-+ *
-+ * Remove entry from cache @cache with key @key and value @value. The removal
-+ * happens only if the entry is unused. The function returns NULL in case the
-+ * entry was successfully removed or there's no entry in cache. Otherwise the
-+ * function grabs reference of the entry that we failed to delete because it
-+ * still has users and return it.
-+ */
-+struct mb_cache_entry *mb_cache_entry_delete_or_get(struct mb_cache *cache,
-+						    u32 key, u64 value)
-+{
-+	struct hlist_bl_node *node;
-+	struct hlist_bl_head *head;
-+	struct mb_cache_entry *entry;
-+
-+	head = mb_cache_entry_head(cache, key);
-+	hlist_bl_lock(head);
-+	hlist_bl_for_each_entry(entry, node, head, e_hash_list) {
-+		if (entry->e_key == key && entry->e_value == value) {
-+			if (atomic_read(&entry->e_refcnt) > 2) {
-+				atomic_inc(&entry->e_refcnt);
-+				hlist_bl_unlock(head);
-+				return entry;
-+			}
-+			/* We keep hash list reference to keep entry alive */
-+			hlist_bl_del_init(&entry->e_hash_list);
-+			hlist_bl_unlock(head);
-+			spin_lock(&cache->c_list_lock);
-+			if (!list_empty(&entry->e_list)) {
-+				list_del_init(&entry->e_list);
-+				if (!WARN_ONCE(cache->c_entry_count == 0,
-+		"mbcache: attempt to decrement c_entry_count past zero"))
-+					cache->c_entry_count--;
-+				atomic_dec(&entry->e_refcnt);
-+			}
-+			spin_unlock(&cache->c_list_lock);
-+			mb_cache_entry_put(cache, entry);
-+			return NULL;
-+		}
-+	}
-+	hlist_bl_unlock(head);
-+
-+	return NULL;
-+}
-+EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
-+
- /* mb_cache_entry_touch - cache entry got used
-  * @cache - cache the entry belongs to
-  * @entry - entry that got used
---- a/include/linux/mbcache.h
-+++ b/include/linux/mbcache.h
-@@ -30,15 +30,23 @@ void mb_cache_destroy(struct mb_cache *c
- int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
- 			  u64 value, bool reusable);
- void __mb_cache_entry_free(struct mb_cache_entry *entry);
-+void mb_cache_entry_wait_unused(struct mb_cache_entry *entry);
- static inline int mb_cache_entry_put(struct mb_cache *cache,
- 				     struct mb_cache_entry *entry)
- {
--	if (!atomic_dec_and_test(&entry->e_refcnt))
-+	unsigned int cnt = atomic_dec_return(&entry->e_refcnt);
-+
-+	if (cnt > 0) {
-+		if (cnt <= 3)
-+			wake_up_var(&entry->e_refcnt);
- 		return 0;
-+	}
- 	__mb_cache_entry_free(entry);
- 	return 1;
- }
- 
-+struct mb_cache_entry *mb_cache_entry_delete_or_get(struct mb_cache *cache,
-+						    u32 key, u64 value);
- void mb_cache_entry_delete(struct mb_cache *cache, u32 key, u64 value);
- struct mb_cache_entry *mb_cache_entry_get(struct mb_cache *cache, u32 key,
- 					  u64 value);
+ 		md_type = atomisp_get_metadata_type(asd, css_pipe_id);
+-		list_for_each_entry_safe(md_buf, _md_buf_tmp,
++		list_for_each_entry_safe(md_iter, _md_buf_tmp,
+ 					 &asd->metadata_in_css[md_type], list) {
+-			if (md_buf->metadata ==
++			if (md_iter->metadata ==
+ 			    buffer.css_buffer.data.metadata) {
+-				list_del_init(&md_buf->list);
+-				list_add_tail(&md_buf->list,
++				list_del_init(&md_iter->list);
++				list_add_tail(&md_iter->list,
+ 					      &asd->metadata_ready[md_type]);
++				md_buf = md_iter;
+ 				break;
+ 			}
+ 		}
+ 		asd->metadata_bufs_in_css[stream_id][css_pipe_id]--;
+ 		atomisp_metadata_ready_event(asd, md_type);
+-		dev_dbg(isp->dev, "%s: metadata with exp_id %d is ready\n",
+-			__func__, md_buf->metadata->exp_id);
++		if (md_buf)
++			dev_dbg(isp->dev, "%s: metadata with exp_id %d is ready\n",
++				__func__, md_buf->metadata->exp_id);
++		else
++			dev_dbg(isp->dev, "%s: metadata is ready with no exp_id found\n",
++				__func__);
+ 		break;
+ 	case IA_CSS_BUFFER_TYPE_DIS_STATISTICS:
+-		list_for_each_entry_safe(dis_buf, _dis_buf_tmp,
++		list_for_each_entry_safe(dis_iter, _dis_buf_tmp,
+ 					 &asd->dis_stats_in_css, list) {
+-			if (dis_buf->dis_data ==
++			if (dis_iter->dis_data ==
+ 			    buffer.css_buffer.data.stats_dvs) {
+ 				spin_lock_irqsave(&asd->dis_stats_lock,
+ 						  irqflags);
+-				list_del_init(&dis_buf->list);
+-				list_add(&dis_buf->list, &asd->dis_stats);
++				list_del_init(&dis_iter->list);
++				list_add(&dis_iter->list, &asd->dis_stats);
+ 				asd->params.dis_proj_data_valid = true;
+ 				spin_unlock_irqrestore(&asd->dis_stats_lock,
+ 						       irqflags);
++				dis_buf = dis_iter;
+ 				break;
+ 			}
+ 		}
+ 		asd->dis_bufs_in_css--;
+-		dev_dbg(isp->dev, "%s: dis stat with exp_id %d is ready\n",
+-			__func__, dis_buf->dis_data->exp_id);
++		if (dis_buf)
++			dev_dbg(isp->dev, "%s: dis stat with exp_id %d is ready\n",
++				__func__, dis_buf->dis_data->exp_id);
++		else
++			dev_dbg(isp->dev, "%s: dis stat is ready with no exp_id found\n",
++				__func__);
+ 		break;
+ 	case IA_CSS_BUFFER_TYPE_VF_OUTPUT_FRAME:
+ 	case IA_CSS_BUFFER_TYPE_SEC_VF_OUTPUT_FRAME:
 
 
