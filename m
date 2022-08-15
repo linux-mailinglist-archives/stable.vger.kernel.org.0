@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D5CA594A42
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:18:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEA7F594C02
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229747AbiHOXTF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:19:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54140 "EHLO
+        id S232511AbiHPAwT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:52:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234174AbiHOXRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:17:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA44149A15;
-        Mon, 15 Aug 2022 13:03:41 -0700 (PDT)
+        with ESMTP id S245640AbiHPAtE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:49:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B7AFB602F;
+        Mon, 15 Aug 2022 13:45:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59A7C612DA;
-        Mon, 15 Aug 2022 20:03:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6259DC433C1;
-        Mon, 15 Aug 2022 20:03:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FED46125F;
+        Mon, 15 Aug 2022 20:45:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A73C7C433D6;
+        Mon, 15 Aug 2022 20:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593819;
-        bh=AwT3hcAJvFxenTj1NVvhczIFkFp0UrMMz3+/fm3VJqA=;
+        s=korg; t=1660596354;
+        bh=SmZYZEpOelWUIJG7oTgTHs2s9xh0YRCxcCr5ctiy6do=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CLDQNZUrX6wFUFph7R5/J3kTquN8ReRyi3Kh5aL1Ow2WyRjspaQTmY6bW++Zaz1bA
-         4FiyUf+BER0Bv38Q8w6EvJnYSCySqrOz7+6+QdMIerCBYiNhgxhxXlRq47n6s6M2ri
-         kNmr3uyAB1ULvEHw8VDdZLNCDQ8FrHlFYKnYniVQ=
+        b=SLRmUwYRp1vsoUdmbGA/lUUxvnNdo0GqJ1vuPZiSaOiKq7xllfuudLdCEuxC0dcTX
+         xIoUl53h70s+tevOMsasaUq2jAYLcTTNW2Wi68wFEMQoOmckpj6ta/PQbqdZlDxlbh
+         yNup14Vcs657w+hA2TJvkSIvpaiOX1lkX/UzvWso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jinke Han <hanjinke.666@bytedance.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1011/1095] block: dont allow the same type rq_qos add more than once
+        stable@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        David Collins <quic_collinsd@quicinc.com>
+Subject: [PATCH 5.19 1054/1157] spmi: trace: fix stack-out-of-bound access in SPMI tracing functions
 Date:   Mon, 15 Aug 2022 20:06:50 +0200
-Message-Id: <20220815180510.943662166@linuxfoundation.org>
+Message-Id: <20220815180522.220477068@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,199 +54,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jinke Han <hanjinke.666@bytedance.com>
+From: David Collins <quic_collinsd@quicinc.com>
 
-[ Upstream commit 14a6e2eb7df5c7897c15b109cba29ab0c4a791b6 ]
+commit 2af28b241eea816e6f7668d1954f15894b45d7e3 upstream.
 
-In our test of iocost, we encountered some list add/del corruptions of
-inner_walk list in ioc_timer_fn.
+trace_spmi_write_begin() and trace_spmi_read_end() both call
+memcpy() with a length of "len + 1".  This leads to one extra
+byte being read beyond the end of the specified buffer.  Fix
+this out-of-bound memory access by using a length of "len"
+instead.
 
-The reason can be described as follows:
+Here is a KASAN log showing the issue:
 
-cpu 0					cpu 1
-ioc_qos_write				ioc_qos_write
+BUG: KASAN: stack-out-of-bounds in trace_event_raw_event_spmi_read_end+0x1d0/0x234
+Read of size 2 at addr ffffffc0265b7540 by task thermal@2.0-ser/1314
+...
+Call trace:
+ dump_backtrace+0x0/0x3e8
+ show_stack+0x2c/0x3c
+ dump_stack_lvl+0xdc/0x11c
+ print_address_description+0x74/0x384
+ kasan_report+0x188/0x268
+ kasan_check_range+0x270/0x2b0
+ memcpy+0x90/0xe8
+ trace_event_raw_event_spmi_read_end+0x1d0/0x234
+ spmi_read_cmd+0x294/0x3ac
+ spmi_ext_register_readl+0x84/0x9c
+ regmap_spmi_ext_read+0x144/0x1b0 [regmap_spmi]
+ _regmap_raw_read+0x40c/0x754
+ regmap_raw_read+0x3a0/0x514
+ regmap_bulk_read+0x418/0x494
+ adc5_gen3_poll_wait_hs+0xe8/0x1e0 [qcom_spmi_adc5_gen3]
+ ...
+ __arm64_sys_read+0x4c/0x60
+ invoke_syscall+0x80/0x218
+ el0_svc_common+0xec/0x1c8
+ ...
 
-ioc = q_to_ioc(queue);
-if (!ioc) {
-        ioc = kzalloc();
-					ioc = q_to_ioc(queue);
-					if (!ioc) {
-						ioc = kzalloc();
-						...
-						rq_qos_add(q, rqos);
-					}
-        ...
-        rq_qos_add(q, rqos);
-        ...
-}
+addr ffffffc0265b7540 is located in stack of task thermal@2.0-ser/1314 at offset 32 in frame:
+ adc5_gen3_poll_wait_hs+0x0/0x1e0 [qcom_spmi_adc5_gen3]
 
-When the io.cost.qos file is written by two cpus concurrently, rq_qos may
-be added to one disk twice. In that case, there will be two iocs enabled
-and running on one disk. They own different iocgs on their active list. In
-the ioc_timer_fn function, because of the iocgs from two iocs have the
-same root iocg, the root iocg's walk_list may be overwritten by each other
-and this leads to list add/del corruptions in building or destroying the
-inner_walk list.
+this frame has 1 object:
+ [32, 33) 'status'
 
-And so far, the blk-rq-qos framework works in case that one instance for
-one type rq_qos per queue by default. This patch make this explicit and
-also fix the crash above.
+Memory state around the buggy address:
+ ffffffc0265b7400: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
+ ffffffc0265b7480: 04 f3 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
+>ffffffc0265b7500: 00 00 00 00 f1 f1 f1 f1 01 f3 f3 f3 00 00 00 00
+                                           ^
+ ffffffc0265b7580: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffffffc0265b7600: f1 f1 f1 f1 01 f2 07 f2 f2 f2 01 f3 00 00 00 00
+==================================================================
 
-Signed-off-by: Jinke Han <hanjinke.666@bytedance.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220720093616.70584-1-hanjinke.666@bytedance.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a9fce374815d ("spmi: add command tracepoints for SPMI")
+Cc: stable@vger.kernel.org
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: David Collins <quic_collinsd@quicinc.com>
+Link: https://lore.kernel.org/r/20220627235512.2272783-1-quic_collinsd@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-iocost.c    | 20 +++++++++++++-------
- block/blk-iolatency.c | 18 +++++++++++-------
- block/blk-rq-qos.h    | 11 ++++++++++-
- block/blk-wbt.c       | 12 +++++++++++-
- 4 files changed, 45 insertions(+), 16 deletions(-)
+ include/trace/events/spmi.h |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/block/blk-iocost.c b/block/blk-iocost.c
-index 16705fbd0699..a19f2db4eeb2 100644
---- a/block/blk-iocost.c
-+++ b/block/blk-iocost.c
-@@ -2893,15 +2893,21 @@ static int blk_iocost_init(struct request_queue *q)
- 	 * called before policy activation completion, can't assume that the
- 	 * target bio has an iocg associated and need to test for NULL iocg.
- 	 */
--	rq_qos_add(q, rqos);
-+	ret = rq_qos_add(q, rqos);
-+	if (ret)
-+		goto err_free_ioc;
-+
- 	ret = blkcg_activate_policy(q, &blkcg_policy_iocost);
--	if (ret) {
--		rq_qos_del(q, rqos);
--		free_percpu(ioc->pcpu_stat);
--		kfree(ioc);
--		return ret;
--	}
-+	if (ret)
-+		goto err_del_qos;
- 	return 0;
-+
-+err_del_qos:
-+	rq_qos_del(q, rqos);
-+err_free_ioc:
-+	free_percpu(ioc->pcpu_stat);
-+	kfree(ioc);
-+	return ret;
- }
+--- a/include/trace/events/spmi.h
++++ b/include/trace/events/spmi.h
+@@ -21,15 +21,15 @@ TRACE_EVENT(spmi_write_begin,
+ 		__field		( u8,         sid       )
+ 		__field		( u16,        addr      )
+ 		__field		( u8,         len       )
+-		__dynamic_array	( u8,   buf,  len + 1   )
++		__dynamic_array	( u8,   buf,  len       )
+ 	),
  
- static struct blkcg_policy_data *ioc_cpd_alloc(gfp_t gfp)
-diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
-index 9568bf8dfe82..7845dca5fcfd 100644
---- a/block/blk-iolatency.c
-+++ b/block/blk-iolatency.c
-@@ -773,19 +773,23 @@ int blk_iolatency_init(struct request_queue *q)
- 	rqos->ops = &blkcg_iolatency_ops;
- 	rqos->q = q;
+ 	TP_fast_assign(
+ 		__entry->opcode = opcode;
+ 		__entry->sid    = sid;
+ 		__entry->addr   = addr;
+-		__entry->len    = len + 1;
+-		memcpy(__get_dynamic_array(buf), buf, len + 1);
++		__entry->len    = len;
++		memcpy(__get_dynamic_array(buf), buf, len);
+ 	),
  
--	rq_qos_add(q, rqos);
--
-+	ret = rq_qos_add(q, rqos);
-+	if (ret)
-+		goto err_free;
- 	ret = blkcg_activate_policy(q, &blkcg_policy_iolatency);
--	if (ret) {
--		rq_qos_del(q, rqos);
--		kfree(blkiolat);
--		return ret;
--	}
-+	if (ret)
-+		goto err_qos_del;
+ 	TP_printk("opc=%d sid=%02d addr=0x%04x len=%d buf=0x[%*phD]",
+@@ -92,7 +92,7 @@ TRACE_EVENT(spmi_read_end,
+ 		__field		( u16,        addr      )
+ 		__field		( int,        ret       )
+ 		__field		( u8,         len       )
+-		__dynamic_array	( u8,   buf,  len + 1   )
++		__dynamic_array	( u8,   buf,  len       )
+ 	),
  
- 	timer_setup(&blkiolat->timer, blkiolatency_timer_fn, 0);
- 	INIT_WORK(&blkiolat->enable_work, blkiolatency_enable_work_fn);
+ 	TP_fast_assign(
+@@ -100,8 +100,8 @@ TRACE_EVENT(spmi_read_end,
+ 		__entry->sid    = sid;
+ 		__entry->addr   = addr;
+ 		__entry->ret    = ret;
+-		__entry->len    = len + 1;
+-		memcpy(__get_dynamic_array(buf), buf, len + 1);
++		__entry->len    = len;
++		memcpy(__get_dynamic_array(buf), buf, len);
+ 	),
  
- 	return 0;
-+
-+err_qos_del:
-+	rq_qos_del(q, rqos);
-+err_free:
-+	kfree(blkiolat);
-+	return ret;
- }
- 
- static void iolatency_set_min_lat_nsec(struct blkcg_gq *blkg, u64 val)
-diff --git a/block/blk-rq-qos.h b/block/blk-rq-qos.h
-index 0e46052b018a..08b856570ad1 100644
---- a/block/blk-rq-qos.h
-+++ b/block/blk-rq-qos.h
-@@ -86,7 +86,7 @@ static inline void rq_wait_init(struct rq_wait *rq_wait)
- 	init_waitqueue_head(&rq_wait->wait);
- }
- 
--static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
-+static inline int rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
- {
- 	/*
- 	 * No IO can be in-flight when adding rqos, so freeze queue, which
-@@ -98,6 +98,8 @@ static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
- 	blk_mq_freeze_queue(q);
- 
- 	spin_lock_irq(&q->queue_lock);
-+	if (rq_qos_id(q, rqos->id))
-+		goto ebusy;
- 	rqos->next = q->rq_qos;
- 	q->rq_qos = rqos;
- 	spin_unlock_irq(&q->queue_lock);
-@@ -109,6 +111,13 @@ static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
- 		blk_mq_debugfs_register_rqos(rqos);
- 		mutex_unlock(&q->debugfs_mutex);
- 	}
-+
-+	return 0;
-+ebusy:
-+	spin_unlock_irq(&q->queue_lock);
-+	blk_mq_unfreeze_queue(q);
-+	return -EBUSY;
-+
- }
- 
- static inline void rq_qos_del(struct request_queue *q, struct rq_qos *rqos)
-diff --git a/block/blk-wbt.c b/block/blk-wbt.c
-index 0c119be0e813..ae6ea0b54579 100644
---- a/block/blk-wbt.c
-+++ b/block/blk-wbt.c
-@@ -820,6 +820,7 @@ int wbt_init(struct request_queue *q)
- {
- 	struct rq_wb *rwb;
- 	int i;
-+	int ret;
- 
- 	rwb = kzalloc(sizeof(*rwb), GFP_KERNEL);
- 	if (!rwb)
-@@ -846,7 +847,10 @@ int wbt_init(struct request_queue *q)
- 	/*
- 	 * Assign rwb and add the stats callback.
- 	 */
--	rq_qos_add(q, &rwb->rqos);
-+	ret = rq_qos_add(q, &rwb->rqos);
-+	if (ret)
-+		goto err_free;
-+
- 	blk_stat_add_callback(q, rwb->cb);
- 
- 	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
-@@ -855,4 +859,10 @@ int wbt_init(struct request_queue *q)
- 	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
- 
- 	return 0;
-+
-+err_free:
-+	blk_stat_free_callback(rwb->cb);
-+	kfree(rwb);
-+	return ret;
-+
- }
--- 
-2.35.1
-
+ 	TP_printk("opc=%d sid=%02d addr=0x%04x ret=%d len=%02d buf=0x[%*phD]",
 
 
