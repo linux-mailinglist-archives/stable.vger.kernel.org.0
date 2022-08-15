@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7692D59398B
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B591B59396B
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243600AbiHOSo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:44:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38372 "EHLO
+        id S243328AbiHOSo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:44:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243301AbiHOSno (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:43:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA3BF2F667;
-        Mon, 15 Aug 2022 11:27:02 -0700 (PDT)
+        with ESMTP id S243330AbiHOSnq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:43:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E03362B63C;
+        Mon, 15 Aug 2022 11:27:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F2AF60FA2;
-        Mon, 15 Aug 2022 18:27:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69524C433C1;
-        Mon, 15 Aug 2022 18:27:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98AC6B8107B;
+        Mon, 15 Aug 2022 18:27:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAF56C433C1;
+        Mon, 15 Aug 2022 18:27:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588021;
-        bh=o+CfgAyj9rPLk8ZM6G7S0zQl0iS1yoI3dsi9OirsY7s=;
+        s=korg; t=1660588025;
+        bh=s6hE0dcnfjRm35xl0ubYTMLoz5IO6Zpumb/khgzk3bk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xKoPm8gmfl015jRxmOoYPwPioT1GuPhRNtH402ldaMk4RsbXeHAzChBXCvrT4Xj3r
-         fTUUekLYKxBIv6Zd8F1qAS+ayOoN3NK1AhrWchrlaeysR7EirQcdUmS4k0YWbN9AK4
-         hFQTeAjJPIfHfCuDvqSldsGlZe4QNfKcvrspLKcw=
+        b=1l+n3fBRBxgolpTG5vljKLLskcNfcvuDAW1AEzkGrJbtJ0waFbWS/Z021OJ2VWsZV
+         GVmkEMQ3M7onp45OsDkkfLlJKNSTdET6oxzjgHIuNPMptTUGuiw82II5eMryB0cJr3
+         cbJHXMQqnukqIF7x9HVJi4o96b2qvTZWB3A8p3cs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ming Qian <ming.qian@nxp.com>,
-        Shijie Qin <shijie.qin@nxp.com>,
-        Zhou Peng <eagle.zhou@nxp.com>,
-        Mirela Rabulea <mirela.rabulea@oss.nxp.com>,
+        Mirela Rabulea <mirela.rabulea@nxp.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 271/779] media: imx-jpeg: use NV12M to represent non contiguous NV12
-Date:   Mon, 15 Aug 2022 19:58:35 +0200
-Message-Id: <20220815180348.911162679@linuxfoundation.org>
+Subject: [PATCH 5.15 272/779] media: imx-jpeg: Set V4L2_BUF_FLAG_LAST at eos
+Date:   Mon, 15 Aug 2022 19:58:36 +0200
+Message-Id: <20220815180348.943426094@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -60,83 +57,131 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit 784a1883cff07e7510a81ad3041d6ec443d51944 ]
+[ Upstream commit d8ebe298d008ccbae3011cbeb139707f01a730c8 ]
 
-V4L2_PIX_FMT_NV12 requires num_planes equals to 1,
-V4L2_PIX_FMT_NV12M requires num_planes equals to 2.
-and mxc-jpeg supports 2 planes for nv12,
-so we should use 4L2_PIX_FMT_NV12M instead of V4L2_PIX_FMT_NV12,
-otherwise it will confuses gstreamer and prevent encoding and decoding.
+The V4L2_EVENT_EOS event is a deprecated behavior,
+the V4L2_BUF_FLAG_LAST buffer flag should be used instead.
 
 Signed-off-by: Ming Qian <ming.qian@nxp.com>
-Signed-off-by: Shijie Qin <shijie.qin@nxp.com>
-Signed-off-by: Zhou Peng <eagle.zhou@nxp.com>
-Reviewed-by: Mirela Rabulea <mirela.rabulea@oss.nxp.com>
+Reviewed-by: Mirela Rabulea <mirela.rabulea@nxp.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/imx-jpeg/mxc-jpeg.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/media/platform/imx-jpeg/mxc-jpeg.c | 41 ++++++++++++++++++++--
+ drivers/media/platform/imx-jpeg/mxc-jpeg.h |  1 +
+ 2 files changed, 40 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/media/platform/imx-jpeg/mxc-jpeg.c b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
-index bc66c09b807a..1ec60f54d5a1 100644
+index 1ec60f54d5a1..2d0c1307180f 100644
 --- a/drivers/media/platform/imx-jpeg/mxc-jpeg.c
 +++ b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
-@@ -96,7 +96,7 @@ static const struct mxc_jpeg_fmt mxc_formats[] = {
- 	},
- 	{
- 		.name		= "YUV420", /* 1st plane = Y, 2nd plane = UV */
--		.fourcc		= V4L2_PIX_FMT_NV12,
-+		.fourcc		= V4L2_PIX_FMT_NV12M,
- 		.subsampling	= V4L2_JPEG_CHROMA_SUBSAMPLING_420,
- 		.nc		= 3,
- 		.depth		= 12, /* 6 bytes (4Y + UV) for 4 pixels */
-@@ -390,7 +390,7 @@ static enum mxc_jpeg_image_format mxc_jpeg_fourcc_to_imgfmt(u32 fourcc)
- 		return MXC_JPEG_GRAY;
- 	case V4L2_PIX_FMT_YUYV:
- 		return MXC_JPEG_YUV422;
--	case V4L2_PIX_FMT_NV12:
-+	case V4L2_PIX_FMT_NV12M:
- 		return MXC_JPEG_YUV420;
- 	case V4L2_PIX_FMT_YUV24:
- 		return MXC_JPEG_YUV444;
-@@ -660,7 +660,7 @@ static int mxc_jpeg_fixup_sof(struct mxc_jpeg_sof *sof,
- 	_bswap16(&sof->width);
- 
- 	switch (fourcc) {
--	case V4L2_PIX_FMT_NV12:
-+	case V4L2_PIX_FMT_NV12M:
- 		sof->components_no = 3;
- 		sof->comp[0].v = 0x2;
- 		sof->comp[0].h = 0x2;
-@@ -696,7 +696,7 @@ static int mxc_jpeg_fixup_sos(struct mxc_jpeg_sos *sos,
- 	u8 *sof_u8 = (u8 *)sos;
- 
- 	switch (fourcc) {
--	case V4L2_PIX_FMT_NV12:
-+	case V4L2_PIX_FMT_NV12M:
- 		sos->components_no = 3;
- 		break;
- 	case V4L2_PIX_FMT_YUYV:
-@@ -1179,7 +1179,7 @@ static void mxc_jpeg_bytesperline(struct mxc_jpeg_q_data *q,
- 		/* bytesperline unused for compressed formats */
- 		q->bytesperline[0] = 0;
- 		q->bytesperline[1] = 0;
--	} else if (q->fmt->fourcc == V4L2_PIX_FMT_NV12) {
-+	} else if (q->fmt->fourcc == V4L2_PIX_FMT_NV12M) {
- 		/* When the image format is planar the bytesperline value
- 		 * applies to the first plane and is divided by the same factor
- 		 * as the width field for the other planes
-@@ -1211,7 +1211,7 @@ static void mxc_jpeg_sizeimage(struct mxc_jpeg_q_data *q)
- 	} else {
- 		q->sizeimage[0] = q->bytesperline[0] * q->h;
- 		q->sizeimage[1] = 0;
--		if (q->fmt->fourcc == V4L2_PIX_FMT_NV12)
-+		if (q->fmt->fourcc == V4L2_PIX_FMT_NV12M)
- 			q->sizeimage[1] = q->sizeimage[0] / 2;
- 	}
+@@ -988,6 +988,20 @@ static void mxc_jpeg_device_run(void *priv)
+ 	spin_unlock_irqrestore(&ctx->mxc_jpeg->hw_lock, flags);
  }
+ 
++static void mxc_jpeg_set_last_buffer_dequeued(struct mxc_jpeg_ctx *ctx)
++{
++	struct vb2_queue *q;
++
++	ctx->stopped = 1;
++	q = v4l2_m2m_get_dst_vq(ctx->fh.m2m_ctx);
++	if (!list_empty(&q->done_list))
++		return;
++
++	q->last_buffer_dequeued = true;
++	wake_up(&q->done_wq);
++	ctx->stopped = 0;
++}
++
+ static int mxc_jpeg_decoder_cmd(struct file *file, void *priv,
+ 				struct v4l2_decoder_cmd *cmd)
+ {
+@@ -1005,6 +1019,7 @@ static int mxc_jpeg_decoder_cmd(struct file *file, void *priv,
+ 		if (v4l2_m2m_num_src_bufs_ready(fh->m2m_ctx) == 0) {
+ 			/* No more src bufs, notify app EOS */
+ 			notify_eos(ctx);
++			mxc_jpeg_set_last_buffer_dequeued(ctx);
+ 		} else {
+ 			/* will send EOS later*/
+ 			ctx->stopping = 1;
+@@ -1031,6 +1046,7 @@ static int mxc_jpeg_encoder_cmd(struct file *file, void *priv,
+ 		if (v4l2_m2m_num_src_bufs_ready(fh->m2m_ctx) == 0) {
+ 			/* No more src bufs, notify app EOS */
+ 			notify_eos(ctx);
++			mxc_jpeg_set_last_buffer_dequeued(ctx);
+ 		} else {
+ 			/* will send EOS later*/
+ 			ctx->stopping = 1;
+@@ -1107,6 +1123,10 @@ static void mxc_jpeg_stop_streaming(struct vb2_queue *q)
+ 		v4l2_m2m_buf_done(vbuf, VB2_BUF_STATE_ERROR);
+ 	}
+ 	pm_runtime_put_sync(&ctx->mxc_jpeg->pdev->dev);
++	if (V4L2_TYPE_IS_OUTPUT(q->type)) {
++		ctx->stopping = 0;
++		ctx->stopped = 0;
++	}
+ }
+ 
+ static int mxc_jpeg_valid_comp_id(struct device *dev,
+@@ -1398,12 +1418,29 @@ static int mxc_jpeg_buf_prepare(struct vb2_buffer *vb)
+ 	return 0;
+ }
+ 
++static void mxc_jpeg_buf_finish(struct vb2_buffer *vb)
++{
++	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
++	struct mxc_jpeg_ctx *ctx = vb2_get_drv_priv(vb->vb2_queue);
++	struct vb2_queue *q = vb->vb2_queue;
++
++	if (V4L2_TYPE_IS_OUTPUT(vb->type))
++		return;
++	if (!ctx->stopped)
++		return;
++	if (list_empty(&q->done_list)) {
++		vbuf->flags |= V4L2_BUF_FLAG_LAST;
++		ctx->stopped = 0;
++	}
++}
++
+ static const struct vb2_ops mxc_jpeg_qops = {
+ 	.queue_setup		= mxc_jpeg_queue_setup,
+ 	.wait_prepare		= vb2_ops_wait_prepare,
+ 	.wait_finish		= vb2_ops_wait_finish,
+ 	.buf_out_validate	= mxc_jpeg_buf_out_validate,
+ 	.buf_prepare		= mxc_jpeg_buf_prepare,
++	.buf_finish             = mxc_jpeg_buf_finish,
+ 	.start_streaming	= mxc_jpeg_start_streaming,
+ 	.stop_streaming		= mxc_jpeg_stop_streaming,
+ 	.buf_queue		= mxc_jpeg_buf_queue,
+@@ -1839,14 +1876,14 @@ static int mxc_jpeg_dqbuf(struct file *file, void *priv,
+ 	int ret;
+ 
+ 	dev_dbg(dev, "DQBUF type=%d, index=%d", buf->type, buf->index);
+-	if (ctx->stopping == 1	&& num_src_ready == 0) {
++	if (ctx->stopping == 1 && num_src_ready == 0) {
+ 		/* No more src bufs, notify app EOS */
+ 		notify_eos(ctx);
+ 		ctx->stopping = 0;
++		mxc_jpeg_set_last_buffer_dequeued(ctx);
+ 	}
+ 
+ 	ret = v4l2_m2m_dqbuf(file, fh->m2m_ctx, buf);
+-
+ 	return ret;
+ }
+ 
+diff --git a/drivers/media/platform/imx-jpeg/mxc-jpeg.h b/drivers/media/platform/imx-jpeg/mxc-jpeg.h
+index 9fb2a5aaa941..f53f004ba851 100644
+--- a/drivers/media/platform/imx-jpeg/mxc-jpeg.h
++++ b/drivers/media/platform/imx-jpeg/mxc-jpeg.h
+@@ -91,6 +91,7 @@ struct mxc_jpeg_ctx {
+ 	struct v4l2_fh			fh;
+ 	enum mxc_jpeg_enc_state		enc_state;
+ 	unsigned int			stopping;
++	unsigned int			stopped;
+ 	unsigned int			slot;
+ };
+ 
 -- 
 2.35.1
 
