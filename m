@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77ECA594C9F
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7472E594D06
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351704AbiHPA3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:29:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59642 "EHLO
+        id S1350932AbiHPAaC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:30:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351734AbiHPA2f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:28:35 -0400
+        with ESMTP id S1351080AbiHPA3O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:29:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D23D91815F2;
-        Mon, 15 Aug 2022 13:35:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CC7C181C4F;
+        Mon, 15 Aug 2022 13:35:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0CC2611FC;
-        Mon, 15 Aug 2022 20:35:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6F01C433C1;
-        Mon, 15 Aug 2022 20:35:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEC326120E;
+        Mon, 15 Aug 2022 20:35:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2B26C433D6;
+        Mon, 15 Aug 2022 20:35:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595704;
-        bh=fOdGFFtHb2u3F0BRb8234h0PP4eJ3kgUdjnmltyekLI=;
+        s=korg; t=1660595707;
+        bh=Ih/6iQhAoZQZ9u2ZnYtMRwIxGHBSliM25XgUUlJTEXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q+jbOwO52KBCJx2stPuMg+QznI0RCqu9GTfwMXdO+RDjvr+ulQ3HY1oicZRpftFB6
-         QR5aswPpV8uNa9yl1D8932Csu7AdIP7jrSUf9RdP3+gryMLgMFC5RTL48SfSoBrMgW
-         INi7bDBuYMWOAJPCiH3uz5bLHKAmhqRX8OmKVMJE=
+        b=mF4sCLxS2vrBmRxZn1AQ1jhBIaJ3tz/bpmZmJ6FG9lZCiIwHGpYHmUQIOQCUCUw8F
+         QQ1bvr0ZgjXz15702Ic0Y+RqvhBYwsjCzsyxnDGAZZRpnfsOgY387/OYjYhamepAS1
+         ntT6RytcoYbUpz/frcwSBp+epTN0HLDx3K38ZbgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vidya Sagar <vidyas@nvidia.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0848/1157] PCI: tegra194: Fix link up retry sequence
-Date:   Mon, 15 Aug 2022 20:03:24 +0200
-Message-Id: <20220815180513.419158047@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0849/1157] HID: amd_sfh: Handle condition of "no sensors"
+Date:   Mon, 15 Aug 2022 20:03:25 +0200
+Message-Id: <20220815180513.456703773@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,35 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vidya Sagar <vidyas@nvidia.com>
+From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 
-[ Upstream commit e05fd6ae77c3e2cc0dba283005d24b6d56d2b1fa ]
+[ Upstream commit 5d4d0f15657535f6a122ab26d47230b5c2b944af ]
 
-Add the missing DLF capability offset while clearing DL_FEATURE_EXCHANGE_EN
-bit during link up retry.
+Add a check for num_hid_devices to handle special case the situation
+of "no sensors".
 
-Link: https://lore.kernel.org/r/20220721142052.25971-15-vidyas@nvidia.com
-Fixes: 56e15a238d92 ("PCI: tegra: Add Tegra194 PCIe support")
-Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Fixes: 4b2c53d93a4b ("SFH:Transport Driver to add support of AMD Sensor Fusion Hub (SFH)")
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-tegra194.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/amd-sfh-hid/amd_sfh_client.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
-index 0bab700086f9..67e8372a3243 100644
---- a/drivers/pci/controller/dwc/pcie-tegra194.c
-+++ b/drivers/pci/controller/dwc/pcie-tegra194.c
-@@ -976,7 +976,7 @@ static int tegra194_pcie_start_link(struct dw_pcie *pci)
- 		offset = dw_pcie_find_ext_capability(pci, PCI_EXT_CAP_ID_DLF);
- 		val = dw_pcie_readl_dbi(pci, offset + PCI_DLF_CAP);
- 		val &= ~PCI_DLF_EXCHANGE_ENABLE;
--		dw_pcie_writel_dbi(pci, offset, val);
-+		dw_pcie_writel_dbi(pci, offset + PCI_DLF_CAP, val);
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_client.c b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
+index 0f770a2b47ff..e27ee1871066 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_client.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
+@@ -173,6 +173,8 @@ int amd_sfh_hid_client_init(struct amd_mp2_dev *privdata)
+ 	dev = &privdata->pdev->dev;
  
- 		tegra194_pcie_host_init(pp);
- 		dw_pcie_setup_rc(pp);
+ 	cl_data->num_hid_devices = amd_mp2_get_sensor_num(privdata, &cl_data->sensor_idx[0]);
++	if (cl_data->num_hid_devices == 0)
++		return -ENODEV;
+ 
+ 	INIT_DELAYED_WORK(&cl_data->work, amd_sfh_work);
+ 	INIT_DELAYED_WORK(&cl_data->work_buffer, amd_sfh_work_buffer);
 -- 
 2.35.1
 
