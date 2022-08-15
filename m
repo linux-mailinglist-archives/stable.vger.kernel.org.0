@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC36593F25
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 973245941CB
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:51:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346231AbiHOUsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:48:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36336 "EHLO
+        id S1345574AbiHOUsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:48:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346890AbiHOUqs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:46:48 -0400
+        with ESMTP id S1345597AbiHOUrC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:47:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C6BB72B0;
-        Mon, 15 Aug 2022 12:08:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95449B7ED4;
+        Mon, 15 Aug 2022 12:08:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F2E160B0F;
-        Mon, 15 Aug 2022 19:08:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 593CFC433C1;
-        Mon, 15 Aug 2022 19:08:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4889960ACE;
+        Mon, 15 Aug 2022 19:08:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B644DC4314E;
+        Mon, 15 Aug 2022 19:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590523;
-        bh=N9TJ94ZoPUoNsloQHfrpn0GyEU2bxkyC7I82FkaGEUI=;
+        s=korg; t=1660590526;
+        bh=e2sA2q9BXuqDigMphbszovvhi7P2aY88fo3nVbXcMPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oWI+EoLdVadgnG349ZNHflt2Q8QNiagpJ3UmorDedCRm5cJdF61OMYjMy3j0nvzlE
-         Nyd+M6yUGEW/xdI8bkJ0OOx1JP/Gol1aiq9BdhE7lbvaB4j58PWcJFuOxpdcsVKbPN
-         ywQAaOh3Wie+1tAOnbo19OueRgzFpEcrNGUQrCx8=
+        b=H+foGp0D1BLdMd3Fqy+FFdqUuttC5g1aYliAkoNRWVj67ZLLVHGTh2YDvg86kw8bv
+         byjgAj5jamIu7Tnw6rcLxqYt05x6YEyNjqX4C5Twf/AMY+U2hTPFv0RcOPo0FaTkSq
+         iJgdFrd/yGvopJVjMV1FcVI/ur19VSlGpBcwgXUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Qiang <xuqiang36@huawei.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0286/1095] irqdomain: Report irq number for NOMAP domains
-Date:   Mon, 15 Aug 2022 19:54:45 +0200
-Message-Id: <20220815180441.621576748@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Atish Patra <atishp@rivosinc.com>,
+        Andrew Jones <ajones@ventanamicro.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0287/1095] perf: RISC-V: Add of_node_put() when breaking out of for_each_of_cpu_node()
+Date:   Mon, 15 Aug 2022 19:54:46 +0200
+Message-Id: <20220815180441.663955223@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -53,39 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Qiang <xuqiang36@huawei.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 6f194c99f466147148cc08452718b46664112548 ]
+[ Upstream commit 491f10d08fdae10a177edf6af4f43b83b293114b ]
 
-When using a NOMAP domain, __irq_resolve_mapping() doesn't store
-the Linux IRQ number at the address optionally provided by the caller.
-While this isn't a huge deal (the returned value is guaranteed
-to the hwirq that was passed as a parameter), let's honour the letter
-of the API by writing the expected value.
+In pmu_sbi_setup_irqs(), we should call of_node_put() for the 'cpu'
+when breaking out of for_each_of_cput_node() as its refcount will
+be automatically increased and decreased during the iteration.
 
-Fixes: d22558dd0a6c (“irqdomain: Introduce irq_resolve_mapping()”)
-Signed-off-by: Xu Qiang <xuqiang36@huawei.com>
-[maz: commit message]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220719063641.56541-2-xuqiang36@huawei.com
+Fixes: 4905ec2fb7e6 ("RISC-V: Add sscofpmf extension support")
+Signed-off-by: Liang He <windhl@126.com>
+Reviewed-by: Atish Patra <atishp@rivosinc.com>
+Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
+Link: https://lore.kernel.org/r/20220715130330.443363-1-windhl@126.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/irqdomain.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/perf/riscv_pmu_sbi.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
-index d5ce96510549..481abb885d61 100644
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -910,6 +910,8 @@ struct irq_desc *__irq_resolve_mapping(struct irq_domain *domain,
- 			data = irq_domain_get_irq_data(domain, hwirq);
- 			if (data && data->hwirq == hwirq)
- 				desc = irq_data_to_desc(data);
-+			if (irq && desc)
-+				*irq = hwirq;
+diff --git a/drivers/perf/riscv_pmu_sbi.c b/drivers/perf/riscv_pmu_sbi.c
+index fab0dd497393..77b826d6c05b 100644
+--- a/drivers/perf/riscv_pmu_sbi.c
++++ b/drivers/perf/riscv_pmu_sbi.c
+@@ -682,12 +682,15 @@ static int pmu_sbi_setup_irqs(struct riscv_pmu *pmu, struct platform_device *pde
+ 		child = of_get_compatible_child(cpu, "riscv,cpu-intc");
+ 		if (!child) {
+ 			pr_err("Failed to find INTC node\n");
++			of_node_put(cpu);
+ 			return -ENODEV;
  		}
- 
- 		return desc;
+ 		domain = irq_find_host(child);
+ 		of_node_put(child);
+-		if (domain)
++		if (domain) {
++			of_node_put(cpu);
+ 			break;
++		}
+ 	}
+ 	if (!domain) {
+ 		pr_err("Failed to find INTC IRQ root domain\n");
 -- 
 2.35.1
 
