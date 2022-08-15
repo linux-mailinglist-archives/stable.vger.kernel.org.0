@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 088685944A2
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02A1C59441E
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:58:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350526AbiHOWsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:48:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50674 "EHLO
+        id S1351511AbiHOWsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:48:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350518AbiHOWoa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:44:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 033B1133A62;
-        Mon, 15 Aug 2022 12:52:37 -0700 (PDT)
+        with ESMTP id S1350882AbiHOWpk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:45:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE92C134217;
+        Mon, 15 Aug 2022 12:52:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D38461206;
-        Mon, 15 Aug 2022 19:52:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AFF6C433D6;
-        Mon, 15 Aug 2022 19:52:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 670636122B;
+        Mon, 15 Aug 2022 19:52:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57259C433D6;
+        Mon, 15 Aug 2022 19:52:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593156;
-        bh=ELguIUk4SGcF73osMAg65DOO9y8WrYs9XvjG4oFTOso=;
+        s=korg; t=1660593162;
+        bh=iLeyVKw30Yurlo2472vxw9O6/4uq54uc70v/ViiSn4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hop7YbLBhmkzSKN6N8WRGefhwpgZZXKSrLtD6HxYzYpNKMlUvSH13gF2XlBeGQLH4
-         /bGlMH+SoVYgRgSqe8LBea8vfAPSB4/xi3Oi3eKsqGani5u5adwj/QVmNNaexDqj0g
-         qBzX4aGXFdXK1t6y3O3wf6EDbSiIHB0DTU4XTsPc=
+        b=Tr5W+6RLUOve8ganZwyvCpfn209rJUVX2quEC+0B68WxlyQjuxUGK0m6O4Ph8a3vV
+         MKJt88T0yuVbNM3F/xKuadfYcqoC4orTqVSQrvn79xofj2yTka7EL8aCfNTkvRGPn6
+         lbTjZsNvXr8yU4iNBQdh5NGIl7fuJnOm9cIhIuQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0904/1095] ASoC: qcom: q6dsp: Fix an off-by-one in q6adm_alloc_copp()
-Date:   Mon, 15 Aug 2022 20:05:03 +0200
-Message-Id: <20220815180506.699055084@linuxfoundation.org>
+Subject: [PATCH 5.18 0905/1095] fuse: Remove the control interface for virtio-fs
+Date:   Mon, 15 Aug 2022 20:05:04 +0200
+Message-Id: <20220815180506.738034007@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,35 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit 673f58f62ca6fc98979d1cf3fe89c3ff33f29b2e ]
+[ Upstream commit c64797809a64c73497082aa05e401a062ec1af34 ]
 
-find_first_zero_bit() returns MAX_COPPS_PER_PORT at max here.
-So 'idx' should be tested with ">=" or the test can't match.
+The commit 15c8e72e88e0 ("fuse: allow skipping control interface and forced
+unmount") tries to remove the control interface for virtio-fs since it does
+not support aborting requests which are being processed. But it doesn't
+work now.
 
-Fixes: 7b20b2be51e1 ("ASoC: qdsp6: q6adm: Add q6adm driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/0fca3271649736053eb9649d87e1ca01b056be40.1658394124.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This patch fixes it by skipping creating the control interface if
+fuse_conn->no_control is set.
+
+Fixes: 15c8e72e88e0 ("fuse: allow skipping control interface and forced unmount")
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/qdsp6/q6adm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/fuse/control.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/qcom/qdsp6/q6adm.c b/sound/soc/qcom/qdsp6/q6adm.c
-index 72c5719f1d25..a0678e8cf20a 100644
---- a/sound/soc/qcom/qdsp6/q6adm.c
-+++ b/sound/soc/qcom/qdsp6/q6adm.c
-@@ -217,7 +217,7 @@ static struct q6copp *q6adm_alloc_copp(struct q6adm *adm, int port_idx)
- 	idx = find_first_zero_bit(&adm->copp_bitmap[port_idx],
- 				  MAX_COPPS_PER_PORT);
+diff --git a/fs/fuse/control.c b/fs/fuse/control.c
+index 7cede9a3bc96..247ef4f76761 100644
+--- a/fs/fuse/control.c
++++ b/fs/fuse/control.c
+@@ -258,7 +258,7 @@ int fuse_ctl_add_conn(struct fuse_conn *fc)
+ 	struct dentry *parent;
+ 	char name[32];
  
--	if (idx > MAX_COPPS_PER_PORT)
-+	if (idx >= MAX_COPPS_PER_PORT)
- 		return ERR_PTR(-EBUSY);
+-	if (!fuse_control_sb)
++	if (!fuse_control_sb || fc->no_control)
+ 		return 0;
  
- 	c = kzalloc(sizeof(*c), GFP_ATOMIC);
+ 	parent = fuse_control_sb->s_root;
+@@ -296,7 +296,7 @@ void fuse_ctl_remove_conn(struct fuse_conn *fc)
+ {
+ 	int i;
+ 
+-	if (!fuse_control_sb)
++	if (!fuse_control_sb || fc->no_control)
+ 		return;
+ 
+ 	for (i = fc->ctl_ndents - 1; i >= 0; i--) {
 -- 
 2.35.1
 
