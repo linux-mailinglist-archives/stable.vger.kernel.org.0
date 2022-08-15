@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8668A593DF1
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E390B593AFE
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343584AbiHOUdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:33:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40436 "EHLO
+        id S229876AbiHOUdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:33:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347639AbiHOUb2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:31:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A92FDA5C7D;
-        Mon, 15 Aug 2022 12:04:54 -0700 (PDT)
+        with ESMTP id S1347778AbiHOUbl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:31:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88ABBA6C20;
+        Mon, 15 Aug 2022 12:04:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 812D1B81106;
-        Mon, 15 Aug 2022 19:04:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9170C433D6;
-        Mon, 15 Aug 2022 19:04:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03F17B810A2;
+        Mon, 15 Aug 2022 19:04:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1460EC433D6;
+        Mon, 15 Aug 2022 19:04:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590291;
-        bh=omZ20BVuFxL1W05Lz9Iqe5y6+N9MFAhSKFKp3+JoWnQ=;
+        s=korg; t=1660590297;
+        bh=V9Vq7Xk3Jo007gvGsvMAVhk6e7S1ixt7asa34ghvP8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LZK8QbIZMS5dVFjm8lxfskJBfEH5meKSNRBrGYppXNvQtX5kYR/Xx47X63DJOwqTR
-         C3Lx2JGLw2VUhxD6eDjYEqPmwxRX5CJYSL/fjPPeRzivxCK3tPhum7pUcpaLZ1R0eT
-         iwHb3i5Y/A0rXEVJ737GNxwKskIgnFB/Mx4yP/Sk=
+        b=MqcjCsLtd/IYHjp9fs7wjK8L186vfqlc1b8t9K/Lp5Q+i/KaUeCcXC8YGbY643rXW
+         2jX467ibJssF5Pxbi0iFRj36WISRDhScWbciTRvJzAyHbE8O9YVrbEMpBTJkv3u/G4
+         WUZ/NQmLJSouJKZMGFjbEjZbbAjbB3MeHMoe6SLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0214/1095] ARM: OMAP2+: Fix refcount leak in omap3xxx_prm_late_init
-Date:   Mon, 15 Aug 2022 19:53:33 +0200
-Message-Id: <20220815180438.524821462@linuxfoundation.org>
+Subject: [PATCH 5.18 0215/1095] arm64: dts: qcom: sdm630: disable GPU by default
+Date:   Mon, 15 Aug 2022 19:53:34 +0200
+Message-Id: <20220815180438.567607283@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,35 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 942228fbf5d4901112178b93d41225be7c0dd9de ]
+[ Upstream commit 1c047919763b4548381d1ab3320af1df66ab83df ]
 
-of_find_matching_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+The SoC's device tree file disables gpucc and adreno's SMMU by default.
+So let's disable the GPU too. Moreover it looks like SMMU might be not
+usable without additional patches (which means that GPU is unusable
+too). No board uses GPU at this moment.
 
-Fixes: 1e037794f7f0 ("ARM: OMAP3+: PRM: register interrupt information from DT")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Message-Id: <20220526073724.21169-1-linmq006@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 5cf69dcbec8b ("arm64: dts: qcom: sdm630: Add Adreno 508 GPU configuration")
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220521202708.1509308-4-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/prm3xxx.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/qcom/sdm630.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/mach-omap2/prm3xxx.c b/arch/arm/mach-omap2/prm3xxx.c
-index 1b442b128569..63e73e9b82bc 100644
---- a/arch/arm/mach-omap2/prm3xxx.c
-+++ b/arch/arm/mach-omap2/prm3xxx.c
-@@ -708,6 +708,7 @@ static int omap3xxx_prm_late_init(void)
- 	}
+diff --git a/arch/arm64/boot/dts/qcom/sdm630.dtsi b/arch/arm64/boot/dts/qcom/sdm630.dtsi
+index 240293592ef9..45eaaa6a4a74 100644
+--- a/arch/arm64/boot/dts/qcom/sdm630.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm630.dtsi
+@@ -1050,6 +1050,8 @@ adreno_gpu: gpu@5000000 {
  
- 	irq_num = of_irq_get(np, 0);
-+	of_node_put(np);
- 	if (irq_num == -EPROBE_DEFER)
- 		return irq_num;
+ 			operating-points-v2 = <&gpu_sdm630_opp_table>;
  
++			status = "disabled";
++
+ 			gpu_sdm630_opp_table: opp-table {
+ 				compatible  = "operating-points-v2";
+ 				opp-775000000 {
 -- 
 2.35.1
 
