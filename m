@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 054FD594016
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC9FE594053
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345064AbiHOVEA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:04:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41178 "EHLO
+        id S232007AbiHOVEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:04:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244497AbiHOVCy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:02:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8EAFD11E6;
-        Mon, 15 Aug 2022 12:14:21 -0700 (PDT)
+        with ESMTP id S245501AbiHOVDN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:03:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7596D51439;
+        Mon, 15 Aug 2022 12:14:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D25CB810C6;
-        Mon, 15 Aug 2022 19:14:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1A7CC433D7;
-        Mon, 15 Aug 2022 19:14:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C70F2B81115;
+        Mon, 15 Aug 2022 19:14:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00D18C433D6;
+        Mon, 15 Aug 2022 19:14:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590858;
-        bh=++TwpD11aNdUDmi97Map4GQL5JJLoabfwqBMgIhuLCo=;
+        s=korg; t=1660590861;
+        bh=ezz1QrZMZah4z8XFs+tXhhTISclPhpkXp32xMw1dyyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lhTUJ0QV2P3dwrMrwGazfMUMH+C2guoUtZyJGTjMK0YjJVV4O7uxem2LdRRS9hFrS
-         ItV2WndCXpR6Yx1wC60qNi0JBl8t7lsdj347JUwlqu83zdLKiSAKXyBFHrycF4jel9
-         jDcZlTQIlJ/LFNfsyEPzjzOitHL0w04g+NZZj7lE=
+        b=JygA0IXLX3e8KrO6mAcd4PQ5Uufe9DnlnfNHenBDGkJyQ3iFp0YqRg1LirhlYN+vI
+         WJOKf6RceeEySfhz16in0qH6+XqFdbaRUZ7ww2X0nnB7DYlchzUIdTCwh+2wHCwD20
+         3meTnIwMlGyxsXiOkz+BnvpI/gxthUVF6xPD8HM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        stable@vger.kernel.org, Dom Cobley <popcornmix@gmail.com>,
         Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0392/1095] drm/vc4: hdmi: Add all the vc5 HDMI registers into the debugfs dumps
-Date:   Mon, 15 Aug 2022 19:56:31 +0200
-Message-Id: <20220815180445.915915848@linuxfoundation.org>
+Subject: [PATCH 5.18 0393/1095] drm/vc4: hdmi: Clear unused infoframe packet RAM registers
+Date:   Mon, 15 Aug 2022 19:56:32 +0200
+Message-Id: <20220815180445.956193355@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,107 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Stevenson <dave.stevenson@raspberrypi.com>
+From: Dom Cobley <popcornmix@gmail.com>
 
-[ Upstream commit 25eb441d55d479581a65bcc9de88bc1d86bf76c1 ]
+[ Upstream commit b6079d1578dc4b4b8050d613a5449a63def7d1dd ]
 
-The vc5 HDMI registers hadn't been added into the debugfs
-register sets, therefore weren't dumped on request.
-Add them in.
+Using a hdmi analyser the bytes in packet ram
+registers beyond the length were visible in the
+infoframes and it flagged the checksum as invalid.
 
-Fixes: 8323989140f3 ("drm/vc4: hdmi: Support the BCM2711 HDMI controllers")
-Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Link: https://lore.kernel.org/r/20220613144800.326124-19-maxime@cerno.tech
+Zeroing unused words of packet RAM avoids this
+
+Fixes: 21317b3fba54 ("drm/vc4: Set up the AVI and SPD infoframes.")
+Signed-off-by: Dom Cobley <popcornmix@gmail.com>
+Link: https://lore.kernel.org/r/20220613144800.326124-20-maxime@cerno.tech
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 39 ++++++++++++++++++++++++++++++++++
- drivers/gpu/drm/vc4/vc4_hdmi.h |  8 +++++++
- 2 files changed, 47 insertions(+)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 3ff35e3649aa..2ff53482d5d1 100644
+index 2ff53482d5d1..0fe04b1f9782 100644
 --- a/drivers/gpu/drm/vc4/vc4_hdmi.c
 +++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -122,6 +122,12 @@ static int vc4_hdmi_debugfs_regs(struct seq_file *m, void *unused)
- 
- 	drm_print_regset32(&p, &vc4_hdmi->hdmi_regset);
- 	drm_print_regset32(&p, &vc4_hdmi->hd_regset);
-+	drm_print_regset32(&p, &vc4_hdmi->cec_regset);
-+	drm_print_regset32(&p, &vc4_hdmi->csc_regset);
-+	drm_print_regset32(&p, &vc4_hdmi->dvp_regset);
-+	drm_print_regset32(&p, &vc4_hdmi->phy_regset);
-+	drm_print_regset32(&p, &vc4_hdmi->ram_regset);
-+	drm_print_regset32(&p, &vc4_hdmi->rm_regset);
- 
- 	return 0;
- }
-@@ -2374,6 +2380,7 @@ static int vc5_hdmi_init_resources(struct vc4_hdmi *vc4_hdmi)
- 	struct platform_device *pdev = vc4_hdmi->pdev;
- 	struct device *dev = &pdev->dev;
- 	struct resource *res;
-+	int ret;
- 
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "hdmi");
- 	if (!res)
-@@ -2470,6 +2477,38 @@ static int vc5_hdmi_init_resources(struct vc4_hdmi *vc4_hdmi)
- 		return PTR_ERR(vc4_hdmi->reset);
+@@ -439,9 +439,11 @@ static void vc4_hdmi_write_infoframe(struct drm_encoder *encoder,
+ 	const struct vc4_hdmi_register *ram_packet_start =
+ 		&vc4_hdmi->variant->registers[HDMI_RAM_PACKET_START];
+ 	u32 packet_reg = ram_packet_start->offset + VC4_HDMI_PACKET_STRIDE * packet_id;
++	u32 packet_reg_next = ram_packet_start->offset +
++		VC4_HDMI_PACKET_STRIDE * (packet_id + 1);
+ 	void __iomem *base = __vc4_hdmi_get_field_base(vc4_hdmi,
+ 						       ram_packet_start->reg);
+-	uint8_t buffer[VC4_HDMI_PACKET_STRIDE];
++	uint8_t buffer[VC4_HDMI_PACKET_STRIDE] = {};
+ 	unsigned long flags;
+ 	ssize_t len, i;
+ 	int ret;
+@@ -477,6 +479,13 @@ static void vc4_hdmi_write_infoframe(struct drm_encoder *encoder,
+ 		packet_reg += 4;
  	}
  
-+	ret = vc4_hdmi_build_regset(vc4_hdmi, &vc4_hdmi->hdmi_regset, VC4_HDMI);
-+	if (ret)
-+		return ret;
++	/*
++	 * clear remainder of packet ram as it's included in the
++	 * infoframe and triggers a checksum error on hdmi analyser
++	 */
++	for (; packet_reg < packet_reg_next; packet_reg += 4)
++		writel(0, base + packet_reg);
 +
-+	ret = vc4_hdmi_build_regset(vc4_hdmi, &vc4_hdmi->hd_regset, VC4_HD);
-+	if (ret)
-+		return ret;
-+
-+	ret = vc4_hdmi_build_regset(vc4_hdmi, &vc4_hdmi->cec_regset, VC5_CEC);
-+	if (ret)
-+		return ret;
-+
-+	ret = vc4_hdmi_build_regset(vc4_hdmi, &vc4_hdmi->csc_regset, VC5_CSC);
-+	if (ret)
-+		return ret;
-+
-+	ret = vc4_hdmi_build_regset(vc4_hdmi, &vc4_hdmi->dvp_regset, VC5_DVP);
-+	if (ret)
-+		return ret;
-+
-+	ret = vc4_hdmi_build_regset(vc4_hdmi, &vc4_hdmi->phy_regset, VC5_PHY);
-+	if (ret)
-+		return ret;
-+
-+	ret = vc4_hdmi_build_regset(vc4_hdmi, &vc4_hdmi->ram_regset, VC5_RAM);
-+	if (ret)
-+		return ret;
-+
-+	ret = vc4_hdmi_build_regset(vc4_hdmi, &vc4_hdmi->rm_regset, VC5_RM);
-+	if (ret)
-+		return ret;
-+
- 	return 0;
- }
+ 	HDMI_WRITE(HDMI_RAM_PACKET_CONFIG,
+ 		   HDMI_READ(HDMI_RAM_PACKET_CONFIG) | BIT(packet_id));
  
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.h b/drivers/gpu/drm/vc4/vc4_hdmi.h
-index 1076faeab616..2b9f5ca15a40 100644
---- a/drivers/gpu/drm/vc4/vc4_hdmi.h
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.h
-@@ -184,6 +184,14 @@ struct vc4_hdmi {
- 	struct debugfs_regset32 hdmi_regset;
- 	struct debugfs_regset32 hd_regset;
- 
-+	/* VC5 only */
-+	struct debugfs_regset32 cec_regset;
-+	struct debugfs_regset32 csc_regset;
-+	struct debugfs_regset32 dvp_regset;
-+	struct debugfs_regset32 phy_regset;
-+	struct debugfs_regset32 ram_regset;
-+	struct debugfs_regset32 rm_regset;
-+
- 	/**
- 	 * @hw_lock: Spinlock protecting device register access.
- 	 */
 -- 
 2.35.1
 
