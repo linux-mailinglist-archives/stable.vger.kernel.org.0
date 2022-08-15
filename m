@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51481592E23
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1A6C592E24
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:25:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230471AbiHOLZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 07:25:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41790 "EHLO
+        id S241453AbiHOLZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 07:25:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232957AbiHOLZL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:25:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3708322B2E
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:25:10 -0700 (PDT)
+        with ESMTP id S232957AbiHOLZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:25:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE9AE2019B
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:25:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAD0661155
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:25:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7A97C433D6;
-        Mon, 15 Aug 2022 11:25:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7068261163
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:25:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C118C433D6;
+        Mon, 15 Aug 2022 11:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660562709;
-        bh=c+CfVA9R7cXmuzdbZptj5P2+x6574wUTaa56C/qJXSY=;
+        s=korg; t=1660562711;
+        bh=8D3v9nxbomHWSieiU3l0JyWVLRYMylpyz5RYrC5sITs=;
         h=Subject:To:Cc:From:Date:From;
-        b=NgkZ8Di+kcLtkdZ8Q9YZCyKq+SqYPk8oKgBhtfxgoZkx8wAs6fkCO+Rl6FYzXhqsX
-         tNyTuhnbVQbioNQP2eqCxHouurqRTC8xF/svZTEp5/wMibidsemlAu+0X/hjt0a/3A
-         S+jTWNGo5A4x8cMSj61ri7JKOaTRfSAtC1DkfYGU=
-Subject: FAILED: patch "[PATCH] ext4: fix race when reusing xattr blocks" failed to apply to 4.19-stable tree
+        b=B7EwZiaecRVyfUoG637h40h4qebJ7EXHYIKAYExCQfZyLaKwMFX75zQKFca4r7twZ
+         +yGqEC/Z+hGOOuHzz809x4jWYO+gtDX+ewSIF1v5lQZ6P6ctp8pV0Bql2WWGYvKETF
+         VeXyOmST+jVraGn/pAL5+eSOj8GHZSGLvYhe6zjg=
+Subject: FAILED: patch "[PATCH] ext4: fix race when reusing xattr blocks" failed to apply to 4.14-stable tree
 To:     jack@suse.cz, ritesh.list@gmail.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Aug 2022 13:24:52 +0200
-Message-ID: <166056269259116@kroah.com>
+Date:   Mon, 15 Aug 2022 13:24:53 +0200
+Message-ID: <16605626931232@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
