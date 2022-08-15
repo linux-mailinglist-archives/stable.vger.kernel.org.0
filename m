@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 675DF59484D
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7301159480B
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244510AbiHOXYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:24:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58198 "EHLO
+        id S234174AbiHOXZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:25:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353418AbiHOXWH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:22:07 -0400
+        with ESMTP id S241882AbiHOXXJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:23:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 220FC5F8F;
-        Mon, 15 Aug 2022 13:05:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21267391E;
+        Mon, 15 Aug 2022 13:05:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B379560693;
-        Mon, 15 Aug 2022 20:05:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEF61C433C1;
-        Mon, 15 Aug 2022 20:05:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D547360690;
+        Mon, 15 Aug 2022 20:05:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDED8C433D6;
+        Mon, 15 Aug 2022 20:05:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593917;
-        bh=YcHOJyY6Ze1wflj+HVPwk8FDdUytNxdCp0psuhP8bfI=;
+        s=korg; t=1660593932;
+        bh=wzUTotmsOvyiM2qWLvIOatO2CoZfg/QgKijFCVNekYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+ERtCSGpTP9Jjx2YpPDp+xNPCmbIhKHp00r9MKuUoPdFAHSWsDjeTIYaXbyca665
-         RWd5eSU7vqGp6JdgDFcoZLG0x3i5nDmJGzJCC0Oi7M1hA+s/w0GBDAKt5cg9Sh0hJX
-         L8yuTnPzj5R13IZ4rj9wS/L8kauBSLSjS7BlZIQo=
+        b=osg9tDbXfB0v5yo4fxYDURkA1P2iTxpxDjkLyUNl5PtD17vALHM1Gcb0pGOIn3IfQ
+         1srGY6E75cEnyZO6YTyVm5XdyHqw2KW9S1H/Q7sY1bmWDz60KNOy/GZuyxyymeBMkA
+         Nl1Yb2bfOijiLgVrzbNGKvf8HzRDDaVynvIIAI7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Chia-I Wu <olvaffe@gmail.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Riham Selim <rihams@fb.com>,
+        Alan Maguire <alan.maguire@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0348/1157] virtio-gpu: fix a missing check to avoid NULL dereference
-Date:   Mon, 15 Aug 2022 19:55:04 +0200
-Message-Id: <20220815180453.638153634@linuxfoundation.org>
+Subject: [PATCH 5.19 0350/1157] libbpf: Fix uprobe symbol file offset calculation logic
+Date:   Mon, 15 Aug 2022 19:55:06 +0200
+Message-Id: <20220815180453.716772247@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,44 +56,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit bd63f11f4c3c46afec07d821f74736161ff6e526 ]
+[ Upstream commit fe92833524e368e59bba9c57e00f7359f133667f ]
 
-'cache_ent' could be set NULL inside virtio_gpu_cmd_get_capset()
-and it will lead to a NULL dereference by a lately use of it
-(i.e., ptr = cache_ent->caps_cache). Fix it with a NULL check.
+Fix libbpf's bpf_program__attach_uprobe() logic of determining
+function's *file offset* (which is what kernel is actually expecting)
+when attaching uprobe/uretprobe by function name. Previously calculation
+was determining virtual address offset relative to base load address,
+which (offset) is not always the same as file offset (though very
+frequently it is which is why this went unnoticed for a while).
 
-Fixes: 62fb7a5e10962 ("virtio-gpu: add 3d/virgl support")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20220327050945.1614-1-xiam0nd.tong@gmail.com
-
-[ kraxel: minor codestyle fixup ]
-
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Fixes: 433966e3ae04 ("libbpf: Support function name-based attach uprobes")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Riham Selim <rihams@fb.com>
+Cc: Alan Maguire <alan.maguire@oracle.com>
+Link: https://lore.kernel.org/bpf/20220606220143.3796908-1-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/lib/bpf/libbpf.c | 63 +++++++++++++++---------------------------
+ 1 file changed, 22 insertions(+), 41 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index f8d83358d2a0..9b2702116f93 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -580,8 +580,10 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
- 	spin_unlock(&vgdev->display_info_lock);
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index 526bd6cd84a0..b9245bf688fa 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -10983,43 +10983,6 @@ static int perf_event_uprobe_open_legacy(const char *probe_name, bool retprobe,
+ 	return pfd;
+ }
  
- 	/* not in cache - need to talk to hw */
--	virtio_gpu_cmd_get_capset(vgdev, found_valid, args->cap_set_ver,
--				  &cache_ent);
-+	ret = virtio_gpu_cmd_get_capset(vgdev, found_valid, args->cap_set_ver,
-+					&cache_ent);
-+	if (ret)
-+		return ret;
- 	virtio_gpu_notify(vgdev);
+-/* uprobes deal in relative offsets; subtract the base address associated with
+- * the mapped binary.  See Documentation/trace/uprobetracer.rst for more
+- * details.
+- */
+-static long elf_find_relative_offset(const char *filename, Elf *elf, long addr)
+-{
+-	size_t n;
+-	int i;
+-
+-	if (elf_getphdrnum(elf, &n)) {
+-		pr_warn("elf: failed to find program headers for '%s': %s\n", filename,
+-			elf_errmsg(-1));
+-		return -ENOENT;
+-	}
+-
+-	for (i = 0; i < n; i++) {
+-		int seg_start, seg_end, seg_offset;
+-		GElf_Phdr phdr;
+-
+-		if (!gelf_getphdr(elf, i, &phdr)) {
+-			pr_warn("elf: failed to get program header %d from '%s': %s\n", i, filename,
+-				elf_errmsg(-1));
+-			return -ENOENT;
+-		}
+-		if (phdr.p_type != PT_LOAD || !(phdr.p_flags & PF_X))
+-			continue;
+-
+-		seg_start = phdr.p_vaddr;
+-		seg_end = seg_start + phdr.p_memsz;
+-		seg_offset = phdr.p_offset;
+-		if (addr >= seg_start && addr < seg_end)
+-			return addr - seg_start + seg_offset;
+-	}
+-	pr_warn("elf: failed to find prog header containing 0x%lx in '%s'\n", addr, filename);
+-	return -ENOENT;
+-}
+-
+ /* Return next ELF section of sh_type after scn, or first of that type if scn is NULL. */
+ static Elf_Scn *elf_find_next_scn_by_type(Elf *elf, int sh_type, Elf_Scn *scn)
+ {
+@@ -11106,6 +11069,8 @@ static long elf_find_func_offset(const char *binary_path, const char *name)
+ 		for (idx = 0; idx < nr_syms; idx++) {
+ 			int curr_bind;
+ 			GElf_Sym sym;
++			Elf_Scn *sym_scn;
++			GElf_Shdr sym_sh;
  
- copy_exit:
+ 			if (!gelf_getsym(symbols, idx, &sym))
+ 				continue;
+@@ -11143,12 +11108,28 @@ static long elf_find_func_offset(const char *binary_path, const char *name)
+ 					continue;
+ 				}
+ 			}
+-			ret = sym.st_value;
++
++			/* Transform symbol's virtual address (absolute for
++			 * binaries and relative for shared libs) into file
++			 * offset, which is what kernel is expecting for
++			 * uprobe/uretprobe attachment.
++			 * See Documentation/trace/uprobetracer.rst for more
++			 * details.
++			 * This is done by looking up symbol's containing
++			 * section's header and using it's virtual address
++			 * (sh_addr) and corresponding file offset (sh_offset)
++			 * to transform sym.st_value (virtual address) into
++			 * desired final file offset.
++			 */
++			sym_scn = elf_getscn(elf, sym.st_shndx);
++			if (!sym_scn)
++				continue;
++			if (!gelf_getshdr(sym_scn, &sym_sh))
++				continue;
++
++			ret = sym.st_value - sym_sh.sh_addr + sym_sh.sh_offset;
+ 			last_bind = curr_bind;
+ 		}
+-		/* For binaries that are not shared libraries, we need relative offset */
+-		if (ret > 0 && !is_shared_lib)
+-			ret = elf_find_relative_offset(binary_path, elf, ret);
+ 		if (ret > 0)
+ 			break;
+ 	}
 -- 
 2.35.1
 
