@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1E22593D36
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06658593B81
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243426AbiHOTyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:54:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42974 "EHLO
+        id S1345544AbiHOTyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:54:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344447AbiHOTxW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:53:22 -0400
+        with ESMTP id S1344856AbiHOTxX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:53:23 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2749143321;
-        Mon, 15 Aug 2022 11:51:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 093D343E62;
+        Mon, 15 Aug 2022 11:51:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9DDBBB810A2;
-        Mon, 15 Aug 2022 18:50:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDE60C433D6;
-        Mon, 15 Aug 2022 18:50:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA86FB81057;
+        Mon, 15 Aug 2022 18:51:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F25AFC433C1;
+        Mon, 15 Aug 2022 18:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589458;
-        bh=nO/+2AX+cazTuNn/aigmzflyJl3MlYx8GE+e0CzwuIU=;
+        s=korg; t=1660589470;
+        bh=xwqlsyLT4+wEgeoymS/IaazHbOUWacD/OGFbiM81irw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B/PrNvfnaOR5e1JU/8cGWVi+Pi37GJS4gwYJCRhIfZh/nJnaqYW4slO9Pl7JuQ2j6
-         V1vgbfBUkEOS98UpqmHVmgOev1tmF0/Uof+Zr2RwvtlVoz9ELKRcQ8Jwe4Rzxd6o1o
-         MYqNmnIu8JHoblBxDuq8tTWFeQA2IdDoXcWg9YmE=
+        b=CtUARHuty1oB7hPZSiN7qfBGf+OZdSySdMlOMpRKNV1znHxRlpi/uaAf9NGE/zEyD
+         o/Cfz15SoPJ4hFI9nTQKnv1Dyiq4TupiELO9Yv071O66riaxuKqjPw8ez4ZOp4j23b
+         pYd0edt6oi575nyUKZSX8bJKr7X0LmBvQgkjN34A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
         Andre Edich <andre.edich@microchip.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Ferry Toth <fntoth@gmail.com>, Andrew Lunn <andrew@lunn.ch>
-Subject: [PATCH 5.15 697/779] usbnet: smsc95xx: Forward PHY interrupts to PHY driver to avoid polling
-Date:   Mon, 15 Aug 2022 20:05:41 +0200
-Message-Id: <20220815180407.143663505@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 698/779] usbnet: smsc95xx: Fix deadlock on runtime resume
+Date:   Mon, 15 Aug 2022 20:05:42 +0200
+Message-Id: <20220815180407.188032005@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -59,312 +57,188 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 1ce8b37241ed291af56f7a49bbdbf20c08728e88 ]
+[ Upstream commit 7b960c967f2aa01ab8f45c5a0bd78e754cffdeee ]
 
-Link status of SMSC LAN95xx chips is polled once per second, even though
-they're capable of signaling PHY interrupts through the MAC layer.
+Commit 05b35e7eb9a1 ("smsc95xx: add phylib support") amended
+smsc95xx_resume() to call phy_init_hw().  That function waits for the
+device to runtime resume even though it is placed in the runtime resume
+path, causing a deadlock.
 
-Forward those interrupts to the PHY driver to avoid polling.  Benefits
-are reduced bus traffic, reduced CPU overhead and quicker interface
-bringup.
+The problem is that phy_init_hw() calls down to smsc95xx_mdiobus_read(),
+which never uses the _nopm variant of usbnet_read_cmd().
 
-Polling was introduced in 2016 by commit d69d16949346 ("usbnet:
-smsc95xx: fix link detection for disabled autonegotiation").
-Back then, the LAN95xx driver neglected to enable the ENERGYON interrupt,
-hence couldn't detect link-up events when auto-negotiation was disabled.
-The proper solution would have been to enable the ENERGYON interrupt
-instead of polling.
+Commit b4df480f68ae ("usbnet: smsc95xx: add reset_resume function with
+reset operation") causes a similar deadlock on resume if the device was
+already runtime suspended when entering system sleep:
 
-Since then, PHY handling was moved from the LAN95xx driver to the SMSC
-PHY driver with commit 05b35e7eb9a1 ("smsc95xx: add phylib support").
-That PHY driver is capable of link detection with auto-negotiation
-disabled because it enables the ENERGYON interrupt.
+That's because the commit introduced smsc95xx_reset_resume(), which
+calls down to smsc95xx_reset(), which neglects to use _nopm accessors.
 
-Note that signaling interrupts through the MAC layer not only works with
-the integrated PHY, but also with an external PHY, provided its
-interrupt pin is attached to LAN95xx's nPHY_INT pin.
+Fix by auto-detecting whether a device access is performed by the
+suspend/resume task_struct and use the _nopm variant if so.  This works
+because the PM core guarantees that suspend/resume callbacks are run in
+task context.
 
-In the unlikely event that the interrupt pin of an external PHY is
-attached to a GPIO of the SoC (or not connected at all), the driver can
-be amended to retrieve the irq from the PHY's of_node.
+Stacktrace for posterity:
 
-To forward PHY interrupts to phylib, it is not sufficient to call
-phy_mac_interrupt().  Instead, the PHY's interrupt handler needs to run
-so that PHY interrupts are cleared.  That's because according to page
-119 of the LAN950x datasheet, "The source of this interrupt is a level.
-The interrupt persists until it is cleared in the PHY."
+  INFO: task kworker/2:1:49 blocked for more than 122 seconds.
+  Workqueue: usb_hub_wq hub_event
+  schedule
+  rpm_resume
+  __pm_runtime_resume
+  usb_autopm_get_interface
+  usbnet_read_cmd
+  __smsc95xx_read_reg
+  __smsc95xx_phy_wait_not_busy
+  __smsc95xx_mdio_read
+  smsc95xx_mdiobus_read
+  __mdiobus_read
+  mdiobus_read
+  smsc_phy_reset
+  phy_init_hw
+  smsc95xx_resume
+  usb_resume_interface
+  usb_resume_both
+  usb_runtime_resume
+  __rpm_callback
+  rpm_callback
+  rpm_resume
+  __pm_runtime_resume
+  usb_autoresume_device
+  hub_event
+  process_one_work
 
-https://www.microchip.com/content/dam/mchp/documents/UNG/ProductDocuments/DataSheets/LAN950x-Data-Sheet-DS00001875D.pdf
-
-Therefore, create an IRQ domain with a single IRQ for the PHY.  In the
-future, the IRQ domain may be extended to support the 11 GPIOs on the
-LAN95xx.
-
-Normally the PHY interrupt should be masked until the PHY driver has
-cleared it.  However masking requires a (sleeping) USB transaction and
-interrupts are received in (non-sleepable) softirq context.  I decided
-not to mask the interrupt at all (by using the dummy_irq_chip's noop
-->irq_mask() callback):  The USB interrupt endpoint is polled in 1 msec
-intervals and normally that's sufficient to wake the PHY driver's IRQ
-thread and have it clear the interrupt.  If it does take longer, worst
-thing that can happen is the IRQ thread is woken again.  No big deal.
-
-Because PHY interrupts are now perpetually enabled, there's no need to
-selectively enable them on suspend.  So remove all invocations of
-smsc95xx_enable_phy_wakeup_interrupts().
-
-In smsc95xx_resume(), move the call of phy_init_hw() before
-usbnet_resume() (which restarts the status URB) to ensure that the PHY
-is fully initialized when an interrupt is handled.
-
-Tested-by: Oleksij Rempel <o.rempel@pengutronix.de> # LAN9514/9512/9500
-Tested-by: Ferry Toth <fntoth@gmail.com> # LAN9514
+Fixes: b4df480f68ae ("usbnet: smsc95xx: add reset_resume function with reset operation")
 Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch> # from a PHY perspective
+Cc: stable@vger.kernel.org # v3.16+
 Cc: Andre Edich <andre.edich@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc95xx.c | 113 ++++++++++++++++++++-----------------
- 1 file changed, 61 insertions(+), 52 deletions(-)
+ drivers/net/usb/smsc95xx.c | 26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index 7cf9206638c3..3eb62197c2f5 100644
+index 3eb62197c2f5..460e90eb528f 100644
 --- a/drivers/net/usb/smsc95xx.c
 +++ b/drivers/net/usb/smsc95xx.c
-@@ -18,6 +18,8 @@
- #include <linux/usb/usbnet.h>
- #include <linux/slab.h>
- #include <linux/of_net.h>
-+#include <linux/irq.h>
-+#include <linux/irqdomain.h>
- #include <linux/mdio.h>
- #include <linux/phy.h>
- #include "smsc95xx.h"
-@@ -51,6 +53,9 @@
- #define SUSPEND_ALLMODES		(SUSPEND_SUSPEND0 | SUSPEND_SUSPEND1 | \
- 					 SUSPEND_SUSPEND2 | SUSPEND_SUSPEND3)
- 
-+#define SMSC95XX_NR_IRQS		(1) /* raise to 12 for GPIOs */
-+#define PHY_HWIRQ			(SMSC95XX_NR_IRQS - 1)
-+
- struct smsc95xx_priv {
- 	u32 mac_cr;
- 	u32 hash_hi;
-@@ -59,6 +64,9 @@ struct smsc95xx_priv {
- 	spinlock_t mac_cr_lock;
- 	u8 features;
- 	u8 suspend_flags;
-+	struct irq_chip irqchip;
-+	struct irq_domain *irqdomain;
-+	struct fwnode_handle *irqfwnode;
+@@ -69,6 +69,7 @@ struct smsc95xx_priv {
+ 	struct fwnode_handle *irqfwnode;
  	struct mii_bus *mdiobus;
  	struct phy_device *phydev;
++	struct task_struct *pm_task;
  };
-@@ -595,6 +603,8 @@ static void smsc95xx_mac_update_fullduplex(struct usbnet *dev)
  
- static void smsc95xx_status(struct usbnet *dev, struct urb *urb)
+ static bool turbo_mode = true;
+@@ -78,13 +79,14 @@ MODULE_PARM_DESC(turbo_mode, "Enable multiple frames per Rx transaction");
+ static int __must_check __smsc95xx_read_reg(struct usbnet *dev, u32 index,
+ 					    u32 *data, int in_pm)
  {
 +	struct smsc95xx_priv *pdata = dev->driver_priv;
-+	unsigned long flags;
- 	u32 intdata;
- 
- 	if (urb->actual_length != 4) {
-@@ -606,11 +616,15 @@ static void smsc95xx_status(struct usbnet *dev, struct urb *urb)
- 	intdata = get_unaligned_le32(urb->transfer_buffer);
- 	netif_dbg(dev, link, dev->net, "intdata: 0x%08X\n", intdata);
- 
-+	local_irq_save(flags);
-+
- 	if (intdata & INT_ENP_PHY_INT_)
--		;
-+		generic_handle_domain_irq(pdata->irqdomain, PHY_HWIRQ);
- 	else
- 		netdev_warn(dev->net, "unexpected interrupt, intdata=0x%08X\n",
- 			    intdata);
-+
-+	local_irq_restore(flags);
- }
- 
- /* Enable or disable Tx & Rx checksum offload engines */
-@@ -1072,8 +1086,9 @@ static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
- {
- 	struct smsc95xx_priv *pdata;
- 	bool is_internal_phy;
-+	char usb_path[64];
-+	int ret, phy_irq;
- 	u32 val;
--	int ret;
- 
- 	printk(KERN_INFO SMSC_CHIPNAME " v" SMSC_DRIVER_VERSION "\n");
- 
-@@ -1113,10 +1128,38 @@ static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
- 	if (ret)
- 		goto free_pdata;
- 
-+	/* create irq domain for use by PHY driver and GPIO consumers */
-+	usb_make_path(dev->udev, usb_path, sizeof(usb_path));
-+	pdata->irqfwnode = irq_domain_alloc_named_fwnode(usb_path);
-+	if (!pdata->irqfwnode) {
-+		ret = -ENOMEM;
-+		goto free_pdata;
-+	}
-+
-+	pdata->irqdomain = irq_domain_create_linear(pdata->irqfwnode,
-+						    SMSC95XX_NR_IRQS,
-+						    &irq_domain_simple_ops,
-+						    pdata);
-+	if (!pdata->irqdomain) {
-+		ret = -ENOMEM;
-+		goto free_irqfwnode;
-+	}
-+
-+	phy_irq = irq_create_mapping(pdata->irqdomain, PHY_HWIRQ);
-+	if (!phy_irq) {
-+		ret = -ENOENT;
-+		goto remove_irqdomain;
-+	}
-+
-+	pdata->irqchip = dummy_irq_chip;
-+	pdata->irqchip.name = SMSC_CHIPNAME;
-+	irq_set_chip_and_handler_name(phy_irq, &pdata->irqchip,
-+				      handle_simple_irq, "phy");
-+
- 	pdata->mdiobus = mdiobus_alloc();
- 	if (!pdata->mdiobus) {
- 		ret = -ENOMEM;
--		goto free_pdata;
-+		goto dispose_irq;
- 	}
- 
- 	ret = smsc95xx_read_reg(dev, HW_CFG, &val);
-@@ -1149,6 +1192,7 @@ static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
- 		goto unregister_mdio;
- 	}
- 
-+	pdata->phydev->irq = phy_irq;
- 	pdata->phydev->is_internal = is_internal_phy;
- 
- 	/* detect device revision as different features may be available */
-@@ -1191,6 +1235,15 @@ static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
- free_mdio:
- 	mdiobus_free(pdata->mdiobus);
- 
-+dispose_irq:
-+	irq_dispose_mapping(phy_irq);
-+
-+remove_irqdomain:
-+	irq_domain_remove(pdata->irqdomain);
-+
-+free_irqfwnode:
-+	irq_domain_free_fwnode(pdata->irqfwnode);
-+
- free_pdata:
- 	kfree(pdata);
- 	return ret;
-@@ -1203,6 +1256,9 @@ static void smsc95xx_unbind(struct usbnet *dev, struct usb_interface *intf)
- 	phy_disconnect(dev->net->phydev);
- 	mdiobus_unregister(pdata->mdiobus);
- 	mdiobus_free(pdata->mdiobus);
-+	irq_dispose_mapping(irq_find_mapping(pdata->irqdomain, PHY_HWIRQ));
-+	irq_domain_remove(pdata->irqdomain);
-+	irq_domain_free_fwnode(pdata->irqfwnode);
- 	netif_dbg(dev, ifdown, dev->net, "free pdata\n");
- 	kfree(pdata);
- }
-@@ -1227,29 +1283,6 @@ static u32 smsc_crc(const u8 *buffer, size_t len, int filter)
- 	return crc << ((filter % 2) * 16);
- }
- 
--static int smsc95xx_enable_phy_wakeup_interrupts(struct usbnet *dev, u16 mask)
--{
--	int ret;
--
--	netdev_dbg(dev->net, "enabling PHY wakeup interrupts\n");
--
--	/* read to clear */
--	ret = smsc95xx_mdio_read_nopm(dev, PHY_INT_SRC);
--	if (ret < 0)
--		return ret;
--
--	/* enable interrupt source */
--	ret = smsc95xx_mdio_read_nopm(dev, PHY_INT_MASK);
--	if (ret < 0)
--		return ret;
--
--	ret |= mask;
--
--	smsc95xx_mdio_write_nopm(dev, PHY_INT_MASK, ret);
--
--	return 0;
--}
--
- static int smsc95xx_link_ok_nopm(struct usbnet *dev)
- {
+ 	u32 buf;
  	int ret;
-@@ -1416,7 +1449,6 @@ static int smsc95xx_enter_suspend3(struct usbnet *dev)
- static int smsc95xx_autosuspend(struct usbnet *dev, u32 link_up)
+ 	int (*fn)(struct usbnet *, u8, u8, u16, u16, void *, u16);
+ 
+ 	BUG_ON(!dev);
+ 
+-	if (!in_pm)
++	if (current != pdata->pm_task)
+ 		fn = usbnet_read_cmd;
+ 	else
+ 		fn = usbnet_read_cmd_nopm;
+@@ -108,13 +110,14 @@ static int __must_check __smsc95xx_read_reg(struct usbnet *dev, u32 index,
+ static int __must_check __smsc95xx_write_reg(struct usbnet *dev, u32 index,
+ 					     u32 data, int in_pm)
  {
- 	struct smsc95xx_priv *pdata = dev->driver_priv;
--	int ret;
++	struct smsc95xx_priv *pdata = dev->driver_priv;
+ 	u32 buf;
+ 	int ret;
+ 	int (*fn)(struct usbnet *, u8, u8, u16, u16, const void *, u16);
  
- 	if (!netif_running(dev->net)) {
- 		/* interface is ifconfig down so fully power down hw */
-@@ -1435,27 +1467,10 @@ static int smsc95xx_autosuspend(struct usbnet *dev, u32 link_up)
- 		}
+ 	BUG_ON(!dev);
  
- 		netdev_dbg(dev->net, "autosuspend entering SUSPEND1\n");
--
--		/* enable PHY wakeup events for if cable is attached */
--		ret = smsc95xx_enable_phy_wakeup_interrupts(dev,
--			PHY_INT_MASK_ANEG_COMP_);
--		if (ret < 0) {
--			netdev_warn(dev->net, "error enabling PHY wakeup ints\n");
--			return ret;
--		}
--
- 		netdev_info(dev->net, "entering SUSPEND1 mode\n");
- 		return smsc95xx_enter_suspend1(dev);
- 	}
+-	if (!in_pm)
++	if (current != pdata->pm_task)
+ 		fn = usbnet_write_cmd;
+ 	else
+ 		fn = usbnet_write_cmd_nopm;
+@@ -1482,9 +1485,12 @@ static int smsc95xx_suspend(struct usb_interface *intf, pm_message_t message)
+ 	u32 val, link_up;
+ 	int ret;
  
--	/* enable PHY wakeup events so we remote wakeup if cable is pulled */
--	ret = smsc95xx_enable_phy_wakeup_interrupts(dev,
--		PHY_INT_MASK_LINK_DOWN_);
--	if (ret < 0) {
--		netdev_warn(dev->net, "error enabling PHY wakeup ints\n");
--		return ret;
--	}
--
- 	netdev_dbg(dev->net, "autosuspend entering SUSPEND3\n");
- 	return smsc95xx_enter_suspend3(dev);
- }
-@@ -1521,13 +1536,6 @@ static int smsc95xx_suspend(struct usb_interface *intf, pm_message_t message)
- 	}
- 
- 	if (pdata->wolopts & WAKE_PHY) {
--		ret = smsc95xx_enable_phy_wakeup_interrupts(dev,
--			(PHY_INT_MASK_ANEG_COMP_ | PHY_INT_MASK_LINK_DOWN_));
--		if (ret < 0) {
--			netdev_warn(dev->net, "error enabling PHY wakeup ints\n");
--			goto done;
--		}
--
- 		/* if link is down then configure EDPD and enter SUSPEND1,
- 		 * otherwise enter SUSPEND0 below
- 		 */
-@@ -1761,11 +1769,12 @@ static int smsc95xx_resume(struct usb_interface *intf)
- 			return ret;
- 	}
- 
-+	phy_init_hw(pdata->phydev);
++	pdata->pm_task = current;
 +
- 	ret = usbnet_resume(intf);
+ 	ret = usbnet_suspend(intf, message);
+ 	if (ret < 0) {
+ 		netdev_warn(dev->net, "usbnet_suspend error\n");
++		pdata->pm_task = NULL;
+ 		return ret;
+ 	}
+ 
+@@ -1724,6 +1730,7 @@ static int smsc95xx_suspend(struct usb_interface *intf, pm_message_t message)
+ 	if (ret && PMSG_IS_AUTO(message))
+ 		usbnet_resume(intf);
+ 
++	pdata->pm_task = NULL;
+ 	return ret;
+ }
+ 
+@@ -1744,29 +1751,31 @@ static int smsc95xx_resume(struct usb_interface *intf)
+ 	/* do this first to ensure it's cleared even in error case */
+ 	pdata->suspend_flags = 0;
+ 
++	pdata->pm_task = current;
++
+ 	if (suspend_flags & SUSPEND_ALLMODES) {
+ 		/* clear wake-up sources */
+ 		ret = smsc95xx_read_reg_nopm(dev, WUCSR, &val);
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 
+ 		val &= ~(WUCSR_WAKE_EN_ | WUCSR_MPEN_);
+ 
+ 		ret = smsc95xx_write_reg_nopm(dev, WUCSR, val);
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 
+ 		/* clear wake-up status */
+ 		ret = smsc95xx_read_reg_nopm(dev, PM_CTRL, &val);
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 
+ 		val &= ~PM_CTL_WOL_EN_;
+ 		val |= PM_CTL_WUPS_;
+ 
+ 		ret = smsc95xx_write_reg_nopm(dev, PM_CTRL, val);
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 	}
+ 
+ 	phy_init_hw(pdata->phydev);
+@@ -1775,15 +1784,20 @@ static int smsc95xx_resume(struct usb_interface *intf)
  	if (ret < 0)
  		netdev_warn(dev->net, "usbnet_resume error\n");
  
--	phy_init_hw(pdata->phydev);
++done:
++	pdata->pm_task = NULL;
  	return ret;
  }
+ 
+ static int smsc95xx_reset_resume(struct usb_interface *intf)
+ {
+ 	struct usbnet *dev = usb_get_intfdata(intf);
++	struct smsc95xx_priv *pdata = dev->driver_priv;
+ 	int ret;
+ 
++	pdata->pm_task = current;
+ 	ret = smsc95xx_reset(dev);
++	pdata->pm_task = NULL;
+ 	if (ret < 0)
+ 		return ret;
  
 -- 
 2.35.1
