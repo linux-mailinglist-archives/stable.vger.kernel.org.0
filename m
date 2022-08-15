@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C6945936BC
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66A85937FD
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236100AbiHOSjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:39:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50846 "EHLO
+        id S242136AbiHOSkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:40:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240890AbiHOSix (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:38:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A472F3D59A;
-        Mon, 15 Aug 2022 11:23:49 -0700 (PDT)
+        with ESMTP id S243151AbiHOSjR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:39:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0098B3D5B4;
+        Mon, 15 Aug 2022 11:23:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0ABE76068D;
-        Mon, 15 Aug 2022 18:23:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED809C433D7;
-        Mon, 15 Aug 2022 18:23:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B2A7DB81063;
+        Mon, 15 Aug 2022 18:23:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23579C433C1;
+        Mon, 15 Aug 2022 18:23:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587827;
-        bh=wxOLwuRbTjTq7t+voomz6BH+XUZah3K8GfdHFh66MGg=;
+        s=korg; t=1660587830;
+        bh=HrjeGzSjUbhYge2bysfUgm0Vx0JRUCCCtMSjLG4PpmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OKsFY2nAIKyAjvpZQYAJusxO5dHlBEoQML3cQsgDNgjoiyMG1D+aCkEFHJ+qXU/o+
-         91EY07tirtpcvXkC9Ge4oP/3uTHe/vtzFcKiTIl7LOg67i1sW7Rp9Vp74hcLsfQuBw
-         PrikwKwKtAsaoDVCcbXUvo1gWrKlagQvGyf7iFgk=
+        b=kIgIJX1RxbxcEOkP2plsL1hNBI7c8tf6sPPUbhIapSIDKAHfqQkLtyuYW13L2aar3
+         cNHeTOsdRKCGrszD2bnF0Mtc4Vep2lZD3W+7ao9whYxw3OdnFZg+sK1eQufDQ1XDDs
+         y++lHPdZOFiYn+JsJ8ibe86mQqmSyOIq6mjZ33D8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Jinbao <liujinbao1@xiaomi.com>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 207/779] erofs: avoid consecutive detection for Highmem memory
-Date:   Mon, 15 Aug 2022 19:57:31 +0200
-Message-Id: <20220815180346.123733950@linuxfoundation.org>
+        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
+        Ming Lei <ming.lei@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 208/779] blk-mq: dont create hctx debugfs dir until q->debugfs_dir is created
+Date:   Mon, 15 Aug 2022 19:57:32 +0200
+Message-Id: <20220815180346.163032797@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,57 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 448b5a1548d87c246c3d0c3df8480d3c6eb6c11a ]
+[ Upstream commit f3ec5d11554778c24ac8915e847223ed71d104fc ]
 
-Currently, vmap()s are avoided if physical addresses are
-consecutive for decompressed buffers.
+blk_mq_debugfs_register_hctx() can be called by blk_mq_update_nr_hw_queues
+when gendisk isn't added yet, such as nvme tcp.
 
-I observed that is very common for 4KiB pclusters since the
-numbers of decompressed pages are almost 2 or 3.
+Fixes the warning of 'debugfs: Directory 'hctx0' with parent '/' already present!'
+which can be observed reliably when running blktests nvme/005.
 
-However, such detection doesn't work for Highmem pages on
-32-bit machines, let's fix it now.
-
-Reported-by: Liu Jinbao <liujinbao1@xiaomi.com>
-Fixes: 7fc45dbc938a ("staging: erofs: introduce generic decompression backend")
-Link: https://lore.kernel.org/r/20220708101001.21242-1-hsiangkao@linux.alibaba.com
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Fixes: 6cfc0081b046 ("blk-mq: no need to check return value of debugfs_create functions")
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220711090808.259682-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/erofs/decompressor.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ block/blk-mq-debugfs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index ad3f31380e6b..8193c14bb111 100644
---- a/fs/erofs/decompressor.c
-+++ b/fs/erofs/decompressor.c
-@@ -93,14 +93,18 @@ static int z_erofs_lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
+diff --git a/block/blk-mq-debugfs.c b/block/blk-mq-debugfs.c
+index 3b38d15723de..7023257a133d 100644
+--- a/block/blk-mq-debugfs.c
++++ b/block/blk-mq-debugfs.c
+@@ -879,6 +879,9 @@ void blk_mq_debugfs_register_hctx(struct request_queue *q,
+ 	char name[20];
+ 	int i;
  
- 		if (page) {
- 			__clear_bit(j, bounced);
--			if (kaddr) {
--				if (kaddr + PAGE_SIZE == page_address(page))
-+			if (!PageHighMem(page)) {
-+				if (!i) {
-+					kaddr = page_address(page);
-+					continue;
-+				}
-+				if (kaddr &&
-+				    kaddr + PAGE_SIZE == page_address(page)) {
- 					kaddr += PAGE_SIZE;
--				else
--					kaddr = NULL;
--			} else if (!i) {
--				kaddr = page_address(page);
-+					continue;
-+				}
- 			}
-+			kaddr = NULL;
- 			continue;
- 		}
- 		kaddr = NULL;
++	if (!q->debugfs_dir)
++		return;
++
+ 	snprintf(name, sizeof(name), "hctx%u", hctx->queue_num);
+ 	hctx->debugfs_dir = debugfs_create_dir(name, q->debugfs_dir);
+ 
 -- 
 2.35.1
 
