@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A22B5934A7
+	by mail.lfdr.de (Postfix) with ESMTP id CE8EF5934A9
 	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:26:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233463AbiHOSOB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:14:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58278 "EHLO
+        id S233518AbiHOSOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:14:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233159AbiHOSNx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:13:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F3B2A42C;
-        Mon, 15 Aug 2022 11:13:44 -0700 (PDT)
+        with ESMTP id S232924AbiHOSNy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:13:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74F292A43B;
+        Mon, 15 Aug 2022 11:13:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 130C261277;
-        Mon, 15 Aug 2022 18:13:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03BB8C433C1;
-        Mon, 15 Aug 2022 18:13:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA5DA6127C;
+        Mon, 15 Aug 2022 18:13:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF773C433C1;
+        Mon, 15 Aug 2022 18:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587223;
-        bh=9oKqhmwN4AKakxaJwaUN3W6bPQ1UeHS2y21A6FGtcaE=;
+        s=korg; t=1660587226;
+        bh=i/IqNC9sKyzc2Gi0Ic4dqxmktUixRmto/+KsH9OoTSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D66IcxOje8FoAp3h2ju2vpaAUC1i+YOgClwwM0f0QzjImUXyKcopyU5xx5qNu8fX/
-         Cd/ie12/iq3Tk8NXbj7sBoc4Nvv+R5uOP/Tbt7eXzJvIDGrl3r17XlgaNA1tUEQz+E
-         QNfKnO9OP3CzwpkzoK32XROlDrTofx1fycGU9Ot8=
+        b=UHcka7j2KCimGnJyHDymlVGr+hDKF70B+2sEn3NupyhP3gNi8ujdlMwc606ccGAdO
+         FgQ2X0++hHkA82/8OLa7J9+mZt56Mu5p3f7LjHAuqVdsVoRV7DR9mYYRl57LPeAdcP
+         bMEDaZTmzAHHA5TUERczHJrmHwPuH/fBAfPjrNKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fangrui Song <maskray@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 002/779] x86: link vdso and boot with -z noexecstack --no-warn-rwx-segments
-Date:   Mon, 15 Aug 2022 19:54:06 +0200
-Message-Id: <20220815180337.255959747@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.15 003/779] Revert "pNFS: nfs3_set_ds_client should set NFS_CS_NOPING"
+Date:   Mon, 15 Aug 2022 19:54:07 +0200
+Message-Id: <20220815180337.298765948@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,82 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit ffcf9c5700e49c0aee42dcba9a12ba21338e8136 upstream.
+commit 9597152d98840c2517230740952df97cfcc07e2f upstream.
 
-Users of GNU ld (BFD) from binutils 2.39+ will observe multiple
-instances of a new warning when linking kernels in the form:
+This reverts commit c6eb58435b98bd843d3179664a0195ff25adb2c3.
+If a transport is down, then we want to fail over to other transports if
+they are listed in the GETDEVICEINFO reply.
 
-  ld: warning: arch/x86/boot/pmjump.o: missing .note.GNU-stack section implies executable stack
-  ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
-  ld: warning: arch/x86/boot/compressed/vmlinux has a LOAD segment with RWX permissions
-
-Generally, we would like to avoid the stack being executable.  Because
-there could be a need for the stack to be executable, assembler sources
-have to opt-in to this security feature via explicit creation of the
-.note.GNU-stack feature (which compilers create by default) or command
-line flag --noexecstack.  Or we can simply tell the linker the
-production of such sections is irrelevant and to link the stack as
---noexecstack.
-
-LLVM's LLD linker defaults to -z noexecstack, so this flag isn't
-strictly necessary when linking with LLD, only BFD, but it doesn't hurt
-to be explicit here for all linkers IMO.  --no-warn-rwx-segments is
-currently BFD specific and only available in the current latest release,
-so it's wrapped in an ld-option check.
-
-While the kernel makes extensive usage of ELF sections, it doesn't use
-permissions from ELF segments.
-
-Link: https://lore.kernel.org/linux-block/3af4127a-f453-4cf7-f133-a181cce06f73@kernel.dk/
-Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=ba951afb99912da01a6e8434126b8fac7aa75107
-Link: https://github.com/llvm/llvm-project/issues/57009
-Reported-and-tested-by: Jens Axboe <axboe@kernel.dk>
-Suggested-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: c6eb58435b98 ("pNFS: nfs3_set_ds_client should set NFS_CS_NOPING")
+Cc: stable@vger.kernel.org # 5.11.x
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/boot/Makefile            |    2 +-
- arch/x86/boot/compressed/Makefile |    4 ++++
- arch/x86/entry/vdso/Makefile      |    2 +-
- 3 files changed, 6 insertions(+), 2 deletions(-)
+ fs/nfs/nfs3client.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/x86/boot/Makefile
-+++ b/arch/x86/boot/Makefile
-@@ -103,7 +103,7 @@ $(obj)/zoffset.h: $(obj)/compressed/vmli
- AFLAGS_header.o += -I$(objtree)/$(obj)
- $(obj)/header.o: $(obj)/zoffset.h
+--- a/fs/nfs/nfs3client.c
++++ b/fs/nfs/nfs3client.c
+@@ -108,7 +108,6 @@ struct nfs_client *nfs3_set_ds_client(st
+ 	if (mds_srv->flags & NFS_MOUNT_NORESVPORT)
+ 		__set_bit(NFS_CS_NORESVPORT, &cl_init.init_flags);
  
--LDFLAGS_setup.elf	:= -m elf_i386 -T
-+LDFLAGS_setup.elf	:= -m elf_i386 -z noexecstack -T
- $(obj)/setup.elf: $(src)/setup.ld $(SETUP_OBJS) FORCE
- 	$(call if_changed,ld)
+-	__set_bit(NFS_CS_NOPING, &cl_init.init_flags);
+ 	__set_bit(NFS_CS_DS, &cl_init.init_flags);
  
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -69,6 +69,10 @@ LDFLAGS_vmlinux := -pie $(call ld-option
- ifdef CONFIG_LD_ORPHAN_WARN
- LDFLAGS_vmlinux += --orphan-handling=warn
- endif
-+LDFLAGS_vmlinux += -z noexecstack
-+ifeq ($(CONFIG_LD_IS_BFD),y)
-+LDFLAGS_vmlinux += $(call ld-option,--no-warn-rwx-segments)
-+endif
- LDFLAGS_vmlinux += -T
- 
- hostprogs	:= mkpiggy
---- a/arch/x86/entry/vdso/Makefile
-+++ b/arch/x86/entry/vdso/Makefile
-@@ -179,7 +179,7 @@ quiet_cmd_vdso = VDSO    $@
- 		 sh $(srctree)/$(src)/checkundef.sh '$(NM)' '$@'
- 
- VDSO_LDFLAGS = -shared --hash-style=both --build-id=sha1 \
--	$(call ld-option, --eh-frame-hdr) -Bsymbolic
-+	$(call ld-option, --eh-frame-hdr) -Bsymbolic -z noexecstack
- GCOV_PROFILE := n
- 
- quiet_cmd_vdso_and_check = VDSO    $@
+ 	/* Use the MDS nfs_client cl_ipaddr. */
 
 
