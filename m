@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB665593EE4
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F36E9593F8F
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244227AbiHOU7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:59:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36564 "EHLO
+        id S231203AbiHOVIj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:08:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233257AbiHOU7Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:59:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77EFFC229D;
-        Mon, 15 Aug 2022 12:12:41 -0700 (PDT)
+        with ESMTP id S1344841AbiHOVDy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:03:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AF71D3EE1;
+        Mon, 15 Aug 2022 12:14:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 736AAB810A3;
-        Mon, 15 Aug 2022 19:12:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0448C433C1;
-        Mon, 15 Aug 2022 19:12:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B267F60F68;
+        Mon, 15 Aug 2022 19:14:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1E12C4314B;
+        Mon, 15 Aug 2022 19:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590758;
-        bh=TBZTjxNObxMeSF9MVLIlhAHznmQOteS10aeexvE2FOw=;
+        s=korg; t=1660590886;
+        bh=BokTBTMkZ4346PaQMeY33bF5LXXEd68/+dwp0v89MXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YH5cH107sbsHcIrq0xqXtoii3OYlxyRmDfqWdNMwsn6dfYYbvYsJ59+IMsxtAqGV0
-         yh51MpwlCGlRUJIZZJeJWPSN1pbO4dd97D9u8DdhZdVmfuJ+GRnvVog7f7X09xQyND
-         +7OZFckrhw3WqEgT8qALwrPE6Imjy1Gutl8kILkc=
+        b=T21ynF5gE8yks6j6TP1DHXg/TgHh/iL+EE/+Ou2dxhJ2Zi7t55HlHtKQF9kPY56a4
+         ukhrsO7aA8FGc7rayMzqUGoOh2lLY/dwwrq5ynmhm9UcEXkvzHLz7yEk4L663mYD+r
+         4zgzC0ivNPsCDXyCvtcv/fZj+SIGFNrvfdz6QMCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0360/1095] media: rcar-vin: Fix channel routing for Ebisu
-Date:   Mon, 15 Aug 2022 19:55:59 +0200
-Message-Id: <20220815180444.624606406@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+03110230a11411024147@syzkaller.appspotmail.com,
+        syzbot+c6dde1f690b60e0b9fbe@syzkaller.appspotmail.com
+Subject: [PATCH 5.18 0361/1095] ath9k: fix use-after-free in ath9k_hif_usb_rx_cb
+Date:   Mon, 15 Aug 2022 19:56:00 +0200
+Message-Id: <20220815180444.675958576@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -58,39 +57,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 5b9b598453d3ae5fa66d7ab591008373a89b91a0 ]
+[ Upstream commit 0ac4827f78c7ffe8eef074bc010e7e34bc22f533 ]
 
-When converting to full Virtual Channel routing an error crept into the
-routing table for Ebisu (r8a77990). The routing information is used at
-probe time preventing rcar-vin from probing correctly on this SoC, solve
-by correcting the routing table.
+Syzbot reported use-after-free Read in ath9k_hif_usb_rx_cb() [0]. The
+problem was in incorrect htc_handle->drv_priv initialization.
 
-Fixes: 3e52419ec04f9769 ("media: rcar-{csi2,vin}: Move to full Virtual Channel routing per CSI-2 IP")
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Probable call trace which can trigger use-after-free:
+
+ath9k_htc_probe_device()
+  /* htc_handle->drv_priv = priv; */
+  ath9k_htc_wait_for_target()      <--- Failed
+  ieee80211_free_hw()		   <--- priv pointer is freed
+
+<IRQ>
+...
+ath9k_hif_usb_rx_cb()
+  ath9k_hif_usb_rx_stream()
+   RX_STAT_INC()		<--- htc_handle->drv_priv access
+
+In order to not add fancy protection for drv_priv we can move
+htc_handle->drv_priv initialization at the end of the
+ath9k_htc_probe_device() and add helper macro to make
+all *_STAT_* macros NULL safe, since syzbot has reported related NULL
+deref in that macros [1]
+
+Link: https://syzkaller.appspot.com/bug?id=6ead44e37afb6866ac0c7dd121b4ce07cb665f60 [0]
+Link: https://syzkaller.appspot.com/bug?id=b8101ffcec107c0567a0cd8acbbacec91e9ee8de [1]
+Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
+Reported-and-tested-by: syzbot+03110230a11411024147@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+c6dde1f690b60e0b9fbe@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/d57bbedc857950659bfacac0ab48790c1eda00c8.1655145743.git.paskripkin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/renesas/rcar-vin/rcar-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/htc.h          | 10 +++++-----
+ drivers/net/wireless/ath/ath9k/htc_drv_init.c |  3 ++-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/platform/renesas/rcar-vin/rcar-core.c b/drivers/media/platform/renesas/rcar-vin/rcar-core.c
-index 64cb05b3907c..ed3ddf36f906 100644
---- a/drivers/media/platform/renesas/rcar-vin/rcar-core.c
-+++ b/drivers/media/platform/renesas/rcar-vin/rcar-core.c
-@@ -1264,7 +1264,7 @@ static const struct rvin_info rcar_info_r8a77980 = {
- };
+diff --git a/drivers/net/wireless/ath/ath9k/htc.h b/drivers/net/wireless/ath/ath9k/htc.h
+index 6b45e63fae4b..e3d546ef71dd 100644
+--- a/drivers/net/wireless/ath/ath9k/htc.h
++++ b/drivers/net/wireless/ath/ath9k/htc.h
+@@ -327,11 +327,11 @@ static inline struct ath9k_htc_tx_ctl *HTC_SKB_CB(struct sk_buff *skb)
+ }
  
- static const struct rvin_group_route rcar_info_r8a77990_routes[] = {
--	{ .master = 0, .csi = RVIN_CSI40, .chsel = 0x03 },
-+	{ .master = 4, .csi = RVIN_CSI40, .chsel = 0x03 },
- 	{ /* Sentinel */ }
- };
+ #ifdef CONFIG_ATH9K_HTC_DEBUGFS
+-
+-#define TX_STAT_INC(c) (hif_dev->htc_handle->drv_priv->debug.tx_stats.c++)
+-#define TX_STAT_ADD(c, a) (hif_dev->htc_handle->drv_priv->debug.tx_stats.c += a)
+-#define RX_STAT_INC(c) (hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c++)
+-#define RX_STAT_ADD(c, a) (hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c += a)
++#define __STAT_SAFE(expr) (hif_dev->htc_handle->drv_priv ? (expr) : 0)
++#define TX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c++)
++#define TX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c += a)
++#define RX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c++)
++#define RX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c += a)
+ #define CAB_STAT_INC   priv->debug.tx_stats.cab_queued++
  
+ #define TX_QSTAT_INC(q) (priv->debug.tx_stats.queue_stats[q]++)
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+index ff61ae34ecdf..07ac88fb1c57 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+@@ -944,7 +944,6 @@ int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
+ 	priv->hw = hw;
+ 	priv->htc = htc_handle;
+ 	priv->dev = dev;
+-	htc_handle->drv_priv = priv;
+ 	SET_IEEE80211_DEV(hw, priv->dev);
+ 
+ 	ret = ath9k_htc_wait_for_target(priv);
+@@ -965,6 +964,8 @@ int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
+ 	if (ret)
+ 		goto err_init;
+ 
++	htc_handle->drv_priv = priv;
++
+ 	return 0;
+ 
+ err_init:
 -- 
 2.35.1
 
