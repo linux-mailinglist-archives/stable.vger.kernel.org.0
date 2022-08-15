@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EF57593B39
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F3CE593B98
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243533AbiHOUDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:03:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39310 "EHLO
+        id S1345812AbiHOUD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:03:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346268AbiHOUCA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:02:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E26817D1CA;
-        Mon, 15 Aug 2022 11:54:00 -0700 (PDT)
+        with ESMTP id S1346264AbiHOUB7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:01:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 631037D1FE;
+        Mon, 15 Aug 2022 11:54:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A9B7B81057;
-        Mon, 15 Aug 2022 18:54:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F654C433C1;
-        Mon, 15 Aug 2022 18:53:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F904B810A4;
+        Mon, 15 Aug 2022 18:54:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8A99C433C1;
+        Mon, 15 Aug 2022 18:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589639;
-        bh=lduLUySsI1WUtQlgUnp59GOTkb0x8BOtWEUvizrx5lg=;
+        s=korg; t=1660589642;
+        bh=ADDZENk4U535ezQ9Bwf0xtyUCnQSO4AeE9KEO3JLlTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJCinDvNKpYEmcOpGTwMT6p9olAkv8kMNPRLZwvgV2yT80hCJ/gHJtNsH322xMNUl
-         FoPkAfblv5xTlOcVJwSx1AOieeP2KMyVZzbk8upVgiwXCcKna00XnryaY7sKAZKCMD
-         i0AkLVu/OOL5PxwOmQ6VVwMVhEjRMLrYnYX2gOMo=
+        b=YX7EdM/54O/E7e8AeQWfyNCnpXNBFN9ITo6NhKYpy9vdWpuyGnL/bPDKJTnEc55SY
+         GouvJuFIA50KuP5gvx7dVxEimtmYnCh0P7UjQ7+dtJSo6+Q8Xm3aj3+kCvrP71XK3p
+         Yj2bSHTU0XGMTj2nht4j+vQB2QYkWpodQyL/tDcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Brian Norris <briannorris@chromium.org>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: [PATCH 5.15 765/779] Revert "mwifiex: fix sleep in atomic context bugs caused by dev_coredumpv"
-Date:   Mon, 15 Aug 2022 20:06:49 +0200
-Message-Id: <20220815180410.114354620@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: [PATCH 5.15 766/779] Revert "s390/smp: enforce lowcore protection on CPU restart"
+Date:   Mon, 15 Aug 2022 20:06:50 +0200
+Message-Id: <20220815180410.150840368@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,100 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-commit 5f8954e099b8ae96e7de1bb95950e00c85bedd40 upstream.
+commit 953503751a426413ea8aee2299ae3ee971b70d9b upstream.
 
-This reverts commit a52ed4866d2b90dd5e4ae9dabd453f3ed8fa3cbc as it
-causes build problems in linux-next.  It needs to be reintroduced in a
-way that can allow the api to evolve and not require a "flag day" to
-catch all users.
+This reverts commit 6f5c672d17f583b081e283927f5040f726c54598.
 
-Link: https://lore.kernel.org/r/20220623160723.7a44b573@canb.auug.org.au
-Cc: Duoming Zhou <duoming@zju.edu.cn>
-Cc: Brian Norris <briannorris@chromium.org>
-Cc: Johannes Berg <johannes@sipsolutions.net>
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+This breaks normal crash dump when CPU0 is offline.
+
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/marvell/mwifiex/init.c      |    9 ++++-----
- drivers/net/wireless/marvell/mwifiex/main.h      |    3 +--
- drivers/net/wireless/marvell/mwifiex/sta_event.c |    6 +++---
- 3 files changed, 8 insertions(+), 10 deletions(-)
+ arch/s390/kernel/setup.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/init.c
-+++ b/drivers/net/wireless/marvell/mwifiex/init.c
-@@ -63,10 +63,9 @@ static void wakeup_timer_fn(struct timer
- 		adapter->if_ops.card_reset(adapter);
- }
- 
--static void fw_dump_work(struct work_struct *work)
-+static void fw_dump_timer_fn(struct timer_list *t)
- {
--	struct mwifiex_adapter *adapter =
--		container_of(work, struct mwifiex_adapter, devdump_work.work);
-+	struct mwifiex_adapter *adapter = from_timer(adapter, t, devdump_timer);
- 
- 	mwifiex_upload_device_dump(adapter);
- }
-@@ -322,7 +321,7 @@ static void mwifiex_init_adapter(struct
- 	adapter->active_scan_triggered = false;
- 	timer_setup(&adapter->wakeup_timer, wakeup_timer_fn, 0);
- 	adapter->devdump_len = 0;
--	INIT_DELAYED_WORK(&adapter->devdump_work, fw_dump_work);
-+	timer_setup(&adapter->devdump_timer, fw_dump_timer_fn, 0);
- }
- 
- /*
-@@ -401,7 +400,7 @@ static void
- mwifiex_adapter_cleanup(struct mwifiex_adapter *adapter)
- {
- 	del_timer(&adapter->wakeup_timer);
--	cancel_delayed_work_sync(&adapter->devdump_work);
-+	del_timer_sync(&adapter->devdump_timer);
- 	mwifiex_cancel_all_pending_cmd(adapter);
- 	wake_up_interruptible(&adapter->cmd_wait_q.wait);
- 	wake_up_interruptible(&adapter->hs_activate_wait_q);
---- a/drivers/net/wireless/marvell/mwifiex/main.h
-+++ b/drivers/net/wireless/marvell/mwifiex/main.h
-@@ -49,7 +49,6 @@
- #include <linux/pm_runtime.h>
- #include <linux/slab.h>
- #include <linux/of_irq.h>
--#include <linux/workqueue.h>
- 
- #include "decl.h"
- #include "ioctl.h"
-@@ -1054,7 +1053,7 @@ struct mwifiex_adapter {
- 	/* Device dump data/length */
- 	void *devdump_data;
- 	int devdump_len;
--	struct delayed_work devdump_work;
-+	struct timer_list devdump_timer;
- 
- 	bool ignore_btcoex_events;
- };
---- a/drivers/net/wireless/marvell/mwifiex/sta_event.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sta_event.c
-@@ -623,8 +623,8 @@ mwifiex_fw_dump_info_event(struct mwifie
- 		 * transmission event get lost, in this cornel case,
- 		 * user would still get partial of the dump.
- 		 */
--		schedule_delayed_work(&adapter->devdump_work,
--				      msecs_to_jiffies(MWIFIEX_TIMER_10S));
-+		mod_timer(&adapter->devdump_timer,
-+			  jiffies + msecs_to_jiffies(MWIFIEX_TIMER_10S));
- 	}
- 
- 	/* Overflow check */
-@@ -643,7 +643,7 @@ mwifiex_fw_dump_info_event(struct mwifie
- 	return;
- 
- upload_dump:
--	cancel_delayed_work_sync(&adapter->devdump_work);
-+	del_timer_sync(&adapter->devdump_timer);
- 	mwifiex_upload_device_dump(adapter);
- }
- 
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -507,8 +507,8 @@ static void __init setup_lowcore_dat_on(
+ 	S390_lowcore.svc_new_psw.mask |= PSW_MASK_DAT;
+ 	S390_lowcore.program_new_psw.mask |= PSW_MASK_DAT;
+ 	S390_lowcore.io_new_psw.mask |= PSW_MASK_DAT;
+-	__ctl_set_bit(0, 28);
+ 	__ctl_store(S390_lowcore.cregs_save_area, 0, 15);
++	__ctl_set_bit(0, 28);
+ 	put_abs_lowcore(restart_flags, RESTART_FLAG_CTLREGS);
+ 	put_abs_lowcore(program_new_psw, lc->program_new_psw);
+ 	for (cr = 0; cr < ARRAY_SIZE(lc->cregs_save_area); cr++)
 
 
