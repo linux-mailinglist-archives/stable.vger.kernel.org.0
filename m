@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5D49593DA3
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:43:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28E21593CE8
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242760AbiHOUOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:14:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53420 "EHLO
+        id S1346216AbiHOUNW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:13:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346431AbiHOULU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:11:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374F632B9A;
-        Mon, 15 Aug 2022 11:57:42 -0700 (PDT)
+        with ESMTP id S1346465AbiHOUL1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:11:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A69AC32EC8;
+        Mon, 15 Aug 2022 11:57:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2243F6125B;
-        Mon, 15 Aug 2022 18:57:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27A63C433C1;
-        Mon, 15 Aug 2022 18:57:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16531B81057;
+        Mon, 15 Aug 2022 18:57:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BAB6C43140;
+        Mon, 15 Aug 2022 18:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589860;
-        bh=mxHoA8HG0mqTSRKkAGXxJHbnm4nk9/fztONrA5Rp2+8=;
+        s=korg; t=1660589863;
+        bh=l0t7eNncgRAPZynlvUSG53rLZJLTg+ipE9Z/Sl0djqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n8fswHK713Aj/T7slF511fdDYZb4t/mPs+zAQwFOQDgEVN6Lw3r6/lO0IoIGOmTuF
-         gUD5X/xaaQaXmPuq9q++VzNQ+DKsCAZrwrTtLeXjAy8DC5oOru+vPlAt62jraQhYgv
-         H497psJsTGJTkusy+clDR5Z6mtDff8jhfC+F7Dng=
+        b=GgVWqmwnvWqx+vhs+Gb+KnTEjG9g0RqavLa00TQUum8lIhUdo395CBXwhxIXuWj5h
+         cHB0u+DgikCulSVLml0rLeV98oSkQz5oF2/WBbkHnZlr5URDEWyKhfklKSSs5I85lo
+         WrOP25G989yTPGWksm7wF6JqNFjTSnfuFQWGL0L8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@kernel.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Xianting Tian <xianting.tian@linux.alibaba.com>,
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.18 0072/1095] RISC-V: Add modules to virtual kernel memory layout dump
-Date:   Mon, 15 Aug 2022 19:51:11 +0200
-Message-Id: <20220815180432.501038672@linuxfoundation.org>
+Subject: [PATCH 5.18 0073/1095] wireguard: selftests: set CONFIG_NONPORTABLE on riscv32
+Date:   Mon, 15 Aug 2022 19:51:12 +0200
+Message-Id: <20220815180432.535168786@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,45 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xianting Tian <xianting.tian@linux.alibaba.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit f9293ad46d8ba9909187a37b7215324420ad4596 upstream.
+commit 9019b4f6d9bd88524ecd95420cf9cd4aaed7a125 upstream.
 
-Modules always live before the kernel, MODULES_END is fixed but
-MODULES_VADDR isn't fixed, it depends on the kernel size.
-Let's add it to virtual kernel memory layout dump.
+When the CONFIG_PORTABLE/CONFIG_NONPORTABLE switches were added, various
+configs were updated, but the wireguard config was forgotten about. This
+leads to unbootable test kernels, causing CI fails. Add
+CONFIG_NONPORTABLE=y to the wireguard test suite configuration for
+riscv32.
 
-As MODULES is only defined for CONFIG_64BIT, so we dump it when
-CONFIG_64BIT=y.
-
-eg,
-MODULES_VADDR - MODULES_END
-0xffffffff01133000 - 0xffffffff80000000
-
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20220811074150.3020189-5-xianting.tian@linux.alibaba.com
+Fixes: 44c1e84a38a0 ("RISC-V: Add CONFIG_{NON,}PORTABLE")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Cc: stable@vger.kernel.org
-Fixes: 2bfc6cd81bd1 ("riscv: Move kernel mapping outside of linear mapping")
+Link: https://lore.kernel.org/r/20220809145757.83673-1-Jason@zx2c4.com
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/mm/init.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ tools/testing/selftests/wireguard/qemu/arch/riscv32.config |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -99,6 +99,10 @@ static void __init print_vm_layout(void)
- 		  (unsigned long)VMEMMAP_END);
- 	print_mlm("vmalloc", (unsigned long)VMALLOC_START,
- 		  (unsigned long)VMALLOC_END);
-+#ifdef CONFIG_64BIT
-+	print_mlm("modules", (unsigned long)MODULES_VADDR,
-+		  (unsigned long)MODULES_END);
-+#endif
- 	print_mlm("lowmem", (unsigned long)PAGE_OFFSET,
- 		  (unsigned long)high_memory);
- 	if (IS_ENABLED(CONFIG_64BIT)) {
+--- a/tools/testing/selftests/wireguard/qemu/arch/riscv32.config
++++ b/tools/testing/selftests/wireguard/qemu/arch/riscv32.config
+@@ -1,3 +1,4 @@
++CONFIG_NONPORTABLE=y
+ CONFIG_ARCH_RV32I=y
+ CONFIG_MMU=y
+ CONFIG_FPU=y
 
 
