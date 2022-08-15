@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97532594361
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:55:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9C39594627
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:02:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345928AbiHOWUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:20:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60138 "EHLO
+        id S1347842AbiHOWUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350774AbiHOWSa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:18:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76BCA419B2;
-        Mon, 15 Aug 2022 12:41:29 -0700 (PDT)
+        with ESMTP id S1350803AbiHOWSg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:18:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F3D565658;
+        Mon, 15 Aug 2022 12:42:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E48A161089;
-        Mon, 15 Aug 2022 19:41:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6E72C433C1;
-        Mon, 15 Aug 2022 19:41:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BCF5B80EA9;
+        Mon, 15 Aug 2022 19:42:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DF55C433D6;
+        Mon, 15 Aug 2022 19:42:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592488;
-        bh=l1DpSV+JZmB6Uto3+hA8ft5nZq/mq6tTv8aWI1ilAHQ=;
+        s=korg; t=1660592523;
+        bh=USaoXt23dkPCUkqdy9sXfYf2lS1Nk6uh96T3TB7tnc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p+zjfSN+TU16i/YUWxypmRwYZz2Zxy45vX615bNV8qj3djrzFiuwtL3TKMhC3I894
-         GMnRzJFTCeegsR9rw8fVM0uE7G7SrB3oHDt+6ghb8sLdMLw3gzNXjqB5jHfe9W0sOw
-         E6FbO2vwPqWC4c8CJYgXdf3Byebljzh0iydS1g8Q=
+        b=PhUu8cL8MxSm/1fbx8Paz5FyYwYK5XXB8vwouMiPbZc6mmto8E+qzs3AqnlVDuBzM
+         H/9Zng8lDJhV4RVqaHufuBpV4rOhi1YXfVoZGdSbIvg9/dcfRBGgOmSXwZhAfGVXY4
+         MO66A/Us22DMQFdvShOQeeAwfmq/39fmLmfzW7VE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Andrey Strachuk <strochuk@ispras.ru>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0793/1095] USB: serial: fix tty-port initialized comments
-Date:   Mon, 15 Aug 2022 20:03:12 +0200
-Message-Id: <20220815180502.041681392@linuxfoundation.org>
+Subject: [PATCH 5.18 0794/1095] usb: cdns3: change place of priv_ep assignment in cdns3_gadget_ep_dequeue(), cdns3_gadget_ep_enable()
+Date:   Mon, 15 Aug 2022 20:03:13 +0200
+Message-Id: <20220815180502.091601971@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -53,64 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Andrey Strachuk <strochuk@ispras.ru>
 
-[ Upstream commit 688ee1d1785c1359f9040f615dd8e6054962bce2 ]
+[ Upstream commit c3ffc9c4ca44bfe9562166793d133e1fb0630ea6 ]
 
-Fix up the tty-port initialized comments which got truncated and
-obfuscated when replacing the old ASYNCB_INITIALIZED flag.
+If 'ep' is NULL, result of ep_to_cdns3_ep(ep) is invalid pointer
+and its dereference with priv_ep->cdns3_dev may cause panic.
 
-Fixes: d41861ca19c9 ("tty: Replace ASYNC_INITIALIZED bit and update atomically")
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+Acked-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Andrey Strachuk <strochuk@ispras.ru>
+Link: https://lore.kernel.org/r/20220718160052.4188-1-strochuk@ispras.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/sierra.c     | 3 ++-
- drivers/usb/serial/usb-serial.c | 2 +-
- drivers/usb/serial/usb_wwan.c   | 3 ++-
- 3 files changed, 5 insertions(+), 3 deletions(-)
+ drivers/usb/cdns3/cdns3-gadget.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/serial/sierra.c b/drivers/usb/serial/sierra.c
-index 9d56138133a9..ef6a2891f290 100644
---- a/drivers/usb/serial/sierra.c
-+++ b/drivers/usb/serial/sierra.c
-@@ -737,7 +737,8 @@ static void sierra_close(struct usb_serial_port *port)
+diff --git a/drivers/usb/cdns3/cdns3-gadget.c b/drivers/usb/cdns3/cdns3-gadget.c
+index d6d515d598dc..e0cf62e65075 100644
+--- a/drivers/usb/cdns3/cdns3-gadget.c
++++ b/drivers/usb/cdns3/cdns3-gadget.c
+@@ -2281,14 +2281,15 @@ static int cdns3_gadget_ep_enable(struct usb_ep *ep,
+ 	int val;
  
- 	/*
- 	 * Need to take susp_lock to make sure port is not already being
--	 * resumed, but no need to hold it due to initialized
-+	 * resumed, but no need to hold it due to the tty-port initialized
-+	 * flag.
- 	 */
- 	spin_lock_irq(&intfdata->susp_lock);
- 	if (--intfdata->open_ports == 0)
-diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
-index 24101bd7fcad..e35bea2235c1 100644
---- a/drivers/usb/serial/usb-serial.c
-+++ b/drivers/usb/serial/usb-serial.c
-@@ -295,7 +295,7 @@ static int serial_open(struct tty_struct *tty, struct file *filp)
-  *
-  * Shut down a USB serial port. Serialized against activate by the
-  * tport mutex and kept to matching open/close pairs
-- * of calls by the initialized flag.
-+ * of calls by the tty-port initialized flag.
-  *
-  * Not called if tty is console.
-  */
-diff --git a/drivers/usb/serial/usb_wwan.c b/drivers/usb/serial/usb_wwan.c
-index dab38b63eaf7..cc81ab7ef4da 100644
---- a/drivers/usb/serial/usb_wwan.c
-+++ b/drivers/usb/serial/usb_wwan.c
-@@ -388,7 +388,8 @@ void usb_wwan_close(struct usb_serial_port *port)
+ 	priv_ep = ep_to_cdns3_ep(ep);
+-	priv_dev = priv_ep->cdns3_dev;
+-	comp_desc = priv_ep->endpoint.comp_desc;
  
- 	/*
- 	 * Need to take susp_lock to make sure port is not already being
--	 * resumed, but no need to hold it due to initialized
-+	 * resumed, but no need to hold it due to the tty-port initialized
-+	 * flag.
- 	 */
- 	spin_lock_irq(&intfdata->susp_lock);
- 	if (--intfdata->open_ports == 0)
+ 	if (!ep || !desc || desc->bDescriptorType != USB_DT_ENDPOINT) {
+ 		dev_dbg(priv_dev->dev, "usbss: invalid parameters\n");
+ 		return -EINVAL;
+ 	}
+ 
++	comp_desc = priv_ep->endpoint.comp_desc;
++	priv_dev = priv_ep->cdns3_dev;
++
+ 	if (!desc->wMaxPacketSize) {
+ 		dev_err(priv_dev->dev, "usbss: missing wMaxPacketSize\n");
+ 		return -EINVAL;
+@@ -2596,7 +2597,7 @@ int cdns3_gadget_ep_dequeue(struct usb_ep *ep,
+ 			    struct usb_request *request)
+ {
+ 	struct cdns3_endpoint *priv_ep = ep_to_cdns3_ep(ep);
+-	struct cdns3_device *priv_dev = priv_ep->cdns3_dev;
++	struct cdns3_device *priv_dev;
+ 	struct usb_request *req, *req_temp;
+ 	struct cdns3_request *priv_req;
+ 	struct cdns3_trb *link_trb;
+@@ -2607,6 +2608,8 @@ int cdns3_gadget_ep_dequeue(struct usb_ep *ep,
+ 	if (!ep || !request || !ep->desc)
+ 		return -EINVAL;
+ 
++	priv_dev = priv_ep->cdns3_dev;
++
+ 	spin_lock_irqsave(&priv_dev->lock, flags);
+ 
+ 	priv_req = to_cdns3_request(request);
 -- 
 2.35.1
 
