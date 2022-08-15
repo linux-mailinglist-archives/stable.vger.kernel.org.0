@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C86CB595113
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0815459512B
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231857AbiHPEwN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:52:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43748 "EHLO
+        id S231784AbiHPEwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:52:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233094AbiHPEuj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:50:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D6DA1D63;
-        Mon, 15 Aug 2022 13:46:41 -0700 (PDT)
+        with ESMTP id S233110AbiHPEuk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:50:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 334D819AB82;
+        Mon, 15 Aug 2022 13:47:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89061B8119A;
-        Mon, 15 Aug 2022 20:46:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7888C433D6;
-        Mon, 15 Aug 2022 20:46:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9541CB811A0;
+        Mon, 15 Aug 2022 20:47:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C9E4C433C1;
+        Mon, 15 Aug 2022 20:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596398;
-        bh=/lR3faO2ffUmX7m+UYslLxvajTc1xUrz7ZFeUAADfpo=;
+        s=korg; t=1660596424;
+        bh=o2amVQnMjpMZVwW10U/wPBMwSxjuorkuewoLVWlfbSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1tSKsT9gNUhinm03BqEHcpATFnDBLGPEZugWA1Mwy2gplwIXcw5FWHhHBj3K8Xs66
-         DCrABDHbGkftqf/xJiqBOvPnOwWacp+MuJU9zCUdQ8wyrSw332Eyfx0HYA1eBAzp5W
-         sF2O95w9IhSwf85TCUruWaQh4cZjVGHs9DfNGAhE=
+        b=hoesMLbFmzES9LyVEuUZB40tWA+SJbxm9lclLFH5J1pm1uA13V6Zwgeh1vGNJy29Y
+         OSCd1mAi5WD2Mfv4XbABvmoooDXek3SsCV+QoZc43TMfpv+LNv9F4l11mxI7Cq4LDP
+         TrTovzNUUj+nwq9WZynN6Uq/sCKG/Qut9Lk+mSHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Marko <robimarko@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        Dominique Martinet <asmadeus@codewreck.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1067/1157] PCI: qcom: Power on PHY before IPQ8074 DBI register accesses
-Date:   Mon, 15 Aug 2022 20:07:03 +0200
-Message-Id: <20220815180522.779493995@linuxfoundation.org>
+Subject: [PATCH 5.19 1074/1157] net/9p: Initialize the iounit field during fid creation
+Date:   Mon, 15 Aug 2022 20:07:10 +0200
+Message-Id: <20220815180523.080296854@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,106 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Marko <robimarko@gmail.com>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-[ Upstream commit a0e43bb9973b06ce5c666f0901e104e2037c1b34 ]
+[ Upstream commit aa7aeee169480e98cf41d83c01290a37e569be6d ]
 
-Currently the Gen2 port in IPQ8074 will cause the system to hang as it
-accesses DBI registers in qcom_pcie_init_2_3_3(), and those are only
-accesible after phy_power_on().
+Ensure that the fid's iounit field is set to zero when a new fid is
+created. Certain 9P operations, such as OPEN and CREATE, allow the
+server to reply with an iounit size which the client code assigns to the
+p9_fid struct shortly after the fid is created by p9_fid_create(). On
+the other hand, an XATTRWALK operation doesn't allow for the server to
+specify an iounit value. The iounit field of the newly allocated p9_fid
+struct remained uninitialized in that case. Depending on allocation
+patterns, the iounit value could have been something reasonable that was
+carried over from previously freed fids or, in the worst case, could
+have been arbitrary values from non-fid related usages of the memory
+location.
 
-Move the DBI read/writes to a new qcom_pcie_post_init_2_3_3(), which is
-executed after phy_power_on().
+The bug was detected in the Windows Subsystem for Linux 2 (WSL2) kernel
+after the uninitialized iounit field resulted in the typical sequence of
+two getxattr(2) syscalls, one to get the size of an xattr and another
+after allocating a sufficiently sized buffer to fit the xattr value, to
+hit an unexpected ERANGE error in the second call to getxattr(2). An
+uninitialized iounit field would sometimes force rsize to be smaller
+than the xattr value size in p9_client_read_once() and the 9P server in
+WSL refused to chunk up the READ on the attr_fid and, instead, returned
+ERANGE to the client. The virtfs server in QEMU seems happy to chunk up
+the READ and this problem goes undetected there.
 
-Link: https://lore.kernel.org/r/20220623155004.688090-1-robimarko@gmail.com
-Fixes: a0fd361db8e5 ("PCI: dwc: Move "dbi", "dbi2", and "addr_space" resource setup into common code")
-Signed-off-by: Robert Marko <robimarko@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Cc: stable@vger.kernel.org	# v5.11+
+Link: https://lkml.kernel.org/r/20220710141402.803295-1-tyhicks@linux.microsoft.com
+Fixes: ebf46264a004 ("fs/9p: Add support user. xattr")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-qcom.c |   48 +++++++++++++++++++--------------
- 1 file changed, 28 insertions(+), 20 deletions(-)
+ net/9p/client.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/pci/controller/dwc/pcie-qcom.c
-+++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -1036,9 +1036,7 @@ static int qcom_pcie_init_2_3_3(struct q
- 	struct qcom_pcie_resources_2_3_3 *res = &pcie->res.v2_3_3;
- 	struct dw_pcie *pci = pcie->pci;
- 	struct device *dev = pci->dev;
--	u16 offset = dw_pcie_find_capability(pci, PCI_CAP_ID_EXP);
- 	int i, ret;
--	u32 val;
+--- a/net/9p/client.c
++++ b/net/9p/client.c
+@@ -886,16 +886,13 @@ static struct p9_fid *p9_fid_create(stru
+ 	struct p9_fid *fid;
  
- 	for (i = 0; i < ARRAY_SIZE(res->rst); i++) {
- 		ret = reset_control_assert(res->rst[i]);
-@@ -1095,6 +1093,33 @@ static int qcom_pcie_init_2_3_3(struct q
- 		goto err_clk_aux;
- 	}
+ 	p9_debug(P9_DEBUG_FID, "clnt %p\n", clnt);
+-	fid = kmalloc(sizeof(*fid), GFP_KERNEL);
++	fid = kzalloc(sizeof(*fid), GFP_KERNEL);
+ 	if (!fid)
+ 		return NULL;
  
-+	return 0;
-+
-+err_clk_aux:
-+	clk_disable_unprepare(res->ahb_clk);
-+err_clk_ahb:
-+	clk_disable_unprepare(res->axi_s_clk);
-+err_clk_axi_s:
-+	clk_disable_unprepare(res->axi_m_clk);
-+err_clk_axi_m:
-+	clk_disable_unprepare(res->iface);
-+err_clk_iface:
-+	/*
-+	 * Not checking for failure, will anyway return
-+	 * the original failure in 'ret'.
-+	 */
-+	for (i = 0; i < ARRAY_SIZE(res->rst); i++)
-+		reset_control_assert(res->rst[i]);
-+
-+	return ret;
-+}
-+
-+static int qcom_pcie_post_init_2_3_3(struct qcom_pcie *pcie)
-+{
-+	struct dw_pcie *pci = pcie->pci;
-+	u16 offset = dw_pcie_find_capability(pci, PCI_CAP_ID_EXP);
-+	u32 val;
-+
- 	writel(SLV_ADDR_SPACE_SZ,
- 		pcie->parf + PCIE20_v3_PARF_SLV_ADDR_SPACE_SIZE);
+-	memset(&fid->qid, 0, sizeof(fid->qid));
+ 	fid->mode = -1;
+ 	fid->uid = current_fsuid();
+ 	fid->clnt = clnt;
+-	fid->rdir = NULL;
+-	fid->fid = 0;
+ 	refcount_set(&fid->count, 1);
  
-@@ -1122,24 +1147,6 @@ static int qcom_pcie_init_2_3_3(struct q
- 		PCI_EXP_DEVCTL2);
- 
- 	return 0;
--
--err_clk_aux:
--	clk_disable_unprepare(res->ahb_clk);
--err_clk_ahb:
--	clk_disable_unprepare(res->axi_s_clk);
--err_clk_axi_s:
--	clk_disable_unprepare(res->axi_m_clk);
--err_clk_axi_m:
--	clk_disable_unprepare(res->iface);
--err_clk_iface:
--	/*
--	 * Not checking for failure, will anyway return
--	 * the original failure in 'ret'.
--	 */
--	for (i = 0; i < ARRAY_SIZE(res->rst); i++)
--		reset_control_assert(res->rst[i]);
--
--	return ret;
- }
- 
- static int qcom_pcie_get_resources_2_7_0(struct qcom_pcie *pcie)
-@@ -1465,6 +1472,7 @@ static const struct qcom_pcie_ops ops_2_
- static const struct qcom_pcie_ops ops_2_3_3 = {
- 	.get_resources = qcom_pcie_get_resources_2_3_3,
- 	.init = qcom_pcie_init_2_3_3,
-+	.post_init = qcom_pcie_post_init_2_3_3,
- 	.deinit = qcom_pcie_deinit_2_3_3,
- 	.ltssm_enable = qcom_pcie_2_3_2_ltssm_enable,
- };
+ 	idr_preload(GFP_KERNEL);
 
 
