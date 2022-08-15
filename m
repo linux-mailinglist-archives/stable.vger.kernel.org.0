@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCADE594D5D
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9847594969
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:14:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244004AbiHPA7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:59:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46020 "EHLO
+        id S1353854AbiHOXmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:42:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234091AbiHPAzB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:55:01 -0400
+        with ESMTP id S1354177AbiHOXlf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30627B6D34;
-        Mon, 15 Aug 2022 13:48:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ED87155CB0;
+        Mon, 15 Aug 2022 13:11:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BD8561275;
-        Mon, 15 Aug 2022 20:48:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2429CC433C1;
-        Mon, 15 Aug 2022 20:48:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9307860F0C;
+        Mon, 15 Aug 2022 20:11:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ADB8C433D6;
+        Mon, 15 Aug 2022 20:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596484;
-        bh=fsFL3STqQ0KHXUfZVj2nrX8o7+oXVGvcMWcTnpI8gB8=;
+        s=korg; t=1660594259;
+        bh=fURGpxVz5I525vPI7qpZ0McbgzYcZ8ZMftWrLfsrvYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fbo4X/DL8/NShB7BSkgAOELlUxITDKJpEyXb+4kXJPoVoG8LqfIcARdAV83eGDt1+
-         OBYSYAawNPgRZB9gyEoI1j5e9xPrdSKYaEEU5sHs3aZ3YwGzjZKkv57q0EHvbJPVdm
-         vtgyAQVxvmZ7HfekRCNz5AEmTm/67U3XfJFFPKiI=
+        b=gOJFRRYoMCL9PZNfXio41LVYwX/GgTfJAolmpsLVQMx8j/c5K1b8x9SNi+E5cpGs8
+         /Q6ROxIZuf7ifJW3JiWgSjGYC00ku0jxqyb+PHs9jPopgccoTB8rklqFJY9KynNOzk
+         ZeY11MF6ccVOGDG40DQSnPiuw+yx3AuJQuBuFk4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1095/1157] btrfs: zoned: write out partially allocated region
-Date:   Mon, 15 Aug 2022 20:07:31 +0200
-Message-Id: <20220815180524.033833947@linuxfoundation.org>
+        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, zdi-disclosures@trendmicro.com
+Subject: [PATCH 5.18 1053/1095] ksmbd: prevent out of bound read for SMB2_WRITE
+Date:   Mon, 15 Aug 2022 20:07:32 +0200
+Message-Id: <20220815180512.627050344@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,184 +55,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Hyunchul Lee <hyc.lee@gmail.com>
 
-[ Upstream commit 898793d992c23dac6126a6a94ad893eae1a2c9df ]
+[ Upstream commit ac60778b87e45576d7bfdbd6f53df902654e6f09 ]
 
-cow_file_range() works in an all-or-nothing way: if it fails to allocate an
-extent for a part of the given region, it gives up all the region including
-the successfully allocated parts. On cow_file_range(), run_delalloc_zoned()
-writes data for the region only when it successfully allocate all the
-region.
+OOB read memory can be written to a file,
+if DataOffset is 0 and Length is too large
+in SMB2_WRITE request of compound request.
 
-This all-or-nothing allocation and write-out are problematic when available
-space in all the block groups are get tight with the active zone
-restriction. btrfs_reserve_extent() try hard to utilize the left space in
-the active block groups and gives up finally and fails with
--ENOSPC. However, if we send IOs for the successfully allocated region, we
-can finish a zone and can continue on the rest of the allocation on a newly
-allocated block group.
+To prevent this, when checking the length of
+the data area of SMB2_WRITE in smb2_get_data_area_len(),
+let the minimum of DataOffset be the size of
+SMB2 header + the size of SMB2_WRITE header.
 
-This patch implements the partial write-out for run_delalloc_zoned(). With
-this patch applied, cow_file_range() returns -EAGAIN to tell the caller to
-do something to progress the further allocation, and tells the successfully
-allocated region with done_offset. Furthermore, the zoned extent allocator
-returns -EAGAIN to tell cow_file_range() going back to the caller side.
+This bug can lead an oops looking something like:
 
-Actually, we still need to wait for an IO to complete to continue the
-allocation. The next patch implements that part.
+[  798.008715] BUG: KASAN: slab-out-of-bounds in copy_page_from_iter_atomic+0xd3d/0x14b0
+[  798.008724] Read of size 252 at addr ffff88800f863e90 by task kworker/0:2/2859
+...
+[  798.008754] Call Trace:
+[  798.008756]  <TASK>
+[  798.008759]  dump_stack_lvl+0x49/0x5f
+[  798.008764]  print_report.cold+0x5e/0x5cf
+[  798.008768]  ? __filemap_get_folio+0x285/0x6d0
+[  798.008774]  ? copy_page_from_iter_atomic+0xd3d/0x14b0
+[  798.008777]  kasan_report+0xaa/0x120
+[  798.008781]  ? copy_page_from_iter_atomic+0xd3d/0x14b0
+[  798.008784]  kasan_check_range+0x100/0x1e0
+[  798.008788]  memcpy+0x24/0x60
+[  798.008792]  copy_page_from_iter_atomic+0xd3d/0x14b0
+[  798.008795]  ? pagecache_get_page+0x53/0x160
+[  798.008799]  ? iov_iter_get_pages_alloc+0x1590/0x1590
+[  798.008803]  ? ext4_write_begin+0xfc0/0xfc0
+[  798.008807]  ? current_time+0x72/0x210
+[  798.008811]  generic_perform_write+0x2c8/0x530
+[  798.008816]  ? filemap_fdatawrite_wbc+0x180/0x180
+[  798.008820]  ? down_write+0xb4/0x120
+[  798.008824]  ? down_write_killable+0x130/0x130
+[  798.008829]  ext4_buffered_write_iter+0x137/0x2c0
+[  798.008833]  ext4_file_write_iter+0x40b/0x1490
+[  798.008837]  ? __fsnotify_parent+0x275/0xb20
+[  798.008842]  ? __fsnotify_update_child_dentry_flags+0x2c0/0x2c0
+[  798.008846]  ? ext4_buffered_write_iter+0x2c0/0x2c0
+[  798.008851]  __kernel_write+0x3a1/0xa70
+[  798.008855]  ? __x64_sys_preadv2+0x160/0x160
+[  798.008860]  ? security_file_permission+0x4a/0xa0
+[  798.008865]  kernel_write+0xbb/0x360
+[  798.008869]  ksmbd_vfs_write+0x27e/0xb90 [ksmbd]
+[  798.008881]  ? ksmbd_vfs_read+0x830/0x830 [ksmbd]
+[  798.008892]  ? _raw_read_unlock+0x2a/0x50
+[  798.008896]  smb2_write+0xb45/0x14e0 [ksmbd]
+[  798.008909]  ? __kasan_check_write+0x14/0x20
+[  798.008912]  ? _raw_spin_lock_bh+0xd0/0xe0
+[  798.008916]  ? smb2_read+0x15e0/0x15e0 [ksmbd]
+[  798.008927]  ? memcpy+0x4e/0x60
+[  798.008931]  ? _raw_spin_unlock+0x19/0x30
+[  798.008934]  ? ksmbd_smb2_check_message+0x16af/0x2350 [ksmbd]
+[  798.008946]  ? _raw_spin_lock_bh+0xe0/0xe0
+[  798.008950]  handle_ksmbd_work+0x30e/0x1020 [ksmbd]
+[  798.008962]  process_one_work+0x778/0x11c0
+[  798.008966]  ? _raw_spin_lock_irq+0x8e/0xe0
+[  798.008970]  worker_thread+0x544/0x1180
+[  798.008973]  ? __cpuidle_text_end+0x4/0x4
+[  798.008977]  kthread+0x282/0x320
+[  798.008982]  ? process_one_work+0x11c0/0x11c0
+[  798.008985]  ? kthread_complete_and_exit+0x30/0x30
+[  798.008989]  ret_from_fork+0x1f/0x30
+[  798.008995]  </TASK>
 
-CC: stable@vger.kernel.org # 5.16+
-Fixes: afba2bc036b0 ("btrfs: zoned: implement active zone tracking")
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
+Cc: stable@vger.kernel.org
+Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-17817
+Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent-tree.c | 10 +++++++
- fs/btrfs/inode.c       | 63 ++++++++++++++++++++++++++++++++----------
- 2 files changed, 59 insertions(+), 14 deletions(-)
+ fs/ksmbd/smb2misc.c | 7 +++++--
+ fs/ksmbd/smb2pdu.c  | 8 +++-----
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index ad45083c6461..f2c79838ebe5 100644
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -4012,6 +4012,16 @@ static int can_allocate_chunk_zoned(struct btrfs_fs_info *fs_info,
- 	if (ffe_ctl->max_extent_size >= ffe_ctl->min_alloc_size)
- 		return -ENOSPC;
+diff --git a/fs/ksmbd/smb2misc.c b/fs/ksmbd/smb2misc.c
+index 03bcd7ce0c75..6e25ace36568 100644
+--- a/fs/ksmbd/smb2misc.c
++++ b/fs/ksmbd/smb2misc.c
+@@ -131,8 +131,11 @@ static int smb2_get_data_area_len(unsigned int *off, unsigned int *len,
+ 		*len = le16_to_cpu(((struct smb2_read_req *)hdr)->ReadChannelInfoLength);
+ 		break;
+ 	case SMB2_WRITE:
+-		if (((struct smb2_write_req *)hdr)->DataOffset) {
+-			*off = le16_to_cpu(((struct smb2_write_req *)hdr)->DataOffset);
++		if (((struct smb2_write_req *)hdr)->DataOffset ||
++		    ((struct smb2_write_req *)hdr)->Length) {
++			*off = max_t(unsigned int,
++				     le16_to_cpu(((struct smb2_write_req *)hdr)->DataOffset),
++				     offsetof(struct smb2_write_req, Buffer));
+ 			*len = le32_to_cpu(((struct smb2_write_req *)hdr)->Length);
+ 			break;
+ 		}
+diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
+index 6c8dd718b5db..85a9ed7156ea 100644
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -6505,14 +6505,12 @@ int smb2_write(struct ksmbd_work *work)
+ 		writethrough = true;
  
-+	/*
-+	 * Even min_alloc_size is not left in any block groups. Since we cannot
-+	 * activate a new block group, allocating it may not help. Let's tell a
-+	 * caller to try again and hope it progress something by writing some
-+	 * parts of the region. That is only possible for data block groups,
-+	 * where a part of the region can be written.
-+	 */
-+	if (ffe_ctl->flags & BTRFS_BLOCK_GROUP_DATA)
-+		return -EAGAIN;
+ 	if (is_rdma_channel == false) {
+-		if ((u64)le16_to_cpu(req->DataOffset) + length >
+-		    get_rfc1002_len(work->request_buf)) {
+-			pr_err("invalid write data offset %u, smb_len %u\n",
+-			       le16_to_cpu(req->DataOffset),
+-			       get_rfc1002_len(work->request_buf));
++		if (le16_to_cpu(req->DataOffset) <
++		    offsetof(struct smb2_write_req, Buffer)) {
+ 			err = -EINVAL;
+ 			goto out;
+ 		}
 +
- 	/*
- 	 * We cannot activate a new block group and no enough space left in any
- 	 * block groups. So, allocating a new block group may not help. But,
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 30e454197fb9..4f5249f5cb34 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -118,7 +118,8 @@ static int btrfs_finish_ordered_io(struct btrfs_ordered_extent *ordered_extent);
- static noinline int cow_file_range(struct btrfs_inode *inode,
- 				   struct page *locked_page,
- 				   u64 start, u64 end, int *page_started,
--				   unsigned long *nr_written, int unlock);
-+				   unsigned long *nr_written, int unlock,
-+				   u64 *done_offset);
- static struct extent_map *create_io_em(struct btrfs_inode *inode, u64 start,
- 				       u64 len, u64 orig_start, u64 block_start,
- 				       u64 block_len, u64 orig_block_len,
-@@ -920,7 +921,7 @@ static int submit_uncompressed_range(struct btrfs_inode *inode,
- 	 * can directly submit them without interruption.
- 	 */
- 	ret = cow_file_range(inode, locked_page, start, end, &page_started,
--			     &nr_written, 0);
-+			     &nr_written, 0, NULL);
- 	/* Inline extent inserted, page gets unlocked and everything is done */
- 	if (page_started) {
- 		ret = 0;
-@@ -1169,7 +1170,8 @@ static u64 get_extent_allocation_hint(struct btrfs_inode *inode, u64 start,
- static noinline int cow_file_range(struct btrfs_inode *inode,
- 				   struct page *locked_page,
- 				   u64 start, u64 end, int *page_started,
--				   unsigned long *nr_written, int unlock)
-+				   unsigned long *nr_written, int unlock,
-+				   u64 *done_offset)
- {
- 	struct btrfs_root *root = inode->root;
- 	struct btrfs_fs_info *fs_info = root->fs_info;
-@@ -1362,6 +1364,21 @@ static noinline int cow_file_range(struct btrfs_inode *inode,
- 	btrfs_dec_block_group_reservations(fs_info, ins.objectid);
- 	btrfs_free_reserved_extent(fs_info, ins.objectid, ins.offset, 1);
- out_unlock:
-+	/*
-+	 * If done_offset is non-NULL and ret == -EAGAIN, we expect the
-+	 * caller to write out the successfully allocated region and retry.
-+	 */
-+	if (done_offset && ret == -EAGAIN) {
-+		if (orig_start < start)
-+			*done_offset = start - 1;
-+		else
-+			*done_offset = start;
-+		return ret;
-+	} else if (ret == -EAGAIN) {
-+		/* Convert to -ENOSPC since the caller cannot retry. */
-+		ret = -ENOSPC;
-+	}
-+
- 	/*
- 	 * Now, we have three regions to clean up:
- 	 *
-@@ -1607,19 +1624,37 @@ static noinline int run_delalloc_zoned(struct btrfs_inode *inode,
- 				       u64 end, int *page_started,
- 				       unsigned long *nr_written)
- {
-+	u64 done_offset = end;
- 	int ret;
-+	bool locked_page_done = false;
+ 		data_buf = (char *)(((char *)&req->hdr.ProtocolId) +
+ 				    le16_to_cpu(req->DataOffset));
  
--	ret = cow_file_range(inode, locked_page, start, end, page_started,
--			     nr_written, 0);
--	if (ret)
--		return ret;
-+	while (start <= end) {
-+		ret = cow_file_range(inode, locked_page, start, end, page_started,
-+				     nr_written, 0, &done_offset);
-+		if (ret && ret != -EAGAIN)
-+			return ret;
- 
--	if (*page_started)
--		return 0;
-+		if (*page_started) {
-+			ASSERT(ret == 0);
-+			return 0;
-+		}
-+
-+		if (ret == 0)
-+			done_offset = end;
-+
-+		if (done_offset == start)
-+			return -ENOSPC;
-+
-+		if (!locked_page_done) {
-+			__set_page_dirty_nobuffers(locked_page);
-+			account_page_redirty(locked_page);
-+		}
-+		locked_page_done = true;
-+		extent_write_locked_range(&inode->vfs_inode, start, done_offset);
-+
-+		start = done_offset + 1;
-+	}
- 
--	__set_page_dirty_nobuffers(locked_page);
--	account_page_redirty(locked_page);
--	extent_write_locked_range(&inode->vfs_inode, start, end);
- 	*page_started = 1;
- 
- 	return 0;
-@@ -1711,7 +1746,7 @@ static int fallback_to_cow(struct btrfs_inode *inode, struct page *locked_page,
- 	}
- 
- 	return cow_file_range(inode, locked_page, start, end, page_started,
--			      nr_written, 1);
-+			      nr_written, 1, NULL);
- }
- 
- struct can_nocow_file_extent_args {
-@@ -2184,7 +2219,7 @@ int btrfs_run_delalloc_range(struct btrfs_inode *inode, struct page *locked_page
- 						 page_started, nr_written);
- 		else
- 			ret = cow_file_range(inode, locked_page, start, end,
--					     page_started, nr_written, 1);
-+					     page_started, nr_written, 1, NULL);
- 	} else {
- 		set_bit(BTRFS_INODE_HAS_ASYNC_EXTENT, &inode->runtime_flags);
- 		ret = cow_file_range_async(inode, wbc, locked_page, start, end,
 -- 
 2.35.1
 
