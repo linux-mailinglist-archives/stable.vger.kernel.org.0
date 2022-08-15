@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F57559449F
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EF04594403
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:58:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350024AbiHOWi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:38:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37414 "EHLO
+        id S1350183AbiHOWi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:38:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350947AbiHOWhX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:37:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2B8A3DBFB;
-        Mon, 15 Aug 2022 12:50:43 -0700 (PDT)
+        with ESMTP id S1350045AbiHOWfO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:35:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEC4371BE5;
+        Mon, 15 Aug 2022 12:49:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E13B0B81141;
-        Mon, 15 Aug 2022 19:49:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49E5AC433D6;
-        Mon, 15 Aug 2022 19:49:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D08066123B;
+        Mon, 15 Aug 2022 19:49:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD95AC433D7;
+        Mon, 15 Aug 2022 19:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592990;
-        bh=qD8iqtAHW8h3e52RnPcjZiRtkyWciAJc3DN0Ssk+n1s=;
+        s=korg; t=1660592997;
+        bh=YhgF2yt0u3VyqWuFgGE9+OCvXB5d0Chiy9PsctpcyxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l74jWvECMZfz04E+EVUPyWuipKmtOqT/HKBqzrr2FLRjRYjq5E+piaja+mZGdBM0+
-         smEXcW0bKN64NR9byPJafMKTEbkZfrwfrgZjDA8sOmRC0Z1cGyFdZMOMvmbm2rcn79
-         Uu3RubiD9y0QQyOYbGpZbTIDeSVrsm2qXrICj3GI=
+        b=Hj+WhJ7JyCxdvqlc2aIlZCqc11oDuA5J57ZXSFjvtHl8IV8Do9ROOiJN+i0V4diRs
+         RA6iWZlQfqjumwf0TuRuLMrUpAsBc4rP+JjF4B8XXSaEyJtdoDnWhuv23q4G956Wi3
+         1Gj1FZy3tUw8kNXroJOhoyqRfac+XKwKYb0+D6A8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bruno Goncalves <bgoncalv@redhat.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        Valentin Schneider <vschneid@redhat.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0197/1157] wait: Fix __wait_event_hrtimeout for RT/DL tasks
-Date:   Mon, 15 Aug 2022 19:52:33 +0200
-Message-Id: <20220815180447.591910749@linuxfoundation.org>
+Subject: [PATCH 5.19 0198/1157] meson-mx-socinfo: Fix refcount leak in meson_mx_socinfo_init
+Date:   Mon, 15 Aug 2022 19:52:34 +0200
+Message-Id: <20220815180447.622557858@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -57,60 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juri Lelli <juri.lelli@redhat.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit cceeeb6a6d02e7b9a74ddd27a3225013b34174aa ]
+[ Upstream commit a2106f38077e78afcb4bf98fdda3e162118cfb3d ]
 
-Changes to hrtimer mode (potentially made by __hrtimer_init_sleeper on
-PREEMPT_RT) are not visible to hrtimer_start_range_ns, thus not
-accounted for by hrtimer_start_expires call paths. In particular,
-__wait_event_hrtimeout suffers from this problem as we have, for
-example:
+of_find_matching_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-fs/aio.c::read_events
-  wait_event_interruptible_hrtimeout
-    __wait_event_hrtimeout
-      hrtimer_init_sleeper_on_stack <- this might "mode |= HRTIMER_MODE_HARD"
-                                       on RT if task runs at RT/DL priority
-        hrtimer_start_range_ns
-          WARN_ON_ONCE(!(mode & HRTIMER_MODE_HARD) ^ !timer->is_hard)
-          fires since the latter doesn't see the change of mode done by
-          init_sleeper
-
-Fix it by making __wait_event_hrtimeout call hrtimer_sleeper_start_expires,
-which is aware of the special RT/DL case, instead of hrtimer_start_range_ns.
-
-Reported-by: Bruno Goncalves <bgoncalv@redhat.com>
-Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Reviewed-by: Valentin Schneider <vschneid@redhat.com>
-Link: https://lore.kernel.org/r/20220627095051.42470-1-juri.lelli@redhat.com
+Fixes: 5e68c0fc8df8 ("soc: amlogic: Add Meson6/Meson8/Meson8b/Meson8m2 SoC Information driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20220524065729.33689-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/wait.h | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/soc/amlogic/meson-mx-socinfo.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/wait.h b/include/linux/wait.h
-index 851e07da2583..58cfbf81447c 100644
---- a/include/linux/wait.h
-+++ b/include/linux/wait.h
-@@ -544,10 +544,11 @@ do {										\
- 										\
- 	hrtimer_init_sleeper_on_stack(&__t, CLOCK_MONOTONIC,			\
- 				      HRTIMER_MODE_REL);			\
--	if ((timeout) != KTIME_MAX)						\
--		hrtimer_start_range_ns(&__t.timer, timeout,			\
--				       current->timer_slack_ns,			\
--				       HRTIMER_MODE_REL);			\
-+	if ((timeout) != KTIME_MAX) {						\
-+		hrtimer_set_expires_range_ns(&__t.timer, timeout,		\
-+					current->timer_slack_ns);		\
-+		hrtimer_sleeper_start_expires(&__t, HRTIMER_MODE_REL);		\
-+	}									\
- 										\
- 	__ret = ___wait_event(wq_head, condition, state, 0, 0,			\
- 		if (!__t.task) {						\
+diff --git a/drivers/soc/amlogic/meson-mx-socinfo.c b/drivers/soc/amlogic/meson-mx-socinfo.c
+index 78f0f1aeca57..92125dd65f33 100644
+--- a/drivers/soc/amlogic/meson-mx-socinfo.c
++++ b/drivers/soc/amlogic/meson-mx-socinfo.c
+@@ -126,6 +126,7 @@ static int __init meson_mx_socinfo_init(void)
+ 	np = of_find_matching_node(NULL, meson_mx_socinfo_analog_top_ids);
+ 	if (np) {
+ 		analog_top_regmap = syscon_node_to_regmap(np);
++		of_node_put(np);
+ 		if (IS_ERR(analog_top_regmap))
+ 			return PTR_ERR(analog_top_regmap);
+ 
 -- 
 2.35.1
 
