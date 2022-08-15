@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C90A594741
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C73D594791
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:00:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243968AbiHOX2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:28:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34084 "EHLO
+        id S1344931AbiHOX3z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:29:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245630AbiHOXZx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:25:53 -0400
+        with ESMTP id S1343991AbiHOX0K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:26:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5332804BF;
-        Mon, 15 Aug 2022 13:06:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 044387FE77;
+        Mon, 15 Aug 2022 13:06:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67A60B80EA9;
-        Mon, 15 Aug 2022 20:06:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32AF3C433D6;
-        Mon, 15 Aug 2022 20:06:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1DEAB80EA8;
+        Mon, 15 Aug 2022 20:06:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03928C433C1;
+        Mon, 15 Aug 2022 20:06:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593971;
-        bh=7tARl1TSUtB1EY1AcMUAeuoi5nZ03zGTLEJW5dprqRM=;
+        s=korg; t=1660593993;
+        bh=7OXU0rqd51gmgEtu/3maRQVaWYMA60F/ZGx4Urwez44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HAZ++Ns56R8X5/BFl89RKywzrcHgEWOAn1cWiPZIe6WiPFAhg2vSQVt0tttjss7/j
-         3n1bYFnxmKdv56EBthkFuoLm2IAQgtvp2FN0R694lhNmqkkeUoKSJ9N7Vkl/Rz2Anb
-         MkdQr4GAnSA3ZjQM/rEJLyQBH+mfguKMymTwk3Mk=
+        b=Sq5JOao/AOlGeSJNHzyaf/r7uxeAe6Q1J5UvdPOx/w7X8k6QGFxt4Y5nvGqwEr00q
+         LzDNXBk89PRiakYrjxM9s/girzl/p9296YArY4SnoZSA0XcNShx7YIg3fxuYAZQ9uf
+         iQoKHA3/PH0WGYeb/6M7vRbots9Qh8DNyp38sBrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        stable@vger.kernel.org, Like Xu <likexu@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1036/1095] s390/unwind: fix fgraph return address recovery
-Date:   Mon, 15 Aug 2022 20:07:15 +0200
-Message-Id: <20220815180511.945321111@linuxfoundation.org>
+Subject: [PATCH 5.18 1039/1095] KVM: x86/pmu: Ignore pmu->global_ctrl check if vPMU doesnt support global_ctrl
+Date:   Mon, 15 Aug 2022 20:07:18 +0200
+Message-Id: <20220815180512.079838805@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,44 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+From: Like Xu <likexu@tencent.com>
 
-[ Upstream commit ded466e1806686794b403ebf031133bbaca76bb2 ]
+[ Upstream commit 98defd2e17803263f49548fea930cfc974d505aa ]
 
-When HAVE_FUNCTION_GRAPH_RET_ADDR_PTR is defined, the return
-address to the fgraph caller is recovered by tagging it along with the
-stack pointer of ftrace stack. This makes the stack unwinding more
-reliable.
+MSR_CORE_PERF_GLOBAL_CTRL is introduced as part of Architecture PMU V2,
+as indicated by Intel SDM 19.2.2 and the intel_is_valid_msr() function.
 
-When the fgraph return address is modified to return_to_handler,
-ftrace_graph_ret_addr tries to restore it to the original
-value using tagged stack pointer.
+So in the absence of global_ctrl support, all PMCs are enabled as AMD does.
 
-Fix this by passing tagged sp to ftrace_graph_ret_addr.
-
-Fixes: d81675b60d09 ("s390/unwind: recover kretprobe modified return address in stacktrace")
-Cc: <stable@vger.kernel.org> # 5.18
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Like Xu <likexu@tencent.com>
+Message-Id: <20220509102204.62389-1-likexu@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/unwind.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/vmx/pmu_intel.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/s390/include/asm/unwind.h b/arch/s390/include/asm/unwind.h
-index 0bf06f1682d8..02462e7100c1 100644
---- a/arch/s390/include/asm/unwind.h
-+++ b/arch/s390/include/asm/unwind.h
-@@ -47,7 +47,7 @@ struct unwind_state {
- static inline unsigned long unwind_recover_ret_addr(struct unwind_state *state,
- 						    unsigned long ip)
+diff --git a/arch/x86/kvm/vmx/pmu_intel.c b/arch/x86/kvm/vmx/pmu_intel.c
+index cd2d0454f8b0..2cbd5f183ab5 100644
+--- a/arch/x86/kvm/vmx/pmu_intel.c
++++ b/arch/x86/kvm/vmx/pmu_intel.c
+@@ -98,6 +98,9 @@ static bool intel_pmc_is_enabled(struct kvm_pmc *pmc)
  {
--	ip = ftrace_graph_ret_addr(state->task, &state->graph_idx, ip, NULL);
-+	ip = ftrace_graph_ret_addr(state->task, &state->graph_idx, ip, (void *)state->sp);
- 	if (is_kretprobe_trampoline(ip))
- 		ip = kretprobe_find_ret_addr(state->task, (void *)state->sp, &state->kr_cur);
- 	return ip;
+ 	struct kvm_pmu *pmu = pmc_to_pmu(pmc);
+ 
++	if (pmu->version < 2)
++		return true;
++
+ 	return test_bit(pmc->idx, (unsigned long *)&pmu->global_ctrl);
+ }
+ 
 -- 
 2.35.1
 
