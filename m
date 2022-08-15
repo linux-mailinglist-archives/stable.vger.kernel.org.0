@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 634255937F4
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3022593961
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243671AbiHOSfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:35:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50608 "EHLO
+        id S243429AbiHOSf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:35:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243404AbiHOSek (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:34:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3251539BAA;
-        Mon, 15 Aug 2022 11:22:20 -0700 (PDT)
+        with ESMTP id S243453AbiHOSeq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:34:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 966CB39BBD;
+        Mon, 15 Aug 2022 11:22:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB697B81074;
-        Mon, 15 Aug 2022 18:22:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AF5DC433D6;
-        Mon, 15 Aug 2022 18:22:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18B86B81062;
+        Mon, 15 Aug 2022 18:22:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65805C433C1;
+        Mon, 15 Aug 2022 18:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587736;
-        bh=I0s1FfCSKS4Q7n/lumfgFGstKL5ewoslGKP/jBS5Qv4=;
+        s=korg; t=1660587739;
+        bh=CMovCprZ5em9db8CogLOUydohomPphAegq0bOUxOIkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0S9NbEnfYepc6g2a/LwxPQdY8GXKp+nLO7EHYi2YAzrlkT/6t+3M+OV4xAiDNXDHd
-         aTjGtNgJpZrq6nob2vmHaFw2jwwOMXWLSA4pCvL75Tw8J+AtgsdqJU1wDxCbrmgVPP
-         wZmqBu01YzJ35b8zBt9x/d/1ZR+xjyIFz8YfSE/8=
+        b=ytuABXSJ2dSc/85NA/wmh9/ZwvTaiwwCwM9yyovJD/clX+3ysbFq9SK5zx3DF+sWk
+         avmlea/T6Z1vJQcvNbUKkxRTlfANP2mjk9nthxo+MFvKHfN+NL5oAEipO9yCe6p5nV
+         Sj3ie/g4ABe4IQb9o8q1oTGuvD8DQTRCFhJ8gq4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 178/779] block: fix infinite loop for invalid zone append
-Date:   Mon, 15 Aug 2022 19:57:02 +0200
-Message-Id: <20220815180344.875920711@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 179/779] ARM: dts: qcom: mdm9615: add missing PMIC GPIO reg
+Date:   Mon, 15 Aug 2022 19:57:03 +0200
+Message-Id: <20220815180344.914794691@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,43 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit b82d9fa257cb3725c49d94d2aeafc4677c34448a ]
+[ Upstream commit dc590cdc31f636ea15658f1206c3e380a53fb78e ]
 
-Returning 0 early from __bio_iov_append_get_pages() for the
-max_append_sectors warning just creates an infinite loop since 0 means
-success, and the bio will never fill from the unadvancing iov_iter. We
-could turn the return into an error value, but it will already be turned
-into an error value later on, so just remove the warning. Clearly no one
-ever hit it anyway.
+'reg' property is required in SSBI children:
+  qcom-mdm9615-wp8548-mangoh-green.dtb: gpio@150: 'reg' is a required property
 
-Fixes: 0512a75b98f84 ("block: Introduce REQ_OP_ZONE_APPEND")
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Link: https://lore.kernel.org/r/20220610195830.3574005-2-kbusch@fb.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 2c5e596524e7 ("ARM: dts: Add MDM9615 dtsi")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220507194913.261121-11-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/arm/boot/dts/qcom-mdm9615.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/bio.c b/block/bio.c
-index b8a8bfba714f..b117765d58c0 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -1141,9 +1141,6 @@ static int __bio_iov_append_get_pages(struct bio *bio, struct iov_iter *iter)
- 	size_t offset;
- 	int ret = 0;
+diff --git a/arch/arm/boot/dts/qcom-mdm9615.dtsi b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+index dda2ceec6591..ad9b52d53ef9 100644
+--- a/arch/arm/boot/dts/qcom-mdm9615.dtsi
++++ b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+@@ -324,6 +324,7 @@ rtc@11d {
  
--	if (WARN_ON_ONCE(!max_append_sectors))
--		return 0;
--
- 	/*
- 	 * Move page array up in the allocated memory for the bio vecs as far as
- 	 * possible so that we can start filling biovecs from the beginning
+ 				pmicgpio: gpio@150 {
+ 					compatible = "qcom,pm8018-gpio", "qcom,ssbi-gpio";
++					reg = <0x150>;
+ 					interrupt-controller;
+ 					#interrupt-cells = <2>;
+ 					gpio-controller;
 -- 
 2.35.1
 
