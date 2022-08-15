@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F19C2594AFA
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:20:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7BDD594B39
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:22:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350902AbiHPAIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:08:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55848 "EHLO
+        id S1357670AbiHPAOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:14:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356505AbiHPAHe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:07:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1551172C0F;
-        Mon, 15 Aug 2022 13:29:05 -0700 (PDT)
+        with ESMTP id S1351823AbiHPAIc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:08:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D086D173A0A;
+        Mon, 15 Aug 2022 13:29:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95B9FB80EB1;
-        Mon, 15 Aug 2022 20:29:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6F1FC433C1;
-        Mon, 15 Aug 2022 20:29:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E72F611A1;
+        Mon, 15 Aug 2022 20:29:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2ECAC433D6;
+        Mon, 15 Aug 2022 20:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595343;
-        bh=SHvDN0xdtf/T4fnzzE6qjyxX6hjji2NDLwj2gXivZOc=;
+        s=korg; t=1660595352;
+        bh=sxFls+DEIE/5Au1qzQoTG72ZJ/mCtssf17FvHJv4ZJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AkuskpAuBTZbJkbJQLDirWLWVHcV2QjzeIKnWRSEWqWqyVEbFLl8y7YGEqJo8eGwb
-         YjYCZfeu2X6K72KAbIXmWXo1FrFSkls+TfdMg9jqKT/MndRK/9GAkxHbq2WZjfTOnt
-         5SWqQiRbjrZ1Bk89gBqn3+IVC6Q1A+9qq3cB7i8s=
+        b=gFZ99AORf4Xe1Azs0xGK5Z3I80ubAqlQn5iRdFR/QbLs291+RI3cH+voh7T651A1D
+         Cegq6rt3FnysNiNdu0T1Zl6PJbC8xbq8yvrsHSQxawCTBUAT8p6ztuaHwQRByOzJCr
+         JLfATQwebMo7NpNDZZNoMQQDkGXkDWhr2EQgTYbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nilesh Javali <njavali@marvell.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
+        Peter Xu <peterx@redhat.com>, Ben Gardon <bgardon@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0735/1157] scsi: iscsi: Add helper to remove a session from the kernel
-Date:   Mon, 15 Aug 2022 20:01:31 +0200
-Message-Id: <20220815180508.874086042@linuxfoundation.org>
+Subject: [PATCH 5.19 0738/1157] KVM: x86: Fix errant brace in KVM capability handling
+Date:   Mon, 15 Aug 2022 20:01:34 +0200
+Message-Id: <20220815180509.001857237@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,105 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Ben Gardon <bgardon@google.com>
 
-[ Upstream commit bb42856bfd54fda1cbc7c470fcf5db1596938f4f ]
+[ Upstream commit 1c4dc57328bf218e999951824dce75c6125c4f3c ]
 
-During qedi shutdown we need to stop the iSCSI layer from sending new nops
-as pings and from responding to target ones and make sure there is no
-running connection cleanups. Commit d1f2ce77638d ("scsi: qedi: Fix host
-removal with running sessions") converted the driver to use the libicsi
-helper to drive session removal, so the above issues could be handled. The
-problem is that during system shutdown iscsid will not be running so when
-we try to remove the root session we will hang waiting for userspace to
-reply.
+The braces around the KVM_CAP_XSAVE2 block also surround the
+KVM_CAP_PMU_CAPABILITY block, likely the result of a merge issue. Simply
+move the curly brace back to where it belongs.
 
-Add a helper that will drive the destruction of sessions like these during
-system shutdown.
+Fixes: ba7bb663f5547 ("KVM: x86: Provide per VM capability for disabling PMU virtualization")
 
-Link: https://lore.kernel.org/r/20220616222738.5722-5-michael.christie@oracle.com
-Tested-by: Nilesh Javali <njavali@marvell.com>
-Reviewed-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: David Matlack <dmatlack@google.com>
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Ben Gardon <bgardon@google.com>
+Message-Id: <20220613212523.3436117-8-bgardon@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 49 +++++++++++++++++++++++++++++
- include/scsi/scsi_transport_iscsi.h |  1 +
- 2 files changed, 50 insertions(+)
+ arch/x86/kvm/x86.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index a410d0b8a445..2a38cd2d24ef 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2341,6 +2341,55 @@ static void iscsi_cleanup_conn_work_fn(struct work_struct *work)
- 	ISCSI_DBG_TRANS_CONN(conn, "cleanup done.\n");
- }
- 
-+static int iscsi_iter_force_destroy_conn_fn(struct device *dev, void *data)
-+{
-+	struct iscsi_transport *transport;
-+	struct iscsi_cls_conn *conn;
-+
-+	if (!iscsi_is_conn_dev(dev))
-+		return 0;
-+
-+	conn = iscsi_dev_to_conn(dev);
-+	transport = conn->transport;
-+
-+	if (READ_ONCE(conn->state) != ISCSI_CONN_DOWN)
-+		iscsi_if_stop_conn(conn, STOP_CONN_TERM);
-+
-+	transport->destroy_conn(conn);
-+	return 0;
-+}
-+
-+/**
-+ * iscsi_force_destroy_session - destroy a session from the kernel
-+ * @session: session to destroy
-+ *
-+ * Force the destruction of a session from the kernel. This should only be
-+ * used when userspace is no longer running during system shutdown.
-+ */
-+void iscsi_force_destroy_session(struct iscsi_cls_session *session)
-+{
-+	struct iscsi_transport *transport = session->transport;
-+	unsigned long flags;
-+
-+	WARN_ON_ONCE(system_state == SYSTEM_RUNNING);
-+
-+	spin_lock_irqsave(&sesslock, flags);
-+	if (list_empty(&session->sess_list)) {
-+		spin_unlock_irqrestore(&sesslock, flags);
-+		/*
-+		 * Conn/ep is already freed. Session is being torn down via
-+		 * async path. For shutdown we don't care about it so return.
-+		 */
-+		return;
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 583fe0dffcd8..3ed0e86bf305 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -4398,10 +4398,10 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 		if (r < sizeof(struct kvm_xsave))
+ 			r = sizeof(struct kvm_xsave);
+ 		break;
 +	}
-+	spin_unlock_irqrestore(&sesslock, flags);
-+
-+	device_for_each_child(&session->dev, NULL,
-+			      iscsi_iter_force_destroy_conn_fn);
-+	transport->destroy_session(session);
-+}
-+EXPORT_SYMBOL_GPL(iscsi_force_destroy_session);
-+
- void iscsi_free_session(struct iscsi_cls_session *session)
- {
- 	ISCSI_DBG_TRANS_SESSION(session, "Freeing session\n");
-diff --git a/include/scsi/scsi_transport_iscsi.h b/include/scsi/scsi_transport_iscsi.h
-index 9acb8422f680..d6eab7cb221a 100644
---- a/include/scsi/scsi_transport_iscsi.h
-+++ b/include/scsi/scsi_transport_iscsi.h
-@@ -442,6 +442,7 @@ extern struct iscsi_cls_session *iscsi_create_session(struct Scsi_Host *shost,
- 						struct iscsi_transport *t,
- 						int dd_size,
- 						unsigned int target_id);
-+extern void iscsi_force_destroy_session(struct iscsi_cls_session *session);
- extern void iscsi_remove_session(struct iscsi_cls_session *session);
- extern void iscsi_free_session(struct iscsi_cls_session *session);
- extern struct iscsi_cls_conn *iscsi_alloc_conn(struct iscsi_cls_session *sess,
+ 	case KVM_CAP_PMU_CAPABILITY:
+ 		r = enable_pmu ? KVM_CAP_PMU_VALID_MASK : 0;
+ 		break;
+-	}
+ 	case KVM_CAP_DISABLE_QUIRKS2:
+ 		r = KVM_X86_VALID_QUIRKS;
+ 		break;
 -- 
 2.35.1
 
