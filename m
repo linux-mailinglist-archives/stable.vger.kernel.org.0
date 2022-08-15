@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AE0D594B98
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:24:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F95F594B93
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:24:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349053AbiHPAXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:23:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47848 "EHLO
+        id S1344173AbiHPAW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:22:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353070AbiHPAUX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:20:23 -0400
+        with ESMTP id S1353056AbiHPATt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:19:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 217AD17B819;
-        Mon, 15 Aug 2022 13:33:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7B7F17B837;
+        Mon, 15 Aug 2022 13:33:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14073611AA;
-        Mon, 15 Aug 2022 20:33:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D06FC433C1;
-        Mon, 15 Aug 2022 20:33:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20B50611D5;
+        Mon, 15 Aug 2022 20:33:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 191FBC433C1;
+        Mon, 15 Aug 2022 20:33:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595596;
-        bh=BWdZqPLDXsnad35DrHwcE33hAm8J1xbYtk0RGyawOr4=;
+        s=korg; t=1660595602;
+        bh=YHnaOV5Y4krgMZM6veswHxagQoNsgvH0gQzfp0blJqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uJ3+QGAxdvOuq2EbSYqCw1LfVDZXX0RBsWTpxi3laEuRFpvRCsctGVkRu85uQBow2
-         HLJbhu1BmwzGtqCNpKVmV56AYb1Wu05Z6HKEejQsVoClvy++VblpXsmjnIHY8bKgyX
-         x8kDXofiCGG/GaRLLsOWkSU4qytARH4FcOJEC49Q=
+        b=OEThbSXP+Zgq2rm8GonmX99b16n6YHS7xyBDu+3OJNmFTOtMHAX6AQECzJwHf4zeA
+         7haYk/jXY+ja1tuWxZhLIUSR7cCeD71BW5mwEbjxHPYN3LGdDCyadQA7+h5xb0/IHd
+         N8aZeUDHPXnRIJ2M+IAh0Td6iN0aIIwSK7IVIQXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0814/1157] phy: stm32: fix error return in stm32_usbphyc_phy_init
-Date:   Mon, 15 Aug 2022 20:02:50 +0200
-Message-Id: <20220815180512.052610482@linuxfoundation.org>
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Peng Fan <peng.fan@nxp.com>, Georgi Djakov <djakov@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0816/1157] interconnect: imx: fix max_node_id
+Date:   Mon, 15 Aug 2022 20:02:52 +0200
+Message-Id: <20220815180512.132055124@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,39 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit 32b378a9179ae4db61cfc5d502717214e6cd1e1c ]
+[ Upstream commit bd734481e172b4827af09c9ab06c51d2ab7201e6 ]
 
-Error code is overridden, in case the PLL doesn't lock. So, the USB
-initialization can continue. This leads to a platform freeze.
-This can be avoided by returning proper error code to avoid USB probe
-freezing the platform. It also displays proper errors in log.
+max_node_id not equal to the ARRAY_SIZE of node array, need increase 1,
+otherwise xlate will fail for the last entry. And rename max_node_id
+to num_nodes to reflect the reality.
 
-Fixes: 5b1af71280ab ("phy: stm32: rework PLL Lock detection")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20220713133953.595134-1-fabrice.gasnier@foss.st.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: f0d8048525d7d ("interconnect: Add imx core driver")
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Link: https://lore.kernel.org/r/20220703091132.1412063-5-peng.fan@oss.nxp.com
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/st/phy-stm32-usbphyc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/interconnect/imx/imx.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/phy/st/phy-stm32-usbphyc.c b/drivers/phy/st/phy-stm32-usbphyc.c
-index 007a23c78d56..a98c911cc37a 100644
---- a/drivers/phy/st/phy-stm32-usbphyc.c
-+++ b/drivers/phy/st/phy-stm32-usbphyc.c
-@@ -358,7 +358,9 @@ static int stm32_usbphyc_phy_init(struct phy *phy)
- 	return 0;
+diff --git a/drivers/interconnect/imx/imx.c b/drivers/interconnect/imx/imx.c
+index 249ca25d1d55..4406ec45fa90 100644
+--- a/drivers/interconnect/imx/imx.c
++++ b/drivers/interconnect/imx/imx.c
+@@ -234,16 +234,16 @@ int imx_icc_register(struct platform_device *pdev,
+ 	struct device *dev = &pdev->dev;
+ 	struct icc_onecell_data *data;
+ 	struct icc_provider *provider;
+-	int max_node_id;
++	int num_nodes;
+ 	int ret;
  
- pll_disable:
--	return stm32_usbphyc_pll_disable(usbphyc);
-+	stm32_usbphyc_pll_disable(usbphyc);
-+
-+	return ret;
- }
+ 	/* icc_onecell_data is indexed by node_id, unlike nodes param */
+-	max_node_id = get_max_node_id(nodes, nodes_count);
+-	data = devm_kzalloc(dev, struct_size(data, nodes, max_node_id),
++	num_nodes = get_max_node_id(nodes, nodes_count) + 1;
++	data = devm_kzalloc(dev, struct_size(data, nodes, num_nodes),
+ 			    GFP_KERNEL);
+ 	if (!data)
+ 		return -ENOMEM;
+-	data->num_nodes = max_node_id;
++	data->num_nodes = num_nodes;
  
- static int stm32_usbphyc_phy_exit(struct phy *phy)
+ 	provider = devm_kzalloc(dev, sizeof(*provider), GFP_KERNEL);
+ 	if (!provider)
 -- 
 2.35.1
 
