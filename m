@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C227593EF5
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93B6E5940A7
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345681AbiHOUtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:49:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38032 "EHLO
+        id S1346341AbiHOUt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:49:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345739AbiHOUsK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:48:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75B7EB81F6;
-        Mon, 15 Aug 2022 12:08:59 -0700 (PDT)
+        with ESMTP id S1345628AbiHOUsr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:48:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DC7B8F1F;
+        Mon, 15 Aug 2022 12:09:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AAAF4B810A3;
-        Mon, 15 Aug 2022 19:08:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 146E3C43140;
-        Mon, 15 Aug 2022 19:08:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3589460BBF;
+        Mon, 15 Aug 2022 19:09:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20395C433D7;
+        Mon, 15 Aug 2022 19:09:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590536;
-        bh=eUGW2Is/pHYPEz+f+EhA8vgHM3cR2Z6ILuc72rM9470=;
+        s=korg; t=1660590542;
+        bh=b73m9hpZsq1LPof4CJ65b/MGPVplSqIlbYsDVlENReA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zzsiYBh9uRsa0/DVWkpZJxakOhJGf1OvJ+cvUq1GegMgM91MFCHbhHjuNlrzlZ29U
-         BzisaSfNahYLw5va8cv2TQTlaf5Eh7f3hXP6Grz5hhJ+kyev/Z6Fc7KLxAwC9k6F2X
-         49BTGsQlOaVP1ikpzei3czf4uweC4G31TjA6Vt2Y=
+        b=H0BVWg85ek9rDqxammAbu0q/Acsp01NELHopSR9PBk6Po7efX4Vr8JuO3Q0WMQL8H
+         KIu6w16gkHc9UxsJiS+XJQSglxuCuXBadSKHPy7FBYTy52UVo0cYa4nD92dFzmfVIV
+         CAb05D0mkqXUY563gX1eHPBLUpjJ8MoCv0bUkGyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0290/1095] x86/extable: Fix ex_handler_msr() print condition
-Date:   Mon, 15 Aug 2022 19:54:49 +0200
-Message-Id: <20220815180441.790987652@linuxfoundation.org>
+Subject: [PATCH 5.18 0291/1095] io_uring: move to separate directory
+Date:   Mon, 15 Aug 2022 19:54:50 +0200
+Message-Id: <20220815180441.830696103@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,109 +53,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit a1a5482a2c6e38a3ebed32e571625c56a8cc41a6 ]
+[ Upstream commit ed29b0b4fd835b058ddd151c49d021e28d631ee6 ]
 
-On Fri, Jun 17, 2022 at 02:08:52PM +0300, Stephane Eranian wrote:
-> Some changes to the way invalid MSR accesses are reported by the
-> kernel is causing some problems with messages printed on the
-> console.
->
-> We have seen several cases of ex_handler_msr() printing invalid MSR
-> accesses once but the callstack multiple times causing confusion on
-> the console.
+In preparation for splitting io_uring up a bit, move it into its own
+top level directory. It didn't really belong in fs/ anyway, as it's
+not a file system only API.
 
-> The problem here is that another earlier commit (5.13):
->
-> a358f40600b3 ("once: implement DO_ONCE_LITE for non-fast-path "do once" functionality")
->
-> Modifies all the pr_*_once() calls to always return true claiming
-> that no caller is ever checking the return value of the functions.
->
-> This is why we are seeing the callstack printed without the
-> associated printk() msg.
+This adds io_uring/ and moves the core files in there, and updates the
+MAINTAINERS file for the new location.
 
-Extract the ONCE_IF(cond) part into __ONCE_LTE_IF() and use that to
-implement DO_ONCE_LITE_IF() and fix the extable code.
-
-Fixes: a358f40600b3 ("once: implement DO_ONCE_LITE for non-fast-path "do once" functionality")
-Reported-by: Stephane Eranian <eranian@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Stephane Eranian <eranian@google.com>
-Link: https://lkml.kernel.org/r/YqyVFsbviKjVGGZ9@worktop.programming.kicks-ass.net
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/extable.c     | 16 +++++++++-------
- include/linux/once_lite.h | 20 ++++++++++++++++----
- 2 files changed, 25 insertions(+), 11 deletions(-)
+ MAINTAINERS                 | 7 +------
+ Makefile                    | 1 +
+ fs/Makefile                 | 2 --
+ io_uring/Makefile           | 6 ++++++
+ {fs => io_uring}/io-wq.c    | 0
+ {fs => io_uring}/io-wq.h    | 0
+ {fs => io_uring}/io_uring.c | 2 +-
+ kernel/sched/core.c         | 2 +-
+ 8 files changed, 10 insertions(+), 10 deletions(-)
+ create mode 100644 io_uring/Makefile
+ rename {fs => io_uring}/io-wq.c (100%)
+ rename {fs => io_uring}/io-wq.h (100%)
+ rename {fs => io_uring}/io_uring.c (99%)
 
-diff --git a/arch/x86/mm/extable.c b/arch/x86/mm/extable.c
-index dba2197c05c3..331310c29349 100644
---- a/arch/x86/mm/extable.c
-+++ b/arch/x86/mm/extable.c
-@@ -94,16 +94,18 @@ static bool ex_handler_copy(const struct exception_table_entry *fixup,
- static bool ex_handler_msr(const struct exception_table_entry *fixup,
- 			   struct pt_regs *regs, bool wrmsr, bool safe, int reg)
- {
--	if (!safe && wrmsr &&
--	    pr_warn_once("unchecked MSR access error: WRMSR to 0x%x (tried to write 0x%08x%08x) at rIP: 0x%lx (%pS)\n",
--			 (unsigned int)regs->cx, (unsigned int)regs->dx,
--			 (unsigned int)regs->ax,  regs->ip, (void *)regs->ip))
-+	if (__ONCE_LITE_IF(!safe && wrmsr)) {
-+		pr_warn("unchecked MSR access error: WRMSR to 0x%x (tried to write 0x%08x%08x) at rIP: 0x%lx (%pS)\n",
-+			(unsigned int)regs->cx, (unsigned int)regs->dx,
-+			(unsigned int)regs->ax,  regs->ip, (void *)regs->ip);
- 		show_stack_regs(regs);
-+	}
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 2b70e2d21405..c7c7a96b62a8 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -7599,9 +7599,6 @@ F:	include/linux/fs.h
+ F:	include/linux/fs_types.h
+ F:	include/uapi/linux/fs.h
+ F:	include/uapi/linux/openat2.h
+-X:	fs/io-wq.c
+-X:	fs/io-wq.h
+-X:	fs/io_uring.c
  
--	if (!safe && !wrmsr &&
--	    pr_warn_once("unchecked MSR access error: RDMSR from 0x%x at rIP: 0x%lx (%pS)\n",
--			 (unsigned int)regs->cx, regs->ip, (void *)regs->ip))
-+	if (__ONCE_LITE_IF(!safe && !wrmsr)) {
-+		pr_warn("unchecked MSR access error: RDMSR from 0x%x at rIP: 0x%lx (%pS)\n",
-+			(unsigned int)regs->cx, regs->ip, (void *)regs->ip);
- 		show_stack_regs(regs);
-+	}
+ FINTEK F75375S HARDWARE MONITOR AND FAN CONTROLLER DRIVER
+ M:	Riku Voipio <riku.voipio@iki.fi>
+@@ -10277,9 +10274,7 @@ L:	io-uring@vger.kernel.org
+ S:	Maintained
+ T:	git git://git.kernel.dk/linux-block
+ T:	git git://git.kernel.dk/liburing
+-F:	fs/io-wq.c
+-F:	fs/io-wq.h
+-F:	fs/io_uring.c
++F:	io_uring/
+ F:	include/linux/io_uring.h
+ F:	include/uapi/linux/io_uring.h
+ F:	tools/io_uring/
+diff --git a/Makefile b/Makefile
+index 13dd4bd226cb..90e2129a3b80 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1100,6 +1100,7 @@ export MODULES_NSDEPS := $(extmod_prefix)modules.nsdeps
+ ifeq ($(KBUILD_EXTMOD),)
+ core-y			+= kernel/ certs/ mm/ fs/ ipc/ security/ crypto/
+ core-$(CONFIG_BLOCK)	+= block/
++core-$(CONFIG_IO_URING)	+= io_uring/
  
- 	if (!wrmsr) {
- 		/* Pretend that the read succeeded and returned 0. */
-diff --git a/include/linux/once_lite.h b/include/linux/once_lite.h
-index 861e606b820f..b7bce4983638 100644
---- a/include/linux/once_lite.h
-+++ b/include/linux/once_lite.h
-@@ -9,15 +9,27 @@
-  */
- #define DO_ONCE_LITE(func, ...)						\
- 	DO_ONCE_LITE_IF(true, func, ##__VA_ARGS__)
--#define DO_ONCE_LITE_IF(condition, func, ...)				\
+ vmlinux-dirs	:= $(patsubst %/,%,$(filter %/, \
+ 		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \
+diff --git a/fs/Makefile b/fs/Makefile
+index 208a74e0b00e..93b80529f8e8 100644
+--- a/fs/Makefile
++++ b/fs/Makefile
+@@ -34,8 +34,6 @@ obj-$(CONFIG_TIMERFD)		+= timerfd.o
+ obj-$(CONFIG_EVENTFD)		+= eventfd.o
+ obj-$(CONFIG_USERFAULTFD)	+= userfaultfd.o
+ obj-$(CONFIG_AIO)               += aio.o
+-obj-$(CONFIG_IO_URING)		+= io_uring.o
+-obj-$(CONFIG_IO_WQ)		+= io-wq.o
+ obj-$(CONFIG_FS_DAX)		+= dax.o
+ obj-$(CONFIG_FS_ENCRYPTION)	+= crypto/
+ obj-$(CONFIG_FS_VERITY)		+= verity/
+diff --git a/io_uring/Makefile b/io_uring/Makefile
+new file mode 100644
+index 000000000000..3680425df947
+--- /dev/null
++++ b/io_uring/Makefile
+@@ -0,0 +1,6 @@
++# SPDX-License-Identifier: GPL-2.0
++#
++# Makefile for io_uring
 +
-+#define __ONCE_LITE_IF(condition)					\
- 	({								\
- 		static bool __section(".data.once") __already_done;	\
--		bool __ret_do_once = !!(condition);			\
-+		bool __ret_cond = !!(condition);			\
-+		bool __ret_once = false;				\
- 									\
--		if (unlikely(__ret_do_once && !__already_done)) {	\
-+		if (unlikely(__ret_cond && !__already_done)) {		\
- 			__already_done = true;				\
--			func(__VA_ARGS__);				\
-+			__ret_once = true;				\
- 		}							\
-+		unlikely(__ret_once);					\
-+	})
-+
-+#define DO_ONCE_LITE_IF(condition, func, ...)				\
-+	({								\
-+		bool __ret_do_once = !!(condition);			\
-+									\
-+		if (__ONCE_LITE_IF(__ret_do_once))			\
-+			func(__VA_ARGS__);				\
-+									\
- 		unlikely(__ret_do_once);				\
- 	})
++obj-$(CONFIG_IO_URING)		+= io_uring.o
++obj-$(CONFIG_IO_WQ)		+= io-wq.o
+diff --git a/fs/io-wq.c b/io_uring/io-wq.c
+similarity index 100%
+rename from fs/io-wq.c
+rename to io_uring/io-wq.c
+diff --git a/fs/io-wq.h b/io_uring/io-wq.h
+similarity index 100%
+rename from fs/io-wq.h
+rename to io_uring/io-wq.h
+diff --git a/fs/io_uring.c b/io_uring/io_uring.c
+similarity index 99%
+rename from fs/io_uring.c
+rename to io_uring/io_uring.c
+index 3d97372e811e..b25e59da129f 100644
+--- a/fs/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -86,7 +86,7 @@
  
+ #include <uapi/linux/io_uring.h>
+ 
+-#include "internal.h"
++#include "../fs/internal.h"
+ #include "io-wq.h"
+ 
+ #define IORING_MAX_ENTRIES	32768
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 6baf96d2fa39..72b2f277b0dd 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -88,7 +88,7 @@
+ #include "stats.h"
+ 
+ #include "../workqueue_internal.h"
+-#include "../../fs/io-wq.h"
++#include "../../io_uring/io-wq.h"
+ #include "../smpboot.h"
+ 
+ /*
 -- 
 2.35.1
 
