@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC9FE594053
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BE5C594173
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232007AbiHOVEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:04:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35880 "EHLO
+        id S232896AbiHOVEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:04:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245501AbiHOVDN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:03:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7596D51439;
-        Mon, 15 Aug 2022 12:14:24 -0700 (PDT)
+        with ESMTP id S243708AbiHOVDM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:03:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10AE7D2E87;
+        Mon, 15 Aug 2022 12:14:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C70F2B81115;
-        Mon, 15 Aug 2022 19:14:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00D18C433D6;
-        Mon, 15 Aug 2022 19:14:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A5DA6009B;
+        Mon, 15 Aug 2022 19:14:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD8FC433D6;
+        Mon, 15 Aug 2022 19:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590861;
-        bh=ezz1QrZMZah4z8XFs+tXhhTISclPhpkXp32xMw1dyyI=;
+        s=korg; t=1660590864;
+        bh=iJPDOtGlJElJvvZyDG8X4vC4wyhhFqxMXB3Iss6pbig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JygA0IXLX3e8KrO6mAcd4PQ5Uufe9DnlnfNHenBDGkJyQ3iFp0YqRg1LirhlYN+vI
-         WJOKf6RceeEySfhz16in0qH6+XqFdbaRUZ7ww2X0nnB7DYlchzUIdTCwh+2wHCwD20
-         3meTnIwMlGyxsXiOkz+BnvpI/gxthUVF6xPD8HM8=
+        b=qREuBFEXWB5zzv58IORpz5FkIrI1dyA/KdUD57Lp41jXn6dOm+T5AEg91twTLs7/9
+         eU56aHM00A3lCJLCl3tUJ/vw0AmdCBtHCCjADgXCBpAkWUqxGqNNV1ERCGdSCoiYNR
+         uLUkIVtbTTtib3WczfVW62+ep2ViwmPGLMNBTcaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dom Cobley <popcornmix@gmail.com>,
         Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0393/1095] drm/vc4: hdmi: Clear unused infoframe packet RAM registers
-Date:   Mon, 15 Aug 2022 19:56:32 +0200
-Message-Id: <20220815180445.956193355@linuxfoundation.org>
+Subject: [PATCH 5.18 0394/1095] drm/vc4: hdmi: Avoid full hdmi audio fifo writes
+Date:   Mon, 15 Aug 2022 19:56:33 +0200
+Message-Id: <20220815180445.988914873@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,54 +56,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dom Cobley <popcornmix@gmail.com>
 
-[ Upstream commit b6079d1578dc4b4b8050d613a5449a63def7d1dd ]
+[ Upstream commit 1c594eeccf92368177c2e22f1d3ee4933dfb8567 ]
 
-Using a hdmi analyser the bytes in packet ram
-registers beyond the length were visible in the
-infoframes and it flagged the checksum as invalid.
+We are getting occasional VC4_HD_MAI_CTL_ERRORF in
+HDMI_MAI_CTL which seem to correspond with audio dropouts.
 
-Zeroing unused words of packet RAM avoids this
+Reduce the threshold where we deassert DREQ to avoid the fifo
+overfilling
 
-Fixes: 21317b3fba54 ("drm/vc4: Set up the AVI and SPD infoframes.")
+Fixes: bb7d78568814 ("drm/vc4: Add HDMI audio support")
 Signed-off-by: Dom Cobley <popcornmix@gmail.com>
-Link: https://lore.kernel.org/r/20220613144800.326124-20-maxime@cerno.tech
+Link: https://lore.kernel.org/r/20220613144800.326124-21-maxime@cerno.tech
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 2ff53482d5d1..0fe04b1f9782 100644
+index 0fe04b1f9782..114b007a1e6e 100644
 --- a/drivers/gpu/drm/vc4/vc4_hdmi.c
 +++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -439,9 +439,11 @@ static void vc4_hdmi_write_infoframe(struct drm_encoder *encoder,
- 	const struct vc4_hdmi_register *ram_packet_start =
- 		&vc4_hdmi->variant->registers[HDMI_RAM_PACKET_START];
- 	u32 packet_reg = ram_packet_start->offset + VC4_HDMI_PACKET_STRIDE * packet_id;
-+	u32 packet_reg_next = ram_packet_start->offset +
-+		VC4_HDMI_PACKET_STRIDE * (packet_id + 1);
- 	void __iomem *base = __vc4_hdmi_get_field_base(vc4_hdmi,
- 						       ram_packet_start->reg);
--	uint8_t buffer[VC4_HDMI_PACKET_STRIDE];
-+	uint8_t buffer[VC4_HDMI_PACKET_STRIDE] = {};
- 	unsigned long flags;
- 	ssize_t len, i;
- 	int ret;
-@@ -477,6 +479,13 @@ static void vc4_hdmi_write_infoframe(struct drm_encoder *encoder,
- 		packet_reg += 4;
- 	}
+@@ -1626,10 +1626,10 @@ static int vc4_hdmi_audio_prepare(struct device *dev, void *data,
  
-+	/*
-+	 * clear remainder of packet ram as it's included in the
-+	 * infoframe and triggers a checksum error on hdmi analyser
-+	 */
-+	for (; packet_reg < packet_reg_next; packet_reg += 4)
-+		writel(0, base + packet_reg);
-+
- 	HDMI_WRITE(HDMI_RAM_PACKET_CONFIG,
- 		   HDMI_READ(HDMI_RAM_PACKET_CONFIG) | BIT(packet_id));
+ 	/* Set the MAI threshold */
+ 	HDMI_WRITE(HDMI_MAI_THR,
+-		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_PANICHIGH) |
+-		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_PANICLOW) |
+-		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_DREQHIGH) |
+-		   VC4_SET_FIELD(0x10, VC4_HD_MAI_THR_DREQLOW));
++		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_PANICHIGH) |
++		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_PANICLOW) |
++		   VC4_SET_FIELD(0x06, VC4_HD_MAI_THR_DREQHIGH) |
++		   VC4_SET_FIELD(0x08, VC4_HD_MAI_THR_DREQLOW));
  
+ 	HDMI_WRITE(HDMI_MAI_CONFIG,
+ 		   VC4_HDMI_MAI_CONFIG_BIT_REVERSE |
 -- 
 2.35.1
 
