@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3490A595121
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B415F59512A
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232573AbiHPEuA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:50:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59682 "EHLO
+        id S232955AbiHPEuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:50:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232875AbiHPEsj (ORCPT
+        with ESMTP id S232877AbiHPEsj (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:48:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26DAFB4421;
-        Mon, 15 Aug 2022 13:43:40 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F178EB514C;
+        Mon, 15 Aug 2022 13:43:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AF0EB80EAD;
-        Mon, 15 Aug 2022 20:43:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EA18C433C1;
-        Mon, 15 Aug 2022 20:43:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CEAFB811AC;
+        Mon, 15 Aug 2022 20:43:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0461C433D6;
+        Mon, 15 Aug 2022 20:43:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596217;
-        bh=mQCrq2ntPhCcnbK41SusLBAMdtiHg3E1dAxiOPm3NqU=;
+        s=korg; t=1660596220;
+        bh=DemmFqknU4D3MR+kRLzsx5FOMFNFYVOCBaSJPJ3o/NU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bOC5Bv961JegYGD8Un605g5kh4Qs7RqwAm2c10IaAmUYBfLIdn6OTeWQTBzcHAPwD
-         aWHcK9KFXL4ZOSxacLBIDQI7UBorfk6mlLsCtVqfLZ7Thgj2jTfCnxhB4lmdAWOUwx
-         y8n45zCFLCA1dkcwIT9CjOoWQJuypeOQpuxariKo=
+        b=thTgyGfyD44juLaFCFW8c7VRzqzmMd39gKPQ3RhwjSg2sJagzS3l0ZWp63kAaJyFs
+         Vncb1nU4bKGBGlnk8oZb2+SApIsMdn6Wd+RardplzG92ht/nxbNELYsNH+KoBfo14X
+         I9xOJAguTP/22B99Y0cbzY2XXj9DAtrKRzr+2Nzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Ian Rogers <irogers@google.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0976/1157] s390/zcore: fix race when reading from hardware system area
-Date:   Mon, 15 Aug 2022 20:05:32 +0200
-Message-Id: <20220815180518.771965641@linuxfoundation.org>
+Subject: [PATCH 5.19 0977/1157] perf test: Fix test case 83 (perf stat CSV output linter) on s390
+Date:   Mon, 15 Aug 2022 20:05:33 +0200
+Message-Id: <20220815180518.812896007@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,82 +59,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 9ffed254d938c9e99eb7761c7f739294c84e0367 ]
+[ Upstream commit 87abe344cd280802f431998fabfd35d2d340ca90 ]
 
-Memory buffer used for reading out data from hardware system
-area is not protected against concurrent access.
+Perf test case 83: perf stat CSV output linter might fail
+on s390.
+The reason for this is the output of the command
 
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Fixes: 411ed3225733 ("[S390] zfcpdump support.")
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Link: https://lore.kernel.org/r/e68137f0f9a0d2558f37becc20af18e2939934f6.1658206891.git.agordeev@linux.ibm.com
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+ ./perf stat -x, -A -a --no-merge true
+
+which depends on a .config file setting. When CONFIG_SCHED_TOPOLOGY
+is set, the output of above perf command is
+
+   CPU0,1.50,msec,cpu-clock,1502781,100.00,1.052,CPUs utilized
+
+When CONFIG_SCHED_TOPOLOGY is *NOT* set the output of above perf
+command is
+
+   0.95,msec,cpu-clock,949800,100.00,1.060,CPUs utilized
+
+Fix the test case to accept both output formats.
+
+Output before:
+ # perf test 83
+ 83: perf stat CSV output linter       : FAILED!
+ #
+
+Output after:
+ # ./perf test 83
+ 83: perf stat CSV output linter       : Ok
+ #
+
+Fixes: ec906102e5b7d339 ("perf test: Fix "perf stat CSV output linter" test on s390")
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220720123419.220953-1-tmricht@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/char/zcore.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ tools/perf/tests/shell/stat+csv_output.sh | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/char/zcore.c b/drivers/s390/char/zcore.c
-index 516783ba950f..92b32ce645b9 100644
---- a/drivers/s390/char/zcore.c
-+++ b/drivers/s390/char/zcore.c
-@@ -50,6 +50,7 @@ static struct dentry *zcore_reipl_file;
- static struct dentry *zcore_hsa_file;
- static struct ipl_parameter_block *zcore_ipl_block;
+diff --git a/tools/perf/tests/shell/stat+csv_output.sh b/tools/perf/tests/shell/stat+csv_output.sh
+index 38c26f3ef4c1..eb5196f58190 100755
+--- a/tools/perf/tests/shell/stat+csv_output.sh
++++ b/tools/perf/tests/shell/stat+csv_output.sh
+@@ -8,7 +8,8 @@ set -e
  
-+static DEFINE_MUTEX(hsa_buf_mutex);
- static char hsa_buf[PAGE_SIZE] __aligned(PAGE_SIZE);
+ function commachecker()
+ {
+-	local -i cnt=0 exp=0
++	local -i cnt=0
++	local exp=0
  
- /*
-@@ -66,19 +67,24 @@ int memcpy_hsa_user(void __user *dest, unsigned long src, size_t count)
- 	if (!hsa_available)
- 		return -ENODATA;
- 
-+	mutex_lock(&hsa_buf_mutex);
- 	while (count) {
- 		if (sclp_sdias_copy(hsa_buf, src / PAGE_SIZE + 2, 1)) {
- 			TRACE("sclp_sdias_copy() failed\n");
-+			mutex_unlock(&hsa_buf_mutex);
- 			return -EIO;
+ 	case "$1"
+ 	in "--no-args")		exp=6
+@@ -17,7 +18,7 @@ function commachecker()
+ 	;; "--interval")	exp=7
+ 	;; "--per-thread")	exp=7
+ 	;; "--system-wide-no-aggr")	exp=7
+-				[ $(uname -m) = "s390x" ] && exp=6
++				[ $(uname -m) = "s390x" ] && exp='^[6-7]$'
+ 	;; "--per-core")	exp=8
+ 	;; "--per-socket")	exp=8
+ 	;; "--per-node")	exp=8
+@@ -34,7 +35,7 @@ function commachecker()
+ 		x=$(echo $line | tr -d -c ',')
+ 		cnt="${#x}"
+ 		# echo $line $cnt
+-		[ "$cnt" -ne "$exp" ] && {
++		[[ ! "$cnt" =~ $exp ]] && {
+ 			echo "wrong number of fields. expected $exp in $line" 1>&2
+ 			exit 1;
  		}
- 		offset = src % PAGE_SIZE;
- 		bytes = min(PAGE_SIZE - offset, count);
--		if (copy_to_user(dest, hsa_buf + offset, bytes))
-+		if (copy_to_user(dest, hsa_buf + offset, bytes)) {
-+			mutex_unlock(&hsa_buf_mutex);
- 			return -EFAULT;
-+		}
- 		src += bytes;
- 		dest += bytes;
- 		count -= bytes;
- 	}
-+	mutex_unlock(&hsa_buf_mutex);
- 	return 0;
- }
- 
-@@ -96,9 +102,11 @@ int memcpy_hsa_kernel(void *dest, unsigned long src, size_t count)
- 	if (!hsa_available)
- 		return -ENODATA;
- 
-+	mutex_lock(&hsa_buf_mutex);
- 	while (count) {
- 		if (sclp_sdias_copy(hsa_buf, src / PAGE_SIZE + 2, 1)) {
- 			TRACE("sclp_sdias_copy() failed\n");
-+			mutex_unlock(&hsa_buf_mutex);
- 			return -EIO;
- 		}
- 		offset = src % PAGE_SIZE;
-@@ -108,6 +116,7 @@ int memcpy_hsa_kernel(void *dest, unsigned long src, size_t count)
- 		dest += bytes;
- 		count -= bytes;
- 	}
-+	mutex_unlock(&hsa_buf_mutex);
- 	return 0;
- }
- 
 -- 
 2.35.1
 
