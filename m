@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A100459433B
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:55:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 904F059447E
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:58:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348993AbiHOWaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:30:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45674 "EHLO
+        id S1348533AbiHOW3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:29:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351026AbiHOW11 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:27:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59AE674B9E;
-        Mon, 15 Aug 2022 12:46:15 -0700 (PDT)
+        with ESMTP id S1351043AbiHOW1a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:27:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 977B66C74C;
+        Mon, 15 Aug 2022 12:46:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCD806122B;
-        Mon, 15 Aug 2022 19:46:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9C5AC433D6;
-        Mon, 15 Aug 2022 19:46:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 560A4B80EAD;
+        Mon, 15 Aug 2022 19:46:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7C26C433D6;
+        Mon, 15 Aug 2022 19:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592774;
-        bh=ZxhMVr49eMNwslMvCFUqsr9mcAHtbfXm7urEzpKHVlo=;
+        s=korg; t=1660592781;
+        bh=JHJ4eyTg8yKQ98NKbYPpKgA8p6VmB/eM/UU1vAAJ1kE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UC5DcKpttu1xooE6uA3d6ByPVEhl2Nje9wdikkWdEFo5ZGoF1Pbblr2/pJ2fPxphO
-         QsZKtLLFYM1GMw4z4+KP7Tl4aUNPQVOCFq5vqMzhOnE5jwd9/+nrTKWIcH/cGoMQ9J
-         cBo+jR44FemC2Csq51clfbf4YxikE1CVNOBHlUcg=
+        b=jf5AzzGSC4vEjgI2x8LUBbAmnnGNB49HJC4CzU8fexpwjsUNHSMuD95JVNiZIxVdQ
+         7c3lEdoXPl/2Jo83XvNyiMFVPHglVZj1lBdr7z8cMrIP95+eV0fqs+kQ1Z6DTWVbuh
+         20q77JDWN7vNOUJgKeHqLfAfGERvvykpVBJdmxfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Lawrence <joe.lawrence@redhat.com>,
-        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0843/1095] selftests/livepatch: better synchronize test_klp_callbacks_busy
-Date:   Mon, 15 Aug 2022 20:04:02 +0200
-Message-Id: <20220815180504.214052020@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0844/1095] profiling: fix shift too large makes kernel panic
+Date:   Mon, 15 Aug 2022 20:04:03 +0200
+Message-Id: <20220815180504.252126590@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -53,74 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Lawrence <joe.lawrence@redhat.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 55eb9a6c8bf3e2099863118ef53e02d9f44f85a8 ]
+[ Upstream commit 0fe6ee8f123a4dfb529a5aff07536bb481f34043 ]
 
-The test_klp_callbacks_busy module conditionally blocks a future
-livepatch transition by busy waiting inside its workqueue function,
-busymod_work_func().  After scheduling this work, a test livepatch is
-loaded, introducing the transition under test.
+2d186afd04d6 ("profiling: fix shift-out-of-bounds bugs") limits shift
+value by [0, BITS_PER_LONG -1], which means [0, 63].
 
-Both events are marked in the kernel log for later verification, but
-there is no synchronization to ensure that busymod_work_func() logs its
-function entry message before subsequent selftest commands log their own
-messages.  This can lead to a rare test failure due to unexpected
-ordering like:
+However, syzbot found that the max shift value should be the bit number of
+(_etext - _stext).  If shift is outside of this, the "buffer_bytes" will
+be zero and will cause kzalloc(0).  Then the kernel panics due to
+dereferencing the returned pointer 16.
 
-#  --- expected
-#  +++ result
-#  @@ -1,7 +1,7 @@
-#   % modprobe test_klp_callbacks_busy block_transition=Y
-#   test_klp_callbacks_busy: test_klp_callbacks_busy_init
-#  -test_klp_callbacks_busy: busymod_work_func enter
-#   % modprobe test_klp_callbacks_demo
-#  +test_klp_callbacks_busy: busymod_work_func enter
-#   livepatch: enabling patch 'test_klp_callbacks_demo'
-#   livepatch: 'test_klp_callbacks_demo': initializing patching transition
-#   test_klp_callbacks_demo: pre_patch_callback: vmlinux
+This can be easily reproduced by passing a large number like 60 to enable
+profiling and then run readprofile.
 
-Force the module init function to wait until busymod_work_func() has
-started (and logged its message), before exiting to the next selftest
-steps.
+LOGS:
+ BUG: kernel NULL pointer dereference, address: 0000000000000010
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ PGD 6148067 P4D 6148067 PUD 6142067 PMD 0
+ PREEMPT SMP
+ CPU: 4 PID: 184 Comm: readprofile Not tainted 5.18.0+ #162
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
+ RIP: 0010:read_profile+0x104/0x220
+ RSP: 0018:ffffc900006fbe80 EFLAGS: 00000202
+ RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+ RDX: ffff888006150000 RSI: 0000000000000001 RDI: ffffffff82aba4a0
+ RBP: 000000000188bb60 R08: 0000000000000010 R09: ffff888006151000
+ R10: 0000000000000000 R11: 0000000000000000 R12: ffffffff82aba4a0
+ R13: 0000000000000000 R14: ffffc900006fbf08 R15: 0000000000020c30
+ FS:  000000000188a8c0(0000) GS:ffff88803ed00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000010 CR3: 0000000006144000 CR4: 00000000000006e0
+ Call Trace:
+  <TASK>
+  proc_reg_read+0x56/0x70
+  vfs_read+0x9a/0x1b0
+  ksys_read+0xa1/0xe0
+  ? fpregs_assert_state_consistent+0x1e/0x40
+  do_syscall_64+0x3a/0x80
+  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+ RIP: 0033:0x4d4b4e
+ RSP: 002b:00007ffebb668d58 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+ RAX: ffffffffffffffda RBX: 000000000188a8a0 RCX: 00000000004d4b4e
+ RDX: 0000000000000400 RSI: 000000000188bb60 RDI: 0000000000000003
+ RBP: 0000000000000003 R08: 000000000000006e R09: 0000000000000000
+ R10: 0000000000000041 R11: 0000000000000246 R12: 000000000188bb60
+ R13: 0000000000000400 R14: 0000000000000000 R15: 000000000188bb60
+  </TASK>
+ Modules linked in:
+ CR2: 0000000000000010
+Killed
+ ---[ end trace 0000000000000000 ]---
 
-Fixes: 547840bd5ae5 ("selftests/livepatch: simplify test-klp-callbacks busy target tests")
-Signed-off-by: Joe Lawrence <joe.lawrence@redhat.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20220602203233.979681-1-joe.lawrence@redhat.com
+Check prof_len in profile_init() to prevent it be zero.
+
+Link: https://lkml.kernel.org/r/20220531012854.229439-1-chenzhongjin@huawei.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/livepatch/test_klp_callbacks_busy.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ kernel/profile.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/lib/livepatch/test_klp_callbacks_busy.c
-+++ b/lib/livepatch/test_klp_callbacks_busy.c
-@@ -16,10 +16,12 @@ MODULE_PARM_DESC(block_transition, "bloc
+diff --git a/kernel/profile.c b/kernel/profile.c
+index 37640a0bd8a3..ae82ddfc6a68 100644
+--- a/kernel/profile.c
++++ b/kernel/profile.c
+@@ -109,6 +109,13 @@ int __ref profile_init(void)
  
- static void busymod_work_func(struct work_struct *work);
- static DECLARE_WORK(work, busymod_work_func);
-+static DECLARE_COMPLETION(busymod_work_started);
- 
- static void busymod_work_func(struct work_struct *work)
- {
- 	pr_info("%s enter\n", __func__);
-+	complete(&busymod_work_started);
- 
- 	while (READ_ONCE(block_transition)) {
- 		/*
-@@ -37,6 +39,12 @@ static int test_klp_callbacks_busy_init(
- 	pr_info("%s\n", __func__);
- 	schedule_work(&work);
- 
-+	/*
-+	 * To synchronize kernel messages, hold the init function from
-+	 * exiting until the work function's entry message has printed.
-+	 */
-+	wait_for_completion(&busymod_work_started);
+ 	/* only text is profiled */
+ 	prof_len = (_etext - _stext) >> prof_shift;
 +
- 	if (!block_transition) {
- 		/*
- 		 * Serialize output: print all messages from the work
++	if (!prof_len) {
++		pr_warn("profiling shift: %u too large\n", prof_shift);
++		prof_on = 0;
++		return -EINVAL;
++	}
++
+ 	buffer_bytes = prof_len*sizeof(atomic_t);
+ 
+ 	if (!alloc_cpumask_var(&prof_cpu_mask, GFP_KERNEL))
+-- 
+2.35.1
+
 
 
