@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9D0E594262
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0338D594264
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349845AbiHOVsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:48:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35670 "EHLO
+        id S1349872AbiHOVsz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:48:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350282AbiHOVrf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:47:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 113415FAEB;
-        Mon, 15 Aug 2022 12:31:39 -0700 (PDT)
+        with ESMTP id S1350292AbiHOVrh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:47:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1541F5FAEF;
+        Mon, 15 Aug 2022 12:31:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1611E60FB9;
-        Mon, 15 Aug 2022 19:31:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03DC7C433D6;
-        Mon, 15 Aug 2022 19:31:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C33BAB81062;
+        Mon, 15 Aug 2022 19:31:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FA91C433D6;
+        Mon, 15 Aug 2022 19:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591898;
-        bh=LReIQ89/CnA3hqpuGEtuig0bfblqLBYyZyH7Eeo99iI=;
+        s=korg; t=1660591904;
+        bh=/EF4z/uxQCTHAXnRvEbMiDLRJBQ1km36r9FTaXO2r6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U0K+bhox8r/9qZ4OKXwa/vG/TLf7x80iXQ76MljmTq76FnSeduhKtiTMvzPbITQqw
-         lVYKy/nUqGfwFTYbsI7DfQjpomUiMPKI9J8niGvU+0JIrIOeg7TWqtstdvIWJX3dB/
-         ZhDvz0JMJPf2LFe551Eypz4Zl6ytgJO/0Taik2dg=
+        b=RXdftRpWbl17hiPcXdmt4fYEW5d9yykT1ix5sVgCrchwKrEd3lsTTtSioPb3i75GQ
+         F5c9F1WeoKR2sCc0jOaLC6aTktSSLaQ6siM5AhhwCEee8LCj0mQkvFtYj+/+aEcOt1
+         7KqxS1KyYy4CsqK1qjBhDFiRrj+CKSWWc4GT2ZgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bryan ODonoghue <bryan.odonoghue@linaro.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0701/1095] clk: qcom: gcc-msm8939: Fix bimc_ddr_clk_src rcgr base address
-Date:   Mon, 15 Aug 2022 20:01:40 +0200
-Message-Id: <20220815180458.372804561@linuxfoundation.org>
+Subject: [PATCH 5.18 0702/1095] clk: qcom: gcc-msm8939: Add missing system_mm_noc_bfdcd_clk_src
+Date:   Mon, 15 Aug 2022 20:01:41 +0200
+Message-Id: <20220815180458.406405612@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,33 +57,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit 63d42708320d6d2ca9ed505123d50ff4a542c36f ]
+[ Upstream commit dd363e2f7196278e7a30f509a0e8a841cb763b14 ]
 
-Reviewing qcom docs for the 8939 we can see the command rcgr is pointing to
-the wrong address. bimc_ddr_clk_src_rcgr is @ 0x01832024 not 0x01832004.
+The msm8939 has an additional higher operating point for the multi-media
+peripherals. The higher throughput MM componets operate off of the
+system-mm noc not the system noc.
+
+system_mm_noc_bfdcd_clk_src is the source clock for the higher frequency
+capable system noc mm.
+
+Maximum frequency for the MM SNOC is 400 MHz.
 
 Fixes: 1664014e4679 ("clk: qcom: gcc-msm8939: Add MSM8939 Generic Clock Controller")
 Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220504163835.40130-3-bryan.odonoghue@linaro.org
+Link: https://lore.kernel.org/r/20220504163835.40130-4-bryan.odonoghue@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-msm8939.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/qcom/gcc-msm8939.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/drivers/clk/qcom/gcc-msm8939.c b/drivers/clk/qcom/gcc-msm8939.c
-index 39ebb443ae3d..31568658d23d 100644
+index 31568658d23d..12bab9067ea8 100644
 --- a/drivers/clk/qcom/gcc-msm8939.c
 +++ b/drivers/clk/qcom/gcc-msm8939.c
-@@ -632,7 +632,7 @@ static struct clk_rcg2 system_noc_bfdcd_clk_src = {
+@@ -644,6 +644,18 @@ static struct clk_rcg2 bimc_ddr_clk_src = {
+ 	},
  };
  
- static struct clk_rcg2 bimc_ddr_clk_src = {
--	.cmd_rcgr = 0x32004,
-+	.cmd_rcgr = 0x32024,
- 	.hid_width = 5,
- 	.parent_map = gcc_xo_gpll0_bimc_map,
- 	.clkr.hw.init = &(struct clk_init_data){
++static struct clk_rcg2 system_mm_noc_bfdcd_clk_src = {
++	.cmd_rcgr = 0x2600c,
++	.hid_width = 5,
++	.parent_map = gcc_xo_gpll0_gpll6a_map,
++	.clkr.hw.init = &(struct clk_init_data){
++		.name = "system_mm_noc_bfdcd_clk_src",
++		.parent_data = gcc_xo_gpll0_gpll6a_parent_data,
++		.num_parents = 3,
++		.ops = &clk_rcg2_ops,
++	},
++};
++
+ static const struct freq_tbl ftbl_gcc_camss_ahb_clk[] = {
+ 	F(40000000, P_GPLL0, 10, 1, 2),
+ 	F(80000000, P_GPLL0, 10, 0, 0),
+@@ -3623,6 +3635,7 @@ static struct clk_regmap *gcc_msm8939_clocks[] = {
+ 	[GPLL2_VOTE] = &gpll2_vote,
+ 	[PCNOC_BFDCD_CLK_SRC] = &pcnoc_bfdcd_clk_src.clkr,
+ 	[SYSTEM_NOC_BFDCD_CLK_SRC] = &system_noc_bfdcd_clk_src.clkr,
++	[SYSTEM_MM_NOC_BFDCD_CLK_SRC] = &system_mm_noc_bfdcd_clk_src.clkr,
+ 	[CAMSS_AHB_CLK_SRC] = &camss_ahb_clk_src.clkr,
+ 	[APSS_AHB_CLK_SRC] = &apss_ahb_clk_src.clkr,
+ 	[CSI0_CLK_SRC] = &csi0_clk_src.clkr,
 -- 
 2.35.1
 
