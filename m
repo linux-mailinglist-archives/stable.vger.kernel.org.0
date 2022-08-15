@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C583594738
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F11BF594735
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233273AbiHOXWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:22:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60710 "EHLO
+        id S233050AbiHOX3w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:29:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245066AbiHOXUJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:20:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A830F14A1F4;
-        Mon, 15 Aug 2022 13:04:07 -0700 (PDT)
+        with ESMTP id S1343985AbiHOX0K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:26:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 685947FE5C;
+        Mon, 15 Aug 2022 13:06:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44E68612E8;
-        Mon, 15 Aug 2022 20:04:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CC46C433D6;
-        Mon, 15 Aug 2022 20:04:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04AA86069E;
+        Mon, 15 Aug 2022 20:06:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB8C9C433D6;
+        Mon, 15 Aug 2022 20:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593846;
-        bh=PTZjMZz3dY7nGwXr/zmNJG3phN1LRfO3lK1lVY9wDPA=;
+        s=korg; t=1660593990;
+        bh=OoFLweGMGU3hs6aXiOhf2CsOVzv7McoV0UwXcZHxGHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ypWxWOvwn4gDr8s0uDyhRPlRAlaEa9s4G08qS26f2msANaR28armkDKCXPbvR3/Xm
-         3imAiZjZ78lmTcLB8Pxj40mbdsvU8x4qCnGIDJWtEzaA714f3hgc8FcYrONr75jpDT
-         9QZviPRj6KIuAmtZkcqNSkLlZQaiViIKsDybkRUc=
+        b=Q+sDy9HvSIhcil2q8gyBgRI7qul0gwlFoJ7Y5vS/yd3dFHSeaMcJLGuYybdKzCXhK
+         6DYuTGFxhk+MsVVAela91Wr0CA8JTvUMI7yeTKS40gXpCN4bW1t/K1mlXsOEBNaIB0
+         wso/UoUNt5gNeF8q315N+XHWKz98ZpKiCp1SSLT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1015/1095] btrfs: reset block group chunk force if we have to wait
-Date:   Mon, 15 Aug 2022 20:06:54 +0200
-Message-Id: <20220815180511.083835595@linuxfoundation.org>
+Subject: [PATCH 5.18 1021/1095] btrfs: let can_allocate_chunk return error
+Date:   Mon, 15 Aug 2022 20:07:00 +0200
+Message-Id: <20220815180511.327770468@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,40 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-[ Upstream commit 1314ca78b2c35d3e7d0f097268a2ee6dc0d369ef ]
+[ Upstream commit bb9950d3df7169a673c594d38fb74e241ed4fb2a ]
 
-If you try to force a chunk allocation, but you race with another chunk
-allocation, you will end up waiting on the chunk allocation that just
-occurred and then allocate another chunk.  If you have many threads all
-doing this at once you can way over-allocate chunks.
+For the later patch, convert the return type from bool to int and return
+errors. No functional changes.
 
-Fix this by resetting force to NO_FORCE, that way if we think we need to
-allocate we can, otherwise we don't force another chunk allocation if
-one is already happening.
-
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/block-group.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/extent-tree.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-index 667b7025d503..1deca5164c23 100644
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -3724,6 +3724,7 @@ int btrfs_chunk_alloc(struct btrfs_trans_handle *trans, u64 flags,
- 			 * attempt.
- 			 */
- 			wait_for_alloc = true;
-+			force = CHUNK_ALLOC_NO_FORCE;
- 			spin_unlock(&space_info->lock);
- 			mutex_lock(&fs_info->chunk_mutex);
- 			mutex_unlock(&fs_info->chunk_mutex);
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index f45ecd939a2c..8bdcbc0c6d60 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -3985,12 +3985,12 @@ static void found_extent(struct find_free_extent_ctl *ffe_ctl,
+ 	}
+ }
+ 
+-static bool can_allocate_chunk(struct btrfs_fs_info *fs_info,
+-			       struct find_free_extent_ctl *ffe_ctl)
++static int can_allocate_chunk(struct btrfs_fs_info *fs_info,
++			      struct find_free_extent_ctl *ffe_ctl)
+ {
+ 	switch (ffe_ctl->policy) {
+ 	case BTRFS_EXTENT_ALLOC_CLUSTERED:
+-		return true;
++		return 0;
+ 	case BTRFS_EXTENT_ALLOC_ZONED:
+ 		/*
+ 		 * If we have enough free space left in an already
+@@ -4000,8 +4000,8 @@ static bool can_allocate_chunk(struct btrfs_fs_info *fs_info,
+ 		 */
+ 		if (ffe_ctl->max_extent_size >= ffe_ctl->min_alloc_size &&
+ 		    !btrfs_can_activate_zone(fs_info->fs_devices, ffe_ctl->flags))
+-			return false;
+-		return true;
++			return -ENOSPC;
++		return 0;
+ 	default:
+ 		BUG();
+ 	}
+@@ -4083,8 +4083,9 @@ static int find_free_extent_update_loop(struct btrfs_fs_info *fs_info,
+ 			int exist = 0;
+ 
+ 			/*Check if allocation policy allows to create a new chunk */
+-			if (!can_allocate_chunk(fs_info, ffe_ctl))
+-				return -ENOSPC;
++			ret = can_allocate_chunk(fs_info, ffe_ctl);
++			if (ret)
++				return ret;
+ 
+ 			trans = current->journal_info;
+ 			if (trans)
 -- 
 2.35.1
 
