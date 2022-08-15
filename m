@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4D5594497
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D442594368
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:55:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350388AbiHOWjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:39:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38598 "EHLO
+        id S1350252AbiHOWjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:39:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350621AbiHOWgs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:36:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1257D123C97;
-        Mon, 15 Aug 2022 12:50:25 -0700 (PDT)
+        with ESMTP id S1350452AbiHOWgh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:36:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91BF35A2CC;
+        Mon, 15 Aug 2022 12:50:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57F4861206;
-        Mon, 15 Aug 2022 19:50:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49BD1C433D6;
-        Mon, 15 Aug 2022 19:50:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6299BB80EAD;
+        Mon, 15 Aug 2022 19:50:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8ABFC433D6;
+        Mon, 15 Aug 2022 19:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593006;
-        bh=yS91eTGYnl0zjneEsllxzuD/65xXWIAvw+naJy6Lyrk=;
+        s=korg; t=1660593014;
+        bh=trG8oyJvYdJGnFL4oAnns9pnq+hwSnbarSZgSlzOSAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W8++TX5pmJGAgINK+eRxblb2AlrmtVroqHOG4jwlEzrZugHkUvdTcW2COekxGgcJp
-         Sl6nlzSCCwj8CUtb5WDF2YXqAKFKYddQ8yeRrvrZSc7NMWKGgszScqUCCnufhz27dQ
-         oopJi8fH/tZy7KhA9Nr4GX/dQOvHqqF/NPpJiFnU=
+        b=ki27J9mOd0GfVFehM2nCgArNcaIS6EJWUvWYelBJZeLB5r2B336+iqSzYM1oqxOQU
+         gyQttrh5nI1yd5juUltruugVa43FA/PhysgBa6YIY/Fcn5UwRFWHu3CzuRR7JxS4sO
+         pjoTv00s8NRwXzxTFbGrEwjePDeXd/re7MIhW+pI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0199/1157] arm64: dts: renesas: beacon: Fix regulator node names
-Date:   Mon, 15 Aug 2022 19:52:35 +0200
-Message-Id: <20220815180447.653235166@linuxfoundation.org>
+Subject: [PATCH 5.19 0200/1157] spi: spi-altera-dfl: Fix an error handling path
+Date:   Mon, 15 Aug 2022 19:52:36 +0200
+Message-Id: <20220815180447.683159381@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,58 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 7512af9f78dedea7e04225f665dad6750df7d095 ]
+[ Upstream commit 8e3ca32f46994e74b7f43c57731150b2aedb2630 ]
 
-Currently there are two nodes named "regulator_camera".  This causes the
-former to be overwritten by the latter.
+The spi_alloc_master() call is not undone in all error handling paths.
+Moreover, there is no .remove function to release the allocated memory.
 
-Fix this by renaming them to unique names, using the preferred hyphen
-instead of an underscore.
+In order to fix both this issues, switch to devm_spi_alloc_master().
 
-While at it, update the name of the audio regulator (which was added in
-the same commit) to use a hyphen.
+This allows further simplification of the probe.
 
-Fixes: a1d8a344f1ca0709 ("arm64: dts: renesas: Introduce r8a774a1-beacon-rzg2m-kit")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/a9ac82bdf108162487289d091c53a9b3de393f13.1652263918.git.geert+renesas@glider.be
+Fixes: ba2fc167e944 ("spi: altera: Add DFL bus driver for Altera API Controller")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/0607bb59f4073f86abe5c585d35245aef0b045c6.1653805901.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/spi/spi-altera-dfl.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi b/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
-index 142e7ffbd2bd..63e7a39e100e 100644
---- a/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
-+++ b/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
-@@ -146,7 +146,7 @@ rgb_panel: endpoint {
- 		};
- 	};
+diff --git a/drivers/spi/spi-altera-dfl.c b/drivers/spi/spi-altera-dfl.c
+index ca40923258af..596e181ae136 100644
+--- a/drivers/spi/spi-altera-dfl.c
++++ b/drivers/spi/spi-altera-dfl.c
+@@ -128,9 +128,9 @@ static int dfl_spi_altera_probe(struct dfl_device *dfl_dev)
+ 	struct spi_master *master;
+ 	struct altera_spi *hw;
+ 	void __iomem *base;
+-	int err = -ENODEV;
++	int err;
  
--	reg_audio: regulator_audio {
-+	reg_audio: regulator-audio {
- 		compatible = "regulator-fixed";
- 		regulator-name = "audio-1.8V";
- 		regulator-min-microvolt = <1800000>;
-@@ -174,7 +174,7 @@ reg_lcd_reset: regulator-lcd-reset {
- 		vin-supply = <&reg_lcd>;
- 	};
+-	master = spi_alloc_master(dev, sizeof(struct altera_spi));
++	master = devm_spi_alloc_master(dev, sizeof(struct altera_spi));
+ 	if (!master)
+ 		return -ENOMEM;
  
--	reg_cam0: regulator_camera {
-+	reg_cam0: regulator-cam0 {
- 		compatible = "regulator-fixed";
- 		regulator-name = "reg_cam0";
- 		regulator-min-microvolt = <1800000>;
-@@ -183,7 +183,7 @@ reg_cam0: regulator_camera {
- 		enable-active-high;
- 	};
+@@ -159,10 +159,9 @@ static int dfl_spi_altera_probe(struct dfl_device *dfl_dev)
+ 	altera_spi_init_master(master);
  
--	reg_cam1: regulator_camera {
-+	reg_cam1: regulator-cam1 {
- 		compatible = "regulator-fixed";
- 		regulator-name = "reg_cam1";
- 		regulator-min-microvolt = <1800000>;
+ 	err = devm_spi_register_master(dev, master);
+-	if (err) {
+-		dev_err(dev, "%s failed to register spi master %d\n", __func__, err);
+-		goto exit;
+-	}
++	if (err)
++		return dev_err_probe(dev, err, "%s failed to register spi master\n",
++				     __func__);
+ 
+ 	if (dfl_dev->revision == FME_FEATURE_REV_MAX10_SPI_N5010)
+ 		strscpy(board_info.modalias, "m10-n5010", SPI_NAME_SIZE);
+@@ -179,9 +178,6 @@ static int dfl_spi_altera_probe(struct dfl_device *dfl_dev)
+ 	}
+ 
+ 	return 0;
+-exit:
+-	spi_master_put(master);
+-	return err;
+ }
+ 
+ static const struct dfl_device_id dfl_spi_altera_ids[] = {
 -- 
 2.35.1
 
