@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 835DB594C04
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C4E1594DE1
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:35:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351171AbiHPA3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:29:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36102 "EHLO
+        id S232597AbiHPAbu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:31:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351671AbiHPA2f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:28:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48CE11815EE;
-        Mon, 15 Aug 2022 13:35:05 -0700 (PDT)
+        with ESMTP id S229939AbiHPAaK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:30:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D003F183122;
+        Mon, 15 Aug 2022 13:35:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7342F61089;
-        Mon, 15 Aug 2022 20:34:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62C0CC433D6;
-        Mon, 15 Aug 2022 20:34:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A490B811A5;
+        Mon, 15 Aug 2022 20:34:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABC55C433C1;
+        Mon, 15 Aug 2022 20:34:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595659;
-        bh=RZ0vulzf7UEz5azfjdo4BMoZmo2urF2aS/b4lpbo9RY=;
+        s=korg; t=1660595695;
+        bh=0DD4p/4boBuJc0WUfW/tRCXt/2UI7dH2bDTdd2p/vnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4nVmrJVCUcW29YZk3RtD68jptF+tmi3rG7Y3oY1wFihmk3PPEoYpUfNoY6uU8hz/
-         xgyjYqZhydlHth5EWhgQJUnorL1Bx/YB15/ExUpuvVy+urt43Eb7hmZx4sSeuiRVyW
-         EX8RFYMoai1FSiRDP+2uAHJbUNtewb9KaScleL2U=
+        b=GyEB22cPDCcCbpDtTbQeSYL3whCy8qeACyAlObdHy55YyPESp+a0SHGaS8w56gDGS
+         bhmQZ7nJnFAa4SGOGPSFy84bsNfu0FYQRGVrKCqInY34UXFnYioe6YJ1mgxFlKduoN
+         VpHv2wVccF/g4dsCHml/+er2IU3n+Czv4iWE+h/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cheng Xu <chengyou@linux.alibaba.com>,
+        stable@vger.kernel.org, Zhu Yanjun <yanjun.zhu@linux.dev>,
+        Bob Pearson <rpearsonhpe@gmail.com>,
+        Md Haris Iqbal <haris.iqbal@ionos.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0827/1157] RDMA/siw: Fix duplicated reported IW_CM_EVENT_CONNECT_REPLY event
-Date:   Mon, 15 Aug 2022 20:03:03 +0200
-Message-Id: <20220815180512.565150706@linuxfoundation.org>
+Subject: [PATCH 5.19 0828/1157] RDMA/rxe: Fix BUG: KASAN: null-ptr-deref in rxe_qp_do_cleanup
+Date:   Mon, 15 Aug 2022 20:03:04 +0200
+Message-Id: <20220815180512.603314197@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,71 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cheng Xu <chengyou@linux.alibaba.com>
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
 
-[ Upstream commit 3056fc6c32e613b760422b94c7617ac9a24a4721 ]
+[ Upstream commit 37da51efe6eaa0560f46803c8c436a48a2084da7 ]
 
-If siw_recv_mpa_rr returns -EAGAIN, it means that the MPA reply hasn't
-been received completely, and should not report IW_CM_EVENT_CONNECT_REPLY
-in this case. This may trigger a call trace in iw_cm. A simple way to
-trigger this:
- server: ib_send_lat
- client: ib_send_lat -R <server_ip>
+The function rxe_create_qp calls rxe_qp_from_init. If some error
+occurs, the error handler of function rxe_qp_from_init will set
+both scq and rcq to NULL.
 
-The call trace looks like this:
+Then rxe_create_qp calls rxe_put to handle qp. In the end,
+rxe_qp_do_cleanup is called by rxe_put. rxe_qp_do_cleanup directly
+accesses scq and rcq before checking them. This will cause
+null-ptr-deref error.
 
- kernel BUG at drivers/infiniband/core/iwcm.c:894!
- invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
- <...>
- Workqueue: iw_cm_wq cm_work_handler [iw_cm]
- Call Trace:
-  <TASK>
-  cm_work_handler+0x1dd/0x370 [iw_cm]
-  process_one_work+0x1e2/0x3b0
-  worker_thread+0x49/0x2e0
-  ? rescuer_thread+0x370/0x370
-  kthread+0xe5/0x110
-  ? kthread_complete_and_exit+0x20/0x20
-  ret_from_fork+0x1f/0x30
-  </TASK>
+The call graph is as below:
 
-Fixes: 6c52fdc244b5 ("rdma/siw: connection management")
-Link: https://lore.kernel.org/r/dae34b5fd5c2ea2bd9744812c1d2653a34a94c67.1657706960.git.chengyou@linux.alibaba.com
-Signed-off-by: Cheng Xu <chengyou@linux.alibaba.com>
+rxe_create_qp {
+  ...
+  rxe_qp_from_init {
+    ...
+  err1:
+    ...
+    qp->rcq = NULL;  <---rcq is set to NULL
+    qp->scq = NULL;  <---scq is set to NULL
+    ...
+  }
+
+qp_init:
+  rxe_put{
+    ...
+    rxe_qp_do_cleanup {
+      ...
+      atomic_dec(&qp->scq->num_wq); <--- scq is accessed
+      ...
+      atomic_dec(&qp->rcq->num_wq); <--- rcq is accessed
+    }
+}
+
+Fixes: 4703b4f0d94a ("RDMA/rxe: Enforce IBA C11-17")
+Link: https://lore.kernel.org/r/20220705225414.315478-1-yanjun.zhu@linux.dev
+Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
+Reviewed-by: Bob Pearson <rpearsonhpe@gmail.com>
+Reviewed-by: Md Haris Iqbal <haris.iqbal@ionos.com>
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_cm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw_cm.c b/drivers/infiniband/sw/siw/siw_cm.c
-index 17f34d584cd9..f88d2971c2c6 100644
---- a/drivers/infiniband/sw/siw/siw_cm.c
-+++ b/drivers/infiniband/sw/siw/siw_cm.c
-@@ -725,11 +725,11 @@ static int siw_proc_mpareply(struct siw_cep *cep)
- 	enum mpa_v2_ctrl mpa_p2p_mode = MPA_V2_RDMA_NO_RTR;
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index 22e9b85344c3..b79e1b43454e 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -804,13 +804,15 @@ static void rxe_qp_do_cleanup(struct work_struct *work)
+ 	if (qp->rq.queue)
+ 		rxe_queue_cleanup(qp->rq.queue);
  
- 	rv = siw_recv_mpa_rr(cep);
--	if (rv != -EAGAIN)
--		siw_cancel_mpatimer(cep);
- 	if (rv)
- 		goto out_err;
+-	atomic_dec(&qp->scq->num_wq);
+-	if (qp->scq)
++	if (qp->scq) {
++		atomic_dec(&qp->scq->num_wq);
+ 		rxe_put(qp->scq);
++	}
  
-+	siw_cancel_mpatimer(cep);
-+
- 	rep = &cep->mpa.hdr;
+-	atomic_dec(&qp->rcq->num_wq);
+-	if (qp->rcq)
++	if (qp->rcq) {
++		atomic_dec(&qp->rcq->num_wq);
+ 		rxe_put(qp->rcq);
++	}
  
- 	if (__mpa_rr_revision(rep->params.bits) > MPA_REVISION_2) {
-@@ -895,7 +895,8 @@ static int siw_proc_mpareply(struct siw_cep *cep)
- 	}
- 
- out_err:
--	siw_cm_upcall(cep, IW_CM_EVENT_CONNECT_REPLY, -EINVAL);
-+	if (rv != -EAGAIN)
-+		siw_cm_upcall(cep, IW_CM_EVENT_CONNECT_REPLY, -EINVAL);
- 
- 	return rv;
- }
+ 	if (qp->pd)
+ 		rxe_put(qp->pd);
 -- 
 2.35.1
 
