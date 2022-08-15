@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBB41594FD0
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:33:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78CE2594FBC
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:32:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229725AbiHPEdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:33:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55660 "EHLO
+        id S230000AbiHPEcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:32:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230155AbiHPEc3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:32:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50B3798D0E;
-        Mon, 15 Aug 2022 13:22:31 -0700 (PDT)
+        with ESMTP id S230034AbiHPEbq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:31:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8AF7C6B5F;
+        Mon, 15 Aug 2022 13:22:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BB8360F60;
-        Mon, 15 Aug 2022 20:22:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E64FC433B5;
-        Mon, 15 Aug 2022 20:22:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10E15B8119B;
+        Mon, 15 Aug 2022 20:22:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6894FC433C1;
+        Mon, 15 Aug 2022 20:22:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594949;
-        bh=CLb2CRwmF9oXdd5E1XXg3gFkEkQLgB9jbgr+dMD0jfE=;
+        s=korg; t=1660594952;
+        bh=bzFVUVkb0hL4tUDIprYYW0i2vps8384MfZ5C8L4/c+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xBXx1JFA8a/crXfCzIpgqX73FDPgs7hIUB1jy/9/qNFqSoiUxdBra0cBz5W842ZKO
-         QGSoAqnBvUnluz0U7CBWMX0gstpLMQd8i3Vmt2ukqBvMHVCQ9WItBsUQi4NuLIAZpc
-         OcaZwkelfI0Mp8OiOqf8GUQDiJay6R1TqiZbUVic=
+        b=hu+lJKwkGncSz16I0BLe/HI6iKI0XsSVb0+KUgfA9hH95umY61zAdFrzQFjq7R2IM
+         V+sfz4nhrv1NSdY1tSN9nP5TbH1JOcEIJDJKrBO/F8RURGK4sDcFpWOx1goiHgYUBR
+         KOokkS8VsV3x9D/iuncZB7hYaVGpy5/qYRmAqKb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Miaoqian Lin <linmq006@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0609/1157] usb: gadget: uvc: Fix comment blocks style
-Date:   Mon, 15 Aug 2022 19:59:25 +0200
-Message-Id: <20220815180504.016302518@linuxfoundation.org>
+Subject: [PATCH 5.19 0610/1157] usb: ohci-nxp: Fix refcount leak in ohci_hcd_nxp_probe
+Date:   Mon, 15 Aug 2022 19:59:26 +0200
+Message-Id: <20220815180504.046698561@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,204 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit c5d337a358b3e41bb4f7abd99a79b68a28eafaa2 ]
+[ Upstream commit 302970b4cad3ebfda2c05ce06c322ccdc447d17e ]
 
-The UVC gadget driver historically uses the
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-/* Comment
- * style
- */
-
-for multi-line block comments, which is frowned upon. Patches for the
-driver are required to use the more standard
-
-/*
- * Comment
- * style
- */
-
-style. This result in inconsistencies. Fix it by converting all
-remaining instances of the old style.
-
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://lore.kernel.org/r/20220608174918.14656-1-laurent.pinchart@ideasonboard.com
+Fixes: 73108aa90cbf ("USB: ohci-nxp: Use isp1301 driver")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220603141231.979-1-linmq006@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_uvc.c     | 30 ++++++++++++++++---------
- drivers/usb/gadget/function/uvc_queue.c |  6 +++--
- drivers/usb/gadget/function/uvc_video.c | 12 ++++++----
- 3 files changed, 31 insertions(+), 17 deletions(-)
+ drivers/usb/host/ohci-nxp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/gadget/function/f_uvc.c b/drivers/usb/gadget/function/f_uvc.c
-index d3feeeb50841..71669e0e4d00 100644
---- a/drivers/usb/gadget/function/f_uvc.c
-+++ b/drivers/usb/gadget/function/f_uvc.c
-@@ -141,7 +141,8 @@ static struct usb_endpoint_descriptor uvc_fs_streaming_ep = {
- 	.bEndpointAddress	= USB_DIR_IN,
- 	.bmAttributes		= USB_ENDPOINT_SYNC_ASYNC
- 				| USB_ENDPOINT_XFER_ISOC,
--	/* The wMaxPacketSize and bInterval values will be initialized from
-+	/*
-+	 * The wMaxPacketSize and bInterval values will be initialized from
- 	 * module parameters.
- 	 */
- };
-@@ -152,7 +153,8 @@ static struct usb_endpoint_descriptor uvc_hs_streaming_ep = {
- 	.bEndpointAddress	= USB_DIR_IN,
- 	.bmAttributes		= USB_ENDPOINT_SYNC_ASYNC
- 				| USB_ENDPOINT_XFER_ISOC,
--	/* The wMaxPacketSize and bInterval values will be initialized from
-+	/*
-+	 * The wMaxPacketSize and bInterval values will be initialized from
- 	 * module parameters.
- 	 */
- };
-@@ -164,7 +166,8 @@ static struct usb_endpoint_descriptor uvc_ss_streaming_ep = {
- 	.bEndpointAddress	= USB_DIR_IN,
- 	.bmAttributes		= USB_ENDPOINT_SYNC_ASYNC
- 				| USB_ENDPOINT_XFER_ISOC,
--	/* The wMaxPacketSize and bInterval values will be initialized from
-+	/*
-+	 * The wMaxPacketSize and bInterval values will be initialized from
- 	 * module parameters.
- 	 */
- };
-@@ -172,7 +175,8 @@ static struct usb_endpoint_descriptor uvc_ss_streaming_ep = {
- static struct usb_ss_ep_comp_descriptor uvc_ss_streaming_comp = {
- 	.bLength		= sizeof(uvc_ss_streaming_comp),
- 	.bDescriptorType	= USB_DT_SS_ENDPOINT_COMP,
--	/* The bMaxBurst, bmAttributes and wBytesPerInterval values will be
-+	/*
-+	 * The bMaxBurst, bmAttributes and wBytesPerInterval values will be
- 	 * initialized from module parameters.
- 	 */
- };
-@@ -234,7 +238,8 @@ uvc_function_setup(struct usb_function *f, const struct usb_ctrlrequest *ctrl)
- 	if (le16_to_cpu(ctrl->wLength) > UVC_MAX_REQUEST_SIZE)
- 		return -EINVAL;
- 
--	/* Tell the complete callback to generate an event for the next request
-+	/*
-+	 * Tell the complete callback to generate an event for the next request
- 	 * that will be enqueued by UVCIOC_SEND_RESPONSE.
- 	 */
- 	uvc->event_setup_out = !(ctrl->bRequestType & USB_DIR_IN);
-@@ -500,7 +505,8 @@ uvc_copy_descriptors(struct uvc_device *uvc, enum usb_device_speed speed)
- 	if (!uvc_control_desc || !uvc_streaming_cls)
- 		return ERR_PTR(-ENODEV);
- 
--	/* Descriptors layout
-+	/*
-+	 * Descriptors layout
- 	 *
- 	 * uvc_iad
- 	 * uvc_control_intf
-@@ -597,8 +603,7 @@ uvc_function_bind(struct usb_configuration *c, struct usb_function *f)
- 	uvcg_info(f, "%s()\n", __func__);
- 
- 	opts = fi_to_f_uvc_opts(f->fi);
--	/* Sanity check the streaming endpoint module parameters.
--	 */
-+	/* Sanity check the streaming endpoint module parameters. */
- 	opts->streaming_interval = clamp(opts->streaming_interval, 1U, 16U);
- 	opts->streaming_maxpacket = clamp(opts->streaming_maxpacket, 1U, 3072U);
- 	opts->streaming_maxburst = min(opts->streaming_maxburst, 15U);
-@@ -611,7 +616,8 @@ uvc_function_bind(struct usb_configuration *c, struct usb_function *f)
- 			  opts->streaming_maxpacket);
+diff --git a/drivers/usb/host/ohci-nxp.c b/drivers/usb/host/ohci-nxp.c
+index 85878e8ad331..106a6bcefb08 100644
+--- a/drivers/usb/host/ohci-nxp.c
++++ b/drivers/usb/host/ohci-nxp.c
+@@ -164,6 +164,7 @@ static int ohci_hcd_nxp_probe(struct platform_device *pdev)
  	}
  
--	/* Fill in the FS/HS/SS Video Streaming specific descriptors from the
-+	/*
-+	 * Fill in the FS/HS/SS Video Streaming specific descriptors from the
- 	 * module parameters.
- 	 *
- 	 * NOTE: We assume that the user knows what they are doing and won't
-@@ -895,7 +901,8 @@ static void uvc_function_unbind(struct usb_configuration *c,
+ 	isp1301_i2c_client = isp1301_get_client(isp1301_node);
++	of_node_put(isp1301_node);
+ 	if (!isp1301_i2c_client)
+ 		return -EPROBE_DEFER;
  
- 	uvcg_info(f, "%s()\n", __func__);
- 
--	/* If we know we're connected via v4l2, then there should be a cleanup
-+	/*
-+	 * If we know we're connected via v4l2, then there should be a cleanup
- 	 * of the device from userspace either via UVC_EVENT_DISCONNECT or
- 	 * though the video device removal uevent. Allow some time for the
- 	 * application to close out before things get deleted.
-@@ -912,7 +919,8 @@ static void uvc_function_unbind(struct usb_configuration *c,
- 	v4l2_device_unregister(&uvc->v4l2_dev);
- 
- 	if (uvc->func_connected) {
--		/* Wait for the release to occur to ensure there are no longer any
-+		/*
-+		 * Wait for the release to occur to ensure there are no longer any
- 		 * pending operations that may cause panics when resources are cleaned
- 		 * up.
- 		 */
-diff --git a/drivers/usb/gadget/function/uvc_queue.c b/drivers/usb/gadget/function/uvc_queue.c
-index d25edc3d2174..951934aa4454 100644
---- a/drivers/usb/gadget/function/uvc_queue.c
-+++ b/drivers/usb/gadget/function/uvc_queue.c
-@@ -104,7 +104,8 @@ static void uvc_buffer_queue(struct vb2_buffer *vb)
- 	if (likely(!(queue->flags & UVC_QUEUE_DISCONNECTED))) {
- 		list_add_tail(&buf->queue, &queue->irqqueue);
- 	} else {
--		/* If the device is disconnected return the buffer to userspace
-+		/*
-+		 * If the device is disconnected return the buffer to userspace
- 		 * directly. The next QBUF call will fail with -ENODEV.
- 		 */
- 		buf->state = UVC_BUF_STATE_ERROR;
-@@ -255,7 +256,8 @@ void uvcg_queue_cancel(struct uvc_video_queue *queue, int disconnect)
- 	}
- 	queue->buf_used = 0;
- 
--	/* This must be protected by the irqlock spinlock to avoid race
-+	/*
-+	 * This must be protected by the irqlock spinlock to avoid race
- 	 * conditions between uvc_queue_buffer and the disconnection event that
- 	 * could result in an interruptible wait in uvc_dequeue_buffer. Do not
- 	 * blindly replace this logic by checking for the UVC_DEV_DISCONNECTED
-diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-index d42bb3346745..ce421d9cc241 100644
---- a/drivers/usb/gadget/function/uvc_video.c
-+++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -378,7 +378,8 @@ static void uvcg_video_pump(struct work_struct *work)
- 	int ret;
- 
- 	while (video->ep->enabled) {
--		/* Retrieve the first available USB request, protected by the
-+		/*
-+		 * Retrieve the first available USB request, protected by the
- 		 * request lock.
- 		 */
- 		spin_lock_irqsave(&video->req_lock, flags);
-@@ -391,7 +392,8 @@ static void uvcg_video_pump(struct work_struct *work)
- 		list_del(&req->list);
- 		spin_unlock_irqrestore(&video->req_lock, flags);
- 
--		/* Retrieve the first available video buffer and fill the
-+		/*
-+		 * Retrieve the first available video buffer and fill the
- 		 * request, protected by the video queue irqlock.
- 		 */
- 		spin_lock_irqsave(&queue->irqlock, flags);
-@@ -403,9 +405,11 @@ static void uvcg_video_pump(struct work_struct *work)
- 
- 		video->encode(req, video, buf);
- 
--		/* With usb3 we have more requests. This will decrease the
-+		/*
-+		 * With usb3 we have more requests. This will decrease the
- 		 * interrupt load to a quarter but also catches the corner
--		 * cases, which needs to be handled */
-+		 * cases, which needs to be handled.
-+		 */
- 		if (list_empty(&video->req_free) ||
- 		    buf->state == UVC_BUF_STATE_DONE ||
- 		    !(video->req_int_count %
 -- 
 2.35.1
 
