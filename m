@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91E70593ADA
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C60D6593D53
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343765AbiHOT5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:57:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55268 "EHLO
+        id S1345752AbiHOT6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:58:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345997AbiHOT4w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:56:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1BB578200;
-        Mon, 15 Aug 2022 11:52:47 -0700 (PDT)
+        with ESMTP id S1346122AbiHOT5M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:57:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 766CF78239;
+        Mon, 15 Aug 2022 11:53:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39D4FB810AB;
-        Mon, 15 Aug 2022 18:52:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FAF0C433C1;
-        Mon, 15 Aug 2022 18:52:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3C20B810A2;
+        Mon, 15 Aug 2022 18:52:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08C8FC433D6;
+        Mon, 15 Aug 2022 18:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589562;
-        bh=eFaHFkpV57iAEFT1udc1njZg4czBYhPhe2DlhD1mYqw=;
+        s=korg; t=1660589578;
+        bh=Mm2TQnNtAU1OIa9pBcT16BOP94kV2EU0Mc9jDIVa3Rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BtpWjTC6wzHXVStPWPzc4P8fkfBb5UYkcHR+WEYJyLnAkWKYZG6ONFGLkH9kXic4G
-         Ld4WuPPxbLY3i/MEl210b8ZAVSJ1X6RnjlYIKDw/bfSzWL6MsLgBFkvIYGQl0xh1uF
-         UGNQY8UYW2fb7Ra8O8TfGgRusBfGmOuTYhbuclm8=
+        b=llK3758Nd4M/3hu6Gtk5Z1psApLfY302/P6Gyoy4sU0MTMQk1MsyGpZYkGpBt72M1
+         tlHPO9J4QJMt4cAZxrUOzeBAqI7CjYv6GkHgD0nof5qW7Dz6Uzq4PQHojWPOARR5+H
+         0hDOd81vYhUaYSGFnSGQhei7v35nhnmIltdKUcUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Sachin Sant <sachinp@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 730/779] ACPI: CPPC: Do not prevent CPPC from working in the future
-Date:   Mon, 15 Aug 2022 20:06:14 +0200
-Message-Id: <20220815180408.656338304@linuxfoundation.org>
+Subject: [PATCH 5.15 731/779] powerpc/powernv/kvm: Use darn for H_RANDOM on Power9
+Date:   Mon, 15 Aug 2022 20:06:15 +0200
+Message-Id: <20220815180408.693168428@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,129 +55,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 4f4179fcf420873002035cf1941d844c9e0e7cb3 ]
+[ Upstream commit 7ef3d06f1bc4a5e62273726f3dc2bd258ae1c71f ]
 
-There is a problem with the current revision checks in
-is_cppc_supported() that they essentially prevent the CPPC support
-from working if a new _CPC package format revision being a proper
-superset of the v3 and only causing _CPC to return a package with more
-entries (while retaining the types and meaning of the entries defined by
-the v3) is introduced in the future and used by the platform firmware.
+The existing logic in KVM to support guests calling H_RANDOM only works
+on Power8, because it looks for an RNG in the device tree, but on Power9
+we just use darn.
 
-In that case, as long as the number of entries in the _CPC return
-package is at least CPPC_V3_NUM_ENT, it should be perfectly fine to
-use the v3 support code and disregard the additional package entries
-added by the new package format revision.
+In addition the existing code needs to work in real mode, so we have the
+special cased powernv_get_random_real_mode() to deal with that.
 
-For this reason, drop is_cppc_supported() altogether, put the revision
-checks directly into acpi_cppc_processor_probe() so they are easier to
-follow and rework them to take the case mentioned above into account.
+Instead just have KVM call ppc_md.get_random_seed(), and do the real
+mode check inside of there, that way we use whatever RNG is available,
+including darn on Power9.
 
-Fixes: 4773e77cdc9b ("ACPI / CPPC: Add support for CPPC v3")
-Cc: 4.18+ <stable@vger.kernel.org> # 4.18+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: e928e9cb3601 ("KVM: PPC: Book3S HV: Add fast real-mode H_RANDOM implementation.")
+Cc: stable@vger.kernel.org # v4.1+
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Tested-by: Sachin Sant <sachinp@linux.ibm.com>
+[mpe: Rebase on previous commit, update change log appropriately]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220727143219.2684192-2-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/cppc_acpi.c | 54 ++++++++++++++++++----------------------
- include/acpi/cppc_acpi.h |  2 +-
- 2 files changed, 25 insertions(+), 31 deletions(-)
+ arch/powerpc/include/asm/archrandom.h |  5 ----
+ arch/powerpc/kvm/book3s_hv_builtin.c  |  7 +++---
+ arch/powerpc/platforms/powernv/rng.c  | 36 ++++++---------------------
+ 3 files changed, 12 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
-index ed1341030684..7cc9183c8dc8 100644
---- a/drivers/acpi/cppc_acpi.c
-+++ b/drivers/acpi/cppc_acpi.c
-@@ -597,33 +597,6 @@ static int pcc_data_alloc(int pcc_ss_id)
- 	return 0;
- }
+diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
+index 9a53e29680f4..258174304904 100644
+--- a/arch/powerpc/include/asm/archrandom.h
++++ b/arch/powerpc/include/asm/archrandom.h
+@@ -38,12 +38,7 @@ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ #endif /* CONFIG_ARCH_RANDOM */
  
--/* Check if CPPC revision + num_ent combination is supported */
--static bool is_cppc_supported(int revision, int num_ent)
+ #ifdef CONFIG_PPC_POWERNV
+-int powernv_hwrng_present(void);
+ int powernv_get_random_long(unsigned long *v);
+-int powernv_get_random_real_mode(unsigned long *v);
+-#else
+-static inline int powernv_hwrng_present(void) { return 0; }
+-static inline int powernv_get_random_real_mode(unsigned long *v) { return 0; }
+ #endif
+ 
+ #endif /* _ASM_POWERPC_ARCHRANDOM_H */
+diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
+index 70b7a8f97153..b148629b7f03 100644
+--- a/arch/powerpc/kvm/book3s_hv_builtin.c
++++ b/arch/powerpc/kvm/book3s_hv_builtin.c
+@@ -20,7 +20,7 @@
+ #include <asm/interrupt.h>
+ #include <asm/kvm_ppc.h>
+ #include <asm/kvm_book3s.h>
+-#include <asm/archrandom.h>
++#include <asm/machdep.h>
+ #include <asm/xics.h>
+ #include <asm/xive.h>
+ #include <asm/dbell.h>
+@@ -177,13 +177,14 @@ EXPORT_SYMBOL_GPL(kvmppc_hcall_impl_hv_realmode);
+ 
+ int kvmppc_hwrng_present(void)
+ {
+-	return powernv_hwrng_present();
++	return ppc_md.get_random_seed != NULL;
+ }
+ EXPORT_SYMBOL_GPL(kvmppc_hwrng_present);
+ 
+ long kvmppc_rm_h_random(struct kvm_vcpu *vcpu)
+ {
+-	if (powernv_get_random_real_mode(&vcpu->arch.regs.gpr[4]))
++	if (ppc_md.get_random_seed &&
++	    ppc_md.get_random_seed(&vcpu->arch.regs.gpr[4]))
+ 		return H_SUCCESS;
+ 
+ 	return H_HARDWARE;
+diff --git a/arch/powerpc/platforms/powernv/rng.c b/arch/powerpc/platforms/powernv/rng.c
+index a99033c3dce7..5f81ff9b5265 100644
+--- a/arch/powerpc/platforms/powernv/rng.c
++++ b/arch/powerpc/platforms/powernv/rng.c
+@@ -29,15 +29,6 @@ struct powernv_rng {
+ 
+ static DEFINE_PER_CPU(struct powernv_rng *, powernv_rng);
+ 
+-int powernv_hwrng_present(void)
 -{
--	int expected_num_ent;
+-	struct powernv_rng *rng;
 -
--	switch (revision) {
--	case CPPC_V2_REV:
--		expected_num_ent = CPPC_V2_NUM_ENT;
--		break;
--	case CPPC_V3_REV:
--		expected_num_ent = CPPC_V3_NUM_ENT;
--		break;
--	default:
--		pr_debug("Firmware exports unsupported CPPC revision: %d\n",
--			revision);
--		return false;
--	}
--
--	if (expected_num_ent != num_ent) {
--		pr_debug("Firmware exports %d entries. Expected: %d for CPPC rev:%d\n",
--			num_ent, expected_num_ent, revision);
--		return false;
--	}
--
--	return true;
+-	rng = get_cpu_var(powernv_rng);
+-	put_cpu_var(rng);
+-	return rng != NULL;
 -}
 -
- /*
-  * An example CPC table looks like the following.
-  *
-@@ -723,7 +696,6 @@ int acpi_cppc_processor_probe(struct acpi_processor *pr)
- 				cpc_obj->type);
- 		goto out_free;
- 	}
--	cpc_ptr->num_entries = num_ent;
+ static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
+ {
+ 	unsigned long parity;
+@@ -58,19 +49,6 @@ static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
+ 	return val;
+ }
  
- 	/* Second entry should be revision. */
- 	cpc_obj = &out_obj->package.elements[1];
-@@ -734,10 +706,32 @@ int acpi_cppc_processor_probe(struct acpi_processor *pr)
- 				cpc_obj->type);
- 		goto out_free;
- 	}
--	cpc_ptr->version = cpc_rev;
+-int powernv_get_random_real_mode(unsigned long *v)
+-{
+-	struct powernv_rng *rng;
+-
+-	rng = raw_cpu_read(powernv_rng);
+-	if (!rng)
+-		return 0;
+-
+-	*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
+-
+-	return 1;
+-}
+-
+ static int powernv_get_random_darn(unsigned long *v)
+ {
+ 	unsigned long val;
+@@ -107,12 +85,14 @@ int powernv_get_random_long(unsigned long *v)
+ {
+ 	struct powernv_rng *rng;
  
--	if (!is_cppc_supported(cpc_rev, num_ent))
-+	if (cpc_rev < CPPC_V2_REV) {
-+		pr_debug("Unsupported _CPC Revision (%d) for CPU:%d\n", cpc_rev,
-+			 pr->id);
-+		goto out_free;
+-	rng = get_cpu_var(powernv_rng);
+-
+-	*v = rng_whiten(rng, in_be64(rng->regs));
+-
+-	put_cpu_var(rng);
+-
++	if (mfmsr() & MSR_DR) {
++		rng = get_cpu_var(powernv_rng);
++		*v = rng_whiten(rng, in_be64(rng->regs));
++		put_cpu_var(rng);
++	} else {
++		rng = raw_cpu_read(powernv_rng);
++		*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
 +	}
-+
-+	/*
-+	 * Disregard _CPC if the number of entries in the return pachage is not
-+	 * as expected, but support future revisions being proper supersets of
-+	 * the v3 and only causing more entries to be returned by _CPC.
-+	 */
-+	if ((cpc_rev == CPPC_V2_REV && num_ent != CPPC_V2_NUM_ENT) ||
-+	    (cpc_rev == CPPC_V3_REV && num_ent != CPPC_V3_NUM_ENT) ||
-+	    (cpc_rev > CPPC_V3_REV && num_ent <= CPPC_V3_NUM_ENT)) {
-+		pr_debug("Unexpected number of _CPC return package entries (%d) for CPU:%d\n",
-+			 num_ent, pr->id);
- 		goto out_free;
-+	}
-+	if (cpc_rev > CPPC_V3_REV) {
-+		num_ent = CPPC_V3_NUM_ENT;
-+		cpc_rev = CPPC_V3_REV;
-+	}
-+
-+	cpc_ptr->num_entries = num_ent;
-+	cpc_ptr->version = cpc_rev;
- 
- 	/* Iterate through remaining entries in _CPC */
- 	for (i = 2; i < num_ent; i++) {
-diff --git a/include/acpi/cppc_acpi.h b/include/acpi/cppc_acpi.h
-index bc159a9b4a73..6b14414b9ec1 100644
---- a/include/acpi/cppc_acpi.h
-+++ b/include/acpi/cppc_acpi.h
-@@ -17,7 +17,7 @@
- #include <acpi/pcc.h>
- #include <acpi/processor.h>
- 
--/* Support CPPCv2 and CPPCv3  */
-+/* CPPCv2 and CPPCv3 support */
- #define CPPC_V2_REV	2
- #define CPPC_V3_REV	3
- #define CPPC_V2_NUM_ENT	21
+ 	return 1;
+ }
+ EXPORT_SYMBOL_GPL(powernv_get_random_long);
 -- 
 2.35.1
 
