@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00E965948C3
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:09:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C951594CCA
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344640AbiHOXRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:17:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44130 "EHLO
+        id S1343507AbiHPAsH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:48:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345716AbiHOXOg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:14:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC5737B7B6;
-        Mon, 15 Aug 2022 13:01:58 -0700 (PDT)
+        with ESMTP id S1349037AbiHPAqa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:46:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B303179E2F;
+        Mon, 15 Aug 2022 13:45:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69716B80EB1;
-        Mon, 15 Aug 2022 20:01:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6DCFC433D6;
-        Mon, 15 Aug 2022 20:01:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A73A061255;
+        Mon, 15 Aug 2022 20:45:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0513C433D6;
+        Mon, 15 Aug 2022 20:45:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593716;
-        bh=geG3EKKdOHyDZLYebALnLg3fdfRC7s9NhQsW9+1V4lE=;
+        s=korg; t=1660596315;
+        bh=9xf/wJIL8Fjz7AVda5uQ/KOzGGQUM6Oll1SGbX8WFT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jejkiS8mf9RZzInKyWGvtX9+lKe0WRpCIRqXNYS9sU744jeI79wOpRAgoM8pX9+YS
-         RbWfIiHu7WoSyR5fl1eeCbhGYJ+ah8rvrXg8aY30IT5g1JNBMH3pkZhpnrliDCIoh6
-         moRP/1mzK/u3caM5ZURlMZn5+Aac47t5fAzEwd6w=
+        b=DWma6PGTeN2k4lnWe18mYUUc8E/FwaEoBP33QqlIAmqbbbOwK9OH9EhYJyAR45aNe
+         8h2YDdHvn/DkADV2ZLM7W1MJZue/YzLn96yLKFxDFBoM86MhD4ID2f6R7behFdVSJi
+         0mLgHM1QWreZyxwDEKWNJqhNg7BQx7XSUzN/JlJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0995/1095] iommu/vt-d: avoid invalid memory access via node_online(NUMA_NO_NODE)
-Date:   Mon, 15 Aug 2022 20:06:34 +0200
-Message-Id: <20220815180510.283977673@linuxfoundation.org>
+        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.19 1039/1157] scsi: qla2xxx: Fix excessive I/O error messages by default
+Date:   Mon, 15 Aug 2022 20:06:35 +0200
+Message-Id: <20220815180521.549662149@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,66 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit b0b0b77ea611e3088e9523e60860f4f41b62b235 ]
+commit bff4873c709085e09d0ffae0c25b8e65256e3205 upstream.
 
-KASAN reports:
+Disable printing I/O error messages by default.  The messages will be
+printed only when logging was enabled.
 
-[ 4.668325][ T0] BUG: KASAN: wild-memory-access in dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
-[    4.676149][    T0] Read of size 8 at addr 1fffffff85115558 by task swapper/0/0
-[    4.683454][    T0]
-[    4.685638][    T0] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.19.0-rc3-00004-g0e862838f290 #1
-[    4.694331][    T0] Hardware name: Supermicro SYS-5018D-FN4T/X10SDV-8C-TLN4F, BIOS 1.1 03/02/2016
-[    4.703196][    T0] Call Trace:
-[    4.706334][    T0]  <TASK>
-[ 4.709133][ T0] ? dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
-
-after converting the type of the first argument (@nr, bit number)
-of arch_test_bit() from `long` to `unsigned long`[0].
-
-Under certain conditions (for example, when ACPI NUMA is disabled
-via command line), pxm_to_node() can return %NUMA_NO_NODE (-1).
-It is valid 'magic' number of NUMA node, but not valid bit number
-to use in bitops.
-node_online() eventually descends to test_bit() without checking
-for the input, assuming it's on caller side (which might be good
-for perf-critical tasks). There, -1 becomes %ULONG_MAX which leads
-to an insane array index when calculating bit position in memory.
-
-For now, add an explicit check for @node being not %NUMA_NO_NODE
-before calling test_bit(). The actual logics didn't change here
-at all.
-
-[0] https://github.com/norov/linux/commit/0e862838f290147ea9c16db852d8d494b552d38d
-
-Fixes: ee34b32d8c29 ("dmar: support for parsing Remapping Hardware Static Affinity structure")
-Cc: stable@vger.kernel.org # 2.6.33+
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220616053508.27186-2-njavali@marvell.com
+Fixes: 8e2d81c6b5be ("scsi: qla2xxx: Fix excessive messages during device logout")
+Cc: stable@vger.kernel.org
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel/dmar.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_isr.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
-index 497c5bd95caf..2a10c9b54064 100644
---- a/drivers/iommu/intel/dmar.c
-+++ b/drivers/iommu/intel/dmar.c
-@@ -495,7 +495,7 @@ static int dmar_parse_one_rhsa(struct acpi_dmar_header *header, void *arg)
- 		if (drhd->reg_base_addr == rhsa->base_address) {
- 			int node = pxm_to_node(rhsa->proximity_domain);
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -2637,7 +2637,7 @@ static void qla24xx_nvme_iocb_entry(scsi
+ 	}
  
--			if (!node_online(node))
-+			if (node != NUMA_NO_NODE && !node_online(node))
- 				node = NUMA_NO_NODE;
- 			drhd->iommu->node = node;
- 			return 0;
--- 
-2.35.1
-
+ 	if (unlikely(logit))
+-		ql_log(ql_dbg_io, fcport->vha, 0x5060,
++		ql_dbg(ql_dbg_io, fcport->vha, 0x5060,
+ 		   "NVME-%s ERR Handling - hdl=%x status(%x) tr_len:%x resid=%x  ox_id=%x\n",
+ 		   sp->name, sp->handle, comp_status,
+ 		   fd->transferred_length, le32_to_cpu(sts->residual_len),
+@@ -3495,7 +3495,7 @@ check_scsi_status:
+ 
+ out:
+ 	if (logit)
+-		ql_log(ql_dbg_io, fcport->vha, 0x3022,
++		ql_dbg(ql_dbg_io, fcport->vha, 0x3022,
+ 		       "FCP command status: 0x%x-0x%x (0x%x) nexus=%ld:%d:%llu portid=%02x%02x%02x oxid=0x%x cdb=%10phN len=0x%x rsp_info=0x%x resid=0x%x fw_resid=0x%x sp=%p cp=%p.\n",
+ 		       comp_status, scsi_status, res, vha->host_no,
+ 		       cp->device->id, cp->device->lun, fcport->d_id.b.domain,
 
 
