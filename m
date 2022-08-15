@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FC8559350D
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:27:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 123255934BC
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:27:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239942AbiHOSS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:18:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58798 "EHLO
+        id S237787AbiHOSPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:15:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239866AbiHOSSW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:18:22 -0400
+        with ESMTP id S233567AbiHOSOy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:14:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CE532B61D;
-        Mon, 15 Aug 2022 11:15:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DD012AC62;
+        Mon, 15 Aug 2022 11:14:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B79C961299;
-        Mon, 15 Aug 2022 18:15:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4D2AC433D6;
-        Mon, 15 Aug 2022 18:15:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA81361283;
+        Mon, 15 Aug 2022 18:14:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D21E1C433D6;
+        Mon, 15 Aug 2022 18:14:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587354;
-        bh=musA/adu+OaoSS9A8oVAYwrN4pp+t9NhjPKiqJJdkMM=;
+        s=korg; t=1660587255;
+        bh=irsJIKL53q/IUaB0vpdqENRJHPJd0EtL0r96d2ea8dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YSOaPG8zTh7BA0RMx7ErBvDM/9F9cab9E72hKUlNxJ+8k+aLIhlW8rwGKnKkCAnce
-         s80d0lZm8oTSb8VbPXVnVQWbST8ptPW67mo3tmto6FAltuYsE6IYKYOpIQ9l3b7yq1
-         pJ1QcixQv2LybZxoTCtXGh69YHAgjnHYolEuleYc=
+        b=IsB0q3z7nkoju83T+hSTbO1JCuRvEOJRV/Y1Pp8VnNNEuy3nqJi9suXhBZERc7Ezn
+         sudMh2Ds6/wfmFcCyxK6YOZ5lvtdbhfXJaoYI/jfvzOzH3wTxHunJIAzjmNf7++QT6
+         9keH2282C6qWeruRH+yR4JtVNgo82sBGHotoRh8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, Eric Li <ercli@ucdavis.edu>,
+        Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 026/779] KVM: nVMX: Account for KVM reserved CR4 bits in consistency checks
-Date:   Mon, 15 Aug 2022 19:54:30 +0200
-Message-Id: <20220815180338.325363963@linuxfoundation.org>
+Subject: [PATCH 5.15 027/779] KVM: nVMX: Inject #UD if VMXON is attempted with incompatible CR0/CR4
+Date:   Mon, 15 Aug 2022 19:54:31 +0200
+Message-Id: <20220815180338.373688419@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,43 +56,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit ca58f3aa53d165afe4ab74c755bc2f6d168617ac upstream.
+commit c7d855c2aff2d511fd60ee2e356134c4fb394799 upstream.
 
-Check that the guest (L2) and host (L1) CR4 values that would be loaded
-by nested VM-Enter and VM-Exit respectively are valid with respect to
-KVM's (L0 host) allowed CR4 bits.  Failure to check KVM reserved bits
-would allow L1 to load an illegal CR4 (or trigger hardware VM-Fail or
-failed VM-Entry) by massaging guest CPUID to allow features that are not
-supported by KVM.  Amusingly, KVM itself is an accomplice in its doom, as
-KVM adjusts L1's MSR_IA32_VMX_CR4_FIXED1 to allow L1 to enable bits for
-L2 based on L1's CPUID model.
+Inject a #UD if L1 attempts VMXON with a CR0 or CR4 that is disallowed
+per the associated nested VMX MSRs' fixed0/1 settings.  KVM cannot rely
+on hardware to perform the checks, even for the few checks that have
+higher priority than VM-Exit, as (a) KVM may have forced CR0/CR4 bits in
+hardware while running the guest, (b) there may incompatible CR0/CR4 bits
+that have lower priority than VM-Exit, e.g. CR0.NE, and (c) userspace may
+have further restricted the allowed CR0/CR4 values by manipulating the
+guest's nested VMX MSRs.
 
-Note, although nested_{guest,host}_cr4_valid() are _currently_ used if
-and only if the vCPU is post-VMXON (nested.vmxon == true), that may not
-be true in the future, e.g. emulating VMXON has a bug where it doesn't
-check the allowed/required CR0/CR4 bits.
+Note, despite a very strong desire to throw shade at Jim, commit
+70f3aac964ae ("kvm: nVMX: Remove superfluous VMX instruction fault checks")
+is not to blame for the buggy behavior (though the comment...).  That
+commit only removed the CR0.PE, EFLAGS.VM, and COMPATIBILITY mode checks
+(though it did erroneously drop the CPL check, but that has already been
+remedied).  KVM may force CR0.PE=1, but will do so only when also
+forcing EFLAGS.VM=1 to emulate Real Mode, i.e. hardware will still #UD.
 
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216033
+Fixes: ec378aeef9df ("KVM: nVMX: Implement VMXON and VMXOFF")
+Reported-by: Eric Li <ercli@ucdavis.edu>
 Cc: stable@vger.kernel.org
-Fixes: 3899152ccbf4 ("KVM: nVMX: fix checks on CR{0,4} during virtual VMX operation")
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220607213604.3346000-3-seanjc@google.com>
+Message-Id: <20220607213604.3346000-4-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kvm/vmx/nested.c |   23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.h
-+++ b/arch/x86/kvm/vmx/nested.h
-@@ -280,7 +280,8 @@ static inline bool nested_cr4_valid(stru
- 	u64 fixed0 = to_vmx(vcpu)->nested.msrs.cr4_fixed0;
- 	u64 fixed1 = to_vmx(vcpu)->nested.msrs.cr4_fixed1;
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -4952,20 +4952,25 @@ static int handle_vmon(struct kvm_vcpu *
+ 		| FEAT_CTL_VMX_ENABLED_OUTSIDE_SMX;
  
--	return fixed_bits_valid(val, fixed0, fixed1);
-+	return fixed_bits_valid(val, fixed0, fixed1) &&
-+	       __kvm_is_valid_cr4(vcpu, val);
- }
+ 	/*
+-	 * The Intel VMX Instruction Reference lists a bunch of bits that are
+-	 * prerequisite to running VMXON, most notably cr4.VMXE must be set to
+-	 * 1 (see vmx_is_valid_cr4() for when we allow the guest to set this).
+-	 * Otherwise, we should fail with #UD.  But most faulting conditions
+-	 * have already been checked by hardware, prior to the VM-exit for
+-	 * VMXON.  We do test guest cr4.VMXE because processor CR4 always has
+-	 * that bit set to 1 in non-root mode.
++	 * Note, KVM cannot rely on hardware to perform the CR0/CR4 #UD checks
++	 * that have higher priority than VM-Exit (see Intel SDM's pseudocode
++	 * for VMXON), as KVM must load valid CR0/CR4 values into hardware while
++	 * running the guest, i.e. KVM needs to check the _guest_ values.
++	 *
++	 * Rely on hardware for the other two pre-VM-Exit checks, !VM86 and
++	 * !COMPATIBILITY modes.  KVM may run the guest in VM86 to emulate Real
++	 * Mode, but KVM will never take the guest out of those modes.
+ 	 */
+-	if (!kvm_read_cr4_bits(vcpu, X86_CR4_VMXE)) {
++	if (!nested_host_cr0_valid(vcpu, kvm_read_cr0(vcpu)) ||
++	    !nested_host_cr4_valid(vcpu, kvm_read_cr4(vcpu))) {
+ 		kvm_queue_exception(vcpu, UD_VECTOR);
+ 		return 1;
+ 	}
  
- /* No difference in the restrictions on guest and host CR4 in VMX operation. */
+-	/* CPL=0 must be checked manually. */
++	/*
++	 * CPL=0 and all other checks that are lower priority than VM-Exit must
++	 * be checked manually.
++	 */
+ 	if (vmx_get_cpl(vcpu)) {
+ 		kvm_inject_gp(vcpu, 0);
+ 		return 1;
 
 
