@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A70559358C
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF17593582
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241532AbiHOS12 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:27:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57590 "EHLO
+        id S241114AbiHOS1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:27:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242456AbiHOS0J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:26:09 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E24142FFDD;
-        Mon, 15 Aug 2022 11:19:10 -0700 (PDT)
+        with ESMTP id S242757AbiHOS00 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:26:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 257A930F46;
+        Mon, 15 Aug 2022 11:19:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3B73BCE125A;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 164A7B81077;
+        Mon, 15 Aug 2022 18:18:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DF83C433D7;
         Mon, 15 Aug 2022 18:18:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09517C433C1;
-        Mon, 15 Aug 2022 18:18:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587527;
-        bh=zn7mZIOUKopCQiK6wEEUIfGvCikAD5V+7KAuofMwnWA=;
+        s=korg; t=1660587530;
+        bh=1sPZN9zAK9b0nXMwsiefYVa2gH9pSAB6Wy3GSLMBpQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cu8+jNVCy0/EWo30Czx35oDLJyIJfctfe4PNKrqGiQ2GZx4kPtEHyh0boxjH4vilS
-         qNEEbeVRelndfHvbX0zQ7rCq6n+QzuVvcVqkok/RHDK/riQ3YpE/if1srnQ+m9nzfH
-         dLSp6DnojCubWtC+1eOCxKwncMB939KF3L3Dqv5Y=
+        b=fgTSBiVjqM3IYcQghKckCVYJzYKeM4fxsIcbqTOaamSMIDHCKvtcsxHuRa+6mrnUt
+         umkYMwxF20KrD7vZ5I3jqaHuRJCQdpEpS+PJiJiChmCN/LiwQxKv339X/KEgnRM8PR
+         DnXiygkuiXJXnjCJ0ykpS+JXrTxk4Ev05xPY8gwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org,
+        Francis Laniel <flaniel@linux.microsoft.com>,
         Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 112/779] arch: make TRACE_IRQFLAGS_NMI_SUPPORT generic
-Date:   Mon, 15 Aug 2022 19:55:56 +0200
-Message-Id: <20220815180342.129998677@linuxfoundation.org>
+Subject: [PATCH 5.15 113/779] arm64: Do not forget syscall when starting a new thread.
+Date:   Mon, 15 Aug 2022 19:55:57 +0200
+Message-Id: <20220815180342.160664688@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,93 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Francis Laniel <flaniel@linux.microsoft.com>
 
-[ Upstream commit 4510bffb4d0246cdcc1f14c7367c026b807a862d ]
+[ Upstream commit de6921856f99c11d3986c6702d851e1328d4f7f6 ]
 
-On most architectures, IRQ flag tracing is disabled in NMI context, and
-architectures need to define and select TRACE_IRQFLAGS_NMI_SUPPORT in
-order to enable this.
+Enable tracing of the execve*() system calls with the
+syscalls:sys_exit_execve tracepoint by removing the call to
+forget_syscall() when starting a new thread and preserving the value of
+regs->syscallno across exec.
 
-Commit:
-
-  859d069ee1ddd878 ("lockdep: Prepare for NMI IRQ state tracking")
-
-Permitted IRQ flag tracing in NMI context, allowing lockdep to work in
-NMI context where an architecture had suitable entry logic. At the time,
-most architectures did not have such suitable entry logic, and this broke
-lockdep on such architectures. Thus, this was partially disabled in
-commit:
-
-  ed00495333ccc80f ("locking/lockdep: Fix TRACE_IRQFLAGS vs. NMIs")
-
-... with architectures needing to select TRACE_IRQFLAGS_NMI_SUPPORT to
-enable IRQ flag tracing in NMI context.
-
-Currently TRACE_IRQFLAGS_NMI_SUPPORT is defined under
-arch/x86/Kconfig.debug. Move it to arch/Kconfig so architectures can
-select it without having to provide their own definition.
-
-Since the regular TRACE_IRQFLAGS_SUPPORT is selected by
-arch/x86/Kconfig, the select of TRACE_IRQFLAGS_NMI_SUPPORT is moved
-there too.
-
-There should be no functional change as a result of this patch.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20220511131733.4074499-2-mark.rutland@arm.com
+Signed-off-by: Francis Laniel <flaniel@linux.microsoft.com>
+Link: https://lore.kernel.org/r/20220608162447.666494-2-flaniel@linux.microsoft.com
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/Kconfig           | 3 +++
- arch/x86/Kconfig       | 1 +
- arch/x86/Kconfig.debug | 3 ---
- 3 files changed, 4 insertions(+), 3 deletions(-)
+ arch/arm64/include/asm/processor.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/Kconfig b/arch/Kconfig
-index 191589f26b1a..5987363b41c2 100644
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -200,6 +200,9 @@ config HAVE_NMI
- config TRACE_IRQFLAGS_SUPPORT
- 	bool
+diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
+index 5e73d7f7d1e7..d9bf3d12a2b8 100644
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -204,8 +204,9 @@ void tls_preserve_current_state(void);
  
-+config TRACE_IRQFLAGS_NMI_SUPPORT
-+	bool
-+
- #
- # An arch should select this if it provides all these things:
- #
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index fe6981a38795..57f5e881791a 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -260,6 +260,7 @@ config X86
- 	select SYSCTL_EXCEPTION_TRACE
- 	select THREAD_INFO_IN_TASK
- 	select TRACE_IRQFLAGS_SUPPORT
-+	select TRACE_IRQFLAGS_NMI_SUPPORT
- 	select USER_STACKTRACE_SUPPORT
- 	select VIRT_TO_BUS
- 	select HAVE_ARCH_KCSAN			if X86_64
-diff --git a/arch/x86/Kconfig.debug b/arch/x86/Kconfig.debug
-index d3a6f74a94bd..d4d6db4dde22 100644
---- a/arch/x86/Kconfig.debug
-+++ b/arch/x86/Kconfig.debug
-@@ -1,8 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
+ static inline void start_thread_common(struct pt_regs *regs, unsigned long pc)
+ {
++	s32 previous_syscall = regs->syscallno;
+ 	memset(regs, 0, sizeof(*regs));
+-	forget_syscall(regs);
++	regs->syscallno = previous_syscall;
+ 	regs->pc = pc;
  
--config TRACE_IRQFLAGS_NMI_SUPPORT
--	def_bool y
--
- config EARLY_PRINTK_USB
- 	bool
- 
+ 	if (system_uses_irq_prio_masking())
 -- 
 2.35.1
 
