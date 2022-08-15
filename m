@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49FA1593CDA
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 381BF593B72
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242686AbiHOTt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:49:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55478 "EHLO
+        id S1344928AbiHOTtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:49:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344565AbiHOTr0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:47:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9252A71737;
-        Mon, 15 Aug 2022 11:49:40 -0700 (PDT)
+        with ESMTP id S1344976AbiHOTsE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:48:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4760742AC3;
+        Mon, 15 Aug 2022 11:49:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2FA88B810A1;
-        Mon, 15 Aug 2022 18:49:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62311C433C1;
-        Mon, 15 Aug 2022 18:49:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64513B810A0;
+        Mon, 15 Aug 2022 18:49:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AADB0C433D6;
+        Mon, 15 Aug 2022 18:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589377;
-        bh=THYaxhYxEtt5DwL3NnXBSqE1FH6qDsr39tfqXb4p+iA=;
+        s=korg; t=1660589381;
+        bh=o7H7UAVGrrpPOWxQzTHEeKccaB3z4bO8liOCqHQkIlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rd/278UB4SHCwcCfdz8X7aX975cruP6mwc07y5q5MSq4mWpmAHNMYGhx1+igS2L6m
-         eltcw3k3wKBUVHEhQZwUCa2Uv27JRoe5lkKqTCFCxGA9lciqR5xep4riebl1PaUSYe
-         RmxUmjr7ZcuVRakvb54rZs0R2pj2w+x8Fznun5Uk=
+        b=dHOGAt2FMMxcYZxj2c39W+5g5FHXOTJ4zLd11igKNBsVS8NyL+eE982lzOn5BpZ98
+         RUZRctl+8I8HxcWTDqR4sOlSRyoMx08o+J8Sc6npiz+rwrUT+BeU4qhH/uhc5Bk9yx
+         CQzdP1B6KfgZzzFQAjjmGPMt2bgM1GQ3o8ugOnTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 668/779] video: fbdev: s3fb: Check the size of screen before memset_io()
-Date:   Mon, 15 Aug 2022 20:05:12 +0200
-Message-Id: <20220815180405.892058097@linuxfoundation.org>
+        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
+        Peter Wang <peter.wang@mediatek.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 669/779] scsi: ufs: core: Correct ufshcd_shutdown() flow
+Date:   Mon, 15 Aug 2022 20:05:13 +0200
+Message-Id: <20220815180405.942124712@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,49 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Peter Wang <peter.wang@mediatek.com>
 
-[ Upstream commit 6ba592fa014f21f35a8ee8da4ca7b95a018f13e8 ]
+commit 00511d2abf5708ad05dd5d1c36adb2468d274698 upstream.
 
-In the function s3fb_set_par(), the value of 'screen_size' is
-calculated by the user input. If the user provides the improper value,
-the value of 'screen_size' may larger than 'info->screen_size', which
-may cause the following bug:
+After ufshcd_wl_shutdown() set device power off and link off,
+ufshcd_shutdown() could turn off clock/power. Also remove
+pm_runtime_get_sync.
 
-[   54.083733] BUG: unable to handle page fault for address: ffffc90003000000
-[   54.083742] #PF: supervisor write access in kernel mode
-[   54.083744] #PF: error_code(0x0002) - not-present page
-[   54.083760] RIP: 0010:memset_orig+0x33/0xb0
-[   54.083782] Call Trace:
-[   54.083788]  s3fb_set_par+0x1ec6/0x4040
-[   54.083806]  fb_set_var+0x604/0xeb0
-[   54.083836]  do_fb_ioctl+0x234/0x670
+The reason why it is safe to remove pm_runtime_get_sync() is because:
 
-Fix the this by checking the value of 'screen_size' before memset_io().
+ - ufshcd_wl_shutdown() -> pm_runtime_get_sync() will resume hba->dev too.
 
-Fixes: a268422de8bf ("fbdev driver for S3 Trio/Virge")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ - device resume(turn on clk/power) is not required, even if device is in
+   RPM_SUSPENDED.
+
+Link: https://lore.kernel.org/r/20220727030526.31022-1-peter.wang@mediatek.com
+Fixes: b294ff3e3449 ("scsi: ufs: core: Enable power management for wlun")
+Cc: <stable@vger.kernel.org> # 5.15.x
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Peter Wang <peter.wang@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/s3fb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/ufs/ufshcd.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/video/fbdev/s3fb.c b/drivers/video/fbdev/s3fb.c
-index 5c74253e7b2c..a936455a3df2 100644
---- a/drivers/video/fbdev/s3fb.c
-+++ b/drivers/video/fbdev/s3fb.c
-@@ -902,6 +902,8 @@ static int s3fb_set_par(struct fb_info *info)
- 	value = clamp((htotal + hsstart + 1) / 2 + 2, hsstart + 4, htotal + 1);
- 	svga_wcrt_multi(par->state.vgabase, s3_dtpc_regs, value);
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -9239,12 +9239,8 @@ EXPORT_SYMBOL(ufshcd_runtime_resume);
+ int ufshcd_shutdown(struct ufs_hba *hba)
+ {
+ 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
+-		goto out;
++		ufshcd_suspend(hba);
  
-+	if (screen_size > info->screen_size)
-+		screen_size = info->screen_size;
- 	memset_io(info->screen_base, 0x00, screen_size);
- 	/* Device and screen back on */
- 	svga_wcrt_mask(par->state.vgabase, 0x17, 0x80, 0x80);
--- 
-2.35.1
-
+-	pm_runtime_get_sync(hba->dev);
+-
+-	ufshcd_suspend(hba);
+-out:
+ 	hba->is_powered = false;
+ 	/* allow force shutdown even in case of errors */
+ 	return 0;
 
 
