@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 194FE594FB2
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:31:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E317594FB5
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:31:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230052AbiHPEbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:31:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47832 "EHLO
+        id S229493AbiHPEbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:31:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230014AbiHPEbR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:31:17 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 991CD16658A;
-        Mon, 15 Aug 2022 13:22:52 -0700 (PDT)
+        with ESMTP id S229454AbiHPEbT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:31:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4714416658C;
+        Mon, 15 Aug 2022 13:22:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5B312CE12DE;
-        Mon, 15 Aug 2022 20:22:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3059DC433C1;
-        Mon, 15 Aug 2022 20:22:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 530F76108F;
+        Mon, 15 Aug 2022 20:22:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4405DC433C1;
+        Mon, 15 Aug 2022 20:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594968;
-        bh=2iiww0YZVx3IsAfXGgFTGknilWMD0Hkj0gj15HbjlMg=;
+        s=korg; t=1660594971;
+        bh=xL5a/gAxJH4uFQYlVestcdxCd6X4ul2rdgS4aszoXTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZdRcUG/Ec9MbF5GgK36iizLEzsdSEGWOptT35dtYmYr2xtNO7QiTbsi1GbEXQNwFN
-         USm+yZ2Y53Lpz/C/zMk5wl/Aw66DOR/k3Q4+oX41514TM5eqmdjq5A0BD981JKkk2b
-         A6U7i22HsROZXCg47K4aoFhoUimNijKsl7130AJY=
+        b=wd+Vx8c8RugAkywiyzYfNGmill+LN7O6nNiz1icso0hLhgniCQHWwOZVEkIquqpfh
+         7OwgCBRt0zgigD5Pmj+kXe5Pd1M571zjproJvv3eAjdugLrYflAIDthFXzImOsrQAC
+         kNuTiWoQBimvIcPdh+ctAvx6sl8R7BPkRBAma88c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tang Bin <tangbin@cmss.chinamobile.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0614/1157] usb: xhci: tegra: Fix error check
-Date:   Mon, 15 Aug 2022 19:59:30 +0200
-Message-Id: <20220815180504.209528033@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0615/1157] dmaengine: dw: dmamux: Export the module device table
+Date:   Mon, 15 Aug 2022 19:59:31 +0200
+Message-Id: <20220815180504.255234231@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -53,47 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tang Bin <tangbin@cmss.chinamobile.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 18fc7c435be3f17ea26a21b2e2312fcb9088e01f ]
+[ Upstream commit 2717d33841957a0f5fb65fd8b37f9c2321593864 ]
 
-In the function tegra_xusb_powerdomain_init(),
-dev_pm_domain_attach_by_name() may return NULL in some cases,
-so IS_ERR() doesn't meet the requirements. Thus fix it.
+This is a tristate driver that can be built as a module, as a result,
+the OF match table should be exported with MODULE_DEVICE_TABLE().
 
-Fixes: 6494a9ad86de ("usb: xhci: tegra: Add genpd support")
-Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
-Link: https://lore.kernel.org/r/20220524121404.18376-1-tangbin@cmss.chinamobile.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 134d9c52fca2 ("dmaengine: dw: dmamux: Introduce RZN1 DMA router support")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20220609141455.300879-1-miquel.raynal@bootlin.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-tegra.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/dma/dw/rzn1-dmamux.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/host/xhci-tegra.c b/drivers/usb/host/xhci-tegra.c
-index 996958a6565c..bdb776553826 100644
---- a/drivers/usb/host/xhci-tegra.c
-+++ b/drivers/usb/host/xhci-tegra.c
-@@ -1010,15 +1010,15 @@ static int tegra_xusb_powerdomain_init(struct device *dev,
- 	int err;
+diff --git a/drivers/dma/dw/rzn1-dmamux.c b/drivers/dma/dw/rzn1-dmamux.c
+index 11d254e450b0..0ce4fb58185e 100644
+--- a/drivers/dma/dw/rzn1-dmamux.c
++++ b/drivers/dma/dw/rzn1-dmamux.c
+@@ -140,6 +140,7 @@ static const struct of_device_id rzn1_dmamux_match[] = {
+ 	{ .compatible = "renesas,rzn1-dmamux" },
+ 	{}
+ };
++MODULE_DEVICE_TABLE(of, rzn1_dmamux_match);
  
- 	tegra->genpd_dev_host = dev_pm_domain_attach_by_name(dev, "xusb_host");
--	if (IS_ERR(tegra->genpd_dev_host)) {
--		err = PTR_ERR(tegra->genpd_dev_host);
-+	if (IS_ERR_OR_NULL(tegra->genpd_dev_host)) {
-+		err = PTR_ERR(tegra->genpd_dev_host) ? : -ENODATA;
- 		dev_err(dev, "failed to get host pm-domain: %d\n", err);
- 		return err;
- 	}
- 
- 	tegra->genpd_dev_ss = dev_pm_domain_attach_by_name(dev, "xusb_ss");
--	if (IS_ERR(tegra->genpd_dev_ss)) {
--		err = PTR_ERR(tegra->genpd_dev_ss);
-+	if (IS_ERR_OR_NULL(tegra->genpd_dev_ss)) {
-+		err = PTR_ERR(tegra->genpd_dev_ss) ? : -ENODATA;
- 		dev_err(dev, "failed to get superspeed pm-domain: %d\n", err);
- 		return err;
- 	}
+ static struct platform_driver rzn1_dmamux_driver = {
+ 	.driver = {
 -- 
 2.35.1
 
