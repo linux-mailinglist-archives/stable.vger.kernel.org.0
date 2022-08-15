@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60910593196
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 17:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 235855931A1
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 17:19:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242768AbiHOPQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 11:16:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59296 "EHLO
+        id S229628AbiHOPSn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 11:18:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243202AbiHOPQo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 11:16:44 -0400
-Received: from mail-vs1-xe2b.google.com (mail-vs1-xe2b.google.com [IPv6:2607:f8b0:4864:20::e2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69F5D11836;
-        Mon, 15 Aug 2022 08:16:32 -0700 (PDT)
-Received: by mail-vs1-xe2b.google.com with SMTP id q190so7433015vsb.7;
-        Mon, 15 Aug 2022 08:16:32 -0700 (PDT)
+        with ESMTP id S242952AbiHOPS0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 11:18:26 -0400
+Received: from mail-vs1-xe29.google.com (mail-vs1-xe29.google.com [IPv6:2607:f8b0:4864:20::e29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9283422B00;
+        Mon, 15 Aug 2022 08:18:24 -0700 (PDT)
+Received: by mail-vs1-xe29.google.com with SMTP id s129so7429918vsb.11;
+        Mon, 15 Aug 2022 08:18:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc;
-        bh=wM8iPZoAXi42FT4t2AioDoDVZN+Ha9JWz4JcAwfRUqU=;
-        b=o2qEIjwHvwleXVrXD4QZ879qN2vCJ7ekZOy0MqaG3g1jm2eWI+mfpbS3c49cfpGfU/
-         Lyjyg5bs9LEBGdTkw77qn87wf5lXlnLeI5rGXPeARgv84l82JtE89q29xA5sGjSXnqE8
-         COl8yilTg/mjhkcVF8FbzAB6RljtHjO/hukZhEs+bGZFSFWI08GeuEw/22wQYiwqaK65
-         8WiSahk2CfNmrVqg6fMzw/U6+uz7jY49FEJ5Da+iCC68TQ4YfmPUeHQjKavHmNJvS12A
-         LfR+GNJZxJAJtoj6RtvOckJzJglKrnfaAImOtPzylNBwCQUIQ+iO2FbUvsIqP3WLtPQz
-         wz6A==
+        bh=Tw0mKg1eiprXvUlSjUgU/ilfOQ+v+x5I0qY8WFzm1HY=;
+        b=HTvcN943EpRY338D0+9n/XeYYWbHdlXhtjsTUAE+ziye3PXO3ssRvTmLo2525S2t7B
+         uUAPtgIGyKsj8m46R+SAQBADCHpbUZhyOZcb5nXKoSYOl47B4lHfwPLAjXFY4LbRhEHA
+         CYeL2yO0AAyFaPtJnI8uNph6SiR16Ctw6c+HbbwwcjHWx1jgcU3Q0uAGseGOEeK2x/HW
+         t6ijlu3hGyHlpbsgI8HFC38cwBO78rMW0BGB83qWPfO3NNlfbu8riGhyD96G5HPI2f/+
+         Q8ajKQYg6JHSpXFkkxdotd193bDJWYcjnRwfU2EvARbYXBNxANVjrC+yFrYCVgcP8kgf
+         fz4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc;
-        bh=wM8iPZoAXi42FT4t2AioDoDVZN+Ha9JWz4JcAwfRUqU=;
-        b=nVu/gtD6RiSZCSb5VHH5NCibOB+5YTCIrX7U82/+0yECKivjSA2dTw/AU/bKbKYh3v
-         7GcDeij1b4awO48vdOxnlrWnVRCzh8JfsadI5KtadkEM0kPBtFh3cJfSCPWWS9RmwGym
-         qH2EnEm1M37Sqjs+EZlRTziBcfDaLMPaRKw1BkqBwItmjGWTCrw8evoKXAy8dG/+4D/b
-         r0AyvhK9r8wwGgR6EjxGqrEB61Bff6db8k/mzjcOUj3+4uqt7CEfzHiDCJRXLC3bE3Ot
-         ReKYYALiVtuBeXSh868BEEma4LfzdlVduKy1mYvBaUCx60kdfOOblYnC+lU322M4yJA5
-         9D7A==
-X-Gm-Message-State: ACgBeo3JKsNe7JRVqHF9Em7P1c8RRQaeR+VHWjVIRqi2V+e6TPgE7uqY
-        Q+x53pYTFVk7SYWJjHKKOBo=
-X-Google-Smtp-Source: AA6agR7CE7/3IMCPJy4XeuTbCr8hcfHNraU1m1PXYrfZVxrw2Kmht348ZbhjAoXJKd289lRHfKFriA==
-X-Received: by 2002:a05:6102:5e6:b0:385:361:5892 with SMTP id w6-20020a05610205e600b0038503615892mr6464648vsf.7.1660576591219;
-        Mon, 15 Aug 2022 08:16:31 -0700 (PDT)
+        bh=Tw0mKg1eiprXvUlSjUgU/ilfOQ+v+x5I0qY8WFzm1HY=;
+        b=CorIEUbb4RPkBkWeR/yup8aBuzOGhxA1E8p63iS/u7ZTGC7jDPMhhnjheSqxahl+bD
+         Uer2EEQ/kiL/b3c2uuo8g0p+zSpM2XiLxrv5wt3oIFcuArp/Z0zTQy1hziCa1Upqmwha
+         lri/sDjDeU+ePzB8eEv2L5/s6Xg1Pa44GenlW3yCm5pzZuNiLJAh3o23xxI/cwUHJ6T+
+         V7OQJuUZ3p5Q1SqY/s6W62znmFFhO8ykDyXRpslE/bO1uU+1FZEzA2kDl7liZXa3x4gv
+         K36mXN0/KvUTy+kKiZknYxnaB3PLite5a8SUA6dRWuhvmiJAfyzCyJKPlDOms2T0cexK
+         N6Zg==
+X-Gm-Message-State: ACgBeo2ogTst95R1Kfbpp3YBamCJ/CSNrjr2X8QNZJ8bS2+9VoC7tcT/
+        qfH2kKGre2z8bmp+SvJ8I58=
+X-Google-Smtp-Source: AA6agR4SVUITKBqLHLNx85tZkgYa/rSNt+pOvgH4N5iBwSFtYWU7WIrGAGwsuJzhphEADKTuanHMlg==
+X-Received: by 2002:a67:f595:0:b0:388:9591:abd4 with SMTP id i21-20020a67f595000000b003889591abd4mr6238286vso.42.1660576703562;
+        Mon, 15 Aug 2022 08:18:23 -0700 (PDT)
 Received: from laptop.. ([2804:14c:71:8fe6:44c:4bb9:384e:eda5])
-        by smtp.gmail.com with ESMTPSA id y12-20020ab05b8c000000b003844b2e1462sm5368338uae.13.2022.08.15.08.16.28
+        by smtp.gmail.com with ESMTPSA id w6-20020ab076c6000000b00383c1958249sm5351425uaq.24.2022.08.15.08.18.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Aug 2022 08:16:30 -0700 (PDT)
+        Mon, 15 Aug 2022 08:18:23 -0700 (PDT)
 From:   Jose Alonso <joalonsof@gmail.com>
 To:     "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
@@ -54,9 +54,9 @@ Cc:     netdev <netdev@vger.kernel.org>, stable <stable@vger.kernel.org>,
         Ronald Wahl <ronald.wahl@raritan.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Jose Alonso <joalonsof@gmail.com>
-Subject: [PATCH stable 5.15.x] Revert "net: usb: ax88179_178a needs FLAG_SEND_ZLP"
-Date:   Mon, 15 Aug 2022 12:16:18 -0300
-Message-Id: <20220815151618.319023-1-joalonsof@gmail.com>
+Subject: [PATCH stable 5.10.x] Revert "net: usb: ax88179_178a needs FLAG_SEND_ZLP"
+Date:   Mon, 15 Aug 2022 12:18:15 -0300
+Message-Id: <20220815151815.319075-1-joalonsof@gmail.com>
 X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -95,7 +95,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  1 file changed, 10 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
-index e1b9b78b474e..0a2c3860179e 100644
+index 0ac4f59e3f18..79a53fe245e5 100644
 --- a/drivers/net/usb/ax88179_178a.c
 +++ b/drivers/net/usb/ax88179_178a.c
 @@ -1796,7 +1796,7 @@ static const struct driver_info ax88179_info = {
