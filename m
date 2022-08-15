@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F4B759424F
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52DDF59423C
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349606AbiHOVsP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:48:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33676 "EHLO
+        id S1349284AbiHOVr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:47:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350120AbiHOVrN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:47:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48AC75F12E;
-        Mon, 15 Aug 2022 12:31:01 -0700 (PDT)
+        with ESMTP id S1350233AbiHOVra (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:47:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D75B20BFA;
+        Mon, 15 Aug 2022 12:31:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21371B8107A;
-        Mon, 15 Aug 2022 19:31:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79C21C433D6;
-        Mon, 15 Aug 2022 19:30:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A1931610A3;
+        Mon, 15 Aug 2022 19:31:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7250C433D6;
+        Mon, 15 Aug 2022 19:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591858;
-        bh=7Lvbr3yWglt5qIfD10p3dizhg1TsWM9D8DoP5cAkLTQ=;
+        s=korg; t=1660591880;
+        bh=UOH6REFJS8cP2N9uoUPHkUleTOhh+U4QEU+B7D5bc6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d773Nw+REw55AD6h01+PJzjIqop8COkygmOGdmPAdRqZ4VD+5GHNFNtl9IdZFAuCq
-         77mKePj4Y+7aHergu2r2NmAV+LafBPEO2GutlrtovWqUYgy2iOoTIyLJhm5DZ2e5qP
-         1R4OPD0cRHn2casgBNR5Uk0ialDgfk7jFJ95eJZU=
+        b=HFFIlybauDg/ardgHNbMvLYzlOFR0uhbgsdKJVUeYpuvwSMhv3dqbKoEFLX3gAbB1
+         DWKbVzpaVATnklPa289Dl/+9sbA6JktZao2EUBU58DGl+a6jcYoYbd9huOTZyCHxzc
+         XniqxbFm3R5AW+avxZybqyQ8TaHxTuyqdTRq/vUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0691/1095] mtd: hyperbus: rpc-if: Fix RPM imbalance in probe error path
-Date:   Mon, 15 Aug 2022 20:01:30 +0200
-Message-Id: <20220815180457.960816982@linuxfoundation.org>
+Subject: [PATCH 5.18 0693/1095] clk: qcom: camcc-sm8250: Fix halt on boot by reducing drivers init level
+Date:   Mon, 15 Aug 2022 20:01:32 +0200
+Message-Id: <20220815180458.050992029@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -58,51 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
-[ Upstream commit c223a38d62e57aa60a890ea7247e3c58a54478e6 ]
+[ Upstream commit c4f40351901a10cd662ac2c081396d8fb04f584d ]
 
-If rpcif_hw_init() fails, Runtime PM is left enabled.
+Access to I/O of SM8250 camera clock controller IP depends on enabled
+GCC_CAMERA_AHB_CLK clock supplied by global clock controller, the latter
+one is inited on subsys level, so, to satisfy the dependency, it would
+make sense to deprive the init level of camcc-sm8250 driver.
 
-Fixes: b04cc0d912eb80d3 ("memory: renesas-rpc-if: Add support for RZ/G2L")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/f3070e1af480cb252ae183d479a593dbbf947685.1655457790.git.geert+renesas@glider.be
+If both drivers are compiled as built-in, there is a change that a board
+won't boot up due to a race, which happens on the same init level.
+
+Fixes: 5d66ca79b58c ("clk: qcom: Add camera clock controller driver for SM8250")
+Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Tested-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220518103554.949511-1-vladimir.zapolskiy@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/hyperbus/rpc-if.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/clk/qcom/camcc-sm8250.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/drivers/mtd/hyperbus/rpc-if.c b/drivers/mtd/hyperbus/rpc-if.c
-index 6e08ec1d4f09..b70d259e48a7 100644
---- a/drivers/mtd/hyperbus/rpc-if.c
-+++ b/drivers/mtd/hyperbus/rpc-if.c
-@@ -134,7 +134,7 @@ static int rpcif_hb_probe(struct platform_device *pdev)
+diff --git a/drivers/clk/qcom/camcc-sm8250.c b/drivers/clk/qcom/camcc-sm8250.c
+index 439eaafdcc86..ae4e9774f36e 100644
+--- a/drivers/clk/qcom/camcc-sm8250.c
++++ b/drivers/clk/qcom/camcc-sm8250.c
+@@ -2440,17 +2440,7 @@ static struct platform_driver cam_cc_sm8250_driver = {
+ 	},
+ };
  
- 	error = rpcif_hw_init(&hyperbus->rpc, true);
- 	if (error)
--		return error;
-+		goto out_disable_rpm;
+-static int __init cam_cc_sm8250_init(void)
+-{
+-	return platform_driver_register(&cam_cc_sm8250_driver);
+-}
+-subsys_initcall(cam_cc_sm8250_init);
+-
+-static void __exit cam_cc_sm8250_exit(void)
+-{
+-	platform_driver_unregister(&cam_cc_sm8250_driver);
+-}
+-module_exit(cam_cc_sm8250_exit);
++module_platform_driver(cam_cc_sm8250_driver);
  
- 	hyperbus->hbdev.map.size = hyperbus->rpc.size;
- 	hyperbus->hbdev.map.virt = hyperbus->rpc.dirmap;
-@@ -145,8 +145,12 @@ static int rpcif_hb_probe(struct platform_device *pdev)
- 	hyperbus->hbdev.np = of_get_next_child(pdev->dev.parent->of_node, NULL);
- 	error = hyperbus_register_device(&hyperbus->hbdev);
- 	if (error)
--		rpcif_disable_rpm(&hyperbus->rpc);
-+		goto out_disable_rpm;
-+
-+	return 0;
- 
-+out_disable_rpm:
-+	rpcif_disable_rpm(&hyperbus->rpc);
- 	return error;
- }
- 
+ MODULE_DESCRIPTION("QTI CAMCC SM8250 Driver");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.35.1
 
