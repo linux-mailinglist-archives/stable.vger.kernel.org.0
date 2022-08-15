@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04A1B594707
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:58:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12E3859472C
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245602AbiHOX3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:29:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34120 "EHLO
+        id S245295AbiHOX3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:29:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244480AbiHOXYK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:24:10 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F61A7FE5E;
-        Mon, 15 Aug 2022 13:05:47 -0700 (PDT)
+        with ESMTP id S245313AbiHOXZk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:25:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C592BA158;
+        Mon, 15 Aug 2022 13:06:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CC268CE12E9;
-        Mon, 15 Aug 2022 20:05:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6687CC433C1;
-        Mon, 15 Aug 2022 20:05:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B26E4B80EA8;
+        Mon, 15 Aug 2022 20:06:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1AEDC433D6;
+        Mon, 15 Aug 2022 20:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593944;
-        bh=XHiBzFvb+eLbGtcLFq0MqwzvtpGwgrJ2dHXZcprAbDQ=;
+        s=korg; t=1660593959;
+        bh=+83nn2Vmra04i9vGT7jKTSovy3N5iVDyO+3QwXpaetQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X3tn1MUmCVOh9uKvRvzyGwhTqweiJr3cY7SYsO/BWiLA3vphmrZh8lGdP1EM+tfKC
-         DK5DZnYw4BPmOoiq4IlsebEqnQe+5wrfn13ptrVBoywG+6EHqsDyUkLw+K6xF9gG7h
-         dZjpYeBYNtp1Y9ePDJsa8D2hMQnvK1fKAY4l0ANo=
+        b=j22rfsS4EHktNElLY1/DHBQFpMAcoDvK5CwF/ysnPRMLDdQKXZeAszgOfIHlyR0sA
+         fPcc2naNqnUNTDk8c9f8BPD2E24a/GHfL5ZsmXBznfhnhRDy9cFswya0uhBhjWwayN
+         yjMGU5TLRBB0ku6CQ34MhXiJIalQo6QX2OR/mxS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
+        stable@vger.kernel.org, Peng Wu <wupeng58@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0352/1157] crypto: sun8i-ss - fix error codes in allocate_flows()
-Date:   Mon, 15 Aug 2022 19:55:08 +0200
-Message-Id: <20220815180453.799055997@linuxfoundation.org>
+Subject: [PATCH 5.19 0354/1157] crypto: sun8i-ss - fix a NULL vs IS_ERR() check in sun8i_ss_hashkey
+Date:   Mon, 15 Aug 2022 19:55:10 +0200
+Message-Id: <20220815180453.869574638@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,66 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Peng Wu <wupeng58@huawei.com>
 
-[ Upstream commit d2765e1b9ac4b2d5a5d5bf17f468c9b3566c3770 ]
+[ Upstream commit 7e8df1fc2d669d04c1f8a9e2d61d7afba1b43df4 ]
 
-These failure paths should return -ENOMEM.  Currently they return
-success.
+The crypto_alloc_shash() function never returns NULL. It returns error
+pointers.
 
-Fixes: 359e893e8af4 ("crypto: sun8i-ss - rework handling of IV")
-Fixes: 8eec4563f152 ("crypto: sun8i-ss - do not allocate memory when handling hash requests")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Fixes: 801b7d572c0a ("crypto: sun8i-ss - add hmac(sha1)")
+Signed-off-by: Peng Wu <wupeng58@huawei.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../crypto/allwinner/sun8i-ss/sun8i-ss-core.c    | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-index 98593a0cff69..ac2329e2b0e5 100644
---- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-+++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-@@ -528,25 +528,33 @@ static int allocate_flows(struct sun8i_ss_dev *ss)
+diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
+index 845019bd9591..36a82b22953c 100644
+--- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
++++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
+@@ -30,8 +30,8 @@ static int sun8i_ss_hashkey(struct sun8i_ss_hash_tfm_ctx *tfmctx, const u8 *key,
+ 	int ret = 0;
  
- 		ss->flows[i].biv = devm_kmalloc(ss->dev, AES_BLOCK_SIZE,
- 						GFP_KERNEL | GFP_DMA);
--		if (!ss->flows[i].biv)
-+		if (!ss->flows[i].biv) {
-+			err = -ENOMEM;
- 			goto error_engine;
-+		}
+ 	xtfm = crypto_alloc_shash("sha1", 0, CRYPTO_ALG_NEED_FALLBACK);
+-	if (!xtfm)
+-		return -ENOMEM;
++	if (IS_ERR(xtfm))
++		return PTR_ERR(xtfm);
  
- 		for (j = 0; j < MAX_SG; j++) {
- 			ss->flows[i].iv[j] = devm_kmalloc(ss->dev, AES_BLOCK_SIZE,
- 							  GFP_KERNEL | GFP_DMA);
--			if (!ss->flows[i].iv[j])
-+			if (!ss->flows[i].iv[j]) {
-+				err = -ENOMEM;
- 				goto error_engine;
-+			}
- 		}
- 
- 		/* the padding could be up to two block. */
- 		ss->flows[i].pad = devm_kmalloc(ss->dev, MAX_PAD_SIZE,
- 						GFP_KERNEL | GFP_DMA);
--		if (!ss->flows[i].pad)
-+		if (!ss->flows[i].pad) {
-+			err = -ENOMEM;
- 			goto error_engine;
-+		}
- 		ss->flows[i].result = devm_kmalloc(ss->dev, SHA256_DIGEST_SIZE,
- 						   GFP_KERNEL | GFP_DMA);
--		if (!ss->flows[i].result)
-+		if (!ss->flows[i].result) {
-+			err = -ENOMEM;
- 			goto error_engine;
-+		}
- 
- 		ss->flows[i].engine = crypto_engine_alloc_init(ss->dev, true);
- 		if (!ss->flows[i].engine) {
+ 	len = sizeof(*sdesc) + crypto_shash_descsize(xtfm);
+ 	sdesc = kmalloc(len, GFP_KERNEL);
 -- 
 2.35.1
 
