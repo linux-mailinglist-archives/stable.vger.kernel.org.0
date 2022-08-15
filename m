@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF479594039
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DED4593F0C
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240887AbiHOVK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:10:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46262 "EHLO
+        id S241160AbiHOVK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:10:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348040AbiHOVIA (ORCPT
+        with ESMTP id S1348044AbiHOVIA (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:08:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7505C3C8D9;
-        Mon, 15 Aug 2022 12:18:06 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8C403C8DA;
+        Mon, 15 Aug 2022 12:18:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02B88B81106;
-        Mon, 15 Aug 2022 19:18:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33CCEC433D6;
-        Mon, 15 Aug 2022 19:18:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5860E60EF0;
+        Mon, 15 Aug 2022 19:18:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4500EC433D6;
+        Mon, 15 Aug 2022 19:18:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591083;
-        bh=LhSAAOCHNX5vYNuydplNUPL5Mc5kRKP0UjU4TxxLSDk=;
+        s=korg; t=1660591086;
+        bh=++0gQvoVEsES9czLKXdr0jf/8o4LNf21BoHpAo3XYVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JkxDhbL+JkPAL9AYhXVUE6WipPSnEsv+pAEKQlnymz6GT+GGerrpzwvkmjN00cVtz
-         9zZB/CnHRTEb56ZN95FePpcegImi18eaEXvfJtWTicvzUrq9XwyVaHo/+Ybh8OMof+
-         TQpATrqSLl+QadYVASsn2YPYz3+Mw4hJDIagKDJw=
+        b=kwhRjt9OFz/VE8wTuDz6w2tSUcwZIUkRSZ4midVI2BFIgs1BwyrG2TJpYT/q67aj7
+         nSMc/SNL6ZjSbmY6Ns9qIEroFf9eIHJD6zlaCbBjnxNtVuOfe65TAVj/DW4/NQGgvC
+         XQH7aJQ+1pPU++Ex6l7TJfTUe5+WQthJOxKwola8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Benjamin Gaignard <benjamin.gaignard@collabora.com>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0436/1095] media: hantro: Be more accurate on pixel formats step_width constraints
-Date:   Mon, 15 Aug 2022 19:57:15 +0200
-Message-Id: <20220815180447.703513918@linuxfoundation.org>
+Subject: [PATCH 5.18 0437/1095] media: hantro: Fix RK3399 H.264 format advertising
+Date:   Mon, 15 Aug 2022 19:57:16 +0200
+Message-Id: <20220815180447.734658112@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,662 +57,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Gaignard <benjamin.gaignard@collabora.com>
+From: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
 
-[ Upstream commit 135ad96cb4d6bd6dace030846fe5c7ea890411ab ]
+[ Upstream commit 177d841fa19542eb35aa5ec9579c4abb989c9255 ]
 
-On Hantro G2 decoder on IMX8MQ strides requirements aren't the same
-for NV12_4L4 and NV12 pixel formats. The first one use a 4 bytes padding
-while the last one needs 16 bytes.
-To be sure to provide the correct stride in all cases we need:
-- to relax the constraints on codec formats so set step_width to 4
-- use capture queue format and not the output queue format when applying
-  the pixel format constraints.
-- put the correct step_width constraints on each pixel format.
+Commit 1f82f2df523cb ("media: hantro: Enable H.264 on Rockchip VDPU2")
+enabled H.264 on some SoCs with VDPU2 cores. This had the side-effect
+of exposing H.264 coded format as supported on RK3399.
 
-Move HEVC SPS validation in hantro_hevc.c to be able to perform it
-when setting sps control and when starting to decode the bitstream.
-Add a new test in HEVC SPS validation function to check if resolution
-is still matching the hardware constraints.
+Fix this and clarify how the codec is explicitly disabled on RK3399 on
+this driver.
 
-With this SAODBLK_A_MainConcept_4 and SAODBLK_B_MainConcept_4 conformance
-tests files are correctly decoded with both NV12 and NV12_4L4 pixel
-formats. These two files have a resolution of 1016x760.
-
-Add defines for the various used resolutions.
-For other variants than Hantro G2 on IMX8M keep the same step_width to
-avoid regressions.
-
-Fluster HEVC test score is now 128/147 vs 126/147 with the both pixel
-formats as decoder output.
-Fluster VP9 test score stay at 147/303.
-
-[hverkuil: fix trivial checkpatch warnings]
-
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@collabora.com>
+Fixes: 1f82f2df523cb ("media: hantro: Enable H.264 on Rockchip VDPU2")
+Signed-off-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Tested-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Reviewed-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/hantro/hantro_drv.c     |  12 +-
- drivers/staging/media/hantro/hantro_hevc.c    |  30 +++++
- drivers/staging/media/hantro/hantro_hw.h      |  14 +++
- drivers/staging/media/hantro/hantro_v4l2.c    |   2 +-
- drivers/staging/media/hantro/imx8m_vpu_hw.c   |  80 ++++++++++----
- .../staging/media/hantro/rockchip_vpu_hw.c    | 104 ++++++++++++------
- .../staging/media/hantro/sama5d4_vdec_hw.c    |  40 +++++--
- drivers/staging/media/hantro/sunxi_vpu_hw.c   |  24 +++-
- 8 files changed, 223 insertions(+), 83 deletions(-)
+ .../staging/media/hantro/rockchip_vpu_hw.c    | 60 ++++++++++++++++---
+ 1 file changed, 53 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/staging/media/hantro/hantro_drv.c b/drivers/staging/media/hantro/hantro_drv.c
-index ac232b5f7825..01d33dcb0467 100644
---- a/drivers/staging/media/hantro/hantro_drv.c
-+++ b/drivers/staging/media/hantro/hantro_drv.c
-@@ -253,6 +253,11 @@ queue_init(void *priv, struct vb2_queue *src_vq, struct vb2_queue *dst_vq)
- 
- static int hantro_try_ctrl(struct v4l2_ctrl *ctrl)
- {
-+	struct hantro_ctx *ctx;
-+
-+	ctx = container_of(ctrl->handler,
-+			   struct hantro_ctx, ctrl_handler);
-+
- 	if (ctrl->id == V4L2_CID_STATELESS_H264_SPS) {
- 		const struct v4l2_ctrl_h264_sps *sps = ctrl->p_new.p_h264_sps;
- 
-@@ -268,12 +273,7 @@ static int hantro_try_ctrl(struct v4l2_ctrl *ctrl)
- 	} else if (ctrl->id == V4L2_CID_MPEG_VIDEO_HEVC_SPS) {
- 		const struct v4l2_ctrl_hevc_sps *sps = ctrl->p_new.p_hevc_sps;
- 
--		if (sps->bit_depth_luma_minus8 != sps->bit_depth_chroma_minus8)
--			/* Luma and chroma bit depth mismatch */
--			return -EINVAL;
--		if (sps->bit_depth_luma_minus8 != 0)
--			/* Only 8-bit is supported */
--			return -EINVAL;
-+		return hantro_hevc_validate_sps(ctx, sps);
- 	} else if (ctrl->id == V4L2_CID_STATELESS_VP9_FRAME) {
- 		const struct v4l2_ctrl_vp9_frame *dec_params = ctrl->p_new.p_vp9_frame;
- 
-diff --git a/drivers/staging/media/hantro/hantro_hevc.c b/drivers/staging/media/hantro/hantro_hevc.c
-index f86c98e19177..bd924896e409 100644
---- a/drivers/staging/media/hantro/hantro_hevc.c
-+++ b/drivers/staging/media/hantro/hantro_hevc.c
-@@ -154,6 +154,32 @@ static int tile_buffer_reallocate(struct hantro_ctx *ctx)
- 	return -ENOMEM;
- }
- 
-+int hantro_hevc_validate_sps(struct hantro_ctx *ctx, const struct v4l2_ctrl_hevc_sps *sps)
-+{
-+	if (sps->bit_depth_luma_minus8 != sps->bit_depth_chroma_minus8)
-+		/* Luma and chroma bit depth mismatch */
-+		return -EINVAL;
-+	if (sps->bit_depth_luma_minus8 != 0)
-+		/* Only 8-bit is supported */
-+		return -EINVAL;
-+
-+	/*
-+	 * for tile pixel format check if the width and height match
-+	 * hardware constraints
-+	 */
-+	if (ctx->vpu_dst_fmt->fourcc == V4L2_PIX_FMT_NV12_4L4) {
-+		if (ctx->dst_fmt.width !=
-+		    ALIGN(sps->pic_width_in_luma_samples, ctx->vpu_dst_fmt->frmsize.step_width))
-+			return -EINVAL;
-+
-+		if (ctx->dst_fmt.height !=
-+		    ALIGN(sps->pic_height_in_luma_samples, ctx->vpu_dst_fmt->frmsize.step_height))
-+			return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
- int hantro_hevc_dec_prepare_run(struct hantro_ctx *ctx)
- {
- 	struct hantro_hevc_dec_hw_ctx *hevc_ctx = &ctx->hevc_dec;
-@@ -177,6 +203,10 @@ int hantro_hevc_dec_prepare_run(struct hantro_ctx *ctx)
- 	if (WARN_ON(!ctrls->sps))
- 		return -EINVAL;
- 
-+	ret = hantro_hevc_validate_sps(ctx, ctrls->sps);
-+	if (ret)
-+		return ret;
-+
- 	ctrls->pps =
- 		hantro_get_ctrl(ctx, V4L2_CID_MPEG_VIDEO_HEVC_PPS);
- 	if (WARN_ON(!ctrls->pps))
-diff --git a/drivers/staging/media/hantro/hantro_hw.h b/drivers/staging/media/hantro/hantro_hw.h
-index 699c1efc0215..b480cf329b13 100644
---- a/drivers/staging/media/hantro/hantro_hw.h
-+++ b/drivers/staging/media/hantro/hantro_hw.h
-@@ -18,9 +18,21 @@
- #define DEC_8190_ALIGN_MASK	0x07U
- 
- #define MB_DIM			16
-+#define TILE_MB_DIM		4
- #define MB_WIDTH(w)		DIV_ROUND_UP(w, MB_DIM)
- #define MB_HEIGHT(h)		DIV_ROUND_UP(h, MB_DIM)
- 
-+#define FMT_MIN_WIDTH		48
-+#define FMT_MIN_HEIGHT		48
-+#define FMT_HD_WIDTH		1280
-+#define FMT_HD_HEIGHT		720
-+#define FMT_FHD_WIDTH		1920
-+#define FMT_FHD_HEIGHT		1088
-+#define FMT_UHD_WIDTH		3840
-+#define FMT_UHD_HEIGHT		2160
-+#define FMT_4K_WIDTH		4096
-+#define FMT_4K_HEIGHT		2304
-+
- #define NUM_REF_PICTURES	(V4L2_HEVC_DPB_ENTRIES_NUM_MAX + 1)
- 
- struct hantro_dev;
-@@ -341,6 +353,8 @@ int hantro_hevc_dec_prepare_run(struct hantro_ctx *ctx);
- void hantro_hevc_ref_init(struct hantro_ctx *ctx);
- dma_addr_t hantro_hevc_get_ref_buf(struct hantro_ctx *ctx, int poc);
- int hantro_hevc_add_ref_buf(struct hantro_ctx *ctx, int poc, dma_addr_t addr);
-+int hantro_hevc_validate_sps(struct hantro_ctx *ctx, const struct v4l2_ctrl_hevc_sps *sps);
-+
- 
- static inline unsigned short hantro_vp9_num_sbs(unsigned short dimension)
- {
-diff --git a/drivers/staging/media/hantro/hantro_v4l2.c b/drivers/staging/media/hantro/hantro_v4l2.c
-index 71a6279750bf..93d0dcf69f4a 100644
---- a/drivers/staging/media/hantro/hantro_v4l2.c
-+++ b/drivers/staging/media/hantro/hantro_v4l2.c
-@@ -260,7 +260,7 @@ static int hantro_try_fmt(const struct hantro_ctx *ctx,
- 	} else if (ctx->is_encoder) {
- 		vpu_fmt = ctx->vpu_dst_fmt;
- 	} else {
--		vpu_fmt = ctx->vpu_src_fmt;
-+		vpu_fmt = fmt;
- 		/*
- 		 * Width/height on the CAPTURE end of a decoder are ignored and
- 		 * replaced by the OUTPUT ones.
-diff --git a/drivers/staging/media/hantro/imx8m_vpu_hw.c b/drivers/staging/media/hantro/imx8m_vpu_hw.c
-index 9802508bade2..77f574fdfa77 100644
---- a/drivers/staging/media/hantro/imx8m_vpu_hw.c
-+++ b/drivers/staging/media/hantro/imx8m_vpu_hw.c
-@@ -83,6 +83,14 @@ static const struct hantro_fmt imx8m_vpu_postproc_fmts[] = {
- 		.fourcc = V4L2_PIX_FMT_YUYV,
- 		.codec_mode = HANTRO_MODE_NONE,
- 		.postprocessed = true,
-+		.frmsize = {
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_UHD_WIDTH,
-+			.step_width = MB_DIM,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_UHD_HEIGHT,
-+			.step_height = MB_DIM,
-+		},
- 	},
- };
- 
-@@ -90,17 +98,25 @@ static const struct hantro_fmt imx8m_vpu_dec_fmts[] = {
- 	{
- 		.fourcc = V4L2_PIX_FMT_NV12,
- 		.codec_mode = HANTRO_MODE_NONE,
-+		.frmsize = {
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_UHD_WIDTH,
-+			.step_width = MB_DIM,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_UHD_HEIGHT,
-+			.step_height = MB_DIM,
-+		},
- 	},
- 	{
- 		.fourcc = V4L2_PIX_FMT_MPEG2_SLICE,
- 		.codec_mode = HANTRO_MODE_MPEG2_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 1920,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_FHD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 1088,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_FHD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-@@ -109,11 +125,11 @@ static const struct hantro_fmt imx8m_vpu_dec_fmts[] = {
- 		.codec_mode = HANTRO_MODE_VP8_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 3840,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_UHD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 2160,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_UHD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-@@ -122,11 +138,11 @@ static const struct hantro_fmt imx8m_vpu_dec_fmts[] = {
- 		.codec_mode = HANTRO_MODE_H264_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 3840,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_UHD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 2160,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_UHD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-@@ -137,6 +153,14 @@ static const struct hantro_fmt imx8m_vpu_g2_postproc_fmts[] = {
- 		.fourcc = V4L2_PIX_FMT_NV12,
- 		.codec_mode = HANTRO_MODE_NONE,
- 		.postprocessed = true,
-+		.frmsize = {
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_UHD_WIDTH,
-+			.step_width = MB_DIM,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_UHD_HEIGHT,
-+			.step_height = MB_DIM,
-+		},
- 	},
- };
- 
-@@ -144,18 +168,26 @@ static const struct hantro_fmt imx8m_vpu_g2_dec_fmts[] = {
- 	{
- 		.fourcc = V4L2_PIX_FMT_NV12_4L4,
- 		.codec_mode = HANTRO_MODE_NONE,
-+		.frmsize = {
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_UHD_WIDTH,
-+			.step_width = TILE_MB_DIM,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_UHD_HEIGHT,
-+			.step_height = TILE_MB_DIM,
-+		},
- 	},
- 	{
- 		.fourcc = V4L2_PIX_FMT_HEVC_SLICE,
- 		.codec_mode = HANTRO_MODE_HEVC_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 3840,
--			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 2160,
--			.step_height = MB_DIM,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_UHD_WIDTH,
-+			.step_width = TILE_MB_DIM,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_UHD_HEIGHT,
-+			.step_height = TILE_MB_DIM,
- 		},
- 	},
- 	{
-@@ -163,12 +195,12 @@ static const struct hantro_fmt imx8m_vpu_g2_dec_fmts[] = {
- 		.codec_mode = HANTRO_MODE_VP9_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 3840,
--			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 2160,
--			.step_height = MB_DIM,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_UHD_WIDTH,
-+			.step_width = TILE_MB_DIM,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_UHD_HEIGHT,
-+			.step_height = TILE_MB_DIM,
- 		},
- 	},
- };
 diff --git a/drivers/staging/media/hantro/rockchip_vpu_hw.c b/drivers/staging/media/hantro/rockchip_vpu_hw.c
-index fc96501f3bc8..098486b9ec27 100644
+index 098486b9ec27..26e16b5a6a70 100644
 --- a/drivers/staging/media/hantro/rockchip_vpu_hw.c
 +++ b/drivers/staging/media/hantro/rockchip_vpu_hw.c
-@@ -63,6 +63,14 @@ static const struct hantro_fmt rockchip_vpu1_postproc_fmts[] = {
- 		.fourcc = V4L2_PIX_FMT_YUYV,
- 		.codec_mode = HANTRO_MODE_NONE,
- 		.postprocessed = true,
-+		.frmsize = {
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_FHD_WIDTH,
-+			.step_width = MB_DIM,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_FHD_HEIGHT,
-+			.step_height = MB_DIM,
-+		},
+@@ -182,7 +182,7 @@ static const struct hantro_fmt rk3288_vpu_dec_fmts[] = {
  	},
  };
  
-@@ -70,17 +78,25 @@ static const struct hantro_fmt rk3066_vpu_dec_fmts[] = {
+-static const struct hantro_fmt rk3399_vpu_dec_fmts[] = {
++static const struct hantro_fmt rockchip_vdpu2_dec_fmts[] = {
  	{
  		.fourcc = V4L2_PIX_FMT_NV12,
  		.codec_mode = HANTRO_MODE_NONE,
-+		.frmsize = {
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_FHD_WIDTH,
-+			.step_width = MB_DIM,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_FHD_HEIGHT,
-+			.step_height = MB_DIM,
-+		},
- 	},
- 	{
- 		.fourcc = V4L2_PIX_FMT_H264_SLICE,
- 		.codec_mode = HANTRO_MODE_H264_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 1920,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_FHD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 1088,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_FHD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-@@ -89,11 +105,11 @@ static const struct hantro_fmt rk3066_vpu_dec_fmts[] = {
- 		.codec_mode = HANTRO_MODE_MPEG2_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 1920,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_FHD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 1088,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_FHD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-@@ -102,11 +118,11 @@ static const struct hantro_fmt rk3066_vpu_dec_fmts[] = {
- 		.codec_mode = HANTRO_MODE_VP8_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 1920,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_FHD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 1088,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_FHD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-@@ -116,17 +132,25 @@ static const struct hantro_fmt rk3288_vpu_dec_fmts[] = {
- 	{
- 		.fourcc = V4L2_PIX_FMT_NV12,
- 		.codec_mode = HANTRO_MODE_NONE,
-+		.frmsize = {
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_4K_WIDTH,
-+			.step_width = MB_DIM,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_4K_HEIGHT,
-+			.step_height = MB_DIM,
-+		},
- 	},
- 	{
- 		.fourcc = V4L2_PIX_FMT_H264_SLICE,
- 		.codec_mode = HANTRO_MODE_H264_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 4096,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_4K_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 2304,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_4K_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-@@ -135,11 +159,11 @@ static const struct hantro_fmt rk3288_vpu_dec_fmts[] = {
- 		.codec_mode = HANTRO_MODE_MPEG2_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 1920,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_FHD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 1088,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_FHD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-@@ -148,11 +172,11 @@ static const struct hantro_fmt rk3288_vpu_dec_fmts[] = {
- 		.codec_mode = HANTRO_MODE_VP8_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 3840,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_UHD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 2160,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_UHD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-@@ -162,17 +186,25 @@ static const struct hantro_fmt rk3399_vpu_dec_fmts[] = {
- 	{
- 		.fourcc = V4L2_PIX_FMT_NV12,
- 		.codec_mode = HANTRO_MODE_NONE,
-+		.frmsize = {
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_FHD_WIDTH,
-+			.step_width = MB_DIM,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_FHD_HEIGHT,
-+			.step_height = MB_DIM,
-+		},
- 	},
- 	{
- 		.fourcc = V4L2_PIX_FMT_H264_SLICE,
- 		.codec_mode = HANTRO_MODE_H264_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 1920,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_FHD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 1088,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_FHD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-@@ -181,11 +213,11 @@ static const struct hantro_fmt rk3399_vpu_dec_fmts[] = {
- 		.codec_mode = HANTRO_MODE_MPEG2_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 1920,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_FHD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 1088,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_FHD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-@@ -194,11 +226,11 @@ static const struct hantro_fmt rk3399_vpu_dec_fmts[] = {
- 		.codec_mode = HANTRO_MODE_VP8_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 3840,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_UHD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 2160,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_UHD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-diff --git a/drivers/staging/media/hantro/sama5d4_vdec_hw.c b/drivers/staging/media/hantro/sama5d4_vdec_hw.c
-index b2fc1c5613e1..b205e2db5b04 100644
---- a/drivers/staging/media/hantro/sama5d4_vdec_hw.c
-+++ b/drivers/staging/media/hantro/sama5d4_vdec_hw.c
-@@ -16,6 +16,14 @@ static const struct hantro_fmt sama5d4_vdec_postproc_fmts[] = {
- 		.fourcc = V4L2_PIX_FMT_YUYV,
- 		.codec_mode = HANTRO_MODE_NONE,
- 		.postprocessed = true,
-+		.frmsize = {
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_HD_WIDTH,
-+			.step_width = MB_DIM,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_HD_HEIGHT,
-+			.step_height = MB_DIM,
-+		},
+@@ -236,6 +236,47 @@ static const struct hantro_fmt rk3399_vpu_dec_fmts[] = {
  	},
  };
  
-@@ -23,17 +31,25 @@ static const struct hantro_fmt sama5d4_vdec_fmts[] = {
- 	{
- 		.fourcc = V4L2_PIX_FMT_NV12,
- 		.codec_mode = HANTRO_MODE_NONE,
++static const struct hantro_fmt rk3399_vpu_dec_fmts[] = {
++	{
++		.fourcc = V4L2_PIX_FMT_NV12,
++		.codec_mode = HANTRO_MODE_NONE,
 +		.frmsize = {
 +			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_HD_WIDTH,
++			.max_width = FMT_FHD_WIDTH,
 +			.step_width = MB_DIM,
 +			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_HD_HEIGHT,
++			.max_height = FMT_FHD_HEIGHT,
 +			.step_height = MB_DIM,
 +		},
- 	},
- 	{
- 		.fourcc = V4L2_PIX_FMT_MPEG2_SLICE,
- 		.codec_mode = HANTRO_MODE_MPEG2_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 1280,
++	},
++	{
++		.fourcc = V4L2_PIX_FMT_MPEG2_SLICE,
++		.codec_mode = HANTRO_MODE_MPEG2_DEC,
++		.max_depth = 2,
++		.frmsize = {
 +			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_HD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 720,
++			.max_width = FMT_FHD_WIDTH,
++			.step_width = MB_DIM,
 +			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_HD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-@@ -42,11 +58,11 @@ static const struct hantro_fmt sama5d4_vdec_fmts[] = {
- 		.codec_mode = HANTRO_MODE_VP8_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 1280,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_HD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 720,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_HD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-@@ -55,11 +71,11 @@ static const struct hantro_fmt sama5d4_vdec_fmts[] = {
- 		.codec_mode = HANTRO_MODE_H264_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 1280,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_HD_WIDTH,
- 			.step_width = MB_DIM,
--			.min_height = 48,
--			.max_height = 720,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_HD_HEIGHT,
- 			.step_height = MB_DIM,
- 		},
- 	},
-diff --git a/drivers/staging/media/hantro/sunxi_vpu_hw.c b/drivers/staging/media/hantro/sunxi_vpu_hw.c
-index c0edd5856a0c..fbeac81e59e1 100644
---- a/drivers/staging/media/hantro/sunxi_vpu_hw.c
-+++ b/drivers/staging/media/hantro/sunxi_vpu_hw.c
-@@ -14,6 +14,14 @@ static const struct hantro_fmt sunxi_vpu_postproc_fmts[] = {
- 		.fourcc = V4L2_PIX_FMT_NV12,
- 		.codec_mode = HANTRO_MODE_NONE,
- 		.postprocessed = true,
++			.max_height = FMT_FHD_HEIGHT,
++			.step_height = MB_DIM,
++		},
++	},
++	{
++		.fourcc = V4L2_PIX_FMT_VP8_FRAME,
++		.codec_mode = HANTRO_MODE_VP8_DEC,
++		.max_depth = 2,
 +		.frmsize = {
 +			.min_width = FMT_MIN_WIDTH,
 +			.max_width = FMT_UHD_WIDTH,
-+			.step_width = 32,
++			.step_width = MB_DIM,
 +			.min_height = FMT_MIN_HEIGHT,
 +			.max_height = FMT_UHD_HEIGHT,
-+			.step_height = 32,
++			.step_height = MB_DIM,
 +		},
- 	},
++	},
++};
++
+ static irqreturn_t rockchip_vpu1_vepu_irq(int irq, void *dev_id)
+ {
+ 	struct hantro_dev *vpu = dev_id;
+@@ -548,8 +589,8 @@ const struct hantro_variant rk3288_vpu_variant = {
+ 
+ const struct hantro_variant rk3328_vpu_variant = {
+ 	.dec_offset = 0x400,
+-	.dec_fmts = rk3399_vpu_dec_fmts,
+-	.num_dec_fmts = ARRAY_SIZE(rk3399_vpu_dec_fmts),
++	.dec_fmts = rockchip_vdpu2_dec_fmts,
++	.num_dec_fmts = ARRAY_SIZE(rockchip_vdpu2_dec_fmts),
+ 	.codec = HANTRO_MPEG2_DECODER | HANTRO_VP8_DECODER |
+ 		 HANTRO_H264_DECODER,
+ 	.codec_ops = rk3399_vpu_codec_ops,
+@@ -560,6 +601,11 @@ const struct hantro_variant rk3328_vpu_variant = {
+ 	.num_clocks = ARRAY_SIZE(rockchip_vpu_clk_names),
  };
  
-@@ -21,17 +29,25 @@ static const struct hantro_fmt sunxi_vpu_dec_fmts[] = {
- 	{
- 		.fourcc = V4L2_PIX_FMT_NV12_4L4,
- 		.codec_mode = HANTRO_MODE_NONE,
-+		.frmsize = {
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_UHD_WIDTH,
-+			.step_width = 32,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_UHD_HEIGHT,
-+			.step_height = 32,
-+		},
- 	},
- 	{
- 		.fourcc = V4L2_PIX_FMT_VP9_FRAME,
- 		.codec_mode = HANTRO_MODE_VP9_DEC,
- 		.max_depth = 2,
- 		.frmsize = {
--			.min_width = 48,
--			.max_width = 3840,
-+			.min_width = FMT_MIN_WIDTH,
-+			.max_width = FMT_UHD_WIDTH,
- 			.step_width = 32,
--			.min_height = 48,
--			.max_height = 2160,
-+			.min_height = FMT_MIN_HEIGHT,
-+			.max_height = FMT_UHD_HEIGHT,
- 			.step_height = 32,
- 		},
- 	},
++/*
++ * H.264 decoding explicitly disabled in RK3399.
++ * This ensures userspace applications use the Rockchip VDEC core,
++ * which has better performance.
++ */
+ const struct hantro_variant rk3399_vpu_variant = {
+ 	.enc_offset = 0x0,
+ 	.enc_fmts = rockchip_vpu_enc_fmts,
+@@ -579,8 +625,8 @@ const struct hantro_variant rk3399_vpu_variant = {
+ 
+ const struct hantro_variant rk3568_vpu_variant = {
+ 	.dec_offset = 0x400,
+-	.dec_fmts = rk3399_vpu_dec_fmts,
+-	.num_dec_fmts = ARRAY_SIZE(rk3399_vpu_dec_fmts),
++	.dec_fmts = rockchip_vdpu2_dec_fmts,
++	.num_dec_fmts = ARRAY_SIZE(rockchip_vdpu2_dec_fmts),
+ 	.codec = HANTRO_MPEG2_DECODER |
+ 		 HANTRO_VP8_DECODER | HANTRO_H264_DECODER,
+ 	.codec_ops = rk3399_vpu_codec_ops,
+@@ -596,8 +642,8 @@ const struct hantro_variant px30_vpu_variant = {
+ 	.enc_fmts = rockchip_vpu_enc_fmts,
+ 	.num_enc_fmts = ARRAY_SIZE(rockchip_vpu_enc_fmts),
+ 	.dec_offset = 0x400,
+-	.dec_fmts = rk3399_vpu_dec_fmts,
+-	.num_dec_fmts = ARRAY_SIZE(rk3399_vpu_dec_fmts),
++	.dec_fmts = rockchip_vdpu2_dec_fmts,
++	.num_dec_fmts = ARRAY_SIZE(rockchip_vdpu2_dec_fmts),
+ 	.codec = HANTRO_JPEG_ENCODER | HANTRO_MPEG2_DECODER |
+ 		 HANTRO_VP8_DECODER | HANTRO_H264_DECODER,
+ 	.codec_ops = rk3399_vpu_codec_ops,
 -- 
 2.35.1
 
