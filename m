@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A3E4594DA5
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 752D2594D4A
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239810AbiHPAbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:31:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39260 "EHLO
+        id S1345439AbiHPAh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:37:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346640AbiHPAaV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:30:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EFB61849D2;
-        Mon, 15 Aug 2022 13:35:48 -0700 (PDT)
+        with ESMTP id S1351622AbiHPAg0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:36:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C72D818AF4F;
+        Mon, 15 Aug 2022 13:38:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C11C6121A;
-        Mon, 15 Aug 2022 20:35:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15BECC433C1;
-        Mon, 15 Aug 2022 20:35:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC7CFB81197;
+        Mon, 15 Aug 2022 20:38:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19ADC433D7;
+        Mon, 15 Aug 2022 20:38:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595747;
-        bh=KM2BqJ70Ryu+d2ZegbEKyHkGysngUz+E2aiY5tWpnY8=;
+        s=korg; t=1660595881;
+        bh=5tQcWzGBH9Zfsy2940dlc+C27COTT4bscnlNFqRCDGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vgOmT7c6YNq86Y2SmXT3AvEZPJRMy9UQrxU/yVJXJkC9azjJkDlf025p5AFfC/NxI
-         98G4Jgcbu20F/2kY//5BrlRbMVQ3Qnq6fjZ2hJ4sMdl7LAnODfOtqqqNP5mTsYBuMs
-         vtm9Nxz+0XXDmJTOd48JboZD1k4JKII3oAl9HBeY=
+        b=XRPmiYsYf5VvlypfLZYdXJFEHr4brAlhlR2HS7xM3oDlbbxCwImkgyBEBvx3IvjGC
+         QxDjqVYgMWRLJXh3yG18AyP5ttPMVZu0Tt26Xsvh5f2oAvdvz0mbjJ19GjjqqXh1Ll
+         ruB4XEMDXxRH5ReJfROuMbyT0Ofn5EUXU4YAJEu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        stable@vger.kernel.org, Li Zhijian <lizhijian@fujitsu.com>,
+        Bart Van Assche <bvanassche@acm.org>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0861/1157] RDMA/srpt: Introduce a reference count in struct srpt_device
-Date:   Mon, 15 Aug 2022 20:03:37 +0200
-Message-Id: <20220815180513.904605508@linuxfoundation.org>
+Subject: [PATCH 5.19 0862/1157] RDMA/srpt: Fix a use-after-free
+Date:   Mon, 15 Aug 2022 20:03:38 +0200
+Message-Id: <20220815180513.951342028@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,90 +57,302 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit aa7dfbb41b5a60ab90e244d6f586b8cb5c791c3e ]
+[ Upstream commit b5605148e6ce36bb21020d49010b617693933128 ]
 
-This will be used to keep struct srpt_device around as long as either the
-RDMA port exists or a LIO target port is associated with the struct
-srpt_device.
+Change the LIO port members inside struct srpt_port from regular members
+into pointers. Allocate the LIO port data structures from inside
+srpt_make_tport() and free these from inside srpt_make_tport(). Keep
+struct srpt_device as long as either an RDMA port or a LIO target port is
+associated with it. This patch decouples the lifetime of struct srpt_port
+(controlled by the RDMA core) and struct srpt_port_id (controlled by LIO).
+This patch fixes the following KASAN complaint:
 
-Link: https://lore.kernel.org/r/20220727193415.1583860-3-bvanassche@acm.org
+  BUG: KASAN: use-after-free in srpt_enable_tpg+0x31/0x70 [ib_srpt]
+  Read of size 8 at addr ffff888141cc34b8 by task check/5093
+
+  Call Trace:
+   <TASK>
+   show_stack+0x4e/0x53
+   dump_stack_lvl+0x51/0x66
+   print_address_description.constprop.0.cold+0xea/0x41e
+   print_report.cold+0x90/0x205
+   kasan_report+0xb9/0xf0
+   __asan_load8+0x69/0x90
+   srpt_enable_tpg+0x31/0x70 [ib_srpt]
+   target_fabric_tpg_base_enable_store+0xe2/0x140 [target_core_mod]
+   configfs_write_iter+0x18b/0x210
+   new_sync_write+0x1f2/0x2f0
+   vfs_write+0x3e3/0x540
+   ksys_write+0xbb/0x140
+   __x64_sys_write+0x42/0x50
+   do_syscall_64+0x34/0x80
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+   </TASK>
+
+Link: https://lore.kernel.org/r/20220727193415.1583860-4-bvanassche@acm.org
+Reported-by: Li Zhijian <lizhijian@fujitsu.com>
+Tested-by: Li Zhijian <lizhijian@fujitsu.com>
+Fixes: a42d985bd5b2 ("ib_srpt: Initial SRP Target merge for v3.3-rc1")
 Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srpt/ib_srpt.c | 17 +++++++++++++++--
- drivers/infiniband/ulp/srpt/ib_srpt.h |  2 ++
- 2 files changed, 17 insertions(+), 2 deletions(-)
+ drivers/infiniband/ulp/srpt/ib_srpt.c | 130 ++++++++++++++++++--------
+ drivers/infiniband/ulp/srpt/ib_srpt.h |  10 +-
+ 2 files changed, 94 insertions(+), 46 deletions(-)
 
 diff --git a/drivers/infiniband/ulp/srpt/ib_srpt.c b/drivers/infiniband/ulp/srpt/ib_srpt.c
-index 8253d55b9c26..1fbce9225424 100644
+index 1fbce9225424..c3036aeac89e 100644
 --- a/drivers/infiniband/ulp/srpt/ib_srpt.c
 +++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
-@@ -3104,6 +3104,18 @@ static int srpt_use_srq(struct srpt_device *sdev, bool use_srq)
- 	return ret;
+@@ -565,18 +565,12 @@ static int srpt_refresh_port(struct srpt_port *sport)
+ 	if (ret)
+ 		return ret;
+ 
+-	sport->port_guid_id.wwn.priv = sport;
+ 	srpt_format_guid(sport->guid_name, ARRAY_SIZE(sport->guid_name),
+ 			 &sport->gid.global.interface_id);
+-	memcpy(sport->port_guid_id.name, sport->guid_name,
+-	       ARRAY_SIZE(sport->guid_name));
+-	sport->port_gid_id.wwn.priv = sport;
+ 	snprintf(sport->gid_name, ARRAY_SIZE(sport->gid_name),
+ 		 "0x%016llx%016llx",
+ 		 be64_to_cpu(sport->gid.global.subnet_prefix),
+ 		 be64_to_cpu(sport->gid.global.interface_id));
+-	memcpy(sport->port_gid_id.name, sport->gid_name,
+-	       ARRAY_SIZE(sport->gid_name));
+ 
+ 	if (rdma_protocol_iwarp(sport->sdev->device, sport->port))
+ 		return 0;
+@@ -2317,31 +2311,35 @@ static int srpt_cm_req_recv(struct srpt_device *const sdev,
+ 	tag_num = ch->rq_size;
+ 	tag_size = 1; /* ib_srpt does not use se_sess->sess_cmd_map */
+ 
+-	mutex_lock(&sport->port_guid_id.mutex);
+-	list_for_each_entry(stpg, &sport->port_guid_id.tpg_list, entry) {
+-		if (!IS_ERR_OR_NULL(ch->sess))
+-			break;
+-		ch->sess = target_setup_session(&stpg->tpg, tag_num,
++	if (sport->guid_id) {
++		mutex_lock(&sport->guid_id->mutex);
++		list_for_each_entry(stpg, &sport->guid_id->tpg_list, entry) {
++			if (!IS_ERR_OR_NULL(ch->sess))
++				break;
++			ch->sess = target_setup_session(&stpg->tpg, tag_num,
+ 						tag_size, TARGET_PROT_NORMAL,
+ 						ch->sess_name, ch, NULL);
++		}
++		mutex_unlock(&sport->guid_id->mutex);
+ 	}
+-	mutex_unlock(&sport->port_guid_id.mutex);
+ 
+-	mutex_lock(&sport->port_gid_id.mutex);
+-	list_for_each_entry(stpg, &sport->port_gid_id.tpg_list, entry) {
+-		if (!IS_ERR_OR_NULL(ch->sess))
+-			break;
+-		ch->sess = target_setup_session(&stpg->tpg, tag_num,
++	if (sport->gid_id) {
++		mutex_lock(&sport->gid_id->mutex);
++		list_for_each_entry(stpg, &sport->gid_id->tpg_list, entry) {
++			if (!IS_ERR_OR_NULL(ch->sess))
++				break;
++			ch->sess = target_setup_session(&stpg->tpg, tag_num,
+ 					tag_size, TARGET_PROT_NORMAL, i_port_id,
+ 					ch, NULL);
+-		if (!IS_ERR_OR_NULL(ch->sess))
+-			break;
+-		/* Retry without leading "0x" */
+-		ch->sess = target_setup_session(&stpg->tpg, tag_num,
++			if (!IS_ERR_OR_NULL(ch->sess))
++				break;
++			/* Retry without leading "0x" */
++			ch->sess = target_setup_session(&stpg->tpg, tag_num,
+ 						tag_size, TARGET_PROT_NORMAL,
+ 						i_port_id + 2, ch, NULL);
++		}
++		mutex_unlock(&sport->gid_id->mutex);
+ 	}
+-	mutex_unlock(&sport->port_gid_id.mutex);
+ 
+ 	if (IS_ERR_OR_NULL(ch->sess)) {
+ 		WARN_ON_ONCE(ch->sess == NULL);
+@@ -2986,7 +2984,12 @@ static int srpt_release_sport(struct srpt_port *sport)
+ 	return 0;
  }
  
-+static void srpt_free_sdev(struct kref *refcnt)
-+{
-+	struct srpt_device *sdev = container_of(refcnt, typeof(*sdev), refcnt);
+-static struct se_wwn *__srpt_lookup_wwn(const char *name)
++struct port_and_port_id {
++	struct srpt_port *sport;
++	struct srpt_port_id **port_id;
++};
 +
-+	kfree(sdev);
-+}
++static struct port_and_port_id __srpt_lookup_port(const char *name)
+ {
+ 	struct ib_device *dev;
+ 	struct srpt_device *sdev;
+@@ -3001,25 +3004,38 @@ static struct se_wwn *__srpt_lookup_wwn(const char *name)
+ 		for (i = 0; i < dev->phys_port_cnt; i++) {
+ 			sport = &sdev->port[i];
+ 
+-			if (strcmp(sport->port_guid_id.name, name) == 0)
+-				return &sport->port_guid_id.wwn;
+-			if (strcmp(sport->port_gid_id.name, name) == 0)
+-				return &sport->port_gid_id.wwn;
++			if (strcmp(sport->guid_name, name) == 0) {
++				kref_get(&sdev->refcnt);
++				return (struct port_and_port_id){
++					sport, &sport->guid_id};
++			}
++			if (strcmp(sport->gid_name, name) == 0) {
++				kref_get(&sdev->refcnt);
++				return (struct port_and_port_id){
++					sport, &sport->gid_id};
++			}
+ 		}
+ 	}
+ 
+-	return NULL;
++	return (struct port_and_port_id){};
+ }
+ 
+-static struct se_wwn *srpt_lookup_wwn(const char *name)
++/**
++ * srpt_lookup_port() - Look up an RDMA port by name
++ * @name: ASCII port name
++ *
++ * Increments the RDMA port reference count if an RDMA port pointer is returned.
++ * The caller must drop that reference count by calling srpt_port_put_ref().
++ */
++static struct port_and_port_id srpt_lookup_port(const char *name)
+ {
+-	struct se_wwn *wwn;
++	struct port_and_port_id papi;
+ 
+ 	spin_lock(&srpt_dev_lock);
+-	wwn = __srpt_lookup_wwn(name);
++	papi = __srpt_lookup_port(name);
+ 	spin_unlock(&srpt_dev_lock);
+ 
+-	return wwn;
++	return papi;
+ }
+ 
+ static void srpt_free_srq(struct srpt_device *sdev)
+@@ -3198,10 +3214,6 @@ static int srpt_add_one(struct ib_device *device)
+ 		sport->port_attrib.srp_sq_size = DEF_SRPT_SQ_SIZE;
+ 		sport->port_attrib.use_srq = false;
+ 		INIT_WORK(&sport->work, srpt_refresh_port_work);
+-		mutex_init(&sport->port_guid_id.mutex);
+-		INIT_LIST_HEAD(&sport->port_guid_id.tpg_list);
+-		mutex_init(&sport->port_gid_id.mutex);
+-		INIT_LIST_HEAD(&sport->port_gid_id.tpg_list);
+ 
+ 		ret = srpt_refresh_port(sport);
+ 		if (ret) {
+@@ -3302,10 +3314,10 @@ static struct srpt_port_id *srpt_wwn_to_sport_id(struct se_wwn *wwn)
+ {
+ 	struct srpt_port *sport = wwn->priv;
+ 
+-	if (wwn == &sport->port_guid_id.wwn)
+-		return &sport->port_guid_id;
+-	if (wwn == &sport->port_gid_id.wwn)
+-		return &sport->port_gid_id;
++	if (sport->guid_id && &sport->guid_id->wwn == wwn)
++		return sport->guid_id;
++	if (sport->gid_id && &sport->gid_id->wwn == wwn)
++		return sport->gid_id;
+ 	WARN_ON_ONCE(true);
+ 	return NULL;
+ }
+@@ -3790,7 +3802,31 @@ static struct se_wwn *srpt_make_tport(struct target_fabric_configfs *tf,
+ 				      struct config_group *group,
+ 				      const char *name)
+ {
+-	return srpt_lookup_wwn(name) ? : ERR_PTR(-EINVAL);
++	struct port_and_port_id papi = srpt_lookup_port(name);
++	struct srpt_port *sport = papi.sport;
++	struct srpt_port_id *port_id;
 +
-+static void srpt_sdev_put(struct srpt_device *sdev)
-+{
-+	kref_put(&sdev->refcnt, srpt_free_sdev);
-+}
++	if (!papi.port_id)
++		return ERR_PTR(-EINVAL);
++	if (*papi.port_id) {
++		/* Attempt to create a directory that already exists. */
++		WARN_ON_ONCE(true);
++		return &(*papi.port_id)->wwn;
++	}
++	port_id = kzalloc(sizeof(*port_id), GFP_KERNEL);
++	if (!port_id) {
++		srpt_sdev_put(sport->sdev);
++		return ERR_PTR(-ENOMEM);
++	}
++	mutex_init(&port_id->mutex);
++	INIT_LIST_HEAD(&port_id->tpg_list);
++	port_id->wwn.priv = sport;
++	memcpy(port_id->name, port_id == sport->guid_id ? sport->guid_name :
++	       sport->gid_name, ARRAY_SIZE(port_id->name));
 +
++	*papi.port_id = port_id;
++
++	return &port_id->wwn;
+ }
+ 
  /**
-  * srpt_add_one - InfiniBand device addition callback function
-  * @device: Describes a HCA.
-@@ -3122,6 +3134,7 @@ static int srpt_add_one(struct ib_device *device)
- 	if (!sdev)
- 		return -ENOMEM;
- 
-+	kref_init(&sdev->refcnt);
- 	sdev->device = device;
- 	mutex_init(&sdev->sdev_mutex);
- 
-@@ -3217,7 +3230,7 @@ static int srpt_add_one(struct ib_device *device)
- 	srpt_free_srq(sdev);
- 	ib_dealloc_pd(sdev->pd);
- free_dev:
--	kfree(sdev);
-+	srpt_sdev_put(sdev);
- 	pr_info("%s(%s) failed.\n", __func__, dev_name(&device->dev));
- 	return ret;
- }
-@@ -3261,7 +3274,7 @@ static void srpt_remove_one(struct ib_device *device, void *client_data)
- 
- 	ib_dealloc_pd(sdev->pd);
- 
--	kfree(sdev);
-+	srpt_sdev_put(sdev);
+@@ -3799,6 +3835,18 @@ static struct se_wwn *srpt_make_tport(struct target_fabric_configfs *tf,
+  */
+ static void srpt_drop_tport(struct se_wwn *wwn)
+ {
++	struct srpt_port_id *port_id = container_of(wwn, typeof(*port_id), wwn);
++	struct srpt_port *sport = wwn->priv;
++
++	if (sport->guid_id == port_id)
++		sport->guid_id = NULL;
++	else if (sport->gid_id == port_id)
++		sport->gid_id = NULL;
++	else
++		WARN_ON_ONCE(true);
++
++	srpt_sdev_put(sport->sdev);
++	kfree(port_id);
  }
  
- static struct ib_client srpt_client = {
+ static ssize_t srpt_wwn_version_show(struct config_item *item, char *buf)
 diff --git a/drivers/infiniband/ulp/srpt/ib_srpt.h b/drivers/infiniband/ulp/srpt/ib_srpt.h
-index 3844a7058559..0cb867d580f1 100644
+index 0cb867d580f1..4c46b301eea1 100644
 --- a/drivers/infiniband/ulp/srpt/ib_srpt.h
 +++ b/drivers/infiniband/ulp/srpt/ib_srpt.h
-@@ -434,6 +434,7 @@ struct srpt_port {
+@@ -393,7 +393,7 @@ struct srpt_port_id {
+ };
  
  /**
-  * struct srpt_device - information associated by SRPT with a single HCA
-+ * @refcnt:	   Reference count for this device.
-  * @device:        Backpointer to the struct ib_device managed by the IB core.
-  * @pd:            IB protection domain.
-  * @lkey:          L_Key (local key) with write access to all local memory.
-@@ -449,6 +450,7 @@ struct srpt_port {
-  * @port:          Information about the ports owned by this HCA.
-  */
- struct srpt_device {
-+	struct kref		refcnt;
- 	struct ib_device	*device;
- 	struct ib_pd		*pd;
- 	u32			lkey;
+- * struct srpt_port - information associated by SRPT with a single IB port
++ * struct srpt_port - SRPT RDMA port information
+  * @sdev:      backpointer to the HCA information.
+  * @mad_agent: per-port management datagram processing information.
+  * @enabled:   Whether or not this target port is enabled.
+@@ -403,9 +403,9 @@ struct srpt_port_id {
+  * @gid:       cached value of the port's gid.
+  * @work:      work structure for refreshing the aforementioned cached values.
+  * @guid_name: port name in GUID format.
+- * @port_guid_id: LIO target port information for the port name in GUID format.
++ * @guid_id:   LIO target port information for the port name in GUID format.
+  * @gid_name:  port name in GID format.
+- * @port_gid_id: LIO target port information for the port name in GID format.
++ * @gid_id:    LIO target port information for the port name in GID format.
+  * @port_attrib:   Port attributes that can be accessed through configfs.
+  * @refcount:	   Number of objects associated with this port.
+  * @freed_channels: Completion that will be signaled once @refcount becomes 0.
+@@ -422,9 +422,9 @@ struct srpt_port {
+ 	union ib_gid		gid;
+ 	struct work_struct	work;
+ 	char			guid_name[64];
+-	struct srpt_port_id	port_guid_id;
++	struct srpt_port_id	*guid_id;
+ 	char			gid_name[64];
+-	struct srpt_port_id	port_gid_id;
++	struct srpt_port_id	*gid_id;
+ 	struct srpt_port_attrib port_attrib;
+ 	atomic_t		refcount;
+ 	struct completion	*freed_channels;
 -- 
 2.35.1
 
