@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32DDF59387A
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CE125936AA
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241841AbiHOSme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:42:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37902 "EHLO
+        id S241798AbiHOSmc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:42:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243548AbiHOSlP (ORCPT
+        with ESMTP id S243575AbiHOSlP (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:41:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD54B20F;
-        Mon, 15 Aug 2022 11:24:46 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A58302ED5C;
+        Mon, 15 Aug 2022 11:24:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9542FB81082;
-        Mon, 15 Aug 2022 18:24:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6209C433D6;
-        Mon, 15 Aug 2022 18:24:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09EBA60FB8;
+        Mon, 15 Aug 2022 18:24:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09CFFC433D6;
+        Mon, 15 Aug 2022 18:24:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587884;
-        bh=8e8cLGBEfOgW7SXzthoRIC0+pNV2OH/E5k8Ju7+lsF4=;
+        s=korg; t=1660587887;
+        bh=lJ6yWdOYTSwDorEM6lVgpgfm9KNuX8QvSpIRLKKt5tI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d6p55P+yZKrFjxjb2YmLEUgzIBuHqYqwy0oVSw3Rr502bCfl4SJy4hh6l1A5DlBHR
-         reo38AOTE/vVVBLyQfByrdMrT83Noj1WAdIfDQQP3QWD0bCwljvG1nynHCqFsRWBvN
-         ShQIQmNZlxmoKSrAwk0X7c+j1qb+oYKmwHybNfe8=
+        b=HID9Pvp994UzCkEQyZkTmj20pouSUqs3KQkmm9piE8Q5SztsC49sZG6OsqZzVf82S
+         7uk2jMXKtx91LD7cv2iWJ7izYSpPbgldA44cNhvl9KdkVeApn4AQQzNSv74Gna2rPk
+         QX28wsrLixlLUAwcA31qGr2j82WJMoHos6rzPLyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        "GONG, Ruiqi" <gongruiqi1@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, GONG@vger.kernel.org
-Subject: [PATCH 5.15 194/779] stack: Declare {randomize_,}kstack_offset to fix Sparse warnings
-Date:   Mon, 15 Aug 2022 19:57:18 +0200
-Message-Id: <20220815180345.564511077@linuxfoundation.org>
+        stable@vger.kernel.org, Sireesh Kodali <sireeshkodali1@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 195/779] arm64: dts: qcom: msm8916: Fix typo in pronto remoteproc node
+Date:   Mon, 15 Aug 2022 19:57:19 +0200
+Message-Id: <20220815180345.614725077@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,45 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GONG, Ruiqi <gongruiqi1@huawei.com>
+From: Sireesh Kodali <sireeshkodali1@gmail.com>
 
-[ Upstream commit 375561bd6195a31bf4c109732bd538cb97a941f4 ]
+[ Upstream commit 5458d6f2827cd30218570f266b8d238417461f2f ]
 
-Fix the following Sparse warnings that got noticed when the PPC-dev
-patchwork was checking another patch (see the link below):
+The smem-state properties for the pronto node were incorrectly labelled,
+reading `qcom,state*` rather than `qcom,smem-state*`. Fix that, allowing
+the stop state to be used.
 
-init/main.c:862:1: warning: symbol 'randomize_kstack_offset' was not declared. Should it be static?
-init/main.c:864:1: warning: symbol 'kstack_offset' was not declared. Should it be static?
-
-Which in fact are triggered on all architectures that have
-HAVE_ARCH_RANDOMIZE_KSTACK_OFFSET support (for instances x86, arm64
-etc).
-
-Link: https://lore.kernel.org/lkml/e7b0d68b-914d-7283-827c-101988923929@huawei.com/T/#m49b2d4490121445ce4bf7653500aba59eefcb67f
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Xiu Jianfeng <xiujianfeng@huawei.com>
-Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Fixes: 39218ff4c625 ("stack: Optionally randomize kernel stack offset each syscall")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220629060423.2515693-1-gongruiqi1@huawei.com
+Fixes: 88106096cbf8 ("ARM: dts: msm8916: Add and enable wcnss node")
+Signed-off-by: Sireesh Kodali <sireeshkodali1@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220526141740.15834-3-sireeshkodali1@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/main.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/qcom/msm8916.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/init/main.c b/init/main.c
-index cf79b5a766cb..649d9e4201a8 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -100,6 +100,7 @@
- #include <linux/kcsan.h>
- #include <linux/init_syscalls.h>
- #include <linux/stackdepot.h>
-+#include <linux/randomize_kstack.h>
- #include <net/net_namespace.h>
+diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+index 8b2724272464..19e201f52b16 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+@@ -1747,8 +1747,8 @@ pronto: remoteproc@a21b000 {
+ 					<&rpmpd MSM8916_VDDMX>;
+ 			power-domain-names = "cx", "mx";
  
- #include <asm/io.h>
+-			qcom,state = <&wcnss_smp2p_out 0>;
+-			qcom,state-names = "stop";
++			qcom,smem-states = <&wcnss_smp2p_out 0>;
++			qcom,smem-state-names = "stop";
+ 
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&wcnss_pin_a>;
 -- 
 2.35.1
 
