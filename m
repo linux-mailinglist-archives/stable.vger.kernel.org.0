@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BD2B593B95
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EA11593D75
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345773AbiHOUER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:04:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39540 "EHLO
+        id S240902AbiHOUC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:02:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345780AbiHOUD0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:03:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FF107E022;
-        Mon, 15 Aug 2022 11:54:16 -0700 (PDT)
+        with ESMTP id S1345921AbiHOUA7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:00:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9ACB7A51D;
+        Mon, 15 Aug 2022 11:53:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91102611D6;
-        Mon, 15 Aug 2022 18:54:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16186C433D6;
-        Mon, 15 Aug 2022 18:54:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9AD70B810A0;
+        Mon, 15 Aug 2022 18:53:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DADC433D7;
+        Mon, 15 Aug 2022 18:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589655;
-        bh=0dG4uuL291nO1aV8Tjx0Cq3qOuuLfuwV842Ght+TL5Q=;
+        s=korg; t=1660589604;
+        bh=gSo018KO7yciQS/cs61HZj9oE5g4mjzMJegIb32bSyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mac2T1PVCxmOtUJ1WiFKMJVHTVvUKAvZGGMWgQAEsJspn6v0L/LcO94ps8y4mGpFi
-         DhwRpf6kYrCWZg40NCyxmpWJAleQNVUDCRXzZAjd4i5ORE2XVqCIK26ZSsVLxL+RI8
-         0eb3oWG9oS0P+TvSMrEC1yGU4wkoX7diWgPVKl3s=
+        b=gSAdD2kACO7rTuxfMGzgeUMwm5tWDrswNP342T4DPStdBeRTqG+4MiHrGpvN0zHdP
+         8Pl1Ny13LGH70LboPFNpdjVqG+f4fNL1K10KPwBNN5lAQ7cOzrREERzgNGrSNLUyWb
+         ZfsKlUnnr+dzpf+++5Tv8CC3yBInidhgvBjseoVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.15 770/779] tracing/perf: Avoid -Warray-bounds warning for __rel_loc macro
-Date:   Mon, 15 Aug 2022 20:06:54 +0200
-Message-Id: <20220815180410.302077206@linuxfoundation.org>
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>
+Subject: [PATCH 5.15 771/779] drm/msm: Fix dirtyfb refcounting
+Date:   Mon, 15 Aug 2022 20:06:55 +0200
+Message-Id: <20220815180410.350724076@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,72 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Rob Clark <robdclark@chromium.org>
 
-commit c6d777acdf8f62d4ebaef0e5c6cd8fedbd6e8546 upstream.
+commit 9225b337072a10bf9b09df8bf281437488dd8a26 upstream.
 
-As done for trace_events.h, also fix the __rel_loc macro in perf.h,
-which silences the -Warray-bounds warning:
+refcount_t complains about 0->1 transitions, which isn't *quite* what we
+wanted.  So use dirtyfb==1 to mean that the fb is not connected to any
+output that requires dirtyfb flushing, so that we can keep the underflow
+and overflow checking.
 
-In file included from ./include/linux/string.h:253,
-                 from ./include/linux/bitmap.h:11,
-                 from ./include/linux/cpumask.h:12,
-                 from ./include/linux/mm_types_task.h:14,
-                 from ./include/linux/mm_types.h:5,
-                 from ./include/linux/buildid.h:5,
-                 from ./include/linux/module.h:14,
-                 from samples/trace_events/trace-events-sample.c:2:
-In function '__fortify_strcpy',
-    inlined from 'perf_trace_foo_rel_loc' at samples/trace_events/./trace-events-sample.h:519:1:
-./include/linux/fortify-string.h:47:33: warning: '__builtin_strcpy' offset 12 is out of the bounds [
-0, 4] [-Warray-bounds]
-   47 | #define __underlying_strcpy     __builtin_strcpy
-      |                                 ^
-./include/linux/fortify-string.h:445:24: note: in expansion of macro '__underlying_strcpy'
-  445 |                 return __underlying_strcpy(p, q);
-      |                        ^~~~~~~~~~~~~~~~~~~
-
-Also make __data struct member a proper flexible array to avoid future
-problems.
-
-Link: https://lkml.kernel.org/r/20220125220037.2738923-1-keescook@chromium.org
-
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Fixes: 55de2c0b5610c ("tracing: Add '__rel_loc' using trace event macros")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: 9e4dde28e9cd ("drm/msm: Avoid dirtyfb stalls on video mode displays (v2)")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Link: https://lore.kernel.org/r/20220304202146.845566-1-robdclark@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/perf.h         |    5 +++--
- include/trace/trace_events.h |    2 +-
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/msm_fb.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/trace/perf.h
-+++ b/include/trace/perf.h
-@@ -23,8 +23,9 @@
+--- a/drivers/gpu/drm/msm/msm_fb.c
++++ b/drivers/gpu/drm/msm/msm_fb.c
+@@ -37,7 +37,7 @@ static int msm_framebuffer_dirtyfb(struc
+ 	/* If this fb is not used on any display requiring pixel data to be
+ 	 * flushed, then skip dirtyfb
+ 	 */
+-	if (refcount_read(&msm_fb->dirtyfb) == 0)
++	if (refcount_read(&msm_fb->dirtyfb) == 1)
+ 		return 0;
  
- #undef __get_rel_dynamic_array
- #define __get_rel_dynamic_array(field)	\
--		((void *)(&__entry->__rel_loc_##field) +	\
--		 sizeof(__entry->__rel_loc_##field) +		\
-+		((void *)__entry +					\
-+		 offsetof(typeof(*__entry), __rel_loc_##field) +	\
-+		 sizeof(__entry->__rel_loc_##field) +			\
- 		 (__entry->__rel_loc_##field & 0xffff))
+ 	return drm_atomic_helper_dirtyfb(fb, file_priv, flags, color,
+@@ -221,6 +221,8 @@ static struct drm_framebuffer *msm_frame
+ 		goto fail;
+ 	}
  
- #undef __get_rel_dynamic_array_len
---- a/include/trace/trace_events.h
-+++ b/include/trace/trace_events.h
-@@ -128,7 +128,7 @@ TRACE_MAKE_SYSTEM_STR();
- 	struct trace_event_raw_##name {					\
- 		struct trace_entry	ent;				\
- 		tstruct							\
--		char			__data[0];			\
-+		char			__data[];			\
- 	};								\
- 									\
- 	static struct trace_event_class event_class_##name;
++	refcount_set(&msm_fb->dirtyfb, 1);
++
+ 	drm_dbg_state(dev, "create: FB ID: %d (%p)", fb->base.id, fb);
+ 
+ 	return fb;
 
 
