@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B0A9594740
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A679F59477E
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:00:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355490AbiHOX4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:56:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56896 "EHLO
+        id S1355389AbiHOX4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:56:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355444AbiHOXwJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:52:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D811695AE2;
-        Mon, 15 Aug 2022 13:17:00 -0700 (PDT)
+        with ESMTP id S1356405AbiHOXyS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:54:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 868C916079E;
+        Mon, 15 Aug 2022 13:19:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D501E60F9F;
-        Mon, 15 Aug 2022 20:16:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5CFBC433C1;
-        Mon, 15 Aug 2022 20:16:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69849B81180;
+        Mon, 15 Aug 2022 20:19:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96203C433C1;
+        Mon, 15 Aug 2022 20:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594619;
-        bh=TMDXt7jtDWdicJEzEyNkxrX+6SxG2YI30o1x7P3pwRI=;
+        s=korg; t=1660594743;
+        bh=GuioARgipAjckdAdajthvc005UG73r+y/SYqcn3+24w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sWAgvWB0X2Mq08kSaMemthiYQ/ywv4MLea8moKrfrFG47YWj9cRsbpXkvqQCCMMgx
-         Od/qUEiQV0sHZTxbyDsH+IERjyHF1LYySX2mgv14at/i6CStpY2GgKNanjspJ7HaKa
-         AZ2/J/Z4sBEaztezUaTuICj2g7EmscQLE60cwxqk=
+        b=phXskbN01fJqbTDmOIJwjCrHXbVWUV1CgXq7tUTN3iFii5bG0dXRs0VVtW3MBsBtd
+         /s/jqkoLjcrzSuzSp9ukZq4fNu5FR86UoP2xL0jLmTGemYCFB54a9Gr8Gi9rpyjQYJ
+         XU+dVYVA0ZjIsem6qCmi0bbzY8aRlbjloXjRcSbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0505/1157] media: cedrus: h265: Fix logic for not low delay flag
-Date:   Mon, 15 Aug 2022 19:57:41 +0200
-Message-Id: <20220815180459.897601855@linuxfoundation.org>
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0543/1157] wifi: libertas: Fix possible refcount leak in if_usb_probe()
+Date:   Mon, 15 Aug 2022 19:58:19 +0200
+Message-Id: <20220815180501.395329616@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,74 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit f1a413902aa71044b6ec41265e5e28ebaf29a9ce ]
+[ Upstream commit 6fd57e1d120bf13d4dc6c200a7cf914e6347a316 ]
 
-Now that we know real purpose of "not low delay" flag, logic for
-applying this flag should be fixed too. According to vendor and
-reference implementation, low delay is signaled when POC of current
-frame is lower than POC of at least one reference of a slice.
+usb_get_dev will be called before lbs_get_firmware_async which means that
+usb_put_dev need to be called when lbs_get_firmware_async fails.
 
-Implement mentioned logic and invert it to conform to flag meaning. Also
-don't apply flag for I frames. They don't have any reference.
-
-This fixes decoding of 3 reference bitstreams.
-
-Fixes: 86caab29da78 ("media: cedrus: Add HEVC/H.265 decoding support")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: ce84bb69f50e ("libertas USB: convert to asynchronous firmware loading")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220620092350.39960-1-hbh25y@gmail.com
+Link: https://lore.kernel.org/r/20220622113402.16969-1-colin.i.king@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../staging/media/sunxi/cedrus/cedrus_h265.c  | 27 ++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ drivers/net/wireless/marvell/libertas/if_usb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-index c26e515d64c9..2f6404fccd5a 100644
---- a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-@@ -301,6 +301,31 @@ static void cedrus_h265_write_scaling_list(struct cedrus_ctx *ctx,
- 		}
- }
+diff --git a/drivers/net/wireless/marvell/libertas/if_usb.c b/drivers/net/wireless/marvell/libertas/if_usb.c
+index 5d6dc1dd050d..32fdc4150b60 100644
+--- a/drivers/net/wireless/marvell/libertas/if_usb.c
++++ b/drivers/net/wireless/marvell/libertas/if_usb.c
+@@ -287,6 +287,7 @@ static int if_usb_probe(struct usb_interface *intf,
+ 	return 0;
  
-+static int cedrus_h265_is_low_delay(struct cedrus_run *run)
-+{
-+	const struct v4l2_ctrl_hevc_slice_params *slice_params;
-+	const struct v4l2_hevc_dpb_entry *dpb;
-+	s32 poc;
-+	int i;
-+
-+	slice_params = run->h265.slice_params;
-+	poc = run->h265.decode_params->pic_order_cnt_val;
-+	dpb = run->h265.decode_params->dpb;
-+
-+	for (i = 0; i < slice_params->num_ref_idx_l0_active_minus1 + 1; i++)
-+		if (dpb[slice_params->ref_idx_l0[i]].pic_order_cnt_val > poc)
-+			return 1;
-+
-+	if (slice_params->slice_type != V4L2_HEVC_SLICE_TYPE_B)
-+		return 0;
-+
-+	for (i = 0; i < slice_params->num_ref_idx_l1_active_minus1 + 1; i++)
-+		if (dpb[slice_params->ref_idx_l1[i]].pic_order_cnt_val > poc)
-+			return 1;
-+
-+	return 0;
-+}
-+
- static void cedrus_h265_setup(struct cedrus_ctx *ctx,
- 			      struct cedrus_run *run)
- {
-@@ -571,7 +596,7 @@ static void cedrus_h265_setup(struct cedrus_ctx *ctx,
- 				V4L2_HEVC_SLICE_PARAMS_FLAG_SLICE_LOOP_FILTER_ACROSS_SLICES_ENABLED,
- 				slice_params->flags);
- 
--	if (decode_params->num_poc_st_curr_after == 0)
-+	if (slice_params->slice_type != V4L2_HEVC_SLICE_TYPE_I && !cedrus_h265_is_low_delay(run))
- 		reg |= VE_DEC_H265_DEC_SLICE_HDR_INFO1_FLAG_SLICE_NOT_LOW_DELAY;
- 
- 	cedrus_write(dev, VE_DEC_H265_DEC_SLICE_HDR_INFO1, reg);
+ err_get_fw:
++	usb_put_dev(udev);
+ 	lbs_remove_card(priv);
+ err_add_card:
+ 	if_usb_reset_device(cardp);
 -- 
 2.35.1
 
