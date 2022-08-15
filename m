@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D1A8594CFE
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0111594D04
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244500AbiHPAsT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:48:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57382 "EHLO
+        id S243933AbiHPAsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:48:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345200AbiHPAoE (ORCPT
+        with ESMTP id S233161AbiHPAoE (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:44:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1D5EAE21D;
-        Mon, 15 Aug 2022 13:40:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C700319230C;
+        Mon, 15 Aug 2022 13:40:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E8E96122E;
-        Mon, 15 Aug 2022 20:40:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72B45C433D6;
-        Mon, 15 Aug 2022 20:40:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 635F061185;
+        Mon, 15 Aug 2022 20:40:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A39CC433D6;
+        Mon, 15 Aug 2022 20:40:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596024;
-        bh=Pyw799UMOd9W9JvMkl0+1zzeas8WDF0EpdwV1mZOenI=;
+        s=korg; t=1660596027;
+        bh=77vapIcyjRpAWS+nM1j1G1Guba+2OS7XdW3xVb0Phes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p5SlELF3J/OHBzuVestKGu/k1J5+E2dnx9fIrXU1D/zpsRfw4u8zUWrLyYOYQV17E
-         aw9a1MKD4e0sdyTX/9qCBC4DFLuMqhQuP4figYtxg6RXI6RHLYHP3XRCFOjbOFUjY0
-         LbsYAy4Hj8cfXu8XsOjv4eaV1cpCAPqL1X1Pf+KM=
+        b=dRVeXsjpSoaMFXFUI7r+lQcDLJhsYYmU82vOxXpvxXu6Cc/1Pg0HLhyp5ogPMIB9x
+         chh8DJzTEf5lAtXeXUz48NPlttjHP2Cnfw9k4+NHHtgfkz5k9LBuS3/ZdkqtYoQlgw
+         ++mc3bLHAlHRfG8IvR4/9wz2iZFiiwSn6SPm+kYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Yury Norov <yury.norov@gmail.com>,
+        Seppo Ingalsuo <seppo.ingalsuo@linux.intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0950/1157] lib/bitmap: fix off-by-one in bitmap_to_arr64()
-Date:   Mon, 15 Aug 2022 20:05:06 +0200
-Message-Id: <20220815180517.578237375@linuxfoundation.org>
+Subject: [PATCH 5.19 0951/1157] ASoC: SOF: ipc3-topology: Prevent double freeing of ipc_control_data via load_bytes
+Date:   Mon, 15 Aug 2022 20:05:07 +0200
+Message-Id: <20220815180517.627610692@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,46 +58,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-[ Upstream commit 428bc098635680a664779f26f24fe9197d186172 ]
+[ Upstream commit d5bd47f3ca124058a8e87eae4508afeda2132611 ]
 
-GENMASK*() family takes the first and the last bits of the mask
-*including* them. So, with the current code bitmap_to_arr64()
-doesn't clear the tail properly:
+We have sanity checks for byte controls and if any of the fail the locally
+allocated scontrol->ipc_control_data is freed up, but not set to NULL.
 
-nbits %  exp             mask                must be
-1        GENMASK(1, 0)   0x3                 0x1
-...
-63       GENMASK(63, 0)  0xffffffffffffffff  0x7fffffffffffffff
+On a rollback path of the error the higher level code will also try to free
+the scontrol->ipc_control_data which will eventually going to lead to
+memory corruption as double freeing memory is not a good thing.
 
-This was found by making the function always available instead of
-32-bit BE systems only (for reusing in some new functionality).
-Turn the number of bits into the last bit set by subtracting 1.
-@nbits is already checked to be positive beforehand.
-
-Fixes: 0a97953fd221 ("lib: add bitmap_{from,to}_arr64")
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
+Fixes: b5cee8feb1d4 ("ASoC: SOF: topology: Make control parsing IPC agnostic")
+Reported-by: Seppo Ingalsuo <seppo.ingalsuo@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Seppo Ingalsuo <seppo.ingalsuo@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220712130103.31514-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/bitmap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/sof/ipc3-topology.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/lib/bitmap.c b/lib/bitmap.c
-index b18e31ea6e66..e903e13c62e1 100644
---- a/lib/bitmap.c
-+++ b/lib/bitmap.c
-@@ -1564,7 +1564,7 @@ void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits)
- 
- 	/* Clear tail bits in the last element of array beyond nbits. */
- 	if (nbits % 64)
--		buf[-1] &= GENMASK_ULL(nbits % 64, 0);
-+		buf[-1] &= GENMASK_ULL((nbits - 1) % 64, 0);
+diff --git a/sound/soc/sof/ipc3-topology.c b/sound/soc/sof/ipc3-topology.c
+index 10740c55294d..e97f50d5bcba 100644
+--- a/sound/soc/sof/ipc3-topology.c
++++ b/sound/soc/sof/ipc3-topology.c
+@@ -1628,6 +1628,7 @@ static int sof_ipc3_control_load_bytes(struct snd_sof_dev *sdev, struct snd_sof_
+ 	return 0;
+ err:
+ 	kfree(scontrol->ipc_control_data);
++	scontrol->ipc_control_data = NULL;
+ 	return ret;
  }
- EXPORT_SYMBOL(bitmap_to_arr64);
- #endif
+ 
 -- 
 2.35.1
 
