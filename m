@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 814D5593DEE
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8668A593DF1
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345125AbiHOUd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:33:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38656 "EHLO
+        id S1343584AbiHOUdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:33:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347800AbiHOUbm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:31:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A036A572B;
-        Mon, 15 Aug 2022 12:04:49 -0700 (PDT)
+        with ESMTP id S1347639AbiHOUb2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:31:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A92FDA5C7D;
+        Mon, 15 Aug 2022 12:04:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E3F26612AB;
-        Mon, 15 Aug 2022 19:04:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5062C4347C;
-        Mon, 15 Aug 2022 19:04:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 812D1B81106;
+        Mon, 15 Aug 2022 19:04:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9170C433D6;
+        Mon, 15 Aug 2022 19:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590288;
-        bh=ApGZls245OFaL4bZDd2zk1ckQldFOthVbDmUJI6iQH0=;
+        s=korg; t=1660590291;
+        bh=omZ20BVuFxL1W05Lz9Iqe5y6+N9MFAhSKFKp3+JoWnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p9WjxYuK7oxJqqZ28eDeb013dF9ogDS1Q35hO8mrknaZf2J2gUrp3hmPzNV59inR4
-         lnsGZlosub4fOZabtd/XS54u4aLnMUzbrm4LjIRafeLIqenjNByciNbQtERILCVzKs
-         hQCJXjpJWoIacuEzvq4OaRSscrOeNZTPj1eFMfRQ=
+        b=LZK8QbIZMS5dVFjm8lxfskJBfEH5meKSNRBrGYppXNvQtX5kYR/Xx47X63DJOwqTR
+         C3Lx2JGLw2VUhxD6eDjYEqPmwxRX5CJYSL/fjPPeRzivxCK3tPhum7pUcpaLZ1R0eT
+         iwHb3i5Y/A0rXEVJ737GNxwKskIgnFB/Mx4yP/Sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0213/1095] ARM: OMAP2+: Fix refcount leak in omapdss_init_of
-Date:   Mon, 15 Aug 2022 19:53:32 +0200
-Message-Id: <20220815180438.480345517@linuxfoundation.org>
+Subject: [PATCH 5.18 0214/1095] ARM: OMAP2+: Fix refcount leak in omap3xxx_prm_late_init
+Date:   Mon, 15 Aug 2022 19:53:33 +0200
+Message-Id: <20220815180438.524821462@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,41 +56,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 9705db1eff38d6b9114121f9e253746199b759c9 ]
+[ Upstream commit 942228fbf5d4901112178b93d41225be7c0dd9de ]
 
-omapdss_find_dss_of_node() calls of_find_compatible_node() to get device
-node. of_find_compatible_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when done.
-Add missing of_node_put() in later error path and normal path.
+of_find_matching_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: e0c827aca0730 ("drm/omap: Populate DSS children in omapdss driver")
+Fixes: 1e037794f7f0 ("ARM: OMAP3+: PRM: register interrupt information from DT")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Message-Id: <20220601044858.3352-1-linmq006@gmail.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Message-Id: <20220526073724.21169-1-linmq006@gmail.com>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/display.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/mach-omap2/prm3xxx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
-index eb09a25e3b45..8d829f3dafe7 100644
---- a/arch/arm/mach-omap2/display.c
-+++ b/arch/arm/mach-omap2/display.c
-@@ -260,11 +260,13 @@ static int __init omapdss_init_of(void)
- 
- 	if (!pdev) {
- 		pr_err("Unable to find DSS platform device\n");
-+		of_node_put(node);
- 		return -ENODEV;
+diff --git a/arch/arm/mach-omap2/prm3xxx.c b/arch/arm/mach-omap2/prm3xxx.c
+index 1b442b128569..63e73e9b82bc 100644
+--- a/arch/arm/mach-omap2/prm3xxx.c
++++ b/arch/arm/mach-omap2/prm3xxx.c
+@@ -708,6 +708,7 @@ static int omap3xxx_prm_late_init(void)
  	}
  
- 	r = of_platform_populate(node, NULL, NULL, &pdev->dev);
- 	put_device(&pdev->dev);
-+	of_node_put(node);
- 	if (r) {
- 		pr_err("Unable to populate DSS submodule devices\n");
- 		return r;
+ 	irq_num = of_irq_get(np, 0);
++	of_node_put(np);
+ 	if (irq_num == -EPROBE_DEFER)
+ 		return irq_num;
+ 
 -- 
 2.35.1
 
