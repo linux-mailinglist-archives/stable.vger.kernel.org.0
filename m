@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD41059393E
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C995D59367C
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343912AbiHOTPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:15:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59218 "EHLO
+        id S1345142AbiHOTSM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:18:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241407AbiHOTNi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:13:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF1C51A17;
-        Mon, 15 Aug 2022 11:37:35 -0700 (PDT)
+        with ESMTP id S1343785AbiHOTOH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:14:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC74051421;
+        Mon, 15 Aug 2022 11:37:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9574760FC4;
-        Mon, 15 Aug 2022 18:37:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96941C433C1;
-        Mon, 15 Aug 2022 18:37:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37A17B81081;
+        Mon, 15 Aug 2022 18:37:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90728C433D6;
+        Mon, 15 Aug 2022 18:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588654;
-        bh=0RS1MmN86UN8i8zMV6nez1c6juO8rb3/MzSELu75oQs=;
+        s=korg; t=1660588657;
+        bh=X3qPuLav52OOzYvZwltcATXGFNNz09hxt2osJYcE06Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yXCbIHLW23xNZasefVzcR2ce4671xRPR+00MMaMGxel6uzRBgD33td8wD5Xw59RII
-         tbfhZ6lY+9agXCCBPx3IanFKWPrZ5z0hx0/MbVp9xFN3uSxvjqoYKfApsoIj4CVp4m
-         o30XJgi+EBKcGUVezkG3pS60E8KDuVafvAXiqkoE=
+        b=h6hIDkD3nK0mZnygtbMiU0U6tsmIYQB1c3f8e1vo1SDrBeCAvr+Ak3l9LxEP5fnyJ
+         qxuxbjtyOYA0vtlIw1HesNUhoVe2sy6t/0qoBuzVbmFaIAxnKvEMiUbmGy3tclu+6Z
+         4sFwMZ38FKHWTyRKG8g5SXZu2eeD+B7b2sk0gNcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Carlos Llamas <cmllamas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 473/779] intel_th: msu: Fix vmalloced buffers
-Date:   Mon, 15 Aug 2022 20:01:57 +0200
-Message-Id: <20220815180357.503818464@linuxfoundation.org>
+Subject: [PATCH 5.15 474/779] binder: fix redefinition of seq_file attributes
+Date:   Mon, 15 Aug 2022 20:01:58 +0200
+Message-Id: <20220815180357.535529555@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,72 +54,344 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Carlos Llamas <cmllamas@google.com>
 
-[ Upstream commit ac12ad3ccf6d386e64a9d6a890595a2509d24edd ]
+[ Upstream commit b7e241bbff24f9e106bf616408fd58bcedc44bae ]
 
-After commit f5ff79fddf0e ("dma-mapping: remove CONFIG_DMA_REMAP") there's
-a chance of DMA buffer getting allocated via vmalloc(), which messes up
-the mmapping code:
+The patchset in [1] exported some definitions to binder_internal.h in
+order to make the debugfs entries such as 'stats' and 'transaction_log'
+available in a binderfs instance. However, the DEFINE_SHOW_ATTRIBUTE
+macro expands into a static function/variable pair, which in turn get
+redefined each time a source file includes this internal header.
 
-> RIP: msc_mmap_fault [intel_th_msu]
-> Call Trace:
->  <TASK>
->  __do_fault
->  do_fault
-...
+This problem was made evident after a report from the kernel test robot
+<lkp@intel.com> where several W=1 build warnings are seen in downstream
+kernels. See the following example:
 
-Fix this by accounting for vmalloc possibility.
+  include/../drivers/android/binder_internal.h:111:23: warning: 'binder_stats_fops' defined but not used [-Wunused-const-variable=]
+     111 | DEFINE_SHOW_ATTRIBUTE(binder_stats);
+         |                       ^~~~~~~~~~~~
+  include/linux/seq_file.h:174:37: note: in definition of macro 'DEFINE_SHOW_ATTRIBUTE'
+     174 | static const struct file_operations __name ## _fops = {                 \
+         |                                     ^~~~~~
 
-Fixes: ba39bd830605 ("intel_th: msu: Switch over to scatterlist")
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Link: https://lore.kernel.org/r/20220705082637.59979-4-alexander.shishkin@linux.intel.com
+This patch fixes the above issues by moving back the definitions into
+binder.c and instead creates an array of the debugfs entries which is
+more convenient to share with binderfs and iterate through.
+
+  [1] https://lore.kernel.org/all/20190903161655.107408-1-hridya@google.com/
+
+Fixes: 0e13e452dafc ("binder: Add stats, state and transactions files")
+Fixes: 03e2e07e3814 ("binder: Make transaction_log available in binderfs")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Carlos Llamas <cmllamas@google.com>
+Link: https://lore.kernel.org/r/20220701182041.2134313-1-cmllamas@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/intel_th/msu.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/android/binder.c          | 114 +++++++++++++++++++++---------
+ drivers/android/binder_internal.h |  46 +++---------
+ drivers/android/binderfs.c        |  47 +++---------
+ 3 files changed, 100 insertions(+), 107 deletions(-)
 
-diff --git a/drivers/hwtracing/intel_th/msu.c b/drivers/hwtracing/intel_th/msu.c
-index 432ade0842f6..d95d916b4682 100644
---- a/drivers/hwtracing/intel_th/msu.c
-+++ b/drivers/hwtracing/intel_th/msu.c
-@@ -1069,6 +1069,16 @@ msc_buffer_set_uc(struct msc *msc) {}
- static inline void msc_buffer_set_wb(struct msc *msc) {}
- #endif /* CONFIG_X86 */
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index 99ae919255f4..56a2387656a0 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -170,8 +170,32 @@ static inline void binder_stats_created(enum binder_stat_types type)
+ 	atomic_inc(&binder_stats.obj_created[type]);
+ }
  
-+static struct page *msc_sg_page(struct scatterlist *sg)
-+{
-+	void *addr = sg_virt(sg);
+-struct binder_transaction_log binder_transaction_log;
+-struct binder_transaction_log binder_transaction_log_failed;
++struct binder_transaction_log_entry {
++	int debug_id;
++	int debug_id_done;
++	int call_type;
++	int from_proc;
++	int from_thread;
++	int target_handle;
++	int to_proc;
++	int to_thread;
++	int to_node;
++	int data_size;
++	int offsets_size;
++	int return_error_line;
++	uint32_t return_error;
++	uint32_t return_error_param;
++	char context_name[BINDERFS_MAX_NAME + 1];
++};
 +
-+	if (is_vmalloc_addr(addr))
-+		return vmalloc_to_page(addr);
++struct binder_transaction_log {
++	atomic_t cur;
++	bool full;
++	struct binder_transaction_log_entry entry[32];
++};
 +
-+	return sg_page(sg);
-+}
++static struct binder_transaction_log binder_transaction_log;
++static struct binder_transaction_log binder_transaction_log_failed;
+ 
+ static struct binder_transaction_log_entry *binder_transaction_log_add(
+ 	struct binder_transaction_log *log)
+@@ -5801,8 +5825,7 @@ static void print_binder_proc_stats(struct seq_file *m,
+ 	print_binder_stats(m, "  ", &proc->stats);
+ }
+ 
+-
+-int binder_state_show(struct seq_file *m, void *unused)
++static int state_show(struct seq_file *m, void *unused)
+ {
+ 	struct binder_proc *proc;
+ 	struct binder_node *node;
+@@ -5841,7 +5864,7 @@ int binder_state_show(struct seq_file *m, void *unused)
+ 	return 0;
+ }
+ 
+-int binder_stats_show(struct seq_file *m, void *unused)
++static int stats_show(struct seq_file *m, void *unused)
+ {
+ 	struct binder_proc *proc;
+ 
+@@ -5857,7 +5880,7 @@ int binder_stats_show(struct seq_file *m, void *unused)
+ 	return 0;
+ }
+ 
+-int binder_transactions_show(struct seq_file *m, void *unused)
++static int transactions_show(struct seq_file *m, void *unused)
+ {
+ 	struct binder_proc *proc;
+ 
+@@ -5913,7 +5936,7 @@ static void print_binder_transaction_log_entry(struct seq_file *m,
+ 			"\n" : " (incomplete)\n");
+ }
+ 
+-int binder_transaction_log_show(struct seq_file *m, void *unused)
++static int transaction_log_show(struct seq_file *m, void *unused)
+ {
+ 	struct binder_transaction_log *log = m->private;
+ 	unsigned int log_cur = atomic_read(&log->cur);
+@@ -5945,6 +5968,45 @@ const struct file_operations binder_fops = {
+ 	.release = binder_release,
+ };
+ 
++DEFINE_SHOW_ATTRIBUTE(state);
++DEFINE_SHOW_ATTRIBUTE(stats);
++DEFINE_SHOW_ATTRIBUTE(transactions);
++DEFINE_SHOW_ATTRIBUTE(transaction_log);
 +
- /**
-  * msc_buffer_win_alloc() - alloc a window for a multiblock mode
-  * @msc:	MSC device
-@@ -1139,7 +1149,7 @@ static void __msc_buffer_win_free(struct msc *msc, struct msc_window *win)
- 	int i;
++const struct binder_debugfs_entry binder_debugfs_entries[] = {
++	{
++		.name = "state",
++		.mode = 0444,
++		.fops = &state_fops,
++		.data = NULL,
++	},
++	{
++		.name = "stats",
++		.mode = 0444,
++		.fops = &stats_fops,
++		.data = NULL,
++	},
++	{
++		.name = "transactions",
++		.mode = 0444,
++		.fops = &transactions_fops,
++		.data = NULL,
++	},
++	{
++		.name = "transaction_log",
++		.mode = 0444,
++		.fops = &transaction_log_fops,
++		.data = &binder_transaction_log,
++	},
++	{
++		.name = "failed_transaction_log",
++		.mode = 0444,
++		.fops = &transaction_log_fops,
++		.data = &binder_transaction_log_failed,
++	},
++	{} /* terminator */
++};
++
+ static int __init init_binder_device(const char *name)
+ {
+ 	int ret;
+@@ -5990,36 +6052,18 @@ static int __init binder_init(void)
+ 	atomic_set(&binder_transaction_log_failed.cur, ~0U);
  
- 	for_each_sg(win->sgt->sgl, sg, win->nr_segs, i) {
--		struct page *page = sg_page(sg);
-+		struct page *page = msc_sg_page(sg);
+ 	binder_debugfs_dir_entry_root = debugfs_create_dir("binder", NULL);
+-	if (binder_debugfs_dir_entry_root)
++	if (binder_debugfs_dir_entry_root) {
++		const struct binder_debugfs_entry *db_entry;
++
++		binder_for_each_debugfs_entry(db_entry)
++			debugfs_create_file(db_entry->name,
++					    db_entry->mode,
++					    binder_debugfs_dir_entry_root,
++					    db_entry->data,
++					    db_entry->fops);
++
+ 		binder_debugfs_dir_entry_proc = debugfs_create_dir("proc",
+ 						 binder_debugfs_dir_entry_root);
+-
+-	if (binder_debugfs_dir_entry_root) {
+-		debugfs_create_file("state",
+-				    0444,
+-				    binder_debugfs_dir_entry_root,
+-				    NULL,
+-				    &binder_state_fops);
+-		debugfs_create_file("stats",
+-				    0444,
+-				    binder_debugfs_dir_entry_root,
+-				    NULL,
+-				    &binder_stats_fops);
+-		debugfs_create_file("transactions",
+-				    0444,
+-				    binder_debugfs_dir_entry_root,
+-				    NULL,
+-				    &binder_transactions_fops);
+-		debugfs_create_file("transaction_log",
+-				    0444,
+-				    binder_debugfs_dir_entry_root,
+-				    &binder_transaction_log,
+-				    &binder_transaction_log_fops);
+-		debugfs_create_file("failed_transaction_log",
+-				    0444,
+-				    binder_debugfs_dir_entry_root,
+-				    &binder_transaction_log_failed,
+-				    &binder_transaction_log_fops);
+ 	}
  
- 		page->mapping = NULL;
- 		dma_free_coherent(msc_dev(win->msc)->parent->parent, PAGE_SIZE,
-@@ -1403,7 +1413,7 @@ static struct page *msc_buffer_get_page(struct msc *msc, unsigned long pgoff)
- 	pgoff -= win->pgoff;
+ 	if (!IS_ENABLED(CONFIG_ANDROID_BINDERFS) &&
+diff --git a/drivers/android/binder_internal.h b/drivers/android/binder_internal.h
+index d6b6b8cb7346..1ade9799c8d5 100644
+--- a/drivers/android/binder_internal.h
++++ b/drivers/android/binder_internal.h
+@@ -107,41 +107,19 @@ static inline int __init init_binderfs(void)
+ }
+ #endif
  
- 	for_each_sg(win->sgt->sgl, sg, win->nr_segs, blk) {
--		struct page *page = sg_page(sg);
-+		struct page *page = msc_sg_page(sg);
- 		size_t pgsz = PFN_DOWN(sg->length);
+-int binder_stats_show(struct seq_file *m, void *unused);
+-DEFINE_SHOW_ATTRIBUTE(binder_stats);
+-
+-int binder_state_show(struct seq_file *m, void *unused);
+-DEFINE_SHOW_ATTRIBUTE(binder_state);
+-
+-int binder_transactions_show(struct seq_file *m, void *unused);
+-DEFINE_SHOW_ATTRIBUTE(binder_transactions);
+-
+-int binder_transaction_log_show(struct seq_file *m, void *unused);
+-DEFINE_SHOW_ATTRIBUTE(binder_transaction_log);
+-
+-struct binder_transaction_log_entry {
+-	int debug_id;
+-	int debug_id_done;
+-	int call_type;
+-	int from_proc;
+-	int from_thread;
+-	int target_handle;
+-	int to_proc;
+-	int to_thread;
+-	int to_node;
+-	int data_size;
+-	int offsets_size;
+-	int return_error_line;
+-	uint32_t return_error;
+-	uint32_t return_error_param;
+-	char context_name[BINDERFS_MAX_NAME + 1];
++struct binder_debugfs_entry {
++	const char *name;
++	umode_t mode;
++	const struct file_operations *fops;
++	void *data;
+ };
  
- 		if (pgoff < pgsz)
+-struct binder_transaction_log {
+-	atomic_t cur;
+-	bool full;
+-	struct binder_transaction_log_entry entry[32];
+-};
++extern const struct binder_debugfs_entry binder_debugfs_entries[];
++
++#define binder_for_each_debugfs_entry(entry)	\
++	for ((entry) = binder_debugfs_entries;	\
++	     (entry)->name;			\
++	     (entry)++)
+ 
+ enum binder_stat_types {
+ 	BINDER_STAT_PROC,
+@@ -575,6 +553,4 @@ struct binder_object {
+ 	};
+ };
+ 
+-extern struct binder_transaction_log binder_transaction_log;
+-extern struct binder_transaction_log binder_transaction_log_failed;
+ #endif /* _LINUX_BINDER_INTERNAL_H */
+diff --git a/drivers/android/binderfs.c b/drivers/android/binderfs.c
+index e3605cdd4335..6d717ed76766 100644
+--- a/drivers/android/binderfs.c
++++ b/drivers/android/binderfs.c
+@@ -621,6 +621,7 @@ static int init_binder_features(struct super_block *sb)
+ static int init_binder_logs(struct super_block *sb)
+ {
+ 	struct dentry *binder_logs_root_dir, *dentry, *proc_log_dir;
++	const struct binder_debugfs_entry *db_entry;
+ 	struct binderfs_info *info;
+ 	int ret = 0;
+ 
+@@ -631,43 +632,15 @@ static int init_binder_logs(struct super_block *sb)
+ 		goto out;
+ 	}
+ 
+-	dentry = binderfs_create_file(binder_logs_root_dir, "stats",
+-				      &binder_stats_fops, NULL);
+-	if (IS_ERR(dentry)) {
+-		ret = PTR_ERR(dentry);
+-		goto out;
+-	}
+-
+-	dentry = binderfs_create_file(binder_logs_root_dir, "state",
+-				      &binder_state_fops, NULL);
+-	if (IS_ERR(dentry)) {
+-		ret = PTR_ERR(dentry);
+-		goto out;
+-	}
+-
+-	dentry = binderfs_create_file(binder_logs_root_dir, "transactions",
+-				      &binder_transactions_fops, NULL);
+-	if (IS_ERR(dentry)) {
+-		ret = PTR_ERR(dentry);
+-		goto out;
+-	}
+-
+-	dentry = binderfs_create_file(binder_logs_root_dir,
+-				      "transaction_log",
+-				      &binder_transaction_log_fops,
+-				      &binder_transaction_log);
+-	if (IS_ERR(dentry)) {
+-		ret = PTR_ERR(dentry);
+-		goto out;
+-	}
+-
+-	dentry = binderfs_create_file(binder_logs_root_dir,
+-				      "failed_transaction_log",
+-				      &binder_transaction_log_fops,
+-				      &binder_transaction_log_failed);
+-	if (IS_ERR(dentry)) {
+-		ret = PTR_ERR(dentry);
+-		goto out;
++	binder_for_each_debugfs_entry(db_entry) {
++		dentry = binderfs_create_file(binder_logs_root_dir,
++					      db_entry->name,
++					      db_entry->fops,
++					      db_entry->data);
++		if (IS_ERR(dentry)) {
++			ret = PTR_ERR(dentry);
++			goto out;
++		}
+ 	}
+ 
+ 	proc_log_dir = binderfs_create_dir(binder_logs_root_dir, "proc");
 -- 
 2.35.1
 
