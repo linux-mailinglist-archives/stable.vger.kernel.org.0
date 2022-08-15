@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 352035937FC
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 798D85937A0
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343749AbiHOTS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:18:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58946 "EHLO
+        id S232192AbiHOTS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:18:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344110AbiHOTPp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:15:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F4EE3C8C5;
-        Mon, 15 Aug 2022 11:37:48 -0700 (PDT)
+        with ESMTP id S1344099AbiHOTPi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:15:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 109AA52DD8;
+        Mon, 15 Aug 2022 11:37:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E14F961124;
-        Mon, 15 Aug 2022 18:37:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCA99C4314B;
-        Mon, 15 Aug 2022 18:37:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A94DAB81081;
+        Mon, 15 Aug 2022 18:37:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02D32C4314B;
+        Mon, 15 Aug 2022 18:37:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588666;
-        bh=23kjo+ZyjcPrClieeyY9KVDu2cu6m5ks6/6ZF6W79Iw=;
+        s=korg; t=1660588669;
+        bh=dtE/VDMmk74avq+YClQMceAC7eWhmIxaLz/G5hJIfkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wTagRhAYFTtG0MPnQ/s/l/zuhpanh8GzeFyneKEKiBginfrSt1CoRS7HIWPRL4qu4
-         Adk/RsC7PhA7EB2aCbbX5UZrYUug3POc1BTgmCRVuHw1d58UrNkV++7iHE8PvfCA+n
-         KNC9MM8fO8BKdAeDUChbXFSvV8gKzEtx1mLyuAd8=
+        b=2cJd6GOqD8xM3dQTlsXtXscR42vK8txQtnjZtv9sZEAXET3g9sTIVk3qd1v8ZIqtG
+         au0zRcyvRQQbcCr8OSmHvGcecp+QlTS7VUzhNDOB26kdzEwP8inx3wn6mQ9lVlWGKp
+         4jBHjypS2EJ+Gr7FzmmcT3K4OGWnHKvs0/CA+BIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Fabio Estevam <festevam@gmail.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 476/779] mmc: sdhci-of-esdhc: Fix refcount leak in esdhc_signal_voltage_switch
-Date:   Mon, 15 Aug 2022 20:02:00 +0200
-Message-Id: <20220815180357.629409233@linuxfoundation.org>
+Subject: [PATCH 5.15 477/779] mmc: mxcmmc: Silence a clang warning
+Date:   Mon, 15 Aug 2022 20:02:01 +0200
+Message-Id: <20220815180357.661053375@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,36 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit b5899a3e2f783a27b268e38d37f9b24c71bddf45 ]
+[ Upstream commit 7dc65e3c0ef4b746a583b7c58f99873fddf5ccfa ]
 
-of_find_matching_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
-of_node_put() checks null pointer.
+Change the of_device_get_match_data() cast to (uintptr_t)
+to silence the following clang warning:
 
-Fixes: ea35645a3c66 ("mmc: sdhci-of-esdhc: add support for signal voltage switch")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220523144255.10310-1-linmq006@gmail.com
+drivers/mmc/host/mxcmmc.c:1028:18: warning: cast to smaller integer type 'enum mxcmci_type' from 'const void *' [-Wvoid-pointer-to-enum-cast]
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 8223e885e74b ("mmc: mxc: Convert the driver to DT-only")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20220526010022.1163483-1-festevam@gmail.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-of-esdhc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/mxcmmc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/sdhci-of-esdhc.c b/drivers/mmc/host/sdhci-of-esdhc.c
-index 0f3658b36513..04a37fd137ee 100644
---- a/drivers/mmc/host/sdhci-of-esdhc.c
-+++ b/drivers/mmc/host/sdhci-of-esdhc.c
-@@ -904,6 +904,7 @@ static int esdhc_signal_voltage_switch(struct mmc_host *mmc,
- 		scfg_node = of_find_matching_node(NULL, scfg_device_ids);
- 		if (scfg_node)
- 			scfg_base = of_iomap(scfg_node, 0);
-+		of_node_put(scfg_node);
- 		if (scfg_base) {
- 			sdhciovselcr = SDHCIOVSELCR_TGLEN |
- 				       SDHCIOVSELCR_VSELVAL;
+diff --git a/drivers/mmc/host/mxcmmc.c b/drivers/mmc/host/mxcmmc.c
+index 2fe6fcdbb1b3..9bf95ba217fa 100644
+--- a/drivers/mmc/host/mxcmmc.c
++++ b/drivers/mmc/host/mxcmmc.c
+@@ -1025,7 +1025,7 @@ static int mxcmci_probe(struct platform_device *pdev)
+ 	mmc->max_req_size = mmc->max_blk_size * mmc->max_blk_count;
+ 	mmc->max_seg_size = mmc->max_req_size;
+ 
+-	host->devtype = (enum mxcmci_type)of_device_get_match_data(&pdev->dev);
++	host->devtype = (uintptr_t)of_device_get_match_data(&pdev->dev);
+ 
+ 	/* adjust max_segs after devtype detection */
+ 	if (!is_mpc512x_mmc(host))
 -- 
 2.35.1
 
