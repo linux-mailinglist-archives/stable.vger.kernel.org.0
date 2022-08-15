@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34439593107
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 16:53:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BC2059310D
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 16:54:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232036AbiHOOxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 10:53:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60606 "EHLO
+        id S232036AbiHOOye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 10:54:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231480AbiHOOxU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 10:53:20 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB5E01403D
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 07:53:19 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id c187-20020a1c35c4000000b003a30d88fe8eso7921911wma.2
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 07:53:19 -0700 (PDT)
+        with ESMTP id S232011AbiHOOye (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 10:54:34 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6234E1403D
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 07:54:33 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id bv3so9361501wrb.5
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 07:54:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc;
-        bh=nElDbTCSNkNAP8xQg8/k/OqVMafpwN8po+TvPzwbkVY=;
-        b=bB3F9sDEpvmolKW75w2rsxfpkHfUgTV/Ltd9taJAcyQ1pH/kox6d7f10lEppU1EYUk
-         0UFxKiQsYYAmC2UJl2vwz3dmPUPRhpF/vH4wnnMiEQ8s1A5HRMEnKRUgnxgqr+HXhhQ6
-         es2oL9c5EgJQtxFfamgQr7MZ1DH7sQqqYy3YzxW4zePteHAXdYHj4mwkXiSLCZT3shOU
-         wqEzq5immerkW4HwHg1mzV9gMcrksV5LGNEXlN64K7c+Igj6oRQRzBluaWdNnyX/PwPg
-         9Nk6jv+da1qfGgZ9w8PLBxNAXiKda0FsdBYSRFbZgApUj+a0pLXSAtUojBAb+Q8yRHDR
-         AyKw==
+        bh=4DjM/vZxduL6zzFIFmdTCVj3GPSxV2j1KLrN465Wx28=;
+        b=mJBAvU5nX+Dl+YOJ+zdrp3NH+BGla5foqCyhhek3jeVvt7J+VMLd1lAoodG5M0coEP
+         WbbSP9y/pOzze4JEaX6hnhLJzxBce4GXz7UsqHbVUbQmqVK1jM62Sml/zk5v9mVkMJbm
+         LMxtO84tQsDFiPkEpqYE7hj+2XQlgqyUkE0T7IGihwEgalRc5D+q4ScHc3cZLmJbZS2+
+         95SD8m/f6R4h/FN6ZCK0WdaAoIi7alG+uTQvwzPikgcjvaVcXhpinJjj6qRdez2+D5aZ
+         8GgtPk001OcrqIqs7fdRhCg5F7O3ZnLgIe1fxZQfa2W929nrCCdjLAahhH75Cp+3kOT4
+         RslQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc;
-        bh=nElDbTCSNkNAP8xQg8/k/OqVMafpwN8po+TvPzwbkVY=;
-        b=lBPXTbT6Kn7TzUS8JMTTVqpZkk07x/kI36bzbm/gVg1fHYjj/mFxciK1VQBCGELq99
-         6PVYBVdrbqHJ0rO1Yy80Jt6WvDIEauKFNuGiLcZsRL4XaWc6insM8GFvj7AHqE24xBrm
-         7N5pqkE7R3h1JGS58AmJeIAddpamYTe7bEyJRqlRKg2Y/P8xF8gmf0YYrHamXhuuW1K7
-         aas3tmHOUQ0jx4IpV8N7tX6RdtGuB1wbtsbnLI3EO8FbgzHOHnUN84iNsOauA0hU9Ny5
-         ZavGkb88dEEfmh26ddljnei8JIm7qc8fdWQZ58kZStM3VSCa4jYXI+B6soJCrFYMF0IA
-         i9pw==
-X-Gm-Message-State: ACgBeo3DkfnRkbRXdVkCE058UVPUUCb6iA5hQXAX2dZ3IZ/DyT9tnxoT
-        3Kbr1dey4ofkW5wjkMcpFEyIvwCXEW0=
-X-Google-Smtp-Source: AA6agR7LmZAy2Fhm/FIT45mPf6MHutTo4/MJ0te6paeo7IvFaUndNHd3/wH/m5WD5N2XiyYJBwcSTg==
-X-Received: by 2002:a05:600c:4e8c:b0:3a6:11e:cc08 with SMTP id f12-20020a05600c4e8c00b003a6011ecc08mr1195387wmq.198.1660575198104;
-        Mon, 15 Aug 2022 07:53:18 -0700 (PDT)
+        bh=4DjM/vZxduL6zzFIFmdTCVj3GPSxV2j1KLrN465Wx28=;
+        b=u6MgoBphralQtvDmfMV/Mkx1NJCL5BzCiKrsvac2bgoecdYR+eRyLanSxqc4QvMsoX
+         a9Zg24eN2CxkXHDZ22FNv9lxfC4auQ6sZx7bXipdSQJhqp0QLYZQDKiQ38qfVeGfPWuS
+         SWaup5fXkBrzwHTWsj4JJNf7LpHizxmMdvqEIoHYRizflkHhYwtxIJe8A8sMuoMd8yBp
+         7GWb0GTdT61sIutrVBN32K3yqNmj6OSKRD6dhhXpdCMkRnTOA6n+iIS2+kjYmLxDr4Tg
+         ogxFrQfslrKXCwbmXQyfndrA2lZtEsG8mNTiRIS4Z6UL6TftS0KE3fC9yK/aX0FhCzQO
+         f6Mw==
+X-Gm-Message-State: ACgBeo2dFbCWMlSVmetnv58vvqs4RRXI1wt6dEZC2+IIT87lXpTemA9R
+        Hfsce1Ov8Wa9xZasXxkUSstIysh5cH0=
+X-Google-Smtp-Source: AA6agR4cJCVLm3niMnY8DIZKqY00NtFJR6Dxo5CZEjXc5siUS61tC3wHWvOW3XSKdNDONylpv+4T9g==
+X-Received: by 2002:a05:6000:184a:b0:222:cdc3:257c with SMTP id c10-20020a056000184a00b00222cdc3257cmr8822164wri.604.1660575271708;
+        Mon, 15 Aug 2022 07:54:31 -0700 (PDT)
 Received: from 127.0.0.1localhost.com ([2620:10d:c092:600::2:886])
-        by smtp.gmail.com with ESMTPSA id bn21-20020a056000061500b0021e43b4edf0sm7644917wrb.20.2022.08.15.07.53.17
+        by smtp.gmail.com with ESMTPSA id f13-20020a05600c154d00b003a54fffa809sm10680330wmg.17.2022.08.15.07.54.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Aug 2022 07:53:17 -0700 (PDT)
+        Mon, 15 Aug 2022 07:54:31 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>, asml.silence@gmail.com
-Subject: [PATCH stable-5.18 1/1] io_uring: mem-account pbuf buckets
-Date:   Mon, 15 Aug 2022 15:51:27 +0100
-Message-Id: <248fcea571fca546a2a5541577a05ce864b71c0b.1660574142.git.asml.silence@gmail.com>
+Subject: [PATCH stable-5.19] io_uring: mem-account pbuf buckets
+Date:   Mon, 15 Aug 2022 15:52:38 +0100
+Message-Id: <4302b28024f6cf027a305a0b8790066acefb5e73.1660574026.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.37.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -81,14 +81,14 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 3d97372e811e..c9ea517ecc46 100644
+index e8e769be9ed0..9fa702d707af 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -4927,7 +4927,7 @@ static int io_provide_buffers(struct io_kiocb *req, unsigned int issue_flags)
+@@ -5738,7 +5738,7 @@ static int io_provide_buffers(struct io_kiocb *req, unsigned int issue_flags)
  
  	bl = io_buffer_get_list(ctx, p->bgid);
  	if (unlikely(!bl)) {
--		bl = kmalloc(sizeof(*bl), GFP_KERNEL);
+-		bl = kzalloc(sizeof(*bl), GFP_KERNEL);
 +		bl = kzalloc(sizeof(*bl), GFP_KERNEL_ACCOUNT);
  		if (!bl) {
  			ret = -ENOMEM;
