@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D33E5593B40
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81F79593AF9
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344429AbiHOUcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:32:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41668 "EHLO
+        id S1345062AbiHOUdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:33:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347702AbiHOUbg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:31:36 -0400
+        with ESMTP id S1347642AbiHOUb2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:31:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EA6EA5C79;
-        Mon, 15 Aug 2022 12:04:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A2BCA5734;
+        Mon, 15 Aug 2022 12:04:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 549CFB81104;
-        Mon, 15 Aug 2022 19:04:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97BA4C433D6;
-        Mon, 15 Aug 2022 19:04:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7835EB81112;
+        Mon, 15 Aug 2022 19:04:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8B7AC433C1;
+        Mon, 15 Aug 2022 19:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590282;
-        bh=tJAnO42wOvjfzA6oc3W60FsYJ9qlzwG5YhKzZ2eZRWw=;
+        s=korg; t=1660590285;
+        bh=WhRZyNm85hHAhfQZlv4LwX5x4mHfMx4LZYDSrNaVto8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G+4CLn8xKJiMuyGmrP+jK4dMPitMTOUZcxBrdh7NJHxLCRgBXusH8rdTzG7pIXtAS
-         XBGK8g05jNJKIC6U4sYImTenO6Zd5x4gTVw8+wSd41Th3iI1yN8/04XELBre6MyUZq
-         Q23ETHr5Xg/cRud9NMnRqXHHv5paXkb/b8f/OG/o=
+        b=qwvFnkb5A2Tqb5ONHZ7M6QEexybVTxEzkCi+mDQ5OA+09xPRAlJtEYdimcjg/Gc04
+         aP7foJ+2r6qE70wMLfwSrJETPFWDaLGGaCqEr6imSjP1McxYtqDeMq1eHAqGjNngvR
+         AUqj4TOcohLvofPDdSItCS3B67lU643fCPSpU4CQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0211/1095] arm64: dts: qcom: sdm845-akatsuki: Round down l22a regulator voltage
-Date:   Mon, 15 Aug 2022 19:53:30 +0200
-Message-Id: <20220815180438.392245088@linuxfoundation.org>
+Subject: [PATCH 5.18 0212/1095] ARM: dts: qcom: mdm9615: add missing PMIC GPIO reg
+Date:   Mon, 15 Aug 2022 19:53:31 +0200
+Message-Id: <20220815180438.433247186@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,44 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 4148a9eeb15152865d60b0913d96beb7ca166f9a ]
+[ Upstream commit dc590cdc31f636ea15658f1206c3e380a53fb78e ]
 
-2700000 is not a multiple of pmic4_pldo's step size of 8000 (with base
-voltage 1664000), resulting in pm8998-rpmh-regulators not probing.  Just
-as we did with MSM8998's Sony Yoshino Poplar [1], round the voltages
-down to err on the cautious side and leave a comment in place to
-document this discrepancy wrt downstream sources.
+'reg' property is required in SSBI children:
+  qcom-mdm9615-wp8548-mangoh-green.dtb: gpio@150: 'reg' is a required property
 
-[1]: https://lore.kernel.org/linux-arm-msm/20220507153627.1478268-1-marijn.suijten@somainline.org/
-
-Fixes: 30a7f99befc6 ("arm64: dts: qcom: Add support for SONY Xperia XZ2 / XZ2C / XZ3 (Tama platform)")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Fixes: 2c5e596524e7 ("ARM: dts: Add MDM9615 dtsi")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220620211212.269956-1-marijn.suijten@somainline.org
+Link: https://lore.kernel.org/r/20220507194913.261121-11-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../arm64/boot/dts/qcom/sdm845-sony-xperia-tama-akatsuki.dts | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/qcom-mdm9615.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama-akatsuki.dts b/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama-akatsuki.dts
-index 8a0d94e7f598..2f5e12deaada 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama-akatsuki.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama-akatsuki.dts
-@@ -19,8 +19,9 @@ &vreg_l14a_1p8 {
- };
+diff --git a/arch/arm/boot/dts/qcom-mdm9615.dtsi b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+index 4d4f37cebf21..96a66862875c 100644
+--- a/arch/arm/boot/dts/qcom-mdm9615.dtsi
++++ b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+@@ -321,6 +321,7 @@ rtc@11d {
  
- &vreg_l22a_2p8 {
--	regulator-min-microvolt = <2700000>;
--	regulator-max-microvolt = <2700000>;
-+	/* Note: Round-down from 2700000 to be a multiple of PLDO step-size 8000 */
-+	regulator-min-microvolt = <2696000>;
-+	regulator-max-microvolt = <2696000>;
- };
- 
- &vreg_l28a_2p8 {
+ 				pmicgpio: gpio@150 {
+ 					compatible = "qcom,pm8018-gpio", "qcom,ssbi-gpio";
++					reg = <0x150>;
+ 					interrupt-controller;
+ 					#interrupt-cells = <2>;
+ 					gpio-controller;
 -- 
 2.35.1
 
