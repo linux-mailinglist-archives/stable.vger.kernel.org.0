@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1A6C592E24
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:25:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90D0C592E26
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:25:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241453AbiHOLZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 07:25:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41812 "EHLO
+        id S241730AbiHOLZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 07:25:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232957AbiHOLZO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:25:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE9AE2019B
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:25:12 -0700 (PDT)
+        with ESMTP id S231524AbiHOLZS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:25:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4680DDAC
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:25:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7068261163
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:25:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C118C433D6;
-        Mon, 15 Aug 2022 11:25:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF1D9B80E30
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:25:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22F23C433C1;
+        Mon, 15 Aug 2022 11:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660562711;
-        bh=8D3v9nxbomHWSieiU3l0JyWVLRYMylpyz5RYrC5sITs=;
+        s=korg; t=1660562714;
+        bh=zOLV0+3LdjAEVrrbOrD1PTgpNPIvTBPEj0pVSc/BrJg=;
         h=Subject:To:Cc:From:Date:From;
-        b=B7EwZiaecRVyfUoG637h40h4qebJ7EXHYIKAYExCQfZyLaKwMFX75zQKFca4r7twZ
-         +yGqEC/Z+hGOOuHzz809x4jWYO+gtDX+ewSIF1v5lQZ6P6ctp8pV0Bql2WWGYvKETF
-         VeXyOmST+jVraGn/pAL5+eSOj8GHZSGLvYhe6zjg=
-Subject: FAILED: patch "[PATCH] ext4: fix race when reusing xattr blocks" failed to apply to 4.14-stable tree
+        b=LCmj0Yy8j8rbTRpxHQHoGXNVaAj+7wjQHzUgeV98aCIBCJ6mS6NRN6cezKAq/lZPi
+         nTrDsp9I+3Awzeev2JyCcnJjqoitgM1t4Dkx2LgyjLpwim8Iyb6P0NtQxgVdOZBKVk
+         aHVDSKxT5LSNtk9RB+qembG66MihfvfVxSvvEEcU=
+Subject: FAILED: patch "[PATCH] ext4: fix race when reusing xattr blocks" failed to apply to 4.9-stable tree
 To:     jack@suse.cz, ritesh.list@gmail.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Aug 2022 13:24:53 +0200
-Message-ID: <16605626931232@kroah.com>
+Date:   Mon, 15 Aug 2022 13:24:54 +0200
+Message-ID: <166056269421283@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
