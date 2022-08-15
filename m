@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B4F55949E8
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B6335948E0
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:10:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233854AbiHOXmp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:42:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60836 "EHLO
+        id S1353663AbiHOXmr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:42:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354111AbiHOXlT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 788097695A;
-        Mon, 15 Aug 2022 13:10:39 -0700 (PDT)
+        with ESMTP id S1354141AbiHOXl1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34D66128EE4;
+        Mon, 15 Aug 2022 13:10:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DFED460025;
-        Mon, 15 Aug 2022 20:10:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFA62C433D6;
-        Mon, 15 Aug 2022 20:10:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96026B80EAD;
+        Mon, 15 Aug 2022 20:10:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6DD2C433D6;
+        Mon, 15 Aug 2022 20:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594238;
-        bh=9l5a7uxFD4tC0+inbuqt5PluP2aZ1z05eFhVaLGUPFM=;
+        s=korg; t=1660594244;
+        bh=2OjajXMonsA43H6MGn0Yk7kn041C0Uia5PRSs490OSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RVRkhWpS3+WeUdCq2PQFIVhnwTmpohAriwjhNiDHdTy2rJpyQNLqsoSbDiRIezGL7
-         YYqomH6snkImuW8Kl2WA8R3rvVfgMgUruxAOxQeAYTtJEjkTfWv02cbRQRQHDgJ8W5
-         WdyCjwECgX1/o5qdd5eGCdAf6K9WLK0LuRrXNuMo=
+        b=T8aT9XYN4ViCtPQZc+KFB6qZS+K9zYtAZ3BoHkI4p648wbvfKl7yKQJ7UchxNm/nh
+         ntVehBpoF8cd0uOjMVYEgMDp2HeeaYbxCLFqIcWrk34e5DwyddNBQDkUme6n5cR4gP
+         QPZYQJlPzyLm9Musas8okk/65gUnKpwlSgE8iUVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Qian <ming.qian@nxp.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0399/1157] media: v4l2-mem2mem: prevent pollerr when last_buffer_dequeued is set
-Date:   Mon, 15 Aug 2022 19:55:55 +0200
-Message-Id: <20220815180455.630760694@linuxfoundation.org>
+Subject: [PATCH 5.19 0400/1157] media: sta2x11: remove VIRT_TO_BUS dependency
+Date:   Mon, 15 Aug 2022 19:55:56 +0200
+Message-Id: <20220815180455.676500630@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,42 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit d4de27a9b1eadd33a2e40de87a646d1bf5fef756 ]
+[ Upstream commit a157802359f7451ed8046b2b6dbaca187797e062 ]
 
-If the last buffer was dequeued from the capture queue,
-signal userspace. DQBUF(CAPTURE) will return -EPIPE.
+This driver does not use the virt_to_bus() function, though it
+depends on x86 specific fixups in the swiotlb code, which was
+last rewritten in commit e380a0394c36 ("x86/PCI: sta2x11: use
+default DMA address translation").
 
-But if output queue is empty and capture queue is empty,
-v4l2_m2m_poll_for_data will return EPOLLERR,
-This is very easy to happen in drain.
+It is possible that the driver still fails to build on some
+architectures that are missing CONFIG_VIRT_TO_BUS, but it is
+always set on x86 machines with the STA2X11 platform enabled.
 
-When last_buffer_dequeued is set, we shouldn't return EPOLLERR,
-but return EPOLLIN | EPOLLRDNORM.
+More likely though is that it was never meant to depend on
+CONFIG_VIRT_TO_BUS, and the Kconfig dependency was kept from
+an out-of-tree version when the driver was originally merged.
 
-Fixes: 1698a7f151126 ("media: v4l2-mem2mem: simplify poll logic")
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
+Fixes: efeb98b4e2b2 ("[media] STA2X11 VIP: new V4L2 driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-mem2mem.c | 2 +-
+ drivers/media/pci/sta2x11/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-mem2mem.c b/drivers/media/v4l2-core/v4l2-mem2mem.c
-index 6469f9a25a4e..837e1855f94b 100644
---- a/drivers/media/v4l2-core/v4l2-mem2mem.c
-+++ b/drivers/media/v4l2-core/v4l2-mem2mem.c
-@@ -925,7 +925,7 @@ static __poll_t v4l2_m2m_poll_for_data(struct file *file,
- 	if ((!src_q->streaming || src_q->error ||
- 	     list_empty(&src_q->queued_list)) &&
- 	    (!dst_q->streaming || dst_q->error ||
--	     list_empty(&dst_q->queued_list)))
-+	     (list_empty(&dst_q->queued_list) && !dst_q->last_buffer_dequeued)))
- 		return EPOLLERR;
- 
- 	spin_lock_irqsave(&src_q->done_lock, flags);
+diff --git a/drivers/media/pci/sta2x11/Kconfig b/drivers/media/pci/sta2x11/Kconfig
+index a96e170ab04e..118b922c08c3 100644
+--- a/drivers/media/pci/sta2x11/Kconfig
++++ b/drivers/media/pci/sta2x11/Kconfig
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ config STA2X11_VIP
+ 	tristate "STA2X11 VIP Video For Linux"
+-	depends on PCI && VIDEO_DEV && VIRT_TO_BUS && I2C
++	depends on PCI && VIDEO_DEV && I2C
+ 	depends on STA2X11 || COMPILE_TEST
+ 	select GPIOLIB if MEDIA_SUBDRV_AUTOSELECT
+ 	select VIDEO_ADV7180 if MEDIA_SUBDRV_AUTOSELECT
 -- 
 2.35.1
 
