@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 835E7593E6D
+	by mail.lfdr.de (Postfix) with ESMTP id D9C9C593E6E
 	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:45:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345063AbiHOUn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:43:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53342 "EHLO
+        id S1345083AbiHOUn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:43:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345710AbiHOUju (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:39:50 -0400
+        with ESMTP id S1346701AbiHOUly (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:41:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95758ABF1C;
-        Mon, 15 Aug 2022 12:07:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41DAF37FAB;
+        Mon, 15 Aug 2022 12:07:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD8B6612CD;
-        Mon, 15 Aug 2022 19:07:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0B2EC433C1;
-        Mon, 15 Aug 2022 19:07:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3621E61019;
+        Mon, 15 Aug 2022 19:07:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC3FAC433C1;
+        Mon, 15 Aug 2022 19:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590434;
-        bh=L3ApvKRzOF3hbSDCVnYDFeM8CBFfmNYx6ZzEKkNECgw=;
+        s=korg; t=1660590446;
+        bh=xcqoyNeCZGUKnAm0ZNoqzjIJy8FHk8pmDFlWwIkilg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/MWAWdYYvgwjwgrqyyZhxtkT6nB4j9x5W7vyp6SHZV04klyEf67K+Glcfy58TbA4
-         UPM/j503/Jm9W3RcfUyrvtot9Fz5dvl58Eb44DlBeyin+9O6sA4tWCqUEcDwYUkJP/
-         bsLI4QBUV6ZAJ31mw0sR1gCRdKhbPLMzRmLeWtqI=
+        b=AwkhyNfr9p91sLnXIZzDhEXMWAHRrystBBwu2EB+0hv+VeyEORDGa3wUpAWSo68mP
+         8+TsiPXaV9tF0G8O5BscPFdCy2YP+muDAc9zeCpyI7qPk0sdMzorsYHayqMdqGJwgJ
+         IaCsmYiMKMcVQligy/KOyreaUPk7Ry5cjGx5sjXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Konrad Dybcio <konrad.dybcio@somainline.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0231/1095] ARM: dts: qcom-msm8974*: Rename msmgpio to tlmm
-Date:   Mon, 15 Aug 2022 19:53:50 +0200
-Message-Id: <20220815180439.307388299@linuxfoundation.org>
+Subject: [PATCH 5.18 0232/1095] ARM: dts: qcom-apq8074-dragonboard: Use &labels
+Date:   Mon, 15 Aug 2022 19:53:51 +0200
+Message-Id: <20220815180439.347551436@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,291 +57,665 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit 087c9704d5bb322dd5db52938416caeaf4cdc3c3 ]
+[ Upstream commit 9f440d17e2309c7d14eba0898c775be6d6e6d6b7 ]
 
-Rename the label to match new the style used in newer DTs.
+Use &labels to align with the style used in new DTS and apply tiny
+style fixes.
 
 Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+[bjorn: Rebased ontop of Krzysztof's underscore fixes]
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220415115633.575010-8-konrad.dybcio@somainline.org
+Link: https://lore.kernel.org/r/20220415115633.575010-9-konrad.dybcio@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../arm/boot/dts/qcom-apq8074-dragonboard.dts |  2 +-
- .../boot/dts/qcom-msm8974-fairphone-fp2.dts   |  2 +-
- .../qcom-msm8974-lge-nexus5-hammerhead.dts    | 18 ++++++++---------
- .../boot/dts/qcom-msm8974-samsung-klte.dts    | 20 +++++++++----------
- .../dts/qcom-msm8974-sony-xperia-amami.dts    |  2 +-
- .../dts/qcom-msm8974-sony-xperia-castor.dts   | 10 +++++-----
- .../dts/qcom-msm8974-sony-xperia-honami.dts   |  4 ++--
- arch/arm/boot/dts/qcom-msm8974.dtsi           |  4 ++--
- 8 files changed, 31 insertions(+), 31 deletions(-)
+ .../arm/boot/dts/qcom-apq8074-dragonboard.dts | 605 +++++++++---------
+ arch/arm/boot/dts/qcom-msm8974.dtsi           |   2 +-
+ 2 files changed, 296 insertions(+), 311 deletions(-)
 
 diff --git a/arch/arm/boot/dts/qcom-apq8074-dragonboard.dts b/arch/arm/boot/dts/qcom-apq8074-dragonboard.dts
-index e2b4e4fc6377..9076a24408c6 100644
+index 9076a24408c6..f114debe4d95 100644
 --- a/arch/arm/boot/dts/qcom-apq8074-dragonboard.dts
 +++ b/arch/arm/boot/dts/qcom-apq8074-dragonboard.dts
-@@ -35,7 +35,7 @@ sdhci@f9824900 {
+@@ -16,331 +16,316 @@ aliases {
+ 	chosen {
+ 		stdout-path = "serial0:115200n8";
+ 	};
++};
++
++&blsp1_uart2 {
++	status = "okay";
++};
++
++&blsp2_i2c5 {
++	status = "okay";
++	clock-frequency = <200000>;
++
++	pinctrl-0 = <&i2c11_pins>;
++	pinctrl-names = "default";
++
++	eeprom: eeprom@52 {
++		compatible = "atmel,24c128";
++		reg = <0x52>;
++		pagesize = <32>;
++		read-only;
++	};
++};
++
++&otg {
++	status = "okay";
+ 
+-	soc {
+-		serial@f991e000 {
++	phys = <&usb_hs2_phy>;
++	phy-select = <&tcsr 0xb000 1>;
++	extcon = <&smbb>, <&usb_id>;
++	vbus-supply = <&chg_otg>;
++	hnp-disable;
++	srp-disable;
++	adp-disable;
++
++	ulpi {
++		phy@b {
+ 			status = "okay";
++			v3p3-supply = <&pm8941_l24>;
++			v1p8-supply = <&pm8941_l6>;
++			extcon = <&smbb>;
++			qcom,init-seq = /bits/ 8 <0x1 0x63>;
++		};
++	};
++};
++
++&rpm_requests {
++	pm8841-regulators {
++		pm8841_s1: s1 {
++			regulator-min-microvolt = <675000>;
++			regulator-max-microvolt = <1050000>;
  		};
  
- 		sdhci@f98a4900 {
--			cd-gpios = <&msmgpio 62 0x1>;
-+			cd-gpios = <&tlmm 62 0x1>;
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&sdhc2_pin_a>, <&sdhc2_cd_pin_a>;
- 			bus-width = <4>;
-diff --git a/arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dts b/arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dts
-index 9dbfc9f8646a..1e947bab06b6 100644
---- a/arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dts
-@@ -51,7 +51,7 @@ volume-up {
+-		sdhci@f9824900 {
+-			bus-width = <8>;
+-			non-removable;
+-			status = "okay";
++		pm8841_s2: s2 {
++			regulator-min-microvolt = <500000>;
++			regulator-max-microvolt = <1050000>;
++		};
++
++		pm8841_s3: s3 {
++			regulator-min-microvolt = <500000>;
++			regulator-max-microvolt = <1050000>;
++		};
  
- 	vibrator {
- 		compatible = "gpio-vibrator";
--		enable-gpios = <&msmgpio 86 GPIO_ACTIVE_HIGH>;
-+		enable-gpios = <&tlmm 86 GPIO_ACTIVE_HIGH>;
- 		vcc-supply = <&pm8941_l18>;
+-			vmmc-supply = <&pm8941_l20>;
+-			vqmmc-supply = <&pm8941_s3>;
++		pm8841_s4: s4 {
++			regulator-min-microvolt = <500000>;
++			regulator-max-microvolt = <1050000>;
++		};
++	};
+ 
+-			pinctrl-names = "default";
+-			pinctrl-0 = <&sdhc1_pin_a>;
++	pm8941-regulators {
++		vdd_l1_l3-supply = <&pm8941_s1>;
++		vdd_l2_lvs1_2_3-supply = <&pm8941_s3>;
++		vdd_l4_l11-supply = <&pm8941_s1>;
++		vdd_l5_l7-supply = <&pm8941_s2>;
++		vdd_l6_l12_l14_l15-supply = <&pm8941_s2>;
++		vin_5vs-supply = <&pm8941_5v>;
++
++		pm8941_s1: s1 {
++			regulator-min-microvolt = <1300000>;
++			regulator-max-microvolt = <1300000>;
++			regulator-always-on;
++			regulator-boot-on;
+ 		};
+ 
+-		sdhci@f98a4900 {
+-			cd-gpios = <&tlmm 62 0x1>;
+-			pinctrl-names = "default";
+-			pinctrl-0 = <&sdhc2_pin_a>, <&sdhc2_cd_pin_a>;
+-			bus-width = <4>;
+-			status = "okay";
++		pm8941_s2: s2 {
++			regulator-min-microvolt = <2150000>;
++			regulator-max-microvolt = <2150000>;
++			regulator-boot-on;
++		};
+ 
+-			vmmc-supply = <&pm8941_l21>;
+-			vqmmc-supply = <&pm8941_l13>;
++		pm8941_s3: s3 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++			regulator-always-on;
++			regulator-boot-on;
+ 		};
+ 
+-		usb@f9a55000 {
+-			status = "okay";
+-			phys = <&usb_hs2_phy>;
+-			phy-select = <&tcsr 0xb000 1>;
+-			extcon = <&smbb>, <&usb_id>;
+-			vbus-supply = <&chg_otg>;
+-			hnp-disable;
+-			srp-disable;
+-			adp-disable;
+-			ulpi {
+-				phy@b {
+-					status = "okay";
+-					v3p3-supply = <&pm8941_l24>;
+-					v1p8-supply = <&pm8941_l6>;
+-					extcon = <&smbb>;
+-					qcom,init-seq = /bits/ 8 <0x1 0x63>;
+-				};
+-			};
+-		};
+-
+-
+-		pinctrl@fd510000 {
+-			i2c11_pins: i2c11 {
+-				mux {
+-					pins = "gpio83", "gpio84";
+-					function = "blsp_i2c11";
+-				};
+-			};
+-
+-			spi8_default: spi8_default {
+-				mosi {
+-					pins = "gpio45";
+-					function = "blsp_spi8";
+-				};
+-				miso {
+-					pins = "gpio46";
+-					function = "blsp_spi8";
+-				};
+-				cs {
+-					pins = "gpio47";
+-					function = "blsp_spi8";
+-				};
+-				clk {
+-					pins = "gpio48";
+-					function = "blsp_spi8";
+-				};
+-			};
+-
+-			sdhc1_pin_a: sdhc1-pin-active {
+-				clk {
+-					pins = "sdc1_clk";
+-					drive-strength = <16>;
+-					bias-disable;
+-				};
+-
+-				cmd-data {
+-					pins = "sdc1_cmd", "sdc1_data";
+-					drive-strength = <10>;
+-					bias-pull-up;
+-				};
+-			};
+-
+-			sdhc2_cd_pin_a: sdhc2-cd-pin-active {
+-				pins = "gpio62";
+-				function = "gpio";
+-
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			sdhc2_pin_a: sdhc2-pin-active {
+-				clk {
+-					pins = "sdc2_clk";
+-					drive-strength = <10>;
+-					bias-disable;
+-				};
+-
+-				cmd-data {
+-					pins = "sdc2_cmd", "sdc2_data";
+-					drive-strength = <6>;
+-					bias-pull-up;
+-				};
+-			};
+-		};
+-
+-		i2c@f9967000 {
+-			status = "okay";
+-			clock-frequency = <200000>;
+-			pinctrl-0 = <&i2c11_pins>;
+-			pinctrl-names = "default";
++		pm8941_l1: l1 {
++			regulator-min-microvolt = <1225000>;
++			regulator-max-microvolt = <1225000>;
++			regulator-always-on;
++			regulator-boot-on;
++		};
++
++		pm8941_l2: l2 {
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <1200000>;
++		};
++
++		pm8941_l3: l3 {
++			regulator-min-microvolt = <1225000>;
++			regulator-max-microvolt = <1225000>;
++		};
++
++		pm8941_l4: l4 {
++			regulator-min-microvolt = <1225000>;
++			regulator-max-microvolt = <1225000>;
++		};
++
++		pm8941_l5: l5 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++		};
++
++		pm8941_l6: l6 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++			regulator-boot-on;
++		};
++
++		pm8941_l7: l7 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++			regulator-boot-on;
++		};
++
++		pm8941_l8: l8 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++		};
++
++		pm8941_l9: l9 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <2950000>;
++		};
++
++		pm8941_l10: l10 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++			regulator-always-on;
++		};
++
++		pm8941_l11: l11 {
++			regulator-min-microvolt = <1300000>;
++			regulator-max-microvolt = <1300000>;
++		};
++
++		pm8941_l12: l12 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++			regulator-always-on;
++			regulator-boot-on;
++		};
++
++		pm8941_l13: l13 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <2950000>;
++			regulator-boot-on;
++		};
++
++		pm8941_l14: l14 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++		};
++
++		pm8941_l15: l15 {
++			regulator-min-microvolt = <2050000>;
++			regulator-max-microvolt = <2050000>;
++		};
++
++		pm8941_l16: l16 {
++			regulator-min-microvolt = <2700000>;
++			regulator-max-microvolt = <2700000>;
++		};
++
++		pm8941_l17: l17 {
++			regulator-min-microvolt = <2700000>;
++			regulator-max-microvolt = <2700000>;
++		};
++
++		pm8941_l18: l18 {
++			regulator-min-microvolt = <2850000>;
++			regulator-max-microvolt = <2850000>;
++		};
++
++		pm8941_l19: l19 {
++			regulator-min-microvolt = <3300000>;
++			regulator-max-microvolt = <3300000>;
++			regulator-always-on;
++		};
++
++		pm8941_l20: l20 {
++			regulator-min-microvolt = <2950000>;
++			regulator-max-microvolt = <2950000>;
++			regulator-system-load = <200000>;
++			regulator-allow-set-load;
++			regulator-boot-on;
++		};
++
++		pm8941_l21: l21 {
++			regulator-min-microvolt = <2950000>;
++			regulator-max-microvolt = <2950000>;
++			regulator-boot-on;
++		};
++
++		pm8941_l22: l22 {
++			regulator-min-microvolt = <3000000>;
++			regulator-max-microvolt = <3000000>;
++		};
++
++		pm8941_l23: l23 {
++			regulator-min-microvolt = <3000000>;
++			regulator-max-microvolt = <3000000>;
++		};
++
++		pm8941_l24: l24 {
++			regulator-min-microvolt = <3075000>;
++			regulator-max-microvolt = <3075000>;
++			regulator-boot-on;
++		};
++	};
++};
++
++&sdhc_1 {
++	status = "okay";
++
++	vmmc-supply = <&pm8941_l20>;
++	vqmmc-supply = <&pm8941_s3>;
++
++	pinctrl-names = "default";
++	pinctrl-0 = <&sdhc1_pin_a>;
++};
++
++&sdhc_2 {
++	status = "okay";
++	cd-gpios = <&tlmm 62 0x1>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&sdhc2_pin_a>, <&sdhc2_cd_pin_a>;
++
++	vmmc-supply = <&pm8941_l21>;
++	vqmmc-supply = <&pm8941_l13>;
++};
++
++&tlmm {
++	i2c11_pins: i2c11 {
++		mux {
++			pins = "gpio83", "gpio84";
++			function = "blsp_i2c11";
++		};
++	};
++
++	spi8_default: spi8_default {
++		mosi {
++			pins = "gpio45";
++			function = "blsp_spi8";
++		};
++		miso {
++			pins = "gpio46";
++			function = "blsp_spi8";
++		};
++		cs {
++			pins = "gpio47";
++			function = "blsp_spi8";
++		};
++		clk {
++			pins = "gpio48";
++			function = "blsp_spi8";
++		};
++	};
++
++	sdhc1_pin_a: sdhc1-pin-active {
++		clk {
++			pins = "sdc1_clk";
++			drive-strength = <16>;
++			bias-disable;
++		};
+ 
+-			eeprom: eeprom@52 {
+-				compatible = "atmel,24c128";
+-				reg = <0x52>;
+-				pagesize = <32>;
+-				read-only;
+-			};
++		cmd-data {
++			pins = "sdc1_cmd", "sdc1_data";
++			drive-strength = <10>;
++			bias-pull-up;
+ 		};
  	};
  
-diff --git a/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts b/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
-index dd2d0647d4be..4154ffb207ac 100644
---- a/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
-@@ -250,7 +250,7 @@ vreg_wlan: wlan-regulator {
- 		regulator-min-microvolt = <3300000>;
- 		regulator-max-microvolt = <3300000>;
- 
--		gpio = <&msmgpio 26 GPIO_ACTIVE_HIGH>;
-+		gpio = <&tlmm 26 GPIO_ACTIVE_HIGH>;
- 		enable-active-high;
- 
- 		pinctrl-names = "default";
-@@ -482,9 +482,9 @@ bluetooth {
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&bt_pin>;
- 
--			host-wakeup-gpios = <&msmgpio 42 GPIO_ACTIVE_HIGH>;
--			device-wakeup-gpios = <&msmgpio 62 GPIO_ACTIVE_HIGH>;
--			shutdown-gpios = <&msmgpio 41 GPIO_ACTIVE_HIGH>;
-+			host-wakeup-gpios = <&tlmm 42 GPIO_ACTIVE_HIGH>;
-+			device-wakeup-gpios = <&tlmm 62 GPIO_ACTIVE_HIGH>;
-+			shutdown-gpios = <&tlmm 41 GPIO_ACTIVE_HIGH>;
+-	smd {
+-		rpm {
+-			rpm-requests {
+-				pm8841-regulators {
+-					s1 {
+-						regulator-min-microvolt = <675000>;
+-						regulator-max-microvolt = <1050000>;
+-					};
+-
+-					s2 {
+-						regulator-min-microvolt = <500000>;
+-						regulator-max-microvolt = <1050000>;
+-					};
+-
+-					s3 {
+-						regulator-min-microvolt = <500000>;
+-						regulator-max-microvolt = <1050000>;
+-					};
+-
+-					s4 {
+-						regulator-min-microvolt = <500000>;
+-						regulator-max-microvolt = <1050000>;
+-					};
+-				};
+-
+-				pm8941-regulators {
+-					vdd_l1_l3-supply = <&pm8941_s1>;
+-					vdd_l2_lvs1_2_3-supply = <&pm8941_s3>;
+-					vdd_l4_l11-supply = <&pm8941_s1>;
+-					vdd_l5_l7-supply = <&pm8941_s2>;
+-					vdd_l6_l12_l14_l15-supply = <&pm8941_s2>;
+-					vin_5vs-supply = <&pm8941_5v>;
+-
+-					s1 {
+-						regulator-min-microvolt = <1300000>;
+-						regulator-max-microvolt = <1300000>;
+-						regulator-always-on;
+-						regulator-boot-on;
+-					};
+-
+-					s2 {
+-						regulator-min-microvolt = <2150000>;
+-						regulator-max-microvolt = <2150000>;
+-						regulator-boot-on;
+-					};
+-
+-					s3 {
+-						regulator-min-microvolt = <1800000>;
+-						regulator-max-microvolt = <1800000>;
+-						regulator-always-on;
+-						regulator-boot-on;
+-					};
+-
+-					l1 {
+-						regulator-min-microvolt = <1225000>;
+-						regulator-max-microvolt = <1225000>;
+-
+-						regulator-always-on;
+-						regulator-boot-on;
+-					};
+-
+-					l2 {
+-						regulator-min-microvolt = <1200000>;
+-						regulator-max-microvolt = <1200000>;
+-					};
+-
+-					l3 {
+-						regulator-min-microvolt = <1225000>;
+-						regulator-max-microvolt = <1225000>;
+-					};
+-
+-					l4 {
+-						regulator-min-microvolt = <1225000>;
+-						regulator-max-microvolt = <1225000>;
+-					};
+-
+-					l5 {
+-						regulator-min-microvolt = <1800000>;
+-						regulator-max-microvolt = <1800000>;
+-					};
+-
+-					l6 {
+-						regulator-min-microvolt = <1800000>;
+-						regulator-max-microvolt = <1800000>;
+-
+-						regulator-boot-on;
+-					};
+-
+-					l7 {
+-						regulator-min-microvolt = <1800000>;
+-						regulator-max-microvolt = <1800000>;
+-
+-						regulator-boot-on;
+-					};
+-
+-					l8 {
+-						regulator-min-microvolt = <1800000>;
+-						regulator-max-microvolt = <1800000>;
+-					};
+-
+-					l9 {
+-						regulator-min-microvolt = <1800000>;
+-						regulator-max-microvolt = <2950000>;
+-					};
+-
+-					l10 {
+-						regulator-min-microvolt = <1800000>;
+-						regulator-max-microvolt = <1800000>;
+-						regulator-always-on;
+-					};
+-
+-					l11 {
+-						regulator-min-microvolt = <1300000>;
+-						regulator-max-microvolt = <1300000>;
+-					};
+-
+-					l12 {
+-						regulator-min-microvolt = <1800000>;
+-						regulator-max-microvolt = <1800000>;
+-
+-						regulator-always-on;
+-						regulator-boot-on;
+-					};
+-
+-					l13 {
+-						regulator-min-microvolt = <1800000>;
+-						regulator-max-microvolt = <2950000>;
+-
+-						regulator-boot-on;
+-					};
+-
+-					l14 {
+-						regulator-min-microvolt = <1800000>;
+-						regulator-max-microvolt = <1800000>;
+-					};
+-
+-					l15 {
+-						regulator-min-microvolt = <2050000>;
+-						regulator-max-microvolt = <2050000>;
+-					};
+-
+-					l16 {
+-						regulator-min-microvolt = <2700000>;
+-						regulator-max-microvolt = <2700000>;
+-					};
+-
+-					l17 {
+-						regulator-min-microvolt = <2700000>;
+-						regulator-max-microvolt = <2700000>;
+-					};
+-
+-					l18 {
+-						regulator-min-microvolt = <2850000>;
+-						regulator-max-microvolt = <2850000>;
+-					};
+-
+-					l19 {
+-						regulator-min-microvolt = <3300000>;
+-						regulator-max-microvolt = <3300000>;
+-						regulator-always-on;
+-					};
+-
+-					l20 {
+-						regulator-min-microvolt = <2950000>;
+-						regulator-max-microvolt = <2950000>;
+-
+-						regulator-allow-set-load;
+-						regulator-boot-on;
+-						regulator-system-load = <200000>;
+-					};
+-
+-					l21 {
+-						regulator-min-microvolt = <2950000>;
+-						regulator-max-microvolt = <2950000>;
+-
+-						regulator-boot-on;
+-					};
+-
+-					l22 {
+-						regulator-min-microvolt = <3000000>;
+-						regulator-max-microvolt = <3000000>;
+-					};
+-
+-					l23 {
+-						regulator-min-microvolt = <3000000>;
+-						regulator-max-microvolt = <3000000>;
+-					};
+-
+-					l24 {
+-						regulator-min-microvolt = <3075000>;
+-						regulator-max-microvolt = <3075000>;
+-
+-						regulator-boot-on;
+-					};
+-				};
+-			};
++	sdhc2_cd_pin_a: sdhc2-cd-pin-active {
++		pins = "gpio62";
++		function = "gpio";
++
++		drive-strength = <2>;
++		bias-disable;
++	};
++
++	sdhc2_pin_a: sdhc2-pin-active {
++		clk {
++			pins = "sdc2_clk";
++			drive-strength = <10>;
++			bias-disable;
++		};
++
++		cmd-data {
++			pins = "sdc2_cmd", "sdc2_data";
++			drive-strength = <6>;
++			bias-pull-up;
  		};
  	};
- 
-@@ -522,7 +522,7 @@ i2c@f9968000 {
- 		mpu6515@68 {
- 			compatible = "invensense,mpu6515";
- 			reg = <0x68>;
--			interrupts-extended = <&msmgpio 73 IRQ_TYPE_EDGE_FALLING>;
-+			interrupts-extended = <&tlmm 73 IRQ_TYPE_EDGE_FALLING>;
- 			vddio-supply = <&pm8941_lvs1>;
- 
- 			pinctrl-names = "default";
-@@ -538,7 +538,7 @@ i2c-gate {
- 				ak8963@f {
- 					compatible = "asahi-kasei,ak8963";
- 					reg = <0x0f>;
--					gpios = <&msmgpio 67 0>;
-+					gpios = <&tlmm 67 0>;
- 					vid-supply = <&pm8941_lvs1>;
- 					vdd-supply = <&pm8941_l17>;
- 				};
-@@ -577,7 +577,7 @@ fuelgauge: max17048@36 {
- 			maxim,double-soc;
- 			maxim,rcomp = /bits/ 8 <0x4d>;
- 
--			interrupt-parent = <&msmgpio>;
-+			interrupt-parent = <&tlmm>;
- 			interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
- 
- 			pinctrl-names = "default";
-@@ -600,7 +600,7 @@ synaptics@70 {
- 			compatible = "syna,rmi4-i2c";
- 			reg = <0x70>;
- 
--			interrupts-extended = <&msmgpio 5 IRQ_TYPE_EDGE_FALLING>;
-+			interrupts-extended = <&tlmm 5 IRQ_TYPE_EDGE_FALLING>;
- 			vdd-supply = <&pm8941_l22>;
- 			vio-supply = <&pm8941_lvs3>;
- 
-@@ -632,7 +632,7 @@ i2c@f9925000 {
- 		avago_apds993@39 {
- 			compatible = "avago,apds9930";
- 			reg = <0x39>;
--			interrupts-extended = <&msmgpio 61 IRQ_TYPE_EDGE_FALLING>;
-+			interrupts-extended = <&tlmm 61 IRQ_TYPE_EDGE_FALLING>;
- 			vdd-supply = <&pm8941_l17>;
- 			vddio-supply = <&pm8941_lvs1>;
- 			led-max-microamp = <100000>;
-diff --git a/arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts b/arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts
-index 3ee2508b20fb..60244e0c37ba 100644
---- a/arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974-samsung-klte.dts
-@@ -247,8 +247,8 @@ i2c-gpio-touchkey {
- 		compatible = "i2c-gpio";
- 		#address-cells = <1>;
- 		#size-cells = <0>;
--		sda-gpios = <&msmgpio 95 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
--		scl-gpios = <&msmgpio 96 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-+		sda-gpios = <&tlmm 95 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-+		scl-gpios = <&tlmm 96 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&i2c_touchkey_pins>;
- 
-@@ -272,8 +272,8 @@ i2c-gpio-led {
- 		compatible = "i2c-gpio";
- 		#address-cells = <1>;
- 		#size-cells = <0>;
--		scl-gpios = <&msmgpio 121 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
--		sda-gpios = <&msmgpio 120 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-+		scl-gpios = <&tlmm 121 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-+		sda-gpios = <&tlmm 120 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&i2c_led_gpioex_pins>;
- 
-@@ -291,7 +291,7 @@ gpio_expander: gpio@20 {
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&gpioex_pin>;
- 
--			reset-gpios = <&msmgpio 145 GPIO_ACTIVE_LOW>;
-+			reset-gpios = <&tlmm 145 GPIO_ACTIVE_LOW>;
- 		};
- 
- 		led-controller@30 {
-@@ -371,9 +371,9 @@ bluetooth {
- 			max-speed = <3000000>;
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&bt_pins>;
--			device-wakeup-gpios = <&msmgpio 91 GPIO_ACTIVE_HIGH>;
-+			device-wakeup-gpios = <&tlmm 91 GPIO_ACTIVE_HIGH>;
- 			shutdown-gpios = <&gpio_expander 9 GPIO_ACTIVE_HIGH>;
--			interrupt-parent = <&msmgpio>;
-+			interrupt-parent = <&tlmm>;
- 			interrupts = <75 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-names = "host-wakeup";
- 		};
-@@ -563,7 +563,7 @@ sdhci@f9864900 {
- 		 */
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&sdhc2_pin_a /* &sdhc2_cd_pin */>;
--		// cd-gpios = <&msmgpio 62 GPIO_ACTIVE_LOW>;
-+		// cd-gpios = <&tlmm 62 GPIO_ACTIVE_LOW>;
- 	};
- 
- 	sdhci@f98a4900 {
-@@ -587,7 +587,7 @@ wifi@1 {
- 			reg = <1>;
- 			compatible = "brcm,bcm4329-fmac";
- 
--			interrupt-parent = <&msmgpio>;
-+			interrupt-parent = <&tlmm>;
- 			interrupts = <92 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-names = "host-wake";
- 
-@@ -818,7 +818,7 @@ panel: panel@0 {
- 				vddr-supply = <&vreg_panel>;
- 
- 				reset-gpios = <&pma8084_gpios 17 GPIO_ACTIVE_LOW>;
--				te-gpios = <&msmgpio 12 GPIO_ACTIVE_HIGH>;
-+				te-gpios = <&tlmm 12 GPIO_ACTIVE_HIGH>;
- 
- 				port {
- 					panel_in: endpoint {
-diff --git a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dts b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dts
-index 8cace789fb26..6545917dd489 100644
---- a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dts
-@@ -280,7 +280,7 @@ sdhci@f98a4900 {
- 		vmmc-supply = <&pm8941_l21>;
- 		vqmmc-supply = <&pm8941_l13>;
- 
--		cd-gpios = <&msmgpio 62 GPIO_ACTIVE_LOW>;
-+		cd-gpios = <&tlmm 62 GPIO_ACTIVE_LOW>;
- 
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&sdhc2_pin_a>, <&sdhc2_cd_pin_a>;
-diff --git a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts
-index e27b360951fd..352689237140 100644
---- a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dts
-@@ -239,7 +239,7 @@ vreg_bl_vddio: lcd-backlight-vddio {
- 		regulator-min-microvolt = <3150000>;
- 		regulator-max-microvolt = <3150000>;
- 
--		gpio = <&msmgpio 69 0>;
-+		gpio = <&tlmm 69 0>;
- 		enable-active-high;
- 
- 		vin-supply = <&pm8941_s3>;
-@@ -323,7 +323,7 @@ sdhci@f98a4900 {
- 		vmmc-supply = <&pm8941_l21>;
- 		vqmmc-supply = <&pm8941_l13>;
- 
--		cd-gpios = <&msmgpio 62 GPIO_ACTIVE_LOW>;
-+		cd-gpios = <&tlmm 62 GPIO_ACTIVE_LOW>;
- 
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&sdhc2_pin_a>, <&sdhc2_cd_pin_a>;
-@@ -351,8 +351,8 @@ bluetooth {
- 				    <&bt_dev_wake_pin>,
- 				    <&bt_reg_on_pin>;
- 
--			host-wakeup-gpios = <&msmgpio 95 GPIO_ACTIVE_HIGH>;
--			device-wakeup-gpios = <&msmgpio 96 GPIO_ACTIVE_HIGH>;
-+			host-wakeup-gpios = <&tlmm 95 GPIO_ACTIVE_HIGH>;
-+			device-wakeup-gpios = <&tlmm 96 GPIO_ACTIVE_HIGH>;
- 			shutdown-gpios = <&pm8941_gpios 16 GPIO_ACTIVE_HIGH>;
- 		};
- 	};
-@@ -566,7 +566,7 @@ synaptics@2c {
- 			compatible = "syna,rmi4-i2c";
- 			reg = <0x2c>;
- 
--			interrupt-parent = <&msmgpio>;
-+			interrupt-parent = <&tlmm>;
- 			interrupts = <86 IRQ_TYPE_EDGE_FALLING>;
- 
- 			#address-cells = <1>;
-diff --git a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dts b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dts
-index f4a2e2560777..313c755f590f 100644
---- a/arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dts
-@@ -305,7 +305,7 @@ sdhci@f98a4900 {
- 		vmmc-supply = <&pm8941_l21>;
- 		vqmmc-supply = <&pm8941_l13>;
- 
--		cd-gpios = <&msmgpio 62 GPIO_ACTIVE_LOW>;
-+		cd-gpios = <&tlmm 62 GPIO_ACTIVE_LOW>;
- 
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&sdhc2_pin_a>, <&sdhc2_cd_pin_a>;
-@@ -331,7 +331,7 @@ synaptics@2c {
- 			compatible = "syna,rmi4-i2c";
- 			reg = <0x2c>;
- 
--			interrupts-extended = <&msmgpio 61 IRQ_TYPE_EDGE_FALLING>;
-+			interrupts-extended = <&tlmm 61 IRQ_TYPE_EDGE_FALLING>;
- 
- 			#address-cells = <1>;
- 			#size-cells = <0>;
+ };
 diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi b/arch/arm/boot/dts/qcom-msm8974.dtsi
-index d8a1ba5b845c..2182d2755926 100644
+index 2182d2755926..ad05f0665035 100644
 --- a/arch/arm/boot/dts/qcom-msm8974.dtsi
 +++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
-@@ -955,11 +955,11 @@ wifi {
- 			};
- 		};
+@@ -1612,7 +1612,7 @@ rpm {
+ 			qcom,ipc = <&apcs 8 0>;
+ 			qcom,smd-edge = <15>;
  
--		msmgpio: pinctrl@fd510000 {
-+		tlmm: pinctrl@fd510000 {
- 			compatible = "qcom,msm8974-pinctrl";
- 			reg = <0xfd510000 0x4000>;
- 			gpio-controller;
--			gpio-ranges = <&msmgpio 0 0 146>;
-+			gpio-ranges = <&tlmm 0 0 146>;
- 			#gpio-cells = <2>;
- 			interrupt-controller;
- 			#interrupt-cells = <2>;
+-			rpm-requests {
++			rpm_requests: rpm-requests {
+ 				compatible = "qcom,rpm-msm8974";
+ 				qcom,smd-channels = "rpm_requests";
+ 
 -- 
 2.35.1
 
