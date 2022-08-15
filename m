@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 944AF5948D0
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:10:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C344F594945
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:11:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354176AbiHOXrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:47:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40356 "EHLO
+        id S1354283AbiHOXri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:47:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354608AbiHOXqB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:46:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F3038C039;
-        Mon, 15 Aug 2022 13:14:27 -0700 (PDT)
+        with ESMTP id S1354657AbiHOXqI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:46:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CBFF399C7;
+        Mon, 15 Aug 2022 13:14:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BDAE360F0C;
-        Mon, 15 Aug 2022 20:14:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3A61C43140;
-        Mon, 15 Aug 2022 20:14:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7724B80EAB;
+        Mon, 15 Aug 2022 20:14:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6081C433B5;
+        Mon, 15 Aug 2022 20:14:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594466;
-        bh=QmY7IY0N8v9tui8zXSS90JphJI9wW2dfzECDf4wggX8=;
+        s=korg; t=1660594469;
+        bh=rtP5UkxezjL2rl/T3mDG4gHvrm9VQE6BfFamIZzDzOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=197K9dbeoyv9AANhg0X23O2aZG8SG5wcrcr3C8NHlbmCtG94P1/6Zo/vKPwjtWSqs
-         lKB6l8eHNYXPvo//wLfY7fn+L5rgCqE39JHf37KuJYPlyacR13s+VkWthl/0U3qG7N
-         VQTKlZ/rRlsvt4nBEmLR5hj63+EbL+V3/jlDv34g=
+        b=vVgPQ9SXUNJBH4FvkJX+X9bqWOPbNUYoHks4j7P3qvwOiAdxBZn/nBbLkDE+BpkpL
+         5xypjebIRsnwGUvuskOSaEWT6xmoMPYQj19SgO8Sby81sXnZ3u4R0bhAcbIm0Bsppn
+         YPT2tNcvYwVmIvI6p16bGZ9XKUjxhArcWh1KMZBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0457/1157] media: atomisp: revert "dont pass a pointer to a local variable"
-Date:   Mon, 15 Aug 2022 19:56:53 +0200
-Message-Id: <20220815180457.875359702@linuxfoundation.org>
+Subject: [PATCH 5.19 0458/1157] media: mediatek: vcodec: decoder: Fix 4K frame size enumeration
+Date:   Mon, 15 Aug 2022 19:56:54 +0200
+Message-Id: <20220815180457.921894012@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,78 +57,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit a3b36a8ce3d0c277fe243fa1be6bd3f606ed130f ]
+[ Upstream commit f1748f8f8174a65a885a8e6c0dc11658a6705ac2 ]
 
-The gcc is warning about returning a pointer to a local variable
-is a false positive.
+This partially reverts commit b018be06f3c7 ("media: mediatek: vcodec:
+Read max resolution from dec_capability"). In this commit, the maximum
+resolution ended up being a function of both the firmware capability and
+the current set format.
 
-The type of handle is "struct ia_css_rmgr_vbuf_handle **" and
-"h.vptr" is left to NULL, so the "if ((*handle)->vptr == 0x0)"
-check always succeeds when the "*handle = &h;" statement which
-gcc warns about executes. Leading to this statement being executed:
+However, frame size enumeration for output (coded) formats should not
+depend on the format set, but should return supported resolutions for
+the format requested by userspace.
 
-	rmgr_pop_handle(pool, handle);
+Fix this so that the driver returns the supported resolutions correctly,
+even if the instance only has default settings, or if the output format
+is currently set to VP8F, which does not support 4K.
 
-If that succeeds,  then *handle has been set to point to one of
-the pre-allocated array of handles, so it no longer points to h.
+This adds an copy of special casing for !VP8 and 4K support. The other
+existing copy will be removed when .max_{width,height} are removed from
+|struct mtk_vcodec_ctx| in a subsequent patch.
 
-If that fails the following statement will be executed:
-
-	/* Note that handle will change to an internally maintained one */
-	ia_css_rmgr_refcount_retain_vbuf(handle);
-
-Which allocated a new handle from the array of pre-allocated handles
-and then makes *handle point to this. So the address of h is actually
-never returned.
-
-The fix for the false-postive compiler warning actually breaks the code,
-the new:
-
-	**handle = h;
-
-is part of a "if (pool->copy_on_write) { ... }" which means that the
-handle where *handle points to should be treated read-only, IOW
-**handle must never be set, instead *handle must be set to point to
-a new handle (with a copy of the contents of the old handle).
-
-The old code correctly did this and the new fixed code gets this wrong.
-
-Note there is another patch in this series, which fixes the warning
-in another way.
-
-Link: https://lore.kernel.org/linux-media/20220612160556.108264-2-hdegoede@redhat.com
-Fixes: fa1451374ebf ("media: atomisp: don't pass a pointer to a local variable")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: b018be06f3c7 ("media: mediatek: vcodec: Read max resolution from dec_capability")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Tested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../staging/media/atomisp/pci/runtime/rmgr/src/rmgr_vbuf.c    | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c    | 2 --
+ .../platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c    | 7 +++++++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/runtime/rmgr/src/rmgr_vbuf.c b/drivers/staging/media/atomisp/pci/runtime/rmgr/src/rmgr_vbuf.c
-index 39604752785b..d96aaa4bc75d 100644
---- a/drivers/staging/media/atomisp/pci/runtime/rmgr/src/rmgr_vbuf.c
-+++ b/drivers/staging/media/atomisp/pci/runtime/rmgr/src/rmgr_vbuf.c
-@@ -254,7 +254,7 @@ void rmgr_pop_handle(struct ia_css_rmgr_vbuf_pool *pool,
- void ia_css_rmgr_acq_vbuf(struct ia_css_rmgr_vbuf_pool *pool,
- 			  struct ia_css_rmgr_vbuf_handle **handle)
- {
--	struct ia_css_rmgr_vbuf_handle h = { 0 };
-+	struct ia_css_rmgr_vbuf_handle h;
+diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
+index 01836a1c7d3f..393b127138f3 100644
+--- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
++++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec.c
+@@ -536,8 +536,6 @@ static int vidioc_enum_framesizes(struct file *file, void *priv,
+ 		fsize->type = V4L2_FRMSIZE_TYPE_STEPWISE;
+ 		fsize->stepwise = dec_pdata->vdec_framesizes[i].stepwise;
  
- 	if ((!pool) || (!handle) || (!*handle)) {
- 		IA_CSS_LOG("Invalid inputs");
-@@ -272,7 +272,7 @@ void ia_css_rmgr_acq_vbuf(struct ia_css_rmgr_vbuf_pool *pool,
- 			h.size = (*handle)->size;
- 			/* release ref to current buffer */
- 			ia_css_rmgr_refcount_release_vbuf(handle);
--			**handle = h;
-+			*handle = &h;
- 		}
- 		/* get new buffer for needed size */
- 		if ((*handle)->vptr == 0x0) {
+-		fsize->stepwise.max_width = ctx->max_width;
+-		fsize->stepwise.max_height = ctx->max_height;
+ 		mtk_v4l2_debug(1, "%x, %d %d %d %d %d %d",
+ 				ctx->dev->dec_capability,
+ 				fsize->stepwise.min_width,
+diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
+index 16d55785d84b..9a4d3e3658aa 100644
+--- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
++++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
+@@ -360,6 +360,13 @@ static void mtk_vcodec_add_formats(unsigned int fourcc,
+ 
+ 		mtk_vdec_framesizes[count_framesizes].fourcc = fourcc;
+ 		mtk_vdec_framesizes[count_framesizes].stepwise = stepwise_fhd;
++		if (!(ctx->dev->dec_capability & VCODEC_CAPABILITY_4K_DISABLED) &&
++		    fourcc != V4L2_PIX_FMT_VP8_FRAME) {
++			mtk_vdec_framesizes[count_framesizes].stepwise.max_width =
++				VCODEC_DEC_4K_CODED_WIDTH;
++			mtk_vdec_framesizes[count_framesizes].stepwise.max_height =
++				VCODEC_DEC_4K_CODED_HEIGHT;
++		}
+ 		num_framesizes++;
+ 		break;
+ 	case V4L2_PIX_FMT_MM21:
 -- 
 2.35.1
 
