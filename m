@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3022593961
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 585CA59398F
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243429AbiHOSf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:35:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50818 "EHLO
+        id S243662AbiHOSgv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:36:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243453AbiHOSeq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:34:46 -0400
+        with ESMTP id S243521AbiHOSev (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:34:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 966CB39BBD;
-        Mon, 15 Aug 2022 11:22:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 924D52C13F;
+        Mon, 15 Aug 2022 11:22:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18B86B81062;
-        Mon, 15 Aug 2022 18:22:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65805C433C1;
-        Mon, 15 Aug 2022 18:22:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28F48B80F99;
+        Mon, 15 Aug 2022 18:22:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78ACFC433C1;
+        Mon, 15 Aug 2022 18:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587739;
-        bh=CMovCprZ5em9db8CogLOUydohomPphAegq0bOUxOIkI=;
+        s=korg; t=1660587743;
+        bh=ApGZls245OFaL4bZDd2zk1ckQldFOthVbDmUJI6iQH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ytuABXSJ2dSc/85NA/wmh9/ZwvTaiwwCwM9yyovJD/clX+3ysbFq9SK5zx3DF+sWk
-         avmlea/T6Z1vJQcvNbUKkxRTlfANP2mjk9nthxo+MFvKHfN+NL5oAEipO9yCe6p5nV
-         Sj3ie/g4ABe4IQb9o8q1oTGuvD8DQTRCFhJ8gq4Q=
+        b=BqxyQpKY/jpqzS6PLkPKx+Yc+cBJqmnN4jS2PBuQHlPklWqi/shj28Zz8IzhBeTgi
+         SGnZ/Fg4FVpXKmZ6FIsqwFo44SFm0pibuxZs3n1lowbZcMw/e2VleinOWoCHd6gAXY
+         QGtLx1XHt3xqrLgwajEHAwNyKI03puUzz45nar74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 179/779] ARM: dts: qcom: mdm9615: add missing PMIC GPIO reg
-Date:   Mon, 15 Aug 2022 19:57:03 +0200
-Message-Id: <20220815180344.914794691@linuxfoundation.org>
+Subject: [PATCH 5.15 180/779] ARM: OMAP2+: Fix refcount leak in omapdss_init_of
+Date:   Mon, 15 Aug 2022 19:57:04 +0200
+Message-Id: <20220815180344.949179655@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,34 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit dc590cdc31f636ea15658f1206c3e380a53fb78e ]
+[ Upstream commit 9705db1eff38d6b9114121f9e253746199b759c9 ]
 
-'reg' property is required in SSBI children:
-  qcom-mdm9615-wp8548-mangoh-green.dtb: gpio@150: 'reg' is a required property
+omapdss_find_dss_of_node() calls of_find_compatible_node() to get device
+node. of_find_compatible_node() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() in later error path and normal path.
 
-Fixes: 2c5e596524e7 ("ARM: dts: Add MDM9615 dtsi")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220507194913.261121-11-krzysztof.kozlowski@linaro.org
+Fixes: e0c827aca0730 ("drm/omap: Populate DSS children in omapdss driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Message-Id: <20220601044858.3352-1-linmq006@gmail.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-mdm9615.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/mach-omap2/display.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/qcom-mdm9615.dtsi b/arch/arm/boot/dts/qcom-mdm9615.dtsi
-index dda2ceec6591..ad9b52d53ef9 100644
---- a/arch/arm/boot/dts/qcom-mdm9615.dtsi
-+++ b/arch/arm/boot/dts/qcom-mdm9615.dtsi
-@@ -324,6 +324,7 @@ rtc@11d {
+diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
+index eb09a25e3b45..8d829f3dafe7 100644
+--- a/arch/arm/mach-omap2/display.c
++++ b/arch/arm/mach-omap2/display.c
+@@ -260,11 +260,13 @@ static int __init omapdss_init_of(void)
  
- 				pmicgpio: gpio@150 {
- 					compatible = "qcom,pm8018-gpio", "qcom,ssbi-gpio";
-+					reg = <0x150>;
- 					interrupt-controller;
- 					#interrupt-cells = <2>;
- 					gpio-controller;
+ 	if (!pdev) {
+ 		pr_err("Unable to find DSS platform device\n");
++		of_node_put(node);
+ 		return -ENODEV;
+ 	}
+ 
+ 	r = of_platform_populate(node, NULL, NULL, &pdev->dev);
+ 	put_device(&pdev->dev);
++	of_node_put(node);
+ 	if (r) {
+ 		pr_err("Unable to populate DSS submodule devices\n");
+ 		return r;
 -- 
 2.35.1
 
