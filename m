@@ -2,46 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDD5859480C
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90B525947E5
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344892AbiHOX3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:29:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44052 "EHLO
+        id S1344756AbiHOX3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:29:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347132AbiHOX12 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:27:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB6BFD5E98;
-        Mon, 15 Aug 2022 13:07:16 -0700 (PDT)
+        with ESMTP id S1352832AbiHOX1h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:27:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0BFC14D722;
+        Mon, 15 Aug 2022 13:07:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F203FB80EAD;
-        Mon, 15 Aug 2022 20:07:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 345BEC433C1;
-        Mon, 15 Aug 2022 20:07:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2366FB80EAD;
+        Mon, 15 Aug 2022 20:07:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ECA9C433D6;
+        Mon, 15 Aug 2022 20:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594033;
-        bh=k/jl+hiL7h61ReI0pIPxD1nbi8Tvs1yvqiCnRfOIhME=;
+        s=korg; t=1660594039;
+        bh=ZVE2RNHPOttuDHZ2xX2gbbcEhpFNhv9Nt5X6GeRZKSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ob29ykvkrRfC0QIu3ygNtbXfq2rNmv8dGqKW5NuEv3Ush80Y/R4LjpKwqdga+gKe4
-         qqkO/VBueYo6SanGR8O7cDOXtMmXQVGrld42+0W3rp9dH9gZIN6yR7KLbFXeglfPrR
-         XMSDeRa4zqCLP3GW2HEXcGSdepp/uXaPuhL+8TRQ=
+        b=VkWP08ORQ9PtPN7Mzdle9M/hAVKlXcelGbkgd0qOqBUhS/EKcrgG5f3IWAfpXKAGY
+         pih3xQvWhJm3AYZWXY/s5d3qU2h8eROXz505NQ878M4N4Hq04+8PbSuCpalfnC1Z0T
+         mJkappOehipy8pTdlE63bt+8qC3lCLRgTij/AmDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Kees Cook <keescook@chromium.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mina Almasry <almasrymina@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
+        stable@vger.kernel.org, Marek Lindner <mareklindner@neomailbox.ch>,
+        Ingo Molnar <mingo@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Antonio Quartulli <a@unstable.cc>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org,
+        Sven Eckelmann <sven@narfation.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1045/1095] hugetlb_cgroup: fix wrong hugetlb cgroup numa stat
-Date:   Mon, 15 Aug 2022 20:07:24 +0200
-Message-Id: <20220815180512.318076322@linuxfoundation.org>
+Subject: [PATCH 5.18 1046/1095] batman-adv: tracing: Use the new __vstring() helper
+Date:   Mon, 15 Aug 2022 20:07:25 +0200
+Message-Id: <20220815180512.360819821@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -59,41 +64,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit 2727cfe4072a35ce813e3708f74c135de7da8897 ]
+[ Upstream commit 9abc291812d784bd4a26c01af4ebdbf9f2dbf0bb ]
 
-We forget to set cft->private for numa stat file.  As a result, numa stat
-of hstates[0] is always showed for all hstates.  Encode the hstates index
-into cft->private to fix this issue.
+Instead of open coding a __dynamic_array() with a fixed length (which
+defeats the purpose of the dynamic array in the first place). Use the new
+__vstring() helper that will use a va_list and only write enough of the
+string into the ring buffer that is needed.
 
-Link: https://lkml.kernel.org/r/20220723073804.53035-1-linmiaohe@huawei.com
-Fixes: f47761999052 ("hugetlb: add hugetlb.*.numa_stat file")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Mina Almasry <almasrymina@google.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://lkml.kernel.org/r/20220724191650.236b1355@rorschach.local.home
+
+Cc: Marek Lindner <mareklindner@neomailbox.ch>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Simon Wunderlich <sw@simonwunderlich.de>
+Cc: Antonio Quartulli <a@unstable.cc>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: b.a.t.m.a.n@lists.open-mesh.org
+Cc: netdev@vger.kernel.org
+Acked-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb_cgroup.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/batman-adv/trace.h | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/mm/hugetlb_cgroup.c b/mm/hugetlb_cgroup.c
-index f9942841df18..c86691c431fd 100644
---- a/mm/hugetlb_cgroup.c
-+++ b/mm/hugetlb_cgroup.c
-@@ -772,6 +772,7 @@ static void __init __hugetlb_cgroup_file_dfl_init(int idx)
- 	/* Add the numa stat file */
- 	cft = &h->cgroup_files_dfl[6];
- 	snprintf(cft->name, MAX_CFTYPE_NAME, "%s.numa_stat", buf);
-+	cft->private = MEMFILE_PRIVATE(idx, 0);
- 	cft->seq_show = hugetlb_cgroup_read_numa_stat;
- 	cft->flags = CFTYPE_NOT_ON_ROOT;
+diff --git a/net/batman-adv/trace.h b/net/batman-adv/trace.h
+index d673ebdd0426..31c8f922651d 100644
+--- a/net/batman-adv/trace.h
++++ b/net/batman-adv/trace.h
+@@ -28,8 +28,6 @@
  
+ #endif /* CONFIG_BATMAN_ADV_TRACING */
+ 
+-#define BATADV_MAX_MSG_LEN	256
+-
+ TRACE_EVENT(batadv_dbg,
+ 
+ 	    TP_PROTO(struct batadv_priv *bat_priv,
+@@ -40,16 +38,13 @@ TRACE_EVENT(batadv_dbg,
+ 	    TP_STRUCT__entry(
+ 		    __string(device, bat_priv->soft_iface->name)
+ 		    __string(driver, KBUILD_MODNAME)
+-		    __dynamic_array(char, msg, BATADV_MAX_MSG_LEN)
++		    __vstring(msg, vaf->fmt, vaf->va)
+ 	    ),
+ 
+ 	    TP_fast_assign(
+ 		    __assign_str(device, bat_priv->soft_iface->name);
+ 		    __assign_str(driver, KBUILD_MODNAME);
+-		    WARN_ON_ONCE(vsnprintf(__get_dynamic_array(msg),
+-					   BATADV_MAX_MSG_LEN,
+-					   vaf->fmt,
+-					   *vaf->va) >= BATADV_MAX_MSG_LEN);
++		    __assign_vstr(msg, vaf->fmt, vaf->va);
+ 	    ),
+ 
+ 	    TP_printk(
 -- 
 2.35.1
 
