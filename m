@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C47C595176
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:57:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B1F3595187
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234030AbiHPE53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:57:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56644 "EHLO
+        id S233768AbiHPE6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:58:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234219AbiHPE4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:56:30 -0400
+        with ESMTP id S234072AbiHPE6J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:58:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEF10BBA67;
-        Mon, 15 Aug 2022 13:51:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 629D1BC82E;
+        Mon, 15 Aug 2022 13:51:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26DD9B811A1;
-        Mon, 15 Aug 2022 20:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 713A8C433C1;
-        Mon, 15 Aug 2022 20:51:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D57C7B811A6;
+        Mon, 15 Aug 2022 20:51:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10096C433C1;
+        Mon, 15 Aug 2022 20:51:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596665;
-        bh=PJly4xxA0KHxTLeU6eH53rLAotSf69fCsTaHrNR2ODA=;
+        s=korg; t=1660596707;
+        bh=HubnvPKLK/24iZKT7eHbcqFhZULylH0KNpVFqRjJCys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MHAKOQcm21tXdarq9cL6gx1tE0cLt4QGKlk4K4mnjdR5JuX4/NM/M0RpBFYnz1Kpp
-         8LpFvLjDHRX2YTwZ7YtBiPXzT/ELBaQK2uJEzlwdzIKN6hSEqAipLdbMcJwt0+4kyo
-         tKvRvAE4uGcNa89D6FC8euyCOl9sNTMK/i5clYTw=
+        b=QERzGDnUWg6myrFkl76uG3qCBwKXTf5W/I0pOvRd4kdU2mUXLDB3SPfiTfLkQFZ6q
+         e4TNkvchVfVrWG//1fZW+kVdw/fGODHks7erGpJwyGUZeNzOVEaruXiOpMaW5Y/+55
+         fFq5tCW1MKe/4kBblIhcWYhcjGHYjwitaoD3pL/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.19 1151/1157] wifi: cfg80211: remove chandef check in cfg80211_cac_event()
-Date:   Mon, 15 Aug 2022 20:08:27 +0200
-Message-Id: <20220815180526.577115424@linuxfoundation.org>
+        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.19 1152/1157] tracing: Use a copy of the va_list for __assign_vstr()
+Date:   Mon, 15 Aug 2022 20:08:28 +0200
+Message-Id: <20220815180526.618951842@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -52,37 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit d6f671c8a339d5b655acfacb8be6918c744fbabf upstream.
+commit 3a2dcbaf4d31023106975d6ae75b6df080c454cb upstream.
 
-The current check only worked for AP mode, but we can do
-radar detection in mesh as well (for example). We could
-try to check this using wdev_chandef(), but we also don't
-really care since the chandef is passed in and we have no
-need to use it anymore (since we added the argument in
-commit d2859df5e7f0 ("cfg80211/mac80211: DFS setup chandef
-for cac event")).
+If an instance of tracing enables the same trace event as another
+instance, or the top level instance, or even perf, then the va_list passed
+into some tracepoints can be used more than once.
 
-Change-Id: I856e4344d5e64ff4d2eead0b4c53b11f264be9b8
-Fixes: 7b0a0e3c3a88 ("wifi: cfg80211: do some rework towards MLO link APIs")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+As va_list can only be traversed once, this can cause issues:
+
+ # cat /sys/kernel/tracing/instances/qla2xxx/trace
+             cat-56106   [012] ..... 2419873.470098: ql_dbg_log: qla2xxx [0000:05:00.0]-1054:14:  Entered (null).
+             cat-56106   [012] ..... 2419873.470101: ql_dbg_log: qla2xxx [0000:05:00.0]-1000:14:  Entered ×+<96>²Ü<98>^H.
+             cat-56106   [012] ..... 2419873.470102: ql_dbg_log: qla2xxx [0000:05:00.0]-1006:14:  Prepare to issue mbox cmd=0xde589000.
+
+ # cat /sys/kernel/tracing/trace
+             cat-56106   [012] ..... 2419873.470097: ql_dbg_log: qla2xxx [0000:05:00.0]-1054:14:  Entered qla2x00_get_firmware_state.
+             cat-56106   [012] ..... 2419873.470100: ql_dbg_log: qla2xxx [0000:05:00.0]-1000:14:  Entered qla2x00_mailbox_command.
+             cat-56106   [012] ..... 2419873.470102: ql_dbg_log: qla2xxx [0000:05:00.0]-1006:14:  Prepare to issue mbox cmd=0x69.
+
+The instance version is corrupted because the top level instance iterated
+the va_list first.
+
+Use va_copy() in the __assign_vstr() macro to make sure that each trace
+event for each use case gets a fresh va_list.
+
+Link: https://lore.kernel.org/all/259d53a5-958e-6508-4e45-74dba2821242@marvell.com/
+Link: https://lkml.kernel.org/r/20220719182004.21daa83e@gandalf.local.home
+
+Fixes: 0563231f93c6d ("tracing/events: Add __vstring() and __assign_vstr() helper macros")
+Reported-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/mlme.c |    3 ---
- 1 file changed, 3 deletions(-)
+ include/trace/stages/stage6_event_callback.h |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/wireless/mlme.c
-+++ b/net/wireless/mlme.c
-@@ -955,9 +955,6 @@ void cfg80211_cac_event(struct net_devic
- 	if (WARN_ON(!wdev->cac_started && event != NL80211_RADAR_CAC_STARTED))
- 		return;
+--- a/include/trace/stages/stage6_event_callback.h
++++ b/include/trace/stages/stage6_event_callback.h
+@@ -40,7 +40,12 @@
  
--	if (WARN_ON(!wdev->links[0].ap.chandef.chan))
--		return;
--
- 	switch (event) {
- 	case NL80211_RADAR_CAC_FINISHED:
- 		timeout = wdev->cac_start_time +
+ #undef __assign_vstr
+ #define __assign_vstr(dst, fmt, va)					\
+-	vsnprintf(__get_str(dst), TRACE_EVENT_STR_MAX, fmt, *(va))
++	do {								\
++		va_list __cp_va;					\
++		va_copy(__cp_va, *(va));				\
++		vsnprintf(__get_str(dst), TRACE_EVENT_STR_MAX, fmt, __cp_va); \
++		va_end(__cp_va);					\
++	} while (0)
+ 
+ #undef __bitmask
+ #define __bitmask(item, nr_bits) __dynamic_array(unsigned long, item, -1)
 
 
