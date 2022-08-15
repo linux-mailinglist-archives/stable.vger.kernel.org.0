@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A0CC593715
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:26:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E4BB593627
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:24:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244530AbiHOS5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:57:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49258 "EHLO
+        id S242847AbiHOS5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:57:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244935AbiHOS4U (ORCPT
+        with ESMTP id S244937AbiHOS4U (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:56:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ABC72C100;
-        Mon, 15 Aug 2022 11:30:46 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 452C964FD;
+        Mon, 15 Aug 2022 11:30:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9E59B81074;
-        Mon, 15 Aug 2022 18:30:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34EBDC433D7;
-        Mon, 15 Aug 2022 18:30:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5C0160F9F;
+        Mon, 15 Aug 2022 18:30:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1A1BC433D6;
+        Mon, 15 Aug 2022 18:30:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588243;
-        bh=KPIT0rX4vehbcxwhw9hn4GDvpctrofJn58SXiBI/FTM=;
+        s=korg; t=1660588246;
+        bh=QPTfQKqh2f76lb3mUBMoomoHcK9nZi9n8RF13z/wN6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWOVqqxxNkpa3VNm8qTIzlldeCellNfWov39s8vRuoSEbBGJ83ZRiQBbTethCuv2r
-         PIRz+suQsTf0LSF3BPkKKY45uFgJY8REL5DSZapjVJQ9cWa57iOBost8oE1MK1M6Xs
-         oBqxpTm/dBxirFeusHUhR48mMfPDs8Hg1jyBdU7c=
+        b=HEDElQGt+prNOtlc0t8DjCOE8niGMB49FzBD+8NHY5TKUFRoxm4qRAlcKNONgDDZ9
+         BgN+sIEOmwd3YZZLHoXmz92mh/jwme12xwr5HGmac2C28jhs/KqpGHbwBPV2hdw2qj
+         YICGHXhpejnRMIrAB8rCq1Wo69mTzlvPBxVFtq7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 341/779] media: cedrus: h265: Fix flag name
-Date:   Mon, 15 Aug 2022 19:59:45 +0200
-Message-Id: <20220815180351.852340263@linuxfoundation.org>
+Subject: [PATCH 5.15 342/779] media: hantro: postproc: Fix motion vector space size
+Date:   Mon, 15 Aug 2022 19:59:46 +0200
+Message-Id: <20220815180351.888932267@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,68 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-[ Upstream commit 104a70e1d0bcef28db13c4192b8729086089651c ]
+[ Upstream commit 9393761aec4c56b7f2f19d21f806d316731401c1 ]
 
-Bit 21 in register 0x24 (slice header info 1) actually represents
-negated version of low delay flag. This can be seen in vendor Cedar
-library source code. While this flag is not part of the standard, it can
-be found in reference HEVC implementation.
+When the post-processor hardware block is enabled, the driver
+allocates an internal queue of buffers for the decoder enginer,
+and uses the vb2 queue for the post-processor engine.
 
-Fix macro name and change it to flag.
+For instance, on a G1 core, the decoder engine produces NV12 buffers
+and the post-processor engine can produce YUY2 buffers. The decoder
+engine expects motion vectors to be appended to the NV12 buffers,
+but this is only required for CODECs that need motion vectors,
+such as H.264.
 
-Fixes: 86caab29da78 ("media: cedrus: Add HEVC/H.265 decoding support")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Fix the post-processor logic accordingly.
+
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/sunxi/cedrus/cedrus_h265.c | 4 +++-
- drivers/staging/media/sunxi/cedrus/cedrus_regs.h | 3 +--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/staging/media/hantro/hantro_postproc.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-index 754942ecf064..f2cec43fd1f0 100644
---- a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-@@ -495,7 +495,6 @@ static void cedrus_h265_setup(struct cedrus_ctx *ctx,
+diff --git a/drivers/staging/media/hantro/hantro_postproc.c b/drivers/staging/media/hantro/hantro_postproc.c
+index ed8916c950a4..07842152003f 100644
+--- a/drivers/staging/media/hantro/hantro_postproc.c
++++ b/drivers/staging/media/hantro/hantro_postproc.c
+@@ -132,9 +132,10 @@ int hantro_postproc_alloc(struct hantro_ctx *ctx)
+ 	unsigned int num_buffers = cap_queue->num_buffers;
+ 	unsigned int i, buf_size;
  
- 	reg = VE_DEC_H265_DEC_SLICE_HDR_INFO1_SLICE_TC_OFFSET_DIV2(slice_params->slice_tc_offset_div2) |
- 	      VE_DEC_H265_DEC_SLICE_HDR_INFO1_SLICE_BETA_OFFSET_DIV2(slice_params->slice_beta_offset_div2) |
--	      VE_DEC_H265_DEC_SLICE_HDR_INFO1_SLICE_POC_BIGEST_IN_RPS_ST(decode_params->num_poc_st_curr_after == 0) |
- 	      VE_DEC_H265_DEC_SLICE_HDR_INFO1_SLICE_CR_QP_OFFSET(slice_params->slice_cr_qp_offset) |
- 	      VE_DEC_H265_DEC_SLICE_HDR_INFO1_SLICE_CB_QP_OFFSET(slice_params->slice_cb_qp_offset) |
- 	      VE_DEC_H265_DEC_SLICE_HDR_INFO1_SLICE_QP_DELTA(slice_params->slice_qp_delta);
-@@ -508,6 +507,9 @@ static void cedrus_h265_setup(struct cedrus_ctx *ctx,
- 				V4L2_HEVC_SLICE_PARAMS_FLAG_SLICE_LOOP_FILTER_ACROSS_SLICES_ENABLED,
- 				slice_params->flags);
+-	buf_size = ctx->dst_fmt.plane_fmt[0].sizeimage +
+-		   hantro_h264_mv_size(ctx->dst_fmt.width,
+-				       ctx->dst_fmt.height);
++	buf_size = ctx->dst_fmt.plane_fmt[0].sizeimage;
++	if (ctx->vpu_src_fmt->fourcc == V4L2_PIX_FMT_H264_SLICE)
++		buf_size += hantro_h264_mv_size(ctx->dst_fmt.width,
++						ctx->dst_fmt.height);
  
-+	if (decode_params->num_poc_st_curr_after == 0)
-+		reg |= VE_DEC_H265_DEC_SLICE_HDR_INFO1_FLAG_SLICE_NOT_LOW_DELAY;
-+
- 	cedrus_write(dev, VE_DEC_H265_DEC_SLICE_HDR_INFO1, reg);
- 
- 	chroma_log2_weight_denom = pred_weight_table->luma_log2_weight_denom +
-diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_regs.h b/drivers/staging/media/sunxi/cedrus/cedrus_regs.h
-index 92ace87c1c7d..5f34e3670289 100644
---- a/drivers/staging/media/sunxi/cedrus/cedrus_regs.h
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus_regs.h
-@@ -377,13 +377,12 @@
- 
- #define VE_DEC_H265_DEC_SLICE_HDR_INFO1_FLAG_SLICE_DEBLOCKING_FILTER_DISABLED BIT(23)
- #define VE_DEC_H265_DEC_SLICE_HDR_INFO1_FLAG_SLICE_LOOP_FILTER_ACROSS_SLICES_ENABLED BIT(22)
-+#define VE_DEC_H265_DEC_SLICE_HDR_INFO1_FLAG_SLICE_NOT_LOW_DELAY BIT(21)
- 
- #define VE_DEC_H265_DEC_SLICE_HDR_INFO1_SLICE_TC_OFFSET_DIV2(v) \
- 	SHIFT_AND_MASK_BITS(v, 31, 28)
- #define VE_DEC_H265_DEC_SLICE_HDR_INFO1_SLICE_BETA_OFFSET_DIV2(v) \
- 	SHIFT_AND_MASK_BITS(v, 27, 24)
--#define VE_DEC_H265_DEC_SLICE_HDR_INFO1_SLICE_POC_BIGEST_IN_RPS_ST(v) \
--	((v) ? BIT(21) : 0)
- #define VE_DEC_H265_DEC_SLICE_HDR_INFO1_SLICE_CR_QP_OFFSET(v) \
- 	SHIFT_AND_MASK_BITS(v, 20, 16)
- #define VE_DEC_H265_DEC_SLICE_HDR_INFO1_SLICE_CB_QP_OFFSET(v) \
+ 	for (i = 0; i < num_buffers; ++i) {
+ 		struct hantro_aux_buf *priv = &ctx->postproc.dec_q[i];
 -- 
 2.35.1
 
