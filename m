@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BB9B59420C
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF335593F32
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:44:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347083AbiHOVZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:25:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48980 "EHLO
+        id S243708AbiHOVYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:24:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344515AbiHOVXm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:23:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53724E68C3;
-        Mon, 15 Aug 2022 12:22:20 -0700 (PDT)
+        with ESMTP id S243729AbiHOVWh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:22:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0292AE68D4;
+        Mon, 15 Aug 2022 12:22:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A75CAB81109;
-        Mon, 15 Aug 2022 19:22:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD345C433C1;
-        Mon, 15 Aug 2022 19:22:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 188B760BB7;
+        Mon, 15 Aug 2022 19:22:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0789FC433D6;
+        Mon, 15 Aug 2022 19:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591337;
-        bh=BKIxRizxJYC3fDwWJHTwZ9YRG2rgV2o83TGACtjwAlc=;
+        s=korg; t=1660591340;
+        bh=0SYm1VVHnhtjkTsyruKuYLbCCiFCcr39+3jSY7b7QZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=how/FFPkvFvRSeLjc97CwdY57FSYVsIEBFhGXrDvQTRQUqLqp/NHMCLqhBUxz9ntS
-         ZHF4LiP2vkVcdeugEqu20o+YPs+AemyFIl816qu32ycvC5rhOEqBpDs2p3flM8d0b8
-         x7MSEscMM6GHOsHgMO3NqIaDTBqxvJrd/hijyOGU=
+        b=De0rs9zQ0SuETDgbIkSkjRKWZ/nG+NeTKwkBBrvPMd5R/mQvK5UCxOj/xp5d/EqSy
+         1zgjPN7ky9QMG3kOy2/Omo+RGjKkB/2hOMIHm+MQn00I+iAqun3jcmMKCJ637oXtQK
+         cPqmQy3y7JpiXrPQUqLVRYpuqh3fPlgnU9TdTcXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0548/1095] scsi: qla2xxx: edif: bsg refactor
-Date:   Mon, 15 Aug 2022 19:59:07 +0200
-Message-Id: <20220815180452.215450188@linuxfoundation.org>
+Subject: [PATCH 5.18 0549/1095] scsi: qla2xxx: edif: Wait for app to ack on sess down
+Date:   Mon, 15 Aug 2022 19:59:08 +0200
+Message-Id: <20220815180452.266487763@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,334 +57,240 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 7a7b0b4865d3490f62d6ef1a3aa39fa2b47859a4 ]
+[ Upstream commit df648afa39da9c4d3af99c6c03dc3e9c7dfa99b0 ]
 
- - Add version field to edif bsg for future enhancement.
+On session deletion, wait for app to acknowledge before moving on. This
+allows both app and driver to stay in sync. In addition, this gives a
+chance for authentication app to do any type of cleanup before moving on.
 
- - Add version edif bsg version check
-
- - Remove unused interfaces and fields.
-
-Link: https://lore.kernel.org/r/20220607044627.19563-3-njavali@marvell.com
+Link: https://lore.kernel.org/r/20220607044627.19563-4-njavali@marvell.com
 Fixes: dd30706e73b7 ("scsi: qla2xxx: edif: Add key update")
 Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_edif.c     | 32 +++++++---
- drivers/scsi/qla2xxx/qla_edif_bsg.h | 90 ++++++++++++++++++-----------
- 2 files changed, 79 insertions(+), 43 deletions(-)
+ drivers/scsi/qla2xxx/qla_def.h    |  2 +-
+ drivers/scsi/qla2xxx/qla_edif.c   | 66 +++++++++++++++++++++++++------
+ drivers/scsi/qla2xxx/qla_init.c   |  4 --
+ drivers/scsi/qla2xxx/qla_target.c | 35 ++++++++--------
+ 4 files changed, 74 insertions(+), 33 deletions(-)
 
+diff --git a/drivers/scsi/qla2xxx/qla_def.h b/drivers/scsi/qla2xxx/qla_def.h
+index 5f22276927dd..c2b92a6fef90 100644
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -2626,7 +2626,6 @@ typedef struct fc_port {
+ 	struct {
+ 		uint32_t	enable:1;	/* device is edif enabled/req'd */
+ 		uint32_t	app_stop:2;
+-		uint32_t	app_started:1;
+ 		uint32_t	aes_gmac:1;
+ 		uint32_t	app_sess_online:1;
+ 		uint32_t	tx_sa_set:1;
+@@ -2637,6 +2636,7 @@ typedef struct fc_port {
+ 		uint32_t	rx_rekey_cnt;
+ 		uint64_t	tx_bytes;
+ 		uint64_t	rx_bytes;
++		uint8_t		sess_down_acked;
+ 		uint8_t		auth_state;
+ 		uint16_t	authok:1;
+ 		uint16_t	rekey_cnt;
 diff --git a/drivers/scsi/qla2xxx/qla_edif.c b/drivers/scsi/qla2xxx/qla_edif.c
-index 30ca56f8e4c8..0978551f85f5 100644
+index 0978551f85f5..034c43a8bb9b 100644
 --- a/drivers/scsi/qla2xxx/qla_edif.c
 +++ b/drivers/scsi/qla2xxx/qla_edif.c
-@@ -280,14 +280,19 @@ qla_edif_app_check(scsi_qla_host_t *vha, struct app_id appid)
- {
- 	/* check that the app is allow/known to the driver */
+@@ -257,14 +257,8 @@ qla2x00_find_fcport_by_pid(scsi_qla_host_t *vha, port_id_t *id)
  
--	if (appid.app_vid == EDIF_APP_ID) {
--		ql_dbg(ql_dbg_edif + ql_dbg_verbose, vha, 0x911d, "%s app id ok\n", __func__);
--		return true;
-+	if (appid.app_vid != EDIF_APP_ID) {
-+		ql_dbg(ql_dbg_edif, vha, 0x911d, "%s app id not ok (%x)",
-+		    __func__, appid.app_vid);
-+		return false;
-+	}
-+
-+	if (appid.version != EDIF_VERSION1) {
-+		ql_dbg(ql_dbg_edif, vha, 0x911d, "%s app version is not ok (%x)",
-+		    __func__, appid.version);
-+		return false;
+ 	f = NULL;
+ 	list_for_each_entry_safe(f, tf, &vha->vp_fcports, list) {
+-		if ((f->flags & FCF_FCSP_DEVICE)) {
+-			ql_dbg(ql_dbg_edif + ql_dbg_verbose, vha, 0x2058,
+-			    "Found secure fcport - nn %8phN pn %8phN portid=0x%x, 0x%x.\n",
+-			    f->node_name, f->port_name,
+-			    f->d_id.b24, id->b24);
+-			if (f->d_id.b24 == id->b24)
+-				return f;
+-		}
++		if (f->d_id.b24 == id->b24)
++			return f;
  	}
--	ql_dbg(ql_dbg_edif, vha, 0x911d, "%s app id not ok (%x)",
--	    __func__, appid.app_vid);
- 
--	return false;
-+	return true;
+ 	return NULL;
  }
+@@ -526,7 +520,6 @@ qla_edif_app_start(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
  
- static void
-@@ -555,6 +560,7 @@ qla_edif_app_start(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- 	appreply.host_support_edif = vha->hw->flags.edif_enabled;
- 	appreply.edif_enode_active = vha->pur_cinfo.enode_flags;
- 	appreply.edif_edb_active = vha->e_dbell.db_flags;
-+	appreply.version = EDIF_VERSION1;
+ 			fcport->edif.app_stop = 0;
+ 			fcport->edif.app_sess_online = 0;
+-			fcport->edif.app_started = 1;
  
- 	bsg_job->reply_len = sizeof(struct fc_bsg_reply);
- 
-@@ -685,6 +691,7 @@ qla_edif_app_authok(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- 	portid.b.area   = appplogiok.u.d_id.b.area;
- 	portid.b.al_pa  = appplogiok.u.d_id.b.al_pa;
- 
-+	appplogireply.version = EDIF_VERSION1;
- 	switch (appplogiok.type) {
- 	case PL_TYPE_WWPN:
- 		fcport = qla2x00_find_fcport_by_wwpn(vha,
-@@ -877,6 +884,8 @@ qla_edif_app_getfcinfo(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- 	} else {
- 		struct fc_port	*fcport = NULL, *tf;
- 
-+		app_reply->version = EDIF_VERSION1;
-+
- 		list_for_each_entry_safe(fcport, tf, &vha->vp_fcports, list) {
- 			if (!(fcport->flags & FCF_FCSP_DEVICE))
- 				continue;
-@@ -893,9 +902,6 @@ qla_edif_app_getfcinfo(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- 			if (tdid.b24 != 0 && tdid.b24 != fcport->d_id.b24)
- 				continue;
- 
--			app_reply->ports[pcnt].rekey_count =
--				fcport->edif.rekey_cnt;
--
  			if (fcport->scan_state != QLA_FCPORT_FOUND)
  				continue;
+@@ -628,9 +621,6 @@ qla_edif_app_stop(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
  
-@@ -910,6 +916,7 @@ qla_edif_app_getfcinfo(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
+ 			fcport->send_els_logo = 1;
+ 			qlt_schedule_sess_for_deletion(fcport);
+-
+-			/* qla_edif_flush_sa_ctl_lists(fcport); */
+-			fcport->edif.app_started = 0;
+ 		}
+ 	}
  
- 			rval = 0;
+@@ -1048,6 +1038,40 @@ qla_edif_app_getstats(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
+ 	return rval;
+ }
  
-+			app_reply->ports[pcnt].version = EDIF_VERSION1;
- 			app_reply->ports[pcnt].remote_type =
- 				VND_CMD_RTYPE_UNKNOWN;
- 			if (fcport->port_type & (FCT_NVME_TARGET | FCT_TARGET))
-@@ -1006,6 +1013,8 @@ qla_edif_app_getstats(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- 	} else {
- 		struct fc_port	*fcport = NULL, *tf;
- 
-+		app_reply->version = EDIF_VERSION1;
++static int32_t
++qla_edif_ack(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
++{
++	struct fc_port *fcport;
++	struct aen_complete_cmd ack;
++	struct fc_bsg_reply     *bsg_reply = bsg_job->reply;
 +
- 		list_for_each_entry_safe(fcport, tf, &vha->vp_fcports, list) {
- 			if (fcport->edif.enable) {
- 				if (pcnt > app_req.num_ports)
-@@ -2037,6 +2046,7 @@ qla_edb_eventcreate(scsi_qla_host_t *vha, uint32_t dbtype,
- 		edbnode->u.sa_aen.port_id = fcport->d_id;
- 		edbnode->u.sa_aen.status =  data;
- 		edbnode->u.sa_aen.key_type =  data2;
-+		edbnode->u.sa_aen.version = EDIF_VERSION1;
++	sg_copy_to_buffer(bsg_job->request_payload.sg_list,
++			  bsg_job->request_payload.sg_cnt, &ack, sizeof(ack));
++
++	ql_dbg(ql_dbg_edif, vha, 0x70cf,
++	       "%s: %06x event_code %x\n",
++	       __func__, ack.port_id.b24, ack.event_code);
++
++	fcport = qla2x00_find_fcport_by_pid(vha, &ack.port_id);
++	SET_DID_STATUS(bsg_reply->result, DID_OK);
++
++	if (!fcport) {
++		ql_dbg(ql_dbg_edif, vha, 0x70cf,
++		       "%s: unable to find fcport %06x \n",
++		       __func__, ack.port_id.b24);
++		return 0;
++	}
++
++	switch (ack.event_code) {
++	case VND_CMD_AUTH_STATE_SESSION_SHUTDOWN:
++		fcport->edif.sess_down_acked = 1;
++		break;
++	default:
++		break;
++	}
++	return 0;
++}
++
+ int32_t
+ qla_edif_app_mgmt(struct bsg_job *bsg_job)
+ {
+@@ -1110,6 +1134,9 @@ qla_edif_app_mgmt(struct bsg_job *bsg_job)
+ 	case QL_VND_SC_GET_STATS:
+ 		rval = qla_edif_app_getstats(vha, bsg_job);
  		break;
++	case QL_VND_SC_AEN_COMPLETE:
++		rval = qla_edif_ack(vha, bsg_job);
++		break;
  	default:
- 		ql_dbg(ql_dbg_edif, vha, 0x09102,
-@@ -3380,6 +3390,10 @@ int qla_edif_process_els(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- 	port_id_t d_id;
- 	struct qla_bsg_auth_els_request *p =
- 	    (struct qla_bsg_auth_els_request *)bsg_job->request;
-+	struct qla_bsg_auth_els_reply *rpl =
-+	    (struct qla_bsg_auth_els_reply *)bsg_job->reply;
+ 		ql_dbg(ql_dbg_edif, vha, 0x911d, "%s unknown cmd=%x\n",
+ 		    __func__,
+@@ -3513,14 +3540,29 @@ int qla_edif_process_els(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
+ 
+ void qla_edif_sess_down(struct scsi_qla_host *vha, struct fc_port *sess)
+ {
++	u16 cnt = 0;
 +
-+	rpl->version = EDIF_VERSION1;
- 
- 	d_id.b.al_pa = bsg_request->rqst_data.h_els.port_id[2];
- 	d_id.b.area = bsg_request->rqst_data.h_els.port_id[1];
-diff --git a/drivers/scsi/qla2xxx/qla_edif_bsg.h b/drivers/scsi/qla2xxx/qla_edif_bsg.h
-index 5a26c77157da..301523e4f483 100644
---- a/drivers/scsi/qla2xxx/qla_edif_bsg.h
-+++ b/drivers/scsi/qla2xxx/qla_edif_bsg.h
-@@ -7,13 +7,15 @@
- #ifndef __QLA_EDIF_BSG_H
- #define __QLA_EDIF_BSG_H
- 
-+#define EDIF_VERSION1 1
+ 	if (sess->edif.app_sess_online && DBELL_ACTIVE(vha)) {
+ 		ql_dbg(ql_dbg_disc, vha, 0xf09c,
+ 			"%s: sess %8phN send port_offline event\n",
+ 			__func__, sess->port_name);
+ 		sess->edif.app_sess_online = 0;
++		sess->edif.sess_down_acked = 0;
+ 		qla_edb_eventcreate(vha, VND_CMD_AUTH_STATE_SESSION_SHUTDOWN,
+ 		    sess->d_id.b24, 0, sess);
+ 		qla2x00_post_aen_work(vha, FCH_EVT_PORT_OFFLINE, sess->d_id.b24);
 +
- /* BSG Vendor specific commands */
- #define	ELS_MAX_PAYLOAD		2112
- #ifndef	WWN_SIZE
- #define WWN_SIZE		8
- #endif
--#define	VND_CMD_APP_RESERVED_SIZE	32
++		while (!READ_ONCE(sess->edif.sess_down_acked) &&
++		       !test_bit(VPORT_DELETE, &vha->dpc_flags)) {
++			msleep(100);
++			cnt++;
++			if (cnt > 100)
++				break;
++		}
++		sess->edif.sess_down_acked = 0;
++		ql_dbg(ql_dbg_disc, vha, 0xf09c,
++		       "%s: sess %8phN port_offline event completed\n",
++		       __func__, sess->port_name);
+ 	}
+ }
+ 
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index 4c0f76021c47..5f077f9217e5 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -1480,7 +1480,6 @@ static int	qla_chk_secure_login(scsi_qla_host_t	*vha, fc_port_t *fcport,
+ 				ql_dbg(ql_dbg_disc, vha, 0x20ef,
+ 				    "%s %d %8phC EDIF: post DB_AUTH: AUTH needed\n",
+ 				    __func__, __LINE__, fcport->port_name);
+-				fcport->edif.app_started = 1;
+ 				fcport->edif.app_sess_online = 1;
+ 
+ 				qla_edb_eventcreate(vha, VND_CMD_AUTH_STATE_NEEDED,
+@@ -5275,9 +5274,6 @@ qla2x00_alloc_fcport(scsi_qla_host_t *vha, gfp_t flags)
+ 	INIT_LIST_HEAD(&fcport->edif.tx_sa_list);
+ 	INIT_LIST_HEAD(&fcport->edif.rx_sa_list);
+ 
+-	if (vha->e_dbell.db_flags == EDB_ACTIVE)
+-		fcport->edif.app_started = 1;
 -
-+#define VND_CMD_APP_RESERVED_SIZE	28
-+#define VND_CMD_PAD_SIZE                3
- enum auth_els_sub_cmd {
- 	SEND_ELS = 0,
- 	SEND_ELS_REPLY,
-@@ -28,7 +30,9 @@ struct extra_auth_els {
- #define BSG_CTL_FLAG_LS_ACC     1
- #define BSG_CTL_FLAG_LS_RJT     2
- #define BSG_CTL_FLAG_TRM        3
--	uint8_t         extra_rsvd[3];
-+	uint8_t		version;
-+	uint8_t		pad[2];
-+	uint8_t		reserved[VND_CMD_APP_RESERVED_SIZE];
- } __packed;
+ 	spin_lock_init(&fcport->edif.indx_list_lock);
+ 	INIT_LIST_HEAD(&fcport->edif.edif_indx_list);
  
- struct qla_bsg_auth_els_request {
-@@ -39,51 +43,46 @@ struct qla_bsg_auth_els_request {
- struct qla_bsg_auth_els_reply {
- 	struct fc_bsg_reply r;
- 	uint32_t rx_xchg_address;
-+	uint8_t version;
-+	uint8_t pad[VND_CMD_PAD_SIZE];
-+	uint8_t reserved[VND_CMD_APP_RESERVED_SIZE];
- };
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index 6dfcfd8e7337..34b85c80233f 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -988,22 +988,6 @@ void qlt_free_session_done(struct work_struct *work)
+ 		sess->send_els_logo);
  
- struct app_id {
- 	int		app_vid;
--	uint8_t		app_key[32];
-+	uint8_t		version;
-+	uint8_t		pad[VND_CMD_PAD_SIZE];
-+	uint8_t		reserved[VND_CMD_APP_RESERVED_SIZE];
- } __packed;
+ 	if (!IS_SW_RESV_ADDR(sess->d_id)) {
+-		if (ha->flags.edif_enabled &&
+-		    (!own || own->iocb.u.isp24.status_subcode == ELS_PLOGI)) {
+-			sess->edif.authok = 0;
+-			if (!ha->flags.host_shutting_down) {
+-				ql_dbg(ql_dbg_edif, vha, 0x911e,
+-					"%s wwpn %8phC calling qla2x00_release_all_sadb\n",
+-					__func__, sess->port_name);
+-				qla2x00_release_all_sadb(vha, sess);
+-			} else {
+-				ql_dbg(ql_dbg_edif, vha, 0x911e,
+-					"%s bypassing release_all_sadb\n",
+-					__func__);
+-			}
+-			qla_edif_clear_appdata(vha, sess);
+-			qla_edif_sess_down(vha, sess);
+-		}
+ 		qla2x00_mark_device_lost(vha, sess, 0);
  
- struct app_start_reply {
- 	uint32_t	host_support_edif;
- 	uint32_t	edif_enode_active;
- 	uint32_t	edif_edb_active;
--	uint32_t	reserved[VND_CMD_APP_RESERVED_SIZE];
-+	uint8_t		version;
-+	uint8_t		pad[VND_CMD_PAD_SIZE];
-+	uint8_t		reserved[VND_CMD_APP_RESERVED_SIZE];
- } __packed;
- 
- struct app_start {
- 	struct app_id	app_info;
--	uint32_t	prli_to;
--	uint32_t	key_shred;
- 	uint8_t         app_start_flags;
--	uint8_t         reserved[VND_CMD_APP_RESERVED_SIZE - 1];
-+	uint8_t		version;
-+	uint8_t		pad[2];
-+	uint8_t		reserved[VND_CMD_APP_RESERVED_SIZE];
- } __packed;
- 
- struct app_stop {
- 	struct app_id	app_info;
--	char		buf[16];
-+	uint8_t		version;
-+	uint8_t		pad[VND_CMD_PAD_SIZE];
-+	uint8_t		reserved[VND_CMD_APP_RESERVED_SIZE];
- } __packed;
- 
- struct app_plogi_reply {
- 	uint32_t	prli_status;
--	uint8_t		reserved[VND_CMD_APP_RESERVED_SIZE];
--} __packed;
--
--#define	RECFG_TIME	1
--#define	RECFG_BYTES	2
--
--struct app_rekey_cfg {
--	struct app_id app_info;
--	uint8_t	 rekey_mode;
--	port_id_t d_id;
--	uint8_t	 force;
--	union {
--		int64_t bytes;
--		int64_t time;
--	} rky_units;
--
-+	uint8_t		version;
-+	uint8_t		pad[VND_CMD_PAD_SIZE];
- 	uint8_t		reserved[VND_CMD_APP_RESERVED_SIZE];
- } __packed;
- 
-@@ -91,7 +90,9 @@ struct app_pinfo_req {
- 	struct app_id app_info;
- 	uint8_t	 num_ports;
- 	port_id_t remote_pid;
--	uint8_t	 reserved[VND_CMD_APP_RESERVED_SIZE];
-+	uint8_t		version;
-+	uint8_t		pad[VND_CMD_PAD_SIZE];
-+	uint8_t		reserved[VND_CMD_APP_RESERVED_SIZE];
- } __packed;
- 
- struct app_pinfo {
-@@ -103,11 +104,8 @@ struct app_pinfo {
- #define	VND_CMD_RTYPE_INITIATOR		2
- 	uint8_t	remote_state;
- 	uint8_t	auth_state;
--	uint8_t	rekey_mode;
--	int64_t	rekey_count;
--	int64_t	rekey_config_value;
--	int64_t	rekey_consumed_value;
--
-+	uint8_t	version;
-+	uint8_t	pad[VND_CMD_PAD_SIZE];
- 	uint8_t	reserved[VND_CMD_APP_RESERVED_SIZE];
- } __packed;
- 
-@@ -120,6 +118,8 @@ struct app_pinfo {
- 
- struct app_pinfo_reply {
- 	uint8_t		port_count;
-+	uint8_t		version;
-+	uint8_t		pad[VND_CMD_PAD_SIZE];
- 	uint8_t		reserved[VND_CMD_APP_RESERVED_SIZE];
- 	struct app_pinfo ports[];
- } __packed;
-@@ -127,6 +127,8 @@ struct app_pinfo_reply {
- struct app_sinfo_req {
- 	struct app_id	app_info;
- 	uint8_t		num_ports;
-+	uint8_t		version;
-+	uint8_t		pad[VND_CMD_PAD_SIZE];
- 	uint8_t		reserved[VND_CMD_APP_RESERVED_SIZE];
- } __packed;
- 
-@@ -140,6 +142,9 @@ struct app_sinfo {
- 
- struct app_stats_reply {
- 	uint8_t		elem_count;
-+	uint8_t		version;
-+	uint8_t		pad[VND_CMD_PAD_SIZE];
-+	uint8_t		reserved[VND_CMD_APP_RESERVED_SIZE];
- 	struct app_sinfo elem[];
- } __packed;
- 
-@@ -163,9 +168,11 @@ struct qla_sa_update_frame {
- 	uint8_t		node_name[WWN_SIZE];
- 	uint8_t		port_name[WWN_SIZE];
- 	port_id_t	port_id;
-+	uint8_t		version;
-+	uint8_t		pad[VND_CMD_PAD_SIZE];
-+	uint8_t		reserved2[VND_CMD_APP_RESERVED_SIZE];
- } __packed;
- 
--// used for edif mgmt bsg interface
- #define	QL_VND_SC_UNDEF		0
- #define	QL_VND_SC_SA_UPDATE	1
- #define	QL_VND_SC_APP_START	2
-@@ -175,6 +182,8 @@ struct qla_sa_update_frame {
- #define	QL_VND_SC_REKEY_CONFIG	6
- #define	QL_VND_SC_GET_FCINFO	7
- #define	QL_VND_SC_GET_STATS	8
-+#define QL_VND_SC_AEN_COMPLETE  9
+ 		if (sess->send_els_logo) {
+@@ -1049,6 +1033,25 @@ void qlt_free_session_done(struct work_struct *work)
+ 			sess->nvme_flag |= NVME_FLAG_DELETING;
+ 			qla_nvme_unregister_remote_port(sess);
+ 		}
 +
- 
- /* Application interface data structure for rtn data */
- #define	EXT_DEF_EVENT_DATA_SIZE	64
-@@ -191,7 +200,9 @@ struct edif_sa_update_aen {
- 	port_id_t port_id;
- 	uint32_t key_type;	/* Tx (1) or RX (2) */
- 	uint32_t status;	/* 0 succes,  1 failed, 2 timeout , 3 error */
--	uint8_t		reserved[16];
-+	uint8_t	version;
-+	uint8_t	pad[VND_CMD_PAD_SIZE];
-+	uint8_t	reserved[VND_CMD_APP_RESERVED_SIZE];
- } __packed;
- 
- #define	QL_VND_SA_STAT_SUCCESS	0
-@@ -212,7 +223,18 @@ struct auth_complete_cmd {
- 		uint8_t  wwpn[WWN_SIZE];
- 		port_id_t d_id;
- 	} u;
--	uint32_t reserved[VND_CMD_APP_RESERVED_SIZE];
-+	uint8_t	version;
-+	uint8_t	pad[VND_CMD_PAD_SIZE];
-+	uint8_t	reserved[VND_CMD_APP_RESERVED_SIZE];
-+} __packed;
++		if (ha->flags.edif_enabled &&
++		    (!own || (own &&
++			      own->iocb.u.isp24.status_subcode == ELS_PLOGI))) {
++			sess->edif.authok = 0;
++			if (!ha->flags.host_shutting_down) {
++				ql_dbg(ql_dbg_edif, vha, 0x911e,
++				       "%s wwpn %8phC calling qla2x00_release_all_sadb\n",
++				       __func__, sess->port_name);
++				qla2x00_release_all_sadb(vha, sess);
++			} else {
++				ql_dbg(ql_dbg_edif, vha, 0x911e,
++				       "%s bypassing release_all_sadb\n",
++				       __func__);
++			}
 +
-+struct aen_complete_cmd {
-+	struct app_id app_info;
-+	port_id_t   port_id;
-+	uint32_t    event_code;
-+	uint8_t     version;
-+	uint8_t     pad[VND_CMD_PAD_SIZE];
-+	uint8_t     reserved[VND_CMD_APP_RESERVED_SIZE];
- } __packed;
++			qla_edif_clear_appdata(vha, sess);
++			qla_edif_sess_down(vha, sess);
++		}
+ 	}
  
- #define RX_DELAY_DELETE_TIMEOUT 20
+ 	/*
 -- 
 2.35.1
 
