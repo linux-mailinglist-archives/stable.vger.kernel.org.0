@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A21B5939DF
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 075AF5939F7
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:35:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245555AbiHOT3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:29:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56860 "EHLO
+        id S245744AbiHOT30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:29:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344116AbiHOT0X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:26:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BD3C65E1;
-        Mon, 15 Aug 2022 11:42:20 -0700 (PDT)
+        with ESMTP id S1344188AbiHOT02 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:26:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF69513DCA;
+        Mon, 15 Aug 2022 11:42:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAAB460FEE;
-        Mon, 15 Aug 2022 18:42:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADDD4C433D6;
-        Mon, 15 Aug 2022 18:42:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63749B81032;
+        Mon, 15 Aug 2022 18:42:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD046C433D7;
+        Mon, 15 Aug 2022 18:42:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588939;
-        bh=0nQaV3+rrOhMh1mRySeJDS/Al/3mQd4ZX+OAPi1Dh8I=;
+        s=korg; t=1660588942;
+        bh=MeUPlhFMZ18TATwQTRvz0Nk1M7Aqj1FMwX20PVHEDmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lK70HW0fwLyQvAXnLmVX99kRH6aAqVy1qaZbPTqmk9urSr8PtQzsJutf7HmvwLRPg
-         iCzmYIpX3kmoal0k93KsloMJy7Qp4CvpTOvvRnLHBYH6CGvJJbiTZoR0wCzwjttCFH
-         dhWya5raQEwxZOmaGNC0pBuhc7V/sfydf0VfwlNo=
+        b=Y9vCjjw7IAhWV6XCRyk8vyjk3d4FL4XKtctUl+Ugs7F9gJbk6m/ASDcMKvC0XWSLG
+         KvL3gplOAl7ZIWEiCmLbzqBdGsTyoebg9yR3uMSNimurHZ4Twy+NumwhsSi+w/hniA
+         cAsu5BQrEMIaZaf7aC7ykb8mqjzCDVUeac2gpQcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 530/779] HID: amd_sfh: Handle condition of "no sensors"
-Date:   Mon, 15 Aug 2022 20:02:54 +0200
-Message-Id: <20220815180359.938933696@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 531/779] USB: serial: fix tty-port initialized comments
+Date:   Mon, 15 Aug 2022 20:02:55 +0200
+Message-Id: <20220815180359.984322276@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,34 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 5d4d0f15657535f6a122ab26d47230b5c2b944af ]
+[ Upstream commit 688ee1d1785c1359f9040f615dd8e6054962bce2 ]
 
-Add a check for num_hid_devices to handle special case the situation
-of "no sensors".
+Fix up the tty-port initialized comments which got truncated and
+obfuscated when replacing the old ASYNCB_INITIALIZED flag.
 
-Fixes: 4b2c53d93a4b ("SFH:Transport Driver to add support of AMD Sensor Fusion Hub (SFH)")
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: d41861ca19c9 ("tty: Replace ASYNC_INITIALIZED bit and update atomically")
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/amd-sfh-hid/amd_sfh_client.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/sierra.c     | 3 ++-
+ drivers/usb/serial/usb-serial.c | 2 +-
+ drivers/usb/serial/usb_wwan.c   | 3 ++-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_client.c b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-index 6284db50ec9b..ab149b80f86c 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-@@ -154,6 +154,8 @@ int amd_sfh_hid_client_init(struct amd_mp2_dev *privdata)
- 	dev = &privdata->pdev->dev;
+diff --git a/drivers/usb/serial/sierra.c b/drivers/usb/serial/sierra.c
+index 9d56138133a9..ef6a2891f290 100644
+--- a/drivers/usb/serial/sierra.c
++++ b/drivers/usb/serial/sierra.c
+@@ -737,7 +737,8 @@ static void sierra_close(struct usb_serial_port *port)
  
- 	cl_data->num_hid_devices = amd_mp2_get_sensor_num(privdata, &cl_data->sensor_idx[0]);
-+	if (cl_data->num_hid_devices == 0)
-+		return -ENODEV;
+ 	/*
+ 	 * Need to take susp_lock to make sure port is not already being
+-	 * resumed, but no need to hold it due to initialized
++	 * resumed, but no need to hold it due to the tty-port initialized
++	 * flag.
+ 	 */
+ 	spin_lock_irq(&intfdata->susp_lock);
+ 	if (--intfdata->open_ports == 0)
+diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
+index 090a78c948f2..255fb9583c0a 100644
+--- a/drivers/usb/serial/usb-serial.c
++++ b/drivers/usb/serial/usb-serial.c
+@@ -292,7 +292,7 @@ static int serial_open(struct tty_struct *tty, struct file *filp)
+  *
+  * Shut down a USB serial port. Serialized against activate by the
+  * tport mutex and kept to matching open/close pairs
+- * of calls by the initialized flag.
++ * of calls by the tty-port initialized flag.
+  *
+  * Not called if tty is console.
+  */
+diff --git a/drivers/usb/serial/usb_wwan.c b/drivers/usb/serial/usb_wwan.c
+index cb01283d4d15..f21f25a8cf6f 100644
+--- a/drivers/usb/serial/usb_wwan.c
++++ b/drivers/usb/serial/usb_wwan.c
+@@ -389,7 +389,8 @@ void usb_wwan_close(struct usb_serial_port *port)
  
- 	INIT_DELAYED_WORK(&cl_data->work, amd_sfh_work);
- 	INIT_DELAYED_WORK(&cl_data->work_buffer, amd_sfh_work_buffer);
+ 	/*
+ 	 * Need to take susp_lock to make sure port is not already being
+-	 * resumed, but no need to hold it due to initialized
++	 * resumed, but no need to hold it due to the tty-port initialized
++	 * flag.
+ 	 */
+ 	spin_lock_irq(&intfdata->susp_lock);
+ 	if (--intfdata->open_ports == 0)
 -- 
 2.35.1
 
