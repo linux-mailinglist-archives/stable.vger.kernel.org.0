@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15F8E594495
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA57C594537
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349957AbiHOWip (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:38:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38602 "EHLO
+        id S1349656AbiHOWfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:35:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350633AbiHOWgs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:36:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAE4872846;
-        Mon, 15 Aug 2022 12:50:26 -0700 (PDT)
+        with ESMTP id S1349650AbiHOWdY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:33:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53CB712D2B9;
+        Mon, 15 Aug 2022 12:49:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12EE0B80EAB;
-        Mon, 15 Aug 2022 19:49:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D5A2C433C1;
-        Mon, 15 Aug 2022 19:49:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BDA356068D;
+        Mon, 15 Aug 2022 19:49:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6C03C433D6;
+        Mon, 15 Aug 2022 19:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592945;
-        bh=p39y+PYbrUySdsjZRfs7nDjzVMLSTQa5YZkb/iUYSn0=;
+        s=korg; t=1660592952;
+        bh=RFhJ7oKbxaQZgjiYqpkKAEp72wMbCyf95ly99JkvQ/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XsqliHHYlntFGY+Sz+pvOSkN8xVlu16ERaoLAAIYil8BD5+9ndsNQyb+GVplOHipf
-         lnSNwA3WtA9vBWvh0A6HBgTktADVo2lN5VBfRoTUPCPmex8OwDz1sSYM/yusIrGjAU
-         OvyQu2i2I2kfkL+5cm3rbUqTB2YsuP2OPGVno+S4=
+        b=Nhb8g3A1+SA3nQiDgGLROhsQgLIxqe5Q5/I14C3bFAoi43FyKpMq7Sv5mKgzGo7cn
+         ejc4V+TrkyqVY+iP8wDkQ67ff0RC6dLVAZI7gOK4YjSsGAoztCPriIW8XotfFPndpX
+         oEi+TqwwT3jlA8kImZgzRMg2fyzqJ1ECqysCKqeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0870/1095] serial: 8250_fsl: Dont report FE, PE and OE twice
-Date:   Mon, 15 Aug 2022 20:04:29 +0200
-Message-Id: <20220815180505.360395873@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0871/1095] tty: n_gsm: fix wrong T1 retry count handling
+Date:   Mon, 15 Aug 2022 20:04:30 +0200
+Message-Id: <20220815180505.409612638@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,63 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit 9d3aaceb73acadf134596a2f8db9c451c1332d3d ]
+[ Upstream commit f30e10caa80aa1f35508bc17fc302dbbde9a833c ]
 
-Some Freescale 8250 implementations have the problem that a single long
-break results in one irq per character frame time. The code in
-fsl8250_handle_irq() that is supposed to handle that uses the BI bit in
-lsr_saved_flags to detect such a situation and then skip the second
-received character. However it also stores other error bits and so after
-a single frame error the character received in the next irq handling is
-passed to the upper layer with a frame error, too.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.7.3 states that the valid range for the
+maximum number of retransmissions (N2) is from 0 to 255 (both including).
+gsm_dlci_t1() handles this number incorrectly by performing N2 - 1
+retransmission attempts. Setting N2 to zero results in more than 255
+retransmission attempts.
+Fix gsm_dlci_t1() to comply with 3GPP 27.010.
 
-So after a spike on the data line (which is correctly recognized as a
-frame error) the following valid character is thrown away, because the
-driver reports a frame error for that one, too.
-
-To weaken this problem restrict saving LSR to only the BI bit.
-
-Note however that the handling is still broken:
-
- - lsr_saved_flags is updated using orig_lsr which is the LSR content
-   for the first received char, but there might be more in the FIFO, so
-   a character is thrown away that is received later and not necessarily
-   the one following the break.
- - The doubled break might be the 2nd and 3rd char in the FIFO, so the
-   workaround doesn't catch these, because serial8250_rx_chars() doesn't
-   handle the workaround.
- - lsr_saved_flags might have set UART_LSR_BI at the entry of
-   fsl8250_handle_irq() which doesn't originate from
-   fsl8250_handle_irq()'s "up->lsr_saved_flags |= orig_lsr &
-   UART_LSR_BI;" but from e.g. from serial8250_tx_empty().
- - For a long or a short break this isn't about two characters, but more
-   or only a single one.
-
-Fixes: 9deaa53ac7fa ("serial: add irq handler for Freescale 16550 errata.")
-Acked-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20220704085119.55900-1-u.kleine-koenig@pengutronix.de
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220707113223.3685-1-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_fsl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/n_gsm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_fsl.c b/drivers/tty/serial/8250/8250_fsl.c
-index 9c01c531349d..71ce43685797 100644
---- a/drivers/tty/serial/8250/8250_fsl.c
-+++ b/drivers/tty/serial/8250/8250_fsl.c
-@@ -77,7 +77,7 @@ int fsl8250_handle_irq(struct uart_port *port)
- 	if ((lsr & UART_LSR_THRE) && (up->ier & UART_IER_THRI))
- 		serial8250_tx_chars(up);
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index 17927163790e..825c4b550ee0 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1805,8 +1805,8 @@ static void gsm_dlci_t1(struct timer_list *t)
  
--	up->lsr_saved_flags = orig_lsr;
-+	up->lsr_saved_flags |= orig_lsr & UART_LSR_BI;
+ 	switch (dlci->state) {
+ 	case DLCI_OPENING:
+-		dlci->retries--;
+ 		if (dlci->retries) {
++			dlci->retries--;
+ 			gsm_command(dlci->gsm, dlci->addr, SABM|PF);
+ 			mod_timer(&dlci->t1, jiffies + gsm->t1 * HZ / 100);
+ 		} else if (!dlci->addr && gsm->control == (DM | PF)) {
+@@ -1821,8 +1821,8 @@ static void gsm_dlci_t1(struct timer_list *t)
  
- 	uart_unlock_and_check_sysrq_irqrestore(&up->port, flags);
- 
+ 		break;
+ 	case DLCI_CLOSING:
+-		dlci->retries--;
+ 		if (dlci->retries) {
++			dlci->retries--;
+ 			gsm_command(dlci->gsm, dlci->addr, DISC|PF);
+ 			mod_timer(&dlci->t1, jiffies + gsm->t1 * HZ / 100);
+ 		} else
 -- 
 2.35.1
 
