@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8188595076
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DE8859507F
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231626AbiHPEmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:42:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47274 "EHLO
+        id S231888AbiHPEmc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:42:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232259AbiHPEk7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:40:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC217CC337;
-        Mon, 15 Aug 2022 13:33:06 -0700 (PDT)
+        with ESMTP id S232455AbiHPElS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:41:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 320EFF09;
+        Mon, 15 Aug 2022 13:32:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAB9C61072;
-        Mon, 15 Aug 2022 20:33:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99A8EC433C1;
-        Mon, 15 Aug 2022 20:33:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CFB60B80EAD;
+        Mon, 15 Aug 2022 20:32:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14C01C433C1;
+        Mon, 15 Aug 2022 20:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595584;
-        bh=O1pFYaTsAQWDajFRfQ6pbZr1nVyv40meCohgbHKs3lw=;
+        s=korg; t=1660595552;
+        bh=DTZOeO8M/ZmFwWmxR/DJ1PylJAvfOZbnpLA1thsjjts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4rsiZh+XM+tCSAme+nS8iQgwyg969xo0Bunhu0/3KWqjPr7+Mm9EcF7ue0YoTGPi
-         Fme+CAjFEGM8kK8Jb0e5ZKZj3d3zIYtbFhAotnIy1O0d6LEipU3hQ6b0ovoDrbW0Kk
-         pfK72ThkRp0DlO5fxV9YMfAzcmXnb90aVVYQab2Y=
+        b=jx7yfPAvpran5bN7MorblRKZjnI93IODkGZXMvastjXpCMuX0b69JmYnYkE5MJC9Z
+         88LWn4r+KFuZDkgviIGVqXESPHy16o+wFxHOlzYFXjJhhVt2zW4pt9vOqXXkM8SPlN
+         u5w253RUA0XYhsRyZgkI3djeVCeoPCIOym+ucSgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Rob Herring <robh@kernel.org>,
+        stable@vger.kernel.org, Christian Loehle <cloehle@hyperstone.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Avri Altman <avri.altman@wdc.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
-        Bhupesh Sharma <bhupesh.sharma@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0793/1157] dt-bindings: mmc: sdhci-msm: Fix issues in yaml bindings
-Date:   Mon, 15 Aug 2022 20:02:29 +0200
-Message-Id: <20220815180511.201457858@linuxfoundation.org>
+Subject: [PATCH 5.19 0801/1157] mmc: block: Add single read for 4k sector cards
+Date:   Mon, 15 Aug 2022 20:02:37 +0200
+Message-Id: <20220815180511.527573677@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -57,136 +56,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bhupesh Sharma <bhupesh.sharma@linaro.org>
+From: Christian Loehle <CLoehle@hyperstone.com>
 
-[ Upstream commit 8574adf5222d786b747022c6edcbcdddf409a139 ]
+[ Upstream commit b3fa3e6dccc465969721b8bd2824213bd235efeb ]
 
-Rob pointed some remaining issues in the sdhci-msm yaml
-bindings (via [1]).
+Cards with 4k native sector size may only be read 4k-aligned,
+accommodate for this in the single read recovery and use it.
 
-Fix the same by first using the 'mmc-controller.yaml' as
-'ref' and thereafter also fix the issues reported by
-'make dtbs_check' check.
-
-[1]. https://lore.kernel.org/linux-arm-msm/YnLmNCwNfoqZln12@robh.at.kernel.org/
-
-Fixes: a45537723f4b ("dt-bindings: mmc: sdhci-msm: Convert bindings to yaml")
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Bhupesh Sharma <bhupesh.sharma@linaro.org>
-Link: https://lore.kernel.org/r/20220514220116.1008254-1-bhupesh.sharma@linaro.org
+Fixes: 81196976ed946 (mmc: block: Add blk-mq support)
+Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Link: https://lore.kernel.org/r/cf4f316274c5474586d0d99b17db4a4c@hyperstone.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../devicetree/bindings/mmc/sdhci-msm.yaml    | 52 ++++++++++++++++---
- 1 file changed, 44 insertions(+), 8 deletions(-)
+ drivers/mmc/core/block.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mmc/sdhci-msm.yaml b/Documentation/devicetree/bindings/mmc/sdhci-msm.yaml
-index e4236334e748..31a3ce208e1a 100644
---- a/Documentation/devicetree/bindings/mmc/sdhci-msm.yaml
-+++ b/Documentation/devicetree/bindings/mmc/sdhci-msm.yaml
-@@ -17,6 +17,9 @@ description:
- properties:
-   compatible:
-     oneOf:
-+      - enum:
-+          - qcom,sdhci-msm-v4
-+        deprecated: true
-       - items:
-           - enum:
-               - qcom,apq8084-sdhci
-@@ -27,6 +30,9 @@ properties:
-               - qcom,msm8992-sdhci
-               - qcom,msm8994-sdhci
-               - qcom,msm8996-sdhci
-+          - const: qcom,sdhci-msm-v4 # for sdcc versions less than 5.0
-+      - items:
-+          - enum:
-               - qcom,qcs404-sdhci
-               - qcom,sc7180-sdhci
-               - qcom,sc7280-sdhci
-@@ -38,12 +44,7 @@ properties:
-               - qcom,sm6350-sdhci
-               - qcom,sm8150-sdhci
-               - qcom,sm8250-sdhci
--          - enum:
--              - qcom,sdhci-msm-v4 # for sdcc versions less than 5.0
--              - qcom,sdhci-msm-v5 # for sdcc version 5.0
--      - items:
--          - const: qcom,sdhci-msm-v4 # Deprecated (only for backward compatibility)
--                                     # for sdcc versions less than 5.0
-+          - const: qcom,sdhci-msm-v5 # for sdcc version 5.0
+diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+index f4a1281658db..912a398a9a76 100644
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -176,7 +176,7 @@ static inline int mmc_blk_part_switch(struct mmc_card *card,
+ 				      unsigned int part_type);
+ static void mmc_blk_rw_rq_prep(struct mmc_queue_req *mqrq,
+ 			       struct mmc_card *card,
+-			       int disable_multi,
++			       int recovery_mode,
+ 			       struct mmc_queue *mq);
+ static void mmc_blk_hsq_req_done(struct mmc_request *mrq);
  
-   reg:
-     minItems: 1
-@@ -53,6 +54,28 @@ properties:
-       - description: CQE register map
-       - description: Inline Crypto Engine register map
+@@ -1302,7 +1302,7 @@ static void mmc_blk_eval_resp_error(struct mmc_blk_request *brq)
+ }
  
-+  reg-names:
-+    minItems: 1
-+    maxItems: 4
-+    oneOf:
-+      - items:
-+          - const: hc_mem
-+      - items:
-+          - const: hc_mem
-+          - const: core_mem
-+      - items:
-+          - const: hc_mem
-+          - const: cqe_mem
-+      - items:
-+          - const: hc_mem
-+          - const: cqe_mem
-+          - const: ice_mem
-+      - items:
-+          - const: hc_mem
-+          - const: core_mem
-+          - const: cqe_mem
-+          - const: ice_mem
-+
-   clocks:
-     minItems: 3
-     items:
-@@ -121,6 +144,16 @@ properties:
-     description: A phandle to sdhci power domain node
-     maxItems: 1
+ static void mmc_blk_data_prep(struct mmc_queue *mq, struct mmc_queue_req *mqrq,
+-			      int disable_multi, bool *do_rel_wr_p,
++			      int recovery_mode, bool *do_rel_wr_p,
+ 			      bool *do_data_tag_p)
+ {
+ 	struct mmc_blk_data *md = mq->blkdata;
+@@ -1368,12 +1368,12 @@ static void mmc_blk_data_prep(struct mmc_queue *mq, struct mmc_queue_req *mqrq,
+ 			brq->data.blocks--;
  
-+  mmc-ddr-1_8v: true
-+
-+  mmc-hs200-1_8v: true
-+
-+  mmc-hs400-1_8v: true
-+
-+  bus-width: true
-+
-+  max-frequency: true
-+
- patternProperties:
-   '^opp-table(-[a-z0-9]+)?$':
-     if:
-@@ -140,7 +173,10 @@ required:
-   - clock-names
-   - interrupts
+ 		/*
+-		 * After a read error, we redo the request one sector
++		 * After a read error, we redo the request one (native) sector
+ 		 * at a time in order to accurately determine which
+ 		 * sectors can be read successfully.
+ 		 */
+-		if (disable_multi)
+-			brq->data.blocks = 1;
++		if (recovery_mode)
++			brq->data.blocks = queue_physical_block_size(mq->queue) >> 9;
  
--additionalProperties: true
-+allOf:
-+  - $ref: mmc-controller.yaml#
-+
-+unevaluatedProperties: false
+ 		/*
+ 		 * Some controllers have HW issues while operating
+@@ -1590,7 +1590,7 @@ static int mmc_blk_cqe_issue_rw_rq(struct mmc_queue *mq, struct request *req)
  
- examples:
-   - |
-@@ -149,7 +185,7 @@ examples:
-     #include <dt-bindings/clock/qcom,rpmh.h>
-     #include <dt-bindings/power/qcom-rpmpd.h>
+ static void mmc_blk_rw_rq_prep(struct mmc_queue_req *mqrq,
+ 			       struct mmc_card *card,
+-			       int disable_multi,
++			       int recovery_mode,
+ 			       struct mmc_queue *mq)
+ {
+ 	u32 readcmd, writecmd;
+@@ -1599,7 +1599,7 @@ static void mmc_blk_rw_rq_prep(struct mmc_queue_req *mqrq,
+ 	struct mmc_blk_data *md = mq->blkdata;
+ 	bool do_rel_wr, do_data_tag;
  
--    sdhc_2: sdhci@8804000 {
-+    sdhc_2: mmc@8804000 {
-       compatible = "qcom,sm8250-sdhci", "qcom,sdhci-msm-v5";
-       reg = <0 0x08804000 0 0x1000>;
+-	mmc_blk_data_prep(mq, mqrq, disable_multi, &do_rel_wr, &do_data_tag);
++	mmc_blk_data_prep(mq, mqrq, recovery_mode, &do_rel_wr, &do_data_tag);
  
+ 	brq->mrq.cmd = &brq->cmd;
+ 
+@@ -1690,7 +1690,7 @@ static int mmc_blk_fix_state(struct mmc_card *card, struct request *req)
+ 
+ #define MMC_READ_SINGLE_RETRIES	2
+ 
+-/* Single sector read during recovery */
++/* Single (native) sector read during recovery */
+ static void mmc_blk_read_single(struct mmc_queue *mq, struct request *req)
+ {
+ 	struct mmc_queue_req *mqrq = req_to_mmc_queue_req(req);
+@@ -1698,6 +1698,7 @@ static void mmc_blk_read_single(struct mmc_queue *mq, struct request *req)
+ 	struct mmc_card *card = mq->card;
+ 	struct mmc_host *host = card->host;
+ 	blk_status_t error = BLK_STS_OK;
++	size_t bytes_per_read = queue_physical_block_size(mq->queue);
+ 
+ 	do {
+ 		u32 status;
+@@ -1732,13 +1733,13 @@ static void mmc_blk_read_single(struct mmc_queue *mq, struct request *req)
+ 		else
+ 			error = BLK_STS_OK;
+ 
+-	} while (blk_update_request(req, error, 512));
++	} while (blk_update_request(req, error, bytes_per_read));
+ 
+ 	return;
+ 
+ error_exit:
+ 	mrq->data->bytes_xfered = 0;
+-	blk_update_request(req, BLK_STS_IOERR, 512);
++	blk_update_request(req, BLK_STS_IOERR, bytes_per_read);
+ 	/* Let it try the remaining request again */
+ 	if (mqrq->retries > MMC_MAX_RETRIES - 1)
+ 		mqrq->retries = MMC_MAX_RETRIES - 1;
+@@ -1879,10 +1880,9 @@ static void mmc_blk_mq_rw_recovery(struct mmc_queue *mq, struct request *req)
+ 		return;
+ 	}
+ 
+-	/* FIXME: Missing single sector read for large sector size */
+-	if (!mmc_large_sector(card) && rq_data_dir(req) == READ &&
+-	    brq->data.blocks > 1) {
+-		/* Read one sector at a time */
++	if (rq_data_dir(req) == READ && brq->data.blocks >
++			queue_physical_block_size(mq->queue) >> 9) {
++		/* Read one (native) sector at a time */
+ 		mmc_blk_read_single(mq, req);
+ 		return;
+ 	}
 -- 
 2.35.1
 
