@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F5605945AD
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2659359464A
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:02:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343712AbiHOWPl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:15:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54894 "EHLO
+        id S1350653AbiHOWTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:19:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345040AbiHOWOw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:14:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C0656745B;
-        Mon, 15 Aug 2022 12:39:36 -0700 (PDT)
+        with ESMTP id S1347522AbiHOWP6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:15:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E53F4120A84;
+        Mon, 15 Aug 2022 12:39:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7FB7AB81141;
-        Mon, 15 Aug 2022 19:39:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9C6DC433D6;
-        Mon, 15 Aug 2022 19:39:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9D88B80EA7;
+        Mon, 15 Aug 2022 19:39:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3577CC433D6;
+        Mon, 15 Aug 2022 19:39:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592372;
-        bh=I0yTF2qYaIgcXNTD92Ug0VZKou04HKuY/Q+ASm9ai+4=;
+        s=korg; t=1660592378;
+        bh=09RnNxg19SQJ4cNTRE294GN7J1KK248eGE8198Ys4xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oAoKuxrEFncwjGoLC0SB6MCda2sGQQ0suDsXkCdr7IutmHbIWikWatwGDMs7kP6Ud
-         KujJKHGR2EPKIldOBo6eQlQUfY9jcOHIycpBaB4k+9+A784a3vnsXmAOWBCBkzB9I9
-         85hRSVKv2bDujP4EQrWA6GKRZ+XAhnZkgJfVkks0=
+        b=cCQ6pOgRr7QTGYAmZ8JNSsRI/5fAGBzAhPvC/eWhxWcZNtMcSzgBmTwOUfGkeYd+t
+         ZvfsQuKauPFHaSfQBsGLG5wukNe87iNiTrDV+Eb6ezS9/tIgVgQLnmI49U/zjBXTD7
+         WL8qc7Q4wB5G9exSELvhIN8S2g3Rj9NYIEuM7AcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0777/1095] gpio: gpiolib-of: Fix refcount bugs in of_mm_gpiochip_add_data()
-Date:   Mon, 15 Aug 2022 20:02:56 +0200
-Message-Id: <20220815180501.410976577@linuxfoundation.org>
+Subject: [PATCH 5.18 0778/1095] iio: adc: max1027: unlock on error path in max1027_read_single_value()
+Date:   Mon, 15 Aug 2022 20:02:57 +0200
+Message-Id: <20220815180501.444960645@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,51 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 5d07a692f9562f9c06e62cce369e9dd108173a0f ]
+[ Upstream commit 06ee60eb507f00fb3643876ec05318c63332dc88 ]
 
-We should use of_node_get() when a new reference of device_node
-is created. It is noted that the old reference stored in
-'mm_gc->gc.of_node' should also be decreased.
+If max1027_wait_eoc() fails then call iio_device_release_direct_mode()
+before returning.
 
-This patch is based on the fact that there is a call site in function
-'qe_add_gpiochips()' of src file 'drivers\soc\fsl\qe\gpio.c'. In this
-function, of_mm_gpiochip_add_data() is contained in an iteration of
-for_each_compatible_node() which will automatically increase and
-decrease the refcount. So we need additional of_node_get() for the
-reference escape in of_mm_gpiochip_add_data().
-
-Fixes: a19e3da5bc5f ("of/gpio: Kill of_gpio_chip and add members directly to gpio_chip")
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Fixes: a0e831653ef9 ("iio: adc: max1027: Introduce an end of conversion helper")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YsbztVuAXnau2cIZ@kili
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-of.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/adc/max1027.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
-index 6dec81b1f24b..5cabb9a9c272 100644
---- a/drivers/gpio/gpiolib-of.c
-+++ b/drivers/gpio/gpiolib-of.c
-@@ -861,7 +861,8 @@ int of_mm_gpiochip_add_data(struct device_node *np,
- 	if (mm_gc->save_regs)
- 		mm_gc->save_regs(mm_gc);
+diff --git a/drivers/iio/adc/max1027.c b/drivers/iio/adc/max1027.c
+index b725d012625c..136fcf753837 100644
+--- a/drivers/iio/adc/max1027.c
++++ b/drivers/iio/adc/max1027.c
+@@ -349,8 +349,7 @@ static int max1027_read_single_value(struct iio_dev *indio_dev,
+ 	if (ret < 0) {
+ 		dev_err(&indio_dev->dev,
+ 			"Failed to configure conversion register\n");
+-		iio_device_release_direct_mode(indio_dev);
+-		return ret;
++		goto release;
+ 	}
  
--	mm_gc->gc.of_node = np;
-+	of_node_put(mm_gc->gc.of_node);
-+	mm_gc->gc.of_node = of_node_get(np);
- 
- 	ret = gpiochip_add_data(gc, data);
+ 	/*
+@@ -360,11 +359,12 @@ static int max1027_read_single_value(struct iio_dev *indio_dev,
+ 	 */
+ 	ret = max1027_wait_eoc(indio_dev);
  	if (ret)
-@@ -869,6 +870,7 @@ int of_mm_gpiochip_add_data(struct device_node *np,
+-		return ret;
++		goto release;
  
- 	return 0;
- err2:
-+	of_node_put(np);
- 	iounmap(mm_gc->regs);
- err1:
- 	kfree(gc->label);
+ 	/* Read result */
+ 	ret = spi_read(st->spi, st->buffer, (chan->type == IIO_TEMP) ? 4 : 2);
+ 
++release:
+ 	iio_device_release_direct_mode(indio_dev);
+ 
+ 	if (ret < 0)
 -- 
 2.35.1
 
