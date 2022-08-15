@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9580F59462B
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:02:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C7275945BF
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:01:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351513AbiHOWsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:48:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60168 "EHLO
+        id S1351472AbiHOWs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:48:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351801AbiHOWqv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:46:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B472134B8A;
-        Mon, 15 Aug 2022 12:52:53 -0700 (PDT)
+        with ESMTP id S1351870AbiHOWrQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:47:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE1F0134BA2;
+        Mon, 15 Aug 2022 12:52:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B425760FB5;
-        Mon, 15 Aug 2022 19:52:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0AF5C433C1;
-        Mon, 15 Aug 2022 19:52:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C346861178;
+        Mon, 15 Aug 2022 19:52:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C849DC433D6;
+        Mon, 15 Aug 2022 19:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593172;
-        bh=WF7gVEsWaD81stKo2H4fD5esY9t3YMHFHgogMQnH3z8=;
+        s=korg; t=1660593178;
+        bh=DoVPNPsANI42njFz6pFTjfBTPpPa5wfXXRlQm9pBfy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DG1WQUyiOjw07gDoZ3o9elYBg4rSn/X3/KfZjfVPq9czRXYGgeFl402sLPnv3Cb46
-         JNnYlK4vj/8unY6No5m7+J8et2eCsEESUy6rn6E0SrADFN89E4jGAlSPhx8GIQ3I5O
-         /0MuX8tjjv4/qJ7AwJmDtpbZt2agYAmrBlukcDxc=
+        b=yC493F2MkfJ6eWtJd2IbYL6p2qY9L+9vcAn30fg+q78S4TMcqUO1y6XBHZHSEVvYN
+         Ym45T3krmuQnkWmftmWMEJ8NlCM/tir6Yw/0TLZYvsmf6opCVwK05M5SC6TwbW6p8f
+         gL2i9kwTcH962ZJz0ABhDVFB0UOCkD3GZRLxtCgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Liang He <windhl@126.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0906/1095] ASoC: audio-graph-card: Add of_node_put() in fail path
-Date:   Mon, 15 Aug 2022 20:05:05 +0200
-Message-Id: <20220815180506.782392479@linuxfoundation.org>
+Subject: [PATCH 5.18 0907/1095] ASoC: audio-graph-card2: Add of_node_put() in fail path
+Date:   Mon, 15 Aug 2022 20:05:06 +0200
+Message-Id: <20220815180506.817368388@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,25 +56,25 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liang He <windhl@126.com>
 
-[ Upstream commit 65fb8e2ef3531a6e950060fca6e551c923fb0f0e ]
+[ Upstream commit 8ebc4dd8250fd1cb5da2869c0fe6ae3686fe41e9 ]
 
 In asoc_simple_parse_dai(), we should call of_node_put() for the
 reference returned by of_graph_get_port_parent() in fail path.
 
-Fixes: ae30a694da4c ("ASoC: simple-card-utils: add asoc_simple_card_parse_dai()")
+Fixes: 6e5f68fe3f2d ("ASoC: add Audio Graph Card2 driver")
 Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220721144308.1301587-1-windhl@126.com
+Link: https://lore.kernel.org/r/20220722141801.1304854-1-windhl@126.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/generic/audio-graph-card.c | 4 +++-
+ sound/soc/generic/audio-graph-card2.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/generic/audio-graph-card.c b/sound/soc/generic/audio-graph-card.c
-index 2b598af8feef..b327372f2e4a 100644
---- a/sound/soc/generic/audio-graph-card.c
-+++ b/sound/soc/generic/audio-graph-card.c
-@@ -158,8 +158,10 @@ static int asoc_simple_parse_dai(struct device_node *ep,
+diff --git a/sound/soc/generic/audio-graph-card2.c b/sound/soc/generic/audio-graph-card2.c
+index ba3551d9a040..da782403316f 100644
+--- a/sound/soc/generic/audio-graph-card2.c
++++ b/sound/soc/generic/audio-graph-card2.c
+@@ -445,8 +445,10 @@ static int asoc_simple_parse_dai(struct device_node *ep,
  	 *    if he unbinded CPU or Codec.
  	 */
  	ret = snd_soc_get_dai_name(&args, &dlc->dai_name);
