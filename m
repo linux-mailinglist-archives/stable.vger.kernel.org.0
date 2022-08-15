@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36DF6594137
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04BD459414D
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345282AbiHOV2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:28:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49090 "EHLO
+        id S1345859AbiHOV22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:28:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348227AbiHOV1E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:27:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A074E9A9F;
-        Mon, 15 Aug 2022 12:23:03 -0700 (PDT)
+        with ESMTP id S1348246AbiHOV1F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:27:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3177BE9AB1;
+        Mon, 15 Aug 2022 12:23:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29D13B81062;
-        Mon, 15 Aug 2022 19:23:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CCECC433B5;
-        Mon, 15 Aug 2022 19:23:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8132B60BB7;
+        Mon, 15 Aug 2022 19:23:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85430C433D7;
+        Mon, 15 Aug 2022 19:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591380;
-        bh=m5pg8KO/7b40AWDkw1tfUtzdu1cCdSm98iHUIZ9koyw=;
+        s=korg; t=1660591383;
+        bh=aZcGBsdZmldfbvVLdPKlPrR+pTlUOeweKXXlUsFE84I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WP+XBHPkrcsQG0HL0xgoUO79XFg3KBE2G9E4ahB1jn83myXElKy0UCGgiJwQ4gZta
-         spch18dcUP+AS7R4fPPjH3O7ttpurMp2o3DBNrSaAmLQXBbAzKyMKsswGBTxjxF9Ud
-         QA6QQq76xkVATZ5lku89LDlIZV6uaGbi07Hftx4E=
+        b=JRSem1gtv+6H32Nq2jUiJNdglRzplsJkUWjDmJVNbCdp1c6oZrXfiUn8JDhcx+lDg
+         8uicvZGEURyp0wdDUgZqIGDFbbFj7988a0v1zOaWr/FU3Fnh+cWP5KSdnPJGVfcRt0
+         7K6SRpAhxVB8XXgC54YMeKUBWOy9VhV3twHHw+kA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Vidya Sagar <vidyas@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0561/1095] PCI: tegra194: Fix PM error handling in tegra_pcie_config_ep()
-Date:   Mon, 15 Aug 2022 19:59:20 +0200
-Message-Id: <20220815180452.779643101@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0562/1095] HID: cp2112: prevent a buffer overflow in cp2112_xfer()
+Date:   Mon, 15 Aug 2022 19:59:21 +0200
+Message-Id: <20220815180452.823221007@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,38 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit e8fbd344a5ea62663554b8546b6bf9f88b93785a ]
+[ Upstream commit 381583845d19cb4bd21c8193449385f3fefa9caf ]
 
-pm_runtime_enable() will increase power disable depth.  If
-dw_pcie_ep_init() fails, we should use pm_runtime_disable() to balance it
-with pm_runtime_enable().
+Smatch warnings:
+drivers/hid/hid-cp2112.c:793 cp2112_xfer() error: __memcpy()
+'data->block[1]' too small (33 vs 255)
+drivers/hid/hid-cp2112.c:793 cp2112_xfer() error: __memcpy() 'buf' too
+small (64 vs 255)
 
-Add missing pm_runtime_disable() for tegra_pcie_config_ep().
+The 'read_length' variable is provided by 'data->block[0]' which comes
+from user and it(read_length) can take a value between 0-255. Add an
+upper bound to 'read_length' variable to prevent a buffer overflow in
+memcpy().
 
-Fixes: c57247f940e8 ("PCI: tegra: Add support for PCIe endpoint mode in Tegra194")
-Link: https://lore.kernel.org/r/20220602031910.55859-1-linmq006@gmail.com
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Vidya Sagar <vidyas@nvidia.com>
+Fixes: 542134c0375b ("HID: cp2112: Fix I2C_BLOCK_DATA transactions")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-tegra194.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-cp2112.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
-index b1b5f836a806..0888c3726414 100644
---- a/drivers/pci/controller/dwc/pcie-tegra194.c
-+++ b/drivers/pci/controller/dwc/pcie-tegra194.c
-@@ -1951,6 +1951,7 @@ static int tegra_pcie_config_ep(struct tegra194_pcie *pcie,
- 	if (ret) {
- 		dev_err(dev, "Failed to initialize DWC Endpoint subsystem: %d\n",
- 			ret);
-+		pm_runtime_disable(dev);
- 		return ret;
- 	}
- 
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index ece147d1a278..1e16b0fa310d 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -790,6 +790,11 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
+ 		data->word = le16_to_cpup((__le16 *)buf);
+ 		break;
+ 	case I2C_SMBUS_I2C_BLOCK_DATA:
++		if (read_length > I2C_SMBUS_BLOCK_MAX) {
++			ret = -EINVAL;
++			goto power_normal;
++		}
++
+ 		memcpy(data->block + 1, buf, read_length);
+ 		break;
+ 	case I2C_SMBUS_BLOCK_DATA:
 -- 
 2.35.1
 
