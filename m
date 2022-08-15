@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C949959467B
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FC01594683
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346173AbiHOW5L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:57:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44976 "EHLO
+        id S1352327AbiHOW5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:57:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352677AbiHOW4f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:56:35 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8B1B12F733;
-        Mon, 15 Aug 2022 12:55:50 -0700 (PDT)
+        with ESMTP id S1352718AbiHOW4j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:56:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194A346DB8;
+        Mon, 15 Aug 2022 12:55:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 328A2CE12C3;
-        Mon, 15 Aug 2022 19:55:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB601C433C1;
-        Mon, 15 Aug 2022 19:55:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83E926113B;
+        Mon, 15 Aug 2022 19:55:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F40DC433D6;
+        Mon, 15 Aug 2022 19:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593347;
-        bh=So4KEy2R+io5ZynIl2AOA2Bc69IgEvmlEzIA5aE010w=;
+        s=korg; t=1660593353;
+        bh=XaWrafOU5DIdzkvtKxrTyXkKxC1Ft11aAwTJwMtn/v8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ot5VwNHTCOnB67Ak9aOSNo7GbrizxFyQLsqV998pBd9E7tCCVxw8BzEcUgx7qHNCZ
-         Juylxn4fknX2qVB+KJHWSg9ikS89JdFWeAmvn1t+HsfmeIWLrvJLCqgHJ7HPc+jGNa
-         CP38CgrJBPu3QY8QALJclccNm1nI4n9iqu1yseZc=
+        b=Qmse1TJtl15Sl48/B7Ruc8nDDX8sM7gx6oEw1Xv1YJmgn0SAjV9QuA6R273CZphdZ
+         wcAIoC87C0zpg1UzgXgKAdsxYl2Iqd17JSCumnGLZpZBPVqM/oBtHTN/Wm/OT1NBMV
+         2CESmkGPMRPLLr1hfNAP0vcoqgKMuVtKJcx7Jqu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
-        Jin Liu <jinl@redhat.com>,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Laurent Vivier <laurent@vivier.eu>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0254/1157] ACPI: VIOT: Fix ACS setup
-Date:   Mon, 15 Aug 2022 19:53:30 +0200
-Message-Id: <20220815180449.759726806@linuxfoundation.org>
+Subject: [PATCH 5.19 0255/1157] m68k: virt: Fix missing platform_device_unregister() on error in virt_platform_init()
+Date:   Mon, 15 Aug 2022 19:53:31 +0200
+Message-Id: <20220815180449.795267297@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,110 +56,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Auger <eric.auger@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 3dcb861dbc6ab101838a1548b1efddd00ca3c3ec ]
+[ Upstream commit 566a2d6d8e429727832c7e347cbe736b12ad7297 ]
 
-Currently acpi_viot_init() gets called after the pci
-device has been scanned and pci_enable_acs() has been called.
-So pci_request_acs() fails to be taken into account leading
-to wrong single iommu group topologies when dealing with
-multi-function root ports for instance.
+Add the missing platform_device_unregister() before return
+from virt_platform_init() in the error handling case.
 
-We cannot simply move the acpi_viot_init() earlier, similarly
-as the IORT init because the VIOT parsing relies on the pci
-scan. However we can detect VIOT is present earlier and in
-such a case, request ACS. Introduce a new acpi_viot_early_init()
-routine that allows to call pci_request_acs() before the scan.
-
-While at it, guard the call to pci_request_acs() with #ifdef
-CONFIG_PCI.
-
-Fixes: 3cf485540e7b ("ACPI: Add driver for the VIOT table")
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Reported-by: Jin Liu <jinl@redhat.com>
-Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Tested-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 05d51e42df06 ("m68k: Introduce a virtual m68k machine")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Laurent Vivier <laurent@vivier.eu>
+Link: https://lore.kernel.org/r/20220628084903.3147123-1-yangyingliang@huawei.com
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/bus.c        |  1 +
- drivers/acpi/viot.c       | 26 ++++++++++++++++++++------
- include/linux/acpi_viot.h |  2 ++
- 3 files changed, 23 insertions(+), 6 deletions(-)
+ arch/m68k/virt/platform.c | 58 ++++++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
-index e2db1bdd9dd2..1d36bb684f5c 100644
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -1399,6 +1399,7 @@ static int __init acpi_init(void)
+diff --git a/arch/m68k/virt/platform.c b/arch/m68k/virt/platform.c
+index cb820f19a221..1560c4140ab9 100644
+--- a/arch/m68k/virt/platform.c
++++ b/arch/m68k/virt/platform.c
+@@ -8,20 +8,15 @@
  
- 	pci_mmcfg_late_init();
- 	acpi_iort_init();
-+	acpi_viot_early_init();
- 	acpi_hest_init();
- 	acpi_ghes_init();
- 	acpi_scan_init();
-diff --git a/drivers/acpi/viot.c b/drivers/acpi/viot.c
-index d2256326c73a..647f11cf165d 100644
---- a/drivers/acpi/viot.c
-+++ b/drivers/acpi/viot.c
-@@ -248,6 +248,26 @@ static int __init viot_parse_node(const struct acpi_viot_header *hdr)
- 	return ret;
+ #define VIRTIO_BUS_NB	128
+ 
+-static int __init virt_virtio_init(unsigned int id)
++static struct platform_device * __init virt_virtio_init(unsigned int id)
+ {
+ 	const struct resource res[] = {
+ 		DEFINE_RES_MEM(virt_bi_data.virtio.mmio + id * 0x200, 0x200),
+ 		DEFINE_RES_IRQ(virt_bi_data.virtio.irq + id),
+ 	};
+-	struct platform_device *pdev;
+ 
+-	pdev = platform_device_register_simple("virtio-mmio", id,
++	return platform_device_register_simple("virtio-mmio", id,
+ 					       res, ARRAY_SIZE(res));
+-	if (IS_ERR(pdev))
+-		return PTR_ERR(pdev);
+-
+-	return 0;
  }
  
-+/**
-+ * acpi_viot_early_init - Test the presence of VIOT and enable ACS
-+ *
-+ * If the VIOT does exist, ACS must be enabled. This cannot be
-+ * done in acpi_viot_init() which is called after the bus scan
-+ */
-+void __init acpi_viot_early_init(void)
-+{
-+#ifdef CONFIG_PCI
-+	acpi_status status;
-+	struct acpi_table_header *hdr;
-+
-+	status = acpi_get_table(ACPI_SIG_VIOT, 0, &hdr);
-+	if (ACPI_FAILURE(status))
-+		return;
-+	pci_request_acs();
-+	acpi_put_table(hdr);
-+#endif
-+}
-+
- /**
-  * acpi_viot_init - Parse the VIOT table
-  *
-@@ -319,12 +339,6 @@ static int viot_pci_dev_iommu_init(struct pci_dev *pdev, u16 dev_id, void *data)
- 			epid = ((domain_nr - ep->segment_start) << 16) +
- 				dev_id - ep->bdf_start + ep->endpoint_id;
+ static int __init virt_platform_init(void)
+@@ -35,8 +30,10 @@ static int __init virt_platform_init(void)
+ 		DEFINE_RES_MEM(virt_bi_data.rtc.mmio + 0x1000, 0x1000),
+ 		DEFINE_RES_IRQ(virt_bi_data.rtc.irq + 1),
+ 	};
+-	struct platform_device *pdev;
++	struct platform_device *pdev1, *pdev2;
++	struct platform_device *pdevs[VIRTIO_BUS_NB];
+ 	unsigned int i;
++	int ret = 0;
  
--			/*
--			 * If we found a PCI range managed by the viommu, we're
--			 * the one that has to request ACS.
--			 */
--			pci_request_acs();
+ 	if (!MACH_IS_VIRT)
+ 		return -ENODEV;
+@@ -44,29 +41,40 @@ static int __init virt_platform_init(void)
+ 	/* We need this to have DMA'able memory provided to goldfish-tty */
+ 	min_low_pfn = 0;
+ 
+-	pdev = platform_device_register_simple("goldfish_tty",
+-					       PLATFORM_DEVID_NONE,
+-					       goldfish_tty_res,
+-					       ARRAY_SIZE(goldfish_tty_res));
+-	if (IS_ERR(pdev))
+-		return PTR_ERR(pdev);
++	pdev1 = platform_device_register_simple("goldfish_tty",
++						PLATFORM_DEVID_NONE,
++						goldfish_tty_res,
++						ARRAY_SIZE(goldfish_tty_res));
++	if (IS_ERR(pdev1))
++		return PTR_ERR(pdev1);
+ 
+-	pdev = platform_device_register_simple("goldfish_rtc",
+-					       PLATFORM_DEVID_NONE,
+-					       goldfish_rtc_res,
+-					       ARRAY_SIZE(goldfish_rtc_res));
+-	if (IS_ERR(pdev))
+-		return PTR_ERR(pdev);
++	pdev2 = platform_device_register_simple("goldfish_rtc",
++						PLATFORM_DEVID_NONE,
++						goldfish_rtc_res,
++						ARRAY_SIZE(goldfish_rtc_res));
++	if (IS_ERR(pdev2)) {
++		ret = PTR_ERR(pdev2);
++		goto err_unregister_tty;
++	}
+ 
+ 	for (i = 0; i < VIRTIO_BUS_NB; i++) {
+-		int err;
 -
- 			return viot_dev_iommu_init(&pdev->dev, ep->viommu,
- 						   epid);
- 		}
-diff --git a/include/linux/acpi_viot.h b/include/linux/acpi_viot.h
-index 1eb8ee5b0e5f..a5a122431563 100644
---- a/include/linux/acpi_viot.h
-+++ b/include/linux/acpi_viot.h
-@@ -6,9 +6,11 @@
- #include <linux/acpi.h>
+-		err = virt_virtio_init(i);
+-		if (err)
+-			return err;
++		pdevs[i] = virt_virtio_init(i);
++		if (IS_ERR(pdevs[i])) {
++			ret = PTR_ERR(pdevs[i]);
++			goto err_unregister_rtc_virtio;
++		}
+ 	}
  
- #ifdef CONFIG_ACPI_VIOT
-+void __init acpi_viot_early_init(void);
- void __init acpi_viot_init(void);
- int viot_iommu_configure(struct device *dev);
- #else
-+static inline void acpi_viot_early_init(void) {}
- static inline void acpi_viot_init(void) {}
- static inline int viot_iommu_configure(struct device *dev)
- {
+ 	return 0;
++
++err_unregister_rtc_virtio:
++	while (i > 0)
++		platform_device_unregister(pdevs[--i]);
++	platform_device_unregister(pdev2);
++err_unregister_tty:
++	platform_device_unregister(pdev1);
++
++	return ret;
+ }
+ 
+ arch_initcall(virt_platform_init);
 -- 
 2.35.1
 
