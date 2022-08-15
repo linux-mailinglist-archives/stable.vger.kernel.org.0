@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E405A593C27
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:37:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0B43593DAE
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345686AbiHOT6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:58:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55270 "EHLO
+        id S233641AbiHOUE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:04:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346109AbiHOT5L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:57:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8CC7785A3;
-        Mon, 15 Aug 2022 11:52:56 -0700 (PDT)
+        with ESMTP id S230438AbiHOUDn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:03:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 614027E310;
+        Mon, 15 Aug 2022 11:54:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0815B611ED;
-        Mon, 15 Aug 2022 18:52:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB991C433C1;
-        Mon, 15 Aug 2022 18:52:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BD23B8105D;
+        Mon, 15 Aug 2022 18:54:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C189CC433D6;
+        Mon, 15 Aug 2022 18:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589575;
-        bh=zm5yPCSka08KCN9psAi49vcukmwi+nuzh5ZWb1E34GA=;
+        s=korg; t=1660589658;
+        bh=ScgBIY3HQMCcOzB+zPgCsLe9LaGbzeQNrwHYt+biqjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yOXhaAMsxTcUB3DUPgaPMgfEkfdfMHAXOozOQTXdzilp8tLCzOVsLeWz4XSfKDBLy
-         QFhqMPSfct3lfbOIISnPC5DXQkeCiZXXJkEI69rXr8Tt6TFCyi5LJi8k+zWtBeNVL6
-         jnf5OloM7SesjNP+2IAwx9k/AKO3h4bZY0pcRgG4=
+        b=lMo7c5wPmVajByEIjqnR1dSWAhL4IK9516rtYaSjZgtcOZFzZS5biOBqkcMMYpSG7
+         SHhnTxdRWnAL7O/AK+Hdj7duj4NZlrM+kpmVAAi826HGVblHxyqlxhniHv6+DB9CBR
+         kFqAhJTLZm9MVjm1YwL8Nq14oBdaYWWdToE18QuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 760/779] tracing: Use a struct alignof to determine trace event field alignment
-Date:   Mon, 15 Aug 2022 20:06:44 +0200
-Message-Id: <20220815180409.926703705@linuxfoundation.org>
+        stable@vger.kernel.org, Zhenpeng Lin <zplin@u.northwestern.edu>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Kamal Mostafa <kamal@canonical.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 761/779] net_sched: cls_route: remove from list when handle is 0
+Date:   Mon, 15 Aug 2022 20:06:45 +0200
+Message-Id: <20220815180409.960854834@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,74 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit 4c3d2f9388d36eb28640a220a6f908328442d873 upstream.
+commit 9ad36309e2719a884f946678e0296be10f0bb4c1 upstream.
 
-alignof() gives an alignment of types as they would be as standalone
-variables. But alignment in structures might be different, and when
-building the fields of events, the alignment must be the actual
-alignment otherwise the field offsets may not match what they actually
-are.
+When a route filter is replaced and the old filter has a 0 handle, the old
+one won't be removed from the hashtable, while it will still be freed.
 
-This caused trace-cmd to crash, as libtraceevent did not check if the
-field offset was bigger than the event. The write_msr and read_msr
-events on 32 bit had their fields incorrect, because it had a u64 field
-between two ints. alignof(u64) would give 8, but the u64 field was at a
-4 byte alignment.
+The test was there since before commit 1109c00547fc ("net: sched: RCU
+cls_route"), when a new filter was not allocated when there was an old one.
+The old filter was reused and the reinserting would only be necessary if an
+old filter was replaced. That was still wrong for the same case where the
+old handle was 0.
 
-Define a macro as:
+Remove the old filter from the list independently from its handle value.
 
-   ALIGN_STRUCTFIELD(type) ((int)(offsetof(struct {char a; type b;}, b)))
+This fixes CVE-2022-2588, also reported as ZDI-CAN-17440.
 
-which gives the actual alignment of types in a structure.
-
-Link: https://lkml.kernel.org/r/20220731015928.7ab3a154@rorschach.local.home
-
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: 04ae87a52074e ("ftrace: Rework event_create_dir()")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reported-by: Zhenpeng Lin <zplin@u.northwestern.edu>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Reviewed-by: Kamal Mostafa <kamal@canonical.com>
+Cc: <stable@vger.kernel.org>
+Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Link: https://lore.kernel.org/r/20220809170518.164662-1-cascardo@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/trace_events.h |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/sched/cls_route.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/trace/trace_events.h
-+++ b/include/trace/trace_events.h
-@@ -479,16 +479,18 @@ static struct trace_event_functions trac
+--- a/net/sched/cls_route.c
++++ b/net/sched/cls_route.c
+@@ -526,7 +526,7 @@ static int route4_change(struct net *net
+ 	rcu_assign_pointer(f->next, f1);
+ 	rcu_assign_pointer(*fp, f);
  
- #include TRACE_INCLUDE(TRACE_INCLUDE_FILE)
- 
-+#define ALIGN_STRUCTFIELD(type) ((int)(offsetof(struct {char a; type b;}, b)))
-+
- #undef __field_ext
- #define __field_ext(_type, _item, _filter_type) {			\
- 	.type = #_type, .name = #_item,					\
--	.size = sizeof(_type), .align = __alignof__(_type),		\
-+	.size = sizeof(_type), .align = ALIGN_STRUCTFIELD(_type),	\
- 	.is_signed = is_signed_type(_type), .filter_type = _filter_type },
- 
- #undef __field_struct_ext
- #define __field_struct_ext(_type, _item, _filter_type) {		\
- 	.type = #_type, .name = #_item,					\
--	.size = sizeof(_type), .align = __alignof__(_type),		\
-+	.size = sizeof(_type), .align = ALIGN_STRUCTFIELD(_type),	\
- 	0, .filter_type = _filter_type },
- 
- #undef __field
-@@ -500,7 +502,7 @@ static struct trace_event_functions trac
- #undef __array
- #define __array(_type, _item, _len) {					\
- 	.type = #_type"["__stringify(_len)"]", .name = #_item,		\
--	.size = sizeof(_type[_len]), .align = __alignof__(_type),	\
-+	.size = sizeof(_type[_len]), .align = ALIGN_STRUCTFIELD(_type),	\
- 	.is_signed = is_signed_type(_type), .filter_type = FILTER_OTHER },
- 
- #undef __dynamic_array
+-	if (fold && fold->handle && f->handle != fold->handle) {
++	if (fold) {
+ 		th = to_hash(fold->handle);
+ 		h = from_hash(fold->handle >> 16);
+ 		b = rtnl_dereference(head->table[th]);
 
 
