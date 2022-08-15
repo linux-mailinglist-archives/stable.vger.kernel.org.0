@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EA11593D75
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FDC6593B02
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240902AbiHOUC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:02:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55834 "EHLO
+        id S240280AbiHOUCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:02:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345921AbiHOUA7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:00:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9ACB7A51D;
-        Mon, 15 Aug 2022 11:53:27 -0700 (PDT)
+        with ESMTP id S1345940AbiHOUBE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:01:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCCC77B1F4;
+        Mon, 15 Aug 2022 11:53:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9AD70B810A0;
-        Mon, 15 Aug 2022 18:53:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DADC433D7;
-        Mon, 15 Aug 2022 18:53:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D41561227;
+        Mon, 15 Aug 2022 18:53:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A22FC433C1;
+        Mon, 15 Aug 2022 18:53:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589604;
-        bh=gSo018KO7yciQS/cs61HZj9oE5g4mjzMJegIb32bSyo=;
+        s=korg; t=1660589607;
+        bh=qmAwL4dfCbVkHN98smibt7siZPH+IcCOgX81JiDmpik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gSAdD2kACO7rTuxfMGzgeUMwm5tWDrswNP342T4DPStdBeRTqG+4MiHrGpvN0zHdP
-         8Pl1Ny13LGH70LboPFNpdjVqG+f4fNL1K10KPwBNN5lAQ7cOzrREERzgNGrSNLUyWb
-         ZfsKlUnnr+dzpf+++5Tv8CC3yBInidhgvBjseoVo=
+        b=M8kM0y3Iqp9+BKVF0lcSIR2JcS8nGqVv0goczF6VeZy4x3ZlTcARhzCpHzBBNpoq+
+         CTkCcSMIeDBL8c7wg6aG8DlcQAm5GzxGGQqb+fwDU1OkdJzFOt02W2cTQfygvI8roW
+         gqITkQS//GvnD6yfZgM2tDOuLmm2Hyan2512SrQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>
-Subject: [PATCH 5.15 771/779] drm/msm: Fix dirtyfb refcounting
-Date:   Mon, 15 Aug 2022 20:06:55 +0200
-Message-Id: <20220815180410.350724076@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>
+Subject: [PATCH 5.15 772/779] drm/meson: Fix refcount leak in meson_encoder_hdmi_init
+Date:   Mon, 15 Aug 2022 20:06:56 +0200
+Message-Id: <20220815180410.395878169@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -52,42 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 9225b337072a10bf9b09df8bf281437488dd8a26 upstream.
+commit 7381076809586528e2a812a709e2758916318a99 upstream.
 
-refcount_t complains about 0->1 transitions, which isn't *quite* what we
-wanted.  So use dirtyfb==1 to mean that the fb is not connected to any
-output that requires dirtyfb flushing, so that we can keep the underflow
-and overflow checking.
+of_find_device_by_node() takes reference, we should use put_device()
+to release it when not need anymore.
+Add missing put_device() in error path to avoid refcount
+leak.
 
-Fixes: 9e4dde28e9cd ("drm/msm: Avoid dirtyfb stalls on video mode displays (v2)")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Link: https://lore.kernel.org/r/20220304202146.845566-1-robdclark@gmail.com
+Fixes: 0af5e0b41110 ("drm/meson: encoder_hdmi: switch to bridge DRM_BRIDGE_ATTACH_NO_CONNECTOR")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220511054052.51981-1-linmq006@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/msm_fb.c |    4 +++-
+ drivers/gpu/drm/meson/meson_encoder_hdmi.c |    4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/msm/msm_fb.c
-+++ b/drivers/gpu/drm/msm/msm_fb.c
-@@ -37,7 +37,7 @@ static int msm_framebuffer_dirtyfb(struc
- 	/* If this fb is not used on any display requiring pixel data to be
- 	 * flushed, then skip dirtyfb
- 	 */
--	if (refcount_read(&msm_fb->dirtyfb) == 0)
-+	if (refcount_read(&msm_fb->dirtyfb) == 1)
- 		return 0;
+--- a/drivers/gpu/drm/meson/meson_encoder_hdmi.c
++++ b/drivers/gpu/drm/meson/meson_encoder_hdmi.c
+@@ -438,8 +438,10 @@ int meson_encoder_hdmi_init(struct meson
+ 		cec_fill_conn_info_from_drm(&conn_info, meson_encoder_hdmi->connector);
  
- 	return drm_atomic_helper_dirtyfb(fb, file_priv, flags, color,
-@@ -221,6 +221,8 @@ static struct drm_framebuffer *msm_frame
- 		goto fail;
+ 		notifier = cec_notifier_conn_register(&pdev->dev, NULL, &conn_info);
+-		if (!notifier)
++		if (!notifier) {
++			put_device(&pdev->dev);
+ 			return -ENOMEM;
++		}
+ 
+ 		meson_encoder_hdmi->cec_notifier = notifier;
  	}
- 
-+	refcount_set(&msm_fb->dirtyfb, 1);
-+
- 	drm_dbg_state(dev, "create: FB ID: %d (%p)", fb->base.id, fb);
- 
- 	return fb;
 
 
