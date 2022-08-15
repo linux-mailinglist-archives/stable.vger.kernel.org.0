@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C497959387E
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CD7A593887
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245308AbiHOTHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:07:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44152 "EHLO
+        id S245428AbiHOTHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:07:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343537AbiHOTGe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:06:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B87904F18A;
-        Mon, 15 Aug 2022 11:35:10 -0700 (PDT)
+        with ESMTP id S1343549AbiHOTGg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:06:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50A654F18F;
+        Mon, 15 Aug 2022 11:35:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B6D0B8105D;
-        Mon, 15 Aug 2022 18:35:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14424C433C1;
-        Mon, 15 Aug 2022 18:35:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0DD8B8106C;
+        Mon, 15 Aug 2022 18:35:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47C5EC433C1;
+        Mon, 15 Aug 2022 18:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588507;
-        bh=xuBhzV4jFujLSQZDG0nTbqRsXfUJtHiN4aWTe+yiPow=;
+        s=korg; t=1660588510;
+        bh=FA8gCMNgw+Mhv8s7WRCL66F4pG7UoLvoA7yC6pWc+/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zdfv9y/FVl7WqxznSHJIdSYn13LxpUwJ5+MtsDq+w+cx7j6S9k6H8736stQBR4dHS
-         9FlWnNl+Hjj+AGpBBpxKo5TlPM9JM3ZeKYyBhj8N4aggSEcU54H9o82FM7S6OpQ/K3
-         KnVTfxCU7ZuMl4XUZ81fUdrYnHckpuyDGrkWFD7k=
+        b=wXV1JQf+/RuQ/yWpK/w8F+D3fYivlgYMtfzG1Pq9PfEZuOeHniuiue+nWB3wJs34V
+         gToPxMUJK5YyBjYVUm7If+n3Rj/wYOQfys434DVdW+NYKZc1jid8edVhCY1fDQy0oR
+         m/7taGHUrzJvdTB+WBSb507uitHSSfBuoX3qB4QQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 395/779] scsi: qla2xxx: edif: Fix potential stuck session in sa update
-Date:   Mon, 15 Aug 2022 20:00:39 +0200
-Message-Id: <20220815180354.155378571@linuxfoundation.org>
+Subject: [PATCH 5.15 396/779] scsi: qla2xxx: edif: Reduce connection thrash
+Date:   Mon, 15 Aug 2022 20:00:40 +0200
+Message-Id: <20220815180354.201904358@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,74 +59,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit e0fb8ce2bb9e52c846e54ad2c58b5b7beb13eb09 ]
+[ Upstream commit 91f6f5fbe87ba834133fcc61d34881cb8ec9e518 ]
 
-When a thread is in the process of reestablish a session, a flag is set to
-prevent multiple threads/triggers from doing the same task. This flag was
-left on, and any attempt to relogin was locked out. Clear this flag if the
-attempt has failed.
+On ipsec start by remote port, target port may use RSCN to trigger
+initiator to relogin. If driver is already in the process of a relogin,
+then ignore the RSCN and allow the current relogin to continue. This
+reduces thrashing of the connection.
 
-Link: https://lore.kernel.org/r/20220607044627.19563-6-njavali@marvell.com
-Fixes: dd30706e73b7 ("scsi: qla2xxx: edif: Add key update")
+Link: https://lore.kernel.org/r/20211026115412.27691-10-njavali@marvell.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_edif.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_attr.c |  7 ++++++-
+ drivers/scsi/qla2xxx/qla_edif.h |  4 ++++
+ drivers/scsi/qla2xxx/qla_init.c | 24 ++++++++++++++++++++++--
+ 3 files changed, 32 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_edif.c b/drivers/scsi/qla2xxx/qla_edif.c
-index e42141635377..4be876dd9f6b 100644
---- a/drivers/scsi/qla2xxx/qla_edif.c
-+++ b/drivers/scsi/qla2xxx/qla_edif.c
-@@ -2187,6 +2187,7 @@ edif_doorbell_show(struct device *dev, struct device_attribute *attr,
+diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
+index d3534e7f2d21..bd4ebc1b5c1e 100644
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -2754,7 +2754,12 @@ qla2x00_terminate_rport_io(struct fc_rport *rport)
+ 			if (fcport->loop_id != FC_NO_LOOP_ID)
+ 				fcport->logout_on_delete = 1;
  
- static void qla_noop_sp_done(srb_t *sp, int res)
- {
-+	sp->fcport->flags &= ~(FCF_ASYNC_SENT | FCF_ASYNC_ACTIVE);
- 	/* ref: INIT */
- 	kref_put(&sp->cmd_kref, qla2x00_sp_release);
- }
-@@ -2211,7 +2212,8 @@ qla24xx_issue_sa_replace_iocb(scsi_qla_host_t *vha, struct qla_work_evt *e)
- 	if (!sa_ctl) {
- 		ql_dbg(ql_dbg_edif, vha, 0x70e6,
- 		    "sa_ctl allocation failed\n");
--		return -ENOMEM;
-+		rval =  -ENOMEM;
-+		goto done;
- 	}
+-			qlt_schedule_sess_for_deletion(fcport);
++			if (!EDIF_NEGOTIATION_PENDING(fcport)) {
++				ql_dbg(ql_dbg_disc, fcport->vha, 0x911e,
++				       "%s %d schedule session deletion\n", __func__,
++				       __LINE__);
++				qlt_schedule_sess_for_deletion(fcport);
++			}
+ 		} else {
+ 			qla2x00_port_logout(fcport->vha, fcport);
+ 		}
+diff --git a/drivers/scsi/qla2xxx/qla_edif.h b/drivers/scsi/qla2xxx/qla_edif.h
+index 32800bfb32a3..2517005fb08c 100644
+--- a/drivers/scsi/qla2xxx/qla_edif.h
++++ b/drivers/scsi/qla2xxx/qla_edif.h
+@@ -133,4 +133,8 @@ struct enode {
+ 	 _s->disc_state == DSC_DELETED || \
+ 	 !_s->edif.app_sess_online))
  
- 	fcport = sa_ctl->fcport;
-@@ -2221,7 +2223,8 @@ qla24xx_issue_sa_replace_iocb(scsi_qla_host_t *vha, struct qla_work_evt *e)
- 	if (!sp) {
- 		ql_dbg(ql_dbg_edif, vha, 0x70e6,
- 		 "SRB allocation failed\n");
--		return -ENOMEM;
-+		rval = -ENOMEM;
-+		goto done;
- 	}
- 
- 	fcport->flags |= FCF_ASYNC_SENT;
-@@ -2250,9 +2253,17 @@ qla24xx_issue_sa_replace_iocb(scsi_qla_host_t *vha, struct qla_work_evt *e)
- 
- 	rval = qla2x00_start_sp(sp);
- 
--	if (rval != QLA_SUCCESS)
-+	if (rval != QLA_SUCCESS) {
- 		rval = QLA_FUNCTION_FAILED;
-+		goto done_free_sp;
-+	}
- 
-+	return rval;
-+done_free_sp:
-+	kref_put(&sp->cmd_kref, qla2x00_sp_release);
-+	fcport->flags &= ~FCF_ASYNC_SENT;
-+done:
-+	fcport->flags &= ~FCF_ASYNC_ACTIVE;
- 	return rval;
- }
- 
++#define EDIF_NEGOTIATION_PENDING(_fcport) \
++	((_fcport->vha.e_dbell.db_flags & EDB_ACTIVE) && \
++	 (_fcport->disc_state == DSC_LOGIN_AUTH_PEND))
++
+ #endif	/* __QLA_EDIF_H */
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index be150fc76dba..09ddaa8cb653 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -1825,8 +1825,28 @@ void qla2x00_handle_rscn(scsi_qla_host_t *vha, struct event_arg *ea)
+ 					fcport->d_id.b24, fcport->port_name);
+ 				return;
+ 			}
+-			fcport->scan_needed = 1;
+-			fcport->rscn_gen++;
++
++			if (vha->hw->flags.edif_enabled && vha->e_dbell.db_flags & EDB_ACTIVE) {
++				/*
++				 * On ipsec start by remote port, Target port
++				 * may use RSCN to trigger initiator to
++				 * relogin. If driver is already in the
++				 * process of a relogin, then ignore the RSCN
++				 * and allow the current relogin to continue.
++				 * This reduces thrashing of the connection.
++				 */
++				if (atomic_read(&fcport->state) == FCS_ONLINE) {
++					/*
++					 * If state = online, then set scan_needed=1 to do relogin.
++					 * Otherwise we're already in the middle of a relogin
++					 */
++					fcport->scan_needed = 1;
++					fcport->rscn_gen++;
++				}
++			} else {
++				fcport->scan_needed = 1;
++				fcport->rscn_gen++;
++			}
+ 		}
+ 		break;
+ 	case RSCN_AREA_ADDR:
 -- 
 2.35.1
 
