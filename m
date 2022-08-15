@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE3775947EB
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E574594D64
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354143AbiHOXni (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:43:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60756 "EHLO
+        id S1344764AbiHPBEU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 21:04:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354318AbiHOXlx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72D312C652;
-        Mon, 15 Aug 2022 13:12:22 -0700 (PDT)
+        with ESMTP id S1348613AbiHPBCT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 21:02:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78CD2BA9C3;
+        Mon, 15 Aug 2022 13:50:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10DFD60B6E;
-        Mon, 15 Aug 2022 20:12:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 004B1C433C1;
-        Mon, 15 Aug 2022 20:12:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB5236103F;
+        Mon, 15 Aug 2022 20:50:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA4F2C433D7;
+        Mon, 15 Aug 2022 20:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594341;
-        bh=tO76lJ66HsVJV3KXENX1SUk8oeNUKoWrD0rDT+0Y+lI=;
+        s=korg; t=1660596626;
+        bh=AjhUCMvw3Djg5sxJuPyH8xLqMY0x5dcD4IG5ow8tdvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=png/pixYqbv4AWNf90gVIJIwv3RHazrRqi66RMiEWiTHUGfb0pHCrocjMF59yFMQE
-         wjhmlGn8FdsVLAnwt+Ut5AtW2wDtdMPI/IqRq2ZcneUzNoSWOOGsCB5B+qcmTcpNSv
-         leg2t+1NAL425nu4WGzEmuJRqoQIz2acLsltX+Yw=
+        b=viKG7/Zii5XM6dE4atX+U376OAQEi4W/A11TnjjYUluePkwy41G+oFbTGvQe9xlGk
+         yQa3FnrxnBXYmozwJOXMuK9wr/V61dT6V4G39DlRem/UrtgdE49fl5aHsKjGxMunGV
+         WowmzLrGbfNr2ZVDgu5J96JQWvlkD3Dk2XyWF5Qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 5.18 1095/1095] Bluetooth: L2CAP: Fix l2cap_global_chan_by_psm regression
-Date:   Mon, 15 Aug 2022 20:08:14 +0200
-Message-Id: <20220815180514.297750540@linuxfoundation.org>
+        stable@vger.kernel.org, Robert Foss <robert.foss@linaro.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.19 1139/1157] Revert "drm/bridge: anx7625: Use DPI bus type"
+Date:   Mon, 15 Aug 2022 20:08:15 +0200
+Message-Id: <20220815180526.020681384@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Robert Foss <robert.foss@linaro.org>
 
-commit 332f1795ca202489c665a75e62e18ff6284de077 upstream.
+commit 61922beba36adea8702fe8069b309c806f6608af upstream.
 
-The patch d0be8347c623: "Bluetooth: L2CAP: Fix use-after-free caused
-by l2cap_chan_put" from Jul 21, 2022, leads to the following Smatch
-static checker warning:
+This reverts commit a77c2af0994e24ee36c7ffb6dc852770bdf06fb1.
 
-        net/bluetooth/l2cap_core.c:1977 l2cap_global_chan_by_psm()
-        error: we previously assumed 'c' could be null (see line 1996)
+This patch depends on the patches just aplied to the media tree, and will
+not build without them, which leaves drm-misc-next in a broken state.
+Let's revert the two latter patches until rc1 has been branched,
+and rc1 has been backmerged into drm-misc-next.
 
-Fixes: d0be8347c623 ("Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220523161520.354687-1-robert.foss@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/bridge/analogix/anx7625.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -1969,11 +1969,11 @@ static struct l2cap_chan *l2cap_global_c
- 						   bdaddr_t *dst,
- 						   u8 link_type)
- {
--	struct l2cap_chan *c, *c1 = NULL;
-+	struct l2cap_chan *c, *tmp, *c1 = NULL;
+--- a/drivers/gpu/drm/bridge/analogix/anx7625.c
++++ b/drivers/gpu/drm/bridge/analogix/anx7625.c
+@@ -1623,14 +1623,14 @@ static int anx7625_parse_dt(struct devic
  
- 	read_lock(&chan_list_lock);
+ 	anx7625_get_swing_setting(dev, pdata);
  
--	list_for_each_entry(c, &chan_list, global_l) {
-+	list_for_each_entry_safe(c, tmp, &chan_list, global_l) {
- 		if (state && c->state != state)
- 			continue;
+-	pdata->is_dpi = 0; /* default dsi mode */
++	pdata->is_dpi = 1; /* default dpi mode */
+ 	pdata->mipi_host_node = of_graph_get_remote_node(np, 0, 0);
+ 	if (!pdata->mipi_host_node) {
+ 		DRM_DEV_ERROR(dev, "fail to get internal panel.\n");
+ 		return -ENODEV;
+ 	}
  
-@@ -1992,11 +1992,10 @@ static struct l2cap_chan *l2cap_global_c
- 			dst_match = !bacmp(&c->dst, dst);
- 			if (src_match && dst_match) {
- 				c = l2cap_chan_hold_unless_zero(c);
--				if (!c)
--					continue;
--
--				read_unlock(&chan_list_lock);
--				return c;
-+				if (c) {
-+					read_unlock(&chan_list_lock);
-+					return c;
-+				}
- 			}
+-	bus_type = 0;
++	bus_type = V4L2_FWNODE_BUS_TYPE_PARALLEL;
+ 	mipi_lanes = MAX_LANES_SUPPORT;
+ 	ep0 = of_graph_get_endpoint_by_regs(np, 0, 0);
+ 	if (ep0) {
+@@ -1640,8 +1640,8 @@ static int anx7625_parse_dt(struct devic
+ 		mipi_lanes = of_property_count_u32_elems(ep0, "data-lanes");
+ 	}
  
- 			/* Closest match */
+-	if (bus_type == V4L2_FWNODE_BUS_TYPE_DPI) /* bus type is DPI */
+-		pdata->is_dpi = 1;
++	if (bus_type == V4L2_FWNODE_BUS_TYPE_PARALLEL) /* bus type is Parallel(DSI) */
++		pdata->is_dpi = 0;
+ 
+ 	pdata->mipi_lanes = mipi_lanes;
+ 	if (pdata->mipi_lanes > MAX_LANES_SUPPORT || pdata->mipi_lanes <= 0)
 
 
