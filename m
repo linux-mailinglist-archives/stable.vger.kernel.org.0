@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E34B2593B52
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59D8E593AE5
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347214AbiHOUXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:23:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53102 "EHLO
+        id S1347226AbiHOUXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:23:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347323AbiHOUWR (ORCPT
+        with ESMTP id S1347327AbiHOUWR (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:22:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 470BB33E11;
-        Mon, 15 Aug 2022 12:02:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EAF733E05;
+        Mon, 15 Aug 2022 12:02:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C35E76129D;
-        Mon, 15 Aug 2022 19:02:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3CFDC433D7;
-        Mon, 15 Aug 2022 19:02:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D3B861211;
+        Mon, 15 Aug 2022 19:02:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E049C433C1;
+        Mon, 15 Aug 2022 19:02:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590141;
-        bh=BiXQP5hEwWxvNooIQ9QPaiV8PeDBluXIGABeLXn0BFY=;
+        s=korg; t=1660590144;
+        bh=1nyJF6tS4IDL2t+3hw/6H7P10fs3MNbMX922x6MthPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=teVndLtmCBIZEOhSn7ApbIAHYeeFm+AN0Q1nm/YICE32IGxvVibq4tAUELzM9bR1m
-         /K1cWl2rRqlDAHQUakIcst7QzgUbWNDViBUE38flHPVl6b2srdl99XmT9eTS086i6T
-         FNykxCkh9MUY40bih2m578pJ8FPmTKsGOr1tvPhQ=
+        b=0ePCxzTclGBXUds528oE8Xre1xnG9L6qc9MuKjSOji2FNHkblKChcd5kS//Kd7PnJ
+         BuT4sSNbiwTRbeAxuPW+v6eCRDkQE/hiWMjMqChxD1G2OFHKxBFwgInUMJxGYSb8f2
+         2IIZIHQ8jJcaitk/upUfN8ElNi4nJ57oigZtQITM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        stable@vger.kernel.org, mingi cho <mgcho.minic@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.18 0132/1095] netfilter: nf_tables: do not allow RULE_ID to refer to another chain
-Date:   Mon, 15 Aug 2022 19:52:11 +0200
-Message-Id: <20220815180435.042410543@linuxfoundation.org>
+Subject: [PATCH 5.18 0133/1095] netfilter: nf_tables: fix null deref due to zeroed list head
+Date:   Mon, 15 Aug 2022 19:52:12 +0200
+Message-Id: <20220815180435.095772843@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,73 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 36d5b2913219ac853908b0f1c664345e04313856 upstream.
+commit 580077855a40741cf511766129702d97ff02f4d9 upstream.
 
-When doing lookups for rules on the same batch by using its ID, a rule from
-a different chain can be used. If a rule is added to a chain but tries to
-be positioned next to a rule from a different chain, it will be linked to
-chain2, but the use counter on chain1 would be the one to be incremented.
+In nf_tables_updtable, if nf_tables_table_enable returns an error,
+nft_trans_destroy is called to free the transaction object.
 
-When looking for rules by ID, use the chain that was used for the lookup by
-name. The chain used in the context copied to the transaction needs to
-match that same chain. That way, struct nft_rule does not need to get
-enlarged with another member.
+nft_trans_destroy() calls list_del(), but the transaction was never
+placed on a list -- the list head is all zeroes, this results in
+a null dereference:
 
-Fixes: 1a94e38d254b ("netfilter: nf_tables: add NFTA_RULE_ID attribute")
-Fixes: 75dd48e2e420 ("netfilter: nf_tables: Support RULE_ID reference in new rule")
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Cc: <stable@vger.kernel.org>
+BUG: KASAN: null-ptr-deref in nft_trans_destroy+0x26/0x59
+Call Trace:
+ nft_trans_destroy+0x26/0x59
+ nf_tables_newtable+0x4bc/0x9bc
+ [..]
+
+Its sane to assume that nft_trans_destroy() can be called
+on the transaction object returned by nft_trans_alloc(), so
+make sure the list head is initialised.
+
+Fixes: 55dd6f93076b ("netfilter: nf_tables: use new transaction infrastructure to handle table")
+Reported-by: mingi cho <mgcho.minic@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/netfilter/nf_tables_api.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/net/netfilter/nf_tables_api.c
 +++ b/net/netfilter/nf_tables_api.c
-@@ -3371,6 +3371,7 @@ static int nft_table_validate(struct net
- }
+@@ -153,6 +153,7 @@ static struct nft_trans *nft_trans_alloc
+ 	if (trans == NULL)
+ 		return NULL;
  
- static struct nft_rule *nft_rule_lookup_byid(const struct net *net,
-+					     const struct nft_chain *chain,
- 					     const struct nlattr *nla);
++	INIT_LIST_HEAD(&trans->list);
+ 	trans->msg_type = msg_type;
+ 	trans->ctx	= *ctx;
  
- #define NFT_RULE_MAXEXPRS	128
-@@ -3459,7 +3460,7 @@ static int nf_tables_newrule(struct sk_b
- 				return PTR_ERR(old_rule);
- 			}
- 		} else if (nla[NFTA_RULE_POSITION_ID]) {
--			old_rule = nft_rule_lookup_byid(net, nla[NFTA_RULE_POSITION_ID]);
-+			old_rule = nft_rule_lookup_byid(net, chain, nla[NFTA_RULE_POSITION_ID]);
- 			if (IS_ERR(old_rule)) {
- 				NL_SET_BAD_ATTR(extack, nla[NFTA_RULE_POSITION_ID]);
- 				return PTR_ERR(old_rule);
-@@ -3604,6 +3605,7 @@ err_release_expr:
- }
- 
- static struct nft_rule *nft_rule_lookup_byid(const struct net *net,
-+					     const struct nft_chain *chain,
- 					     const struct nlattr *nla)
- {
- 	struct nftables_pernet *nft_net = nft_pernet(net);
-@@ -3614,6 +3616,7 @@ static struct nft_rule *nft_rule_lookup_
- 		struct nft_rule *rule = nft_trans_rule(trans);
- 
- 		if (trans->msg_type == NFT_MSG_NEWRULE &&
-+		    trans->ctx.chain == chain &&
- 		    id == nft_trans_rule_id(trans))
- 			return rule;
- 	}
-@@ -3663,7 +3666,7 @@ static int nf_tables_delrule(struct sk_b
- 
- 			err = nft_delrule(&ctx, rule);
- 		} else if (nla[NFTA_RULE_ID]) {
--			rule = nft_rule_lookup_byid(net, nla[NFTA_RULE_ID]);
-+			rule = nft_rule_lookup_byid(net, chain, nla[NFTA_RULE_ID]);
- 			if (IS_ERR(rule)) {
- 				NL_SET_BAD_ATTR(extack, nla[NFTA_RULE_ID]);
- 				return PTR_ERR(rule);
 
 
