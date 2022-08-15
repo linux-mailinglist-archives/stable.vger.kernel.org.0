@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEB01595120
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C86CB595113
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232367AbiHPEwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:52:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42110 "EHLO
+        id S231857AbiHPEwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:52:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232947AbiHPEuA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:50:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A8D0199B00;
-        Mon, 15 Aug 2022 13:46:36 -0700 (PDT)
+        with ESMTP id S233094AbiHPEuj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:50:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D6DA1D63;
+        Mon, 15 Aug 2022 13:46:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B12466122E;
-        Mon, 15 Aug 2022 20:46:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E999C433D6;
-        Mon, 15 Aug 2022 20:46:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89061B8119A;
+        Mon, 15 Aug 2022 20:46:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7888C433D6;
+        Mon, 15 Aug 2022 20:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596395;
-        bh=ztuiYlmLkVZncfWoJY2ReqlKwgNsbOSNGQvAWdyy7tc=;
+        s=korg; t=1660596398;
+        bh=/lR3faO2ffUmX7m+UYslLxvajTc1xUrz7ZFeUAADfpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hRI0+mbLndZAT1BxGjuaPMBj2RpM3MWPzzm4yS1f2wLbJ5Lz5tr4tANR2bM2oAHGF
-         YmMct2s5U7x0RjlZal45NVpV0rbDJbPX7cKMaxbHQyEbsixu4ynWAATLAOxzr9zMJl
-         Pwy5cL8ibo7hNJUvQKsI0quDbayAHr9LXpFb976g=
+        b=1tSKsT9gNUhinm03BqEHcpATFnDBLGPEZugWA1Mwy2gplwIXcw5FWHhHBj3K8Xs66
+         DCrABDHbGkftqf/xJiqBOvPnOwWacp+MuJU9zCUdQ8wyrSw332Eyfx0HYA1eBAzp5W
+         sF2O95w9IhSwf85TCUruWaQh4cZjVGHs9DfNGAhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meeta Saggi <msaggi@purestorage.com>,
-        Mohamed Khalfella <mkhalfella@purestorage.com>,
+        stable@vger.kernel.org, Robert Marko <robimarko@gmail.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        Eric Badger <ebadger@purestorage.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1066/1157] PCI/AER: Iterate over error counters instead of error strings
-Date:   Mon, 15 Aug 2022 20:07:02 +0200
-Message-Id: <20220815180522.727862498@linuxfoundation.org>
+Subject: [PATCH 5.19 1067/1157] PCI: qcom: Power on PHY before IPQ8074 DBI register accesses
+Date:   Mon, 15 Aug 2022 20:07:03 +0200
+Message-Id: <20220815180522.779493995@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,61 +55,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohamed Khalfella <mkhalfella@purestorage.com>
+From: Robert Marko <robimarko@gmail.com>
 
-[ Upstream commit 5e6ae050955b566484f3cc6a66e3925eae87a0ed ]
+[ Upstream commit a0e43bb9973b06ce5c666f0901e104e2037c1b34 ]
 
-Previously we iterated over AER stat *names*, e.g.,
-aer_correctable_error_string[32], but the actual stat *counters* may not be
-that large, e.g., pdev->aer_stats->dev_cor_errs[16], which means that we
-printed junk in the sysfs stats files.
+Currently the Gen2 port in IPQ8074 will cause the system to hang as it
+accesses DBI registers in qcom_pcie_init_2_3_3(), and those are only
+accesible after phy_power_on().
 
-Iterate over the stat counter arrays instead of the names to avoid this
-junk.
+Move the DBI read/writes to a new qcom_pcie_post_init_2_3_3(), which is
+executed after phy_power_on().
 
-Also, added a build time check to make sure all
-counters have entries in strings array.
-
-Fixes: 0678e3109a3c ("PCI/AER: Simplify __aer_print_error()")
-Link: https://lore.kernel.org/r/20220509181441.31884-1-mkhalfella@purestorage.com
-Reported-by: Meeta Saggi <msaggi@purestorage.com>
-Signed-off-by: Mohamed Khalfella <mkhalfella@purestorage.com>
+Link: https://lore.kernel.org/r/20220623155004.688090-1-robimarko@gmail.com
+Fixes: a0fd361db8e5 ("PCI: dwc: Move "dbi", "dbi2", and "addr_space" resource setup into common code")
+Signed-off-by: Robert Marko <robimarko@gmail.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Meeta Saggi <msaggi@purestorage.com>
-Reviewed-by: Eric Badger <ebadger@purestorage.com>
-Cc: stable@vger.kernel.org
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc: stable@vger.kernel.org	# v5.11+
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pcie/aer.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/pci/controller/dwc/pcie-qcom.c |   48 +++++++++++++++++++--------------
+ 1 file changed, 28 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
-index 7952e5efd6cf..a1e38ca93cd9 100644
---- a/drivers/pci/pcie/aer.c
-+++ b/drivers/pci/pcie/aer.c
-@@ -538,7 +538,7 @@ static const char *aer_agent_string[] = {
- 	u64 *stats = pdev->aer_stats->stats_array;			\
- 	size_t len = 0;							\
- 									\
--	for (i = 0; i < ARRAY_SIZE(strings_array); i++) {		\
-+	for (i = 0; i < ARRAY_SIZE(pdev->aer_stats->stats_array); i++) {\
- 		if (strings_array[i])					\
- 			len += sysfs_emit_at(buf, len, "%s %llu\n",	\
- 					     strings_array[i],		\
-@@ -1347,6 +1347,11 @@ static int aer_probe(struct pcie_device *dev)
- 	struct device *device = &dev->device;
- 	struct pci_dev *port = dev->port;
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -1036,9 +1036,7 @@ static int qcom_pcie_init_2_3_3(struct q
+ 	struct qcom_pcie_resources_2_3_3 *res = &pcie->res.v2_3_3;
+ 	struct dw_pcie *pci = pcie->pci;
+ 	struct device *dev = pci->dev;
+-	u16 offset = dw_pcie_find_capability(pci, PCI_CAP_ID_EXP);
+ 	int i, ret;
+-	u32 val;
  
-+	BUILD_BUG_ON(ARRAY_SIZE(aer_correctable_error_string) <
-+		     AER_MAX_TYPEOF_COR_ERRS);
-+	BUILD_BUG_ON(ARRAY_SIZE(aer_uncorrectable_error_string) <
-+		     AER_MAX_TYPEOF_UNCOR_ERRS);
+ 	for (i = 0; i < ARRAY_SIZE(res->rst); i++) {
+ 		ret = reset_control_assert(res->rst[i]);
+@@ -1095,6 +1093,33 @@ static int qcom_pcie_init_2_3_3(struct q
+ 		goto err_clk_aux;
+ 	}
+ 
++	return 0;
 +
- 	/* Limit to Root Ports or Root Complex Event Collectors */
- 	if ((pci_pcie_type(port) != PCI_EXP_TYPE_RC_EC) &&
- 	    (pci_pcie_type(port) != PCI_EXP_TYPE_ROOT_PORT))
--- 
-2.35.1
-
++err_clk_aux:
++	clk_disable_unprepare(res->ahb_clk);
++err_clk_ahb:
++	clk_disable_unprepare(res->axi_s_clk);
++err_clk_axi_s:
++	clk_disable_unprepare(res->axi_m_clk);
++err_clk_axi_m:
++	clk_disable_unprepare(res->iface);
++err_clk_iface:
++	/*
++	 * Not checking for failure, will anyway return
++	 * the original failure in 'ret'.
++	 */
++	for (i = 0; i < ARRAY_SIZE(res->rst); i++)
++		reset_control_assert(res->rst[i]);
++
++	return ret;
++}
++
++static int qcom_pcie_post_init_2_3_3(struct qcom_pcie *pcie)
++{
++	struct dw_pcie *pci = pcie->pci;
++	u16 offset = dw_pcie_find_capability(pci, PCI_CAP_ID_EXP);
++	u32 val;
++
+ 	writel(SLV_ADDR_SPACE_SZ,
+ 		pcie->parf + PCIE20_v3_PARF_SLV_ADDR_SPACE_SIZE);
+ 
+@@ -1122,24 +1147,6 @@ static int qcom_pcie_init_2_3_3(struct q
+ 		PCI_EXP_DEVCTL2);
+ 
+ 	return 0;
+-
+-err_clk_aux:
+-	clk_disable_unprepare(res->ahb_clk);
+-err_clk_ahb:
+-	clk_disable_unprepare(res->axi_s_clk);
+-err_clk_axi_s:
+-	clk_disable_unprepare(res->axi_m_clk);
+-err_clk_axi_m:
+-	clk_disable_unprepare(res->iface);
+-err_clk_iface:
+-	/*
+-	 * Not checking for failure, will anyway return
+-	 * the original failure in 'ret'.
+-	 */
+-	for (i = 0; i < ARRAY_SIZE(res->rst); i++)
+-		reset_control_assert(res->rst[i]);
+-
+-	return ret;
+ }
+ 
+ static int qcom_pcie_get_resources_2_7_0(struct qcom_pcie *pcie)
+@@ -1465,6 +1472,7 @@ static const struct qcom_pcie_ops ops_2_
+ static const struct qcom_pcie_ops ops_2_3_3 = {
+ 	.get_resources = qcom_pcie_get_resources_2_3_3,
+ 	.init = qcom_pcie_init_2_3_3,
++	.post_init = qcom_pcie_post_init_2_3_3,
+ 	.deinit = qcom_pcie_deinit_2_3_3,
+ 	.ltssm_enable = qcom_pcie_2_3_2_ltssm_enable,
+ };
 
 
