@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23B95593C9A
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 197AB593C4A
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344510AbiHOTvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:51:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42624 "EHLO
+        id S1344786AbiHOTvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:51:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345447AbiHOTvM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:51:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99E0B73920;
-        Mon, 15 Aug 2022 11:50:07 -0700 (PDT)
+        with ESMTP id S1345485AbiHOTvP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:51:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFF927393A;
+        Mon, 15 Aug 2022 11:50:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EAB260C0B;
-        Mon, 15 Aug 2022 18:50:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C782C433D7;
-        Mon, 15 Aug 2022 18:50:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7630B61222;
+        Mon, 15 Aug 2022 18:50:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81843C43140;
+        Mon, 15 Aug 2022 18:50:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589406;
-        bh=8XzudxK/GSx4m9rQfdc62GIvbtc4ybw1doK19hUJQ7I=;
+        s=korg; t=1660589408;
+        bh=Pd14DUx2djKqDmo7dFo2PzHYQKAi5IQau5aRLPoz2w8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UEji6HJ04i5hCnlTUfexXbGMQ2b/3Je23muWXSlyGNiAP3cyh4KJgZ7wdGJxMW0Ar
-         XL4LWYOA1mN4vQA2+faIzNsrl7alMY/XSiwLzECoWLOm5hFD8DiT2F/4kaRiEVACe8
-         cg7xHZ39AOYpl+GjC18QEupdGyV6yb3e7qcvYLzg=
+        b=ZwN4no2BE7DBhKBz4Kn0vHtThVcz2ZhboX/xEOPRVgA+aPepij/y5OOftF0Gjttki
+         Bt4ftA0cLmu1Dwwz4fKwVAd3kmH6SVC7uzSAiHsbh9c6WQxc66C7QfrXcJel+gTmQH
+         cuL/TWAMX2bZLqL4pgum4TTuFkKG6Z/UQ5m+sXSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Jim Mattson <jmattson@google.com>,
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Yury Norov <yury.norov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 709/779] KVM: x86: Signal #GP, not -EPERM, on bad WRMSR(MCi_CTL/STATUS)
-Date:   Mon, 15 Aug 2022 20:05:53 +0200
-Message-Id: <20220815180407.739335099@linuxfoundation.org>
+Subject: [PATCH 5.15 710/779] iommu/vt-d: avoid invalid memory access via node_online(NUMA_NO_NODE)
+Date:   Mon, 15 Aug 2022 20:05:54 +0200
+Message-Id: <20220815180407.789363254@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,48 +57,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
 
-[ Upstream commit 2368048bf5c2ec4b604ac3431564071e89a0bc71 ]
+[ Upstream commit b0b0b77ea611e3088e9523e60860f4f41b62b235 ]
 
-Return '1', not '-1', when handling an illegal WRMSR to a MCi_CTL or
-MCi_STATUS MSR.  The behavior of "all zeros' or "all ones" for CTL MSRs
-is architectural, as is the "only zeros" behavior for STATUS MSRs.  I.e.
-the intent is to inject a #GP, not exit to userspace due to an unhandled
-emulation case.  Returning '-1' gets interpreted as -EPERM up the stack
-and effecitvely kills the guest.
+KASAN reports:
 
-Fixes: 890ca9aefa78 ("KVM: Add MCE support")
-Fixes: 9ffd986c6e4e ("KVM: X86: #GP when guest attempts to write MCi_STATUS register w/o 0")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Link: https://lore.kernel.org/r/20220512222716.4112548-2-seanjc@google.com
+[ 4.668325][ T0] BUG: KASAN: wild-memory-access in dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
+[    4.676149][    T0] Read of size 8 at addr 1fffffff85115558 by task swapper/0/0
+[    4.683454][    T0]
+[    4.685638][    T0] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.19.0-rc3-00004-g0e862838f290 #1
+[    4.694331][    T0] Hardware name: Supermicro SYS-5018D-FN4T/X10SDV-8C-TLN4F, BIOS 1.1 03/02/2016
+[    4.703196][    T0] Call Trace:
+[    4.706334][    T0]  <TASK>
+[ 4.709133][ T0] ? dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
+
+after converting the type of the first argument (@nr, bit number)
+of arch_test_bit() from `long` to `unsigned long`[0].
+
+Under certain conditions (for example, when ACPI NUMA is disabled
+via command line), pxm_to_node() can return %NUMA_NO_NODE (-1).
+It is valid 'magic' number of NUMA node, but not valid bit number
+to use in bitops.
+node_online() eventually descends to test_bit() without checking
+for the input, assuming it's on caller side (which might be good
+for perf-critical tasks). There, -1 becomes %ULONG_MAX which leads
+to an insane array index when calculating bit position in memory.
+
+For now, add an explicit check for @node being not %NUMA_NO_NODE
+before calling test_bit(). The actual logics didn't change here
+at all.
+
+[0] https://github.com/norov/linux/commit/0e862838f290147ea9c16db852d8d494b552d38d
+
+Fixes: ee34b32d8c29 ("dmar: support for parsing Remapping Hardware Static Affinity structure")
+Cc: stable@vger.kernel.org # 2.6.33+
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Yury Norov <yury.norov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iommu/intel/dmar.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index dac2892d095c..f5b7a05530eb 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3109,13 +3109,13 @@ static int set_msr_mce(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 			 */
- 			if ((offset & 0x3) == 0 &&
- 			    data != 0 && (data | (1 << 10) | 1) != ~(u64)0)
--				return -1;
-+				return 1;
+diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
+index 3d9cb711e87b..f026bd269cb0 100644
+--- a/drivers/iommu/intel/dmar.c
++++ b/drivers/iommu/intel/dmar.c
+@@ -497,7 +497,7 @@ static int dmar_parse_one_rhsa(struct acpi_dmar_header *header, void *arg)
+ 		if (drhd->reg_base_addr == rhsa->base_address) {
+ 			int node = pxm_to_node(rhsa->proximity_domain);
  
- 			/* MCi_STATUS */
- 			if (!msr_info->host_initiated &&
- 			    (offset & 0x3) == 1 && data != 0) {
- 				if (!can_set_mci_status(vcpu))
--					return -1;
-+					return 1;
- 			}
- 
- 			vcpu->arch.mce_banks[offset] = data;
+-			if (!node_online(node))
++			if (node != NUMA_NO_NODE && !node_online(node))
+ 				node = NUMA_NO_NODE;
+ 			drhd->iommu->node = node;
+ 			return 0;
 -- 
 2.35.1
 
