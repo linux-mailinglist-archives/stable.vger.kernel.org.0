@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EFD4593D54
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E7F8593C7F
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231653AbiHOUCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:02:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55862 "EHLO
+        id S1346419AbiHOUGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:06:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345945AbiHOUBF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:01:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D008A7B7BA;
-        Mon, 15 Aug 2022 11:53:42 -0700 (PDT)
+        with ESMTP id S1346163AbiHOUBr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:01:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73FCE7C75F;
+        Mon, 15 Aug 2022 11:53:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A924B810A2;
-        Mon, 15 Aug 2022 18:53:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66D49C433C1;
-        Mon, 15 Aug 2022 18:53:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34BC8B810A9;
+        Mon, 15 Aug 2022 18:53:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 932ADC433D7;
+        Mon, 15 Aug 2022 18:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589616;
-        bh=ypcTEHAAN56lMkwcSW2kJ2Sjqa0FjUipNQmNtZq0vRg=;
+        s=korg; t=1660589620;
+        bh=TwC/Maq0bEmceLwEg6k3SJsZPI6n3Zfns4vrT8h+7i4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vu4BZZgAMZeyDKNUDDpYHvxGRlDoO8AXwvxq4wzjgYuMbmPGxHdLlWphziANjqWMc
-         v0gm4a6FIeJ2RoDtqUZCls6sAV4fPZsbykLyc3l/Cs+6uhW3Ps8qjNWsWpn9mNZDUH
-         RSvKu887ROlAse51yr9XTufGb0i5ANvAG7ZMYds4=
+        b=Mwp2C2Ft75VWzPyIjeupAzZiqG2xJiJ8Hj94DhzvIboYyYQdo5gwj0k3iqDFSDuiC
+         mNmFsyY8cdufBETHDmTgfOC12d2AALIC+toqpvN3yJf1U7wt+rDfUim6yTEvI7R7FJ
+         Kd3HiM1txyO4M2CKJqoS0jtSA20IZrsp2BDaNvVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 5.15 775/779] Bluetooth: L2CAP: Fix l2cap_global_chan_by_psm regression
-Date:   Mon, 15 Aug 2022 20:06:59 +0200
-Message-Id: <20220815180410.517422014@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 5.15 776/779] drm/bridge: Move devm_drm_of_get_bridge to bridge/panel.c
+Date:   Mon, 15 Aug 2022 20:07:00 +0200
+Message-Id: <20220815180410.553384486@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,56 +55,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-commit 332f1795ca202489c665a75e62e18ff6284de077 upstream.
+commit d4ae66f10c8b9959dce1766d9a87070e567236eb upstream.
 
-The patch d0be8347c623: "Bluetooth: L2CAP: Fix use-after-free caused
-by l2cap_chan_put" from Jul 21, 2022, leads to the following Smatch
-static checker warning:
+By depending on devm_drm_panel_bridge_add(), devm_drm_of_get_bridge()
+introduces a circular dependency between the modules drm (where
+devm_drm_of_get_bridge() ends up) and drm_kms_helper (where
+devm_drm_panel_bridge_add() is).
 
-        net/bluetooth/l2cap_core.c:1977 l2cap_global_chan_by_psm()
-        error: we previously assumed 'c' could be null (see line 1996)
+Fix this by moving devm_drm_of_get_bridge() to bridge/panel.c and thus
+drm_kms_helper.
 
-Fixes: d0be8347c623 ("Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: 87ea95808d53 ("drm/bridge: Add a function to abstract away panels")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210917180925.2602266-1-maxime@cerno.tech
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/bridge/panel.c |   37 +++++++++++++++++++++++++++++++++++++
+ drivers/gpu/drm/drm_bridge.c   |   34 ----------------------------------
+ 2 files changed, 37 insertions(+), 34 deletions(-)
 
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -1970,11 +1970,11 @@ static struct l2cap_chan *l2cap_global_c
- 						   bdaddr_t *dst,
- 						   u8 link_type)
- {
--	struct l2cap_chan *c, *c1 = NULL;
-+	struct l2cap_chan *c, *tmp, *c1 = NULL;
- 
- 	read_lock(&chan_list_lock);
- 
--	list_for_each_entry(c, &chan_list, global_l) {
-+	list_for_each_entry_safe(c, tmp, &chan_list, global_l) {
- 		if (state && c->state != state)
- 			continue;
- 
-@@ -1993,11 +1993,10 @@ static struct l2cap_chan *l2cap_global_c
- 			dst_match = !bacmp(&c->dst, dst);
- 			if (src_match && dst_match) {
- 				c = l2cap_chan_hold_unless_zero(c);
--				if (!c)
--					continue;
+--- a/drivers/gpu/drm/bridge/panel.c
++++ b/drivers/gpu/drm/bridge/panel.c
+@@ -9,6 +9,7 @@
+ #include <drm/drm_connector.h>
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_modeset_helper_vtables.h>
++#include <drm/drm_of.h>
+ #include <drm/drm_panel.h>
+ #include <drm/drm_print.h>
+ #include <drm/drm_probe_helper.h>
+@@ -332,3 +333,39 @@ struct drm_connector *drm_panel_bridge_c
+ 	return &panel_bridge->connector;
+ }
+ EXPORT_SYMBOL(drm_panel_bridge_connector);
++
++#ifdef CONFIG_OF
++/**
++ * devm_drm_of_get_bridge - Return next bridge in the chain
++ * @dev: device to tie the bridge lifetime to
++ * @np: device tree node containing encoder output ports
++ * @port: port in the device tree node
++ * @endpoint: endpoint in the device tree node
++ *
++ * Given a DT node's port and endpoint number, finds the connected node
++ * and returns the associated bridge if any, or creates and returns a
++ * drm panel bridge instance if a panel is connected.
++ *
++ * Returns a pointer to the bridge if successful, or an error pointer
++ * otherwise.
++ */
++struct drm_bridge *devm_drm_of_get_bridge(struct device *dev,
++					  struct device_node *np,
++					  u32 port, u32 endpoint)
++{
++	struct drm_bridge *bridge;
++	struct drm_panel *panel;
++	int ret;
++
++	ret = drm_of_find_panel_or_bridge(np, port, endpoint,
++					  &panel, &bridge);
++	if (ret)
++		return ERR_PTR(ret);
++
++	if (panel)
++		bridge = devm_drm_panel_bridge_add(dev, panel);
++
++	return bridge;
++}
++EXPORT_SYMBOL(devm_drm_of_get_bridge);
++#endif
+--- a/drivers/gpu/drm/drm_bridge.c
++++ b/drivers/gpu/drm/drm_bridge.c
+@@ -1232,40 +1232,6 @@ struct drm_bridge *of_drm_find_bridge(st
+ 	return NULL;
+ }
+ EXPORT_SYMBOL(of_drm_find_bridge);
 -
--				read_unlock(&chan_list_lock);
--				return c;
-+				if (c) {
-+					read_unlock(&chan_list_lock);
-+					return c;
-+				}
- 			}
+-/**
+- * devm_drm_of_get_bridge - Return next bridge in the chain
+- * @dev: device to tie the bridge lifetime to
+- * @np: device tree node containing encoder output ports
+- * @port: port in the device tree node
+- * @endpoint: endpoint in the device tree node
+- *
+- * Given a DT node's port and endpoint number, finds the connected node
+- * and returns the associated bridge if any, or creates and returns a
+- * drm panel bridge instance if a panel is connected.
+- *
+- * Returns a pointer to the bridge if successful, or an error pointer
+- * otherwise.
+- */
+-struct drm_bridge *devm_drm_of_get_bridge(struct device *dev,
+-					  struct device_node *np,
+-					  u32 port, u32 endpoint)
+-{
+-	struct drm_bridge *bridge;
+-	struct drm_panel *panel;
+-	int ret;
+-
+-	ret = drm_of_find_panel_or_bridge(np, port, endpoint,
+-					  &panel, &bridge);
+-	if (ret)
+-		return ERR_PTR(ret);
+-
+-	if (panel)
+-		bridge = devm_drm_panel_bridge_add(dev, panel);
+-
+-	return bridge;
+-}
+-EXPORT_SYMBOL(devm_drm_of_get_bridge);
+ #endif
  
- 			/* Closest match */
+ MODULE_AUTHOR("Ajay Kumar <ajaykumar.rs@samsung.com>");
 
 
