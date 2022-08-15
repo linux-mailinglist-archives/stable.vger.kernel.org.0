@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C46D594DA1
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 323AB594C22
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245686AbiHPAm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:42:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54980 "EHLO
+        id S245736AbiHPAm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:42:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349062AbiHPAlU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:41:20 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 496E1ABF24;
-        Mon, 15 Aug 2022 13:39:27 -0700 (PDT)
+        with ESMTP id S1349384AbiHPAl0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:41:26 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77A8A18F5AA;
+        Mon, 15 Aug 2022 13:39:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 88760CE12DE;
-        Mon, 15 Aug 2022 20:39:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82AD0C433C1;
-        Mon, 15 Aug 2022 20:39:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DE8D1CE12C6;
+        Mon, 15 Aug 2022 20:39:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE102C433D7;
+        Mon, 15 Aug 2022 20:39:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595964;
-        bh=wdi5Bgss8kVg7uwHJ68Z8WtvgLGIwAw9a72ENcuiO88=;
+        s=korg; t=1660595967;
+        bh=v1TmxYTRpANDeqiY7jjrSy2/3BnmPzasSFCbmur9pLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L7YK62iqBHI4kr0INQJOIQCkLY5cpqkGOn15juQkykdLOTChOUAupyLF9MTSl0KaY
-         KMQx9mzybOmRoqW2XAUBmBX1/1TSZ5pz2HOuIWW2JOHHTz9VjAmoCKCD2gd+HfKp3y
-         yLr7m6XNMM5+jPx2s5IW+Zf1VFZZg53G1e2F3+ME=
+        b=tN9Ny+aRmBAknIZyISdbSVp1yIe25vjNJzZltU1pZSIaSZBLY5sbR4JOcrC+amBj/
+         4wIVHNpnBjOT4stnXkRjbjHYizQe2a1qBUI5sZ62gDgOoR3rstpbEWqdQeJHMcAGmQ
+         doZUZSEcry/QzdXiUX5T3FKJTvskiA4W+w8ulFio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0929/1157] tty: n_gsm: fix non flow control frames during mux flow off
-Date:   Mon, 15 Aug 2022 20:04:45 +0200
-Message-Id: <20220815180516.633895160@linuxfoundation.org>
+Subject: [PATCH 5.19 0930/1157] tty: n_gsm: fix packet re-transmission without open control channel
+Date:   Mon, 15 Aug 2022 20:04:46 +0200
+Message-Id: <20220815180516.682535423@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,112 +55,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit bec0224816d19abe4fe503586d16d51890540615 ]
+[ Upstream commit 4fae831b3a71fc5a44cc5c7d0b8c1267ee7659f5 ]
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.4.6.3.6 states that FCoff stops the
-transmission on all channels except the control channel. This is already
-implemented in gsm_data_kick(). However, chapter 5.4.8.1 explains that this
-shall result in the same behavior as software flow control on the ldisc in
-advanced option mode. That means only flow control frames shall be sent
-during flow off. The current implementation does not consider this case.
+In the current implementation control packets are re-transmitted even if
+the control channel closed down during T2. This is wrong.
+Check whether the control channel is open before re-transmitting any
+packets. Note that control channel open/close is handled by T1 and not T2
+and remains unaffected by this.
 
-Change gsm_data_kick() to send only flow control frames if constipated to
-abide the standard. gsm_read_ea_val() and gsm_is_flow_ctrl_msg() are
-introduced as helper functions for this.
-It is planned to use gsm_read_ea_val() in later code cleanups for other
-functions, too.
-
-Fixes: c01af4fec2c8 ("n_gsm : Flow control handling in Mux driver")
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
 Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220701061652.39604-5-daniel.starke@siemens.com
+Link: https://lore.kernel.org/r/20220701061652.39604-7-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 54 ++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 53 insertions(+), 1 deletion(-)
+ drivers/tty/n_gsm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index a01225819b92..3f415b2fa199 100644
+index 3f415b2fa199..39359274096d 100644
 --- a/drivers/tty/n_gsm.c
 +++ b/drivers/tty/n_gsm.c
-@@ -421,6 +421,27 @@ static int gsm_read_ea(unsigned int *val, u8 c)
- 	return c & EA;
- }
- 
-+/**
-+ *	gsm_read_ea_val	-	read a value until EA
-+ *	@val: variable holding value
-+ *	@data: buffer of data
-+ *	@dlen: length of data
-+ *
-+ *	Processes an EA value. Updates the passed variable and
-+ *	returns the processed data length.
-+ */
-+static unsigned int gsm_read_ea_val(unsigned int *val, const u8 *data, int dlen)
-+{
-+	unsigned int len = 0;
-+
-+	for (; dlen > 0; dlen--) {
-+		len++;
-+		if (gsm_read_ea(val, *data++))
-+			break;
-+	}
-+	return len;
-+}
-+
- /**
-  *	gsm_encode_modem	-	encode modem data bits
-  *	@dlci: DLCI to encode from
-@@ -746,6 +767,37 @@ static struct gsm_msg *gsm_data_alloc(struct gsm_mux *gsm, u8 addr, int len,
- 	return m;
- }
- 
-+/**
-+ *	gsm_is_flow_ctrl_msg	-	checks if flow control message
-+ *	@msg: message to check
-+ *
-+ *	Returns true if the given message is a flow control command of the
-+ *	control channel. False is returned in any other case.
-+ */
-+static bool gsm_is_flow_ctrl_msg(struct gsm_msg *msg)
-+{
-+	unsigned int cmd;
-+
-+	if (msg->addr > 0)
-+		return false;
-+
-+	switch (msg->ctrl & ~PF) {
-+	case UI:
-+	case UIH:
-+		cmd = 0;
-+		if (gsm_read_ea_val(&cmd, msg->data + 2, msg->len - 2) < 1)
-+			break;
-+		switch (cmd & ~PF) {
-+		case CMD_FCOFF:
-+		case CMD_FCON:
-+			return true;
-+		}
-+		break;
-+	}
-+
-+	return false;
-+}
-+
- /**
-  *	gsm_data_kick		-	poke the queue
-  *	@gsm: GSM Mux
-@@ -765,7 +817,7 @@ static void gsm_data_kick(struct gsm_mux *gsm, struct gsm_dlci *dlci)
- 	int len;
- 
- 	list_for_each_entry_safe(msg, nmsg, &gsm->tx_list, list) {
--		if (gsm->constipated && msg->addr)
-+		if (gsm->constipated && !gsm_is_flow_ctrl_msg(msg))
- 			continue;
- 		if (gsm->encoding != 0) {
- 			gsm->txframe[0] = GSM1_SOF;
+@@ -1532,7 +1532,7 @@ static void gsm_control_retransmit(struct timer_list *t)
+ 	spin_lock_irqsave(&gsm->control_lock, flags);
+ 	ctrl = gsm->pending_cmd;
+ 	if (ctrl) {
+-		if (gsm->cretries == 0) {
++		if (gsm->cretries == 0 || !gsm->dlci[0] || gsm->dlci[0]->dead) {
+ 			gsm->pending_cmd = NULL;
+ 			ctrl->error = -ETIMEDOUT;
+ 			ctrl->done = 1;
 -- 
 2.35.1
 
