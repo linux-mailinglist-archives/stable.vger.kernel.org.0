@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4058E594CC9
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6421D594CDC
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244824AbiHPAgp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:36:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48982 "EHLO
+        id S244912AbiHPAgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:36:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349222AbiHPAfu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:35:50 -0400
+        with ESMTP id S1350614AbiHPAgJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:36:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84D6418A08D;
-        Mon, 15 Aug 2022 13:37:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2989718A09B;
+        Mon, 15 Aug 2022 13:37:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC04EB8114A;
-        Mon, 15 Aug 2022 20:37:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48456C433D6;
-        Mon, 15 Aug 2022 20:37:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1AE71B80EA8;
+        Mon, 15 Aug 2022 20:37:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66116C433D6;
+        Mon, 15 Aug 2022 20:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595861;
-        bh=gAhaqdi2MNJ7YsEZoDyKRrz/8+l523h+AKKJdZP7w0I=;
+        s=korg; t=1660595864;
+        bh=YSo1sfXbLmU7/IvZ22ZT7QbZpq+Sscru+IpxsROtCVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x3czMBjjK3Ee8eBFbnAqCN5WXu703zp7Upkf9ovZ0BR9XaffjDTbWurR3b7n2hcKU
-         3P/0WNeerFCz0fI8sOUHBrGWet5r4wwPuol9ZhYdoUjSYVpjdv4MIfUSQFM7d80LXW
-         mlZsWzKVbA3TFmPAOUmJe8vM55ForjVRP9IrWwIo=
+        b=ngHfxaXSKtmmt1CYpw8lNgw4RM21vJmhntO9go+L2Jr2POQHyRaDQ8CHd/i48jnvR
+         CZCgNRU8YFYhmRj0w2iEW7vjApFDn9nRLYR3v/x+rhh186l6T/2YWL9VQF5skTySYT
+         awZDgH1od+sx5bM/rwFRkByoyb2dBcXalIh4m2dE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Souptick Joarder (HPE)" <jrdr.linux@gmail.com>,
+        Mina Almasry <almasrymina@google.com>,
+        Muchun Song <songmuchun@bytedance.com>,
         Mike Kravetz <mike.kravetz@oracle.com>,
         Shuah Khan <shuah@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0866/1157] tools/testing/selftests/vm/hugetlb-madvise.c: silence uninitialized variable warning
-Date:   Mon, 15 Aug 2022 20:03:42 +0200
-Message-Id: <20220815180514.107865945@linuxfoundation.org>
+Subject: [PATCH 5.19 0867/1157] selftest/vm: uninitialized variable in main()
+Date:   Mon, 15 Aug 2022 20:03:43 +0200
+Message-Id: <20220815180514.155562107@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -59,43 +60,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 3d5367a0426da61c7cb616cc85b6239467e261dd ]
+[ Upstream commit 360b420dbded8ad5b70a41de98e77354dd9e7d36 ]
 
-This code just reads from memory without caring about the data itself.
-However static checkers complain that "tmp" is never properly initialized.
-Initialize it to zero and change the name to "dummy" to show that we
-don't care about the value stored in it.
+Initialize "length" to zero by default.
 
-Link: https://lkml.kernel.org/r/YtZ8mKJmktA2GaHB@kili
-Fixes: c4b6cb884011 ("selftests/vm: add hugetlb madvise MADV_DONTNEED MADV_REMOVE test")
+Link: https://lkml.kernel.org/r/YtZzjvHXVXMXxpXO@kili
+Fixes: ff712a627f72 ("selftests/vm: cleanup hugetlb file after mremap test")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Souptick Joarder (HPE) <jrdr.linux@gmail.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Mina Almasry <almasrymina@google.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
 Cc: Shuah Khan <shuah@kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/vm/hugetlb-madvise.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/testing/selftests/vm/hugepage-mremap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/vm/hugetlb-madvise.c b/tools/testing/selftests/vm/hugetlb-madvise.c
-index 6c6af40f5747..3c9943131881 100644
---- a/tools/testing/selftests/vm/hugetlb-madvise.c
-+++ b/tools/testing/selftests/vm/hugetlb-madvise.c
-@@ -89,10 +89,11 @@ void write_fault_pages(void *addr, unsigned long nr_pages)
+diff --git a/tools/testing/selftests/vm/hugepage-mremap.c b/tools/testing/selftests/vm/hugepage-mremap.c
+index 585978f181ed..e63a0214f639 100644
+--- a/tools/testing/selftests/vm/hugepage-mremap.c
++++ b/tools/testing/selftests/vm/hugepage-mremap.c
+@@ -107,7 +107,7 @@ static void register_region_with_uffd(char *addr, size_t len)
  
- void read_fault_pages(void *addr, unsigned long nr_pages)
+ int main(int argc, char *argv[])
  {
--	unsigned long i, tmp;
-+	unsigned long dummy = 0;
-+	unsigned long i;
+-	size_t length;
++	size_t length = 0;
  
- 	for (i = 0; i < nr_pages; i++)
--		tmp += *((unsigned long *)(addr + (i * huge_page_size)));
-+		dummy += *((unsigned long *)(addr + (i * huge_page_size)));
- }
- 
- int main(int argc, char **argv)
+ 	if (argc != 2 && argc != 3) {
+ 		printf("Usage: %s [length_in_MB] <hugetlb_file>\n", argv[0]);
 -- 
 2.35.1
 
