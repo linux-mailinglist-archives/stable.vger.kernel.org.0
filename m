@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02B03593923
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECF4B593756
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242591AbiHOSmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:42:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38624 "EHLO
+        id S242643AbiHOSmw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:42:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243955AbiHOSlv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:41:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1BED65F8;
-        Mon, 15 Aug 2022 11:25:24 -0700 (PDT)
+        with ESMTP id S243967AbiHOSlw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:41:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DC8A11A16;
+        Mon, 15 Aug 2022 11:25:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E51B60FDA;
-        Mon, 15 Aug 2022 18:25:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94DBDC433C1;
-        Mon, 15 Aug 2022 18:25:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C225B60FD0;
+        Mon, 15 Aug 2022 18:25:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80FCDC433D6;
+        Mon, 15 Aug 2022 18:25:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587924;
-        bh=LMkp6NyyuV2Ez/uJw716SkPh5MsLtM2lf94sqx8wvtc=;
+        s=korg; t=1660587927;
+        bh=60CuFHXWJNw/gjcsxiSLg5Tv8sOVH9XOecH9WAGiZ/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Afrz65FgGG57HRV1z7jFO0WG5ReQ4TJuWd9QcbMXX/GzsYHbz8mvw3q/mb5307dva
-         4g1zc9/y5kz8OolamzL48hB33s2BH6hADIqTI989InTQBSlBXB8jOT/d0w1urn8B3+
-         7RFEpKyrAigq5OvrvJMZLhzgmB5bJMJlQ03GMr+M=
+        b=pkjFPqsKNG53mHQNzjO3gzfS7cZ/QHCzo/eJ5lpCvlvuHzG6CC/EMjfEl+0fRL/KO
+         XvW30CAtwqbWfMW7TViYJaSE3Q2Sd4NznpP5pWIndqfdHIc3KdFcVZ/XtKanSO3Yj/
+         TmoS5UBe1gv05eNz82He4YAwEeimyraLmXiPZk68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 239/779] wifi: rtlwifi: fix error codes in rtl_debugfs_set_write_h2c()
-Date:   Mon, 15 Aug 2022 19:58:03 +0200
-Message-Id: <20220815180347.495994260@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 240/779] ath11k: fix netdev open race
+Date:   Mon, 15 Aug 2022 19:58:04 +0200
+Message-Id: <20220815180347.545103980@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,55 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit b88d28146c30a8e14f0f012d56ebf19b68a348f4 ]
+[ Upstream commit d4ba1ff87b17e81686ada8f429300876f55f95ad ]
 
-If the copy_from_user() fails or the user gives invalid date then the
-correct thing to do is to return a negative error code.  (Currently it
-returns success).
+Make sure to allocate resources needed before registering the device.
 
-I made a copy additional related cleanups:
-1) There is no need to check "buffer" for NULL.  That's handled by
-copy_from_user().
-2) The "h2c_len" variable cannot be negative because it is unsigned
-and because sscanf() does not return negative error codes.
+This specifically avoids having a racing open() trigger a BUG_ON() in
+mod_timer() when ath11k_mac_op_start() is called before the
+mon_reap_timer as been set up.
 
-Fixes: 610247f46feb ("rtlwifi: Improve debugging by using debugfs")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/YoOLnDkHgVltyXK7@kili
+I did not see this issue with next-20220310, but I hit it on every probe
+with next-20220511. Perhaps some timing changed in between.
+
+Here's the backtrace:
+
+[   51.346947] kernel BUG at kernel/time/timer.c:990!
+[   51.346958] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+...
+[   51.578225] Call trace:
+[   51.583293]  __mod_timer+0x298/0x390
+[   51.589518]  mod_timer+0x14/0x20
+[   51.595368]  ath11k_mac_op_start+0x41c/0x4a0 [ath11k]
+[   51.603165]  drv_start+0x38/0x60 [mac80211]
+[   51.610110]  ieee80211_do_open+0x29c/0x7d0 [mac80211]
+[   51.617945]  ieee80211_open+0x60/0xb0 [mac80211]
+[   51.625311]  __dev_open+0x100/0x1c0
+[   51.631420]  __dev_change_flags+0x194/0x210
+[   51.638214]  dev_change_flags+0x24/0x70
+[   51.644646]  do_setlink+0x228/0xdb0
+[   51.650723]  __rtnl_newlink+0x460/0x830
+[   51.657162]  rtnl_newlink+0x4c/0x80
+[   51.663229]  rtnetlink_rcv_msg+0x124/0x390
+[   51.669917]  netlink_rcv_skb+0x58/0x130
+[   51.676314]  rtnetlink_rcv+0x18/0x30
+[   51.682460]  netlink_unicast+0x250/0x310
+[   51.688960]  netlink_sendmsg+0x19c/0x3e0
+[   51.695458]  ____sys_sendmsg+0x220/0x290
+[   51.701938]  ___sys_sendmsg+0x7c/0xc0
+[   51.708148]  __sys_sendmsg+0x68/0xd0
+[   51.714254]  __arm64_sys_sendmsg+0x28/0x40
+[   51.720900]  invoke_syscall+0x48/0x120
+
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3
+
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+Fixes: 840c36fa727a ("ath11k: dp: stop rx pktlog before suspend")
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220517103436.15867-1-johan+linaro@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/debug.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wireless/ath/ath11k/core.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/debug.c b/drivers/net/wireless/realtek/rtlwifi/debug.c
-index 901cdfe3723c..0b1bc04cb6ad 100644
---- a/drivers/net/wireless/realtek/rtlwifi/debug.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/debug.c
-@@ -329,8 +329,8 @@ static ssize_t rtl_debugfs_set_write_h2c(struct file *filp,
+diff --git a/drivers/net/wireless/ath/ath11k/core.c b/drivers/net/wireless/ath/ath11k/core.c
+index 48b4151e13a3..48a449fbd2bc 100644
+--- a/drivers/net/wireless/ath/ath11k/core.c
++++ b/drivers/net/wireless/ath/ath11k/core.c
+@@ -699,23 +699,23 @@ static int ath11k_core_pdev_create(struct ath11k_base *ab)
+ 		return ret;
+ 	}
  
- 	tmp_len = (count > sizeof(tmp) - 1 ? sizeof(tmp) - 1 : count);
+-	ret = ath11k_mac_register(ab);
++	ret = ath11k_dp_pdev_alloc(ab);
+ 	if (ret) {
+-		ath11k_err(ab, "failed register the radio with mac80211: %d\n", ret);
++		ath11k_err(ab, "failed to attach DP pdev: %d\n", ret);
+ 		goto err_pdev_debug;
+ 	}
  
--	if (!buffer || copy_from_user(tmp, buffer, tmp_len))
--		return count;
-+	if (copy_from_user(tmp, buffer, tmp_len))
-+		return -EFAULT;
+-	ret = ath11k_dp_pdev_alloc(ab);
++	ret = ath11k_mac_register(ab);
+ 	if (ret) {
+-		ath11k_err(ab, "failed to attach DP pdev: %d\n", ret);
+-		goto err_mac_unregister;
++		ath11k_err(ab, "failed register the radio with mac80211: %d\n", ret);
++		goto err_dp_pdev_free;
+ 	}
  
- 	tmp[tmp_len] = '\0';
+ 	ret = ath11k_thermal_register(ab);
+ 	if (ret) {
+ 		ath11k_err(ab, "could not register thermal device: %d\n",
+ 			   ret);
+-		goto err_dp_pdev_free;
++		goto err_mac_unregister;
+ 	}
  
-@@ -340,8 +340,8 @@ static ssize_t rtl_debugfs_set_write_h2c(struct file *filp,
- 			 &h2c_data[4], &h2c_data[5],
- 			 &h2c_data[6], &h2c_data[7]);
+ 	ret = ath11k_spectral_init(ab);
+@@ -728,10 +728,10 @@ static int ath11k_core_pdev_create(struct ath11k_base *ab)
  
--	if (h2c_len <= 0)
--		return count;
-+	if (h2c_len == 0)
-+		return -EINVAL;
+ err_thermal_unregister:
+ 	ath11k_thermal_unregister(ab);
+-err_dp_pdev_free:
+-	ath11k_dp_pdev_free(ab);
+ err_mac_unregister:
+ 	ath11k_mac_unregister(ab);
++err_dp_pdev_free:
++	ath11k_dp_pdev_free(ab);
+ err_pdev_debug:
+ 	ath11k_debugfs_pdev_destroy(ab);
  
- 	for (i = 0; i < h2c_len; i++)
- 		h2c_data_packed[i] = (u8)h2c_data[i];
 -- 
 2.35.1
 
