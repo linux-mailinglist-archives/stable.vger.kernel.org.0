@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB2759359E
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F02C75935AF
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241869AbiHOS1z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:27:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57796 "EHLO
+        id S241348AbiHOS2z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:28:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243315AbiHOS1D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:27:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C96EF3137F;
-        Mon, 15 Aug 2022 11:19:53 -0700 (PDT)
+        with ESMTP id S241375AbiHOS1S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:27:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8584832046;
+        Mon, 15 Aug 2022 11:20:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4CB260ED3;
-        Mon, 15 Aug 2022 18:19:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 932B1C433B5;
-        Mon, 15 Aug 2022 18:19:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60A58B81076;
+        Mon, 15 Aug 2022 18:19:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE90EC433D6;
+        Mon, 15 Aug 2022 18:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587590;
-        bh=FhVTNG+2NCgm7ZoRqLg5i5RITzfyGFyyrNjWQjlN2ug=;
+        s=korg; t=1660587593;
+        bh=Shks8rDUt6fwvZCiVNN+z/KX40yACmnhgAaxaywLQ9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VFYaK9clyBIIN/3lW/hVWjRujgVefdtzxQ7rRDDA15nVve7fC9oHevS//6AWRWpL8
-         9jKVVTB4AFP6dq1jf5NSvMcTRVXWxSo4/HSndrzJKQG8DYNTo5LxiH6ZxgD0/FntOV
-         Z54s0ce6Lv4+Dl5dTjXa4O5jvlEudEOZmmhAZAts=
+        b=jBswlEHJsq0eFf67LZO0LC2+9OK0a25/G+9Rtxv8QjyI0YCnkuIE8khGhnCrFh5iS
+         sKcBQbVjvs0pTXTwgPfKkK3l9zmuzhBm9v2HCJCDOSAfuurYcQTVcmQrrsS0N8MTFJ
+         xWRnGqkH2V5Tuo1U80Ora+YUuZhTUqOUEcFi44Qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Guo Mengqi <guomengqi3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 132/779] ARM: dts: ux500: Fix Gavini accelerometer mounting matrix
-Date:   Mon, 15 Aug 2022 19:56:16 +0200
-Message-Id: <20220815180342.914492856@linuxfoundation.org>
+Subject: [PATCH 5.15 133/779] spi: synquacer: Add missing clk_disable_unprepare()
+Date:   Mon, 15 Aug 2022 19:56:17 +0200
+Message-Id: <20220815180342.963400297@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -53,35 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Guo Mengqi <guomengqi3@huawei.com>
 
-[ Upstream commit e24c75f02a81d6ddac0072cbd7a03e799c19d558 ]
+[ Upstream commit 917e43de2a56d9b82576f1cc94748261f1988458 ]
 
-This was fixed wrong so fix it. Now verified by using
-iio-sensor-proxy monitor-sensor test program.
+Add missing clk_disable_unprepare() in synquacer_spi_resume().
 
-Link: https://lore.kernel.org/r/20220611205138.491513-1-linus.walleij@linaro.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Guo Mengqi <guomengqi3@huawei.com>
+Link: https://lore.kernel.org/r/20220624005614.49434-1-guomengqi3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-ux500-samsung-gavini.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spi-synquacer.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/ste-ux500-samsung-gavini.dts b/arch/arm/boot/dts/ste-ux500-samsung-gavini.dts
-index fabc390ccb0c..6c9e812ef03f 100644
---- a/arch/arm/boot/dts/ste-ux500-samsung-gavini.dts
-+++ b/arch/arm/boot/dts/ste-ux500-samsung-gavini.dts
-@@ -502,8 +502,8 @@ i2c-gate {
- 					accelerometer@18 {
- 						compatible = "bosch,bma222e";
- 						reg = <0x18>;
--						mount-matrix = "0", "1", "0",
--							       "-1", "0", "0",
-+						mount-matrix = "0", "-1", "0",
-+							       "1", "0", "0",
- 							       "0", "0", "1";
- 						vddio-supply = <&ab8500_ldo_aux2_reg>; // 1.8V
- 						vdd-supply = <&ab8500_ldo_aux1_reg>; // 3V
+diff --git a/drivers/spi/spi-synquacer.c b/drivers/spi/spi-synquacer.c
+index ea706d9629cb..47cbe73137c2 100644
+--- a/drivers/spi/spi-synquacer.c
++++ b/drivers/spi/spi-synquacer.c
+@@ -783,6 +783,7 @@ static int __maybe_unused synquacer_spi_resume(struct device *dev)
+ 
+ 		ret = synquacer_spi_enable(master);
+ 		if (ret) {
++			clk_disable_unprepare(sspi->clk);
+ 			dev_err(dev, "failed to enable spi (%d)\n", ret);
+ 			return ret;
+ 		}
 -- 
 2.35.1
 
