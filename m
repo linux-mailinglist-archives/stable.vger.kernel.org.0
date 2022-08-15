@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E76B5949FB
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:16:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B191594A00
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:16:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355409AbiHOX4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:56:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53320 "EHLO
+        id S1354933AbiHOXzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:55:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355931AbiHOXxV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:53:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC847C694E;
-        Mon, 15 Aug 2022 13:17:43 -0700 (PDT)
+        with ESMTP id S1354608AbiHOXu1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:50:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C71D94A81A;
+        Mon, 15 Aug 2022 13:15:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E1F9B81180;
-        Mon, 15 Aug 2022 20:17:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71315C433C1;
-        Mon, 15 Aug 2022 20:17:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89846B80EB1;
+        Mon, 15 Aug 2022 20:15:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAA3CC433C1;
+        Mon, 15 Aug 2022 20:15:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594660;
-        bh=AdxVgbtTJsF2IQ+9ibzYx6Y6HoJF5R+Vmz7gu23cD4c=;
+        s=korg; t=1660594557;
+        bh=X329r6wmBI0wUSI135mAcQkm3pmBkGtk8axD/agkwcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1wTJL//cRbnAISOk6P6LyfjMtlYKsmIr+sOFREp/vT9uZaHDZIaJ4f7AanMxkClI+
-         4blXENUvXj2lijXWjk1sO29PBK06FjOinF/a8UcoNkfw7VgCDRhxbc4z+Bd9Gc57FQ
-         yk88q8cvpLz51w+NkhRHCmpnH5cNMSigEunqLJXI=
+        b=hsdtwasRN0+NpLanMI9AfFxHNyYrYbVwMmQA4rkTbBpwQthRkslDb+lLFFQaFJ75g
+         j95VnYbiaU5IIM4UPE2sXGoAHAJ6vhjmqmljS8SGuKIDYxKoU/wXAvY89IE5Tld2aO
+         Q8qzsrncjNN/9Cly5Kefl3NxYzAAbcI2P1p6woOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shayne Chen <shayne.chen@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0485/1157] mt76: mt7915: fix incorrect testmode ipg on band 1 caused by wmm_idx
-Date:   Mon, 15 Aug 2022 19:57:21 +0200
-Message-Id: <20220815180459.017553126@linuxfoundation.org>
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0486/1157] mt76: mt7615: fix throughput regression on DFS channels
+Date:   Mon, 15 Aug 2022 19:57:22 +0200
+Message-Id: <20220815180459.056740184@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -53,60 +53,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shayne Chen <shayne.chen@mediatek.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 6e744cfeee02c2d8676eb55d5b3720808812f41f ]
+[ Upstream commit aac86cebb4a09e3fa2c07589f79f7d0e07e8c9a4 ]
 
-Fix the issue that the measured inter packet gap didn't fit its
-setting value.
+For some reason, mt7615 reacts badly to repeatedly enabling/disabling the radar
+detector without also switching the channel.
+This results in very bad throughput on DFS channels, because
+hw->conf.radar_enabled can get toggled a few times after CAC ends.
+Fix this by always leaving the DFS detector enabled on DFS channels and instead
+suppress unwanted detection events.
 
-Fixes: c2d3b1926f30 ("mt76: mt7915: add support for ipg in testmode")
-Signed-off-by: Shayne Chen <shayne.chen@mediatek.com>
+Fixes: 2c86f6752046 ("mt76: mt7615: fix/rewrite the dfs state handling logic")
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/testmode.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ .../net/wireless/mediatek/mt76/mt7615/mac.c   |  7 ++++---
+ .../net/wireless/mediatek/mt76/mt7615/main.c  | 21 -------------------
+ .../net/wireless/mediatek/mt76/mt7615/mcu.c   |  3 +++
+ .../wireless/mediatek/mt76/mt7615/mt7615.h    |  1 -
+ 4 files changed, 7 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/testmode.c b/drivers/net/wireless/mediatek/mt76/mt7915/testmode.c
-index 20f63644e929..0f5c1e5bffe1 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/testmode.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/testmode.c
-@@ -168,13 +168,14 @@ mt7915_tm_set_tam_arb(struct mt7915_phy *phy, bool enable, bool mu)
- }
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+index bd687f7de628..9e832b27170f 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+@@ -2282,6 +2282,7 @@ mt7615_dfs_init_radar_specs(struct mt7615_phy *phy)
  
- static int
--mt7915_tm_set_wmm_qid(struct mt7915_dev *dev, u8 qid, u8 aifs, u8 cw_min,
-+mt7915_tm_set_wmm_qid(struct mt7915_phy *phy, u8 qid, u8 aifs, u8 cw_min,
- 		      u16 cw_max, u16 txop)
+ int mt7615_dfs_init_radar_detector(struct mt7615_phy *phy)
  {
-+	struct mt7915_vif *mvif = (struct mt7915_vif *)phy->monitor_vif->drv_priv;
- 	struct mt7915_mcu_tx req = { .total = 1 };
- 	struct edca *e = &req.edca[0];
++	struct cfg80211_chan_def *chandef = &phy->mt76->chandef;
+ 	struct mt7615_dev *dev = phy->dev;
+ 	bool ext_phy = phy != &dev->phy;
+ 	enum mt76_dfs_state dfs_state, prev_state;
+@@ -2292,13 +2293,13 @@ int mt7615_dfs_init_radar_detector(struct mt7615_phy *phy)
  
--	e->queue = qid;
-+	e->queue = qid + mvif->mt76.wmm_idx * MT76_CONNAC_MAX_WMM_SETS;
- 	e->set = WMM_PARAM_SET;
+ 	prev_state = phy->mt76->dfs_state;
+ 	dfs_state = mt76_phy_dfs_state(phy->mt76);
++	if ((chandef->chan->flags & IEEE80211_CHAN_RADAR) &&
++	    dfs_state < MT_DFS_STATE_CAC)
++		dfs_state = MT_DFS_STATE_ACTIVE;
  
- 	e->aifs = aifs;
-@@ -182,7 +183,7 @@ mt7915_tm_set_wmm_qid(struct mt7915_dev *dev, u8 qid, u8 aifs, u8 cw_min,
- 	e->cw_max = cpu_to_le16(cw_max);
- 	e->txop = cpu_to_le16(txop);
+ 	if (prev_state == dfs_state)
+ 		return 0;
  
--	return mt7915_mcu_update_edca(dev, &req);
-+	return mt7915_mcu_update_edca(phy->dev, &req);
+-	if (prev_state == MT_DFS_STATE_UNKNOWN)
+-		mt7615_dfs_stop_radar_detector(phy);
+-
+ 	if (dfs_state == MT_DFS_STATE_DISABLED)
+ 		goto stop;
+ 
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/main.c b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+index a9c9b97d173e..d722c3c177be 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+@@ -282,26 +282,6 @@ static void mt7615_remove_interface(struct ieee80211_hw *hw,
+ 	mt76_packet_id_flush(&dev->mt76, &mvif->sta.wcid);
  }
  
- static int
-@@ -244,7 +245,7 @@ mt7915_tm_set_ipg_params(struct mt7915_phy *phy, u32 ipg, u8 mode)
+-static void mt7615_init_dfs_state(struct mt7615_phy *phy)
+-{
+-	struct mt76_phy *mphy = phy->mt76;
+-	struct ieee80211_hw *hw = mphy->hw;
+-	struct cfg80211_chan_def *chandef = &hw->conf.chandef;
+-
+-	if (hw->conf.flags & IEEE80211_CONF_OFFCHANNEL)
+-		return;
+-
+-	if (!(chandef->chan->flags & IEEE80211_CHAN_RADAR) &&
+-	    !(mphy->chandef.chan->flags & IEEE80211_CHAN_RADAR))
+-		return;
+-
+-	if (mphy->chandef.chan->center_freq == chandef->chan->center_freq &&
+-	    mphy->chandef.width == chandef->width)
+-		return;
+-
+-	phy->dfs_state = -1;
+-}
+-
+ int mt7615_set_channel(struct mt7615_phy *phy)
+ {
+ 	struct mt7615_dev *dev = phy->dev;
+@@ -314,7 +294,6 @@ int mt7615_set_channel(struct mt7615_phy *phy)
  
- 	mt7915_tm_set_slot_time(phy, slot_time, sifs);
+ 	set_bit(MT76_RESET, &phy->mt76->state);
  
--	return mt7915_tm_set_wmm_qid(dev,
-+	return mt7915_tm_set_wmm_qid(phy,
- 				     mt76_connac_lmac_mapping(IEEE80211_AC_BE),
- 				     aifsn, cw, cw, 0);
+-	mt7615_init_dfs_state(phy);
+ 	mt76_set_channel(phy->mt76);
+ 
+ 	if (is_mt7615(&dev->mt76) && dev->flash_eeprom) {
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+index d2dd1260382c..8a7bc78da954 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+@@ -403,6 +403,9 @@ mt7615_mcu_rx_radar_detected(struct mt7615_dev *dev, struct sk_buff *skb)
+ 	if (r->band_idx && dev->mt76.phy2)
+ 		mphy = dev->mt76.phy2;
+ 
++	if (mt76_phy_dfs_state(mphy) < MT_DFS_STATE_CAC)
++		return;
++
+ 	ieee80211_radar_detected(mphy->hw);
+ 	dev->hw_pattern++;
  }
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h b/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
+index 2e91f6a27d0f..082c73b571ae 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
+@@ -177,7 +177,6 @@ struct mt7615_phy {
+ 
+ 	u8 chfreq;
+ 	u8 rdd_state;
+-	int dfs_state;
+ 
+ 	u32 rx_ampdu_ts;
+ 	u32 ampdu_ref;
 -- 
 2.35.1
 
