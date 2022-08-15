@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F533593C52
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3F72593C4F
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:38:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346351AbiHOUO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:14:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54774 "EHLO
+        id S241684AbiHOUOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:14:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346233AbiHOULF (ORCPT
+        with ESMTP id S1346244AbiHOULF (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:11:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F6AB851;
-        Mon, 15 Aug 2022 11:57:15 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADB2DBC95;
+        Mon, 15 Aug 2022 11:57:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2EC36B810A2;
-        Mon, 15 Aug 2022 18:57:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F002C433D6;
-        Mon, 15 Aug 2022 18:57:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A363B810A0;
+        Mon, 15 Aug 2022 18:57:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1AE3C433D7;
+        Mon, 15 Aug 2022 18:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589832;
-        bh=gzYtX3jUM3PkHakrG20VtWROjOwHdudeIMY7TqfKmB4=;
+        s=korg; t=1660589836;
+        bh=xRlSvPTUNVqSQdwqQEuW5opyzEu8swTmbFnmAaZ7pcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eF9+YqtInlOupS+mxqqmxYFJrNBG5bIZhlwP6ImxI0emnSOle/Nrq0zIYPa6VUhm9
-         U0ITn0AwismzK8yhE9PPRryQawbLTi0aq7ASQ4MKZjjjFwvwzhyV3dAXjWK2BnNGya
-         DKTFE00FAuPYdBLPK2o2xUWMs7e3eUrCM2OIBDKg=
+        b=o8BEsY5pAXFitbb1AM/UBI6mfmagvlQ1OOrkWxKZWW1hQd3+I1FVkQq9nO5BYbi8T
+         rNGQ0ffvg7nR45D3tU/R+wVcXswxpU1DnMJhQP+tSEcY7w2WbcKTgjcMiQKsmS77+8
+         0gVH34ALysXrHp2MIXFhxW4JolFnk2ZwqTyLwb8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.18 0031/1095] KVM: Do not incorporate page offset into gfn=>pfn cache user address
-Date:   Mon, 15 Aug 2022 19:50:30 +0200
-Message-Id: <20220815180430.657525381@linuxfoundation.org>
+Subject: [PATCH 5.18 0032/1095] KVM: x86: Split kvm_is_valid_cr4() and export only the non-vendor bits
+Date:   Mon, 15 Aug 2022 19:50:31 +0200
+Message-Id: <20220815180430.701684167@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,36 +55,102 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit 3ba2c95ea180740b16281fa43a3ee5f47279c0ed upstream.
+commit c33f6f2228fe8517e38941a508e9f905f99ecba9 upstream.
 
-Don't adjust the userspace address in the gfn=>pfn cache by the page
-offset from the gpa.  KVM should never use the user address directly, and
-all KVM operations that translate a user address to something else
-require the user address to be page aligned.  Ignoring the offset will
-allow the cache to reuse a gfn=>hva translation in the unlikely event
-that the page offset of the gpa changes, but the gfn does not.  And more
-importantly, not having to (un)adjust the user address will simplify a
-future bug fix.
+Split the common x86 parts of kvm_is_valid_cr4(), i.e. the reserved bits
+checks, into a separate helper, __kvm_is_valid_cr4(), and export only the
+inner helper to vendor code in order to prevent nested VMX from calling
+back into vmx_is_valid_cr4() via kvm_is_valid_cr4().
+
+On SVM, this is a nop as SVM doesn't place any additional restrictions on
+CR4.
+
+On VMX, this is also currently a nop, but only because nested VMX is
+missing checks on reserved CR4 bits for nested VM-Enter.  That bug will
+be fixed in a future patch, and could simply use kvm_is_valid_cr4() as-is,
+but nVMX has _another_ bug where VMXON emulation doesn't enforce VMX's
+restrictions on CR0/CR4.  The cleanest and most intuitive way to fix the
+VMXON bug is to use nested_host_cr{0,4}_valid().  If the CR4 variant
+routes through kvm_is_valid_cr4(), using nested_host_cr4_valid() won't do
+the right thing for the VMXON case as vmx_is_valid_cr4() enforces VMX's
+restrictions if and only if the vCPU is post-VMXON.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220429210025.3293691-6-seanjc@google.com>
+Message-Id: <20220607213604.3346000-2-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/pfncache.c |    2 --
- 1 file changed, 2 deletions(-)
+ arch/x86/kvm/svm/nested.c |    3 ++-
+ arch/x86/kvm/vmx/vmx.c    |    4 ++--
+ arch/x86/kvm/x86.c        |   12 +++++++++---
+ arch/x86/kvm/x86.h        |    2 +-
+ 4 files changed, 14 insertions(+), 7 deletions(-)
 
---- a/virt/kvm/pfncache.c
-+++ b/virt/kvm/pfncache.c
-@@ -274,8 +274,6 @@ int kvm_gfn_to_pfn_cache_refresh(struct
- 			ret = -EFAULT;
- 			goto out;
- 		}
--
--		gpc->uhva += page_offset;
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -292,7 +292,8 @@ static bool __nested_vmcb_check_save(str
+ 			return false;
  	}
  
+-	if (CC(!kvm_is_valid_cr4(vcpu, save->cr4)))
++	/* Note, SVM doesn't have any additional restrictions on CR4. */
++	if (CC(!__kvm_is_valid_cr4(vcpu, save->cr4)))
+ 		return false;
+ 
+ 	if (CC(!kvm_valid_efer(vcpu, save->efer)))
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -3230,8 +3230,8 @@ static bool vmx_is_valid_cr4(struct kvm_
+ {
  	/*
+ 	 * We operate under the default treatment of SMM, so VMX cannot be
+-	 * enabled under SMM.  Note, whether or not VMXE is allowed at all is
+-	 * handled by kvm_is_valid_cr4().
++	 * enabled under SMM.  Note, whether or not VMXE is allowed at all,
++	 * i.e. is a reserved bit, is handled by common x86 code.
+ 	 */
+ 	if ((cr4 & X86_CR4_VMXE) && is_smm(vcpu))
+ 		return false;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1066,7 +1066,7 @@ int kvm_emulate_xsetbv(struct kvm_vcpu *
+ }
+ EXPORT_SYMBOL_GPL(kvm_emulate_xsetbv);
+ 
+-bool kvm_is_valid_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
++bool __kvm_is_valid_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
+ {
+ 	if (cr4 & cr4_reserved_bits)
+ 		return false;
+@@ -1074,9 +1074,15 @@ bool kvm_is_valid_cr4(struct kvm_vcpu *v
+ 	if (cr4 & vcpu->arch.cr4_guest_rsvd_bits)
+ 		return false;
+ 
+-	return static_call(kvm_x86_is_valid_cr4)(vcpu, cr4);
++	return true;
++}
++EXPORT_SYMBOL_GPL(__kvm_is_valid_cr4);
++
++static bool kvm_is_valid_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
++{
++	return __kvm_is_valid_cr4(vcpu, cr4) &&
++	       static_call(kvm_x86_is_valid_cr4)(vcpu, cr4);
+ }
+-EXPORT_SYMBOL_GPL(kvm_is_valid_cr4);
+ 
+ void kvm_post_set_cr4(struct kvm_vcpu *vcpu, unsigned long old_cr4, unsigned long cr4)
+ {
+--- a/arch/x86/kvm/x86.h
++++ b/arch/x86/kvm/x86.h
+@@ -407,7 +407,7 @@ static inline void kvm_machine_check(voi
+ void kvm_load_guest_xsave_state(struct kvm_vcpu *vcpu);
+ void kvm_load_host_xsave_state(struct kvm_vcpu *vcpu);
+ int kvm_spec_ctrl_test_value(u64 value);
+-bool kvm_is_valid_cr4(struct kvm_vcpu *vcpu, unsigned long cr4);
++bool __kvm_is_valid_cr4(struct kvm_vcpu *vcpu, unsigned long cr4);
+ int kvm_handle_memory_failure(struct kvm_vcpu *vcpu, int r,
+ 			      struct x86_exception *e);
+ int kvm_handle_invpcid(struct kvm_vcpu *vcpu, unsigned long type, gva_t gva);
 
 
