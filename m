@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 811345945FB
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:02:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8193D594413
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348873AbiHOWaV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:30:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45812 "EHLO
+        id S1348672AbiHOW3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:29:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350191AbiHOW00 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:26:26 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84214128463;
-        Mon, 15 Aug 2022 12:45:08 -0700 (PDT)
+        with ESMTP id S1350228AbiHOW0a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:26:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21CA9128EC6;
+        Mon, 15 Aug 2022 12:45:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7E6ACCE12E4;
-        Mon, 15 Aug 2022 19:45:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63A17C433D6;
-        Mon, 15 Aug 2022 19:45:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94F3061222;
+        Mon, 15 Aug 2022 19:45:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C411C43140;
+        Mon, 15 Aug 2022 19:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592704;
-        bh=zfl6Pl3K4qT0tKLKmfKOMaYKm1X2H/9fLtFsWsnGeQU=;
+        s=korg; t=1660592711;
+        bh=GoIK9W5tFF1ThOTmt9iGmRMGayudum/t1PMhPQgfubw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hFhvVUS/pS1HoM9I2K1rsDH1Mk90rydGkCgyRMNIgir9HEvN9BvnDnWzNM+CZENvT
-         dP+kzTKhSisSwVEEYXqs90ZMeQNh81KsvH3vXInN/8th2Wi9yRikjq8EsDQpX1XdRb
-         pnZ5YnKE69JhXhuliUecGCFAHIOJ2WzhiON8zcEg=
+        b=tDtR42bB7zSmpLIWurUL9CscBs8PSxD6eW/iyaHnRsWM8hMUcib8giUEOqsZTgr7i
+         kHTMrEM4/xJgN+daIoAFEbJploEOec5K1Aq5b+04QDpU6dzmJU15RDwwsIZzj1Z/Mh
+         rRhWDSSQuPZHpzdLe/CQ3OrA3zhgvQXxSyEFsDws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0833/1095] ASoC: mediatek: mt8173-rt5650: Fix refcount leak in mt8173_rt5650_dev_probe
-Date:   Mon, 15 Aug 2022 20:03:52 +0200
-Message-Id: <20220815180503.780351868@linuxfoundation.org>
+Subject: [PATCH 5.18 0834/1095] serial: pic32: free up irq names correctly
+Date:   Mon, 15 Aug 2022 20:03:53 +0200
+Message-Id: <20220815180503.829667712@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,62 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit efe2178d1a32492f99e7f1f2568eea5c88a85729 ]
+[ Upstream commit fe36fa18ca77ca3ca9f90aab6cf39031416e432b ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Fix refcount leak in some error paths.
+struct pic32_sport contains built-up names for irqs. These are freed
+only in error path of pic32_uart_startup(). And even there, the freeing
+happens before free_irq().
 
-Fixes: 0f83f9296d5c ("ASoC: mediatek: Add machine driver for ALC5650 codec")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220603124243.31358-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+So fix this by:
+* moving frees after free_irq(), and
+* add frees to pic32_uart_shutdown() -- the opposite of
+  pic32_uart_startup().
+
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20220503063122.20957-11-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8173/mt8173-rt5650.c | 9 ++++++---
+ drivers/tty/serial/pic32_uart.c | 9 ++++++---
  1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650.c b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-index fc164f4f95f8..487807ee7019 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-@@ -280,7 +280,8 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
- 	if (!mt8173_rt5650_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_platform_node;
- 	}
- 	mt8173_rt5650_dais[DAI_LINK_CODEC_I2S].codecs[1].of_node =
- 		mt8173_rt5650_dais[DAI_LINK_CODEC_I2S].codecs[0].of_node;
-@@ -293,7 +294,7 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
- 			dev_err(&pdev->dev,
- 				"%s codec_capture_dai name fail %d\n",
- 				__func__, ret);
--			return ret;
-+			goto put_platform_node;
- 		}
- 		mt8173_rt5650_dais[DAI_LINK_CODEC_I2S].codecs[1].dai_name =
- 			codec_capture_dai;
-@@ -315,12 +316,14 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
- 	if (!mt8173_rt5650_dais[DAI_LINK_HDMI_I2S].codecs->of_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_platform_node;
- 	}
- 	card->dev = &pdev->dev;
+diff --git a/drivers/tty/serial/pic32_uart.c b/drivers/tty/serial/pic32_uart.c
+index b7a3a1b959b1..e3535bd8c8a2 100644
+--- a/drivers/tty/serial/pic32_uart.c
++++ b/drivers/tty/serial/pic32_uart.c
+@@ -493,14 +493,14 @@ static int pic32_uart_startup(struct uart_port *port)
+ 	return 0;
  
- 	ret = devm_snd_soc_register_card(&pdev->dev, card);
- 
-+put_platform_node:
- 	of_node_put(platform_node);
+ out_t:
+-	kfree(sport->irq_tx_name);
+ 	free_irq(sport->irq_tx, port);
++	kfree(sport->irq_tx_name);
+ out_r:
+-	kfree(sport->irq_rx_name);
+ 	free_irq(sport->irq_rx, port);
++	kfree(sport->irq_rx_name);
+ out_f:
+-	kfree(sport->irq_fault_name);
+ 	free_irq(sport->irq_fault, port);
++	kfree(sport->irq_fault_name);
+ out_done:
  	return ret;
  }
+@@ -519,8 +519,11 @@ static void pic32_uart_shutdown(struct uart_port *port)
+ 
+ 	/* free all 3 interrupts for this UART */
+ 	free_irq(sport->irq_fault, port);
++	kfree(sport->irq_fault_name);
+ 	free_irq(sport->irq_tx, port);
++	kfree(sport->irq_tx_name);
+ 	free_irq(sport->irq_rx, port);
++	kfree(sport->irq_rx_name);
+ }
+ 
+ /* serial core request to change current uart setting */
 -- 
 2.35.1
 
