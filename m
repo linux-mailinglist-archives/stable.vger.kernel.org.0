@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDCD5593BD0
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E65C593D1D
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245607AbiHOUII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:08:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39506 "EHLO
+        id S243568AbiHOUIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:08:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346390AbiHOUGj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:06:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C58A912AA6;
-        Mon, 15 Aug 2022 11:55:25 -0700 (PDT)
+        with ESMTP id S244054AbiHOUHx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:07:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A1AC402CD;
+        Mon, 15 Aug 2022 11:55:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 700D0B81057;
-        Mon, 15 Aug 2022 18:55:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1625C43145;
-        Mon, 15 Aug 2022 18:55:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55656B8105C;
+        Mon, 15 Aug 2022 18:55:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C856CC433C1;
+        Mon, 15 Aug 2022 18:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589722;
-        bh=i/IqNC9sKyzc2Gi0Ic4dqxmktUixRmto/+KsH9OoTSw=;
+        s=korg; t=1660589725;
+        bh=rgVZ0QPFNWmFUdSoYFtBcF4v79wbdPH3MlDMPbj3SaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a3Bj4jEkBBS7ZpT2VHEEbWNXTWGFIvscuvV5TgXvCWMpSPA+0/lr3GcdQ+QpSzCjq
-         mkQwrPvhKN8zjBoOhP7Y0LD20OhmqkTyYJVD5w7b15choDPcvGf6cKePTofjPdvz/Z
-         dII9CdwJI1v/h0nKpdZC8DCjokk2gcAvxIM6EiMc=
+        b=vc4QjLGc3MIrF9ZPS8FTtoVmaakAOESj0DbC3Gv/0EmOFNIT5J4XXnrbzAPy5He4l
+         2gqKH85Pt9AhRV5WYM8H6V4DPpAwsbDUHnEIQEjfHo8KvlUuJ6YBC/e3pn2PBqOKqZ
+         MPA5OZb//WPhrIbfsNwELNSvyRZ1ZYRTXsou8TrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.18 0003/1095] Revert "pNFS: nfs3_set_ds_client should set NFS_CS_NOPING"
-Date:   Mon, 15 Aug 2022 19:50:02 +0200
-Message-Id: <20220815180429.424056333@linuxfoundation.org>
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.18 0004/1095] scsi: Revert "scsi: qla2xxx: Fix disk failure to rediscover"
+Date:   Mon, 15 Aug 2022 19:50:03 +0200
+Message-Id: <20220815180429.464204939@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -53,31 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Nilesh Javali <njavali@marvell.com>
 
-commit 9597152d98840c2517230740952df97cfcc07e2f upstream.
+commit 5bc7b01c513a4a9b4cfe306e8d1720cfcfd3b8a3 upstream.
 
-This reverts commit c6eb58435b98bd843d3179664a0195ff25adb2c3.
-If a transport is down, then we want to fail over to other transports if
-they are listed in the GETDEVICEINFO reply.
+This fixes the regression of NVMe discovery failure during driver load
+time.
 
-Fixes: c6eb58435b98 ("pNFS: nfs3_set_ds_client should set NFS_CS_NOPING")
-Cc: stable@vger.kernel.org # 5.11.x
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+This reverts commit 6a45c8e137d4e2c72eecf1ac7cf64f2fdfcead99.
+
+Link: https://lore.kernel.org/r/20220713052045.10683-2-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs3client.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_init.c |    5 ++---
+ drivers/scsi/qla2xxx/qla_nvme.c |    5 -----
+ 2 files changed, 2 insertions(+), 8 deletions(-)
 
---- a/fs/nfs/nfs3client.c
-+++ b/fs/nfs/nfs3client.c
-@@ -108,7 +108,6 @@ struct nfs_client *nfs3_set_ds_client(st
- 	if (mds_srv->flags & NFS_MOUNT_NORESVPORT)
- 		__set_bit(NFS_CS_NORESVPORT, &cl_init.init_flags);
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -5767,8 +5767,6 @@ qla2x00_reg_remote_port(scsi_qla_host_t
+ 	if (atomic_read(&fcport->state) == FCS_ONLINE)
+ 		return;
  
--	__set_bit(NFS_CS_NOPING, &cl_init.init_flags);
- 	__set_bit(NFS_CS_DS, &cl_init.init_flags);
+-	qla2x00_set_fcport_state(fcport, FCS_ONLINE);
+-
+ 	rport_ids.node_name = wwn_to_u64(fcport->node_name);
+ 	rport_ids.port_name = wwn_to_u64(fcport->port_name);
+ 	rport_ids.port_id = fcport->d_id.b.domain << 16 |
+@@ -5869,7 +5867,6 @@ qla2x00_update_fcport(scsi_qla_host_t *v
+ 		qla2x00_reg_remote_port(vha, fcport);
+ 		break;
+ 	case MODE_TARGET:
+-		qla2x00_set_fcport_state(fcport, FCS_ONLINE);
+ 		if (!vha->vha_tgt.qla_tgt->tgt_stop &&
+ 			!vha->vha_tgt.qla_tgt->tgt_stopped)
+ 			qlt_fc_port_added(vha, fcport);
+@@ -5887,6 +5884,8 @@ qla2x00_update_fcport(scsi_qla_host_t *v
+ 	if (NVME_TARGET(vha->hw, fcport))
+ 		qla_nvme_register_remote(vha, fcport);
  
- 	/* Use the MDS nfs_client cl_ipaddr. */
++	qla2x00_set_fcport_state(fcport, FCS_ONLINE);
++
+ 	if (IS_IIDMA_CAPABLE(vha->hw) && vha->hw->flags.gpsc_supported) {
+ 		if (fcport->id_changed) {
+ 			fcport->id_changed = 0;
+--- a/drivers/scsi/qla2xxx/qla_nvme.c
++++ b/drivers/scsi/qla2xxx/qla_nvme.c
+@@ -37,11 +37,6 @@ int qla_nvme_register_remote(struct scsi
+ 		(fcport->nvme_flag & NVME_FLAG_REGISTERED))
+ 		return 0;
+ 
+-	if (atomic_read(&fcport->state) == FCS_ONLINE)
+-		return 0;
+-
+-	qla2x00_set_fcport_state(fcport, FCS_ONLINE);
+-
+ 	fcport->nvme_flag &= ~NVME_FLAG_RESETTING;
+ 
+ 	memset(&req, 0, sizeof(struct nvme_fc_port_info));
 
 
