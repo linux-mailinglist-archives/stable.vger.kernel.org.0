@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2B905949D3
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:15:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F0F559488C
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354840AbiHOXzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:55:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59860 "EHLO
+        id S1355504AbiHOX40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:56:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356239AbiHOXx7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:53:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C11C6B79;
-        Mon, 15 Aug 2022 13:18:50 -0700 (PDT)
+        with ESMTP id S1356231AbiHOXx6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:53:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33CB2C6B7B;
+        Mon, 15 Aug 2022 13:18:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDE25B81136;
-        Mon, 15 Aug 2022 20:18:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31743C433C1;
-        Mon, 15 Aug 2022 20:18:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 724B960DEB;
+        Mon, 15 Aug 2022 20:18:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60EA4C433D7;
+        Mon, 15 Aug 2022 20:18:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594717;
-        bh=p9qMmLR6FtC7CGHnxBv/eDTWe2j8qRPvE169bKkMQeY=;
+        s=korg; t=1660594720;
+        bh=DFT14kIqMWORbQnzYNlTNSiDiYPcQccGBaO8LcqfgVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YvuxvS/BoqSYuxwg/8BkYRKN6/6tdZtbjQQbKFrHv5hVzUC6X7M+fU0Jf7CwV09vE
-         GzZF59aRCe61jA3221QrRoY5ES1j4Z6ynzMV5sbmdbNefe5B6FBB6oQxXUdcXwwl7U
-         D70CAbae99AtRHQ63KW8MD7zp9ak1noT3Ve9XqSI=
+        b=xi8AWGOWBU30UfuQK91yjwof8IvJ5FZuFdhIOOShoT4UB+sn/cQ4MaC0MnWhduY3j
+         fROjUX1wQqPC/JIPZFiBIYVLr8+FdO1L2yg6rfyaelKjXyQtvu3NLUdxndEF0I5aCw
+         xTcmINAO9jxySScVLRwPsGnGuzcZbuv4qzsjN9Q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nikolay Aleksandrov <razor@blackwall.org>,
         Martin KaFai Lau <kafai@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0536/1157] ip_tunnels: Add new flow flags field to ip_tunnel_key
-Date:   Mon, 15 Aug 2022 19:58:12 +0200
-Message-Id: <20220815180501.103878162@linuxfoundation.org>
+Subject: [PATCH 5.19 0537/1157] bpf: Set flow flag to allow any source IP in bpf_tunnel_key
+Date:   Mon, 15 Aug 2022 19:58:13 +0200
+Message-Id: <20220815180501.149595269@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -58,34 +58,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paul Chaignon <paul@isovalent.com>
 
-[ Upstream commit 451ef36bd229f8aa329cb2258a859b4c636d08ef ]
+[ Upstream commit b8fff748521c7178b9a7d32b5a34a81cec8396f3 ]
 
-This commit extends the ip_tunnel_key struct with a new field for the
-flow flags, to pass them to the route lookups. This new field will be
-populated and used in subsequent commits.
+Commit 26101f5ab6bd ("bpf: Add source ip in "struct bpf_tunnel_key"")
+added support for getting and setting the outer source IP of encapsulated
+packets via the bpf_skb_{get,set}_tunnel_key BPF helper. This change
+allows BPF programs to set any IP address as the source, including for
+example the IP address of a container running on the same host.
 
+In that last case, however, the encapsulated packets are dropped when
+looking up the route because the source IP address isn't assigned to any
+interface on the host. To avoid this, we need to set the
+FLOWI_FLAG_ANYSRC flag.
+
+Fixes: 26101f5ab6bd ("bpf: Add source ip in "struct bpf_tunnel_key"")
 Signed-off-by: Paul Chaignon <paul@isovalent.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
 Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/f8bfd4983bd06685a59b1e3ba76ca27496f51ef3.1658759380.git.paul@isovalent.com
+Link: https://lore.kernel.org/bpf/76873d384e21288abe5767551a0799ac93ec07fb.1658759380.git.paul@isovalent.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip_tunnels.h | 1 +
+ net/core/filter.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/include/net/ip_tunnels.h b/include/net/ip_tunnels.h
-index c24fa934221d..20f60d9da741 100644
---- a/include/net/ip_tunnels.h
-+++ b/include/net/ip_tunnels.h
-@@ -54,6 +54,7 @@ struct ip_tunnel_key {
- 	__be32			label;		/* Flow Label for IPv6 */
- 	__be16			tp_src;
- 	__be16			tp_dst;
-+	__u8			flow_flags;
- };
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 7950f7520765..5978984b752f 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -4653,6 +4653,7 @@ BPF_CALL_4(bpf_skb_set_tunnel_key, struct sk_buff *, skb,
+ 	} else {
+ 		info->key.u.ipv4.dst = cpu_to_be32(from->remote_ipv4);
+ 		info->key.u.ipv4.src = cpu_to_be32(from->local_ipv4);
++		info->key.flow_flags = FLOWI_FLAG_ANYSRC;
+ 	}
  
- /* Flags for ip_tunnel_info mode. */
+ 	return 0;
 -- 
 2.35.1
 
