@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AC0F594501
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BB4759451B
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348465AbiHOW2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:28:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45812 "EHLO
+        id S1349278AbiHOWa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:30:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350648AbiHOW1D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:27:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F88D2CE14;
-        Mon, 15 Aug 2022 12:45:28 -0700 (PDT)
+        with ESMTP id S1350741AbiHOW1J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:27:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8A4A4198F;
+        Mon, 15 Aug 2022 12:45:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6567E61226;
-        Mon, 15 Aug 2022 19:45:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54FC6C4314B;
-        Mon, 15 Aug 2022 19:45:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63375B81136;
+        Mon, 15 Aug 2022 19:45:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB13DC433C1;
+        Mon, 15 Aug 2022 19:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592726;
-        bh=klIS7ycXksOFminzkbfQIkkg2qc2wVpDENS4p2ZuMMM=;
+        s=korg; t=1660592733;
+        bh=GQzVVrODmWCT239cap0EveCqiYT9gKfYsgEnP5+XKRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MIuuPlUvfghqlLyoaHCK+AQy7PopzBAZOiuaPre7PhH3T/Zuok4WaMuCJVRJcsbeF
-         JTnvWDYVc24Sn6B5Qnrp4DCJNnN2qJflvEllWkerzYqpWYmwhIQ1br/vF824zNARDG
-         W5bgZEU67mE396vOj21TuKcpNe0Bs7V0qlO4K5Ao=
+        b=VTSNDZEdi/cBywZKYptSxsJ2GiWXT/3yL3v1Go8Qx+4AtjAxJdddOkQfM0F/hEwqE
+         JQlPzWpSxLrHnoN9FM7PbfUOmnW1fsYCDSZ42MlBC20s6qx40zflEPdIYiDHE/iFIz
+         xEXlv97ScDQRJhbdjMMfYbemyb1Vu1D5l78J8axs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0836/1095] serial: 8250: Export ICR access helpers for internal use
-Date:   Mon, 15 Aug 2022 20:03:55 +0200
-Message-Id: <20220815180503.922165178@linuxfoundation.org>
+Subject: [PATCH 5.18 0837/1095] ASoC: SOF: make ctx_store and ctx_restore as optional
+Date:   Mon, 15 Aug 2022 20:03:56 +0200
+Message-Id: <20220815180503.967711887@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,108 +58,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-[ Upstream commit cb5a40e3143bc64437858b337273fd63cc42e9c2 ]
+[ Upstream commit 03f69725749f453b9a4d454a92805f8eb5f095c2 ]
 
-Make ICR access helpers available outside 8250_port.c, however retain
-them as ordinary static functions so as not to regress code generation.
+Commit 657774acd00f ("ASoC: SOF: Make sof_suspend/resume IPC agnostic")
+did not marked ctx_store and ctx_restore as Optional.
 
-This is because `serial_icr_write' is currently automatically inlined by
-GCC, however `serial_icr_read' is not.  Making them both static inline
-would grow code produced, e.g.:
-
-$ i386-linux-gnu-size --format=gnu 8250_port-{old,new}.o
-      text       data        bss      total filename
-     15065       3378          0      18443 8250_port-old.o
-     15289       3378          0      18667 8250_port-new.o
-
-and:
-
-$ riscv64-linux-gnu-size --format=gnu 8250_port-{old,new}.o
-      text       data        bss      total filename
-     16980       5306          0      22286 8250_port-old.o
-     17124       5306          0      22430 8250_port-new.o
-
-while making them external would needlessly add a new module interface
-and lose the benefit from `serial_icr_write' getting inlined outside
-8250_port.o.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204181517500.9383@angie.orcam.me.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 657774acd00f ("ASoC: SOF: Make sof_suspend/resume IPC agnostic")
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220610083549.16773-2-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250.h      | 22 ++++++++++++++++++++++
- drivers/tty/serial/8250/8250_port.c | 21 ---------------------
- 2 files changed, 22 insertions(+), 21 deletions(-)
+ sound/soc/sof/sof-priv.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250.h b/drivers/tty/serial/8250/8250.h
-index db784ace25d8..467372534d1c 100644
---- a/drivers/tty/serial/8250/8250.h
-+++ b/drivers/tty/serial/8250/8250.h
-@@ -120,6 +120,28 @@ static inline void serial_out(struct uart_8250_port *up, int offset, int value)
- 	up->port.serial_out(&up->port, offset, value);
- }
+diff --git a/sound/soc/sof/sof-priv.h b/sound/soc/sof/sof-priv.h
+index c856f0d84e49..f369242dd975 100644
+--- a/sound/soc/sof/sof-priv.h
++++ b/sound/soc/sof/sof-priv.h
+@@ -364,8 +364,8 @@ struct snd_sof_ipc_msg {
  
-+/*
-+ * For the 16C950
-+ */
-+static void serial_icr_write(struct uart_8250_port *up, int offset, int value)
-+{
-+	serial_out(up, UART_SCR, offset);
-+	serial_out(up, UART_ICR, value);
-+}
-+
-+static unsigned int __maybe_unused serial_icr_read(struct uart_8250_port *up,
-+						   int offset)
-+{
-+	unsigned int value;
-+
-+	serial_icr_write(up, UART_ACR, up->acr | UART_ACR_ICRRD);
-+	serial_out(up, UART_SCR, offset);
-+	value = serial_in(up, UART_ICR);
-+	serial_icr_write(up, UART_ACR, up->acr);
-+
-+	return value;
-+}
-+
- void serial8250_clear_and_reinit_fifos(struct uart_8250_port *p);
- 
- static inline int serial_dl_read(struct uart_8250_port *up)
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index ddaf35daf316..291fd99bd7f1 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -537,27 +537,6 @@ serial_port_out_sync(struct uart_port *p, int offset, int value)
- 	}
- }
- 
--/*
-- * For the 16C950
-- */
--static void serial_icr_write(struct uart_8250_port *up, int offset, int value)
--{
--	serial_out(up, UART_SCR, offset);
--	serial_out(up, UART_ICR, value);
--}
--
--static unsigned int serial_icr_read(struct uart_8250_port *up, int offset)
--{
--	unsigned int value;
--
--	serial_icr_write(up, UART_ACR, up->acr | UART_ACR_ICRRD);
--	serial_out(up, UART_SCR, offset);
--	value = serial_in(up, UART_ICR);
--	serial_icr_write(up, UART_ACR, up->acr);
--
--	return value;
--}
--
- /*
-  * FIFO support.
+ /**
+  * struct sof_ipc_pm_ops - IPC-specific PM ops
+- * @ctx_save:		Function pointer for context save
+- * @ctx_restore:	Function pointer for context restore
++ * @ctx_save:		Optional function pointer for context save
++ * @ctx_restore:	Optional function pointer for context restore
   */
+ struct sof_ipc_pm_ops {
+ 	int (*ctx_save)(struct snd_sof_dev *sdev);
 -- 
 2.35.1
 
