@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9C39594627
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:02:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64883594335
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:55:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347842AbiHOWUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:20:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60612 "EHLO
+        id S233894AbiHOWVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:21:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350803AbiHOWSg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:18:36 -0400
+        with ESMTP id S233475AbiHOWTM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:19:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F3D565658;
-        Mon, 15 Aug 2022 12:42:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E0C86AA0F;
+        Mon, 15 Aug 2022 12:43:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2BCF5B80EA9;
-        Mon, 15 Aug 2022 19:42:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DF55C433D6;
-        Mon, 15 Aug 2022 19:42:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8A71B81141;
+        Mon, 15 Aug 2022 19:43:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DAE6C433C1;
+        Mon, 15 Aug 2022 19:43:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592523;
-        bh=USaoXt23dkPCUkqdy9sXfYf2lS1Nk6uh96T3TB7tnc4=;
+        s=korg; t=1660592592;
+        bh=yA9DHMFC1385fMRfRW8h8EJYiVdCQ+fwbnh7w5teX2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PhUu8cL8MxSm/1fbx8Paz5FyYwYK5XXB8vwouMiPbZc6mmto8E+qzs3AqnlVDuBzM
-         H/9Zng8lDJhV4RVqaHufuBpV4rOhi1YXfVoZGdSbIvg9/dcfRBGgOmSXwZhAfGVXY4
-         MO66A/Us22DMQFdvShOQeeAwfmq/39fmLmfzW7VE=
+        b=0KYxtaO2yi62WhRVLMFdpG346LN2gaRjx+7E6HZeNWh5/2/SwutAtbZPOx3k/Ih7e
+         UYgXhiD6EMtPmqvv/Pkn2B5tx18lVGDotDVr50foos0KTHhCzQeBTen/da4TL8LIoh
+         tq7QIgcgCfbq/KR6JggCObW/2Fx/EsCxKj3DfJKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Andrey Strachuk <strochuk@ispras.ru>,
+        stable@vger.kernel.org,
+        Patrice Chotard <patrice.chotard@foss.st.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Pratyush Yadav <p.yadav@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0794/1095] usb: cdns3: change place of priv_ep assignment in cdns3_gadget_ep_dequeue(), cdns3_gadget_ep_enable()
-Date:   Mon, 15 Aug 2022 20:03:13 +0200
-Message-Id: <20220815180502.091601971@linuxfoundation.org>
+Subject: [PATCH 5.18 0795/1095] mtd: spi-nor: fix spi_nor_spimem_setup_op() call in spi_nor_erase_{sector,chip}()
+Date:   Mon, 15 Aug 2022 20:03:14 +0200
+Message-Id: <20220815180502.131812520@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,65 +57,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Strachuk <strochuk@ispras.ru>
+From: Patrice Chotard <patrice.chotard@foss.st.com>
 
-[ Upstream commit c3ffc9c4ca44bfe9562166793d133e1fb0630ea6 ]
+[ Upstream commit f8cd9f632f4415b1e8838bdca8ab42cfb37a6584 ]
 
-If 'ep' is NULL, result of ep_to_cdns3_ep(ep) is invalid pointer
-and its dereference with priv_ep->cdns3_dev may cause panic.
+For erase operations, reg_proto must be used as indicated in
+struct spi_nor description in spi-nor.h.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+This issue was found when DT property spi-tx-bus-width is set to 4.
+In this case the spi_mem_op->addr.buswidth is set to 4 for erase command
+which is not correct.
 
-Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Andrey Strachuk <strochuk@ispras.ru>
-Link: https://lore.kernel.org/r/20220718160052.4188-1-strochuk@ispras.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested on stm32mp157c-ev1 board with mx66l51235f spi-nor.
+
+Fixes: 0e30f47232ab ("mtd: spi-nor: add support for DTR protocol")
+Signed-off-by: Patrice Chotard <patrice.chotard@foss.st.com>
+[ta: use nor->reg_proto in spi_nor_controller_ops_erase()]
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Tested-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Reviewed-by: Pratyush Yadav <p.yadav@ti.com>
+Link: https://lore.kernel.org/r/20220629133013.3382393-1-patrice.chotard@foss.st.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/cdns3/cdns3-gadget.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/mtd/spi-nor/core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/cdns3/cdns3-gadget.c b/drivers/usb/cdns3/cdns3-gadget.c
-index d6d515d598dc..e0cf62e65075 100644
---- a/drivers/usb/cdns3/cdns3-gadget.c
-+++ b/drivers/usb/cdns3/cdns3-gadget.c
-@@ -2281,14 +2281,15 @@ static int cdns3_gadget_ep_enable(struct usb_ep *ep,
- 	int val;
+diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+index c1630131c734..170182eb431e 100644
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -177,7 +177,7 @@ int spi_nor_controller_ops_write_reg(struct spi_nor *nor, u8 opcode,
  
- 	priv_ep = ep_to_cdns3_ep(ep);
--	priv_dev = priv_ep->cdns3_dev;
--	comp_desc = priv_ep->endpoint.comp_desc;
- 
- 	if (!ep || !desc || desc->bDescriptorType != USB_DT_ENDPOINT) {
- 		dev_dbg(priv_dev->dev, "usbss: invalid parameters\n");
- 		return -EINVAL;
- 	}
- 
-+	comp_desc = priv_ep->endpoint.comp_desc;
-+	priv_dev = priv_ep->cdns3_dev;
-+
- 	if (!desc->wMaxPacketSize) {
- 		dev_err(priv_dev->dev, "usbss: missing wMaxPacketSize\n");
- 		return -EINVAL;
-@@ -2596,7 +2597,7 @@ int cdns3_gadget_ep_dequeue(struct usb_ep *ep,
- 			    struct usb_request *request)
+ static int spi_nor_controller_ops_erase(struct spi_nor *nor, loff_t offs)
  {
- 	struct cdns3_endpoint *priv_ep = ep_to_cdns3_ep(ep);
--	struct cdns3_device *priv_dev = priv_ep->cdns3_dev;
-+	struct cdns3_device *priv_dev;
- 	struct usb_request *req, *req_temp;
- 	struct cdns3_request *priv_req;
- 	struct cdns3_trb *link_trb;
-@@ -2607,6 +2608,8 @@ int cdns3_gadget_ep_dequeue(struct usb_ep *ep,
- 	if (!ep || !request || !ep->desc)
- 		return -EINVAL;
+-	if (spi_nor_protocol_is_dtr(nor->write_proto))
++	if (spi_nor_protocol_is_dtr(nor->reg_proto))
+ 		return -EOPNOTSUPP;
  
-+	priv_dev = priv_ep->cdns3_dev;
-+
- 	spin_lock_irqsave(&priv_dev->lock, flags);
+ 	return nor->controller_ops->erase(nor, offs);
+@@ -976,7 +976,7 @@ static int spi_nor_erase_chip(struct spi_nor *nor)
+ 				   SPI_MEM_OP_NO_DUMMY,
+ 				   SPI_MEM_OP_NO_DATA);
  
- 	priv_req = to_cdns3_request(request);
+-		spi_nor_spimem_setup_op(nor, &op, nor->write_proto);
++		spi_nor_spimem_setup_op(nor, &op, nor->reg_proto);
+ 
+ 		ret = spi_mem_exec_op(nor->spimem, &op);
+ 	} else {
+@@ -1121,7 +1121,7 @@ int spi_nor_erase_sector(struct spi_nor *nor, u32 addr)
+ 				   SPI_MEM_OP_NO_DUMMY,
+ 				   SPI_MEM_OP_NO_DATA);
+ 
+-		spi_nor_spimem_setup_op(nor, &op, nor->write_proto);
++		spi_nor_spimem_setup_op(nor, &op, nor->reg_proto);
+ 
+ 		return spi_mem_exec_op(nor->spimem, &op);
+ 	} else if (nor->controller_ops->erase) {
 -- 
 2.35.1
 
