@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E4E0592E67
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:47:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88E6D592E68
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231514AbiHOLrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 07:47:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60992 "EHLO
+        id S231610AbiHOLr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 07:47:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231228AbiHOLrY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:47:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BB61BF5C
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:47:24 -0700 (PDT)
+        with ESMTP id S231228AbiHOLr3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:47:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F6D8BF5C
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:47:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F2A76106C
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:47:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6474C433C1;
-        Mon, 15 Aug 2022 11:47:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35998B80E23
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:47:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80A86C433D6;
+        Mon, 15 Aug 2022 11:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660564043;
-        bh=DWuzk9jYK6hQkEebYSrMd35tVuiFHVkAkijcsSCg2jo=;
+        s=korg; t=1660564045;
+        bh=MieFFeDIo3SmRcRyFpA4uIwYEp3CItY6L3h/jT1RlPQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=MI3Q3dkipmb6+rQ+RCKODpP9g4YEJV8YqaUPblfMyRTBDKd2KNTaJ/yxOm8SIyX4H
-         ifnueRhyjpFYgQsVXad+PQ55n2La6+dBDvrLVpwWNMl2jhUmR26VRGDG7KisCIPQgK
-         cnFhNkfkcHPOwLhsnXIUp0S+1ueddF536+pC7b9k=
-Subject: FAILED: patch "[PATCH] timekeeping: contribute wall clock to rng on time change" failed to apply to 4.14-stable tree
+        b=c8pY00C47sjzTjnil6Lz9wQYcryC7oclsqUkJcTIuKZ4f5+geBk4q06GKhoF9lTCP
+         gdtUAX08ZHqFxcePlaBK+k60HpRAbediF3HNZ9mUHJk9nI2h8TepGZiQM5i+3Sr42E
+         8DlaC80HhC54v58ipCAamYj1pI5iDgYw8x9lwFwo=
+Subject: FAILED: patch "[PATCH] timekeeping: contribute wall clock to rng on time change" failed to apply to 4.9-stable tree
 To:     Jason@zx2c4.com, ebiggers@google.com, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Aug 2022 13:47:12 +0200
-Message-ID: <1660564032120236@kroah.com>
+Date:   Mon, 15 Aug 2022 13:47:13 +0200
+Message-ID: <16605640331186@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
