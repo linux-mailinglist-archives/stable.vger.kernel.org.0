@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66E58594766
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 982DF59475B
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241419AbiHOXH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:07:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33550 "EHLO
+        id S242559AbiHOXLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:11:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353145AbiHOXHR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:07:17 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 401761423EE;
-        Mon, 15 Aug 2022 12:59:22 -0700 (PDT)
+        with ESMTP id S1353018AbiHOXJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:09:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2187B8709C;
+        Mon, 15 Aug 2022 12:59:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A7294CE12C1;
-        Mon, 15 Aug 2022 19:59:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EBBBC433C1;
-        Mon, 15 Aug 2022 19:59:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8956AB8106C;
+        Mon, 15 Aug 2022 19:59:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE574C433C1;
+        Mon, 15 Aug 2022 19:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593559;
-        bh=LVHA3YzYWEMPoW5ZgxNE0Ccb4/VJ6WQwYu7SWqFJdg4=;
+        s=korg; t=1660593592;
+        bh=PStUmSJuDh/2XlYej5na14v1ex14KuMW3PONNUSXsr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kN3kpXkiNwb6SjPq6wtXPCoU1dDf2GkoBOsggcc4f4qOY06hVlv06IMck93YBObnm
-         cxcF3ejTvkS3J8jN9qYWyHyi1ialOBNs5ktM4FrFrS8MBfeT8usCrapsTyPRpgMwyI
-         yqBaGaY3W58VfgQk2C1oO83EZ6wSTrsLWozhFkxU=
+        b=OedSWArpZg4DrAe6VsSlJu1h8pu5UFwMCWzx10OTIu8fljKDtzWu3U4te+IRxfgmI
+         I/Bys0o8b6FDSvcki7rnwm12jROcawxbhL8in67W7FDmX8n2IF9yLf0+4W3/zxC9lF
+         qYP40mfgB5qlC0GG6GgaCSUQrqyAwEiZNtwtQ/BY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        linux-arm-kernel@lists.infradead.org,
-        German Gomez <german.gomez@arm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0288/1157] drivers/perf: arm_spe: Fix consistency of SYS_PMSCR_EL1.CX
-Date:   Mon, 15 Aug 2022 19:54:04 +0200
-Message-Id: <20220815180451.138467006@linuxfoundation.org>
+Subject: [PATCH 5.19 0293/1157] io_uring: move to separate directory
+Date:   Mon, 15 Aug 2022 19:54:09 +0200
+Message-Id: <20220815180451.345977044@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -59,101 +53,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 92f2b8bafa3d6e89c750e9d301a8b7ab76aaa8b6 ]
+[ Upstream commit ed29b0b4fd835b058ddd151c49d021e28d631ee6 ]
 
-The arm_spe_pmu driver will enable SYS_PMSCR_EL1.CX in order to add CONTEXT
-packets into the traces, if the owner of the perf event runs with required
-capabilities i.e CAP_PERFMON or CAP_SYS_ADMIN via perfmon_capable() helper.
+In preparation for splitting io_uring up a bit, move it into its own
+top level directory. It didn't really belong in fs/ anyway, as it's
+not a file system only API.
 
-The value of this bit is computed in the arm_spe_event_to_pmscr() function
-but the check for capabilities happens in the pmu event init callback i.e
-arm_spe_pmu_event_init(). This suggests that the value of the CX bit should
-remain consistent for the duration of the perf session.
+This adds io_uring/ and moves the core files in there, and updates the
+MAINTAINERS file for the new location.
 
-However, the function arm_spe_event_to_pmscr() may be called later during
-the event start callback i.e arm_spe_pmu_start() when the "current" process
-is not the owner of the perf session, hence the CX bit setting is currently
-not consistent.
-
-One way to fix this, is by caching the required value of the CX bit during
-the initialization of the PMU event, so that it remains consistent for the
-duration of the session. It uses currently unused 'event->hw.flags' element
-to cache perfmon_capable() value, which can be referred during event start
-callback to compute SYS_PMSCR_EL1.CX. This ensures consistent availability
-of context packets in the trace as per event owner capabilities.
-
-Drop BIT(SYS_PMSCR_EL1_CX_SHIFT) check in arm_spe_pmu_event_init(), because
-now CX bit cannot be set in arm_spe_event_to_pmscr() with perfmon_capable()
-disabled.
-
-Cc: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Fixes: d5d9696b0380 ("drivers/perf: Add support for ARMv8.2 Statistical Profiling Extension")
-Reported-by: German Gomez <german.gomez@arm.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20220714061302.2715102-1-anshuman.khandual@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/arm_spe_pmu.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ MAINTAINERS                 | 7 +------
+ Makefile                    | 1 +
+ fs/Makefile                 | 2 --
+ io_uring/Makefile           | 6 ++++++
+ {fs => io_uring}/io-wq.c    | 0
+ {fs => io_uring}/io-wq.h    | 0
+ {fs => io_uring}/io_uring.c | 2 +-
+ kernel/sched/core.c         | 2 +-
+ 8 files changed, 10 insertions(+), 10 deletions(-)
+ create mode 100644 io_uring/Makefile
+ rename {fs => io_uring}/io-wq.c (100%)
+ rename {fs => io_uring}/io-wq.h (100%)
+ rename {fs => io_uring}/io_uring.c (99%)
 
-diff --git a/drivers/perf/arm_spe_pmu.c b/drivers/perf/arm_spe_pmu.c
-index db670b265897..b65a7d9640e1 100644
---- a/drivers/perf/arm_spe_pmu.c
-+++ b/drivers/perf/arm_spe_pmu.c
-@@ -39,6 +39,24 @@
- #include <asm/mmu.h>
- #include <asm/sysreg.h>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 64379c699903..08620b9a44fc 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -7773,9 +7773,6 @@ F:	include/linux/fs.h
+ F:	include/linux/fs_types.h
+ F:	include/uapi/linux/fs.h
+ F:	include/uapi/linux/openat2.h
+-X:	fs/io-wq.c
+-X:	fs/io-wq.h
+-X:	fs/io_uring.c
  
-+/*
-+ * Cache if the event is allowed to trace Context information.
-+ * This allows us to perform the check, i.e, perfmon_capable(),
-+ * in the context of the event owner, once, during the event_init().
-+ */
-+#define SPE_PMU_HW_FLAGS_CX			BIT(0)
+ FINTEK F75375S HARDWARE MONITOR AND FAN CONTROLLER DRIVER
+ M:	Riku Voipio <riku.voipio@iki.fi>
+@@ -10476,9 +10473,7 @@ L:	io-uring@vger.kernel.org
+ S:	Maintained
+ T:	git git://git.kernel.dk/linux-block
+ T:	git git://git.kernel.dk/liburing
+-F:	fs/io-wq.c
+-F:	fs/io-wq.h
+-F:	fs/io_uring.c
++F:	io_uring/
+ F:	include/linux/io_uring.h
+ F:	include/uapi/linux/io_uring.h
+ F:	tools/io_uring/
+diff --git a/Makefile b/Makefile
+index cef467fc574e..68b3da2babd5 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1102,6 +1102,7 @@ export MODULES_NSDEPS := $(extmod_prefix)modules.nsdeps
+ ifeq ($(KBUILD_EXTMOD),)
+ core-y			+= kernel/ certs/ mm/ fs/ ipc/ security/ crypto/
+ core-$(CONFIG_BLOCK)	+= block/
++core-$(CONFIG_IO_URING)	+= io_uring/
+ 
+ vmlinux-dirs	:= $(patsubst %/,%,$(filter %/, \
+ 		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \
+diff --git a/fs/Makefile b/fs/Makefile
+index 208a74e0b00e..93b80529f8e8 100644
+--- a/fs/Makefile
++++ b/fs/Makefile
+@@ -34,8 +34,6 @@ obj-$(CONFIG_TIMERFD)		+= timerfd.o
+ obj-$(CONFIG_EVENTFD)		+= eventfd.o
+ obj-$(CONFIG_USERFAULTFD)	+= userfaultfd.o
+ obj-$(CONFIG_AIO)               += aio.o
+-obj-$(CONFIG_IO_URING)		+= io_uring.o
+-obj-$(CONFIG_IO_WQ)		+= io-wq.o
+ obj-$(CONFIG_FS_DAX)		+= dax.o
+ obj-$(CONFIG_FS_ENCRYPTION)	+= crypto/
+ obj-$(CONFIG_FS_VERITY)		+= verity/
+diff --git a/io_uring/Makefile b/io_uring/Makefile
+new file mode 100644
+index 000000000000..3680425df947
+--- /dev/null
++++ b/io_uring/Makefile
+@@ -0,0 +1,6 @@
++# SPDX-License-Identifier: GPL-2.0
++#
++# Makefile for io_uring
 +
-+static void set_spe_event_has_cx(struct perf_event *event)
-+{
-+	if (IS_ENABLED(CONFIG_PID_IN_CONTEXTIDR) && perfmon_capable())
-+		event->hw.flags |= SPE_PMU_HW_FLAGS_CX;
-+}
-+
-+static bool get_spe_event_has_cx(struct perf_event *event)
-+{
-+	return !!(event->hw.flags & SPE_PMU_HW_FLAGS_CX);
-+}
-+
- #define ARM_SPE_BUF_PAD_BYTE			0
++obj-$(CONFIG_IO_URING)		+= io_uring.o
++obj-$(CONFIG_IO_WQ)		+= io-wq.o
+diff --git a/fs/io-wq.c b/io_uring/io-wq.c
+similarity index 100%
+rename from fs/io-wq.c
+rename to io_uring/io-wq.c
+diff --git a/fs/io-wq.h b/io_uring/io-wq.h
+similarity index 100%
+rename from fs/io-wq.h
+rename to io_uring/io-wq.h
+diff --git a/fs/io_uring.c b/io_uring/io_uring.c
+similarity index 99%
+rename from fs/io_uring.c
+rename to io_uring/io_uring.c
+index e8e769be9ed0..b63956975109 100644
+--- a/fs/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -87,7 +87,7 @@
  
- struct arm_spe_pmu_buf {
-@@ -272,7 +290,7 @@ static u64 arm_spe_event_to_pmscr(struct perf_event *event)
- 	if (!attr->exclude_kernel)
- 		reg |= BIT(SYS_PMSCR_EL1_E1SPE_SHIFT);
+ #include <uapi/linux/io_uring.h>
  
--	if (IS_ENABLED(CONFIG_PID_IN_CONTEXTIDR) && perfmon_capable())
-+	if (get_spe_event_has_cx(event))
- 		reg |= BIT(SYS_PMSCR_EL1_CX_SHIFT);
+-#include "internal.h"
++#include "../fs/internal.h"
+ #include "io-wq.h"
  
- 	return reg;
-@@ -709,10 +727,10 @@ static int arm_spe_pmu_event_init(struct perf_event *event)
- 	    !(spe_pmu->features & SPE_PMU_FEAT_FILT_LAT))
- 		return -EOPNOTSUPP;
+ #define IORING_MAX_ENTRIES	32768
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index f1e070551aa9..91471ba8dbd2 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -91,7 +91,7 @@
+ #include "stats.h"
  
-+	set_spe_event_has_cx(event);
- 	reg = arm_spe_event_to_pmscr(event);
- 	if (!perfmon_capable() &&
- 	    (reg & (BIT(SYS_PMSCR_EL1_PA_SHIFT) |
--		    BIT(SYS_PMSCR_EL1_CX_SHIFT) |
- 		    BIT(SYS_PMSCR_EL1_PCT_SHIFT))))
- 		return -EACCES;
+ #include "../workqueue_internal.h"
+-#include "../../fs/io-wq.h"
++#include "../../io_uring/io-wq.h"
+ #include "../smpboot.h"
  
+ /*
 -- 
 2.35.1
 
