@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 446BE5937DD
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E09E75938C6
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:32:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243613AbiHOSdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:33:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38462 "EHLO
+        id S243568AbiHOSdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:33:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242509AbiHOSdB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:33:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6AD9357C8;
-        Mon, 15 Aug 2022 11:21:41 -0700 (PDT)
+        with ESMTP id S232274AbiHOScZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:32:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1EA333A27;
+        Mon, 15 Aug 2022 11:21:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE21460EBB;
-        Mon, 15 Aug 2022 18:21:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC313C433C1;
-        Mon, 15 Aug 2022 18:21:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2F9360F1D;
+        Mon, 15 Aug 2022 18:21:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD930C433C1;
+        Mon, 15 Aug 2022 18:21:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587688;
-        bh=qPM3hivwiyH/84iQwMJ7ypF9tf8CVifjS41QNQiOQD8=;
+        s=korg; t=1660587691;
+        bh=S0URyn00AsjmOCVSf0xzz3DBx1yha/NWx8pddDfWzRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1NEGbYZP2Wnx0e4OQY7IqIN8vKkxBUtV7WaYp9rLo293Z569zgI5b+3ZBX7znYlee
-         dVGN91X+2BBALQpLyUnyMbvsZwsczMcFJm785+lioivsLHkUGiyrNCaXUW6V/Qw2yy
-         N3hVz0G2XK+N9xdlfgRIf9mJU2WvC1VT9bAZl5hg=
+        b=ElkqmxlXEHZZ/P0Y5szVgTBU7lH2dYoiI0NGVHDxSbNvrXNnrv/G18ESNBzLKMwhs
+         mn5CWSuCguy1jquzXpG1Rf5T9CDAN5smFA0YiK9vpLaoc1Qbgz1NLWPESpG2jHGvia
+         CsCIhdalkh4xrUKwr4SykaOFSvRzhlLP4CKu12NM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Puranjay Mohan <puranjay12@gmail.com>,
-        Rob Herring <robh@kernel.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 164/779] dt-bindings: iio: accel: Add DT binding doc for ADXL355
-Date:   Mon, 15 Aug 2022 19:56:48 +0200
-Message-Id: <20220815180344.333074112@linuxfoundation.org>
+Subject: [PATCH 5.15 165/779] soc: amlogic: Fix refcount leak in meson-secure-pwrc.c
+Date:   Mon, 15 Aug 2022 19:56:49 +0200
+Message-Id: <20220815180344.375939543@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,116 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Puranjay Mohan <puranjay12@gmail.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit bf43a71a0a7f396434f6460b46e33eb00752f78d ]
+[ Upstream commit d18529a4c12f66d83daac78045ea54063bd43257 ]
 
-Add devicetree binding document for ADXL355, a 3-Axis MEMS Accelerometer.
+In meson_secure_pwrc_probe(), there is a refcount leak in one fail
+path.
 
-Signed-off-by: Puranjay Mohan <puranjay12@gmail.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20210811073027.124619-2-puranjay12@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Liang He <windhl@126.com>
+Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Fixes: b3dde5013e13 ("soc: amlogic: Add support for Secure power domains controller")
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20220616144915.3988071-1-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../bindings/iio/accel/adi,adxl355.yaml       | 88 +++++++++++++++++++
- 1 file changed, 88 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/iio/accel/adi,adxl355.yaml
+ drivers/soc/amlogic/meson-secure-pwrc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/iio/accel/adi,adxl355.yaml b/Documentation/devicetree/bindings/iio/accel/adi,adxl355.yaml
-new file mode 100644
-index 000000000000..ba54d6998f2e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/iio/accel/adi,adxl355.yaml
-@@ -0,0 +1,88 @@
-+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/iio/accel/adi,adxl355.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Analog Devices ADXL355 3-Axis, Low noise MEMS Accelerometer
-+
-+maintainers:
-+  - Puranjay Mohan <puranjay12@gmail.com>
-+
-+description: |
-+  Analog Devices ADXL355 3-Axis, Low noise MEMS Accelerometer that supports
-+  both I2C & SPI interfaces
-+    https://www.analog.com/en/products/adxl355.html
-+
-+properties:
-+  compatible:
-+    enum:
-+      - adi,adxl355
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    minItems: 1
-+    maxItems: 3
-+    description: |
-+      Type for DRDY should be IRQ_TYPE_EDGE_RISING.
-+      Three configurable interrupt lines exist.
-+
-+  interrupt-names:
-+    description: Specify which interrupt line is in use.
-+    items:
-+      enum:
-+        - INT1
-+        - INT2
-+        - DRDY
-+    minItems: 1
-+    maxItems: 3
-+
-+  vdd-supply:
-+    description: Regulator that provides power to the sensor
-+
-+  vddio-supply:
-+    description: Regulator that provides power to the bus
-+
-+  spi-max-frequency: true
-+
-+required:
-+  - compatible
-+  - reg
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+        #include <dt-bindings/gpio/gpio.h>
-+        #include <dt-bindings/interrupt-controller/irq.h>
-+        i2c {
-+                #address-cells = <1>;
-+                #size-cells = <0>;
-+
-+                /* Example for a I2C device node */
-+                accelerometer@1d {
-+                        compatible = "adi,adxl355";
-+                        reg = <0x1d>;
-+                        interrupt-parent = <&gpio>;
-+                        interrupts = <25 IRQ_TYPE_EDGE_RISING>;
-+                        interrupt-names = "DRDY";
-+                };
-+        };
-+  - |
-+        #include <dt-bindings/gpio/gpio.h>
-+        #include <dt-bindings/interrupt-controller/irq.h>
-+        spi {
-+                #address-cells = <1>;
-+                #size-cells = <0>;
-+
-+                accelerometer@0 {
-+                        compatible = "adi,adxl355";
-+                        reg = <0>;
-+                        spi-max-frequency = <1000000>;
-+                        interrupt-parent = <&gpio>;
-+                        interrupts = <25 IRQ_TYPE_EDGE_RISING>;
-+                        interrupt-names = "DRDY";
-+                };
-+        };
+diff --git a/drivers/soc/amlogic/meson-secure-pwrc.c b/drivers/soc/amlogic/meson-secure-pwrc.c
+index 59bd195fa9c9..2eeea5e1b3b7 100644
+--- a/drivers/soc/amlogic/meson-secure-pwrc.c
++++ b/drivers/soc/amlogic/meson-secure-pwrc.c
+@@ -139,8 +139,10 @@ static int meson_secure_pwrc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	pwrc = devm_kzalloc(&pdev->dev, sizeof(*pwrc), GFP_KERNEL);
+-	if (!pwrc)
++	if (!pwrc) {
++		of_node_put(sm_np);
+ 		return -ENOMEM;
++	}
+ 
+ 	pwrc->fw = meson_sm_get(sm_np);
+ 	of_node_put(sm_np);
 -- 
 2.35.1
 
