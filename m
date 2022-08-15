@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55792594664
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC58C59466D
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:03:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352213AbiHOWzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:55:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44360 "EHLO
+        id S241047AbiHOW5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:57:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352242AbiHOWxe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:53:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D66DD45076;
-        Mon, 15 Aug 2022 12:54:46 -0700 (PDT)
+        with ESMTP id S1352210AbiHOWzL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:55:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0098D13AE3F;
+        Mon, 15 Aug 2022 12:55:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC25A6125B;
-        Mon, 15 Aug 2022 19:54:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB419C433D6;
-        Mon, 15 Aug 2022 19:54:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44993B81136;
+        Mon, 15 Aug 2022 19:55:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C214C433C1;
+        Mon, 15 Aug 2022 19:55:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593285;
-        bh=j55TNd95ho6ZbsHNHDPW0cph+TjLYNpouX6nY95nTmk=;
+        s=korg; t=1660593304;
+        bh=Jv2aLvtiyqHLtL9YV79jTFbZ91vRJlawb2asnTw+3fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uSkipxBjJx9dfeW52fXuy7MlMnNhwbWDgj4IqXf3RfVhXouPmBYu663JQejwJat5y
-         BFkPZwCYSC6Uu/L2bUie6ajoCpKCxgCbD4CRson/Z43FJ/Vnqvqod7BrftUG2D/iJo
-         V4MN1DRuFGM7NUwUrq/r8YMeecjQ05kEuAzKkEpE=
+        b=FuDUhEtxIP+xFA0jashc1D2LWgwjPeSIAKqFNwUCP9Mnh+Zzdwtjwy3/vcqx11iLD
+         kwcAUhteIcZPV1T9xZhyT85R8D6wY6dEcwx83eRDxYzopSkGZIsVy8FVSmiRdD9Yhw
+         66ll/IhVNItiNQIfk1KSqCy+5+jkZj9UPv1mHElk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Brian Masney <masneyb@onstation.org>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Luca Weiss <luca@z3ntu.xyz>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0241/1157] soc: qcom: ocmem: Fix refcount leak in of_get_ocmem
-Date:   Mon, 15 Aug 2022 19:53:17 +0200
-Message-Id: <20220815180449.198484131@linuxfoundation.org>
+Subject: [PATCH 5.19 0243/1157] ARM: dts: qcom: msm8974: add required ranges to OCMEM
+Date:   Mon, 15 Aug 2022 19:53:19 +0200
+Message-Id: <20220815180449.293579586@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,47 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 92a563fcf14b3093226fb36f12e9b5cf630c5a5d ]
+[ Upstream commit 7a16ea7f3a5ec0f30b146b058c273b7a9c8ceadf ]
 
-of_parse_phandle() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
-of_node_put() will check NULL pointer.
+The OCMEM bindings require ranges property.
 
-Fixes: 88c1e9404f1d ("soc: qcom: add OCMEM driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Brian Masney <masneyb@onstation.org>
+Fixes: a2cc991ed634 ("ARM: dts: qcom: msm8974: add ocmem node")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Luca Weiss <luca@z3ntu.xyz>
+Tested-by: Luca Weiss <luca@z3ntu.xyz>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220602042430.1114-1-linmq006@gmail.com
+Link: https://lore.kernel.org/r/20220607171848.535128-7-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/ocmem.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/qcom-msm8974.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soc/qcom/ocmem.c b/drivers/soc/qcom/ocmem.c
-index 97fd24c178f8..c92d26b73e6f 100644
---- a/drivers/soc/qcom/ocmem.c
-+++ b/drivers/soc/qcom/ocmem.c
-@@ -194,14 +194,17 @@ struct ocmem *of_get_ocmem(struct device *dev)
- 	devnode = of_parse_phandle(dev->of_node, "sram", 0);
- 	if (!devnode || !devnode->parent) {
- 		dev_err(dev, "Cannot look up sram phandle\n");
-+		of_node_put(devnode);
- 		return ERR_PTR(-ENODEV);
- 	}
- 
- 	pdev = of_find_device_by_node(devnode->parent);
- 	if (!pdev) {
- 		dev_err(dev, "Cannot find device node %s\n", devnode->name);
-+		of_node_put(devnode);
- 		return ERR_PTR(-EPROBE_DEFER);
- 	}
-+	of_node_put(devnode);
- 
- 	ocmem = platform_get_drvdata(pdev);
- 	if (!ocmem) {
+diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi b/arch/arm/boot/dts/qcom-msm8974.dtsi
+index ce9cb5e4e95d..3c31c95aa6b9 100644
+--- a/arch/arm/boot/dts/qcom-msm8974.dtsi
++++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
+@@ -1630,6 +1630,7 @@ ocmem@fdd00000 {
+ 			reg = <0xfdd00000 0x2000>,
+ 			      <0xfec00000 0x180000>;
+ 			reg-names = "ctrl", "mem";
++			ranges = <0 0xfec00000 0x180000>;
+ 			clocks = <&rpmcc RPM_SMD_OCMEMGX_CLK>,
+ 				 <&mmcc OCMEMCX_OCMEMNOC_CLK>;
+ 			clock-names = "core", "iface";
 -- 
 2.35.1
 
