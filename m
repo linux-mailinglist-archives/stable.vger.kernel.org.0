@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D433B594D2D
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46A46594A15
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245146AbiHPAtY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:49:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35380 "EHLO
+        id S243726AbiHOXH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:07:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240795AbiHPAr1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:47:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95B7B5E67;
-        Mon, 15 Aug 2022 13:45:46 -0700 (PDT)
+        with ESMTP id S1353036AbiHOXG7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:06:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCFBA86715;
+        Mon, 15 Aug 2022 12:59:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD1E061265;
-        Mon, 15 Aug 2022 20:45:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8646C433D6;
-        Mon, 15 Aug 2022 20:45:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 293C961295;
+        Mon, 15 Aug 2022 19:59:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B284C433C1;
+        Mon, 15 Aug 2022 19:59:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596345;
-        bh=o3wlLHJ0FeVKurwv53Nfr7pBx/G+aKgzwMVRwDgmasU=;
+        s=korg; t=1660593544;
+        bh=9xf/wJIL8Fjz7AVda5uQ/KOzGGQUM6Oll1SGbX8WFT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLYZVuKEszrUl6xNnFK5ddjZuyquhADE44TltucuZNMqsL2gDbhU3MQUKhpG8NdQ+
-         V0s8/JrENEuDMO6QKgLG+pHtrq5na6qsnVPnt+ErYpNFzDaahQKvOBX2sl53X3IOVu
-         45XbscptSuPUa6en69FQv3Jd9zErM1biOnIutRM4=
+        b=K/tXCsvAzMVV/d8NkfeHdRnBkVIG8EnnE56qffzsSAaoaIQS8kd8yZu+4YXScsfzX
+         uxLHZmy4uwVuH5eEmw7o2D7g2dJJ+uQWgmTcBzWISrShdB15qT4VDAKrw8HgQaP+ug
+         5aR08jrJ0St4WWvuuKRSwnR/vg6DJkzYl4hcjd5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao.yu@oppo.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1007/1157] f2fs: fix to check inline_data during compressed inode conversion
-Date:   Mon, 15 Aug 2022 20:06:03 +0200
-Message-Id: <20220815180520.102413690@linuxfoundation.org>
+        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.18 0965/1095] scsi: qla2xxx: Fix excessive I/O error messages by default
+Date:   Mon, 15 Aug 2022 20:06:04 +0200
+Message-Id: <20220815180508.991562714@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit 7165841d578e0592848e09dc9d131aa30be44e1b ]
+commit bff4873c709085e09d0ffae0c25b8e65256e3205 upstream.
 
-When converting inode to compressed one via ioctl, it needs to check
-inline_data, since inline_data flag and compressed flag are incompatible.
+Disable printing I/O error messages by default.  The messages will be
+printed only when logging was enabled.
 
-Fixes: 4c8ff7095bef ("f2fs: support data compression")
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220616053508.27186-2-njavali@marvell.com
+Fixes: 8e2d81c6b5be ("scsi: qla2xxx: Fix excessive messages during device logout")
+Cc: stable@vger.kernel.org
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/f2fs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_isr.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index d9bbecd008d2..5c950298837f 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -4401,7 +4401,7 @@ static inline bool f2fs_lfs_mode(struct f2fs_sb_info *sbi)
- static inline bool f2fs_may_compress(struct inode *inode)
- {
- 	if (IS_SWAPFILE(inode) || f2fs_is_pinned_file(inode) ||
--				f2fs_is_atomic_file(inode))
-+		f2fs_is_atomic_file(inode) || f2fs_has_inline_data(inode))
- 		return false;
- 	return S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode);
- }
--- 
-2.35.1
-
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -2637,7 +2637,7 @@ static void qla24xx_nvme_iocb_entry(scsi
+ 	}
+ 
+ 	if (unlikely(logit))
+-		ql_log(ql_dbg_io, fcport->vha, 0x5060,
++		ql_dbg(ql_dbg_io, fcport->vha, 0x5060,
+ 		   "NVME-%s ERR Handling - hdl=%x status(%x) tr_len:%x resid=%x  ox_id=%x\n",
+ 		   sp->name, sp->handle, comp_status,
+ 		   fd->transferred_length, le32_to_cpu(sts->residual_len),
+@@ -3495,7 +3495,7 @@ check_scsi_status:
+ 
+ out:
+ 	if (logit)
+-		ql_log(ql_dbg_io, fcport->vha, 0x3022,
++		ql_dbg(ql_dbg_io, fcport->vha, 0x3022,
+ 		       "FCP command status: 0x%x-0x%x (0x%x) nexus=%ld:%d:%llu portid=%02x%02x%02x oxid=0x%x cdb=%10phN len=0x%x rsp_info=0x%x resid=0x%x fw_resid=0x%x sp=%p cp=%p.\n",
+ 		       comp_status, scsi_status, res, vha->host_no,
+ 		       cp->device->id, cp->device->lun, fcport->d_id.b.domain,
 
 
