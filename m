@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 282F45941BE
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:51:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 730095941F2
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229480AbiHOU7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:59:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54478 "EHLO
+        id S1343719AbiHOU7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:59:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245616AbiHOU5d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:57:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F78CC0E70;
-        Mon, 15 Aug 2022 12:12:29 -0700 (PDT)
+        with ESMTP id S243237AbiHOU7P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:59:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D9B1C12F5;
+        Mon, 15 Aug 2022 12:12:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61E8960ED3;
-        Mon, 15 Aug 2022 19:12:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 582FAC433D6;
-        Mon, 15 Aug 2022 19:12:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B563B81115;
+        Mon, 15 Aug 2022 19:12:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D167EC433C1;
+        Mon, 15 Aug 2022 19:12:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590748;
-        bh=8wmv2mpi8sUIIu/K8J/rRbiyFnvYWdh1DOEZEe1g1cw=;
+        s=korg; t=1660590761;
+        bh=lk2zibXRueDTL0wCxC95DGvLzHBQdWK43EkDL47d7qM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y81LozF5T9LYLXNL91gSztuxk/cASvtFHEpXXY/1vBcMqjsJPpIuzi5gKsiRn9xOg
-         g4YpGR5J3I46apOv6o1w0gsoU1aDB7k0Mm5rtCjn/p1hwBdI/u3ssspD/3OwYaNHbh
-         NS8KWJBLvFMI71pZCSQ9G+Jh4f+QMnpHeh6jea9A=
+        b=c0d0IdKouN+C0e8LSqdlOI+U0EKfz9wp9URgllk7W0wSU02H2s+zD9H7SDIDhvKcm
+         zfWIZu/dYuJZG0YizTao3+A141CxYABo5GP3CaJfFwPTFdGpMA/pZXV/LOMNIYN4cZ
+         Qv2hfSLXQGBjT9tDxfhSxE8GwYNrsT8JFAi6K8/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
+        stable@vger.kernel.org,
+        Antonio Borneo <antonio.borneo@foss.st.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0331/1095] drm/virtio: Fix NULL vs IS_ERR checking in virtio_gpu_object_shmem_init
-Date:   Mon, 15 Aug 2022 19:55:30 +0200
-Message-Id: <20220815180443.479575554@linuxfoundation.org>
+Subject: [PATCH 5.18 0332/1095] drm: adv7511: override i2c address of cec before accessing it
+Date:   Mon, 15 Aug 2022 19:55:31 +0200
+Message-Id: <20220815180443.526274369@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,39 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Antonio Borneo <antonio.borneo@foss.st.com>
 
-[ Upstream commit c24968734abfed81c8f93dc5f44a7b7a9aecadfa ]
+[ Upstream commit 9cc4853e4781bf0dd0f35355dc92d97c9da02f5d ]
 
-Since drm_prime_pages_to_sg() function return error pointers.
-The drm_gem_shmem_get_sg_table() function returns error pointers too.
-Using IS_ERR() to check the return value to fix this.
+Commit 680532c50bca ("drm: adv7511: Add support for
+i2c_new_secondary_device") allows a device tree node to override
+the default addresses of the secondary i2c devices. This is useful
+for solving address conflicts on the i2c bus.
 
-Fixes: 2f2aa13724d5 ("drm/virtio: move virtio_gpu_mem_entry initialization to new function")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20220602104223.54527-1-linmq006@gmail.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+In adv7511_init_cec_regmap() the new i2c address of cec device is
+read from device tree and immediately accessed, well before it is
+written in the proper register to override the default address.
+This can cause an i2c error during probe and a consequent probe
+failure.
+
+Once the new i2c address is read from the device tree, override
+the default address before any attempt to access the cec.
+
+Tested with adv7533 and stm32mp157f.
+
+Signed-off-by: Antonio Borneo <antonio.borneo@foss.st.com>
+Fixes: 680532c50bca ("drm: adv7511: Add support for i2c_new_secondary_device")
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220607213144.427177-1-antonio.borneo@foss.st.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_object.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index f293e6ad52da..1cc8f3fc8e4b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -168,9 +168,9 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
- 	 * since virtio_gpu doesn't support dma-buf import from other devices.
- 	 */
- 	shmem->pages = drm_gem_shmem_get_sg_table(&bo->base);
--	if (!shmem->pages) {
-+	if (IS_ERR(shmem->pages)) {
- 		drm_gem_shmem_unpin(&bo->base);
--		return -EINVAL;
-+		return PTR_ERR(shmem->pages);
- 	}
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+index 668dcefbae17..fba6ad3bb6ad 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+@@ -1060,6 +1060,10 @@ static int adv7511_init_cec_regmap(struct adv7511 *adv)
+ 						ADV7511_CEC_I2C_ADDR_DEFAULT);
+ 	if (IS_ERR(adv->i2c_cec))
+ 		return PTR_ERR(adv->i2c_cec);
++
++	regmap_write(adv->regmap, ADV7511_REG_CEC_I2C_ADDR,
++		     adv->i2c_cec->addr << 1);
++
+ 	i2c_set_clientdata(adv->i2c_cec, adv);
  
- 	if (use_dma_api) {
+ 	adv->regmap_cec = devm_regmap_init_i2c(adv->i2c_cec,
+@@ -1264,9 +1268,6 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
+ 	if (ret)
+ 		goto err_i2c_unregister_packet;
+ 
+-	regmap_write(adv7511->regmap, ADV7511_REG_CEC_I2C_ADDR,
+-		     adv7511->i2c_cec->addr << 1);
+-
+ 	INIT_WORK(&adv7511->hpd_work, adv7511_hpd_work);
+ 
+ 	if (i2c->irq) {
 -- 
 2.35.1
 
