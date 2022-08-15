@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 798D85937A0
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19C7C5938FE
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232192AbiHOTS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:18:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58944 "EHLO
+        id S1343906AbiHOTS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:18:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344099AbiHOTPi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:15:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 109AA52DD8;
-        Mon, 15 Aug 2022 11:37:52 -0700 (PDT)
+        with ESMTP id S1344319AbiHOTQW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:16:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C01CD52DFB;
+        Mon, 15 Aug 2022 11:37:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A94DAB81081;
-        Mon, 15 Aug 2022 18:37:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02D32C4314B;
-        Mon, 15 Aug 2022 18:37:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DCDC3B81085;
+        Mon, 15 Aug 2022 18:37:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D3DFC433D6;
+        Mon, 15 Aug 2022 18:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588669;
-        bh=dtE/VDMmk74avq+YClQMceAC7eWhmIxaLz/G5hJIfkY=;
+        s=korg; t=1660588672;
+        bh=6mHqTLvsLe9gEjJsECa4NskXIAM/yP00pb612SforuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2cJd6GOqD8xM3dQTlsXtXscR42vK8txQtnjZtv9sZEAXET3g9sTIVk3qd1v8ZIqtG
-         au0zRcyvRQQbcCr8OSmHvGcecp+QlTS7VUzhNDOB26kdzEwP8inx3wn6mQ9lVlWGKp
-         4jBHjypS2EJ+Gr7FzmmcT3K4OGWnHKvs0/CA+BIw=
+        b=xwty51L+3TcJnmwUMFzWp5y4HfEyu2Wis/PRfB35jfo4fhdBvG0KMzo+6ZYEXYNNW
+         ldmpLVyiy8uMRuqpI7RoXTZ6w06VYku2A3Uf7yUIFAP5Hu40RlJFDYfIljhO9QGSVV
+         jCMQgT0qqN63J9qw63EnNpIIiFwsArYvvYKXEdew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Fabio Estevam <festevam@gmail.com>,
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 477/779] mmc: mxcmmc: Silence a clang warning
-Date:   Mon, 15 Aug 2022 20:02:01 +0200
-Message-Id: <20220815180357.661053375@linuxfoundation.org>
+Subject: [PATCH 5.15 478/779] mmc: renesas_sdhi: Get the reset handle early in the probe
+Date:   Mon, 15 Aug 2022 20:02:02 +0200
+Message-Id: <20220815180357.702831259@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,38 +57,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit 7dc65e3c0ef4b746a583b7c58f99873fddf5ccfa ]
+[ Upstream commit 0dac1e498f8130fdacfdd5289e3a7ac87ec1b9ad ]
 
-Change the of_device_get_match_data() cast to (uintptr_t)
-to silence the following clang warning:
+In case of devm_reset_control_get_optional_exclusive() failure we returned
+directly instead of jumping to the error path to roll back initialization.
 
-drivers/mmc/host/mxcmmc.c:1028:18: warning: cast to smaller integer type 'enum mxcmci_type' from 'const void *' [-Wvoid-pointer-to-enum-cast]
+This patch moves devm_reset_control_get_optional_exclusive() early in the
+probe so that we have the reset handle prior to initialization of the
+hardware.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 8223e885e74b ("mmc: mxc: Convert the driver to DT-only")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20220526010022.1163483-1-festevam@gmail.com
+Fixes: b4d86f37eacb7 ("mmc: renesas_sdhi: do hard reset if possible")
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Link: https://lore.kernel.org/r/20220624181438.4355-2-prabhakar.mahadev-lad.rj@bp.renesas.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mxcmmc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/renesas_sdhi_core.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mmc/host/mxcmmc.c b/drivers/mmc/host/mxcmmc.c
-index 2fe6fcdbb1b3..9bf95ba217fa 100644
---- a/drivers/mmc/host/mxcmmc.c
-+++ b/drivers/mmc/host/mxcmmc.c
-@@ -1025,7 +1025,7 @@ static int mxcmci_probe(struct platform_device *pdev)
- 	mmc->max_req_size = mmc->max_blk_size * mmc->max_blk_count;
- 	mmc->max_seg_size = mmc->max_req_size;
+diff --git a/drivers/mmc/host/renesas_sdhi_core.c b/drivers/mmc/host/renesas_sdhi_core.c
+index ae689bf54686..791e180a0617 100644
+--- a/drivers/mmc/host/renesas_sdhi_core.c
++++ b/drivers/mmc/host/renesas_sdhi_core.c
+@@ -925,6 +925,10 @@ int renesas_sdhi_probe(struct platform_device *pdev,
+ 	if (IS_ERR(priv->clk_cd))
+ 		priv->clk_cd = NULL;
  
--	host->devtype = (enum mxcmci_type)of_device_get_match_data(&pdev->dev);
-+	host->devtype = (uintptr_t)of_device_get_match_data(&pdev->dev);
++	priv->rstc = devm_reset_control_get_optional_exclusive(&pdev->dev, NULL);
++	if (IS_ERR(priv->rstc))
++		return PTR_ERR(priv->rstc);
++
+ 	priv->pinctrl = devm_pinctrl_get(&pdev->dev);
+ 	if (!IS_ERR(priv->pinctrl)) {
+ 		priv->pins_default = pinctrl_lookup_state(priv->pinctrl,
+@@ -1013,10 +1017,6 @@ int renesas_sdhi_probe(struct platform_device *pdev,
+ 	if (ret)
+ 		goto efree;
  
- 	/* adjust max_segs after devtype detection */
- 	if (!is_mpc512x_mmc(host))
+-	priv->rstc = devm_reset_control_get_optional_exclusive(&pdev->dev, NULL);
+-	if (IS_ERR(priv->rstc))
+-		return PTR_ERR(priv->rstc);
+-
+ 	ver = sd_ctrl_read16(host, CTL_VERSION);
+ 	/* GEN2_SDR104 is first known SDHI to use 32bit block count */
+ 	if (ver < SDHI_VER_GEN2_SDR104 && mmc_data->max_blk_count > U16_MAX)
 -- 
 2.35.1
 
