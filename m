@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CC1959474F
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F5C6594725
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344312AbiHOXRi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:17:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44110 "EHLO
+        id S1344650AbiHOXRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:17:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344591AbiHOXO3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:14:29 -0400
+        with ESMTP id S1346068AbiHOXOg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:14:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B8147A530;
-        Mon, 15 Aug 2022 13:01:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55C807C193;
+        Mon, 15 Aug 2022 13:02:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCC9B61299;
-        Mon, 15 Aug 2022 20:01:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1DA5C433C1;
-        Mon, 15 Aug 2022 20:01:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E89F26068D;
+        Mon, 15 Aug 2022 20:02:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7524C433C1;
+        Mon, 15 Aug 2022 20:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593710;
-        bh=uWra+Qzx8ugDojYZaaq+pat/bESp/okATL7sH1tOtCY=;
+        s=korg; t=1660593722;
+        bh=ztuiYlmLkVZncfWoJY2ReqlKwgNsbOSNGQvAWdyy7tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QPie6zsPD2LRg5oww06kOVWV+MxtSmQl9Gs0cwl4N2Sg+luR2pK/lwy5nzV0nHrmv
-         Uo7kryncDsICRT7vAKRqpzV6xVKzWYrRLkg/s293dT0kEHF1IWXQp+0oFFPrM5oxZv
-         ScSOKF2Dx9R90fFHRcitPZCQvR30sQeIVMW1kCq4=
+        b=IzzGW/4AvwkQSF5nL1wqjtmX8Hi6k3BScUm0jgMiyCABX5LVb8LziOZOeB96ypijA
+         uEOJgGsqdHsCRk872WSQnDLkh2/SZAUvR0NH6QCIkPvE6abEgrr6O16mma2scijHjc
+         Slcso2JL3ejLlKdqYXmUo+mT0Om0vKidibOOJLUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Jim Mattson <jmattson@google.com>,
+        stable@vger.kernel.org, Meeta Saggi <msaggi@purestorage.com>,
+        Mohamed Khalfella <mkhalfella@purestorage.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Eric Badger <ebadger@purestorage.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0994/1095] KVM: x86: Signal #GP, not -EPERM, on bad WRMSR(MCi_CTL/STATUS)
-Date:   Mon, 15 Aug 2022 20:06:33 +0200
-Message-Id: <20220815180510.231278419@linuxfoundation.org>
+Subject: [PATCH 5.18 0996/1095] PCI/AER: Iterate over error counters instead of error strings
+Date:   Mon, 15 Aug 2022 20:06:35 +0200
+Message-Id: <20220815180510.317409848@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,48 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Mohamed Khalfella <mkhalfella@purestorage.com>
 
-[ Upstream commit 2368048bf5c2ec4b604ac3431564071e89a0bc71 ]
+[ Upstream commit 5e6ae050955b566484f3cc6a66e3925eae87a0ed ]
 
-Return '1', not '-1', when handling an illegal WRMSR to a MCi_CTL or
-MCi_STATUS MSR.  The behavior of "all zeros' or "all ones" for CTL MSRs
-is architectural, as is the "only zeros" behavior for STATUS MSRs.  I.e.
-the intent is to inject a #GP, not exit to userspace due to an unhandled
-emulation case.  Returning '-1' gets interpreted as -EPERM up the stack
-and effecitvely kills the guest.
+Previously we iterated over AER stat *names*, e.g.,
+aer_correctable_error_string[32], but the actual stat *counters* may not be
+that large, e.g., pdev->aer_stats->dev_cor_errs[16], which means that we
+printed junk in the sysfs stats files.
 
-Fixes: 890ca9aefa78 ("KVM: Add MCE support")
-Fixes: 9ffd986c6e4e ("KVM: X86: #GP when guest attempts to write MCi_STATUS register w/o 0")
+Iterate over the stat counter arrays instead of the names to avoid this
+junk.
+
+Also, added a build time check to make sure all
+counters have entries in strings array.
+
+Fixes: 0678e3109a3c ("PCI/AER: Simplify __aer_print_error()")
+Link: https://lore.kernel.org/r/20220509181441.31884-1-mkhalfella@purestorage.com
+Reported-by: Meeta Saggi <msaggi@purestorage.com>
+Signed-off-by: Mohamed Khalfella <mkhalfella@purestorage.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Meeta Saggi <msaggi@purestorage.com>
+Reviewed-by: Eric Badger <ebadger@purestorage.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Link: https://lore.kernel.org/r/20220512222716.4112548-2-seanjc@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/pcie/aer.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 2316c978b598..0d6cea0d33a9 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3233,13 +3233,13 @@ static int set_msr_mce(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 			 */
- 			if ((offset & 0x3) == 0 &&
- 			    data != 0 && (data | (1 << 10) | 1) != ~(u64)0)
--				return -1;
-+				return 1;
+diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
+index 7952e5efd6cf..a1e38ca93cd9 100644
+--- a/drivers/pci/pcie/aer.c
++++ b/drivers/pci/pcie/aer.c
+@@ -538,7 +538,7 @@ static const char *aer_agent_string[] = {
+ 	u64 *stats = pdev->aer_stats->stats_array;			\
+ 	size_t len = 0;							\
+ 									\
+-	for (i = 0; i < ARRAY_SIZE(strings_array); i++) {		\
++	for (i = 0; i < ARRAY_SIZE(pdev->aer_stats->stats_array); i++) {\
+ 		if (strings_array[i])					\
+ 			len += sysfs_emit_at(buf, len, "%s %llu\n",	\
+ 					     strings_array[i],		\
+@@ -1347,6 +1347,11 @@ static int aer_probe(struct pcie_device *dev)
+ 	struct device *device = &dev->device;
+ 	struct pci_dev *port = dev->port;
  
- 			/* MCi_STATUS */
- 			if (!msr_info->host_initiated &&
- 			    (offset & 0x3) == 1 && data != 0) {
- 				if (!can_set_mci_status(vcpu))
--					return -1;
-+					return 1;
- 			}
- 
- 			vcpu->arch.mce_banks[offset] = data;
++	BUILD_BUG_ON(ARRAY_SIZE(aer_correctable_error_string) <
++		     AER_MAX_TYPEOF_COR_ERRS);
++	BUILD_BUG_ON(ARRAY_SIZE(aer_uncorrectable_error_string) <
++		     AER_MAX_TYPEOF_UNCOR_ERRS);
++
+ 	/* Limit to Root Ports or Root Complex Event Collectors */
+ 	if ((pci_pcie_type(port) != PCI_EXP_TYPE_RC_EC) &&
+ 	    (pci_pcie_type(port) != PCI_EXP_TYPE_ROOT_PORT))
 -- 
 2.35.1
 
