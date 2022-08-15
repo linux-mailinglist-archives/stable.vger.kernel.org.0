@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4E7E593B93
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 937B0593D65
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244194AbiHOTxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:53:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42604 "EHLO
+        id S242969AbiHOTyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:54:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345407AbiHOTwt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:52:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BFA674DC9;
-        Mon, 15 Aug 2022 11:50:53 -0700 (PDT)
+        with ESMTP id S241858AbiHOTxD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:53:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7023AE3A;
+        Mon, 15 Aug 2022 11:50:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4607611F9;
-        Mon, 15 Aug 2022 18:50:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB479C433D6;
-        Mon, 15 Aug 2022 18:50:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84D16B810A0;
+        Mon, 15 Aug 2022 18:50:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B49BBC433D6;
+        Mon, 15 Aug 2022 18:50:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589452;
-        bh=Usk5Rcc72gd/aV45Alw/CxdbW2k19I0U8Vws3hmYVRY=;
+        s=korg; t=1660589455;
+        bh=PjvIlGHNLRN6F/T3nDYHHiN9EJ37PSPnqadsUE8gwZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GHg+S9856e0n590uaYgk3nd3c7pGqfaNH7b+jNCUDu4jSjOfbToaDXlMKOL09uto0
-         w8Pl0XHS8HzsK6d2JPZbDd6Y+GaTNHXw/WbSdUH9Qc6Ce4kwoJbDtARWVoE97d3AGG
-         7j3RQ6PUDA3GZD7a0ST3tJ9T3UmuDCcnxdpT1QPU=
+        b=GmEh6MvrhqmWHwp9dPhNc00L1+oWLTWAiYHrysx1cXWbrEpdtpwGaUyZP1KyvcgVW
+         H+5EIJlbl/16jjLO+2QfCHPWuy5z2W4sBZkc4sIw8YoNVd8XRx5V8/P+tYqNkkQ/QU
+         AVZzbDypRBaiZIoJ7rh4VeuxDx/3bs2hn+DdW1KU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Keith Packard <keithpac@amazon.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Vladimir Murzin <vladimir.murzin@arm.com>
-Subject: [PATCH 5.15 722/779] ARM: remove some dead code
-Date:   Mon, 15 Aug 2022 20:06:06 +0200
-Message-Id: <20220815180408.330932233@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Eric Biggers <ebiggers@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 723/779] timekeeping: contribute wall clock to rng on time change
+Date:   Mon, 15 Aug 2022 20:06:07 +0200
+Message-Id: <20220815180408.368575578@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,90 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 08572cd41955166e387d9b4984294d37f8f7526c ]
+[ Upstream commit b8ac29b40183a6038919768b5d189c9bd91ce9b4 ]
 
-This code appears to be no longer used so let's get rid of it.
+The rng's random_init() function contributes the real time to the rng at
+boot time, so that events can at least start in relation to something
+particular in the real world. But this clock might not yet be set that
+point in boot, so nothing is contributed. In addition, the relation
+between minor clock changes from, say, NTP, and the cycle counter is
+potentially useful entropic data.
 
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Tested-by: Keith Packard <keithpac@amazon.com>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Tested-by: Vladimir Murzin <vladimir.murzin@arm.com> # ARMv7M
+This commit addresses this by mixing in a time stamp on calls to
+settimeofday and adjtimex. No entropy is credited in doing so, so it
+doesn't make initialization faster, but it is still useful input to
+have.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/entry-macro-multi.S | 24 ------------------------
- arch/arm/include/asm/smp.h               |  5 -----
- arch/arm/kernel/smp.c                    |  5 -----
- 3 files changed, 34 deletions(-)
+ kernel/time/timekeeping.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/include/asm/entry-macro-multi.S b/arch/arm/include/asm/entry-macro-multi.S
-index dfc6bfa43012..24486dad9e19 100644
---- a/arch/arm/include/asm/entry-macro-multi.S
-+++ b/arch/arm/include/asm/entry-macro-multi.S
-@@ -13,28 +13,4 @@
- 	@
- 	badrne	lr, 1b
- 	bne	asm_do_IRQ
--
--#ifdef CONFIG_SMP
--	/*
--	 * XXX
--	 *
--	 * this macro assumes that irqstat (r2) and base (r6) are
--	 * preserved from get_irqnr_and_base above
--	 */
--	ALT_SMP(test_for_ipi r0, r2, r6, lr)
--	ALT_UP_B(9997f)
--	movne	r1, sp
--	badrne	lr, 1b
--	bne	do_IPI
--#endif
--9997:
--	.endm
--
--	.macro	arch_irq_handler, symbol_name
--	.align	5
--	.global \symbol_name
--\symbol_name:
--	mov	r8, lr
--	arch_irq_handler_default
--	ret	r8
- 	.endm
-diff --git a/arch/arm/include/asm/smp.h b/arch/arm/include/asm/smp.h
-index 5d508f5d56c4..fc11ddf13b8f 100644
---- a/arch/arm/include/asm/smp.h
-+++ b/arch/arm/include/asm/smp.h
-@@ -24,11 +24,6 @@ struct seq_file;
-  */
- extern void show_ipi_list(struct seq_file *, int);
+diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
+index 871c912860ed..d6a0ff68df41 100644
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -23,6 +23,7 @@
+ #include <linux/pvclock_gtod.h>
+ #include <linux/compiler.h>
+ #include <linux/audit.h>
++#include <linux/random.h>
  
--/*
-- * Called from assembly code, this handles an IPI.
-- */
--asmlinkage void do_IPI(int ipinr, struct pt_regs *regs);
--
- /*
-  * Called from C code, this handles an IPI.
-  */
-diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
-index 842427ff2b3c..23d369ab7e03 100644
---- a/arch/arm/kernel/smp.c
-+++ b/arch/arm/kernel/smp.c
-@@ -622,11 +622,6 @@ static void ipi_complete(unsigned int cpu)
- /*
-  * Main handler for inter-processor interrupts
-  */
--asmlinkage void __exception_irq_entry do_IPI(int ipinr, struct pt_regs *regs)
--{
--	handle_IPI(ipinr, regs);
--}
--
- static void do_handle_IPI(int ipinr)
- {
- 	unsigned int cpu = smp_processor_id();
+ #include "tick-internal.h"
+ #include "ntp_internal.h"
+@@ -1326,8 +1327,10 @@ int do_settimeofday64(const struct timespec64 *ts)
+ 	/* Signal hrtimers about time change */
+ 	clock_was_set(CLOCK_SET_WALL);
+ 
+-	if (!ret)
++	if (!ret) {
+ 		audit_tk_injoffset(ts_delta);
++		add_device_randomness(ts, sizeof(*ts));
++	}
+ 
+ 	return ret;
+ }
+@@ -2413,6 +2416,7 @@ int do_adjtimex(struct __kernel_timex *txc)
+ 	ret = timekeeping_validate_timex(txc);
+ 	if (ret)
+ 		return ret;
++	add_device_randomness(txc, sizeof(*txc));
+ 
+ 	if (txc->modes & ADJ_SETOFFSET) {
+ 		struct timespec64 delta;
+@@ -2430,6 +2434,7 @@ int do_adjtimex(struct __kernel_timex *txc)
+ 	audit_ntp_init(&ad);
+ 
+ 	ktime_get_real_ts64(&ts);
++	add_device_randomness(&ts, sizeof(ts));
+ 
+ 	raw_spin_lock_irqsave(&timekeeper_lock, flags);
+ 	write_seqcount_begin(&tk_core.seq);
 -- 
 2.35.1
 
