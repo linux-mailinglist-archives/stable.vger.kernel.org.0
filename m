@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 702C9594D5C
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EF9E59492D
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:11:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239528AbiHPAyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:54:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46126 "EHLO
+        id S243583AbiHOX2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:28:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348732AbiHPAwL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:52:11 -0400
+        with ESMTP id S245481AbiHOXZt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:25:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95F8EDA3F2;
-        Mon, 15 Aug 2022 13:47:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA8DBA168;
+        Mon, 15 Aug 2022 13:06:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 693EDB8119A;
-        Mon, 15 Aug 2022 20:47:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B21A9C433D6;
-        Mon, 15 Aug 2022 20:47:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4F3FB81135;
+        Mon, 15 Aug 2022 20:06:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A2CAC433D6;
+        Mon, 15 Aug 2022 20:06:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596437;
-        bh=TMmzHK51a8LMOalsWtaa64q5yITVcLUp7g/QUp43HQw=;
+        s=korg; t=1660593962;
+        bh=1XOe91fxNjGIb2u9g3lgu/kzddDaw0ZvQ1Xl6XRc3yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qg07RO6FYOu4G4SxfmRYOavmyKUgTejH3RpbPd3iCSXj27CGvuOBXpLI7qvKcjEFu
-         hkyovVjT+HIKd4fMYb//caLYojAC+K2exqnjRancP/C7su/MMCaOIBUXPU+uW2ZV+3
-         1yAHahWx36o+vBvhu52hS3H+kNN9Ow63gxkp/kVU=
+        b=evaDNqB9QF9C/jNwSjmm/FNDqg3wMpTnZwbnSXTvfERcQHx2E0uDQwCqTww+CbvWu
+         BV5KBhriCOD26Dvp81jfrcON9T6JwCgHfAkguHNkatvZTathJqSHJ55nIUwCllxmje
+         KZBm6RLVfbLrMGNJDyF/YLQxIK3lzz69F9fNi1ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jinke Han <hanjinke.666@bytedance.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Sachin Sant <sachinp@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1078/1157] block: dont allow the same type rq_qos add more than once
+Subject: [PATCH 5.18 1035/1095] powerpc/powernv/kvm: Use darn for H_RANDOM on Power9
 Date:   Mon, 15 Aug 2022 20:07:14 +0200
-Message-Id: <20220815180523.265538828@linuxfoundation.org>
+Message-Id: <20220815180511.894527899@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,197 +55,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jinke Han <hanjinke.666@bytedance.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 14a6e2eb7df5c7897c15b109cba29ab0c4a791b6 ]
+[ Upstream commit 7ef3d06f1bc4a5e62273726f3dc2bd258ae1c71f ]
 
-In our test of iocost, we encountered some list add/del corruptions of
-inner_walk list in ioc_timer_fn.
+The existing logic in KVM to support guests calling H_RANDOM only works
+on Power8, because it looks for an RNG in the device tree, but on Power9
+we just use darn.
 
-The reason can be described as follows:
+In addition the existing code needs to work in real mode, so we have the
+special cased powernv_get_random_real_mode() to deal with that.
 
-cpu 0					cpu 1
-ioc_qos_write				ioc_qos_write
+Instead just have KVM call ppc_md.get_random_seed(), and do the real
+mode check inside of there, that way we use whatever RNG is available,
+including darn on Power9.
 
-ioc = q_to_ioc(queue);
-if (!ioc) {
-        ioc = kzalloc();
-					ioc = q_to_ioc(queue);
-					if (!ioc) {
-						ioc = kzalloc();
-						...
-						rq_qos_add(q, rqos);
-					}
-        ...
-        rq_qos_add(q, rqos);
-        ...
-}
-
-When the io.cost.qos file is written by two cpus concurrently, rq_qos may
-be added to one disk twice. In that case, there will be two iocs enabled
-and running on one disk. They own different iocgs on their active list. In
-the ioc_timer_fn function, because of the iocgs from two iocs have the
-same root iocg, the root iocg's walk_list may be overwritten by each other
-and this leads to list add/del corruptions in building or destroying the
-inner_walk list.
-
-And so far, the blk-rq-qos framework works in case that one instance for
-one type rq_qos per queue by default. This patch make this explicit and
-also fix the crash above.
-
-Signed-off-by: Jinke Han <hanjinke.666@bytedance.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220720093616.70584-1-hanjinke.666@bytedance.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: e928e9cb3601 ("KVM: PPC: Book3S HV: Add fast real-mode H_RANDOM implementation.")
+Cc: stable@vger.kernel.org # v4.1+
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Tested-by: Sachin Sant <sachinp@linux.ibm.com>
+[mpe: Rebase on previous commit, update change log appropriately]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220727143219.2684192-2-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-iocost.c    | 20 +++++++++++++-------
- block/blk-iolatency.c | 18 +++++++++++-------
- block/blk-rq-qos.h    | 11 ++++++++++-
- block/blk-wbt.c       | 12 +++++++++++-
- 4 files changed, 45 insertions(+), 16 deletions(-)
+ arch/powerpc/include/asm/archrandom.h |  5 ----
+ arch/powerpc/kvm/book3s_hv_builtin.c  |  7 +++---
+ arch/powerpc/platforms/powernv/rng.c  | 36 ++++++---------------------
+ 3 files changed, 12 insertions(+), 36 deletions(-)
 
-diff --git a/block/blk-iocost.c b/block/blk-iocost.c
-index 33a11ba971ea..c6181357e545 100644
---- a/block/blk-iocost.c
-+++ b/block/blk-iocost.c
-@@ -2886,15 +2886,21 @@ static int blk_iocost_init(struct request_queue *q)
- 	 * called before policy activation completion, can't assume that the
- 	 * target bio has an iocg associated and need to test for NULL iocg.
- 	 */
--	rq_qos_add(q, rqos);
-+	ret = rq_qos_add(q, rqos);
-+	if (ret)
-+		goto err_free_ioc;
-+
- 	ret = blkcg_activate_policy(q, &blkcg_policy_iocost);
--	if (ret) {
--		rq_qos_del(q, rqos);
--		free_percpu(ioc->pcpu_stat);
--		kfree(ioc);
--		return ret;
--	}
-+	if (ret)
-+		goto err_del_qos;
- 	return 0;
-+
-+err_del_qos:
-+	rq_qos_del(q, rqos);
-+err_free_ioc:
-+	free_percpu(ioc->pcpu_stat);
-+	kfree(ioc);
-+	return ret;
+diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
+index 9a53e29680f4..258174304904 100644
+--- a/arch/powerpc/include/asm/archrandom.h
++++ b/arch/powerpc/include/asm/archrandom.h
+@@ -38,12 +38,7 @@ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ #endif /* CONFIG_ARCH_RANDOM */
+ 
+ #ifdef CONFIG_PPC_POWERNV
+-int powernv_hwrng_present(void);
+ int powernv_get_random_long(unsigned long *v);
+-int powernv_get_random_real_mode(unsigned long *v);
+-#else
+-static inline int powernv_hwrng_present(void) { return 0; }
+-static inline int powernv_get_random_real_mode(unsigned long *v) { return 0; }
+ #endif
+ 
+ #endif /* _ASM_POWERPC_ARCHRANDOM_H */
+diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
+index 7e52d0beee77..5e4251b76e75 100644
+--- a/arch/powerpc/kvm/book3s_hv_builtin.c
++++ b/arch/powerpc/kvm/book3s_hv_builtin.c
+@@ -19,7 +19,7 @@
+ #include <asm/interrupt.h>
+ #include <asm/kvm_ppc.h>
+ #include <asm/kvm_book3s.h>
+-#include <asm/archrandom.h>
++#include <asm/machdep.h>
+ #include <asm/xics.h>
+ #include <asm/xive.h>
+ #include <asm/dbell.h>
+@@ -176,13 +176,14 @@ EXPORT_SYMBOL_GPL(kvmppc_hcall_impl_hv_realmode);
+ 
+ int kvmppc_hwrng_present(void)
+ {
+-	return powernv_hwrng_present();
++	return ppc_md.get_random_seed != NULL;
  }
+ EXPORT_SYMBOL_GPL(kvmppc_hwrng_present);
  
- static struct blkcg_policy_data *ioc_cpd_alloc(gfp_t gfp)
-diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
-index 9568bf8dfe82..7845dca5fcfd 100644
---- a/block/blk-iolatency.c
-+++ b/block/blk-iolatency.c
-@@ -773,19 +773,23 @@ int blk_iolatency_init(struct request_queue *q)
- 	rqos->ops = &blkcg_iolatency_ops;
- 	rqos->q = q;
+ long kvmppc_rm_h_random(struct kvm_vcpu *vcpu)
+ {
+-	if (powernv_get_random_real_mode(&vcpu->arch.regs.gpr[4]))
++	if (ppc_md.get_random_seed &&
++	    ppc_md.get_random_seed(&vcpu->arch.regs.gpr[4]))
+ 		return H_SUCCESS;
  
--	rq_qos_add(q, rqos);
+ 	return H_HARDWARE;
+diff --git a/arch/powerpc/platforms/powernv/rng.c b/arch/powerpc/platforms/powernv/rng.c
+index 2287c9cd0cd5..d19305292e1e 100644
+--- a/arch/powerpc/platforms/powernv/rng.c
++++ b/arch/powerpc/platforms/powernv/rng.c
+@@ -29,15 +29,6 @@ struct powernv_rng {
+ 
+ static DEFINE_PER_CPU(struct powernv_rng *, powernv_rng);
+ 
+-int powernv_hwrng_present(void)
+-{
+-	struct powernv_rng *rng;
 -
-+	ret = rq_qos_add(q, rqos);
-+	if (ret)
-+		goto err_free;
- 	ret = blkcg_activate_policy(q, &blkcg_policy_iolatency);
--	if (ret) {
--		rq_qos_del(q, rqos);
--		kfree(blkiolat);
--		return ret;
--	}
-+	if (ret)
-+		goto err_qos_del;
- 
- 	timer_setup(&blkiolat->timer, blkiolatency_timer_fn, 0);
- 	INIT_WORK(&blkiolat->enable_work, blkiolatency_enable_work_fn);
- 
- 	return 0;
-+
-+err_qos_del:
-+	rq_qos_del(q, rqos);
-+err_free:
-+	kfree(blkiolat);
-+	return ret;
- }
- 
- static void iolatency_set_min_lat_nsec(struct blkcg_gq *blkg, u64 val)
-diff --git a/block/blk-rq-qos.h b/block/blk-rq-qos.h
-index 0e46052b018a..08b856570ad1 100644
---- a/block/blk-rq-qos.h
-+++ b/block/blk-rq-qos.h
-@@ -86,7 +86,7 @@ static inline void rq_wait_init(struct rq_wait *rq_wait)
- 	init_waitqueue_head(&rq_wait->wait);
- }
- 
--static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
-+static inline int rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
+-	rng = get_cpu_var(powernv_rng);
+-	put_cpu_var(rng);
+-	return rng != NULL;
+-}
+-
+ static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
  {
- 	/*
- 	 * No IO can be in-flight when adding rqos, so freeze queue, which
-@@ -98,6 +98,8 @@ static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
- 	blk_mq_freeze_queue(q);
- 
- 	spin_lock_irq(&q->queue_lock);
-+	if (rq_qos_id(q, rqos->id))
-+		goto ebusy;
- 	rqos->next = q->rq_qos;
- 	q->rq_qos = rqos;
- 	spin_unlock_irq(&q->queue_lock);
-@@ -109,6 +111,13 @@ static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
- 		blk_mq_debugfs_register_rqos(rqos);
- 		mutex_unlock(&q->debugfs_mutex);
- 	}
-+
-+	return 0;
-+ebusy:
-+	spin_unlock_irq(&q->queue_lock);
-+	blk_mq_unfreeze_queue(q);
-+	return -EBUSY;
-+
+ 	unsigned long parity;
+@@ -58,19 +49,6 @@ static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
+ 	return val;
  }
  
- static inline void rq_qos_del(struct request_queue *q, struct rq_qos *rqos)
-diff --git a/block/blk-wbt.c b/block/blk-wbt.c
-index 0c119be0e813..ae6ea0b54579 100644
---- a/block/blk-wbt.c
-+++ b/block/blk-wbt.c
-@@ -820,6 +820,7 @@ int wbt_init(struct request_queue *q)
+-int powernv_get_random_real_mode(unsigned long *v)
+-{
+-	struct powernv_rng *rng;
+-
+-	rng = raw_cpu_read(powernv_rng);
+-	if (!rng)
+-		return 0;
+-
+-	*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
+-
+-	return 1;
+-}
+-
+ static int powernv_get_random_darn(unsigned long *v)
  {
- 	struct rq_wb *rwb;
- 	int i;
-+	int ret;
+ 	unsigned long val;
+@@ -107,12 +85,14 @@ int powernv_get_random_long(unsigned long *v)
+ {
+ 	struct powernv_rng *rng;
  
- 	rwb = kzalloc(sizeof(*rwb), GFP_KERNEL);
- 	if (!rwb)
-@@ -846,7 +847,10 @@ int wbt_init(struct request_queue *q)
- 	/*
- 	 * Assign rwb and add the stats callback.
- 	 */
--	rq_qos_add(q, &rwb->rqos);
-+	ret = rq_qos_add(q, &rwb->rqos);
-+	if (ret)
-+		goto err_free;
-+
- 	blk_stat_add_callback(q, rwb->cb);
- 
- 	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
-@@ -855,4 +859,10 @@ int wbt_init(struct request_queue *q)
- 	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
- 
- 	return 0;
-+
-+err_free:
-+	blk_stat_free_callback(rwb->cb);
-+	kfree(rwb);
-+	return ret;
-+
+-	rng = get_cpu_var(powernv_rng);
+-
+-	*v = rng_whiten(rng, in_be64(rng->regs));
+-
+-	put_cpu_var(rng);
+-
++	if (mfmsr() & MSR_DR) {
++		rng = get_cpu_var(powernv_rng);
++		*v = rng_whiten(rng, in_be64(rng->regs));
++		put_cpu_var(rng);
++	} else {
++		rng = raw_cpu_read(powernv_rng);
++		*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
++	}
+ 	return 1;
  }
+ EXPORT_SYMBOL_GPL(powernv_get_random_long);
 -- 
 2.35.1
 
