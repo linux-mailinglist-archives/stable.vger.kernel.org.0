@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51694593522
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:27:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0CA6593525
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240044AbiHOSTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:19:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59130 "EHLO
+        id S240058AbiHOSUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:20:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239714AbiHOSSw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:18:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA8DC2AE11;
-        Mon, 15 Aug 2022 11:16:15 -0700 (PDT)
+        with ESMTP id S240052AbiHOSSy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:18:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F8C22BB10;
+        Mon, 15 Aug 2022 11:16:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 325C361290;
-        Mon, 15 Aug 2022 18:16:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 309D7C433D7;
-        Mon, 15 Aug 2022 18:16:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBDEE6129E;
+        Mon, 15 Aug 2022 18:16:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6027C43470;
+        Mon, 15 Aug 2022 18:16:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587374;
-        bh=s7UlpMwTs1CItbkC0akguoqCNt4uXYEg3xOEljhn0+8=;
+        s=korg; t=1660587377;
+        bh=y5dOMvY/vtWmTZ442l2tNq7mMPfl2pLTBxrmgWBug+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IC0o/z95LaSIP1STqzsGp873tB/OQWpw8+P/wwQ+Z/gcNZgO7QL4Ec7ILkrGvBEHh
-         DVbUQUeXWyHDjxA+Ld2EgvaFWAHmlviLHX7o6BfEMMe5Fg+GRRmbKm+ZC7uL8AQa+Q
-         1qiJnxn48IwvhGRLpkQxx+7B6Wxr0Xcjla7mJFao=
+        b=WU3oipX0VDGhbYtPg0QcCeq92WgfhEiUN6Wc+MTT4aeyUpWVVeCOVTxlDZc6TWHjw
+         xMlWOi4+So9GXHwumvlezf4V9DBOLnxCAJb+bwYlTaG+nm5xr7vQm4DzHT3eGtSzNJ
+         UQDWUJVFvizvO9YAqrkkTaLySDNJaUd61yxr0S5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
         David Airlie <airlied@linux.ie>
-Subject: [PATCH 5.15 066/779] drm/nouveau/acpi: Dont print error when we get -EINPROGRESS from pm_runtime
-Date:   Mon, 15 Aug 2022 19:55:10 +0200
-Message-Id: <20220815180340.098324985@linuxfoundation.org>
+Subject: [PATCH 5.15 067/779] drm/nouveau/kms: Fix failure path for creating DP connectors
+Date:   Mon, 15 Aug 2022 19:55:11 +0200
+Message-Id: <20220815180340.137533901@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,30 +55,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lyude Paul <lyude@redhat.com>
 
-commit 53c26181950ddc3c8ace3c0939c89e9c4d8deeb9 upstream.
+commit ca0367ca5d9216644b41f86348d6661f8d9e32d8 upstream.
 
-Since this isn't actually a failure.
+It looks like that when we moved nouveau over to using drm_dp_aux_init()
+and registering it's aux bus during late connector registration, we totally
+forgot to fix the failure codepath in nouveau_connector_create() - as it
+still seems to assume that drm_dp_aux_init() can fail (it can't).
+
+So, let's fix that and also add a missing check to ensure that we've
+properly allocated nv_connector->aux.name while we're at it.
 
 Signed-off-by: Lyude Paul <lyude@redhat.com>
 Reviewed-by: David Airlie <airlied@linux.ie>
-Fixes: 79e765ad665d ("drm/nouveau/drm/nouveau: Prevent handling ACPI HPD events too early")
-Cc: <stable@vger.kernel.org> # v4.19+
-Link: https://patchwork.freedesktop.org/patch/msgid/20220714174234.949259-2-lyude@redhat.com
+Fixes: fd43ad9d47e7 ("drm/nouveau/kms/nv50-: Move AUX adapter reg to connector late register/early unregister")
+Cc: <stable@vger.kernel.org> # v5.14+
+Link: https://patchwork.freedesktop.org/patch/msgid/20220526204313.656473-1-lyude@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_display.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nouveau_connector.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nouveau_display.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_display.c
-@@ -540,7 +540,7 @@ nouveau_display_acpi_ntfy(struct notifie
- 				 * it's own hotplug events.
- 				 */
- 				pm_runtime_put_autosuspend(drm->dev->dev);
--			} else if (ret == 0) {
-+			} else if (ret == 0 || ret == -EINPROGRESS) {
- 				/* We've started resuming the GPU already, so
- 				 * it will handle scheduling a full reprobe
- 				 * itself
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -1361,13 +1361,11 @@ nouveau_connector_create(struct drm_devi
+ 		snprintf(aux_name, sizeof(aux_name), "sor-%04x-%04x",
+ 			 dcbe->hasht, dcbe->hashm);
+ 		nv_connector->aux.name = kstrdup(aux_name, GFP_KERNEL);
+-		drm_dp_aux_init(&nv_connector->aux);
+-		if (ret) {
+-			NV_ERROR(drm, "Failed to init AUX adapter for sor-%04x-%04x: %d\n",
+-				 dcbe->hasht, dcbe->hashm, ret);
++		if (!nv_connector->aux.name) {
+ 			kfree(nv_connector);
+-			return ERR_PTR(ret);
++			return ERR_PTR(-ENOMEM);
+ 		}
++		drm_dp_aux_init(&nv_connector->aux);
+ 		fallthrough;
+ 	default:
+ 		funcs = &nouveau_connector_funcs;
 
 
