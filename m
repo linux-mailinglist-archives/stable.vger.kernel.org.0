@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 681D659504F
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:40:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45FF9595051
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:40:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231588AbiHPEkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:40:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36662 "EHLO
+        id S231639AbiHPEkH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:40:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230053AbiHPEje (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:39:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F43ECD7AE;
-        Mon, 15 Aug 2022 13:30:46 -0700 (PDT)
+        with ESMTP id S230369AbiHPEjf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:39:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02A36CE309;
+        Mon, 15 Aug 2022 13:31:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DA7C60EE9;
-        Mon, 15 Aug 2022 20:30:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 799ABC433C1;
-        Mon, 15 Aug 2022 20:30:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F57DB8119A;
+        Mon, 15 Aug 2022 20:31:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D19DDC433D6;
+        Mon, 15 Aug 2022 20:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595444;
-        bh=h1c5kmFWQCXORLtYNwoZ9HDkuyhJMikKoqEajH9jiWY=;
+        s=korg; t=1660595470;
+        bh=QlOz2Io+byC6AKMjBO+S+1VJ4N/d58bt7s1z5/Zdtc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jOJKdQAkirI5kRtuhhvi/QrwS4sK7GBNA1RgYyVMnHmVgj3euO6bHgD9hfTwJKM9X
-         FyMPIjy+SmURy+4Hs+NZOFIESqZt9Ira2RLWEbG7R/UPBQLuqVH1Gx8pRy5IlwQFxf
-         AYu4RctxKzVoALH0bd5g7BKa5DuevfHEnPGuIxOc=
+        b=jmSTxMTsXTCLLRkHDaV1ZlFzxwWffaZJbpEM1Q/Vv1s82Zth1U5dRha4M3+RhBTTy
+         kLLASou6rfd6zriRYfnR4xUwtbQ5P+tD3QEG1gRuk4IylO2V0W9k652ugT7wGe2H63
+         FAzLL5t3HiszyXSPNQEJZnnj2QCxglHk8H4nBB5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
-        Marco Elver <elver@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0767/1157] kasan: fix zeroing vmalloc memory with HW_TAGS
-Date:   Mon, 15 Aug 2022 20:02:03 +0200
-Message-Id: <20220815180510.173732661@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0775/1157] PCI: dwc: Deallocate EPC memory on dw_pcie_ep_init() errors
+Date:   Mon, 15 Aug 2022 20:02:11 +0200
+Message-Id: <20220815180510.494422349@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -58,140 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Konovalov <andreyknvl@google.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 6c2f761dad7851d8088b91063ccaea3c970efe78 ]
+[ Upstream commit 8161e9626b50892eaedbd8070ecb1586ecedb109 ]
 
-HW_TAGS KASAN skips zeroing page_alloc allocations backing vmalloc
-mappings via __GFP_SKIP_ZERO.  Instead, these pages are zeroed via
-kasan_unpoison_vmalloc() by passing the KASAN_VMALLOC_INIT flag.
+If dw_pcie_ep_init() fails to perform any action after the EPC memory is
+initialized and the MSI memory region is allocated, the latter parts won't
+be undone thus causing a memory leak.  Add a cleanup-on-error path to fix
+these leaks.
 
-The problem is that __kasan_unpoison_vmalloc() does not zero pages when
-either kasan_vmalloc_enabled() or is_vmalloc_or_module_addr() fail.
-
-Thus:
-
-1. Change __vmalloc_node_range() to only set KASAN_VMALLOC_INIT when
-   __GFP_SKIP_ZERO is set.
-
-2. Change __kasan_unpoison_vmalloc() to always zero pages when the
-   KASAN_VMALLOC_INIT flag is set.
-
-3. Add WARN_ON() asserts to check that KASAN_VMALLOC_INIT cannot be set
-   in other early return paths of __kasan_unpoison_vmalloc().
-
-Also clean up the comment in __kasan_unpoison_vmalloc.
-
-Link: https://lkml.kernel.org/r/4bc503537efdc539ffc3f461c1b70162eea31cf6.1654798516.git.andreyknvl@google.com
-Fixes: 23689e91fb22 ("kasan, vmalloc: add vmalloc tagging for HW_TAGS")
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+[bhelgaas: commit log]
+Fixes: 2fd0c9d966cc ("PCI: designware-ep: Pre-allocate memory for MSI in dw_pcie_ep_init")
+Link: https://lore.kernel.org/r/20220624143428.8334-6-Sergey.Semin@baikalelectronics.ru
+Tested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/kasan/hw_tags.c | 32 +++++++++++++++++++++++---------
- mm/vmalloc.c       | 10 +++++-----
- 2 files changed, 28 insertions(+), 14 deletions(-)
+ .../pci/controller/dwc/pcie-designware-ep.c    | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/mm/kasan/hw_tags.c b/mm/kasan/hw_tags.c
-index 9e1b6544bfa8..9ad8eff71b28 100644
---- a/mm/kasan/hw_tags.c
-+++ b/mm/kasan/hw_tags.c
-@@ -257,27 +257,37 @@ static void unpoison_vmalloc_pages(const void *addr, u8 tag)
+diff --git a/drivers/pci/controller/dwc/pcie-designware-ep.c b/drivers/pci/controller/dwc/pcie-designware-ep.c
+index 0eda8236c125..13c2e73f0eaf 100644
+--- a/drivers/pci/controller/dwc/pcie-designware-ep.c
++++ b/drivers/pci/controller/dwc/pcie-designware-ep.c
+@@ -780,8 +780,9 @@ int dw_pcie_ep_init(struct dw_pcie_ep *ep)
+ 	ep->msi_mem = pci_epc_mem_alloc_addr(epc, &ep->msi_mem_phys,
+ 					     epc->mem->window.page_size);
+ 	if (!ep->msi_mem) {
++		ret = -ENOMEM;
+ 		dev_err(dev, "Failed to reserve memory for MSI/MSI-X\n");
+-		return -ENOMEM;
++		goto err_exit_epc_mem;
  	}
+ 
+ 	if (ep->ops->get_features) {
+@@ -790,6 +791,19 @@ int dw_pcie_ep_init(struct dw_pcie_ep *ep)
+ 			return 0;
+ 	}
+ 
+-	return dw_pcie_ep_init_complete(ep);
++	ret = dw_pcie_ep_init_complete(ep);
++	if (ret)
++		goto err_free_epc_mem;
++
++	return 0;
++
++err_free_epc_mem:
++	pci_epc_mem_free_addr(epc, ep->msi_mem_phys, ep->msi_mem,
++			      epc->mem->window.page_size);
++
++err_exit_epc_mem:
++	pci_epc_mem_exit(epc);
++
++	return ret;
  }
- 
-+static void init_vmalloc_pages(const void *start, unsigned long size)
-+{
-+	const void *addr;
-+
-+	for (addr = start; addr < start + size; addr += PAGE_SIZE) {
-+		struct page *page = virt_to_page(addr);
-+
-+		clear_highpage_kasan_tagged(page);
-+	}
-+}
-+
- void *__kasan_unpoison_vmalloc(const void *start, unsigned long size,
- 				kasan_vmalloc_flags_t flags)
- {
- 	u8 tag;
- 	unsigned long redzone_start, redzone_size;
- 
--	if (!kasan_vmalloc_enabled())
--		return (void *)start;
--
--	if (!is_vmalloc_or_module_addr(start))
-+	if (!kasan_vmalloc_enabled() || !is_vmalloc_or_module_addr(start)) {
-+		if (flags & KASAN_VMALLOC_INIT)
-+			init_vmalloc_pages(start, size);
- 		return (void *)start;
-+	}
- 
- 	/*
--	 * Skip unpoisoning and assigning a pointer tag for non-VM_ALLOC
--	 * mappings as:
-+	 * Don't tag non-VM_ALLOC mappings, as:
- 	 *
- 	 * 1. Unlike the software KASAN modes, hardware tag-based KASAN only
- 	 *    supports tagging physical memory. Therefore, it can only tag a
- 	 *    single mapping of normal physical pages.
- 	 * 2. Hardware tag-based KASAN can only tag memory mapped with special
--	 *    mapping protection bits, see arch_vmalloc_pgprot_modify().
-+	 *    mapping protection bits, see arch_vmap_pgprot_tagged().
- 	 *    As non-VM_ALLOC mappings can be mapped outside of vmalloc code,
- 	 *    providing these bits would require tracking all non-VM_ALLOC
- 	 *    mappers.
-@@ -289,15 +299,19 @@ void *__kasan_unpoison_vmalloc(const void *start, unsigned long size,
- 	 *
- 	 * For non-VM_ALLOC allocations, page_alloc memory is tagged as usual.
- 	 */
--	if (!(flags & KASAN_VMALLOC_VM_ALLOC))
-+	if (!(flags & KASAN_VMALLOC_VM_ALLOC)) {
-+		WARN_ON(flags & KASAN_VMALLOC_INIT);
- 		return (void *)start;
-+	}
- 
- 	/*
- 	 * Don't tag executable memory.
- 	 * The kernel doesn't tolerate having the PC register tagged.
- 	 */
--	if (!(flags & KASAN_VMALLOC_PROT_NORMAL))
-+	if (!(flags & KASAN_VMALLOC_PROT_NORMAL)) {
-+		WARN_ON(flags & KASAN_VMALLOC_INIT);
- 		return (void *)start;
-+	}
- 
- 	tag = kasan_random_tag();
- 	start = set_tag(start, tag);
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index effd1ff6a4b4..a1ab9b472571 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -3168,15 +3168,15 @@ void *__vmalloc_node_range(unsigned long size, unsigned long align,
- 
- 	/*
- 	 * Mark the pages as accessible, now that they are mapped.
--	 * The init condition should match the one in post_alloc_hook()
--	 * (except for the should_skip_init() check) to make sure that memory
--	 * is initialized under the same conditions regardless of the enabled
--	 * KASAN mode.
-+	 * The condition for setting KASAN_VMALLOC_INIT should complement the
-+	 * one in post_alloc_hook() with regards to the __GFP_SKIP_ZERO check
-+	 * to make sure that memory is initialized under the same conditions.
- 	 * Tag-based KASAN modes only assign tags to normal non-executable
- 	 * allocations, see __kasan_unpoison_vmalloc().
- 	 */
- 	kasan_flags |= KASAN_VMALLOC_VM_ALLOC;
--	if (!want_init_on_free() && want_init_on_alloc(gfp_mask))
-+	if (!want_init_on_free() && want_init_on_alloc(gfp_mask) &&
-+	    (gfp_mask & __GFP_SKIP_ZERO))
- 		kasan_flags |= KASAN_VMALLOC_INIT;
- 	/* KASAN_VMALLOC_PROT_NORMAL already set if required. */
- 	area->addr = kasan_unpoison_vmalloc(area->addr, real_size, kasan_flags);
+ EXPORT_SYMBOL_GPL(dw_pcie_ep_init);
 -- 
 2.35.1
 
