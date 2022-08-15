@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 403F85949CC
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:15:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74B2D59484A
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355187AbiHOXzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:55:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48858 "EHLO
+        id S1355158AbiHOXzs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:55:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355090AbiHOXv1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:51:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99D9184EF5;
-        Mon, 15 Aug 2022 13:16:19 -0700 (PDT)
+        with ESMTP id S1355260AbiHOXvp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:51:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 010B0915DA;
+        Mon, 15 Aug 2022 13:16:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2F4A60F17;
-        Mon, 15 Aug 2022 20:16:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8FCBC433C1;
-        Mon, 15 Aug 2022 20:16:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B4A7B81135;
+        Mon, 15 Aug 2022 20:16:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFF27C433C1;
+        Mon, 15 Aug 2022 20:16:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594578;
-        bh=ajPxIQ9KfrZmhP73PqXnCWiAJ9Ydva+t3i73ZM8kKfE=;
+        s=korg; t=1660594581;
+        bh=1K9xXNSG9/yXeEpePkN/PftOVnjSIAgTNM/gGLaMToY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LFHV0suoC1AhDcl7OR4o4TvFN1dLgogPfg41HXQXSYZ6Sd/WNBJKBaRr5Vro8eBVK
-         htU4Ht+IU1szQuQdRNiuhRhz+9SZkZj/ECEgo8UiusNxFntvTBd/2C6BWIqN7PWkTI
-         J2fAXlx7FPq6k269XAVU6ZmpB58eqi4JKuquGWu8=
+        b=lDQjwlgnBh/v1YPAFVbwEeHHCGGaB8NiNmWGfeNydjDLuAypNl0LvmNGTTmWSYnd8
+         cYixUDqkQhtsnpYTb3m6o91OHXT2GUZWPYMR+yc6IoQq9fHrQMaJVMyCsD1SoASV6w
+         y2LFabK2gdIZiXRTDwJ4u4zRNiAhUeVwWn+l9n8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonglong Li <liyonglong@chinatelecom.cn>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Anquan Wu <leiqi96@hotmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0493/1157] tcp: make retransmitted SKB fit into the send window
-Date:   Mon, 15 Aug 2022 19:57:29 +0200
-Message-Id: <20220815180459.368689561@linuxfoundation.org>
+Subject: [PATCH 5.19 0494/1157] libbpf: Fix the name of a reused map
+Date:   Mon, 15 Aug 2022 19:57:30 +0200
+Message-Id: <20220815180459.411957333@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,110 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonglong Li <liyonglong@chinatelecom.cn>
+From: Anquan Wu <leiqi96@hotmail.com>
 
-[ Upstream commit 536a6c8e05f95e3d1118c40ae8b3022ee2d05d52 ]
+[ Upstream commit bf3f00378524adae16628cbadbd11ba7211863bb ]
 
-current code of __tcp_retransmit_skb only check TCP_SKB_CB(skb)->seq
-in send window, and TCP_SKB_CB(skb)->seq_end maybe out of send window.
-If receiver has shrunk his window, and skb is out of new window,  it
-should retransmit a smaller portion of the payload.
+BPF map name is limited to BPF_OBJ_NAME_LEN.
+A map name is defined as being longer than BPF_OBJ_NAME_LEN,
+it will be truncated to BPF_OBJ_NAME_LEN when a userspace program
+calls libbpf to create the map. A pinned map also generates a path
+in the /sys. If the previous program wanted to reuse the map，
+it can not get bpf_map by name, because the name of the map is only
+partially the same as the name which get from pinned path.
 
-test packetdrill script:
-    0 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
-   +0 fcntl(3, F_GETFL) = 0x2 (flags O_RDWR)
-   +0 fcntl(3, F_SETFL, O_RDWR|O_NONBLOCK) = 0
+The syscall information below show that map name "process_pinned_map"
+is truncated to "process_pinned_".
 
-   +0 connect(3, ..., ...) = -1 EINPROGRESS (Operation now in progress)
-   +0 > S 0:0(0)  win 65535 <mss 1460,sackOK,TS val 100 ecr 0,nop,wscale 8>
- +.05 < S. 0:0(0) ack 1 win 6000 <mss 1000,nop,nop,sackOK>
-   +0 > . 1:1(0) ack 1
+    bpf(BPF_OBJ_GET, {pathname="/sys/fs/bpf/process_pinned_map",
+    bpf_fd=0, file_flags=0}, 144) = -1 ENOENT (No such file or directory)
 
-   +0 write(3, ..., 10000) = 10000
+    bpf(BPF_MAP_CREATE, {map_type=BPF_MAP_TYPE_HASH, key_size=4,
+    value_size=4,max_entries=1024, map_flags=0, inner_map_fd=0,
+    map_name="process_pinned_",map_ifindex=0, btf_fd=3, btf_key_type_id=6,
+    btf_value_type_id=10,btf_vmlinux_value_type_id=0}, 72) = 4
 
-   +0 > . 1:2001(2000) ack 1 win 65535
-   +0 > . 2001:4001(2000) ack 1 win 65535
-   +0 > . 4001:6001(2000) ack 1 win 65535
+This patch check that if the name of pinned map are the same as the
+actual name for the first (BPF_OBJ_NAME_LEN - 1),
+bpf map still uses the name which is included in bpf object.
 
- +.05 < . 1:1(0) ack 4001 win 1001
-
-and tcpdump show:
-192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 1:2001, ack 1, win 65535, length 2000
-192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 2001:4001, ack 1, win 65535, length 2000
-192.168.226.67.55 > 192.0.2.1.8080: Flags [P.], seq 4001:5001, ack 1, win 65535, length 1000
-192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 5001:6001, ack 1, win 65535, length 1000
-192.0.2.1.8080 > 192.168.226.67.55: Flags [.], ack 4001, win 1001, length 0
-192.168.226.67.55 > 192.0.2.1.8080: Flags [.], seq 5001:6001, ack 1, win 65535, length 1000
-192.168.226.67.55 > 192.0.2.1.8080: Flags [P.], seq 4001:5001, ack 1, win 65535, length 1000
-
-when cient retract window to 1001, send window is [4001,5002],
-but TLP send 5001-6001 packet which is out of send window.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yonglong Li <liyonglong@chinatelecom.cn>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/1657532838-20200-1-git-send-email-liyonglong@chinatelecom.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 26736eb9a483 ("tools: libbpf: allow map reuse")
+Signed-off-by: Anquan Wu <leiqi96@hotmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/OSZP286MB1725CEA1C95C5CB8E7CCC53FB8869@OSZP286MB1725.JPNP286.PROD.OUTLOOK.COM
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ tools/lib/bpf/libbpf.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 4c376b6d8764..ec9a4f621703 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -3142,7 +3142,7 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	unsigned int cur_mss;
- 	int diff, len, err;
--
-+	int avail_wnd;
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index b9245bf688fa..5b9b42ab7aa0 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -4327,7 +4327,7 @@ int bpf_map__set_autocreate(struct bpf_map *map, bool autocreate)
+ int bpf_map__reuse_fd(struct bpf_map *map, int fd)
+ {
+ 	struct bpf_map_info info = {};
+-	__u32 len = sizeof(info);
++	__u32 len = sizeof(info), name_len;
+ 	int new_fd, err;
+ 	char *new_name;
  
- 	/* Inconclusive MTU probe */
- 	if (icsk->icsk_mtup.probe_size)
-@@ -3164,17 +3164,25 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
- 		return -EHOSTUNREACH; /* Routing failure or similar. */
+@@ -4337,7 +4337,12 @@ int bpf_map__reuse_fd(struct bpf_map *map, int fd)
+ 	if (err)
+ 		return libbpf_err(err);
  
- 	cur_mss = tcp_current_mss(sk);
-+	avail_wnd = tcp_wnd_end(tp) - TCP_SKB_CB(skb)->seq;
+-	new_name = strdup(info.name);
++	name_len = strlen(info.name);
++	if (name_len == BPF_OBJ_NAME_LEN - 1 && strncmp(map->name, info.name, name_len) == 0)
++		new_name = strdup(map->name);
++	else
++		new_name = strdup(info.name);
++
+ 	if (!new_name)
+ 		return libbpf_err(-errno);
  
- 	/* If receiver has shrunk his window, and skb is out of
- 	 * new window, do not retransmit it. The exception is the
- 	 * case, when window is shrunk to zero. In this case
--	 * our retransmit serves as a zero window probe.
-+	 * our retransmit of one segment serves as a zero window probe.
- 	 */
--	if (!before(TCP_SKB_CB(skb)->seq, tcp_wnd_end(tp)) &&
--	    TCP_SKB_CB(skb)->seq != tp->snd_una)
--		return -EAGAIN;
-+	if (avail_wnd <= 0) {
-+		if (TCP_SKB_CB(skb)->seq != tp->snd_una)
-+			return -EAGAIN;
-+		avail_wnd = cur_mss;
-+	}
- 
- 	len = cur_mss * segs;
-+	if (len > avail_wnd) {
-+		len = rounddown(avail_wnd, cur_mss);
-+		if (!len)
-+			len = avail_wnd;
-+	}
- 	if (skb->len > len) {
- 		if (tcp_fragment(sk, TCP_FRAG_IN_RTX_QUEUE, skb, len,
- 				 cur_mss, GFP_ATOMIC))
-@@ -3188,8 +3196,9 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
- 		diff -= tcp_skb_pcount(skb);
- 		if (diff)
- 			tcp_adjust_pcount(sk, skb, diff);
--		if (skb->len < cur_mss)
--			tcp_retrans_try_collapse(sk, skb, cur_mss);
-+		avail_wnd = min_t(int, avail_wnd, cur_mss);
-+		if (skb->len < avail_wnd)
-+			tcp_retrans_try_collapse(sk, skb, avail_wnd);
- 	}
- 
- 	/* RFC3168, section 6.1.1.1. ECN fallback */
 -- 
 2.35.1
 
