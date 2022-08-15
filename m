@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AF4F594DF7
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:35:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C1E2594CB7
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245526AbiHPBAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 21:00:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55338 "EHLO
+        id S244341AbiHPBAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 21:00:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348940AbiHPA54 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:57:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D001A153D;
-        Mon, 15 Aug 2022 13:49:33 -0700 (PDT)
+        with ESMTP id S233193AbiHPAy0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:54:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EB4319D0DB;
+        Mon, 15 Aug 2022 13:47:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EAE2C61275;
-        Mon, 15 Aug 2022 20:49:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB6D5C433D6;
-        Mon, 15 Aug 2022 20:49:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EB476126B;
+        Mon, 15 Aug 2022 20:47:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8539AC433C1;
+        Mon, 15 Aug 2022 20:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596572;
-        bh=gDAwmXYERhw10a9sfoxHyQnxm9AwJu7cfxmrBmi3DU0=;
+        s=korg; t=1660596471;
+        bh=PgS+X4waG6qoAFVttaBkxVxkx/Dv9YS9LoA/5cdQop8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QrQosL9n3T9tsAHvgp2vooUhS2Maf30ebdyteat+8oj8hRuoR4rKLO2cg3qaKkkTK
-         WtSAYB+ktFzv4uh3jPd4MAF25mZqFlMooSoN9MQr8CwPfmTpE9pq+1koe1v1Jbl6ju
-         +6/Ir2TrL/FkdknTbUIw78l/W4+ZjdmtBN/+rgPQ=
+        b=UdZA1aHtHn1l5e0U5R5nP4iLT//LCr9N0Jf4Urdwxm9l3mEsi+pG45GdiVVObbJV1
+         F5lMHK6s93oIB5TxVQSTYNEMCJVLoEj7czBRPxYFzKWNoCyZHbK5REejSazCnaVCRV
+         mqxqPP0Eg5BmwUOLDo9+h4mU4HJX/dU9P0Zoe+gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
+        stable@vger.kernel.org, Stefan Roesch <shr@fb.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1089/1157] btrfs: zoned: finish least available block group on data bg allocation
-Date:   Mon, 15 Aug 2022 20:07:25 +0200
-Message-Id: <20220815180523.754213997@linuxfoundation.org>
+Subject: [PATCH 5.19 1091/1157] btrfs: store chunk size in space-info struct
+Date:   Mon, 15 Aug 2022 20:07:27 +0200
+Message-Id: <20220815180523.838271730@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,185 +54,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Stefan Roesch <shr@fb.com>
 
-[ Upstream commit 393f646e34c18b85d0f41272bfcbd475ae3a0d34 ]
+[ Upstream commit f6fca3917b4d99d8c13901738afec35f570a3c2f ]
 
-When we run out of active zones and no sufficient space is left in any
-block groups, we need to finish one block group to make room to activate a
-new block group.
+The chunk size is stored in the btrfs_space_info structure.  It is
+initialized at the start and is then used.
 
-However, we cannot do this for metadata block groups because we can cause a
-deadlock by waiting for a running transaction commit. So, do that only for
-a data block group.
+A new API is added to update the current chunk size.  This API is used
+to be able to expose the chunk_size as a sysfs setting.
 
-Furthermore, the block group to be finished has two requirements. First,
-the block group must not have reserved bytes left. Having reserved bytes
-means we have an allocated region but did not yet send bios for it. If that
-region is allocated by the thread calling btrfs_zone_finish(), it results
-in a deadlock.
-
-Second, the block group to be finished must not be a SYSTEM block
-group. Finishing a SYSTEM block group easily breaks further chunk
-allocation by nullifying the SYSTEM free space.
-
-In a certain case, we cannot find any zone finish candidate or
-btrfs_zone_finish() may fail. In that case, we fall back to split the
-allocation bytes and fill the last spaces left in the block groups.
-
-CC: stable@vger.kernel.org # 5.16+
-Fixes: afba2bc036b0 ("btrfs: zoned: implement active zone tracking")
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: Stefan Roesch <shr@fb.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+[ rename and merge helpers, switch atomic type to u64, style fixes ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent-tree.c | 50 +++++++++++++++++++++++++++++++++---------
- fs/btrfs/zoned.c       | 40 +++++++++++++++++++++++++++++++++
- fs/btrfs/zoned.h       |  7 ++++++
- 3 files changed, 87 insertions(+), 10 deletions(-)
+ fs/btrfs/space-info.c | 32 ++++++++++++++++++++++++++++++++
+ fs/btrfs/space-info.h |  4 ++++
+ fs/btrfs/volumes.c    | 28 +++++++++-------------------
+ 3 files changed, 45 insertions(+), 19 deletions(-)
 
-diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index 506852795db1..ad45083c6461 100644
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -3981,6 +3981,45 @@ static void found_extent(struct find_free_extent_ctl *ffe_ctl,
- 	}
- }
+diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
+index f301149c7597..51fbfd716623 100644
+--- a/fs/btrfs/space-info.c
++++ b/fs/btrfs/space-info.c
+@@ -187,6 +187,37 @@ void btrfs_clear_space_info_full(struct btrfs_fs_info *info)
+  */
+ #define BTRFS_DEFAULT_ZONED_RECLAIM_THRESH			(75)
  
-+static int can_allocate_chunk_zoned(struct btrfs_fs_info *fs_info,
-+				    struct find_free_extent_ctl *ffe_ctl)
++/*
++ * Calculate chunk size depending on volume type (regular or zoned).
++ */
++static u64 calc_chunk_size(const struct btrfs_fs_info *fs_info, u64 flags)
 +{
-+	/* If we can activate new zone, just allocate a chunk and use it */
-+	if (btrfs_can_activate_zone(fs_info->fs_devices, ffe_ctl->flags))
-+		return 0;
++	if (btrfs_is_zoned(fs_info))
++		return fs_info->zone_size;
 +
-+	/*
-+	 * We already reached the max active zones. Try to finish one block
-+	 * group to make a room for a new block group. This is only possible
-+	 * for a data block group because btrfs_zone_finish() may need to wait
-+	 * for a running transaction which can cause a deadlock for metadata
-+	 * allocation.
-+	 */
-+	if (ffe_ctl->flags & BTRFS_BLOCK_GROUP_DATA) {
-+		int ret = btrfs_zone_finish_one_bg(fs_info);
++	ASSERT(flags & BTRFS_BLOCK_GROUP_TYPE_MASK);
 +
-+		if (ret == 1)
-+			return 0;
-+		else if (ret < 0)
-+			return ret;
-+	}
++	if (flags & BTRFS_BLOCK_GROUP_DATA)
++		return SZ_1G;
++	else if (flags & BTRFS_BLOCK_GROUP_SYSTEM)
++		return SZ_32M;
 +
-+	/*
-+	 * If we have enough free space left in an already active block group
-+	 * and we can't activate any other zone now, do not allow allocating a
-+	 * new chunk and let find_free_extent() retry with a smaller size.
-+	 */
-+	if (ffe_ctl->max_extent_size >= ffe_ctl->min_alloc_size)
-+		return -ENOSPC;
++	/* Handle BTRFS_BLOCK_GROUP_METADATA */
++	if (fs_info->fs_devices->total_rw_bytes > 50ULL * SZ_1G)
++		return SZ_1G;
 +
-+	/*
-+	 * We cannot activate a new block group and no enough space left in any
-+	 * block groups. So, allocating a new block group may not help. But,
-+	 * there is nothing to do anyway, so let's go with it.
-+	 */
-+	return 0;
++	return SZ_256M;
 +}
 +
- static int can_allocate_chunk(struct btrfs_fs_info *fs_info,
- 			      struct find_free_extent_ctl *ffe_ctl)
++/*
++ * Update default chunk size.
++ */
++void btrfs_update_space_info_chunk_size(struct btrfs_space_info *space_info,
++					u64 chunk_size)
++{
++	WRITE_ONCE(space_info->chunk_size, chunk_size);
++}
++
+ static int create_space_info(struct btrfs_fs_info *info, u64 flags)
  {
-@@ -3988,16 +4027,7 @@ static int can_allocate_chunk(struct btrfs_fs_info *fs_info,
- 	case BTRFS_EXTENT_ALLOC_CLUSTERED:
- 		return 0;
- 	case BTRFS_EXTENT_ALLOC_ZONED:
--		/*
--		 * If we have enough free space left in an already
--		 * active block group and we can't activate any other
--		 * zone now, do not allow allocating a new chunk and
--		 * let find_free_extent() retry with a smaller size.
--		 */
--		if (ffe_ctl->max_extent_size >= ffe_ctl->min_alloc_size &&
--		    !btrfs_can_activate_zone(fs_info->fs_devices, ffe_ctl->flags))
--			return -ENOSPC;
--		return 0;
-+		return can_allocate_chunk_zoned(fs_info, ffe_ctl);
- 	default:
- 		BUG();
- 	}
-diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
-index 7ac2d7cfca31..eb9eb9e72187 100644
---- a/fs/btrfs/zoned.c
-+++ b/fs/btrfs/zoned.c
-@@ -2180,3 +2180,43 @@ void btrfs_zoned_release_data_reloc_bg(struct btrfs_fs_info *fs_info, u64 logica
- 	spin_unlock(&block_group->lock);
- 	btrfs_put_block_group(block_group);
- }
-+
-+int btrfs_zone_finish_one_bg(struct btrfs_fs_info *fs_info)
-+{
-+	struct btrfs_block_group *block_group;
-+	struct btrfs_block_group *min_bg = NULL;
-+	u64 min_avail = U64_MAX;
-+	int ret;
-+
-+	spin_lock(&fs_info->zone_active_bgs_lock);
-+	list_for_each_entry(block_group, &fs_info->zone_active_bgs,
-+			    active_bg_list) {
-+		u64 avail;
-+
-+		spin_lock(&block_group->lock);
-+		if (block_group->reserved ||
-+		    (block_group->flags & BTRFS_BLOCK_GROUP_SYSTEM)) {
-+			spin_unlock(&block_group->lock);
-+			continue;
-+		}
-+
-+		avail = block_group->zone_capacity - block_group->alloc_offset;
-+		if (min_avail > avail) {
-+			if (min_bg)
-+				btrfs_put_block_group(min_bg);
-+			min_bg = block_group;
-+			min_avail = avail;
-+			btrfs_get_block_group(min_bg);
-+		}
-+		spin_unlock(&block_group->lock);
-+	}
-+	spin_unlock(&fs_info->zone_active_bgs_lock);
-+
-+	if (!min_bg)
-+		return 0;
-+
-+	ret = btrfs_zone_finish(min_bg);
-+	btrfs_put_block_group(min_bg);
-+
-+	return ret < 0 ? ret : 1;
-+}
-diff --git a/fs/btrfs/zoned.h b/fs/btrfs/zoned.h
-index 9caeab07fd38..329d28e2fd8d 100644
---- a/fs/btrfs/zoned.h
-+++ b/fs/btrfs/zoned.h
-@@ -80,6 +80,7 @@ void btrfs_free_zone_cache(struct btrfs_fs_info *fs_info);
- bool btrfs_zoned_should_reclaim(struct btrfs_fs_info *fs_info);
- void btrfs_zoned_release_data_reloc_bg(struct btrfs_fs_info *fs_info, u64 logical,
- 				       u64 length);
-+int btrfs_zone_finish_one_bg(struct btrfs_fs_info *fs_info);
- #else /* CONFIG_BLK_DEV_ZONED */
- static inline int btrfs_get_dev_zone(struct btrfs_device *device, u64 pos,
- 				     struct blk_zone *zone)
-@@ -249,6 +250,12 @@ static inline bool btrfs_zoned_should_reclaim(struct btrfs_fs_info *fs_info)
  
- static inline void btrfs_zoned_release_data_reloc_bg(struct btrfs_fs_info *fs_info,
- 						     u64 logical, u64 length) { }
-+
-+static inline int btrfs_zone_finish_one_bg(struct btrfs_fs_info *fs_info)
-+{
-+	return 1;
-+}
-+
- #endif
+@@ -208,6 +239,7 @@ static int create_space_info(struct btrfs_fs_info *info, u64 flags)
+ 	INIT_LIST_HEAD(&space_info->tickets);
+ 	INIT_LIST_HEAD(&space_info->priority_tickets);
+ 	space_info->clamp = 1;
++	btrfs_update_space_info_chunk_size(space_info, calc_chunk_size(info, flags));
  
- static inline bool btrfs_dev_is_sequential(struct btrfs_device *device, u64 pos)
+ 	if (btrfs_is_zoned(info))
+ 		space_info->bg_reclaim_threshold = BTRFS_DEFAULT_ZONED_RECLAIM_THRESH;
+diff --git a/fs/btrfs/space-info.h b/fs/btrfs/space-info.h
+index c096695598c1..e7de24a529cf 100644
+--- a/fs/btrfs/space-info.h
++++ b/fs/btrfs/space-info.h
+@@ -25,6 +25,8 @@ struct btrfs_space_info {
+ 	u64 max_extent_size;	/* This will hold the maximum extent size of
+ 				   the space info if we had an ENOSPC in the
+ 				   allocator. */
++	/* Chunk size in bytes */
++	u64 chunk_size;
+ 
+ 	/*
+ 	 * Once a block group drops below this threshold (percents) we'll
+@@ -123,6 +125,8 @@ void btrfs_update_space_info(struct btrfs_fs_info *info, u64 flags,
+ 			     u64 total_bytes, u64 bytes_used,
+ 			     u64 bytes_readonly, u64 bytes_zone_unusable,
+ 			     struct btrfs_space_info **space_info);
++void btrfs_update_space_info_chunk_size(struct btrfs_space_info *space_info,
++					u64 chunk_size);
+ struct btrfs_space_info *btrfs_find_space_info(struct btrfs_fs_info *info,
+ 					       u64 flags);
+ u64 __pure btrfs_space_info_used(struct btrfs_space_info *s_info,
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 9c20049d1fec..9cd9d06f5469 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -5071,26 +5071,16 @@ static void init_alloc_chunk_ctl_policy_regular(
+ 				struct btrfs_fs_devices *fs_devices,
+ 				struct alloc_chunk_ctl *ctl)
+ {
+-	u64 type = ctl->type;
++	struct btrfs_space_info *space_info;
+ 
+-	if (type & BTRFS_BLOCK_GROUP_DATA) {
+-		ctl->max_stripe_size = SZ_1G;
+-		ctl->max_chunk_size = BTRFS_MAX_DATA_CHUNK_SIZE;
+-	} else if (type & BTRFS_BLOCK_GROUP_METADATA) {
+-		/* For larger filesystems, use larger metadata chunks */
+-		if (fs_devices->total_rw_bytes > 50ULL * SZ_1G)
+-			ctl->max_stripe_size = SZ_1G;
+-		else
+-			ctl->max_stripe_size = SZ_256M;
+-		ctl->max_chunk_size = ctl->max_stripe_size;
+-	} else if (type & BTRFS_BLOCK_GROUP_SYSTEM) {
+-		ctl->max_stripe_size = SZ_32M;
+-		ctl->max_chunk_size = 2 * ctl->max_stripe_size;
+-		ctl->devs_max = min_t(int, ctl->devs_max,
+-				      BTRFS_MAX_DEVS_SYS_CHUNK);
+-	} else {
+-		BUG();
+-	}
++	space_info = btrfs_find_space_info(fs_devices->fs_info, ctl->type);
++	ASSERT(space_info);
++
++	ctl->max_chunk_size = READ_ONCE(space_info->chunk_size);
++	ctl->max_stripe_size = ctl->max_chunk_size;
++
++	if (ctl->type & BTRFS_BLOCK_GROUP_SYSTEM)
++		ctl->devs_max = min_t(int, ctl->devs_max, BTRFS_MAX_DEVS_SYS_CHUNK);
+ 
+ 	/* We don't want a chunk larger than 10% of writable space */
+ 	ctl->max_chunk_size = min(div_factor(fs_devices->total_rw_bytes, 1),
 -- 
 2.35.1
 
