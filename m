@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2265C59507C
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD69259507B
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:42:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231854AbiHPEmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:42:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36960 "EHLO
+        id S231853AbiHPEmY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:42:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232388AbiHPElH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:41:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B01D31E;
-        Mon, 15 Aug 2022 13:32:20 -0700 (PDT)
+        with ESMTP id S232398AbiHPElI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:41:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B72353AE;
+        Mon, 15 Aug 2022 13:32:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 267E461089;
-        Mon, 15 Aug 2022 20:32:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE8EDC433D6;
-        Mon, 15 Aug 2022 20:32:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5226B60EE9;
+        Mon, 15 Aug 2022 20:32:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2888BC433C1;
+        Mon, 15 Aug 2022 20:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595539;
-        bh=LppMEuUzo6b/Ex+fnTzrJEZen/CscpfIU86+ikvLlYg=;
+        s=korg; t=1660595542;
+        bh=3TJo0b7k0R9QFW1dV3wjTaCrOGfOoO6YsoFPu/EfN0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYUHfg5T96oajLwxZt6mo5EHM85teMxgkgopNNJDG3tTQ2J7+qXTXarRium+X+D4X
-         HqlYQxGOzozBR2x/p/doFMu4qfgphUoYmgIY6vlad+T6BEIe7D3rHsR7Cf8rMSLGfH
-         kTNJ04DeXlR0fn40qp0bTiEKWxejuPDW6y3vEC7U=
+        b=ghCCEjLcAxFmHtTPos2gb4YgDPBgTLa9dvyOnpvRUIfT1xlGxyf8CoqcCWF4NIjtR
+         UlkXB28/IlVmau59YObHAq0ArV4v/HiqCQ+9pDMonBCUl4mvKoGC9eapgx1hGZPRrO
+         cHjm5OMzd0EYp6dO5mzD2luPZZkcpW4fFqunoC1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Huang Ying <ying.huang@intel.com>,
+        David Hildenbrand <david@redhat.com>,
         Alistair Popple <apopple@nvidia.com>,
         Christoph Hellwig <hch@lst.de>,
         Christoph Lameter <cl@linux.com>,
-        David Hildenbrand <david@redhat.com>,
         David Howells <dhowells@redhat.com>,
+        Huang Ying <ying.huang@intel.com>,
+        kernel test robot <lkp@intel.com>,
         Mike Kravetz <mike.kravetz@oracle.com>,
         Muchun Song <songmuchun@bytedance.com>,
         Oscar Salvador <osalvador@suse.de>,
         Peter Xu <peterx@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH 5.19 0765/1157] mm/migration: return errno when isolate_huge_page failed
-Date:   Mon, 15 Aug 2022 20:02:01 +0200
-Message-Id: <20220815180510.091011030@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0766/1157] mm/migration: fix potential pte_unmap on an not mapped pte
+Date:   Mon, 15 Aug 2022 20:02:02 +0200
+Message-Id: <20220815180510.133372771@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -67,26 +67,24 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 7ce82f4c3f3ead13a9d9498768e3b1a79975c4d8 ]
+[ Upstream commit ad1ac596e8a8c4b06715dfbd89853eb73c9886b2 ]
 
-We might fail to isolate huge page due to e.g.  the page is under
-migration which cleared HPageMigratable.  We should return errno in this
-case rather than always return 1 which could confuse the user, i.e.  the
-caller might think all of the memory is migrated while the hugetlb page is
-left behind.  We make the prototype of isolate_huge_page consistent with
-isolate_lru_page as suggested by Huang Ying and rename isolate_huge_page
-to isolate_hugetlb as suggested by Muchun to improve the readability.
+__migration_entry_wait and migration_entry_wait_on_locked assume pte is
+always mapped from caller.  But this is not the case when it's called from
+migration_entry_wait_huge and follow_huge_pmd.  Add a hugetlbfs variant
+that calls hugetlb_migration_entry_wait(ptep == NULL) to fix this issue.
 
-Link: https://lkml.kernel.org/r/20220530113016.16663-4-linmiaohe@huawei.com
-Fixes: e8db67eb0ded ("mm: migrate: move_pages() supports thp migration")
+Link: https://lkml.kernel.org/r/20220530113016.16663-5-linmiaohe@huawei.com
+Fixes: 30dad30922cc ("mm: migration: add migrate_entry_wait_huge()")
 Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Suggested-by: Huang Ying <ying.huang@intel.com>
-Reported-by: kernel test robot <lkp@intel.com> (build error)
+Suggested-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 Cc: Alistair Popple <apopple@nvidia.com>
 Cc: Christoph Hellwig <hch@lst.de>
 Cc: Christoph Lameter <cl@linux.com>
-Cc: David Hildenbrand <david@redhat.com>
 Cc: David Howells <dhowells@redhat.com>
+Cc: Huang Ying <ying.huang@intel.com>
+Cc: kernel test robot <lkp@intel.com>
 Cc: Mike Kravetz <mike.kravetz@oracle.com>
 Cc: Muchun Song <songmuchun@bytedance.com>
 Cc: Oscar Salvador <osalvador@suse.de>
@@ -94,159 +92,100 @@ Cc: Peter Xu <peterx@redhat.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/hugetlb.h |  6 +++---
- mm/gup.c                |  2 +-
- mm/hugetlb.c            | 11 +++++------
- mm/memory-failure.c     |  2 +-
- mm/memory_hotplug.c     |  2 +-
- mm/mempolicy.c          |  2 +-
- mm/migrate.c            |  7 ++++---
- 7 files changed, 16 insertions(+), 16 deletions(-)
+ include/linux/swapops.h | 12 ++++++++----
+ mm/hugetlb.c            |  4 ++--
+ mm/migrate.c            | 23 +++++++++++++++++++----
+ 3 files changed, 29 insertions(+), 10 deletions(-)
 
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index e4cff27d1198..756b66ff025e 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -170,7 +170,7 @@ bool hugetlb_reserve_pages(struct inode *inode, long from, long to,
- 						vm_flags_t vm_flags);
- long hugetlb_unreserve_pages(struct inode *inode, long start, long end,
- 						long freed);
--bool isolate_huge_page(struct page *page, struct list_head *list);
-+int isolate_hugetlb(struct page *page, struct list_head *list);
- int get_hwpoison_huge_page(struct page *page, bool *hugetlb);
- int get_huge_page_for_hwpoison(unsigned long pfn, int flags);
- void putback_active_hugepage(struct page *page);
-@@ -376,9 +376,9 @@ static inline pte_t *huge_pte_offset(struct mm_struct *mm, unsigned long addr,
- 	return NULL;
- }
- 
--static inline bool isolate_huge_page(struct page *page, struct list_head *list)
-+static inline int isolate_hugetlb(struct page *page, struct list_head *list)
+diff --git a/include/linux/swapops.h b/include/linux/swapops.h
+index f24775b41880..bb7afd03a324 100644
+--- a/include/linux/swapops.h
++++ b/include/linux/swapops.h
+@@ -244,8 +244,10 @@ extern void __migration_entry_wait(struct mm_struct *mm, pte_t *ptep,
+ 					spinlock_t *ptl);
+ extern void migration_entry_wait(struct mm_struct *mm, pmd_t *pmd,
+ 					unsigned long address);
+-extern void migration_entry_wait_huge(struct vm_area_struct *vma,
+-		struct mm_struct *mm, pte_t *pte);
++#ifdef CONFIG_HUGETLB_PAGE
++extern void __migration_entry_wait_huge(pte_t *ptep, spinlock_t *ptl);
++extern void migration_entry_wait_huge(struct vm_area_struct *vma, pte_t *pte);
++#endif
+ #else
+ static inline swp_entry_t make_readable_migration_entry(pgoff_t offset)
  {
--	return false;
-+	return -EBUSY;
- }
- 
- static inline int get_hwpoison_huge_page(struct page *page, bool *hugetlb)
-diff --git a/mm/gup.c b/mm/gup.c
-index e2a39e30756d..fd3262ae92fc 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -1900,7 +1900,7 @@ static long check_and_migrate_movable_pages(unsigned long nr_pages,
- 		 * Try to move out any movable page before pinning the range.
- 		 */
- 		if (folio_test_hugetlb(folio)) {
--			if (!isolate_huge_page(&folio->page,
-+			if (isolate_hugetlb(&folio->page,
- 						&movable_page_list))
- 				isolation_error_count++;
- 			continue;
+@@ -271,8 +273,10 @@ static inline void __migration_entry_wait(struct mm_struct *mm, pte_t *ptep,
+ 					spinlock_t *ptl) { }
+ static inline void migration_entry_wait(struct mm_struct *mm, pmd_t *pmd,
+ 					 unsigned long address) { }
+-static inline void migration_entry_wait_huge(struct vm_area_struct *vma,
+-		struct mm_struct *mm, pte_t *pte) { }
++#ifdef CONFIG_HUGETLB_PAGE
++static inline void __migration_entry_wait_huge(pte_t *ptep, spinlock_t *ptl) { }
++static inline void migration_entry_wait_huge(struct vm_area_struct *vma, pte_t *pte) { }
++#endif
+ static inline int is_writable_migration_entry(swp_entry_t entry)
+ {
+ 	return 0;
 diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index a18c071c294e..b7f007399be2 100644
+index b7f007399be2..474bfbe9929e 100644
 --- a/mm/hugetlb.c
 +++ b/mm/hugetlb.c
-@@ -2766,8 +2766,7 @@ static int alloc_and_dissolve_huge_page(struct hstate *h, struct page *old_page,
- 		 * Fail with -EBUSY if not possible.
+@@ -5707,7 +5707,7 @@ vm_fault_t hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
  		 */
- 		spin_unlock_irq(&hugetlb_lock);
--		if (!isolate_huge_page(old_page, list))
--			ret = -EBUSY;
-+		ret = isolate_hugetlb(old_page, list);
- 		spin_lock_irq(&hugetlb_lock);
- 		goto free_new;
- 	} else if (!HPageFreed(old_page)) {
-@@ -2843,7 +2842,7 @@ int isolate_or_dissolve_huge_page(struct page *page, struct list_head *list)
- 	if (hstate_is_gigantic(h))
- 		return -ENOMEM;
- 
--	if (page_count(head) && isolate_huge_page(head, list))
-+	if (page_count(head) && !isolate_hugetlb(head, list))
- 		ret = 0;
- 	else if (!page_count(head))
- 		ret = alloc_and_dissolve_huge_page(h, head, list);
-@@ -6966,15 +6965,15 @@ follow_huge_pgd(struct mm_struct *mm, unsigned long address, pgd_t *pgd, int fla
- 	return pte_page(*(pte_t *)pgd) + ((address & ~PGDIR_MASK) >> PAGE_SHIFT);
- }
- 
--bool isolate_huge_page(struct page *page, struct list_head *list)
-+int isolate_hugetlb(struct page *page, struct list_head *list)
- {
--	bool ret = true;
-+	int ret = 0;
- 
- 	spin_lock_irq(&hugetlb_lock);
- 	if (!PageHeadHuge(page) ||
- 	    !HPageMigratable(page) ||
- 	    !get_page_unless_zero(page)) {
--		ret = false;
-+		ret = -EBUSY;
- 		goto unlock;
- 	}
- 	ClearHPageMigratable(page);
-diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-index da39ec8afca8..845369f839e1 100644
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -2178,7 +2178,7 @@ static bool isolate_page(struct page *page, struct list_head *pagelist)
- 	bool lru = PageLRU(page);
- 
- 	if (PageHuge(page)) {
--		isolated = isolate_huge_page(page, pagelist);
-+		isolated = !isolate_hugetlb(page, pagelist);
+ 		entry = huge_ptep_get(ptep);
+ 		if (unlikely(is_hugetlb_entry_migration(entry))) {
+-			migration_entry_wait_huge(vma, mm, ptep);
++			migration_entry_wait_huge(vma, ptep);
+ 			return 0;
+ 		} else if (unlikely(is_hugetlb_entry_hwpoisoned(entry)))
+ 			return VM_FAULT_HWPOISON_LARGE |
+@@ -6933,7 +6933,7 @@ follow_huge_pmd(struct mm_struct *mm, unsigned long address,
  	} else {
- 		if (lru)
- 			isolated = !isolate_lru_page(page);
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 1213d0c67a53..649a50ed90f3 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1643,7 +1643,7 @@ do_migrate_range(unsigned long start_pfn, unsigned long end_pfn)
- 
- 		if (PageHuge(page)) {
- 			pfn = page_to_pfn(head) + compound_nr(head) - 1;
--			isolate_huge_page(head, &source);
-+			isolate_hugetlb(head, &source);
- 			continue;
- 		} else if (PageTransHuge(page))
- 			pfn = page_to_pfn(head) + thp_nr_pages(page) - 1;
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index d39b01fd52fe..9689919a2829 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -602,7 +602,7 @@ static int queue_pages_hugetlb(pte_t *pte, unsigned long hmask,
- 	/* With MPOL_MF_MOVE, we migrate only unshared hugepage. */
- 	if (flags & (MPOL_MF_MOVE_ALL) ||
- 	    (flags & MPOL_MF_MOVE && page_mapcount(page) == 1)) {
--		if (!isolate_huge_page(page, qp->pagelist) &&
-+		if (isolate_hugetlb(page, qp->pagelist) &&
- 			(flags & MPOL_MF_STRICT))
- 			/*
- 			 * Failed to isolate page but allow migrating pages
+ 		if (is_hugetlb_entry_migration(pte)) {
+ 			spin_unlock(ptl);
+-			__migration_entry_wait(mm, (pte_t *)pmd, ptl);
++			__migration_entry_wait_huge((pte_t *)pmd, ptl);
+ 			goto retry;
+ 		}
+ 		/*
 diff --git a/mm/migrate.c b/mm/migrate.c
-index 6c1ea61f39d8..29b9faed4136 100644
+index 29b9faed4136..a480f54016b3 100644
 --- a/mm/migrate.c
 +++ b/mm/migrate.c
-@@ -133,7 +133,7 @@ static void putback_movable_page(struct page *page)
-  *
-  * This function shall be used whenever the isolated pageset has been
-  * built from lru, balloon, hugetlbfs page. See isolate_migratepages_range()
-- * and isolate_huge_page().
-+ * and isolate_hugetlb().
-  */
- void putback_movable_pages(struct list_head *l)
- {
-@@ -1633,8 +1633,9 @@ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
+@@ -315,13 +315,28 @@ void migration_entry_wait(struct mm_struct *mm, pmd_t *pmd,
+ 	__migration_entry_wait(mm, ptep, ptl);
+ }
  
- 	if (PageHuge(page)) {
- 		if (PageHead(page)) {
--			isolate_huge_page(page, pagelist);
--			err = 1;
-+			err = isolate_hugetlb(page, pagelist);
-+			if (!err)
-+				err = 1;
- 		}
- 	} else {
- 		struct page *head;
+-void migration_entry_wait_huge(struct vm_area_struct *vma,
+-		struct mm_struct *mm, pte_t *pte)
++#ifdef CONFIG_HUGETLB_PAGE
++void __migration_entry_wait_huge(pte_t *ptep, spinlock_t *ptl)
+ {
+-	spinlock_t *ptl = huge_pte_lockptr(hstate_vma(vma), mm, pte);
+-	__migration_entry_wait(mm, pte, ptl);
++	pte_t pte;
++
++	spin_lock(ptl);
++	pte = huge_ptep_get(ptep);
++
++	if (unlikely(!is_hugetlb_entry_migration(pte)))
++		spin_unlock(ptl);
++	else
++		migration_entry_wait_on_locked(pte_to_swp_entry(pte), NULL, ptl);
+ }
+ 
++void migration_entry_wait_huge(struct vm_area_struct *vma, pte_t *pte)
++{
++	spinlock_t *ptl = huge_pte_lockptr(hstate_vma(vma), vma->vm_mm, pte);
++
++	__migration_entry_wait_huge(pte, ptl);
++}
++#endif
++
+ #ifdef CONFIG_ARCH_ENABLE_THP_MIGRATION
+ void pmd_migration_entry_wait(struct mm_struct *mm, pmd_t *pmd)
+ {
 -- 
 2.35.1
 
