@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BAF7593D51
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C80F593DCE
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243744AbiHOUTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:19:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34366 "EHLO
+        id S239838AbiHOUT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:19:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241742AbiHOURH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:17:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B15D101B;
-        Mon, 15 Aug 2022 12:00:19 -0700 (PDT)
+        with ESMTP id S242729AbiHOURf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:17:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0A3B6420;
+        Mon, 15 Aug 2022 12:00:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98E24B81115;
-        Mon, 15 Aug 2022 19:00:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F369DC433B5;
-        Mon, 15 Aug 2022 19:00:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 061F361280;
+        Mon, 15 Aug 2022 19:00:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08AB9C433B5;
+        Mon, 15 Aug 2022 19:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590016;
-        bh=fhXmri8Qjp0EzDtGXhrJdIiFlwZJ7xvylvHa/3A9hao=;
+        s=korg; t=1660590022;
+        bh=AQoc+YaavwcFgbgCemNJ/K77IuFwFrWjNBQeM9fthTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NbOMqqtCiV2KFUEkk28wbdP1LoSVoRWWuX009YA6PpOS2bbo4JDNme0TGtyPtvEhy
-         GsayaaaaUi8UpCv7b73B4cxEmjRV9LBMLihS+7X9VmtBxJAGdI75WfEQxRHFOjCvk5
-         9J2tBjUZhsPee5fuDfwNI51yPkqAvFajZaHJzLTg=
+        b=cE6/5FdKmE+QedIGd9kBVfGbvzzEcNgksqAgOGBFnCqE+uwIBm2fk7GRbx0rz9CHv
+         TxBDmrhw/gLFk8/OezN1K7AVGmfCRYGlwR7sRb890o+W1icfecH+mP5J4mOqIHcTHt
+         /iU26nw0Y+9EbJy6mwH35iCaD4Up2fwGzsAkEWNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Weitao Wang <WeitaoWang-oc@zhaoxin.com>
-Subject: [PATCH 5.18 0123/1095] USB: HCD: Fix URB giveback issue in tasklet function
-Date:   Mon, 15 Aug 2022 19:52:02 +0200
-Message-Id: <20220815180434.674250255@linuxfoundation.org>
+        stable@vger.kernel.org, Ronald Wahl <ronald.wahl@raritan.com>,
+        Jose Alonso <joalonsof@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.18 0124/1095] Revert "net: usb: ax88179_178a needs FLAG_SEND_ZLP"
+Date:   Mon, 15 Aug 2022 19:52:03 +0200
+Message-Id: <20220815180434.716312912@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,124 +54,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
+From: Jose Alonso <joalonsof@gmail.com>
 
-commit 26c6c2f8a907c9e3a2f24990552a4d77235791e6 upstream.
+commit 6fd2c17fb6e02a8c0ab51df1cfec82ce96b8e83d upstream.
 
-Usb core introduce the mechanism of giveback of URB in tasklet context to
-reduce hardware interrupt handling time. On some test situation(such as
-FIO with 4KB block size), when tasklet callback function called to
-giveback URB, interrupt handler add URB node to the bh->head list also.
-If check bh->head list again after finish all URB giveback of local_list,
-then it may introduce a "dynamic balance" between giveback URB and add URB
-to bh->head list. This tasklet callback function may not exit for a long
-time, which will cause other tasklet function calls to be delayed. Some
-real-time applications(such as KB and Mouse) will see noticeable lag.
+This reverts commit 36a15e1cb134c0395261ba1940762703f778438c.
 
-In order to prevent the tasklet function from occupying the cpu for a long
-time at a time, new URBS will not be added to the local_list even though
-the bh->head list is not empty. But also need to ensure the left URB
-giveback to be processed in time, so add a member high_prio for structure
-giveback_urb_bh to prioritize tasklet and schelule this tasklet again if
-bh->head list is not empty.
+The usage of FLAG_SEND_ZLP causes problems to other firmware/hardware
+versions that have no issues.
 
-At the same time, we are able to prioritize tasklet through structure
-member high_prio. So, replace the local high_prio_bh variable with this
-structure member in usb_hcd_giveback_urb.
+The FLAG_SEND_ZLP is not safe to use in this context.
+See:
+https://patchwork.ozlabs.org/project/netdev/patch/1270599787.8900.8.camel@Linuxdev4-laptop/#118378
+The original problem needs another way to solve.
 
-Fixes: 94dfd7edfd5c ("USB: HCD: support giveback of URB in tasklet context")
-Cc: stable <stable@kernel.org>
-Reviewed-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
-Link: https://lore.kernel.org/r/20220726074918.5114-1-WeitaoWang-oc@zhaoxin.com
+Fixes: 36a15e1cb134 ("net: usb: ax88179_178a needs FLAG_SEND_ZLP")
+Cc: stable@vger.kernel.org
+Reported-by: Ronald Wahl <ronald.wahl@raritan.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216327
+Link: https://bugs.archlinux.org/task/75491
+Signed-off-by: Jose Alonso <joalonsof@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hcd.c  |   26 +++++++++++++++-----------
- include/linux/usb/hcd.h |    1 +
- 2 files changed, 16 insertions(+), 11 deletions(-)
+ drivers/net/usb/ax88179_178a.c |   26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -1691,7 +1691,6 @@ static void usb_giveback_urb_bh(struct t
- 
- 	spin_lock_irq(&bh->lock);
- 	bh->running = true;
-- restart:
- 	list_replace_init(&bh->head, &local_list);
- 	spin_unlock_irq(&bh->lock);
- 
-@@ -1705,10 +1704,17 @@ static void usb_giveback_urb_bh(struct t
- 		bh->completing_ep = NULL;
- 	}
- 
--	/* check if there are new URBs to giveback */
-+	/*
-+	 * giveback new URBs next time to prevent this function
-+	 * from not exiting for a long time.
-+	 */
- 	spin_lock_irq(&bh->lock);
--	if (!list_empty(&bh->head))
--		goto restart;
-+	if (!list_empty(&bh->head)) {
-+		if (bh->high_prio)
-+			tasklet_hi_schedule(&bh->bh);
-+		else
-+			tasklet_schedule(&bh->bh);
-+	}
- 	bh->running = false;
- 	spin_unlock_irq(&bh->lock);
- }
-@@ -1737,7 +1743,7 @@ static void usb_giveback_urb_bh(struct t
- void usb_hcd_giveback_urb(struct usb_hcd *hcd, struct urb *urb, int status)
- {
- 	struct giveback_urb_bh *bh;
--	bool running, high_prio_bh;
-+	bool running;
- 
- 	/* pass status to tasklet via unlinked */
- 	if (likely(!urb->unlinked))
-@@ -1748,13 +1754,10 @@ void usb_hcd_giveback_urb(struct usb_hcd
- 		return;
- 	}
- 
--	if (usb_pipeisoc(urb->pipe) || usb_pipeint(urb->pipe)) {
-+	if (usb_pipeisoc(urb->pipe) || usb_pipeint(urb->pipe))
- 		bh = &hcd->high_prio_bh;
--		high_prio_bh = true;
--	} else {
-+	else
- 		bh = &hcd->low_prio_bh;
--		high_prio_bh = false;
--	}
- 
- 	spin_lock(&bh->lock);
- 	list_add_tail(&urb->urb_list, &bh->head);
-@@ -1763,7 +1766,7 @@ void usb_hcd_giveback_urb(struct usb_hcd
- 
- 	if (running)
- 		;
--	else if (high_prio_bh)
-+	else if (bh->high_prio)
- 		tasklet_hi_schedule(&bh->bh);
- 	else
- 		tasklet_schedule(&bh->bh);
-@@ -2959,6 +2962,7 @@ int usb_add_hcd(struct usb_hcd *hcd,
- 
- 	/* initialize tasklets */
- 	init_giveback_urb_bh(&hcd->high_prio_bh);
-+	hcd->high_prio_bh.high_prio = true;
- 	init_giveback_urb_bh(&hcd->low_prio_bh);
- 
- 	/* enable irqs just before we start the controller,
---- a/include/linux/usb/hcd.h
-+++ b/include/linux/usb/hcd.h
-@@ -66,6 +66,7 @@
- 
- struct giveback_urb_bh {
- 	bool running;
-+	bool high_prio;
- 	spinlock_t lock;
- 	struct list_head  head;
- 	struct tasklet_struct bh;
+--- a/drivers/net/usb/ax88179_178a.c
++++ b/drivers/net/usb/ax88179_178a.c
+@@ -1801,7 +1801,7 @@ static const struct driver_info ax88179_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1814,7 +1814,7 @@ static const struct driver_info ax88178a
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1827,7 +1827,7 @@ static const struct driver_info cypress_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1840,7 +1840,7 @@ static const struct driver_info dlink_du
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1853,7 +1853,7 @@ static const struct driver_info sitecom_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1866,7 +1866,7 @@ static const struct driver_info samsung_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1879,7 +1879,7 @@ static const struct driver_info lenovo_i
+ 	.link_reset = ax88179_link_reset,
+ 	.reset = ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1892,7 +1892,7 @@ static const struct driver_info belkin_i
+ 	.link_reset = ax88179_link_reset,
+ 	.reset	= ax88179_reset,
+ 	.stop	= ax88179_stop,
+-	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1905,7 +1905,7 @@ static const struct driver_info toshiba_
+ 	.link_reset = ax88179_link_reset,
+ 	.reset	= ax88179_reset,
+ 	.stop = ax88179_stop,
+-	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1918,7 +1918,7 @@ static const struct driver_info mct_info
+ 	.link_reset = ax88179_link_reset,
+ 	.reset	= ax88179_reset,
+ 	.stop	= ax88179_stop,
+-	.flags	= FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1931,7 +1931,7 @@ static const struct driver_info at_umc20
+ 	.link_reset = ax88179_link_reset,
+ 	.reset  = ax88179_reset,
+ 	.stop   = ax88179_stop,
+-	.flags  = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags  = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1944,7 +1944,7 @@ static const struct driver_info at_umc20
+ 	.link_reset = ax88179_link_reset,
+ 	.reset  = ax88179_reset,
+ 	.stop   = ax88179_stop,
+-	.flags  = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags  = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
+@@ -1957,7 +1957,7 @@ static const struct driver_info at_umc20
+ 	.link_reset = ax88179_link_reset,
+ 	.reset  = ax88179_reset,
+ 	.stop   = ax88179_stop,
+-	.flags  = FLAG_ETHER | FLAG_FRAMING_AX | FLAG_SEND_ZLP,
++	.flags  = FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+ };
 
 
