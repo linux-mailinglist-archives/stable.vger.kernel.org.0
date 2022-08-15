@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6AB5593DF3
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39BA6593D31
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344740AbiHOUdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:33:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38656 "EHLO
+        id S1344531AbiHOUc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:32:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348180AbiHOUcN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:32:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BA891015;
-        Mon, 15 Aug 2022 12:05:19 -0700 (PDT)
+        with ESMTP id S1348096AbiHOUcE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:32:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 912B2EB8;
+        Mon, 15 Aug 2022 12:05:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 376A7B81104;
-        Mon, 15 Aug 2022 19:05:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D75CC433C1;
-        Mon, 15 Aug 2022 19:05:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6793961299;
+        Mon, 15 Aug 2022 19:05:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B367C433D7;
+        Mon, 15 Aug 2022 19:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590313;
-        bh=LxLBhQg37nYyCKF7FOM1vntAWlZt+MmydoeTWUDvHYM=;
+        s=korg; t=1660590316;
+        bh=2pSFY/81R6SrMGfluQH+FRx7TgY2KjA23kBWHzmQv9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HieGVS6sktLbQfY94dALI/vrmfdm2NIJZtkDP2V4+qXIH2e9DM8DZz6GdSqM9ITPC
-         eC06TQAwDipl/06vPsEdooV4OBAvFb4cHEahlg3u1ngrUIVTkjGVT0/MUk28W/cm5v
-         Ty7L9xw72f6n7q1jlaa7w57tMHcVE37NdhwSVZjU=
+        b=0RUiJqjW2Z4ezP2C4bmc5hSgfQwciCQjL2vPe//S8LMtZUB2qqgDhKr3JJ/ibFEQF
+         L3OAqeYgWmeRngzK4UzAZI3CnhV0tj9lk9x3aYpWcH3AJelqEMzizQffhEwFqbrxtj
+         QZVcHdW40jVawNyqaAqgIWmUiFvbC6pUmNQbnfzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
+        Chris Paterson <chris.paterson2@renesas.com>,
         Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0220/1095] arm64: dts: renesas: r8a779m8: Drop operating points above 1.5 GHz
-Date:   Mon, 15 Aug 2022 19:53:39 +0200
-Message-Id: <20220815180438.789946180@linuxfoundation.org>
+Subject: [PATCH 5.18 0221/1095] arm64: dts: renesas: r9a07g054l2-smarc: Correct SoC name in comment
+Date:   Mon, 15 Aug 2022 19:53:40 +0200
+Message-Id: <20220815180438.841539077@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,38 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Chris Paterson <chris.paterson2@renesas.com>
 
-[ Upstream commit f48cb21a28c07d0754d5f2f85444cfb0e7b1fd05 ]
+[ Upstream commit d1273f541ab409242e08da6bb836bb564021274c ]
 
-The highest-performance mode for the Cortex-A57 CPU cores supported on
-R-Car H3Ne (R8A779M8) is the Power Optimized (1.5 GHz) mode.  The Normal
-(1.6 GHz) and High Performance (1.7 GHz) modes are not supported.
+This dts is for the RZ/V2L SMARC EVK, not RZ/G2L.
 
-Hence drop the "turbo-mode" entries from the operating points table
-inherited from r8a77951.dtsi.
-
-Fixes: 6e87525d751fac57 ("arm64: dts: renesas: Add Renesas R8A779M8 SoC support")
+Fixes: f91c4c74796a ("arm64: dts: renesas: Add initial device tree for RZ/V2L SMARC EVK")
+Signed-off-by: Chris Paterson <chris.paterson2@renesas.com>
+Link: https://lore.kernel.org/r/20220623103024.24222-1-chris.paterson2@renesas.com
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/aeb4530f7fbac8329b334dcb169382c836a5f32d.1655458564.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r8a779m8.dtsi | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm64/boot/dts/renesas/r9a07g054l2-smarc.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a779m8.dtsi b/arch/arm64/boot/dts/renesas/r8a779m8.dtsi
-index 752440b0c40f..750bd8ccdb7f 100644
---- a/arch/arm64/boot/dts/renesas/r8a779m8.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a779m8.dtsi
-@@ -10,3 +10,8 @@
- / {
- 	compatible = "renesas,r8a779m8", "renesas,r8a7795";
- };
-+
-+&cluster0_opp {
-+	/delete-node/ opp-1600000000;
-+	/delete-node/ opp-1700000000;
-+};
+diff --git a/arch/arm64/boot/dts/renesas/r9a07g054l2-smarc.dts b/arch/arm64/boot/dts/renesas/r9a07g054l2-smarc.dts
+index fc334b4c2aa4..d2848cbfc6c0 100644
+--- a/arch/arm64/boot/dts/renesas/r9a07g054l2-smarc.dts
++++ b/arch/arm64/boot/dts/renesas/r9a07g054l2-smarc.dts
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+ /*
+- * Device Tree Source for the RZ/G2L SMARC EVK board
++ * Device Tree Source for the RZ/V2L SMARC EVK board
+  *
+  * Copyright (C) 2021 Renesas Electronics Corp.
+  */
 -- 
 2.35.1
 
