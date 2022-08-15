@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE12593D37
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:40:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EF57593B39
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243123AbiHOUCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:02:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39438 "EHLO
+        id S243533AbiHOUDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:03:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346211AbiHOUBx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:01:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC0F17D1D2;
-        Mon, 15 Aug 2022 11:54:01 -0700 (PDT)
+        with ESMTP id S1346268AbiHOUCA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:02:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E26817D1CA;
+        Mon, 15 Aug 2022 11:54:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29147B810A2;
-        Mon, 15 Aug 2022 18:53:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 746FBC433C1;
-        Mon, 15 Aug 2022 18:53:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A9B7B81057;
+        Mon, 15 Aug 2022 18:54:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F654C433C1;
+        Mon, 15 Aug 2022 18:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589635;
-        bh=vDkvebUt7MZA8+U3hS5joEOkD7qc/yPP/d1mBQwSSSQ=;
+        s=korg; t=1660589639;
+        bh=lduLUySsI1WUtQlgUnp59GOTkb0x8BOtWEUvizrx5lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v0c/NMwkaW1FioGdS3uC/aME3rs3lNq+8Lo83Rl7X93MqcyT9tbKH28Rn6DMZnRpj
-         /++reb+quQuAhhz/9SIxT6PEKSmYIVpOj3OSdve7wnmnvNjnPk8p/3lC/+1+M1oEVv
-         U2k2TdPpczjZ1+ViJhU4iyH/5FJ9U/CSqFbKpBd0=
+        b=pJCinDvNKpYEmcOpGTwMT6p9olAkv8kMNPRLZwvgV2yT80hCJ/gHJtNsH322xMNUl
+         FoPkAfblv5xTlOcVJwSx1AOieeP2KMyVZzbk8upVgiwXCcKna00XnryaY7sKAZKCMD
+         i0AkLVu/OOL5PxwOmQ6VVwMVhEjRMLrYnYX2gOMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.15 764/779] crypto: lib/blake2s - reduce stack frame usage in self test
-Date:   Mon, 15 Aug 2022 20:06:48 +0200
-Message-Id: <20220815180410.068767541@linuxfoundation.org>
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Brian Norris <briannorris@chromium.org>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: [PATCH 5.15 765/779] Revert "mwifiex: fix sleep in atomic context bugs caused by dev_coredumpv"
+Date:   Mon, 15 Aug 2022 20:06:49 +0200
+Message-Id: <20220815180410.114354620@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,53 +55,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit d6c14da474bf260d73953fbf7992c98d9112aec7 upstream.
+commit 5f8954e099b8ae96e7de1bb95950e00c85bedd40 upstream.
 
-Using 3 blocks here doesn't give us much more than using 2, and it
-causes a stack frame size warning on certain compiler/config/arch
-combinations:
+This reverts commit a52ed4866d2b90dd5e4ae9dabd453f3ed8fa3cbc as it
+causes build problems in linux-next.  It needs to be reintroduced in a
+way that can allow the api to evolve and not require a "flag day" to
+catch all users.
 
-   lib/crypto/blake2s-selftest.c: In function 'blake2s_selftest':
->> lib/crypto/blake2s-selftest.c:632:1: warning: the frame size of 1088 bytes is larger than 1024 bytes [-Wframe-larger-than=]
-     632 | }
-         | ^
-
-So this patch just reduces the block from 3 to 2, which makes the
-warning go away.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/linux-crypto/202206200851.gE3MHCgd-lkp@intel.com
-Fixes: 2d16803c562e ("crypto: blake2s - remove shash module")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Link: https://lore.kernel.org/r/20220623160723.7a44b573@canb.auug.org.au
+Cc: Duoming Zhou <duoming@zju.edu.cn>
+Cc: Brian Norris <briannorris@chromium.org>
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/crypto/blake2s-selftest.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/init.c      |    9 ++++-----
+ drivers/net/wireless/marvell/mwifiex/main.h      |    3 +--
+ drivers/net/wireless/marvell/mwifiex/sta_event.c |    6 +++---
+ 3 files changed, 8 insertions(+), 10 deletions(-)
 
---- a/lib/crypto/blake2s-selftest.c
-+++ b/lib/crypto/blake2s-selftest.c
-@@ -593,7 +593,7 @@ bool __init blake2s_selftest(void)
- 		enum { TEST_ALIGNMENT = 16 };
- 		u8 unaligned_block[BLAKE2S_BLOCK_SIZE + TEST_ALIGNMENT - 1]
- 					__aligned(TEST_ALIGNMENT);
--		u8 blocks[BLAKE2S_BLOCK_SIZE * 3];
-+		u8 blocks[BLAKE2S_BLOCK_SIZE * 2];
- 		struct blake2s_state state1, state2;
+--- a/drivers/net/wireless/marvell/mwifiex/init.c
++++ b/drivers/net/wireless/marvell/mwifiex/init.c
+@@ -63,10 +63,9 @@ static void wakeup_timer_fn(struct timer
+ 		adapter->if_ops.card_reset(adapter);
+ }
  
- 		get_random_bytes(blocks, sizeof(blocks));
-@@ -603,8 +603,8 @@ bool __init blake2s_selftest(void)
-     defined(CONFIG_CRYPTO_ARCH_HAVE_LIB_BLAKE2S)
- 		memcpy(&state1, &state, sizeof(state1));
- 		memcpy(&state2, &state, sizeof(state2));
--		blake2s_compress(&state1, blocks, 3, BLAKE2S_BLOCK_SIZE);
--		blake2s_compress_generic(&state2, blocks, 3, BLAKE2S_BLOCK_SIZE);
-+		blake2s_compress(&state1, blocks, 2, BLAKE2S_BLOCK_SIZE);
-+		blake2s_compress_generic(&state2, blocks, 2, BLAKE2S_BLOCK_SIZE);
- 		if (memcmp(&state1, &state2, sizeof(state1))) {
- 			pr_err("blake2s random compress self-test %d: FAIL\n",
- 			       i + 1);
+-static void fw_dump_work(struct work_struct *work)
++static void fw_dump_timer_fn(struct timer_list *t)
+ {
+-	struct mwifiex_adapter *adapter =
+-		container_of(work, struct mwifiex_adapter, devdump_work.work);
++	struct mwifiex_adapter *adapter = from_timer(adapter, t, devdump_timer);
+ 
+ 	mwifiex_upload_device_dump(adapter);
+ }
+@@ -322,7 +321,7 @@ static void mwifiex_init_adapter(struct
+ 	adapter->active_scan_triggered = false;
+ 	timer_setup(&adapter->wakeup_timer, wakeup_timer_fn, 0);
+ 	adapter->devdump_len = 0;
+-	INIT_DELAYED_WORK(&adapter->devdump_work, fw_dump_work);
++	timer_setup(&adapter->devdump_timer, fw_dump_timer_fn, 0);
+ }
+ 
+ /*
+@@ -401,7 +400,7 @@ static void
+ mwifiex_adapter_cleanup(struct mwifiex_adapter *adapter)
+ {
+ 	del_timer(&adapter->wakeup_timer);
+-	cancel_delayed_work_sync(&adapter->devdump_work);
++	del_timer_sync(&adapter->devdump_timer);
+ 	mwifiex_cancel_all_pending_cmd(adapter);
+ 	wake_up_interruptible(&adapter->cmd_wait_q.wait);
+ 	wake_up_interruptible(&adapter->hs_activate_wait_q);
+--- a/drivers/net/wireless/marvell/mwifiex/main.h
++++ b/drivers/net/wireless/marvell/mwifiex/main.h
+@@ -49,7 +49,6 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
+ #include <linux/of_irq.h>
+-#include <linux/workqueue.h>
+ 
+ #include "decl.h"
+ #include "ioctl.h"
+@@ -1054,7 +1053,7 @@ struct mwifiex_adapter {
+ 	/* Device dump data/length */
+ 	void *devdump_data;
+ 	int devdump_len;
+-	struct delayed_work devdump_work;
++	struct timer_list devdump_timer;
+ 
+ 	bool ignore_btcoex_events;
+ };
+--- a/drivers/net/wireless/marvell/mwifiex/sta_event.c
++++ b/drivers/net/wireless/marvell/mwifiex/sta_event.c
+@@ -623,8 +623,8 @@ mwifiex_fw_dump_info_event(struct mwifie
+ 		 * transmission event get lost, in this cornel case,
+ 		 * user would still get partial of the dump.
+ 		 */
+-		schedule_delayed_work(&adapter->devdump_work,
+-				      msecs_to_jiffies(MWIFIEX_TIMER_10S));
++		mod_timer(&adapter->devdump_timer,
++			  jiffies + msecs_to_jiffies(MWIFIEX_TIMER_10S));
+ 	}
+ 
+ 	/* Overflow check */
+@@ -643,7 +643,7 @@ mwifiex_fw_dump_info_event(struct mwifie
+ 	return;
+ 
+ upload_dump:
+-	cancel_delayed_work_sync(&adapter->devdump_work);
++	del_timer_sync(&adapter->devdump_timer);
+ 	mwifiex_upload_device_dump(adapter);
+ }
+ 
 
 
