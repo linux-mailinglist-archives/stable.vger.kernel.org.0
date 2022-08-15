@@ -1,40 +1,42 @@
 Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
-Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77DAB593557
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:21 +0200 (CEST)
+Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
+	by mail.lfdr.de (Postfix) with ESMTP id AEA9559366B
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:24:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241020AbiHOSXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:23:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43464 "EHLO
+        id S242872AbiHOS3z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:29:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241190AbiHOSWY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:22:24 -0400
+        with ESMTP id S242533AbiHOS2y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:28:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2B3A2D1D4;
-        Mon, 15 Aug 2022 11:17:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C6B2241;
+        Mon, 15 Aug 2022 11:20:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A721B81071;
-        Mon, 15 Aug 2022 18:17:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1ECEC433D7;
-        Mon, 15 Aug 2022 18:17:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9DA2AB8105B;
+        Mon, 15 Aug 2022 18:19:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDAEBC433C1;
+        Mon, 15 Aug 2022 18:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587437;
-        bh=OAQyXy/GOFj54iggXsaKPN5H0YYyEtjyZS1gECRg3/A=;
+        s=korg; t=1660587573;
+        bh=qW6yXE9ud1P1tuP49WumpWs1UmmGtf+87D75l29Nzf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q6XuKC7L8x5Frs8sxGdjW4j0sT5slZ6g4xewzDB2hHW3jYracjIolNRIS+yrbg6EE
-         nDGsqDjXu/tsrgTPzu2KHxU9PEtk2LJy0fhozml4DtFWClZf1I+uCQL7y0uvNUVSbB
-         aTsGJAfqE6IJoXGG+VFitBZp0z6xTjYUS8A7srFM=
+        b=waKhJ+qEh5naNgq17V6IxWgbYNIx20gtKk1spk9fbtaIlrK3Ty/Pi+Tfa4RsS11xK
+         pMW/OhqyywsSkLOsGX+v2HBCKHhVAUBFJm2Phz+27rzlvFFNs+veHYw2RIGICaviXm
+         8gt5SgjyZ3vhnsEpCCZUd41ubct8CPWJcphtyrEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.15 085/779] fuse: limit nsec
-Date:   Mon, 15 Aug 2022 19:55:29 +0200
-Message-Id: <20220815180340.921319448@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20Kohlsch=C3=BCtter?= 
+        <christian@kohlschutter.com>, Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.15 086/779] fuse: ioctl: translate ENOSYS
+Date:   Mon, 15 Aug 2022 19:55:30 +0200
+Message-Id: <20220815180340.960636094@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,32 +56,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 47912eaa061a6a81e4aa790591a1874c650733c0 upstream.
+commit 02c0cab8e7345b06f1c0838df444e2902e4138d3 upstream.
 
-Limit nanoseconds to 0..999999999.
+Overlayfs may fail to complete updates when a filesystem lacks
+fileattr/xattr syscall support and responds with an ENOSYS error code,
+resulting in an unexpected "Function not implemented" error.
 
-Fixes: d8a5ba45457e ("[PATCH] FUSE - core")
+This bug may occur with FUSE filesystems, such as davfs2.
+
+Steps to reproduce:
+
+  # install davfs2, e.g., apk add davfs2
+  mkdir /test mkdir /test/lower /test/upper /test/work /test/mnt
+  yes '' | mount -t davfs -o ro http://some-web-dav-server/path \
+    /test/lower
+  mount -t overlay -o upperdir=/test/upper,lowerdir=/test/lower \
+    -o workdir=/test/work overlay /test/mnt
+
+  # when "some-file" exists in the lowerdir, this fails with "Function
+  # not implemented", with dmesg showing "overlayfs: failed to retrieve
+  # lower fileattr (/some-file, err=-38)"
+  touch /test/mnt/some-file
+
+The underlying cause of this regresion is actually in FUSE, which fails to
+translate the ENOSYS error code returned by userspace filesystem (which
+means that the ioctl operation is not supported) to ENOTTY.
+
+Reported-by: Christian Kohlschütter <christian@kohlschutter.com>
+Fixes: 72db82115d2b ("ovl: copy up sync/noatime fileattr flags")
+Fixes: 59efec7b9039 ("fuse: implement ioctl support")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/inode.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/fuse/ioctl.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/fs/fuse/inode.c
-+++ b/fs/fuse/inode.c
-@@ -181,6 +181,12 @@ void fuse_change_attributes_common(struc
- 	inode->i_uid     = make_kuid(fc->user_ns, attr->uid);
- 	inode->i_gid     = make_kgid(fc->user_ns, attr->gid);
- 	inode->i_blocks  = attr->blocks;
+--- a/fs/fuse/ioctl.c
++++ b/fs/fuse/ioctl.c
+@@ -9,6 +9,17 @@
+ #include <linux/compat.h>
+ #include <linux/fileattr.h>
+ 
++static ssize_t fuse_send_ioctl(struct fuse_mount *fm, struct fuse_args *args)
++{
++	ssize_t ret = fuse_simple_request(fm, args);
 +
-+	/* Sanitize nsecs */
-+	attr->atimensec = min_t(u32, attr->atimensec, NSEC_PER_SEC - 1);
-+	attr->mtimensec = min_t(u32, attr->mtimensec, NSEC_PER_SEC - 1);
-+	attr->ctimensec = min_t(u32, attr->ctimensec, NSEC_PER_SEC - 1);
++	/* Translate ENOSYS, which shouldn't be returned from fs */
++	if (ret == -ENOSYS)
++		ret = -ENOTTY;
 +
- 	inode->i_atime.tv_sec   = attr->atime;
- 	inode->i_atime.tv_nsec  = attr->atimensec;
- 	/* mtime from server may be stale due to local buffered write */
++	return ret;
++}
++
+ /*
+  * CUSE servers compiled on 32bit broke on 64bit kernels because the
+  * ABI was defined to be 'struct iovec' which is different on 32bit
+@@ -259,7 +270,7 @@ long fuse_do_ioctl(struct file *file, un
+ 	ap.args.out_pages = true;
+ 	ap.args.out_argvar = true;
+ 
+-	transferred = fuse_simple_request(fm, &ap.args);
++	transferred = fuse_send_ioctl(fm, &ap.args);
+ 	err = transferred;
+ 	if (transferred < 0)
+ 		goto out;
+@@ -393,7 +404,7 @@ static int fuse_priv_ioctl(struct inode
+ 	args.out_args[1].size = inarg.out_size;
+ 	args.out_args[1].value = ptr;
+ 
+-	err = fuse_simple_request(fm, &args);
++	err = fuse_send_ioctl(fm, &args);
+ 	if (!err) {
+ 		if (outarg.result < 0)
+ 			err = outarg.result;
 
 
