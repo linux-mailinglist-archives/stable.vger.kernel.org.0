@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28ED9593E72
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:45:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80790593E70
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:45:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240720AbiHOUnd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:43:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50208 "EHLO
+        id S233790AbiHOUna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:43:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345809AbiHOUkR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:40:17 -0400
+        with ESMTP id S1345716AbiHOUkV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:40:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3127AF0CC;
-        Mon, 15 Aug 2022 12:07:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94394AF0F5;
+        Mon, 15 Aug 2022 12:07:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 13DC561299;
-        Mon, 15 Aug 2022 19:07:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4BCAC433C1;
-        Mon, 15 Aug 2022 19:07:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA2C761281;
+        Mon, 15 Aug 2022 19:07:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D87F9C433D6;
+        Mon, 15 Aug 2022 19:07:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590440;
-        bh=j3q2RM54N4zh3E4cFLxCi/a/CNl0om9qOSQz/gllIZ0=;
+        s=korg; t=1660590443;
+        bh=wx3Pqq+F2h2jfSI8/LFoPCkQS2DBaKaEJmT2ns3U6iY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tdYFZb55NO6lG8F6hJin0g2NytTLrbAa8c4M/2GxW+FdeTtUYkTYAPguafVfkr8dg
-         LcWsR2aQ9+n7gmTVD1mvZ9Q2ltqOQ0iQv9jM202KHDnZHaBHGfKYrZABwcwhpSU8nO
-         JVaWdWYLPyPfDpFXbax0GUCsWDlWdx43m7ReTJ5I=
+        b=vaxvNLAuhysmiUBxDU3CL44Rm9Fzrpxp1DbTq8Fc0c8Msv2bkK7L6+2onJpLH0YcS
+         qULJSh8I7GdC5UKG7MhuDZDdgcrNezrMZF84b3aX9FaXbo9lpJOuUPx521nbW7SuLx
+         syFzRGLyTEcQcbO2AAoUWcAXwy47IaKhHsTSStKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, INAGAKI Hiroshi <musashino.open@gmail.com>,
+        Nick Hainke <vincent@systemli.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0259/1095] arm64: dts: qcom: sm8250: add missing PCIe PHY clock-cells
-Date:   Mon, 15 Aug 2022 19:54:18 +0200
-Message-Id: <20220815180440.461565404@linuxfoundation.org>
+Subject: [PATCH 5.18 0260/1095] arm64: dts: mt7622: fix BPI-R64 WPS button
+Date:   Mon, 15 Aug 2022 19:54:19 +0200
+Message-Id: <20220815180440.497785898@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,53 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Nick Hainke <vincent@systemli.org>
 
-[ Upstream commit d9fd162ce764c227fcfd4242f6c1639895a9481f ]
+[ Upstream commit c98e6e683632386a3bd284acda4342e68aec4c41 ]
 
-Add the missing '#clock-cells' properties to the PCIe QMP PHY nodes.
+The bananapi R64 (BPI-R64) experiences wrong WPS button signals.
+In OpenWrt pushing the WPS button while powering on the device will set
+it to recovery mode. Currently, this also happens without any user
+interaction. In particular, the wrong signals appear while booting the
+device or restarting it, e.g. after doing a system upgrade. If the
+device is in recovery mode the user needs to manually power cycle or
+restart it.
 
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Fixes: e53bdfc00977 ("arm64: dts: qcom: sm8250: Add PCIe support")
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220705114032.22787-3-johan+linaro@kernel.org
+The official BPI-R64 sources set the WPS button to GPIO_ACTIVE_LOW in
+the device tree. This setting seems to suppress the unwanted WPS button
+press signals. So this commit changes the button from GPIO_ACTIVE_HIGH to
+GPIO_ACTIVE_LOW.
+
+The official BPI-R64 sources can be found on
+https://github.com/BPI-SINOVOIP/BPI-R64-openwrt
+
+Fixes: 0b6286dd96c0 ("arm64: dts: mt7622: add bananapi BPI-R64 board")
+
+Suggested-by: INAGAKI Hiroshi <musashino.open@gmail.com>
+Signed-off-by: Nick Hainke <vincent@systemli.org>
+Link: https://lore.kernel.org/r/20220630111746.4098-1-vincent@systemli.org
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8250.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-index 1d62b2130e04..9afd8b3da3a1 100644
---- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-@@ -1883,6 +1883,8 @@ pcie0_lane: phy@1c06200 {
- 				clock-names = "pipe0";
- 
- 				#phy-cells = <0>;
-+
-+				#clock-cells = <0>;
- 				clock-output-names = "pcie_0_pipe_clk";
- 			};
+diff --git a/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts b/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts
+index 2b9bf8dd14ec..7538918c7a82 100644
+--- a/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts
++++ b/arch/arm64/boot/dts/mediatek/mt7622-bananapi-bpi-r64.dts
+@@ -49,7 +49,7 @@ factory {
+ 		wps {
+ 			label = "wps";
+ 			linux,code = <KEY_WPS_BUTTON>;
+-			gpios = <&pio 102 GPIO_ACTIVE_HIGH>;
++			gpios = <&pio 102 GPIO_ACTIVE_LOW>;
  		};
-@@ -1989,6 +1991,8 @@ pcie1_lane: phy@1c0e200 {
- 				clock-names = "pipe0";
+ 	};
  
- 				#phy-cells = <0>;
-+
-+				#clock-cells = <0>;
- 				clock-output-names = "pcie_1_pipe_clk";
- 			};
- 		};
-@@ -2095,6 +2099,8 @@ pcie2_lane: phy@1c16200 {
- 				clock-names = "pipe0";
- 
- 				#phy-cells = <0>;
-+
-+				#clock-cells = <0>;
- 				clock-output-names = "pcie_2_pipe_clk";
- 			};
- 		};
 -- 
 2.35.1
 
