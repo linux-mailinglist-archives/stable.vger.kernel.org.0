@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B415F59512A
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92A2F59511A
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232955AbiHPEuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:50:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55086 "EHLO
+        id S232905AbiHPEuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:50:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232877AbiHPEsj (ORCPT
+        with ESMTP id S232889AbiHPEsj (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:48:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F178EB514C;
-        Mon, 15 Aug 2022 13:43:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6D2BCD538;
+        Mon, 15 Aug 2022 13:43:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CEAFB811AC;
-        Mon, 15 Aug 2022 20:43:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0461C433D6;
-        Mon, 15 Aug 2022 20:43:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29650B80EAD;
+        Mon, 15 Aug 2022 20:43:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0406CC433C1;
+        Mon, 15 Aug 2022 20:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596220;
-        bh=DemmFqknU4D3MR+kRLzsx5FOMFNFYVOCBaSJPJ3o/NU=;
+        s=korg; t=1660596223;
+        bh=oZGOCMV2dnlc2c/xaoUlqt5cyP+8PuLV7tdYjOkXkgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=thTgyGfyD44juLaFCFW8c7VRzqzmMd39gKPQ3RhwjSg2sJagzS3l0ZWp63kAaJyFs
-         Vncb1nU4bKGBGlnk8oZb2+SApIsMdn6Wd+RardplzG92ht/nxbNELYsNH+KoBfo14X
-         I9xOJAguTP/22B99Y0cbzY2XXj9DAtrKRzr+2Nzw=
+        b=LGfDIRoQJHtMEzs5lidcnuH+edM10NetBMRUa7pp6Euk7y9005xa0Ku/MA+OK/dUI
+         K8+26nOosSlMfADZzcGohAtdZ8amn8GPpaKj4jIKX/o1jtRnMz/pdfLvrpSqIEEONK
+         na0vy6cyYEi5CNZiZ5gFXmmTYk5/3l4XzNbEufFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Ian Rogers <irogers@google.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0977/1157] perf test: Fix test case 83 (perf stat CSV output linter) on s390
-Date:   Mon, 15 Aug 2022 20:05:33 +0200
-Message-Id: <20220815180518.812896007@linuxfoundation.org>
+Subject: [PATCH 5.19 0978/1157] ASoC: fsl_asrc: force cast the asrc_format type
+Date:   Mon, 15 Aug 2022 20:05:34 +0200
+Message-Id: <20220815180518.860319842@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -59,84 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 87abe344cd280802f431998fabfd35d2d340ca90 ]
+[ Upstream commit c49932726de24405d45516b3f8ad2735714fdf05 ]
 
-Perf test case 83: perf stat CSV output linter might fail
-on s390.
-The reason for this is the output of the command
+Fix sparse warning:
+sound/soc/fsl/fsl_asrc.c:1177:60: sparse: warning: incorrect type in argument 3 (different base types)
+sound/soc/fsl/fsl_asrc.c:1177:60: sparse:    expected unsigned int [usertype] *out_value
+sound/soc/fsl/fsl_asrc.c:1177:60: sparse:    got restricted snd_pcm_format_t *
+sound/soc/fsl/fsl_asrc.c:1200:47: sparse: warning: restricted snd_pcm_format_t degrades to integer
 
- ./perf stat -x, -A -a --no-merge true
-
-which depends on a .config file setting. When CONFIG_SCHED_TOPOLOGY
-is set, the output of above perf command is
-
-   CPU0,1.50,msec,cpu-clock,1502781,100.00,1.052,CPUs utilized
-
-When CONFIG_SCHED_TOPOLOGY is *NOT* set the output of above perf
-command is
-
-   0.95,msec,cpu-clock,949800,100.00,1.060,CPUs utilized
-
-Fix the test case to accept both output formats.
-
-Output before:
- # perf test 83
- 83: perf stat CSV output linter       : FAILED!
- #
-
-Output after:
- # ./perf test 83
- 83: perf stat CSV output linter       : Ok
- #
-
-Fixes: ec906102e5b7d339 ("perf test: Fix "perf stat CSV output linter" test on s390")
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220720123419.220953-1-tmricht@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 4520af41fd21 ("ASoC: fsl_asrc: Support new property fsl,asrc-format")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1658399393-28777-3-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/shell/stat+csv_output.sh | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/soc/fsl/fsl_asrc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/tests/shell/stat+csv_output.sh b/tools/perf/tests/shell/stat+csv_output.sh
-index 38c26f3ef4c1..eb5196f58190 100755
---- a/tools/perf/tests/shell/stat+csv_output.sh
-+++ b/tools/perf/tests/shell/stat+csv_output.sh
-@@ -8,7 +8,8 @@ set -e
+diff --git a/sound/soc/fsl/fsl_asrc.c b/sound/soc/fsl/fsl_asrc.c
+index 20a9f8e924b3..aa5edf32d988 100644
+--- a/sound/soc/fsl/fsl_asrc.c
++++ b/sound/soc/fsl/fsl_asrc.c
+@@ -1066,6 +1066,7 @@ static int fsl_asrc_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	void __iomem *regs;
+ 	int irq, ret, i;
++	u32 asrc_fmt = 0;
+ 	u32 map_idx;
+ 	char tmp[16];
+ 	u32 width;
+@@ -1174,7 +1175,8 @@ static int fsl_asrc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
- function commachecker()
- {
--	local -i cnt=0 exp=0
-+	local -i cnt=0
-+	local exp=0
- 
- 	case "$1"
- 	in "--no-args")		exp=6
-@@ -17,7 +18,7 @@ function commachecker()
- 	;; "--interval")	exp=7
- 	;; "--per-thread")	exp=7
- 	;; "--system-wide-no-aggr")	exp=7
--				[ $(uname -m) = "s390x" ] && exp=6
-+				[ $(uname -m) = "s390x" ] && exp='^[6-7]$'
- 	;; "--per-core")	exp=8
- 	;; "--per-socket")	exp=8
- 	;; "--per-node")	exp=8
-@@ -34,7 +35,7 @@ function commachecker()
- 		x=$(echo $line | tr -d -c ',')
- 		cnt="${#x}"
- 		# echo $line $cnt
--		[ "$cnt" -ne "$exp" ] && {
-+		[[ ! "$cnt" =~ $exp ]] && {
- 			echo "wrong number of fields. expected $exp in $line" 1>&2
- 			exit 1;
+-	ret = of_property_read_u32(np, "fsl,asrc-format", &asrc->asrc_format);
++	ret = of_property_read_u32(np, "fsl,asrc-format", &asrc_fmt);
++	asrc->asrc_format = (__force snd_pcm_format_t)asrc_fmt;
+ 	if (ret) {
+ 		ret = of_property_read_u32(np, "fsl,asrc-width", &width);
+ 		if (ret) {
+@@ -1197,7 +1199,7 @@ static int fsl_asrc_probe(struct platform_device *pdev)
  		}
+ 	}
+ 
+-	if (!(FSL_ASRC_FORMATS & (1ULL << asrc->asrc_format))) {
++	if (!(FSL_ASRC_FORMATS & pcm_format_to_bits(asrc->asrc_format))) {
+ 		dev_warn(&pdev->dev, "unsupported width, use default S24_LE\n");
+ 		asrc->asrc_format = SNDRV_PCM_FORMAT_S24_LE;
+ 	}
 -- 
 2.35.1
 
