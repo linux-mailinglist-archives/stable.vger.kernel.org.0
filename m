@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F36E9593F8F
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:45:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEF17593F7F
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:45:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231203AbiHOVIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:08:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38534 "EHLO
+        id S242242AbiHOVCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:02:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344841AbiHOVDy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:03:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AF71D3EE1;
-        Mon, 15 Aug 2022 12:14:47 -0700 (PDT)
+        with ESMTP id S1344558AbiHOVAp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:00:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CAA7C651B;
+        Mon, 15 Aug 2022 12:13:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B267F60F68;
-        Mon, 15 Aug 2022 19:14:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1E12C4314B;
-        Mon, 15 Aug 2022 19:14:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B3FEB810C6;
+        Mon, 15 Aug 2022 19:13:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE06BC433D6;
+        Mon, 15 Aug 2022 19:13:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590886;
-        bh=BokTBTMkZ4346PaQMeY33bF5LXXEd68/+dwp0v89MXc=;
+        s=korg; t=1660590783;
+        bh=C+7qbxZDcsHmioA8hGAKIIf6AxtRN3IaVwqqKwIMSR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T21ynF5gE8yks6j6TP1DHXg/TgHh/iL+EE/+Ou2dxhJ2Zi7t55HlHtKQF9kPY56a4
-         ukhrsO7aA8FGc7rayMzqUGoOh2lLY/dwwrq5ynmhm9UcEXkvzHLz7yEk4L663mYD+r
-         4zgzC0ivNPsCDXyCvtcv/fZj+SIGFNrvfdz6QMCE=
+        b=X5adwM2qsydbd22Kn57dTxHTolfupn+/9EXhO9dCM5Ked26FeFjgBb40/KZuaocCC
+         wuk6BXLEKCXZ3NcC/SuSLnilJiAkDV9OLqBo5f9ie4oq+kA530gNEKB5Zf0HniVtcN
+         YJ0oudEmiQP3kspaO9POERFOq0oARa+E8u2FJy8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+03110230a11411024147@syzkaller.appspotmail.com,
-        syzbot+c6dde1f690b60e0b9fbe@syzkaller.appspotmail.com
-Subject: [PATCH 5.18 0361/1095] ath9k: fix use-after-free in ath9k_hif_usb_rx_cb
-Date:   Mon, 15 Aug 2022 19:56:00 +0200
-Message-Id: <20220815180444.675958576@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexey Kodanev <aleksei.kodanev@bell-sw.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0362/1095] wifi: iwlegacy: 4965: fix potential off-by-one overflow in il4965_rs_fill_link_cmd()
+Date:   Mon, 15 Aug 2022 19:56:01 +0200
+Message-Id: <20220815180444.707677234@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,89 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Alexey Kodanev <aleksei.kodanev@bell-sw.com>
 
-[ Upstream commit 0ac4827f78c7ffe8eef074bc010e7e34bc22f533 ]
+[ Upstream commit a8eb8e6f7159c7c20c0ddac428bde3d110890aa7 ]
 
-Syzbot reported use-after-free Read in ath9k_hif_usb_rx_cb() [0]. The
-problem was in incorrect htc_handle->drv_priv initialization.
+As a result of the execution of the inner while loop, the value
+of 'idx' can be equal to LINK_QUAL_MAX_RETRY_NUM. However, this
+is not checked after the loop and 'idx' is used to write the
+LINK_QUAL_MAX_RETRY_NUM size array 'lq_cmd->rs_table[idx]' below
+in the outer loop.
 
-Probable call trace which can trigger use-after-free:
+The fix is to check the new value of 'idx' inside the nested loop,
+and break both loops if index equals the size. Checking it at the
+start is now pointless, so let's remove it.
 
-ath9k_htc_probe_device()
-  /* htc_handle->drv_priv = priv; */
-  ath9k_htc_wait_for_target()      <--- Failed
-  ieee80211_free_hw()		   <--- priv pointer is freed
+Detected using the static analysis tool - Svace.
 
-<IRQ>
-...
-ath9k_hif_usb_rx_cb()
-  ath9k_hif_usb_rx_stream()
-   RX_STAT_INC()		<--- htc_handle->drv_priv access
-
-In order to not add fancy protection for drv_priv we can move
-htc_handle->drv_priv initialization at the end of the
-ath9k_htc_probe_device() and add helper macro to make
-all *_STAT_* macros NULL safe, since syzbot has reported related NULL
-deref in that macros [1]
-
-Link: https://syzkaller.appspot.com/bug?id=6ead44e37afb6866ac0c7dd121b4ce07cb665f60 [0]
-Link: https://syzkaller.appspot.com/bug?id=b8101ffcec107c0567a0cd8acbbacec91e9ee8de [1]
-Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
-Reported-and-tested-by: syzbot+03110230a11411024147@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+c6dde1f690b60e0b9fbe@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/d57bbedc857950659bfacac0ab48790c1eda00c8.1655145743.git.paskripkin@gmail.com
+Fixes: be663ab67077 ("iwlwifi: split the drivers for agn and legacy devices 3945/4965")
+Signed-off-by: Alexey Kodanev <aleksei.kodanev@bell-sw.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220608171614.28891-1-aleksei.kodanev@bell-sw.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc.h          | 10 +++++-----
- drivers/net/wireless/ath/ath9k/htc_drv_init.c |  3 ++-
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/wireless/intel/iwlegacy/4965-rs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc.h b/drivers/net/wireless/ath/ath9k/htc.h
-index 6b45e63fae4b..e3d546ef71dd 100644
---- a/drivers/net/wireless/ath/ath9k/htc.h
-+++ b/drivers/net/wireless/ath/ath9k/htc.h
-@@ -327,11 +327,11 @@ static inline struct ath9k_htc_tx_ctl *HTC_SKB_CB(struct sk_buff *skb)
- }
+diff --git a/drivers/net/wireless/intel/iwlegacy/4965-rs.c b/drivers/net/wireless/intel/iwlegacy/4965-rs.c
+index 9a491e5db75b..532e3b91777d 100644
+--- a/drivers/net/wireless/intel/iwlegacy/4965-rs.c
++++ b/drivers/net/wireless/intel/iwlegacy/4965-rs.c
+@@ -2403,7 +2403,7 @@ il4965_rs_fill_link_cmd(struct il_priv *il, struct il_lq_sta *lq_sta,
+ 		/* Repeat initial/next rate.
+ 		 * For legacy IL_NUMBER_TRY == 1, this loop will not execute.
+ 		 * For HT IL_HT_NUMBER_TRY == 3, this executes twice. */
+-		while (repeat_rate > 0 && idx < LINK_QUAL_MAX_RETRY_NUM) {
++		while (repeat_rate > 0) {
+ 			if (is_legacy(tbl_type.lq_type)) {
+ 				if (ant_toggle_cnt < NUM_TRY_BEFORE_ANT_TOGGLE)
+ 					ant_toggle_cnt++;
+@@ -2422,6 +2422,8 @@ il4965_rs_fill_link_cmd(struct il_priv *il, struct il_lq_sta *lq_sta,
+ 			    cpu_to_le32(new_rate);
+ 			repeat_rate--;
+ 			idx++;
++			if (idx >= LINK_QUAL_MAX_RETRY_NUM)
++				goto out;
+ 		}
  
- #ifdef CONFIG_ATH9K_HTC_DEBUGFS
--
--#define TX_STAT_INC(c) (hif_dev->htc_handle->drv_priv->debug.tx_stats.c++)
--#define TX_STAT_ADD(c, a) (hif_dev->htc_handle->drv_priv->debug.tx_stats.c += a)
--#define RX_STAT_INC(c) (hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c++)
--#define RX_STAT_ADD(c, a) (hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c += a)
-+#define __STAT_SAFE(expr) (hif_dev->htc_handle->drv_priv ? (expr) : 0)
-+#define TX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c++)
-+#define TX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c += a)
-+#define RX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c++)
-+#define RX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c += a)
- #define CAB_STAT_INC   priv->debug.tx_stats.cab_queued++
+ 		il4965_rs_get_tbl_info_from_mcs(new_rate, lq_sta->band,
+@@ -2466,6 +2468,7 @@ il4965_rs_fill_link_cmd(struct il_priv *il, struct il_lq_sta *lq_sta,
+ 		repeat_rate--;
+ 	}
  
- #define TX_QSTAT_INC(q) (priv->debug.tx_stats.queue_stats[q]++)
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-index ff61ae34ecdf..07ac88fb1c57 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-@@ -944,7 +944,6 @@ int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
- 	priv->hw = hw;
- 	priv->htc = htc_handle;
- 	priv->dev = dev;
--	htc_handle->drv_priv = priv;
- 	SET_IEEE80211_DEV(hw, priv->dev);
++out:
+ 	lq_cmd->agg_params.agg_frame_cnt_limit = LINK_QUAL_AGG_FRAME_LIMIT_DEF;
+ 	lq_cmd->agg_params.agg_dis_start_th = LINK_QUAL_AGG_DISABLE_START_DEF;
  
- 	ret = ath9k_htc_wait_for_target(priv);
-@@ -965,6 +964,8 @@ int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
- 	if (ret)
- 		goto err_init;
- 
-+	htc_handle->drv_priv = priv;
-+
- 	return 0;
- 
- err_init:
 -- 
 2.35.1
 
