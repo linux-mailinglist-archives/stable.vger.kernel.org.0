@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C53FB594D55
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6EE859484B
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245439AbiHPAsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:48:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60920 "EHLO
+        id S243278AbiHOXRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:17:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349725AbiHPAqn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:46:43 -0400
+        with ESMTP id S1343725AbiHOXO2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:14:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9CC7D87FD;
-        Mon, 15 Aug 2022 13:45:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8591895FD;
+        Mon, 15 Aug 2022 13:01:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F5C3B811A6;
-        Mon, 15 Aug 2022 20:45:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4493C433D6;
-        Mon, 15 Aug 2022 20:45:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BA47B80EAD;
+        Mon, 15 Aug 2022 20:01:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1393C433D7;
+        Mon, 15 Aug 2022 20:01:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596303;
-        bh=9/s9PwEz8qdZIEIq4LzwD7S4d3nxllJUbhvznSvycco=;
+        s=korg; t=1660593704;
+        bh=8JZ/Ppu8+/LJWNS3QNboIv0bypIL+9qabo0OOgziros=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1DI6AUl7mjT3xlANx7sKthfe07bNBeIM7Pc7xww6q6Uzl6tj33pIYI0dr4kBu3MNB
-         /xMQwXnPdK0n/LjdFYYjHIpOk8eI3QMHixRbFF92NcIroEIvc8CROisE3oLK2xrrGT
-         fUIC07M4jQNXw+Z4oiNettGt06YHW7tgLLcmiLNY=
+        b=uj+pWQZkhcqtVSxZiltBW9ExxMXH/3CRmisrtcfQs+k4FDhM54WVfHEO0MLeVeIWb
+         bOBm3D3ML7cZWe1UKXA3x7ggwOGcESuh1GxKAow3sG57sYlSoaoj57RCy+7TpthHB2
+         ZohQJzBXJpVeqcOSgFDDN8O7XthXSfvZl3ylM/Ko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Battersby <tonyb@cybernetics.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.19 1036/1157] scsi: qla2xxx: Fix discovery issues in FC-AL topology
+        stable@vger.kernel.org, Lev Kujawski <lkujaw@member.fsf.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.18 0993/1095] KVM: set_msr_mce: Permit guests to ignore single-bit ECC errors
 Date:   Mon, 15 Aug 2022 20:06:32 +0200
-Message-Id: <20220815180521.418220972@linuxfoundation.org>
+Message-Id: <20220815180510.188201325@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,107 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Lev Kujawski <lkujaw@member.fsf.org>
 
-commit 47ccb113cead905bdc236571bf8ac6fed90321b3 upstream.
+[ Upstream commit 0471a7bd1bca2a47a5f378f2222c5cf39ce94152 ]
 
-A direct attach tape device, when gets swapped with another, was not
-discovered. Fix this by looking at loop map and reinitialize link if there
-are devices present.
+Certain guest operating systems (e.g., UNIXWARE) clear bit 0 of
+MC1_CTL to ignore single-bit ECC data errors.  Single-bit ECC data
+errors are always correctable and thus are safe to ignore because they
+are informational in nature rather than signaling a loss of data
+integrity.
 
-Link: https://lore.kernel.org/linux-scsi/baef87c3-5dad-3b47-44c1-6914bfc90108@cybernetics.com/
-Link: https://lore.kernel.org/r/20220713052045.10683-8-njavali@marvell.com
-Cc: stable@vger.kernel.org
-Reported-by: Tony Battersby <tonyb@cybernetics.com>
-Tested-by: Tony Battersby <tonyb@cybernetics.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Prior to this patch, these guests would crash upon writing MC1_CTL,
+with resultant error messages like the following:
+
+error: kvm run failed Operation not permitted
+EAX=fffffffe EBX=fffffffe ECX=00000404 EDX=ffffffff
+ESI=ffffffff EDI=00000001 EBP=fffdaba4 ESP=fffdab20
+EIP=c01333a5 EFL=00000246 [---Z-P-] CPL=0 II=0 A20=1 SMM=0 HLT=0
+ES =0108 00000000 ffffffff 00c09300 DPL=0 DS   [-WA]
+CS =0100 00000000 ffffffff 00c09b00 DPL=0 CS32 [-RA]
+SS =0108 00000000 ffffffff 00c09300 DPL=0 DS   [-WA]
+DS =0108 00000000 ffffffff 00c09300 DPL=0 DS   [-WA]
+FS =0000 00000000 ffffffff 00c00000
+GS =0000 00000000 ffffffff 00c00000
+LDT=0118 c1026390 00000047 00008200 DPL=0 LDT
+TR =0110 ffff5af0 00000067 00008b00 DPL=0 TSS32-busy
+GDT=     ffff5020 000002cf
+IDT=     ffff52f0 000007ff
+CR0=8001003b CR2=00000000 CR3=0100a000 CR4=00000230
+DR0=00000000 DR1=00000000 DR2=00000000 DR3=00000000
+DR6=ffff0ff0 DR7=00000400
+EFER=0000000000000000
+Code=08 89 01 89 51 04 c3 8b 4c 24 08 8b 01 8b 51 04 8b 4c 24 04 <0f>
+30 c3 f7 05 a4 6d ff ff 10 00 00 00 74 03 0f 31 c3 33 c0 33 d2 c3 8d
+74 26 00 0f 31 c3
+
+Signed-off-by: Lev Kujawski <lkujaw@member.fsf.org>
+Message-Id: <20220521081511.187388-1-lkujaw@member.fsf.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_gbl.h  |    3 ++-
- drivers/scsi/qla2xxx/qla_init.c |   29 +++++++++++++++++++++++++++++
- drivers/scsi/qla2xxx/qla_mbx.c  |    5 ++++-
- 3 files changed, 35 insertions(+), 2 deletions(-)
+ arch/x86/kvm/x86.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_gbl.h
-+++ b/drivers/scsi/qla2xxx/qla_gbl.h
-@@ -434,7 +434,8 @@ extern int
- qla2x00_get_resource_cnts(scsi_qla_host_t *);
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 767a61e29f51..2316c978b598 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -3226,10 +3226,13 @@ static int set_msr_mce(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 			/* only 0 or all 1s can be written to IA32_MCi_CTL
+ 			 * some Linux kernels though clear bit 10 in bank 4 to
+ 			 * workaround a BIOS/GART TBL issue on AMD K8s, ignore
+-			 * this to avoid an uncatched #GP in the guest
++			 * this to avoid an uncatched #GP in the guest.
++			 *
++			 * UNIXWARE clears bit 0 of MC1_CTL to ignore
++			 * correctable, single-bit ECC data errors.
+ 			 */
+ 			if ((offset & 0x3) == 0 &&
+-			    data != 0 && (data | (1 << 10)) != ~(u64)0)
++			    data != 0 && (data | (1 << 10) | 1) != ~(u64)0)
+ 				return -1;
  
- extern int
--qla2x00_get_fcal_position_map(scsi_qla_host_t *ha, char *pos_map);
-+qla2x00_get_fcal_position_map(scsi_qla_host_t *ha, char *pos_map,
-+		u8 *num_entries);
- 
- extern int
- qla2x00_get_link_status(scsi_qla_host_t *, uint16_t, struct link_statistics *,
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -5505,6 +5505,22 @@ static int qla2x00_configure_n2n_loop(sc
- 	return QLA_FUNCTION_FAILED;
- }
- 
-+static void
-+qla_reinitialize_link(scsi_qla_host_t *vha)
-+{
-+	int rval;
-+
-+	atomic_set(&vha->loop_state, LOOP_DOWN);
-+	atomic_set(&vha->loop_down_timer, LOOP_DOWN_TIME);
-+	rval = qla2x00_full_login_lip(vha);
-+	if (rval == QLA_SUCCESS) {
-+		ql_dbg(ql_dbg_disc, vha, 0xd050, "Link reinitialized\n");
-+	} else {
-+		ql_dbg(ql_dbg_disc, vha, 0xd051,
-+			"Link reinitialization failed (%d)\n", rval);
-+	}
-+}
-+
- /*
-  * qla2x00_configure_local_loop
-  *	Updates Fibre Channel Device Database with local loop devices.
-@@ -5556,6 +5572,19 @@ qla2x00_configure_local_loop(scsi_qla_ho
- 		spin_unlock_irqrestore(&vha->work_lock, flags);
- 
- 		if (vha->scan.scan_retry < MAX_SCAN_RETRIES) {
-+			u8 loop_map_entries = 0;
-+			int rc;
-+
-+			rc = qla2x00_get_fcal_position_map(vha, NULL,
-+						&loop_map_entries);
-+			if (rc == QLA_SUCCESS && loop_map_entries > 1) {
-+				/*
-+				 * There are devices that are still not logged
-+				 * in. Reinitialize to give them a chance.
-+				 */
-+				qla_reinitialize_link(vha);
-+				return QLA_FUNCTION_FAILED;
-+			}
- 			set_bit(LOCAL_LOOP_UPDATE, &vha->dpc_flags);
- 			set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
- 		}
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -3068,7 +3068,8 @@ qla2x00_get_resource_cnts(scsi_qla_host_
-  *	Kernel context.
-  */
- int
--qla2x00_get_fcal_position_map(scsi_qla_host_t *vha, char *pos_map)
-+qla2x00_get_fcal_position_map(scsi_qla_host_t *vha, char *pos_map,
-+		u8 *num_entries)
- {
- 	int rval;
- 	mbx_cmd_t mc;
-@@ -3108,6 +3109,8 @@ qla2x00_get_fcal_position_map(scsi_qla_h
- 
- 		if (pos_map)
- 			memcpy(pos_map, pmap, FCAL_MAP_SIZE);
-+		if (num_entries)
-+			*num_entries = pmap[0];
- 	}
- 	dma_pool_free(ha->s_dma_pool, pmap, pmap_dma);
- 
+ 			/* MCi_STATUS */
+-- 
+2.35.1
+
 
 
