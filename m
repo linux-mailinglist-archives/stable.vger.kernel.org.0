@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85A26594263
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1DEB594266
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:53:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349862AbiHOVsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:48:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59780 "EHLO
+        id S1349887AbiHOVs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:48:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350288AbiHOVrg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:47:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E5262B634;
-        Mon, 15 Aug 2022 12:31:42 -0700 (PDT)
+        with ESMTP id S1350293AbiHOVrh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:47:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1405D2A275;
+        Mon, 15 Aug 2022 12:31:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B3A660EF0;
-        Mon, 15 Aug 2022 19:31:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14821C433D6;
-        Mon, 15 Aug 2022 19:31:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCD18B8107A;
+        Mon, 15 Aug 2022 19:31:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F14DC433D6;
+        Mon, 15 Aug 2022 19:31:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591901;
-        bh=hVge2b40hrymoACoRoPHQOleTSb2rRVyOkW4WS8IgBU=;
+        s=korg; t=1660591907;
+        bh=qQyraYE4LbhTbwMvV6lt7Z7x61Pv/yXQ96/5OMaQNNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=flowuNYV4yBgInJ337f2gvVlvXmifOFo25pJCEgtTdcDjPynuoJxGV8Sdgp5MXEr+
-         pioZFHeCVmIhBdVp9zkjaSWeGXT/awRh1KaNZMK0uBM7ArOEI4mwbtjHzgwYBGY+JI
-         4AeTbtYLJSsr2X4Gw8fnAofHBmhtQGTbrZLTQ134=
+        b=Gbkfqy/bMsIX4FgTrjGVaFn6CWbpG9FX9Be9JNNmXw64sd+oFvV2xBukx8qy31krY
+         o0ZL4zXmkdtgz34LUO8zWKXBL0aMKqm1p7d/omn74g77o6ggURbA8mobPo0pRA8x6Q
+         t9L7X70ZSqP6v2670wfhQtSKX0kTBNxZ4ozXewTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, Lai Jiangshan <jiangshanlai@gmail.com>,
+        Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.19 0028/1157] KVM: Put the extra pfn reference when reusing a pfn in the gpc cache
-Date:   Mon, 15 Aug 2022 19:49:44 +0200
-Message-Id: <20220815180440.551008180@linuxfoundation.org>
+Subject: [PATCH 5.19 0029/1157] KVM: Fully serialize gfn=>pfn cache refresh via mutex
+Date:   Mon, 15 Aug 2022 19:49:45 +0200
+Message-Id: <20220815180440.596564836@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,39 +56,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit 3dddf65b4f4c451c345d34ae85bdf1791a746e49 upstream.
+commit 93984f19e7bce4c18084a6ef3dacafb155b806ed upstream.
 
-Put the struct page reference to pfn acquired by hva_to_pfn() when the
-old and new pfns for a gfn=>pfn cache match.  The cache already has a
-reference via the old/current pfn, and will only put one reference when
-the cache is done with the pfn.
+Protect gfn=>pfn cache refresh with a mutex to fully serialize refreshes.
+The refresh logic doesn't protect against
 
-Fixes: 982ed0de4753 ("KVM: Reinstate gfn_to_pfn_cache with invalidation support")
+- concurrent unmaps, or refreshes with different GPAs (which may or may not
+  happen in practice, for example if a cache is only used under vcpu->mutex;
+  but it's allowed in the code)
+
+- a false negative on the memslot generation.  If the first refresh sees
+  a stale memslot generation, it will refresh the hva and generation before
+  moving on to the hva=>pfn translation.  If it then drops gpc->lock, a
+  different user of the cache can come along, acquire gpc->lock, see that
+  the memslot generation is fresh, and skip the hva=>pfn update due to the
+  userspace address also matching (because it too was updated).
+
+The refresh path can already sleep during hva=>pfn resolution, so wrap
+the refresh with a mutex to ensure that any given refresh runs to
+completion before other callers can start their refresh.
+
 Cc: stable@vger.kernel.org
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220429210025.3293691-5-seanjc@google.com>
+Message-Id: <20220429210025.3293691-7-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/pfncache.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ include/linux/kvm_types.h |    2 ++
+ virt/kvm/pfncache.c       |   12 ++++++++++++
+ 2 files changed, 14 insertions(+)
 
+--- a/include/linux/kvm_types.h
++++ b/include/linux/kvm_types.h
+@@ -19,6 +19,7 @@ struct kvm_memslots;
+ enum kvm_mr_change;
+ 
+ #include <linux/bits.h>
++#include <linux/mutex.h>
+ #include <linux/types.h>
+ #include <linux/spinlock_types.h>
+ 
+@@ -69,6 +70,7 @@ struct gfn_to_pfn_cache {
+ 	struct kvm_vcpu *vcpu;
+ 	struct list_head list;
+ 	rwlock_t lock;
++	struct mutex refresh_lock;
+ 	void *khva;
+ 	kvm_pfn_t pfn;
+ 	enum pfn_cache_usage usage;
 --- a/virt/kvm/pfncache.c
 +++ b/virt/kvm/pfncache.c
-@@ -206,6 +206,14 @@ int kvm_gfn_to_pfn_cache_refresh(struct
+@@ -157,6 +157,13 @@ int kvm_gfn_to_pfn_cache_refresh(struct
+ 	if (page_offset + len > PAGE_SIZE)
+ 		return -EINVAL;
  
- 		if (gpc->usage & KVM_HOST_USES_PFN) {
- 			if (new_pfn == old_pfn) {
-+				/*
-+				 * Reuse the existing pfn and khva, but put the
-+				 * reference acquired hva_to_pfn_retry(); the
-+				 * cache still holds a reference to the pfn
-+				 * from the previous refresh.
-+				 */
-+				gpc_release_pfn_and_khva(kvm, new_pfn, NULL);
++	/*
++	 * If another task is refreshing the cache, wait for it to complete.
++	 * There is no guarantee that concurrent refreshes will see the same
++	 * gpa, memslots generation, etc..., so they must be fully serialized.
++	 */
++	mutex_lock(&gpc->refresh_lock);
 +
- 				new_khva = old_khva;
- 				old_pfn = KVM_PFN_ERR_FAULT;
- 				old_khva = NULL;
+ 	write_lock_irq(&gpc->lock);
+ 
+ 	old_pfn = gpc->pfn;
+@@ -250,6 +257,8 @@ int kvm_gfn_to_pfn_cache_refresh(struct
+  out:
+ 	write_unlock_irq(&gpc->lock);
+ 
++	mutex_unlock(&gpc->refresh_lock);
++
+ 	gpc_release_pfn_and_khva(kvm, old_pfn, old_khva);
+ 
+ 	return ret;
+@@ -261,6 +270,7 @@ void kvm_gfn_to_pfn_cache_unmap(struct k
+ 	void *old_khva;
+ 	kvm_pfn_t old_pfn;
+ 
++	mutex_lock(&gpc->refresh_lock);
+ 	write_lock_irq(&gpc->lock);
+ 
+ 	gpc->valid = false;
+@@ -276,6 +286,7 @@ void kvm_gfn_to_pfn_cache_unmap(struct k
+ 	gpc->pfn = KVM_PFN_ERR_FAULT;
+ 
+ 	write_unlock_irq(&gpc->lock);
++	mutex_unlock(&gpc->refresh_lock);
+ 
+ 	gpc_release_pfn_and_khva(kvm, old_pfn, old_khva);
+ }
+@@ -290,6 +301,7 @@ int kvm_gfn_to_pfn_cache_init(struct kvm
+ 
+ 	if (!gpc->active) {
+ 		rwlock_init(&gpc->lock);
++		mutex_init(&gpc->refresh_lock);
+ 
+ 		gpc->khva = NULL;
+ 		gpc->pfn = KVM_PFN_ERR_FAULT;
 
 
