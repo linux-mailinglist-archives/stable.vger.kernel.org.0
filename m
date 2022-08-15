@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB677593FF0
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:47:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C7F4594130
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:50:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241570AbiHOVKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:10:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46140 "EHLO
+        id S233546AbiHOVK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:10:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348016AbiHOVH4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:07:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D123E3C8C6;
-        Mon, 15 Aug 2022 12:17:44 -0700 (PDT)
+        with ESMTP id S1348039AbiHOVIA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:08:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1E1E2E691;
+        Mon, 15 Aug 2022 12:17:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EB0CB810A3;
-        Mon, 15 Aug 2022 19:17:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6816C433C1;
-        Mon, 15 Aug 2022 19:17:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD945B8107A;
+        Mon, 15 Aug 2022 19:17:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3656C433C1;
+        Mon, 15 Aug 2022 19:17:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591062;
-        bh=Mx87WYwyT1wEKTM8f5AUem/0iBZPW2/lVxXm8BygN5g=;
+        s=korg; t=1660591074;
+        bh=Wyzz/kX11fAf7yn4QudM02EmmHD4vOUHB5xDkUDigwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oVZyy4w/4vVj+o2W3LJN+uXJ7dWogqNsQH7C/zpAhVjyUdZYrotlGH1AA7ZF/HOpw
-         U3vo6dZmINL2o5n4XmRX1JllEQANCMSoAEPBGVirBLZ1IFF8SnYafZnzlxRaS09vOT
-         VLLLTGRpjsA5oTrWu9bfVwpDzaUTfUfBqAEONA0s=
+        b=P3WrSgvsx/pjV5teS6Gb4XU8eBvozrYaTTfOC6nHj3uWyLy+Qx8+f8w/Tx3MzuQZ9
+         YmdWv18MYFSt5rpnXVqHSE6OTN/OPs5jFGqFW5H4VlGSIJ0lKaYA2dBiy8D+2UyJdg
+         /Ffw9VZnuWjYwiGS+SQI9ZAIj9ByQTKiE1ZLJNu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Piotr Oniszczuk <piotr.oniszczuk@gmail.com>,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        Sebastian Fricke <sebastian.fricke@collabora.com>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0432/1095] media: hantro: Add support for Hantro G1 on RK356x
-Date:   Mon, 15 Aug 2022 19:57:11 +0200
-Message-Id: <20220815180447.563742677@linuxfoundation.org>
+Subject: [PATCH 5.18 0433/1095] media: staging: media: hantro: Fix typos
+Date:   Mon, 15 Aug 2022 19:57:12 +0200
+Message-Id: <20220815180447.594816922@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,83 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piotr Oniszczuk <piotr.oniszczuk@gmail.com>
+From: Sebastian Fricke <sebastian.fricke@collabora.com>
 
-[ Upstream commit 5f6bfab6da6531238e899fdf29efd6d0185adc3e ]
+[ Upstream commit d8f6f1c56d5469e22eeb7cc1f3580b29e2f0fef5 ]
 
-RK356x has Hantro G1 video decoder capable to decode MPEG2/H.264/VP8
-video formats.
+Fix typos in comments within the Hantro driver.
 
-This patch adds support for RK356x family in existing Hantro
-video decoder kernel driver.
-
-Tested on [1] with FFmpeg v4l2_request code taken from [2]
-with MPEG2, H.642 and VP8 samples with results [3].
-
-[1] https://github.com/warpme/minimyth2
-[2] https://github.com/LibreELEC/LibreELEC.tv/blob/master/packages/multimedia/ffmpeg/patches/v4l2-request/ffmpeg-001-v4l2-request.patch
-[3] https://github.com/warpme/minimyth2/blob/master/video-test-summary.txt
-
-Signed-off-by: Piotr Oniszczuk <piotr.oniszczuk@gmail.com>
-Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Signed-off-by: Sebastian Fricke <sebastian.fricke@collabora.com>
+Reviewed-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/hantro/hantro_drv.c      |  1 +
- drivers/staging/media/hantro/hantro_hw.h       |  1 +
- drivers/staging/media/hantro/rockchip_vpu_hw.c | 14 ++++++++++++++
- 3 files changed, 16 insertions(+)
+ drivers/staging/media/hantro/hantro_g2_hevc_dec.c | 2 +-
+ drivers/staging/media/hantro/hantro_hevc.c        | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/hantro/hantro_drv.c b/drivers/staging/media/hantro/hantro_drv.c
-index bd7d11032c94..ac232b5f7825 100644
---- a/drivers/staging/media/hantro/hantro_drv.c
-+++ b/drivers/staging/media/hantro/hantro_drv.c
-@@ -638,6 +638,7 @@ static const struct of_device_id of_hantro_match[] = {
- 	{ .compatible = "rockchip,rk3288-vpu", .data = &rk3288_vpu_variant, },
- 	{ .compatible = "rockchip,rk3328-vpu", .data = &rk3328_vpu_variant, },
- 	{ .compatible = "rockchip,rk3399-vpu", .data = &rk3399_vpu_variant, },
-+	{ .compatible = "rockchip,rk3568-vpu", .data = &rk3568_vpu_variant, },
- #endif
- #ifdef CONFIG_VIDEO_HANTRO_IMX8M
- 	{ .compatible = "nxp,imx8mm-vpu-g1", .data = &imx8mm_vpu_g1_variant, },
-diff --git a/drivers/staging/media/hantro/hantro_hw.h b/drivers/staging/media/hantro/hantro_hw.h
-index ed018e293ba0..c5dc77125fb7 100644
---- a/drivers/staging/media/hantro/hantro_hw.h
-+++ b/drivers/staging/media/hantro/hantro_hw.h
-@@ -300,6 +300,7 @@ extern const struct hantro_variant rk3066_vpu_variant;
- extern const struct hantro_variant rk3288_vpu_variant;
- extern const struct hantro_variant rk3328_vpu_variant;
- extern const struct hantro_variant rk3399_vpu_variant;
-+extern const struct hantro_variant rk3568_vpu_variant;
- extern const struct hantro_variant sama5d4_vdec_variant;
- extern const struct hantro_variant sunxi_vpu_variant;
+diff --git a/drivers/staging/media/hantro/hantro_g2_hevc_dec.c b/drivers/staging/media/hantro/hantro_g2_hevc_dec.c
+index 5f3178bac9c8..a4642ed1f463 100644
+--- a/drivers/staging/media/hantro/hantro_g2_hevc_dec.c
++++ b/drivers/staging/media/hantro/hantro_g2_hevc_dec.c
+@@ -401,7 +401,7 @@ static int set_ref(struct hantro_ctx *ctx)
  
-diff --git a/drivers/staging/media/hantro/rockchip_vpu_hw.c b/drivers/staging/media/hantro/rockchip_vpu_hw.c
-index 163cf92eafca..fc96501f3bc8 100644
---- a/drivers/staging/media/hantro/rockchip_vpu_hw.c
-+++ b/drivers/staging/media/hantro/rockchip_vpu_hw.c
-@@ -545,6 +545,20 @@ const struct hantro_variant rk3399_vpu_variant = {
- 	.num_clocks = ARRAY_SIZE(rockchip_vpu_clk_names)
- };
+ 	set_ref_pic_list(ctx);
  
-+const struct hantro_variant rk3568_vpu_variant = {
-+	.dec_offset = 0x400,
-+	.dec_fmts = rk3399_vpu_dec_fmts,
-+	.num_dec_fmts = ARRAY_SIZE(rk3399_vpu_dec_fmts),
-+	.codec = HANTRO_MPEG2_DECODER |
-+		 HANTRO_VP8_DECODER | HANTRO_H264_DECODER,
-+	.codec_ops = rk3399_vpu_codec_ops,
-+	.irqs = rockchip_vdpu2_irqs,
-+	.num_irqs = ARRAY_SIZE(rockchip_vdpu2_irqs),
-+	.init = rockchip_vpu_hw_init,
-+	.clk_names = rockchip_vpu_clk_names,
-+	.num_clocks = ARRAY_SIZE(rockchip_vpu_clk_names)
-+};
-+
- const struct hantro_variant px30_vpu_variant = {
- 	.enc_offset = 0x0,
- 	.enc_fmts = rockchip_vpu_enc_fmts,
+-	/* We will only keep the references picture that are still used */
++	/* We will only keep the reference pictures that are still used */
+ 	ctx->hevc_dec.ref_bufs_used = 0;
+ 
+ 	/* Set up addresses of DPB buffers */
+diff --git a/drivers/staging/media/hantro/hantro_hevc.c b/drivers/staging/media/hantro/hantro_hevc.c
+index b49a41d7ae91..9c351f7fe6bd 100644
+--- a/drivers/staging/media/hantro/hantro_hevc.c
++++ b/drivers/staging/media/hantro/hantro_hevc.c
+@@ -59,7 +59,7 @@ dma_addr_t hantro_hevc_get_ref_buf(struct hantro_ctx *ctx,
+ 	struct hantro_hevc_dec_hw_ctx *hevc_dec = &ctx->hevc_dec;
+ 	int i;
+ 
+-	/* Find the reference buffer in already know ones */
++	/* Find the reference buffer in already known ones */
+ 	for (i = 0;  i < NUM_REF_PICTURES; i++) {
+ 		if (hevc_dec->ref_bufs_poc[i] == poc) {
+ 			hevc_dec->ref_bufs_used |= 1 << i;
 -- 
 2.35.1
 
