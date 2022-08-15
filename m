@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A3BC594809
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8397659496C
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:14:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346133AbiHOXmd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:42:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59616 "EHLO
+        id S1353585AbiHOXmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:42:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353976AbiHOXk0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:40:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71E64DF8C;
-        Mon, 15 Aug 2022 13:10:19 -0700 (PDT)
+        with ESMTP id S1354056AbiHOXlE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28D3C98A4E;
+        Mon, 15 Aug 2022 13:10:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24C51B80EAB;
-        Mon, 15 Aug 2022 20:10:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 282C8C433C1;
-        Mon, 15 Aug 2022 20:10:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92F4460025;
+        Mon, 15 Aug 2022 20:10:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96A25C433D6;
+        Mon, 15 Aug 2022 20:10:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594216;
-        bh=+RDC+fA7ra6cCH+DXFwe/HZEoHRonNZiVTAAfjz3wCQ=;
+        s=korg; t=1660594223;
+        bh=AZdgHdd7Lzfg2eg8h8WDpyyCu/wK8MepgvhUm1bY0G8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=duwp1yIWYwsc+QoHCdux09gjhl5Z6kX8TDifYid941WLaic4bRHhlQWHnGRI3xWuC
-         ZLGagMOlb2DOhLClmdxaJ5IM4Jaaawyr/nsDLQfAVVQEQ/d17uUbLCDj6rSfdZyA2x
-         VF1BDMLTy3bItNsLHie/aqCUURNLEHnJLPLLcscI=
+        b=m4VsTexA1LwbA/pgQjnE02bqlDUQ/Tcvr7a7HhjpbM6XipFMmRiNA2dhttD4t3FMc
+         chjzbmHtfviw+uXTSM7bnhjTNu8VPUd7CkmsV6/Oxn+r3FaTyEVXcwL5f/twyJE+AL
+         jlM3iH7JBxYib4acx3jfgJrZkWUjz2oN/q4s4LyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Qian <ming.qian@nxp.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0396/1157] media: amphion: output firmware error message
-Date:   Mon, 15 Aug 2022 19:55:52 +0200
-Message-Id: <20220815180455.521689307@linuxfoundation.org>
+Subject: [PATCH 5.19 0397/1157] drm/mcde: Fix refcount leak in mcde_dsi_bind
+Date:   Mon, 15 Aug 2022 19:55:53 +0200
+Message-Id: <20220815180455.551387286@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,41 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 89e3f3fb3d9014efa59ed6bb526d5f1a00168452 ]
+[ Upstream commit 3a149169e4a2f9127022fec6ef5d71b4e804b3b9 ]
 
-Firmware may send the error event with some error message,
-and it help locate the firmware error,
-so output the error message if it exists
+Every iteration of for_each_available_child_of_node() decrements
+the reference counter of the previous node. There is no decrement
+when break out from the loop and results in refcount leak.
+Add missing of_node_put() to fix this.
 
-Fixes: 61cbf1c1fa6d7 ("media: amphion: implement vpu core communication based on mailbox")
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 5fc537bfd000 ("drm/mcde: Add new driver for ST-Ericsson MCDE")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220525115411.65455-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/amphion/vpu_msgs.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/mcde/mcde_dsi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/amphion/vpu_msgs.c b/drivers/media/platform/amphion/vpu_msgs.c
-index d5850df8f1d5..d8247f36d84b 100644
---- a/drivers/media/platform/amphion/vpu_msgs.c
-+++ b/drivers/media/platform/amphion/vpu_msgs.c
-@@ -150,7 +150,12 @@ static void vpu_session_handle_eos(struct vpu_inst *inst, struct vpu_rpc_event *
- 
- static void vpu_session_handle_error(struct vpu_inst *inst, struct vpu_rpc_event *pkt)
- {
--	dev_err(inst->dev, "unsupported stream\n");
-+	char *str = (char *)pkt->data;
-+
-+	if (strlen(str))
-+		dev_err(inst->dev, "instance %d firmware error : %s\n", inst->id, str);
-+	else
-+		dev_err(inst->dev, "instance %d is unsupported stream\n", inst->id);
- 	call_void_vop(inst, event_notify, VPU_MSG_ID_UNSUPPORTED, NULL);
- 	vpu_v4l2_set_error(inst);
- }
+diff --git a/drivers/gpu/drm/mcde/mcde_dsi.c b/drivers/gpu/drm/mcde/mcde_dsi.c
+index 5651734ce977..9f9ac8699310 100644
+--- a/drivers/gpu/drm/mcde/mcde_dsi.c
++++ b/drivers/gpu/drm/mcde/mcde_dsi.c
+@@ -1111,6 +1111,7 @@ static int mcde_dsi_bind(struct device *dev, struct device *master,
+ 			bridge = of_drm_find_bridge(child);
+ 			if (!bridge) {
+ 				dev_err(dev, "failed to find bridge\n");
++				of_node_put(child);
+ 				return -EINVAL;
+ 			}
+ 		}
 -- 
 2.35.1
 
