@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67319593F65
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:45:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FF1259408E
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243563AbiHOVI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:08:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45674 "EHLO
+        id S243564AbiHOVI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:08:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347080AbiHOVGm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:06:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5FC063C9;
-        Mon, 15 Aug 2022 12:15:30 -0700 (PDT)
+        with ESMTP id S1347476AbiHOVG7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:06:59 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E900918382;
+        Mon, 15 Aug 2022 12:15:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CCAD60FAD;
-        Mon, 15 Aug 2022 19:15:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64604C433D7;
-        Mon, 15 Aug 2022 19:15:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8AAD2CE1087;
+        Mon, 15 Aug 2022 19:15:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EF4FC433D7;
+        Mon, 15 Aug 2022 19:15:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590929;
-        bh=nCWO8YIu1PEBiyHOTBnU4ZCYz8V+EBt7GoQJfXewjfw=;
+        s=korg; t=1660590932;
+        bh=VAXuy6qTweqSeZ0LUKOMiZxh54lrf8iikegCxcOJiFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GW5mQoB6La+JbS3RDSb92X4gcetEorChrPHRUZMHiMcRgMTPZTEFXaKq8DJNcnqzm
-         uJx0fVbgLTPq/FVYbajHUuQpVIhRsifPdUjVRkN+FQBoNZYM0bjHoORgYfI2BsSyyp
-         Ty3xYMfTnBlTU4jk3/BgSkRvFGPG9IGg82kln34Y=
+        b=M28j4xp9SPc96pMY7IJJDsA55IuUv0bZDTn1gF0GR3FbigyDcHU+4NdlFx7ENfRH2
+         Vrp+8yYphaAowB34OdaN5nJ8+XHMvr3pufQHYNt0dzrgnCIFbBA1xlI5nVyestEPGh
+         RjcjunVoE9WE+5HptYT7nDIOA70HF4Rl4OqEEmVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0416/1095] net: dsa: felix: build as module when tc-taprio is module
-Date:   Mon, 15 Aug 2022 19:56:55 +0200
-Message-Id: <20220815180446.915381685@linuxfoundation.org>
+Subject: [PATCH 5.18 0417/1095] hinic: Use the bitmap API when applicable
+Date:   Mon, 15 Aug 2022 19:56:56 +0200
+Message-Id: <20220815180446.954268316@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,36 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 10ed11ab6399813eb652137db9c378433c28a95c ]
+[ Upstream commit 7c2c57263af41cfd8b5022274e6801542831bb69 ]
 
-felix_vsc9959.c calls taprio_offload_get() and taprio_offload_free(),
-symbols exported by net/sched/sch_taprio.c. As such, we must disallow
-building the Felix driver as built-in when the symbol exported by
-tc-taprio isn't present in the kernel image.
+'vlan_bitmap' is a bitmap and is used as such. So allocate it with
+devm_bitmap_zalloc() and its explicit bit size (i.e. VLAN_N_VID).
 
-Fixes: 1c9017e44af2 ("net: dsa: felix: keep reference on entire tc-taprio config")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20220704190241.1288847-2-vladimir.oltean@nxp.com
+This avoids the need of the VLAN_BITMAP_SIZE macro which:
+   - needlessly has a 'nic_dev' parameter
+   - should be "long" (and not byte) aligned, so that the bitmap semantic
+     is respected
+
+This is in fact not an issue because VLAN_N_VID is 4096 at the time
+being, but devm_bitmap_zalloc() is less verbose and easier to understand.
+
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/6ff7b7d21414240794a77dc2456914412718a145.1656260842.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/ocelot/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/huawei/hinic/hinic_main.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/dsa/ocelot/Kconfig b/drivers/net/dsa/ocelot/Kconfig
-index 220b0b027b55..08db9cf76818 100644
---- a/drivers/net/dsa/ocelot/Kconfig
-+++ b/drivers/net/dsa/ocelot/Kconfig
-@@ -6,6 +6,7 @@ config NET_DSA_MSCC_FELIX
- 	depends on NET_VENDOR_FREESCALE
- 	depends on HAS_IOMEM
- 	depends on PTP_1588_CLOCK_OPTIONAL
-+	depends on NET_SCH_TAPRIO || NET_SCH_TAPRIO=n
- 	select MSCC_OCELOT_SWITCH_LIB
- 	select NET_DSA_TAG_OCELOT_8021Q
- 	select NET_DSA_TAG_OCELOT
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_main.c b/drivers/net/ethernet/huawei/hinic/hinic_main.c
+index 05329292d940..56a89793f47d 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_main.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_main.c
+@@ -62,8 +62,6 @@ MODULE_PARM_DESC(rx_weight, "Number Rx packets for NAPI budget (default=64)");
+ 
+ #define HINIC_LRO_RX_TIMER_DEFAULT	16
+ 
+-#define VLAN_BITMAP_SIZE(nic_dev)       (ALIGN(VLAN_N_VID, 8) / 8)
+-
+ #define work_to_rx_mode_work(work)      \
+ 		container_of(work, struct hinic_rx_mode_work, work)
+ 
+@@ -1242,9 +1240,8 @@ static int nic_dev_init(struct pci_dev *pdev)
+ 	u64_stats_init(&tx_stats->syncp);
+ 	u64_stats_init(&rx_stats->syncp);
+ 
+-	nic_dev->vlan_bitmap = devm_kzalloc(&pdev->dev,
+-					    VLAN_BITMAP_SIZE(nic_dev),
+-					    GFP_KERNEL);
++	nic_dev->vlan_bitmap = devm_bitmap_zalloc(&pdev->dev, VLAN_N_VID,
++						  GFP_KERNEL);
+ 	if (!nic_dev->vlan_bitmap) {
+ 		err = -ENOMEM;
+ 		goto err_vlan_bitmap;
 -- 
 2.35.1
 
