@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1833659377B
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:29:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C80559368D
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232903AbiHOS6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:58:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49056 "EHLO
+        id S244730AbiHOS6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:58:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245013AbiHOS4b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:56:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5947532050;
-        Mon, 15 Aug 2022 11:31:10 -0700 (PDT)
+        with ESMTP id S245022AbiHOS4d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:56:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 593273123E;
+        Mon, 15 Aug 2022 11:31:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B86AB81062;
-        Mon, 15 Aug 2022 18:31:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF13CC433C1;
-        Mon, 15 Aug 2022 18:31:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1A9061029;
+        Mon, 15 Aug 2022 18:31:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD37CC433D6;
+        Mon, 15 Aug 2022 18:31:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588268;
-        bh=fQ8GGMOh4zLwx6CDpw5/MD/NznF498JGC0ZDntJHGnk=;
+        s=korg; t=1660588271;
+        bh=cTSrOZZlQgwy0HFIlp6AGXKL8rVxPWkxyDtUG4Olxmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z31veFr30V2ZspsHM73szcyrvsbYsnWz9eqE8LW8Lgn0hqZRqTdh7ed0TYTA5EH7S
-         7b+M4XjOr44r95JwyRdThKIe3VLB2k/8LWrVC6Og8ADQP/TJGSB9flA373PfIotcs5
-         gwK5wSSA53rSg4WIuyfkfq1+Bw0hAOF+eStzT3/Q=
+        b=kEXFY1xxHiKlKzM63U4MhLUoSnWchax/TlAZQ7mcX1Mi8hXZ9OVL5+xVxmDP0u14L
+         9KLSD3Yh2jiIdc+wIn5x2Tb6cA15eATFB1Z9Ugyp3/4urI7DEpjoqvUmuKlJIXEM2O
+         FdTVa17QNnUYsHQLSJVuAaPq5CtwgmI3b7lvB/ZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rustam Subkhankulov <subkhankulov@ispras.ru>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 348/779] wifi: p54: add missing parentheses in p54_flush()
-Date:   Mon, 15 Aug 2022 19:59:52 +0200
-Message-Id: <20220815180352.117019903@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 349/779] selftests/bpf: fix a test for snprintf() overflow
+Date:   Mon, 15 Aug 2022 19:59:53 +0200
+Message-Id: <20220815180352.150562016@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,43 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Subkhankulov <subkhankulov@ispras.ru>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit bcfd9d7f6840b06d5988c7141127795cf405805e ]
+[ Upstream commit c5d22f4cfe8dfb93f1db0a1e7e2e7ebc41395d98 ]
 
-The assignment of the value to the variable total in the loop
-condition must be enclosed in additional parentheses, since otherwise,
-in accordance with the precedence of the operators, the conjunction
-will be performed first, and only then the assignment.
+The snprintf() function returns the number of bytes which *would*
+have been copied if there were space.  In other words, it can be
+> sizeof(pin_path).
 
-Due to this error, a warning later in the function after the loop may
-not occur in the situation when it should.
-
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Signed-off-by: Rustam Subkhankulov <subkhankulov@ispras.ru>
-Fixes: 0d4171e2153b ("p54: implement flush callback")
-Acked-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220714134831.106004-1-subkhankulov@ispras.ru
+Fixes: c0fa1b6c3efc ("bpf: btf: Add BTF tests")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/r/YtZ+aD/tZMkgOUw+@kili
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intersil/p54/main.c | 2 +-
+ tools/testing/selftests/bpf/prog_tests/btf.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intersil/p54/main.c b/drivers/net/wireless/intersil/p54/main.c
-index a3ca6620dc0c..8fa3ec71603e 100644
---- a/drivers/net/wireless/intersil/p54/main.c
-+++ b/drivers/net/wireless/intersil/p54/main.c
-@@ -682,7 +682,7 @@ static void p54_flush(struct ieee80211_hw *dev, struct ieee80211_vif *vif,
- 	 * queues have already been stopped and no new frames can sneak
- 	 * up from behind.
- 	 */
--	while ((total = p54_flush_count(priv) && i--)) {
-+	while ((total = p54_flush_count(priv)) && i--) {
- 		/* waste time */
- 		msleep(20);
- 	}
+diff --git a/tools/testing/selftests/bpf/prog_tests/btf.c b/tools/testing/selftests/bpf/prog_tests/btf.c
+index 649f87382c8d..50afa75bd45b 100644
+--- a/tools/testing/selftests/bpf/prog_tests/btf.c
++++ b/tools/testing/selftests/bpf/prog_tests/btf.c
+@@ -4913,7 +4913,7 @@ static void do_test_pprint(int test_num)
+ 	ret = snprintf(pin_path, sizeof(pin_path), "%s/%s",
+ 		       "/sys/fs/bpf", test->map_name);
+ 
+-	if (CHECK(ret == sizeof(pin_path), "pin_path %s/%s is too long",
++	if (CHECK(ret >= sizeof(pin_path), "pin_path %s/%s is too long",
+ 		  "/sys/fs/bpf", test->map_name)) {
+ 		err = -1;
+ 		goto done;
 -- 
 2.35.1
 
