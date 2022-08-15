@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 771E3593498
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:26:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A22B5934A7
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:26:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230048AbiHOSNX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:13:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57750 "EHLO
+        id S233463AbiHOSOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:14:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230136AbiHOSNV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:13:21 -0400
+        with ESMTP id S233159AbiHOSNx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:13:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9EA822BF6;
-        Mon, 15 Aug 2022 11:13:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F3B2A42C;
+        Mon, 15 Aug 2022 11:13:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B75A61277;
-        Mon, 15 Aug 2022 18:13:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57012C433C1;
-        Mon, 15 Aug 2022 18:13:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 130C261277;
+        Mon, 15 Aug 2022 18:13:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03BB8C433C1;
+        Mon, 15 Aug 2022 18:13:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587199;
-        bh=mJLB57aEqIaz+HV2H36Lja9DKkMfUjQL7wsu/WKcVUw=;
+        s=korg; t=1660587223;
+        bh=9oKqhmwN4AKakxaJwaUN3W6bPQ1UeHS2y21A6FGtcaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CwfJ7zUd7YqQeP8yAkwlYdbgyleAdX31/CxEqgPPb25T8ibtMY00Gg2O3SGbrM3zF
-         BYWHHD+ghrUP7A1IF7xT7lSSUNmmwJqT3DdiJsbjgBr1cazoioP997vRej3VXUt55g
-         uOic0ORDTWaS25YPUK6cGa9Ad8/2MlgdjaTVaxCo=
+        b=D66IcxOje8FoAp3h2ju2vpaAUC1i+YOgClwwM0f0QzjImUXyKcopyU5xx5qNu8fX/
+         Cd/ie12/iq3Tk8NXbj7sBoc4Nvv+R5uOP/Tbt7eXzJvIDGrl3r17XlgaNA1tUEQz+E
+         QNfKnO9OP3CzwpkzoK32XROlDrTofx1fycGU9Ot8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,15 +35,13 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nick Desaulniers <ndesaulniers@google.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 001/779] Makefile: link with -z noexecstack --no-warn-rwx-segments
-Date:   Mon, 15 Aug 2022 19:54:05 +0200
-Message-Id: <20220815180337.214556614@linuxfoundation.org>
+Subject: [PATCH 5.15 002/779] x86: link vdso and boot with -z noexecstack --no-warn-rwx-segments
+Date:   Mon, 15 Aug 2022 19:54:06 +0200
+Message-Id: <20220815180337.255959747@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,14 +57,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 0d362be5b14200b77ecc2127936a5ff82fbffe41 upstream.
+commit ffcf9c5700e49c0aee42dcba9a12ba21338e8136 upstream.
 
 Users of GNU ld (BFD) from binutils 2.39+ will observe multiple
 instances of a new warning when linking kernels in the form:
 
-  ld: warning: vmlinux: missing .note.GNU-stack section implies executable stack
+  ld: warning: arch/x86/boot/pmjump.o: missing .note.GNU-stack section implies executable stack
   ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
-  ld: warning: vmlinux has a LOAD segment with RWX permissions
+  ld: warning: arch/x86/boot/compressed/vmlinux has a LOAD segment with RWX permissions
 
 Generally, we would like to avoid the stack being executable.  Because
 there could be a need for the stack to be executable, assembler sources
@@ -94,22 +92,45 @@ Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/boot/Makefile            |    2 +-
+ arch/x86/boot/compressed/Makefile |    4 ++++
+ arch/x86/entry/vdso/Makefile      |    2 +-
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -1078,6 +1078,11 @@ KBUILD_CFLAGS   += $(KCFLAGS)
- KBUILD_LDFLAGS_MODULE += --build-id=sha1
- LDFLAGS_vmlinux += --build-id=sha1
+--- a/arch/x86/boot/Makefile
++++ b/arch/x86/boot/Makefile
+@@ -103,7 +103,7 @@ $(obj)/zoffset.h: $(obj)/compressed/vmli
+ AFLAGS_header.o += -I$(objtree)/$(obj)
+ $(obj)/header.o: $(obj)/zoffset.h
  
-+KBUILD_LDFLAGS	+= -z noexecstack
-+ifeq ($(CONFIG_LD_IS_BFD),y)
-+KBUILD_LDFLAGS	+= $(call ld-option,--no-warn-rwx-segments)
-+endif
-+
- ifeq ($(CONFIG_STRIP_ASM_SYMS),y)
- LDFLAGS_vmlinux	+= $(call ld-option, -X,)
+-LDFLAGS_setup.elf	:= -m elf_i386 -T
++LDFLAGS_setup.elf	:= -m elf_i386 -z noexecstack -T
+ $(obj)/setup.elf: $(src)/setup.ld $(SETUP_OBJS) FORCE
+ 	$(call if_changed,ld)
+ 
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -69,6 +69,10 @@ LDFLAGS_vmlinux := -pie $(call ld-option
+ ifdef CONFIG_LD_ORPHAN_WARN
+ LDFLAGS_vmlinux += --orphan-handling=warn
  endif
++LDFLAGS_vmlinux += -z noexecstack
++ifeq ($(CONFIG_LD_IS_BFD),y)
++LDFLAGS_vmlinux += $(call ld-option,--no-warn-rwx-segments)
++endif
+ LDFLAGS_vmlinux += -T
+ 
+ hostprogs	:= mkpiggy
+--- a/arch/x86/entry/vdso/Makefile
++++ b/arch/x86/entry/vdso/Makefile
+@@ -179,7 +179,7 @@ quiet_cmd_vdso = VDSO    $@
+ 		 sh $(srctree)/$(src)/checkundef.sh '$(NM)' '$@'
+ 
+ VDSO_LDFLAGS = -shared --hash-style=both --build-id=sha1 \
+-	$(call ld-option, --eh-frame-hdr) -Bsymbolic
++	$(call ld-option, --eh-frame-hdr) -Bsymbolic -z noexecstack
+ GCOV_PROFILE := n
+ 
+ quiet_cmd_vdso_and_check = VDSO    $@
 
 
