@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36CA15948DD
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:10:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B36F594C78
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346494AbiHOXh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:37:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50864 "EHLO
+        id S244197AbiHPA7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:59:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353617AbiHOXfo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:35:44 -0400
+        with ESMTP id S1347961AbiHPA52 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:57:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B716672ED5;
-        Mon, 15 Aug 2022 13:09:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D0F7DAED6;
+        Mon, 15 Aug 2022 13:48:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30D95B80EAD;
-        Mon, 15 Aug 2022 20:09:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 736B0C433D6;
-        Mon, 15 Aug 2022 20:09:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF703B811AB;
+        Mon, 15 Aug 2022 20:48:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14836C433C1;
+        Mon, 15 Aug 2022 20:48:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594145;
-        bh=cNi4JLBqXW0guprOQqIvlJggX6vKfUgM0ghIRDf5R5U=;
+        s=korg; t=1660596528;
+        bh=aPB0rUdcfekjqm3H0m8FGPbGicTahUmBH0WeHRYV5hs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gl8aVdF3Ym9cvWWEY0/1Y9pTq/a10x+7H6dnyOwwFfCCuAOokRigCVsD1kSCWgiwV
-         1gXXtjwxv2/U53Zh1mjPNDJKAzD5rE8JpwsfoV3d7ADtLNzUYZMRY6VVOg1dQcrrg3
-         nOS9guILcJCa1x+xfel3uDtoO4IZepFxq0nlm8Us=
+        b=Kglx+VVoS2FZ89V7eCegIMSavA0V+0ab6lPMszVkFPT/+y+l+xNTLSqQob1Jt5aSG
+         xLxW/XmOPxJJ12KK116FEYEfO3GMiGl/KTetIMAGyGPikmat8+Hfjz424RnErkMw4y
+         L3RD28ojm6/p1eCvlkO9sHU1ASn9Tl56RLbDNWhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 1063/1095] ext4: remove EA inode entry from mbcache on inode eviction
-Date:   Mon, 15 Aug 2022 20:07:42 +0200
-Message-Id: <20220815180513.007694070@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 1108/1157] KVM: nVMX: Attempt to load PERF_GLOBAL_CTRL on nVMX xfer iff it exists
+Date:   Mon, 15 Aug 2022 20:07:44 +0200
+Message-Id: <20220815180524.609692721@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,113 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 6bc0d63dad7f9f54d381925ee855b402f652fa39 ]
+[ Upstream commit 4496a6f9b45e8cd83343ad86a3984d614e22cf54 ]
 
-Currently we remove EA inode from mbcache as soon as its xattr refcount
-drops to zero. However there can be pending attempts to reuse the inode
-and thus refcount handling code has to handle the situation when
-refcount increases from zero anyway. So save some work and just keep EA
-inode in mbcache until it is getting evicted. At that moment we are sure
-following iget() of EA inode will fail anyway (or wait for eviction to
-finish and load things from the disk again) and so removing mbcache
-entry at that moment is fine and simplifies the code a bit.
+Attempt to load PERF_GLOBAL_CTRL during nested VM-Enter/VM-Exit if and
+only if the MSR exists (according to the guest vCPU model).  KVM has very
+misguided handling of VM_{ENTRY,EXIT}_LOAD_IA32_PERF_GLOBAL_CTRL and
+attempts to force the nVMX MSR settings to match the vPMU model, i.e. to
+hide/expose the control based on whether or not the MSR exists from the
+guest's perspective.
 
-CC: stable@vger.kernel.org
-Fixes: 82939d7999df ("ext4: convert to mbcache2")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220712105436.32204-3-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+KVM's modifications fail to handle the scenario where the vPMU is hidden
+from the guest _after_ being exposed to the guest, e.g. by userspace
+doing multiple KVM_SET_CPUID2 calls, which is allowed if done before any
+KVM_RUN.  nested_vmx_pmu_refresh() is called if and only if there's a
+recognized vPMU, i.e. KVM will leave the bits in the allow state and then
+ultimately reject the MSR load and WARN.
+
+KVM should not force the VMX MSRs in the first place.  KVM taking control
+of the MSRs was a misguided attempt at mimicking what commit 5f76f6f5ff96
+("KVM: nVMX: Do not expose MPX VMX controls when guest MPX disabled",
+2018-10-01) did for MPX.  However, the MPX commit was a workaround for
+another KVM bug and not something that should be imitated (and it should
+never been done in the first place).
+
+In other words, KVM's ABI _should_ be that userspace has full control
+over the MSRs, at which point triggering the WARN that loading the MSR
+must not fail is trivial.
+
+The intent of the WARN is still valid; KVM has consistency checks to
+ensure that vmcs12->{guest,host}_ia32_perf_global_ctrl is valid.  The
+problem is that '0' must be considered a valid value at all times, and so
+the simple/obvious solution is to just not actually load the MSR when it
+does not exist.  It is userspace's responsibility to provide a sane vCPU
+model, i.e. KVM is well within its ABI and Intel's VMX architecture to
+skip the loads if the MSR does not exist.
+
+Fixes: 03a8871add95 ("KVM: nVMX: Expose load IA32_PERF_GLOBAL_CTRL VM-{Entry,Exit} control")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220722224409.1336532-5-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c |  2 ++
- fs/ext4/xattr.c | 24 ++++++++----------------
- fs/ext4/xattr.h |  1 +
- 3 files changed, 11 insertions(+), 16 deletions(-)
+ arch/x86/kvm/vmx/nested.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 9ef6f41a5250..e94ec798dce1 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -178,6 +178,8 @@ void ext4_evict_inode(struct inode *inode)
- 
- 	trace_ext4_evict_inode(inode);
- 
-+	if (EXT4_I(inode)->i_flags & EXT4_EA_INODE_FL)
-+		ext4_evict_ea_inode(inode);
- 	if (inode->i_nlink) {
- 		/*
- 		 * When journalling data dirty buffers are tracked only in the
-diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-index c3c3194f3ee1..b57fd07fbdba 100644
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -436,6 +436,14 @@ static int ext4_xattr_inode_iget(struct inode *parent, unsigned long ea_ino,
- 	return err;
- }
- 
-+/* Remove entry from mbcache when EA inode is getting evicted */
-+void ext4_evict_ea_inode(struct inode *inode)
-+{
-+	if (EA_INODE_CACHE(inode))
-+		mb_cache_entry_delete(EA_INODE_CACHE(inode),
-+			ext4_xattr_inode_get_hash(inode), inode->i_ino);
-+}
-+
- static int
- ext4_xattr_inode_verify_hashes(struct inode *ea_inode,
- 			       struct ext4_xattr_entry *entry, void *buffer,
-@@ -976,10 +984,8 @@ int __ext4_xattr_set_credits(struct super_block *sb, struct inode *inode,
- static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
- 				       int ref_change)
- {
--	struct mb_cache *ea_inode_cache = EA_INODE_CACHE(ea_inode);
- 	struct ext4_iloc iloc;
- 	s64 ref_count;
--	u32 hash;
- 	int ret;
- 
- 	inode_lock(ea_inode);
-@@ -1002,14 +1008,6 @@ static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
- 
- 			set_nlink(ea_inode, 1);
- 			ext4_orphan_del(handle, ea_inode);
--
--			if (ea_inode_cache) {
--				hash = ext4_xattr_inode_get_hash(ea_inode);
--				mb_cache_entry_create(ea_inode_cache,
--						      GFP_NOFS, hash,
--						      ea_inode->i_ino,
--						      true /* reusable */);
--			}
- 		}
- 	} else {
- 		WARN_ONCE(ref_count < 0, "EA inode %lu ref_count=%lld",
-@@ -1022,12 +1020,6 @@ static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
- 
- 			clear_nlink(ea_inode);
- 			ext4_orphan_add(handle, ea_inode);
--
--			if (ea_inode_cache) {
--				hash = ext4_xattr_inode_get_hash(ea_inode);
--				mb_cache_entry_delete(ea_inode_cache, hash,
--						      ea_inode->i_ino);
--			}
- 		}
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 66735fbb791d..ef21c5fe172e 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -2617,6 +2617,7 @@ static int prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
  	}
  
-diff --git a/fs/ext4/xattr.h b/fs/ext4/xattr.h
-index f885f362add4..e5e36bd11f05 100644
---- a/fs/ext4/xattr.h
-+++ b/fs/ext4/xattr.h
-@@ -191,6 +191,7 @@ extern void ext4_xattr_inode_array_free(struct ext4_xattr_inode_array *array);
- 
- extern int ext4_expand_extra_isize_ea(struct inode *inode, int new_extra_isize,
- 			    struct ext4_inode *raw_inode, handle_t *handle);
-+extern void ext4_evict_ea_inode(struct inode *inode);
- 
- extern const struct xattr_handler *ext4_xattr_handlers[];
+ 	if ((vmcs12->vm_entry_controls & VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL) &&
++	    intel_pmu_has_perf_global_ctrl(vcpu_to_pmu(vcpu)) &&
+ 	    WARN_ON_ONCE(kvm_set_msr(vcpu, MSR_CORE_PERF_GLOBAL_CTRL,
+ 				     vmcs12->guest_ia32_perf_global_ctrl))) {
+ 		*entry_failure_code = ENTRY_FAIL_DEFAULT;
+@@ -4342,7 +4343,8 @@ static void load_vmcs12_host_state(struct kvm_vcpu *vcpu,
+ 		vmcs_write64(GUEST_IA32_PAT, vmcs12->host_ia32_pat);
+ 		vcpu->arch.pat = vmcs12->host_ia32_pat;
+ 	}
+-	if (vmcs12->vm_exit_controls & VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL)
++	if ((vmcs12->vm_exit_controls & VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL) &&
++	    intel_pmu_has_perf_global_ctrl(vcpu_to_pmu(vcpu)))
+ 		WARN_ON_ONCE(kvm_set_msr(vcpu, MSR_CORE_PERF_GLOBAL_CTRL,
+ 					 vmcs12->host_ia32_perf_global_ctrl));
  
 -- 
 2.35.1
