@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDE635931CD
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 17:31:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FBE35931DB
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 17:32:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229918AbiHOPbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 11:31:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45386 "EHLO
+        id S232301AbiHOPcN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 11:32:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbiHOPbJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 11:31:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 876036565;
-        Mon, 15 Aug 2022 08:31:08 -0700 (PDT)
+        with ESMTP id S232502AbiHOPcK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 11:32:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA1017058
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 08:31:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43705B80F10;
-        Mon, 15 Aug 2022 15:31:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EF6CC433D6;
-        Mon, 15 Aug 2022 15:31:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4001610A3
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 15:31:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCDDBC433C1;
+        Mon, 15 Aug 2022 15:31:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660577465;
-        bh=pUF1opB3eIvBsU4zc1SZQXJOzE06itAJEjiaEFRsk3Q=;
+        s=korg; t=1660577518;
+        bh=Y/p3TsCEECGeYnl7tWUyRhOlJ6BhHC93duBcdbGkMqU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dBNAEuIykYKTLXPdyM1pb89bX/KhMVQam9m8xRj+5QFyZmralD7IxFwDFjb519OTI
-         M9SP8vBMM5nqnQfVVa5V1L+seKcIEvETOqqFAFZF0KU4RzHC8JNqp5dseBG1fGPwLp
-         BmFBQP3PPwhCWLp48dASkkz5z0iognD1M4DEk5f8=
-Date:   Mon, 15 Aug 2022 17:31:02 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jose Alonso <joalonsof@gmail.com>
-Cc:     "David S . Miller" <davem@davemloft.net>,
-        netdev <netdev@vger.kernel.org>, stable <stable@vger.kernel.org>,
-        Ronald Wahl <ronald.wahl@raritan.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH stable 4.9.x] Revert "net: usb: ax88179_178a needs
- FLAG_SEND_ZLP"
-Message-ID: <YvpmtsW1tEt1lEVX@kroah.com>
-References: <20220815151912.319147-1-joalonsof@gmail.com>
+        b=yNznPZWxaOyGc1oRaWskk2fl3VIsdad0VkehEJOK5qHsM94RK+LFIBxC8qYuv8Bb0
+         lgIJD+N+lj242/w4LeTHGcAQ8XrqchEHtBRIeAJ86ThA0fxIxZZHWkehuz3WkFnyCY
+         LTuEap6JgLhpAqBD1bslTIleEsDDE8irI9Yw2kE8=
+Date:   Mon, 15 Aug 2022 17:31:54 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Veronika Kabatova <vkabatov@redhat.com>
+Cc:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: Re: 5.18 queue aarch64 build =?utf-8?Q?iss?=
+ =?utf-8?B?dWU6IGtleGVjX2tlcm5lbF92ZXJpZnlfcGVfc2ln4oCZ?= undeclared
+Message-ID: <Yvpm6jzW840/7SZw@kroah.com>
+References: <CA+tGwnk-zD0O_xV_LqUPa4XC-S9oCFbPvQf+8FkREqfZjqwHwg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20220815151912.319147-1-joalonsof@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+tGwnk-zD0O_xV_LqUPa4XC-S9oCFbPvQf+8FkREqfZjqwHwg@mail.gmail.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -53,31 +51,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 15, 2022 at 12:19:12PM -0300, Jose Alonso wrote:
-> commit 6fd2c17fb6e02a8c0ab51df1cfec82ce96b8e83d upstream.
+On Mon, Aug 15, 2022 at 04:42:32PM +0200, Veronika Kabatova wrote:
+> Hi,
 > 
-> This reverts commit 36a15e1cb134c0395261ba1940762703f778438c.
+> CKI has been hitting the following build issue on aarch64 with the
+> latest queues:
 > 
-> The usage of FLAG_SEND_ZLP causes problems to other firmware/hardware
-> versions that have no issues.
+> 00:00:12 arch/arm64/kernel/kexec_image.c:136:23: error:
+> ‘kexec_kernel_verify_pe_sig’ undeclared here (not in a function)
+> 00:00:12   136 |         .verify_sig = kexec_kernel_verify_pe_sig,
+> 00:00:12       |                       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+> 00:00:12 make[4]: *** [scripts/Makefile.build:289:
+> arch/arm64/kernel/kexec_image.o] Error 1
+> 00:00:12 make[3]: *** [scripts/Makefile.build:551: arch/arm64/kernel] Error 2
+> 00:00:12 make[2]: *** [Makefile:1844: arch/arm64] Error 2
 > 
-> The FLAG_SEND_ZLP is not safe to use in this context.
-> See:
-> https://patchwork.ozlabs.org/project/netdev/patch/1270599787.8900.8.camel@Linuxdev4-laptop/#118378
-> The original problem needs another way to solve.
+> Seems to be caused by
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=queue/5.18&id=3d36f26a98be23c6fc48f4589030c87dc6e1a268
 > 
-> Fixes: 36a15e1cb134 ("net: usb: ax88179_178a needs FLAG_SEND_ZLP")
-> Cc: stable@vger.kernel.org
-> Reported-by: Ronald Wahl <ronald.wahl@raritan.com>
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=216327
-> Link: https://bugs.archlinux.org/task/75491
-> Signed-off-by: Jose Alonso <joalonsof@gmail.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  drivers/net/usb/ax88179_178a.c | 14 +++++++-------
->  1 file changed, 7 insertions(+), 7 deletions(-)
+> Full build log and kernel config used is available at
+> 
+> https://datawarehouse.cki-project.org/kcidb/builds/251196
+> 
+> or with other recent stable queue checkouts in DataWarehouse.
 
-All now queued up, thanks.
+Thanks, I'll go drop that from everywhere, as it references commits that
+are not in Linus's tree and I have no idea what to do with it.
 
 greg k-h
