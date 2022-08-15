@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A006595149
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:54:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E40A59514B
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:55:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233434AbiHPEyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:54:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41404 "EHLO
+        id S233632AbiHPEyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:54:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233862AbiHPEwG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:52:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A476A1A25E0;
-        Mon, 15 Aug 2022 13:49:49 -0700 (PDT)
+        with ESMTP id S232954AbiHPEw5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:52:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74922DC5FB;
+        Mon, 15 Aug 2022 13:50:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F17DEB811AC;
-        Mon, 15 Aug 2022 20:49:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F72FC433C1;
-        Mon, 15 Aug 2022 20:49:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07751B811AE;
+        Mon, 15 Aug 2022 20:50:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E3E5C433D6;
+        Mon, 15 Aug 2022 20:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596584;
-        bh=9kV1PHp+fsNeWvLBnn+GDhbHnt3I2t0TzDGJUsx31hQ=;
+        s=korg; t=1660596609;
+        bh=MsEhOj8Qw2f+7dwtLKYlVGPmwlVQcICvLjrC7CX41Bk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQHPERd6XeF/naOKa9TbbcUlObwYybOJ6ephtjk+YeQt3jNfSTwF8okv454Idw8lg
-         DK4I+NMLK+aaaNSGkr4fmUgVVmKB9ZWPtyr6munrBE3n/EkJdwyEvFX3EJnSIATteB
-         YRH0V1xKbeBiA2KHghkDgwv3nhbMvNsUrPG9jDk0=
+        b=h+e/yz03ViA4rEr5TBgdQ+/pRnt+ghgsPuHyjJeI8P0eYjyh4ZZZ4QU4YjjJSycdR
+         9Mt164je++yS+QW/BG7Q2PcVBkIVz48mXLGpxoLS4z4UFAvMjHtyl6YwEYMsNQP/0h
+         AGxtCkX/7Re3mO2CaiUhTSHVla+ebyIK7q0uFuxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1127/1157] ext4: remove EA inode entry from mbcache on inode eviction
-Date:   Mon, 15 Aug 2022 20:08:03 +0200
-Message-Id: <20220815180525.446401633@linuxfoundation.org>
+        stable@vger.kernel.org, SeongJae Park <sj@kernel.org>,
+        Maximilian Heyne <mheyne@amazon.de>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.19 1135/1157] xen-blkfront: Apply feature_persistent parameter when connect
+Date:   Mon, 15 Aug 2022 20:08:11 +0200
+Message-Id: <20220815180525.838444350@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -53,116 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: SeongJae Park <sj@kernel.org>
 
-[ Upstream commit 6bc0d63dad7f9f54d381925ee855b402f652fa39 ]
+commit 402c43ea6b34a1b371ffeed9adf907402569eaf5 upstream.
 
-Currently we remove EA inode from mbcache as soon as its xattr refcount
-drops to zero. However there can be pending attempts to reuse the inode
-and thus refcount handling code has to handle the situation when
-refcount increases from zero anyway. So save some work and just keep EA
-inode in mbcache until it is getting evicted. At that moment we are sure
-following iget() of EA inode will fail anyway (or wait for eviction to
-finish and load things from the disk again) and so removing mbcache
-entry at that moment is fine and simplifies the code a bit.
+In some use cases[1], the backend is created while the frontend doesn't
+support the persistent grants feature, but later the frontend can be
+changed to support the feature and reconnect.  In the past, 'blkback'
+enabled the persistent grants feature since it unconditionally checked
+if frontend supports the persistent grants feature for every connect
+('connect_ring()') and decided whether it should use persistent grans or
+not.
 
-CC: stable@vger.kernel.org
-Fixes: 82939d7999df ("ext4: convert to mbcache2")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220712105436.32204-3-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, commit aac8a70db24b ("xen-blkback: add a parameter for
+disabling of persistent grants") has mistakenly changed the behavior.
+It made the frontend feature support check to not be repeated once it
+shown the 'feature_persistent' as 'false', or the frontend doesn't
+support persistent grants.
+
+Similar behavioral change has made on 'blkfront' by commit 74a852479c68
+("xen-blkfront: add a parameter for disabling of persistent grants").
+This commit changes the behavior of the parameter to make effect for
+every connect, so that the previous behavior of 'blkfront' can be
+restored.
+
+[1] https://lore.kernel.org/xen-devel/CAJwUmVB6H3iTs-C+U=v-pwJB7-_ZRHPxHzKRJZ22xEPW7z8a=g@mail.gmail.com/
+
+Fixes: 74a852479c68 ("xen-blkfront: add a parameter for disabling of persistent grants")
+Cc: <stable@vger.kernel.org> # 5.10.x
+Signed-off-by: SeongJae Park <sj@kernel.org>
+Reviewed-by: Maximilian Heyne <mheyne@amazon.de>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20220715225108.193398-4-sj@kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |  2 ++
- fs/ext4/xattr.c | 24 ++++++++----------------
- fs/ext4/xattr.h |  1 +
- 3 files changed, 11 insertions(+), 16 deletions(-)
+ Documentation/ABI/testing/sysfs-driver-xen-blkfront |    2 +-
+ drivers/block/xen-blkfront.c                        |    4 +---
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 14fd481bf601..560cf8dc5935 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -177,6 +177,8 @@ void ext4_evict_inode(struct inode *inode)
+--- a/Documentation/ABI/testing/sysfs-driver-xen-blkfront
++++ b/Documentation/ABI/testing/sysfs-driver-xen-blkfront
+@@ -15,5 +15,5 @@ KernelVersion:  5.10
+ Contact:        Maximilian Heyne <mheyne@amazon.de>
+ Description:
+                 Whether to enable the persistent grants feature or not.  Note
+-                that this option only takes effect on newly created frontends.
++                that this option only takes effect on newly connected frontends.
+                 The default is Y (enable).
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -1988,8 +1988,6 @@ static int blkfront_probe(struct xenbus_
+ 	info->vdevice = vdevice;
+ 	info->connected = BLKIF_STATE_DISCONNECTED;
  
- 	trace_ext4_evict_inode(inode);
- 
-+	if (EXT4_I(inode)->i_flags & EXT4_EA_INODE_FL)
-+		ext4_evict_ea_inode(inode);
- 	if (inode->i_nlink) {
- 		/*
- 		 * When journalling data dirty buffers are tracked only in the
-diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-index c42b3e0d2d94..d92d50de5a01 100644
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -436,6 +436,14 @@ static int ext4_xattr_inode_iget(struct inode *parent, unsigned long ea_ino,
- 	return err;
- }
- 
-+/* Remove entry from mbcache when EA inode is getting evicted */
-+void ext4_evict_ea_inode(struct inode *inode)
-+{
-+	if (EA_INODE_CACHE(inode))
-+		mb_cache_entry_delete(EA_INODE_CACHE(inode),
-+			ext4_xattr_inode_get_hash(inode), inode->i_ino);
-+}
-+
- static int
- ext4_xattr_inode_verify_hashes(struct inode *ea_inode,
- 			       struct ext4_xattr_entry *entry, void *buffer,
-@@ -976,10 +984,8 @@ int __ext4_xattr_set_credits(struct super_block *sb, struct inode *inode,
- static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
- 				       int ref_change)
- {
--	struct mb_cache *ea_inode_cache = EA_INODE_CACHE(ea_inode);
- 	struct ext4_iloc iloc;
- 	s64 ref_count;
--	u32 hash;
- 	int ret;
- 
- 	inode_lock(ea_inode);
-@@ -1002,14 +1008,6 @@ static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
- 
- 			set_nlink(ea_inode, 1);
- 			ext4_orphan_del(handle, ea_inode);
+-	info->feature_persistent = feature_persistent;
 -
--			if (ea_inode_cache) {
--				hash = ext4_xattr_inode_get_hash(ea_inode);
--				mb_cache_entry_create(ea_inode_cache,
--						      GFP_NOFS, hash,
--						      ea_inode->i_ino,
--						      true /* reusable */);
--			}
- 		}
- 	} else {
- 		WARN_ONCE(ref_count < 0, "EA inode %lu ref_count=%lld",
-@@ -1022,12 +1020,6 @@ static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
+ 	/* Front end dir is a number, which is used as the id. */
+ 	info->handle = simple_strtoul(strrchr(dev->nodename, '/')+1, NULL, 0);
+ 	dev_set_drvdata(&dev->dev, info);
+@@ -2283,7 +2281,7 @@ static void blkfront_gather_backend_feat
+ 	if (xenbus_read_unsigned(info->xbdev->otherend, "feature-discard", 0))
+ 		blkfront_setup_discard(info);
  
- 			clear_nlink(ea_inode);
- 			ext4_orphan_add(handle, ea_inode);
--
--			if (ea_inode_cache) {
--				hash = ext4_xattr_inode_get_hash(ea_inode);
--				mb_cache_entry_delete(ea_inode_cache, hash,
--						      ea_inode->i_ino);
--			}
- 		}
- 	}
- 
-diff --git a/fs/ext4/xattr.h b/fs/ext4/xattr.h
-index f885f362add4..e5e36bd11f05 100644
---- a/fs/ext4/xattr.h
-+++ b/fs/ext4/xattr.h
-@@ -191,6 +191,7 @@ extern void ext4_xattr_inode_array_free(struct ext4_xattr_inode_array *array);
- 
- extern int ext4_expand_extra_isize_ea(struct inode *inode, int new_extra_isize,
- 			    struct ext4_inode *raw_inode, handle_t *handle);
-+extern void ext4_evict_ea_inode(struct inode *inode);
- 
- extern const struct xattr_handler *ext4_xattr_handlers[];
- 
--- 
-2.35.1
-
+-	if (info->feature_persistent)
++	if (feature_persistent)
+ 		info->feature_persistent =
+ 			!!xenbus_read_unsigned(info->xbdev->otherend,
+ 					       "feature-persistent", 0);
 
 
