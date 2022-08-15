@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB9D6593B05
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30872593B26
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347313AbiHOU1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:27:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57014 "EHLO
+        id S1346606AbiHOU1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:27:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347633AbiHOU0U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:26:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FFE39D11F;
-        Mon, 15 Aug 2022 12:03:29 -0700 (PDT)
+        with ESMTP id S1347497AbiHOUZx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:25:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CBDA9C2FA;
+        Mon, 15 Aug 2022 12:03:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2878D612A3;
-        Mon, 15 Aug 2022 19:03:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16858C433D6;
-        Mon, 15 Aug 2022 19:03:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D76061299;
+        Mon, 15 Aug 2022 19:03:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26387C433D6;
+        Mon, 15 Aug 2022 19:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590195;
-        bh=G6z55BCnM9EFXJvqKHhQOx84UM7dS+cHpqatbRvC6C8=;
+        s=korg; t=1660590198;
+        bh=8TuZYBANaANy8tBI2NDEhOSwYzvW/85ai8F71UZsmK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xg4c0M8HG8vVlDokI0CPtx/xDIZgVCP6fvMP64lRybwZpkckM0cMQ1LCOyeDGxNPP
-         UFx6+xPGFZUijXGJE4g3n84B7D2En9p2JoXLE7gAlOWvLb8ks4teVDlfmsLV9L62zc
-         aYwhvRDecBh60FqmdiUo2zc4JCRivYXoBLaUqqHM=
+        b=WRk/3aWfd19oT+8svzQTErB7sNeTlSmbjYbgcI/zylUmooPpxp7p5+U9U8e0FLP6t
+         ktFVN6OO/WP/wQtQq+TRFzYc6LNkRw5UNVCfr67dGgvd7uubCJvatIDjoX8PrRAXho
+         /RU1oMgPk5S8NNb0mTFNDhIhNG4nirfTlE5kBW10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, xinhui pan <xinhui.pan@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0182/1095] drm/amdgpu: Remove one duplicated ef removal
-Date:   Mon, 15 Aug 2022 19:53:01 +0200
-Message-Id: <20220815180437.170658697@linuxfoundation.org>
+Subject: [PATCH 5.18 0183/1095] powerpc/64s: Disable stack variable initialisation for prom_init
+Date:   Mon, 15 Aug 2022 19:53:02 +0200
+Message-Id: <20220815180437.214375030@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,43 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xinhui pan <xinhui.pan@amd.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit e1aadbab445b06e072013a1365fd0cf2aa25e843 ]
+[ Upstream commit be640317a1d0b9cf42fedb2debc2887a7cfa38de ]
 
-That has been done in BO release notify.
+With GCC 12 allmodconfig prom_init fails to build:
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2074
-Signed-off-by: xinhui pan <xinhui.pan@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+  Error: External symbol 'memset' referenced from prom_init.c
+  make[2]: *** [arch/powerpc/kernel/Makefile:204: arch/powerpc/kernel/prom_init_check] Error 1
+
+The allmodconfig build enables KASAN, so all calls to memset in
+prom_init should be converted to __memset by the #ifdefs in
+asm/string.h, because prom_init must use the non-KASAN instrumented
+versions.
+
+The build failure happens because there's a call to memset that hasn't
+been caught by the pre-processor and converted to __memset. Typically
+that's because it's a memset generated by the compiler itself, and that
+is the case here.
+
+With GCC 12, allmodconfig enables CONFIG_INIT_STACK_ALL_PATTERN, which
+causes the compiler to emit memset calls to initialise on-stack
+variables with a pattern.
+
+Because prom_init is non-user-facing boot-time only code, as a
+workaround just disable stack variable initialisation to unbreak the
+build.
+
+Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220718134418.354114-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 6 ------
- 1 file changed, 6 deletions(-)
+ arch/powerpc/kernel/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-index f4509656ea8c..e9a8eb070766 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-@@ -1401,16 +1401,10 @@ void amdgpu_amdkfd_gpuvm_destroy_cb(struct amdgpu_device *adev,
- 				    struct amdgpu_vm *vm)
- {
- 	struct amdkfd_process_info *process_info = vm->process_info;
--	struct amdgpu_bo *pd = vm->root.bo;
+diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
+index 4ddd161aef32..63c384c3e6d4 100644
+--- a/arch/powerpc/kernel/Makefile
++++ b/arch/powerpc/kernel/Makefile
+@@ -20,6 +20,7 @@ CFLAGS_prom.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+ CFLAGS_prom_init.o += -fno-stack-protector
+ CFLAGS_prom_init.o += -DDISABLE_BRANCH_PROFILING
+ CFLAGS_prom_init.o += -ffreestanding
++CFLAGS_prom_init.o += $(call cc-option, -ftrivial-auto-var-init=uninitialized)
  
- 	if (!process_info)
- 		return;
- 
--	/* Release eviction fence from PD */
--	amdgpu_bo_reserve(pd, false);
--	amdgpu_bo_fence(pd, NULL, false);
--	amdgpu_bo_unreserve(pd);
--
- 	/* Update process info */
- 	mutex_lock(&process_info->lock);
- 	process_info->n_vms--;
+ ifdef CONFIG_FUNCTION_TRACER
+ # Do not trace early boot code
 -- 
 2.35.1
 
