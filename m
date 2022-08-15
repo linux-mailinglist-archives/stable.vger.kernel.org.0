@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1704A592DF4
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:14:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC822592DF5
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:14:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232638AbiHOLOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 07:14:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32988 "EHLO
+        id S231655AbiHOLOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 07:14:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230512AbiHOLOO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:14:14 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36044183B5
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:14:13 -0700 (PDT)
+        with ESMTP id S230512AbiHOLOi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:14:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58BD6183B5
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:14:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9B023CE0FAA
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:14:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E13BC433C1;
-        Mon, 15 Aug 2022 11:14:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20154B80D27
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:14:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66F4EC433C1;
+        Mon, 15 Aug 2022 11:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660562049;
-        bh=GDtSsPErCPfpvadUFuGHVGHxKhBcI7hV1/XdTjlAeE8=;
+        s=korg; t=1660562074;
+        bh=RzbItqJ/uk1iUHD/BnOS5ZK3AOGLruD1+peDlWJyx6U=;
         h=Subject:To:Cc:From:Date:From;
-        b=Annx2HaT3FXJbnhVQ5Mar3fTtA+RqUZKtwwjvE6aYxFROWd9+fs67PBz9n8ltx6Ze
-         WHtUNO/SZRco3NsWYmPc+e3EZYHzL67gm6yDx9wkKqy3gm2hQjuc1YfxtqjKeD1SI3
-         UbYPrnRHQLtFXp8RcRtxHU9jufxzwGWBpCtjXsxE=
-Subject: FAILED: patch "[PATCH] btrfs: tree-log: make the return value for log syncing" failed to apply to 5.15-stable tree
-To:     josef@toxicpanda.com, dsterba@suse.com, fdmanana@suse.com
+        b=zS7/4szadIw3q1mmYHarFFemFCG2WZi+fFJQgBkbOeWKxm9boFaJbbGePv2h6B17k
+         WCiJ4RWccqOsN0Oy0g6+NQ3Kjb72LxVTo+5FPeqKFgcisDX6OLHfZXgiLP7RqkL/Ki
+         y++ijusXo5B4FshFD5ZTv7FmTR29rY7twsChbjdg=
+Subject: FAILED: patch "[PATCH] btrfs: properly flag filesystem with" failed to apply to 5.10-stable tree
+To:     nborisov@suse.com, dsterba@suse.com, wqu@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Aug 2022 13:13:59 +0200
-Message-ID: <166056203982219@kroah.com>
+Date:   Mon, 15 Aug 2022 13:14:32 +0200
+Message-ID: <1660562072164194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,134 +59,65 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f31f09f6be1c6c1a673e0566e258281a7bbaaa51 Mon Sep 17 00:00:00 2001
-From: Josef Bacik <josef@toxicpanda.com>
-Date: Mon, 13 Jun 2022 15:09:48 -0400
-Subject: [PATCH] btrfs: tree-log: make the return value for log syncing
- consistent
+From e26b04c4c91925dba57324db177a24e18e2d0013 Mon Sep 17 00:00:00 2001
+From: Nikolay Borisov <nborisov@suse.com>
+Date: Thu, 23 Jun 2022 10:55:47 +0300
+Subject: [PATCH] btrfs: properly flag filesystem with
+ BTRFS_FEATURE_INCOMPAT_BIG_METADATA
 
-Currently we will return 1 or -EAGAIN if we decide we need to commit
-the transaction rather than sync the log.  In practice this doesn't
-really matter, we interpret any !0 and !BTRFS_NO_LOG_SYNC as needing to
-commit the transaction.  However this makes it hard to figure out what
-the correct thing to do is.
+Commit 6f93e834fa7c seemingly inadvertently moved the code responsible
+for flagging the filesystem as having BIG_METADATA to a place where
+setting the flag was essentially lost. This means that
+filesystems created with kernels containing this bug (starting with 5.15)
+can potentially be mounted by older (pre-3.4) kernels. In reality
+chances for this happening are low because there are other incompat
+flags introduced in the mean time. Still the correct behavior is to set
+INCOMPAT_BIG_METADATA flag and persist this in the superblock.
 
-Fix this up by defining BTRFS_LOG_FORCE_COMMIT and using this in all the
-places where we want to force the transaction to be committed.
-
-CC: stable@vger.kernel.org # 5.15+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Fixes: 6f93e834fa7c ("btrfs: fix upper limit for max_inline for page size 64K")
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index 9dfde1af8a64..89c6d7ff1987 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -2308,7 +2308,7 @@ int btrfs_sync_file(struct file *file, loff_t start, loff_t end, int datasync)
- 	btrfs_release_log_ctx_extents(&ctx);
- 	if (ret < 0) {
- 		/* Fallthrough and commit/free transaction. */
--		ret = 1;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 	}
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index 243bd7bd79cd..e12fd3abd689 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3484,16 +3484,6 @@ int __cold open_ctree(struct super_block *sb, struct btrfs_fs_devices *fs_device
+ 	 */
+ 	fs_info->compress_type = BTRFS_COMPRESS_ZLIB;
  
- 	/* we've logged all the items and now have a consistent
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 1201f083d4db..d898ba13285f 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -171,7 +171,7 @@ static int start_log_trans(struct btrfs_trans_handle *trans,
- 		int index = (root->log_transid + 1) % 2;
+-	/*
+-	 * Flag our filesystem as having big metadata blocks if they are bigger
+-	 * than the page size.
+-	 */
+-	if (btrfs_super_nodesize(disk_super) > PAGE_SIZE) {
+-		if (!(features & BTRFS_FEATURE_INCOMPAT_BIG_METADATA))
+-			btrfs_info(fs_info,
+-				"flagging fs with big metadata feature");
+-		features |= BTRFS_FEATURE_INCOMPAT_BIG_METADATA;
+-	}
  
- 		if (btrfs_need_log_full_commit(trans)) {
--			ret = -EAGAIN;
-+			ret = BTRFS_LOG_FORCE_COMMIT;
- 			goto out;
- 		}
+ 	/* Set up fs_info before parsing mount options */
+ 	nodesize = btrfs_super_nodesize(disk_super);
+@@ -3534,6 +3524,17 @@ int __cold open_ctree(struct super_block *sb, struct btrfs_fs_devices *fs_device
+ 	if (features & BTRFS_FEATURE_INCOMPAT_SKINNY_METADATA)
+ 		btrfs_info(fs_info, "has skinny extents");
  
-@@ -194,7 +194,7 @@ static int start_log_trans(struct btrfs_trans_handle *trans,
- 		 * writing.
- 		 */
- 		if (zoned && !created) {
--			ret = -EAGAIN;
-+			ret = BTRFS_LOG_FORCE_COMMIT;
- 			goto out;
- 		}
- 
-@@ -3121,7 +3121,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans,
- 
- 	/* bail out if we need to do a full commit */
- 	if (btrfs_need_log_full_commit(trans)) {
--		ret = -EAGAIN;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 		mutex_unlock(&root->log_mutex);
- 		goto out;
- 	}
-@@ -3222,7 +3222,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans,
- 		}
- 		btrfs_wait_tree_log_extents(log, mark);
- 		mutex_unlock(&log_root_tree->log_mutex);
--		ret = -EAGAIN;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 		goto out;
- 	}
- 
-@@ -3261,7 +3261,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans,
- 		blk_finish_plug(&plug);
- 		btrfs_wait_tree_log_extents(log, mark);
- 		mutex_unlock(&log_root_tree->log_mutex);
--		ret = -EAGAIN;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 		goto out_wake_log_root;
- 	}
- 
-@@ -5848,7 +5848,7 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 	    inode_only == LOG_INODE_ALL &&
- 	    inode->last_unlink_trans >= trans->transid) {
- 		btrfs_set_log_full_commit(trans);
--		ret = 1;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 		goto out_unlock;
- 	}
- 
-@@ -6562,12 +6562,12 @@ static int btrfs_log_inode_parent(struct btrfs_trans_handle *trans,
- 	bool log_dentries = false;
- 
- 	if (btrfs_test_opt(fs_info, NOTREELOG)) {
--		ret = 1;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 		goto end_no_trans;
- 	}
- 
- 	if (btrfs_root_refs(&root->root_item) == 0) {
--		ret = 1;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 		goto end_no_trans;
- 	}
- 
-@@ -6665,7 +6665,7 @@ static int btrfs_log_inode_parent(struct btrfs_trans_handle *trans,
- end_trans:
- 	if (ret < 0) {
- 		btrfs_set_log_full_commit(trans);
--		ret = 1;
-+		ret = BTRFS_LOG_FORCE_COMMIT;
- 	}
- 
- 	if (ret)
-diff --git a/fs/btrfs/tree-log.h b/fs/btrfs/tree-log.h
-index 1620f8170629..57ab5f3b8dc7 100644
---- a/fs/btrfs/tree-log.h
-+++ b/fs/btrfs/tree-log.h
-@@ -12,6 +12,9 @@
- /* return value for btrfs_log_dentry_safe that means we don't need to log it at all */
- #define BTRFS_NO_LOG_SYNC 256
- 
-+/* We can't use the tree log for whatever reason, force a transaction commit */
-+#define BTRFS_LOG_FORCE_COMMIT				(1)
++	/*
++	 * Flag our filesystem as having big metadata blocks if they are bigger
++	 * than the page size.
++	 */
++	if (btrfs_super_nodesize(disk_super) > PAGE_SIZE) {
++		if (!(features & BTRFS_FEATURE_INCOMPAT_BIG_METADATA))
++			btrfs_info(fs_info,
++				"flagging fs with big metadata feature");
++		features |= BTRFS_FEATURE_INCOMPAT_BIG_METADATA;
++	}
 +
- struct btrfs_log_ctx {
- 	int log_ret;
- 	int log_transid;
+ 	/*
+ 	 * mixed block groups end up with duplicate but slightly offset
+ 	 * extent buffers for the same range.  It leads to corruptions
 
