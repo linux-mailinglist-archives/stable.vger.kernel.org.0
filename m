@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B76A5950C6
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:46:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC2765950CA
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:46:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232155AbiHPEqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:46:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55472 "EHLO
+        id S232212AbiHPEqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:46:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232183AbiHPEpZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:45:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C4F3F1CB;
-        Mon, 15 Aug 2022 13:44:05 -0700 (PDT)
+        with ESMTP id S232461AbiHPEpd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:45:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D52823F1DA;
+        Mon, 15 Aug 2022 13:44:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35457B8119A;
-        Mon, 15 Aug 2022 20:44:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75674C433C1;
-        Mon, 15 Aug 2022 20:44:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D6D5B811A1;
+        Mon, 15 Aug 2022 20:44:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85415C433D6;
+        Mon, 15 Aug 2022 20:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596242;
-        bh=Mt7AGGcZfiDtZCpqwjCJ+SIH9BMtPjFp1JhQA7qDVTk=;
+        s=korg; t=1660596246;
+        bh=+axC2UCXXYpHbsM2UCfs8sZhbdEsDfVjDNihD+9RBik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z5TXxPqQfVM2S+ZG338K87WG37MMYKmRo8RFbm9xpvhXrASplfhRCCjquDGdt8hwV
-         VFSe6o0YAhrnjdhO6eVTxQ2WG+Mfums6jorb8K1W8Q3j6K3r3ZRhh+/cnS7mg9Eylh
-         wRueh4Jl8r9S7qvSySoQfSY+P7T1Ju7KtKMPmJkg=
+        b=vsca4kCRu6HoTiclY2OjnRWR2/9fudoaok9i/8I98Y1aY+S6SqXp2pA2R95AOoDu7
+         odc/q6tp3YSUGSzdhquAiaS8xsHFz6p7eplGrmCc2cyhwekTyckiRYx4BTOAyLPqq5
+         jJmh0Ad+XepHZzn4mX+tQkESpjWQMIbzov4AD3JI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1018/1157] scripts/faddr2line: Fix vmlinux detection on arm64
-Date:   Mon, 15 Aug 2022 20:06:14 +0200
-Message-Id: <20220815180520.614889740@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 1019/1157] tty: serial: qcom-geni-serial: Fix %lu -> %u in print statements
+Date:   Mon, 15 Aug 2022 20:06:15 +0200
+Message-Id: <20220815180520.663487574@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,45 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@kernel.org>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit b6a5068854cfe372da7dee3224dcf023ed5b00cb ]
+[ Upstream commit 0fec518018cc5ceffa706370b6e3acbbb1e3c798 ]
 
-Since commit dcea997beed6 ("faddr2line: Fix overlapping text section
-failures, the sequel"), faddr2line is completely broken on arm64.
+When we multiply an unsigned int by a u32 we still end up with an
+unsigned int. That means we should specify "%u" not "%lu" in the
+format code.
 
-For some reason, on arm64, the vmlinux ELF object file type is ET_DYN
-rather than ET_EXEC.  Check for both when determining whether the object
-is vmlinux.
+NOTE: this fix was chosen instead of somehow promoting the value to
+"unsigned long" since the max baud rate from the earlier call to
+uart_get_baud_rate() is 4000000 and the max sampling rate is 32.
+4000000 * 32 = 0x07a12000, not even close to overflowing 32-bits.
 
-Modules and vmlinux.o have type ET_REL on all arches.
-
-Fixes: dcea997beed6 ("faddr2line: Fix overlapping text section failures, the sequel")
-Reported-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: John Garry <john.garry@huawei.com>
-Link: https://lore.kernel.org/r/dad1999737471b06d6188ce4cdb11329aa41682c.1658426357.git.jpoimboe@kernel.org
+Fixes: c474c775716e ("tty: serial: qcom-geni-serial: Fix get_clk_div_rate() which otherwise could return a sub-optimal clock rate.")
+Reported-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20220802132250.1.Iea061e14157a17e114dbe2eca764568a02d6b889@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/faddr2line | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/serial/qcom_geni_serial.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/faddr2line b/scripts/faddr2line
-index 94ed98dd899f..57099687e5e1 100755
---- a/scripts/faddr2line
-+++ b/scripts/faddr2line
-@@ -112,7 +112,9 @@ __faddr2line() {
- 	# section offsets.
- 	local file_type=$(${READELF} --file-header $objfile |
- 		${AWK} '$1 == "Type:" { print $2; exit }')
--	[[ $file_type = "EXEC" ]] && is_vmlinux=1
-+	if [[ $file_type = "EXEC" ]] || [[ $file_type == "DYN" ]]; then
-+		is_vmlinux=1
-+	fi
+diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
+index f754619451dc..f7c1f1807040 100644
+--- a/drivers/tty/serial/qcom_geni_serial.c
++++ b/drivers/tty/serial/qcom_geni_serial.c
+@@ -1033,12 +1033,12 @@ static void qcom_geni_serial_set_termios(struct uart_port *uport,
+ 		sampling_rate, &clk_div);
+ 	if (!clk_rate) {
+ 		dev_err(port->se.dev,
+-			"Couldn't find suitable clock rate for %lu\n",
++			"Couldn't find suitable clock rate for %u\n",
+ 			baud * sampling_rate);
+ 		goto out_restart_rx;
+ 	}
  
- 	# Go through each of the object's symbols which match the func name.
- 	# In rare cases there might be duplicates, in which case we print all
+-	dev_dbg(port->se.dev, "desired_rate-%lu, clk_rate-%lu, clk_div-%u\n",
++	dev_dbg(port->se.dev, "desired_rate-%u, clk_rate-%lu, clk_div-%u\n",
+ 			baud * sampling_rate, clk_rate, clk_div);
+ 
+ 	uport->uartclk = clk_rate;
 -- 
 2.35.1
 
