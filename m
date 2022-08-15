@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C995D59367C
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AE1759369B
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345142AbiHOTSM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:18:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56554 "EHLO
+        id S1343645AbiHOTSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:18:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343785AbiHOTOH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:14:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC74051421;
-        Mon, 15 Aug 2022 11:37:40 -0700 (PDT)
+        with ESMTP id S1343762AbiHOTNz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:13:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CA3E52472;
+        Mon, 15 Aug 2022 11:37:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37A17B81081;
-        Mon, 15 Aug 2022 18:37:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90728C433D6;
-        Mon, 15 Aug 2022 18:37:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DBC66114B;
+        Mon, 15 Aug 2022 18:37:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B8E5C433C1;
+        Mon, 15 Aug 2022 18:37:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588657;
-        bh=X3qPuLav52OOzYvZwltcATXGFNNz09hxt2osJYcE06Y=;
+        s=korg; t=1660588663;
+        bh=boHXcxQtTXBVil/aIoI4ARENch7agbweuVxDGPVujyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h6hIDkD3nK0mZnygtbMiU0U6tsmIYQB1c3f8e1vo1SDrBeCAvr+Ak3l9LxEP5fnyJ
-         qxuxbjtyOYA0vtlIw1HesNUhoVe2sy6t/0qoBuzVbmFaIAxnKvEMiUbmGy3tclu+6Z
-         4sFwMZ38FKHWTyRKG8g5SXZu2eeD+B7b2sk0gNcw=
+        b=h/QnyFkBWlmuDGE0HhgweblroMhsxbI33v0RG7jGfQUGLt0Ccb+kWPJ5fmADMELnC
+         Iy9IcQ1rbK3VSLC3KMeHgJNtWeHkrxpR4QzJkIrRmhC4wEY7LNMWq0SHLgtOusVG/X
+         AC69kBE0Fr7f0QdGVBEIkphedfT3E/GnF9T3rYJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Carlos Llamas <cmllamas@google.com>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 474/779] binder: fix redefinition of seq_file attributes
-Date:   Mon, 15 Aug 2022 20:01:58 +0200
-Message-Id: <20220815180357.535529555@linuxfoundation.org>
+Subject: [PATCH 5.15 475/779] staging: rtl8192u: Fix sleep in atomic context bug in dm_fsync_timer_callback
+Date:   Mon, 15 Aug 2022 20:01:59 +0200
+Message-Id: <20220815180357.584037574@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,344 +53,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Llamas <cmllamas@google.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit b7e241bbff24f9e106bf616408fd58bcedc44bae ]
+[ Upstream commit 6a0c054930d554ad8f8044ef1fc856d9da391c81 ]
 
-The patchset in [1] exported some definitions to binder_internal.h in
-order to make the debugfs entries such as 'stats' and 'transaction_log'
-available in a binderfs instance. However, the DEFINE_SHOW_ATTRIBUTE
-macro expands into a static function/variable pair, which in turn get
-redefined each time a source file includes this internal header.
+There are sleep in atomic context bugs when dm_fsync_timer_callback is
+executing. The root cause is that the memory allocation functions with
+GFP_KERNEL or GFP_NOIO parameters are called in dm_fsync_timer_callback
+which is a timer handler. The call paths that could trigger bugs are
+shown below:
 
-This problem was made evident after a report from the kernel test robot
-<lkp@intel.com> where several W=1 build warnings are seen in downstream
-kernels. See the following example:
+    (interrupt context)
+dm_fsync_timer_callback
+  write_nic_byte
+    kzalloc(sizeof(data), GFP_KERNEL); //may sleep
+    usb_control_msg
+      kmalloc(.., GFP_NOIO); //may sleep
+  write_nic_dword
+    kzalloc(sizeof(data), GFP_KERNEL); //may sleep
+    usb_control_msg
+      kmalloc(.., GFP_NOIO); //may sleep
 
-  include/../drivers/android/binder_internal.h:111:23: warning: 'binder_stats_fops' defined but not used [-Wunused-const-variable=]
-     111 | DEFINE_SHOW_ATTRIBUTE(binder_stats);
-         |                       ^~~~~~~~~~~~
-  include/linux/seq_file.h:174:37: note: in definition of macro 'DEFINE_SHOW_ATTRIBUTE'
-     174 | static const struct file_operations __name ## _fops = {                 \
-         |                                     ^~~~~~
+This patch uses delayed work to replace timer and moves the operations
+that may sleep into the delayed work in order to mitigate bugs.
 
-This patch fixes the above issues by moving back the definitions into
-binder.c and instead creates an array of the debugfs entries which is
-more convenient to share with binderfs and iterate through.
-
-  [1] https://lore.kernel.org/all/20190903161655.107408-1-hridya@google.com/
-
-Fixes: 0e13e452dafc ("binder: Add stats, state and transactions files")
-Fixes: 03e2e07e3814 ("binder: Make transaction_log available in binderfs")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Link: https://lore.kernel.org/r/20220701182041.2134313-1-cmllamas@google.com
+Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220710103002.63283-1-duoming@zju.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/android/binder.c          | 114 +++++++++++++++++++++---------
- drivers/android/binder_internal.h |  46 +++---------
- drivers/android/binderfs.c        |  47 +++---------
- 3 files changed, 100 insertions(+), 107 deletions(-)
+ drivers/staging/rtl8192u/r8192U.h    |  2 +-
+ drivers/staging/rtl8192u/r8192U_dm.c | 38 +++++++++++++---------------
+ drivers/staging/rtl8192u/r8192U_dm.h |  2 +-
+ 3 files changed, 20 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index 99ae919255f4..56a2387656a0 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -170,8 +170,32 @@ static inline void binder_stats_created(enum binder_stat_types type)
- 	atomic_inc(&binder_stats.obj_created[type]);
+diff --git a/drivers/staging/rtl8192u/r8192U.h b/drivers/staging/rtl8192u/r8192U.h
+index 4013107cd93a..a23d6d41de9d 100644
+--- a/drivers/staging/rtl8192u/r8192U.h
++++ b/drivers/staging/rtl8192u/r8192U.h
+@@ -1013,7 +1013,7 @@ typedef struct r8192_priv {
+ 	bool		bis_any_nonbepkts;
+ 	bool		bcurrent_turbo_EDCA;
+ 	bool		bis_cur_rdlstate;
+-	struct timer_list fsync_timer;
++	struct delayed_work fsync_work;
+ 	bool bfsync_processing;	/* 500ms Fsync timer is active or not */
+ 	u32	rate_record;
+ 	u32	rateCountDiffRecord;
+diff --git a/drivers/staging/rtl8192u/r8192U_dm.c b/drivers/staging/rtl8192u/r8192U_dm.c
+index 725bf5ca9e34..0fcfcaa6500b 100644
+--- a/drivers/staging/rtl8192u/r8192U_dm.c
++++ b/drivers/staging/rtl8192u/r8192U_dm.c
+@@ -2578,19 +2578,20 @@ static void dm_init_fsync(struct net_device *dev)
+ 	priv->ieee80211->fsync_seconddiff_ratethreshold = 200;
+ 	priv->ieee80211->fsync_state = Default_Fsync;
+ 	priv->framesyncMonitor = 1;	/* current default 0xc38 monitor on */
+-	timer_setup(&priv->fsync_timer, dm_fsync_timer_callback, 0);
++	INIT_DELAYED_WORK(&priv->fsync_work, dm_fsync_work_callback);
  }
  
--struct binder_transaction_log binder_transaction_log;
--struct binder_transaction_log binder_transaction_log_failed;
-+struct binder_transaction_log_entry {
-+	int debug_id;
-+	int debug_id_done;
-+	int call_type;
-+	int from_proc;
-+	int from_thread;
-+	int target_handle;
-+	int to_proc;
-+	int to_thread;
-+	int to_node;
-+	int data_size;
-+	int offsets_size;
-+	int return_error_line;
-+	uint32_t return_error;
-+	uint32_t return_error_param;
-+	char context_name[BINDERFS_MAX_NAME + 1];
-+};
-+
-+struct binder_transaction_log {
-+	atomic_t cur;
-+	bool full;
-+	struct binder_transaction_log_entry entry[32];
-+};
-+
-+static struct binder_transaction_log binder_transaction_log;
-+static struct binder_transaction_log binder_transaction_log_failed;
+ static void dm_deInit_fsync(struct net_device *dev)
+ {
+ 	struct r8192_priv *priv = ieee80211_priv(dev);
  
- static struct binder_transaction_log_entry *binder_transaction_log_add(
- 	struct binder_transaction_log *log)
-@@ -5801,8 +5825,7 @@ static void print_binder_proc_stats(struct seq_file *m,
- 	print_binder_stats(m, "  ", &proc->stats);
+-	del_timer_sync(&priv->fsync_timer);
++	cancel_delayed_work_sync(&priv->fsync_work);
  }
  
--
--int binder_state_show(struct seq_file *m, void *unused)
-+static int state_show(struct seq_file *m, void *unused)
+-void dm_fsync_timer_callback(struct timer_list *t)
++void dm_fsync_work_callback(struct work_struct *work)
  {
- 	struct binder_proc *proc;
- 	struct binder_node *node;
-@@ -5841,7 +5864,7 @@ int binder_state_show(struct seq_file *m, void *unused)
- 	return 0;
- }
+-	struct r8192_priv *priv = from_timer(priv, t, fsync_timer);
++	struct r8192_priv *priv =
++	    container_of(work, struct r8192_priv, fsync_work.work);
+ 	struct net_device *dev = priv->ieee80211->dev;
+ 	u32 rate_index, rate_count = 0, rate_count_diff = 0;
+ 	bool		bSwitchFromCountDiff = false;
+@@ -2657,17 +2658,16 @@ void dm_fsync_timer_callback(struct timer_list *t)
+ 			}
+ 		}
+ 		if (bDoubleTimeInterval) {
+-			if (timer_pending(&priv->fsync_timer))
+-				del_timer_sync(&priv->fsync_timer);
+-			priv->fsync_timer.expires = jiffies +
+-				msecs_to_jiffies(priv->ieee80211->fsync_time_interval*priv->ieee80211->fsync_multiple_timeinterval);
+-			add_timer(&priv->fsync_timer);
++			cancel_delayed_work_sync(&priv->fsync_work);
++			schedule_delayed_work(&priv->fsync_work,
++					      msecs_to_jiffies(priv
++					      ->ieee80211->fsync_time_interval *
++					      priv->ieee80211->fsync_multiple_timeinterval));
+ 		} else {
+-			if (timer_pending(&priv->fsync_timer))
+-				del_timer_sync(&priv->fsync_timer);
+-			priv->fsync_timer.expires = jiffies +
+-				msecs_to_jiffies(priv->ieee80211->fsync_time_interval);
+-			add_timer(&priv->fsync_timer);
++			cancel_delayed_work_sync(&priv->fsync_work);
++			schedule_delayed_work(&priv->fsync_work,
++					      msecs_to_jiffies(priv
++					      ->ieee80211->fsync_time_interval));
+ 		}
+ 	} else {
+ 		/* Let Register return to default value; */
+@@ -2695,7 +2695,7 @@ static void dm_EndSWFsync(struct net_device *dev)
+ 	struct r8192_priv *priv = ieee80211_priv(dev);
  
--int binder_stats_show(struct seq_file *m, void *unused)
-+static int stats_show(struct seq_file *m, void *unused)
- {
- 	struct binder_proc *proc;
+ 	RT_TRACE(COMP_HALDM, "%s\n", __func__);
+-	del_timer_sync(&(priv->fsync_timer));
++	cancel_delayed_work_sync(&priv->fsync_work);
  
-@@ -5857,7 +5880,7 @@ int binder_stats_show(struct seq_file *m, void *unused)
- 	return 0;
- }
- 
--int binder_transactions_show(struct seq_file *m, void *unused)
-+static int transactions_show(struct seq_file *m, void *unused)
- {
- 	struct binder_proc *proc;
- 
-@@ -5913,7 +5936,7 @@ static void print_binder_transaction_log_entry(struct seq_file *m,
- 			"\n" : " (incomplete)\n");
- }
- 
--int binder_transaction_log_show(struct seq_file *m, void *unused)
-+static int transaction_log_show(struct seq_file *m, void *unused)
- {
- 	struct binder_transaction_log *log = m->private;
- 	unsigned int log_cur = atomic_read(&log->cur);
-@@ -5945,6 +5968,45 @@ const struct file_operations binder_fops = {
- 	.release = binder_release,
- };
- 
-+DEFINE_SHOW_ATTRIBUTE(state);
-+DEFINE_SHOW_ATTRIBUTE(stats);
-+DEFINE_SHOW_ATTRIBUTE(transactions);
-+DEFINE_SHOW_ATTRIBUTE(transaction_log);
-+
-+const struct binder_debugfs_entry binder_debugfs_entries[] = {
-+	{
-+		.name = "state",
-+		.mode = 0444,
-+		.fops = &state_fops,
-+		.data = NULL,
-+	},
-+	{
-+		.name = "stats",
-+		.mode = 0444,
-+		.fops = &stats_fops,
-+		.data = NULL,
-+	},
-+	{
-+		.name = "transactions",
-+		.mode = 0444,
-+		.fops = &transactions_fops,
-+		.data = NULL,
-+	},
-+	{
-+		.name = "transaction_log",
-+		.mode = 0444,
-+		.fops = &transaction_log_fops,
-+		.data = &binder_transaction_log,
-+	},
-+	{
-+		.name = "failed_transaction_log",
-+		.mode = 0444,
-+		.fops = &transaction_log_fops,
-+		.data = &binder_transaction_log_failed,
-+	},
-+	{} /* terminator */
-+};
-+
- static int __init init_binder_device(const char *name)
- {
- 	int ret;
-@@ -5990,36 +6052,18 @@ static int __init binder_init(void)
- 	atomic_set(&binder_transaction_log_failed.cur, ~0U);
- 
- 	binder_debugfs_dir_entry_root = debugfs_create_dir("binder", NULL);
--	if (binder_debugfs_dir_entry_root)
-+	if (binder_debugfs_dir_entry_root) {
-+		const struct binder_debugfs_entry *db_entry;
-+
-+		binder_for_each_debugfs_entry(db_entry)
-+			debugfs_create_file(db_entry->name,
-+					    db_entry->mode,
-+					    binder_debugfs_dir_entry_root,
-+					    db_entry->data,
-+					    db_entry->fops);
-+
- 		binder_debugfs_dir_entry_proc = debugfs_create_dir("proc",
- 						 binder_debugfs_dir_entry_root);
--
--	if (binder_debugfs_dir_entry_root) {
--		debugfs_create_file("state",
--				    0444,
--				    binder_debugfs_dir_entry_root,
--				    NULL,
--				    &binder_state_fops);
--		debugfs_create_file("stats",
--				    0444,
--				    binder_debugfs_dir_entry_root,
--				    NULL,
--				    &binder_stats_fops);
--		debugfs_create_file("transactions",
--				    0444,
--				    binder_debugfs_dir_entry_root,
--				    NULL,
--				    &binder_transactions_fops);
--		debugfs_create_file("transaction_log",
--				    0444,
--				    binder_debugfs_dir_entry_root,
--				    &binder_transaction_log,
--				    &binder_transaction_log_fops);
--		debugfs_create_file("failed_transaction_log",
--				    0444,
--				    binder_debugfs_dir_entry_root,
--				    &binder_transaction_log_failed,
--				    &binder_transaction_log_fops);
+ 	/* Let Register return to default value; */
+ 	if (priv->bswitch_fsync) {
+@@ -2736,11 +2736,9 @@ static void dm_StartSWFsync(struct net_device *dev)
+ 		if (priv->ieee80211->fsync_rate_bitmap &  rateBitmap)
+ 			priv->rate_record += priv->stats.received_rate_histogram[1][rateIndex];
  	}
+-	if (timer_pending(&priv->fsync_timer))
+-		del_timer_sync(&priv->fsync_timer);
+-	priv->fsync_timer.expires = jiffies +
+-			msecs_to_jiffies(priv->ieee80211->fsync_time_interval);
+-	add_timer(&priv->fsync_timer);
++	cancel_delayed_work_sync(&priv->fsync_work);
++	schedule_delayed_work(&priv->fsync_work,
++			      msecs_to_jiffies(priv->ieee80211->fsync_time_interval));
  
- 	if (!IS_ENABLED(CONFIG_ANDROID_BINDERFS) &&
-diff --git a/drivers/android/binder_internal.h b/drivers/android/binder_internal.h
-index d6b6b8cb7346..1ade9799c8d5 100644
---- a/drivers/android/binder_internal.h
-+++ b/drivers/android/binder_internal.h
-@@ -107,41 +107,19 @@ static inline int __init init_binderfs(void)
+ 	write_nic_dword(dev, rOFDM0_RxDetector2, 0x465c12cd);
  }
- #endif
- 
--int binder_stats_show(struct seq_file *m, void *unused);
--DEFINE_SHOW_ATTRIBUTE(binder_stats);
--
--int binder_state_show(struct seq_file *m, void *unused);
--DEFINE_SHOW_ATTRIBUTE(binder_state);
--
--int binder_transactions_show(struct seq_file *m, void *unused);
--DEFINE_SHOW_ATTRIBUTE(binder_transactions);
--
--int binder_transaction_log_show(struct seq_file *m, void *unused);
--DEFINE_SHOW_ATTRIBUTE(binder_transaction_log);
--
--struct binder_transaction_log_entry {
--	int debug_id;
--	int debug_id_done;
--	int call_type;
--	int from_proc;
--	int from_thread;
--	int target_handle;
--	int to_proc;
--	int to_thread;
--	int to_node;
--	int data_size;
--	int offsets_size;
--	int return_error_line;
--	uint32_t return_error;
--	uint32_t return_error_param;
--	char context_name[BINDERFS_MAX_NAME + 1];
-+struct binder_debugfs_entry {
-+	const char *name;
-+	umode_t mode;
-+	const struct file_operations *fops;
-+	void *data;
- };
- 
--struct binder_transaction_log {
--	atomic_t cur;
--	bool full;
--	struct binder_transaction_log_entry entry[32];
--};
-+extern const struct binder_debugfs_entry binder_debugfs_entries[];
-+
-+#define binder_for_each_debugfs_entry(entry)	\
-+	for ((entry) = binder_debugfs_entries;	\
-+	     (entry)->name;			\
-+	     (entry)++)
- 
- enum binder_stat_types {
- 	BINDER_STAT_PROC,
-@@ -575,6 +553,4 @@ struct binder_object {
- 	};
- };
- 
--extern struct binder_transaction_log binder_transaction_log;
--extern struct binder_transaction_log binder_transaction_log_failed;
- #endif /* _LINUX_BINDER_INTERNAL_H */
-diff --git a/drivers/android/binderfs.c b/drivers/android/binderfs.c
-index e3605cdd4335..6d717ed76766 100644
---- a/drivers/android/binderfs.c
-+++ b/drivers/android/binderfs.c
-@@ -621,6 +621,7 @@ static int init_binder_features(struct super_block *sb)
- static int init_binder_logs(struct super_block *sb)
- {
- 	struct dentry *binder_logs_root_dir, *dentry, *proc_log_dir;
-+	const struct binder_debugfs_entry *db_entry;
- 	struct binderfs_info *info;
- 	int ret = 0;
- 
-@@ -631,43 +632,15 @@ static int init_binder_logs(struct super_block *sb)
- 		goto out;
- 	}
- 
--	dentry = binderfs_create_file(binder_logs_root_dir, "stats",
--				      &binder_stats_fops, NULL);
--	if (IS_ERR(dentry)) {
--		ret = PTR_ERR(dentry);
--		goto out;
--	}
--
--	dentry = binderfs_create_file(binder_logs_root_dir, "state",
--				      &binder_state_fops, NULL);
--	if (IS_ERR(dentry)) {
--		ret = PTR_ERR(dentry);
--		goto out;
--	}
--
--	dentry = binderfs_create_file(binder_logs_root_dir, "transactions",
--				      &binder_transactions_fops, NULL);
--	if (IS_ERR(dentry)) {
--		ret = PTR_ERR(dentry);
--		goto out;
--	}
--
--	dentry = binderfs_create_file(binder_logs_root_dir,
--				      "transaction_log",
--				      &binder_transaction_log_fops,
--				      &binder_transaction_log);
--	if (IS_ERR(dentry)) {
--		ret = PTR_ERR(dentry);
--		goto out;
--	}
--
--	dentry = binderfs_create_file(binder_logs_root_dir,
--				      "failed_transaction_log",
--				      &binder_transaction_log_fops,
--				      &binder_transaction_log_failed);
--	if (IS_ERR(dentry)) {
--		ret = PTR_ERR(dentry);
--		goto out;
-+	binder_for_each_debugfs_entry(db_entry) {
-+		dentry = binderfs_create_file(binder_logs_root_dir,
-+					      db_entry->name,
-+					      db_entry->fops,
-+					      db_entry->data);
-+		if (IS_ERR(dentry)) {
-+			ret = PTR_ERR(dentry);
-+			goto out;
-+		}
- 	}
- 
- 	proc_log_dir = binderfs_create_dir(binder_logs_root_dir, "proc");
+diff --git a/drivers/staging/rtl8192u/r8192U_dm.h b/drivers/staging/rtl8192u/r8192U_dm.h
+index 0b2a1c688597..2159018b4e38 100644
+--- a/drivers/staging/rtl8192u/r8192U_dm.h
++++ b/drivers/staging/rtl8192u/r8192U_dm.h
+@@ -166,7 +166,7 @@ void dm_force_tx_fw_info(struct net_device *dev,
+ void dm_init_edca_turbo(struct net_device *dev);
+ void dm_rf_operation_test_callback(unsigned long data);
+ void dm_rf_pathcheck_workitemcallback(struct work_struct *work);
+-void dm_fsync_timer_callback(struct timer_list *t);
++void dm_fsync_work_callback(struct work_struct *work);
+ void dm_cck_txpower_adjust(struct net_device *dev, bool  binch14);
+ void dm_shadow_init(struct net_device *dev);
+ void dm_initialize_txpower_tracking(struct net_device *dev);
 -- 
 2.35.1
 
