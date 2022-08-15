@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81F4E594B75
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:23:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A94A9594B78
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351760AbiHPASX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:18:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37818 "EHLO
+        id S1352211AbiHPASs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:18:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354942AbiHPAQa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:16:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89B4B15C909;
-        Mon, 15 Aug 2022 13:30:49 -0700 (PDT)
+        with ESMTP id S1356568AbiHPARD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:17:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FBE1A0337;
+        Mon, 15 Aug 2022 13:30:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9762961089;
-        Mon, 15 Aug 2022 20:30:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BFCFC433D6;
-        Mon, 15 Aug 2022 20:30:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D910E60EE9;
+        Mon, 15 Aug 2022 20:30:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1ED5C433D6;
+        Mon, 15 Aug 2022 20:30:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595448;
-        bh=IWPQb8ie+Po/Tj9QdZjmmgG64zCz88pHqWsrx6zftGY=;
+        s=korg; t=1660595451;
+        bh=Gi5fhKEQRLorlItAaeCoWCufFbIzNt8b6vIbaqCylvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=waluQLjDTyhhF6AdyO+KAJYM7oHz0chJ2zV4VAvDiJJxABEMo7hWBR6kgrzxXlN4h
-         0z87HnS4EaBvvHoH4/HI+M5M2QopytjVogzF8F+NgTQq+/n/djWzQ8whGZKEa5ZmiU
-         j48VV1njxGG3OTeQlWLUvGG8IQ7Cc9hTl39fyF6s=
+        b=xPpqDS8D9OSBTsq16uWgPl49qbH34PQX0s58Xw3qhPYBQRzjqlNgEu8EDVvh1TmvX
+         kvcvK+wPwW37/IbXNQJS1ly1Rrhkl4QCGdZlPiSGUMn9a4Zjj2pCbRRjUc3T/YLNOK
+         KHVYhXLoXCwXIWTGU5634tDk1MmhvHY5ZSTJrjmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianyu Li <tianyu.li@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Ferry Toth <fntoth@gmail.com>, Vinod Koul <vkoul@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0768/1157] mm/mempolicy: fix get_nodes out of bound access
-Date:   Mon, 15 Aug 2022 20:02:04 +0200
-Message-Id: <20220815180510.211406156@linuxfoundation.org>
+Subject: [PATCH 5.19 0769/1157] phy: ti: tusb1210: Dont check for write errors when powering on
+Date:   Mon, 15 Aug 2022 20:02:05 +0200
+Message-Id: <20220815180510.251133002@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -56,37 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianyu Li <tianyu.li@arm.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 000eca5d044d1ee23b4ca311793cf3fc528da6c6 ]
+[ Upstream commit d4a0a189b72a7c98e4256292b18b67c69fbc9343 ]
 
-When user specified more nodes than supported, get_nodes will access nmask
-array out of bounds.
+On some platforms, like Intel Merrifield, the writing values during power on
+may timeout:
 
-Link: https://lkml.kernel.org/r/20220601093211.2970565-1-tianyu.li@arm.com
-Fixes: e130242dc351 ("mm: simplify compat numa syscalls")
-Signed-off-by: Tianyu Li <tianyu.li@arm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+   tusb1210 dwc3.0.auto.ulpi: error -110 writing val 0x41 to reg 0x80
+   phy phy-dwc3.0.auto.ulpi.0: phy poweron failed --> -110
+   dwc3 dwc3.0.auto: error -ETIMEDOUT: failed to initialize core
+   dwc3: probe of dwc3.0.auto failed with error -110
+
+which effectively fails the probe of the USB controller.
+Drop the check as it was before the culprit commit (see Fixes tag).
+
+Fixes: 09a3512681b3 ("phy: ti: tusb1210: Improve ulpi_read()/_write() error checking")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+Tested-by: Ferry Toth <fntoth@gmail.com>
+Link: https://lore.kernel.org/r/20220613160848.82746-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mempolicy.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/phy/ti/phy-tusb1210.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index 9689919a2829..f4cd963550c1 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -1388,7 +1388,7 @@ static int get_nodes(nodemask_t *nodes, const unsigned long __user *nmask,
- 		unsigned long bits = min_t(unsigned long, maxnode, BITS_PER_LONG);
- 		unsigned long t;
+diff --git a/drivers/phy/ti/phy-tusb1210.c b/drivers/phy/ti/phy-tusb1210.c
+index c3ab4b69ea68..669c13d6e402 100644
+--- a/drivers/phy/ti/phy-tusb1210.c
++++ b/drivers/phy/ti/phy-tusb1210.c
+@@ -105,8 +105,9 @@ static int tusb1210_power_on(struct phy *phy)
+ 	msleep(TUSB1210_RESET_TIME_MS);
  
--		if (get_bitmap(&t, &nmask[maxnode / BITS_PER_LONG], bits))
-+		if (get_bitmap(&t, &nmask[(maxnode - 1) / BITS_PER_LONG], bits))
- 			return -EFAULT;
+ 	/* Restore the optional eye diagram optimization value */
+-	return tusb1210_ulpi_write(tusb, TUSB1210_VENDOR_SPECIFIC2,
+-				   tusb->vendor_specific2);
++	tusb1210_ulpi_write(tusb, TUSB1210_VENDOR_SPECIFIC2, tusb->vendor_specific2);
++
++	return 0;
+ }
  
- 		if (maxnode - bits >= MAX_NUMNODES) {
+ static int tusb1210_power_off(struct phy *phy)
 -- 
 2.35.1
 
