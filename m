@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC1255947E1
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5823E594985
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:14:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354904AbiHOXzm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:55:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54540 "EHLO
+        id S1354868AbiHOXzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:55:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355956AbiHOXxY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:53:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6849815BBA3;
-        Mon, 15 Aug 2022 13:18:04 -0700 (PDT)
+        with ESMTP id S1355972AbiHOXx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:53:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4906D15BBB7;
+        Mon, 15 Aug 2022 13:18:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2D436104A;
-        Mon, 15 Aug 2022 20:17:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E608C4314D;
-        Mon, 15 Aug 2022 20:17:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9768BB80EA8;
+        Mon, 15 Aug 2022 20:18:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFB55C433C1;
+        Mon, 15 Aug 2022 20:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594677;
-        bh=jGYDKm0Tw+bfYKYZH5hqWm2mnwiYORDMGSxt/7Z6A0k=;
+        s=korg; t=1660594680;
+        bh=twaGXF0MvgZEXkpoKJrkeQCigkqeCs2jGuviee0Fe20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gy5ENJGX5meTIqDmM8o9Bkj77fwAayejruUAg6GQvIIAfiAr/zrp/Vwt1wwirYyh9
-         vljCdzbmQzFw0ZZqIARHFj60/JSXD5Gm6EerHkcgQME4G7tFxb98LGcriNHNLhFd3V
-         0DMonXB9G0NA//GhVmVB9qXpqC8Zdkd55UDSoYtY=
+        b=KlBFdAEmb/KviagQE9qBjAub9kaY6CPDpQsQyY21Aw4/x7cS5VLOAyAc5Pf0mpLI+
+         fiD15xv4ER77M65Nc3ynEfEnEkFWelJ0kFEJYM/2LjDMWvMh5caTcqg4VVuyM3nKhJ
+         X4eio71mKfQOa3sYivzg/5XsLye0szzLS+Gv+Wfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Alan Maguire <alan.maguire@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0524/1157] can: error: specify the values of data[5..7] of CAN error frames
-Date:   Mon, 15 Aug 2022 19:58:00 +0200
-Message-Id: <20220815180500.632164965@linuxfoundation.org>
+Subject: [PATCH 5.19 0525/1157] libbpf: Fix str_has_sfx()s return value
+Date:   Mon, 15 Aug 2022 19:58:01 +0200
+Message-Id: <20220815180500.671777579@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,47 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit e70a3263a7eed768d5f947b8f2aff8d2a79c9d97 ]
+[ Upstream commit 14229b8153a3ca51d97a22a18c68deeae64afce0 ]
 
-Currently, data[5..7] of struct can_frame, when used as a CAN error
-frame, are defined as being "controller specific". Device specific
-behaviours are problematic because it prevents someone from writing
-code which is portable between devices.
+The return from strcmp() is inverted so it wrongly returns true instead
+of false and vice versa.
 
-As a matter of fact, data[5] is never used, data[6] is always used to
-report TX error counter and data[7] is always used to report RX error
-counter. can-utils also relies on this.
-
-This patch updates the comment in the uapi header to specify that
-data[5] is reserved (and thus should not be used) and that data[6..7]
-are used for error counters.
-
-Fixes: 0d66548a10cb ("[CAN]: Add PF_CAN core module")
-Link: https://lore.kernel.org/all/20220719143550.3681-11-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: a1c9d61b19cb ("libbpf: Improve library identification for uprobe binary path resolution")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Cc: Alan Maguire <alan.maguire@oracle.com>
+Link: https://lore.kernel.org/bpf/YtZ+/dAA195d99ak@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/can/error.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tools/lib/bpf/libbpf_internal.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/uapi/linux/can/error.h b/include/uapi/linux/can/error.h
-index 34633283de64..a1000cb63063 100644
---- a/include/uapi/linux/can/error.h
-+++ b/include/uapi/linux/can/error.h
-@@ -120,6 +120,9 @@
- #define CAN_ERR_TRX_CANL_SHORT_TO_GND  0x70 /* 0111 0000 */
- #define CAN_ERR_TRX_CANL_SHORT_TO_CANH 0x80 /* 1000 0000 */
+diff --git a/tools/lib/bpf/libbpf_internal.h b/tools/lib/bpf/libbpf_internal.h
+index ef5d975078e5..230ac5699c3d 100644
+--- a/tools/lib/bpf/libbpf_internal.h
++++ b/tools/lib/bpf/libbpf_internal.h
+@@ -109,9 +109,9 @@ static inline bool str_has_sfx(const char *str, const char *sfx)
+ 	size_t str_len = strlen(str);
+ 	size_t sfx_len = strlen(sfx);
  
--/* controller specific additional information / data[5..7] */
-+/* data[5] is reserved (do not use) */
-+
-+/* TX error counter / data[6] */
-+/* RX error counter / data[7] */
+-	if (sfx_len <= str_len)
+-		return strcmp(str + str_len - sfx_len, sfx);
+-	return false;
++	if (sfx_len > str_len)
++		return false;
++	return strcmp(str + str_len - sfx_len, sfx) == 0;
+ }
  
- #endif /* _UAPI_CAN_ERROR_H */
+ /* Symbol versioning is different between static and shared library.
 -- 
 2.35.1
 
