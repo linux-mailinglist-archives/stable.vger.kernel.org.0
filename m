@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BE265939FC
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:35:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55D215939FE
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:35:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241398AbiHOT3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:29:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37326 "EHLO
+        id S243996AbiHOT3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:29:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345180AbiHOT1y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:27:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA9CB2B60C;
-        Mon, 15 Aug 2022 11:43:45 -0700 (PDT)
+        with ESMTP id S241621AbiHOT2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:28:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B7905D0C4;
+        Mon, 15 Aug 2022 11:43:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C301F611DD;
-        Mon, 15 Aug 2022 18:43:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B16E5C433C1;
-        Mon, 15 Aug 2022 18:43:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C3BB61120;
+        Mon, 15 Aug 2022 18:43:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19EE8C433B5;
+        Mon, 15 Aug 2022 18:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589024;
-        bh=CEMIqF+IphZQ8hodhebu4GIFclW1IydghT4k3XvrY7s=;
+        s=korg; t=1660589027;
+        bh=y05tG2XekrDOE2v1i1ySAuL9G93xiQJcKq6uz3F+EMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T9HM2ND5VwNdbhSRByB8aXr09NAnVntA11X2luCuVAfq/21UriZ4cFqegLuNupgvu
-         aOAeMKKnldC1vlArh3BK8QyzTJLcKU8YFE4skzBukcHH/Ilrgi6YDAADG7r4Q9b1R4
-         idmathudNdC+GA/bcPiO86NwoHUvUo285DTvrSuE=
+        b=KwFVr/XB7Kgqt4wbEQat2Zzq9oqbdYDGCw9cfrKzEdgn7PnmG+g7XIVJ/K4+ANmZB
+         YCF3msLFShIiFubIdOF4ZoSUlIwKfAtZ7OsUCFiDQZlZb2H5ygqg8TKFKaBhmZm9sr
+         apr2pHbVtLzrZw6xyO16tNPA62LF1NONmJcscVjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 588/779] tty: n_gsm: fix packet re-transmission without open control channel
-Date:   Mon, 15 Aug 2022 20:03:52 +0200
-Message-Id: <20220815180402.463312290@linuxfoundation.org>
+Subject: [PATCH 5.15 589/779] tty: n_gsm: fix race condition in gsmld_write()
+Date:   Mon, 15 Aug 2022 20:03:53 +0200
+Message-Id: <20220815180402.512558272@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,36 +55,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit 4fae831b3a71fc5a44cc5c7d0b8c1267ee7659f5 ]
+[ Upstream commit 32dd59f96924f45e33bc79854f7a00679c0fa28e ]
 
-In the current implementation control packets are re-transmitted even if
-the control channel closed down during T2. This is wrong.
-Check whether the control channel is open before re-transmitting any
-packets. Note that control channel open/close is handled by T1 and not T2
-and remains unaffected by this.
+The function may be used by the user directly and also by the n_gsm
+internal functions. They can lead into a race condition which results in
+interleaved frames if both are writing at the same time. The receiving side
+is not able to decode those interleaved frames correctly.
+
+Add a lock around the low side tty write to avoid race conditions and frame
+interleaving between user originated writes and n_gsm writes.
 
 Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
 Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220701061652.39604-7-daniel.starke@siemens.com
+Link: https://lore.kernel.org/r/20220701061652.39604-9-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/n_gsm.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 56a3466acfc6..3f65990fc959 100644
+index 3f65990fc959..23fcb34240ac 100644
 --- a/drivers/tty/n_gsm.c
 +++ b/drivers/tty/n_gsm.c
-@@ -1546,7 +1546,7 @@ static void gsm_control_retransmit(struct timer_list *t)
- 	spin_lock_irqsave(&gsm->control_lock, flags);
- 	ctrl = gsm->pending_cmd;
- 	if (ctrl) {
--		if (gsm->cretries == 0) {
-+		if (gsm->cretries == 0 || !gsm->dlci[0] || gsm->dlci[0]->dead) {
- 			gsm->pending_cmd = NULL;
- 			ctrl->error = -ETIMEDOUT;
- 			ctrl->done = 1;
+@@ -2911,11 +2911,24 @@ static ssize_t gsmld_read(struct tty_struct *tty, struct file *file,
+ static ssize_t gsmld_write(struct tty_struct *tty, struct file *file,
+ 			   const unsigned char *buf, size_t nr)
+ {
+-	int space = tty_write_room(tty);
++	struct gsm_mux *gsm = tty->disc_data;
++	unsigned long flags;
++	int space;
++	int ret;
++
++	if (!gsm)
++		return -ENODEV;
++
++	ret = -ENOBUFS;
++	spin_lock_irqsave(&gsm->tx_lock, flags);
++	space = tty_write_room(tty);
+ 	if (space >= nr)
+-		return tty->ops->write(tty, buf, nr);
+-	set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
+-	return -ENOBUFS;
++		ret = tty->ops->write(tty, buf, nr);
++	else
++		set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
++	spin_unlock_irqrestore(&gsm->tx_lock, flags);
++
++	return ret;
+ }
+ 
+ /**
 -- 
 2.35.1
 
