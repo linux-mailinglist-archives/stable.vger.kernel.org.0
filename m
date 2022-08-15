@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58411593B74
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:35:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3F18593C0B
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:37:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345543AbiHOTyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:54:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43006 "EHLO
+        id S240745AbiHOUCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:02:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344797AbiHOTxX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:53:23 -0400
+        with ESMTP id S243336AbiHOUAC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:00:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 491B132045;
-        Mon, 15 Aug 2022 11:51:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D8487A502;
+        Mon, 15 Aug 2022 11:53:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA24260C0B;
-        Mon, 15 Aug 2022 18:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E194AC433D6;
-        Mon, 15 Aug 2022 18:51:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B235D61019;
+        Mon, 15 Aug 2022 18:53:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7150C433D7;
+        Mon, 15 Aug 2022 18:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589467;
-        bh=ZDedPVNiO2p3vtp2hCa02ePm6bGyq2JGqgfFc1XihvI=;
+        s=korg; t=1660589598;
+        bh=Ka6V+AblFDor05JzdQLDm0z12H0wakbdE/hDgZPiTH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FOIrey3DikGD1H/5HqZsfc5bdx6F24eTLUFvaOX6woMldCAMYD1vuJ4HcW0Z2/2tO
-         McZbOYml9tr6cEtm66CThX0+vXzeKOAVkg0V2UlwBCBtp+EYQh4y945Eyon4jymnXO
-         V3vSFi/uaLqmXTjrVkVvA9bksfTE8xMTHRykc318=
+        b=p4rHM8OMnG7dean6qUv29rX7QPI+OR08Dt4U5cBeH4BxZOee8gG4OX9bZA5BB+qvy
+         o3pEU4yOckREeFwPPKPNkCjX0r2/7+rJVunwfBTTMHGQp9VdS+yTBhhsDHnSbivAvn
+         +TvBHWB5CkZvhaPM1AQLeL6KxHa0MZ3Pb4cLo3jA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jinke Han <hanjinke.666@bytedance.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 726/779] block: dont allow the same type rq_qos add more than once
-Date:   Mon, 15 Aug 2022 20:06:10 +0200
-Message-Id: <20220815180408.498309603@linuxfoundation.org>
+Subject: [PATCH 5.15 727/779] btrfs: ensure pages are unlocked on cow_file_range() failure
+Date:   Mon, 15 Aug 2022 20:06:11 +0200
+Message-Id: <20220815180408.538286096@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -55,197 +55,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jinke Han <hanjinke.666@bytedance.com>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-[ Upstream commit 14a6e2eb7df5c7897c15b109cba29ab0c4a791b6 ]
+[ Upstream commit 9ce7466f372d83054c7494f6b3e4b9abaf3f0355 ]
 
-In our test of iocost, we encountered some list add/del corruptions of
-inner_walk list in ioc_timer_fn.
+There is a hung_task report on zoned btrfs like below.
 
-The reason can be described as follows:
+https://github.com/naota/linux/issues/59
 
-cpu 0					cpu 1
-ioc_qos_write				ioc_qos_write
+  [726.328648] INFO: task rocksdb:high0:11085 blocked for more than 241 seconds.
+  [726.329839]       Not tainted 5.16.0-rc1+ #1
+  [726.330484] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [726.331603] task:rocksdb:high0   state:D stack:    0 pid:11085 ppid: 11082 flags:0x00000000
+  [726.331608] Call Trace:
+  [726.331611]  <TASK>
+  [726.331614]  __schedule+0x2e5/0x9d0
+  [726.331622]  schedule+0x58/0xd0
+  [726.331626]  io_schedule+0x3f/0x70
+  [726.331629]  __folio_lock+0x125/0x200
+  [726.331634]  ? find_get_entries+0x1bc/0x240
+  [726.331638]  ? filemap_invalidate_unlock_two+0x40/0x40
+  [726.331642]  truncate_inode_pages_range+0x5b2/0x770
+  [726.331649]  truncate_inode_pages_final+0x44/0x50
+  [726.331653]  btrfs_evict_inode+0x67/0x480
+  [726.331658]  evict+0xd0/0x180
+  [726.331661]  iput+0x13f/0x200
+  [726.331664]  do_unlinkat+0x1c0/0x2b0
+  [726.331668]  __x64_sys_unlink+0x23/0x30
+  [726.331670]  do_syscall_64+0x3b/0xc0
+  [726.331674]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [726.331677] RIP: 0033:0x7fb9490a171b
+  [726.331681] RSP: 002b:00007fb943ffac68 EFLAGS: 00000246 ORIG_RAX: 0000000000000057
+  [726.331684] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fb9490a171b
+  [726.331686] RDX: 00007fb943ffb040 RSI: 000055a6bbe6ec20 RDI: 00007fb94400d300
+  [726.331687] RBP: 00007fb943ffad00 R08: 0000000000000000 R09: 0000000000000000
+  [726.331688] R10: 0000000000000031 R11: 0000000000000246 R12: 00007fb943ffb000
+  [726.331690] R13: 00007fb943ffb040 R14: 0000000000000000 R15: 00007fb943ffd260
+  [726.331693]  </TASK>
 
-ioc = q_to_ioc(queue);
-if (!ioc) {
-        ioc = kzalloc();
-					ioc = q_to_ioc(queue);
-					if (!ioc) {
-						ioc = kzalloc();
-						...
-						rq_qos_add(q, rqos);
-					}
-        ...
-        rq_qos_add(q, rqos);
-        ...
-}
+While we debug the issue, we found running fstests generic/551 on 5GB
+non-zoned null_blk device in the emulated zoned mode also had a
+similar hung issue.
 
-When the io.cost.qos file is written by two cpus concurrently, rq_qos may
-be added to one disk twice. In that case, there will be two iocs enabled
-and running on one disk. They own different iocgs on their active list. In
-the ioc_timer_fn function, because of the iocgs from two iocs have the
-same root iocg, the root iocg's walk_list may be overwritten by each other
-and this leads to list add/del corruptions in building or destroying the
-inner_walk list.
+Also, we can reproduce the same symptom with an error injected
+cow_file_range() setup.
 
-And so far, the blk-rq-qos framework works in case that one instance for
-one type rq_qos per queue by default. This patch make this explicit and
-also fix the crash above.
+The hang occurs when cow_file_range() fails in the middle of
+allocation. cow_file_range() called from do_allocation_zoned() can
+split the give region ([start, end]) for allocation depending on
+current block group usages. When btrfs can allocate bytes for one part
+of the split regions but fails for the other region (e.g. because of
+-ENOSPC), we return the error leaving the pages in the succeeded regions
+locked. Technically, this occurs only when @unlock == 0. Otherwise, we
+unlock the pages in an allocated region after creating an ordered
+extent.
 
-Signed-off-by: Jinke Han <hanjinke.666@bytedance.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220720093616.70584-1-hanjinke.666@bytedance.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Considering the callers of cow_file_range(unlock=0) won't write out
+the pages, we can unlock the pages on error exit from
+cow_file_range(). So, we can ensure all the pages except @locked_page
+are unlocked on error case.
+
+In summary, cow_file_range now behaves like this:
+
+- page_started == 1 (return value)
+  - All the pages are unlocked. IO is started.
+- unlock == 1
+  - All the pages except @locked_page are unlocked in any case
+- unlock == 0
+  - On success, all the pages are locked for writing out them
+  - On failure, all the pages except @locked_page are unlocked
+
+Fixes: 42c011000963 ("btrfs: zoned: introduce dedicated data write path for zoned filesystems")
+CC: stable@vger.kernel.org # 5.12+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-iocost.c    | 20 +++++++++++++-------
- block/blk-iolatency.c | 18 +++++++++++-------
- block/blk-rq-qos.h    | 11 ++++++++++-
- block/blk-wbt.c       | 12 +++++++++++-
- 4 files changed, 45 insertions(+), 16 deletions(-)
+ fs/btrfs/inode.c | 72 ++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 64 insertions(+), 8 deletions(-)
 
-diff --git a/block/blk-iocost.c b/block/blk-iocost.c
-index 10851493940c..069193dee95b 100644
---- a/block/blk-iocost.c
-+++ b/block/blk-iocost.c
-@@ -2893,15 +2893,21 @@ static int blk_iocost_init(struct request_queue *q)
- 	 * called before policy activation completion, can't assume that the
- 	 * target bio has an iocg associated and need to test for NULL iocg.
- 	 */
--	rq_qos_add(q, rqos);
-+	ret = rq_qos_add(q, rqos);
-+	if (ret)
-+		goto err_free_ioc;
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 1b4fee8a2f28..20d0dea1d0c4 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -1053,6 +1053,28 @@ static u64 get_extent_allocation_hint(struct btrfs_inode *inode, u64 start,
+  * *page_started is set to one if we unlock locked_page and do everything
+  * required to start IO on it.  It may be clean and already done with
+  * IO when we return.
++ *
++ * When unlock == 1, we unlock the pages in successfully allocated regions.
++ * When unlock == 0, we leave them locked for writing them out.
++ *
++ * However, we unlock all the pages except @locked_page in case of failure.
++ *
++ * In summary, page locking state will be as follow:
++ *
++ * - page_started == 1 (return value)
++ *     - All the pages are unlocked. IO is started.
++ *     - Note that this can happen only on success
++ * - unlock == 1
++ *     - All the pages except @locked_page are unlocked in any case
++ * - unlock == 0
++ *     - On success, all the pages are locked for writing out them
++ *     - On failure, all the pages except @locked_page are unlocked
++ *
++ * When a failure happens in the second or later iteration of the
++ * while-loop, the ordered extents created in previous iterations are kept
++ * intact. So, the caller must clean them up by calling
++ * btrfs_cleanup_ordered_extents(). See btrfs_run_delalloc_range() for
++ * example.
+  */
+ static noinline int cow_file_range(struct btrfs_inode *inode,
+ 				   struct page *locked_page,
+@@ -1062,6 +1084,7 @@ static noinline int cow_file_range(struct btrfs_inode *inode,
+ 	struct btrfs_root *root = inode->root;
+ 	struct btrfs_fs_info *fs_info = root->fs_info;
+ 	u64 alloc_hint = 0;
++	u64 orig_start = start;
+ 	u64 num_bytes;
+ 	unsigned long ram_size;
+ 	u64 cur_alloc_size = 0;
+@@ -1245,18 +1268,44 @@ static noinline int cow_file_range(struct btrfs_inode *inode,
+ 	btrfs_dec_block_group_reservations(fs_info, ins.objectid);
+ 	btrfs_free_reserved_extent(fs_info, ins.objectid, ins.offset, 1);
+ out_unlock:
++	/*
++	 * Now, we have three regions to clean up:
++	 *
++	 * |-------(1)----|---(2)---|-------------(3)----------|
++	 * `- orig_start  `- start  `- start + cur_alloc_size  `- end
++	 *
++	 * We process each region below.
++	 */
 +
- 	ret = blkcg_activate_policy(q, &blkcg_policy_iocost);
--	if (ret) {
--		rq_qos_del(q, rqos);
--		free_percpu(ioc->pcpu_stat);
--		kfree(ioc);
--		return ret;
--	}
-+	if (ret)
-+		goto err_del_qos;
- 	return 0;
+ 	clear_bits = EXTENT_LOCKED | EXTENT_DELALLOC | EXTENT_DELALLOC_NEW |
+ 		EXTENT_DEFRAG | EXTENT_CLEAR_META_RESV;
+ 	page_ops = PAGE_UNLOCK | PAGE_START_WRITEBACK | PAGE_END_WRITEBACK;
 +
-+err_del_qos:
-+	rq_qos_del(q, rqos);
-+err_free_ioc:
-+	free_percpu(ioc->pcpu_stat);
-+	kfree(ioc);
-+	return ret;
- }
- 
- static struct blkcg_policy_data *ioc_cpd_alloc(gfp_t gfp)
-diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
-index d85f30a85ee7..bdef8395af6e 100644
---- a/block/blk-iolatency.c
-+++ b/block/blk-iolatency.c
-@@ -772,19 +772,23 @@ int blk_iolatency_init(struct request_queue *q)
- 	rqos->ops = &blkcg_iolatency_ops;
- 	rqos->q = q;
- 
--	rq_qos_add(q, rqos);
--
-+	ret = rq_qos_add(q, rqos);
-+	if (ret)
-+		goto err_free;
- 	ret = blkcg_activate_policy(q, &blkcg_policy_iolatency);
--	if (ret) {
--		rq_qos_del(q, rqos);
--		kfree(blkiolat);
--		return ret;
--	}
-+	if (ret)
-+		goto err_qos_del;
- 
- 	timer_setup(&blkiolat->timer, blkiolatency_timer_fn, 0);
- 	INIT_WORK(&blkiolat->enable_work, blkiolatency_enable_work_fn);
- 
- 	return 0;
-+
-+err_qos_del:
-+	rq_qos_del(q, rqos);
-+err_free:
-+	kfree(blkiolat);
-+	return ret;
- }
- 
- static void iolatency_set_min_lat_nsec(struct blkcg_gq *blkg, u64 val)
-diff --git a/block/blk-rq-qos.h b/block/blk-rq-qos.h
-index 68267007da1c..1655f76b6a1b 100644
---- a/block/blk-rq-qos.h
-+++ b/block/blk-rq-qos.h
-@@ -86,7 +86,7 @@ static inline void rq_wait_init(struct rq_wait *rq_wait)
- 	init_waitqueue_head(&rq_wait->wait);
- }
- 
--static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
-+static inline int rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
- {
  	/*
- 	 * No IO can be in-flight when adding rqos, so freeze queue, which
-@@ -98,6 +98,8 @@ static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
- 	blk_mq_freeze_queue(q);
- 
- 	spin_lock_irq(&q->queue_lock);
-+	if (rq_qos_id(q, rqos->id))
-+		goto ebusy;
- 	rqos->next = q->rq_qos;
- 	q->rq_qos = rqos;
- 	spin_unlock_irq(&q->queue_lock);
-@@ -106,6 +108,13 @@ static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
- 
- 	if (rqos->ops->debugfs_attrs)
- 		blk_mq_debugfs_register_rqos(rqos);
+-	 * If we reserved an extent for our delalloc range (or a subrange) and
+-	 * failed to create the respective ordered extent, then it means that
+-	 * when we reserved the extent we decremented the extent's size from
+-	 * the data space_info's bytes_may_use counter and incremented the
+-	 * space_info's bytes_reserved counter by the same amount. We must make
+-	 * sure extent_clear_unlock_delalloc() does not try to decrement again
+-	 * the data space_info's bytes_may_use counter, therefore we do not pass
+-	 * it the flag EXTENT_CLEAR_DATA_RESV.
++	 * For the range (1). We have already instantiated the ordered extents
++	 * for this region. They are cleaned up by
++	 * btrfs_cleanup_ordered_extents() in e.g,
++	 * btrfs_run_delalloc_range(). EXTENT_LOCKED | EXTENT_DELALLOC are
++	 * already cleared in the above loop. And, EXTENT_DELALLOC_NEW |
++	 * EXTENT_DEFRAG | EXTENT_CLEAR_META_RESV are handled by the cleanup
++	 * function.
++	 *
++	 * However, in case of unlock == 0, we still need to unlock the pages
++	 * (except @locked_page) to ensure all the pages are unlocked.
++	 */
++	if (!unlock && orig_start < start)
++		extent_clear_unlock_delalloc(inode, orig_start, start - 1,
++					     locked_page, 0, page_ops);
 +
-+	return 0;
-+ebusy:
-+	spin_unlock_irq(&q->queue_lock);
-+	blk_mq_unfreeze_queue(q);
-+	return -EBUSY;
-+
- }
- 
- static inline void rq_qos_del(struct request_queue *q, struct rq_qos *rqos)
-diff --git a/block/blk-wbt.c b/block/blk-wbt.c
-index 0c119be0e813..ae6ea0b54579 100644
---- a/block/blk-wbt.c
-+++ b/block/blk-wbt.c
-@@ -820,6 +820,7 @@ int wbt_init(struct request_queue *q)
- {
- 	struct rq_wb *rwb;
- 	int i;
-+	int ret;
- 
- 	rwb = kzalloc(sizeof(*rwb), GFP_KERNEL);
- 	if (!rwb)
-@@ -846,7 +847,10 @@ int wbt_init(struct request_queue *q)
- 	/*
- 	 * Assign rwb and add the stats callback.
++	/*
++	 * For the range (2). If we reserved an extent for our delalloc range
++	 * (or a subrange) and failed to create the respective ordered extent,
++	 * then it means that when we reserved the extent we decremented the
++	 * extent's size from the data space_info's bytes_may_use counter and
++	 * incremented the space_info's bytes_reserved counter by the same
++	 * amount. We must make sure extent_clear_unlock_delalloc() does not try
++	 * to decrement again the data space_info's bytes_may_use counter,
++	 * therefore we do not pass it the flag EXTENT_CLEAR_DATA_RESV.
  	 */
--	rq_qos_add(q, &rwb->rqos);
-+	ret = rq_qos_add(q, &rwb->rqos);
-+	if (ret)
-+		goto err_free;
+ 	if (extent_reserved) {
+ 		extent_clear_unlock_delalloc(inode, start,
+@@ -1268,6 +1317,13 @@ static noinline int cow_file_range(struct btrfs_inode *inode,
+ 		if (start >= end)
+ 			goto out;
+ 	}
 +
- 	blk_stat_add_callback(q, rwb->cb);
- 
- 	rwb->min_lat_nsec = wbt_default_latency_nsec(q);
-@@ -855,4 +859,10 @@ int wbt_init(struct request_queue *q)
- 	wbt_set_write_cache(q, test_bit(QUEUE_FLAG_WC, &q->queue_flags));
- 
- 	return 0;
-+
-+err_free:
-+	blk_stat_free_callback(rwb->cb);
-+	kfree(rwb);
-+	return ret;
-+
- }
++	/*
++	 * For the range (3). We never touched the region. In addition to the
++	 * clear_bits above, we add EXTENT_CLEAR_DATA_RESV to release the data
++	 * space_info's bytes_may_use counter, reserved in
++	 * btrfs_check_data_free_space().
++	 */
+ 	extent_clear_unlock_delalloc(inode, start, end, locked_page,
+ 				     clear_bits | EXTENT_CLEAR_DATA_RESV,
+ 				     page_ops);
 -- 
 2.35.1
 
