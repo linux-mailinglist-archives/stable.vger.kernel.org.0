@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0815459512B
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 176BA595125
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:52:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231784AbiHPEwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:52:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43776 "EHLO
+        id S231585AbiHPEwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:52:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233110AbiHPEuk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:50:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 334D819AB82;
-        Mon, 15 Aug 2022 13:47:07 -0700 (PDT)
+        with ESMTP id S233339AbiHPEu4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:50:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B9CCB6D37;
+        Mon, 15 Aug 2022 13:47:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9541CB811A0;
-        Mon, 15 Aug 2022 20:47:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C9E4C433C1;
-        Mon, 15 Aug 2022 20:47:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B3BF60F60;
+        Mon, 15 Aug 2022 20:47:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 191EFC433C1;
+        Mon, 15 Aug 2022 20:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596424;
-        bh=o2amVQnMjpMZVwW10U/wPBMwSxjuorkuewoLVWlfbSg=;
+        s=korg; t=1660596427;
+        bh=vCPeWwgznvklFv4hoDbAASDpeO2w4DaSp+Sa8JYqtic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hoesMLbFmzES9LyVEuUZB40tWA+SJbxm9lclLFH5J1pm1uA13V6Zwgeh1vGNJy29Y
-         OSCd1mAi5WD2Mfv4XbABvmoooDXek3SsCV+QoZc43TMfpv+LNv9F4l11mxI7Cq4LDP
-         TrTovzNUUj+nwq9WZynN6Uq/sCKG/Qut9Lk+mSHs=
+        b=gTwFDiU9jUqdTqjE8dX2GOE2Rt7Kp9OKVY046qpeUM1jTRWGsaS5GziYDIfj+Upwq
+         RIZ0sQkLYjC1uwWzWfOU0PSXSLb2tMSoWRIlMP7dwRFsl5KS9rX4oYtAeTSNGmjsYu
+         yjRIbToVAvrjom3m3pn5D+6kZ0bSc52LOhFLzVco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Christian Schoenebeck <linux_oss@crudebyte.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1074/1157] net/9p: Initialize the iounit field during fid creation
-Date:   Mon, 15 Aug 2022 20:07:10 +0200
-Message-Id: <20220815180523.080296854@linuxfoundation.org>
+Subject: [PATCH 5.19 1075/1157] ARM: Marvell: Update PCIe fixup
+Date:   Mon, 15 Aug 2022 20:07:11 +0200
+Message-Id: <20220815180523.119205309@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,63 +56,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit aa7aeee169480e98cf41d83c01290a37e569be6d ]
+[ Upstream commit fdaa3725831972284ef2779ddba00491d9dbbfca ]
 
-Ensure that the fid's iounit field is set to zero when a new fid is
-created. Certain 9P operations, such as OPEN and CREATE, allow the
-server to reply with an iounit size which the client code assigns to the
-p9_fid struct shortly after the fid is created by p9_fid_create(). On
-the other hand, an XATTRWALK operation doesn't allow for the server to
-specify an iounit value. The iounit field of the newly allocated p9_fid
-struct remained uninitialized in that case. Depending on allocation
-patterns, the iounit value could have been something reasonable that was
-carried over from previously freed fids or, in the worst case, could
-have been arbitrary values from non-fid related usages of the memory
-location.
+- The code relies on rc_pci_fixup being called, which only happens
+  when CONFIG_PCI_QUIRKS is enabled, so add that to Kconfig. Omitting
+  this causes a booting failure with a non-obvious cause.
+- Update rc_pci_fixup to set the class properly, copying the
+  more modern style from other places
+- Correct the rc_pci_fixup comment
 
-The bug was detected in the Windows Subsystem for Linux 2 (WSL2) kernel
-after the uninitialized iounit field resulted in the typical sequence of
-two getxattr(2) syscalls, one to get the size of an xattr and another
-after allocating a sufficiently sized buffer to fit the xattr value, to
-hit an unexpected ERANGE error in the second call to getxattr(2). An
-uninitialized iounit field would sometimes force rsize to be smaller
-than the xattr value size in p9_client_read_once() and the 9P server in
-WSL refused to chunk up the READ on the attr_fid and, instead, returned
-ERANGE to the client. The virtfs server in QEMU seems happy to chunk up
-the READ and this problem goes undetected there.
+This patch just re-applies commit 1dc831bf53fd ("ARM: Kirkwood: Update
+PCI-E fixup") for all other Marvell ARM platforms which have same buggy
+PCIe controller and do not use pci-mvebu.c controller driver yet.
 
-Link: https://lkml.kernel.org/r/20220710141402.803295-1-tyhicks@linux.microsoft.com
-Fixes: ebf46264a004 ("fs/9p: Add support user. xattr")
+Long-term goal for these Marvell ARM platforms should be conversion to
+pci-mvebu.c controller driver and removal of these fixups in arch code.
+
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/client.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ arch/arm/mach-dove/Kconfig    |  1 +
+ arch/arm/mach-dove/pcie.c     | 11 ++++++++---
+ arch/arm/mach-mv78xx0/pcie.c  | 11 ++++++++---
+ arch/arm/mach-orion5x/Kconfig |  1 +
+ arch/arm/mach-orion5x/pci.c   | 12 +++++++++---
+ 5 files changed, 27 insertions(+), 9 deletions(-)
 
---- a/net/9p/client.c
-+++ b/net/9p/client.c
-@@ -886,16 +886,13 @@ static struct p9_fid *p9_fid_create(stru
- 	struct p9_fid *fid;
+diff --git a/arch/arm/mach-dove/Kconfig b/arch/arm/mach-dove/Kconfig
+index c30c69c664ea..a568ef90633e 100644
+--- a/arch/arm/mach-dove/Kconfig
++++ b/arch/arm/mach-dove/Kconfig
+@@ -8,6 +8,7 @@ menuconfig ARCH_DOVE
+ 	select PINCTRL_DOVE
+ 	select PLAT_ORION_LEGACY
+ 	select PM_GENERIC_DOMAINS if PM
++	select PCI_QUIRKS if PCI
+ 	help
+ 	  Support for the Marvell Dove SoC 88AP510
  
- 	p9_debug(P9_DEBUG_FID, "clnt %p\n", clnt);
--	fid = kmalloc(sizeof(*fid), GFP_KERNEL);
-+	fid = kzalloc(sizeof(*fid), GFP_KERNEL);
- 	if (!fid)
- 		return NULL;
+diff --git a/arch/arm/mach-dove/pcie.c b/arch/arm/mach-dove/pcie.c
+index 2a493bdfffc6..f90f42fc495e 100644
+--- a/arch/arm/mach-dove/pcie.c
++++ b/arch/arm/mach-dove/pcie.c
+@@ -136,14 +136,19 @@ static struct pci_ops pcie_ops = {
+ 	.write = pcie_wr_conf,
+ };
  
--	memset(&fid->qid, 0, sizeof(fid->qid));
- 	fid->mode = -1;
- 	fid->uid = current_fsuid();
- 	fid->clnt = clnt;
--	fid->rdir = NULL;
--	fid->fid = 0;
- 	refcount_set(&fid->count, 1);
++/*
++ * The root complex has a hardwired class of PCI_CLASS_MEMORY_OTHER, when it
++ * is operating as a root complex this needs to be switched to
++ * PCI_CLASS_BRIDGE_HOST or Linux will errantly try to process the BAR's on
++ * the device. Decoding setup is handled by the orion code.
++ */
+ static void rc_pci_fixup(struct pci_dev *dev)
+ {
+-	/*
+-	 * Prevent enumeration of root complex.
+-	 */
+ 	if (dev->bus->parent == NULL && dev->devfn == 0) {
+ 		int i;
  
- 	idr_preload(GFP_KERNEL);
++		dev->class &= 0xff;
++		dev->class |= PCI_CLASS_BRIDGE_HOST << 8;
+ 		for (i = 0; i < DEVICE_COUNT_RESOURCE; i++) {
+ 			dev->resource[i].start = 0;
+ 			dev->resource[i].end   = 0;
+diff --git a/arch/arm/mach-mv78xx0/pcie.c b/arch/arm/mach-mv78xx0/pcie.c
+index e15646af7f26..4f1847babef2 100644
+--- a/arch/arm/mach-mv78xx0/pcie.c
++++ b/arch/arm/mach-mv78xx0/pcie.c
+@@ -180,14 +180,19 @@ static struct pci_ops pcie_ops = {
+ 	.write = pcie_wr_conf,
+ };
+ 
++/*
++ * The root complex has a hardwired class of PCI_CLASS_MEMORY_OTHER, when it
++ * is operating as a root complex this needs to be switched to
++ * PCI_CLASS_BRIDGE_HOST or Linux will errantly try to process the BAR's on
++ * the device. Decoding setup is handled by the orion code.
++ */
+ static void rc_pci_fixup(struct pci_dev *dev)
+ {
+-	/*
+-	 * Prevent enumeration of root complex.
+-	 */
+ 	if (dev->bus->parent == NULL && dev->devfn == 0) {
+ 		int i;
+ 
++		dev->class &= 0xff;
++		dev->class |= PCI_CLASS_BRIDGE_HOST << 8;
+ 		for (i = 0; i < DEVICE_COUNT_RESOURCE; i++) {
+ 			dev->resource[i].start = 0;
+ 			dev->resource[i].end   = 0;
+diff --git a/arch/arm/mach-orion5x/Kconfig b/arch/arm/mach-orion5x/Kconfig
+index bf833b51931d..aeac281c8764 100644
+--- a/arch/arm/mach-orion5x/Kconfig
++++ b/arch/arm/mach-orion5x/Kconfig
+@@ -7,6 +7,7 @@ menuconfig ARCH_ORION5X
+ 	select GPIOLIB
+ 	select MVEBU_MBUS
+ 	select FORCE_PCI
++	select PCI_QUIRKS
+ 	select PHYLIB if NETDEVICES
+ 	select PLAT_ORION_LEGACY
+ 	help
+diff --git a/arch/arm/mach-orion5x/pci.c b/arch/arm/mach-orion5x/pci.c
+index 92e938bba20d..9574c73f3c03 100644
+--- a/arch/arm/mach-orion5x/pci.c
++++ b/arch/arm/mach-orion5x/pci.c
+@@ -515,14 +515,20 @@ static int __init pci_setup(struct pci_sys_data *sys)
+ /*****************************************************************************
+  * General PCIe + PCI
+  ****************************************************************************/
++
++/*
++ * The root complex has a hardwired class of PCI_CLASS_MEMORY_OTHER, when it
++ * is operating as a root complex this needs to be switched to
++ * PCI_CLASS_BRIDGE_HOST or Linux will errantly try to process the BAR's on
++ * the device. Decoding setup is handled by the orion code.
++ */
+ static void rc_pci_fixup(struct pci_dev *dev)
+ {
+-	/*
+-	 * Prevent enumeration of root complex.
+-	 */
+ 	if (dev->bus->parent == NULL && dev->devfn == 0) {
+ 		int i;
+ 
++		dev->class &= 0xff;
++		dev->class |= PCI_CLASS_BRIDGE_HOST << 8;
+ 		for (i = 0; i < DEVICE_COUNT_RESOURCE; i++) {
+ 			dev->resource[i].start = 0;
+ 			dev->resource[i].end   = 0;
+-- 
+2.35.1
+
 
 
