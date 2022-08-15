@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19FB35944CC
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 917BD5943F4
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:57:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344590AbiHOWYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:24:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59620 "EHLO
+        id S1347249AbiHOWYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:24:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345968AbiHOWWI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:22:08 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29CD26B65D;
-        Mon, 15 Aug 2022 12:43:59 -0700 (PDT)
+        with ESMTP id S1348309AbiHOWWz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:22:55 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 766EE1256D2;
+        Mon, 15 Aug 2022 12:44:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7052BCE12C4;
-        Mon, 15 Aug 2022 19:43:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DBDEC433D7;
-        Mon, 15 Aug 2022 19:43:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AF95DCE12E0;
+        Mon, 15 Aug 2022 19:44:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87042C433C1;
+        Mon, 15 Aug 2022 19:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592635;
-        bh=i8C6Dc6qGwwea9fahLykl8aMjWmt2PqEQCvALcK+vZk=;
+        s=korg; t=1660592642;
+        bh=APJwCdPbVBqTFnOCs9r4X7Wk+aabbWm8dDLg8pvApDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AcwLGf+jnK70hsiHQxnptOuheAJs0dIG/iGykdNIbf/CiM+GgHse0u4bv06+RSsg9
-         s8lqSol9TF5AF8EVGuu/TJUCnM8Y04WRMx6GR8BNTU43hjxs3qY6p0GhYOwk9ttmXh
-         MYNHWdF+giPMPkbtOi3ZUowpvIGKz+khNi4QHKEM=
+        b=MjlS0CSIBt5eWuK7lIxm2m5MWUvYMk9lQsDH28wwC+CDHY5+hd0U5rz8VjV5HiMFF
+         5lWA0viWMX366kXs1w58ih0pz6x3OMDMpNjpq8Y87w8Fmx/bsMUweOhvImZsdc9rzd
+         ALYHOIQnA+RJwspaxcsB4tmdD2VGJn8ioxw6J/nk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Granados <j.granados@samsung.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0819/1095] nvme: catch -ENODEV from nvme_revalidate_zones again
-Date:   Mon, 15 Aug 2022 20:03:38 +0200
-Message-Id: <20220815180503.162495247@linuxfoundation.org>
+Subject: [PATCH 5.18 0820/1095] block/bio: remove duplicate append pages code
+Date:   Mon, 15 Aug 2022 20:03:39 +0200
+Message-Id: <20220815180503.212349816@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,71 +55,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit e06b425bc835ead08b9fd935bf5e47eef473e7a0 ]
+[ Upstream commit c58c0074c54c2e2bb3bb0d5a4d8896bb660cc8bc ]
 
-nvme_revalidate_zones can also return -ENODEV if e.g. zone sizes aren't
-constant or not a power of two.  In that case we should jump to marking
-the gendisk hidden and only support pass through.
+The getting pages setup for zone append and normal IO are identical. Use
+common code for each.
 
-Fixes: 602e57c9799c ("nvme: also mark passthrough-only namespaces ready in nvme_update_ns_info")
-Reported-by: Joel Granados <j.granados@samsung.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Joel Granados <j.granados@samsung.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220610195830.3574005-3-kbusch@fb.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ block/bio.c | 102 ++++++++++++++++++++++------------------------------
+ 1 file changed, 42 insertions(+), 60 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index cf7be9b4f5d3..a58a69999dbc 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1897,8 +1897,10 @@ static int nvme_update_ns_info(struct nvme_ns *ns, struct nvme_id_ns *id)
- 
- 	if (ns->head->ids.csi == NVME_CSI_ZNS) {
- 		ret = nvme_update_zone_info(ns, lbaf);
--		if (ret)
--			goto out_unfreeze;
-+		if (ret) {
-+			blk_mq_unfreeze_queue(ns->disk->queue);
-+			goto out;
-+		}
- 	}
- 
- 	set_disk_ro(ns->disk, (id->nsattr & NVME_NS_ATTR_RO) ||
-@@ -1909,7 +1911,7 @@ static int nvme_update_ns_info(struct nvme_ns *ns, struct nvme_id_ns *id)
- 	if (blk_queue_is_zoned(ns->queue)) {
- 		ret = nvme_revalidate_zones(ns);
- 		if (ret && !nvme_first_scan(ns->disk))
--			return ret;
-+			goto out;
- 	}
- 
- 	if (nvme_ns_head_multipath(ns->head)) {
-@@ -1924,9 +1926,9 @@ static int nvme_update_ns_info(struct nvme_ns *ns, struct nvme_id_ns *id)
- 		disk_update_readahead(ns->head->disk);
- 		blk_mq_unfreeze_queue(ns->head->disk->queue);
- 	}
--	return 0;
- 
--out_unfreeze:
-+	ret = 0;
-+out:
- 	/*
- 	 * If probing fails due an unsupported feature, hide the block device,
- 	 * but still allow other access.
-@@ -1936,7 +1938,6 @@ static int nvme_update_ns_info(struct nvme_ns *ns, struct nvme_id_ns *id)
- 		set_bit(NVME_NS_READY, &ns->flags);
- 		ret = 0;
- 	}
--	blk_mq_unfreeze_queue(ns->disk->queue);
- 	return ret;
+diff --git a/block/bio.c b/block/bio.c
+index fd73ee03d57e..6f6e6e23889c 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -1129,6 +1129,37 @@ static void bio_put_pages(struct page **pages, size_t size, size_t off)
+ 		put_page(pages[i]);
  }
  
++static int bio_iov_add_page(struct bio *bio, struct page *page,
++		unsigned int len, unsigned int offset)
++{
++	bool same_page = false;
++
++	if (!__bio_try_merge_page(bio, page, len, offset, &same_page)) {
++		if (WARN_ON_ONCE(bio_full(bio, len)))
++			return -EINVAL;
++		__bio_add_page(bio, page, len, offset);
++		return 0;
++	}
++
++	if (same_page)
++		put_page(page);
++	return 0;
++}
++
++static int bio_iov_add_zone_append_page(struct bio *bio, struct page *page,
++		unsigned int len, unsigned int offset)
++{
++	struct request_queue *q = bdev_get_queue(bio->bi_bdev);
++	bool same_page = false;
++
++	if (bio_add_hw_page(q, bio, page, len, offset,
++			queue_max_zone_append_sectors(q), &same_page) != len)
++		return -EINVAL;
++	if (same_page)
++		put_page(page);
++	return 0;
++}
++
+ #define PAGE_PTRS_PER_BVEC     (sizeof(struct bio_vec) / sizeof(struct page *))
+ 
+ /**
+@@ -1147,7 +1178,6 @@ static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
+ 	unsigned short entries_left = bio->bi_max_vecs - bio->bi_vcnt;
+ 	struct bio_vec *bv = bio->bi_io_vec + bio->bi_vcnt;
+ 	struct page **pages = (struct page **)bv;
+-	bool same_page = false;
+ 	ssize_t size, left;
+ 	unsigned len, i;
+ 	size_t offset;
+@@ -1156,7 +1186,7 @@ static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
+ 	 * Move page array up in the allocated memory for the bio vecs as far as
+ 	 * possible so that we can start filling biovecs from the beginning
+ 	 * without overwriting the temporary page array.
+-	*/
++	 */
+ 	BUILD_BUG_ON(PAGE_PTRS_PER_BVEC < 2);
+ 	pages += entries_left * (PAGE_PTRS_PER_BVEC - 1);
+ 
+@@ -1166,18 +1196,18 @@ static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
+ 
+ 	for (left = size, i = 0; left > 0; left -= len, i++) {
+ 		struct page *page = pages[i];
++		int ret;
+ 
+ 		len = min_t(size_t, PAGE_SIZE - offset, left);
++		if (bio_op(bio) == REQ_OP_ZONE_APPEND)
++			ret = bio_iov_add_zone_append_page(bio, page, len,
++					offset);
++		else
++			ret = bio_iov_add_page(bio, page, len, offset);
+ 
+-		if (__bio_try_merge_page(bio, page, len, offset, &same_page)) {
+-			if (same_page)
+-				put_page(page);
+-		} else {
+-			if (WARN_ON_ONCE(bio_full(bio, len))) {
+-				bio_put_pages(pages + i, left, offset);
+-				return -EINVAL;
+-			}
+-			__bio_add_page(bio, page, len, offset);
++		if (ret) {
++			bio_put_pages(pages + i, left, offset);
++			return ret;
+ 		}
+ 		offset = 0;
+ 	}
+@@ -1186,51 +1216,6 @@ static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
+ 	return 0;
+ }
+ 
+-static int __bio_iov_append_get_pages(struct bio *bio, struct iov_iter *iter)
+-{
+-	unsigned short nr_pages = bio->bi_max_vecs - bio->bi_vcnt;
+-	unsigned short entries_left = bio->bi_max_vecs - bio->bi_vcnt;
+-	struct request_queue *q = bdev_get_queue(bio->bi_bdev);
+-	unsigned int max_append_sectors = queue_max_zone_append_sectors(q);
+-	struct bio_vec *bv = bio->bi_io_vec + bio->bi_vcnt;
+-	struct page **pages = (struct page **)bv;
+-	ssize_t size, left;
+-	unsigned len, i;
+-	size_t offset;
+-	int ret = 0;
+-
+-	/*
+-	 * Move page array up in the allocated memory for the bio vecs as far as
+-	 * possible so that we can start filling biovecs from the beginning
+-	 * without overwriting the temporary page array.
+-	 */
+-	BUILD_BUG_ON(PAGE_PTRS_PER_BVEC < 2);
+-	pages += entries_left * (PAGE_PTRS_PER_BVEC - 1);
+-
+-	size = iov_iter_get_pages(iter, pages, LONG_MAX, nr_pages, &offset);
+-	if (unlikely(size <= 0))
+-		return size ? size : -EFAULT;
+-
+-	for (left = size, i = 0; left > 0; left -= len, i++) {
+-		struct page *page = pages[i];
+-		bool same_page = false;
+-
+-		len = min_t(size_t, PAGE_SIZE - offset, left);
+-		if (bio_add_hw_page(q, bio, page, len, offset,
+-				max_append_sectors, &same_page) != len) {
+-			bio_put_pages(pages + i, left, offset);
+-			ret = -EINVAL;
+-			break;
+-		}
+-		if (same_page)
+-			put_page(page);
+-		offset = 0;
+-	}
+-
+-	iov_iter_advance(iter, size - left);
+-	return ret;
+-}
+-
+ /**
+  * bio_iov_iter_get_pages - add user or kernel pages to a bio
+  * @bio: bio to add pages to
+@@ -1265,10 +1250,7 @@ int bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
+ 	}
+ 
+ 	do {
+-		if (bio_op(bio) == REQ_OP_ZONE_APPEND)
+-			ret = __bio_iov_append_get_pages(bio, iter);
+-		else
+-			ret = __bio_iov_iter_get_pages(bio, iter);
++		ret = __bio_iov_iter_get_pages(bio, iter);
+ 	} while (!ret && iov_iter_count(iter) && !bio_full(bio, 0));
+ 
+ 	/* don't account direct I/O as memory stall */
 -- 
 2.35.1
 
