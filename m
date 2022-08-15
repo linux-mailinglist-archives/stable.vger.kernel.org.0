@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5000A593FBA
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF8215941F3
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:52:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240957AbiHOVCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:02:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37144 "EHLO
+        id S230373AbiHOVCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:02:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346807AbiHOVBI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:01:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2D92C6EA1;
-        Mon, 15 Aug 2022 12:13:12 -0700 (PDT)
+        with ESMTP id S1346751AbiHOVA7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:00:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27CE7C6EB7;
+        Mon, 15 Aug 2022 12:13:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B52FB81106;
-        Mon, 15 Aug 2022 19:13:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80CD7C433C1;
-        Mon, 15 Aug 2022 19:13:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75F11B810C6;
+        Mon, 15 Aug 2022 19:13:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92981C433C1;
+        Mon, 15 Aug 2022 19:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590790;
-        bh=SYmROEW95gLMnhGnaxwDmkZqi0WBlA/SO1b/5eSAcH0=;
+        s=korg; t=1660590793;
+        bh=l1JNBUW67c3Haepi31TlKOHIL3hpGY4BFuc6oaKik5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rT6rUikw2OkqkI4pznK0k7Fb10KpQ23Ns1OBDFgX2/vuSSZj/f9VrEjFtwZaWpruN
-         +bje2/DhEdXNvGcTgj0cHp/xXxgl9xv6lm6PAcW9kR6IYqWDb6HLUFhI/fMHtn7PqM
-         YL4qWEo39Rt2+VzpXKbMb7byPhz0BaHW7IL7t2eo=
+        b=h7Pig7x5uZRF7dFmwGasHxDDRB27Ieqasusrk/zFQtZLvXS5ndOfyjlS/O8a8DNM0
+         uk54o1HL+PTgpCy33iehEAA7n2MGnyWOsyDbXNNG8znc743+Z+qHZa5KNkXBOfMAsS
+         7mEsIrmzJSW11b2N9TL5eo84SkDMBwbMqrvUfpqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ming Qian <ming.qian@nxp.com>,
-        Mirela Rabulea <mirela.rabulea@nxp.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0372/1095] media: imx-jpeg: Disable slot interrupt when frame done
-Date:   Mon, 15 Aug 2022 19:56:11 +0200
-Message-Id: <20220815180445.106739773@linuxfoundation.org>
+Subject: [PATCH 5.18 0373/1095] media: amphion: output firmware error message
+Date:   Mon, 15 Aug 2022 19:56:12 +0200
+Message-Id: <20220815180445.151333958@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -58,84 +57,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit 22a2bc88c139dc9757bdb1d0a3665ac27edc79a5 ]
+[ Upstream commit 89e3f3fb3d9014efa59ed6bb526d5f1a00168452 ]
 
-The interrupt STMBUF_HALF may be triggered after frame done.
-It may led to system hang if driver try to access the register after
-power off.
+Firmware may send the error event with some error message,
+and it help locate the firmware error,
+so output the error message if it exists
 
-Disable the slot interrupt when frame done.
-
-Fixes: 2db16c6ed72ce ("media: imx-jpeg: Add V4L2 driver for i.MX8 JPEG Encoder/Decoder")
+Fixes: 61cbf1c1fa6d7 ("media: amphion: implement vpu core communication based on mailbox")
 Signed-off-by: Ming Qian <ming.qian@nxp.com>
-Reviewed-by: Mirela Rabulea <mirela.rabulea@nxp.com>
-Tested-by: Mirela Rabulea <mirela.rabulea@nxp.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c |  5 +++++
- drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h |  1 +
- drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c    | 10 ++--------
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/media/platform/amphion/vpu_msgs.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c
-index 29c604b1b179..718b7b08f93e 100644
---- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c
-+++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c
-@@ -79,6 +79,11 @@ void mxc_jpeg_enable_irq(void __iomem *reg, int slot)
- 	writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
- }
+diff --git a/drivers/media/platform/amphion/vpu_msgs.c b/drivers/media/platform/amphion/vpu_msgs.c
+index 58502c51ddb3..077644bc1d7c 100644
+--- a/drivers/media/platform/amphion/vpu_msgs.c
++++ b/drivers/media/platform/amphion/vpu_msgs.c
+@@ -150,7 +150,12 @@ static void vpu_session_handle_eos(struct vpu_inst *inst, struct vpu_rpc_event *
  
-+void mxc_jpeg_disable_irq(void __iomem *reg, int slot)
-+{
-+	writel(0x0, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
-+}
-+
- void mxc_jpeg_sw_reset(void __iomem *reg)
+ static void vpu_session_handle_error(struct vpu_inst *inst, struct vpu_rpc_event *pkt)
  {
- 	/*
-diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h
-index 12f132a83a23..bf4e1973a066 100644
---- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h
-+++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h
-@@ -125,6 +125,7 @@ u32 mxc_jpeg_get_offset(void __iomem *reg, int slot);
- void mxc_jpeg_enable_slot(void __iomem *reg, int slot);
- void mxc_jpeg_set_l_endian(void __iomem *reg, int le);
- void mxc_jpeg_enable_irq(void __iomem *reg, int slot);
-+void mxc_jpeg_disable_irq(void __iomem *reg, int slot);
- int mxc_jpeg_set_input(void __iomem *reg, u32 in_buf, u32 bufsize);
- int mxc_jpeg_set_output(void __iomem *reg, u16 out_pitch, u32 out_buf,
- 			u16 w, u16 h);
-diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
-index 8c0bd8b75b00..c287eb789fe6 100644
---- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
-+++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
-@@ -593,15 +593,8 @@ static irqreturn_t mxc_jpeg_dec_irq(int irq, void *priv)
- 	dev_dbg(dev, "Irq %d on slot %d.\n", irq, slot);
- 
- 	ctx = v4l2_m2m_get_curr_priv(jpeg->m2m_dev);
--	if (!ctx) {
--		dev_err(dev,
--			"Instance released before the end of transaction.\n");
--		/* soft reset only resets internal state, not registers */
--		mxc_jpeg_sw_reset(reg);
--		/* clear all interrupts */
--		writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_STATUS));
-+	if (WARN_ON(!ctx))
- 		goto job_unlock;
--	}
- 
- 	if (slot != ctx->slot) {
- 		/* TODO investigate when adding multi-instance support */
-@@ -673,6 +666,7 @@ static irqreturn_t mxc_jpeg_dec_irq(int irq, void *priv)
- 	buf_state = VB2_BUF_STATE_DONE;
- 
- buffers_done:
-+	mxc_jpeg_disable_irq(reg, ctx->slot);
- 	jpeg->slot_data[slot].used = false; /* unused, but don't free */
- 	mxc_jpeg_check_and_set_last_buffer(ctx, src_buf, dst_buf);
- 	v4l2_m2m_src_buf_remove(ctx->fh.m2m_ctx);
+-	dev_err(inst->dev, "unsupported stream\n");
++	char *str = (char *)pkt->data;
++
++	if (strlen(str))
++		dev_err(inst->dev, "instance %d firmware error : %s\n", inst->id, str);
++	else
++		dev_err(inst->dev, "instance %d is unsupported stream\n", inst->id);
+ 	call_void_vop(inst, event_notify, VPU_MSG_ID_UNSUPPORTED, NULL);
+ 	vpu_v4l2_set_error(inst);
+ }
 -- 
 2.35.1
 
