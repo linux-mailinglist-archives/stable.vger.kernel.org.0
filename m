@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6EE859484B
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75A7C594C51
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243278AbiHOXRg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:17:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44100 "EHLO
+        id S233176AbiHPAsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:48:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343725AbiHOXO2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:14:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8591895FD;
-        Mon, 15 Aug 2022 13:01:46 -0700 (PDT)
+        with ESMTP id S1349872AbiHPAqr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:46:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76D67196848;
+        Mon, 15 Aug 2022 13:45:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BA47B80EAD;
-        Mon, 15 Aug 2022 20:01:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1393C433D7;
-        Mon, 15 Aug 2022 20:01:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3B4D60F60;
+        Mon, 15 Aug 2022 20:45:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92EB7C433D6;
+        Mon, 15 Aug 2022 20:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593704;
-        bh=8JZ/Ppu8+/LJWNS3QNboIv0bypIL+9qabo0OOgziros=;
+        s=korg; t=1660596309;
+        bh=x41DbS8qV3r1/pYkKDJeNP/yz9M9kqdvIN4rxibxN+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uj+pWQZkhcqtVSxZiltBW9ExxMXH/3CRmisrtcfQs+k4FDhM54WVfHEO0MLeVeIWb
-         bOBm3D3ML7cZWe1UKXA3x7ggwOGcESuh1GxKAow3sG57sYlSoaoj57RCy+7TpthHB2
-         ZohQJzBXJpVeqcOSgFDDN8O7XthXSfvZl3ylM/Ko=
+        b=nSenYtoN+FtvpaXq2gRY2vs54BoNh5MRwzPDKNQ8Cq+pTq25N2CbN6kYoUciwIufA
+         Y2kHvVNyJVLoK3/4FXO4ouFOrfv2vbBOucQmOkDw6mx2DjnpTrH21xxdZGY9oEDh7n
+         aur62dEJndX60WoUTlHqvGrIwGXrKDN/5x41wuCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lev Kujawski <lkujaw@member.fsf.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0993/1095] KVM: set_msr_mce: Permit guests to ignore single-bit ECC errors
-Date:   Mon, 15 Aug 2022 20:06:32 +0200
-Message-Id: <20220815180510.188201325@linuxfoundation.org>
+        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.19 1037/1157] scsi: qla2xxx: Turn off multi-queue for 8G adapters
+Date:   Mon, 15 Aug 2022 20:06:33 +0200
+Message-Id: <20220815180521.467569249@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lev Kujawski <lkujaw@member.fsf.org>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 0471a7bd1bca2a47a5f378f2222c5cf39ce94152 ]
+commit 5304673bdb1635e27555bd636fd5d6956f1cd552 upstream.
 
-Certain guest operating systems (e.g., UNIXWARE) clear bit 0 of
-MC1_CTL to ignore single-bit ECC data errors.  Single-bit ECC data
-errors are always correctable and thus are safe to ignore because they
-are informational in nature rather than signaling a loss of data
-integrity.
+For 8G adapters, multi-queue was enabled accidentally. Make sure
+multi-queue is not enabled.
 
-Prior to this patch, these guests would crash upon writing MC1_CTL,
-with resultant error messages like the following:
-
-error: kvm run failed Operation not permitted
-EAX=fffffffe EBX=fffffffe ECX=00000404 EDX=ffffffff
-ESI=ffffffff EDI=00000001 EBP=fffdaba4 ESP=fffdab20
-EIP=c01333a5 EFL=00000246 [---Z-P-] CPL=0 II=0 A20=1 SMM=0 HLT=0
-ES =0108 00000000 ffffffff 00c09300 DPL=0 DS   [-WA]
-CS =0100 00000000 ffffffff 00c09b00 DPL=0 CS32 [-RA]
-SS =0108 00000000 ffffffff 00c09300 DPL=0 DS   [-WA]
-DS =0108 00000000 ffffffff 00c09300 DPL=0 DS   [-WA]
-FS =0000 00000000 ffffffff 00c00000
-GS =0000 00000000 ffffffff 00c00000
-LDT=0118 c1026390 00000047 00008200 DPL=0 LDT
-TR =0110 ffff5af0 00000067 00008b00 DPL=0 TSS32-busy
-GDT=     ffff5020 000002cf
-IDT=     ffff52f0 000007ff
-CR0=8001003b CR2=00000000 CR3=0100a000 CR4=00000230
-DR0=00000000 DR1=00000000 DR2=00000000 DR3=00000000
-DR6=ffff0ff0 DR7=00000400
-EFER=0000000000000000
-Code=08 89 01 89 51 04 c3 8b 4c 24 08 8b 01 8b 51 04 8b 4c 24 04 <0f>
-30 c3 f7 05 a4 6d ff ff 10 00 00 00 74 03 0f 31 c3 33 c0 33 d2 c3 8d
-74 26 00 0f 31 c3
-
-Signed-off-by: Lev Kujawski <lkujaw@member.fsf.org>
-Message-Id: <20220521081511.187388-1-lkujaw@member.fsf.org>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220616053508.27186-5-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_def.h |    4 ++--
+ drivers/scsi/qla2xxx/qla_isr.c |   16 ++++++----------
+ 2 files changed, 8 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 767a61e29f51..2316c978b598 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3226,10 +3226,13 @@ static int set_msr_mce(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 			/* only 0 or all 1s can be written to IA32_MCi_CTL
- 			 * some Linux kernels though clear bit 10 in bank 4 to
- 			 * workaround a BIOS/GART TBL issue on AMD K8s, ignore
--			 * this to avoid an uncatched #GP in the guest
-+			 * this to avoid an uncatched #GP in the guest.
-+			 *
-+			 * UNIXWARE clears bit 0 of MC1_CTL to ignore
-+			 * correctable, single-bit ECC data errors.
- 			 */
- 			if ((offset & 0x3) == 0 &&
--			    data != 0 && (data | (1 << 10)) != ~(u64)0)
-+			    data != 0 && (data | (1 << 10) | 1) != ~(u64)0)
- 				return -1;
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -4264,8 +4264,8 @@ struct qla_hw_data {
+ #define IS_OEM_001(ha)          ((ha)->device_type & DT_OEM_001)
+ #define HAS_EXTENDED_IDS(ha)    ((ha)->device_type & DT_EXTENDED_IDS)
+ #define IS_CT6_SUPPORTED(ha)	((ha)->device_type & DT_CT6_SUPPORTED)
+-#define IS_MQUE_CAPABLE(ha)	((ha)->mqenable || IS_QLA83XX(ha) || \
+-				IS_QLA27XX(ha) || IS_QLA28XX(ha))
++#define IS_MQUE_CAPABLE(ha)	(IS_QLA83XX(ha) || IS_QLA27XX(ha) || \
++				 IS_QLA28XX(ha))
+ #define IS_BIDI_CAPABLE(ha) \
+     (IS_QLA25XX(ha) || IS_QLA2031(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha))
+ /* Bit 21 of fw_attributes decides the MCTP capabilities */
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -4419,16 +4419,12 @@ msix_register_fail:
+ 	}
  
- 			/* MCi_STATUS */
--- 
-2.35.1
-
+ 	/* Enable MSI-X vector for response queue update for queue 0 */
+-	if (IS_QLA83XX(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha)) {
+-		if (ha->msixbase && ha->mqiobase &&
+-		    (ha->max_rsp_queues > 1 || ha->max_req_queues > 1 ||
+-		     ql2xmqsupport))
+-			ha->mqenable = 1;
+-	} else
+-		if (ha->mqiobase &&
+-		    (ha->max_rsp_queues > 1 || ha->max_req_queues > 1 ||
+-		     ql2xmqsupport))
+-			ha->mqenable = 1;
++	if (IS_MQUE_CAPABLE(ha) &&
++	    (ha->msixbase && ha->mqiobase && ha->max_qpairs))
++		ha->mqenable = 1;
++	else
++		ha->mqenable = 0;
++
+ 	ql_dbg(ql_dbg_multiq, vha, 0xc005,
+ 	    "mqiobase=%p, max_rsp_queues=%d, max_req_queues=%d.\n",
+ 	    ha->mqiobase, ha->max_rsp_queues, ha->max_req_queues);
 
 
