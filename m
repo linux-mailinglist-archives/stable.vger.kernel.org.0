@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCA25593FFA
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:47:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 563375940EA
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233393AbiHOVKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:10:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46258 "EHLO
+        id S232915AbiHOVKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:10:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348038AbiHOVIA (ORCPT
+        with ESMTP id S1348042AbiHOVIA (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:08:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B3EE3C8D7;
-        Mon, 15 Aug 2022 12:18:00 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 165D43C8D8;
+        Mon, 15 Aug 2022 12:18:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC732B81106;
-        Mon, 15 Aug 2022 19:17:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12156C433C1;
-        Mon, 15 Aug 2022 19:17:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD9A9B810C6;
+        Mon, 15 Aug 2022 19:18:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21D4FC433C1;
+        Mon, 15 Aug 2022 19:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591077;
-        bh=lbTs/5k4Wl+Wd+pYJniOD4sGSRSPcOtCJRp3bCpZ5HQ=;
+        s=korg; t=1660591080;
+        bh=mhEgBORyV3PVFKJt5jhDc4jGPUxc6GqM6YMT/Qmh7G4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=arYoZvUYIf8O3wuGUl5+0ZT7tm0p0IvyyTo0NJHaiiaJ96nOMvSSrMoqCMOYOwTrQ
-         EpZYBgxYKmkaFMKz8U/j3UFHP5pglNi2LkDLJSvXm+lwDp2MkKoSP9RfcfDB861deD
-         MGP8CKqVdhBRb+TocG2FYw+WAhdqzw8Hla1xB/Vw=
+        b=Cwr1SnVsUckarkzKQAFCfHNbSMDzqrnyN34f9Y4MUpFv6JUcGxGY3ubG//gjpwgZ1
+         SFwqx/8gokSjXHatTaFuBSuyvMkXgWhxdVeW9MnIIfkHRKwuyUkacbwbMvnjskHOCT
+         T8yfa4DrV2KOiDwaAsiZuwBQDXhK5VT6oOey9YAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Benjamin Gaignard <benjamin.gaignard@collabora.com>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0434/1095] media: hantro: HEVC: Fix output frame chroma offset
-Date:   Mon, 15 Aug 2022 19:57:13 +0200
-Message-Id: <20220815180447.634825691@linuxfoundation.org>
+Subject: [PATCH 5.18 0435/1095] media: hantro: HEVC: Fix reference frames management
+Date:   Mon, 15 Aug 2022 19:57:14 +0200
+Message-Id: <20220815180447.674145076@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -58,112 +59,120 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Benjamin Gaignard <benjamin.gaignard@collabora.com>
 
-[ Upstream commit 579846ec52593e6ca123c30379103377cd25728a ]
+[ Upstream commit 387d1176956883635c63a7d1c91b1f45e19c1777 ]
 
-Hantro decoder doesn't take care of the requested and aligned size
-of the capture buffer.
-Stop using the bitstream width/height and use capture frame size
-stored in the context to get the correct values.
+PoC shall be int the range of -2^31 to 2^31 -1
+(HEVC spec section 8.3.1 Decoding process for picture order count).
+The current way to know if an entry in reference picture array is free
+is to test if PoC = UNUSED_REF. Since UNUSED_REF is defined as '-1' that
+could lead to decode issue if one PoC also equal '-1'.
+PoC with value = '-1' exists in conformance test SLIST_B_Sony_9.
 
-hantro_hevc_chroma_offset() and hantro_hevc_motion_vectors_offset()
-are only used in hantro_g2_hevc_dec.c so take the opportunity
-to move them here.
+Change the way unused entries are managed in reference pictures array to
+avoid using PoC to detect then.
 
-fluster HEVC score goes up from 77 to 85 successful tests (over 147)
-with this patch.
+This patch doesn't change fluster HEVC score.
 
 Signed-off-by: Benjamin Gaignard <benjamin.gaignard@collabora.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../staging/media/hantro/hantro_g2_hevc_dec.c | 19 ++++++++++++++++---
- drivers/staging/media/hantro/hantro_hevc.c    | 17 -----------------
- drivers/staging/media/hantro/hantro_hw.h      |  2 --
- 3 files changed, 16 insertions(+), 22 deletions(-)
+ .../staging/media/hantro/hantro_g2_hevc_dec.c |  4 +--
+ drivers/staging/media/hantro/hantro_hevc.c    | 27 +++----------------
+ drivers/staging/media/hantro/hantro_hw.h      |  2 +-
+ 3 files changed, 5 insertions(+), 28 deletions(-)
 
 diff --git a/drivers/staging/media/hantro/hantro_g2_hevc_dec.c b/drivers/staging/media/hantro/hantro_g2_hevc_dec.c
-index a4642ed1f463..7c046d456038 100644
+index 7c046d456038..5df6f08e26f5 100644
 --- a/drivers/staging/media/hantro/hantro_g2_hevc_dec.c
 +++ b/drivers/staging/media/hantro/hantro_g2_hevc_dec.c
-@@ -8,6 +8,20 @@
- #include "hantro_hw.h"
- #include "hantro_g2_regs.h"
+@@ -415,7 +415,7 @@ static int set_ref(struct hantro_ctx *ctx)
+ 	set_ref_pic_list(ctx);
  
-+#define G2_ALIGN	16
-+
-+static size_t hantro_hevc_chroma_offset(struct hantro_ctx *ctx)
-+{
-+	return ctx->dst_fmt.width * ctx->dst_fmt.height;
-+}
-+
-+static size_t hantro_hevc_motion_vectors_offset(struct hantro_ctx *ctx)
-+{
-+	size_t cr_offset = hantro_hevc_chroma_offset(ctx);
-+
-+	return ALIGN((cr_offset * 3) / 2, G2_ALIGN);
-+}
-+
- static void prepare_tile_info_buffer(struct hantro_ctx *ctx)
- {
- 	struct hantro_dev *vpu = ctx->dev;
-@@ -330,7 +344,6 @@ static void set_ref_pic_list(struct hantro_ctx *ctx)
- static int set_ref(struct hantro_ctx *ctx)
- {
- 	const struct hantro_hevc_dec_ctrls *ctrls = &ctx->hevc_dec.ctrls;
--	const struct v4l2_ctrl_hevc_sps *sps = ctrls->sps;
- 	const struct v4l2_ctrl_hevc_pps *pps = ctrls->pps;
- 	const struct v4l2_ctrl_hevc_decode_params *decode_params = ctrls->decode_params;
- 	const struct v4l2_hevc_dpb_entry *dpb = decode_params->dpb;
-@@ -338,8 +351,8 @@ static int set_ref(struct hantro_ctx *ctx)
- 	struct hantro_dev *vpu = ctx->dev;
- 	struct vb2_v4l2_buffer *vb2_dst;
- 	struct hantro_decoded_buffer *dst;
--	size_t cr_offset = hantro_hevc_chroma_offset(sps);
--	size_t mv_offset = hantro_hevc_motion_vectors_offset(sps);
-+	size_t cr_offset = hantro_hevc_chroma_offset(ctx);
-+	size_t mv_offset = hantro_hevc_motion_vectors_offset(ctx);
- 	u32 max_ref_frames;
- 	u16 dpb_longterm_e;
- 	static const struct hantro_reg cur_poc[] = {
+ 	/* We will only keep the reference pictures that are still used */
+-	ctx->hevc_dec.ref_bufs_used = 0;
++	hantro_hevc_ref_init(ctx);
+ 
+ 	/* Set up addresses of DPB buffers */
+ 	dpb_longterm_e = 0;
+@@ -456,8 +456,6 @@ static int set_ref(struct hantro_ctx *ctx)
+ 	hantro_write_addr(vpu, G2_OUT_CHROMA_ADDR, chroma_addr);
+ 	hantro_write_addr(vpu, G2_OUT_MV_ADDR, mv_addr);
+ 
+-	hantro_hevc_ref_remove_unused(ctx);
+-
+ 	for (; i < V4L2_HEVC_DPB_ENTRIES_NUM_MAX; i++) {
+ 		hantro_write_addr(vpu, G2_REF_LUMA_ADDR(i), 0);
+ 		hantro_write_addr(vpu, G2_REF_CHROMA_ADDR(i), 0);
 diff --git a/drivers/staging/media/hantro/hantro_hevc.c b/drivers/staging/media/hantro/hantro_hevc.c
-index 9c351f7fe6bd..b3a057beaf19 100644
+index b3a057beaf19..f86c98e19177 100644
 --- a/drivers/staging/media/hantro/hantro_hevc.c
 +++ b/drivers/staging/media/hantro/hantro_hevc.c
-@@ -27,23 +27,6 @@
+@@ -25,15 +25,11 @@
+ #define MAX_TILE_COLS 20
+ #define MAX_TILE_ROWS 22
  
- #define UNUSED_REF	-1
- 
--#define G2_ALIGN		16
+-#define UNUSED_REF	-1
 -
--size_t hantro_hevc_chroma_offset(const struct v4l2_ctrl_hevc_sps *sps)
--{
--	int bytes_per_pixel = sps->bit_depth_luma_minus8 == 0 ? 1 : 2;
--
--	return sps->pic_width_in_luma_samples *
--	       sps->pic_height_in_luma_samples * bytes_per_pixel;
--}
--
--size_t hantro_hevc_motion_vectors_offset(const struct v4l2_ctrl_hevc_sps *sps)
--{
--	size_t cr_offset = hantro_hevc_chroma_offset(sps);
--
--	return ALIGN((cr_offset * 3) / 2, G2_ALIGN);
--}
--
- static void hantro_hevc_ref_init(struct hantro_ctx *ctx)
+-static void hantro_hevc_ref_init(struct hantro_ctx *ctx)
++void hantro_hevc_ref_init(struct hantro_ctx *ctx)
  {
  	struct hantro_hevc_dec_hw_ctx *hevc_dec = &ctx->hevc_dec;
+-	int i;
+ 
+-	for (i = 0;  i < NUM_REF_PICTURES; i++)
+-		hevc_dec->ref_bufs_poc[i] = UNUSED_REF;
++	hevc_dec->ref_bufs_used = 0;
+ }
+ 
+ dma_addr_t hantro_hevc_get_ref_buf(struct hantro_ctx *ctx,
+@@ -60,7 +56,7 @@ int hantro_hevc_add_ref_buf(struct hantro_ctx *ctx, int poc, dma_addr_t addr)
+ 
+ 	/* Add a new reference buffer */
+ 	for (i = 0; i < NUM_REF_PICTURES; i++) {
+-		if (hevc_dec->ref_bufs_poc[i] == UNUSED_REF) {
++		if (!(hevc_dec->ref_bufs_used & 1 << i)) {
+ 			hevc_dec->ref_bufs_used |= 1 << i;
+ 			hevc_dec->ref_bufs_poc[i] = poc;
+ 			hevc_dec->ref_bufs[i].dma = addr;
+@@ -71,23 +67,6 @@ int hantro_hevc_add_ref_buf(struct hantro_ctx *ctx, int poc, dma_addr_t addr)
+ 	return -EINVAL;
+ }
+ 
+-void hantro_hevc_ref_remove_unused(struct hantro_ctx *ctx)
+-{
+-	struct hantro_hevc_dec_hw_ctx *hevc_dec = &ctx->hevc_dec;
+-	int i;
+-
+-	/* Just tag buffer as unused, do not free them */
+-	for (i = 0;  i < NUM_REF_PICTURES; i++) {
+-		if (hevc_dec->ref_bufs_poc[i] == UNUSED_REF)
+-			continue;
+-
+-		if (hevc_dec->ref_bufs_used & (1 << i))
+-			continue;
+-
+-		hevc_dec->ref_bufs_poc[i] = UNUSED_REF;
+-	}
+-}
+-
+ static int tile_buffer_reallocate(struct hantro_ctx *ctx)
+ {
+ 	struct hantro_dev *vpu = ctx->dev;
 diff --git a/drivers/staging/media/hantro/hantro_hw.h b/drivers/staging/media/hantro/hantro_hw.h
-index c5dc77125fb7..df142f31e31b 100644
+index df142f31e31b..699c1efc0215 100644
 --- a/drivers/staging/media/hantro/hantro_hw.h
 +++ b/drivers/staging/media/hantro/hantro_hw.h
-@@ -341,8 +341,6 @@ int hantro_hevc_dec_prepare_run(struct hantro_ctx *ctx);
+@@ -338,9 +338,9 @@ int hantro_hevc_dec_init(struct hantro_ctx *ctx);
+ void hantro_hevc_dec_exit(struct hantro_ctx *ctx);
+ int hantro_g2_hevc_dec_run(struct hantro_ctx *ctx);
+ int hantro_hevc_dec_prepare_run(struct hantro_ctx *ctx);
++void hantro_hevc_ref_init(struct hantro_ctx *ctx);
  dma_addr_t hantro_hevc_get_ref_buf(struct hantro_ctx *ctx, int poc);
  int hantro_hevc_add_ref_buf(struct hantro_ctx *ctx, int poc, dma_addr_t addr);
- void hantro_hevc_ref_remove_unused(struct hantro_ctx *ctx);
--size_t hantro_hevc_chroma_offset(const struct v4l2_ctrl_hevc_sps *sps);
--size_t hantro_hevc_motion_vectors_offset(const struct v4l2_ctrl_hevc_sps *sps);
+-void hantro_hevc_ref_remove_unused(struct hantro_ctx *ctx);
  
  static inline unsigned short hantro_vp9_num_sbs(unsigned short dimension)
  {
