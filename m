@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 142445947CD
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:04:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A02B459479E
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:04:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343781AbiHOXIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:08:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59936 "EHLO
+        id S243089AbiHOXIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:08:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352815AbiHOXGT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:06:19 -0400
+        with ESMTP id S1352994AbiHOXG5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:06:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D871415CE;
-        Mon, 15 Aug 2022 12:58:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1552386704;
+        Mon, 15 Aug 2022 12:59:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B37FB80EB1;
-        Mon, 15 Aug 2022 19:58:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C83C1C433D6;
-        Mon, 15 Aug 2022 19:58:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90BEFB80EB1;
+        Mon, 15 Aug 2022 19:59:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF6B8C433C1;
+        Mon, 15 Aug 2022 19:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593532;
-        bh=IrnIOX7I/KNoLv78351gqETiUbl/nD5t/8ewY3lYHk8=;
+        s=korg; t=1660593541;
+        bh=6+wA0NmZlSrQQuTg7iIoaIhed/v8R2Ua5FQQXmq+c7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/x+rVDO+fZc3fQsOIQzoE/BwhqIRnGY0O9Uop0bP9/RHmobne0qJ3xJaekk59zRn
-         q29J3+7Uknu1Orwtsl9sdiLiOybSdiYCExc1CToAGHiEnGaVFyuDhOxHpUztdjXwSa
-         D8SoujoMWyqChx9DeVG7epdd0q/OLRsE8PVAjIPw=
+        b=LHliD1EQunhhpL8XeRTGSI14rhCCvWnuyjcY885jIxbjauc+qBQP0xymPklG7anxu
+         180ntmpYG+Qidjiuoeqr/rJz4wPTPLLLlKW7JeNqSuEDHMsshMrd55YyF84wW+RNp0
+         BVWcXoas8B3I5SCLos4Ih89uB8UFxDCNQnGmGId0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
+        stable@vger.kernel.org, Luca Weiss <luca@z3ntu.xyz>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0284/1157] arm64: dts: qcom: qcs404: Fix incorrect USB2 PHYs assignment
-Date:   Mon, 15 Aug 2022 19:54:00 +0200
-Message-Id: <20220815180450.969622989@linuxfoundation.org>
+Subject: [PATCH 5.19 0285/1157] ARM: dts: qcom: msm8974: Disable remoteprocs by default
+Date:   Mon, 15 Aug 2022 19:54:01 +0200
+Message-Id: <20220815180451.017500034@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,61 +56,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumit Garg <sumit.garg@linaro.org>
+From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
 
-[ Upstream commit 58577966a42fc0b660b5e2c7c9e5a2241363ea83 ]
+[ Upstream commit 8d8be8dd7c1f5d50f84ecc7a6a41962da48c6164 ]
 
-Currently the DT for QCS404 SoC has setup for 2 USB2 PHYs with one each
-assigned to USB3 controller and USB2 controller. This assignment is
-incorrect which only works by luck: as when each USB HCI comes up it
-configures the *other* controllers PHY which is enough to make them
-happy. If, for any reason, we were to disable one of the controllers then
-both would stop working.
+The remoteproc configuration in qcom-msm8974.dtsi is incomplete because
+it lacks the regulator supplies that should be added in the board DT
+files. Some of the msm8974 boards are currently missing the regulator
+supplies and should have the remoteprocs disabled to avoid making use
+of the incomplete configuration.
 
-This was a difficult inconsistency to be caught which was found while
-trying to enable USB support in u-boot. So with all the required drivers
-ported to u-boot, I couldn't get the same USB storage device enumerated
-in u-boot which was being enumerated fine by the kernel.
+This also fixes dtbs_check warnings after moving "qcom,msm8974-mss-pil"
+to DT schema, which rightfully complains that the -supply properties
+are missing for some boards:
 
-The root cause of the problem came out to be that I wasn't enabling USB2
-PHY: "usb2_phy_prim" in u-boot. Then I realised that via simply disabling
-the same USB2 PHY currently assigned to USB2 host controller in the
-kernel disabled enumeration for USB3 host controller as well.
+qcom-apq8074-dragonboard.dtb:
+remoteproc@fc880000: 'pll-supply' is a required property
+        From schema: remoteproc/qcom,msm8916-mss-pil.yaml
+remoteproc@fc880000: 'mss-supply' is a required property
+        From schema: remoteproc/qcom,msm8916-mss-pil.yaml
+remoteproc@fc880000: 'oneOf' conditional failed, one must be fixed:
+        'power-domains' is a required property
+        'power-domain-names' is a required property, or
+        'cx-supply' is a required property
+        'mx-supply' is a required property
 
-So fix this inconsistency by correctly assigning USB2 PHYs.
-
-Fixes: 9375e7d719b3 ("arm64: dts: qcom: qcs404: Add USB devices and PHYs")
-Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Cc: Luca Weiss <luca@z3ntu.xyz>
+Cc: Konrad Dybcio <konrad.dybcio@somainline.org>
+Fixes: f300826d27be ("ARM: dts: qcom-msm8974: Sort and clean up nodes")
+Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220711083038.1518529-1-sumit.garg@linaro.org
+Link: https://lore.kernel.org/r/20220712124421.3129206-4-stephan.gerhold@kernkonzept.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/qcs404.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/qcom-msm8974.dtsi                 | 4 ++++
+ arch/arm/boot/dts/qcom-msm8974pro-fairphone-fp2.dts | 2 ++
+ arch/arm/boot/dts/qcom-msm8974pro-samsung-klte.dts  | 2 ++
+ 3 files changed, 8 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/qcs404.dtsi b/arch/arm64/boot/dts/qcom/qcs404.dtsi
-index d912166b7552..c8b7d8eb5996 100644
---- a/arch/arm64/boot/dts/qcom/qcs404.dtsi
-+++ b/arch/arm64/boot/dts/qcom/qcs404.dtsi
-@@ -548,7 +548,7 @@ usb3_dwc3: usb@7580000 {
- 				compatible = "snps,dwc3";
- 				reg = <0x07580000 0xcd00>;
- 				interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
--				phys = <&usb2_phy_sec>, <&usb3_phy>;
-+				phys = <&usb2_phy_prim>, <&usb3_phy>;
- 				phy-names = "usb2-phy", "usb3-phy";
- 				snps,has-lpm-erratum;
- 				snps,hird-threshold = /bits/ 8 <0x10>;
-@@ -577,7 +577,7 @@ usb@78c0000 {
- 				compatible = "snps,dwc3";
- 				reg = <0x078c0000 0xcc00>;
- 				interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>;
--				phys = <&usb2_phy_prim>;
-+				phys = <&usb2_phy_sec>;
- 				phy-names = "usb2-phy";
- 				snps,has-lpm-erratum;
- 				snps,hird-threshold = /bits/ 8 <0x10>;
+diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi b/arch/arm/boot/dts/qcom-msm8974.dtsi
+index 3c31c95aa6b9..2d9416d1a6c8 100644
+--- a/arch/arm/boot/dts/qcom-msm8974.dtsi
++++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
+@@ -1182,6 +1182,8 @@ remoteproc_mss: remoteproc@fc880000 {
+ 			qcom,smem-states = <&modem_smp2p_out 0>;
+ 			qcom,smem-state-names = "stop";
+ 
++			status = "disabled";
++
+ 			mba {
+ 				memory-region = <&mba_region>;
+ 			};
+@@ -1662,6 +1664,8 @@ remoteproc_adsp: remoteproc@fe200000 {
+ 			qcom,smem-states = <&adsp_smp2p_out 0>;
+ 			qcom,smem-state-names = "stop";
+ 
++			status = "disabled";
++
+ 			smd-edge {
+ 				interrupts = <GIC_SPI 156 IRQ_TYPE_EDGE_RISING>;
+ 
+diff --git a/arch/arm/boot/dts/qcom-msm8974pro-fairphone-fp2.dts b/arch/arm/boot/dts/qcom-msm8974pro-fairphone-fp2.dts
+index 58cb2ce1e4df..8a6b8e4de887 100644
+--- a/arch/arm/boot/dts/qcom-msm8974pro-fairphone-fp2.dts
++++ b/arch/arm/boot/dts/qcom-msm8974pro-fairphone-fp2.dts
+@@ -147,10 +147,12 @@ wcnss {
+ };
+ 
+ &remoteproc_adsp {
++	status = "okay";
+ 	cx-supply = <&pm8841_s2>;
+ };
+ 
+ &remoteproc_mss {
++	status = "okay";
+ 	cx-supply = <&pm8841_s2>;
+ 	mss-supply = <&pm8841_s3>;
+ 	mx-supply = <&pm8841_s1>;
+diff --git a/arch/arm/boot/dts/qcom-msm8974pro-samsung-klte.dts b/arch/arm/boot/dts/qcom-msm8974pro-samsung-klte.dts
+index d6b2300a8223..577cbffad010 100644
+--- a/arch/arm/boot/dts/qcom-msm8974pro-samsung-klte.dts
++++ b/arch/arm/boot/dts/qcom-msm8974pro-samsung-klte.dts
+@@ -457,10 +457,12 @@ fuelgauge_pin: fuelgauge-int-pin {
+ };
+ 
+ &remoteproc_adsp {
++	status = "okay";
+ 	cx-supply = <&pma8084_s2>;
+ };
+ 
+ &remoteproc_mss {
++	status = "okay";
+ 	cx-supply = <&pma8084_s2>;
+ 	mss-supply = <&pma8084_s6>;
+ 	mx-supply = <&pma8084_s1>;
 -- 
 2.35.1
 
