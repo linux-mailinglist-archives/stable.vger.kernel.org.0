@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F477594C85
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4202594BE8
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:31:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351781AbiHPAZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:25:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57980 "EHLO
+        id S1351613AbiHPA3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:29:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351718AbiHPAXV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:23:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C541D2937;
-        Mon, 15 Aug 2022 13:34:21 -0700 (PDT)
+        with ESMTP id S1357561AbiHPA1Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:27:16 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2B91180B5E;
+        Mon, 15 Aug 2022 13:34:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93A82B81197;
-        Mon, 15 Aug 2022 20:34:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8A15C433D6;
-        Mon, 15 Aug 2022 20:34:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DC698CE12C4;
+        Mon, 15 Aug 2022 20:34:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E924BC433C1;
+        Mon, 15 Aug 2022 20:34:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595650;
-        bh=AQlbLQG1Rst+iVGp1L5JuWGaw0Df5Bq56jooUFeZpOU=;
+        s=korg; t=1660595653;
+        bh=4Qx3TpTzRNC8GP0eSyB6JcW988m841SDnRGg73iCp10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dA+FzUUaP7pUSQaVVwwxO5YS/CuH8BX6IhlxPveD3KODGqLSiJs9iq1tbY3qHm1dZ
-         PFjLJaEKCPq6ha7CdvGICgHtUJ5RAgv9HaK2gNv/3bOr+WwKB05BQedQz/I7v6hwqR
-         wUOgmcg81f4+B1UrYqOqNMKs3g8ElA+zJT/uMJWI=
+        b=yZZzifybzRxrYJ8U1l+2ZlthsMs9DYo6osGP/rYBubxxKT4rNIbSRaBghrEkGHiFA
+         0Dg4NTaSR32DmRtfCwD7IqcwXfdHJ8xngF44WboA4p2gTbZszP7/aJTdQYXhawhdIU
+         sMvDAI79eRRMKs86H71ei2VY1JRdrHOTojCRtgJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Karl Olsen <karl@micro-technic.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0799/1157] mmc: sdhci-of-at91: fix set_uhs_signaling rewriting of MC1R
-Date:   Mon, 15 Aug 2022 20:02:35 +0200
-Message-Id: <20220815180511.446476740@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Miaoqian Lin <linmq006@gmail.com>
+Subject: [PATCH 5.19 0800/1157] of: device: Fix missing of_node_put() in of_dma_set_restricted_buffer
+Date:   Mon, 15 Aug 2022 20:02:36 +0200
+Message-Id: <20220815180511.486332585@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -57,46 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 5987e6ded29d52e42fc7b06aa575c60a25eee38e ]
+[ Upstream commit d17e37c41b7ed38459957a5d2968ba61516fd5c2 ]
 
-In set_uhs_signaling, the DDR bit is being set by fully writing the MC1R
-register.
-This can lead to accidental erase of certain bits in this register.
-Avoid this by doing a read-modify-write operation.
+We should use of_node_put() for the reference 'node' returned by
+of_parse_phandle() which will increase the refcount.
 
-Fixes: d0918764c17b ("mmc: sdhci-of-at91: fix MMC_DDR_52 timing selection")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Tested-by: Karl Olsen <karl@micro-technic.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20220630090926.15061-1-eugen.hristev@microchip.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: fec9b625095f ("of: Add plumbing for restricted DMA pool")
+Co-authored-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20220702014449.263772-1-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-of-at91.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/of/device.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/sdhci-of-at91.c b/drivers/mmc/host/sdhci-of-at91.c
-index 10fb4cb2c731..cd0134580a90 100644
---- a/drivers/mmc/host/sdhci-of-at91.c
-+++ b/drivers/mmc/host/sdhci-of-at91.c
-@@ -100,8 +100,13 @@ static void sdhci_at91_set_clock(struct sdhci_host *host, unsigned int clock)
- static void sdhci_at91_set_uhs_signaling(struct sdhci_host *host,
- 					 unsigned int timing)
- {
--	if (timing == MMC_TIMING_MMC_DDR52)
--		sdhci_writeb(host, SDMMC_MC1R_DDR, SDMMC_MC1R);
-+	u8 mc1r;
-+
-+	if (timing == MMC_TIMING_MMC_DDR52) {
-+		mc1r = sdhci_readb(host, SDMMC_MC1R);
-+		mc1r |= SDMMC_MC1R_DDR;
-+		sdhci_writeb(host, mc1r, SDMMC_MC1R);
-+	}
- 	sdhci_set_uhs_signaling(host, timing);
- }
+diff --git a/drivers/of/device.c b/drivers/of/device.c
+index 874f031442dc..75b6cbffa755 100644
+--- a/drivers/of/device.c
++++ b/drivers/of/device.c
+@@ -81,8 +81,11 @@ of_dma_set_restricted_buffer(struct device *dev, struct device_node *np)
+ 		 * restricted-dma-pool region is allowed.
+ 		 */
+ 		if (of_device_is_compatible(node, "restricted-dma-pool") &&
+-		    of_device_is_available(node))
++		    of_device_is_available(node)) {
++			of_node_put(node);
+ 			break;
++		}
++		of_node_put(node);
+ 	}
  
+ 	/*
 -- 
 2.35.1
 
