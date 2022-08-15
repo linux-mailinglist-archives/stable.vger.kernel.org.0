@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB202594D35
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE3775947EB
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343655AbiHPBHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 21:07:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33074 "EHLO
+        id S1354143AbiHOXni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:43:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344075AbiHPBEC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 21:04:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77726B9594;
-        Mon, 15 Aug 2022 13:50:51 -0700 (PDT)
+        with ESMTP id S1354318AbiHOXlx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:41:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72D312C652;
+        Mon, 15 Aug 2022 13:12:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4CB761291;
-        Mon, 15 Aug 2022 20:50:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 961D7C433D6;
-        Mon, 15 Aug 2022 20:50:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 10DFD60B6E;
+        Mon, 15 Aug 2022 20:12:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 004B1C433C1;
+        Mon, 15 Aug 2022 20:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596623;
-        bh=ScgBIY3HQMCcOzB+zPgCsLe9LaGbzeQNrwHYt+biqjc=;
+        s=korg; t=1660594341;
+        bh=tO76lJ66HsVJV3KXENX1SUk8oeNUKoWrD0rDT+0Y+lI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZL2cjTB/4Kel1pII9n3yPetvyLQ5UpyYZjxMgbhEm0kbOmcalyXLHoZbknUIrURSH
-         uJeeLgmHuYiPz4J184621CAAnE8DC8ZrddyCILlDKAr/m7Z7IksslqNDDv5Br0amkS
-         3CulBEehXgsFlg7Pj1brHDyvJIL7OBl/KP2zPWgI=
+        b=png/pixYqbv4AWNf90gVIJIwv3RHazrRqi66RMiEWiTHUGfb0pHCrocjMF59yFMQE
+         wjhmlGn8FdsVLAnwt+Ut5AtW2wDtdMPI/IqRq2ZcneUzNoSWOOGsCB5B+qcmTcpNSv
+         leg2t+1NAL425nu4WGzEmuJRqoQIz2acLsltX+Yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenpeng Lin <zplin@u.northwestern.edu>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Kamal Mostafa <kamal@canonical.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.19 1138/1157] net_sched: cls_route: remove from list when handle is 0
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 5.18 1095/1095] Bluetooth: L2CAP: Fix l2cap_global_chan_by_psm regression
 Date:   Mon, 15 Aug 2022 20:08:14 +0200
-Message-Id: <20220815180525.971372875@linuxfoundation.org>
+Message-Id: <20220815180514.297750540@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
-References: <20220815180439.416659447@linuxfoundation.org>
+In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
+References: <20220815180429.240518113@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 9ad36309e2719a884f946678e0296be10f0bb4c1 upstream.
+commit 332f1795ca202489c665a75e62e18ff6284de077 upstream.
 
-When a route filter is replaced and the old filter has a 0 handle, the old
-one won't be removed from the hashtable, while it will still be freed.
+The patch d0be8347c623: "Bluetooth: L2CAP: Fix use-after-free caused
+by l2cap_chan_put" from Jul 21, 2022, leads to the following Smatch
+static checker warning:
 
-The test was there since before commit 1109c00547fc ("net: sched: RCU
-cls_route"), when a new filter was not allocated when there was an old one.
-The old filter was reused and the reinserting would only be necessary if an
-old filter was replaced. That was still wrong for the same case where the
-old handle was 0.
+        net/bluetooth/l2cap_core.c:1977 l2cap_global_chan_by_psm()
+        error: we previously assumed 'c' could be null (see line 1996)
 
-Remove the old filter from the list independently from its handle value.
-
-This fixes CVE-2022-2588, also reported as ZDI-CAN-17440.
-
-Reported-by: Zhenpeng Lin <zplin@u.northwestern.edu>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Reviewed-by: Kamal Mostafa <kamal@canonical.com>
-Cc: <stable@vger.kernel.org>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Link: https://lore.kernel.org/r/20220809170518.164662-1-cascardo@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d0be8347c623 ("Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_route.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/l2cap_core.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/net/sched/cls_route.c
-+++ b/net/sched/cls_route.c
-@@ -526,7 +526,7 @@ static int route4_change(struct net *net
- 	rcu_assign_pointer(f->next, f1);
- 	rcu_assign_pointer(*fp, f);
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -1969,11 +1969,11 @@ static struct l2cap_chan *l2cap_global_c
+ 						   bdaddr_t *dst,
+ 						   u8 link_type)
+ {
+-	struct l2cap_chan *c, *c1 = NULL;
++	struct l2cap_chan *c, *tmp, *c1 = NULL;
  
--	if (fold && fold->handle && f->handle != fold->handle) {
-+	if (fold) {
- 		th = to_hash(fold->handle);
- 		h = from_hash(fold->handle >> 16);
- 		b = rtnl_dereference(head->table[th]);
+ 	read_lock(&chan_list_lock);
+ 
+-	list_for_each_entry(c, &chan_list, global_l) {
++	list_for_each_entry_safe(c, tmp, &chan_list, global_l) {
+ 		if (state && c->state != state)
+ 			continue;
+ 
+@@ -1992,11 +1992,10 @@ static struct l2cap_chan *l2cap_global_c
+ 			dst_match = !bacmp(&c->dst, dst);
+ 			if (src_match && dst_match) {
+ 				c = l2cap_chan_hold_unless_zero(c);
+-				if (!c)
+-					continue;
+-
+-				read_unlock(&chan_list_lock);
+-				return c;
++				if (c) {
++					read_unlock(&chan_list_lock);
++					return c;
++				}
+ 			}
+ 
+ 			/* Closest match */
 
 
