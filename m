@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C433959386C
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:30:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDE64593891
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:32:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242876AbiHOSbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:31:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38428 "EHLO
+        id S242779AbiHOSbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:31:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243483AbiHOSbN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:31:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77E9432D81;
-        Mon, 15 Aug 2022 11:21:08 -0700 (PDT)
+        with ESMTP id S243184AbiHOSaq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:30:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 621252A735;
+        Mon, 15 Aug 2022 11:20:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE83EB8105B;
-        Mon, 15 Aug 2022 18:20:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36EB0C433D6;
-        Mon, 15 Aug 2022 18:20:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30D93606A1;
+        Mon, 15 Aug 2022 18:20:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 337A0C433C1;
+        Mon, 15 Aug 2022 18:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587648;
-        bh=VJCmYCac8+0GtJU2jX1P9L9/IdytulRpy/aYEWsiEso=;
+        s=korg; t=1660587651;
+        bh=i9A+xun9VuVjc3Fum4H2HyppQpm3IGo9flBEQMDQayY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1S3JwEsJaH5ZCS8UzOBt14Q015LN18ciXY40KMajlTOLMwceN0S93o/dJpiN8eVaQ
-         XB2+08VXwyueNBJ8rTj4WmtQ5Xm6X99ka4uvK6BlD0fWF9YIvrFvTojfwicVX6P9vh
-         74LgyZy1yGKlnQMdRu2YDk7dRRuEYc3ID5VyM1SU=
+        b=IlMnuSatIWu7y7Qph/y76aRlGgp+8GZzx2icwfP4bTDsLDABKLuTxTHI0xhJPV8Hl
+         5P4j//pzwHhYyw4zoISwmUQWx+QUq9pYIUunE6oh/KeA/WYp+JbCqHdYo7+QCX/eTS
+         LFA2iUvXlFETtOIyeU3eu1QEzU54mIWQiz5D7tls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org, Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        kasan-dev@googlegroups.com, Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 149/779] selinux: Add boundary check in put_entry()
-Date:   Mon, 15 Aug 2022 19:56:33 +0200
-Message-Id: <20220815180343.681170622@linuxfoundation.org>
+Subject: [PATCH 5.15 150/779] kasan: test: Silence GCC 12 warnings
+Date:   Mon, 15 Aug 2022 19:56:34 +0200
+Message-Id: <20220815180343.721810104@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,33 +58,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 15ec76fb29be31df2bccb30fc09875274cba2776 ]
+[ Upstream commit aaf50b1969d7933a51ea421b11432a7fb90974e3 ]
 
-Just like next_entry(), boundary check is necessary to prevent memory
-out-of-bound access.
+GCC 12 continues to get smarter about array accesses. The KASAN tests
+are expecting to explicitly test out-of-bounds conditions at run-time,
+so hide the variable from GCC, to avoid warnings like:
 
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+../lib/test_kasan.c: In function 'ksize_uaf':
+../lib/test_kasan.c:790:61: warning: array subscript 120 is outside array bounds of 'void[120]' [-Warray-bounds]
+  790 |         KUNIT_EXPECT_KASAN_FAIL(test, ((volatile char *)ptr)[size]);
+      |                                       ~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+../lib/test_kasan.c:97:9: note: in definition of macro 'KUNIT_EXPECT_KASAN_FAIL'
+   97 |         expression; \
+      |         ^~~~~~~~~~
+
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: kasan-dev@googlegroups.com
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220608214024.1068451-1-keescook@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/ss/policydb.h | 2 ++
- 1 file changed, 2 insertions(+)
+ lib/test_kasan.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index c24d4e1063ea..ffc4e7bad205 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -370,6 +370,8 @@ static inline int put_entry(const void *buf, size_t bytes, int num, struct polic
- {
- 	size_t len = bytes * num;
+diff --git a/lib/test_kasan.c b/lib/test_kasan.c
+index 8835e0784578..89f444cabd4a 100644
+--- a/lib/test_kasan.c
++++ b/lib/test_kasan.c
+@@ -125,6 +125,7 @@ static void kmalloc_oob_right(struct kunit *test)
+ 	ptr = kmalloc(size, GFP_KERNEL);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
  
-+	if (len > fp->len)
-+		return -EINVAL;
- 	memcpy(fp->data, buf, len);
- 	fp->data += len;
- 	fp->len -= len;
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	/*
+ 	 * An unaligned access past the requested kmalloc size.
+ 	 * Only generic KASAN can precisely detect these.
+@@ -153,6 +154,7 @@ static void kmalloc_oob_left(struct kunit *test)
+ 	ptr = kmalloc(size, GFP_KERNEL);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, *ptr = *(ptr - 1));
+ 	kfree(ptr);
+ }
+@@ -165,6 +167,7 @@ static void kmalloc_node_oob_right(struct kunit *test)
+ 	ptr = kmalloc_node(size, GFP_KERNEL, 0);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ptr[0] = ptr[size]);
+ 	kfree(ptr);
+ }
+@@ -185,6 +188,7 @@ static void kmalloc_pagealloc_oob_right(struct kunit *test)
+ 	ptr = kmalloc(size, GFP_KERNEL);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ptr[size + OOB_TAG_OFF] = 0);
+ 
+ 	kfree(ptr);
+@@ -265,6 +269,7 @@ static void kmalloc_large_oob_right(struct kunit *test)
+ 	ptr = kmalloc(size, GFP_KERNEL);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ptr[size] = 0);
+ 	kfree(ptr);
+ }
+@@ -404,6 +409,8 @@ static void kmalloc_oob_16(struct kunit *test)
+ 	ptr2 = kmalloc(sizeof(*ptr2), GFP_KERNEL);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr2);
+ 
++	OPTIMIZER_HIDE_VAR(ptr1);
++	OPTIMIZER_HIDE_VAR(ptr2);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, *ptr1 = *ptr2);
+ 	kfree(ptr1);
+ 	kfree(ptr2);
+@@ -712,6 +719,8 @@ static void ksize_unpoisons_memory(struct kunit *test)
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 	real_size = ksize(ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
++
+ 	/* This access shouldn't trigger a KASAN report. */
+ 	ptr[size] = 'x';
+ 
+@@ -734,6 +743,7 @@ static void ksize_uaf(struct kunit *test)
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 	kfree(ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ksize(ptr));
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ((volatile char *)ptr)[0]);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ((volatile char *)ptr)[size]);
 -- 
 2.35.1
 
