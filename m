@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D94725943A4
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:57:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6D20594567
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 01:00:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348972AbiHOWeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 18:34:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56536 "EHLO
+        id S1350368AbiHOWjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:39:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241207AbiHOWc2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:32:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F82312E253;
-        Mon, 15 Aug 2022 12:49:10 -0700 (PDT)
+        with ESMTP id S1349525AbiHOWeM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 18:34:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C91F712E27B;
+        Mon, 15 Aug 2022 12:49:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DABFB81144;
-        Mon, 15 Aug 2022 19:48:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F13BC433C1;
-        Mon, 15 Aug 2022 19:48:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B713F61226;
+        Mon, 15 Aug 2022 19:48:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDC39C433C1;
+        Mon, 15 Aug 2022 19:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592924;
-        bh=kVKp/t6i6DaXjN4J5IYS3k0hIz/ioS3Y5JvQrfcQXvg=;
+        s=korg; t=1660592933;
+        bh=DLJUHjw7dNV0aVabRJZ7xLg7ayVN5gRvxA5ZVDd6Pmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IpNAh/Kcrcf5ynyHwY0E6H6praPZi9SdiALY1Y7wyPgKCHsvsb/aTLFt8MqBZspB6
-         MuOItF6aObRcEB6kBlAo+tAUOu9Tx9H4IR+DMvzJuPN5kPeFi0ilpA3oNwd4vy7w7U
-         K1FOm30c52PnKb24E3067EFAiKIiELfoAaH+uRV0=
+        b=wuZNS7tj07HjVqLceG2oSWL6+OnVZde+hoEC4/r56mKkhYezE2TKNhcoVoiQ/laDl
+         EklbFk/KPyF8DVzaZ0wmqhjSzuNkaUkhLS4/dw7wKT6Ulk2nCWqiQntKc89QXVHbC+
+         inPIyGhauAyNrptm1v/P537qudIq8gtqE8Huwsq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0867/1095] vfio/ccw: Fix FSM state if mdev probe fails
-Date:   Mon, 15 Aug 2022 20:04:26 +0200
-Message-Id: <20220815180505.232891227@linuxfoundation.org>
+Subject: [PATCH 5.18 0868/1095] vfio/ccw: Do not change FSM state in subchannel event
+Date:   Mon, 15 Aug 2022 20:04:27 +0200
+Message-Id: <20220815180505.273234596@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -58,61 +57,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Farman <farman@linux.ibm.com>
 
-[ Upstream commit f6c876d67e956de8d69349b0ee43bc7277c09e5c ]
+[ Upstream commit cffcc109fd682075dee79bade3d60a07152a8fd1 ]
 
-The FSM is in STANDBY state when arriving in vfio_ccw_mdev_probe(),
-and this routine converts it to IDLE as part of its processing.
-The error exit sets it to IDLE (again) but clears the private->mdev
-pointer.
+The routine vfio_ccw_sch_event() is tasked with handling subchannel events,
+specifically machine checks, on behalf of vfio-ccw. It correctly calls
+cio_update_schib(), and if that fails (meaning the subchannel is gone)
+it makes an FSM event call to mark the subchannel Not Operational.
 
-The FSM should of course be managing the state itself, but the
-correct thing for vfio_ccw_mdev_probe() to do would be to put
-the state back the way it found it.
+If that worked, however, then it decides that if the FSM state was already
+Not Operational (implying the subchannel just came back), then it should
+simply change the FSM to partially- or fully-open.
 
-The corresponding check of private->mdev in vfio_ccw_sch_io_todo()
-can be removed, since the distinction is unnecessary at this point.
+Remove this trickery, since a subchannel returning will require more
+probing than simply "oh all is well again" to ensure it works correctly.
 
-Fixes: 3bf1311f351ef ("vfio/ccw: Convert to use vfio_register_emulated_iommu_dev()")
+Fixes: bbe37e4cb8970 ("vfio: ccw: introduce a finite state machine")
 Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220707135737.720765-3-farman@linux.ibm.com
+Link: https://lore.kernel.org/r/20220707135737.720765-4-farman@linux.ibm.com
 Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 5 +++--
- drivers/s390/cio/vfio_ccw_ops.c | 2 +-
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/s390/cio/vfio_ccw_drv.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index ee182cfb467d..789175221e9a 100644
+index 789175221e9a..e76a4a3cf1ce 100644
 --- a/drivers/s390/cio/vfio_ccw_drv.c
 +++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -107,9 +107,10 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 	/*
- 	 * Reset to IDLE only if processing of a channel program
- 	 * has finished. Do not overwrite a possible processing
--	 * state if the final interrupt was for HSCH or CSCH.
-+	 * state if the interrupt was unsolicited, or if the final
-+	 * interrupt was for HSCH or CSCH.
- 	 */
--	if (private->mdev && cp_is_finished)
-+	if (cp_is_finished)
- 		private->state = VFIO_CCW_STATE_IDLE;
+@@ -302,19 +302,11 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
+ 	if (work_pending(&sch->todo_work))
+ 		goto out_unlock;
  
- 	if (private->io_trigger)
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index d8589afac272..8d76f5b26e2b 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -146,7 +146,7 @@ static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
- 	vfio_uninit_group_dev(&private->vdev);
- 	atomic_inc(&private->avail);
- 	private->mdev = NULL;
--	private->state = VFIO_CCW_STATE_IDLE;
-+	private->state = VFIO_CCW_STATE_STANDBY;
- 	return ret;
- }
+-	if (cio_update_schib(sch)) {
+-		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
+-		rc = 0;
+-		goto out_unlock;
+-	}
+-
+-	private = dev_get_drvdata(&sch->dev);
+-	if (private->state == VFIO_CCW_STATE_NOT_OPER) {
+-		private->state = private->mdev ? VFIO_CCW_STATE_IDLE :
+-				 VFIO_CCW_STATE_STANDBY;
+-	}
+ 	rc = 0;
+ 
++	if (cio_update_schib(sch))
++		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
++
+ out_unlock:
+ 	spin_unlock_irqrestore(sch->lock, flags);
  
 -- 
 2.35.1
