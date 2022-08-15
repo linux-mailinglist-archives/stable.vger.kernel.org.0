@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0CBD594A8F
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:18:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C650F594AA6
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:19:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233777AbiHPAEi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:04:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41308 "EHLO
+        id S1352819AbiHPAFS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:05:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355733AbiHPABV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:01:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85E08FF7;
-        Mon, 15 Aug 2022 13:22:05 -0700 (PDT)
+        with ESMTP id S1355872AbiHPABn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:01:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ADB1166D27;
+        Mon, 15 Aug 2022 13:23:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 117C160F71;
-        Mon, 15 Aug 2022 20:22:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECE83C433D6;
-        Mon, 15 Aug 2022 20:22:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AEF21B81197;
+        Mon, 15 Aug 2022 20:23:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 091C6C433D6;
+        Mon, 15 Aug 2022 20:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594924;
-        bh=QZVcqtH9gqGYA1HNB/Xz+6pLXbaD5qpHZvtbX+/xwNw=;
+        s=korg; t=1660594988;
+        bh=T0ExjDB8KA/b2kObAeatt24PNH44YeP1h8h5PP27O2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJkUkxsXTwCYM1a1BjCejvi4A/6Orqh/khLZAHwf+rVhi4CA+it2kkMmzgyyxRgta
-         hHQBDwrGdiusfxrKJbJVXlY+F1n5ZT+LC4GQ7bXqRol0nbGO92/b+prvqiZcaH4UWf
-         3mMsWuEp8hCpq8A1U00OyO4+0fNmoTKQeV9iOiwg=
+        b=FtkumCosk81wcjHONdgiOvnC6AuI1yJ8mn6HHO20btYv8YnnQRTTqvlnL8vMIMlA7
+         EvEViw7ZBeQh8nocS5MLXieS7zIqieRQx/z11lpFaaTJyqQIdG1w+Vgt6Ttm6r2jR8
+         Zu5oq37bM6Q6T0bb/1gq5cBw1HXARkd2/EaLcRp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        "Maciej S. Szmigiero" <maciej.szmigiero@oracle.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0584/1157] scsi: qla2xxx: edif: Add bsg interface to read doorbell events
-Date:   Mon, 15 Aug 2022 19:59:00 +0200
-Message-Id: <20220815180503.026962348@linuxfoundation.org>
+Subject: [PATCH 5.19 0590/1157] KVM: SVM: Unwind "speculative" RIP advancement if INTn injection "fails"
+Date:   Mon, 15 Aug 2022 19:59:06 +0200
+Message-Id: <20220815180503.256234961@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,444 +56,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 5ecd241bd7b1088a189581c0b560a13fe93621f6 ]
+[ Upstream commit cd9e6da8048c5b40315ee2d929b6230ce1252c3c ]
 
-Add bsg interface for app to read doorbell events. This interface lets
-driver know how much app can read based on return buffer size. When the
-next event(s) occur, driver will return the bsg_job with the event(s) in
-the return buffer.
+Unwind the RIP advancement done by svm_queue_exception() when injecting
+an INT3 ultimately "fails" due to the CPU encountering a VM-Exit while
+vectoring the injected event, even if the exception reported by the CPU
+isn't the same event that was injected.  If vectoring INT3 encounters an
+exception, e.g. #NP, and vectoring the #NP encounters an intercepted
+exception, e.g. #PF when KVM is using shadow paging, then the #NP will
+be reported as the event that was in-progress.
 
-If there is no event to read, driver will hold on to the bsg_job up to few
-seconds as a way to control the polling interval.
+Note, this is still imperfect, as it will get a false positive if the
+INT3 is cleanly injected, no VM-Exit occurs before the IRET from the INT3
+handler in the guest, the instruction following the INT3 generates an
+exception (directly or indirectly), _and_ vectoring that exception
+encounters an exception that is intercepted by KVM.  The false positives
+could theoretically be solved by further analyzing the vectoring event,
+e.g. by comparing the error code against the expected error code were an
+exception to occur when vectoring the original injected exception, but
+SVM without NRIPS is a complete disaster, trying to make it 100% correct
+is a waste of time.
 
-Link: https://lore.kernel.org/r/20220607044627.19563-5-njavali@marvell.com
-Fixes: dd30706e73b7 ("scsi: qla2xxx: edif: Add key update")
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Fixes: 66b7138f9136 ("KVM: SVM: Emulate nRIP feature when reinjecting INT3")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
+Message-Id: <450133cf0a026cb9825a2ff55d02cb136a1cb111.1651440202.git.maciej.szmigiero@oracle.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_dbg.h      |   2 +-
- drivers/scsi/qla2xxx/qla_edif.c     | 249 ++++++++++++++++++++--------
- drivers/scsi/qla2xxx/qla_edif.h     |   3 +-
- drivers/scsi/qla2xxx/qla_edif_bsg.h |  14 ++
- 4 files changed, 195 insertions(+), 73 deletions(-)
+ arch/x86/kvm/svm/svm.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_dbg.h b/drivers/scsi/qla2xxx/qla_dbg.h
-index f1f6c740bdcd..feeb1666227f 100644
---- a/drivers/scsi/qla2xxx/qla_dbg.h
-+++ b/drivers/scsi/qla2xxx/qla_dbg.h
-@@ -383,5 +383,5 @@ ql_mask_match(uint level)
- 	if (ql2xextended_error_logging == 1)
- 		ql2xextended_error_logging = QL_DBG_DEFAULT1_MASK;
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index 40e560c875f1..fe8536c57fd7 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -3699,6 +3699,18 @@ static void svm_complete_interrupts(struct kvm_vcpu *vcpu)
+ 	vector = exitintinfo & SVM_EXITINTINFO_VEC_MASK;
+ 	type = exitintinfo & SVM_EXITINTINFO_TYPE_MASK;
  
--	return (level & ql2xextended_error_logging) == level;
-+	return level && ((level & ql2xextended_error_logging) == level);
- }
-diff --git a/drivers/scsi/qla2xxx/qla_edif.c b/drivers/scsi/qla2xxx/qla_edif.c
-index fffdf87d823a..0d84dad2612c 100644
---- a/drivers/scsi/qla2xxx/qla_edif.c
-+++ b/drivers/scsi/qla2xxx/qla_edif.c
-@@ -52,6 +52,31 @@ const char *sc_to_str(uint16_t cmd)
- 	return "unknown";
- }
++	/*
++	 * If NextRIP isn't enabled, KVM must manually advance RIP prior to
++	 * injecting the soft exception/interrupt.  That advancement needs to
++	 * be unwound if vectoring didn't complete.  Note, the _new_ event may
++	 * not be the injected event, e.g. if KVM injected an INTn, the INTn
++	 * hit a #NP in the guest, and the #NP encountered a #PF, the #NP will
++	 * be the reported vectored event, but RIP still needs to be unwound.
++	 */
++	if (int3_injected && type == SVM_EXITINTINFO_TYPE_EXEPT &&
++	   kvm_is_linear_rip(vcpu, svm->int3_rip))
++		kvm_rip_write(vcpu, kvm_rip_read(vcpu) - int3_injected);
++
+ 	switch (type) {
+ 	case SVM_EXITINTINFO_TYPE_NMI:
+ 		vcpu->arch.nmi_injected = true;
+@@ -3712,16 +3724,11 @@ static void svm_complete_interrupts(struct kvm_vcpu *vcpu)
  
-+static struct edb_node *qla_edb_getnext(scsi_qla_host_t *vha)
-+{
-+	unsigned long   flags;
-+	struct edb_node *edbnode = NULL;
-+
-+	spin_lock_irqsave(&vha->e_dbell.db_lock, flags);
-+
-+	/* db nodes are fifo - no qualifications done */
-+	if (!list_empty(&vha->e_dbell.head)) {
-+		edbnode = list_first_entry(&vha->e_dbell.head,
-+					   struct edb_node, list);
-+		list_del_init(&edbnode->list);
-+	}
-+
-+	spin_unlock_irqrestore(&vha->e_dbell.db_lock, flags);
-+
-+	return edbnode;
-+}
-+
-+static void qla_edb_node_free(scsi_qla_host_t *vha, struct edb_node *node)
-+{
-+	list_del_init(&node->list);
-+	kfree(node);
-+}
-+
- static struct edif_list_entry *qla_edif_list_find_sa_index(fc_port_t *fcport,
- 		uint16_t handle)
- {
-@@ -1071,6 +1096,130 @@ qla_edif_ack(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- 	return 0;
- }
- 
-+static int qla_edif_consume_dbell(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
-+{
-+	struct fc_bsg_reply	*bsg_reply = bsg_job->reply;
-+	u32 sg_skip, reply_payload_len;
-+	bool keep;
-+	struct edb_node *dbnode = NULL;
-+	struct edif_app_dbell ap;
-+	int dat_size = 0;
-+
-+	sg_skip = 0;
-+	reply_payload_len = bsg_job->reply_payload.payload_len;
-+
-+	while ((reply_payload_len - sg_skip) >= sizeof(struct edb_node)) {
-+		dbnode = qla_edb_getnext(vha);
-+		if (dbnode) {
-+			keep = true;
-+			dat_size = 0;
-+			ap.event_code = dbnode->ntype;
-+			switch (dbnode->ntype) {
-+			case VND_CMD_AUTH_STATE_SESSION_SHUTDOWN:
-+			case VND_CMD_AUTH_STATE_NEEDED:
-+				ap.port_id = dbnode->u.plogi_did;
-+				dat_size += sizeof(ap.port_id);
-+				break;
-+			case VND_CMD_AUTH_STATE_ELS_RCVD:
-+				ap.port_id = dbnode->u.els_sid;
-+				dat_size += sizeof(ap.port_id);
-+				break;
-+			case VND_CMD_AUTH_STATE_SAUPDATE_COMPL:
-+				ap.port_id = dbnode->u.sa_aen.port_id;
-+				memcpy(&ap.event_data, &dbnode->u,
-+				    sizeof(struct edif_sa_update_aen));
-+				dat_size += sizeof(struct edif_sa_update_aen);
-+				break;
-+			default:
-+				keep = false;
-+				ql_log(ql_log_warn, vha, 0x09102,
-+					"%s unknown DB type=%d %p\n",
-+					__func__, dbnode->ntype, dbnode);
-+				break;
-+			}
-+			ap.event_data_size = dat_size;
-+			/* 8 = sizeof(ap.event_code + ap.event_data_size) */
-+			dat_size += 8;
-+			if (keep)
-+				sg_skip += sg_copy_buffer(bsg_job->reply_payload.sg_list,
-+						bsg_job->reply_payload.sg_cnt,
-+						&ap, dat_size, sg_skip, false);
-+
-+			ql_dbg(ql_dbg_edif, vha, 0x09102,
-+				"%s Doorbell consumed : type=%d %p\n",
-+				__func__, dbnode->ntype, dbnode);
-+
-+			kfree(dbnode);
-+		} else {
-+			break;
-+		}
-+	}
-+
-+	SET_DID_STATUS(bsg_reply->result, DID_OK);
-+	bsg_reply->reply_payload_rcv_len = sg_skip;
-+	bsg_job->reply_len = sizeof(struct fc_bsg_reply);
-+
-+	return 0;
-+}
-+
-+static void __qla_edif_dbell_bsg_done(scsi_qla_host_t *vha, struct bsg_job *bsg_job,
-+	u32 delay)
-+{
-+	struct fc_bsg_reply *bsg_reply = bsg_job->reply;
-+
-+	/* small sleep for doorbell events to accumulate */
-+	if (delay)
-+		msleep(delay);
-+
-+	qla_edif_consume_dbell(vha, bsg_job);
-+
-+	bsg_job_done(bsg_job, bsg_reply->result, bsg_reply->reply_payload_rcv_len);
-+}
-+
-+static void qla_edif_dbell_bsg_done(scsi_qla_host_t *vha)
-+{
-+	unsigned long flags;
-+	struct bsg_job *prev_bsg_job = NULL;
-+
-+	spin_lock_irqsave(&vha->e_dbell.db_lock, flags);
-+	if (vha->e_dbell.dbell_bsg_job) {
-+		prev_bsg_job = vha->e_dbell.dbell_bsg_job;
-+		vha->e_dbell.dbell_bsg_job = NULL;
-+	}
-+	spin_unlock_irqrestore(&vha->e_dbell.db_lock, flags);
-+
-+	if (prev_bsg_job)
-+		__qla_edif_dbell_bsg_done(vha, prev_bsg_job, 0);
-+}
-+
-+static int
-+qla_edif_dbell_bsg(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
-+{
-+	unsigned long flags;
-+	bool return_bsg = false;
-+
-+	/* flush previous dbell bsg */
-+	qla_edif_dbell_bsg_done(vha);
-+
-+	spin_lock_irqsave(&vha->e_dbell.db_lock, flags);
-+	if (list_empty(&vha->e_dbell.head) && DBELL_ACTIVE(vha)) {
-+		/*
-+		 * when the next db event happens, bsg_job will return.
-+		 * Otherwise, timer will return it.
-+		 */
-+		vha->e_dbell.dbell_bsg_job = bsg_job;
-+		vha->e_dbell.bsg_expire = jiffies + 10 * HZ;
-+	} else {
-+		return_bsg = true;
-+	}
-+	spin_unlock_irqrestore(&vha->e_dbell.db_lock, flags);
-+
-+	if (return_bsg)
-+		__qla_edif_dbell_bsg_done(vha, bsg_job, 1);
-+
-+	return 0;
-+}
-+
- int32_t
- qla_edif_app_mgmt(struct bsg_job *bsg_job)
- {
-@@ -1082,8 +1231,13 @@ qla_edif_app_mgmt(struct bsg_job *bsg_job)
- 	bool done = true;
- 	int32_t         rval = 0;
- 	uint32_t	vnd_sc = bsg_request->rqst_data.h_vendor.vendor_cmd[1];
-+	u32 level = ql_dbg_edif;
- 
--	ql_dbg(ql_dbg_edif, vha, 0x911d, "%s vnd subcmd=%x\n",
-+	/* doorbell is high traffic */
-+	if (vnd_sc == QL_VND_SC_READ_DBELL)
-+		level = 0;
-+
-+	ql_dbg(level, vha, 0x911d, "%s vnd subcmd=%x\n",
- 	    __func__, vnd_sc);
- 
- 	sg_copy_to_buffer(bsg_job->request_payload.sg_list,
-@@ -1092,7 +1246,7 @@ qla_edif_app_mgmt(struct bsg_job *bsg_job)
- 
- 	if (!vha->hw->flags.edif_enabled ||
- 		test_bit(VPORT_DELETE, &vha->dpc_flags)) {
--		ql_dbg(ql_dbg_edif, vha, 0x911d,
-+		ql_dbg(level, vha, 0x911d,
- 		    "%s edif not enabled or vp delete. bsg ptr done %p. dpc_flags %lx\n",
- 		    __func__, bsg_job, vha->dpc_flags);
- 
-@@ -1101,7 +1255,7 @@ qla_edif_app_mgmt(struct bsg_job *bsg_job)
- 	}
- 
- 	if (!qla_edif_app_check(vha, appcheck)) {
--		ql_dbg(ql_dbg_edif, vha, 0x911d,
-+		ql_dbg(level, vha, 0x911d,
- 		    "%s app checked failed.\n",
- 		    __func__);
- 
-@@ -1136,6 +1290,10 @@ qla_edif_app_mgmt(struct bsg_job *bsg_job)
- 	case QL_VND_SC_AEN_COMPLETE:
- 		rval = qla_edif_ack(vha, bsg_job);
- 		break;
-+	case QL_VND_SC_READ_DBELL:
-+		rval = qla_edif_dbell_bsg(vha, bsg_job);
-+		done = false;
-+		break;
- 	default:
- 		ql_dbg(ql_dbg_edif, vha, 0x911d, "%s unknown cmd=%x\n",
- 		    __func__,
-@@ -1147,7 +1305,7 @@ qla_edif_app_mgmt(struct bsg_job *bsg_job)
- 
- done:
- 	if (done) {
--		ql_dbg(ql_dbg_user, vha, 0x7009,
-+		ql_dbg(level, vha, 0x7009,
- 		    "%s: %d  bsg ptr done %p\n", __func__, __LINE__, bsg_job);
- 		bsg_job_done(bsg_job, bsg_reply->result,
- 		    bsg_reply->reply_payload_rcv_len);
-@@ -1859,30 +2017,6 @@ qla_edb_init(scsi_qla_host_t *vha)
- 	/* initialize lock which protects doorbell & init list */
- 	spin_lock_init(&vha->e_dbell.db_lock);
- 	INIT_LIST_HEAD(&vha->e_dbell.head);
--
--	/* create and initialize doorbell */
--	init_completion(&vha->e_dbell.dbell);
--}
--
--static void
--qla_edb_node_free(scsi_qla_host_t *vha, struct edb_node *node)
--{
--	/*
--	 * releases the space held by this edb node entry
--	 * this function does _not_ free the edb node itself
--	 * NB: the edb node entry passed should not be on any list
--	 *
--	 * currently for doorbell there's no additional cleanup
--	 * needed, but here as a placeholder for furture use.
--	 */
--
--	if (!node) {
--		ql_dbg(ql_dbg_edif, vha, 0x09122,
--		    "%s error - no valid node passed\n", __func__);
--		return;
--	}
--
--	node->ntype = N_UNDEF;
- }
- 
- static void qla_edb_clear(scsi_qla_host_t *vha, port_id_t portid)
-@@ -1929,11 +2063,8 @@ static void qla_edb_clear(scsi_qla_host_t *vha, port_id_t portid)
- 	}
- 	spin_unlock_irqrestore(&vha->e_dbell.db_lock, flags);
- 
--	list_for_each_entry_safe(e, tmp, &edb_list, list) {
-+	list_for_each_entry_safe(e, tmp, &edb_list, list)
- 		qla_edb_node_free(vha, e);
--		list_del_init(&e->list);
--		kfree(e);
--	}
- }
- 
- /* function called when app is stopping */
-@@ -1961,14 +2092,10 @@ qla_edb_stop(scsi_qla_host_t *vha)
- 		    "%s freeing edb_node type=%x\n",
- 		    __func__, node->ntype);
- 		qla_edb_node_free(vha, node);
--		list_del(&node->list);
--
--		kfree(node);
- 	}
- 	spin_unlock_irqrestore(&vha->e_dbell.db_lock, flags);
- 
--	/* wake up doorbell waiters - they'll be dismissed with error code */
--	complete_all(&vha->e_dbell.dbell);
-+	qla_edif_dbell_bsg_done(vha);
- }
- 
- static struct edb_node *
-@@ -2006,9 +2133,6 @@ qla_edb_node_add(scsi_qla_host_t *vha, struct edb_node *ptr)
- 	list_add_tail(&ptr->list, &vha->e_dbell.head);
- 	spin_unlock_irqrestore(&vha->e_dbell.db_lock, flags);
- 
--	/* ring doorbell for waiters */
--	complete(&vha->e_dbell.dbell);
--
- 	return true;
- }
- 
-@@ -2077,43 +2201,24 @@ qla_edb_eventcreate(scsi_qla_host_t *vha, uint32_t dbtype,
- 	default:
- 		ql_dbg(ql_dbg_edif, vha, 0x09102,
- 			"%s unknown type: %x\n", __func__, dbtype);
--		qla_edb_node_free(vha, edbnode);
- 		kfree(edbnode);
- 		edbnode = NULL;
- 		break;
- 	}
- 
--	if (edbnode && (!qla_edb_node_add(vha, edbnode))) {
-+	if (edbnode) {
-+		if (!qla_edb_node_add(vha, edbnode)) {
-+			ql_dbg(ql_dbg_edif, vha, 0x09102,
-+			    "%s unable to add dbnode\n", __func__);
-+			kfree(edbnode);
-+			return;
-+		}
- 		ql_dbg(ql_dbg_edif, vha, 0x09102,
--		    "%s unable to add dbnode\n", __func__);
--		qla_edb_node_free(vha, edbnode);
--		kfree(edbnode);
--		return;
--	}
--	if (edbnode && fcport)
--		fcport->edif.auth_state = dbtype;
--	ql_dbg(ql_dbg_edif, vha, 0x09102,
--	    "%s Doorbell produced : type=%d %p\n", __func__, dbtype, edbnode);
--}
--
--static struct edb_node *
--qla_edb_getnext(scsi_qla_host_t *vha)
--{
--	unsigned long	flags;
--	struct edb_node	*edbnode = NULL;
--
--	spin_lock_irqsave(&vha->e_dbell.db_lock, flags);
--
--	/* db nodes are fifo - no qualifications done */
--	if (!list_empty(&vha->e_dbell.head)) {
--		edbnode = list_first_entry(&vha->e_dbell.head,
--		    struct edb_node, list);
--		list_del(&edbnode->list);
-+		    "%s Doorbell produced : type=%d %p\n", __func__, dbtype, edbnode);
-+		qla_edif_dbell_bsg_done(vha);
-+		if (fcport)
-+			fcport->edif.auth_state = dbtype;
- 	}
--
--	spin_unlock_irqrestore(&vha->e_dbell.db_lock, flags);
--
--	return edbnode;
- }
- 
- void
-@@ -2141,6 +2246,9 @@ qla_edif_timer(scsi_qla_host_t *vha)
- 			ha->edif_post_stop_cnt_down = 60;
- 		}
- 	}
-+
-+	if (vha->e_dbell.dbell_bsg_job && time_after_eq(jiffies, vha->e_dbell.bsg_expire))
-+		qla_edif_dbell_bsg_done(vha);
- }
- 
- /*
-@@ -2208,7 +2316,6 @@ edif_doorbell_show(struct device *dev, struct device_attribute *attr,
- 				"%s Doorbell consumed : type=%d %p\n",
- 				__func__, dbnode->ntype, dbnode);
- 			/* we're done with the db node, so free it up */
--			qla_edb_node_free(vha, dbnode);
- 			kfree(dbnode);
- 		} else {
+ 		/*
+ 		 * In case of software exceptions, do not reinject the vector,
+-		 * but re-execute the instruction instead. Rewind RIP first
+-		 * if we emulated INT3 before.
++		 * but re-execute the instruction instead.
+ 		 */
+-		if (kvm_exception_is_soft(vector)) {
+-			if (vector == BP_VECTOR && int3_injected &&
+-			    kvm_is_linear_rip(vcpu, svm->int3_rip))
+-				kvm_rip_write(vcpu,
+-					      kvm_rip_read(vcpu) - int3_injected);
++		if (kvm_exception_is_soft(vector))
  			break;
-diff --git a/drivers/scsi/qla2xxx/qla_edif.h b/drivers/scsi/qla2xxx/qla_edif.h
-index a965ca8e47ce..3561e22b8f0f 100644
---- a/drivers/scsi/qla2xxx/qla_edif.h
-+++ b/drivers/scsi/qla2xxx/qla_edif.h
-@@ -51,7 +51,8 @@ struct edif_dbell {
- 	enum db_flags_t		db_flags;
- 	spinlock_t		db_lock;
- 	struct  list_head	head;
--	struct	completion	dbell;
-+	struct bsg_job *dbell_bsg_job;
-+	unsigned long bsg_expire;
- };
- 
- #define SA_UPDATE_IOCB_TYPE            0x71    /* Security Association Update IOCB entry */
-diff --git a/drivers/scsi/qla2xxx/qla_edif_bsg.h b/drivers/scsi/qla2xxx/qla_edif_bsg.h
-index 301523e4f483..110843b13767 100644
---- a/drivers/scsi/qla2xxx/qla_edif_bsg.h
-+++ b/drivers/scsi/qla2xxx/qla_edif_bsg.h
-@@ -183,6 +183,20 @@ struct qla_sa_update_frame {
- #define	QL_VND_SC_GET_FCINFO	7
- #define	QL_VND_SC_GET_STATS	8
- #define QL_VND_SC_AEN_COMPLETE  9
-+#define QL_VND_SC_READ_DBELL	10
+-		}
 +
-+/*
-+ * bsg caller to provide empty buffer for doorbell events.
-+ *
-+ * sg_io_v4.din_xferp  = empty buffer for door bell events
-+ * sg_io_v4.dout_xferp = struct edif_read_dbell *buf
-+ */
-+struct edif_read_dbell {
-+	struct app_id app_info;
-+	uint8_t version;
-+	uint8_t pad[VND_CMD_PAD_SIZE];
-+	uint8_t reserved[VND_CMD_APP_RESERVED_SIZE];
-+};
- 
- 
- /* Application interface data structure for rtn data */
+ 		if (exitintinfo & SVM_EXITINTINFO_VALID_ERR) {
+ 			u32 err = svm->vmcb->control.exit_int_info_err;
+ 			kvm_requeue_exception_e(vcpu, vector, err);
 -- 
 2.35.1
 
