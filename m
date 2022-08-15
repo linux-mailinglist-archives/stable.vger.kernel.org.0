@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBA8D593549
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84F28593552
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239245AbiHOSWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:22:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41050 "EHLO
+        id S241210AbiHOSWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:22:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240053AbiHOSVG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:21:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F9A62AE3B;
-        Mon, 15 Aug 2022 11:17:03 -0700 (PDT)
+        with ESMTP id S241079AbiHOSWE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:22:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40C052A42A;
+        Mon, 15 Aug 2022 11:17:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3775C6129E;
-        Mon, 15 Aug 2022 18:17:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D4DBC433C1;
-        Mon, 15 Aug 2022 18:17:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADCD3B81077;
+        Mon, 15 Aug 2022 18:17:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06C61C433C1;
+        Mon, 15 Aug 2022 18:17:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587421;
-        bh=Ts3AiSRmTbJJpcUvBliN/0tGoKx4jocfJ/MIf+n3rEc=;
+        s=korg; t=1660587427;
+        bh=7cyjgV5neVvXvAMFqPTigQYH2UGTWOf11a0mfS7prpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HS4Ojk+qlArwKYaSlGzjCQEPk79HPTIHDFz7gX3rsYvHNBBwJKVK/51x5rKfWhjvG
-         5t4q+BP+0UYBcV/Mmtr03KXByq3eh+Jo+aq/Z+1tylwgwuVPhnYMZTaagyeGiqUTfY
-         On5IVke2VTXCWKHRFqZ59PNIdsEAECZiEjNUBh30=
+        b=Ai/7EuNTfVcx3ugiD+eXmzUncAnQstWqS+ryLUKNmB1uB9xSkjE8RAif/jgi5tc8j
+         21T75j8sFqtmuedbFJzv/PXcg6VEE+VJJ+fixyfNikw6ZrvjWYddwIaBl+Wx/og7se
+         db3ncj0C1UfHU5K1wAomgTnW/0Um9xYIEW6K0YDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 081/779] soundwire: qcom: Check device status before reading devid
-Date:   Mon, 15 Aug 2022 19:55:25 +0200
-Message-Id: <20220815180340.760664473@linuxfoundation.org>
+        stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
+        Hyunchul Lee <hyc.lee@gmail.com>,
+        Steve French <stfrench@microsoft.com>,
+        zdi-disclosures@trendmicro.com
+Subject: [PATCH 5.15 082/779] ksmbd: fix memory leak in smb2_handle_negotiate
+Date:   Mon, 15 Aug 2022 19:55:26 +0200
+Message-Id: <20220815180340.793635570@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,38 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-commit aa1262ca66957183ea1fb32a067e145b995f3744 upstream.
+commit aa7253c2393f6dcd6a1468b0792f6da76edad917 upstream.
 
-As per hardware datasheet its recommended that we check the device
-status before reading devid assigned by auto-enumeration.
+The allocated memory didn't free under an error
+path in smb2_handle_negotiate().
 
-Without this patch we see SoundWire devices with invalid enumeration
-addresses on the bus.
-
+Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
 Cc: stable@vger.kernel.org
-Fixes: a6e6581942ca ("soundwire: qcom: add auto enumeration support")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220706095644.5852-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-17815
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soundwire/qcom.c |    4 ++++
+ fs/ksmbd/smb2pdu.c |    4 ++++
  1 file changed, 4 insertions(+)
 
---- a/drivers/soundwire/qcom.c
-+++ b/drivers/soundwire/qcom.c
-@@ -451,6 +451,10 @@ static int qcom_swrm_enumerate(struct sd
- 	char *buf1 = (char *)&val1, *buf2 = (char *)&val2;
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -1146,12 +1146,16 @@ int smb2_handle_negotiate(struct ksmbd_w
+ 			       status);
+ 			rsp->hdr.Status = status;
+ 			rc = -EINVAL;
++			kfree(conn->preauth_info);
++			conn->preauth_info = NULL;
+ 			goto err_out;
+ 		}
  
- 	for (i = 1; i <= SDW_MAX_DEVICES; i++) {
-+		/* do not continue if the status is Not Present  */
-+		if (!ctrl->status[i])
-+			continue;
-+
- 		/*SCP_Devid5 - Devid 4*/
- 		ctrl->reg_read(ctrl, SWRM_ENUMERATOR_SLAVE_DEV_ID_1(i), &val1);
+ 		rc = init_smb3_11_server(conn);
+ 		if (rc < 0) {
+ 			rsp->hdr.Status = STATUS_INVALID_PARAMETER;
++			kfree(conn->preauth_info);
++			conn->preauth_info = NULL;
+ 			goto err_out;
+ 		}
  
 
 
