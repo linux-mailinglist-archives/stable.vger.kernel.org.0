@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 479DC593FDA
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:46:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD0B1593FCF
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:46:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348866AbiHOVhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:37:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39892 "EHLO
+        id S1348874AbiHOVht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:37:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349042AbiHOVgb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:36:31 -0400
+        with ESMTP id S1349046AbiHOVgc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:36:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA83C6DAE5;
-        Mon, 15 Aug 2022 12:26:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B58F66DAE9;
+        Mon, 15 Aug 2022 12:26:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C26860EF0;
-        Mon, 15 Aug 2022 19:26:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA4B9C433C1;
-        Mon, 15 Aug 2022 19:26:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 345B2610A1;
+        Mon, 15 Aug 2022 19:26:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 396C1C433C1;
+        Mon, 15 Aug 2022 19:26:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591563;
-        bh=dz7vQ4RXKIwyT5wUIh04z6+gRNzyrIgUgYrhIoQKgSM=;
+        s=korg; t=1660591566;
+        bh=QR1XBvrH8wI3gk0GPZBv4A5itdT7WIsgvNLuw9VtplE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dgmBKoVA7MOOpzNlh++pa5SgvinpPFTZ7FPZVamdVPk0/SkoX7H6olpiuW7nh4wHI
-         40mGQ2ULrGbjQl1S0dRJoWwDeiU3eySYAcPABgkXI9VmVNof/9gwKlsw/ExNN9lZ5Z
-         WWi1pcFJxHFM1RCrHDGQqnqeaap6ZbRkUpSFtCvc=
+        b=VpGxYeSqtBGvhmWC8b4q5konXV5wcFWa8dvPzzfzVkzFmAn61aFrWGMrE8zCmlvOG
+         6FJtAGjWVVIhlv4ZyKgE+R51Qo+JFwMiSqyVXxNdiOM9tTU44lpnVSGtnSBVi4RYWt
+         5myIzttw0SB1ven8vn/2GzlfNjLvNfP5S4FZgH74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jagath Jog J <jagathjog1996@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Rajat Jain <rajatja@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Evan Green <evgreen@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0581/1095] iio: accel: bma400: Fix the scale min and max macro values
-Date:   Mon, 15 Aug 2022 19:59:40 +0200
-Message-Id: <20220815180453.613172440@linuxfoundation.org>
+Subject: [PATCH 5.18 0582/1095] platform/chrome: cros_ec: Always expose last resume result
+Date:   Mon, 15 Aug 2022 19:59:41 +0200
+Message-Id: <20220815180453.664185027@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,57 +59,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jagath Jog J <jagathjog1996@gmail.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit 747c7cf1592e226d40543231b26502b332d0ea2f ]
+[ Upstream commit 74bb746407bf0d7c7d126c7731dbcd66d467619b ]
 
-Changing the scale macro values to match the bma400 sensitivity
-for 1 LSB of all the available ranges.
+The last resume result exposing logic in cros_ec_sleep_event()
+incorrectly requires S0ix support, which doesn't work on ARM based
+systems where S0ix doesn't exist. That's because cros_ec_sleep_event()
+only reports the last resume result when the EC indicates the last sleep
+event was an S0ix resume. On ARM systems, the last sleep event is always
+S3 resume, but the EC can still detect sleep hang events in case some
+other part of the AP is blocking sleep.
 
-Fixes: 465c811f1f20 ("iio: accel: Add driver for the BMA400")
-Signed-off-by: Jagath Jog J <jagathjog1996@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220505133021.22362-2-jagathjog1996@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Always expose the last resume result if the EC supports it so that this
+works on all devices regardless of S0ix support. This fixes sleep hang
+detection on ARM based chromebooks like Trogdor.
+
+Cc: Rajat Jain <rajatja@chromium.org>
+Cc: Matthias Kaehlcke <mka@chromium.org>
+Cc: Hsin-Yi Wang <hsinyi@chromium.org>
+Cc: Tzung-Bi Shih <tzungbi@kernel.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Reviewed-by: Evan Green <evgreen@chromium.org>
+Fixes: 7235560ac77a ("platform/chrome: Add support for v1 of host sleep event")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Tzung-Bi Shih <tzungbi@kernel.org>
+Link: https://lore.kernel.org/r/20220614075726.2729987-1-swboyd@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/bma400.h | 23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ drivers/platform/chrome/cros_ec.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/accel/bma400.h b/drivers/iio/accel/bma400.h
-index c4c8d74155c2..80330c7ce17f 100644
---- a/drivers/iio/accel/bma400.h
-+++ b/drivers/iio/accel/bma400.h
-@@ -83,8 +83,27 @@
- #define BMA400_ACC_ODR_MIN_WHOLE_HZ 25
- #define BMA400_ACC_ODR_MIN_HZ       12
+diff --git a/drivers/platform/chrome/cros_ec.c b/drivers/platform/chrome/cros_ec.c
+index a5cc8f24299e..4168d7f5f273 100644
+--- a/drivers/platform/chrome/cros_ec.c
++++ b/drivers/platform/chrome/cros_ec.c
+@@ -135,16 +135,16 @@ static int cros_ec_sleep_event(struct cros_ec_device *ec_dev, u8 sleep_event)
+ 	buf.msg.command = EC_CMD_HOST_SLEEP_EVENT;
  
--#define BMA400_SCALE_MIN            38357
--#define BMA400_SCALE_MAX            306864
-+/*
-+ * BMA400_SCALE_MIN macro value represents m/s^2 for 1 LSB before
-+ * converting to micro values for +-2g range.
-+ *
-+ * For +-2g - 1 LSB = 0.976562 milli g = 0.009576 m/s^2
-+ * For +-4g - 1 LSB = 1.953125 milli g = 0.019153 m/s^2
-+ * For +-16g - 1 LSB = 7.8125 milli g = 0.076614 m/s^2
-+ *
-+ * The raw value which is used to select the different ranges is determined
-+ * by the first bit set position from the scale value, so BMA400_SCALE_MIN
-+ * should be odd.
-+ *
-+ * Scale values for +-2g, +-4g, +-8g and +-16g are populated into bma400_scales
-+ * array by left shifting BMA400_SCALE_MIN.
-+ * e.g.:
-+ * To select +-2g = 9577 << 0 = raw value to write is 0.
-+ * To select +-8g = 9577 << 2 = raw value to write is 2.
-+ * To select +-16g = 9577 << 3 = raw value to write is 3.
-+ */
-+#define BMA400_SCALE_MIN            9577
-+#define BMA400_SCALE_MAX            76617
+ 	ret = cros_ec_cmd_xfer_status(ec_dev, &buf.msg);
+-
+-	/* For now, report failure to transition to S0ix with a warning. */
++	/* Report failure to transition to system wide suspend with a warning. */
+ 	if (ret >= 0 && ec_dev->host_sleep_v1 &&
+-	    (sleep_event == HOST_SLEEP_EVENT_S0IX_RESUME)) {
++	    (sleep_event == HOST_SLEEP_EVENT_S0IX_RESUME ||
++	     sleep_event == HOST_SLEEP_EVENT_S3_RESUME)) {
+ 		ec_dev->last_resume_result =
+ 			buf.u.resp1.resume_response.sleep_transitions;
  
- #define BMA400_NUM_REGULATORS       2
- #define BMA400_VDD_REGULATOR        0
+ 		WARN_ONCE(buf.u.resp1.resume_response.sleep_transitions &
+ 			  EC_HOST_RESUME_SLEEP_TIMEOUT,
+-			  "EC detected sleep transition timeout. Total slp_s0 transitions: %d",
++			  "EC detected sleep transition timeout. Total sleep transitions: %d",
+ 			  buf.u.resp1.resume_response.sleep_transitions &
+ 			  EC_HOST_RESUME_SLEEP_TRANSITIONS_MASK);
+ 	}
 -- 
 2.35.1
 
