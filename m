@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3249B594CBD
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 684E7594C54
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243586AbiHPA7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:59:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55516 "EHLO
+        id S231834AbiHPA67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:58:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346837AbiHPA5B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:57:01 -0400
+        with ESMTP id S1344972AbiHPA4j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:56:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65044B7EF5;
-        Mon, 15 Aug 2022 13:48:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F9319ECB1;
+        Mon, 15 Aug 2022 13:48:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5584B8114A;
-        Mon, 15 Aug 2022 20:48:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EA35C433D6;
-        Mon, 15 Aug 2022 20:48:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02A19B811AE;
+        Mon, 15 Aug 2022 20:48:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EB0CC433C1;
+        Mon, 15 Aug 2022 20:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596503;
-        bh=y54VjTkQNMStid2ByS12E+NB1nC0NfRQ1/G4aNt0/P8=;
+        s=korg; t=1660596506;
+        bh=7tARl1TSUtB1EY1AcMUAeuoi5nZ03zGTLEJW5dprqRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k3l0D54pkNHSXVEvZJjF1TL1VMMgxt/pEO8fQWYcQ7tHwI1/U+21AhnXa+vMKG0hU
-         jhyW12OrWFy8IMTWLqtXlGzZb5240R1WRXlkkx8Y61SRDbRb2xXzsQsO18TBDKifmK
-         E3UfafgVl8i9FQH9Iwff6gTrfn2v2sefpkzJUDtM=
+        b=geJ1bQXYzu5eMdJzT84KYmugScO1OLTUdCoIYaQFtZoM2Zv3FqnaNYQQnj5kOyu/E
+         A+4QPZXte++NgFuuXlhzzwx2ntD7j+kc69mKwgXeZS6leSxdhJnAfzOJ0xI3gOqEXw
+         c+10R6/0vgle3199arUALyltQ0HU5O8h2gkNap9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Sachin Sant <sachinp@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 1100/1157] powerpc/powernv/kvm: Use darn for H_RANDOM on Power9
-Date:   Mon, 15 Aug 2022 20:07:36 +0200
-Message-Id: <20220815180524.267408207@linuxfoundation.org>
+Subject: [PATCH 5.19 1101/1157] s390/unwind: fix fgraph return address recovery
+Date:   Mon, 15 Aug 2022 20:07:37 +0200
+Message-Id: <20220815180524.302933945@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,143 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Sumanth Korikkar <sumanthk@linux.ibm.com>
 
-[ Upstream commit 7ef3d06f1bc4a5e62273726f3dc2bd258ae1c71f ]
+[ Upstream commit ded466e1806686794b403ebf031133bbaca76bb2 ]
 
-The existing logic in KVM to support guests calling H_RANDOM only works
-on Power8, because it looks for an RNG in the device tree, but on Power9
-we just use darn.
+When HAVE_FUNCTION_GRAPH_RET_ADDR_PTR is defined, the return
+address to the fgraph caller is recovered by tagging it along with the
+stack pointer of ftrace stack. This makes the stack unwinding more
+reliable.
 
-In addition the existing code needs to work in real mode, so we have the
-special cased powernv_get_random_real_mode() to deal with that.
+When the fgraph return address is modified to return_to_handler,
+ftrace_graph_ret_addr tries to restore it to the original
+value using tagged stack pointer.
 
-Instead just have KVM call ppc_md.get_random_seed(), and do the real
-mode check inside of there, that way we use whatever RNG is available,
-including darn on Power9.
+Fix this by passing tagged sp to ftrace_graph_ret_addr.
 
-Fixes: e928e9cb3601 ("KVM: PPC: Book3S HV: Add fast real-mode H_RANDOM implementation.")
-Cc: stable@vger.kernel.org # v4.1+
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Tested-by: Sachin Sant <sachinp@linux.ibm.com>
-[mpe: Rebase on previous commit, update change log appropriately]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220727143219.2684192-2-mpe@ellerman.id.au
+Fixes: d81675b60d09 ("s390/unwind: recover kretprobe modified return address in stacktrace")
+Cc: <stable@vger.kernel.org> # 5.18
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/archrandom.h |  5 ----
- arch/powerpc/kvm/book3s_hv_builtin.c  |  7 +++---
- arch/powerpc/platforms/powernv/rng.c  | 36 ++++++---------------------
- 3 files changed, 12 insertions(+), 36 deletions(-)
+ arch/s390/include/asm/unwind.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
-index 9a53e29680f4..258174304904 100644
---- a/arch/powerpc/include/asm/archrandom.h
-+++ b/arch/powerpc/include/asm/archrandom.h
-@@ -38,12 +38,7 @@ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
- #endif /* CONFIG_ARCH_RANDOM */
- 
- #ifdef CONFIG_PPC_POWERNV
--int powernv_hwrng_present(void);
- int powernv_get_random_long(unsigned long *v);
--int powernv_get_random_real_mode(unsigned long *v);
--#else
--static inline int powernv_hwrng_present(void) { return 0; }
--static inline int powernv_get_random_real_mode(unsigned long *v) { return 0; }
- #endif
- 
- #endif /* _ASM_POWERPC_ARCHRANDOM_H */
-diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
-index 88a8f6473c4e..3abaef5f9ac2 100644
---- a/arch/powerpc/kvm/book3s_hv_builtin.c
-+++ b/arch/powerpc/kvm/book3s_hv_builtin.c
-@@ -19,7 +19,7 @@
- #include <asm/interrupt.h>
- #include <asm/kvm_ppc.h>
- #include <asm/kvm_book3s.h>
--#include <asm/archrandom.h>
-+#include <asm/machdep.h>
- #include <asm/xics.h>
- #include <asm/xive.h>
- #include <asm/dbell.h>
-@@ -176,13 +176,14 @@ EXPORT_SYMBOL_GPL(kvmppc_hcall_impl_hv_realmode);
- 
- int kvmppc_hwrng_present(void)
+diff --git a/arch/s390/include/asm/unwind.h b/arch/s390/include/asm/unwind.h
+index 0bf06f1682d8..02462e7100c1 100644
+--- a/arch/s390/include/asm/unwind.h
++++ b/arch/s390/include/asm/unwind.h
+@@ -47,7 +47,7 @@ struct unwind_state {
+ static inline unsigned long unwind_recover_ret_addr(struct unwind_state *state,
+ 						    unsigned long ip)
  {
--	return powernv_hwrng_present();
-+	return ppc_md.get_random_seed != NULL;
- }
- EXPORT_SYMBOL_GPL(kvmppc_hwrng_present);
- 
- long kvmppc_rm_h_random(struct kvm_vcpu *vcpu)
- {
--	if (powernv_get_random_real_mode(&vcpu->arch.regs.gpr[4]))
-+	if (ppc_md.get_random_seed &&
-+	    ppc_md.get_random_seed(&vcpu->arch.regs.gpr[4]))
- 		return H_SUCCESS;
- 
- 	return H_HARDWARE;
-diff --git a/arch/powerpc/platforms/powernv/rng.c b/arch/powerpc/platforms/powernv/rng.c
-index 2287c9cd0cd5..d19305292e1e 100644
---- a/arch/powerpc/platforms/powernv/rng.c
-+++ b/arch/powerpc/platforms/powernv/rng.c
-@@ -29,15 +29,6 @@ struct powernv_rng {
- 
- static DEFINE_PER_CPU(struct powernv_rng *, powernv_rng);
- 
--int powernv_hwrng_present(void)
--{
--	struct powernv_rng *rng;
--
--	rng = get_cpu_var(powernv_rng);
--	put_cpu_var(rng);
--	return rng != NULL;
--}
--
- static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
- {
- 	unsigned long parity;
-@@ -58,19 +49,6 @@ static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
- 	return val;
- }
- 
--int powernv_get_random_real_mode(unsigned long *v)
--{
--	struct powernv_rng *rng;
--
--	rng = raw_cpu_read(powernv_rng);
--	if (!rng)
--		return 0;
--
--	*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
--
--	return 1;
--}
--
- static int powernv_get_random_darn(unsigned long *v)
- {
- 	unsigned long val;
-@@ -107,12 +85,14 @@ int powernv_get_random_long(unsigned long *v)
- {
- 	struct powernv_rng *rng;
- 
--	rng = get_cpu_var(powernv_rng);
--
--	*v = rng_whiten(rng, in_be64(rng->regs));
--
--	put_cpu_var(rng);
--
-+	if (mfmsr() & MSR_DR) {
-+		rng = get_cpu_var(powernv_rng);
-+		*v = rng_whiten(rng, in_be64(rng->regs));
-+		put_cpu_var(rng);
-+	} else {
-+		rng = raw_cpu_read(powernv_rng);
-+		*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
-+	}
- 	return 1;
- }
- EXPORT_SYMBOL_GPL(powernv_get_random_long);
+-	ip = ftrace_graph_ret_addr(state->task, &state->graph_idx, ip, NULL);
++	ip = ftrace_graph_ret_addr(state->task, &state->graph_idx, ip, (void *)state->sp);
+ 	if (is_kretprobe_trampoline(ip))
+ 		ip = kretprobe_find_ret_addr(state->task, (void *)state->sp, &state->kr_cur);
+ 	return ip;
 -- 
 2.35.1
 
