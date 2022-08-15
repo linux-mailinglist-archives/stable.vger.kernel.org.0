@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96D2E59354D
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBA8D593549
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 20:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240444AbiHOSWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:22:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41592 "EHLO
+        id S239245AbiHOSWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:22:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240562AbiHOSVW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:21:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E550B2AE3A;
-        Mon, 15 Aug 2022 11:17:01 -0700 (PDT)
+        with ESMTP id S240053AbiHOSVG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:21:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F9A62AE3B;
+        Mon, 15 Aug 2022 11:17:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4BC9B8107A;
-        Mon, 15 Aug 2022 18:16:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DAA6C433D6;
-        Mon, 15 Aug 2022 18:16:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3775C6129E;
+        Mon, 15 Aug 2022 18:17:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D4DBC433C1;
+        Mon, 15 Aug 2022 18:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587418;
-        bh=zEedom811/5se5b7aljK1JSNDPwuR5xYRPX2z+nxSlI=;
+        s=korg; t=1660587421;
+        bh=Ts3AiSRmTbJJpcUvBliN/0tGoKx4jocfJ/MIf+n3rEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AsdWK5ASl90fgOJH4CGjojUfzJ4P+zK9pM/Pz1ZsCEtU+1toAjTQLZ6uy5GjjzAVN
-         0vSiHA5S5XZdONJlVQFprqgEfG3WEMLwQBjurhrQpUENcgaR4gaxpwpmfC0O9ImEAk
-         WLwnASZhqcg95MkvBAs2RxwA0cq7pqzhUWPKdTOM=
+        b=HS4Ojk+qlArwKYaSlGzjCQEPk79HPTIHDFz7gX3rsYvHNBBwJKVK/51x5rKfWhjvG
+         5t4q+BP+0UYBcV/Mmtr03KXByq3eh+Jo+aq/Z+1tylwgwuVPhnYMZTaagyeGiqUTfY
+         On5IVke2VTXCWKHRFqZ59PNIdsEAECZiEjNUBh30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Bikash Hazarika <bhazarika@marvell.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 080/779] scsi: qla2xxx: Zero undefined mailbox IN registers
-Date:   Mon, 15 Aug 2022 19:55:24 +0200
-Message-Id: <20220815180340.728980504@linuxfoundation.org>
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.15 081/779] soundwire: qcom: Check device status before reading devid
+Date:   Mon, 15 Aug 2022 19:55:25 +0200
+Message-Id: <20220815180340.760664473@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -57,36 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bikash Hazarika <bhazarika@marvell.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-commit 6c96a3c7d49593ef15805f5e497601c87695abc9 upstream.
+commit aa1262ca66957183ea1fb32a067e145b995f3744 upstream.
 
-While requesting a new mailbox command, driver does not write any data to
-unused registers.  Initialize the unused register value to zero while
-requesting a new mailbox command to prevent stale entry access by firmware.
+As per hardware datasheet its recommended that we check the device
+status before reading devid assigned by auto-enumeration.
 
-Link: https://lore.kernel.org/r/20220713052045.10683-4-njavali@marvell.com
+Without this patch we see SoundWire devices with invalid enumeration
+addresses on the bus.
+
 Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Bikash Hazarika <bhazarika@marvell.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: a6e6581942ca ("soundwire: qcom: add auto enumeration support")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220706095644.5852-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_mbx.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/soundwire/qcom.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -238,6 +238,8 @@ qla2x00_mailbox_command(scsi_qla_host_t
- 			ql_dbg(ql_dbg_mbx, vha, 0x1112,
- 			    "mbox[%d]<-0x%04x\n", cnt, *iptr);
- 			wrt_reg_word(optr, *iptr);
-+		} else {
-+			wrt_reg_word(optr, 0);
- 		}
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -451,6 +451,10 @@ static int qcom_swrm_enumerate(struct sd
+ 	char *buf1 = (char *)&val1, *buf2 = (char *)&val2;
  
- 		mboxes >>= 1;
+ 	for (i = 1; i <= SDW_MAX_DEVICES; i++) {
++		/* do not continue if the status is Not Present  */
++		if (!ctrl->status[i])
++			continue;
++
+ 		/*SCP_Devid5 - Devid 4*/
+ 		ctrl->reg_read(ctrl, SWRM_ENUMERATOR_SLAVE_DEV_ID_1(i), &val1);
+ 
 
 
