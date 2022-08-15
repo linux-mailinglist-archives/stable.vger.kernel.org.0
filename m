@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D08F05939DC
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D7E75939DE
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:34:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245513AbiHOT24 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 15:28:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55806 "EHLO
+        id S245542AbiHOT27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 15:28:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245752AbiHOT0I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:26:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B20042E692;
-        Mon, 15 Aug 2022 11:41:30 -0700 (PDT)
+        with ESMTP id S1343500AbiHOT0J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 15:26:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6541BF4C;
+        Mon, 15 Aug 2022 11:41:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63BCBB8105C;
-        Mon, 15 Aug 2022 18:41:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E05CC433D6;
-        Mon, 15 Aug 2022 18:41:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02F6061029;
+        Mon, 15 Aug 2022 18:41:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3ABEC433D6;
+        Mon, 15 Aug 2022 18:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660588888;
-        bh=YcOJxycpi4cPibHqtgkK5q4CTB0pAgpHo75/oWB9Fpk=;
+        s=korg; t=1660588891;
+        bh=UEx6Vo839Re8ohZgQ30MADWOy3uPBUVXeG91KoZjUHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xLYqUmF6bdWXvoJ40Rsa4CKDRbBXRc6LXSrnrRqA66HfcyxaBWYEg9QdiecQx8a4e
-         lPG99oYUC4Kgo0Nz4gLA1K9gs5EaWnl71UWmz6BRpfWc2NW/LAEqIIKEUR+pl09sqj
-         HG7YESjfgUcqTrFy9uIj/2J3jxGUpUdO0o9ZYpxo=
+        b=0PfbZ14kBhfhrsc3HyaMYC1ZHcjFfvTq/jcd8KtDROBpl/xUczoRanqEkTJK0nZuv
+         ntH7pJPGJzc4MjFamkJnwcHKR2jcTdLsTpLP+R02BPW89yOvPoC65vH3QJtaX/F54C
+         Q7T6UXesPfVVsF6fXWcUEiPGAKoSVKdrTUrAHxtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+833061116fa28df97f3b@syzkaller.appspotmail.com,
-        Zhu Yanjun <yanjun.zhu@linux.dev>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, gi-oh.kim@ionos.com,
+        Md Haris Iqbal <haris.iqbal@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 546/779] RDMA/rxe: Fix error unwind in rxe_create_qp()
-Date:   Mon, 15 Aug 2022 20:03:10 +0200
-Message-Id: <20220815180400.648278997@linuxfoundation.org>
+Subject: [PATCH 5.15 547/779] block/rnbd-srv: Set keep_id to true after mutex_trylock
+Date:   Mon, 15 Aug 2022 20:03:11 +0200
+Message-Id: <20220815180400.696262812@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -56,67 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
+From: Md Haris Iqbal <haris.iqbal@ionos.com>
 
-[ Upstream commit fd5382c5805c4bcb50fd25b7246247d3f7114733 ]
+[ Upstream commit 4bc14f3101364877dd59085f39e068a2a7ec9f2d ]
 
-In the function rxe_create_qp(), rxe_qp_from_init() is called to
-initialize qp, internally things like the spin locks are not setup until
-rxe_qp_init_req().
+After setting keep_id if the mutex trylock fails, the keep_id stays set
+for the rest of the sess_dev lifetime.
 
-If an error occures before this point then the unwind will call
-rxe_cleanup() and eventually to rxe_qp_do_cleanup()/rxe_cleanup_task()
-which will oops when trying to access the uninitialized spinlock.
+Therefore, set keep_id to true after mutex_trylock succeeds, so that a
+failure of trylock does'nt touch keep_id.
 
-Move the spinlock initializations earlier before any failures.
-
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20220731063621.298405-1-yanjun.zhu@linux.dev
-Reported-by: syzbot+833061116fa28df97f3b@syzkaller.appspotmail.com
-Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: b168e1d85cf3 ("block/rnbd-srv: Prevent a deadlock generated by accessing sysfs in parallel")
+Cc: gi-oh.kim@ionos.com
+Signed-off-by: Md Haris Iqbal <haris.iqbal@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Link: https://lore.kernel.org/r/20220707143122.460362-2-haris.iqbal@ionos.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_qp.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/block/rnbd/rnbd-srv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
-index 5731bc15991c..661b83d65af3 100644
---- a/drivers/infiniband/sw/rxe/rxe_qp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_qp.c
-@@ -195,6 +195,14 @@ static void rxe_qp_init_misc(struct rxe_dev *rxe, struct rxe_qp *qp,
- 	spin_lock_init(&qp->grp_lock);
- 	spin_lock_init(&qp->state_lock);
+diff --git a/drivers/block/rnbd/rnbd-srv.c b/drivers/block/rnbd/rnbd-srv.c
+index 1ba1a93a6fe7..1896cde8135e 100644
+--- a/drivers/block/rnbd/rnbd-srv.c
++++ b/drivers/block/rnbd/rnbd-srv.c
+@@ -333,10 +333,11 @@ void rnbd_srv_sess_dev_force_close(struct rnbd_srv_sess_dev *sess_dev,
+ {
+ 	struct rnbd_srv_session	*sess = sess_dev->sess;
  
-+	spin_lock_init(&qp->req.task.state_lock);
-+	spin_lock_init(&qp->resp.task.state_lock);
-+	spin_lock_init(&qp->comp.task.state_lock);
+-	sess_dev->keep_id = true;
+ 	/* It is already started to close by client's close message. */
+ 	if (!mutex_trylock(&sess->lock))
+ 		return;
 +
-+	spin_lock_init(&qp->sq.sq_lock);
-+	spin_lock_init(&qp->rq.producer_lock);
-+	spin_lock_init(&qp->rq.consumer_lock);
-+
- 	atomic_set(&qp->ssn, 0);
- 	atomic_set(&qp->skb_out, 0);
- }
-@@ -255,7 +263,6 @@ static int rxe_qp_init_req(struct rxe_dev *rxe, struct rxe_qp *qp,
- 	qp->req.opcode		= -1;
- 	qp->comp.opcode		= -1;
- 
--	spin_lock_init(&qp->sq.sq_lock);
- 	skb_queue_head_init(&qp->req_pkts);
- 
- 	rxe_init_task(rxe, &qp->req.task, qp,
-@@ -306,9 +313,6 @@ static int rxe_qp_init_resp(struct rxe_dev *rxe, struct rxe_qp *qp,
- 		}
- 	}
- 
--	spin_lock_init(&qp->rq.producer_lock);
--	spin_lock_init(&qp->rq.consumer_lock);
--
- 	skb_queue_head_init(&qp->resp_pkts);
- 
- 	rxe_init_task(rxe, &qp->resp.task, qp,
++	sess_dev->keep_id = true;
+ 	/* first remove sysfs itself to avoid deadlock */
+ 	sysfs_remove_file_self(&sess_dev->kobj, &attr->attr);
+ 	rnbd_srv_destroy_dev_session_sysfs(sess_dev);
 -- 
 2.35.1
 
