@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3F255944B1
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:59:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF54594428
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 00:58:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347299AbiHOV7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:59:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55904 "EHLO
+        id S1343955AbiHOWAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 18:00:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244496AbiHOV7S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:59:18 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83A6F10E949;
-        Mon, 15 Aug 2022 12:35:05 -0700 (PDT)
+        with ESMTP id S1346207AbiHOV73 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:59:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A22A10E964;
+        Mon, 15 Aug 2022 12:35:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6EFB8CE12E0;
-        Mon, 15 Aug 2022 19:34:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4428DC433D7;
-        Mon, 15 Aug 2022 19:34:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 046E26113B;
+        Mon, 15 Aug 2022 19:34:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B196BC433D7;
+        Mon, 15 Aug 2022 19:34:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660592071;
-        bh=2wEmTjhGcMoUyc8RMh2YSMUxxlVkaz9yxKNpzM825EQ=;
+        s=korg; t=1660592078;
+        bh=6JLjxT/Lu+DUMinJzcdWuuAg5ranlTsisFvAYUj8FuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gyQKfJvsf780D38RU/nEGg67JKrC4cP3dhVedXYpW4JQ2V7Nnh1G07JAd6+mLSjOJ
-         YLE0HkWshrDttOa6apW1cdtKj6BAswEm13PCpv7pOOzoi4lb2Rxim58twjLVRfKx8G
-         Ky7biVM90Y1HayZqL/MTMn8zRLBQVUVv5i0AV/5I=
+        b=o8JMP+51NbKHBkImYJm1POkFYw5wHtMR8OEQHAKlQmeNHNX/Yz3bvw1VFgJC91b0q
+         wB4+Q0RmlVTKCmEOIzF9goIuAtojK/IoeIFsgZ8eIZfMVKzXpf7FTSSVTC6VKlsJ6+
+         q1OAB76pwTPpcGz0yeCTAkGY9gqkljgslQbf9Rm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mike Leach <mike.leach@linaro.org>,
         Mathieu Poirier <mathieu.poirier@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0697/1095] coresight: configfs: Fix unload of configurations on module exit
-Date:   Mon, 15 Aug 2022 20:01:36 +0200
-Message-Id: <20220815180458.210907254@linuxfoundation.org>
+Subject: [PATCH 5.18 0698/1095] coresight: syscfg: Update load and unload operations
+Date:   Mon, 15 Aug 2022 20:01:37 +0200
+Message-Id: <20220815180458.262372366@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -57,201 +57,399 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Leach <mike.leach@linaro.org>
 
-[ Upstream commit 199380decc5f9188a9e65676031950f1734aaffe ]
+[ Upstream commit 8add26f7ef33bba7984cb6ff7911c6aa970fe55a ]
 
-Any loaded configurations must be correctly unloaded on coresight module
-exit, or issues can arise with nested locking in the configfs directory
-code if built with CONFIG_LOCKDEP.
+The configfs system is a source of access to the config information in the
+configuration and feature lists.
 
-Prior to this patch, the preloaded configuration configfs directory entries
-were being unloaded by the recursive code in
-configfs_unregister_subsystem().
+This can result in additional LOCKDEP issues as a result of the mutex
+ordering between the config list mutex (cscfg_mutex) and the configfs
+system mutexes.
 
-However, when built with CONFIG_LOCKDEP, this caused a nested lock warning,
-which was not mitigated by the LOCKDEP dependent code in fs/configfs/dir.c
-designed to prevent this, due to the different directory levels for the
-root of the directory being removed.
+As such we need to adjust how load/unload operations work to ensure correct
+operation.
 
-As the preloaded (and all other) configurations are registered after
-configfs_register_subsystem(), we now explicitly unload them before the
-call to configfs_unregister_subsystem().
+1) Previously the cscfg_mutex was held throughout the load/unload
+operation. This is now only held during configuration list manipulations,
+resulting in a multi-stage load/unload process.
 
-The new routine cscfg_unload_cfgs_on_exit() iterates through the load
-owner list to unload any remaining configurations that were not unloaded
-by the user before the module exits. This covers both the
-CSCFG_OWNER_PRELOAD and CSCFG_OWNER_MODULE owner types, and will be
-extended to cover future load owner types for CoreSight configurations.
+2) All operations that manipulate the configfs representation of the
+configurations and features are now separated out and run without the
+cscfg_mutex being held. This avoids circular lock_dep issue with the
+built-in configfs mutexes and semaphores
+
+3) As the load and unload is now multi-stage, some parts under the
+cscfg_mutex and others not:
+i) A flag indicating a load / unload operation in progress is used to
+serialise load / unload operations.
+ii) activating any configuration not possible when unload is in progress.
+iii) Configurations have an "available" flag set only after the last load
+stage for the configuration is complete. Activation of the configuration
+not possible till flag is set.
+
+4) Following load/unload rules remain:
+i) Unload prevented while any configuration is active remains.
+ii) Unload in strict reverse order of load.
+iii) Existing configurations can be activated while a new load operation
+is underway. (by definition there can be no dependencies between an
+existing configuration and a new loading one due to ii) above.)
 
 Fixes: eb2ec49606c2 ("coresight: syscfg: Update load API for config loadable modules")
 Reported-by: Suzuki Poulose <suzuki.poulose@arm.com>
 Signed-off-by: Mike Leach <mike.leach@linaro.org>
 Reviewed-and-tested-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20220628173004.30002-2-mike.leach@linaro.org
+Link: https://lore.kernel.org/r/20220628173004.30002-3-mike.leach@linaro.org
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../hwtracing/coresight/coresight-syscfg.c    | 104 ++++++++++++++++--
- 1 file changed, 93 insertions(+), 11 deletions(-)
+ .../hwtracing/coresight/coresight-config.h    |   2 +
+ .../hwtracing/coresight/coresight-syscfg.c    | 191 ++++++++++++++----
+ .../hwtracing/coresight/coresight-syscfg.h    |  13 ++
+ 3 files changed, 165 insertions(+), 41 deletions(-)
 
+diff --git a/drivers/hwtracing/coresight/coresight-config.h b/drivers/hwtracing/coresight/coresight-config.h
+index 2e1670523461..6ba013975741 100644
+--- a/drivers/hwtracing/coresight/coresight-config.h
++++ b/drivers/hwtracing/coresight/coresight-config.h
+@@ -134,6 +134,7 @@ struct cscfg_feature_desc {
+  * @active_cnt:		ref count for activate on this configuration.
+  * @load_owner:		handle to load owner for dynamic load and unload of configs.
+  * @fs_group:		reference to configfs group for dynamic unload.
++ * @available:		config can be activated - multi-stage load sets true on completion.
+  */
+ struct cscfg_config_desc {
+ 	const char *name;
+@@ -148,6 +149,7 @@ struct cscfg_config_desc {
+ 	atomic_t active_cnt;
+ 	void *load_owner;
+ 	struct config_group *fs_group;
++	bool available;
+ };
+ 
+ /**
 diff --git a/drivers/hwtracing/coresight/coresight-syscfg.c b/drivers/hwtracing/coresight/coresight-syscfg.c
-index 11850fd8c3b5..17e728ab5c99 100644
+index 17e728ab5c99..11138a9762b0 100644
 --- a/drivers/hwtracing/coresight/coresight-syscfg.c
 +++ b/drivers/hwtracing/coresight/coresight-syscfg.c
-@@ -414,6 +414,27 @@ static void cscfg_remove_owned_csdev_features(struct coresight_device *csdev, vo
+@@ -447,6 +447,8 @@ static void cscfg_unload_owned_cfgs_feats(void *load_owner)
+ 	struct cscfg_feature_desc *feat_desc, *feat_tmp;
+ 	struct cscfg_registered_csdev *csdev_item;
+ 
++	lockdep_assert_held(&cscfg_mutex);
++
+ 	/* remove from each csdev instance feature and config lists */
+ 	list_for_each_entry(csdev_item, &cscfg_mgr->csdev_desc_list, item) {
+ 		/*
+@@ -460,7 +462,6 @@ static void cscfg_unload_owned_cfgs_feats(void *load_owner)
+ 	/* remove from the config descriptor lists */
+ 	list_for_each_entry_safe(config_desc, cfg_tmp, &cscfg_mgr->config_desc_list, item) {
+ 		if (config_desc->load_owner == load_owner) {
+-			cscfg_configfs_del_config(config_desc);
+ 			etm_perf_del_symlink_cscfg(config_desc);
+ 			list_del(&config_desc->item);
+ 		}
+@@ -469,12 +470,90 @@ static void cscfg_unload_owned_cfgs_feats(void *load_owner)
+ 	/* remove from the feature descriptor lists */
+ 	list_for_each_entry_safe(feat_desc, feat_tmp, &cscfg_mgr->feat_desc_list, item) {
+ 		if (feat_desc->load_owner == load_owner) {
+-			cscfg_configfs_del_feature(feat_desc);
+ 			list_del(&feat_desc->item);
+ 		}
  	}
  }
  
 +/*
-+ * Unregister all configuration and features from configfs owned by load_owner.
-+ * Although this is called without the list mutex being held, it is in the
-+ * context of an unload operation which are strictly serialised,
-+ * so the lists cannot change during this call.
++ * load the features and configs to the lists - called with list mutex held
 + */
-+static void cscfg_fs_unregister_cfgs_feats(void *load_owner)
++static int cscfg_load_owned_cfgs_feats(struct cscfg_config_desc **config_descs,
++				       struct cscfg_feature_desc **feat_descs,
++				       struct cscfg_load_owner_info *owner_info)
 +{
-+	struct cscfg_config_desc *config_desc;
-+	struct cscfg_feature_desc *feat_desc;
++	int i, err;
 +
-+	list_for_each_entry(config_desc, &cscfg_mgr->config_desc_list, item) {
-+		if (config_desc->load_owner == load_owner)
-+			cscfg_configfs_del_config(config_desc);
++	lockdep_assert_held(&cscfg_mutex);
++
++	/* load features first */
++	if (feat_descs) {
++		for (i = 0; feat_descs[i]; i++) {
++			err = cscfg_load_feat(feat_descs[i]);
++			if (err) {
++				pr_err("coresight-syscfg: Failed to load feature %s\n",
++				       feat_descs[i]->name);
++				return err;
++			}
++			feat_descs[i]->load_owner = owner_info;
++		}
 +	}
-+	list_for_each_entry(feat_desc, &cscfg_mgr->feat_desc_list, item) {
-+		if (feat_desc->load_owner == load_owner)
-+			cscfg_configfs_del_feature(feat_desc);
++
++	/* next any configurations to check feature dependencies */
++	if (config_descs) {
++		for (i = 0; config_descs[i]; i++) {
++			err = cscfg_load_config(config_descs[i]);
++			if (err) {
++				pr_err("coresight-syscfg: Failed to load configuration %s\n",
++				       config_descs[i]->name);
++				return err;
++			}
++			config_descs[i]->load_owner = owner_info;
++			config_descs[i]->available = false;
++		}
++	}
++	return 0;
++}
++
++/* set configurations as available to activate at the end of the load process */
++static void cscfg_set_configs_available(struct cscfg_config_desc **config_descs)
++{
++	int i;
++
++	lockdep_assert_held(&cscfg_mutex);
++
++	if (config_descs) {
++		for (i = 0; config_descs[i]; i++)
++			config_descs[i]->available = true;
 +	}
 +}
 +
- /*
-  * removal is relatively easy - just remove from all lists, anything that
-  * matches the owner. Memory for the descriptors will be managed by the owner,
-@@ -1022,8 +1043,10 @@ struct device *cscfg_device(void)
- /* Must have a release function or the kernel will complain on module unload */
- static void cscfg_dev_release(struct device *dev)
- {
-+	mutex_lock(&cscfg_mutex);
- 	kfree(cscfg_mgr);
- 	cscfg_mgr = NULL;
-+	mutex_unlock(&cscfg_mutex);
- }
- 
- /* a device is needed to "own" some kernel elements such as sysfs entries.  */
-@@ -1042,6 +1065,13 @@ static int cscfg_create_device(void)
- 	if (!cscfg_mgr)
- 		goto create_dev_exit_unlock;
- 
-+	/* initialise the cscfg_mgr structure */
-+	INIT_LIST_HEAD(&cscfg_mgr->csdev_desc_list);
-+	INIT_LIST_HEAD(&cscfg_mgr->feat_desc_list);
-+	INIT_LIST_HEAD(&cscfg_mgr->config_desc_list);
-+	INIT_LIST_HEAD(&cscfg_mgr->load_order_list);
-+	atomic_set(&cscfg_mgr->sys_active_cnt, 0);
-+
- 	/* setup the device */
- 	dev = cscfg_device();
- 	dev->release = cscfg_dev_release;
-@@ -1056,17 +1086,73 @@ static int cscfg_create_device(void)
- 	return err;
- }
- 
--static void cscfg_clear_device(void)
 +/*
-+ * Loading and unloading is generally on user discretion.
-+ * If exiting due to coresight module unload, we need to unload any configurations that remain,
-+ * before we unregister the configfs intrastructure.
-+ *
-+ * Do this by walking the load_owner list and taking appropriate action, depending on the load
-+ * owner type.
++ * Create and register each of the configurations and features with configfs.
++ * Called without mutex being held.
 + */
-+static void cscfg_unload_cfgs_on_exit(void)
++static int cscfg_fs_register_cfgs_feats(struct cscfg_config_desc **config_descs,
++					struct cscfg_feature_desc **feat_descs)
++{
++	int i, err;
++
++	if (feat_descs) {
++		for (i = 0; feat_descs[i]; i++) {
++			err = cscfg_configfs_add_feature(feat_descs[i]);
++			if (err)
++				return err;
++		}
++	}
++	if (config_descs) {
++		for (i = 0; config_descs[i]; i++) {
++			err = cscfg_configfs_add_config(config_descs[i]);
++			if (err)
++				return err;
++		}
++	}
++	return 0;
++}
++
+ /**
+  * cscfg_load_config_sets - API function to load feature and config sets.
+  *
+@@ -497,57 +576,63 @@ int cscfg_load_config_sets(struct cscfg_config_desc **config_descs,
+ 			   struct cscfg_feature_desc **feat_descs,
+ 			   struct cscfg_load_owner_info *owner_info)
  {
--	struct cscfg_config_desc *cfg_desc;
-+	struct cscfg_load_owner_info *owner_info = NULL;
+-	int err = 0, i = 0;
++	int err = 0;
+ 
+ 	mutex_lock(&cscfg_mutex);
+-
+-	/* load features first */
+-	if (feat_descs) {
+-		while (feat_descs[i]) {
+-			err = cscfg_load_feat(feat_descs[i]);
+-			if (!err)
+-				err = cscfg_configfs_add_feature(feat_descs[i]);
+-			if (err) {
+-				pr_err("coresight-syscfg: Failed to load feature %s\n",
+-				       feat_descs[i]->name);
+-				cscfg_unload_owned_cfgs_feats(owner_info);
+-				goto exit_unlock;
+-			}
+-			feat_descs[i]->load_owner = owner_info;
+-			i++;
+-		}
++	if (cscfg_mgr->load_state != CSCFG_NONE) {
++		mutex_unlock(&cscfg_mutex);
++		return -EBUSY;
+ 	}
++	cscfg_mgr->load_state = CSCFG_LOAD;
+ 
+-	/* next any configurations to check feature dependencies */
+-	i = 0;
+-	if (config_descs) {
+-		while (config_descs[i]) {
+-			err = cscfg_load_config(config_descs[i]);
+-			if (!err)
+-				err = cscfg_configfs_add_config(config_descs[i]);
+-			if (err) {
+-				pr_err("coresight-syscfg: Failed to load configuration %s\n",
+-				       config_descs[i]->name);
+-				cscfg_unload_owned_cfgs_feats(owner_info);
+-				goto exit_unlock;
+-			}
+-			config_descs[i]->load_owner = owner_info;
+-			i++;
+-		}
+-	}
++	/* first load and add to the lists */
++	err = cscfg_load_owned_cfgs_feats(config_descs, feat_descs, owner_info);
++	if (err)
++		goto err_clean_load;
+ 
+ 	/* add the load owner to the load order list */
+ 	list_add_tail(&owner_info->item, &cscfg_mgr->load_order_list);
+ 	if (!list_is_singular(&cscfg_mgr->load_order_list)) {
+ 		/* lock previous item in load order list */
+ 		err = cscfg_owner_get(list_prev_entry(owner_info, item));
+-		if (err) {
+-			cscfg_unload_owned_cfgs_feats(owner_info);
+-			list_del(&owner_info->item);
+-		}
++		if (err)
++			goto err_clean_owner_list;
+ 	}
  
 +	/*
-+	 * grab the mutex - even though we are exiting, some configfs files
-+	 * may still be live till we dump them, so ensure list data is
-+	 * protected from a race condition.
++	 * make visible to configfs - configfs manipulation must occur outside
++	 * the list mutex lock to avoid circular lockdep issues with configfs
++	 * built in mutexes and semaphores. This is safe as it is not possible
++	 * to start a new load/unload operation till the current one is done.
 +	 */
- 	mutex_lock(&cscfg_mutex);
--	list_for_each_entry(cfg_desc, &cscfg_mgr->config_desc_list, item) {
--		etm_perf_del_symlink_cscfg(cfg_desc);
-+	while (!list_empty(&cscfg_mgr->load_order_list)) {
-+
-+		/* remove in reverse order of loading */
-+		owner_info = list_last_entry(&cscfg_mgr->load_order_list,
-+					     struct cscfg_load_owner_info, item);
-+
-+		/* action according to type */
-+		switch (owner_info->type) {
-+		case CSCFG_OWNER_PRELOAD:
-+			/*
-+			 * preloaded  descriptors are statically allocated in
-+			 * this module - just need to unload dynamic items from
-+			 * csdev lists, and remove from configfs directories.
-+			 */
-+			pr_info("cscfg: unloading preloaded configurations\n");
-+			break;
-+
-+		case  CSCFG_OWNER_MODULE:
-+			/*
-+			 * this is an error - the loadable module must have been unloaded prior
-+			 * to the coresight module unload. Therefore that module has not
-+			 * correctly unloaded configs in its own exit code.
-+			 * Nothing to do other than emit an error string as the static descriptor
-+			 * references we need to unload will have disappeared with the module.
-+			 */
-+			pr_err("cscfg: ERROR: prior module failed to unload configuration\n");
-+			goto list_remove;
-+		}
-+
-+		/* remove from configfs - outside the scope of the list mutex */
-+		mutex_unlock(&cscfg_mutex);
-+		cscfg_fs_unregister_cfgs_feats(owner_info);
-+		mutex_lock(&cscfg_mutex);
-+
-+		/* Next unload from csdev lists. */
-+		cscfg_unload_owned_cfgs_feats(owner_info);
-+
-+list_remove:
-+		/* remove from load order list */
-+		list_del(&owner_info->item);
- 	}
 +	mutex_unlock(&cscfg_mutex);
-+}
 +
-+static void cscfg_clear_device(void)
-+{
-+	cscfg_unload_cfgs_on_exit();
- 	cscfg_configfs_release(cscfg_mgr);
- 	device_unregister(cscfg_device());
--	mutex_unlock(&cscfg_mutex);
++	/* create the configfs elements */
++	err = cscfg_fs_register_cfgs_feats(config_descs, feat_descs);
++	mutex_lock(&cscfg_mutex);
++
++	if (err)
++		goto err_clean_cfs;
++
++	/* mark any new configs as available for activation */
++	cscfg_set_configs_available(config_descs);
++	goto exit_unlock;
++
++err_clean_cfs:
++	/* cleanup after error registering with configfs */
++	cscfg_fs_unregister_cfgs_feats(owner_info);
++
++	if (!list_is_singular(&cscfg_mgr->load_order_list))
++		cscfg_owner_put(list_prev_entry(owner_info, item));
++
++err_clean_owner_list:
++	list_del(&owner_info->item);
++
++err_clean_load:
++	cscfg_unload_owned_cfgs_feats(owner_info);
++
+ exit_unlock:
++	cscfg_mgr->load_state = CSCFG_NONE;
+ 	mutex_unlock(&cscfg_mutex);
+ 	return err;
  }
+@@ -564,6 +649,9 @@ EXPORT_SYMBOL_GPL(cscfg_load_config_sets);
+  * 1) no configurations are active.
+  * 2) the set being unloaded was the last to be loaded to maintain dependencies.
+  *
++ * Once the unload operation commences, we disallow any configuration being
++ * made active until it is complete.
++ *
+  * @owner_info:	Information on owner for set being unloaded.
+  */
+ int cscfg_unload_config_sets(struct cscfg_load_owner_info *owner_info)
+@@ -572,6 +660,13 @@ int cscfg_unload_config_sets(struct cscfg_load_owner_info *owner_info)
+ 	struct cscfg_load_owner_info *load_list_item = NULL;
  
- /* Initialise system config management API device  */
-@@ -1074,20 +1160,16 @@ int __init cscfg_init(void)
- {
- 	int err = 0;
+ 	mutex_lock(&cscfg_mutex);
++	if (cscfg_mgr->load_state != CSCFG_NONE) {
++		mutex_unlock(&cscfg_mutex);
++		return -EBUSY;
++	}
++
++	/* unload op in progress also prevents activation of any config */
++	cscfg_mgr->load_state = CSCFG_UNLOAD;
  
-+	/* create the device and init cscfg_mgr */
- 	err = cscfg_create_device();
- 	if (err)
- 		return err;
+ 	/* cannot unload if anything is active */
+ 	if (atomic_read(&cscfg_mgr->sys_active_cnt)) {
+@@ -592,7 +687,12 @@ int cscfg_unload_config_sets(struct cscfg_load_owner_info *owner_info)
+ 		goto exit_unlock;
+ 	}
  
-+	/* initialise configfs subsystem */
- 	err = cscfg_configfs_init(cscfg_mgr);
- 	if (err)
- 		goto exit_err;
+-	/* unload all belonging to load_owner */
++	/* remove from configfs - again outside the scope of the list mutex */
++	mutex_unlock(&cscfg_mutex);
++	cscfg_fs_unregister_cfgs_feats(owner_info);
++	mutex_lock(&cscfg_mutex);
++
++	/* unload everything from lists belonging to load_owner */
+ 	cscfg_unload_owned_cfgs_feats(owner_info);
  
--	INIT_LIST_HEAD(&cscfg_mgr->csdev_desc_list);
--	INIT_LIST_HEAD(&cscfg_mgr->feat_desc_list);
--	INIT_LIST_HEAD(&cscfg_mgr->config_desc_list);
--	INIT_LIST_HEAD(&cscfg_mgr->load_order_list);
--	atomic_set(&cscfg_mgr->sys_active_cnt, 0);
--
- 	/* preload built-in configurations */
- 	err = cscfg_preload(THIS_MODULE);
- 	if (err)
+ 	/* remove from load order list */
+@@ -603,6 +703,7 @@ int cscfg_unload_config_sets(struct cscfg_load_owner_info *owner_info)
+ 	list_del(&owner_info->item);
+ 
+ exit_unlock:
++	cscfg_mgr->load_state = CSCFG_NONE;
+ 	mutex_unlock(&cscfg_mutex);
+ 	return err;
+ }
+@@ -780,8 +881,15 @@ static int _cscfg_activate_config(unsigned long cfg_hash)
+ 	struct cscfg_config_desc *config_desc;
+ 	int err = -EINVAL;
+ 
++	if (cscfg_mgr->load_state == CSCFG_UNLOAD)
++		return -EBUSY;
++
+ 	list_for_each_entry(config_desc, &cscfg_mgr->config_desc_list, item) {
+ 		if ((unsigned long)config_desc->event_ea->var == cfg_hash) {
++			/* if we happen upon a partly loaded config, can't use it */
++			if (config_desc->available == false)
++				return -EBUSY;
++
+ 			/* must ensure that config cannot be unloaded in use */
+ 			err = cscfg_owner_get(config_desc->load_owner);
+ 			if (err)
+@@ -1071,6 +1179,7 @@ static int cscfg_create_device(void)
+ 	INIT_LIST_HEAD(&cscfg_mgr->config_desc_list);
+ 	INIT_LIST_HEAD(&cscfg_mgr->load_order_list);
+ 	atomic_set(&cscfg_mgr->sys_active_cnt, 0);
++	cscfg_mgr->load_state = CSCFG_NONE;
+ 
+ 	/* setup the device */
+ 	dev = cscfg_device();
+diff --git a/drivers/hwtracing/coresight/coresight-syscfg.h b/drivers/hwtracing/coresight/coresight-syscfg.h
+index 9106ffab4833..66e2db890d82 100644
+--- a/drivers/hwtracing/coresight/coresight-syscfg.h
++++ b/drivers/hwtracing/coresight/coresight-syscfg.h
+@@ -12,6 +12,17 @@
+ 
+ #include "coresight-config.h"
+ 
++/*
++ * Load operation types.
++ * When loading or unloading, another load operation cannot be run.
++ * When unloading configurations cannot be activated.
++ */
++enum cscfg_load_ops {
++	CSCFG_NONE,
++	CSCFG_LOAD,
++	CSCFG_UNLOAD
++};
++
+ /**
+  * System configuration manager device.
+  *
+@@ -30,6 +41,7 @@
+  * @cfgfs_subsys:	configfs subsystem used to manage configurations.
+  * @sysfs_active_config:Active config hash used if CoreSight controlled from sysfs.
+  * @sysfs_active_preset:Active preset index used if CoreSight controlled from sysfs.
++ * @load_state:		A multi-stage load/unload operation is in progress.
+  */
+ struct cscfg_manager {
+ 	struct device dev;
+@@ -41,6 +53,7 @@ struct cscfg_manager {
+ 	struct configfs_subsystem cfgfs_subsys;
+ 	u32 sysfs_active_config;
+ 	int sysfs_active_preset;
++	enum cscfg_load_ops load_state;
+ };
+ 
+ /* get reference to dev in cscfg_manager */
 -- 
 2.35.1
 
