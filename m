@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E487A594AAB
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:19:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11F89594AD3
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:20:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353064AbiHPAF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:05:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43054 "EHLO
+        id S1356003AbiHPAGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:06:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352284AbiHPAAY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:00:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96D2095E69;
-        Mon, 15 Aug 2022 13:21:35 -0700 (PDT)
+        with ESMTP id S1351740AbiHPAAZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:00:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33F3233407;
+        Mon, 15 Aug 2022 13:21:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57BBEB80EB1;
-        Mon, 15 Aug 2022 20:21:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A87A8C433C1;
-        Mon, 15 Aug 2022 20:21:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C233F61058;
+        Mon, 15 Aug 2022 20:21:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD4DAC433C1;
+        Mon, 15 Aug 2022 20:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660594893;
-        bh=Y2JRNAOW2EOmlGoFTTcKC2KjNshzPUJ73cPXUm8YcIo=;
+        s=korg; t=1660594896;
+        bh=dKGeSzlcGwjg9tzsVcq5EvTIrGoJIeRYHb0rFcWwg9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u5yOTA2TFVa0i/xno9ABXYtLoG/ZhEh2j7C5awFBLD79sip8aJ/nlZ9y1CPMfYNLM
-         Ui/73b6pDnx9PFGWeTNzSOb7yKtoCCe+kKlUmV2p0DvDWpewGH5bATcU60cnVhLLjG
-         9wdeQBMroq/cVTLqxfA04htIwf+DlaPk+QuWxcpI=
+        b=qxNeUjdZ6giBid6LvZfuIgT18m7zbFsz+pp0T2PWzVyOkIfpTpCVuN4TZYl2EnmH1
+         juDXO3hSJpHM48qFmjNzLEIQwpZJFzZ87jJWfy0gN2mDZb+EP4Orh3BQHhZrbgYy3+
+         eJhhXpH17dUiGqMZDtUH/bBZrclv8YxvAyPE44B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chanho Park <chanho61.park@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0593/1157] phy: samsung: exynosautov9-ufs: correct TSRV register configurations
-Date:   Mon, 15 Aug 2022 19:59:09 +0200
-Message-Id: <20220815180503.373791520@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 0594/1157] PCI: microchip: Fix refcount leak in mc_pcie_init_irq_domains()
+Date:   Mon, 15 Aug 2022 19:59:10 +0200
+Message-Id: <20220815180503.417993662@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,61 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chanho Park <chanho61.park@samsung.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit f7fdc4db071f7ee7d408ea3f083222a060c76623 ]
+[ Upstream commit f030304fdeb87ec8f1b518c73703214aec6cc24a ]
 
-For exynos auto v9's UFS MPHY, We should use 0x50 offset of TSRV register
-configurations. So, it must be
+of_get_next_child() returns a node pointer with refcount incremented, so we
+should use of_node_put() on it when we don't need it anymore.
 
-s/PHY_TRSV_REG_CFG/PHY_TRSV_REG_CFG_AUTOV9/g
+mc_pcie_init_irq_domains() only calls of_node_put() in the normal path,
+missing it in some error paths.  Add missing of_node_put() to avoid
+refcount leak.
 
-Fixes: d64519249e1d ("phy: samsung-ufs: support exynosauto ufs phy driver")
-Signed-off-by: Chanho Park <chanho61.park@samsung.com>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220603050536.61957-1-chanho61.park@samsung.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 6f15a9c9f941 ("PCI: microchip: Add Microchip PolarFire PCIe controller driver")
+Link: https://lore.kernel.org/r/20220605055123.59127-1-linmq006@gmail.com
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/samsung/phy-exynosautov9-ufs.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/pci/controller/pcie-microchip-host.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/phy/samsung/phy-exynosautov9-ufs.c b/drivers/phy/samsung/phy-exynosautov9-ufs.c
-index 36398a15c2db..d043dfdb598a 100644
---- a/drivers/phy/samsung/phy-exynosautov9-ufs.c
-+++ b/drivers/phy/samsung/phy-exynosautov9-ufs.c
-@@ -31,22 +31,22 @@ static const struct samsung_ufs_phy_cfg exynosautov9_pre_init_cfg[] = {
- 	PHY_COMN_REG_CFG(0x023, 0xc0, PWR_MODE_ANY),
- 	PHY_COMN_REG_CFG(0x023, 0x00, PWR_MODE_ANY),
+diff --git a/drivers/pci/controller/pcie-microchip-host.c b/drivers/pci/controller/pcie-microchip-host.c
+index dd5dba419047..7263d175b5ad 100644
+--- a/drivers/pci/controller/pcie-microchip-host.c
++++ b/drivers/pci/controller/pcie-microchip-host.c
+@@ -904,6 +904,7 @@ static int mc_pcie_init_irq_domains(struct mc_pcie *port)
+ 						   &event_domain_ops, port);
+ 	if (!port->event_domain) {
+ 		dev_err(dev, "failed to get event domain\n");
++		of_node_put(pcie_intc_node);
+ 		return -ENOMEM;
+ 	}
  
--	PHY_TRSV_REG_CFG(0x042, 0x5d, PWR_MODE_ANY),
--	PHY_TRSV_REG_CFG(0x043, 0x80, PWR_MODE_ANY),
-+	PHY_TRSV_REG_CFG_AUTOV9(0x042, 0x5d, PWR_MODE_ANY),
-+	PHY_TRSV_REG_CFG_AUTOV9(0x043, 0x80, PWR_MODE_ANY),
+@@ -913,6 +914,7 @@ static int mc_pcie_init_irq_domains(struct mc_pcie *port)
+ 						  &intx_domain_ops, port);
+ 	if (!port->intx_domain) {
+ 		dev_err(dev, "failed to get an INTx IRQ domain\n");
++		of_node_put(pcie_intc_node);
+ 		return -ENOMEM;
+ 	}
  
- 	END_UFS_PHY_CFG,
- };
- 
- /* Calibration for HS mode series A/B */
- static const struct samsung_ufs_phy_cfg exynosautov9_pre_pwr_hs_cfg[] = {
--	PHY_TRSV_REG_CFG(0x032, 0xbc, PWR_MODE_HS_ANY),
--	PHY_TRSV_REG_CFG(0x03c, 0x7f, PWR_MODE_HS_ANY),
--	PHY_TRSV_REG_CFG(0x048, 0xc0, PWR_MODE_HS_ANY),
-+	PHY_TRSV_REG_CFG_AUTOV9(0x032, 0xbc, PWR_MODE_HS_ANY),
-+	PHY_TRSV_REG_CFG_AUTOV9(0x03c, 0x7f, PWR_MODE_HS_ANY),
-+	PHY_TRSV_REG_CFG_AUTOV9(0x048, 0xc0, PWR_MODE_HS_ANY),
- 
--	PHY_TRSV_REG_CFG(0x04a, 0x00, PWR_MODE_HS_G3_SER_B),
--	PHY_TRSV_REG_CFG(0x04b, 0x10, PWR_MODE_HS_G1_SER_B |
--				      PWR_MODE_HS_G3_SER_B),
--	PHY_TRSV_REG_CFG(0x04d, 0x63, PWR_MODE_HS_G3_SER_B),
-+	PHY_TRSV_REG_CFG_AUTOV9(0x04a, 0x00, PWR_MODE_HS_G3_SER_B),
-+	PHY_TRSV_REG_CFG_AUTOV9(0x04b, 0x10, PWR_MODE_HS_G1_SER_B |
-+				PWR_MODE_HS_G3_SER_B),
-+	PHY_TRSV_REG_CFG_AUTOV9(0x04d, 0x63, PWR_MODE_HS_G3_SER_B),
- 
- 	END_UFS_PHY_CFG,
- };
 -- 
 2.35.1
 
