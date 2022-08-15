@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4115F59407B
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:48:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27B4F5940C9
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:49:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245612AbiHOVcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:32:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55458 "EHLO
+        id S233438AbiHOVWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:22:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348603AbiHOVbk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:31:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC7EEF9F3;
-        Mon, 15 Aug 2022 12:24:11 -0700 (PDT)
+        with ESMTP id S1347730AbiHOVSr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:18:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A015DD119;
+        Mon, 15 Aug 2022 12:22:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E18B16100A;
-        Mon, 15 Aug 2022 19:24:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 727C5C433C1;
-        Mon, 15 Aug 2022 19:24:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BBBEAB81122;
+        Mon, 15 Aug 2022 19:22:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E20FC433C1;
+        Mon, 15 Aug 2022 19:22:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660591449;
-        bh=E7a/8oKrx2+k0GllHy1FIIfAK9lmfDORKu43LLWGCG4=;
+        s=korg; t=1660591321;
+        bh=GKndzDF+4wiFc5ZLcT52WO+3p+pdQ9M/nfja5EkNrUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jKzxuJZmkD3BF+TnldaT478IpeYyGM0Vz75AdVdpA2VzyhhjlI6oyszWRBFBN4cj4
-         7TiaGbg2Chx3ipPOOicZuWgDFxP0ifCgI8T7wjhbX+5DwiW+JRD1Mu6YKoZ1vXczcU
-         oym1h2nlGMqdkxDOfZJtgq/TKCQwZe8pxXjx46FU=
+        b=L3L5EKhCyj6IVmRgMZDIvxR+LxungNCIjTlA0fni3GhWhuniJ3o2xlHZfiiI8TOQP
+         5NFiwH/ZAULnAoBMHUaLuabFnfzFEL0DRZ/bVTsWLjaPwgMePPxEWFNR/qx0QFbCgE
+         zKuHHZIpFn949FHp7fUAuwk1SImeUB8O+pedBMUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        Shannon Nelson <snelson@pensando.io>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0534/1095] net: ionic: fix error check for vlan flags in ionic_set_nic_features()
-Date:   Mon, 15 Aug 2022 19:58:53 +0200
-Message-Id: <20220815180451.637770373@linuxfoundation.org>
+Subject: [PATCH 5.18 0535/1095] dccp: put dccp_qpolicy_full() and dccp_qpolicy_push() in the same lock
+Date:   Mon, 15 Aug 2022 19:58:54 +0200
+Message-Id: <20220815180451.677301287@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -56,39 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit a86e86db5e6d72c82724a63ca1c5293409a21518 ]
+[ Upstream commit a41b17ff9dacd22f5f118ee53d82da0f3e52d5e3 ]
 
-The prototype of input features of ionic_set_nic_features() is
-netdev_features_t, but the vlan_flags is using the private
-definition of ionic drivers. It should use the variable
-ctx.cmd.lif_setattr.features, rather than features to check
-the vlan flags. So fixes it.
+In the case of sk->dccps_qpolicy == DCCPQ_POLICY_PRIO, dccp_qpolicy_full
+will drop a skb when qpolicy is full. And the lock in dccp_sendmsg is
+released before sock_alloc_send_skb and then relocked after
+sock_alloc_send_skb. The following conditions may lead dccp_qpolicy_push
+to add skb to an already full sk_write_queue:
 
-Fixes: beead698b173 ("ionic: Add the basic NDO callbacks for netdev support")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Acked-by: Shannon Nelson <snelson@pensando.io>
+thread1--->lock
+thread1--->dccp_qpolicy_full: queue is full. drop a skb
+thread1--->unlock
+thread2--->lock
+thread2--->dccp_qpolicy_full: queue is not full. no need to drop.
+thread2--->unlock
+thread1--->lock
+thread1--->dccp_qpolicy_push: add a skb. queue is full.
+thread1--->unlock
+thread2--->lock
+thread2--->dccp_qpolicy_push: add a skb!
+thread2--->unlock
+
+Fix this by moving dccp_qpolicy_full.
+
+Fixes: b1308dc015eb ("[DCCP]: Set TX Queue Length Bounds via Sysctl")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Link: https://lore.kernel.org/r/20220729110027.40569-1-hbh25y@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_lif.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/dccp/proto.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-index f3568901eb91..1443f788ee37 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-@@ -1437,7 +1437,7 @@ static int ionic_set_nic_features(struct ionic_lif *lif,
- 	if ((old_hw_features ^ lif->hw_features) & IONIC_ETH_HW_RX_HASH)
- 		ionic_lif_rss_config(lif, lif->rss_types, NULL, NULL);
+diff --git a/net/dccp/proto.c b/net/dccp/proto.c
+index a976b4d29892..0ee62506105a 100644
+--- a/net/dccp/proto.c
++++ b/net/dccp/proto.c
+@@ -736,11 +736,6 @@ int dccp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
  
--	if ((vlan_flags & features) &&
-+	if ((vlan_flags & le64_to_cpu(ctx.cmd.lif_setattr.features)) &&
- 	    !(vlan_flags & le64_to_cpu(ctx.comp.lif_setattr.features)))
- 		dev_info_once(lif->ionic->dev, "NIC is not supporting vlan offload, likely in SmartNIC mode\n");
+ 	lock_sock(sk);
  
+-	if (dccp_qpolicy_full(sk)) {
+-		rc = -EAGAIN;
+-		goto out_release;
+-	}
+-
+ 	timeo = sock_sndtimeo(sk, noblock);
+ 
+ 	/*
+@@ -759,6 +754,11 @@ int dccp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+ 	if (skb == NULL)
+ 		goto out_release;
+ 
++	if (dccp_qpolicy_full(sk)) {
++		rc = -EAGAIN;
++		goto out_discard;
++	}
++
+ 	if (sk->sk_state == DCCP_CLOSED) {
+ 		rc = -ENOTCONN;
+ 		goto out_discard;
 -- 
 2.35.1
 
