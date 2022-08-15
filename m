@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47188594935
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D2D9594D0D
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:33:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244368AbiHOXLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:11:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36456 "EHLO
+        id S240346AbiHPAsh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:48:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352822AbiHOXI7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:08:59 -0400
+        with ESMTP id S1350124AbiHPAqv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:46:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9CDC8708C;
-        Mon, 15 Aug 2022 12:59:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C6EDD8E32;
+        Mon, 15 Aug 2022 13:45:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92DBEB80EAD;
-        Mon, 15 Aug 2022 19:59:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92BBC433D7;
-        Mon, 15 Aug 2022 19:59:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6105BB80EAD;
+        Mon, 15 Aug 2022 20:45:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B34C8C433D7;
+        Mon, 15 Aug 2022 20:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593589;
-        bh=pA8ISevhUsGe/p5+9L1xkYfUhHfjRk8HP8uS3OlHxrU=;
+        s=korg; t=1660596339;
+        bh=oYX06H7Q/VqhynFigD32O2XLFCsEWftHbR1tJ5BP51Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vhDjpzW/7I5qgbLnHapEpnN/MO1OgVH7qUwQeoexwGg8zIT52puU0iqm36WpxYVO9
-         +RVYpIztISdBAzL/9oHjCi/42JRDYF0GOUe64kqMWkbiQhJWU5GIaY68499SJ1O7Tg
-         irvb6VI7bwoaWyKCvVeundAHmeu/jp7Mw8AehS68=
+        b=rbLzHBeCeAjco07WDk3jweT0Zu4jb3ctpccvWPn/fI/hG4Sfw+mT/gS8wdhN992jq
+         5CmS1COOaEhfXyrCdrT7aksAy7pJ8hSCexzf5vqMr/qiZrL3YCd1GMdKiY4gpWYbIV
+         /BO7cgWvPBOf9ZDiAVvnlbSS2/NNAN1TsHcw76oc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "x86@kernel.org" <x86@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.18 0972/1095] ftrace/x86: Add back ftrace_expected assignment
+        stable@vger.kernel.org, Chenyi Qiang <chenyi.qiang@intel.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 1015/1157] x86/bus_lock: Dont assume the init value of DEBUGCTLMSR.BUS_LOCK_DETECT to be zero
 Date:   Mon, 15 Aug 2022 20:06:11 +0200
-Message-Id: <20220815180509.279790937@linuxfoundation.org>
+Message-Id: <20220815180520.475236950@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,44 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Chenyi Qiang <chenyi.qiang@intel.com>
 
-commit ac6c1b2ca77e722a1e5d651f12f437f2f237e658 upstream.
+[ Upstream commit ffa6482e461ff550325356ae705b79e256702ea9 ]
 
-When a ftrace_bug happens (where ftrace fails to modify a location) it is
-helpful to have what was at that location as well as what was expected to
-be there.
+It's possible that this kernel has been kexec'd from a kernel that
+enabled bus lock detection, or (hypothetically) BIOS/firmware has set
+DEBUGCTLMSR_BUS_LOCK_DETECT.
 
-But with the conversion to text_poke() the variable that assigns the
-expected for debugging was dropped. Unfortunately, I noticed this when I
-needed it. Add it back.
+Disable bus lock detection explicitly if not wanted.
 
-Link: https://lkml.kernel.org/r/20220726101851.069d2e70@gandalf.local.home
-
-Cc: "x86@kernel.org" <x86@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: stable@vger.kernel.org
-Fixes: 768ae4406a5c ("x86/ftrace: Use text_poke()")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ebb1064e7c2e ("x86/traps: Handle #DB for bus lock")
+Signed-off-by: Chenyi Qiang <chenyi.qiang@intel.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Link: https://lore.kernel.org/r/20220802033206.21333-1-chenyi.qiang@intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/ftrace.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/cpu/intel.c | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -93,6 +93,7 @@ static int ftrace_verify_code(unsigned l
+diff --git a/arch/x86/kernel/cpu/intel.c b/arch/x86/kernel/cpu/intel.c
+index fd5dead8371c..cb796ca6eff5 100644
+--- a/arch/x86/kernel/cpu/intel.c
++++ b/arch/x86/kernel/cpu/intel.c
+@@ -1216,22 +1216,23 @@ static void bus_lock_init(void)
+ {
+ 	u64 val;
  
- 	/* Make sure it is what we expect it to be */
- 	if (memcmp(cur_code, old_code, MCOUNT_INSN_SIZE) != 0) {
-+		ftrace_expected = old_code;
- 		WARN_ON(1);
- 		return -EINVAL;
- 	}
+-	/*
+-	 * Warn and fatal are handled by #AC for split lock if #AC for
+-	 * split lock is supported.
+-	 */
+-	if (!boot_cpu_has(X86_FEATURE_BUS_LOCK_DETECT) ||
+-	    (boot_cpu_has(X86_FEATURE_SPLIT_LOCK_DETECT) &&
+-	    (sld_state == sld_warn || sld_state == sld_fatal)) ||
+-	    sld_state == sld_off)
++	if (!boot_cpu_has(X86_FEATURE_BUS_LOCK_DETECT))
+ 		return;
+ 
+-	/*
+-	 * Enable #DB for bus lock. All bus locks are handled in #DB except
+-	 * split locks are handled in #AC in the fatal case.
+-	 */
+ 	rdmsrl(MSR_IA32_DEBUGCTLMSR, val);
+-	val |= DEBUGCTLMSR_BUS_LOCK_DETECT;
++
++	if ((boot_cpu_has(X86_FEATURE_SPLIT_LOCK_DETECT) &&
++	    (sld_state == sld_warn || sld_state == sld_fatal)) ||
++	    sld_state == sld_off) {
++		/*
++		 * Warn and fatal are handled by #AC for split lock if #AC for
++		 * split lock is supported.
++		 */
++		val &= ~DEBUGCTLMSR_BUS_LOCK_DETECT;
++	} else {
++		val |= DEBUGCTLMSR_BUS_LOCK_DETECT;
++	}
++
+ 	wrmsrl(MSR_IA32_DEBUGCTLMSR, val);
+ }
+ 
+-- 
+2.35.1
+
 
 
