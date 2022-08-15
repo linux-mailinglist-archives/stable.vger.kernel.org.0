@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C62C4594C74
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E8D7594D51
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230468AbiHPAcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 20:32:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38820 "EHLO
+        id S1343963AbiHPAcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:32:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347219AbiHPAaf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:30:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3157537FA0;
-        Mon, 15 Aug 2022 13:35:43 -0700 (PDT)
+        with ESMTP id S1351819AbiHPAam (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:30:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99DAD1849C8;
+        Mon, 15 Aug 2022 13:35:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 936C4B80EAD;
-        Mon, 15 Aug 2022 20:35:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2B92C433C1;
-        Mon, 15 Aug 2022 20:35:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E858B8114A;
+        Mon, 15 Aug 2022 20:35:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8FA5C433D6;
+        Mon, 15 Aug 2022 20:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660595741;
-        bh=PQa41Dw1cLrvGbifrXo1+Q6UP14K5C3ONaexlLXM2xo=;
+        s=korg; t=1660595744;
+        bh=6KB1K5LhbCZrhA4TaHgr+wvgq+MkkC0XdMw8XVVZ2RQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3ZfCs+C/2gOY+8Q12x47dZHuunEQsBJkcHv2c4w6rIPCy9eeAnIoq/TqpqGppVRg
-         WWXzwFcQ7/zMpPVqpw6uuTmui9W8rdmDY4nd43O/Rt8FC2Z8TVwibzJmwM3kl4QAgO
-         bppFJ3G3i/LfKezvTSWpZuwtLtBcdl8SI0hypvEg=
+        b=qrmzpNV6jO0BNxmVtZrbnxgMvFUmlmnQGSkTjzs20w9dFk/BMA3O3gSGSP/NS1Qg7
+         FgxXdo/9nytxANSLHoepoPcel+AAKlcGn/AxsZVNRcOglXW1+3NNJJddAr+5dG7UHw
+         8wMcXGt8KKXgIXtUpIqdGi3O/mj69l+IKyGxj+J8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0859/1157] platform/olpc: Fix uninitialized data in debugfs write
-Date:   Mon, 15 Aug 2022 20:03:35 +0200
-Message-Id: <20220815180513.832536957@linuxfoundation.org>
+Subject: [PATCH 5.19 0860/1157] RDMA/srpt: Duplicate port name members
+Date:   Mon, 15 Aug 2022 20:03:36 +0200
+Message-Id: <20220815180513.864980811@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -54,48 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 40ec787e1adf302c11668d4cc69838f4d584187d ]
+[ Upstream commit b03b1ae2a3125d4475452e4f19f5d3a6e910ff6e ]
 
-The call to:
+Prepare for decoupling the lifetimes of struct srpt_port and struct
+srpt_port_id by duplicating the port name into struct srpt_port.
 
-	size = simple_write_to_buffer(cmdbuf, sizeof(cmdbuf), ppos, buf, size);
-
-will succeed if at least one byte is written to the "cmdbuf" buffer.
-The "*ppos" value controls which byte is written.  Another problem is
-that this code does not check for errors so it's possible for the entire
-buffer to be uninitialized.
-
-Inintialize the struct to zero to prevent reading uninitialized stack
-data.
-
-Debugfs is normally only writable by root so the impact of this bug is
-very minimal.
-
-Fixes: 6cca83d498bd ("Platform: OLPC: move debugfs support from x86 EC driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YthIKn+TfZSZMEcM@kili
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220727193415.1583860-2-bvanassche@acm.org
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/olpc/olpc-ec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/ulp/srpt/ib_srpt.c |  9 ++++++---
+ drivers/infiniband/ulp/srpt/ib_srpt.h | 10 +++++++---
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/platform/olpc/olpc-ec.c b/drivers/platform/olpc/olpc-ec.c
-index 4ff5c3a12991..921520475ff6 100644
---- a/drivers/platform/olpc/olpc-ec.c
-+++ b/drivers/platform/olpc/olpc-ec.c
-@@ -264,7 +264,7 @@ static ssize_t ec_dbgfs_cmd_write(struct file *file, const char __user *buf,
- 	int i, m;
- 	unsigned char ec_cmd[EC_MAX_CMD_ARGS];
- 	unsigned int ec_cmd_int[EC_MAX_CMD_ARGS];
--	char cmdbuf[64];
-+	char cmdbuf[64] = "";
- 	int ec_cmd_bytes;
+diff --git a/drivers/infiniband/ulp/srpt/ib_srpt.c b/drivers/infiniband/ulp/srpt/ib_srpt.c
+index f86ee1c4b970..8253d55b9c26 100644
+--- a/drivers/infiniband/ulp/srpt/ib_srpt.c
++++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
+@@ -566,14 +566,17 @@ static int srpt_refresh_port(struct srpt_port *sport)
+ 		return ret;
  
- 	mutex_lock(&ec_dbgfs_lock);
+ 	sport->port_guid_id.wwn.priv = sport;
+-	srpt_format_guid(sport->port_guid_id.name,
+-			 sizeof(sport->port_guid_id.name),
++	srpt_format_guid(sport->guid_name, ARRAY_SIZE(sport->guid_name),
+ 			 &sport->gid.global.interface_id);
++	memcpy(sport->port_guid_id.name, sport->guid_name,
++	       ARRAY_SIZE(sport->guid_name));
+ 	sport->port_gid_id.wwn.priv = sport;
+-	snprintf(sport->port_gid_id.name, sizeof(sport->port_gid_id.name),
++	snprintf(sport->gid_name, ARRAY_SIZE(sport->gid_name),
+ 		 "0x%016llx%016llx",
+ 		 be64_to_cpu(sport->gid.global.subnet_prefix),
+ 		 be64_to_cpu(sport->gid.global.interface_id));
++	memcpy(sport->port_gid_id.name, sport->gid_name,
++	       ARRAY_SIZE(sport->gid_name));
+ 
+ 	if (rdma_protocol_iwarp(sport->sdev->device, sport->port))
+ 		return 0;
+diff --git a/drivers/infiniband/ulp/srpt/ib_srpt.h b/drivers/infiniband/ulp/srpt/ib_srpt.h
+index 76e66f630c17..3844a7058559 100644
+--- a/drivers/infiniband/ulp/srpt/ib_srpt.h
++++ b/drivers/infiniband/ulp/srpt/ib_srpt.h
+@@ -376,7 +376,7 @@ struct srpt_tpg {
+ };
+ 
+ /**
+- * struct srpt_port_id - information about an RDMA port name
++ * struct srpt_port_id - LIO RDMA port information
+  * @mutex:	Protects @tpg_list changes.
+  * @tpg_list:	TPGs associated with the RDMA port name.
+  * @wwn:	WWN associated with the RDMA port name.
+@@ -402,8 +402,10 @@ struct srpt_port_id {
+  * @lid:       cached value of the port's lid.
+  * @gid:       cached value of the port's gid.
+  * @work:      work structure for refreshing the aforementioned cached values.
+- * @port_guid_id: target port GUID
+- * @port_gid_id: target port GID
++ * @guid_name: port name in GUID format.
++ * @port_guid_id: LIO target port information for the port name in GUID format.
++ * @gid_name:  port name in GID format.
++ * @port_gid_id: LIO target port information for the port name in GID format.
+  * @port_attrib:   Port attributes that can be accessed through configfs.
+  * @refcount:	   Number of objects associated with this port.
+  * @freed_channels: Completion that will be signaled once @refcount becomes 0.
+@@ -419,7 +421,9 @@ struct srpt_port {
+ 	u32			lid;
+ 	union ib_gid		gid;
+ 	struct work_struct	work;
++	char			guid_name[64];
+ 	struct srpt_port_id	port_guid_id;
++	char			gid_name[64];
+ 	struct srpt_port_id	port_gid_id;
+ 	struct srpt_port_attrib port_attrib;
+ 	atomic_t		refcount;
 -- 
 2.35.1
 
