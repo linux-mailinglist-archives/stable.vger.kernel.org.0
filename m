@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FBDE593CF8
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2C26593CC4
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:39:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243653AbiHOUNn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:13:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54612 "EHLO
+        id S240978AbiHOUN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:13:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346648AbiHOULy (ORCPT
+        with ESMTP id S1346654AbiHOULy (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:11:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A275549B52;
-        Mon, 15 Aug 2022 11:58:04 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A4D549B58;
+        Mon, 15 Aug 2022 11:58:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EB7DB810A1;
-        Mon, 15 Aug 2022 18:58:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68762C433C1;
-        Mon, 15 Aug 2022 18:58:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A399561230;
+        Mon, 15 Aug 2022 18:58:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 904FEC433C1;
+        Mon, 15 Aug 2022 18:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660589882;
-        bh=VZdlmM1yI6DDiCaE7reYOZ8qKqKYhTpxSZQNW8mwYrA=;
+        s=korg; t=1660589885;
+        bh=38z5+1E7HVbT6HeQjqkDPqJFtUVE6OakjVGr/qrHk+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=msGIP1HDYk5KxLDjeDYGm0Gcx986g/CmOgNmmDjEnqOqiWJ3xR9EYcAFsjmDXaqzS
-         T4ErQ9dHYoFbzdvfSLHK9wL5TsWG0HYl/UhYQhJPJ4aCPJbOH5OKxtePBVWhSCp0ax
-         2RM2v36czVcDkWPBBU6iomT6U/GxkPWDUJlKqVkM=
+        b=kqS50959rYDnVY3joO1MRhORVfdAV7912OYyR7NqXgeMKzpiMteVXeIXMLbbRUkl7
+         clcTVPTzNIG13WAtDtEyfCa2qTZUC9o9Clp9LGHm/Euk2WtcLLHu+kWOIgDRT8rDOq
+         fIQY6jUSU4hcyXTdFyMkj5ZuTmMfVIx+uy3i6Kzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        Deepak Rawat <drawat.floss@gmail.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        Maxime Ripard <maxime@cerno.tech>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>
-Subject: [PATCH 5.18 0079/1095] drm/hyperv-drm: Include framebuffer and EDID headers
-Date:   Mon, 15 Aug 2022 19:51:18 +0200
-Message-Id: <20220815180432.787310852@linuxfoundation.org>
+        stable@vger.kernel.org, Timur Tabi <ttabi@nvidia.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.18 0080/1095] drm/nouveau: fix another off-by-one in nvbios_addr
+Date:   Mon, 15 Aug 2022 19:51:19 +0200
+Message-Id: <20220815180432.833787907@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -59,59 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Zimmermann <tzimmermann@suse.de>
+From: Timur Tabi <ttabi@nvidia.com>
 
-commit 009a3a52791f31c57d755a73f6bc66fbdd8bd76c upstream.
+commit c441d28945fb113220d48d6c86ebc0b090a2b677 upstream.
 
-Fix a number of compile errors by including the correct header
-files. Examples are shown below.
+This check determines whether a given address is part of
+image 0 or image 1.  Image 1 starts at offset image0_size,
+so that address should be included.
 
-  ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c: In function 'hyperv_blit_to_vram_rect':
-  ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c:25:48: error: invalid use of undefined type 'struct drm_framebuffer'
-   25 |         struct hyperv_drm_device *hv = to_hv(fb->dev);
-      |                                                ^~
-
-  ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c: In function 'hyperv_connector_get_modes':
-  ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c:59:17: error: implicit declaration of function 'drm_add_modes_noedid' [-Werror=implicit-function-declaration]
-   59 |         count = drm_add_modes_noedid(connector,
-      |                 ^~~~~~~~~~~~~~~~~~~~
-
-  ../drivers/gpu/drm/hyperv/hyperv_drm_modeset.c:62:9: error: implicit declaration of function 'drm_set_preferred_mode'; did you mean 'drm_mm_reserve_node'? [-Werror=implicit-function-declaration]
-   62 |         drm_set_preferred_mode(connector, hv->preferred_width,
-      |         ^~~~~~~~~~~~~~~~~~~~~~
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Fixes: 76c56a5affeb ("drm/hyperv: Add DRM driver for hyperv synthetic video device")
-Fixes: 720cf96d8fec ("drm: Drop drm_framebuffer.h from drm_crtc.h")
-Fixes: 255490f9150d ("drm: Drop drm_edid.h from drm_crtc.h")
-Cc: Deepak Rawat <drawat.floss@gmail.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: linux-hyperv@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.14+
-Acked-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220622083413.12573-1-tzimmermann@suse.de
+Fixes: 4d4e9907ff572 ("drm/nouveau/bios: guard against out-of-bounds accesses to image")
+Cc: <stable@vger.kernel.org> # v4.8+
+Signed-off-by: Timur Tabi <ttabi@nvidia.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220511163716.3520591-1-ttabi@nvidia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/hyperv/hyperv_drm_modeset.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
-+++ b/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
-@@ -7,9 +7,11 @@
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c
+@@ -33,7 +33,7 @@ nvbios_addr(struct nvkm_bios *bios, u32
+ {
+ 	u32 p = *addr;
  
- #include <drm/drm_damage_helper.h>
- #include <drm/drm_drv.h>
-+#include <drm/drm_edid.h>
- #include <drm/drm_fb_helper.h>
- #include <drm/drm_format_helper.h>
- #include <drm/drm_fourcc.h>
-+#include <drm/drm_framebuffer.h>
- #include <drm/drm_gem_atomic_helper.h>
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_gem_shmem_helper.h>
+-	if (*addr > bios->image0_size && bios->imaged_addr) {
++	if (*addr >= bios->image0_size && bios->imaged_addr) {
+ 		*addr -= bios->image0_size;
+ 		*addr += bios->imaged_addr;
+ 	}
 
 
