@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1565B593DEF
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 486FC593DEB
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:43:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345373AbiHOUd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:33:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42352 "EHLO
+        id S1345241AbiHOUdX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:33:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347540AbiHOUbU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:31:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7AE1A50ED;
-        Mon, 15 Aug 2022 12:04:45 -0700 (PDT)
+        with ESMTP id S1347635AbiHOUb1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:31:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B28A5988;
+        Mon, 15 Aug 2022 12:04:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62269612B5;
-        Mon, 15 Aug 2022 19:04:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A98EC433D6;
-        Mon, 15 Aug 2022 19:04:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19FC6B8110F;
+        Mon, 15 Aug 2022 19:04:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 765B4C433C1;
+        Mon, 15 Aug 2022 19:04:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590272;
-        bh=cvYEl2v7R6jrqGqPloGDNravZIBuaPQgB2qMj5zfhmM=;
+        s=korg; t=1660590275;
+        bh=2nSJYS2SJ8h0PWkngDu10ZIh+24L5ysWN8ONbY7NjPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZgu3G2vag+bSn9TX29XUVCUWCJPZVjC/UrC3xynzutRnHjOS/WJIFNYDcOh3cCJy
-         ukqAMU67Wzc1FflQIYe2nLUM85I6gYkBdSqRljC6t6pEe+7lfYRv8VPO6kp0Pt49tM
-         CaVjJsEmCGOqW+r3XBPXZl+0819bcgMGSdNQnfhE=
+        b=QlcczhuTjLluU4it+8dHn4SoKVTCGVqeEjK72ZkIXARBUud/0TR6TGbmA4qSe6R7P
+         c11zP+TXvn+qHzDrxVVObWasRY/ek7JXBT5RuP9fWaGVjuN8FDI1wm4MESokyw4uBH
+         3qpr+u6zX40SHaGe8cwwFGK3J+vUAWnWI6mRH20U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Arnd Bergmann <arnd@arndb.de>, Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0208/1095] soc: fsl: guts: machine variable might be unset
-Date:   Mon, 15 Aug 2022 19:53:27 +0200
-Message-Id: <20220815180438.273750539@linuxfoundation.org>
+Subject: [PATCH 5.18 0209/1095] spi: s3c64xx: constify fsd_spi_port_config
+Date:   Mon, 15 Aug 2022 19:53:28 +0200
+Message-Id: <20220815180438.314163814@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,35 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit ab3f045774f704c4e7b6a878102f4e9d4ae7bc74 ]
+[ Upstream commit a813c47d22b0a0c51567292bc198a39bdcdc3799 ]
 
-If both the model and the compatible properties are missing, then
-machine will not be set. Initialize it with NULL.
+All struct s3c64xx_spi_port_config should be const.
 
-Fixes: 34c1c21e94ac ("soc: fsl: fix section mismatch build warnings")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 4ebb15a15799 ("spi: s3c64xx: Add spi port configuration for Tesla FSD SoC")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220627094541.95166-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/fsl/guts.c | 2 +-
+ drivers/spi/spi-s3c64xx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/fsl/guts.c b/drivers/soc/fsl/guts.c
-index 5ed2fc1c53a0..be18d46c7b0f 100644
---- a/drivers/soc/fsl/guts.c
-+++ b/drivers/soc/fsl/guts.c
-@@ -140,7 +140,7 @@ static int fsl_guts_probe(struct platform_device *pdev)
- 	struct device_node *root, *np = pdev->dev.of_node;
- 	struct device *dev = &pdev->dev;
- 	const struct fsl_soc_die_attr *soc_die;
--	const char *machine;
-+	const char *machine = NULL;
- 	u32 svr;
+diff --git a/drivers/spi/spi-s3c64xx.c b/drivers/spi/spi-s3c64xx.c
+index c26440e9058d..8fa21afc6a35 100644
+--- a/drivers/spi/spi-s3c64xx.c
++++ b/drivers/spi/spi-s3c64xx.c
+@@ -1413,7 +1413,7 @@ static const struct s3c64xx_spi_port_config exynos5433_spi_port_config = {
+ 	.quirks		= S3C64XX_SPI_QUIRK_CS_AUTO,
+ };
  
- 	/* Initialize guts */
+-static struct s3c64xx_spi_port_config fsd_spi_port_config = {
++static const struct s3c64xx_spi_port_config fsd_spi_port_config = {
+ 	.fifo_lvl_mask	= { 0x7f, 0x7f, 0x7f, 0x7f, 0x7f},
+ 	.rx_lvl_offset	= 15,
+ 	.tx_st_done	= 25,
 -- 
 2.35.1
 
