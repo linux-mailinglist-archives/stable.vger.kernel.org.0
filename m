@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFED3593E33
+	by mail.lfdr.de (Postfix) with ESMTP id 42EAA593E32
 	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 22:44:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345650AbiHOUhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 16:37:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43796 "EHLO
+        id S1345515AbiHOUhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 16:37:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345149AbiHOUfT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:35:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBFE3371A9;
-        Mon, 15 Aug 2022 12:06:26 -0700 (PDT)
+        with ESMTP id S1345694AbiHOUfW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 16:35:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A4D84E632;
+        Mon, 15 Aug 2022 12:06:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91CBCB81104;
-        Mon, 15 Aug 2022 19:06:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC26DC433C1;
-        Mon, 15 Aug 2022 19:06:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB76B61019;
+        Mon, 15 Aug 2022 19:06:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8276C433D6;
+        Mon, 15 Aug 2022 19:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590384;
-        bh=CBgb56HFKBmdWIWJ/wiKMtuMrogElOROawwgv/vqOZY=;
+        s=korg; t=1660590387;
+        bh=j55TNd95ho6ZbsHNHDPW0cph+TjLYNpouX6nY95nTmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yWJbzjvrDSJcqTgOPu/wmgfy2ksplL9vrknXwdakFAHj8hL/Yl/GHBs2UBGxcIHW7
-         OxJybGhwsLchzn9cxLoVCtqn6r2xmFT11nGqS1jzDuV9VuzXGo3kOLOgV6/a8SIyBT
-         kYPrXAVIhZtdnTs+c4quu0M830kxvx/7lDrXU21k=
+        b=0oVKIhpISZ0Gevu9AhBtkFwWAQIKOwihP/4gRr7Y9Q7kpSKqcikNNuP+GnTRLrsOb
+         QptKy+Pp2qVzSN8FdFJyHgBeAKlbXHjPxGYTyNACLuupMTYXA6WvM46/0F0lN4GjLY
+         jOxjMGCyHKEm2I7hDlm0Wagg1cl5nXFvIl525vmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@inria.fr>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Brian Masney <masneyb@onstation.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0243/1095] ia64: fix typos in comments
-Date:   Mon, 15 Aug 2022 19:54:02 +0200
-Message-Id: <20220815180439.831224468@linuxfoundation.org>
+Subject: [PATCH 5.18 0244/1095] soc: qcom: ocmem: Fix refcount leak in of_get_ocmem
+Date:   Mon, 15 Aug 2022 19:54:03 +0200
+Message-Id: <20220815180439.880980484@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -54,85 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall@inria.fr>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 0af96a024f524a5318485cbada73ab7d874895d4 ]
+[ Upstream commit 92a563fcf14b3093226fb36f12e9b5cf630c5a5d ]
 
-Various spelling mistakes in comments.
-Detected with the help of Coccinelle.
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
+of_node_put() will check NULL pointer.
 
-Link: https://lkml.kernel.org/r/20220318103729.157574-1-Julia.Lawall@inria.fr
-Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 88c1e9404f1d ("soc: qcom: add OCMEM driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Brian Masney <masneyb@onstation.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220602042430.1114-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/kernel/palinfo.c | 2 +-
- arch/ia64/kernel/traps.c   | 2 +-
- arch/ia64/mm/init.c        | 2 +-
- arch/ia64/mm/tlb.c         | 4 ++--
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/soc/qcom/ocmem.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/ia64/kernel/palinfo.c b/arch/ia64/kernel/palinfo.c
-index 64189f04c1a4..b9ae093bfe37 100644
---- a/arch/ia64/kernel/palinfo.c
-+++ b/arch/ia64/kernel/palinfo.c
-@@ -120,7 +120,7 @@ static const char *mem_attrib[]={
-  * Input:
-  *	- a pointer to a buffer to hold the string
-  *	- a 64-bit vector
-- * Ouput:
-+ * Output:
-  *	- a pointer to the end of the buffer
-  *
-  */
-diff --git a/arch/ia64/kernel/traps.c b/arch/ia64/kernel/traps.c
-index 753642366e12..53735b1d1be3 100644
---- a/arch/ia64/kernel/traps.c
-+++ b/arch/ia64/kernel/traps.c
-@@ -309,7 +309,7 @@ handle_fpu_swa (int fp_fault, struct pt_regs *regs, unsigned long isr)
- 			/*
- 			 * Lower 4 bits are used as a count. Upper bits are a sequence
- 			 * number that is updated when count is reset. The cmpxchg will
--			 * fail is seqno has changed. This minimizes mutiple cpus
-+			 * fail is seqno has changed. This minimizes multiple cpus
- 			 * resetting the count.
- 			 */
- 			if (current_jiffies > last.time)
-diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-index 5d165607bf35..7ae1244ed8ec 100644
---- a/arch/ia64/mm/init.c
-+++ b/arch/ia64/mm/init.c
-@@ -451,7 +451,7 @@ mem_init (void)
- 	memblock_free_all();
+diff --git a/drivers/soc/qcom/ocmem.c b/drivers/soc/qcom/ocmem.c
+index 97fd24c178f8..c92d26b73e6f 100644
+--- a/drivers/soc/qcom/ocmem.c
++++ b/drivers/soc/qcom/ocmem.c
+@@ -194,14 +194,17 @@ struct ocmem *of_get_ocmem(struct device *dev)
+ 	devnode = of_parse_phandle(dev->of_node, "sram", 0);
+ 	if (!devnode || !devnode->parent) {
+ 		dev_err(dev, "Cannot look up sram phandle\n");
++		of_node_put(devnode);
+ 		return ERR_PTR(-ENODEV);
+ 	}
  
- 	/*
--	 * For fsyscall entrpoints with no light-weight handler, use the ordinary
-+	 * For fsyscall entrypoints with no light-weight handler, use the ordinary
- 	 * (heavy-weight) handler, but mark it by setting bit 0, so the fsyscall entry
- 	 * code can tell them apart.
- 	 */
-diff --git a/arch/ia64/mm/tlb.c b/arch/ia64/mm/tlb.c
-index 135b5135cace..ca060e7a2a46 100644
---- a/arch/ia64/mm/tlb.c
-+++ b/arch/ia64/mm/tlb.c
-@@ -174,7 +174,7 @@ __setup("nptcg=", set_nptcg);
-  * override table (in which case we should ignore the value from
-  * PAL_VM_SUMMARY).
-  *
-- * Kernel parameter "nptcg=" overrides maximum number of simultanesous ptc.g
-+ * Kernel parameter "nptcg=" overrides maximum number of simultaneous ptc.g
-  * purges defined in either PAL_VM_SUMMARY or PAL override table. In this case,
-  * we should ignore the value from either PAL_VM_SUMMARY or PAL override table.
-  *
-@@ -516,7 +516,7 @@ int ia64_itr_entry(u64 target_mask, u64 va, u64 pte, u64 log_size)
- 	if (i >= per_cpu(ia64_tr_num, cpu))
- 		return -EBUSY;
+ 	pdev = of_find_device_by_node(devnode->parent);
+ 	if (!pdev) {
+ 		dev_err(dev, "Cannot find device node %s\n", devnode->name);
++		of_node_put(devnode);
+ 		return ERR_PTR(-EPROBE_DEFER);
+ 	}
++	of_node_put(devnode);
  
--	/*Record tr info for mca hander use!*/
-+	/*Record tr info for mca handler use!*/
- 	if (i > per_cpu(ia64_tr_used, cpu))
- 		per_cpu(ia64_tr_used, cpu) = i;
- 
+ 	ocmem = platform_get_drvdata(pdev);
+ 	if (!ocmem) {
 -- 
 2.35.1
 
