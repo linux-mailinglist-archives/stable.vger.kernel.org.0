@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CF88593969
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8AF25936F2
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 21:25:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242150AbiHOShu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 14:37:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50638 "EHLO
+        id S241190AbiHOSh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 14:37:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243575AbiHOSgq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:36:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFC732DA92;
-        Mon, 15 Aug 2022 11:23:15 -0700 (PDT)
+        with ESMTP id S243610AbiHOSgr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 14:36:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CC8F3C8CB;
+        Mon, 15 Aug 2022 11:23:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0961E6068D;
-        Mon, 15 Aug 2022 18:23:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03EB8C433C1;
-        Mon, 15 Aug 2022 18:23:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0650B8106E;
+        Mon, 15 Aug 2022 18:23:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16CA0C433D7;
+        Mon, 15 Aug 2022 18:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660587792;
-        bh=jhB3BcC4WMae6aGnSw8cXRASOVkW/NucMwW8lJkgSus=;
+        s=korg; t=1660587795;
+        bh=Hb2R0SkT5uiniydQNAyBxRHeGOY/ofRQ3SDcxSmhPw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CM3qRwLO9h9THO7BvI5+T7d28id8iR+JV/LPBweL0M/ZZgsrfxt9ylY4XSDxQNdN/
-         CpVmEYsfNaHLt6lFSRVLkzvWLxKLkhqkssE8lO7czx0wrxCcbZvucmG1hBOn+x0V+y
-         V5Sc2DcgaG5pKtqsUUg8taTEGL501b/GoE/kbZFk=
+        b=tv09AXFUOgQXfqtoZ3srZff9Lp6Bk+LR50m6XnhQwVM6J9U1sZWBgUa6LImFztfii
+         3MHBOUKEIamqO51+WxJnUpAZUVkD8TENRiasZ2e8xKhaGAZyKggQnCy0OlDmF2zcTC
+         7nBI5+lWqlx5JZkzYTfA3IgqLUGyeUMekJei/gjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Len Baker <len.baker@gmx.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        Jin Liu <jinl@redhat.com>,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 197/779] drivers/iio: Remove all strcpy() uses
-Date:   Mon, 15 Aug 2022 19:57:21 +0200
-Message-Id: <20220815180345.695878214@linuxfoundation.org>
+Subject: [PATCH 5.15 198/779] ACPI: VIOT: Fix ACS setup
+Date:   Mon, 15 Aug 2022 19:57:22 +0200
+Message-Id: <20220815180345.736578716@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
 References: <20220815180337.130757997@linuxfoundation.org>
@@ -54,87 +56,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Len Baker <len.baker@gmx.com>
+From: Eric Auger <eric.auger@redhat.com>
 
-[ Upstream commit d722f1e06fbc53eb369b39646945c1fa92068e74 ]
+[ Upstream commit 3dcb861dbc6ab101838a1548b1efddd00ca3c3ec ]
 
-strcpy() performs no bounds checking on the destination buffer. This
-could result in linear overflows beyond the end of the buffer, leading
-to all kinds of misbehaviors. So, remove all the uses and add
-devm_kstrdup() or devm_kasprintf() instead.
+Currently acpi_viot_init() gets called after the pci
+device has been scanned and pci_enable_acs() has been called.
+So pci_request_acs() fails to be taken into account leading
+to wrong single iommu group topologies when dealing with
+multi-function root ports for instance.
 
-Also, modify the "for" loop conditions to clarify the access to the
-st->orientation.rotation buffer.
+We cannot simply move the acpi_viot_init() earlier, similarly
+as the IORT init because the VIOT parsing relies on the pci
+scan. However we can detect VIOT is present earlier and in
+such a case, request ACS. Introduce a new acpi_viot_early_init()
+routine that allows to call pci_request_acs() before the scan.
 
-This patch is an effort to clean up the proliferation of str*()
-functions in the kernel and a previous step in the path to remove
-the strcpy function from the kernel entirely [1].
+While at it, guard the call to pci_request_acs() with #ifdef
+CONFIG_PCI.
 
-[1] https://github.com/KSPP/linux/issues/88
-
-Signed-off-by: Len Baker <len.baker@gmx.com>
-Link: https://lore.kernel.org/r/20210815174204.126593-1-len.baker@gmx.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 3cf485540e7b ("ACPI: Add driver for the VIOT table")
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Reported-by: Jin Liu <jinl@redhat.com>
+Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Tested-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/inv_mpu6050/inv_mpu_magn.c | 36 +++++++++++++---------
- 1 file changed, 21 insertions(+), 15 deletions(-)
+ drivers/acpi/bus.c        |  1 +
+ drivers/acpi/viot.c       | 26 ++++++++++++++++++++------
+ include/linux/acpi_viot.h |  2 ++
+ 3 files changed, 23 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_magn.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_magn.c
-index f282e9cc34c5..6aee6c989485 100644
---- a/drivers/iio/imu/inv_mpu6050/inv_mpu_magn.c
-+++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_magn.c
-@@ -261,6 +261,7 @@ int inv_mpu_magn_set_rate(const struct inv_mpu6050_state *st, int fifo_rate)
-  */
- int inv_mpu_magn_set_orient(struct inv_mpu6050_state *st)
- {
-+	struct device *dev = regmap_get_device(st->map);
- 	const char *orient;
- 	char *str;
- 	int i;
-@@ -279,22 +280,27 @@ int inv_mpu_magn_set_orient(struct inv_mpu6050_state *st)
- 		st->magn_orient.rotation[4] = st->orientation.rotation[1];
- 		st->magn_orient.rotation[5] = st->orientation.rotation[2];
- 		/* z <- -z */
--		for (i = 0; i < 3; ++i) {
--			orient = st->orientation.rotation[6 + i];
--			/* use length + 2 for adding minus sign if needed */
--			str = devm_kzalloc(regmap_get_device(st->map),
--					   strlen(orient) + 2, GFP_KERNEL);
--			if (str == NULL)
-+		for (i = 6; i < 9; ++i) {
-+			orient = st->orientation.rotation[i];
+diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+index fc9bb06d5411..7774b603a796 100644
+--- a/drivers/acpi/bus.c
++++ b/drivers/acpi/bus.c
+@@ -1340,6 +1340,7 @@ static int __init acpi_init(void)
+ 
+ 	pci_mmcfg_late_init();
+ 	acpi_iort_init();
++	acpi_viot_early_init();
+ 	acpi_hest_init();
+ 	ghes_init();
+ 	acpi_scan_init();
+diff --git a/drivers/acpi/viot.c b/drivers/acpi/viot.c
+index d2256326c73a..647f11cf165d 100644
+--- a/drivers/acpi/viot.c
++++ b/drivers/acpi/viot.c
+@@ -248,6 +248,26 @@ static int __init viot_parse_node(const struct acpi_viot_header *hdr)
+ 	return ret;
+ }
+ 
++/**
++ * acpi_viot_early_init - Test the presence of VIOT and enable ACS
++ *
++ * If the VIOT does exist, ACS must be enabled. This cannot be
++ * done in acpi_viot_init() which is called after the bus scan
++ */
++void __init acpi_viot_early_init(void)
++{
++#ifdef CONFIG_PCI
++	acpi_status status;
++	struct acpi_table_header *hdr;
 +
-+			/*
-+			 * The value is negated according to one of the following
-+			 * rules:
-+			 *
-+			 * 1) Drop leading minus.
-+			 * 2) Leave 0 as is.
-+			 * 3) Add leading minus.
-+			 */
-+			if (orient[0] == '-')
-+				str = devm_kstrdup(dev, orient + 1, GFP_KERNEL);
-+			else if (!strcmp(orient, "0"))
-+				str = devm_kstrdup(dev, orient, GFP_KERNEL);
-+			else
-+				str = devm_kasprintf(dev, GFP_KERNEL, "-%s", orient);
-+			if (!str)
- 				return -ENOMEM;
--			if (strcmp(orient, "0") == 0) {
--				strcpy(str, orient);
--			} else if (orient[0] == '-') {
--				strcpy(str, &orient[1]);
--			} else {
--				str[0] = '-';
--				strcpy(&str[1], orient);
--			}
--			st->magn_orient.rotation[6 + i] = str;
++	status = acpi_get_table(ACPI_SIG_VIOT, 0, &hdr);
++	if (ACPI_FAILURE(status))
++		return;
++	pci_request_acs();
++	acpi_put_table(hdr);
++#endif
++}
 +
-+			st->magn_orient.rotation[i] = str;
+ /**
+  * acpi_viot_init - Parse the VIOT table
+  *
+@@ -319,12 +339,6 @@ static int viot_pci_dev_iommu_init(struct pci_dev *pdev, u16 dev_id, void *data)
+ 			epid = ((domain_nr - ep->segment_start) << 16) +
+ 				dev_id - ep->bdf_start + ep->endpoint_id;
+ 
+-			/*
+-			 * If we found a PCI range managed by the viommu, we're
+-			 * the one that has to request ACS.
+-			 */
+-			pci_request_acs();
+-
+ 			return viot_dev_iommu_init(&pdev->dev, ep->viommu,
+ 						   epid);
  		}
- 		break;
- 	default:
+diff --git a/include/linux/acpi_viot.h b/include/linux/acpi_viot.h
+index 1eb8ee5b0e5f..a5a122431563 100644
+--- a/include/linux/acpi_viot.h
++++ b/include/linux/acpi_viot.h
+@@ -6,9 +6,11 @@
+ #include <linux/acpi.h>
+ 
+ #ifdef CONFIG_ACPI_VIOT
++void __init acpi_viot_early_init(void);
+ void __init acpi_viot_init(void);
+ int viot_iommu_configure(struct device *dev);
+ #else
++static inline void acpi_viot_early_init(void) {}
+ static inline void acpi_viot_init(void) {}
+ static inline int viot_iommu_configure(struct device *dev)
+ {
 -- 
 2.35.1
 
