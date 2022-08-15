@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E16825947F7
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:05:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC01E5949AD
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:15:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232573AbiHOXRw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:17:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44236 "EHLO
+        id S233788AbiHOXRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:17:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344623AbiHOXOp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:14:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2729C7C1AE;
-        Mon, 15 Aug 2022 13:02:15 -0700 (PDT)
+        with ESMTP id S1345907AbiHOXPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:15:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8CEC7C76B;
+        Mon, 15 Aug 2022 13:02:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8D1C612D1;
-        Mon, 15 Aug 2022 20:02:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA18CC433C1;
-        Mon, 15 Aug 2022 20:02:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D9AFB80EB1;
+        Mon, 15 Aug 2022 20:02:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBCD8C433D6;
+        Mon, 15 Aug 2022 20:02:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593734;
-        bh=eZjv2QW3Wa6lxZ0ISVmk17zgCgTv5Ti9ykhWuduw3qk=;
+        s=korg; t=1660593740;
+        bh=paxBoEnAGh+TJJxSDISYgtGqLIvQ5WKLbYQHLktb9E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQ9mACCm6tAmcmbkWvNysgGUi6qvikmJBNjrEM/iBaMrbV0RgOhVem0FcXZ6AxQc9
-         v3wlHBPqfx1Pg3xCn2oxkHBZCuHP6V4HiZntO61xHEcfcYCG67iEha+fL6FOw8jSUy
-         rhwx6EesN94asRwK5DiUB6X32C2LDbanHKq8jTrw=
+        b=nJRTNLYeg8U5XGGuRWSm0FA7OMC5kCRiKWXy6ak8b0F3YZK14aamrNBhxHMZjVpPd
+         d/IYRtSZuiDlHvBDqkowKQ9EZ3T7yrolCo8FEk9LORPkGboRoj9Dep9zIhr7D+Gl0/
+         bmjZYWdTJFONf/rcNakIwysS35ciH+raDVFaeUW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Manikanta Pubbisetty <quic_mpubbise@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.19 0317/1157] ath11k: Init hw_params before setting up AHB resources
-Date:   Mon, 15 Aug 2022 19:54:33 +0200
-Message-Id: <20220815180452.334381459@linuxfoundation.org>
+Subject: [PATCH 5.19 0318/1157] drm/edid: reset display info in drm_add_edid_modes() for NULL edid
+Date:   Mon, 15 Aug 2022 19:54:34 +0200
+Message-Id: <20220815180452.368173158@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -55,49 +56,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manikanta Pubbisetty <quic_mpubbise@quicinc.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-[ Upstream commit bebcfd2534a63ab7e7325f5337662bc84ca038b6 ]
+[ Upstream commit d10f7117aa43b0b0d1c4b878afafb6d151da441d ]
 
-As part of adding the support of WCN6750 to ath11k, bus_params
-were moved to hw_params and this regressed the initialization
-of WCN6750. By the time AHB resources are setup for WCN6750,
-hw_params will not be initialized and therefore initialization
-for WCN6750 will fail. This is applicable only for WCN6750,
-no other device is impacted.
+If a NULL edid gets passed to drm_add_edid_modes(), we should probably
+also reset the display info.
 
-Fix this by moving the initialization of hw_params before
-setting up AHB resources.
-
-Tested-on: WCN6750 hw1.0 AHB WLAN.MSL.1.0.1-00887-QCAMSLSWPLZ-1
-
-Fixes: 00402f49d26f ("ath11k: Add support for WCN6750 device")
-Signed-off-by: Manikanta Pubbisetty <quic_mpubbise@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220517055241.15885-1-quic_mpubbise@quicinc.com
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/2ac1c55f94a08d5e72c0b518d956a11002ec85c1.1651569697.git.jani.nikula@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/ahb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_edid.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/ath/ath11k/ahb.c b/drivers/net/wireless/ath/ath11k/ahb.c
-index fa11807f48a9..d7d33d5cdfc5 100644
---- a/drivers/net/wireless/ath/ath11k/ahb.c
-+++ b/drivers/net/wireless/ath/ath11k/ahb.c
-@@ -976,11 +976,11 @@ static int ath11k_ahb_probe(struct platform_device *pdev)
- 	ab->hw_rev = hw_rev;
- 	platform_set_drvdata(pdev, ab);
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index bc43e1b32092..1dea0e2f0cab 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -5697,6 +5697,7 @@ static int drm_edid_connector_update(struct drm_connector *connector,
+ 	u32 quirks;
  
--	ret = ath11k_ahb_setup_resources(ab);
-+	ret = ath11k_core_pre_init(ab);
- 	if (ret)
- 		goto err_core_free;
- 
--	ret = ath11k_core_pre_init(ab);
-+	ret = ath11k_ahb_setup_resources(ab);
- 	if (ret)
- 		goto err_core_free;
- 
+ 	if (edid == NULL) {
++		drm_reset_display_info(connector);
+ 		clear_eld(connector);
+ 		return 0;
+ 	}
 -- 
 2.35.1
 
