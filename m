@@ -2,95 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEA9F594DAB
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B4E6594840
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:08:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347295AbiHPBEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 21:04:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59476 "EHLO
+        id S244921AbiHOX3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 19:29:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349012AbiHPBC1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 21:02:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D72DEBA9DA;
-        Mon, 15 Aug 2022 13:51:00 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 629BA61239;
-        Mon, 15 Aug 2022 20:51:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69092C433D6;
-        Mon, 15 Aug 2022 20:50:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596659;
-        bh=tWf8Wi3b7/Prk4onpT6cSotfSRDeTf1Vrw/VKciE+D0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OcFmjTcbTjRtDYUIJyxcLX7rSVCEyBdlRZzI9FUkqqretIM8sXvEmuexAmv7++bWi
-         LTDHIsV5ldCCQzrYcFA0/v555Uu/HtoEsz3xdX1oDxEKgN+F6qc72VoShgsvtm7UFR
-         KG95lEB+aM4p38nhc5Agp1NQHUvtogrkOXdb0i78=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.19 1149/1157] wifi: nl80211: relax wdev mutex check in wdev_chandef()
-Date:   Mon, 15 Aug 2022 20:08:25 +0200
-Message-Id: <20220815180526.483944476@linuxfoundation.org>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+        with ESMTP id S1343956AbiHOX0K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:26:10 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8521747B9B;
+        Mon, 15 Aug 2022 13:06:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=UeErxgbLsIOnl1kKr0gd1MbfngQnOPyfN93GP4+152g=; b=KwI+w1Wmmgs2RIYXYUmn/oWg3t
+        HZubBothMQce3fFWX8GXOWkWDc7Vc6TNeF2nZPtru/dO1woNE1bvTZ/mViIZ5PRbpuGvu3FQdRsOv
+        y5/3PvKxKUrOGiCTFPJPz17iDysP5xjxIdBnh9MpOyVYGWhe1vLxH2BYaeDLuZIohrSvqUpHtwKMV
+        V+DLtqiLsKQZJquaiKbQVPDOy+R8Xygz5EKfDS7FQiG4MM4dTUldAe5o7QG2RUBg2a9ptovyvzov/
+        JTxIrcqbNiLAAiQZlG9FFLt+oi234Ibx1AU4Xh1YFLCSGwrHTfwIbj7c/lTZu55Clddn0Dm7hkw6k
+        /0WcpsTQ==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1oNgLt-006383-RC; Mon, 15 Aug 2022 20:06:21 +0000
+Date:   Mon, 15 Aug 2022 21:06:21 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Joe Perches <joe@perches.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.19 0246/1157] usercopy: use unsigned long instead of
+ uintptr_t
+Message-ID: <YvqnPRmBDgUwKpzg@casper.infradead.org>
 References: <20220815180439.416659447@linuxfoundation.org>
-User-Agent: quilt/0.67
+ <20220815180449.423777119@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220815180449.423777119@linuxfoundation.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+On Mon, Aug 15, 2022 at 07:53:22PM +0200, Greg Kroah-Hartman wrote:
+> From: Jason A. Donenfeld <Jason@zx2c4.com>
+> 
+> [ Upstream commit 170b2c350cfcb6f74074e44dd9f916787546db0d ]
+> 
+> A recent commit factored out a series of annoying (unsigned long) casts
+> into a single variable declaration, but made the pointer type a
+> `uintptr_t` rather than the usual `unsigned long`. This patch changes it
+> to be the integer type more typically used by the kernel to represent
+> addresses.
+> 
+> Fixes: 35fb9ae4aa2e ("usercopy: Cast pointer to an integer once")
 
-commit 31177127e067eb73d5ca46ce32a410e41333d42f upstream.
+Not sure why this needs to be backported?
 
-In many cases we might get here from driver code that's
-not really set up to care about the locking, and for the
-non-MLO cases we really don't care so much about it. So
-relax the checking here for now, perhaps we should even
-remove it completely since we might not really care if
-we point to an invalid link's chandef and can require
-the caller to check the link validity first.
-
-Fixes: 7b0a0e3c3a88 ("wifi: cfg80211: do some rework towards MLO link APIs")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/wireless/chan.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
-
---- a/net/wireless/chan.c
-+++ b/net/wireless/chan.c
-@@ -1433,7 +1433,17 @@ EXPORT_SYMBOL(cfg80211_any_usable_channe
- struct cfg80211_chan_def *wdev_chandef(struct wireless_dev *wdev,
- 				       unsigned int link_id)
- {
--	ASSERT_WDEV_LOCK(wdev);
-+	/*
-+	 * We need to sort out the locking here - in some cases
-+	 * where we get here we really just don't care (yet)
-+	 * about the valid links, but in others we do. But we
-+	 * get here with various driver cases, so we cannot
-+	 * easily require the wdev mutex.
-+	 */
-+	if (link_id || wdev->valid_links & BIT(0)) {
-+		ASSERT_WDEV_LOCK(wdev);
-+		WARN_ON(!(wdev->valid_links & BIT(link_id)));
-+	}
- 
- 	switch (wdev->iftype) {
- 	case NL80211_IFTYPE_MESH_POINT:
-
-
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Cc: Uladzislau Rezki <urezki@gmail.com>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Joe Perches <joe@perches.com>
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Link: https://lore.kernel.org/r/20220616143617.449094-1-Jason@zx2c4.com
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  mm/usercopy.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/mm/usercopy.c b/mm/usercopy.c
+> index 4e1da708699b..c1ee15a98633 100644
+> --- a/mm/usercopy.c
+> +++ b/mm/usercopy.c
+> @@ -161,7 +161,7 @@ static inline void check_bogus_address(const unsigned long ptr, unsigned long n,
+>  static inline void check_heap_object(const void *ptr, unsigned long n,
+>  				     bool to_user)
+>  {
+> -	uintptr_t addr = (uintptr_t)ptr;
+> +	unsigned long addr = (unsigned long)ptr;
+>  	unsigned long offset;
+>  	struct folio *folio;
+>  
+> -- 
+> 2.35.1
+> 
+> 
+> 
