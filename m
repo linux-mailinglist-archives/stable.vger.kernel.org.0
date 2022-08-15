@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B1F3595187
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:59:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B99AE595181
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 06:58:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233768AbiHPE6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 00:58:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60002 "EHLO
+        id S234147AbiHPE6b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 00:58:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234072AbiHPE6J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:58:09 -0400
+        with ESMTP id S231869AbiHPE5o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 00:57:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 629D1BC82E;
-        Mon, 15 Aug 2022 13:51:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B5ECBC129;
+        Mon, 15 Aug 2022 13:51:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D57C7B811A6;
-        Mon, 15 Aug 2022 20:51:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10096C433C1;
-        Mon, 15 Aug 2022 20:51:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92B16B8113E;
+        Mon, 15 Aug 2022 20:51:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0151C433C1;
+        Mon, 15 Aug 2022 20:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660596707;
-        bh=HubnvPKLK/24iZKT7eHbcqFhZULylH0KNpVFqRjJCys=;
+        s=korg; t=1660596691;
+        bh=CcEXs1wOl50usw5N4AKXfF+Uu0otjqaJAqH0q47J1p8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QERzGDnUWg6myrFkl76uG3qCBwKXTf5W/I0pOvRd4kdU2mUXLDB3SPfiTfLkQFZ6q
-         e4TNkvchVfVrWG//1fZW+kVdw/fGODHks7erGpJwyGUZeNzOVEaruXiOpMaW5Y/+55
-         fFq5tCW1MKe/4kBblIhcWYhcjGHYjwitaoD3pL/s=
+        b=G7N3PWsg/zFaMgGxd8wVin35jXF6Cw7cwzKqIJvmRLSWbQ9IAPb3cZTSV+o/DkKi8
+         Xr9n4ITX2xIBUvY6TKPdD5I+GpFTmxY2MTDX1rOfJy5uHtDwAJnXnjZXqk9btcNicI
+         pudnqj+F9BVBLaIjR/qPBo62apEemqbLIEhC5SSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.19 1152/1157] tracing: Use a copy of the va_list for __assign_vstr()
-Date:   Mon, 15 Aug 2022 20:08:28 +0200
-Message-Id: <20220815180526.618951842@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.19 1153/1157] net: dsa: felix: fix min gate len calculation for tc when its first gate is closed
+Date:   Mon, 15 Aug 2022 20:08:29 +0200
+Message-Id: <20220815180526.658433843@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
 References: <20220815180439.416659447@linuxfoundation.org>
@@ -53,58 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 3a2dcbaf4d31023106975d6ae75b6df080c454cb upstream.
+commit 7e4babffa6f340a74c820d44d44d16511e666424 upstream.
 
-If an instance of tracing enables the same trace event as another
-instance, or the top level instance, or even perf, then the va_list passed
-into some tracepoints can be used more than once.
+min_gate_len[tc] is supposed to track the shortest interval of
+continuously open gates for a traffic class. For example, in the
+following case:
 
-As va_list can only be traversed once, this can cause issues:
+TC 76543210
 
- # cat /sys/kernel/tracing/instances/qla2xxx/trace
-             cat-56106   [012] ..... 2419873.470098: ql_dbg_log: qla2xxx [0000:05:00.0]-1054:14:  Entered (null).
-             cat-56106   [012] ..... 2419873.470101: ql_dbg_log: qla2xxx [0000:05:00.0]-1000:14:  Entered ×+<96>²Ü<98>^H.
-             cat-56106   [012] ..... 2419873.470102: ql_dbg_log: qla2xxx [0000:05:00.0]-1006:14:  Prepare to issue mbox cmd=0xde589000.
+t0 00000001b 200000 ns
+t1 00000010b 200000 ns
 
- # cat /sys/kernel/tracing/trace
-             cat-56106   [012] ..... 2419873.470097: ql_dbg_log: qla2xxx [0000:05:00.0]-1054:14:  Entered qla2x00_get_firmware_state.
-             cat-56106   [012] ..... 2419873.470100: ql_dbg_log: qla2xxx [0000:05:00.0]-1000:14:  Entered qla2x00_mailbox_command.
-             cat-56106   [012] ..... 2419873.470102: ql_dbg_log: qla2xxx [0000:05:00.0]-1006:14:  Prepare to issue mbox cmd=0x69.
+min_gate_len[0] and min_gate_len[1] should be 200000, while
+min_gate_len[2-7] should be 0.
 
-The instance version is corrupted because the top level instance iterated
-the va_list first.
+However what happens is that min_gate_len[0] is 200000, but
+min_gate_len[1] ends up being 0 (despite gate_len[1] being 200000 at the
+point where the logic detects the gate close event for TC 1).
 
-Use va_copy() in the __assign_vstr() macro to make sure that each trace
-event for each use case gets a fresh va_list.
+The problem is that the code considers a "gate close" event whenever it
+sees that there is a 0 for that TC (essentially it's level rather than
+edge triggered). By doing that, any time a gate is seen as closed
+without having been open prior, gate_len, which is 0, will be written
+into min_gate_len. Once min_gate_len becomes 0, it's impossible for it
+to track anything higher than that (the length of actually open
+intervals).
 
-Link: https://lore.kernel.org/all/259d53a5-958e-6508-4e45-74dba2821242@marvell.com/
-Link: https://lkml.kernel.org/r/20220719182004.21daa83e@gandalf.local.home
+To fix this, we make the writing to min_gate_len[tc] be edge-triggered,
+which avoids writes for gates that are closed in consecutive intervals.
+However what this does is it makes us need to special-case the
+permanently closed gates at the end.
 
-Fixes: 0563231f93c6d ("tracing/events: Add __vstring() and __assign_vstr() helper macros")
-Reported-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: 55a515b1f5a9 ("net: dsa: felix: drop oversized frames with tc-taprio instead of hanging the port")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20220804202817.1677572-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/stages/stage6_event_callback.h |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/dsa/ocelot/felix_vsc9959.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
---- a/include/trace/stages/stage6_event_callback.h
-+++ b/include/trace/stages/stage6_event_callback.h
-@@ -40,7 +40,12 @@
+--- a/drivers/net/dsa/ocelot/felix_vsc9959.c
++++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
+@@ -1136,6 +1136,7 @@ static void vsc9959_tas_min_gate_lengths
+ {
+ 	struct tc_taprio_sched_entry *entry;
+ 	u64 gate_len[OCELOT_NUM_TC];
++	u8 gates_ever_opened = 0;
+ 	int tc, i, n;
  
- #undef __assign_vstr
- #define __assign_vstr(dst, fmt, va)					\
--	vsnprintf(__get_str(dst), TRACE_EVENT_STR_MAX, fmt, *(va))
-+	do {								\
-+		va_list __cp_va;					\
-+		va_copy(__cp_va, *(va));				\
-+		vsnprintf(__get_str(dst), TRACE_EVENT_STR_MAX, fmt, __cp_va); \
-+		va_end(__cp_va);					\
-+	} while (0)
+ 	/* Initialize arrays */
+@@ -1163,16 +1164,28 @@ static void vsc9959_tas_min_gate_lengths
+ 		for (tc = 0; tc < OCELOT_NUM_TC; tc++) {
+ 			if (entry->gate_mask & BIT(tc)) {
+ 				gate_len[tc] += entry->interval;
++				gates_ever_opened |= BIT(tc);
+ 			} else {
+ 				/* Gate closes now, record a potential new
+ 				 * minimum and reinitialize length
+ 				 */
+-				if (min_gate_len[tc] > gate_len[tc])
++				if (min_gate_len[tc] > gate_len[tc] &&
++				    gate_len[tc])
+ 					min_gate_len[tc] = gate_len[tc];
+ 				gate_len[tc] = 0;
+ 			}
+ 		}
+ 	}
++
++	/* min_gate_len[tc] actually tracks minimum *open* gate time, so for
++	 * permanently closed gates, min_gate_len[tc] will still be U64_MAX.
++	 * Therefore they are currently indistinguishable from permanently
++	 * open gates. Overwrite the gate len with 0 when we know they're
++	 * actually permanently closed, i.e. after the loop above.
++	 */
++	for (tc = 0; tc < OCELOT_NUM_TC; tc++)
++		if (!(gates_ever_opened & BIT(tc)))
++			min_gate_len[tc] = 0;
+ }
  
- #undef __bitmask
- #define __bitmask(item, nr_bits) __dynamic_array(unsigned long, item, -1)
+ /* Update QSYS_PORT_MAX_SDU to make sure the static guard bands added by the
 
 
