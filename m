@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7AEE5941AD
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:51:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5000A593FBA
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 23:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244723AbiHOVCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 17:02:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60432 "EHLO
+        id S240957AbiHOVCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 17:02:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344940AbiHOVAs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:00:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E5D5071C;
-        Mon, 15 Aug 2022 12:13:08 -0700 (PDT)
+        with ESMTP id S1346807AbiHOVBI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 17:01:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2D92C6EA1;
+        Mon, 15 Aug 2022 12:13:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5413A6009B;
-        Mon, 15 Aug 2022 19:13:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21716C433C1;
-        Mon, 15 Aug 2022 19:13:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B52FB81106;
+        Mon, 15 Aug 2022 19:13:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80CD7C433C1;
+        Mon, 15 Aug 2022 19:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660590786;
-        bh=yUTNofOgq1olQPMANgZ2ZGeArnRYj09pXtkAyVjYFhA=;
+        s=korg; t=1660590790;
+        bh=SYmROEW95gLMnhGnaxwDmkZqi0WBlA/SO1b/5eSAcH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0xG5M90HE9CAjcvSLS7o7OLfz1q3ggl3NbxQpD6PmsZ6L7X3/uAiBiGJh/hb3vYaO
-         qfnYvDJceyZOYpYZ9KtGphaEoO4FQeBOT2rgmRlgvSKr4fgqxICUQshaSmhUM/3f1O
-         7Pkb5VAeRDFih2ZUJo+FBoNrmmcaPqG2GMBH4WIE=
+        b=rT6rUikw2OkqkI4pznK0k7Fb10KpQ23Ns1OBDFgX2/vuSSZj/f9VrEjFtwZaWpruN
+         +bje2/DhEdXNvGcTgj0cHp/xXxgl9xv6lm6PAcW9kR6IYqWDb6HLUFhI/fMHtn7PqM
+         YL4qWEo39Rt2+VzpXKbMb7byPhz0BaHW7IL7t2eo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Ming Qian <ming.qian@nxp.com>,
+        Mirela Rabulea <mirela.rabulea@nxp.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.18 0371/1095] drm: bridge: adv7511: Add check for mipi_dsi_driver_register
-Date:   Mon, 15 Aug 2022 19:56:10 +0200
-Message-Id: <20220815180445.066576965@linuxfoundation.org>
+Subject: [PATCH 5.18 0372/1095] media: imx-jpeg: Disable slot interrupt when frame done
+Date:   Mon, 15 Aug 2022 19:56:11 +0200
+Message-Id: <20220815180445.106739773@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
 References: <20220815180429.240518113@linuxfoundation.org>
@@ -55,55 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit 831463667b5f4f1e5bce9c3b94e9e794d2bc8923 ]
+[ Upstream commit 22a2bc88c139dc9757bdb1d0a3665ac27edc79a5 ]
 
-As mipi_dsi_driver_register could return error if fails,
-it should be better to check the return value and return error
-if fails.
-Moreover, if i2c_add_driver fails,  mipi_dsi_driver_register
-should be reverted.
+The interrupt STMBUF_HALF may be triggered after frame done.
+It may led to system hang if driver try to access the register after
+power off.
 
-Fixes: 1e4d58cd7f88 ("drm/bridge: adv7533: Create a MIPI DSI device")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220602103401.2980938-1-jiasheng@iscas.ac.cn
+Disable the slot interrupt when frame done.
+
+Fixes: 2db16c6ed72ce ("media: imx-jpeg: Add V4L2 driver for i.MX8 JPEG Encoder/Decoder")
+Signed-off-by: Ming Qian <ming.qian@nxp.com>
+Reviewed-by: Mirela Rabulea <mirela.rabulea@nxp.com>
+Tested-by: Mirela Rabulea <mirela.rabulea@nxp.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c |  5 +++++
+ drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h |  1 +
+ drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c    | 10 ++--------
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index fba6ad3bb6ad..f4d6359f6219 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-@@ -1384,10 +1384,21 @@ static struct i2c_driver adv7511_driver = {
- 
- static int __init adv7511_init(void)
- {
--	if (IS_ENABLED(CONFIG_DRM_MIPI_DSI))
--		mipi_dsi_driver_register(&adv7533_dsi_driver);
-+	int ret;
-+
-+	if (IS_ENABLED(CONFIG_DRM_MIPI_DSI)) {
-+		ret = mipi_dsi_driver_register(&adv7533_dsi_driver);
-+		if (ret)
-+			return ret;
-+	}
- 
--	return i2c_add_driver(&adv7511_driver);
-+	ret = i2c_add_driver(&adv7511_driver);
-+	if (ret) {
-+		if (IS_ENABLED(CONFIG_DRM_MIPI_DSI))
-+			mipi_dsi_driver_unregister(&adv7533_dsi_driver);
-+	}
-+
-+	return ret;
+diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c
+index 29c604b1b179..718b7b08f93e 100644
+--- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c
++++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c
+@@ -79,6 +79,11 @@ void mxc_jpeg_enable_irq(void __iomem *reg, int slot)
+ 	writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
  }
- module_init(adv7511_init);
  
++void mxc_jpeg_disable_irq(void __iomem *reg, int slot)
++{
++	writel(0x0, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
++}
++
+ void mxc_jpeg_sw_reset(void __iomem *reg)
+ {
+ 	/*
+diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h
+index 12f132a83a23..bf4e1973a066 100644
+--- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h
++++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.h
+@@ -125,6 +125,7 @@ u32 mxc_jpeg_get_offset(void __iomem *reg, int slot);
+ void mxc_jpeg_enable_slot(void __iomem *reg, int slot);
+ void mxc_jpeg_set_l_endian(void __iomem *reg, int le);
+ void mxc_jpeg_enable_irq(void __iomem *reg, int slot);
++void mxc_jpeg_disable_irq(void __iomem *reg, int slot);
+ int mxc_jpeg_set_input(void __iomem *reg, u32 in_buf, u32 bufsize);
+ int mxc_jpeg_set_output(void __iomem *reg, u16 out_pitch, u32 out_buf,
+ 			u16 w, u16 h);
+diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
+index 8c0bd8b75b00..c287eb789fe6 100644
+--- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
++++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
+@@ -593,15 +593,8 @@ static irqreturn_t mxc_jpeg_dec_irq(int irq, void *priv)
+ 	dev_dbg(dev, "Irq %d on slot %d.\n", irq, slot);
+ 
+ 	ctx = v4l2_m2m_get_curr_priv(jpeg->m2m_dev);
+-	if (!ctx) {
+-		dev_err(dev,
+-			"Instance released before the end of transaction.\n");
+-		/* soft reset only resets internal state, not registers */
+-		mxc_jpeg_sw_reset(reg);
+-		/* clear all interrupts */
+-		writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_STATUS));
++	if (WARN_ON(!ctx))
+ 		goto job_unlock;
+-	}
+ 
+ 	if (slot != ctx->slot) {
+ 		/* TODO investigate when adding multi-instance support */
+@@ -673,6 +666,7 @@ static irqreturn_t mxc_jpeg_dec_irq(int irq, void *priv)
+ 	buf_state = VB2_BUF_STATE_DONE;
+ 
+ buffers_done:
++	mxc_jpeg_disable_irq(reg, ctx->slot);
+ 	jpeg->slot_data[slot].used = false; /* unused, but don't free */
+ 	mxc_jpeg_check_and_set_last_buffer(ctx, src_buf, dst_buf);
+ 	v4l2_m2m_src_buf_remove(ctx->fh.m2m_ctx);
 -- 
 2.35.1
 
