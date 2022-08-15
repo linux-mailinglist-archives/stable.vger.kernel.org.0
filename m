@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46A46594A15
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 02:17:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C67A594D3F
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 03:34:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243726AbiHOXH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 19:07:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33962 "EHLO
+        id S242779AbiHPAry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 20:47:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353036AbiHOXG7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 19:06:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCFBA86715;
-        Mon, 15 Aug 2022 12:59:05 -0700 (PDT)
+        with ESMTP id S1348224AbiHPAqO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 20:46:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5424194E59;
+        Mon, 15 Aug 2022 13:44:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 293C961295;
-        Mon, 15 Aug 2022 19:59:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B284C433C1;
-        Mon, 15 Aug 2022 19:59:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8BFDB811A0;
+        Mon, 15 Aug 2022 20:44:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24C9EC433C1;
+        Mon, 15 Aug 2022 20:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660593544;
-        bh=9xf/wJIL8Fjz7AVda5uQ/KOzGGQUM6Oll1SGbX8WFT0=;
+        s=korg; t=1660596271;
+        bh=5IEb6acwQmYQthvmIkjzgYaEeuiFuIMa3jBkhoCvLuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K/tXCsvAzMVV/d8NkfeHdRnBkVIG8EnnE56qffzsSAaoaIQS8kd8yZu+4YXScsfzX
-         uxLHZmy4uwVuH5eEmw7o2D7g2dJJ+uQWgmTcBzWISrShdB15qT4VDAKrw8HgQaP+ug
-         5aR08jrJ0St4WWvuuKRSwnR/vg6DJkzYl4hcjd5E=
+        b=BaHVYEMRGq7GckSXZ+LN9Fy6Sy7XFpySbU86/l4KwwO1uoeme+FIzA55uJb6MIvpd
+         t/EwyyuddGXEeC8fqn9r10fOfqBaF/iEIGmW3edjX/NaAkWpePqh+xsMWmlkNeNib0
+         ZTnVgOJw0vCAt65JVI1b29OK6Yp7Wh1FbGbBjkOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.18 0965/1095] scsi: qla2xxx: Fix excessive I/O error messages by default
-Date:   Mon, 15 Aug 2022 20:06:04 +0200
-Message-Id: <20220815180508.991562714@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.19 1009/1157] cifs: Fix memory leak when using fscache
+Date:   Mon, 15 Aug 2022 20:06:05 +0200
+Message-Id: <20220815180520.207005048@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180429.240518113@linuxfoundation.org>
-References: <20220815180429.240518113@linuxfoundation.org>
+In-Reply-To: <20220815180439.416659447@linuxfoundation.org>
+References: <20220815180439.416659447@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit bff4873c709085e09d0ffae0c25b8e65256e3205 upstream.
+[ Upstream commit c6f62f81b488d00afaa86bae26c6ce9ab12c709e ]
 
-Disable printing I/O error messages by default.  The messages will be
-printed only when logging was enabled.
+If we hit the 'index == next_cached' case, we leak a refcount on the
+struct page.  Fix this by using readahead_folio() which takes care of
+the refcount for you.
 
-Link: https://lore.kernel.org/r/20220616053508.27186-2-njavali@marvell.com
-Fixes: 8e2d81c6b5be ("scsi: qla2xxx: Fix excessive messages during device logout")
-Cc: stable@vger.kernel.org
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0174ee9947bd ("cifs: Implement cache I/O by accessing the cache directly")
+Cc: David Howells <dhowells@redhat.com>
+Cc: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_isr.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/cifs/file.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -2637,7 +2637,7 @@ static void qla24xx_nvme_iocb_entry(scsi
- 	}
- 
- 	if (unlikely(logit))
--		ql_log(ql_dbg_io, fcport->vha, 0x5060,
-+		ql_dbg(ql_dbg_io, fcport->vha, 0x5060,
- 		   "NVME-%s ERR Handling - hdl=%x status(%x) tr_len:%x resid=%x  ox_id=%x\n",
- 		   sp->name, sp->handle, comp_status,
- 		   fd->transferred_length, le32_to_cpu(sts->residual_len),
-@@ -3495,7 +3495,7 @@ check_scsi_status:
- 
- out:
- 	if (logit)
--		ql_log(ql_dbg_io, fcport->vha, 0x3022,
-+		ql_dbg(ql_dbg_io, fcport->vha, 0x3022,
- 		       "FCP command status: 0x%x-0x%x (0x%x) nexus=%ld:%d:%llu portid=%02x%02x%02x oxid=0x%x cdb=%10phN len=0x%x rsp_info=0x%x resid=0x%x fw_resid=0x%x sp=%p cp=%p.\n",
- 		       comp_status, scsi_status, res, vha->host_no,
- 		       cp->device->id, cp->device->lun, fcport->d_id.b.domain,
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index e64cda7a7610..6985710e14c2 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -4459,10 +4459,10 @@ static void cifs_readahead(struct readahead_control *ractl)
+ 				 * TODO: Send a whole batch of pages to be read
+ 				 * by the cache.
+ 				 */
+-				page = readahead_page(ractl);
+-				last_batch_size = 1 << thp_order(page);
++				struct folio *folio = readahead_folio(ractl);
++				last_batch_size = folio_nr_pages(folio);
+ 				if (cifs_readpage_from_fscache(ractl->mapping->host,
+-							       page) < 0) {
++							       &folio->page) < 0) {
+ 					/*
+ 					 * TODO: Deal with cache read failure
+ 					 * here, but for the moment, delegate
+@@ -4470,7 +4470,7 @@ static void cifs_readahead(struct readahead_control *ractl)
+ 					 */
+ 					caching = false;
+ 				}
+-				unlock_page(page);
++				folio_unlock(folio);
+ 				next_cached++;
+ 				cache_nr_pages--;
+ 				if (cache_nr_pages == 0)
+-- 
+2.35.1
+
 
 
