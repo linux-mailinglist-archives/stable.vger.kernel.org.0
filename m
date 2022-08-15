@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3822592E54
-	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:44:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26A3A592E66
+	for <lists+stable@lfdr.de>; Mon, 15 Aug 2022 13:47:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233446AbiHOLor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Aug 2022 07:44:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58726 "EHLO
+        id S231420AbiHOLrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Aug 2022 07:47:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231621AbiHOLor (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:44:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D5024BFC
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:44:45 -0700 (PDT)
+        with ESMTP id S231228AbiHOLrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Aug 2022 07:47:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39FC3BF5C
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 04:47:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83DAB61170
-        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:44:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ED97C433D6;
-        Mon, 15 Aug 2022 11:44:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F10E5B80E5C
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 11:47:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4610CC433C1;
+        Mon, 15 Aug 2022 11:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660563884;
-        bh=rcHXH/Vn62/Ox2klmyD3SlJtVd2aAReZEuOPfx+TNKo=;
+        s=korg; t=1660564034;
+        bh=GhhxtZZb4BFtj6YAd351oQui3lqAwsJUobSTK37pKqc=;
         h=Subject:To:Cc:From:Date:From;
-        b=ns4ERfTLjHXuCNYoN2dWSrtXAWw/rpwS9arF6KOfqvVU3EU395z70i3xZEdv1laZT
-         JuidD2IN3JXDJGj7lfQh8ICA6WFdMewy5Pkd3WVFue0fKnTxQb8lB5rX8Ne3gK9/5h
-         pctZzl+nIOPTg+mZwX21ElXnrkC4eUlFIibukN0Q=
-Subject: FAILED: patch "[PATCH] dm thin: fix use-after-free crash in" failed to apply to 4.9-stable tree
-To:     luomeng12@huawei.com, hulkci@huawei.com, snitzer@kernel.org
+        b=AI1arZyLvLI27z4SYd1Rir5Zj2nrIzgbg/mr8o0c6gonSpa/tJmxo9X1w3CrOJahd
+         ZwNMpvG8dyNGv/pZyTrzz37iL+FgtXdg1R4roX+JTP0vdzeUWHTEmsjzXuoblxh39+
+         LCQ3dmoLEFZzpjnwodIUzhFVNSLi4fxWUrtsU/fw=
+Subject: FAILED: patch "[PATCH] timekeeping: contribute wall clock to rng on time change" failed to apply to 4.19-stable tree
+To:     Jason@zx2c4.com, ebiggers@google.com, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Aug 2022 13:44:42 +0200
-Message-ID: <1660563882111102@kroah.com>
+Date:   Mon, 15 Aug 2022 13:47:11 +0200
+Message-ID: <16605640311712@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,88 +59,67 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3534e5a5ed2997ca1b00f44a0378a075bd05e8a3 Mon Sep 17 00:00:00 2001
-From: Luo Meng <luomeng12@huawei.com>
-Date: Thu, 14 Jul 2022 19:28:25 +0800
-Subject: [PATCH] dm thin: fix use-after-free crash in
- dm_sm_register_threshold_callback
+From b8ac29b40183a6038919768b5d189c9bd91ce9b4 Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Sun, 17 Jul 2022 23:53:34 +0200
+Subject: [PATCH] timekeeping: contribute wall clock to rng on time change
 
-Fault inject on pool metadata device reports:
-  BUG: KASAN: use-after-free in dm_pool_register_metadata_threshold+0x40/0x80
-  Read of size 8 at addr ffff8881b9d50068 by task dmsetup/950
+The rng's random_init() function contributes the real time to the rng at
+boot time, so that events can at least start in relation to something
+particular in the real world. But this clock might not yet be set that
+point in boot, so nothing is contributed. In addition, the relation
+between minor clock changes from, say, NTP, and the cycle counter is
+potentially useful entropic data.
 
-  CPU: 7 PID: 950 Comm: dmsetup Tainted: G        W         5.19.0-rc6 #1
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x34/0x44
-   print_address_description.constprop.0.cold+0xeb/0x3f4
-   kasan_report.cold+0xe6/0x147
-   dm_pool_register_metadata_threshold+0x40/0x80
-   pool_ctr+0xa0a/0x1150
-   dm_table_add_target+0x2c8/0x640
-   table_load+0x1fd/0x430
-   ctl_ioctl+0x2c4/0x5a0
-   dm_ctl_ioctl+0xa/0x10
-   __x64_sys_ioctl+0xb3/0xd0
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+This commit addresses this by mixing in a time stamp on calls to
+settimeofday and adjtimex. No entropy is credited in doing so, so it
+doesn't make initialization faster, but it is still useful input to
+have.
 
-This can be easily reproduced using:
-  echo offline > /sys/block/sda/device/state
-  dd if=/dev/zero of=/dev/mapper/thin bs=4k count=10
-  dmsetup load pool --table "0 20971520 thin-pool /dev/sda /dev/sdb 128 0 0"
-
-If a metadata commit fails, the transaction will be aborted and the
-metadata space maps will be destroyed. If a DM table reload then
-happens for this failed thin-pool, a use-after-free will occur in
-dm_sm_register_threshold_callback (called from
-dm_pool_register_metadata_threshold).
-
-Fix this by in dm_pool_register_metadata_threshold() by returning the
--EINVAL error if the thin-pool is in fail mode. Also fail pool_ctr()
-with a new error message: "Error registering metadata threshold".
-
-Fixes: ac8c3f3df65e4 ("dm thin: generate event when metadata threshold passed")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Luo Meng <luomeng12@huawei.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 
-diff --git a/drivers/md/dm-thin-metadata.c b/drivers/md/dm-thin-metadata.c
-index 2db7030aba00..a27395c8621f 100644
---- a/drivers/md/dm-thin-metadata.c
-+++ b/drivers/md/dm-thin-metadata.c
-@@ -2045,10 +2045,13 @@ int dm_pool_register_metadata_threshold(struct dm_pool_metadata *pmd,
- 					dm_sm_threshold_fn fn,
- 					void *context)
- {
--	int r;
-+	int r = -EINVAL;
+diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
+index 8e4b3c32fcf9..f72b9f1de178 100644
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -23,6 +23,7 @@
+ #include <linux/pvclock_gtod.h>
+ #include <linux/compiler.h>
+ #include <linux/audit.h>
++#include <linux/random.h>
  
- 	pmd_write_lock_in_core(pmd);
--	r = dm_sm_register_threshold_callback(pmd->metadata_sm, threshold, fn, context);
-+	if (!pmd->fail_io) {
-+		r = dm_sm_register_threshold_callback(pmd->metadata_sm,
-+						      threshold, fn, context);
-+	}
- 	pmd_write_unlock(pmd);
+ #include "tick-internal.h"
+ #include "ntp_internal.h"
+@@ -1343,8 +1344,10 @@ int do_settimeofday64(const struct timespec64 *ts)
+ 	/* Signal hrtimers about time change */
+ 	clock_was_set(CLOCK_SET_WALL);
  
- 	return r;
-diff --git a/drivers/md/dm-thin.c b/drivers/md/dm-thin.c
-index 84c083f76673..e76c96c760a9 100644
---- a/drivers/md/dm-thin.c
-+++ b/drivers/md/dm-thin.c
-@@ -3375,8 +3375,10 @@ static int pool_ctr(struct dm_target *ti, unsigned argc, char **argv)
- 						calc_metadata_threshold(pt),
- 						metadata_low_callback,
- 						pool);
--	if (r)
-+	if (r) {
-+		ti->error = "Error registering metadata threshold";
- 		goto out_flags_changed;
+-	if (!ret)
++	if (!ret) {
+ 		audit_tk_injoffset(ts_delta);
++		add_device_randomness(ts, sizeof(*ts));
 +	}
  
- 	dm_pool_register_pre_commit_callback(pool->pmd,
- 					     metadata_pre_commit_callback, pool);
+ 	return ret;
+ }
+@@ -2430,6 +2433,7 @@ int do_adjtimex(struct __kernel_timex *txc)
+ 	ret = timekeeping_validate_timex(txc);
+ 	if (ret)
+ 		return ret;
++	add_device_randomness(txc, sizeof(*txc));
+ 
+ 	if (txc->modes & ADJ_SETOFFSET) {
+ 		struct timespec64 delta;
+@@ -2447,6 +2451,7 @@ int do_adjtimex(struct __kernel_timex *txc)
+ 	audit_ntp_init(&ad);
+ 
+ 	ktime_get_real_ts64(&ts);
++	add_device_randomness(&ts, sizeof(ts));
+ 
+ 	raw_spin_lock_irqsave(&timekeeper_lock, flags);
+ 	write_seqcount_begin(&tk_core.seq);
 
