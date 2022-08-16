@@ -2,147 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79BB1595BCB
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 14:30:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72530595BCE
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 14:33:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232977AbiHPMac (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 08:30:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53374 "EHLO
+        id S230133AbiHPMdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 08:33:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235413AbiHPMa2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 08:30:28 -0400
-Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC14578593
-        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 05:30:26 -0700 (PDT)
-Received: by mail-il1-x12c.google.com with SMTP id a13so1702368ild.3
-        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 05:30:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=solid-run-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=hfTOgFZQULH3HGjZfVeACZajEiyrHVTnjNgOWYibpaE=;
-        b=uO+dRTgAMmNd3fHUIcqiRK5OLbpDzwLIIw1WOm6XSzHseadwJQvRDZx9EQVgkOmhIT
-         jU6tQJTaqseJy6jOZ8wLd9+i/S1yFw7g1xDOZox4YLQoO0t05HU6azKLDikZTeOdiRtY
-         52OeEIxLIGWo9urVKqH6zTKXEPCftK713RYvvNSD0nZDDuHJNnwUm8W62b1tRJw5OxAx
-         Dfhysyugrt4yKaKlt0zX97iKip9YxK7FKebF9Obu5Nrqj0wCGVgF7bHnxLlcbW86qwqL
-         P7NjzTkgnEyzkpdBgleanNe1JjZEQRj30waCSclse2wcpfdR68xYll/8GRa8gDuoaCUy
-         FIAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=hfTOgFZQULH3HGjZfVeACZajEiyrHVTnjNgOWYibpaE=;
-        b=m2MsB8aezQazdbQ+R/YqgLJ45sESRX4shZLXU/uEvjYeh0SeFojdmZUvPVk5Om8I7J
-         6CngHE7mTD9nUofsDqqHkA6UFuwRnQ1nFeDXc1JSsGrO137LMP0eFAyQlZGMqveE9SkQ
-         yoZqFtIcF28RMjwCZeo7b8p0ITdP6jHuaw8IeUGSHuWHmge2bW8jmJXAz1pJQ001SVA+
-         fiDPfL8ClqZBYtSISOSP3zmAXdxhtvP/8O1DnJWmALfQP1z05Ujt2aFENtWHjqM+QNXY
-         ALmYKvNWAMd7L2SeJZLd92KfUq/aaYnyHX/5r2L3L2oVkTj8WWp07bumTeibM6Xl/hpn
-         5QIQ==
-X-Gm-Message-State: ACgBeo0TqgHJqp7mLy0XMEir1MqHBhVKdgKsZYIGzgk4mkFv/b8wdoZP
-        CRFfGh/i5LpaNuty5wxaXFZlpUPEpMy37LnhZPl1yA==
-X-Google-Smtp-Source: AA6agR5M7NfRT1WSoa03THrtckC+7+nrcf1DtCA6A6ppxF0ZbktJfge+jLZDQjvUx+i+6Y1iC1iOSv9VbXsnD7m5S9Q=
-X-Received: by 2002:a05:6e02:2145:b0:2e4:b2f3:d6fb with SMTP id
- d5-20020a056e02214500b002e4b2f3d6fbmr7584606ilv.163.1660653026211; Tue, 16
- Aug 2022 05:30:26 -0700 (PDT)
+        with ESMTP id S230332AbiHPMdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 08:33:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4230E65BE;
+        Tue, 16 Aug 2022 05:33:40 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 853D6B818CA;
+        Tue, 16 Aug 2022 12:33:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 760C8C433D6;
+        Tue, 16 Aug 2022 12:33:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1660653218;
+        bh=/6unEP02pNwb2eleA4lMJeGKaROW9j+bphPNuUXBqiE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Cm0fRUkEQcxrU1IR1ahgSgiSvdJjnOCxyQBJ5HPL19p1qJkES2DQgVGhYZMxBZ7+5
+         rfofEpdIDTvypGvc6cLzZP7DZtvKbgiXL00REfHavQvypgs+oTY24NiMoYOd6D07Y2
+         3b6JttqDQHHdRnsELoTwouwC+z0WjEO29PntNdN8=
+Date:   Tue, 16 Aug 2022 14:33:34 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andrew Cooper <Andrew.Cooper3@citrix.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
+        Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: Re: [PATCH] x86/nospec: Unwreck the RSB stuffing
+Message-ID: <YvuOnkhj/Z8naRmN@kroah.com>
+References: <20220809175513.345597655@linuxfoundation.org>
+ <20220809175513.979067723@linuxfoundation.org>
+ <YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net>
 MIME-Version: 1.0
-References: <20220816070311.89186-1-marcan@marcan.st> <CAK8P3a03pfrPzjnx1tB5z0HcKnY=JL=y+F8PMQDpc=Bavs3UCA@mail.gmail.com>
-In-Reply-To: <CAK8P3a03pfrPzjnx1tB5z0HcKnY=JL=y+F8PMQDpc=Bavs3UCA@mail.gmail.com>
-From:   Jon Nettleton <jon@solid-run.com>
-Date:   Tue, 16 Aug 2022 14:29:49 +0200
-Message-ID: <CABdtJHvZt=av5YEQvRMtf4-dMFR6JS1jM1Ntj7DMVy5fijvkMw@mail.gmail.com>
-Subject: Re: [PATCH] locking/atomic: Make test_and_*_bit() ordered on failure
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Hector Martin <marcan@marcan.st>, Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Andrea Parri <parri.andrea@gmail.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        David Howells <dhowells@redhat.com>,
-        Jade Alglave <j.alglave@ucl.ac.uk>,
-        Luc Maranget <luc.maranget@inria.fr>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Akira Yokosawa <akiyks@gmail.com>,
-        Daniel Lustig <dlustig@nvidia.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Jonathan Corbet <corbet@lwn.net>, Tejun Heo <tj@kernel.org>,
-        jirislaby@kernel.org, Marc Zyngier <maz@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Asahi Linux <asahi@lists.linux.dev>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 16, 2022 at 10:17 AM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Tue, Aug 16, 2022 at 9:03 AM Hector Martin <marcan@marcan.st> wrote:
-> >
-> > These operations are documented as always ordered in
-> > include/asm-generic/bitops/instrumented-atomic.h, and producer-consumer
-> > type use cases where one side needs to ensure a flag is left pending
-> > after some shared data was updated rely on this ordering, even in the
-> > failure case.
-> >
-> > This is the case with the workqueue code, which currently suffers from a
-> > reproducible ordering violation on Apple M1 platforms (which are
-> > notoriously out-of-order) that ends up causing the TTY layer to fail to
-> > deliver data to userspace properly under the right conditions. This
-> > change fixes that bug.
-> >
-> > Change the documentation to restrict the "no order on failure" story to
-> > the _lock() variant (for which it makes sense), and remove the
-> > early-exit from the generic implementation, which is what causes the
-> > missing barrier semantics in that case. Without this, the remaining
-> > atomic op is fully ordered (including on ARM64 LSE, as of recent
-> > versions of the architecture spec).
-> >
-> > Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > Cc: stable@vger.kernel.org
-> > Fixes: e986a0d6cb36 ("locking/atomics, asm-generic/bitops/atomic.h: Rewrite using atomic_*() APIs")
-> > Fixes: 61e02392d3c7 ("locking/atomic/bitops: Document and clarify ordering semantics for failed test_and_{}_bit()")
-> > Signed-off-by: Hector Martin <marcan@marcan.st>
-> > ---
-> >  Documentation/atomic_bitops.txt     | 2 +-
-> >  include/asm-generic/bitops/atomic.h | 6 ------
->
-> I double-checked all the architecture specific implementations to ensure
-> that the asm-generic one is the only one that needs the fix.
->
-> I assume this gets merged through the locking tree or that Linus picks it up
-> directly, not through my asm-generic tree.
->
-> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
->
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+On Tue, Aug 16, 2022 at 02:28:36PM +0200, Peter Zijlstra wrote:
+> 
+> Replying here, because obviously there's no actual posting of this
+> patch... :/
 
-Testing this patch on pre Armv8.1 specifically Cortex-A72 and
-Cortex-A53 cores I am seeing
-a huge performance drop with this patch applied. Perf is showing
-lock_is_held_type() as the worst offender
-but that could just be the function getting blamed. The most obvious
-indicator of the performance loss is
-ssh throughput.  With the patch I am only able to achieve around
-20MB/s and without the patch I am able
-to transfer around 112MB/s, no other changes.
+{sigh} True :(
 
-When I have more time I can do some more in depth testing, but for now
-I just wanted to bring this
-issue up so perhaps others can chime in regarding how it performs on
-their hardware.
+> 
+> > --- a/arch/x86/include/asm/nospec-branch.h
+> > +++ b/arch/x86/include/asm/nospec-branch.h
+> > @@ -118,13 +118,28 @@
+> >  #endif
+> >  .endm
+> >  
+> > +.macro ISSUE_UNBALANCED_RET_GUARD
+> > +	ANNOTATE_INTRA_FUNCTION_CALL
+> > +	call .Lunbalanced_ret_guard_\@
+> > +	int3
+> > +.Lunbalanced_ret_guard_\@:
+> > +	add $(BITS_PER_LONG/8), %_ASM_SP
+> > +	lfence
+> > +.endm
+> > +
+> >   /*
+> >    * A simpler FILL_RETURN_BUFFER macro. Don't make people use the CPP
+> >    * monstrosity above, manually.
+> >    */
+> > -.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req
+> > +.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2
+> > +.ifb \ftr2
+> >  	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
+> > +.else
+> > +	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", "", \ftr, "jmp .Lunbalanced_\@", \ftr2
+> > +.endif
+> >  	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
+> > +.Lunbalanced_\@:
+> > +	ISSUE_UNBALANCED_RET_GUARD
+> >  .Lskip_rsb_\@:
+> >  .endm
+> 
+> (/me deletes all the swear words and starts over)
+> 
+> This must absolutely be the most horrible patch you could come up with,
+> no? I suppose that's the price of me taking PTO :-(
+> 
+> Could you please test this; I've only compiled it.
+> 
+> ---
+> Subject: x86/nospec: Unwreck the RSB stuffing
+> 
+> Commit 2b1299322016 ("x86/speculation: Add RSB VM Exit protections")
+> made a right mess of the RSB stuffing, rewrite the whole thing to not
+> suck.
+> 
+> Thanks to Andrew for the enlightening comment about Post-Barrier RSB
+> things so we can make this code less magical.
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 
--Jon
+I need an Intel person to test this as I have no idea how to do so as
+this is an issue in Linus's tree.
+
+thanks,
+
+greg k-h
