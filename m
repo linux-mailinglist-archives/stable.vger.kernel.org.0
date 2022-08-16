@@ -2,103 +2,282 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82ABF5961E1
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 20:06:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7BF859621A
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 20:12:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236387AbiHPSFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 14:05:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36156 "EHLO
+        id S237012AbiHPSLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 14:11:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236867AbiHPSFb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 14:05:31 -0400
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A53F81B26;
-        Tue, 16 Aug 2022 11:05:31 -0700 (PDT)
-Received: by mail-pj1-f48.google.com with SMTP id gp7so10398775pjb.4;
-        Tue, 16 Aug 2022 11:05:31 -0700 (PDT)
+        with ESMTP id S237031AbiHPSLT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 14:11:19 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD468861FF
+        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 11:10:56 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id m2so9931215pls.4
+        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 11:10:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc;
+        bh=FfjR2bEaTPFazXMevK+Qb7687NLJ4yDcvF9rNAwbT9w=;
+        b=bEGAue9o0so3Wu4aY0zOhpxJA214gPzGZeO01U3Z/ux0LV7FfxlenS+IaopIa0zKYF
+         l+O+tTZvrOchGASHg6dj8VDenU3SeHF5rVkIoaXCzlkl4fu6STL2etOdiTU0RYRnGtRY
+         uQuSfo+PFmFFLMt4XdQf0UiGP5vh23i6MXsd9xudlygP/bXH5xuMp88CpNRJDZv4dHKY
+         pt+AXebUWcCTeNZTvv6hxuqkvLWAs23vpSE+9QF/fK7Smuqn+NF91/7OP/2fNoEQ8vyS
+         3JCZtTG6EVq2Sa4lAq1Vkry23Tpba5PRQxKRw+UayIbo+uAEv/NytORlOsXdmvjVC87d
+         bCXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc;
-        bh=eKDysHCQjTCqQt/NwtOxjkIdkCjeDt0eSaPWU62kEnE=;
-        b=jI4N179I5a1W5RfKUpfzp9MCYHUA/CK/4IPA4dJlfXgC9BGwlvxHb7g09/WN9p1Xqi
-         k6iLF6fMKBmY6IoS22n/aC5CKEk66M7A2Rcqxr6srVaonyUFCLauDYy3nuX8/wBp5wLJ
-         QwyRtvBYkm3BO1+UKln6GUncy7oZ2b0OzqulViuJd1OFDiipfq5ed1EC7y9SdpvzYcdT
-         syReqPxpBcqIw72RY9zwvF2Tx1WXbeX+3i9f4uYkaJkW0sQ1BY3QlPe7wHVDwxl9W9/f
-         Ho5L/v+HFpeEh1OeOdUODdQ3OAccMK9cZz7hnqwflmLN4N+3DWClfZuHbnsFGoqnWe6g
-         0m3Q==
-X-Gm-Message-State: ACgBeo2D6ohbDnCeAlGjdg0NTUm9vCeFggASVxr3GZeuYePlpMbbDGDH
-        8Zw7PRUvR96o8FCBha+gqug=
-X-Google-Smtp-Source: AA6agR7u1gjzOv8+2GCYfZiH4L1Ti/Qxf//GeJ51maGR8pSRIW0EkW7m8qeMHwyIWeOqGZq/Pow7xw==
-X-Received: by 2002:a17:902:ab41:b0:171:54ae:624c with SMTP id ij1-20020a170902ab4100b0017154ae624cmr22657572plb.157.1660673130341;
-        Tue, 16 Aug 2022 11:05:30 -0700 (PDT)
-Received: from ?IPV6:2620:15c:211:201:ff4b:545d:11c8:da9f? ([2620:15c:211:201:ff4b:545d:11c8:da9f])
-        by smtp.gmail.com with ESMTPSA id i3-20020a626d03000000b0052c0a9234e0sm9066610pfc.11.2022.08.16.11.05.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 16 Aug 2022 11:05:29 -0700 (PDT)
-Message-ID: <b532e50f-7aa0-5ac3-c7a6-6a43ab9c1bc9@acm.org>
-Date:   Tue, 16 Aug 2022 11:05:27 -0700
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc;
+        bh=FfjR2bEaTPFazXMevK+Qb7687NLJ4yDcvF9rNAwbT9w=;
+        b=JsZz5vOFUtD9pnoCCwbzdNG4OL8lC2vZe++97A3rB+seVWY+IXoGSMz6elyIlbpQNi
+         bvdIUEppsMdYQuDYw1r+td+0z4V7vm5jj/IRavN3hv5hAQXA8KmLLxwDIsS5/3rEV9ew
+         sYCmu+Rp3UeOUccbMYj2AjEIQBrEFRBEqzXCK7n0Sfp7lXZWi4eOjOmR7IhfJf/U6iHQ
+         SGMKDVjpG9BdHPE1ZnOCB/ReHco233QoQaAv24S/ovbzce070KQxayAjQZnc1mCoDGfG
+         jtUAWRNRIDnn9Uju2UpS3dpLHJz0yI5zZrb9NEaXiUlZsoIfE/I4Ee1uzQbGlFHYIMt4
+         u+AA==
+X-Gm-Message-State: ACgBeo1z+gasbWz9y7urEuLRz6Uspat37uGC3dnrV53Jk8Y3yy8cfjrF
+        pPN1gth8dj50nnzAKgEr6tfhI61QLNUv6dU1
+X-Google-Smtp-Source: AA6agR5DbhIO8vMN/1fKgKWo4010dvedp4uk/dDrBqfKZHtaNJj+oGJHvHhD75MJKPqD1rldpKLsew==
+X-Received: by 2002:a17:90a:b794:b0:1f4:feec:2910 with SMTP id m20-20020a17090ab79400b001f4feec2910mr34185781pjr.214.1660673456033;
+        Tue, 16 Aug 2022 11:10:56 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k10-20020aa7998a000000b0052e7debb8desm5734584pfh.121.2022.08.16.11.10.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Aug 2022 11:10:55 -0700 (PDT)
+Message-ID: <62fbddaf.a70a0220.febd.92ef@mx.google.com>
+Date:   Tue, 16 Aug 2022 11:10:55 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 5.19 0784/1157] scsi: sd: Rework asynchronous resume
- support
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Hannes Reinecke <hare@suse.de>,
-        John Garry <john.garry@huawei.com>, ericspero@icloud.com,
-        jason600.groome@gmail.com,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-References: <20220815180439.416659447@linuxfoundation.org>
- <20220815180510.851284927@linuxfoundation.org>
-From:   Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20220815180510.851284927@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.255-213-gfed5954506179
+Subject: stable-rc/queue/4.19 baseline: 100 runs,
+ 5 regressions (v4.19.255-213-gfed5954506179)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/15/22 11:02, Greg Kroah-Hartman wrote:
-> From: Bart Van Assche <bvanassche@acm.org>
-> 
-> [ Upstream commit 88f1669019bd62b3009a3cebf772fbaaa21b9f38 ]
-> 
-> For some technologies, e.g. an ATA bus, resuming can take multiple
-> seconds. Waiting for resume to finish can cause a very noticeable delay.
-> Hence this commit that restores the behavior from before "scsi: core: pm:
-> Rely on the device driver core for async power management" for most SCSI
-> devices.
-> 
-> This commit introduces a behavior change: if the START command fails, do
-> not consider this as a SCSI disk resume failure.
-> 
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=215880
-> Link: https://lore.kernel.org/r/20220630195703.10155-3-bvanassche@acm.org
-> Fixes: a19a93e4c6a9 ("scsi: core: pm: Rely on the device driver core for async power management")
+stable-rc/queue/4.19 baseline: 100 runs, 5 regressions (v4.19.255-213-gfed5=
+954506179)
 
-Hi Greg,
+Regressions Summary
+-------------------
 
-It has been reported that this patch causes a regression, namely disks 
-not coming back after a resume. That issue is worse than the issue fixed 
-by this patch - eliminating a delay. Please drop this patch from the 
-stable tree.
+platform                     | arch  | lab         | compiler | defconfig |=
+ regressions
+-----------------------------+-------+-------------+----------+-----------+=
+------------
+meson-gxl-s905x-libretech-cc | arm64 | lab-broonie | gcc-10   | defconfig |=
+ 1          =
 
-A revert of this patch has been posted on the linux-scsi mailing list. 
-See also 
-https://lore.kernel.org/linux-scsi/8a83665a-1951-a326-f930-8fcbb0c4dd9a@huawei.com/.
+qemu_arm64-virt-gicv2        | arm64 | lab-broonie | gcc-10   | defconfig |=
+ 1          =
 
-Thanks,
+qemu_arm64-virt-gicv2-uefi   | arm64 | lab-broonie | gcc-10   | defconfig |=
+ 1          =
 
-Bart.
+qemu_arm64-virt-gicv3        | arm64 | lab-broonie | gcc-10   | defconfig |=
+ 1          =
+
+qemu_arm64-virt-gicv3-uefi   | arm64 | lab-broonie | gcc-10   | defconfig |=
+ 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.255-213-gfed5954506179/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.255-213-gfed5954506179
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      fed5954506179d7efe14f1ee5cd722f0e93f67ef =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab         | compiler | defconfig |=
+ regressions
+-----------------------------+-------+-------------+----------+-----------+=
+------------
+meson-gxl-s905x-libretech-cc | arm64 | lab-broonie | gcc-10   | defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62fbac1a5b0024fc72355666
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.255=
+-213-gfed5954506179/arm64/defconfig/gcc-10/lab-broonie/baseline-meson-gxl-s=
+905x-libretech-cc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.255=
+-213-gfed5954506179/arm64/defconfig/gcc-10/lab-broonie/baseline-meson-gxl-s=
+905x-libretech-cc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62fbac1a5b0024fc72355=
+667
+        failing since 119 days (last pass: v4.19.238-22-gb215381f8cf05, fir=
+st fail: v4.19.238-32-g4d86c9395c31a) =
+
+ =
+
+
+
+platform                     | arch  | lab         | compiler | defconfig |=
+ regressions
+-----------------------------+-------+-------------+----------+-----------+=
+------------
+qemu_arm64-virt-gicv2        | arm64 | lab-broonie | gcc-10   | defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62fbacb49a2453f273355680
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.255=
+-213-gfed5954506179/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-=
+virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.255=
+-213-gfed5954506179/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-=
+virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62fbacb49a2453f273355=
+681
+        failing since 98 days (last pass: v4.19.241-58-g5e77acf6dbb6, first=
+ fail: v4.19.241-83-g0ec5709aa1da) =
+
+ =
+
+
+
+platform                     | arch  | lab         | compiler | defconfig |=
+ regressions
+-----------------------------+-------+-------------+----------+-----------+=
+------------
+qemu_arm64-virt-gicv2-uefi   | arm64 | lab-broonie | gcc-10   | defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62fbacc9d47a4d564c355651
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.255=
+-213-gfed5954506179/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-=
+virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.255=
+-213-gfed5954506179/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-=
+virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62fbacc9d47a4d564c355=
+652
+        failing since 98 days (last pass: v4.19.241-58-g5e77acf6dbb6, first=
+ fail: v4.19.241-83-g0ec5709aa1da) =
+
+ =
+
+
+
+platform                     | arch  | lab         | compiler | defconfig |=
+ regressions
+-----------------------------+-------+-------------+----------+-----------+=
+------------
+qemu_arm64-virt-gicv3        | arm64 | lab-broonie | gcc-10   | defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62fbaccaa16fe637d535569a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.255=
+-213-gfed5954506179/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-=
+virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.255=
+-213-gfed5954506179/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-=
+virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62fbaccaa16fe637d5355=
+69b
+        failing since 98 days (last pass: v4.19.241-58-g5e77acf6dbb6, first=
+ fail: v4.19.241-83-g0ec5709aa1da) =
+
+ =
+
+
+
+platform                     | arch  | lab         | compiler | defconfig |=
+ regressions
+-----------------------------+-------+-------------+----------+-----------+=
+------------
+qemu_arm64-virt-gicv3-uefi   | arm64 | lab-broonie | gcc-10   | defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62fbacc80a4580ce12355649
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.255=
+-213-gfed5954506179/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-=
+virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.255=
+-213-gfed5954506179/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-=
+virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62fbacc80a4580ce12355=
+64a
+        failing since 98 days (last pass: v4.19.241-58-g5e77acf6dbb6, first=
+ fail: v4.19.241-83-g0ec5709aa1da) =
+
+ =20
