@@ -2,145 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC006595F49
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 17:38:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADF8A595F51
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 17:38:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235790AbiHPPid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 11:38:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50636 "EHLO
+        id S236240AbiHPPiu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 11:38:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236147AbiHPPiP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 11:38:15 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27A6185FF0
-        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 08:37:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660664237;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=uLgzpNhVhUG9A2bn8QNHqooQAG1AEVMq4dTPM1EVWNo=;
-        b=UH4O7gcpRwT96A4/cEChZ1lwKyDeDnTOxtNhZq0JZybSaTG8p3dVnIUWbiE49MYdMUo2Pf
-        sjd7mdvHo+TTpYIOYoLrYmUPPiAud70VMqalfnld229QkJxtawYOxyQZXIdKTrCZ3CKMv+
-        cFjhbOyiZj+Zbb6Q0HWYfaM1kEU+Dac=
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
- [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-264-17NJ-PiPNL-wj79xEJ1Aig-1; Tue, 16 Aug 2022 11:37:16 -0400
-X-MC-Unique: 17NJ-PiPNL-wj79xEJ1Aig-1
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-334370e5ab9so16454277b3.22
-        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 08:37:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=uLgzpNhVhUG9A2bn8QNHqooQAG1AEVMq4dTPM1EVWNo=;
-        b=Voon9EoDYcp8jq7ovBl8uMQ0B7DwXTeJN69sWes0UoVbXKl6Tm6mr8ppHNyahCiazS
-         H1TsSk7Dw8D9UDoX99vt7sr223/2Yn+RkYtrE++sNB2TfQVMj9+ZtuRY3DU9TWD8QKAx
-         94IQnh/ijuUoCee6F8tZTHCd6cX+bbf7SNQMdTsQezse1nUgK+3tPHN8yJpw5NsXsaf/
-         23ktE4VlcXTTmtgBQHT73T39gK0YtUcVIDn9gssnA2y6u6CG3Ux9Q/+BHzvpg2HJLbaK
-         61mIbkF6uWDaWnzd5NXfazLZjKyzlD9aIOEL1YQ1MDM0RBiVt0ysrS/ld9/H2oL33+cs
-         CVIg==
-X-Gm-Message-State: ACgBeo0OSX3OndsS8q3U6D0A+g6H4P5lkREUJHtfFqZiT9LMy+8QH986
-        ABce+2mWv0YqQ8pAhga8j5b7/EsFXPzhvhciXhXWuu5OmgRuZYmmL3gNKfVojZM524O7Q3lDCSA
-        mtuAntVWYTu8zLnuib88AL7YCxmSIJxuq
-X-Received: by 2002:a25:51c7:0:b0:677:8cf4:6ef with SMTP id f190-20020a2551c7000000b006778cf406efmr16149454ybb.492.1660664235575;
-        Tue, 16 Aug 2022 08:37:15 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR6/IZiWtUywCtbZdm9QXJq1ifTtZpQTap8GV99KB9piyzwlj4yOx1LMC9lAhjRs2DwM2dRb8xX8I49lgGYCyEo=
-X-Received: by 2002:a25:51c7:0:b0:677:8cf4:6ef with SMTP id
- f190-20020a2551c7000000b006778cf406efmr16149441ybb.492.1660664235383; Tue, 16
- Aug 2022 08:37:15 -0700 (PDT)
+        with ESMTP id S236152AbiHPPiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 11:38:17 -0400
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A3066A4AA
+        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 08:37:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1660664251; x=1692200251;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=COQx16o+CLis8ml1K7qamjyZf1B6XhWD5Ah1vKJIE14=;
+  b=MO5VNL1mbyabXj0uFIwYzElyTU8SPMmEaHzHVZ/2meNfHjEIKgZC2oeL
+   UCZzAmfk3obtvBxZC+LPXYtIq+NQFBE/zDf5HFc3oMb1PbnVSYV3BWbTO
+   IyS8IFnwZ27sBTfItP2AnksCB/OqPTTy/GT03R2eGxCCuwuLTAU8yQXBT
+   xIvcKpfsgb3SQPO4eCBd38L/60sNYc2k7UT7X2ndrFbGFMxMYcE62VUdz
+   ZokY7tWw26ceZX4UeAeMYyp2ewtMJZ/jPJvX3lC36Do+ITcR/86N9Fo96
+   WFERoku+A7+tkESCVP6dq++HNi5qZdi5R5c4Is9dgshL6mlnu0xMJaJr5
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10441"; a="275308245"
+X-IronPort-AV: E=Sophos;i="5.93,241,1654585200"; 
+   d="scan'208";a="275308245"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2022 08:37:30 -0700
+X-IronPort-AV: E=Sophos;i="5.93,241,1654585200"; 
+   d="scan'208";a="667159279"
+Received: from kinzelba-mobl.ger.corp.intel.com (HELO localhost) ([10.252.39.194])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2022 08:37:28 -0700
+From:   Jani Nikula <jani.nikula@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     jani.nikula@intel.com, stable@vger.kernel.org
+Subject: [RESEND 1/3] drm/i915/dsi: filter invalid backlight and CABC ports
+Date:   Tue, 16 Aug 2022 18:37:20 +0300
+Message-Id: <b0f4f087866257d280eb97d6bcfcefd109cc5fa2.1660664162.git.jani.nikula@intel.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <cover.1660664162.git.jani.nikula@intel.com>
+References: <cover.1660664162.git.jani.nikula@intel.com>
 MIME-Version: 1.0
-References: <92005.122081607111901341@us-mta-567.us.mimecast.lan> <YvuFfp/wfn4UFYpn@kroah.com>
-In-Reply-To: <YvuFfp/wfn4UFYpn@kroah.com>
-From:   Veronika Kabatova <vkabatov@redhat.com>
-Date:   Tue, 16 Aug 2022 17:36:39 +0200
-Message-ID: <CA+tGwnk-oaPVFzbRebJbtrkgiPtaQRr=d83kzdxZZGGjQUuCbA@mail.gmail.com>
-Subject: =?UTF-8?Q?Re=3A_=E2=9D=8C_FAIL=3A_Test_report_for_122bb8ac_=28stable=2Dqueue?=
-        =?UTF-8?Q?=29?=
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 16, 2022 at 2:05 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Tue, Aug 16, 2022 at 11:11:18AM -0000, cki-project@redhat.com wrote:
-> > Hi, we tested your kernel and here are the results:
-> >
-> >     Overall result: FAILED
-> >              Merge: OK
-> >            Compile: FAILED
-> >
-> >
-> > You can find all the details about the test run at
-> >     https://datawarehouse.cki-project.org/kcidb/checkouts/41055
-> >
-> > One or more kernel builds failed:
-> >     Unrecognized or new issues:
-> >           x86_64 - https://datawarehouse.cki-project.org/kcidb/builds/218267
->
+Avoid using ports that aren't initialized in case the VBT backlight or
+CABC ports have invalid values. This fixes a NULL pointer dereference of
+intel_dsi->dsi_hosts[port] in such cases.
 
-Hi Greg,
+Cc: stable@vger.kernel.org
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+---
+ drivers/gpu/drm/i915/display/icl_dsi.c | 7 +++++++
+ drivers/gpu/drm/i915/display/vlv_dsi.c | 7 +++++++
+ 2 files changed, 14 insertions(+)
 
-we fixed the issue that caused the lack of notifications for build failures
-(hence me sending the email manually yesterday), and that in turn
-caused some super old emails from May to go out. That was less than
-expected, and we're sorry about that.
-
-> Am I going to be forced to click through to find out the problems with
-> all of these reports?  Why not provide the error log?
->
-> The error log isn't at that link, where are we supposed to find it to
-> figure out what went wrong?
->
-
-The logs would normally be available, but as a consequence of the
-old emails going out, they were already deleted.
-
-We're also working on a reporting mode that would add the failure
-log links into the email directly, and for build failures, embed the
-traces in the email body too. Would these two provide a suitable
-solution for you?
-
-> > If you find a failure unrelated to your changes, please tag it at https://datawarehouse.cki-project.org .
-> > This will prevent the failures from being incorrectly reported in the future.
-> > If you don't have permissions to tag an issue, you can contact the CKI team or
-> > test maintainers.
-> >
-> > Please reply to this email if you have any questions about the tests that we
-> > ran or if you have any suggestions on how to make future tests more effective.
-> >
-> >         ,-.   ,-.
-> >        ( C ) ( K )  Continuous
-> >         `-',-.`-'   Kernel
-> >           ( I )     Integration
-> >            `-'
-> > ______________________________________________________________________________
-> >
->
-> I have no idea what the subject line means, sorry.  A random git commit
-> id with no context isn't helpful, what are we to do with that?
-
-Would it be more useful to provide a branch name in the subject as well,
-and a commit description in the body? Or something completely different?
-
-
-Thank you for the feedback!
-Veronika
-
->
-> thanks,
->
-> greg k-h
->
+diff --git a/drivers/gpu/drm/i915/display/icl_dsi.c b/drivers/gpu/drm/i915/display/icl_dsi.c
+index 5dcfa7feffa9..885c74f60366 100644
+--- a/drivers/gpu/drm/i915/display/icl_dsi.c
++++ b/drivers/gpu/drm/i915/display/icl_dsi.c
+@@ -2070,7 +2070,14 @@ void icl_dsi_init(struct drm_i915_private *dev_priv)
+ 	else
+ 		intel_dsi->ports = BIT(port);
+ 
++	if (drm_WARN_ON(&dev_priv->drm, intel_connector->panel.vbt.dsi.bl_ports & ~intel_dsi->ports))
++		intel_connector->panel.vbt.dsi.bl_ports &= intel_dsi->ports;
++
+ 	intel_dsi->dcs_backlight_ports = intel_connector->panel.vbt.dsi.bl_ports;
++
++	if (drm_WARN_ON(&dev_priv->drm, intel_connector->panel.vbt.dsi.cabc_ports & ~intel_dsi->ports))
++		intel_connector->panel.vbt.dsi.cabc_ports &= intel_dsi->ports;
++
+ 	intel_dsi->dcs_cabc_ports = intel_connector->panel.vbt.dsi.cabc_ports;
+ 
+ 	for_each_dsi_port(port, intel_dsi->ports) {
+diff --git a/drivers/gpu/drm/i915/display/vlv_dsi.c b/drivers/gpu/drm/i915/display/vlv_dsi.c
+index b9b1fed99874..35136d26e517 100644
+--- a/drivers/gpu/drm/i915/display/vlv_dsi.c
++++ b/drivers/gpu/drm/i915/display/vlv_dsi.c
+@@ -1933,7 +1933,14 @@ void vlv_dsi_init(struct drm_i915_private *dev_priv)
+ 	else
+ 		intel_dsi->ports = BIT(port);
+ 
++	if (drm_WARN_ON(&dev_priv->drm, intel_connector->panel.vbt.dsi.bl_ports & ~intel_dsi->ports))
++		intel_connector->panel.vbt.dsi.bl_ports &= intel_dsi->ports;
++
+ 	intel_dsi->dcs_backlight_ports = intel_connector->panel.vbt.dsi.bl_ports;
++
++	if (drm_WARN_ON(&dev_priv->drm, intel_connector->panel.vbt.dsi.cabc_ports & ~intel_dsi->ports))
++		intel_connector->panel.vbt.dsi.cabc_ports &= intel_dsi->ports;
++
+ 	intel_dsi->dcs_cabc_ports = intel_connector->panel.vbt.dsi.cabc_ports;
+ 
+ 	/* Create a DSI host (and a device) for each port. */
+-- 
+2.34.1
 
