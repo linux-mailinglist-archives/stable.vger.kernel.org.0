@@ -2,115 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59835595752
+	by mail.lfdr.de (Postfix) with ESMTP id 10DD8595751
 	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 11:59:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234125AbiHPJ6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 05:58:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58020 "EHLO
+        id S231393AbiHPJ6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 05:58:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234277AbiHPJ5q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 05:57:46 -0400
-Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FD913F1DC;
-        Tue, 16 Aug 2022 01:46:12 -0700 (PDT)
-Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-        by localhost (Postfix) with ESMTP id 4M6PrL4V2Cz9sbv;
-        Tue, 16 Aug 2022 10:46:10 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id LHahLFKZmdky; Tue, 16 Aug 2022 10:46:10 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase2.c-s.fr (Postfix) with ESMTP id 4M6PrL3pDMz9sbP;
-        Tue, 16 Aug 2022 10:46:10 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 744728B770;
-        Tue, 16 Aug 2022 10:46:10 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id x16VDLXaADTJ; Tue, 16 Aug 2022 10:46:10 +0200 (CEST)
-Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.235.128])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 3F2E98B763;
-        Tue, 16 Aug 2022 10:46:10 +0200 (CEST)
-Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
-        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.16.1) with ESMTPS id 27G8k0lY1397142
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-        Tue, 16 Aug 2022 10:46:00 +0200
-Received: (from chleroy@localhost)
-        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.17.1/Submit) id 27G8jwMC1397119;
-        Tue, 16 Aug 2022 10:45:58 +0200
-X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH] [backport for 4.14] powerpc/ptdump: Fix display of RW pages on FSL_BOOK3E
-Date:   Tue, 16 Aug 2022 10:45:29 +0200
-Message-Id: <2cf5dabc5d295a1591055a042aa1b791214a2f47.1660639498.git.christophe.leroy@csgroup.eu>
-X-Mailer: git-send-email 2.37.1
+        with ESMTP id S233540AbiHPJ5f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 05:57:35 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 256565A14E;
+        Tue, 16 Aug 2022 01:47:12 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 06468CE170B;
+        Tue, 16 Aug 2022 08:47:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED0F9C433D6;
+        Tue, 16 Aug 2022 08:47:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1660639627;
+        bh=aM++4I5AYzhlbjwHGRFWJiYJnmfNdT6VW1yBEjk0zaY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XXAawc+aF/hivH2xEhW5NKh6h35FTRKtvRHgZYhHEEmF6gLkQQcG/JekUkbUrMc6Q
+         jVw3PGKpNwoAn6Rr78WmV8a1n6ribQ9Wal7Jt/XbZzESdn1Tc2fIPvoLPmv5DPZKzH
+         fSQ3cZp0c2eW7Jv3sNmDkS8QyZT6ZQNCqKlirLP6nk3JR/CcOaNdHJa3uAK+uXPq3f
+         qG6AW8s/mfcuiSPeM3jSGV6WzLWWlsHjsroSF2bQilNuMYm5dNXUHthYF9BQCJ/YLs
+         mlfUPn10JwK7yRXM1UoqBNVFnDC5dvLbE64/uEiPTSWVUX97gXAdzCmjhstF63BwQT
+         MnZFiES+QguGQ==
+Received: by pali.im (Postfix)
+        id 117C768B; Tue, 16 Aug 2022 10:47:04 +0200 (CEST)
+Date:   Tue, 16 Aug 2022 10:47:03 +0200
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com, Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH 5.15 000/779] 5.15.61-rc1 review
+Message-ID: <20220816084703.nbciiu63x4dgulwc@pali>
+References: <20220815180337.130757997@linuxfoundation.org>
+ <CA+G9fYuXHvYQkWnDac6T8s9XnP_jctCbV=yEx3Z9EhWko2dPPg@mail.gmail.com>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1660639510; l=1661; s=20211009; h=from:subject:message-id; bh=nIpFA8xJ0YgDWZY2tV8QKTw9d3d4nFX8afBNVWvvd/k=; b=zYMHAalTy+dhvPKd8RDq89QgIUMKC/2XmPTg4wRpB9tHct5vAua84YVI2ZhizEb6/892Gn6N++C4 imJsooNRAvPAOZm2xfrG1Iv8BiLo6WaJHk3iWSVtv+dc3hphRAaz
-X-Developer-Key: i=christophe.leroy@csgroup.eu; a=ed25519; pk=HIzTzUj91asvincQGOFx6+ZF5AoUuP9GdOtQChs7Mm0=
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYuXHvYQkWnDac6T8s9XnP_jctCbV=yEx3Z9EhWko2dPPg@mail.gmail.com>
+User-Agent: NeoMutt/20180716
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dd8de84b57b02ba9c1fe530a6d916c0853f136bd ]
+On Tuesday 16 August 2022 14:11:45 Naresh Kamboju wrote:
+> On Mon, 15 Aug 2022 at 23:44, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.15.61 release.
+> > There are 779 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Wed, 17 Aug 2022 18:01:29 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.61-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> The powerpc defconfig failed on stable-rc 5.15.
+> 
+> * powerpc, build
+>   - gcc-10-ppc6xx_defconfig
+>   - gcc-11-ppc6xx_defconfig
+>   - gcc-8-ppc6xx_defconfig
+>   - gcc-9-ppc6xx_defconfig
+> 
+> arch/powerpc/sysdev/fsl_pci.c: In function 'fsl_add_bridge':
+> arch/powerpc/sysdev/fsl_pci.c:601:39: error:
+> 'PCI_CLASS_BRIDGE_PCI_NORMAL' undeclared (first use in this function);
+> did you mean 'PCI_CLASS_BRIDGE_PCI'?
+>   601 |                         class_code |= PCI_CLASS_BRIDGE_PCI_NORMAL << 8;
+>       |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+>       |                                       PCI_CLASS_BRIDGE_PCI
+> arch/powerpc/sysdev/fsl_pci.c:601:39: note: each undeclared identifier
+> is reported only once for each function it appears in
+> make[3]: *** [scripts/Makefile.build:289: arch/powerpc/sysdev/fsl_pci.o] Error 1
 
-On FSL_BOOK3E, _PAGE_RW is defined with two bits, one for user and one
-for supervisor. As soon as one of the two bits is set, the page has
-to be display as RW. But the way it is implemented today requires both
-bits to be set in order to display it as RW.
+Hello, this is probably because of missing PCI_CLASS_BRIDGE_PCI_NORMAL
+define which was added in this change:
 
-Instead of display RW when _PAGE_RW bits are set and R otherwise,
-reverse the logic and display R when _PAGE_RW bits are all 0 and
-RW otherwise.
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/diff/include/linux/pci_ids.h?id=904b10fb189cc15376e9bfce1ef0282e68b0b004
 
-This change has no impact on other platforms as _PAGE_RW is a single
-bit on all of them.
-
-Fixes: 8eb07b187000 ("powerpc/mm: Dump linux pagetables")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/0c33b96317811edf691e81698aaee8fa45ec3449.1656427391.git.christophe.leroy@csgroup.eu
----
- arch/powerpc/mm/dump_linuxpagetables.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
-
-diff --git a/arch/powerpc/mm/dump_linuxpagetables.c b/arch/powerpc/mm/dump_linuxpagetables.c
-index 0bbaf7344872..07541d322b56 100644
---- a/arch/powerpc/mm/dump_linuxpagetables.c
-+++ b/arch/powerpc/mm/dump_linuxpagetables.c
-@@ -123,15 +123,10 @@ static const struct flag_info flag_array[] = {
- 		.set	= "user",
- 		.clear	= "    ",
- 	}, {
--#if _PAGE_RO == 0
--		.mask	= _PAGE_RW,
--		.val	= _PAGE_RW,
--#else
--		.mask	= _PAGE_RO,
--		.val	= 0,
--#endif
--		.set	= "rw",
--		.clear	= "ro",
-+		.mask	= _PAGE_RW | _PAGE_RO,
-+		.val	= _PAGE_RO,
-+		.set	= "ro",
-+		.clear	= "rw",
- 	}, {
- 		.mask	= _PAGE_EXEC,
- 		.val	= _PAGE_EXEC,
--- 
-2.37.1
-
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> 
+> Steps to reproduce:
+> --------------------
+> # To install tuxmake on your system globally:
+> # sudo pip3 install -U tuxmake
+> #
+> # See https://docs.tuxmake.org/ for complete documentation.
+> # Original tuxmake command with fragments listed below.
+> 
+> tuxmake --runtime podman --target-arch powerpc --toolchain gcc-11
+> --kconfig ppc6xx_defconfig
+> 
+> 
+> --
+> Linaro LKFT
+> https://lkft.linaro.org
