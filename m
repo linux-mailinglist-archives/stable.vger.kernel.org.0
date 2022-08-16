@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2FCF5957B7
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 12:12:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01E3659577A
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 12:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234239AbiHPKL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 06:11:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49282 "EHLO
+        id S232943AbiHPKGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 06:06:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234229AbiHPKLb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 06:11:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE1C1AF
-        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 02:18:58 -0700 (PDT)
+        with ESMTP id S234194AbiHPKFT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 06:05:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19105C6CD0;
+        Tue, 16 Aug 2022 02:26:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DE31B8164E
-        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 09:18:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E37C433D6;
-        Tue, 16 Aug 2022 09:18:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91F6161255;
+        Tue, 16 Aug 2022 09:26:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7680CC433D6;
+        Tue, 16 Aug 2022 09:26:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660641536;
-        bh=Xa9AfoRTxxhqc6hTATW1ddoGYF5KhlPXI13AAnwYmBw=;
+        s=korg; t=1660641977;
+        bh=HH0LKZi3cN9iX3f5XbyBtL6oi9LZPkk8/xXhG4QPW80=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jzh8pFf3WOUqShEMYfNO6Wy/cliCR5E6Wk3Fb2yK42QRWGSQeBw/aDtGRlQRrki+U
-         ug8TaCvqDoA3jb6b4z264CH0iCINwvkZEVHPNPRn77q4eYOfFoKZRUL73pH4otKive
-         uVAWyBmehDTtbkV6FTrbmDBjprrUrewasqntZaoI=
-Date:   Tue, 16 Aug 2022 11:18:52 +0200
+        b=G2ZnPky8rXQ5BjWdDQNabGVWclVBlCj+X50TlFjw93zEzKIv6w81vP4s9yU+ZwGVD
+         x9GnxgBfA6hNlC05qTuaVoEbFTpnXIEMt9uLe1n0jwhnaNoTFepvrxqr+q+7r+v7Q6
+         CRk3jGUp//ZprOKphnK7zXQq/brx/Mct2PIxjyb4=
+Date:   Tue, 16 Aug 2022 11:26:14 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Cc:     stable@vger.kernel.org, paul.gortmaker@windriver.com,
-        peterz@infradead.org, bp@suse.de, jpoimboe@kernel.org
-Subject: Re: [PATCH 1/3] Revert "x86/ftrace: Use alternative RET encoding"
-Message-ID: <Yvtg/BOAKHQdU0V6@kroah.com>
-References: <20220816041224.GE73154@windriver.com>
- <20220816082658.172387-1-cascardo@canonical.com>
+To:     nobuhiro1.iwamatsu@toshiba.co.jp
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        stern@rowland.harvard.edu,
+        syzbot+b0de012ceb1e2a97891b@syzkaller.appspotmail.com
+Subject: Re: [PATCH 5.15 103/779] USB: gadget: Fix use-after-free Read in
+ usb_udc_uevent()
+Message-ID: <YvtitluWL33RPxSW@kroah.com>
+References: <20220815180337.130757997@linuxfoundation.org>
+ <20220815180341.711918032@linuxfoundation.org>
+ <TYWPR01MB94203CD9FB4E48250368E1D7926B9@TYWPR01MB9420.jpnprd01.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220816082658.172387-1-cascardo@canonical.com>
+In-Reply-To: <TYWPR01MB94203CD9FB4E48250368E1D7926B9@TYWPR01MB9420.jpnprd01.prod.outlook.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -51,23 +54,14 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 16, 2022 at 05:26:56AM -0300, Thadeu Lima de Souza Cascardo wrote:
-> This reverts commit 3af2ebf798c52b20de827b9dfec13472ab4a7964.
+On Tue, Aug 16, 2022 at 01:43:11AM +0000, nobuhiro1.iwamatsu@toshiba.co.jp wrote:
+> Hi,
 > 
-> This temporarily reverts the backport of upstream commit
-> 1f001e9da6bbf482311e45e48f53c2bd2179e59c. It was not correct to copy the
-> ftrace stub as it would contain a relative jump to the return thunk which
-> would not apply to the context where it was being copied to, leading to
-> ftrace support to be broken.
-> 
-> Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-> ---
->  arch/x86/kernel/ftrace.c | 7 ++-----
->  1 file changed, 2 insertions(+), 5 deletions(-)
+> This patch is related to "fc274c1e9973 "USB: gadget: Add a new bus for gadgets".
+> 5.15.y, 5.10.y, 5.5.y and 4.19.y tree doesn't include it, so it's unnecessary. Please drop each tree.
 
-What stable tree(s) is this to be for?
-
-Context is everything :)
+Ick, good catch, my scripts got confused here.  Now dropped from
+everywhere.
 
 thanks,
 
