@@ -2,56 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AB795961DD
+	by mail.lfdr.de (Postfix) with ESMTP id E05805961DF
 	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 20:06:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236358AbiHPSFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 14:05:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35772 "EHLO
+        id S235803AbiHPSFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 14:05:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236862AbiHPSEy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 14:04:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D49F816BE
-        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 11:04:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660673091;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Vj3cIZcCBDULA4NmxKYoWknQPWn37X5VQr3izicvJT0=;
-        b=VYJHEGZCAjjCizk30Y2tBKMzMsAWx0O/1eLri7h5uHH6b0XpYe1wRnmgp/dQAKq4xzkOex
-        IisiDvp5mOYOFLeftkLqL7xbjrsSNzI0Pv6mS9RCELmBlq7e/ubm+is1X7dYihqu/fHbA5
-        svDZ0jIOI6ZVofscv3z4x1linC50Ctw=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-581-u0BbiRwkPXOE-jIn54ZHFw-1; Tue, 16 Aug 2022 14:04:48 -0400
-X-MC-Unique: u0BbiRwkPXOE-jIn54ZHFw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 29ED31019C96;
-        Tue, 16 Aug 2022 18:04:48 +0000 (UTC)
-Received: from emerald.redhat.com (unknown [10.22.16.99])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5A5D41121314;
-        Tue, 16 Aug 2022 18:04:47 +0000 (UTC)
-From:   Lyude Paul <lyude@redhat.com>
-To:     nouveau@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org (open list:DRM DRIVER FOR NVIDIA
-        GEFORCE/QUADRO GPUS), linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH] drm/nouveau/kms/nv140-: Disable interlacing
-Date:   Tue, 16 Aug 2022 14:04:36 -0400
-Message-Id: <20220816180436.156310-1-lyude@redhat.com>
+        with ESMTP id S236684AbiHPSEt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 14:04:49 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1990E8037E;
+        Tue, 16 Aug 2022 11:04:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1660673079; x=1692209079;
+  h=message-id:date:mime-version:from:to:cc:references:
+   subject:in-reply-to:content-transfer-encoding;
+  bh=XDyk4xsCNE8jyvhJxm6j5J9uwtu4khyexzPx0UxIYes=;
+  b=hOKyhRIoV3OUGK6kkvPcUa4V6nhQOZAN9Dzo5hBxtXw0hje6aST7YfW1
+   MZZcAVyJA1Y4M3JK0qM7XZUEOUFd3WEhfIK1v56TwGdx8MI05V+O8fT0V
+   G+nAlOo4MHnsBUhqIG0zHB3N7eUWgKynLUNP5IdYkn6rz9PkfIzPpzX/n
+   X0X4dcBkD2hsheoxghCba1iaqsCxAoGEdRPzFaQlJ+uxQE+2GtVJ8ZNAR
+   w4iH0lFy6g/YpF722wjBvCSwNAevDzwI26iGqDM+FQErs4iS29toIWCSc
+   SrK/HNRbS5r/tJ7ApfTMVYgAsVGWbHCnsow0rBmWhZExGhRynqyB5/deO
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10441"; a="354036557"
+X-IronPort-AV: E=Sophos;i="5.93,241,1654585200"; 
+   d="scan'208";a="354036557"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2022 11:04:38 -0700
+X-IronPort-AV: E=Sophos;i="5.93,241,1654585200"; 
+   d="scan'208";a="852742473"
+Received: from jzhu1-mobl.ccr.corp.intel.com (HELO [10.254.68.75]) ([10.254.68.75])
+  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2022 11:04:37 -0700
+Message-ID: <84f4b1ea-d837-9a53-a21c-4ac602ff8e75@linux.intel.com>
+Date:   Tue, 16 Aug 2022 11:04:36 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.3
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Content-Language: en-US
+From:   Daniel Sneddon <daniel.sneddon@linux.intel.com>
+To:     Peter Zijlstra <peterz@infradead.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andrew Cooper <Andrew.Cooper3@citrix.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
+        Josh Poimboeuf <jpoimboe@redhat.com>
+References: <20220809175513.345597655@linuxfoundation.org>
+ <20220809175513.979067723@linuxfoundation.org>
+ <YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net>
+ <839e2877-bb16-dbb5-d4da-bc611733c7e1@linux.intel.com>
+Subject: Re: [PATCH] x86/nospec: Unwreck the RSB stuffing
+In-Reply-To: <839e2877-bb16-dbb5-d4da-bc611733c7e1@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -60,37 +69,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As it turns out: while Nvidia does actually have interlacing knobs on their
-GPU still pretty much no current GPUs since Volta actually support it.
-Trying interlacing on these GPUs will result in NVDisplay being quite
-unhappy like so:
+On 8/16/22 10:34, Daniel Sneddon wrote:
+> On 8/16/22 05:28, Peter Zijlstra wrote:
+> 
+>>
+>> Could you please test this; I've only compiled it.
+>>
+> When booting I get the following BUG:
+> 
+> ------------[ cut here ]------------
+> kernel BUG at arch/x86/kernel/alternative.c:290!
+> invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+> CPU: 0 PID: 0 Comm: swapper/0 Not tainted 6.0.0-rc1-00001-gb72b03c96999 #3
+> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1
+> 04/01/2014
+> RIP: 0010:apply_alternatives+0x287/0x2d0
+> Code: 4c 29 f6 03 74 24 13 89 74 24 13 45 85 c0 0f 85 d2 41 e9 00 41 0f b6 02 83
+> e0 fd 3c e9 0f 84 46 ff ff ff e9 5e fe ff ff 0f 0b <0f> 0b f7 c6 00 ff ff ff 0f
+> 84 68 ff ff ff 8d 71 fb c6 44 24 12 e9
+> RSP: 0000:ffffffff82c03d68 EFLAGS: 00010206
+> RAX: 0000000000000000 RBX: ffffffff83728c24 RCX: 0000000000007fff
+> RDX: 00000000ffffffea RSI: 0000000000000000 RDI: 000000000000ffff
+> RBP: ffffffff82c03d7a R08: e800000010c4c749 R09: 0001e8cc00000001
+> R10: 10c48348cc000000 R11: e8ae0feb75ccff49 R12: ffffffff8372fcf8
+> R13: 0000000000000000 R14: ffffffff81001a68 R15: 000000000000001f
+> FS:  0000000000000000(0000) GS:ffff88813bc00000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: ffff88813ffff000 CR3: 0000000002c0c001 CR4: 0000000000770ef0
+> PKRU: 55555554
+> Call Trace:
+>  <TASK>
+>  ? insn_get_opcode+0xef/0x1c0
+>  ? ct_nmi_enter+0xb3/0x180
+>  ? ct_nmi_exit+0xbe/0x1d0
+>  ? irqentry_exit+0x2d/0x40
+>  ? asm_common_interrupt+0x22/0x40
+>  alternative_instructions+0x5b/0xf5
+>  check_bugs+0xdaf/0xdef
+>  start_kernel+0x66a/0x6a2
+>  secondary_startup_64_no_verify+0xe0/0xeb
+>  </TASK>
+> Modules linked in:
+> Dumping ftrace buffer:
+>    (ftrace buffer empty)
+> ---[ end trace 0000000000000000 ]---
+> RIP: 0010:apply_alternatives+0x287/0x2d0
+> Code: 4c 29 f6 03 74 24 13 89 74 24 13 45 85 c0 0f 85 d2 41 e9 00 41 0f b6 02 83
+> e0 fd 3c e9 0f 84 46 ff ff ff e9 5e fe ff ff 0f 0b <0f> 0b f7 c6 00 ff ff ff 0f
+> 84 68 ff ff ff 8d 71 fb c6 44 24 12 e9
+> RSP: 0000:ffffffff82c03d68 EFLAGS: 00010206
+> RAX: 0000000000000000 RBX: ffffffff83728c24 RCX: 0000000000007fff
+> RDX: 00000000ffffffea RSI: 0000000000000000 RDI: 000000000000ffff
+> RBP: ffffffff82c03d7a R08: e800000010c4c749 R09: 0001e8cc00000001
+> R10: 10c48348cc000000 R11: e8ae0feb75ccff49 R12: ffffffff8372fcf8
+> R13: 0000000000000000 R14: ffffffff81001a68 R15: 000000000000001f
+> FS:  0000000000000000(0000) GS:ffff88813bc00000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: ffff88813ffff000 CR3: 0000000002c0c001 CR4: 0000000000770ef0
+> PKRU: 55555554
+> Kernel panic - not syncing: Attempted to kill the idle task!
+> Dumping ftrace buffer:
+>    (ftrace buffer empty)
+> ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
+> 
+> 
+> 
+I can get it to work with the below changes.  I had to change the -1 to 0x7FFF
+because bit 15 is masked out in apply_alternatives().  Not sure if that's the
+right way to fix it, but it boots and has the correct assembly code in
+vmx_vmexit, so the alternative does get applied correctly there.
 
-nouveau 0000:1f:00.0: disp: chid 0 stat 00004802 reason 4 [INVALID_ARG] mthd 2008 data 00000001 code 00080000
-nouveau 0000:1f:00.0: disp: chid 0 stat 10005080 reason 5 [INVALID_STATE] mthd 0200 data 00000001 code 00000001
-
-So let's fix this by following the same behavior Nvidia's driver does and
-disable interlacing entirely.
-
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
 ---
- drivers/gpu/drm/nouveau/nouveau_connector.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index 1a31ae6d758b..c5b55c9f2849 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -420,7 +420,7 @@
+ #define X86_FEATURE_V_TSC_AUX          (19*32+ 9) /* "" Virtual TSC_AUX */
+ #define X86_FEATURE_SME_COHERENT       (19*32+10) /* "" AMD hardware-enforced
+cache coherency */
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
-index 43a9d1e1cf71..8100c75ee731 100644
---- a/drivers/gpu/drm/nouveau/nouveau_connector.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
-@@ -504,7 +504,8 @@ nouveau_connector_set_encoder(struct drm_connector *connector,
- 			connector->interlace_allowed =
- 				nv_encoder->caps.dp_interlace;
- 		else
--			connector->interlace_allowed = true;
-+			connector->interlace_allowed =
-+				drm->client.device.info.family < NV_DEVICE_INFO_V0_VOLTA;
- 		connector->doublescan_allowed = true;
- 	} else
- 	if (nv_encoder->dcb->type == DCB_OUTPUT_LVDS ||
--- 
-2.37.1
+-#define X86_FEATURE_NEVER              (-1) /* "" Logical complement of ALWAYS */
++#define X86_FEATURE_NEVER              (0x7FFF) /* "" Logical complement of
+ALWAYS */
+
+ /*
+  * BUG word(s)
+diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+index 62f6b8b7c4a5..5c476b37b3bc 100644
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -284,6 +284,9 @@ void __init_or_module noinline apply_alternatives(struct
+alt_instr *start,
+                /* Mask away "NOT" flag bit for feature to test. */
+                u16 feature = a->cpuid & ~ALTINSTR_FLAG_INV;
+
++               if (feature == X86_FEATURE_NEVER)
++                       goto next;
++
+                instr = (u8 *)&a->instr_offset + a->instr_offset;
+                replacement = (u8 *)&a->repl_offset + a->repl_offset;
+                BUG_ON(a->instrlen > sizeof(insn_buff));
 
