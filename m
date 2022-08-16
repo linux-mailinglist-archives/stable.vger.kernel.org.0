@@ -2,116 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CCCB5956BD
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 11:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 697BC595483
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 10:08:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233605AbiHPJj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 05:39:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54846 "EHLO
+        id S229583AbiHPIGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 04:06:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233769AbiHPJja (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 05:39:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34E9F1365F8;
-        Tue, 16 Aug 2022 01:28:13 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9116F611F2;
-        Tue, 16 Aug 2022 08:28:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94A48C433C1;
-        Tue, 16 Aug 2022 08:28:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660638492;
-        bh=kn/cDzx5wgLfYQgDaZMLwVmKJJDcenaMUgsJ7D0lmXg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OWKY8C2GcbgTNqhHhuZhYFir9funE6n/P4pENhoRIJd/oAk2M+cpmYlGh0tHRvzur
-         LNzpuaA/0+J6Y2PrMjqHHO+lWiRWkJpjGm2beJvCpG4rKjlahzhyrAo8/NN2UijSLV
-         +P15i/QlyobPuje8dvZKtv3dlGcUxhsbo4euUq2k=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 713/779] serial: 8250_pci: Refactor the loop in pci_ite887x_init()
-Date:   Mon, 15 Aug 2022 20:05:57 +0200
-Message-Id: <20220815180407.929169761@linuxfoundation.org>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220815180337.130757997@linuxfoundation.org>
-References: <20220815180337.130757997@linuxfoundation.org>
-User-Agent: quilt/0.67
+        with ESMTP id S231603AbiHPIFO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 04:05:14 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 253C83ED51
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 22:27:30 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id r4so12052922edi.8
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 22:27:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=8GCiBPOuQM/bTY94OlYfkl/LuAf0jjQOGAAIwdS74Fg=;
+        b=JisZo1jwcqMFxEogkyBSj7CD2OQejIZwVaBZLDUMPXyd1/XDJk4yhm5S4XaUclV41a
+         DNf6C3jtGn/ICcktl7kKvB8oEvCJEthJjCnq/oKtpHE4qJRvd1ePCf/5cpTiwt6ADx8y
+         6ZKi3THb4uQY/A2F+hAzzTdYwLtU3q7b8PgG8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=8GCiBPOuQM/bTY94OlYfkl/LuAf0jjQOGAAIwdS74Fg=;
+        b=lF3vQTeY/mCbUjeVqUuAQBCHX4WK6V5WIyKFDOFgOiJWXioVVop8HuF/9rl/ZW+ZGI
+         0lgAiNmKlq66Ae7X/a/HxfEQQqt8K9bjuJBEurBq8sg6RVG+jaKPsYPYWtvdviQ0oRMM
+         VOXq4L0nIaqibilyDuP1yEDtE+SMg3c6ocdLnXedbzEwM+9jNn44PujIfJvKrcZPTtGm
+         iVoPaUaYr96w6QEkTVcNMhisVfPVJyzzXftANU+FfFDGadrOA0oKO65Wk9B3VEW9TdxH
+         7AAjIEGBS/9OGN+lMhLLEPZVG3p7mQ/xtMAy3Sca+ebqTsQ3QDJAbdeBST53o7kwFAoE
+         LRBA==
+X-Gm-Message-State: ACgBeo17JotYBfbHCwur5stCjuMu1h+s7cBFa/EFlY+sKYC34bXkaW4A
+        0zlY/eRt0QvpmNgJVTOU50vdOOelBY71doBih28=
+X-Google-Smtp-Source: AA6agR5xH6yhIy3E6ttF9aaReD4JD1Nq/VvhTR3b50BKXB137F56TxmSLEbJSw8n6xGBisv+Y05c9A==
+X-Received: by 2002:a05:6402:518b:b0:43e:70be:97cd with SMTP id q11-20020a056402518b00b0043e70be97cdmr17459659edd.388.1660627648226;
+        Mon, 15 Aug 2022 22:27:28 -0700 (PDT)
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com. [209.85.221.53])
+        by smtp.gmail.com with ESMTPSA id wi2-20020a170906fd4200b007308bebce51sm4908439ejb.171.2022.08.15.22.27.27
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 15 Aug 2022 22:27:27 -0700 (PDT)
+Received: by mail-wr1-f53.google.com with SMTP id j7so11284213wrh.3
+        for <stable@vger.kernel.org>; Mon, 15 Aug 2022 22:27:27 -0700 (PDT)
+X-Received: by 2002:a5d:6248:0:b0:222:cd3b:94c8 with SMTP id
+ m8-20020a5d6248000000b00222cd3b94c8mr10739050wrv.97.1660627646821; Mon, 15
+ Aug 2022 22:27:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,DATE_IN_PAST_12_24,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <YvqaK3hxix9AaQBO@slm.duckdns.org> <YvsZ6vObgLaDeSZk@gondor.apana.org.au>
+In-Reply-To: <YvsZ6vObgLaDeSZk@gondor.apana.org.au>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Mon, 15 Aug 2022 22:27:10 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wgSNiT5qJX53RHtWECsUiFq6d6VWYNAvu71ViOEan07yw@mail.gmail.com>
+Message-ID: <CAHk-=wgSNiT5qJX53RHtWECsUiFq6d6VWYNAvu71ViOEan07yw@mail.gmail.com>
+Subject: Re: [PATCH] workqueue: Fix memory ordering race in queue_work*()
+To:     Herbert Xu <herbert@gondor.apana.org.au>,
+        Will Deacon <will@kernel.org>
+Cc:     Tejun Heo <tj@kernel.org>, marcan@marcan.st, peterz@infradead.org,
+        jirislaby@kernel.org, maz@kernel.org, mark.rutland@arm.com,
+        boqun.feng@gmail.com, catalin.marinas@arm.com, oneukum@suse.com,
+        roman.penyaev@profitbricks.com, asahi@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On Mon, Aug 15, 2022 at 9:15 PM Herbert Xu <herbert@gondor.apana.org.au> wrote:
+>
+> Please revert this as test_and_set_bit was always supposed to be
+> a full memory barrier.  This is an arch bug.
 
-[ Upstream commit 35b4f17231923e2f64521bdf7a2793ce2c3c74a6 ]
+Yes, the bitops are kind of strange for various legacy reasons:
 
-The loop can be refactored by using ARRAY_SIZE() instead of NULL terminator.
-This reduces code base and makes it easier to read and understand.
+ - set/clear_bit is atomic, but without a memory barrier, and need a
+"smp_mb__before_atomic()" or similar for barriers
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Jiri Slaby <jslaby@kernel.org>
-Link: https://lore.kernel.org/r/20211022135147.70965-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/tty/serial/8250/8250_pci.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ - test_and_set/clear_bit() are atomic, _and_ are memory barriers
 
-diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
-index e7b9805903f4..ef44e5320bef 100644
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -897,18 +897,16 @@ static int pci_netmos_init(struct pci_dev *dev)
- /* enable IO_Space bit */
- #define ITE_887x_POSIO_ENABLE		(1 << 31)
- 
-+/* inta_addr are the configuration addresses of the ITE */
-+static const short inta_addr[] = { 0x2a0, 0x2c0, 0x220, 0x240, 0x1e0, 0x200, 0x280 };
- static int pci_ite887x_init(struct pci_dev *dev)
- {
--	/* inta_addr are the configuration addresses of the ITE */
--	static const short inta_addr[] = { 0x2a0, 0x2c0, 0x220, 0x240, 0x1e0,
--							0x200, 0x280, 0 };
- 	int ret, i, type;
- 	struct resource *iobase = NULL;
- 	u32 miscr, uartbar, ioport;
- 
- 	/* search for the base-ioport */
--	i = 0;
--	while (inta_addr[i] && iobase == NULL) {
-+	for (i = 0; i < ARRAY_SIZE(inta_addr); i++) {
- 		iobase = request_region(inta_addr[i], ITE_887x_IOSIZE,
- 								"ite887x");
- 		if (iobase != NULL) {
-@@ -925,12 +923,10 @@ static int pci_ite887x_init(struct pci_dev *dev)
- 				break;
- 			}
- 			release_region(iobase->start, ITE_887x_IOSIZE);
--			iobase = NULL;
- 		}
--		i++;
- 	}
- 
--	if (!inta_addr[i]) {
-+	if (i == ARRAY_SIZE(inta_addr)) {
- 		dev_err(&dev->dev, "ite887x: could not find iobase\n");
- 		return -ENODEV;
- 	}
--- 
-2.35.1
+ - test_and_set_bit_lock and test_and_clear_bit_unlock are atomic and
+_weaker_ than full memory barriers, but sufficient for locking (ie
+acquire/release)
 
+Does any of this make any sense at all? No. But those are the
+documented semantics exactly because people were worried about
+test_and_set_bit being used for locking, since on x86 all the atomics
+are also memory barriers.
 
+From looking at it, the asm-generic implementation is a bit
+questionable, though. In particular, it does
 
+        if (READ_ONCE(*p) & mask)
+                return 1;
+
+so it's *entirely* unordered for the "bit was already set" case.
+
+That looks very wrong to me, since it basically means that the
+test_and_set_bit() can return "bit was already set" based on an old
+value - not a memory barrier at all.
+
+So if you use "test_and_set_bit()" as some kind of "I've done my work,
+now I am going to set the bit to tell people to pick it up", then that
+early "bit was already set" code completely breaks it.
+
+Now, arguably our atomic bitop semantics are very very odd, and it
+might be time to revisit them. But that code looks very very buggy to
+me.
+
+The bug seems to go back to commit e986a0d6cb36 ("locking/atomics,
+asm-generic/bitops/atomic.h: Rewrite using atomic_*() APIs"), and the
+fix looks to be as simple as just removing that early READ_ONCE return
+case (test_and_clear has the same bug).
+
+Will?
+
+IOW, the proper fix for this should, I think, look something like this
+(whitespace mangled) thing:
+
+   --- a/include/asm-generic/bitops/atomic.h
+   +++ b/include/asm-generic/bitops/atomic.h
+   @@ -39,9 +39,6 @@ arch_test_and_set_bit(
+        unsigned long mask = BIT_MASK(nr);
+
+        p += BIT_WORD(nr);
+   -    if (READ_ONCE(*p) & mask)
+   -            return 1;
+   -
+        old = arch_atomic_long_fetch_or(mask, (atomic_long_t *)p);
+        return !!(old & mask);
+    }
+   @@ -53,9 +50,6 @@ arch_test_and_clear_bit
+        unsigned long mask = BIT_MASK(nr);
+
+        p += BIT_WORD(nr);
+   -    if (!(READ_ONCE(*p) & mask))
+   -            return 0;
+   -
+        old = arch_atomic_long_fetch_andnot(mask, (atomic_long_t *)p);
+        return !!(old & mask);
+    }
+
+but the above is not just whitespace-damaged, it's entirely untested
+and based purely on me looking at that code.
+
+            Linus
