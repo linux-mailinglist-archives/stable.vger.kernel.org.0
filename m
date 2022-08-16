@@ -2,132 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9462595CEF
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 15:14:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 829F8595D2F
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 15:23:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230015AbiHPNOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 09:14:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44274 "EHLO
+        id S231520AbiHPNXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 09:23:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230098AbiHPNOs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 09:14:48 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69CB052099
-        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 06:14:46 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27GCTX8S020589;
-        Tue, 16 Aug 2022 13:14:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=4KDH2nYaXFWJoQjxcKf3QbuVRdxh5rtEdoCdiBNN5tU=;
- b=Nhgfxd6DT39fkfi9YH2Kg5qfJzJnr/7GYUN00pL4c5Pabgr3pi6/1EgxCAS5LYGXrfZE
- BPmzbltO/LUSMdgCL00qtLN447KxfgoxjOQmtBQVuoNLtUknaLVPnduLjYGCwN6tJW6O
- jJl8hSHubaADCllOLCltyb5EHSC7UHwKib6zGFd9zGizNO1EC73TYSFd+M4c2GY7VYuZ
- eBXYPiFIjqSFxlUlAlOpQZkuNiHahipctWztGXqTv38wG/c06c2CRaymtAWX3FpdxPuT
- o36Yvsxz86DdXAb0Y2d5LUWlTrxTPjsio9xvBMZebBaveLojCfwQM0QWnaJmrHNi743c vQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3j0b9t1bs6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 16 Aug 2022 13:14:40 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27GDB29D021984;
-        Tue, 16 Aug 2022 13:14:39 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3j0b9t1brd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 16 Aug 2022 13:14:39 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27GD6d91032345;
-        Tue, 16 Aug 2022 13:14:37 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma01fra.de.ibm.com with ESMTP id 3hx3k92e27-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 16 Aug 2022 13:14:37 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27GDEZjA24773006
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 16 Aug 2022 13:14:35 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 72ADBAE055;
-        Tue, 16 Aug 2022 13:14:35 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CA95EAE04D;
-        Tue, 16 Aug 2022 13:14:33 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.211.128.192])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 16 Aug 2022 13:14:33 +0000 (GMT)
-Message-ID: <f8266ed176b5eac096344c739ea86d756e6394c3.camel@linux.ibm.com>
-Subject: Re: FAILED: patch "[PATCH] arm64: kexec_file: use more system
- keyrings to verify kernel" failed to apply to 5.19-stable tree
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Coiby Xu <coxu@redhat.com>, Greg KH <gregkh@linuxfoundation.org>
-Cc:     bhe@redhat.com, msuchanek@suse.de, will@kernel.org,
-        stable@vger.kernel.org
-Date:   Tue, 16 Aug 2022 09:14:32 -0400
-In-Reply-To: <20220816104559.xwovh5y4bcx6n37a@Rk>
-References: <166057758347124@kroah.com> <20220816063256.qzc6jh744i2zc6ou@Rk>
-         <YvtOfWDg2SXdcqgL@kroah.com> <20220816104559.xwovh5y4bcx6n37a@Rk>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: RaXFGWE5Os-lrfTyigeX2uJonv2CPrW1
-X-Proofpoint-GUID: wCxoz6zLniFQIsu5tWoH-duzjQZSW65M
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-16_08,2022-08-16_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 malwarescore=0
- priorityscore=1501 impostorscore=0 lowpriorityscore=0 clxscore=1011
- mlxlogscore=999 bulkscore=0 spamscore=0 mlxscore=0 phishscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2208160049
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229974AbiHPNXO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 09:23:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B3E212098;
+        Tue, 16 Aug 2022 06:23:11 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C401461387;
+        Tue, 16 Aug 2022 13:23:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22AEEC433C1;
+        Tue, 16 Aug 2022 13:23:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1660656190;
+        bh=JumyuZeI/tr0PhD+GYJH6A/O4IFXRoWVZzgl4XKHznE=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=Efap14+pMVDok7IK+6QRPjif/aQmWMGBSjZrJPWz+qZTnKjt8fW1Uc7L2WkYF4kjQ
+         G6oi1jK2jk9sr7bRVb8z/1ifDCA45tbY2evJ2Cv8Qy/CrKCwj+EdM8LkRHnpaFig8W
+         /PVLfsIPt7ZR8HIO7bggfapXP8NUhtcz+GyAN6bXg4B6/1QSx+S953tIR9Wej0oX+M
+         Bka5mKS63I0ZXllJpWzq4/bz5ORlrZFTFcrUBDL61B1lZKiUUWkcxzp+GFaXoghOkW
+         9LYpbnYWT+GOLKoWgF2yG8bp0zpGngSI1CwUMYjzy6AH24tTdVVCnwx5xoD1rx6hKh
+         b6AH3B1Y5XJSQ==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=why.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1oNwXD-003Umf-M3;
+        Tue, 16 Aug 2022 14:23:07 +0100
+Date:   Tue, 16 Aug 2022 14:23:02 +0100
+Message-ID: <87v8qswceh.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Jon Nettleton <jon@solid-run.com>
+Cc:     Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Hector Martin <marcan@marcan.st>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        David Howells <dhowells@redhat.com>,
+        Jade Alglave <j.alglave@ucl.ac.uk>,
+        Luc Maranget <luc.maranget@inria.fr>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Akira Yokosawa <akiyks@gmail.com>,
+        Daniel Lustig <dlustig@nvidia.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Jonathan Corbet <corbet@lwn.net>, Tejun Heo <tj@kernel.org>,
+        jirislaby@kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Asahi Linux <asahi@lists.linux.dev>, stable@vger.kernel.org
+Subject: Re: [PATCH] locking/atomic: Make test_and_*_bit() ordered on failure
+In-Reply-To: <CABdtJHuRGaod9iGCYXq1ivNPZGw=1cszE024WGmzXMQ4S_9AQw@mail.gmail.com>
+References: <20220816070311.89186-1-marcan@marcan.st>
+        <CAK8P3a03pfrPzjnx1tB5z0HcKnY=JL=y+F8PMQDpc=Bavs3UCA@mail.gmail.com>
+        <CABdtJHvZt=av5YEQvRMtf4-dMFR6JS1jM1Ntj7DMVy5fijvkMw@mail.gmail.com>
+        <20220816130048.GA11202@willie-the-truck>
+        <CABdtJHuRGaod9iGCYXq1ivNPZGw=1cszE024WGmzXMQ4S_9AQw@mail.gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: jon@solid-run.com, will@kernel.org, arnd@arndb.de, marcan@marcan.st, peterz@infradead.org, mingo@kernel.org, stern@rowland.harvard.edu, parri.andrea@gmail.com, boqun.feng@gmail.com, npiggin@gmail.com, dhowells@redhat.com, j.alglave@ucl.ac.uk, luc.maranget@inria.fr, paulmck@kernel.org, akiyks@gmail.com, dlustig@nvidia.com, joel@joelfernandes.org, mark.rutland@arm.com, corbet@lwn.net, tj@kernel.org, jirislaby@kernel.org, catalin.marinas@arm.com, oneukum@suse.com, torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, asahi@lists.linux.dev, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2022-08-16 at 18:45 +0800, Coiby Xu wrote:
-> On Tue, Aug 16, 2022 at 09:59:57AM +0200, Greg KH wrote:
+On Tue, 16 Aug 2022 14:05:54 +0100,
+Jon Nettleton <jon@solid-run.com> wrote:
 > 
-> >Hopefully the git ids can be stable when they are merged to a
-> >maintainer's tree.
-
-A missing Ack was added to one of the commits resulting in a forced
-rebase.
-
+> On Tue, Aug 16, 2022 at 3:01 PM Will Deacon <will@kernel.org> wrote:
+> >
+> > On Tue, Aug 16, 2022 at 02:29:49PM +0200, Jon Nettleton wrote:
+> > > On Tue, Aug 16, 2022 at 10:17 AM Arnd Bergmann <arnd@arndb.de> wrote:
+> > > >
+> > > > On Tue, Aug 16, 2022 at 9:03 AM Hector Martin <marcan@marcan.st> wrote:
+> > > > >
+> > > > > These operations are documented as always ordered in
+> > > > > include/asm-generic/bitops/instrumented-atomic.h, and producer-consumer
+> > > > > type use cases where one side needs to ensure a flag is left pending
+> > > > > after some shared data was updated rely on this ordering, even in the
+> > > > > failure case.
+> > > > >
+> > > > > This is the case with the workqueue code, which currently suffers from a
+> > > > > reproducible ordering violation on Apple M1 platforms (which are
+> > > > > notoriously out-of-order) that ends up causing the TTY layer to fail to
+> > > > > deliver data to userspace properly under the right conditions. This
+> > > > > change fixes that bug.
+> > > > >
+> > > > > Change the documentation to restrict the "no order on failure" story to
+> > > > > the _lock() variant (for which it makes sense), and remove the
+> > > > > early-exit from the generic implementation, which is what causes the
+> > > > > missing barrier semantics in that case. Without this, the remaining
+> > > > > atomic op is fully ordered (including on ARM64 LSE, as of recent
+> > > > > versions of the architecture spec).
+> > > > >
+> > > > > Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+> > > > > Cc: stable@vger.kernel.org
+> > > > > Fixes: e986a0d6cb36 ("locking/atomics, asm-generic/bitops/atomic.h: Rewrite using atomic_*() APIs")
+> > > > > Fixes: 61e02392d3c7 ("locking/atomic/bitops: Document and clarify ordering semantics for failed test_and_{}_bit()")
+> > > > > Signed-off-by: Hector Martin <marcan@marcan.st>
+> > > > > ---
+> > > > >  Documentation/atomic_bitops.txt     | 2 +-
+> > > > >  include/asm-generic/bitops/atomic.h | 6 ------
+> > > >
+> > > > I double-checked all the architecture specific implementations to ensure
+> > > > that the asm-generic one is the only one that needs the fix.
+> > > >
+> > > > I assume this gets merged through the locking tree or that Linus picks it up
+> > > > directly, not through my asm-generic tree.
+> > > >
+> > > > Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+> > > >
+> > > > _______________________________________________
+> > > > linux-arm-kernel mailing list
+> > > > linux-arm-kernel@lists.infradead.org
+> > > > http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> > >
+> > > Testing this patch on pre Armv8.1 specifically Cortex-A72 and
+> > > Cortex-A53 cores I am seeing
+> > > a huge performance drop with this patch applied. Perf is showing
+> > > lock_is_held_type() as the worst offender
+> >
+> > Hmm, that should only exist if LOCKDEP is enabled and performance tends to
+> > go out of the window if you have that on. Can you reproduce the same
+> > regression with lockdep disabled?
+> >
+> > Will
 > 
-> I notice the commit ids of these patches in current next-integrity tree
-> are still different from Linus's tree. It seems there is no way to avoid
-> manually backporting a patch for similar cases unless the commit ids are
-> automatically fixed when Linus merges the patch or we could match a
-> commit by its subject.
+> Yep I am working on it.  We should note that
+> 
+> config LOCKDEP_SUPPORT
+>         def_bool y
+> 
+> is the default for arm64
 
-After "fixing" the topic branch merge message, I forgot to push it out
-to the next-integrity branch. (Will be fixed shortly.)  Other than the
-merge message commit itself, the commits in Linus' tree and the next-
-integrity branch are the same.  The pull request was based on the
-integrity-6.20 tag.
+Yes, as the architecture supports LOCKDEP. However, you probably have
+something like CONFIG_PROVE_LOCKING to see such a performance hit (and
+that's definitely not on by default).
 
-Tip of linux-integrity/next-integrity:
-$ git log 1d212f9037b0 | head -2
-commit 1d212f9037b035e638d53834bfe8d3094ca1d04c
-Merge: c808a6ec7166 0828c4a39be5
+	M.
 
-Tip of the my local branch and what's in Linus' branch:
-$ git log 88b61b130334 | head -2
-commit 88b61b130334212f8f05175e291c04adeb2bf30b
-Merge: c808a6ec7166 0828c4a39be5
-
-The pull request tag:
-$ git log integrity-6.20 | head -2
-commit 88b61b130334212f8f05175e291c04adeb2bf30b
-Merge: c808a6ec7166 0828c4a39be5
-
-Mimi
-
+-- 
+Without deviation from the norm, progress is not possible.
