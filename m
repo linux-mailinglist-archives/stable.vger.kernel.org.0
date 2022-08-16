@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ED5459632C
+	by mail.lfdr.de (Postfix) with ESMTP id 9C62459632D
 	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 21:32:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236885AbiHPTcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 15:32:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58712 "EHLO
+        id S236907AbiHPTcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 15:32:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236768AbiHPTcA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 15:32:00 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA360870AC
+        with ESMTP id S236885AbiHPTb6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 15:31:58 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1588B87084
         for <stable@vger.kernel.org>; Tue, 16 Aug 2022 12:31:56 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id d20so10171586pfq.5
+Received: by mail-pj1-x102d.google.com with SMTP id pm17so10580946pjb.3
         for <stable@vger.kernel.org>; Tue, 16 Aug 2022 12:31:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc;
-        bh=28ycXnYC182R+uRK69QspbxEDw6qyP7YcJltTmUumAg=;
-        b=T14Rq+crW/+MKZgHqqo6ZACsuNKl2jPnohD7HBy+mYN8ReXt52QT+OgpifL/BT/P5m
-         rmZmwTzhs0pSx5/mA3Nyxk1EnWjhmVOp1AfUmAllxT79qRMH7I269C+WugJhPwzABKlk
-         +OSkHC7YH8n7jKJfMu1MtakwWWqsekwS8T3RWMNrPpQbXnueLt6xEl1tSCTE0M9JcUas
-         CKV1Mr1/eAe5ltLTTT1t9EV24iAVdAfLcWSe2J2x6+5IKj0mJBRnmT2cSZXVlzM6xBPH
-         HrA6naN3XZ1GjfensQRliM+ULezCvlHsYSWmgUrTHLJ5Hd3V4xJ95JqT+FYx/XK/9NDf
-         E7XA==
+        bh=YYXp14bkhYqs1gwcodjgzqEPPZJ8pQq1Bn3rt8/vXdg=;
+        b=zmSUxIqGIAApOy3K9X+JTR0/71PKqomR/1p1DXjI4v+vwBPSv38GI3PBCQDKae8R3D
+         MPlMCs10wh+Db3XyT6LY3LBe1WPy0t9i0AqmcPMH6Y79+WMEQjlV86MrjjLxXwiT0J2i
+         aYLw4i1t9cgYmeV/MGSwLNPbgkFs6L5J4XKtHGtTqGjA4TPXX6ItzjDfYowdMB1sJvIf
+         uelmHDLgWemVuz7zc6Im3TWQgGZkivAsrAr1H1kCW7fYFaHeBHHX5BHt+WaZ5R9MiMif
+         RX5lGw22svMc8Z4hW8l+J8EGpgnVBnmA1J6b86E7gHg1QdpQ3jOpMMzQYO7Khv4PPYrN
+         bpgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc;
-        bh=28ycXnYC182R+uRK69QspbxEDw6qyP7YcJltTmUumAg=;
-        b=boxqMSx0ni23ssgDoO6duU9BMN5GNryQLfkXXU4GvyR8gP/bF8GJx2/9/DeZy0kig6
-         v1SLxmPCXdhxhquNry3lZbgnCVQt4wl9KtC7qoBf5Xm6OFk1Fd455Dgmj+MHYWkCdmvF
-         R8mRIvxD9DysoHwpafdoaYNX2rbPlYiTntYOzm3t0HxoUWxmXuzV6KwUNt4TpE6DaIgY
-         fT1oGt/yGWGVAzL/o7O+B5qYkP8DNR3ERQz/83eRViggeVq3aU8ec35S0jTMm6AbIYvR
-         aZmwLR0spKeMjPQGtIFf58t+tR24ZzYqo/UjGczV6CmD0oKqH1gvqEmLui8WXZR05/6A
-         s1hQ==
-X-Gm-Message-State: ACgBeo0VomFtI53MkZo8fCTb2LmCptwqzKho76FJx6gZwFsOc1bI7nZf
-        NzvYoGCiIlNmt9J2cvg4EWoNM7t8cOIP2uhi
-X-Google-Smtp-Source: AA6agR4dUlW5T32uTlJpALr/azJoiZ/H8gIYmG+BYlmm08HUN6Yf6yOmd5Z5Skk4pLZs5RiLQYSMEA==
-X-Received: by 2002:a63:e054:0:b0:41d:6628:10b3 with SMTP id n20-20020a63e054000000b0041d662810b3mr18530910pgj.506.1660678314771;
+        bh=YYXp14bkhYqs1gwcodjgzqEPPZJ8pQq1Bn3rt8/vXdg=;
+        b=VeyCNOfShU7wEHxp8jfwNfgETyUYGW37Glu2x6rMycx1KUu3gx+9Z08UeCHYnst2zy
+         AvxuZ5uDV/H7dTZFagaF8SJAW9fCAFgjivivbMHCTvJFnY54Usv66VIklRb0O8H5phkf
+         h172LhiJOQyZ9SPgiEEyrqXxoEsfmgjLyHOQNsBT5fNRw5GdZktfofBR1PgXUE4QVkzX
+         0d+IlwUPvSm/k6XTRlWH05/g4nL2ZwgOq+I9wau6P/0CJN4FlvAZqOPHuV5u57dmyAst
+         QSgLhxzUlu20e0l+LIevhcd1xP+1UbQYNGIgqMNMHzTiQsOIlbOcZjZgLhLBF1ZhdhAh
+         lXuQ==
+X-Gm-Message-State: ACgBeo218psm6DU1hPZCn1bJ8knCqOcqBjjIBYjyxoAO7asud4IFAyyJ
+        BeNNo5H1ZGfRHC0Csii2RS5U7OrZfDc1EOqJ
+X-Google-Smtp-Source: AA6agR5vU4NkwFJ65Q2u7UjN1vYYN+kmo6Y12iRH+l3Sz4aY1621MgQ7uAMD6YwqIMIEpiFdcetsNw==
+X-Received: by 2002:a17:902:aa41:b0:16f:85be:f348 with SMTP id c1-20020a170902aa4100b0016f85bef348mr23237454plr.15.1660678314941;
         Tue, 16 Aug 2022 12:31:54 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p6-20020a170902780600b0016efa52d428sm9429448pll.218.2022.08.16.12.31.54
+        by smtp.gmail.com with ESMTPSA id x125-20020a626383000000b0052f2bc783basm8835144pfb.117.2022.08.16.12.31.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Tue, 16 Aug 2022 12:31:54 -0700 (PDT)
-Message-ID: <62fbf0aa.170a0220.a5027.0841@mx.google.com>
+Message-ID: <62fbf0aa.620a0220.60908.f149@mx.google.com>
 Date:   Tue, 16 Aug 2022 12:31:54 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
+X-Kernelci-Branch: queue/5.15
 X-Kernelci-Tree: stable-rc
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.9.325-63-g2ae8452db3fed
-Subject: stable-rc/queue/4.9 build: 183 builds: 50 failed, 133 passed,
- 61 errors, 34 warnings (v4.9.325-63-g2ae8452db3fed)
+X-Kernelci-Kernel: v5.15.60-778-g48384f95eb4b6
+Subject: stable-rc/queue/5.15 build: 164 builds: 3 failed, 161 passed, 8 errors,
+ 5 warnings (v5.15.60-778-g48384f95eb4b6)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,235 +70,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 build: 183 builds: 50 failed, 133 passed, 61 errors, 34=
- warnings (v4.9.325-63-g2ae8452db3fed)
+stable-rc/queue/5.15 build: 164 builds: 3 failed, 161 passed, 8 errors, 5 w=
+arnings (v5.15.60-778-g48384f95eb4b6)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
-/kernel/v4.9.325-63-g2ae8452db3fed/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+5/kernel/v5.15.60-778-g48384f95eb4b6/
 
 Tree: stable-rc
-Branch: queue/4.9
-Git Describe: v4.9.325-63-g2ae8452db3fed
-Git Commit: 2ae8452db3fed6ebd4e8ce7f9004c56c15e7bbe3
+Branch: queue/5.15
+Git Describe: v5.15.60-778-g48384f95eb4b6
+Git Commit: 48384f95eb4b6b57724ac46de5126a86231c8d4c
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 6 unique architectures
+Built: 7 unique architectures
 
 Build Failures Detected:
 
-arm:
-    acs5k_defconfig: (gcc-10) FAIL
-    at91_dt_defconfig: (gcc-10) FAIL
-    cm_x2xx_defconfig: (gcc-10) FAIL
-    dove_defconfig: (gcc-10) FAIL
-    ebsa110_defconfig: (gcc-10) FAIL
-    exynos_defconfig: (gcc-10) FAIL
-    footbridge_defconfig: (gcc-10) FAIL
-    imx_v6_v7_defconfig: (gcc-10) FAIL
-    integrator_defconfig: (gcc-10) FAIL
-    iop13xx_defconfig: (gcc-10) FAIL
-    iop32x_defconfig: (gcc-10) FAIL
-    iop33x_defconfig: (gcc-10) FAIL
-    ixp4xx_defconfig: (gcc-10) FAIL
-    keystone_defconfig: (gcc-10) FAIL
-    ks8695_defconfig: (gcc-10) FAIL
-    lpd270_defconfig: (gcc-10) FAIL
-    mainstone_defconfig: (gcc-10) FAIL
-    mmp2_defconfig: (gcc-10) FAIL
-    multi_v5_defconfig: (gcc-10) FAIL
-    mv78xx0_defconfig: (gcc-10) FAIL
-    mvebu_v5_defconfig: (gcc-10) FAIL
-    mvebu_v7_defconfig: (gcc-10) FAIL
-    netwinder_defconfig: (gcc-10) FAIL
-    nhk8815_defconfig: (gcc-10) FAIL
-    omap1_defconfig: (gcc-10) FAIL
-    orion5x_defconfig: (gcc-10) FAIL
-    pcm027_defconfig: (gcc-10) FAIL
-    pleb_defconfig: (gcc-10) FAIL
-    pxa168_defconfig: (gcc-10) FAIL
-    pxa255-idp_defconfig: (gcc-10) FAIL
-    pxa3xx_defconfig: (gcc-10) FAIL
-    pxa910_defconfig: (gcc-10) FAIL
-    pxa_defconfig: (gcc-10) FAIL
-    raumfeld_defconfig: (gcc-10) FAIL
-    realview_defconfig: (gcc-10) FAIL
-    shmobile_defconfig: (gcc-10) FAIL
-    socfpga_defconfig: (gcc-10) FAIL
-    spear13xx_defconfig: (gcc-10) FAIL
-    spear3xx_defconfig: (gcc-10) FAIL
-    spear6xx_defconfig: (gcc-10) FAIL
-    sunxi_defconfig: (gcc-10) FAIL
-    tegra_defconfig: (gcc-10) FAIL
-    u8500_defconfig: (gcc-10) FAIL
-    versatile_defconfig: (gcc-10) FAIL
-    vexpress_defconfig: (gcc-10) FAIL
-    viper_defconfig: (gcc-10) FAIL
-    vt8500_v6_v7_defconfig: (gcc-10) FAIL
-
 mips:
+    decstation_64_defconfig: (gcc-10) FAIL
     ip27_defconfig: (gcc-10) FAIL
     ip28_defconfig: (gcc-10) FAIL
-    malta_qemu_32r6_defconfig: (gcc-10) FAIL
 
 Errors and Warnings Detected:
 
 arc:
+    tinyconfig (gcc-10): 1 warning
 
 arm64:
 
 arm:
-    acs5k_defconfig (gcc-10): 1 error
-    at91_dt_defconfig (gcc-10): 2 errors
-    cm_x2xx_defconfig (gcc-10): 1 error
-    dove_defconfig (gcc-10): 1 error
-    ebsa110_defconfig (gcc-10): 9 errors
-    exynos_defconfig (gcc-10): 1 error
-    footbridge_defconfig (gcc-10): 1 error
-    imx_v6_v7_defconfig (gcc-10): 3 errors
-    integrator_defconfig (gcc-10): 1 error
-    iop13xx_defconfig (gcc-10): 1 error
-    iop32x_defconfig (gcc-10): 1 error
-    iop33x_defconfig (gcc-10): 1 error
-    ixp4xx_defconfig (gcc-10): 1 error
-    keystone_defconfig (gcc-10): 1 error
-    ks8695_defconfig (gcc-10): 1 error
-    lpd270_defconfig (gcc-10): 1 error
-    mainstone_defconfig (gcc-10): 1 error
-    mini2440_defconfig (gcc-10): 1 warning
-    mmp2_defconfig (gcc-10): 1 error
-    multi_v5_defconfig (gcc-10): 2 errors
-    mv78xx0_defconfig (gcc-10): 1 error
-    mvebu_v5_defconfig (gcc-10): 1 error
-    mvebu_v7_defconfig (gcc-10): 1 error
-    netwinder_defconfig (gcc-10): 1 error
-    nhk8815_defconfig (gcc-10): 1 error
-    omap1_defconfig (gcc-10): 1 error, 1 warning
-    orion5x_defconfig (gcc-10): 1 error
-    pcm027_defconfig (gcc-10): 1 error
-    pleb_defconfig (gcc-10): 1 error
-    pxa168_defconfig (gcc-10): 1 error
-    pxa255-idp_defconfig (gcc-10): 1 error
-    pxa3xx_defconfig (gcc-10): 1 error
-    pxa910_defconfig (gcc-10): 1 error
-    pxa_defconfig (gcc-10): 1 error
-    raumfeld_defconfig (gcc-10): 1 error
-    realview_defconfig (gcc-10): 1 error
-    s3c2410_defconfig (gcc-10): 1 warning
-    shmobile_defconfig (gcc-10): 2 errors
-    socfpga_defconfig (gcc-10): 1 error
-    spear13xx_defconfig (gcc-10): 1 error
-    spear3xx_defconfig (gcc-10): 1 error
-    spear6xx_defconfig (gcc-10): 1 error
-    sunxi_defconfig (gcc-10): 1 error
-    tegra_defconfig (gcc-10): 2 errors
-    u8500_defconfig (gcc-10): 1 error
-    versatile_defconfig (gcc-10): 1 error
-    vexpress_defconfig (gcc-10): 1 error
-    viper_defconfig (gcc-10): 1 error
-    vt8500_v6_v7_defconfig (gcc-10): 1 error
 
 i386:
-    allnoconfig (gcc-10): 3 warnings
-    i386_defconfig (gcc-10): 3 warnings
-    tinyconfig (gcc-10): 3 warnings
 
 mips:
-    mtx1_defconfig (gcc-10): 3 warnings
+    32r2el_defconfig (gcc-10): 1 warning
+    cavium_octeon_defconfig (gcc-10): 1 error
+    decstation_64_defconfig (gcc-10): 1 error
+    ip32_defconfig (gcc-10): 1 error
+    lemote2f_defconfig (gcc-10): 1 error, 1 warning
+    loongson2k_defconfig (gcc-10): 1 error, 1 warning
+    loongson3_defconfig (gcc-10): 1 error
+    nlm_xlp_defconfig (gcc-10): 1 error
+    rm200_defconfig (gcc-10): 1 warning
+    sb1250_swarm_defconfig (gcc-10): 1 error
+
+riscv:
 
 x86_64:
-    allnoconfig (gcc-10): 5 warnings
-    tinyconfig (gcc-10): 4 warnings
-    x86_64_defconfig (gcc-10): 5 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 5 warnings
 
 Errors summary:
 
-    15   arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
-smsc/built-in.o has EABI version 5, but target drivers/net/ethernet/built-i=
-n.o has EABI version 0
-    13   arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built=
--in.o has EABI version 5, but target drivers/gpu/built-in.o has EABI versio=
-n 0
-    5    arm-linux-gnueabihf-ld: error: drivers/gpu/vga/built-in.o uses VFP=
- instructions, whereas drivers/gpu/built-in.o does not
-    4    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/smsc/built-in.=
-o uses VFP instructions, whereas drivers/net/ethernet/built-in.o does not
-    3    arm-linux-gnueabihf-ld: error: source object drivers/media/v4l2-co=
-re/built-in.o has EABI version 5, but target drivers/media/built-in.o has E=
-ABI version 0
-    2    arm-linux-gnueabihf-ld: error: source object drivers/media/platfor=
-m/built-in.o has EABI version 5, but target drivers/media/built-in.o has EA=
-BI version 0
-    2    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/stmicro/built-=
-in.o uses VFP instructions, whereas drivers/net/ethernet/built-in.o does not
-    1    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
-via/built-in.o has EABI version 5, but target drivers/net/ethernet/built-in=
-.o has EABI version 0
-    1    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
-renesas/built-in.o has EABI version 5, but target drivers/net/ethernet/buil=
-t-in.o has EABI version 0
-    1    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
-marvell/built-in.o has EABI version 5, but target drivers/net/ethernet/buil=
-t-in.o has EABI version 0
-    1    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
-freescale/built-in.o has EABI version 5, but target drivers/net/ethernet/bu=
-ilt-in.o has EABI version 0
-    1    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/=
-cirrus/built-in.o has EABI version 5, but target drivers/net/ethernet/built=
--in.o has EABI version 0
-    1    arm-linux-gnueabihf-ld: error: source object drivers/misc/vexpress=
--syscfg.o has EABI version 5, but target drivers/misc/built-in.o has EABI v=
-ersion 0
-    1    arm-linux-gnueabihf-ld: error: source object drivers/media/usb/bui=
-lt-in.o has EABI version 5, but target drivers/media/built-in.o has EABI ve=
-rsion 0
-    1    arm-linux-gnueabihf-ld: error: source object drivers/media/rc/buil=
-t-in.o has EABI version 5, but target drivers/media/built-in.o has EABI ver=
-sion 0
-    1    arm-linux-gnueabihf-ld: error: drivers/watchdog/built-in.o uses VF=
-P instructions, whereas drivers/built-in.o does not
-    1    arm-linux-gnueabihf-ld: error: drivers/tty/built-in.o uses VFP ins=
-tructions, whereas drivers/built-in.o does not
-    1    arm-linux-gnueabihf-ld: error: drivers/rtc/built-in.o uses VFP ins=
-tructions, whereas drivers/built-in.o does not
-    1    arm-linux-gnueabihf-ld: error: drivers/parport/built-in.o uses VFP=
- instructions, whereas drivers/built-in.o does not
-    1    arm-linux-gnueabihf-ld: error: drivers/net/built-in.o uses VFP ins=
-tructions, whereas drivers/built-in.o does not
-    1    arm-linux-gnueabihf-ld: error: drivers/hwmon/built-in.o uses VFP i=
-nstructions, whereas drivers/built-in.o does not
-    1    arm-linux-gnueabihf-ld: error: drivers/char/built-in.o uses VFP in=
-structions, whereas drivers/built-in.o does not
-    1    arm-linux-gnueabihf-ld: error: drivers/block/built-in.o uses VFP i=
-nstructions, whereas drivers/built-in.o does not
-    1    arm-linux-gnueabihf-ld: error: drivers/base/built-in.o uses VFP in=
-structions, whereas drivers/built-in.o does not
+    8    expr: syntax error: unexpected argument =E2=80=980xffffffff8000000=
+0=E2=80=99
 
 Warnings summary:
 
-    7    ld: warning: creating DT_TEXTREL in a PIE
-    7    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
-    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
-d-only section `.head.text'
-    4    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic s=
-uffix given and no register operands; using default for `sysret'
-    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
-d-only section `.head.text'
-    3    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
-    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    2    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c2=
-4xx_uart_dt_match=E2=80=99 assumed to have one element
-    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpi=
-o_match=E2=80=99 assumed to have one element
+    2    net/mac80211/mlme.c:4377:1: warning: the frame size of 1200 bytes =
+is larger than 1024 bytes [-Wframe-larger-than=3D]
+    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    1    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_devic=
+e_reg): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expec=
+ted "0,0"
+    1    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' i=
+s unknown, fallback to ''
 
 Section mismatches summary:
 
-    8    WARNING: modpost: Found 1 section mismatch(es).
+    1    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): S=
+ection mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to=
+ the function .init.text:ixp4xx_irq_init()
+    1    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0):=
+ Section mismatch in reference from the variable __ksymtab_prom_init_numa_m=
+emory to the function .init.text:prom_init_numa_memory()
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -309,55 +152,28 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-acs5k_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
-n mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
- has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
-mismatches
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
 
 Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_device_reg=
+): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expected "=
+0,0"
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
 allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sectio=
-n mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
@@ -386,16 +202,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-at91_dt_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 sec=
+at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/media/v4l2-core/bu=
-ilt-in.o has EABI version 5, but target drivers/media/built-in.o has EABI v=
-ersion 0
-    arm-linux-gnueabihf-ld: error: source object drivers/media/platform/bui=
-lt-in.o has EABI version 5, but target drivers/media/built-in.o has EABI ve=
-rsion 0
 
 ---------------------------------------------------------------------------=
 -----
@@ -404,8 +212,8 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -439,39 +247,17 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
 capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings,=
+ 0 section mismatches
 
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -480,12 +266,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
-ion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
- has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -514,6 +296,16 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
 davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
@@ -524,33 +316,42 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings,=
+ 0 section mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
 decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
 defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
 ---------------------------------------------------------------------------=
 -----
 defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
 ings, 0 section mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
 ---------------------------------------------------------------------------=
 -----
-dove_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
- mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
- has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -559,53 +360,13 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ebsa110_defconfig (arm, gcc-10) =E2=80=94 FAIL, 9 errors, 0 warnings, 0 sec=
-tion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: drivers/tty/built-in.o uses VFP instruct=
-ions, whereas drivers/built-in.o does not
-    arm-linux-gnueabihf-ld: error: drivers/char/built-in.o uses VFP instruc=
-tions, whereas drivers/built-in.o does not
-    arm-linux-gnueabihf-ld: error: drivers/parport/built-in.o uses VFP inst=
-ructions, whereas drivers/built-in.o does not
-    arm-linux-gnueabihf-ld: error: drivers/base/built-in.o uses VFP instruc=
-tions, whereas drivers/built-in.o does not
-    arm-linux-gnueabihf-ld: error: drivers/block/built-in.o uses VFP instru=
-ctions, whereas drivers/built-in.o does not
-    arm-linux-gnueabihf-ld: error: drivers/net/built-in.o uses VFP instruct=
-ions, whereas drivers/built-in.o does not
-    arm-linux-gnueabihf-ld: error: drivers/rtc/built-in.o uses VFP instruct=
-ions, whereas drivers/built-in.o does not
-    arm-linux-gnueabihf-ld: error: drivers/hwmon/built-in.o uses VFP instru=
-ctions, whereas drivers/built-in.o does not
-    arm-linux-gnueabihf-ld: error: drivers/watchdog/built-in.o uses VFP ins=
-tructions, whereas drivers/built-in.o does not
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
-on mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
+exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -614,17 +375,13 @@ ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-footbridge_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
-ection mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: drivers/gpu/vga/built-in.o uses VFP inst=
-ructions, whereas drivers/gpu/built-in.o does not
+gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -638,13 +395,18 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -653,20 +415,13 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -675,55 +430,18 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 3 errors, 0 warnings, 0 s=
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/cirru=
-s/built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o=
- has EABI version 0
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/frees=
-cale/built-in.o has EABI version 5, but target drivers/net/ethernet/built-i=
-n.o has EABI version 0
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
 
 ---------------------------------------------------------------------------=
 -----
-integrator_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
-ection mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
- has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-iop13xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: drivers/gpu/vga/built-in.o uses VFP inst=
-ructions, whereas drivers/gpu/built-in.o does not
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
-on mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: drivers/gpu/vga/built-in.o uses VFP inst=
-ructions, whereas drivers/gpu/built-in.o does not
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
-on mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: drivers/gpu/vga/built-in.o uses VFP inst=
-ructions, whereas drivers/gpu/built-in.o does not
 
 ---------------------------------------------------------------------------=
 -----
@@ -742,17 +460,22 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
-ixp4xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
-on mismatches
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
- has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Sectio=
+n mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to the =
+function .init.text:ixp4xx_irq_init()
 
 ---------------------------------------------------------------------------=
 -----
@@ -771,36 +494,21 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-keystone_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
- has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
-on mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
- has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+Warnings:
+    net/mac80211/mlme.c:4377:1: warning: the frame size of 1200 bytes is la=
+rger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -814,8 +522,30 @@ loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+loongson2k_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+Warnings:
+    net/mac80211/mlme.c:4377:1: warning: the frame size of 1200 bytes is la=
+rger than 1024 bytes [-Wframe-larger-than=3D]
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_prom_init_numa_memory=
+ to the function .init.text:prom_init_numa_memory()
 
 ---------------------------------------------------------------------------=
 -----
@@ -829,12 +559,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lpd270_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
-on mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/smsc/built-in.o use=
-s VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -848,12 +574,8 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mainstone_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
-ction mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/smsc/built-in.o use=
-s VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -867,12 +589,7 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
-gs, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnin=
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
 gs, 0 section mismatches
 
 ---------------------------------------------------------------------------=
@@ -902,32 +619,23 @@ maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 
 ---------------------------------------------------------------------------=
 -----
-markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
+mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mmp2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
- mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
+moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -941,21 +649,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
-Warnings:
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
 
 ---------------------------------------------------------------------------=
 -----
@@ -964,16 +659,8 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 se=
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/media/v4l2-core/bu=
-ilt-in.o has EABI version 5, but target drivers/media/built-in.o has EABI v=
-ersion 0
-    arm-linux-gnueabihf-ld: error: source object drivers/media/platform/bui=
-lt-in.o has EABI version 5, but target drivers/media/built-in.o has EABI ve=
-rsion 0
 
 ---------------------------------------------------------------------------=
 -----
@@ -982,30 +669,13 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mv78xx0_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
-ion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
- has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
-tion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
- has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
-tion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
- has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1019,50 +689,32 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-netwinder_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
-ction mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: drivers/gpu/vga/built-in.o uses VFP inst=
-ructions, whereas drivers/gpu/built-in.o does not
+netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
-ion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
+nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nommu_k210_sdcard_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 war=
+nings, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1076,32 +728,8 @@ s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
-
-Warnings:
-    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpio_mat=
-ch=E2=80=99 assumed to have one element
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1110,13 +738,18 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-orion5x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
-ion mismatches
+omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/marve=
-ll/built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.=
-o has EABI version 0
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1125,80 +758,33 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pcm027_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
-on mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
-
----------------------------------------------------------------------------=
------
 pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pleb_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
- mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/smsc/built-in.o use=
-s VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pxa168_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
-on mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
-ection mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/smsc/built-in.o use=
-s VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pxa3xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
-on mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
-on mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section =
-mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
- has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1212,16 +798,6 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-raumfeld_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
-tion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
-
----------------------------------------------------------------------------=
------
 rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -1232,18 +808,21 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-realview_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
-tion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+
+---------------------------------------------------------------------------=
+-----
+rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1252,28 +831,23 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
-Warnings:
-    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
 s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
 ---------------------------------------------------------------------------=
 -----
 s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -1282,8 +856,17 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
+sama7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, =
+0 section mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -1292,16 +875,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-shmobile_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 se=
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/renes=
-as/built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.=
-o has EABI version 0
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
 
 ---------------------------------------------------------------------------=
 -----
@@ -1310,39 +885,23 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-socfpga_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
-ion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
- has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
+socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-spear13xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/gpu/vga/built-in.o=
- has EABI version 5, but target drivers/gpu/built-in.o has EABI version 0
-
 ---------------------------------------------------------------------------=
 -----
-spear3xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
-tion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/stmicro/built-in.o =
-uses VFP instructions, whereas drivers/net/ethernet/built-in.o does not
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
-tion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: drivers/net/ethernet/stmicro/built-in.o =
-uses VFP instructions, whereas drivers/net/ethernet/built-in.o does not
+spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1356,12 +915,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sunxi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
-n mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/media/rc/built-in.=
-o has EABI version 5, but target drivers/media/built-in.o has EABI version 0
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1385,52 +940,27 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tegra_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 secti=
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/media/v4l2-core/bu=
-ilt-in.o has EABI version 5, but target drivers/media/built-in.o has EABI v=
-ersion 0
-    arm-linux-gnueabihf-ld: error: source object drivers/media/usb/built-in=
-.o has EABI version 5, but target drivers/media/built-in.o has EABI version=
- 0
-
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' is unk=
+nown, fallback to ''
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
-ismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
@@ -1439,21 +969,13 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-u8500_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
-n mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1462,23 +984,13 @@ vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 
 ---------------------------------------------------------------------------=
 -----
-versatile_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 se=
-ction mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
+versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vexpress_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
-tion mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/misc/vexpress-sysc=
-fg.o has EABI version 5, but target drivers/misc/built-in.o has EABI versio=
-n 0
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1487,23 +999,13 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-viper_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
-n mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/smsc/=
-built-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o h=
-as EABI version 0
+viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0=
- section mismatches
-
-Errors:
-    arm-linux-gnueabihf-ld: error: source object drivers/net/ethernet/via/b=
-uilt-in.o has EABI version 5, but target drivers/net/ethernet/built-in.o ha=
-s EABI version 0
+vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1512,35 +1014,13 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 s=
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-5 warnings, 0 section mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+0 warnings, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1549,28 +1029,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
 zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
 
 ---
 For more info write to <info@kernelci.org>
