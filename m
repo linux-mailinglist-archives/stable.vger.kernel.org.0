@@ -2,89 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38720595790
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 12:08:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2FCF5957B7
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 12:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234131AbiHPKIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 06:08:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48284 "EHLO
+        id S234239AbiHPKL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 06:11:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234194AbiHPKHy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 06:07:54 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF23DCE5;
-        Tue, 16 Aug 2022 02:09:57 -0700 (PDT)
-Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        with ESMTP id S234229AbiHPKLb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 06:11:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE1C1AF
+        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 02:18:58 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 9CDC96600363;
-        Tue, 16 Aug 2022 10:09:55 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1660640996;
-        bh=UwVGjoVej6+DPEt5C/pkEjitJeLt0M/cBydSA/bfdQQ=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=AosFn7pt+1QLjDkVNSdhDB41d34g7CimXuprljhvI4FPZzI/laLs4D7OYOoDW36HS
-         dOu6VsOLip5jf3+BQYcKxmFeS00kV++m/EStvYtkOpLTaM7BYTaVP5WknUdN6m9VAs
-         65C0t5G+EYsLoqJhAHp38iC5F/L5ypYw4cFpL4NMifsE8ffzL+P+xNE9AU85EI2Fyu
-         th6t3OcJIFVpGOyBfjYDss2KPSrGNjB7gqMERN7M8eqTqd9QIdRuL7VXjVwnkX2XNd
-         chHsM/k9URQXyEceZkksJXFEm4wbSUA5eG7TGAlnSe6/gKFI54MqHzQcrhBkU94HU/
-         IB/mHt905bmsA==
-Date:   Tue, 16 Aug 2022 11:09:52 +0200
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc:     <miquel.raynal@bootlin.com>, <richard@nod.at>, <vigneshr@ti.com>,
-        <peda@axentia.se>, <nicolas.ferre@microchip.com>,
-        <alexandre.belloni@bootlin.com>, <claudiu.beznea@microchip.com>,
-        <bbrezillon@kernel.org>, <linux-mtd@lists.infradead.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-Subject: Re: [PATCH] mtd: rawnand: atmel: Unmap streaming DMA mappings
-Message-ID: <20220816110952.31cf212b@collabora.com>
-In-Reply-To: <20220728074014.145406-1-tudor.ambarus@microchip.com>
-References: <20220728074014.145406-1-tudor.ambarus@microchip.com>
-Organization: Collabora
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-redhat-linux-gnu)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8DE31B8164E
+        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 09:18:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E37C433D6;
+        Tue, 16 Aug 2022 09:18:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1660641536;
+        bh=Xa9AfoRTxxhqc6hTATW1ddoGYF5KhlPXI13AAnwYmBw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jzh8pFf3WOUqShEMYfNO6Wy/cliCR5E6Wk3Fb2yK42QRWGSQeBw/aDtGRlQRrki+U
+         ug8TaCvqDoA3jb6b4z264CH0iCINwvkZEVHPNPRn77q4eYOfFoKZRUL73pH4otKive
+         uVAWyBmehDTtbkV6FTrbmDBjprrUrewasqntZaoI=
+Date:   Tue, 16 Aug 2022 11:18:52 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Cc:     stable@vger.kernel.org, paul.gortmaker@windriver.com,
+        peterz@infradead.org, bp@suse.de, jpoimboe@kernel.org
+Subject: Re: [PATCH 1/3] Revert "x86/ftrace: Use alternative RET encoding"
+Message-ID: <Yvtg/BOAKHQdU0V6@kroah.com>
+References: <20220816041224.GE73154@windriver.com>
+ <20220816082658.172387-1-cascardo@canonical.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220816082658.172387-1-cascardo@canonical.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 28 Jul 2022 10:40:14 +0300
-Tudor Ambarus <tudor.ambarus@microchip.com> wrote:
-
-> Every dma_map_single() call should have its dma_unmap_single() counterpart,
-> because the DMA address space is a shared resource and one could render the
-> machine unusable by consuming all DMA addresses.
+On Tue, Aug 16, 2022 at 05:26:56AM -0300, Thadeu Lima de Souza Cascardo wrote:
+> This reverts commit 3af2ebf798c52b20de827b9dfec13472ab4a7964.
 > 
-> Cc: stable@vger.kernel.org
-> Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
-> Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-
+> This temporarily reverts the backport of upstream commit
+> 1f001e9da6bbf482311e45e48f53c2bd2179e59c. It was not correct to copy the
+> ftrace stub as it would contain a relative jump to the return thunk which
+> would not apply to the context where it was being copied to, leading to
+> ftrace support to be broken.
+> 
+> Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 > ---
->  drivers/mtd/nand/raw/atmel/nand-controller.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/mtd/nand/raw/atmel/nand-controller.c b/drivers/mtd/nand/raw/atmel/nand-controller.c
-> index 6ef14442c71a..330d2dafdd2d 100644
-> --- a/drivers/mtd/nand/raw/atmel/nand-controller.c
-> +++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
-> @@ -405,6 +405,7 @@ static int atmel_nand_dma_transfer(struct atmel_nand_controller *nc,
->  
->  	dma_async_issue_pending(nc->dmac);
->  	wait_for_completion(&finished);
-> +	dma_unmap_single(nc->dev, buf_dma, len, dir);
->  
->  	return 0;
->  
+>  arch/x86/kernel/ftrace.c | 7 ++-----
+>  1 file changed, 2 insertions(+), 5 deletions(-)
 
+What stable tree(s) is this to be for?
+
+Context is everything :)
+
+thanks,
+
+greg k-h
