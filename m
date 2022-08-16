@@ -2,109 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA4BA595BAC
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 14:21:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B737C595BC3
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 14:29:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229437AbiHPMV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 08:21:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55408 "EHLO
+        id S230015AbiHPM3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 08:29:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229652AbiHPMVX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 08:21:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672A917E02;
-        Tue, 16 Aug 2022 05:21:21 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EEBED61199;
-        Tue, 16 Aug 2022 12:21:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9308C433D6;
-        Tue, 16 Aug 2022 12:21:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660652480;
-        bh=nCo2keX/vyktzHEJfYoLil0f7n5O9MU+p9hriBKmC5s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yZ5MGtCcdgbtb9ZSlur+uIBmF1K2Fu41wGpSbGxUumldS4WPhpUY6m6JZpI5DfD3j
-         J4FNVYdmcPyaAxwKkBpaIKLq1Ms/ht5SeBieCZ/2bBwJoWJD6xjFk7+ZknRnErkyWn
-         /t4O1sQxQGL8W4kU9mCHtj6mfEloD1Uy03n8w894=
-Date:   Tue, 16 Aug 2022 14:21:17 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com, Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH 5.15 000/779] 5.15.61-rc1 review
-Message-ID: <YvuLvVXks7JnGPSo@kroah.com>
-References: <20220815180337.130757997@linuxfoundation.org>
- <CA+G9fYuXHvYQkWnDac6T8s9XnP_jctCbV=yEx3Z9EhWko2dPPg@mail.gmail.com>
- <20220816084703.nbciiu63x4dgulwc@pali>
+        with ESMTP id S231788AbiHPM3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 08:29:03 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7BB77694D;
+        Tue, 16 Aug 2022 05:29:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=WRFrEjFxGdFkqA9SdI0feTAquv3GxGRi4A+yj2xL3D4=; b=qZqvj+IP94gLkHbyb+RHonL8CS
+        HzJSE9cVbgrNYrex+Y7nMaL3qpckeManiGEzmHu1DdNFI/Cg+3QJmQwGdJ5w46kJYW9cOR4Z/Ycva
+        EPVCCvj0HEJuH6A6IHPSdRBgsjMtZFE+zG6uqwPxke+Fe1W09ZqcGvobDmQuIQg//3jNWSqhd9tTj
+        G1Ch5a8FGuNeUlIxigJv1u/7dhV+M2Zj+qkk/e5S4RLNybypWgkTBzSRDLDWZP7GhGyT4FS6JMpXh
+        JDIKbk/Qk3eJQBKcF94oHW1x4XPSGxMVWwuzrcMo/JKNbeGmQeQgG6YrRfsxHm/czfljglqvqvH9v
+        qk4X9IpQ==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=worktop.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1oNvgU-002xO9-4C; Tue, 16 Aug 2022 12:28:38 +0000
+Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 9F175980120; Tue, 16 Aug 2022 14:28:36 +0200 (CEST)
+Date:   Tue, 16 Aug 2022 14:28:36 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andrew Cooper <Andrew.Cooper3@citrix.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
+        Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [PATCH] x86/nospec: Unwreck the RSB stuffing
+Message-ID: <YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net>
+References: <20220809175513.345597655@linuxfoundation.org>
+ <20220809175513.979067723@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220816084703.nbciiu63x4dgulwc@pali>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220809175513.979067723@linuxfoundation.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 16, 2022 at 10:47:03AM +0200, Pali Rohár wrote:
-> On Tuesday 16 August 2022 14:11:45 Naresh Kamboju wrote:
-> > On Mon, 15 Aug 2022 at 23:44, Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > This is the start of the stable review cycle for the 5.15.61 release.
-> > > There are 779 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > >
-> > > Responses should be made by Wed, 17 Aug 2022 18:01:29 +0000.
-> > > Anything received after that time might be too late.
-> > >
-> > > The whole patch series can be found in one patch at:
-> > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.61-rc1.gz
-> > > or in the git tree and branch at:
-> > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> > > and the diffstat can be found below.
-> > >
-> > > thanks,
-> > >
-> > > greg k-h
-> > 
-> > The powerpc defconfig failed on stable-rc 5.15.
-> > 
-> > * powerpc, build
-> >   - gcc-10-ppc6xx_defconfig
-> >   - gcc-11-ppc6xx_defconfig
-> >   - gcc-8-ppc6xx_defconfig
-> >   - gcc-9-ppc6xx_defconfig
-> > 
-> > arch/powerpc/sysdev/fsl_pci.c: In function 'fsl_add_bridge':
-> > arch/powerpc/sysdev/fsl_pci.c:601:39: error:
-> > 'PCI_CLASS_BRIDGE_PCI_NORMAL' undeclared (first use in this function);
-> > did you mean 'PCI_CLASS_BRIDGE_PCI'?
-> >   601 |                         class_code |= PCI_CLASS_BRIDGE_PCI_NORMAL << 8;
-> >       |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-> >       |                                       PCI_CLASS_BRIDGE_PCI
-> > arch/powerpc/sysdev/fsl_pci.c:601:39: note: each undeclared identifier
-> > is reported only once for each function it appears in
-> > make[3]: *** [scripts/Makefile.build:289: arch/powerpc/sysdev/fsl_pci.o] Error 1
-> 
-> Hello, this is probably because of missing PCI_CLASS_BRIDGE_PCI_NORMAL
-> define which was added in this change:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/diff/include/linux/pci_ids.h?id=904b10fb189cc15376e9bfce1ef0282e68b0b004
 
-I've taken that portion of the commit in the tree now, thanks.
+Replying here, because obviously there's no actual posting of this
+patch... :/
 
-greg k-h
+> --- a/arch/x86/include/asm/nospec-branch.h
+> +++ b/arch/x86/include/asm/nospec-branch.h
+> @@ -118,13 +118,28 @@
+>  #endif
+>  .endm
+>  
+> +.macro ISSUE_UNBALANCED_RET_GUARD
+> +	ANNOTATE_INTRA_FUNCTION_CALL
+> +	call .Lunbalanced_ret_guard_\@
+> +	int3
+> +.Lunbalanced_ret_guard_\@:
+> +	add $(BITS_PER_LONG/8), %_ASM_SP
+> +	lfence
+> +.endm
+> +
+>   /*
+>    * A simpler FILL_RETURN_BUFFER macro. Don't make people use the CPP
+>    * monstrosity above, manually.
+>    */
+> -.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req
+> +.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2
+> +.ifb \ftr2
+>  	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
+> +.else
+> +	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", "", \ftr, "jmp .Lunbalanced_\@", \ftr2
+> +.endif
+>  	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
+> +.Lunbalanced_\@:
+> +	ISSUE_UNBALANCED_RET_GUARD
+>  .Lskip_rsb_\@:
+>  .endm
+
+(/me deletes all the swear words and starts over)
+
+This must absolutely be the most horrible patch you could come up with,
+no? I suppose that's the price of me taking PTO :-(
+
+Could you please test this; I've only compiled it.
+
+---
+Subject: x86/nospec: Unwreck the RSB stuffing
+
+Commit 2b1299322016 ("x86/speculation: Add RSB VM Exit protections")
+made a right mess of the RSB stuffing, rewrite the whole thing to not
+suck.
+
+Thanks to Andrew for the enlightening comment about Post-Barrier RSB
+things so we can make this code less magical.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ cpufeatures.h   |    2 +
+ nospec-branch.h |   80 +++++++++++++++++++++++++++-----------------------------
+ 2 files changed, 41 insertions(+), 41 deletions(-)
+
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index 235dc85c91c3..1a31ae6d758b 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -420,6 +420,8 @@
+ #define X86_FEATURE_V_TSC_AUX		(19*32+ 9) /* "" Virtual TSC_AUX */
+ #define X86_FEATURE_SME_COHERENT	(19*32+10) /* "" AMD hardware-enforced cache coherency */
+ 
++#define X86_FEATURE_NEVER		(-1) /* "" Logical complement of ALWAYS */
++
+ /*
+  * BUG word(s)
+  */
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index e64fd20778b6..336f8e8cebf8 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -35,33 +35,44 @@
+ #define RSB_CLEAR_LOOPS		32	/* To forcibly overwrite all entries */
+ 
+ /*
++ * Common helper for __FILL_RETURN_BUFFER and __FILL_ONE_RETURN.
++ */
++#define __FILL_RETURN_SLOT			\
++	ANNOTATE_INTRA_FUNCTION_CALL;		\
++	call	772f;				\
++	int3;					\
++772:
++
++/*
++ * Stuff the entire RSB.
++ *
+  * Google experimented with loop-unrolling and this turned out to be
+  * the optimal version - two calls, each with their own speculation
+  * trap should their return address end up getting used, in a loop.
+  */
+-#define __FILL_RETURN_BUFFER(reg, nr, sp)	\
+-	mov	$(nr/2), reg;			\
+-771:						\
+-	ANNOTATE_INTRA_FUNCTION_CALL;		\
+-	call	772f;				\
+-773:	/* speculation trap */			\
+-	UNWIND_HINT_EMPTY;			\
+-	pause;					\
+-	lfence;					\
+-	jmp	773b;				\
+-772:						\
+-	ANNOTATE_INTRA_FUNCTION_CALL;		\
+-	call	774f;				\
+-775:	/* speculation trap */			\
+-	UNWIND_HINT_EMPTY;			\
+-	pause;					\
+-	lfence;					\
+-	jmp	775b;				\
+-774:						\
+-	add	$(BITS_PER_LONG/8) * 2, sp;	\
+-	dec	reg;				\
+-	jnz	771b;				\
+-	/* barrier for jnz misprediction */	\
++#define __FILL_RETURN_BUFFER(reg, nr)			\
++	mov	$(nr/2), reg;				\
++771:							\
++	__FILL_RETURN_SLOT				\
++	__FILL_RETURN_SLOT				\
++	add	$(BITS_PER_LONG/8) * 2, %_ASM_SP;	\
++	dec	reg;					\
++	jnz	771b;					\
++	/* barrier for jnz misprediction */		\
++	lfence;
++
++/*
++ * Stuff a single RSB slot.
++ *
++ * To mitigate Post-Barrier RSB speculation, one CALL instruction must be
++ * forced to retire before letting a RET instruction execute.
++ *
++ * On PBRSB-vulnerable CPUs, it is not safe for a RET to be executed
++ * before this point.
++ */
++#define __FILL_ONE_RETURN				\
++	__FILL_RETURN_SLOT				\
++	add	$(BITS_PER_LONG/8), %_ASM_SP;		\
+ 	lfence;
+ 
+ #ifdef __ASSEMBLY__
+@@ -132,28 +143,15 @@
+ #endif
+ .endm
+ 
+-.macro ISSUE_UNBALANCED_RET_GUARD
+-	ANNOTATE_INTRA_FUNCTION_CALL
+-	call .Lunbalanced_ret_guard_\@
+-	int3
+-.Lunbalanced_ret_guard_\@:
+-	add $(BITS_PER_LONG/8), %_ASM_SP
+-	lfence
+-.endm
+-
+  /*
+   * A simpler FILL_RETURN_BUFFER macro. Don't make people use the CPP
+   * monstrosity above, manually.
+   */
+-.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2
+-.ifb \ftr2
+-	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
+-.else
+-	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", "", \ftr, "jmp .Lunbalanced_\@", \ftr2
+-.endif
+-	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
+-.Lunbalanced_\@:
+-	ISSUE_UNBALANCED_RET_GUARD
++.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2=X86_FEATURE_NEVER
++	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", \
++		__stringify(__FILL_RETURN_BUFFER(\reg,\nr)), \ftr, \
++		__stringify(__FILL_ONE_RETURN), \ftr2
++
+ .Lskip_rsb_\@:
+ .endm
+ 
