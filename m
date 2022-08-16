@@ -2,122 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A4CF595778
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 12:04:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46E605957CD
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 12:15:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233995AbiHPKEe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 06:04:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43978 "EHLO
+        id S230371AbiHPKPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 06:15:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231441AbiHPKDu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 06:03:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E48261322FB
-        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 01:27:28 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S233916AbiHPKO7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 06:14:59 -0400
+Received: from mail.marcansoft.com (marcansoft.com [212.63.210.85])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 181FF5A2C4;
+        Tue, 16 Aug 2022 01:01:49 -0700 (PDT)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A577B81648
-        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 08:27:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D097AC433C1;
-        Tue, 16 Aug 2022 08:27:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660638446;
-        bh=hFU6NOKybRE/gOpJ9qySCsLauYLBdjGFzKD6Nk9RpAw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Fl9ddYrjCuoBGHkHyUPARNwhVyoBODGNzuB2rfttZ/bp9AFLRjd6TL3fZgzjLl3lE
-         ShNnFwE3SeHBWJ/7VnaXy7kHNqCTbk+9vMiu4OTHJhJqbZIu0SSaNus5EU7wBkkZe/
-         sAy+pzz9hx3VBlQrw8nfEPyaSb+K7l8PzXNR4LMM=
-Date:   Tue, 16 Aug 2022 09:59:57 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Coiby Xu <coxu@redhat.com>
-Cc:     bhe@redhat.com, msuchanek@suse.de, will@kernel.org,
-        zohar@linux.ibm.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] arm64: kexec_file: use more system
- keyrings to verify kernel" failed to apply to 5.19-stable tree
-Message-ID: <YvtOfWDg2SXdcqgL@kroah.com>
-References: <166057758347124@kroah.com>
- <20220816063256.qzc6jh744i2zc6ou@Rk>
+        (Authenticated sender: marcan@marcan.st)
+        by mail.marcansoft.com (Postfix) with ESMTPSA id 8E23941A42;
+        Tue, 16 Aug 2022 08:01:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=marcan.st; s=default;
+        t=1660636907; bh=hdO0VK1BgxthiOSTlr+e1eaO5dfWp+h7FMXRza4Hsq4=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To;
+        b=DaLeUy6iahjaMjN9JrVNc57ZozIWEObhc79ETbuWH6F4g2xflaB0R2I9U12Ei7s5z
+         c2ZH7+UHYhXpQJr/ul4lQrS49JpL1YF7DD9LwwdH4J5nC8ZbMlz2YlPqtjkybNBjIs
+         NsSOqPqMrknOup3Ju2HGcGoQYJ2pptLHhZNC0aP439quZj3TRIADaHsix5DBPMXU53
+         ELmGSpq3U830ZMod7U3u/QdZK09aGS4ZGkyip3lnTzJPuVW6UtzLV26E3hyR39MfK1
+         RBnjaozfwBmzm+dzR+FXJ11o1uU1z/E9CG2t1asjvQoCksdVzIj+wetB8Lw79d7aAV
+         eol3iUbS6rPYQ==
+Message-ID: <0c0ba856-a4ba-7133-e751-3a81c82311a9@marcan.st>
+Date:   Tue, 16 Aug 2022 17:01:39 +0900
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220816063256.qzc6jh744i2zc6ou@Rk>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.12.0
+Subject: Re: [PATCH] workqueue: Fix memory ordering race in queue_work*()
+Content-Language: en-US
+To:     Herbert Xu <herbert@gondor.apana.org.au>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Will Deacon <will@kernel.org>, Tejun Heo <tj@kernel.org>,
+        peterz@infradead.org, jirislaby@kernel.org, maz@kernel.org,
+        mark.rutland@arm.com, boqun.feng@gmail.com,
+        catalin.marinas@arm.com, oneukum@suse.com,
+        roman.penyaev@profitbricks.com, asahi@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <YvqaK3hxix9AaQBO@slm.duckdns.org>
+ <YvsZ6vObgLaDeSZk@gondor.apana.org.au>
+ <CAHk-=wgSNiT5qJX53RHtWECsUiFq6d6VWYNAvu71ViOEan07yw@mail.gmail.com>
+ <cd51b422-89f3-1856-5d3b-d6e5b0029085@marcan.st>
+ <CAHk-=wjfLT7nL8pV8RWATpjgm0zDtUwT8UMtroqnGcXRjN8tgw@mail.gmail.com>
+ <24c88c4f-aea5-1fb7-0ead-95c88629d72b@marcan.st>
+ <YvtLsNZEUUytdx+i@gondor.apana.org.au>
+From:   Hector Martin <marcan@marcan.st>
+In-Reply-To: <YvtLsNZEUUytdx+i@gondor.apana.org.au>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 16, 2022 at 02:32:56PM +0800, Coiby Xu wrote:
-> Hi Greg,
+On 2022/08/16 16:48, Herbert Xu wrote:
+> On Tue, Aug 16, 2022 at 03:28:50PM +0900, Hector Martin wrote:
+>>
+>> This is the same reason I argued queue_work() itself needs to have a
+>> similar guarantee, even when it doesn't queue work (and I updated the
+>> doc to match). If test_and_set_bit() is used in this kind of context
+>> often in the kernel, clearly the current implementation/doc clashes with
+>> that.
 > 
-> Good to see you here:)
+> Kernel code all over the place rely on the fact that test_and_set_bit
+> provides a memory barrier.  So this bug that you've discovered is
+> not at all isolated to the workqeueue system.  It'll break the kernel
+> in lots of places in exactly the same way.
+
+Now I'm surprised this isn't failing all over the place, given that...
+these things are annoyingly subtle.
+
+Still would want Will & Peter to chime in, of course.
+
+>> As I said, I don't have any particular beef in this fight, but this is
+>> horribly broken on M1/2 right now, so I'll send a patch to change the
+>> bitops instead and you all can fight it out over which way is correct :)
 > 
-> On Mon, Aug 15, 2022 at 05:33:03PM +0200, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 5.19-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> > ------------------ original commit in Linus's tree ------------------
-> > 
-> > > From 0d519cadf75184a24313568e7f489a7fc9b1be3b Mon Sep 17 00:00:00 2001
-> > From: Coiby Xu <coxu@redhat.com>
-> > Date: Thu, 14 Jul 2022 21:40:26 +0800
-> > Subject: [PATCH] arm64: kexec_file: use more system keyrings to verify kernel
-> > image signature
-> > 
-> > Currently, when loading a kernel image via the kexec_file_load() system
-> > call, arm64 can only use the .builtin_trusted_keys keyring to verify
-> > a signature whereas x86 can use three more keyrings i.e.
-> > .secondary_trusted_keys, .machine and .platform keyrings. For example,
-> > one resulting problem is kexec'ing a kernel image  would be rejected
-> > with the error "Lockdown: kexec: kexec of unsigned images is restricted;
-> > see man kernel_lockdown.7".
-> > 
-> > This patch set enables arm64 to make use of the same keyrings as x86 to
-> > verify the signature kexec'ed kernel image.
-> > 
-> > Fixes: 732b7b93d849 ("arm64: kexec_file: add kernel signature verification support")
-> > Cc: stable@vger.kernel.org # 105e10e2cf1c: kexec_file: drop weak attribute from functions
+> Please do.
 
-This is not a valid commit id in Linus's tree.
+Already did, but I just realized I forgot to Cc you. Sorry about that,
+hope you can pick it up through the MLs:
 
-> > Cc: stable@vger.kernel.org # 34d5960af253: kexec: clean up arch_kexec_kernel_verify_sig
+https://lore.kernel.org/asahi/20220816070311.89186-1-marcan@marcan.st/T/#u
 
-This is not a valid commit id in Linus's tree
-
-> > Cc: stable@vger.kernel.org # 83b7bb2d49ae: kexec, KEYS: make the code in bzImage64_verify_sig generic
-
-And this too is not a valid commit in Linus's tree.
-
-> 
-> I've added the above three patch prerequisites following [1]. I assume
-> there is a program automatically picking up this patch. But somehow it
-> fails to pick up the prerequisites first. Is it because the commit ids
-> change when the patches are finally applied to Linus's tree?
-
-Where did you get those commit ids from?
-
-> If it's
-> true, how do we make sure the we have the correct commit ids? Note [1]
-> strongly recommends "Cc: stable@vger.kernel.org" to submit patches to
-> stable tree but it seems there is no way to know beforehand the correct
-> commit ids of the prerequisites that are yet to arrive in Linus's tree.
-
-Hopefully the git ids can be stable when they are merged to a
-maintainer's tree.  If not, then you can respond to this "failed" email
-with the full series of what needs to be done here, as I have no idea :(
-
-thanks,
-
-greg k-h
+- Hector
