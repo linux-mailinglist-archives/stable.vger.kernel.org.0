@@ -2,175 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DD11596086
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 18:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1771A596088
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 18:44:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236604AbiHPQnt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 12:43:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47836 "EHLO
+        id S235958AbiHPQn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 12:43:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236658AbiHPQnc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 12:43:32 -0400
-Received: from mail-yw1-x1136.google.com (mail-yw1-x1136.google.com [IPv6:2607:f8b0:4864:20::1136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97CD580F7B
-        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 09:43:24 -0700 (PDT)
-Received: by mail-yw1-x1136.google.com with SMTP id 00721157ae682-3321c2a8d4cso113286517b3.5
-        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 09:43:24 -0700 (PDT)
+        with ESMTP id S236606AbiHPQnu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 12:43:50 -0400
+Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83C751D0CF;
+        Tue, 16 Aug 2022 09:43:48 -0700 (PDT)
+Received: by mail-qt1-x832.google.com with SMTP id cr9so8539118qtb.13;
+        Tue, 16 Aug 2022 09:43:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=FOpQGOCCCOeHXcTTEf2Jf8cH6crBmZD9kljFNdM3FZI=;
-        b=MTj13ZQOudsv0Y/McakJDk6R1ExbHgwbtUeK89PeymxtSWo3zoC/Q+XY5F0T9OgxhA
-         CzABOs9R7GE90wClbCdVOrcM6GRfOKwq+0a/5wfHvjtt6DYvaF1PRFQQ3M062sfAtwI4
-         8UnQAo38spsmsPCYWMBFEbqgijBH+I/eJMfioC6BVTs7FJi2en4QOqZKHDlWzdImDdH+
-         J6IVV754BSXjX/oT6ElqiIjwORuzURt2RgAmqdA3R9RHomDzCMQf2wRPzE28XTQv2ajt
-         bB05KJTL9nz58MGwokLqh0fOH7HYqUj+tJgv4ZQMpboYpqVIKxfZcJykgQQFCFG6VrxU
-         vPoA==
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:feedback-id:from:to:cc;
+        bh=mNYcXw+6OCOLZbXQYQLHUSCGDuExOybfRt9j3BD47FU=;
+        b=aljcIgx1vNs0ATxiQdCFDhTpfP9ZFju0rrLyUBnoV3bDPwfudWuoUYpC2HNOOxcpOW
+         5JJgy89zTmFNB9LOwjHKS3u5SSM9lH1RIu717MOEHaHRG+4VN4V7qZNHea275SPDcIJu
+         tsZ/I64X+JBB/62fLVT0ABJ0yPYkZ1krvAwQgxHhKkw9ifT5fgN/7Va3ieSOvXfeoxb0
+         elYiC6vjxEBSGElh8nSOhJ28bPGL49cf4xUF4uk0IaTrIFJZB6wVtzCr16M6549jPu9c
+         3gW8jTj0VE5UqnDmloR3GDbd5h85fCLloxNxe6v2q/bIjyuKf2RxzEb1IwrlD4f5svW6
+         F6yA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=FOpQGOCCCOeHXcTTEf2Jf8cH6crBmZD9kljFNdM3FZI=;
-        b=vZFnwy5DCV6hgQ+2ZlCD/eS25FzleLdaYOrqXgqykrA+jFYjGwTc8ex7GtTDXeXvNY
-         cLYTx9724c7eGe0uKN/MXIfumw5r3whug1MLYR3q/xKg1xvAayemdxFfoio/oGqMxNdH
-         T7rRnu7NpqpDICNqT6rCnQ/aQiW0cHNHOBC6fRXeN5pDYePYlVaMnKHKVXrWLmIbyrX9
-         vB0g7pXAWMILtYXZs2YmY4GGACjBMrYRxkjfb0oICoTJ+IeaIf5I6xIMpC+Ig2Lcc18P
-         TvRsedcQadP4z93lY3dZtMBEOWtD6aPMRXvL/lPk6BU35vYy22D3Fh0nX+s4Iw/pKloh
-         E2JA==
-X-Gm-Message-State: ACgBeo26vL4XkxBKIuyMf6VFllmqVJaamauYv9eVrDqv1dVgs0WmLZq4
-        mbp6ZF1gfXjiGE0RVDR1EWcL16EmS3QHYd2ng2XipQ==
-X-Google-Smtp-Source: AA6agR4FvwhB43vbINiId5VrN/UidMBLEc0XDLd20dewxucrXu77Ob4LcptLKymiABwR4E47RjbNq3rfNRF4Q3GtxXE=
-X-Received: by 2002:a81:500a:0:b0:333:9bcd:8a41 with SMTP id
- e10-20020a81500a000000b003339bcd8a41mr2849801ywb.4.1660668202873; Tue, 16 Aug
- 2022 09:43:22 -0700 (PDT)
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:feedback-id:x-gm-message-state:from:to:cc;
+        bh=mNYcXw+6OCOLZbXQYQLHUSCGDuExOybfRt9j3BD47FU=;
+        b=eqaTE1Rvn4a1PBisOpcfyuuWO7NvxsDAfs+LAgU0IanBCSuNmPf/WflXueHBePCh4w
+         ldczXocB1XkQ23U5JU47VnItgYURr41FblbmlIzsboCRfatLOKTrs+bQO+Tp6l6sLDN5
+         h6vLQ1Gbx2qPEyhcQ8mdbnVvVqbf6swe2Gz219bL2kyyzgFTCAHczpMEpps1qwyAMYdr
+         LHSAwm0QjfPOg2vwDR28yr1wX78NBcxcuX3yc7nXcg+8SETVzANDjfUJB4hsAc771mMz
+         AaFIEbutjLLHQV8gX2z5FTnjHhMktzYTy7/mtCIhc/PkbcbLh0pL5rVwdz7yu51TAHc2
+         7Xhw==
+X-Gm-Message-State: ACgBeo3wtQPm0rSmRw19yQEdErj4kvdarbNT4xDMdaUiCNyxariSBsJT
+        k6Mgu5Bm9XbV/JwAdzHwGLY=
+X-Google-Smtp-Source: AA6agR61gcjcPiOJhGjgqszCvfHKGTe6Zc79v/Ow7PCU6yxsmHts/AB5J3hc5C/5MLW2gkNnxwixzw==
+X-Received: by 2002:ac8:5853:0:b0:343:7b95:96ff with SMTP id h19-20020ac85853000000b003437b9596ffmr16743248qth.386.1660668227607;
+        Tue, 16 Aug 2022 09:43:47 -0700 (PDT)
+Received: from auth1-smtp.messagingengine.com (auth1-smtp.messagingengine.com. [66.111.4.227])
+        by smtp.gmail.com with ESMTPSA id bp19-20020a05622a1b9300b00342fdc4004fsm10370308qtb.52.2022.08.16.09.43.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Aug 2022 09:43:47 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailauth.nyi.internal (Postfix) with ESMTP id ABA4A27C0071;
+        Tue, 16 Aug 2022 12:43:46 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Tue, 16 Aug 2022 12:43:46 -0400
+X-ME-Sender: <xms:QMn7Ymi77u8mc5cNtjMaIcoeq5Z9nBIcgmQdjqn3GlxyQ58Gqb6wyQ>
+    <xme:QMn7YnBX2-ArQtOOhvROK0N0iXBu7yNrpfUWP1pPcWaNe_meYQCWcXmb0Tv_c0CVp
+    cwUp1ygUc5JOFoEMA>
+X-ME-Received: <xmr:QMn7YuEyk4AHOA32-1jadhzRncOH7mZ6bazoY_doi29KOT9jOgWWYjzFRAwfQA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrvdehgedguddthecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeeuohhq
+    uhhnucfhvghnghcuoegsohhquhhnrdhfvghnghesghhmrghilhdrtghomheqnecuggftrf
+    grthhtvghrnhephedugfduffffteeutddvheeuveelvdfhleelieevtdeguefhgeeuveei
+    udffiedvnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
+    epsghoqhhunhdomhgvshhmthhprghuthhhphgvrhhsohhnrghlihhthidqieelvdeghedt
+    ieegqddujeejkeehheehvddqsghoqhhunhdrfhgvnhhgpeepghhmrghilhdrtghomhesfh
+    higihmvgdrnhgrmhgv
+X-ME-Proxy: <xmx:QMn7YvQ7skirub5snZFKqWO6Mf35wB-D5gt33anTSAtpVVtSBTQ3OA>
+    <xmx:QMn7YjyD9C5I1R2EouUVZYML0qyRGA64IY6bRzoDU3K0U0tSPtr2zA>
+    <xmx:QMn7Yt5kOjBXj4TpZep9v8I2Cl5LUISL806JVrrr3rI1BtYVaB-gow>
+    <xmx:Qsn7YjAzZW9M2HpfjNagMtjfsruOyUzs9pv1eh1doAPe_Buxycacpw>
+Feedback-ID: iad51458e:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 16 Aug 2022 12:43:44 -0400 (EDT)
+Date:   Tue, 16 Aug 2022 09:43:29 -0700
+From:   Boqun Feng <boqun.feng@gmail.com>
+To:     Hector Martin <marcan@marcan.st>
+Cc:     Will Deacon <will@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Tejun Heo <tj@kernel.org>, peterz@infradead.org,
+        jirislaby@kernel.org, maz@kernel.org, mark.rutland@arm.com,
+        catalin.marinas@arm.com, oneukum@suse.com,
+        roman.penyaev@profitbricks.com, asahi@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] workqueue: Fix memory ordering race in queue_work*()
+Message-ID: <YvvJMSGLtIZgP/Qd@boqun-archlinux>
+References: <YvqaK3hxix9AaQBO@slm.duckdns.org>
+ <YvsZ6vObgLaDeSZk@gondor.apana.org.au>
+ <CAHk-=wgSNiT5qJX53RHtWECsUiFq6d6VWYNAvu71ViOEan07yw@mail.gmail.com>
+ <20220816134156.GB11202@willie-the-truck>
+ <YvuvxnfHIRUAuCrD@boqun-archlinux>
+ <74559da4-5cd4-7cc4-0303-ab5f6a8b92ae@marcan.st>
 MIME-Version: 1.0
-References: <20220816163641.2359996-1-elver@google.com>
-In-Reply-To: <20220816163641.2359996-1-elver@google.com>
-From:   Marco Elver <elver@google.com>
-Date:   Tue, 16 Aug 2022 18:42:46 +0200
-Message-ID: <CANpmjNP0TMenugBVCqCYLT4AGCTH80RafcmgQRN7X8SzGjoQ6g@mail.gmail.com>
-Subject: Re: [PATCH 5.19.y] Revert "mm: kfence: apply kmemleak_ignore_phys on
- early allocated pool"
-To:     elver@google.com, stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        kasan-dev@googlegroups.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Yee Lee <yee.lee@mediatek.com>,
-        Max Schulze <max.schulze@online.de>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <74559da4-5cd4-7cc4-0303-ab5f6a8b92ae@marcan.st>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 16 Aug 2022 at 18:37, Marco Elver <elver@google.com> wrote:
->
-> This reverts commit 07313a2b29ed1079eaa7722624544b97b3ead84b.
->
-> Commit 0c24e061196c21d5 ("mm: kmemleak: add rbtree and store physical
-> address for objects allocated with PA") is not yet in 5.19 (but appears
-> in 6.0). Without 0c24e061196c21d5, kmemleak still stores phys objects
-> and non-phys objects in the same tree, and ignoring (instead of freeing)
-> will cause insertions into the kmemleak object tree by the slab
-> post-alloc hook to conflict with the pool object (see comment).
->
-> Reports such as the following would appear on boot, and effectively
-> disable kmemleak:
->
->  | kmemleak: Cannot insert 0xffffff806e24f000 into the object search tree (overlaps existing)
->  | CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.19.0-v8-0815+ #5
->  | Hardware name: Raspberry Pi Compute Module 4 Rev 1.0 (DT)
->  | Call trace:
->  |  dump_backtrace.part.0+0x1dc/0x1ec
->  |  show_stack+0x24/0x80
->  |  dump_stack_lvl+0x8c/0xb8
->  |  dump_stack+0x1c/0x38
->  |  create_object.isra.0+0x490/0x4b0
->  |  kmemleak_alloc+0x3c/0x50
->  |  kmem_cache_alloc+0x2f8/0x450
->  |  __proc_create+0x18c/0x400
->  |  proc_create_reg+0x54/0xd0
->  |  proc_create_seq_private+0x94/0x120
->  |  init_mm_internals+0x1d8/0x248
->  |  kernel_init_freeable+0x188/0x388
->  |  kernel_init+0x30/0x150
->  |  ret_from_fork+0x10/0x20
->  | kmemleak: Kernel memory leak detector disabled
->  | kmemleak: Object 0xffffff806e24d000 (size 2097152):
->  | kmemleak:   comm "swapper", pid 0, jiffies 4294892296
->  | kmemleak:   min_count = -1
->  | kmemleak:   count = 0
->  | kmemleak:   flags = 0x5
->  | kmemleak:   checksum = 0
->  | kmemleak:   backtrace:
->  |      kmemleak_alloc_phys+0x94/0xb0
->  |      memblock_alloc_range_nid+0x1c0/0x20c
->  |      memblock_alloc_internal+0x88/0x100
->  |      memblock_alloc_try_nid+0x148/0x1ac
->  |      kfence_alloc_pool+0x44/0x6c
->  |      mm_init+0x28/0x98
->  |      start_kernel+0x178/0x3e8
->  |      __primary_switched+0xc4/0xcc
->
-> Reported-by: Max Schulze <max.schulze@online.de>
-> Signed-off-by: Marco Elver <elver@google.com>
+On Wed, Aug 17, 2022 at 01:22:09AM +0900, Hector Martin wrote:
+> On 16/08/2022 23.55, Boqun Feng wrote:
+> > On Tue, Aug 16, 2022 at 02:41:57PM +0100, Will Deacon wrote:
+> >> It's worth noting that with the spinlock-based implementation (i.e.
+> >> prior to e986a0d6cb36) then we would have the same problem on
+> >> architectures that implement spinlocks with acquire/release semantics;
+> >> accesses from outside of the critical section can drift in and reorder
+> >> with each other there, so the conversion looked legitimate to me in
+> >> isolation and I vaguely remember going through callers looking for
+> >> potential issues. Alas, I obviously missed this case.
+> >>
+> > 
+> > I just to want to mention that although spinlock-based atomic bitops
+> > don't provide the full barrier in test_and_set_bit(), but they don't
+> > have the problem spotted by Hector, because test_and_set_bit() and
+> > clear_bit() sync with each other via locks:
+> > 
+> > 	test_and_set_bit():
+> > 	  lock(..);
+> > 	  old = *p; // mask is already set by other test_and_set_bit()
+> > 	  *p = old | mask;
+> > 	  unlock(...);
+> > 				clear_bit():
+> > 				  lock(..);
+> > 				  *p ~= mask;
+> > 				  unlock(..);
+> > 
+> > so "having a full barrier before test_and_set_bit()" may not be the
+> > exact thing we need here, as long as a test_and_set_bit() can sync with
+> > a clear_bit() uncondiontally, then the world is safe. For example, we
+> > can make test_and_set_bit() RELEASE, and clear_bit() ACQUIRE on ARM64:
+> > 
+> > 	test_and_set_bit():
+> > 	  atomic_long_fetch_or_release(..); // pair with clear_bit()
+> > 	  				    // guarantee everything is
+> > 					    // observed.
+> > 	  			clear_bit():
+> > 				  atomic_long_fetch_andnot_acquire(..);
+> > 	  
+> > , maybe that's somewhat cheaper than a full barrier implementation.
+> > 
+> > Thoughts? Just to find the exact ordering requirement for bitops.
+> 
+> It's worth pointing out that the workqueue code does *not* pair
+> test_and_set_bit() with clear_bit(). It does an atomic_long_set()
+> instead (and then there are explicit barriers around it, which are
+> expected to pair with the implicit barrier in test_and_set_bit()). If we
+> define test_and_set_bit() to only sync with clear_bit() and not
+> necessarily be a true barrier, that breaks the usage of the workqueue code.
+> 
 
-The discussion is:
+Ah, I miss that, but that means the old spinlock-based atomics are
+totally broken unless spinlock means full barriers on these archs.
 
-Link: https://lore.kernel.org/all/b33b33bc-2d06-1bcd-2df7-43678962b728@online.de/
+But still, if we define test_and_set_bit() as RELEASE atomic instead of 
+a full barrier + atomic, it should work for workqueue, right? Do we
+actually need extra ordering here?
 
-> ---
->  mm/kfence/core.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
->
-> diff --git a/mm/kfence/core.c b/mm/kfence/core.c
-> index 6aff49f6b79e..4b5e5a3d3a63 100644
-> --- a/mm/kfence/core.c
-> +++ b/mm/kfence/core.c
-> @@ -603,6 +603,14 @@ static unsigned long kfence_init_pool(void)
->                 addr += 2 * PAGE_SIZE;
->         }
->
-> +       /*
-> +        * The pool is live and will never be deallocated from this point on.
-> +        * Remove the pool object from the kmemleak object tree, as it would
-> +        * otherwise overlap with allocations returned by kfence_alloc(), which
-> +        * are registered with kmemleak through the slab post-alloc hook.
-> +        */
-> +       kmemleak_free(__kfence_pool);
-> +
->         return 0;
->  }
->
-> @@ -615,16 +623,8 @@ static bool __init kfence_init_pool_early(void)
->
->         addr = kfence_init_pool();
->
-> -       if (!addr) {
-> -               /*
-> -                * The pool is live and will never be deallocated from this point on.
-> -                * Ignore the pool object from the kmemleak phys object tree, as it would
-> -                * otherwise overlap with allocations returned by kfence_alloc(), which
-> -                * are registered with kmemleak through the slab post-alloc hook.
-> -                */
-> -               kmemleak_ignore_phys(__pa(__kfence_pool));
-> +       if (!addr)
->                 return true;
-> -       }
->
->         /*
->          * Only release unprotected pages, and do not try to go back and change
-> --
-> 2.37.1.595.g718a3a8f04-goog
->
+	WRITE_ONCE(*x, 1); // A
+	test_and_set_bit(..); // a full barrier will order A & B
+	WRITE_ONCE(*y, 1); // B
+
+That's something I want to figure out.
+
+Regards,
+Boqun
+> - Hector
