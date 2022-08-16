@@ -2,236 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B737C595BC3
-	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 14:29:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79BB1595BCB
+	for <lists+stable@lfdr.de>; Tue, 16 Aug 2022 14:30:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230015AbiHPM3H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 08:29:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46608 "EHLO
+        id S232977AbiHPMac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 08:30:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231788AbiHPM3D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 08:29:03 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7BB77694D;
-        Tue, 16 Aug 2022 05:29:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=WRFrEjFxGdFkqA9SdI0feTAquv3GxGRi4A+yj2xL3D4=; b=qZqvj+IP94gLkHbyb+RHonL8CS
-        HzJSE9cVbgrNYrex+Y7nMaL3qpckeManiGEzmHu1DdNFI/Cg+3QJmQwGdJ5w46kJYW9cOR4Z/Ycva
-        EPVCCvj0HEJuH6A6IHPSdRBgsjMtZFE+zG6uqwPxke+Fe1W09ZqcGvobDmQuIQg//3jNWSqhd9tTj
-        G1Ch5a8FGuNeUlIxigJv1u/7dhV+M2Zj+qkk/e5S4RLNybypWgkTBzSRDLDWZP7GhGyT4FS6JMpXh
-        JDIKbk/Qk3eJQBKcF94oHW1x4XPSGxMVWwuzrcMo/JKNbeGmQeQgG6YrRfsxHm/czfljglqvqvH9v
-        qk4X9IpQ==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=worktop.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oNvgU-002xO9-4C; Tue, 16 Aug 2022 12:28:38 +0000
-Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 9F175980120; Tue, 16 Aug 2022 14:28:36 +0200 (CEST)
-Date:   Tue, 16 Aug 2022 14:28:36 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Andrew Cooper <Andrew.Cooper3@citrix.com>,
-        Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
-        Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH] x86/nospec: Unwreck the RSB stuffing
-Message-ID: <YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net>
-References: <20220809175513.345597655@linuxfoundation.org>
- <20220809175513.979067723@linuxfoundation.org>
+        with ESMTP id S235413AbiHPMa2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 08:30:28 -0400
+Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC14578593
+        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 05:30:26 -0700 (PDT)
+Received: by mail-il1-x12c.google.com with SMTP id a13so1702368ild.3
+        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 05:30:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=solid-run-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=hfTOgFZQULH3HGjZfVeACZajEiyrHVTnjNgOWYibpaE=;
+        b=uO+dRTgAMmNd3fHUIcqiRK5OLbpDzwLIIw1WOm6XSzHseadwJQvRDZx9EQVgkOmhIT
+         jU6tQJTaqseJy6jOZ8wLd9+i/S1yFw7g1xDOZox4YLQoO0t05HU6azKLDikZTeOdiRtY
+         52OeEIxLIGWo9urVKqH6zTKXEPCftK713RYvvNSD0nZDDuHJNnwUm8W62b1tRJw5OxAx
+         Dfhysyugrt4yKaKlt0zX97iKip9YxK7FKebF9Obu5Nrqj0wCGVgF7bHnxLlcbW86qwqL
+         P7NjzTkgnEyzkpdBgleanNe1JjZEQRj30waCSclse2wcpfdR68xYll/8GRa8gDuoaCUy
+         FIAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=hfTOgFZQULH3HGjZfVeACZajEiyrHVTnjNgOWYibpaE=;
+        b=m2MsB8aezQazdbQ+R/YqgLJ45sESRX4shZLXU/uEvjYeh0SeFojdmZUvPVk5Om8I7J
+         6CngHE7mTD9nUofsDqqHkA6UFuwRnQ1nFeDXc1JSsGrO137LMP0eFAyQlZGMqveE9SkQ
+         yoZqFtIcF28RMjwCZeo7b8p0ITdP6jHuaw8IeUGSHuWHmge2bW8jmJXAz1pJQ001SVA+
+         fiDPfL8ClqZBYtSISOSP3zmAXdxhtvP/8O1DnJWmALfQP1z05Ujt2aFENtWHjqM+QNXY
+         ALmYKvNWAMd7L2SeJZLd92KfUq/aaYnyHX/5r2L3L2oVkTj8WWp07bumTeibM6Xl/hpn
+         5QIQ==
+X-Gm-Message-State: ACgBeo0TqgHJqp7mLy0XMEir1MqHBhVKdgKsZYIGzgk4mkFv/b8wdoZP
+        CRFfGh/i5LpaNuty5wxaXFZlpUPEpMy37LnhZPl1yA==
+X-Google-Smtp-Source: AA6agR5M7NfRT1WSoa03THrtckC+7+nrcf1DtCA6A6ppxF0ZbktJfge+jLZDQjvUx+i+6Y1iC1iOSv9VbXsnD7m5S9Q=
+X-Received: by 2002:a05:6e02:2145:b0:2e4:b2f3:d6fb with SMTP id
+ d5-20020a056e02214500b002e4b2f3d6fbmr7584606ilv.163.1660653026211; Tue, 16
+ Aug 2022 05:30:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220809175513.979067723@linuxfoundation.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+References: <20220816070311.89186-1-marcan@marcan.st> <CAK8P3a03pfrPzjnx1tB5z0HcKnY=JL=y+F8PMQDpc=Bavs3UCA@mail.gmail.com>
+In-Reply-To: <CAK8P3a03pfrPzjnx1tB5z0HcKnY=JL=y+F8PMQDpc=Bavs3UCA@mail.gmail.com>
+From:   Jon Nettleton <jon@solid-run.com>
+Date:   Tue, 16 Aug 2022 14:29:49 +0200
+Message-ID: <CABdtJHvZt=av5YEQvRMtf4-dMFR6JS1jM1Ntj7DMVy5fijvkMw@mail.gmail.com>
+Subject: Re: [PATCH] locking/atomic: Make test_and_*_bit() ordered on failure
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Hector Martin <marcan@marcan.st>, Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        David Howells <dhowells@redhat.com>,
+        Jade Alglave <j.alglave@ucl.ac.uk>,
+        Luc Maranget <luc.maranget@inria.fr>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Akira Yokosawa <akiyks@gmail.com>,
+        Daniel Lustig <dlustig@nvidia.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Jonathan Corbet <corbet@lwn.net>, Tejun Heo <tj@kernel.org>,
+        jirislaby@kernel.org, Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Asahi Linux <asahi@lists.linux.dev>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Aug 16, 2022 at 10:17 AM Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> On Tue, Aug 16, 2022 at 9:03 AM Hector Martin <marcan@marcan.st> wrote:
+> >
+> > These operations are documented as always ordered in
+> > include/asm-generic/bitops/instrumented-atomic.h, and producer-consumer
+> > type use cases where one side needs to ensure a flag is left pending
+> > after some shared data was updated rely on this ordering, even in the
+> > failure case.
+> >
+> > This is the case with the workqueue code, which currently suffers from a
+> > reproducible ordering violation on Apple M1 platforms (which are
+> > notoriously out-of-order) that ends up causing the TTY layer to fail to
+> > deliver data to userspace properly under the right conditions. This
+> > change fixes that bug.
+> >
+> > Change the documentation to restrict the "no order on failure" story to
+> > the _lock() variant (for which it makes sense), and remove the
+> > early-exit from the generic implementation, which is what causes the
+> > missing barrier semantics in that case. Without this, the remaining
+> > atomic op is fully ordered (including on ARM64 LSE, as of recent
+> > versions of the architecture spec).
+> >
+> > Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+> > Cc: stable@vger.kernel.org
+> > Fixes: e986a0d6cb36 ("locking/atomics, asm-generic/bitops/atomic.h: Rewrite using atomic_*() APIs")
+> > Fixes: 61e02392d3c7 ("locking/atomic/bitops: Document and clarify ordering semantics for failed test_and_{}_bit()")
+> > Signed-off-by: Hector Martin <marcan@marcan.st>
+> > ---
+> >  Documentation/atomic_bitops.txt     | 2 +-
+> >  include/asm-generic/bitops/atomic.h | 6 ------
+>
+> I double-checked all the architecture specific implementations to ensure
+> that the asm-generic one is the only one that needs the fix.
+>
+> I assume this gets merged through the locking tree or that Linus picks it up
+> directly, not through my asm-generic tree.
+>
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+>
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
-Replying here, because obviously there's no actual posting of this
-patch... :/
+Testing this patch on pre Armv8.1 specifically Cortex-A72 and
+Cortex-A53 cores I am seeing
+a huge performance drop with this patch applied. Perf is showing
+lock_is_held_type() as the worst offender
+but that could just be the function getting blamed. The most obvious
+indicator of the performance loss is
+ssh throughput.  With the patch I am only able to achieve around
+20MB/s and without the patch I am able
+to transfer around 112MB/s, no other changes.
 
-> --- a/arch/x86/include/asm/nospec-branch.h
-> +++ b/arch/x86/include/asm/nospec-branch.h
-> @@ -118,13 +118,28 @@
->  #endif
->  .endm
->  
-> +.macro ISSUE_UNBALANCED_RET_GUARD
-> +	ANNOTATE_INTRA_FUNCTION_CALL
-> +	call .Lunbalanced_ret_guard_\@
-> +	int3
-> +.Lunbalanced_ret_guard_\@:
-> +	add $(BITS_PER_LONG/8), %_ASM_SP
-> +	lfence
-> +.endm
-> +
->   /*
->    * A simpler FILL_RETURN_BUFFER macro. Don't make people use the CPP
->    * monstrosity above, manually.
->    */
-> -.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req
-> +.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2
-> +.ifb \ftr2
->  	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
-> +.else
-> +	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", "", \ftr, "jmp .Lunbalanced_\@", \ftr2
-> +.endif
->  	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
-> +.Lunbalanced_\@:
-> +	ISSUE_UNBALANCED_RET_GUARD
->  .Lskip_rsb_\@:
->  .endm
+When I have more time I can do some more in depth testing, but for now
+I just wanted to bring this
+issue up so perhaps others can chime in regarding how it performs on
+their hardware.
 
-(/me deletes all the swear words and starts over)
-
-This must absolutely be the most horrible patch you could come up with,
-no? I suppose that's the price of me taking PTO :-(
-
-Could you please test this; I've only compiled it.
-
----
-Subject: x86/nospec: Unwreck the RSB stuffing
-
-Commit 2b1299322016 ("x86/speculation: Add RSB VM Exit protections")
-made a right mess of the RSB stuffing, rewrite the whole thing to not
-suck.
-
-Thanks to Andrew for the enlightening comment about Post-Barrier RSB
-things so we can make this code less magical.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- cpufeatures.h   |    2 +
- nospec-branch.h |   80 +++++++++++++++++++++++++++-----------------------------
- 2 files changed, 41 insertions(+), 41 deletions(-)
-
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index 235dc85c91c3..1a31ae6d758b 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -420,6 +420,8 @@
- #define X86_FEATURE_V_TSC_AUX		(19*32+ 9) /* "" Virtual TSC_AUX */
- #define X86_FEATURE_SME_COHERENT	(19*32+10) /* "" AMD hardware-enforced cache coherency */
- 
-+#define X86_FEATURE_NEVER		(-1) /* "" Logical complement of ALWAYS */
-+
- /*
-  * BUG word(s)
-  */
-diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
-index e64fd20778b6..336f8e8cebf8 100644
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -35,33 +35,44 @@
- #define RSB_CLEAR_LOOPS		32	/* To forcibly overwrite all entries */
- 
- /*
-+ * Common helper for __FILL_RETURN_BUFFER and __FILL_ONE_RETURN.
-+ */
-+#define __FILL_RETURN_SLOT			\
-+	ANNOTATE_INTRA_FUNCTION_CALL;		\
-+	call	772f;				\
-+	int3;					\
-+772:
-+
-+/*
-+ * Stuff the entire RSB.
-+ *
-  * Google experimented with loop-unrolling and this turned out to be
-  * the optimal version - two calls, each with their own speculation
-  * trap should their return address end up getting used, in a loop.
-  */
--#define __FILL_RETURN_BUFFER(reg, nr, sp)	\
--	mov	$(nr/2), reg;			\
--771:						\
--	ANNOTATE_INTRA_FUNCTION_CALL;		\
--	call	772f;				\
--773:	/* speculation trap */			\
--	UNWIND_HINT_EMPTY;			\
--	pause;					\
--	lfence;					\
--	jmp	773b;				\
--772:						\
--	ANNOTATE_INTRA_FUNCTION_CALL;		\
--	call	774f;				\
--775:	/* speculation trap */			\
--	UNWIND_HINT_EMPTY;			\
--	pause;					\
--	lfence;					\
--	jmp	775b;				\
--774:						\
--	add	$(BITS_PER_LONG/8) * 2, sp;	\
--	dec	reg;				\
--	jnz	771b;				\
--	/* barrier for jnz misprediction */	\
-+#define __FILL_RETURN_BUFFER(reg, nr)			\
-+	mov	$(nr/2), reg;				\
-+771:							\
-+	__FILL_RETURN_SLOT				\
-+	__FILL_RETURN_SLOT				\
-+	add	$(BITS_PER_LONG/8) * 2, %_ASM_SP;	\
-+	dec	reg;					\
-+	jnz	771b;					\
-+	/* barrier for jnz misprediction */		\
-+	lfence;
-+
-+/*
-+ * Stuff a single RSB slot.
-+ *
-+ * To mitigate Post-Barrier RSB speculation, one CALL instruction must be
-+ * forced to retire before letting a RET instruction execute.
-+ *
-+ * On PBRSB-vulnerable CPUs, it is not safe for a RET to be executed
-+ * before this point.
-+ */
-+#define __FILL_ONE_RETURN				\
-+	__FILL_RETURN_SLOT				\
-+	add	$(BITS_PER_LONG/8), %_ASM_SP;		\
- 	lfence;
- 
- #ifdef __ASSEMBLY__
-@@ -132,28 +143,15 @@
- #endif
- .endm
- 
--.macro ISSUE_UNBALANCED_RET_GUARD
--	ANNOTATE_INTRA_FUNCTION_CALL
--	call .Lunbalanced_ret_guard_\@
--	int3
--.Lunbalanced_ret_guard_\@:
--	add $(BITS_PER_LONG/8), %_ASM_SP
--	lfence
--.endm
--
-  /*
-   * A simpler FILL_RETURN_BUFFER macro. Don't make people use the CPP
-   * monstrosity above, manually.
-   */
--.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2
--.ifb \ftr2
--	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
--.else
--	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", "", \ftr, "jmp .Lunbalanced_\@", \ftr2
--.endif
--	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
--.Lunbalanced_\@:
--	ISSUE_UNBALANCED_RET_GUARD
-+.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2=X86_FEATURE_NEVER
-+	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", \
-+		__stringify(__FILL_RETURN_BUFFER(\reg,\nr)), \ftr, \
-+		__stringify(__FILL_ONE_RETURN), \ftr2
-+
- .Lskip_rsb_\@:
- .endm
- 
+-Jon
