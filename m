@@ -2,228 +2,246 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 622DD5975AB
+	by mail.lfdr.de (Postfix) with ESMTP id AB7575975AC
 	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 20:25:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240183AbiHQSWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 14:22:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56032 "EHLO
+        id S232824AbiHQSZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 14:25:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238289AbiHQSWN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 14:22:13 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA0E94EDC;
-        Wed, 17 Aug 2022 11:22:12 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id v4so8304474pgi.10;
-        Wed, 17 Aug 2022 11:22:12 -0700 (PDT)
+        with ESMTP id S238247AbiHQSZJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 14:25:09 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A9029AFA3
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 11:25:08 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id f28so12760304pfk.1
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 11:25:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc;
-        bh=PkeCaLGceH5IBmnszFONV3H/6LNIaB2i6lyaNXvFzSA=;
-        b=KisaSFhuM+kJhr1gvCwS1VQWlk379kx9I8JA72Qty/NZpdCzSvJNYuNl79Z31SaZbB
-         oAcOqFVAyFfbdVBlwS93NqJvFYH8H2wYwiMBxHarVae1W/RQonf+1iXuVPZLc7Dc/vk9
-         u5bvx8jPxDKBBO8z+eSgfUoTsb4l0FP5Hpn2vKGFAgQ495Ac8HOaq9C28wwCgkmGUgia
-         xq2R2Qe1kDgWf1zbUIGE1OmggqaJGLBg4ZonyLKnAbNkIBrKVcrLC63Z4n2NO/Ou4Rx7
-         DA+/W3cwNuL9eRLy1NXXmQptuWPQ50UAY05sdoVBoMP8WqVRM4rli7VR0x7RhZIkaBC/
-         Htng==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc;
+        bh=sKINvIimlWedvo7eqp8I6sjyXv0aJvhHm58z5XjOVWo=;
+        b=49m7uyu5UHjUktsaPgPysqYue2+yzISnSGa2Z81KefLtnfmXQZbAHjiU5WxFJwOruA
+         MId5VzZOv7mzgUp/q2uATDb+05QcFwRsBK0UsRaYO8VBv4A+aTz7JSLFVg13CvIOH8y9
+         0PvspyP238E9JK9V7lTlpgtMl1gAol9Xr1bwo0ZGGRdgnAfDCBhDh6vh452cCFTuHBW4
+         HwhY4ZMh0mtKVXgBn1yuByHlMpKRRsJtp/49zEtHsMqAAdhXCBRRcS1OWB8DTfRcW0MO
+         5lGh5PjgwbDkkVTsP8J9dubVQ6KHpA4sZghnXSRfJQsVw3UrGictCDHIP0GFyejbWj+a
+         rJ1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc;
-        bh=PkeCaLGceH5IBmnszFONV3H/6LNIaB2i6lyaNXvFzSA=;
-        b=E0eRitMj8LEMZtYQmT2RlhhP3gOnQrb1FYqCTh+uQO/6/gZg6UKPMzTsFxBVOghtwJ
-         8aYCgxz07rYl1Se0/hnJAoqgOls8Snk08wiqcD8f1YYO7Mg+8CQTnLGTAERVNxZ6z6cN
-         BvmY5woGfrFsjewbplnB8Q3CJKbNPb7j+xjmwVe1NOW6GLxd0E69BuEDcc0bPZd6azB2
-         UtgvVrFxrnz4sNAbh6fqIjYX6SNgOlGpQEhNTcCHOzLmN34h6XAceImqf4h2ItBi8rnG
-         goejAZtdybrMrB1oRyZ1Y4vVR5kANwrpXzweh5r9MP6B7VqF9jsSTgCaFmIJ0tgnEdFg
-         8cmA==
-X-Gm-Message-State: ACgBeo1khnvF3XaHYilqx0Hh/ySoZMMxKrBAfFcsUmSImKL23dcjxmI9
-        Swecsf5bdqDywar+T5VwZfI/e0/0oRuFA69Snmwb3OhUtDY=
-X-Google-Smtp-Source: AA6agR6IRloOvL5yytURJbmUpATvZovHRd8HMT5PoE6pmH6PNSDSNZYsyx7tayRLB3T3eZ3R11eaO9TWuRajTv75sbI=
-X-Received: by 2002:a63:c5:0:b0:40d:d290:24ef with SMTP id 188-20020a6300c5000000b0040dd29024efmr22795007pga.141.1660760531805;
- Wed, 17 Aug 2022 11:22:11 -0700 (PDT)
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc;
+        bh=sKINvIimlWedvo7eqp8I6sjyXv0aJvhHm58z5XjOVWo=;
+        b=gQgI39c+s5eYFplaO3ZdHRG1YO2Ys5NN3riAIwv/v5hh6Felgo52MNxwO5nVfTKp4f
+         UzVGkSGmvXRn30mAL0B+3TSqOMG9I1F+aeqzSFYmXmZc3MCOZcCiGOW7aYgGAbxP8CRJ
+         qjHQhK9EIWWATQ5mIi91hLfLz1K9jIVyQumx1RUEqDdLFgonZQ8wLkj8LXtUdSjXSO7d
+         gYz65PDdneQb+Gyehzu/n1bbnFf8IVKaO7bUFrcnsNoH/BmXmdLuVJUPuoCQ9Pw0XuAT
+         i/pLFVXFxlJLj8/C7EcnekcPXSDCee7q7j8BBIuKNvQuhpVeHdFPWNZYuYPNXVdgYLd4
+         eJdg==
+X-Gm-Message-State: ACgBeo34UGdRiOuzl2scB9QB+dTFSvLHiTCfDZRU4r52eynFAQUo/wqv
+        XGev/VrcxSPVWjSnAaFkhC9gp0YBtGCwGDnp
+X-Google-Smtp-Source: AA6agR7GOZ8swaHXCrLZVFZtgboRsl0TnI7ZPq7ORLYzipc7KOUhMQJtb95OliUky8a6P8veeTF5jg==
+X-Received: by 2002:a63:5359:0:b0:41d:b5a6:23c5 with SMTP id t25-20020a635359000000b0041db5a623c5mr22675356pgl.128.1660760707391;
+        Wed, 17 Aug 2022 11:25:07 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c15-20020a17090a8d0f00b001f1694dafb1sm1844630pjo.44.2022.08.17.11.25.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Aug 2022 11:25:07 -0700 (PDT)
+Message-ID: <62fd3283.170a0220.2ff3a.3011@mx.google.com>
+Date:   Wed, 17 Aug 2022 11:25:07 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-From:   RAJESH DASARI <raajeshdasari@gmail.com>
-Date:   Wed, 17 Aug 2022 21:22:00 +0300
-Message-ID: <CAPXMrf-C5XEUfOJd3GCtgtHOkc8DxDGbLxE5=GFmr+Py0zKxJA@mail.gmail.com>
-Subject: bpf selftest failed in 5.4.210 kernel
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, jean-philippe@linaro.org,
-        df@google.com
-Content-Type: multipart/mixed; boundary="0000000000008efef605e673f16f"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.18
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.18.17-1094-g7c0c8517a5443
+Subject: stable-rc/queue/5.18 baseline: 121 runs,
+ 4 regressions (v5.18.17-1094-g7c0c8517a5443)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---0000000000008efef605e673f16f
-Content-Type: text/plain; charset="UTF-8"
+stable-rc/queue/5.18 baseline: 121 runs, 4 regressions (v5.18.17-1094-g7c0c=
+8517a5443)
 
-Hi ,
+Regressions Summary
+-------------------
 
-We are running bpf selftests on 5.4.210 kernel version and we see that
-test case 11 of  test_align failed. Please find the below error.
+platform           | arch | lab             | compiler | defconfig         =
+ | regressions
+-------------------+------+-----------------+----------+-------------------=
+-+------------
+bcm2835-rpi-b-rev2 | arm  | lab-broonie     | gcc-10   | bcm2835_defconfig =
+ | 1          =
 
-selftests: bpf: test_align
-Test  11: pointer variable subtraction ... Failed to find match 16:
-R5_w=pkt(id=2,off=0,r=0,umin_value=2,umax_value=1082,var_off=(0x2;
-0xfffffffc)
-# func#0 @0
-# 0: R1=ctx(id=0,off=0,imm=0) R10=fp0
-# 0: (61) r2 = *(u32 *)(r1 +76)
-# 1: R1=ctx(id=0,off=0,imm=0) R2_w=pkt(id=0,off=0,r=0,imm=0) R10=fp0
-# 1: (61) r3 = *(u32 *)(r1 +80)
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | multi_v7_defconfig=
+ | 1          =
 
-For complete errors please see the attached file. The same test case
-execution was successful in the 5.4.209 version , could you please let
-me know any known issue with the recent changes in 5.4.210 and how to
-fix these errors.
+panda              | arm  | lab-baylibre    | gcc-10   | multi_v7_defconfig=
+ | 1          =
+
+rk3288-veyron-jaq  | arm  | lab-collabora   | gcc-10   | multi_v7_defconfig=
+ | 1          =
 
 
-Thanks,
-Rajesh Dasari.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.18/ker=
+nel/v5.18.17-1094-g7c0c8517a5443/plan/baseline/
 
---0000000000008efef605e673f16f
-Content-Type: application/octet-stream; name=test_align_bpf_error
-Content-Disposition: attachment; filename=test_align_bpf_error
-Content-Transfer-Encoding: base64
-Content-ID: <f_l6xxwucv0>
-X-Attachment-Id: f_l6xxwucv0
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.18
+  Describe: v5.18.17-1094-g7c0c8517a5443
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7c0c8517a54431dd06c887bdf31c7975fa93a74f =
 
-c2VsZnRlc3RzOiBicGY6IHRlc3RfYWxpZ24KVGVzdCAgMTE6IHBvaW50ZXIgdmFyaWFibGUgc3Vi
-dHJhY3Rpb24gLi4uIEZhaWxlZCB0byBmaW5kIG1hdGNoIDE2OiBSNV93PXBrdChpZD0yLG9mZj0w
-LHI9MCx1bWluX3ZhbHVlPTIsdW1heF92YWx1ZT0xMDgyLHZhcl9vZmY9KDB4MjsgMHhmZmZmZmZm
-YykKIyBmdW5jIzAgQDAKIyAwOiBSMT1jdHgoaWQ9MCxvZmY9MCxpbW09MCkgUjEwPWZwMAojIDA6
-ICg2MSkgcjIgPSAqKHUzMiAqKShyMSArNzYpCiMgMTogUjE9Y3R4KGlkPTAsb2ZmPTAsaW1tPTAp
-IFIyX3c9cGt0KGlkPTAsb2ZmPTAscj0wLGltbT0wKSBSMTA9ZnAwCiMgMTogKDYxKSByMyA9ICoo
-dTMyICopKHIxICs4MCkKIyAyOiBSMT1jdHgoaWQ9MCxvZmY9MCxpbW09MCkgUjJfdz1wa3QoaWQ9
-MCxvZmY9MCxyPTAsaW1tPTApIFIzX3c9cGt0X2VuZChpZD0wLG9mZj0wLGltbT0wKSBSMTA9ZnAw
-CiMgMjogKGJmKSByMCA9IHIyCiMgMzogUjBfdz1wa3QoaWQ9MCxvZmY9MCxyPTAsaW1tPTApIFIx
-PWN0eChpZD0wLG9mZj0wLGltbT0wKSBSMl93PXBrdChpZD0wLG9mZj0wLHI9MCxpbW09MCkgUjNf
-dz1wa3RfZW5kKGlkPTAsb2ZmPTAsaW1tPTApIFIxMD1mcDAKIyAzOiAoMDcpIHIwICs9IDgKIyA0
-OiBSMF93PXBrdChpZD0wLG9mZj04LHI9MCxpbW09MCkgUjE9Y3R4KGlkPTAsb2ZmPTAsaW1tPTAp
-IFIyX3c9cGt0KGlkPTAsb2ZmPTAscj0wLGltbT0wKSBSM193PXBrdF9lbmQoaWQ9MCxvZmY9MCxp
-bW09MCkgUjEwPWZwMAojIDQ6ICgzZCkgaWYgcjMgPj0gcjAgZ290byBwYysxCiMgIFIwX3c9cGt0
-KGlkPTAsb2ZmPTgscj0wLGltbT0wKSBSMT1jdHgoaWQ9MCxvZmY9MCxpbW09MCkgUjJfdz1wa3Qo
-aWQ9MCxvZmY9MCxyPTAsaW1tPTApIFIzX3c9cGt0X2VuZChpZD0wLG9mZj0wLGltbT0wKSBSMTA9
-ZnAwCiMgNTogUjBfdz1wa3QoaWQ9MCxvZmY9OCxyPTAsaW1tPTApIFIxPWN0eChpZD0wLG9mZj0w
-LGltbT0wKSBSMl93PXBrdChpZD0wLG9mZj0wLHI9MCxpbW09MCkgUjNfdz1wa3RfZW5kKGlkPTAs
-b2ZmPTAsaW1tPTApIFIxMD1mcDAKIyA1OiAoOTUpIGV4aXQKIyA2OiBSMF93PXBrdChpZD0wLG9m
-Zj04LHI9OCxpbW09MCkgUjE9Y3R4KGlkPTAsb2ZmPTAsaW1tPTApIFIyX3c9cGt0KGlkPTAsb2Zm
-PTAscj04LGltbT0wKSBSM193PXBrdF9lbmQoaWQ9MCxvZmY9MCxpbW09MCkgUjEwPWZwMAojIDY6
-ICg3MSkgcjYgPSAqKHU4ICopKHIyICswKQojIDc6IFIwX3c9cGt0KGlkPTAsb2ZmPTgscj04LGlt
-bT0wKSBSMT1jdHgoaWQ9MCxvZmY9MCxpbW09MCkgUjJfdz1wa3QoaWQ9MCxvZmY9MCxyPTgsaW1t
-PTApIFIzX3c9cGt0X2VuZChpZD0wLG9mZj0wLGltbT0wKSBSNl93PWludihpZD0wLHVtYXhfdmFs
-dWU9MjU1LHZhcl9vZmY9KDB4MDsgMHhmZikpIFIxMD1mcDAKIyA3OiAoYmYpIHI3ID0gcjYKIyA4
-OiBSMF93PXBrdChpZD0wLG9mZj04LHI9OCxpbW09MCkgUjE9Y3R4KGlkPTAsb2ZmPTAsaW1tPTAp
-IFIyX3c9cGt0KGlkPTAsb2ZmPTAscj04LGltbT0wKSBSM193PXBrdF9lbmQoaWQ9MCxvZmY9MCxp
-bW09MCkgUjZfdz1pbnYoaWQ9MCx1bWF4X3ZhbHVlPTI1NSx2YXJfb2ZmPSgweDA7IDB4ZmYpKSBS
-N193PWludihpZD0wLHVtYXhfdmFsdWU9MjU1LHZhcl9vZmY9KDB4MDsgMHhmZikpIFIxMD1mcDAK
-IyA4OiAoNTcpIHI2ICY9IDE1CiMgOTogUjBfdz1wa3QoaWQ9MCxvZmY9OCxyPTgsaW1tPTApIFIx
-PWN0eChpZD0wLG9mZj0wLGltbT0wKSBSMl93PXBrdChpZD0wLG9mZj0wLHI9OCxpbW09MCkgUjNf
-dz1wa3RfZW5kKGlkPTAsb2ZmPTAsaW1tPTApIFI2X3c9aW52KGlkPTAsdW1heF92YWx1ZT0xNSx2
-YXJfb2ZmPSgweDA7IDB4ZikpIFI3X3c9aW52KGlkPTAsdW1heF92YWx1ZT0yNTUsdmFyX29mZj0o
-MHgwOyAweGZmKSkgUjEwPWZwMAojIDk6ICg2NykgcjYgPDw9IDIKIyAxMDogUjBfdz1wa3QoaWQ9
-MCxvZmY9OCxyPTgsaW1tPTApIFIxPWN0eChpZD0wLG9mZj0wLGltbT0wKSBSMl93PXBrdChpZD0w
-LG9mZj0wLHI9OCxpbW09MCkgUjNfdz1wa3RfZW5kKGlkPTAsb2ZmPTAsaW1tPTApIFI2X3c9aW52
-KGlkPTAsdW1heF92YWx1ZT02MCx2YXJfb2ZmPSgweDA7IDB4M2MpKSBSN193PWludihpZD0wLHVt
-YXhfdmFsdWU9MjU1LHZhcl9vZmY9KDB4MDsgMHhmZikpIFIxMD1mcDAKIyAxMDogKDA3KSByNiAr
-PSAxNAoxMTogKGJmKSByNSA9IHIyCiMgMTI6IFIwX3c9cGt0KGlkPTAsb2ZmPTgscj04LGltbT0w
-KSBSMT1jdHgoaWQ9MCxvZmY9MCxpbW09MCkgUjJfdz1wa3QoaWQ9MCxvZmY9MCxyPTgsaW1tPTAp
-IFIzX3c9cGt0X2VuZChpZD0wLG9mZj0wLGltbT0wKSBSNV93PXBrdChpZD0wLG9mZj0wLHI9OCxp
-bW09MCkgUjZfdz1pbnYoaWQ9MCx1bWluX3ZhbHVlPTE0LHVtYXhfdmFsdWU9NzQsdmFyX29mZj0o
-MHgyOyAweDdjKSkgUjdfdz1pbnYoaWQ9MCx1bWF4X3ZhbHVlPTI1NSx2YXJfb2ZmPSgweDA7IDB4
-ZmYpKSBSMTA9ZnAwCiMgMTI6ICgxZikgcjUgLT0gcjYKIyBsYXN0X2lkeCAxMiBmaXJzdF9pZHgg
-MAojIHJlZ3M9NDAgc3RhY2s9MCBiZWZvcmUgMTE6IChiZikgcjUgPSByMgojIHJlZ3M9NDAgc3Rh
-Y2s9MCBiZWZvcmUgMTA6ICgwNykgcjYgKz0gMTQKIyByZWdzPTQwIHN0YWNrPTAgYmVmb3JlIDk6
-ICg2NykgcjYgPDw9IDIKIyByZWdzPTQwIHN0YWNrPTAgYmVmb3JlIDg6ICg1NykgcjYgJj0gMTUK
-IyByZWdzPTQwIHN0YWNrPTAgYmVmb3JlIDc6IChiZikgcjcgPSByNgojIHJlZ3M9NDAgc3RhY2s9
-MCBiZWZvcmUgNjogKDcxKSByNiA9ICoodTggKikocjIgKzApCiMgMTM6IFIwX3c9cGt0KGlkPTAs
-b2ZmPTgscj04LGltbT0wKSBSMT1jdHgoaWQ9MCxvZmY9MCxpbW09MCkgUjJfdz1wa3QoaWQ9MCxv
-ZmY9MCxyPTgsaW1tPTApIFIzX3c9cGt0X2VuZChpZD0wLG9mZj0wLGltbT0wKSBSNV93PXBrdChp
-ZD0xLG9mZj0wLHI9OCx1bWluX3ZhbHVlPTE4NDQ2NzQ0MDczNzA5NTUxNTQyLHVtYXhfdmFsdWU9
-MTg0NDY3NDQwNzM3MDk1NTE2MDIsdmFyX29mZj0oMHhmZmZmZmZmZmZmZmZmZjgyOyAweDdjKSkg
-UjZfdz1pbnZQKGlkPTAsdW1pbl92YWx1ZT0xNCx1bWF4X3ZhbHVlPTc0LHZhcl9vZmY9KDB4Mjsg
-MHg3YykpIFI3X3c9aW52KGlkPTAsdW1heF92YWx1ZT0yNTUsdmFyX29mZj0oMHgwOyAweGZmKSkg
-UjEwPWZwMAojIDEzOiAoNjcpIHI3IDw8PSAyCiMgMTQ6IFIwX3c9cGt0KGlkPTAsb2ZmPTgscj04
-LGltbT0wKSBSMT1jdHgoaWQ9MCxvZmY9MCxpbW09MCkgUjJfdz1wa3QoaWQ9MCxvZmY9MCxyPTgs
-aW1tPTApIFIzX3c9cGt0X2VuZChpZD0wLG9mZj0wLGltbT0wKSBSNV93PXBrdChpZD0xLG9mZj0w
-LHI9OCx1bWluX3ZhbHVlPTE4NDQ2NzQ0MDczNzA5NTUxNTQyLHVtYXhfdmFsdWU9MTg0NDY3NDQw
-NzM3MDk1NTE2MDIsdmFyX29mZj0oMHhmZmZmZmZmZmZmZmZmZjgyOyAweDdjKSkgUjZfdz1pbnZQ
-KGlkPTAsdW1pbl92YWx1ZT0xNCx1bWF4X3ZhbHVlPTc0LHZhcl9vZmY9KDB4MjsgMHg3YykpIFI3
-X3c9aW52KGlkPTAsdW1heF92YWx1ZT0xMDIwLHZhcl9vZmY9KDB4MDsgMHgzZmMpKSBSMTA9ZnAw
-CiMgMTQ6ICgwNykgcjcgKz0gNzYKIyAxNTogUjBfdz1wa3QoaWQ9MCxvZmY9OCxyPTgsaW1tPTAp
-IFIxPWN0eChpZD0wLG9mZj0wLGltbT0wKSBSMl93PXBrdChpZD0wLG9mZj0wLHI9OCxpbW09MCkg
-UjNfdz1wa3RfZW5kKGlkPTAsb2ZmPTAsaW1tPTApIFI1X3c9cGt0KGlkPTEsb2ZmPTAscj04LHVt
-aW5fdmFsdWU9MTg0NDY3NDQwNzM3MDk1NTE1NDIsdW1heF92YWx1ZT0xODQ0Njc0NDA3MzcwOTU1
-MTYwMix2YXJfb2ZmPSgweGZmZmZmZmZmZmZmZmZmODI7IDB4N2MpKSBSNl93PWludlAoaWQ9MCx1
-bWluX3ZhbHVlPTE0LHVtYXhfdmFsdWU9NzQsdmFyX29mZj0oMHgyOyAweDdjKSkgUjdfdz1pbnYo
-aWQ9MCx1bWluX3ZhbHVlPTc2LHVtYXhfdmFsdWU9MTA5Nix2YXJfb2ZmPSgweDA7IDB4N2ZjKSkg
-UjEwPWZwMAojIDE1OiAoMGYpIHI1ICs9IHI3CiMgbGFzdF9pZHggMTUgZmlyc3RfaWR4IDAKIyBy
-ZWdzPTgwIHN0YWNrPTAgYmVmb3JlIDE0OiAoMDcpIHI3ICs9IDc2CiMgcmVncz04MCBzdGFjaz0w
-IGJlZm9yZSAxMzogKDY3KSByNyA8PD0gMgojIHJlZ3M9ODAgc3RhY2s9MCBiZWZvcmUgMTI6ICgx
-ZikgcjUgLT0gcjYKIyByZWdzPTgwIHN0YWNrPTAgYmVmb3JlIDExOiAoYmYpIHI1ID0gcjIKIyBy
-ZWdzPTgwIHN0YWNrPTAgYmVmb3JlIDEwOiAoMDcpIHI2ICs9IDE0CiMgcmVncz04MCBzdGFjaz0w
-IGJlZm9yZSA5OiAoNjcpIHI2IDw8PSAyCiMgcmVncz04MCBzdGFjaz0wIGJlZm9yZSA4OiAoNTcp
-IHI2ICY9IDE1CiMgcmVncz04MCBzdGFjaz0wIGJlZm9yZSA3OiAoYmYpIHI3ID0gcjYKIyByZWdz
-PTQwIHN0YWNrPTAgYmVmb3JlIDY6ICg3MSkgcjYgPSAqKHU4ICopKHIyICswKQo2OiBSMF93PXBr
-dChpZD0wLG9mZj04LHI9OCxpbW09MCkgUjE9Y3R4KGlkPTAsb2ZmPTAsaW1tPTApIFIyX3c9cGt0
-KGlkPTAsb2ZmPTAscj04LGltbT0wKSBSM193PXBrdF9lbmQoaWQ9MCxvZmY9MCxpbW09MCkgUjVf
-dz1wa3QoaWQ9MixvZmY9MCxyPTAsdW1pbl92YWx1ZT0yLHVtYXhfdmFsdWU9MTA4Mix2YXJfb2Zm
-PSgweDI7IDB4N2ZjKSkgUjZfdz1pbnZQKGlkPTAsdW1pbl92YWx1ZT0xNCx1bWF4X3ZhbHVlPTc0
-LHZhcl9vZmY9KDB4MjsgMHg3YykpIFI3X3c9aW52UChpZD0wLHVtaW5fdmFsdWU9NzYsdW1heF92
-YWx1ZT0xMDk2LHZhcl9vZmY9KDB4MDsgMHg3ZmMpKSBSMTA9ZnAwCiMgMTY6IChiZikgcjQgPSBy
-NQojIDE3OiBSMF93PXBrdChpZD0wLG9mZj04LHI9OCxpbW09MCkgUjE9Y3R4KGlkPTAsb2ZmPTAs
-aW1tPTApIFIyX3c9cGt0KGlkPTAsb2ZmPTAscj04LGltbT0wKSBSM193PXBrdF9lbmQoaWQ9MCxv
-ZmY9MCxpbW09MCkgUjRfdz1wa3QoaWQ9MixvZmY9MCxyPTAsdW1pbl92YWx1ZT0yLHVtYXhfdmFs
-dWU9MTA4Mix2YXJfb2ZmPSgweDI7IDB4N2ZjKSkgUjVfdz1wa3QoaWQ9MixvZmY9MCxyPTAsdW1p
-bl92YWx1ZT0yLHVtYXhfdmFsdWU9MTA4Mix2YXJfb2ZmPSgweDI7IDB4N2ZjKSkgUjZfdz1pbnZQ
-KGlkPTAsdW1pbl92YWx1ZT0xNCx1bWF4X3ZhbHVlPTc0LHZhcl9vZmY9KDB4MjsgMHg3YykpIFI3
-X3c9aW52UChpZD0wLHVtaW5fdmFsdWU9NzYsdW1heF92YWx1ZT0xMDk2LHZhcl9vZmY9KDB4MDsg
-MHg3ZmMpKSBSMTA9ZnAwCiMgMTc6ICgwNykgcjQgKz0gNAojIDE4OiBSMD1wa3QoaWQ9MCxvZmY9
-OCxyPTgsaW1tPTApIFIxPWN0eChpZD0wLG9mZj0wLGltbT0wKSBSMj1wa3QoaWQ9MCxvZmY9MCxy
-PTgsaW1tPTApIFIzPXBrdF9lbmQoaWQ9MCxvZmY9MCxpbW09MCkgUjQ9cGt0KGlkPTIsb2ZmPTQs
-cj0wLHVtaW5fdmFsdWU9Mix1bWF4X3ZhbHVlPTEwODIsdmFyX29mZj0oMHgyOyAweDdmYykpIFI1
-PXBrdChpZD0yLG9mZj0wLHI9MCx1bWluX3ZhbHVlPTIsdW1heF92YWx1ZT0xMDgyLHZhcl9vZmY9
-KDB4MjsgMHg3ZmMpKSBSNj1pbnZQKGlkPTAsdW1pbl92YWx1ZT0xNCx1bWF4X3ZhbHVlPTc0LHZh
-cl9vZmY9KDB4MjsgMHg3YykpIFI3PWludlAoaWQ9MCx1bWluX3ZhbHVlPTc2LHVtYXhfdmFsdWU9
-MTA5Nix2YXJfb2ZmPSgweDA7IDB4N2ZjKSkgUjEwPWZwMAojIDE4OiAoM2QpIGlmIHIzID49IHI0
-IGdvdG8gcGMrMQojICBSMD1wa3QoaWQ9MCxvZmY9OCxyPTgsaW1tPTApIFIxPWN0eChpZD0wLG9m
-Zj0wLGltbT0wKSBSMj1wa3QoaWQ9MCxvZmY9MCxyPTgsaW1tPTApIFIzPXBrdF9lbmQoaWQ9MCxv
-ZmY9MCxpbW09MCkgUjQ9cGt0KGlkPTIsb2ZmPTQscj0wLHVtaW5fdmFsdWU9Mix1bWF4X3ZhbHVl
-PTEwODIsdmFyX29mZj0oMHgyOyAweDdmYykpIFI1PXBrdChpZD0yLG9mZj0wLHI9MCx1bWluX3Zh
-bHVlPTIsdW1heF92YWx1ZT0xMDgyLHZhcl9vZmY9KDB4MjsgMHg3ZmMpKSBSNj1pbnZQKGlkPTAs
-dW1pbl92YWx1ZT0xNCx1bWF4X3ZhbHVlPTc0LHZhcl9vZmY9KDB4MjsgMHg3YykpIFI3PWludlAo
-aWQ9MCx1bWluX3ZhbHVlPTc2LHVtYXhfdmFsdWU9MTA5Nix2YXJfb2ZmPSgweDA7IDB4N2ZjKSkg
-UjEwPWZwMAojIDE5OiBSMD1wa3QoaWQ9MCxvZmY9OCxyPTgsaW1tPTApIFIxPWN0eChpZD0wLG9m
-Zj0wLGltbT0wKSBSMj1wa3QoaWQ9MCxvZmY9MCxyPTgsaW1tPTApIFIzPXBrdF9lbmQoaWQ9MCxv
-ZmY9MCxpbW09MCkgUjQ9cGt0KGlkPTIsb2ZmPTQscj0wLHVtaW5fdmFsdWU9Mix1bWF4X3ZhbHVl
-PTEwODIsdmFyX29mZj0oMHgyOyAweDdmYykpIFI1PXBrdChpZD0yLG9mZj0wLHI9MCx1bWluX3Zh
-bHVlPTIsdW1heF92YWx1ZT0xMDgyLHZhcl9vZmY9KDB4MjsgMHg3ZmMpKSBSNj1pbnZQKGlkPTAs
-dW1pbl92YWx1ZT0xNCx1bWF4X3ZhbHVlPTc0LHZhcl9vZmY9KDB4MjsgMHg3YykpIFI3PWludlAo
-aWQ9MCx1bWluX3ZhbHVlPTc2LHVtYXhfdmFsdWU9MTA5Nix2YXJfb2ZmPSgweDA7IDB4N2ZjKSkg
-UjEwPWZwMAojIDE5OiAoOTUpIGV4aXQKIyAyMDogUjA9cGt0KGlkPTAsb2ZmPTgscj04LGltbT0w
-KSBSMT1jdHgoaWQ9MCxvZmY9MCxpbW09MCkgUjI9cGt0KGlkPTAsb2ZmPTAscj04LGltbT0wKSBS
-Mz1wa3RfZW5kKGlkPTAsb2ZmPTAsaW1tPTApIFI0PXBrdChpZD0yLG9mZj00LHI9NCx1bWluX3Zh
-bHVlPTIsdW1heF92YWx1ZT0xMDgyLHZhcl9vZmY9KDB4MjsgMHg3ZmMpKSBSNT1wa3QoaWQ9Mixv
-ZmY9MCxyPTQsdW1pbl92YWx1ZT0yLHVtYXhfdmFsdWU9MTA4Mix2YXJfb2ZmPSgweDI7IDB4N2Zj
-KSkgUjY9aW52UChpZD0wLHVtaW5fdmFsdWU9MTQsdW1heF92YWx1ZT03NCx2YXJfb2ZmPSgweDI7
-IDB4N2MpKSBSNz1pbnZQKGlkPTAsdW1pbl92YWx1ZT03Nix1bWF4X3ZhbHVlPTEwOTYsdmFyX29m
-Zj0oMHgwOyAweDdmYykpIFIxMD1mcDAKIyAyMDogKDYxKSByNiA9ICoodTMyICopKHI1ICswKQoj
-IDIxOiBSMD1wa3QoaWQ9MCxvZmY9OCxyPTgsaW1tPTApIFIxPWN0eChpZD0wLG9mZj0wLGltbT0w
-KSBSMj1wa3QoaWQ9MCxvZmY9MCxyPTgsaW1tPTApIFIzPXBrdF9lbmQoaWQ9MCxvZmY9MCxpbW09
-MCkgUjQ9cGt0KGlkPTIsb2ZmPTQscj00LHVtaW5fdmFsdWU9Mix1bWF4X3ZhbHVlPTEwODIsdmFy
-X29mZj0oMHgyOyAweDdmYykpIFI1PXBrdChpZD0yLG9mZj0wLHI9NCx1bWluX3ZhbHVlPTIsdW1h
-eF92YWx1ZT0xMDgyLHZhcl9vZmY9KDB4MjsgMHg3ZmMpKSBSNl93PWludihpZD0wLHVtYXhfdmFs
-dWU9NDI5NDk2NzI5NSx2YXJfb2ZmPSgweDA7IDB4ZmZmZmZmZmYpKSBSNz1pbnZQKGlkPTAsdW1p
-bl92YWx1ZT03Nix1bWF4X3ZhbHVlPTEwOTYsdmFyX29mZj0oMHgwOyAweDdmYykpIFIxMD1mcDAK
-IyAyMTogKDk1KSBleGl0CgojIHByb2Nlc3NlZCAyMiBpbnNucyAobGltaXQgMTAwMDAwMCkgbWF4
-X3N0YXRlc19wZXJfaW5zbiAwIHRvdGFsX3N0YXRlcyAxIHBlYWtfc3RhdGVzIDEgbWFya19yZWFk
-IDEKIyBGQUlMCiMgUmVzdWx0czogMTEgcGFzcyAxIGZhaWwKbm90IG9rIDcgc2VsZnRlc3RzOiBi
-cGY6IHRlc3RfYWxpZ24gIyBleGl0PTEKCg==
---0000000000008efef605e673f16f--
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch | lab             | compiler | defconfig         =
+ | regressions
+-------------------+------+-----------------+----------+-------------------=
+-+------------
+bcm2835-rpi-b-rev2 | arm  | lab-broonie     | gcc-10   | bcm2835_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62fcfaedcbed512dc0355678
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: bcm2835_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
+1094-g7c0c8517a5443/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm28=
+35-rpi-b-rev2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
+1094-g7c0c8517a5443/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm28=
+35-rpi-b-rev2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62fcfaedcbed512dc0355=
+679
+        failing since 0 day (last pass: v5.18.16-7-g7fc5e6c7e4db1, first fa=
+il: v5.18.17-1094-g906dae830019d) =
+
+ =
+
+
+
+platform           | arch | lab             | compiler | defconfig         =
+ | regressions
+-------------------+------+-----------------+----------+-------------------=
+-+------------
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62fcfc830da3024b43355655
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
+1094-g7c0c8517a5443/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-=
+imx6ul-pico-hobbit.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
+1094-g7c0c8517a5443/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-=
+imx6ul-pico-hobbit.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62fcfc830da3024b43355=
+656
+        failing since 42 days (last pass: v5.18.9-96-g91cfa3d0b94d, first f=
+ail: v5.18.9-102-ga6b8287ea0b9) =
+
+ =
+
+
+
+platform           | arch | lab             | compiler | defconfig         =
+ | regressions
+-------------------+------+-----------------+----------+-------------------=
+-+------------
+panda              | arm  | lab-baylibre    | gcc-10   | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62fcfe092d1eb74b8d355699
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
+1094-g7c0c8517a5443/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
+1094-g7c0c8517a5443/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62fcfe092d1eb74b8d355=
+69a
+        failing since 2 days (last pass: v5.18.17-134-g620d3eac5bbd1, first=
+ fail: v5.18.17-1078-g5c55e4c4afa02) =
+
+ =
+
+
+
+platform           | arch | lab             | compiler | defconfig         =
+ | regressions
+-------------------+------+-----------------+----------+-------------------=
+-+------------
+rk3288-veyron-jaq  | arm  | lab-collabora   | gcc-10   | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62fd2eeec4adad44ed355642
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
+1094-g7c0c8517a5443/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk=
+3288-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.18/v5.18.17-=
+1094-g7c0c8517a5443/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk=
+3288-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62fd2eeec4adad44ed355=
+643
+        failing since 2 days (last pass: v5.18.17-134-g620d3eac5bbd1, first=
+ fail: v5.18.17-1078-g5c55e4c4afa02) =
+
+ =20
