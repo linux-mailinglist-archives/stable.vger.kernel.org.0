@@ -2,57 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D07B8596FE0
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 15:29:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E584A596FF5
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 15:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239885AbiHQN0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 09:26:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43028 "EHLO
+        id S236468AbiHQNeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 09:34:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239891AbiHQNZl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 09:25:41 -0400
-Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E16C9901BE;
-        Wed, 17 Aug 2022 06:25:37 -0700 (PDT)
-Received: from workstation5.fritz.box (ip-084-118-157-002.um23.pools.vodafone-ip.de [84.118.157.2])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        with ESMTP id S239361AbiHQNeN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 09:34:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D0D6B7FB;
+        Wed, 17 Aug 2022 06:34:12 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id ED6B23F13E;
-        Wed, 17 Aug 2022 13:25:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1660742735;
-        bh=PxzTNJ1Jg6c7i4yTxrytPCVQW1rkcheSbZD8jwdGcYI=;
-        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type;
-        b=j2pDzobDmxNvAVvYyJbu2Vl1EvIZ7pnXFfOkDamLxkIHQfGDwxOkJQ/Y15fcnJe3l
-         1lt/nt+R8sMlXZBQdzCwzdRfQ+XaxXqG8VS5afEmrjI0wvp+2efrUoJLXB8oToS2q2
-         Z5I6ON6iipTTPxrwtx1idt3Zk7RqkwkhSfOs6DHzaVy5iOrktPu0NHUVnGGqxHvDZx
-         3yfRyC50swVTR6nV77lh7VV6v7at6WTziEY9p2D8Ly8MrC8ZqmvqtD1eXIjJCdtCJR
-         3BX7xLLklP/pFyzhU28Dqh9khonVQ2nb0l3YAevzKV7loXkmJfe/r7e1i4a/0eeXJs
-         FQpmNnz2nWKZQ==
-From:   Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
-To:     Rob Herring <robh+dt@kernel.org>
-Cc:     Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Atish Patra <atish.patra@wdc.com>,
-        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
-        devicetree@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-kernel@vger.kernel.org,
-        Heinrich Schuchardt <heinrich.schuchardt@canonical.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/1] riscv: dts: microchip: correct L2 cache interrupts
-Date:   Wed, 17 Aug 2022 15:25:21 +0200
-Message-Id: <20220817132521.3159388-1-heinrich.schuchardt@canonical.com>
-X-Mailer: git-send-email 2.36.1
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0747361381;
+        Wed, 17 Aug 2022 13:34:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D32C0C433D7;
+        Wed, 17 Aug 2022 13:34:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1660743251;
+        bh=VJjaESeTcpR3pNf2yk31v/MAq8krPW3qtCOLglDY3KY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=xQAIzIwaUhZUgIkIExJZ1dJBfC04siz7xT8lwtw8St2wQ8R8YzRw14XYLjQrq4sjj
+         erJfG62Pu7m5Sm4b6ScBg6heW1lM9sPMdkDR10hUPyQ0aiNyL/ybiwif8CzZOmOr9R
+         CICFU4nBeI+uJEg2l0G8MibRZXqzPR+v+EzN+Wsg=
+Date:   Wed, 17 Aug 2022 15:34:09 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.18 0000/1094] 5.18.18-rc2 review
+Message-ID: <YvzuUdrBqGlW880H@kroah.com>
+References: <20220816124604.978842485@linuxfoundation.org>
+ <20220817042445.GC1880847@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220817042445.GC1880847@roeck-us.net>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -61,52 +55,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The "PolarFire SoC MSS Technical Reference Manual" documents the
-following PLIC interrupts:
+On Tue, Aug 16, 2022 at 09:24:45PM -0700, Guenter Roeck wrote:
+> On Tue, Aug 16, 2022 at 02:59:27PM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.18.18 release.
+> > There are 1094 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Thu, 18 Aug 2022 12:43:14 +0000.
+> > Anything received after that time might be too late.
+> > 
+> Build results:
+> 	total: 154 pass: 154 fail: 0
+> Qemu test results:
+> 	total: 481 pass: 480 fail: 1
+> Failed tests:
+> 	arm:bletchley-bmc:aspeed_g5_defconfig:notests:usb0:net,nic:aspeed-bmc-facebook-bletchley:rootfs
+> 
+> The failing boot test is new and not a concern. I'll see if I can figure
+> out why it fails. If it is too difficult to fix (for example because 5.18
+> simply doesn't support usb on bletchley-bmc), I'll just skip it next time.
+> 
+> Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-1 - L2 Cache Controller Signals when a metadata correction event occurs
-2 - L2 Cache Controller Signals when an uncorrectable metadata event occurs
-3 - L2 Cache Controller Signals when a data correction event occurs
-4 - L2 Cache Controller Signals when an uncorrectable data event occurs
+5.18 is only going to be alive for one more week at most, so I wouldn't
+worry too much about this.
 
-This differs from the SiFive FU540 which only has three L2 cache related
-interrupts.
+thanks!
 
-The sequence in the device tree is defined by an enum:
-
-    enum {
-            DIR_CORR = 0,
-            DATA_CORR,
-            DATA_UNCORR,
-            DIR_UNCORR,
-    };
-
-So the correct sequence of the L2 cache interrupts is
-
-    interrupts = <1>, <3>, <4>, <2>;
-
-Fixes: e35b07a7df9b ("riscv: dts: microchip: mpfs: Group tuples in interrupt properties")
-Fixes: 0fa6107eca41 ("RISC-V: Initial DTS for Microchip ICICLE board")
-Cc: Conor Dooley <conor.dooley@microchip.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
----
- arch/riscv/boot/dts/microchip/mpfs.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/riscv/boot/dts/microchip/mpfs.dtsi b/arch/riscv/boot/dts/microchip/mpfs.dtsi
-index 496d3b7642bd..ec1de6344be9 100644
---- a/arch/riscv/boot/dts/microchip/mpfs.dtsi
-+++ b/arch/riscv/boot/dts/microchip/mpfs.dtsi
-@@ -169,7 +169,7 @@ cctrllr: cache-controller@2010000 {
- 			cache-size = <2097152>;
- 			cache-unified;
- 			interrupt-parent = <&plic>;
--			interrupts = <1>, <2>, <3>;
-+			interrupts = <1>, <3>, <4>, <2>;
- 		};
- 
- 		clint: clint@2000000 {
--- 
-2.36.1
-
+greg k-h
