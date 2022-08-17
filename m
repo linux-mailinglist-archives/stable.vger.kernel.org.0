@@ -2,166 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E076597535
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 19:43:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 721D3597548
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 19:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237811AbiHQRkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 13:40:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39446 "EHLO
+        id S237095AbiHQRsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 13:48:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236957AbiHQRke (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 13:40:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 259EEA1D60;
-        Wed, 17 Aug 2022 10:40:34 -0700 (PDT)
+        with ESMTP id S237202AbiHQRsV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 13:48:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0976F13D6C;
+        Wed, 17 Aug 2022 10:48:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B25806130D;
-        Wed, 17 Aug 2022 17:40:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB374C433D6;
-        Wed, 17 Aug 2022 17:40:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1660758033;
-        bh=7feCmyYjJaa/OtpqAtKKC4+5+SYOgtoU8HfXb+Sqpxw=;
-        h=Date:To:From:Subject:From;
-        b=G5fNu0atUa8fNf6CWQU3zK+UEUWj6hpprbH7AwLO8QkEmUqumEiBXRPP7NAyfIbrs
-         RLtYVSET51IoQD0jhq7jwiNqNNQ+hSJ75m9/kkxJXRKUHScdP70nUBknqlXkIQt38f
-         0bIdW6gGKxYviR/TCQcvkMQoq8Ms9L32ZNoPXy6I=
-Date:   Wed, 17 Aug 2022 10:40:32 -0700
-To:     mm-commits@vger.kernel.org, yosryahmed@google.com,
-        stable@vger.kernel.org, songmuchun@bytedance.com,
-        roman.gushchin@linux.dev, mkoutny@suse.com, mhocko@kernel.org,
-        hannes@cmpxchg.org, gthelen@google.com, david@redhat.com,
-        shakeelb@google.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + revert-memcg-cleanup-racy-sum-avoidance-code.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220817174032.EB374C433D6@smtp.kernel.org>
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PP_MIME_FAKE_ASCII_TEXT,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7246B81D4C;
+        Wed, 17 Aug 2022 17:48:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 219A4C433D6;
+        Wed, 17 Aug 2022 17:48:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1660758498;
+        bh=oGNYkVCpNdKqGzZ/A1v7/SNpGbfJg9/ChuTQsjENTVA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=icwLAD23/E4FKYmJ2m+WIryEl7O0qXny0tJX91xTkdyue6WKcy7Fl+/Ap31B7RGeb
+         Pv4zhjOzBX4YqFTFXqGhZk6gfy7JkwZA/t+3HElHF1eNHGJmu3Bz7D3IuLr01OogxA
+         4kJyUtgnLkonm66jD+zPcrJ7//x+h2nq8OHnP3/0=
+Date:   Wed, 17 Aug 2022 19:48:15 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Andri Yngvason <andri@yngvason.is>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] HID: multitouch: Add memory barriers
+Message-ID: <Yv0p38x60vE7WLry@kroah.com>
+References: <20220817173234.3564543-1-andri@yngvason.is>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220817173234.3564543-1-andri@yngvason.is>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Aug 17, 2022 at 05:32:35PM +0000, Andri Yngvason wrote:
+> This fixes broken atomic checks which cause a race between the
+> release-timer and processing of hid input.
+> 
+> I noticed that contacts were sometimes sticking, even with the "sticky
+> fingers" quirk enabled. This fixes that problem.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 9609827458c37d7b2c37f2a9255631c603a5004c
 
-The patch titled
-     Subject: Revert "memcg: cleanup racy sum avoidance code"
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     revert-memcg-cleanup-racy-sum-avoidance-code.patch
+Close, but not quite.  The documentation says how to format this, it
+should look like:
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/revert-memcg-cleanup-racy-sum-avoidance-code.patch
+Fixes: 9609827458c3 ("HID: multitouch: optimize the sticky fingers timer")
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+thanks,
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Shakeel Butt <shakeelb@google.com>
-Subject: Revert "memcg: cleanup racy sum avoidance code"
-Date: Wed, 17 Aug 2022 17:21:39 +0000
-
-This reverts commit 96e51ccf1af33e82f429a0d6baebba29c6448d0f.
-
-Recently we started running the kernel with rstat infrastructure on
-production traffic and begin to see negative memcg stats values. 
-Particularly the 'sock' stat is the one which we observed having negative
-value.
-
-$ grep "sock " /mnt/memory/job/memory.stat
-sock 253952
-total_sock 18446744073708724224
-
-Re-run after couple of seconds
-
-$ grep "sock " /mnt/memory/job/memory.stat
-sock 253952
-total_sock 53248
-
-For now we are only seeing this issue on large machines (256 CPUs) and
-only with 'sock' stat.  I think the networking stack increase the stat on
-one cpu and decrease it on another cpu much more often.  So, this negative
-sock is due to rstat flusher flushing the stats on the CPU that has seen
-the decrement of sock but missed the CPU that has increments.  A typical
-race condition.
-
-For easy stable backport, revert is the most simple solution.  For long
-term solution, I am thinking of two directions.  First is just reduce the
-race window by optimizing the rstat flusher.  Second is if the reader sees
-a negative stat value, force flush and restart the stat collection. 
-Basically retry but limited.
-
-Link: https://lkml.kernel.org/r/20220817172139.3141101-1-shakeelb@google.com
-Fixes: 96e51ccf1af33e8 ("memcg: cleanup racy sum avoidance code")
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Cc: "Michal Koutný" <mkoutny@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Roman Gushchin <roman.gushchin@linux.dev>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Yosry Ahmed <yosryahmed@google.com>
-Cc: Greg Thelen <gthelen@google.com>
-Cc: <stable@vger.kernel.org>	[5.15]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- include/linux/memcontrol.h |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
-
---- a/include/linux/memcontrol.h~revert-memcg-cleanup-racy-sum-avoidance-code
-+++ a/include/linux/memcontrol.h
-@@ -987,19 +987,30 @@ static inline void mod_memcg_page_state(
- 
- static inline unsigned long memcg_page_state(struct mem_cgroup *memcg, int idx)
- {
--	return READ_ONCE(memcg->vmstats.state[idx]);
-+	long x = READ_ONCE(memcg->vmstats.state[idx]);
-+#ifdef CONFIG_SMP
-+	if (x < 0)
-+		x = 0;
-+#endif
-+	return x;
- }
- 
- static inline unsigned long lruvec_page_state(struct lruvec *lruvec,
- 					      enum node_stat_item idx)
- {
- 	struct mem_cgroup_per_node *pn;
-+	long x;
- 
- 	if (mem_cgroup_disabled())
- 		return node_page_state(lruvec_pgdat(lruvec), idx);
- 
- 	pn = container_of(lruvec, struct mem_cgroup_per_node, lruvec);
--	return READ_ONCE(pn->lruvec_stats.state[idx]);
-+	x = READ_ONCE(pn->lruvec_stats.state[idx]);
-+#ifdef CONFIG_SMP
-+	if (x < 0)
-+		x = 0;
-+#endif
-+	return x;
- }
- 
- static inline unsigned long lruvec_page_state_local(struct lruvec *lruvec,
-_
-
-Patches currently in -mm which might be from shakeelb@google.com are
-
-revert-memcg-cleanup-racy-sum-avoidance-code.patch
-
+greg k-h
