@@ -2,85 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E584A596FF5
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 15:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 935D6597045
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 15:58:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236468AbiHQNeY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 09:34:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50476 "EHLO
+        id S239685AbiHQNyG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 09:54:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239361AbiHQNeN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 09:34:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D0D6B7FB;
-        Wed, 17 Aug 2022 06:34:12 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0747361381;
-        Wed, 17 Aug 2022 13:34:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D32C0C433D7;
-        Wed, 17 Aug 2022 13:34:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660743251;
-        bh=VJjaESeTcpR3pNf2yk31v/MAq8krPW3qtCOLglDY3KY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xQAIzIwaUhZUgIkIExJZ1dJBfC04siz7xT8lwtw8St2wQ8R8YzRw14XYLjQrq4sjj
-         erJfG62Pu7m5Sm4b6ScBg6heW1lM9sPMdkDR10hUPyQ0aiNyL/ybiwif8CzZOmOr9R
-         CICFU4nBeI+uJEg2l0G8MibRZXqzPR+v+EzN+Wsg=
-Date:   Wed, 17 Aug 2022 15:34:09 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.18 0000/1094] 5.18.18-rc2 review
-Message-ID: <YvzuUdrBqGlW880H@kroah.com>
-References: <20220816124604.978842485@linuxfoundation.org>
- <20220817042445.GC1880847@roeck-us.net>
+        with ESMTP id S231609AbiHQNyF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 09:54:05 -0400
+Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E92CF95AC0
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 06:54:03 -0700 (PDT)
+Received: by mail-vs1-xe36.google.com with SMTP id n125so6935026vsc.5
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 06:54:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :mime-version:from:to:cc;
+        bh=/gzITbBOSXEpQZ+33UkvJIctPu7Cvz10am8YtntRnMQ=;
+        b=Ftju2V92TkX7UZ4xXURCsR49mrq3yc+x1GqeQkBkf9glx2SlYHQ7eDMrgwdhK8ESit
+         WtNXODpN+cnjq2eZM5wNAKhESWM01l9vraKdWMInBdiMALuZQKH81GsZEi/By4H1yrg3
+         OIViZb3shWNmcqBRW5rKPF12SYc2rsYehprl/crU1mXgwHqDPL5SdNj7ycwrl4mo8OW4
+         aoOw2CdyP6vTJPGVPtkMgaNd1B9Z+fMWh/lSEVTrmyFrEAfbFu7G5v8mXe0m51de6QC4
+         +d/PF7JziGnoxRKhHwwB/t3h5teXDLkC2AMo9vpqJjrleaYQbatqpQVhW/PPI5IjhNLd
+         LMEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=/gzITbBOSXEpQZ+33UkvJIctPu7Cvz10am8YtntRnMQ=;
+        b=Bg3oBngut8+Lm9uYaE0PrCu53jdsD8l/koOH+5GqTLMRWdaOUEAmVLIWaP5ekAssJC
+         P+r4uEEESLNOinrm70h4FDkUSoGkKNPyUq3aE709apQltfHz2KveKQ111twGCq+hDrVt
+         Lg7agCE8Ke2SW7W5y43nHIkf3zyMXkTEVENP5aezLe+He/qSiyCCtQt1XeDoBFTrPy39
+         eFKI8TjghrsDzsK+EHYVFbBTCeCJe382L9k8AslqIc4RbkOQ5j5qZbs2LMuJSNi1x7zq
+         ggLfCiE+eDfQeKYybRMwp7K7UQcrI38HOgQrhXc14KpGT7MLnaXPse2pgt3lAJBT4lhv
+         H2Ng==
+X-Gm-Message-State: ACgBeo1/yUKsIIoo+iq+XJxuLbuutkNL4LE/rlIDWcZ7pxVs3jaJKbN8
+        73B/GyrTSsn6+N0qCVdoIe/vCkW23ku6sNSMa6U=
+X-Google-Smtp-Source: AA6agR4hYdbdV4FSM2H9re1q0AsP8tVfGa+eeEx95MrXrRhhZ4I4wkyJ8jYYb5/cM2uWn5wbsLO99AMvYjg5kLpdD18=
+X-Received: by 2002:a67:d487:0:b0:385:1a6b:6f33 with SMTP id
+ g7-20020a67d487000000b003851a6b6f33mr10465908vsj.59.1660744443003; Wed, 17
+ Aug 2022 06:54:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220817042445.GC1880847@roeck-us.net>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+Sender: ftobch268@gmail.com
+Received: by 2002:a59:a746:0:b0:2e3:84b9:72b9 with HTTP; Wed, 17 Aug 2022
+ 06:54:02 -0700 (PDT)
+From:   Pavillion Tchi <tchipavillion7@gmail.com>
+Date:   Wed, 17 Aug 2022 13:54:02 +0000
+X-Google-Sender-Auth: o56Lw59oXr1KBkZA8QjzjgigQl4
+Message-ID: <CAM3WQrZiAp7rFB4SrnS1EuqcpXRB4zCA+CLuhuPGGT0_8=Kv4A@mail.gmail.com>
+Subject: Ahoj
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 16, 2022 at 09:24:45PM -0700, Guenter Roeck wrote:
-> On Tue, Aug 16, 2022 at 02:59:27PM +0200, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.18.18 release.
-> > There are 1094 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 18 Aug 2022 12:43:14 +0000.
-> > Anything received after that time might be too late.
-> > 
-> Build results:
-> 	total: 154 pass: 154 fail: 0
-> Qemu test results:
-> 	total: 481 pass: 480 fail: 1
-> Failed tests:
-> 	arm:bletchley-bmc:aspeed_g5_defconfig:notests:usb0:net,nic:aspeed-bmc-facebook-bletchley:rootfs
-> 
-> The failing boot test is new and not a concern. I'll see if I can figure
-> out why it fails. If it is too difficult to fix (for example because 5.18
-> simply doesn't support usb on bletchley-bmc), I'll just skip it next time.
-> 
-> Tested-by: Guenter Roeck <linux@roeck-us.net>
-
-5.18 is only going to be alive for one more week at most, so I wouldn't
-worry too much about this.
-
-thanks!
-
-greg k-h
+--=20
+Ahoj
+Obdr=C5=BEeli jste m=C5=AFj p=C5=99edchoz=C3=AD e-mail?
