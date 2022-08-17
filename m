@@ -2,178 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D43596954
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 08:21:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F31245969B1
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 08:43:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231920AbiHQGUb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 02:20:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46666 "EHLO
+        id S229987AbiHQGnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 02:43:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238898AbiHQGUX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 02:20:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45E26CF74
-        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 23:20:21 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S229488AbiHQGnP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 02:43:15 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B89FD59;
+        Tue, 16 Aug 2022 23:43:13 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3175960B90
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 06:20:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47B59C433D6;
-        Wed, 17 Aug 2022 06:20:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660717220;
-        bh=noAyxvNgidBSDVmHlKRFgrezKarTi1dLXeyBzIIMOZ4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ehPk1Qh+BzrnB3BnX1MQ7O4RycQ22SGABtH9hcHeMfAYBinV3YBQkgm6J0JOxAB/d
-         1aJMD6CorRtL+YKf3y/tcUm/Hj3DJ5VukglJjGEHhJscvLAYr35pKbYAFRlswQyTlL
-         EFjaszLS6GS9W0LPKGQhzij8yPvyIQyx6pm8TMV4=
-Date:   Wed, 17 Aug 2022 08:20:15 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Arun Easi <aeasi@marvell.com>
-Cc:     himanshu.madhani@oracle.com, martin.petersen@oracle.com,
-        njavali@marvell.com, stable@vger.kernel.org
-Subject: Re: [EXT] Re: WTF: patch "[PATCH] scsi: qla2xxx: Fix response queue
- handler reading stale" was seriously submitted to be applied to the
- 5.19-stable tree?
-Message-ID: <YvyIn61N7g1tB4S6@kroah.com>
-References: <166039743723771@kroah.com>
- <YverHtqNRmMLXmqb@kroah.com>
- <e43fa407-31bd-8e7c-c847-87f13bdd2b73@marvell.com>
- <YvtjocfDhhPuo5Ua@kroah.com>
- <4ed36d0a-2f82-4fe6-1f8f-25870b9e05c6@marvell.com>
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 5ECD133F60;
+        Wed, 17 Aug 2022 06:43:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1660718591; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=qNjnS8dkYrVx57dCFrcvWi3o+HcOg8Plt9Rk0mW0V5U=;
+        b=lqZJTTtNvjfmP3L+oaeLOD6m9w+wGIr5wO2b5PKdoS0Z6+qN+lCgSjCh/6IoixcnRHIsmO
+        ReaYsvnR1jqrKlVHX/8qBiMIMh5YjXHvVB7Y9KLDUhoE6+0L81EHG0e2bhj6TMzeZvC5k3
+        YtR0yd45MELEd9H59XbjnTFUhEEc+Rg=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 41B4313A8E;
+        Wed, 17 Aug 2022 06:43:11 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id OD3fDf+N/GJ+LQAAMHmgww
+        (envelope-from <mhocko@suse.com>); Wed, 17 Aug 2022 06:43:11 +0000
+Date:   Wed, 17 Aug 2022 08:43:10 +0200
+From:   Michal Hocko <mhocko@suse.com>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        john.p.donnelly@oracle.com, david@redhat.com, bhe@redhat.com
+Subject: Re: + dma-pool-do-not-complain-if-dma-pool-is-not-allocated.patch
+ added to mm-hotfixes-unstable branch
+Message-ID: <YvyN/vI7+cTv0geS@dhcp22.suse.cz>
+References: <20220810013308.5E23AC433C1@smtp.kernel.org>
+ <20220810140030.GA24195@lst.de>
+ <YvP9YITH0RpgpblG@dhcp22.suse.cz>
+ <20220811092911.GA22246@lst.de>
+ <YvTRFxkmSuDAyVdI@dhcp22.suse.cz>
+ <20220813062913.GA10523@lst.de>
+ <YvoG2YeaiwYsxg9y@dhcp22.suse.cz>
+ <20220817060045.GA29227@lst.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4ed36d0a-2f82-4fe6-1f8f-25870b9e05c6@marvell.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220817060045.GA29227@lst.de>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 16, 2022 at 11:17:39AM -0700, Arun Easi wrote:
-> On Tue, 16 Aug 2022, 2:30am, Greg KH wrote:
+On Wed 17-08-22 08:00:45, Christoph Hellwig wrote:
+> On Mon, Aug 15, 2022 at 10:42:01AM +0200, Michal Hocko wrote:
+> > Anyway, you seem to be not thrilled about the __GFP_NOWARN approach and
+> > I won't push it. But is the existing inconsistency really desirable? I
+> > mean we can get pretty vocal warning if the allocation fails but no
+> > information when the zone doesn't have any managed memory. Why should we
+> > treat them differently? 
 > 
-> > On Mon, Aug 15, 2022 at 03:35:09PM -0700, Arun Easi wrote:
-> > > Hi Greg,
-> > > 
-> > > On Sat, 13 Aug 2022, 6:46am, Greg KH wrote:
-> > > 
-> > > > 
-> > > > ----------------------------------------------------------------------
-> > > > On Sat, Aug 13, 2022 at 03:30:37PM +0200, gregkh@linuxfoundation.org wrote:
-> > > > > The patch below was submitted to be applied to the 5.19-stable tree.
-> > > > > 
-> > > > > I fail to see how this patch meets the stable kernel rules as found at
-> > > > > Documentation/process/stable-kernel-rules.rst.
-> > > > > 
-> > > > > I could be totally wrong, and if so, please respond to 
-> > > > > <stable@vger.kernel.org> and let me know why this patch should be
-> > > > > applied.  Otherwise, it is now dropped from my patch queues, never to be
-> > > > > seen again.
-> > > > > 
-> > > > > thanks,
-> > > > > 
-> > > > > greg k-h
-> > > > > 
-> > > > > ------------------ original commit in Linus's tree ------------------
-> > > > > 
-> > > > > >From b1f707146923335849fb70237eec27d4d1ae7d62 Mon Sep 17 00:00:00 2001
-> > > > > From: Arun Easi <aeasi@marvell.com>
-> > > > > Date: Tue, 12 Jul 2022 22:20:39 -0700
-> > > > > Subject: [PATCH] scsi: qla2xxx: Fix response queue handler reading stale
-> > > > >  packets
-> > > > > 
-> > > > > On some platforms, the current logic of relying on finding new packet
-> > > > > solely based on signature pattern can lead to driver reading stale
-> > > > > packets. Though this is a bug in those platforms, reduce such exposures by
-> > > > > limiting reading packets until the IN pointer.
-> > > > > 
-> > > > > Two module parameters are introduced:
-> > > > > 
-> > > > >   ql2xrspq_follow_inptr:
-> > > > > 
-> > > > >     When set, on newer adapters that has queue pointer shadowing, look for
-> > > > >     response packets only until response queue in pointer.
-> > > > > 
-> > > > >     When reset, response packets are read based on a signature pattern
-> > > > >     logic (old way).
-> > > > > 
-> > > > >   ql2xrspq_follow_inptr_legacy:
-> > > > > 
-> > > > >     Like ql2xrspq_follow_inptr, but for those adapters where there is no
-> > > > >     queue pointer shadowing.
-> > > > 
-> > > > On a meta-note, this patch seems VERY wrong.  You are adding a
-> > > > driver-wide module option for a device-specific action.  That should be
-> > > > a device-specific functionality, not a module.
-> > > > 
-> > > > Again, as I say many times, this isn't the 1990's, please never add new
-> > > > module parameters.  Use the other interfaces we have in the kernel to
-> > > > configure individual devices properly, module parameters are not to be
-> > > > used for that at all for anything new.
-> > > > 
-> > > > So, can you revert this commit and do it properly please?
-> > > > 
-> > > 
-> > > The reason I chose module parameter way was because of these primarily:
-> > > 
-> > > 1 As this is a platform specific issue, this behavior does not require a 
-> > >   device granular level tuning. Either all the said adapters turns the 
-> > >   behavior on or off.
-> > 
-> > What is going to allow a user to know to do this or not?  Why is this
-> > needed at all, and why doesn't the driver automatically know what to do
-> > either based on the device id, or the platform, or the workload?
-> 
-> The change is to err on the side of caution and make the logic 
-> a bit conservative at the same time providing an option for those 
-> platforms or architectures where the issue is not applicable, but the 
-> logic is causing a reduction in performance.
+> How could we end up having ZONE_DMA without any managed memory to start
+> with except for the case where the total memory is smaller than what
+> fits into ZONE_DMA?  If we have such a case we really should warn about
+> it as well.
 
-So this is a "enable the driver to work in a broken way" option?
+This can be an early memory reservation from this physical address
+range. My original report http://lkml.kernel.org/r/Yj28gjonUa9+0yae@dhcp22.suse.cz
+was referring to such a system (a different one than what I am dealing
+with now): present:636kB managed:0kB
 
-> > Forcing a user to pick something for "tuning" like this is horrible and
-> > messy and almost impossible to support properly over time.
-> 
-> The option is intended for slightly advanced users, platform or os 
-> vendors etc. When it comes to an end user, I agree it is challenging to 
-> know if a change from default is needed or not.
+There is only 636kB present in that ZONE_DMA physical range but nothing
+has made it to the page allocator in the end.
 
-That's not ok, as a driver writer you need to make it "always work",
-don't force the user to choose "safe vs. unsafe" options, that's passing
-the blame.
-
-> > Just do it in the driver automatically and then there's no need for any 
-> > options at all.
-> 
-> The platform bug exhibited as driver accessing stale memory, so it is 
-> tough to automatically tune the value automatically.
-
-That sounds like a real bug that you need to fix.  Please revert this
-change and just fix the issue to always work properly.  To have an
-option that allows a driver to work in a broken way is not acceptable.
-
-> > > If udev route is taken, I'd have to come up with a configuration file to 
-> > > save tunable state, which could be a bit cumbersome and needs 
-> > > documentation and be different (in terms of script location/submitting) 
-> > > distro to distro.
-> > 
-> > How is a module parameter saving any state anywhere?
-> 
-> Since module parameter could be configured via modprobe.conf/equivalent, a 
-> user could set the value of his choice in that file and have the value 
-> persisted.
-
-Same for a udev rule, so this is not an issue.
-
-Do you want me to send a patch that reverts this, or will you?
-
-thanks,
-
-greg k-h
+-- 
+Michal Hocko
+SUSE Labs
