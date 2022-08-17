@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E49C5596DEB
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 14:00:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8647D596DF5
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 14:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236015AbiHQL7h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 07:59:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58502 "EHLO
+        id S233455AbiHQMCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 08:02:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233652AbiHQL7h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 07:59:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 455FE6BCFB;
-        Wed, 17 Aug 2022 04:59:36 -0700 (PDT)
+        with ESMTP id S239111AbiHQMCs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 08:02:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA1D484EFC
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 05:02:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E056DB81BA5;
-        Wed, 17 Aug 2022 11:59:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 119C3C433D6;
-        Wed, 17 Aug 2022 11:59:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86884614FF
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 12:02:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9214CC433D6;
+        Wed, 17 Aug 2022 12:02:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660737573;
-        bh=Ji8MOQ19wzA4/F9kygo62h2DmZDs5FvDx5cfnZE86t0=;
+        s=korg; t=1660737767;
+        bh=3zqqLyW0FrDvSZVfY/mGeZ7CLtQy+VNZGlRtSns63w4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=syJa61+KfnRDHBzwmXOTbsgS2OciauRjwMtrhPeImbJCebsN8Nbo0VkrCXF/oXFVX
-         qEfBvH4BTrejUML915MQwSpnvw/gTOFgyN9GO8gcoU+GqEGiP4r+jdlEoogT+TWsqm
-         JH9hIao5CpKpz3VJrBQoIDXM9XgQJfTMeMxR+oPg=
-Date:   Wed, 17 Aug 2022 13:59:30 +0200
+        b=ilxVZwc6hbGfHfyWacUP1OSCXrHeEOvUHv9flkpPz2nd1sasSsDPfu9NOUJkdbzdU
+         7EWR13pPmQRi/teuHEmz7xXcfTMZP9eE/N6Eeca628fy8eHLM8P0Br7YkECsYvwGyU
+         BUiZDLVLJerIZcf8NzKprnvuP3iXS4xsxvBLGdJM=
+Date:   Wed, 17 Aug 2022 14:02:44 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Andri Yngvason <andri@yngvason.is>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH RESEND] HID: multitouch: Add memory barriers
-Message-ID: <YvzYIm21ZKYpUApA@kroah.com>
-References: <20220817113247.3530979-1-andri@yngvason.is>
+To:     Mimi Zohar <zohar@linux.ibm.com>
+Cc:     coxu@redhat.com, bhe@redhat.com, msuchanek@suse.de,
+        will@kernel.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] arm64: kexec_file: use more system
+ keyrings to verify kernel" failed to apply to 5.19-stable tree
+Message-ID: <YvzY5BOwFTkQd3IM@kroah.com>
+References: <166057758347124@kroah.com>
+ <ebb3e67f78a8d7ab0e359517eadb3f39247a358f.camel@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220817113247.3530979-1-andri@yngvason.is>
+In-Reply-To: <ebb3e67f78a8d7ab0e359517eadb3f39247a358f.camel@linux.ibm.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
@@ -51,36 +52,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 17, 2022 at 11:32:48AM +0000, Andri Yngvason wrote:
-> This fixes a race with the release-timer by adding acquire/release
-> barrier semantics.
-
-What race?
-
+On Mon, Aug 15, 2022 at 02:11:44PM -0400, Mimi Zohar wrote:
+> Hi Greg,
 > 
-> I noticed that contacts were sometimes sticking, even with the "sticky
-> fingers" quirk enabled. This fixes that problem.
+> On Mon, 2022-08-15 at 17:33 +0200, gregkh@linuxfoundation.org wrote:
+> > The patch below does not apply to the 5.19-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
 > 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Andri Yngvason <andri@yngvason.is>
-> ---
->  drivers/hid/hid-multitouch.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+> The commits contained in the 88b61b130334 ("Merge remote-tracking
+> branch 'linux-integrity/kexec-keyrings' into next-integrity") should be
+> applied in the proper order to avoid merge conflicts.  
 > 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 2e72922e36f5..91a4d3fc30e0 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -1186,7 +1186,7 @@ static void mt_touch_report(struct hid_device *hid,
->  	int contact_count = -1;
->  
->  	/* sticky fingers release in progress, abort */
-> -	if (test_and_set_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
-> +	if (test_and_set_bit_lock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
+> The third patch has a dependency on the first two commits, which were
+> initially in Andrew's tree.   The third commit says, "Note later
+> patches are dependent on this patch so it should be backported to the
+> stable tree as well."
 
-So this is now a lock?
-
-Why not just use a real lock instead?
+I need git commit ids of those commits please.  Otherwise this is
+impossible to determine given the huge number of commits in the tree.
 
 thanks,
 
