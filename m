@@ -2,123 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 484555973EA
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 18:17:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79DD0597429
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 18:34:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240889AbiHQQQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 12:16:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60212 "EHLO
+        id S237647AbiHQQaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 12:30:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241200AbiHQQPp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 12:15:45 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E6E3A284A
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 09:14:59 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id tl27so25416347ejc.1
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 09:14:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=yngvason-is.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc;
-        bh=iFd/hl8Lmkjh0k4mwcACREd/j+YkFMHuu1M0DrDBTpk=;
-        b=WkwjHwf1vSpAXpi37XD5vqNrWmZ7BKwDLemh8kvhjO/e6aM/bWQNcxmcli7fcput0i
-         n31F2zvH9lKXWtjQ7Ek6auQe9As7UArDsVKpjQs72yIYG7AEQUSA6OXPXzYne2q6SD9D
-         QVHxH+yViNN1rQcs44gxw9SLbUtnLw356rF3bJzCtFAvGYL5hbndIfjrLVMesctEG7VY
-         Gkxa4kvcdfMezHDhxkLkD3jeaesPTTJfZ8V+0qGKS6zHJQxBTptIrTkqjNbsW24Eknh9
-         8mcyokRUQJjsgoG9y8jpOT2CzEFntYJTadOa0tdZtKxVHRf5D8mj1hJqxUCiFxd0wKYv
-         p4Ow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc;
-        bh=iFd/hl8Lmkjh0k4mwcACREd/j+YkFMHuu1M0DrDBTpk=;
-        b=SBQgq0BHLJZ9aIMOcUxCe93z/Z27wNvKRux2DPscjFa5apl9Qg3e9tdPCMy/nvpo9G
-         NNt9R4foRqzCMS0ZJEMf/vff55nHRNemQ+U0QNRQ+/qZjYygniT5Gno3U3LPXww021yq
-         4du1sdF2Wb0ubUvjnBOQ5ALm9lnhxUw36mwxw3KbDLY9b3IagZuDGMfLkk1sxG+HwsY0
-         9lxVp0xpOrsFxjITkL6dMW644y8sthmC3IXNW9Y07Z8AkSapWflQKE2osR7no5yEXYNM
-         e6E1DvlY3TfPm+p7uZvcJDbhi4HhNj4bEH22yaRTik6pz+6lkb2PMG4GXxvweUATBE6s
-         mbHQ==
-X-Gm-Message-State: ACgBeo01oJJU3NTG7jV0s7bQqB1Z1imjcXvPTbEyIbrPqXDhqH93oiYQ
-        rTCXdGyXTx9V04BPhKNbqs7pMlaMkYmgPimLvQrmZA==
-X-Google-Smtp-Source: AA6agR4JKYhGh501ePpUu/2Q3O47dnbfc12nbNfkCASFpTx97st7yoF8s03AEMV375BPep3L9LmleQTfxWOdC61p9RY=
-X-Received: by 2002:a17:907:2809:b0:730:aaf6:ffde with SMTP id
- eb9-20020a170907280900b00730aaf6ffdemr16873535ejc.44.1660752897251; Wed, 17
- Aug 2022 09:14:57 -0700 (PDT)
+        with ESMTP id S241159AbiHQQ3v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 12:29:51 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D64EA2622;
+        Wed, 17 Aug 2022 09:29:00 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 8E04F37CA9;
+        Wed, 17 Aug 2022 16:28:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1660753738;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=lL2oRxUB2zNiDSHL08lc1EgwtUwwuRJxehS/wfuxEr8=;
+        b=gTJptUcWDH9T32V6Of5E4f+an9thPxzAqL2zZ4uFoaV32CH/kC5Oqo3vZ9LHTmTlJ+tuVL
+        A3+dhsBh5eZdfCmtH7xL/RQmfyMQDcGUzBKRNZme0snq0i9GrTs/Uv/03JleGFJ8Qio7Bf
+        EZWqi5eB5Z1tnJlzobNWGKw7Eu4jJuc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1660753738;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=lL2oRxUB2zNiDSHL08lc1EgwtUwwuRJxehS/wfuxEr8=;
+        b=oQlChQs+3AqvuskTD+p7PyrlbFGLHkNkA4Q7T/ZAeXWAIss/IBZKuESNJEiq28uBip5Bba
+        EPXRnNLmC1ChRADQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 616FA13A8E;
+        Wed, 17 Aug 2022 16:28:58 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id cg/SFkoX/WJXKAAAMHmgww
+        (envelope-from <dsterba@suse.cz>); Wed, 17 Aug 2022 16:28:58 +0000
+Date:   Wed, 17 Aug 2022 18:23:47 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     Qu Wenruo <quwenruo.btrfs@gmx.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.cz>, linux-btrfs@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH STABLE 5.18 0/2] btrfs: raid56 backports to reduce
+ destructive RMW
+Message-ID: <20220817162347.GF13489@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, Qu Wenruo <quwenruo.btrfs@gmx.com>,
+        Greg KH <gregkh@linuxfoundation.org>, Qu Wenruo <wqu@suse.com>,
+        linux-btrfs@vger.kernel.org, stable@vger.kernel.org
+References: <cover.1659600630.git.wqu@suse.com>
+ <YvESBmvjMqIXvqjp@kroah.com>
+ <Yvejlr1Nds8wtyKj@kroah.com>
+ <b10f1e72-0846-f46c-816a-352646ae5661@gmx.com>
 MIME-Version: 1.0
-References: <20220817113247.3530979-1-andri@yngvason.is> <YvzYIm21ZKYpUApA@kroah.com>
-In-Reply-To: <YvzYIm21ZKYpUApA@kroah.com>
-From:   Andri Yngvason <andri@yngvason.is>
-Date:   Wed, 17 Aug 2022 16:14:20 +0000
-Message-ID: <CAFNQBQyLtqA+yFDoqREguAK3q7qdKbacju=XKeUDTxsjXfFnJg@mail.gmail.com>
-Subject: Re: [PATCH RESEND] HID: multitouch: Add memory barriers
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b10f1e72-0846-f46c-816a-352646ae5661@gmx.com>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-mi=C3=B0., 17. =C3=A1g=C3=BA. 2022 kl. 11:59 skrifa=C3=B0i Greg KH <gregkh@=
-linuxfoundation.org>:
->
-> On Wed, Aug 17, 2022 at 11:32:48AM +0000, Andri Yngvason wrote:
-> > This fixes a race with the release-timer by adding acquire/release
-> > barrier semantics.
->
-> What race?
->
-
-The race is between the release timer and processing of hid input. It
-is quite certain that these atomic checks are broken as is because
-they're lacking memory barriers and this patch does fix an actual
-problem for me.
-
-I must admit that I don't know exactly where the execution reordering
-occurs and I haven't checked the generated assembly code, but if you
-look at e.g. mt_expired_timeout(), you'll see that there's nothing to
-keep the compiler or CPU from hoisting the test_bit() call above the
-test_and_set_bit() call.
-
+On Sun, Aug 14, 2022 at 06:17:45AM +0800, Qu Wenruo wrote:
+> 
+> 
+> On 2022/8/13 21:13, Greg KH wrote:
+> > On Mon, Aug 08, 2022 at 03:39:18PM +0200, Greg KH wrote:
+> >> On Thu, Aug 04, 2022 at 04:10:57PM +0800, Qu Wenruo wrote:
+> >>> Hi Greg and Sasha,
+> >>>
+> >>> This two patches are backports for v5.18 branch.
+> >>
+> >> I also need these for the 5.19.y branch if we were to take them into
+> >> 5.18.y as you do not want anyone to suffer a regression when moving to
+> >> the newer kernel release.
+> >>
+> >> So I'll wait for those to be sent before taking any of these.
 > >
-> > I noticed that contacts were sometimes sticking, even with the "sticky
-> > fingers" quirk enabled. This fixes that problem.
-> >
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Andri Yngvason <andri@yngvason.is>
-> > ---
-> >  drivers/hid/hid-multitouch.c | 8 ++++----
-> >  1 file changed, 4 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.=
-c
-> > index 2e72922e36f5..91a4d3fc30e0 100644
-> > --- a/drivers/hid/hid-multitouch.c
-> > +++ b/drivers/hid/hid-multitouch.c
-> > @@ -1186,7 +1186,7 @@ static void mt_touch_report(struct hid_device *hi=
-d,
-> >       int contact_count =3D -1;
-> >
-> >       /* sticky fingers release in progress, abort */
-> > -     if (test_and_set_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
-> > +     if (test_and_set_bit_lock(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
->
-> So this is now a lock?
->
-> Why not just use a real lock instead?
->
+> > I've dropped all of these btrfs backports from my "to review" queue now.
+> > Please fix them all up, get the needed acks, and then resend them and I
+> > will be glad to reconsider them at that point in time.
+> 
+> To David,
+> 
+> Mind to give an ACK for these backports?
 
-I don't know. This stuff was introduced in
-9609827458c37d7b2c37f2a9255631c603a5004c by Benjamin Tissoires.
-
-Cheers,
-Andri
+Acked-by: David Sterba <dsterba@suse.com>
