@@ -2,158 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E9A7596A26
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 09:17:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2A94596A57
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 09:27:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231915AbiHQHRW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 03:17:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38432 "EHLO
+        id S231143AbiHQHZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 03:25:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231834AbiHQHRV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 03:17:21 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD42A6B8D6;
-        Wed, 17 Aug 2022 00:17:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1660720640; x=1692256640;
-  h=from:to:cc:subject:references:date:in-reply-to:
-   message-id:mime-version;
-  bh=ZS9/pnsjWMHpVVY5COIkT1/+PC3cjs3sNi1oR7AcMOA=;
-  b=dF35UqcFT+sFhKuXL7fgalyd2F36E9Wdh2AaKxauKrEd3G3x++cCxiYS
-   q/R/TtX71YOVNCCga3lRygICInyWcdcf58VBT1KakIaDCGCzEGj540byG
-   2QhOfCbJVIsfRQl+q43GNAU6Wwv+NU1GVK28v9AawpEH9bZqiVCP1BSgI
-   U9+iPfDpKO444ZgpVkzma/fAO17p59uiAIo46wyQhJEdxKsQVUB+SK7IS
-   NBe5zasSb6+mK1vKC6O8F+y8urLh4sG4PBkbXUbN8L2Pll3Zhb/gzpI09
-   D6Q2YXycDLzGrH6+3F2rUpNr337Ks9LONWajgIjz9Q1Y6cnxM6H7mlauo
-   g==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10441"; a="292421017"
-X-IronPort-AV: E=Sophos;i="5.93,242,1654585200"; 
-   d="scan'208";a="292421017"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2022 00:17:20 -0700
-X-IronPort-AV: E=Sophos;i="5.93,242,1654585200"; 
-   d="scan'208";a="749605160"
-Received: from yhuang6-desk2.sh.intel.com (HELO yhuang6-desk2.ccr.corp.intel.com) ([10.238.208.55])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2022 00:17:16 -0700
-From:   "Huang, Ying" <ying.huang@intel.com>
-To:     Alistair Popple <apopple@nvidia.com>,
-        Nadav Amit <nadav.amit@gmail.com>
-Cc:     Peter Xu <peterx@redhat.com>,
-        huang ying <huang.ying.caritas@gmail.com>,
-        <linux-mm@kvack.org>, <akpm@linux-foundation.org>,
-        <linux-kernel@vger.kernel.org>,
-        "Sierra Guiza, Alejandro (Alex)" <alex.sierra@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        David Hildenbrand <david@redhat.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Karol Herbst <kherbst@redhat.com>,
-        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
-        Logan Gunthorpe <logang@deltatee.com>, <paulus@ozlabs.org>,
-        <linuxppc-dev@lists.ozlabs.org>, <stable@vger.kernel.org>
-Subject: Re: [PATCH v2 1/2] mm/migrate_device.c: Copy pte dirty bit to page
-References: <6e77914685ede036c419fa65b6adc27f25a6c3e9.1660635033.git-series.apopple@nvidia.com>
-        <CAC=cRTPGiXWjk=CYnCrhJnLx3mdkGDXZpvApo6yTbeW7+ZGajA@mail.gmail.com>
-        <Yvv/eGfi3LW8WxPZ@xz-m1.local> <871qtfvdlw.fsf@nvdebian.thelocal>
-        <YvxWUY9eafFJ27ef@xz-m1.local> <87o7wjtn2g.fsf@nvdebian.thelocal>
-Date:   Wed, 17 Aug 2022 15:17:04 +0800
-In-Reply-To: <87o7wjtn2g.fsf@nvdebian.thelocal> (Alistair Popple's message of
-        "Wed, 17 Aug 2022 15:41:16 +1000")
-Message-ID: <87tu6bbaq7.fsf@yhuang6-desk2.ccr.corp.intel.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S229565AbiHQHZk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 03:25:40 -0400
+Received: from wout4-smtp.messagingengine.com (wout4-smtp.messagingengine.com [64.147.123.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFED26BCD5;
+        Wed, 17 Aug 2022 00:25:39 -0700 (PDT)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.west.internal (Postfix) with ESMTP id D70873200A02;
+        Wed, 17 Aug 2022 03:25:37 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Wed, 17 Aug 2022 03:25:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm3; t=1660721137; x=1660807537; bh=vJVx4WtDzf
+        lqfh/jerRWkx6erDZLmKZWLsZEwHAhgJU=; b=NScLqu1b8Cggis4Ov9NKv0oP17
+        Xb9SUCUeBrk/YEp96L1H31qDaZyxGJDMRO83Q/25VSUbAxNHIJaSBh6F/Zp2fpuH
+        eQfW8asOsp4kOriA0PDRm0Rewo1WbtuARkN5hFSeBxCyK1NKwmLC+puKvEWnIhJ+
+        4ZYH+URo49ynS6bVRyhh2H4JtLXVGi+xBRPjj3m7B+onz+nRhZbCoiQ/jAmOUEXO
+        vAKS8OXpnYYNeK07J49sypSjzmvgZsFOwXQJAqyebAQ6SZhIWQ+L9szEuPU/cDKe
+        5ASC3NtDJRfUDPhjIveg33tuksFpZh/0kSFJ7L5+xUCPysz8RN4vChikettA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; t=1660721137; x=1660807537; bh=vJVx4WtDzflqfh/jerRWkx6erDZL
+        mKZWLsZEwHAhgJU=; b=NeLWExoCwPDyyfCfpqM8YJ2Xy5kdzWOMgNvZoedkWDBL
+        ++yxxuj75HbAulWsmrcNuZ9NyYl1t6dYOJWv8zN2JQ+lKpgx9l33VeJSfJdB120K
+        xTQxWtNbvrKnfjIpZkIPsHJUFUoABG2efznUztq7BwNFLQLvhkdaNQyoiZKdy+o/
+        jamsJAgEXKn4kQnvn9GbeSznz0nAxikWXsjoZ5xzu1+wqWpxsKmtyHep08dRikJE
+        j1xnZU2bNdWxiwOyFydoFUwCMjVchy6BZlUxeUMXvHU4ksWBkaQHU5chpWo03ACY
+        N8I9tUuicqvdtCgb3uud1gOl4k+gFVTM74W8lzp1Qw==
+X-ME-Sender: <xms:8Jf8Ynsleye5XXe5dMGrfk5SmMfru_MwT67UUen3NDCqM6R1VLYqFA>
+    <xme:8Jf8YoeTdfLd0WZHsVW-hjCDWt7N5keCjmI6RNFG0GxwfTH4hBiaVsICNmOySWUwi
+    57rIcU2wu5CRgdyyQs>
+X-ME-Received: <xmr:8Jf8Yqxyb-g23OdIBSoVfEw0c73wEzI_3Z7pj_RD4I0xTq3Dsei_zLQO0g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrvdehhedguddvudcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvvefukfhfgggtuggjsehgtderredttddvnecuhfhrohhmpeforgig
+    ihhmvgcutfhiphgrrhguuceomhgrgihimhgvsegtvghrnhhordhtvggthheqnecuggftrf
+    grthhtvghrnhepieeuvdeiffevteejhefhveejheevheelgfejtefhteejudeukeehtdek
+    uedufeffnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpfhhrvggvuggvshhkthhoph
+    drohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhm
+    pehmrgigihhmvgestggvrhhnohdrthgvtghh
+X-ME-Proxy: <xmx:8Jf8YmPH7TsgSYPiqR4OFH9RVZiFiv0Lw0OYRhBWtjr9penEHKJyxA>
+    <xmx:8Jf8Yn-b6ApkRaVkh0bLbxVYBXDvCsvQ-tp5lJuQjxQmVOxszbeW5g>
+    <xmx:8Jf8YmXruJwrIrmxAe1BNuVLSWHW5htxgNGcEj5wDR0Hy0pGrkc5eQ>
+    <xmx:8Zf8YrW6gYxVlVHBXKTI5fLXZRBFbQvwFTLe7Q9_ZBsjCXjGdfLRHg>
+Feedback-ID: i8771445c:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 17 Aug 2022 03:25:35 -0400 (EDT)
+Date:   Wed, 17 Aug 2022 09:25:33 +0200
+From:   Maxime Ripard <maxime@cerno.tech>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>
+Subject: Re: [PATCH 5.18 0000/1094] 5.18.18-rc2 review
+Message-ID: <20220817072533.g52swuix3rdr33fk@houat>
+References: <20220816124604.978842485@linuxfoundation.org>
+ <CA+G9fYuhJw5vW7A8Wsqe_+fNK4pWCGdQ+0zfkNyd3y7_X0=CBA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="elypw663ujamzoz6"
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYuhJw5vW7A8Wsqe_+fNK4pWCGdQ+0zfkNyd3y7_X0=CBA@mail.gmail.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Alistair Popple <apopple@nvidia.com> writes:
 
-> Peter Xu <peterx@redhat.com> writes:
->
->> On Wed, Aug 17, 2022 at 11:49:03AM +1000, Alistair Popple wrote:
->>>
->>> Peter Xu <peterx@redhat.com> writes:
->>>
->>> > On Tue, Aug 16, 2022 at 04:10:29PM +0800, huang ying wrote:
->>> >> > @@ -193,11 +194,10 @@ static int migrate_vma_collect_pmd(pmd_t *pmdp,
->>> >> >                         bool anon_exclusive;
->>> >> >                         pte_t swp_pte;
->>> >> >
->>> >> > +                       flush_cache_page(vma, addr, pte_pfn(*ptep));
->>> >> > +                       pte = ptep_clear_flush(vma, addr, ptep);
->>> >>
->>> >> Although I think it's possible to batch the TLB flushing just before
->>> >> unlocking PTL.  The current code looks correct.
->>> >
->>> > If we're with unconditionally ptep_clear_flush(), does it mean we should
->>> > probably drop the "unmapped" and the last flush_tlb_range() already since
->>> > they'll be redundant?
->>>
->>> This patch does that, unless I missed something?
->>
->> Yes it does.  Somehow I didn't read into the real v2 patch, sorry!
->>
->>>
->>> > If that'll need to be dropped, it looks indeed better to still keep the
->>> > batch to me but just move it earlier (before unlock iiuc then it'll be
->>> > safe), then we can keep using ptep_get_and_clear() afaiu but keep "pte"
->>> > updated.
->>>
->>> I think we would also need to check should_defer_flush(). Looking at
->>> try_to_unmap_one() there is this comment:
->>>
->>> 			if (should_defer_flush(mm, flags) && !anon_exclusive) {
->>> 				/*
->>> 				 * We clear the PTE but do not flush so potentially
->>> 				 * a remote CPU could still be writing to the folio.
->>> 				 * If the entry was previously clean then the
->>> 				 * architecture must guarantee that a clear->dirty
->>> 				 * transition on a cached TLB entry is written through
->>> 				 * and traps if the PTE is unmapped.
->>> 				 */
->>>
->>> And as I understand it we'd need the same guarantee here. Given
->>> try_to_migrate_one() doesn't do batched TLB flushes either I'd rather
->>> keep the code as consistent as possible between
->>> migrate_vma_collect_pmd() and try_to_migrate_one(). I could look at
->>> introducing TLB flushing for both in some future patch series.
->>
->> should_defer_flush() is TTU-specific code?
->
-> I'm not sure, but I think we need the same guarantee here as mentioned
-> in the comment otherwise we wouldn't see a subsequent CPU write that
-> could dirty the PTE after we have cleared it but before the TLB flush.
->
-> My assumption was should_defer_flush() would ensure we have that
-> guarantee from the architecture, but maybe there are alternate/better
-> ways of enforcing that?
->> IIUC the caller sets TTU_BATCH_FLUSH showing that tlb can be omitted since
->> the caller will be responsible for doing it.  In migrate_vma_collect_pmd()
->> iiuc we don't need that hint because it'll be flushed within the same
->> function but just only after the loop of modifying the ptes.  Also it'll be
->> with the pgtable lock held.
->
-> Right, but the pgtable lock doesn't protect against HW PTE changes such
-> as setting the dirty bit so we need to ensure the HW does the right
-> thing here and I don't know if all HW does.
+--elypw663ujamzoz6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This sounds sensible.  But I take a look at zap_pte_range(), and find
-that it appears that the implementation requires the PTE dirty bit to be
-write-through.  Do I miss something?
+On Wed, Aug 17, 2022 at 12:45:14AM +0530, Naresh Kamboju wrote:
+> On Tue, 16 Aug 2022 at 18:29, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.18.18 release.
+> > There are 1094 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Thu, 18 Aug 2022 12:43:14 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patc=
+h-5.18.18-rc2.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git linux-5.18.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+>=20
+> Results from Linaro's test farm.
+> No regressions on arm64, arm, x86_64, and i386.
+>=20
+> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+>=20
+> NOTE:
+> Following warning found on both 5.19 and 5.18 on Rpi4 device
+> Which was already reported by on mainline kernel on June 30.
+>=20
+> WARNING: CPU: 0 PID: 246 at drivers/gpu/drm/vc4/vc4_hdmi_regs.h:487
+> vc5_hdmi_reset+0x1f0/0x240 [vc4]
+>=20
+>  - https://lore.kernel.org/all/CA+G9fYve16J7=3D4f+WAVrTUspxkKA+3BonHzGyk8=
+VP=3DU+D9irOQ@mail.gmail.com/
+>  - https://lists.freedesktop.org/archives/dri-devel/2022-June/362244.html
 
-Hi, Nadav, Can you help?
+It's fixed in drm-misc-next but missed the merge window cut,
 
-Best Regards,
-Huang, Ying
+https://lore.kernel.org/all/20220629123510.1915022-38-maxime@cerno.tech/
+https://lore.kernel.org/all/20220629123510.1915022-39-maxime@cerno.tech/
 
-[snip]
+If it fixes it for you as well, I'll apply them to drm-misc-fixes
+
+Maxime
+
+--elypw663ujamzoz6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCYvyX7QAKCRDj7w1vZxhR
+xb44AP908OqrM0yDmjPv8loLAW4oRdkcTwh0TOI0gdoFucrEZgEAm6KizJY0OcP5
+BFaL9EP8cqeaIEcsU6owXK/pGtri3AA=
+=GOuM
+-----END PGP SIGNATURE-----
+
+--elypw663ujamzoz6--
