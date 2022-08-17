@@ -2,201 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35EE8596634
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 02:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5EA59667A
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 03:00:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237880AbiHQABA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Aug 2022 20:01:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51312 "EHLO
+        id S237535AbiHQA7j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Aug 2022 20:59:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237491AbiHQAA6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 20:00:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5578B92F54;
-        Tue, 16 Aug 2022 17:00:57 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02C69B81B6E;
-        Wed, 17 Aug 2022 00:00:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DDDAC433C1;
-        Wed, 17 Aug 2022 00:00:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1660694454;
-        bh=FbfOYpIdukfWy/0NOEuz/PqKaeNCFxaBDEefJJvAzSI=;
-        h=Date:To:From:Subject:From;
-        b=YOlFWTXGWxHbANf/1L6EiZQjAfgYNdxgciU3E0LK/ZRGlamauXwoDMEmgDNgWjsKk
-         U+YXnOSYoyOM2THpqZ2F3wDuY/m/Bmk9ddgd/5af9tKLQFWALZf8mdFzAux14XXP4h
-         voxtwOHIauQiHOlGNOGGS5Tym3RRE5sk4R/qRhJI=
-Date:   Tue, 16 Aug 2022 17:00:53 -0700
-To:     mm-commits@vger.kernel.org, ying.huang@intel.com,
-        willy@infradead.org, stable@vger.kernel.org, rcampbell@nvidia.com,
-        peterx@redhat.com, paulus@ozlabs.org, lyude@redhat.com,
-        logang@deltatee.com, kherbst@redhat.com, jhubbard@nvidia.com,
-        jgg@nvidia.com, felix.kuehling@amd.com, david@redhat.com,
-        bskeggs@redhat.com, alex.sierra@amd.com, apopple@nvidia.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-migrate_devicec-copy-pte-dirty-bit-to-page.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220817000054.8DDDAC433C1@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S229911AbiHQA7i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Aug 2022 20:59:38 -0400
+Received: from qproxy1-pub.mail.unifiedlayer.com (qproxy1-pub.mail.unifiedlayer.com [173.254.64.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F4338D3D3
+        for <stable@vger.kernel.org>; Tue, 16 Aug 2022 17:59:37 -0700 (PDT)
+Received: from gproxy3-pub.mail.unifiedlayer.com (unknown [69.89.30.42])
+        by qproxy1.mail.unifiedlayer.com (Postfix) with ESMTP id 90BC78026E3D
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 00:59:35 +0000 (UTC)
+Received: from cmgw14.mail.unifiedlayer.com (unknown [10.0.90.129])
+        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id A8B30101B9739
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 00:59:19 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id O7OxoUmu4oTaxO7OxoV0Qw; Wed, 17 Aug 2022 00:59:19 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=PNrKRdmC c=1 sm=1 tr=0 ts=62fc3d67
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=biHskzXt2R4A:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=Gt2NV6OgVI9NVibrqNAA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=PU3RNHSg6eYArFqcI4VIhC4m3cfUF75i2dszWuA3lWA=; b=pwHisq3xp2UR04Vt1gtswF6z8d
+        SBBNu15RdercLbQMx9Jl4HDKixjz1Rdqd9IXKzfnFid3KsPtAcg/T1VJWXn6felgvU7SedhKIOdb4
+        xN5Q9Czlwz4QXp5UI1IDExiWiVYWAbCkA93BVkv5tuqopkge17uLAJ3W7pXODZRqt/+gsPGMLFyFS
+        pByVndQXrxFS+04CB5Y5I08uXO0drDYSUYP4prwq67jZcdOG+7sz3emT0ywuO7ni2eh9bt+jk7ll+
+        ZwzbK2ou6JevgzpshNdbyjO9CbTvgBksPW+1V7KUrVKa1hv4y2snqr2tSJNHviTHhTiHowyOxmROv
+        vFFGRMMQ==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:40388 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1oO7Ow-001B6U-4L;
+        Tue, 16 Aug 2022 18:59:18 -0600
+Subject: Re: [PATCH 5.18 0000/1094] 5.18.18-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220816124604.978842485@linuxfoundation.org>
+In-Reply-To: <20220816124604.978842485@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <d0dcbb2f-80fc-3eca-5b85-086eaefdd1e9@w6rz.net>
+Date:   Tue, 16 Aug 2022 17:59:15 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1oO7Ow-001B6U-4L
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:40388
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 8/16/22 5:59 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.18.18 release.
+> There are 1094 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 18 Aug 2022 12:43:14 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.18-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-The patch titled
-     Subject: mm/migrate_device.c: copy pte dirty bit to page
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-migrate_devicec-copy-pte-dirty-bit-to-page.patch
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-migrate_devicec-copy-pte-dirty-bit-to-page.patch
-
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Alistair Popple <apopple@nvidia.com>
-Subject: mm/migrate_device.c: copy pte dirty bit to page
-Date: Tue, 16 Aug 2022 17:39:24 +1000
-
-migrate_vma_setup() has a fast path in migrate_vma_collect_pmd() that
-installs migration entries directly if it can lock the migrating page. 
-When removing a dirty pte the dirty bit is supposed to be carried over to
-the underlying page to prevent it being lost.
-
-Currently migrate_vma_*() can only be used for private anonymous mappings.
-That means loss of the dirty bit usually doesn't result in data loss
-because these pages are typically not file-backed.  However pages may be
-backed by swap storage which can result in data loss if an attempt is made
-to migrate a dirty page that doesn't yet have the PageDirty flag set.
-
-In this case migration will fail due to unexpected references but the
-dirty pte bit will be lost.  If the page is subsequently reclaimed data
-won't be written back to swap storage as it is considered uptodate,
-resulting in data loss if the page is subsequently accessed.
-
-Prevent this by copying the dirty bit to the page when removing the pte to
-match what try_to_migrate_one() does.
-
-Link: https://lkml.kernel.org/r/6e77914685ede036c419fa65b6adc27f25a6c3e9.1660635033.git-series.apopple@nvidia.com
-Fixes: 8c3328f1f36a ("mm/migrate: migrate_vma() unmap page from vma while collecting pages")
-Signed-off-by: Alistair Popple <apopple@nvidia.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Reported-by: Huang Ying <ying.huang@intel.com>
-Reviewed-by: Huang Ying <ying.huang@intel.com>
-Cc: Alex Sierra <alex.sierra@amd.com>
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Felix Kuehling <felix.kuehling@amd.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Karol Herbst <kherbst@redhat.com>
-Cc: Logan Gunthorpe <logang@deltatee.com>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Paul Mackerras <paulus@ozlabs.org>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/migrate_device.c |   21 ++++++++-------------
- 1 file changed, 8 insertions(+), 13 deletions(-)
-
---- a/mm/migrate_device.c~mm-migrate_devicec-copy-pte-dirty-bit-to-page
-+++ a/mm/migrate_device.c
-@@ -7,6 +7,7 @@
- #include <linux/export.h>
- #include <linux/memremap.h>
- #include <linux/migrate.h>
-+#include <linux/mm.h>
- #include <linux/mm_inline.h>
- #include <linux/mmu_notifier.h>
- #include <linux/oom.h>
-@@ -61,7 +62,7 @@ static int migrate_vma_collect_pmd(pmd_t
- 	struct migrate_vma *migrate = walk->private;
- 	struct vm_area_struct *vma = walk->vma;
- 	struct mm_struct *mm = vma->vm_mm;
--	unsigned long addr = start, unmapped = 0;
-+	unsigned long addr = start;
- 	spinlock_t *ptl;
- 	pte_t *ptep;
- 
-@@ -193,11 +194,10 @@ again:
- 			bool anon_exclusive;
- 			pte_t swp_pte;
- 
-+			flush_cache_page(vma, addr, pte_pfn(*ptep));
-+			pte = ptep_clear_flush(vma, addr, ptep);
- 			anon_exclusive = PageAnon(page) && PageAnonExclusive(page);
- 			if (anon_exclusive) {
--				flush_cache_page(vma, addr, pte_pfn(*ptep));
--				ptep_clear_flush(vma, addr, ptep);
--
- 				if (page_try_share_anon_rmap(page)) {
- 					set_pte_at(mm, addr, ptep, pte);
- 					unlock_page(page);
-@@ -205,12 +205,14 @@ again:
- 					mpfn = 0;
- 					goto next;
- 				}
--			} else {
--				ptep_get_and_clear(mm, addr, ptep);
- 			}
- 
- 			migrate->cpages++;
- 
-+			/* Set the dirty flag on the folio now the pte is gone. */
-+			if (pte_dirty(pte))
-+				folio_mark_dirty(page_folio(page));
-+
- 			/* Setup special migration page table entry */
- 			if (mpfn & MIGRATE_PFN_WRITE)
- 				entry = make_writable_migration_entry(
-@@ -242,9 +244,6 @@ again:
- 			 */
- 			page_remove_rmap(page, vma, false);
- 			put_page(page);
--
--			if (pte_present(pte))
--				unmapped++;
- 		} else {
- 			put_page(page);
- 			mpfn = 0;
-@@ -257,10 +256,6 @@ next:
- 	arch_leave_lazy_mmu_mode();
- 	pte_unmap_unlock(ptep - 1, ptl);
- 
--	/* Only flush the TLB if we actually modified any entries */
--	if (unmapped)
--		flush_tlb_range(walk->vma, start, end);
--
- 	return 0;
- }
- 
-_
-
-Patches currently in -mm which might be from apopple@nvidia.com are
-
-mm-migrate_devicec-copy-pte-dirty-bit-to-page.patch
-mm-gupc-simplify-and-fix-check_and_migrate_movable_pages-return-codes.patch
+Tested-by: Ron Economos <re@w6rz.net>
 
