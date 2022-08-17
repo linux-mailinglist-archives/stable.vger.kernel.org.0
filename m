@@ -2,151 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4FF95975D8
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 20:43:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 928995975F4
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 20:50:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236240AbiHQSkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 14:40:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44704 "EHLO
+        id S241210AbiHQSsL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 14:48:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240999AbiHQSko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 14:40:44 -0400
-Received: from mail-pf1-x449.google.com (mail-pf1-x449.google.com [IPv6:2607:f8b0:4864:20::449])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC3C7A00E8
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 11:40:40 -0700 (PDT)
-Received: by mail-pf1-x449.google.com with SMTP id 185-20020a6218c2000000b0052d4852d3f6so5290677pfy.5
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 11:40:40 -0700 (PDT)
+        with ESMTP id S241255AbiHQSsJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 14:48:09 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 424B5A3461
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 11:48:02 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id u133so12768831pfc.10
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 11:48:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:mime-version:message-id:date:from:to:cc;
-        bh=ZYTlBBFnaZ0P/8h1RW7JgkzBP7Qz3/ENWA74waVFHsk=;
-        b=rEKzgG4kB4gJbvdPUY9H+lfnRgqahefKDR5Jl73nA4WKGW5kwuqnE88uTY3v00RzaR
-         P1XqUhHs+w6cV8koRkvS9gXHlJMZFkJO0Bj5DiMro7jSn6MbktfS4XD+brKZjtIQlDvb
-         oF6nNCpMSlQJz8fcZfBUd8ryCNywZ6t4+gIMJS/wasIo4COpmd00eLTiu9rkzKnLBiyj
-         jZPGnBjgNjAqfK+18xRawhoR/RLoAcl5bAavj+iTn+QzSSJGMAzogpo0nyPY7URheaJZ
-         MLzzf2V3uR8cfruliPSKCDP2Qt73gUn9gGO7Y8hp82RFjbgulhTxsLFZyJSWboAG7dMI
-         6FIw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc;
+        bh=jeeUTUGAwLkQGnhwVvsgoEFIdcR0raKNKGM01A+4Mlo=;
+        b=ICu3ZLLcrp6rJ6g6uftHiywdY2rvqBVRxPC7Mee50q8SEo1TSRBaHHKEQOYsdMZ8Qi
+         uBGtlxln5IMepI2cYu1NWYyQL0WW8AiS1bFYnh0Fu3YvWucU/mIZhivbXNa2zry5HH9a
+         BL1bAMJwsvB2oOy5f1mMfZj7V1yIfzQrlBv6RW2yGIHTzP9hRoz1LqYtrfDJ1r9jmc6s
+         qepBzc1SP/d5HOQEqnhj5AaFBr1aZmI2/tZ9Q+VvXfwhK8zeXN8bg9G3CXTVH9QTq2fj
+         XWAohaM48yNh00dvmr03mCj2Y648G6ocM8h8htnBgQs+CdBFCjMIHmjB/rM/mmT0/BzD
+         uYcQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:from:subject:mime-version:message-id:date:x-gm-message-state
-         :from:to:cc;
-        bh=ZYTlBBFnaZ0P/8h1RW7JgkzBP7Qz3/ENWA74waVFHsk=;
-        b=sQy4685qi49jrXjYa8IWicK+OozCXx+AsPyUb2EwUNsFPgKqIX6hzc8mthlGH6/odD
-         xb0d4FTPekK6s21N9X0Yb1AVxkPDXOSZqlvG5Sf63KoUEPcoxSWpk8Fee2yeuIGt0yX8
-         nv4jmpHGb075Su9WFKtW5yVUkenbiKjXtJaRTwj3y3A6n4CqcdfVSWnyFnxPYFo9GJsG
-         9pW65OzrgY0CD+z+el6dy5lFO4mSJv8zEtlnw2RkNYQzYi/K8dWKxPqBOfeE5udke0m5
-         ZJ15RK5Rhj6A5PWzw468e0SBsg9xVGLvJ2cmi2vLyOviWS1XnB8frtCItznsOb+PljzY
-         Alow==
-X-Gm-Message-State: ACgBeo15+1TuegiFqAFZg7Bpsg+vXnPTFXbcoHG6IrursHO7w2v3vihr
-        /tisNEBMuMgIqhRUIhdW+a9Bw/1mEwPsjMUfJqCeng==
-X-Google-Smtp-Source: AA6agR6CY7WhInmP29tG9He+JFpqE/zTM3C8nWq8t4Z4fQTePSj6YMvMB7iBjRaZ4xlxokQyxFxrdpVFfQgF/p2WMWMGoA==
-X-Received: from isaacmanjarres.irv.corp.google.com ([2620:15c:2d:3:6c6d:d00:f0dd:6ddf])
- (user=isaacmanjarres job=sendgmr) by 2002:a17:90a:bf0a:b0:1fa:b53c:3f3a with
- SMTP id c10-20020a17090abf0a00b001fab53c3f3amr4095338pjs.126.1660761640140;
- Wed, 17 Aug 2022 11:40:40 -0700 (PDT)
-Date:   Wed, 17 Aug 2022 11:40:26 -0700
-Message-Id: <20220817184026.3468620-1-isaacmanjarres@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.37.1.595.g718a3a8f04-goog
-Subject: [PATCH v3] driver core: Don't probe devices after bus_type.match()
- probe deferral
-From:   "Isaac J. Manjarres" <isaacmanjarres@google.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Russell King <rmk+kernel@arm.linux.org.uk>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc:     "Isaac J. Manjarres" <isaacmanjarres@google.com>,
-        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
-        Guenter Roeck <linux@roeck-us.net>, kernel-team@android.com,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc;
+        bh=jeeUTUGAwLkQGnhwVvsgoEFIdcR0raKNKGM01A+4Mlo=;
+        b=upR7b1eWfV1gOr9FkWqQubj3IjazbxRI4DVJYmeJTqjBgWVPEV178fslquybJGx2ew
+         LjXtVO3LxiPgQxp8errw/ZdrtZJxRuerQe6zvXlmuzYfJjR4NxCQaCj75tVBFR+T+J/T
+         T0N7UxhN09wJi1l6yq164aP8CXDN40Gy1P3mqlm+gcH4oHSHYJ4jGLBwu7XJ05mLB4P7
+         aBoeu4QUHjcHbICxtvuj1N+dANlvDzMI2HU5R+f/Im0BwhcbYc8km3TfK1PJXfjj76h0
+         lBPeSGuP3+le1Vqk73O1G8WDwUltaw9QND9YndabskNJ7JWPwkD4rX3DZwdSwHOOPkeP
+         pimA==
+X-Gm-Message-State: ACgBeo1EFaq+bFLYydF9smq2py26pEIH8AA2Wn1XhqFldxfjx1gUDUp8
+        o25XItH/FiUwtndMOO/PCOpBZpv5JO+8CAZz
+X-Google-Smtp-Source: AA6agR69gYhchYrjKhDZNuh2CqdVJ5rwDhyZgiOlJS5fWaBriXTrhfTAZWIaOMv5Z+QI7Z5b4i2YGQ==
+X-Received: by 2002:a05:6a00:1a44:b0:52a:ecd5:bbef with SMTP id h4-20020a056a001a4400b0052aecd5bbefmr26451091pfv.28.1660762081075;
+        Wed, 17 Aug 2022 11:48:01 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a14-20020a1709027e4e00b0016d10267927sm240961pln.203.2022.08.17.11.48.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Aug 2022 11:48:00 -0700 (PDT)
+Message-ID: <62fd37e0.170a0220.e37a0.0eba@mx.google.com>
+Date:   Wed, 17 Aug 2022 11:48:00 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.18.y
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.18.18
+Subject: stable/linux-5.18.y baseline: 145 runs, 1 regressions (v5.18.18)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Both __device_attach_driver() and __driver_attach() check the return
-code of the bus_type.match() function to see if the device needs to be
-added to the deferred probe list. After adding the device to the list,
-the logic attempts to bind the device to the driver anyway, as if the
-device had matched with the driver, which is not correct.
+stable/linux-5.18.y baseline: 145 runs, 1 regressions (v5.18.18)
 
-If __device_attach_driver() detects that the device in question is not
-ready to match with a driver on the bus, then it doesn't make sense for
-the device to attempt to bind with the current driver or continue
-attempting to match with any of the other drivers on the bus. So, update
-the logic in __device_attach_driver() to reflect this.
+Regressions Summary
+-------------------
 
-If __driver_attach() detects that a driver tried to match with a device
-that is not ready to match yet, then the driver should not attempt to bind
-with the device. However, the driver can still attempt to match and bind
-with other devices on the bus, as drivers can be bound to multiple
-devices. So, update the logic in __driver_attach() to reflect this.
+platform | arch | lab          | compiler | defconfig          | regressions
+---------+------+--------------+----------+--------------------+------------
+panda    | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1          =
 
-Cc: stable@vger.kernel.org
-Cc: Saravana Kannan <saravanak@google.com>
-Fixes: 656b8035b0ee ("ARM: 8524/1: driver cohandle -EPROBE_DEFER from bus_type.match()")
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Saravana Kannan <saravanak@google.com>
----
- drivers/base/dd.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
 
-v1 -> v2:
-- Fixed the logic in __driver_attach() to allow a driver to continue
-  attempting to match and bind with devices in case of any error, not
-  just probe deferral.
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.18.y/kernel=
+/v5.18.18/plan/baseline/
 
-v2 -> v3:
-- Restored the patch back to v1.
-- Added Guenter's Tested-by tag.
-- Added Saravana's Reviewed-by tag.
-- Cc'd stable@vger.kernel.org
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.18.y
+  Describe: v5.18.18
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      07e0b709cab7dc987b5071443789865e20481119 =
 
-Greg,
 
-This is the final version of this patch. Can you please pick this up?
 
-Thanks,
-Isaac
+Test Regressions
+---------------- =
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 70f79fc71539..90b31fb141a5 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -881,6 +881,11 @@ static int __device_attach_driver(struct device_driver *drv, void *_data)
- 		dev_dbg(dev, "Device match requests probe deferral\n");
- 		dev->can_match = true;
- 		driver_deferred_probe_add(dev);
-+		/*
-+		 * Device can't match with a driver right now, so don't attempt
-+		 * to match or bind with other drivers on the bus.
-+		 */
-+		return ret;
- 	} else if (ret < 0) {
- 		dev_dbg(dev, "Bus failed to match device: %d\n", ret);
- 		return ret;
-@@ -1120,6 +1125,11 @@ static int __driver_attach(struct device *dev, void *data)
- 		dev_dbg(dev, "Device match requests probe deferral\n");
- 		dev->can_match = true;
- 		driver_deferred_probe_add(dev);
-+		/*
-+		 * Driver could not match with device, but may match with
-+		 * another device on the bus.
-+		 */
-+		return 0;
- 	} else if (ret < 0) {
- 		dev_dbg(dev, "Bus failed to match device: %d\n", ret);
- 		return ret;
--- 
-2.37.1.595.g718a3a8f04-goog
 
+
+platform | arch | lab          | compiler | defconfig          | regressions
+---------+------+--------------+----------+--------------------+------------
+panda    | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62fd077fe4c7593814355655
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.18/a=
+rm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.18/a=
+rm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62fd077fe4c7593814355=
+656
+        new failure (last pass: v5.18.17) =
+
+ =20
