@@ -2,116 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3D20596AAD
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 09:56:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CE75596B28
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 10:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233459AbiHQHyu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 03:54:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46654 "EHLO
+        id S229930AbiHQIMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 04:12:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230114AbiHQHys (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 03:54:48 -0400
-Received: from progateway7-pub.mail.pro1.eigbox.com (gproxy5-pub.mail.unifiedlayer.com [67.222.38.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D94C841D0E
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 00:54:47 -0700 (PDT)
-Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
-        by progateway7.mail.pro1.eigbox.com (Postfix) with ESMTP id 987E71004491F
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 07:54:36 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id ODsqo3qX4pnCyODsqoLKST; Wed, 17 Aug 2022 07:54:36 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=d5kwdTvE c=1 sm=1 tr=0 ts=62fc9ebc
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=biHskzXt2R4A:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=IAkFCxurSS7jjyJAaRIA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=XvAJ6wK9cpRDCknKVsz42A3AaLEeFcDBb2RRbB3KMYo=; b=lNqjKtKzaE+qvnpn9SJM/DFLA/
-        CaDNQaOSxgVhBZkhSaw3HDGCRVrYExt7k54SA5T8L3556OdvUwPRWxLBV3ajOKIhSSZl8yYq7EZis
-        WFj6NLBXIm+6nPjzYBZIZg2MOXG59B56srP8xV1rPfDC7rcifnlCtO28oeqWv8CW87l3DpZCUq46c
-        uOrmgfNGV1TLlG6FdOOdYO5DGeK0Kmh9cI2sa9GTCOHilIsV2yWAnLBGrnia/pKRJFJuoqC2e1XWe
-        BqvqB/aCl9b6t6bwst9Phgxq9SPcKZS5/6MWxWqhjikUoIYXsaUPSEgn7+WRgMMw1pGUY51Xe5L1E
-        q2UD+SPA==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:40432 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1oODso-003ShS-VA;
-        Wed, 17 Aug 2022 01:54:35 -0600
-Subject: Re: [PATCH 5.15 000/778] 5.15.61-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220816124544.577833376@linuxfoundation.org>
-In-Reply-To: <20220816124544.577833376@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <12c48cf8-cab0-10ef-1e38-f6fdf01e08b5@w6rz.net>
-Date:   Wed, 17 Aug 2022 00:54:33 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S229764AbiHQIMr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 04:12:47 -0400
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD89257E06
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 01:12:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1660723965; x=1692259965;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=ok/NeemBAwPZbF/TT7fU0YSvlhre9yyG3srbVD0h6+U=;
+  b=Ni6kHIcrc+XgV3t6DGBqkj4aGWUKEg0DJdj3vugSmu/y22ELRBapnLGD
+   u4NykqjJWpOL1tYOz/tmmIh6sPAePSLaiFpfupYGdwJ5El0ioKqxC8WRf
+   PBAU27TbePEUm/o+pGQSTSpo0Z4PHs4AnFdqPKuF2Qz2bqlwFTquFX2KT
+   tDwjXZKNnkldDzxTWsf9DSXrok5XQDfPIIw3Xg+yCPeFE3LpaVKN/tU4v
+   UEN2xPYANRs28nHWuQdbhmY+evcWV8i3sKVWiCfrjtiWRY1ExPgo7Vzux
+   8U2w8qYmuEv4OicIe4qK2qUcOPbW95pJUOociQbQjTRKXQ7Hr3ybnHrxU
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10441"; a="356431737"
+X-IronPort-AV: E=Sophos;i="5.93,242,1654585200"; 
+   d="scan'208";a="356431737"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2022 01:12:45 -0700
+X-IronPort-AV: E=Sophos;i="5.93,242,1654585200"; 
+   d="scan'208";a="607349943"
+Received: from unknown (HELO intel.com) ([10.237.72.65])
+  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2022 01:12:44 -0700
+Date:   Wed, 17 Aug 2022 11:13:20 +0300
+From:   "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
+To:     Jani Nikula <jani.nikula@intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [RESEND 1/3] drm/i915/dsi: filter invalid backlight
+ and CABC ports
+Message-ID: <YvyjILz4bXhvPjdZ@intel.com>
+References: <cover.1660664162.git.jani.nikula@intel.com>
+ <b0f4f087866257d280eb97d6bcfcefd109cc5fa2.1660664162.git.jani.nikula@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1oODso-003ShS-VA
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:40432
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b0f4f087866257d280eb97d6bcfcefd109cc5fa2.1660664162.git.jani.nikula@intel.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/16/22 5:59 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.61 release.
-> There are 778 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 18 Aug 2022 12:43:40 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.61-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, Aug 16, 2022 at 06:37:20PM +0300, Jani Nikula wrote:
+> Avoid using ports that aren't initialized in case the VBT backlight or
+> CABC ports have invalid values. This fixes a NULL pointer dereference of
+> intel_dsi->dsi_hosts[port] in such cases.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Would be interesting to figure out which one of those actually fixed the
+https://gitlab.freedesktop.org/drm/intel/-/issues/6476 issue, this one
+or next one.
 
-Tested-by: Ron Economos <re@w6rz.net>
+Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
 
+> ---
+>  drivers/gpu/drm/i915/display/icl_dsi.c | 7 +++++++
+>  drivers/gpu/drm/i915/display/vlv_dsi.c | 7 +++++++
+>  2 files changed, 14 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/i915/display/icl_dsi.c b/drivers/gpu/drm/i915/display/icl_dsi.c
+> index 5dcfa7feffa9..885c74f60366 100644
+> --- a/drivers/gpu/drm/i915/display/icl_dsi.c
+> +++ b/drivers/gpu/drm/i915/display/icl_dsi.c
+> @@ -2070,7 +2070,14 @@ void icl_dsi_init(struct drm_i915_private *dev_priv)
+>  	else
+>  		intel_dsi->ports = BIT(port);
+>  
+> +	if (drm_WARN_ON(&dev_priv->drm, intel_connector->panel.vbt.dsi.bl_ports & ~intel_dsi->ports))
+> +		intel_connector->panel.vbt.dsi.bl_ports &= intel_dsi->ports;
+> +
+>  	intel_dsi->dcs_backlight_ports = intel_connector->panel.vbt.dsi.bl_ports;
+> +
+> +	if (drm_WARN_ON(&dev_priv->drm, intel_connector->panel.vbt.dsi.cabc_ports & ~intel_dsi->ports))
+> +		intel_connector->panel.vbt.dsi.cabc_ports &= intel_dsi->ports;
+> +
+>  	intel_dsi->dcs_cabc_ports = intel_connector->panel.vbt.dsi.cabc_ports;
+>  
+>  	for_each_dsi_port(port, intel_dsi->ports) {
+> diff --git a/drivers/gpu/drm/i915/display/vlv_dsi.c b/drivers/gpu/drm/i915/display/vlv_dsi.c
+> index b9b1fed99874..35136d26e517 100644
+> --- a/drivers/gpu/drm/i915/display/vlv_dsi.c
+> +++ b/drivers/gpu/drm/i915/display/vlv_dsi.c
+> @@ -1933,7 +1933,14 @@ void vlv_dsi_init(struct drm_i915_private *dev_priv)
+>  	else
+>  		intel_dsi->ports = BIT(port);
+>  
+> +	if (drm_WARN_ON(&dev_priv->drm, intel_connector->panel.vbt.dsi.bl_ports & ~intel_dsi->ports))
+> +		intel_connector->panel.vbt.dsi.bl_ports &= intel_dsi->ports;
+> +
+>  	intel_dsi->dcs_backlight_ports = intel_connector->panel.vbt.dsi.bl_ports;
+> +
+> +	if (drm_WARN_ON(&dev_priv->drm, intel_connector->panel.vbt.dsi.cabc_ports & ~intel_dsi->ports))
+> +		intel_connector->panel.vbt.dsi.cabc_ports &= intel_dsi->ports;
+> +
+>  	intel_dsi->dcs_cabc_ports = intel_connector->panel.vbt.dsi.cabc_ports;
+>  
+>  	/* Create a DSI host (and a device) for each port. */
+> -- 
+> 2.34.1
+> 
