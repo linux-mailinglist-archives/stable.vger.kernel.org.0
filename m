@@ -2,66 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F31245969B1
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 08:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E14895969CB
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 08:48:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229987AbiHQGnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 02:43:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52172 "EHLO
+        id S231771AbiHQGoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 02:44:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229488AbiHQGnP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 02:43:15 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B89FD59;
-        Tue, 16 Aug 2022 23:43:13 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 5ECD133F60;
-        Wed, 17 Aug 2022 06:43:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1660718591; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=qNjnS8dkYrVx57dCFrcvWi3o+HcOg8Plt9Rk0mW0V5U=;
-        b=lqZJTTtNvjfmP3L+oaeLOD6m9w+wGIr5wO2b5PKdoS0Z6+qN+lCgSjCh/6IoixcnRHIsmO
-        ReaYsvnR1jqrKlVHX/8qBiMIMh5YjXHvVB7Y9KLDUhoE6+0L81EHG0e2bhj6TMzeZvC5k3
-        YtR0yd45MELEd9H59XbjnTFUhEEc+Rg=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 41B4313A8E;
-        Wed, 17 Aug 2022 06:43:11 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id OD3fDf+N/GJ+LQAAMHmgww
-        (envelope-from <mhocko@suse.com>); Wed, 17 Aug 2022 06:43:11 +0000
-Date:   Wed, 17 Aug 2022 08:43:10 +0200
-From:   Michal Hocko <mhocko@suse.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        john.p.donnelly@oracle.com, david@redhat.com, bhe@redhat.com
-Subject: Re: + dma-pool-do-not-complain-if-dma-pool-is-not-allocated.patch
- added to mm-hotfixes-unstable branch
-Message-ID: <YvyN/vI7+cTv0geS@dhcp22.suse.cz>
-References: <20220810013308.5E23AC433C1@smtp.kernel.org>
- <20220810140030.GA24195@lst.de>
- <YvP9YITH0RpgpblG@dhcp22.suse.cz>
- <20220811092911.GA22246@lst.de>
- <YvTRFxkmSuDAyVdI@dhcp22.suse.cz>
- <20220813062913.GA10523@lst.de>
- <YvoG2YeaiwYsxg9y@dhcp22.suse.cz>
- <20220817060045.GA29227@lst.de>
+        with ESMTP id S231480AbiHQGoc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 02:44:32 -0400
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8D85399F5;
+        Tue, 16 Aug 2022 23:44:30 -0700 (PDT)
+Received: by mail-ej1-f53.google.com with SMTP id a7so22910721ejp.2;
+        Tue, 16 Aug 2022 23:44:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc;
+        bh=B7g3ltFV/fmTYB11JKHMMtmJBzDyaJIQD4wDJpbDeHs=;
+        b=GbBWYX4KYUO/ldp75yKdgLn/zaK/tq5lTh6NX4uWDcaiHSq9jeI9Tvkk7bglEOYy1q
+         CiIRSNiKCWQf9t30RYHmsXluwcZHquG2QwDQVFuAxL1EZ+cAFPhcyaMtv30kebqSgdu6
+         DqXv0FLoqCY+0o5iWHMHnMtPfySZz4ulQuTCjHZyABW8Qa1ArE/jZHK5cY+3aR/pw4aw
+         PkZmKrXVUZTwxryYOtq1UJtHleIgvEm8A2FRXH+7PR9iHW5vb0lITwrMJY92p++rjw9I
+         yB/+9EWd2n45tDTHRaI9auln3zTkN752/J2RhkRPkWxismXtiP13wEhJFYKiAG+wASDt
+         ZLaw==
+X-Gm-Message-State: ACgBeo3gA+w+L2VWFlzEg4O+lzqnMnsBR06MII/DJ4f80Tw9iOueFtv8
+        A372ut+CruaUmjjFGjXBsvc=
+X-Google-Smtp-Source: AA6agR7j0MrTqiTbOuoRvfDjqQwPS6KMeKM+b7cASB907aPyVek/OGse/AO+P4MIzbSvTQCfPIcD0g==
+X-Received: by 2002:a17:906:9c82:b0:6df:baa2:9f75 with SMTP id fj2-20020a1709069c8200b006dfbaa29f75mr15990881ejc.762.1660718669291;
+        Tue, 16 Aug 2022 23:44:29 -0700 (PDT)
+Received: from ?IPV6:2a0b:e7c0:0:107::70f? ([2a0b:e7c0:0:107::70f])
+        by smtp.gmail.com with ESMTPSA id f24-20020a170906391800b007324aa2ca77sm6321564eje.85.2022.08.16.23.44.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 16 Aug 2022 23:44:28 -0700 (PDT)
+Message-ID: <eca0e388-bdd1-7d83-76a8-971de8e3a0ce@kernel.org>
+Date:   Wed, 17 Aug 2022 08:44:27 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220817060045.GA29227@lst.de>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.1.0
+Subject: Re: python-eventlet test broken in 5.19 [was: Revert "tcp: change
+ pingpong threshold to 3"]
+Content-Language: en-US
+To:     Neal Cardwell <ncardwell@google.com>
+Cc:     Wei Wang <weiwan@google.com>, David Miller <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        LemmyHuang <hlm3280@163.com>, stable <stable@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        temotor@gmail.com, jakub@stasiak.at
+References: <20220721204404.388396-1-weiwan@google.com>
+ <ca408271-8730-eb2b-f12e-3f66df2e643a@kernel.org>
+ <CADVnQymVXMamTRP-eSKhwq1M612zx0ZoNd=rs4MtipJNGm5Wcw@mail.gmail.com>
+ <e318ba59-d58a-5826-82c9-6cfc2409cbd4@kernel.org>
+ <f3301080-78c6-a65a-d8b1-59b759a077a4@kernel.org>
+ <CADVnQykRMcumBjxND9E4nSxqA-s3exR3AzJ6+Nf0g+s5H6dqeQ@mail.gmail.com>
+ <21869cb9-d1af-066a-ba73-b01af60d9d3a@kernel.org>
+ <CADVnQy=AnJY9NZ3w_xNghEG80-DhsXL0r_vEtkr=dmz0ugcoVw@mail.gmail.com>
+From:   Jiri Slaby <jirislaby@kernel.org>
+In-Reply-To: <CADVnQy=AnJY9NZ3w_xNghEG80-DhsXL0r_vEtkr=dmz0ugcoVw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,27 +77,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 17-08-22 08:00:45, Christoph Hellwig wrote:
-> On Mon, Aug 15, 2022 at 10:42:01AM +0200, Michal Hocko wrote:
-> > Anyway, you seem to be not thrilled about the __GFP_NOWARN approach and
-> > I won't push it. But is the existing inconsistency really desirable? I
-> > mean we can get pretty vocal warning if the allocation fails but no
-> > information when the zone doesn't have any managed memory. Why should we
-> > treat them differently? 
-> 
-> How could we end up having ZONE_DMA without any managed memory to start
-> with except for the case where the total memory is smaller than what
-> fits into ZONE_DMA?  If we have such a case we really should warn about
-> it as well.
+On 17. 08. 22, 0:19, Neal Cardwell wrote:
+> IMHO the best solution here is to tweak the test code so that it does
+> not race and depend on the exact timing of TCP ACKs. One possible way
+> to achieve this would be to have the client TCP connection use
+> setsockopt(TCP_NODELAY) so that the body for the PUT /2 request is
+> transmitted immediately, whether or not the server delays the ACK of
+> the PUT /2 headers.
 
-This can be an early memory reservation from this physical address
-range. My original report http://lkml.kernel.org/r/Yj28gjonUa9+0yae@dhcp22.suse.cz
-was referring to such a system (a different one than what I am dealing
-with now): present:636kB managed:0kB
+Thanks a lot, Neal! So for the time being, until this is resolved in 
+eventlet, I pushed a change to disable the test in openSUSE.
 
-There is only 636kB present in that ZONE_DMA physical range but nothing
-has made it to the page allocator in the end.
-
+thanks,
 -- 
-Michal Hocko
-SUSE Labs
+js
+
