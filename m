@@ -2,121 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 572E3596B1F
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 10:17:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87C3A596B46
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 10:23:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229764AbiHQINV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 04:13:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35470 "EHLO
+        id S235189AbiHQIUP convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 17 Aug 2022 04:20:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230087AbiHQINU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 04:13:20 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C601E25EF
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 01:13:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1660723998; x=1692259998;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=1NaFZJcBPAr4eN464fxypplM0r7Voafi3SVV9MmvYKw=;
-  b=MW/0SdXQCpBxfYkXwbzbwOIljzExuFUsWuB3sicf6VdIl3aerpIr5siY
-   waEdelzkcIDBHKUfUqkBZeObU0w3MKx4Io3x19UkLTvw7szfHzRC5IQ9J
-   F9KuFFggP0PyALcKG8mb3GIudWVhByFygkTebpKnPSyt3VlrtMKCHnslU
-   cB3d0Oe6f2yRVhbGrIHxOdOT89geacP7o9dGRrrkkdz1u5jiN3RZSd8ir
-   wXQp575WvxmEA6aoYVI7Wzwc/6q3oGW2VOT5j9UHamTNJ0RwbOviWacUq
-   JCYUYclt7qaKsKG3BcgUFl+BoC7TwbzzijB5W/4cib7c63iGi0Ra8zwX3
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10441"; a="354178489"
-X-IronPort-AV: E=Sophos;i="5.93,242,1654585200"; 
-   d="scan'208";a="354178489"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2022 01:13:17 -0700
-X-IronPort-AV: E=Sophos;i="5.93,242,1654585200"; 
-   d="scan'208";a="696689375"
-Received: from unknown (HELO intel.com) ([10.237.72.65])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2022 01:13:16 -0700
-Date:   Wed, 17 Aug 2022 11:13:59 +0300
-From:   "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
-To:     Jani Nikula <jani.nikula@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [RESEND 2/3] drm/i915/dsi: fix dual-link DSI
- backlight and CABC ports for display 11+
-Message-ID: <YvyjR3x5kNAEfBOk@intel.com>
-References: <cover.1660664162.git.jani.nikula@intel.com>
- <8c462718bcc7b36a83e09d0a5eef058b6bc8b1a2.1660664162.git.jani.nikula@intel.com>
+        with ESMTP id S235094AbiHQIUO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 04:20:14 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 816AD58DC1
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 01:20:11 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-186-_ZDhN8jUN4OlHtEkOqfydg-1; Wed, 17 Aug 2022 09:20:09 +0100
+X-MC-Unique: _ZDhN8jUN4OlHtEkOqfydg-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.38; Wed, 17 Aug 2022 09:20:08 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.040; Wed, 17 Aug 2022 09:20:08 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Hector Martin' <marcan@marcan.st>, Will Deacon <will@kernel.org>,
+        "Peter Zijlstra" <peterz@infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>, Ingo Molnar <mingo@kernel.org>
+CC:     Alan Stern <stern@rowland.harvard.edu>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        David Howells <dhowells@redhat.com>,
+        Jade Alglave <j.alglave@ucl.ac.uk>,
+        Luc Maranget <luc.maranget@inria.fr>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Akira Yokosawa <akiyks@gmail.com>,
+        "Daniel Lustig" <dlustig@nvidia.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "Mark Rutland" <mark.rutland@arm.com>,
+        Jonathan Corbet <corbet@lwn.net>, Tejun Heo <tj@kernel.org>,
+        "jirislaby@kernel.org" <jirislaby@kernel.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        Asahi Linux <asahi@lists.linux.dev>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] locking/atomic: Make test_and_*_bit() ordered on failure
+Thread-Topic: [PATCH] locking/atomic: Make test_and_*_bit() ordered on failure
+Thread-Index: AQHYsU4vfwz5idsf402HoI6nUKdp962yvvCA
+Date:   Wed, 17 Aug 2022 08:20:08 +0000
+Message-ID: <1135281ad4e84cc5ac0147772aa83787@AcuMS.aculab.com>
+References: <20220816070311.89186-1-marcan@marcan.st>
+In-Reply-To: <20220816070311.89186-1-marcan@marcan.st>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8c462718bcc7b36a83e09d0a5eef058b6bc8b1a2.1660664162.git.jani.nikula@intel.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 16, 2022 at 06:37:21PM +0300, Jani Nikula wrote:
-> The VBT dual-link DSI backlight and CABC still use ports A and C, both
-> in Bspec and code, while display 11+ DSI only supports ports A and
-> B. Assume port C actually means port B for display 11+ when parsing VBT.
-> 
-> Bspec: 20154
-> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6476
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-
-Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-
-> ---
->  drivers/gpu/drm/i915/display/intel_bios.c | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/display/intel_bios.c b/drivers/gpu/drm/i915/display/intel_bios.c
-> index 51dde5bfd956..198a2f4920cc 100644
-> --- a/drivers/gpu/drm/i915/display/intel_bios.c
-> +++ b/drivers/gpu/drm/i915/display/intel_bios.c
-> @@ -1596,6 +1596,8 @@ static void parse_dsi_backlight_ports(struct drm_i915_private *i915,
->  				      struct intel_panel *panel,
->  				      enum port port)
->  {
-> +	enum port port_bc = DISPLAY_VER(i915) >= 11 ? PORT_B : PORT_C;
-> +
->  	if (!panel->vbt.dsi.config->dual_link || i915->vbt.version < 197) {
->  		panel->vbt.dsi.bl_ports = BIT(port);
->  		if (panel->vbt.dsi.config->cabc_supported)
-> @@ -1609,11 +1611,11 @@ static void parse_dsi_backlight_ports(struct drm_i915_private *i915,
->  		panel->vbt.dsi.bl_ports = BIT(PORT_A);
->  		break;
->  	case DL_DCS_PORT_C:
-> -		panel->vbt.dsi.bl_ports = BIT(PORT_C);
-> +		panel->vbt.dsi.bl_ports = BIT(port_bc);
->  		break;
->  	default:
->  	case DL_DCS_PORT_A_AND_C:
-> -		panel->vbt.dsi.bl_ports = BIT(PORT_A) | BIT(PORT_C);
-> +		panel->vbt.dsi.bl_ports = BIT(PORT_A) | BIT(port_bc);
->  		break;
->  	}
->  
-> @@ -1625,12 +1627,12 @@ static void parse_dsi_backlight_ports(struct drm_i915_private *i915,
->  		panel->vbt.dsi.cabc_ports = BIT(PORT_A);
->  		break;
->  	case DL_DCS_PORT_C:
-> -		panel->vbt.dsi.cabc_ports = BIT(PORT_C);
-> +		panel->vbt.dsi.cabc_ports = BIT(port_bc);
->  		break;
->  	default:
->  	case DL_DCS_PORT_A_AND_C:
->  		panel->vbt.dsi.cabc_ports =
-> -					BIT(PORT_A) | BIT(PORT_C);
-> +					BIT(PORT_A) | BIT(port_bc);
->  		break;
->  	}
+...
+>  	p += BIT_WORD(nr);
+> -	if (READ_ONCE(*p) & mask)
+> -		return 1;
+> -
+>  	old = arch_atomic_long_fetch_or(mask, (atomic_long_t *)p);
+>  	return !!(old & mask);
 >  }
-> -- 
-> 2.34.1
-> 
+
+This looks like the same pattern (attempting to avoid a
+locked bus cycle) that caused the qdisc code to sit on
+transmit packets (even on x86).
+That had some barriers in it (possibly nops on x86) that
+didn't help - although the comments suggested otherwise.
+
+I wonder if the pattern has been used anywhere else?
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
