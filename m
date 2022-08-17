@@ -2,275 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C99D597846
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 22:54:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAAF2597854
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 23:00:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238568AbiHQUuu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 16:50:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43200 "EHLO
+        id S242183AbiHQU5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 16:57:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231482AbiHQUut (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 16:50:49 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F211A74F4
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 13:50:48 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id d65-20020a17090a6f4700b001f303a97b14so3052587pjk.1
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 13:50:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc;
-        bh=ei8lEVo/Cim8B8fIIpvJmPdspNW0BZv/1MH6Gis67zg=;
-        b=w5esIFPqu9TkzsYP1yF8468FBCIJrxbe4o5aUHxDA5ekMEv227j9Mo0QVSt7Z7V5UL
-         In4scXM9MxJzdKvuOa8+t5Ms7clid7SRIwxgGAF3BNFcISvHSE1xbCfEsw9/xBmcdEqo
-         3uGlozig3ZuOfVpGgJNmkhI9jJqFW6YqX/TbwOLvM3y1BktrSdDtntTiEVw5o/rx5sEW
-         x5H44ESehtL8VEXmVx6MSDxQizc2aAsRqvflFlYSVGacO2BDTjUf+uU1ugffLbVw4mQx
-         6ISSfuB56yrtbGHxPrneFFWADg+xhWqVHA8bxNpEacI+iV/wlrc2KsJGfcuW3v7F+kgU
-         PJQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc;
-        bh=ei8lEVo/Cim8B8fIIpvJmPdspNW0BZv/1MH6Gis67zg=;
-        b=rdS0flR95Bd6PTgWJbyFULnc/KFnj9fDxEit8NsZAnNCO9bzLIxwKkpqoowDcUMFpW
-         3BQqI8WQii36ZkBA2DsK/mpZFZTDC3XRHJdj+pMRdXiMeIUuOMRyRKAWbdrDLS4t5HUj
-         mOrY8FkF2cpPUaEz9DtzF+Te+e4Bm7siGlY6SjUeDnVzCKNNGEg08JZbIgoH6/pE87OD
-         o7YBs3DefqnRcTJ0wKcml3NhJcbyXA+BqF6V3pbvqUfZZ2s1B0DhMFSgTIXeNC/oAttK
-         l6quJ23icJu2ozY9ZOxKKsFF/BX6Xbqk9MX130/ovcIL59/3S3miN5rTuGqrPTB6rw8e
-         DGWw==
-X-Gm-Message-State: ACgBeo0RuP3egCTHKddSaTzVuSV2uZQlHNZYyiieI1FjRkSRwjOBjnhq
-        Vf4boefnNFgm4Y5MjFSoBgJ6SNRzQMu2PLyX
-X-Google-Smtp-Source: AA6agR5lYA5Trm4dM/G1cenzVVBLqqA9BsSQjg5XMSJF17mQsqzaLk3xzx8z/R1CvWwV0wxHEEfv9A==
-X-Received: by 2002:a17:902:ea0d:b0:170:cabd:b28 with SMTP id s13-20020a170902ea0d00b00170cabd0b28mr28043704plg.115.1660769447434;
-        Wed, 17 Aug 2022 13:50:47 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m12-20020a170902db0c00b0016c09a0ef87sm331784plx.255.2022.08.17.13.50.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Aug 2022 13:50:43 -0700 (PDT)
-Message-ID: <62fd54a3.170a0220.4acf2.0d42@mx.google.com>
-Date:   Wed, 17 Aug 2022 13:50:43 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.136
-Subject: stable-rc/linux-5.10.y baseline: 146 runs, 5 regressions (v5.10.136)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S242088AbiHQU5T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 16:57:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50261AB425;
+        Wed, 17 Aug 2022 13:57:08 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A348B81F6E;
+        Wed, 17 Aug 2022 20:57:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29199C433D7;
+        Wed, 17 Aug 2022 20:57:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1660769825;
+        bh=KpB8e88xng+lmGGW5mDJoJBBuFDsfnIpEyQOs6vWrM4=;
+        h=Date:To:From:Subject:From;
+        b=Eo1DeDkAIW5tk5p0mQP5dVmyV5uxUaPaOUidNpVgeo68ZYAHGORxoj15uJUJCKZ3v
+         8nXJZh1ErnfVntf7qjVgO2p+a32YsBzk3kekcPGQbdy+Clph4JGf7admXzTCnBd8ke
+         vfGASYZzRZ748N9biiIji5neH1sJEghQhv9VXk6w=
+Date:   Wed, 17 Aug 2022 13:57:04 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        senozhatsky@chromium.org, ngupta@vflare.org, minchan@kernel.org,
+        lczerner@redhat.com, ddrokosov@sberdevices.ru,
+        avromanov@sberdevices.ru, jslaby@suse.cz, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [merged mm-hotfixes-stable] revert-zram-remove-double-compression-logic.patch removed from -mm tree
+Message-Id: <20220817205705.29199C433D7@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 146 runs, 5 regressions (v5.10.136)
 
-Regressions Summary
--------------------
+The quilt patch titled
+     Subject: Revert "zram: remove double compression logic"
+has been removed from the -mm tree.  Its filename was
+     revert-zram-remove-double-compression-logic.patch
 
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
+This patch was dropped because it was merged into the mm-hotfixes-stable branch
+of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
+------------------------------------------------------
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: Revert "zram: remove double compression logic"
+Date: Wed, 10 Aug 2022 09:06:09 +0200
 
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
+This reverts commit e7be8d1dd983156b ("zram: remove double compression
+logic") as it causes zram failures.  It does not revert cleanly, PTR_ERR
+handling was introduced in the meantime.  This is handled by appropriate
+IS_ERR.
 
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
+When under memory pressure, zs_malloc() can fail.  Before the above
+commit, the allocation was retried with direct reclaim enabled (GFP_NOIO).
+After the commit, it is not -- only __GFP_KSWAPD_RECLAIM is tried.
 
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
+So when the failure occurs under memory pressure, the overlaying
+filesystem such as ext2 (mounted by ext4 module in this case) can emit
+failures, making the (file)system unusable:
+  EXT4-fs warning (device zram0): ext4_end_bio:343: I/O error 10 writing to inode 16386 starting block 159744)
+  Buffer I/O error on device zram0, logical block 159744
 
+With direct reclaim, memory is really reclaimed and allocation succeeds,
+eventually.  In the worst case, the oom killer is invoked, which is proper
+outcome if user sets up zram too large (in comparison to available RAM).
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.136/plan/baseline/
+This very diff doesn't apply to 5.19 (stable) cleanly (see PTR_ERR note
+above). Use revert of e7be8d1dd983 directly.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.136
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6eae1503ddf94b4c3581092d566b17ed12d80f20 =
+Link: https://bugzilla.suse.com/show_bug.cgi?id=1202203
+Link: https://lkml.kernel.org/r/20220810070609.14402-1-jslaby@suse.cz
+Fixes: e7be8d1dd983 ("zram: remove double compression logic")
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Nitin Gupta <ngupta@vflare.org>
+Cc: Alexey Romanov <avromanov@sberdevices.ru>
+Cc: Dmitry Rokosov <ddrokosov@sberdevices.ru>
+Cc: Lukas Czerner <lczerner@redhat.com>
+Cc: <stable@vger.kernel.org>	[5.19]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
+ drivers/block/zram/zram_drv.c |   42 ++++++++++++++++++++++++--------
+ drivers/block/zram/zram_drv.h |    1 
+ 2 files changed, 33 insertions(+), 10 deletions(-)
 
+--- a/drivers/block/zram/zram_drv.c~revert-zram-remove-double-compression-logic
++++ a/drivers/block/zram/zram_drv.c
+@@ -1146,14 +1146,15 @@ static ssize_t bd_stat_show(struct devic
+ static ssize_t debug_stat_show(struct device *dev,
+ 		struct device_attribute *attr, char *buf)
+ {
+-	int version = 2;
++	int version = 1;
+ 	struct zram *zram = dev_to_zram(dev);
+ 	ssize_t ret;
+ 
+ 	down_read(&zram->init_lock);
+ 	ret = scnprintf(buf, PAGE_SIZE,
+-			"version: %d\n%8llu\n",
++			"version: %d\n%8llu %8llu\n",
+ 			version,
++			(u64)atomic64_read(&zram->stats.writestall),
+ 			(u64)atomic64_read(&zram->stats.miss_free));
+ 	up_read(&zram->init_lock);
+ 
+@@ -1351,7 +1352,7 @@ static int __zram_bvec_write(struct zram
+ {
+ 	int ret = 0;
+ 	unsigned long alloced_pages;
+-	unsigned long handle = 0;
++	unsigned long handle = -ENOMEM;
+ 	unsigned int comp_len = 0;
+ 	void *src, *dst, *mem;
+ 	struct zcomp_strm *zstrm;
+@@ -1369,6 +1370,7 @@ static int __zram_bvec_write(struct zram
+ 	}
+ 	kunmap_atomic(mem);
+ 
++compress_again:
+ 	zstrm = zcomp_stream_get(zram->comp);
+ 	src = kmap_atomic(page);
+ 	ret = zcomp_compress(zstrm, src, &comp_len);
+@@ -1377,20 +1379,39 @@ static int __zram_bvec_write(struct zram
+ 	if (unlikely(ret)) {
+ 		zcomp_stream_put(zram->comp);
+ 		pr_err("Compression failed! err=%d\n", ret);
++		zs_free(zram->mem_pool, handle);
+ 		return ret;
+ 	}
+ 
+ 	if (comp_len >= huge_class_size)
+ 		comp_len = PAGE_SIZE;
+-
+-	handle = zs_malloc(zram->mem_pool, comp_len,
+-			__GFP_KSWAPD_RECLAIM |
+-			__GFP_NOWARN |
+-			__GFP_HIGHMEM |
+-			__GFP_MOVABLE);
+-
++	/*
++	 * handle allocation has 2 paths:
++	 * a) fast path is executed with preemption disabled (for
++	 *  per-cpu streams) and has __GFP_DIRECT_RECLAIM bit clear,
++	 *  since we can't sleep;
++	 * b) slow path enables preemption and attempts to allocate
++	 *  the page with __GFP_DIRECT_RECLAIM bit set. we have to
++	 *  put per-cpu compression stream and, thus, to re-do
++	 *  the compression once handle is allocated.
++	 *
++	 * if we have a 'non-null' handle here then we are coming
++	 * from the slow path and handle has already been allocated.
++	 */
++	if (IS_ERR((void *)handle))
++		handle = zs_malloc(zram->mem_pool, comp_len,
++				__GFP_KSWAPD_RECLAIM |
++				__GFP_NOWARN |
++				__GFP_HIGHMEM |
++				__GFP_MOVABLE);
+ 	if (IS_ERR((void *)handle)) {
+ 		zcomp_stream_put(zram->comp);
++		atomic64_inc(&zram->stats.writestall);
++		handle = zs_malloc(zram->mem_pool, comp_len,
++				GFP_NOIO | __GFP_HIGHMEM |
++				__GFP_MOVABLE);
++		if (!IS_ERR((void *)handle))
++			goto compress_again;
+ 		return PTR_ERR((void *)handle);
+ 	}
+ 
+@@ -1948,6 +1969,7 @@ static int zram_add(void)
+ 	if (ZRAM_LOGICAL_BLOCK_SIZE == PAGE_SIZE)
+ 		blk_queue_max_write_zeroes_sectors(zram->disk->queue, UINT_MAX);
+ 
++	blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, zram->disk->queue);
+ 	ret = device_add_disk(NULL, zram->disk, zram_disk_groups);
+ 	if (ret)
+ 		goto out_cleanup_disk;
+--- a/drivers/block/zram/zram_drv.h~revert-zram-remove-double-compression-logic
++++ a/drivers/block/zram/zram_drv.h
+@@ -81,6 +81,7 @@ struct zram_stats {
+ 	atomic64_t huge_pages_since;	/* no. of huge pages since zram set up */
+ 	atomic64_t pages_stored;	/* no. of pages currently stored */
+ 	atomic_long_t max_used_pages;	/* no. of maximum pages stored */
++	atomic64_t writestall;		/* no. of write slow paths */
+ 	atomic64_t miss_free;		/* no. of missed free */
+ #ifdef	CONFIG_ZRAM_WRITEBACK
+ 	atomic64_t bd_count;		/* no. of pages in backing device */
+_
 
-Test Regressions
----------------- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62fd214679753cb8673556bc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-36/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-36/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62fd214679753cb867355=
-6bd
-        failing since 100 days (last pass: v5.10.113-130-g0412f4bd3360, fir=
-st fail: v5.10.113-187-g3dca4fac0d16) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62fd213276dfbf11d835565c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-36/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2-uefi.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-36/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2-uefi.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62fd213276dfbf11d8355=
-65d
-        new failure (last pass: v5.10.101-87-g1f48487c6f05) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62fd1ffdb13996dde235565a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-36/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-virt-gicv2-uefi=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-36/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-virt-gicv2-uefi=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62fd1ffdb13996dde2355=
-65b
-        new failure (last pass: v5.10.101-87-g1f48487c6f05) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62fd211ecb9e7b566b35564d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-36/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-36/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
+Patches currently in -mm which might be from jslaby@suse.cz are
 
 
-
-  * baseline.login: https://kernelci.org/test/case/id/62fd211ecb9e7b566b355=
-64e
-        failing since 100 days (last pass: v5.10.113-130-g0412f4bd3360, fir=
-st fail: v5.10.113-187-g3dca4fac0d16) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig |=
- regressions
----------------------------+-------+---------------+----------+-----------+=
-------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62fd2133cb9e7b566b355671
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-36/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3-uefi.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-36/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3-uefi.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220805.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62fd2133cb9e7b566b355=
-672
-        failing since 100 days (last pass: v5.10.113-130-g0412f4bd3360, fir=
-st fail: v5.10.113-187-g3dca4fac0d16) =
-
- =20
