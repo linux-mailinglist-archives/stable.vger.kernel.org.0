@@ -2,157 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00246597675
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 21:30:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C79C597671
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 21:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236908AbiHQT1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 15:27:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47116 "EHLO
+        id S229678AbiHQT3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 15:29:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229678AbiHQT1i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 15:27:38 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D01181B11
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 12:27:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660764456;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=dmDD/m9rVXOHRexADGf5nUOz3ccETHTRAhO5DzNVEqY=;
-        b=Vo6lxKbULmO4EZRaY9c+k593rH5sBqkgmKWt3KWqHdRPc9QTx+l6vqNt2SE23NheogGZCn
-        cKSZ3AvwVrK0GPj6ww8WMqhWgGK+IaJUOsH/y/0TltbRs3rOq/EVTbiQosIRdiik9KVgAY
-        27RKhKFNR/T94D/tJm4TydSw6xsAsMA=
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
- [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-574-cLVN68IaP7OhWzPanncOig-1; Wed, 17 Aug 2022 15:27:35 -0400
-X-MC-Unique: cLVN68IaP7OhWzPanncOig-1
-Received: by mail-qt1-f200.google.com with SMTP id e30-20020ac8011e000000b00342f61e67aeso11079025qtg.3
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 12:27:35 -0700 (PDT)
+        with ESMTP id S238248AbiHQT3a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 15:29:30 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E69602F3B2
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 12:29:28 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id o5-20020a17090a3d4500b001ef76490983so2869130pjf.2
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 12:29:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc;
+        bh=62qW30VH1v+FP6S978UwW60pg548rhR6y3Ort76saZI=;
+        b=brmPfNhxL1a6E/jFcW0K51RIYz1DtkBvASf0G+dPJY0ygG7/5cQyMrSPr01hkcUlXt
+         U7pGbP55GAnUyyzKRm73BbZcc8V/vQVnbV4PaoZiUqAst2Q7/a6fCAKwA5h3zCGejoVz
+         2f40LhklXWKcCwBGCP7CWNVR0FhZ/LVPIscKi5+d7J/dWQ2C631GINGdh1oJlvH20z1P
+         f/Vn3Hi4LFAVs5i2jI3tE00Q+MBtrGzc8T0wCLEMP0xvG4gbzuUWr89UUlEV1NmJrQIT
+         FGDoltLUOkNozKwyIto+bpzE3k+BDaOiMoNOPvMZcbTq0HA6aKQ+PsXC93ErMBiEapOr
+         VHwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc;
-        bh=dmDD/m9rVXOHRexADGf5nUOz3ccETHTRAhO5DzNVEqY=;
-        b=0bFhuq13IpL21cEJBSFP96dnvPHfEL3TWaH4esfe8Phu+Xh0tEkkOdpm7lbjVygbqj
-         8L7Yvtax0dKvw8pUXW04Mu+AJkdiEs7xpRV6KPMXAwcfHJ9+AvVnaUUIB7kiCYLbpi5J
-         umL6FeNXX7MBMdfbu/D2Uaz61Iaph+QbhyXEaINggCF9CxN7fcuhIkU6AV91eROTnWpM
-         B+3ZvSYhRP9f2tPJJ2bPDB9Y/zRhdgXdeFfhRaR/fZM69yTiPu30PX4RMby2IxNL8d8U
-         BjgcdE/t11j4kWVHIGAGIJh5lgAT+zI81FOdjMtJnv/A9zKUS4s5Y50sLfvtCzRbGVBx
-         sfBg==
-X-Gm-Message-State: ACgBeo1mS45J2ro5cVzFX72F+IqimrGKqmzZ/YjPIKd3FlUs7htg86bX
-        PAxb1PwvCwmbfgN+XyLxn2CgY3ZmEkYXXKsK1xViKroNtT7kbSp/I3JB/HwwD5JJlxdjxxZEn95
-        ESgflRFfWfH1oNuuK
-X-Received: by 2002:a05:6214:b6c:b0:476:8321:db81 with SMTP id ey12-20020a0562140b6c00b004768321db81mr23492932qvb.100.1660764455093;
-        Wed, 17 Aug 2022 12:27:35 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR6vqYZw2nSP0al2QOlYxSI+caDpn668z2wTq0sUdA1GVvZZhov4a4lSRj3rYF0hmqY4tBw2Ng==
-X-Received: by 2002:a05:6214:b6c:b0:476:8321:db81 with SMTP id ey12-20020a0562140b6c00b004768321db81mr23492907qvb.100.1660764454794;
-        Wed, 17 Aug 2022 12:27:34 -0700 (PDT)
-Received: from xz-m1.local (bras-base-aurron9127w-grc-35-70-27-3-10.dsl.bell.ca. [70.27.3.10])
-        by smtp.gmail.com with ESMTPSA id bj38-20020a05620a192600b006bb5cdd4031sm5016365qkb.40.2022.08.17.12.27.33
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc;
+        bh=62qW30VH1v+FP6S978UwW60pg548rhR6y3Ort76saZI=;
+        b=d5AdQcqrPG7MaEVBmDb88o94+gpau098O6rPS5memVRnoz31FWCNdaTeC0DagHfnN6
+         bGFjPx2oOcx87dWyts2EP7KmHT2asMws/PWBq79El6zpat1GVYFor0JY8/BNdYrttKfn
+         TdAfETYtjehiJrFlwsh8UoZyhIEsxlLQxcRFwZdkDIPzMWozg3nzXDvEgvRmNXBPJDcU
+         duZyxKuByw1cQ8nLyTbOS9hBcPIM3fZCVPfG+6XRFrN5W/8yLP51OU2DIdN5wcDFFBNa
+         K933cpXwjQ9ZuY6PrEzkwiJYjNYrycTE4WN4HQVVphYhxat3NHOXimEj4RCS4PXFYKEW
+         5kjA==
+X-Gm-Message-State: ACgBeo2WwCZ+BiG7y7+CCfVUhv7oEoC7I2eQG80Y9xQwCFOjAOgeC7u0
+        WcHImzrpFy4FhiGgtKB6XBAFIKXK8u/Bmzs8
+X-Google-Smtp-Source: AA6agR4JlvCpK4XetWWtIR8Q106fw5wh/E30VIAvj289tPGCoPVlrJ/s9NN8qJldmjRlq2Z+DanglQ==
+X-Received: by 2002:a17:90b:198d:b0:1f3:f72:cfdc with SMTP id mv13-20020a17090b198d00b001f30f72cfdcmr5215722pjb.237.1660764568247;
+        Wed, 17 Aug 2022 12:29:28 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f20-20020a170902f39400b001729baf331esm262665ple.271.2022.08.17.12.29.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Aug 2022 12:27:34 -0700 (PDT)
-Date:   Wed, 17 Aug 2022 15:27:32 -0400
-From:   Peter Xu <peterx@redhat.com>
-To:     Nadav Amit <nadav.amit@gmail.com>
-Cc:     "Huang, Ying" <ying.huang@intel.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        huang ying <huang.ying.caritas@gmail.com>,
-        Linux MM <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "Sierra Guiza, Alejandro (Alex)" <alex.sierra@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        David Hildenbrand <david@redhat.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Karol Herbst <kherbst@redhat.com>,
-        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
-        Logan Gunthorpe <logang@deltatee.com>, paulus@ozlabs.org,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] mm/migrate_device.c: Copy pte dirty bit to page
-Message-ID: <Yv1BJKb5he3dOHdC@xz-m1.local>
-References: <6e77914685ede036c419fa65b6adc27f25a6c3e9.1660635033.git-series.apopple@nvidia.com>
- <CAC=cRTPGiXWjk=CYnCrhJnLx3mdkGDXZpvApo6yTbeW7+ZGajA@mail.gmail.com>
- <Yvv/eGfi3LW8WxPZ@xz-m1.local>
- <871qtfvdlw.fsf@nvdebian.thelocal>
- <YvxWUY9eafFJ27ef@xz-m1.local>
- <87o7wjtn2g.fsf@nvdebian.thelocal>
- <87tu6bbaq7.fsf@yhuang6-desk2.ccr.corp.intel.com>
- <1D2FB37E-831B-445E-ADDC-C1D3FF0425C1@gmail.com>
+        Wed, 17 Aug 2022 12:29:27 -0700 (PDT)
+Message-ID: <62fd4197.170a0220.40a2a.0b0b@mx.google.com>
+Date:   Wed, 17 Aug 2022 12:29:27 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1D2FB37E-831B-445E-ADDC-C1D3FF0425C1@gmail.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.19.y
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.19.2
+Subject: stable/linux-5.19.y baseline: 103 runs, 2 regressions (v5.19.2)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 17, 2022 at 02:41:19AM -0700, Nadav Amit wrote:
-> 4. Having multiple TLB flushing infrastructures makes all of these
-> discussions very complicated and unmaintainable. I need to convince myself
-> in every occasion (including this one) whether calls to
-> flush_tlb_batched_pending() and tlb_flush_pending() are needed or not.
-> 
-> What I would like to have [3] is a single infrastructure that gets a
-> “ticket” (generation when the batching started), the old PTE and the new PTE
-> and checks whether a TLB flush is needed based on the arch behavior and the
-> current TLB generation. If needed, it would update the “ticket” to the new
-> generation. Andy wanted a ring for pending TLB flushes, but I think it is an
-> overkill with more overhead and complexity than needed.
-> 
-> But the current situation in which every TLB flush is a basis for long
-> discussions and prone to bugs is impossible.
-> 
-> I hope it helps. Let me know if you want me to revive the patch-set or other
-> feedback.
-> 
-> [1] https://lore.kernel.org/all/20220711034615.482895-5-21cnbao@gmail.com/
-> [2] https://lore.kernel.org/all/20220718120212.3180-13-namit@vmware.com/
-> [3] https://lore.kernel.org/all/20210131001132.3368247-16-namit@vmware.com/
+stable/linux-5.19.y baseline: 103 runs, 2 regressions (v5.19.2)
 
-I need more reading on tlb code and also [3] which looks useful to me.
-It's definitely sad to make tlb flushing so complicated.  It'll be great if
-things can be sorted out someday.
+Regressions Summary
+-------------------
 
-In this specific case, the only way to do safe tlb batching in my mind is:
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
+g | 1          =
 
-	pte_offset_map_lock();
-	arch_enter_lazy_mmu_mode();
-        // If any pending tlb, do it now
-        if (mm_tlb_flush_pending())
-		flush_tlb_range(vma, start, end);
-        else
-                flush_tlb_batched_pending();
-        loop {
-                ...
-                pte = ptep_get_and_clear();
-                ...
-                if (pte_present())
-                        unmapped++;
-                ...
-        }
-	if (unmapped)
-		flush_tlb_range(walk->vma, start, end);
-	arch_leave_lazy_mmu_mode();
-	pte_unmap_unlock();
+qemu_mips-malta    | mips | lab-collabora   | gcc-10   | malta_defconfig   =
+  | 1          =
 
-I may miss something, but even if not it already doesn't look pretty.
 
-Thanks,
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.19.y/kernel=
+/v5.19.2/plan/baseline/
 
--- 
-Peter Xu
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.19.y
+  Describe: v5.19.2
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      d49914ee4ec93d58d90a12275a814415c189059c =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-10   | imx_v6_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62fd0b98d6d4085ed2355644
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.19.y/v5.19.2/ar=
+m/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx6ul-pico-hobbit.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.19.y/v5.19.2/ar=
+m/imx_v6_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx6ul-pico-hobbit.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62fd0b98d6d4085ed2355=
+645
+        new failure (last pass: v5.19.1) =
+
+ =
+
+
+
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+qemu_mips-malta    | mips | lab-collabora   | gcc-10   | malta_defconfig   =
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62fd0bf1e7037194de355654
+
+  Results:     4 PASS, 1 FAIL, 2 SKIP
+  Full config: malta_defconfig
+  Compiler:    gcc-10 (mips-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.19.y/v5.19.2/mi=
+ps/malta_defconfig/gcc-10/lab-collabora/baseline-qemu_mips-malta.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.19.y/v5.19.2/mi=
+ps/malta_defconfig/gcc-10/lab-collabora/baseline-qemu_mips-malta.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220805.0/mipsel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/62fd0bf1e703719=
+4de35565c
+        new failure (last pass: v5.19.1)
+        1 lines
+
+    2022-08-17T15:40:13.665347  kern  :alert : CPU 0 Unable to handle kerne=
+l paging request at virtual address 00e9ee20, epc =3D=3D 80201978, ra =3D=
+=3D 80201968
+    2022-08-17T15:40:13.698575  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dale=
+rt RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D1>   =
+
+ =20
