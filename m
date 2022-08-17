@@ -2,105 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87C3A596B46
-	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 10:23:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C45596B5C
+	for <lists+stable@lfdr.de>; Wed, 17 Aug 2022 10:31:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235189AbiHQIUP convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 17 Aug 2022 04:20:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49048 "EHLO
+        id S233203AbiHQI36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 04:29:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235094AbiHQIUO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 04:20:14 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 816AD58DC1
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 01:20:11 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-186-_ZDhN8jUN4OlHtEkOqfydg-1; Wed, 17 Aug 2022 09:20:09 +0100
-X-MC-Unique: _ZDhN8jUN4OlHtEkOqfydg-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.38; Wed, 17 Aug 2022 09:20:08 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.040; Wed, 17 Aug 2022 09:20:08 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Hector Martin' <marcan@marcan.st>, Will Deacon <will@kernel.org>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>, Ingo Molnar <mingo@kernel.org>
-CC:     Alan Stern <stern@rowland.harvard.edu>,
-        Andrea Parri <parri.andrea@gmail.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        David Howells <dhowells@redhat.com>,
-        Jade Alglave <j.alglave@ucl.ac.uk>,
-        Luc Maranget <luc.maranget@inria.fr>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Akira Yokosawa <akiyks@gmail.com>,
-        "Daniel Lustig" <dlustig@nvidia.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        "Mark Rutland" <mark.rutland@arm.com>,
-        Jonathan Corbet <corbet@lwn.net>, Tejun Heo <tj@kernel.org>,
-        "jirislaby@kernel.org" <jirislaby@kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        Asahi Linux <asahi@lists.linux.dev>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] locking/atomic: Make test_and_*_bit() ordered on failure
-Thread-Topic: [PATCH] locking/atomic: Make test_and_*_bit() ordered on failure
-Thread-Index: AQHYsU4vfwz5idsf402HoI6nUKdp962yvvCA
-Date:   Wed, 17 Aug 2022 08:20:08 +0000
-Message-ID: <1135281ad4e84cc5ac0147772aa83787@AcuMS.aculab.com>
-References: <20220816070311.89186-1-marcan@marcan.st>
-In-Reply-To: <20220816070311.89186-1-marcan@marcan.st>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S232952AbiHQI34 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 04:29:56 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E7B070E4B
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 01:29:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1660724995; x=1692260995;
+  h=from:to:cc:subject:in-reply-to:references:date:
+   message-id:mime-version;
+  bh=TA5jz4IeKRRCsnjwAi+NismvFOuA/4YilVmMjStNAoE=;
+  b=U8dUfVr4BzpBaBCKAPZvWJRXMSNkfHOtZ4sLFjsMNjK6+K094juZqaw9
+   KNh2ssg6T+coGJApJYnhGuYca2VGNH0EmErp9eHRE7pd89gVUbt1cF45R
+   6ctMGpPW3ydQxtAbyIwngArtGjVtrsaKJhpkVX56zgjZYhOQ1TjvARMt/
+   qDH7m3ySlJh9cuZGfII9X/px/X6GNFLE/ffJ25HJmmZwBjuSbNHl+NFuP
+   7zNY/nQ3GSg77Unp/nJBz9FdX7a/pNlt9JpZ2ILvi6QAr8C5jgW8zRmyJ
+   kfllhUz8kPfg1R+2TgAeM3ZInjqmp8q3HzgDPyN3DSIGquUvhv0zSrr9Z
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10441"; a="291191217"
+X-IronPort-AV: E=Sophos;i="5.93,242,1654585200"; 
+   d="scan'208";a="291191217"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2022 01:29:54 -0700
+X-IronPort-AV: E=Sophos;i="5.93,242,1654585200"; 
+   d="scan'208";a="667509466"
+Received: from sbammi-mobl.amr.corp.intel.com (HELO localhost) ([10.252.49.167])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Aug 2022 01:29:52 -0700
+From:   Jani Nikula <jani.nikula@intel.com>
+To:     "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [RESEND 1/3] drm/i915/dsi: filter invalid backlight
+ and CABC ports
+In-Reply-To: <YvyjILz4bXhvPjdZ@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <cover.1660664162.git.jani.nikula@intel.com>
+ <b0f4f087866257d280eb97d6bcfcefd109cc5fa2.1660664162.git.jani.nikula@intel.com>
+ <YvyjILz4bXhvPjdZ@intel.com>
+Date:   Wed, 17 Aug 2022 11:29:50 +0300
+Message-ID: <87mtc3p91d.fsf@intel.com>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-...
->  	p += BIT_WORD(nr);
-> -	if (READ_ONCE(*p) & mask)
-> -		return 1;
-> -
->  	old = arch_atomic_long_fetch_or(mask, (atomic_long_t *)p);
->  	return !!(old & mask);
->  }
+On Wed, 17 Aug 2022, "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com> wrote:
+> On Tue, Aug 16, 2022 at 06:37:20PM +0300, Jani Nikula wrote:
+>> Avoid using ports that aren't initialized in case the VBT backlight or
+>> CABC ports have invalid values. This fixes a NULL pointer dereference of
+>> intel_dsi->dsi_hosts[port] in such cases.
+>> 
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+>
+> Would be interesting to figure out which one of those actually fixed the
+> https://gitlab.freedesktop.org/drm/intel/-/issues/6476 issue, this one
+> or next one.
 
-This looks like the same pattern (attempting to avoid a
-locked bus cycle) that caused the qdisc code to sit on
-transmit packets (even on x86).
-That had some barriers in it (possibly nops on x86) that
-didn't help - although the comments suggested otherwise.
+I asked to test with patch 1 alone first, and it lets them boot without
+the oops. And it produces the warn added here. But this just filters
+port C out of bl_ports, and doesn't fix the root cause. Patch 2 should
+fix the root cause, get rid of the warn and give them functioning
+backlight. I hope. There was no test results with patches 2&3. :)
 
-I wonder if the pattern has been used anywhere else?
+> Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
 
-	David
+Thanks for the review!
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+BR,
+Jani.
 
+>
+>> ---
+>>  drivers/gpu/drm/i915/display/icl_dsi.c | 7 +++++++
+>>  drivers/gpu/drm/i915/display/vlv_dsi.c | 7 +++++++
+>>  2 files changed, 14 insertions(+)
+>> 
+>> diff --git a/drivers/gpu/drm/i915/display/icl_dsi.c b/drivers/gpu/drm/i915/display/icl_dsi.c
+>> index 5dcfa7feffa9..885c74f60366 100644
+>> --- a/drivers/gpu/drm/i915/display/icl_dsi.c
+>> +++ b/drivers/gpu/drm/i915/display/icl_dsi.c
+>> @@ -2070,7 +2070,14 @@ void icl_dsi_init(struct drm_i915_private *dev_priv)
+>>  	else
+>>  		intel_dsi->ports = BIT(port);
+>>  
+>> +	if (drm_WARN_ON(&dev_priv->drm, intel_connector->panel.vbt.dsi.bl_ports & ~intel_dsi->ports))
+>> +		intel_connector->panel.vbt.dsi.bl_ports &= intel_dsi->ports;
+>> +
+>>  	intel_dsi->dcs_backlight_ports = intel_connector->panel.vbt.dsi.bl_ports;
+>> +
+>> +	if (drm_WARN_ON(&dev_priv->drm, intel_connector->panel.vbt.dsi.cabc_ports & ~intel_dsi->ports))
+>> +		intel_connector->panel.vbt.dsi.cabc_ports &= intel_dsi->ports;
+>> +
+>>  	intel_dsi->dcs_cabc_ports = intel_connector->panel.vbt.dsi.cabc_ports;
+>>  
+>>  	for_each_dsi_port(port, intel_dsi->ports) {
+>> diff --git a/drivers/gpu/drm/i915/display/vlv_dsi.c b/drivers/gpu/drm/i915/display/vlv_dsi.c
+>> index b9b1fed99874..35136d26e517 100644
+>> --- a/drivers/gpu/drm/i915/display/vlv_dsi.c
+>> +++ b/drivers/gpu/drm/i915/display/vlv_dsi.c
+>> @@ -1933,7 +1933,14 @@ void vlv_dsi_init(struct drm_i915_private *dev_priv)
+>>  	else
+>>  		intel_dsi->ports = BIT(port);
+>>  
+>> +	if (drm_WARN_ON(&dev_priv->drm, intel_connector->panel.vbt.dsi.bl_ports & ~intel_dsi->ports))
+>> +		intel_connector->panel.vbt.dsi.bl_ports &= intel_dsi->ports;
+>> +
+>>  	intel_dsi->dcs_backlight_ports = intel_connector->panel.vbt.dsi.bl_ports;
+>> +
+>> +	if (drm_WARN_ON(&dev_priv->drm, intel_connector->panel.vbt.dsi.cabc_ports & ~intel_dsi->ports))
+>> +		intel_connector->panel.vbt.dsi.cabc_ports &= intel_dsi->ports;
+>> +
+>>  	intel_dsi->dcs_cabc_ports = intel_connector->panel.vbt.dsi.cabc_ports;
+>>  
+>>  	/* Create a DSI host (and a device) for each port. */
+>> -- 
+>> 2.34.1
+>> 
+
+-- 
+Jani Nikula, Intel Open Source Graphics Center
