@@ -2,198 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECC585986D5
-	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 17:06:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 471505986EA
+	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 17:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344008AbiHRPEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Aug 2022 11:04:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57352 "EHLO
+        id S1344054AbiHRPI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Aug 2022 11:08:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344013AbiHRPEF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 11:04:05 -0400
-X-Greylist: delayed 427 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 18 Aug 2022 08:04:03 PDT
-Received: from rfvt.org.uk (rfvt.org.uk [37.187.119.221])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A939F40BE7;
-        Thu, 18 Aug 2022 08:04:03 -0700 (PDT)
-Received: from wylie.me.uk (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by rfvt.org.uk (Postfix) with ESMTPS id 697A682429;
-        Thu, 18 Aug 2022 15:56:52 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=wylie.me.uk;
-        s=mydkim005; t=1660834612;
-        bh=2w2zcJmK/iAiFwIuyHBL4kajpnEz6z0D5iINur8oCq0=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References;
-        b=Z74qpOCb/fvH7I3B031m8v/PyjVt5PvNX77vVY9B74FN1LxCtdHJFB+Koau3maS+w
-         5uBNTIRValVGP242zJBOwUAU2qKscMTiXPrBmM6Edv35WK+BvQ6gEIG8NGvY8RRuy3
-         BsN/siJsN3zzEXsNt3k7BOA9NdG3WNJmoFHSQKf4KUx9uGUuLc8pac91XEndrsIgo/
-         Ve1OHVVqtWce1Hpwj91ZJp0d9D/UjWo8keIuZodRld55O4HAXmLTxA2EZE2LC1texi
-         EBK4yk0j3pVYnxAvCJBM5IM5qOR4mYWEKm7CtFcSZ7FgOmdQnZfl9RgaozqpBICKvt
-         SBLLTGOffGWNA==
+        with ESMTP id S1344052AbiHRPIw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 11:08:52 -0400
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83F0C6565D;
+        Thu, 18 Aug 2022 08:08:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1660835331; x=1692371331;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=TeTULpA5GIa1PuFYDxit9KmGEMhkRijHwhLM1hJOi10=;
+  b=mrGe1M3ntn1qTlOvNvUGtCBznPAqDJB+gSvEKpLbeDvu66LPuofOyN2l
+   pTG3sBfDDuX0OJZqYpc8nn0hptKOuBQZed0NbY6yXx61TNKrfh9aDj/nu
+   RNCvFNyczCUcMOugGPu1nXXkXmGdtHE3kyi120r3M+dFS8UhagQAWq5ws
+   VOquAt3TkhF5r9kk52akCBebL+NGuZhPBWcdrpjnJLOe9z8KYR5nrC3Zl
+   fTFKvKyltu9iBKYLRz3qquHKJwM4R7m2b0lNaMfb0EX+Y5BVm1me7ZQjJ
+   JIsLUCUTkn12irBrCFF5FUQA4y5vgyrocLDv7r941SLGXYrlO92Pe0GOz
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10443"; a="318803193"
+X-IronPort-AV: E=Sophos;i="5.93,246,1654585200"; 
+   d="scan'208";a="318803193"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2022 08:08:51 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.93,246,1654585200"; 
+   d="scan'208";a="734080808"
+Received: from irvmail001.ir.intel.com ([10.43.11.63])
+  by orsmga004.jf.intel.com with ESMTP; 18 Aug 2022 08:08:47 -0700
+Received: from newjersey.igk.intel.com (newjersey.igk.intel.com [10.102.20.203])
+        by irvmail001.ir.intel.com (8.14.3/8.13.6/MailSET/Hub) with ESMTP id 27IF8jgm008292;
+        Thu, 18 Aug 2022 16:08:45 +0100
+From:   Alexander Lobakin <alexandr.lobakin@intel.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Alexander Lobakin <alexandr.lobakin@intel.com>,
+        linux-kernel@vger.kernel.org,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        linux-kbuild@vger.kernel.org, live-patching@vger.kernel.org,
+        lkp@intel.com, stable@vger.kernel.org
+Subject: Re: [RFC PATCH 1/3] modpost: fix TO_NATIVE() with expressions and consts
+Date:   Thu, 18 Aug 2022 17:07:06 +0200
+Message-Id: <20220818150706.1114737-1-alexandr.lobakin@intel.com>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <Yv5ITarFK9Z3bkhZ@kroah.com>
+References: <20220818115306.1109642-1-alexandr.lobakin@intel.com> <20220818115306.1109642-2-alexandr.lobakin@intel.com> <Yv4v5vwXDER3GA2y@kroah.com> <20220818140153.1113308-1-alexandr.lobakin@intel.com> <Yv5ITarFK9Z3bkhZ@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <25342.21300.105848.619006@wylie.me.uk>
-Date:   Thu, 18 Aug 2022 15:56:52 +0100
-From:   "Alan J. Wylie" <alan@wylie.me.uk>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-usb@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Regression in 5.19.0: USB errors during boot
-In-Reply-To: <Yv5Q8gDvVTGOHd8k@kroah.com>
-References: <25342.20092.262450.330346@wylie.me.uk>
-        <Yv5Q8gDvVTGOHd8k@kroah.com>
-X-Mailer: VM 8.2.0b under 27.2 (x86_64-pc-linux-gnu)
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIM_INVALID,
-        DKIM_SIGNED,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-at 16:47 on Thu 18-Aug-2022 Greg Kroah-Hartman (gregkh@linuxfoundation.org) wrote:
-> [Adding in linux-usb@vger]
-> 
-> 
-> On Thu, Aug 18, 2022 at 03:36:44PM +0100, Alan J. Wylie wrote:
-> > 
-> > Apologies for the delay in reporting this: I messed up my first attempt at
-> > bisecting, then I've spent a week going to, enjoying, returning from and
-> > recovering from a music festival.
-> > 
-> > Up to and including 5.18.18 things are fine. With 5.19.0 (and .1 and .2)  I see
-> > lots of errors and hangs on the USB2 chipset, e.g.
-> > 
-> > $ grep "usb 9-4" dmesg.5.19.2
-> > [    6.669075] usb 9-4: new full-speed USB device number 2 using ohci-pci
-> > [    6.829087] usb 9-4: device descriptor read/64, error -32
-> > [    7.097094] usb 9-4: device descriptor read/64, error -32
-> > [    7.361087] usb 9-4: new full-speed USB device number 3 using ohci-pci
-> > [    7.521152] usb 9-4: device descriptor read/64, error -32
-> > [    7.789066] usb 9-4: device descriptor read/64, error -32
-> > [    8.081070] usb 9-4: new full-speed USB device number 4 using ohci-pci
-> > [    8.497138] usb 9-4: device not accepting address 4, error -32
-> > [    8.653140] usb 9-4: new full-speed USB device number 5 using ohci-pci
-> > [    9.069141] usb 9-4: device not accepting address 5, error -32
-> > $
-> > 
-> > $ grep "usb 1-2" dmesg.5.19.2
-> > [    5.917102] usb 1-2: new high-speed USB device number 2 using ehci-pci
-> > [    6.277076] usb 1-2: device descriptor read/64, error -71
-> > [    6.513143] usb 1-2: device descriptor read/64, error -32
-> > [    6.753146] usb 1-2: new high-speed USB device number 3 using ehci-pci
-> > [    6.881143] usb 1-2: device descriptor read/64, error -32
-> > [    7.117144] usb 1-2: device descriptor read/64, error -32
-> > [    7.429141] usb 1-2: new high-speed USB device number 4 using ehci-pci
-> > [    7.845134] usb 1-2: device not accepting address 4, error -32
-> > [    7.977142] usb 1-2: new high-speed USB device number 5 using ehci-pci
-> > [    8.393158] usb 1-2: device not accepting address 5, error -32
-> > $
-> > 
-> > the USB port is then no longer usable
-> > 
-> > This is not reproducible on the other chipset (USB3) on this machine,
-> > nor on two other systems. Swapping USB cables doesn't help.
-> > 
-> > I have bisected it to
-> > 
-> > $ git bisect bad
-> > 78013eaadf696d2105982abb4018fbae394ca08f is the first bad commit
-> > commit 78013eaadf696d2105982abb4018fbae394ca08f
-> > Author: Christoph Hellwig <hch@lst.de>
-> > Date:   Mon Feb 14 14:11:44 2022 +0100
-> > 
-> >     x86: remove the IOMMU table infrastructure
-> > 
-> > however it will not easily revert
-> > 
-> > I'll be more than happy to assist with any debugging/testing.
-> > 
-> > $ git revert 78013eaadf696d2105982abb4018fbae394ca08f
-> > Auto-merging arch/x86/include/asm/dma-mapping.h
-> > CONFLICT (content): Merge conflict in arch/x86/include/asm/dma-mapping.h
-> > Auto-merging arch/x86/include/asm/iommu.h
-> > Auto-merging arch/x86/include/asm/xen/swiotlb-xen.h
-> > Auto-merging arch/x86/kernel/Makefile
-> > Auto-merging arch/x86/kernel/pci-dma.c
-> > CONFLICT (content): Merge conflict in arch/x86/kernel/pci-dma.c
-> > Auto-merging arch/x86/kernel/vmlinux.lds.S
-> > Auto-merging drivers/iommu/amd/init.c
-> > Auto-merging drivers/iommu/amd/iommu.c
-> > CONFLICT (content): Merge conflict in drivers/iommu/amd/iommu.c
-> > Auto-merging drivers/iommu/intel/dmar.c
-> > error: could not revert 78013eaadf69... x86: remove the IOMMU table infrastructure
-> > 
-> > # dmidecode  | grep -A2 "^Base Board"
-> > Base Board Information
-> >      Manufacturer: Gigabyte Technology Co., Ltd.
-> >      Product Name: 970A-DS3P
-> > #
-> > 
-> > # lspci -nn | grep -i usb
-> > 00:12.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller [1002:4397]
-> > 00:12.2 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller [1002:4396]
-> > 00:13.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller [1002:4397]
-> > 00:13.2 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller [1002:4396]
-> > 00:14.5 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI2 Controller [1002:4399]
-> > 00:16.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller [1002:4397]
-> > 00:16.2 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller [1002:4396]
-> > 02:00.0 USB controller [0c03]: VIA Technologies, Inc. VL805/806 xHCI USB 3.0 Controller [1106:3483] (rev 01)
-> 
-> So this only happens with the on-board USB 2 controller?
+From: Greg KH <gregkh@linuxfoundation.org>
+Date: Thu, 18 Aug 2022 16:10:21 +0200
 
-That is correct
-
-> This is odd, I would not expect one PCI controller to work, but the
-> other one not.
-> 
-> 
-> > #
+> On Thu, Aug 18, 2022 at 04:01:53PM +0200, Alexander Lobakin wrote:
+> > From: Greg KH <gregkh@linuxfoundation.org>
+> > Date: Thu, 18 Aug 2022 14:26:14 +0200
 > > 
-> > # lspci -v -s 00:12
-> > 00:12.0 USB controller: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller (prog-if 10 [OHCI])
-> > 	Subsystem: Gigabyte Technology Co., Ltd GA-880GMA-USB3
-> > 	Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 18
-> > 	Memory at fe50a000 (32-bit, non-prefetchable) [size=4K]
-> > 	Kernel driver in use: ohci-pci
-> > 				 	Kernel modules: ohci_pci
-> > 00:12.2 USB controller: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller (prog-if 20 [EHCI])
-> > 	Subsystem: Gigabyte Technology Co., Ltd GA-880GMA-USB3
-> > 	Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 17
-> > 	Memory at fe509000 (32-bit, non-prefetchable) [size=256]
-> > 	Capabilities: [c0] Power Management version 2
-> > 	Capabilities: [e4] Debug port: BAR=1 offset=00e0
-> > 	Kernel driver in use: ehci-pci
-> > 	Kernel modules: ehci_pci
-> > #
+> > > On Thu, Aug 18, 2022 at 01:53:04PM +0200, Alexander Lobakin wrote:
+> > > > Macro TO_NATIVE() directly takes a reference to its argument @x
+> > > > without making an intermediate variable. This makes compilers
+> > > > emit build warnings and errors if @x is an expression or a deref
+> > > > of a const pointer (when target Endianness != host Endianness):
+> > > > 
+> > > > >> scripts/mod/modpost.h:87:18: error: lvalue required as unary '&' operand
+> > > >       87 |         __endian(&(x), &(__x), sizeof(__x));                    \
+> > > >          |                  ^
+> > > >    scripts/mod/sympath.c:19:25: note: in expansion of macro 'TO_NATIVE'
+> > > >       19 | #define t(x)            TO_NATIVE(x)
+> > > >          |                         ^~~~~~~~~
+> > > >    scripts/mod/sympath.c:100:31: note: in expansion of macro 't'
+> > > >      100 |                 eh->e_shoff = t(h(eh->e_shoff) + off);
+> > > > 
+> > > > >> scripts/mod/modpost.h:87:24: warning: passing argument 2 of '__endian'
+> > > > discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+> > > >       87 |         __endian(&(x), &(__x), sizeof(__x));                    \
+> > > >          |                        ^~~~~~
+> > > >    scripts/mod/sympath.c:18:25: note: in expansion of macro 'TO_NATIVE'
+> > > >       18 | #define h(x)            TO_NATIVE(x)
+> > > >          |                         ^~~~~~~~~
+> > > >    scripts/mod/sympath.c:178:48: note: in expansion of macro 'h'
+> > > >      178 |              iter < end; iter = (void *)iter + h(eh->e_shentsize)) {
+> > > 
+> > > How come this hasn't shown up in cross-builds today?
+> > 
+> > It doesn't happen with the current code.
 > 
-> What is the output of the lspci -v for the USB 3 controller?
+> Great, so there is no bug that you are trying to fix :)
+> 
+> > > > Create a temporary variable, assign @x to it and don't use @x after
+> > > > that. This makes it possible to pass expressions as an argument.
+> > > > Also, do a cast-away for the second argument when calling __endian()
+> > > > to avoid 'discarded qualifiers' warning, as typeof() preserves
+> > > > qualifiers and makes compilers think that we're passing pointer
+> > > > to a const.
+> > > > 
+> > > > Reported-by: kernel test robot <lkp@intel.com>
+> > > > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> > > > Cc: stable@vger.kernel.org # 4.9+
+> > > 
+> > > Where are these build warnings showing up at that we don't see them
+> > > today, yet this is needed to go back to all stable trees?
+> > 
+> > I thought all fixes should go to the applicable stable trees, am I
+> > wrong? If so, I'll drop the tag in the next spin.
+> 
+> But this isn't fixing a bug in the code today that anyone can hit, so
+> why would you mark it as such?
 
-# lspci -v -s 02:00
-02:00.0 USB controller: VIA Technologies, Inc. VL805/806 xHCI USB 3.0 Controller (rev 01) (prog-if 30 [XHCI])
-	Subsystem: Gigabyte Technology Co., Ltd VL805/806 xHCI USB 3.0 Controller
-	Flags: bus master, fast devsel, latency 0, IRQ 36
-	Memory at fe400000 (64-bit, non-prefetchable) [size=4K]
-	Capabilities: [80] Power Management version 3
-	Capabilities: [90] MSI: Enable+ Count=1/4 Maskable- 64bit+
-	Capabilities: [c4] Express Endpoint, MSI 00
-	Capabilities: [100] Advanced Error Reporting
-	Kernel driver in use: xhci_hcd
-	Kernel modules: xhci_pci
+So do you mean that a fix is a fix not when it makes some wrong code
+work properly, but only when there's a certain bug report and this
+fix seems to resolve it?
+I.e, if there are no ways to reach some code in which 2 + 2 == 5,
+there is no bug? A loaded shotgun can't be considered loaded unless
+someone shots his leg?
+
+I mean, I understand the rule "don't touch if it works", but dunno,
+I don't feel it's: 1) completely justified; 2) always followed in
+the current stable trees.
+But I'm not a -stable maintainer :)
 
 > 
-> Christoph, any ideas?
+> > I remember we had such discussion already regarding fixing stuff in
+> > modpost, which can happen only with never mainlained GCC LTO or with
+> > the in-dev code. At the end that fix made it into the stables IIRC.
+> 
+> I don't remember taking fixes for out-of-tree LTO stuff, but I shouldn't
+> have :)
+
+This: [0]
+
+There is no way to repro it on the stable kernels, but it's here
+backported :)
+
 > 
 > thanks,
 > 
 > greg k-h
 
--- 
-Alan J. Wylie                                          https://www.wylie.me.uk/
+[0] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-4.19.y&id=03bd6eaab3e1cbd4e5060b36a67000165f6e0482
 
-Dance like no-one's watching. / Encrypt like everyone is.
-Security is inversely proportional to convenience
+Thanks,
+Olek
