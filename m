@@ -2,216 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9196E597AC2
-	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 02:45:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E5C9597BAA
+	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 04:49:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239207AbiHRApM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Aug 2022 20:45:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36952 "EHLO
+        id S242495AbiHRCqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Aug 2022 22:46:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242328AbiHRApH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 20:45:07 -0400
-Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E806952E66
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 17:44:50 -0700 (PDT)
-Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
-        by mx0a-0016f401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27HGLBkr010738;
-        Wed, 17 Aug 2022 17:44:50 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=date : from : to :
- cc : subject : in-reply-to : message-id : references : mime-version :
- content-type; s=pfpt0220; bh=hmioo7CIaaes3cFOXsYq+p8aqFAupqhK7jV0DuNuO/g=;
- b=iiAACj6dAzyj90fnFpDWXSAku8Qb3FcFhGk7ICRD8cj4cdxco1AzjdrXlsgkqCf8QHYD
- zoCcZSlTU+oH0sRErtmwz/Wfz97WFtTnuhxo/5eGWO7b/a4CeLIOj93vgcCZXkey2CS4
- 7OkE1PV1eErHcygqgeQ5yhqVVDSwNxiPT3ctd7BtD3nvMQL1CvJ8ogxBOV8UVn73B3Q/
- 5ZWpV31IOtban+6PHZurfAmyPawFlo5F+yTIeVt82qLlbiMtM0GEpZUXIUxrgOzagYQM
- fT4tyiGpRfkbh6ryeI7Jt88OrL+jmgTZ0rNARnMMD3qu8lWKyhbVP4ul7sH6309Rz5hY cQ== 
-Received: from dc5-exch02.marvell.com ([199.233.59.182])
-        by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 3j0tjyc0p6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Wed, 17 Aug 2022 17:44:49 -0700
-Received: from DC5-EXCH02.marvell.com (10.69.176.39) by DC5-EXCH02.marvell.com
- (10.69.176.39) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Wed, 17 Aug
- 2022 17:44:48 -0700
-Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH02.marvell.com
- (10.69.176.39) with Microsoft SMTP Server id 15.0.1497.18 via Frontend
- Transport; Wed, 17 Aug 2022 17:44:48 -0700
-Received: from mvluser05.qlc.com (unknown [10.112.10.135])
-        by maili.marvell.com (Postfix) with ESMTP id 792535B6939;
-        Wed, 17 Aug 2022 17:44:48 -0700 (PDT)
-Received: from localhost (aeasi@localhost)
-        by mvluser05.qlc.com (8.14.4/8.14.4/Submit) with ESMTP id 27I0immp004232;
-        Wed, 17 Aug 2022 17:44:48 -0700
-X-Authentication-Warning: mvluser05.qlc.com: aeasi owned process doing -bs
-Date:   Wed, 17 Aug 2022 17:44:48 -0700
-From:   Arun Easi <aeasi@marvell.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     <himanshu.madhani@oracle.com>, <martin.petersen@oracle.com>,
-        <njavali@marvell.com>, <stable@vger.kernel.org>
-Subject: Re: [EXT] Re: WTF: patch "[PATCH] scsi: qla2xxx: Fix response queue
- handler reading stale" was seriously submitted to be applied to the 5.19-stable
- tree?
-In-Reply-To: <b973894e-d88e-41dc-27fd-9544e193a64b@marvell.com>
-Message-ID: <6f93047c-5059-125c-8636-a99081f32f11@marvell.com>
-References: <166039743723771@kroah.com> <YverHtqNRmMLXmqb@kroah.com>
- <e43fa407-31bd-8e7c-c847-87f13bdd2b73@marvell.com>
- <YvtjocfDhhPuo5Ua@kroah.com>
- <4ed36d0a-2f82-4fe6-1f8f-25870b9e05c6@marvell.com>
- <YvyIn61N7g1tB4S6@kroah.com>
- <b973894e-d88e-41dc-27fd-9544e193a64b@marvell.com>
+        with ESMTP id S238821AbiHRCqh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Aug 2022 22:46:37 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56180A284A;
+        Wed, 17 Aug 2022 19:46:35 -0700 (PDT)
+Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4M7Thb34zNzZflN;
+        Thu, 18 Aug 2022 10:43:11 +0800 (CST)
+Received: from dggpemm500019.china.huawei.com (7.185.36.180) by
+ dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Thu, 18 Aug 2022 10:46:33 +0800
+Received: from [10.67.109.184] (10.67.109.184) by
+ dggpemm500019.china.huawei.com (7.185.36.180) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Thu, 18 Aug 2022 10:46:33 +0800
+Subject: Re: [PATCH bpf] bpf: Fix kernel BUG in purge_effective_progs
+To:     Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>, <bpf@vger.kernel.org>,
+        <stable@vger.kernel.org>
+CC:     <linux-kernel@vger.kernel.org>, Martin KaFai Lau <kafai@fb.com>,
+        "Tadeusz Struk" <tadeusz.struk@linaro.org>,
+        Song Liu <songliubraving@fb.com>, "Yonghong Song" <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        "Hao Luo" <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>
+References: <20220813134030.1972696-1-pulehui@huawei.com>
+ <CAEf4BzaciJNVP1YsuJTiS9v7wBvTpShj+kMtwkzk8ijnpL_yzw@mail.gmail.com>
+From:   Pu Lehui <pulehui@huawei.com>
+Message-ID: <7cbb4aa6-c576-8671-ea5e-d845a8310394@huawei.com>
+Date:   Thu, 18 Aug 2022 10:46:33 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-X-Proofpoint-ORIG-GUID: mKq2Q8XQhgGZS5Q99gdDHEbvRuuqnjhw
-X-Proofpoint-GUID: mKq2Q8XQhgGZS5Q99gdDHEbvRuuqnjhw
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-17_17,2022-08-16_02,2022-06-22_01
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <CAEf4BzaciJNVP1YsuJTiS9v7wBvTpShj+kMtwkzk8ijnpL_yzw@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.109.184]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpemm500019.china.huawei.com (7.185.36.180)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 17 Aug 2022, 5:35pm, Arun Easi wrote:
 
-> On Tue, 16 Aug 2022, 11:20pm, Greg KH wrote:
+
+On 2022/8/17 4:39, Andrii Nakryiko wrote:
+> On Sat, Aug 13, 2022 at 6:11 AM Pu Lehui <pulehui@huawei.com> wrote:
+>>
+>> Syzkaller reported kernel BUG as follows:
+>>
+>> ------------[ cut here ]------------
+>> kernel BUG at kernel/bpf/cgroup.c:925!
+>> invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+>> CPU: 1 PID: 194 Comm: detach Not tainted 5.19.0-14184-g69dac8e431af #8
+>> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+>> rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+>> RIP: 0010:__cgroup_bpf_detach+0x1f2/0x2a0
+>> Code: 00 e8 92 60 30 00 84 c0 75 d8 4c 89 e0 31 f6 85 f6 74 19 42 f6 84
+>> 28 48 05 00 00 02 75 0e 48 8b 80 c0 00 00 00 48 85 c0 75 e5 <0f> 0b 48
+>> 8b 0c5
+>> RSP: 0018:ffffc9000055bdb0 EFLAGS: 00000246
+>> RAX: 0000000000000000 RBX: ffff888100ec0800 RCX: ffffc900000f1000
+>> RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff888100ec4578
+>> RBP: 0000000000000000 R08: ffff888100ec0800 R09: 0000000000000040
+>> R10: 0000000000000000 R11: 0000000000000000 R12: ffff888100ec4000
+>> R13: 000000000000000d R14: ffffc90000199000 R15: ffff888100effb00
+>> FS:  00007f68213d2b80(0000) GS:ffff88813bc80000(0000)
+>> knlGS:0000000000000000
+>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>> CR2: 000055f74a0e5850 CR3: 0000000102836000 CR4: 00000000000006e0
+>> Call Trace:
+>>   <TASK>
+>>   cgroup_bpf_prog_detach+0xcc/0x100
+>>   __sys_bpf+0x2273/0x2a00
+>>   __x64_sys_bpf+0x17/0x20
+>>   do_syscall_64+0x3b/0x90
+>>   entry_SYSCALL_64_after_hwframe+0x63/0xcd
+>> RIP: 0033:0x7f68214dbcb9
+>> Code: 08 44 89 e0 5b 41 5c c3 66 0f 1f 84 00 00 00 00 00 48 89 f8 48 89
+>> f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
+>> f0 ff8
+>> RSP: 002b:00007ffeb487db68 EFLAGS: 00000246 ORIG_RAX: 0000000000000141
+>> RAX: ffffffffffffffda RBX: 000000000000000b RCX: 00007f68214dbcb9
+>> RDX: 0000000000000090 RSI: 00007ffeb487db70 RDI: 0000000000000009
+>> RBP: 0000000000000003 R08: 0000000000000012 R09: 0000000b00000003
+>> R10: 00007ffeb487db70 R11: 0000000000000246 R12: 00007ffeb487dc20
+>> R13: 0000000000000004 R14: 0000000000000001 R15: 000055f74a1011b0
+>>   </TASK>
+>> Modules linked in:
+>> ---[ end trace 0000000000000000 ]---
+>>
+>> Repetition steps:
+>> For the following cgroup tree,
+>>
+>> root
+>>   |
+>> cg1
+>>   |
+>> cg2
+>>
+>> 1. attach prog2 to cg2, and then attach prog1 to cg1, both bpf progs
+>> attach type is NONE or OVERRIDE.
+>> 2. write 1 to /proc/thread-self/fail-nth for failslab.
+>> 3. detach prog1 for cg1, and then kernel BUG occur.
+>>
+>> Failslab injection will cause kmalloc fail and fall back to
+>> purge_effective_progs. The problem is that cg2 have attached another prog,
+>> so when go through cg2 layer, iteration will add pos to 1, and subsequent
+>> operations will be skipped by the following condition, and cg will meet
+>> NULL in the end.
+>>
+>> `if (pos && !(cg->bpf.flags[atype] & BPF_F_ALLOW_MULTI))`
+>>
+>> The NULL cg means no link or prog match, this is as expected, and it's not
+>> a bug. So here just skip the no match situation.
+>>
+>> Fixes: 4c46091ee985 ("bpf: Fix KASAN use-after-free Read in compute_effective_progs")
+>> Signed-off-by: Pu Lehui <pulehui@huawei.com>
+>> ---
+>>   kernel/bpf/cgroup.c | 4 +++-
+>>   1 file changed, 3 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
+>> index 59b7eb60d5b4..4a400cd63731 100644
+>> --- a/kernel/bpf/cgroup.c
+>> +++ b/kernel/bpf/cgroup.c
+>> @@ -921,8 +921,10 @@ static void purge_effective_progs(struct cgroup *cgrp, struct bpf_prog *prog,
+>>                                  pos++;
+>>                          }
+>>                  }
+>> +
+>> +               /* no link or prog match, skip the cgroup of this layer */
+>> +               continue;
+>>   found:
+>> -               BUG_ON(!cg);
 > 
-> > On Tue, Aug 16, 2022 at 11:17:39AM -0700, Arun Easi wrote:
-> > > On Tue, 16 Aug 2022, 2:30am, Greg KH wrote:
-> > > 
-> > > > On Mon, Aug 15, 2022 at 03:35:09PM -0700, Arun Easi wrote:
-> > > > > Hi Greg,
-> > > > > 
-> > > > > On Sat, 13 Aug 2022, 6:46am, Greg KH wrote:
-> > > > > 
-> > > > > > 
-> > > > > > ----------------------------------------------------------------------
-> > > > > > On Sat, Aug 13, 2022 at 03:30:37PM +0200, gregkh@linuxfoundation.org wrote:
-> > > > > > > The patch below was submitted to be applied to the 5.19-stable tree.
-> > > > > > > 
-> > > > > > > I fail to see how this patch meets the stable kernel rules as found at
-> > > > > > > Documentation/process/stable-kernel-rules.rst.
-> > > > > > > 
-> > > > > > > I could be totally wrong, and if so, please respond to 
-> > > > > > > <stable@vger.kernel.org> and let me know why this patch should be
-> > > > > > > applied.  Otherwise, it is now dropped from my patch queues, never to be
-> > > > > > > seen again.
-> > > > > > > 
-> > > > > > > thanks,
-> > > > > > > 
-> > > > > > > greg k-h
-> > > > > > > 
-> > > > > > > ------------------ original commit in Linus's tree ------------------
-> > > > > > > 
-> > > > > > > >From b1f707146923335849fb70237eec27d4d1ae7d62 Mon Sep 17 00:00:00 2001
-> > > > > > > From: Arun Easi <aeasi@marvell.com>
-> > > > > > > Date: Tue, 12 Jul 2022 22:20:39 -0700
-> > > > > > > Subject: [PATCH] scsi: qla2xxx: Fix response queue handler reading stale
-> > > > > > >  packets
-> > > > > > > 
-> > > > > > > On some platforms, the current logic of relying on finding new packet
-> > > > > > > solely based on signature pattern can lead to driver reading stale
-> > > > > > > packets. Though this is a bug in those platforms, reduce such exposures by
-> > > > > > > limiting reading packets until the IN pointer.
-> > > > > > > 
-> > > > > > > Two module parameters are introduced:
-> > > > > > > 
-> > > > > > >   ql2xrspq_follow_inptr:
-> > > > > > > 
-> > > > > > >     When set, on newer adapters that has queue pointer shadowing, look for
-> > > > > > >     response packets only until response queue in pointer.
-> > > > > > > 
-> > > > > > >     When reset, response packets are read based on a signature pattern
-> > > > > > >     logic (old way).
-> > > > > > > 
-> > > > > > >   ql2xrspq_follow_inptr_legacy:
-> > > > > > > 
-> > > > > > >     Like ql2xrspq_follow_inptr, but for those adapters where there is no
-> > > > > > >     queue pointer shadowing.
-> > > > > > 
-> > > > > > On a meta-note, this patch seems VERY wrong.  You are adding a
-> > > > > > driver-wide module option for a device-specific action.  That should be
-> > > > > > a device-specific functionality, not a module.
-> > > > > > 
-> > > > > > Again, as I say many times, this isn't the 1990's, please never add new
-> > > > > > module parameters.  Use the other interfaces we have in the kernel to
-> > > > > > configure individual devices properly, module parameters are not to be
-> > > > > > used for that at all for anything new.
-> > > > > > 
-> > > > > > So, can you revert this commit and do it properly please?
-> > > > > > 
-> > > > > 
-> > > > > The reason I chose module parameter way was because of these primarily:
-> > > > > 
-> > > > > 1 As this is a platform specific issue, this behavior does not require a 
-> > > > >   device granular level tuning. Either all the said adapters turns the 
-> > > > >   behavior on or off.
-> > > > 
-> > > > What is going to allow a user to know to do this or not?  Why is this
-> > > > needed at all, and why doesn't the driver automatically know what to do
-> > > > either based on the device id, or the platform, or the workload?
-> > > 
-> > > The change is to err on the side of caution and make the logic 
-> > > a bit conservative at the same time providing an option for those 
-> > > platforms or architectures where the issue is not applicable, but the 
-> > > logic is causing a reduction in performance.
-> > 
-> > So this is a "enable the driver to work in a broken way" option?
-> > 
-> > > > Forcing a user to pick something for "tuning" like this is horrible and
-> > > > messy and almost impossible to support properly over time.
-> > > 
-> > > The option is intended for slightly advanced users, platform or os 
-> > > vendors etc. When it comes to an end user, I agree it is challenging to 
-> > > know if a change from default is needed or not.
-> > 
-> > That's not ok, as a driver writer you need to make it "always work",
-> > don't force the user to choose "safe vs. unsafe" options, that's passing
-> > the blame.
-> > 
-> > > > Just do it in the driver automatically and then there's no need for any 
-> > > > options at all.
-> > > 
-> > > The platform bug exhibited as driver accessing stale memory, so it is 
-> > > tough to automatically tune the value automatically.
-> > 
-> > That sounds like a real bug that you need to fix.
+> I don't think it's necessary to remove this BUG_ON(), but it also
+> feels unnecessary for purge_effective_progs, so I don't mind it.
 > 
-> Actually, this is a platform bug that got exposed with the driver 
-> behavior.
-> 
-> >
-> > Please revert this change and just fix the issue to always work 
-> > properly.  To have an option that allows a driver to work in a broken 
-> > way is not acceptable.
-> > 
-> > > > > If udev route is taken, I'd have to come up with a configuration file to 
-> > > > > save tunable state, which could be a bit cumbersome and needs 
-> > > > > documentation and be different (in terms of script location/submitting) 
-> > > > > distro to distro.
-> > > > 
-> > > > How is a module parameter saving any state anywhere?
-> > > 
-> > > Since module parameter could be configured via modprobe.conf/equivalent, a 
-> > > user could set the value of his choice in that file and have the value 
-> > > persisted.
-> > 
-> > Same for a udev rule, so this is not an issue.
-> > 
-> > Do you want me to send a patch that reverts this, or will you?
-> > 
-> 
-> Ok, hint taken, will send a revert followed by the patch with modparam 
-> removed.
+> Acked-by: Andrii Nakryiko <andrii@kernel.org>
 > 
 
-Greg, would you be alright if the module parameter be converted into a 
-#define? That way, an advanced user, who knows what he is doing, still has 
-the option, and the chances of a regular user accidentally turning on the 
-module parameter incorrectly on the buggy platform avoided as well.
+Hi,
 
-Regards,
--Arun
+Will this patch be accepted? I think we should CC stable.
+
+Thanks,
+Lehui
+
+>>                  progs = rcu_dereference_protected(
+>>                                  desc->bpf.effective[atype],
+>>                                  lockdep_is_held(&cgroup_mutex));
+>> --
+>> 2.25.1
+>>
+> .
+> 
