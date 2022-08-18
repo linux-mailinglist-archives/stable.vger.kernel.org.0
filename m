@@ -2,65 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8D03598212
-	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 13:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5DD6598296
+	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 13:55:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244323AbiHRLNV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Aug 2022 07:13:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37804 "EHLO
+        id S244197AbiHRLyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Aug 2022 07:54:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244316AbiHRLNU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 07:13:20 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3AC51132;
-        Thu, 18 Aug 2022 04:13:19 -0700 (PDT)
+        with ESMTP id S243934AbiHRLyy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 07:54:54 -0400
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39EAC7FFAD;
+        Thu, 18 Aug 2022 04:54:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1660821199; x=1692357199;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=Q6bejHNbuks/D/XWIoTaxaxn4NjhAHgyJDnpMYChr3o=;
-  b=U/tsV3EtIAGbvTShxtHg5ZXJRGLSMvS+841v9gqKsGNKfqB4AzU3+5N9
-   hLCnvSy1MXvtl6px8tpuILftuZtdau1BEJ9FvrUOQCIIYxQRhLr4TwEdt
-   orrM4AZG5ub35xnUcF7iHG4eCixOoxK6kxS7+xf4uO3auNi1bddOw3JUv
-   /nWEw1BCPBFww/zVUWib8ebGx00m/qYew6/QAg4ZEox1xUUcb+AeW4Iyu
-   raxWyvsOasEIY6n/me4q3ufr9GuTea6YWk7ke9IPBeCyOW8HCUn91k+gu
-   E+egternAVIXmdpq/MghFHWweA0/NQvb9vdm4fY2SxHafEApM3si2VWSN
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10442"; a="294007767"
+  t=1660823693; x=1692359693;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=HsOPy0Z5++etcYrSFF3B5HZWLyK0D1O3GxxmVs0sLSg=;
+  b=izyX/pymDfYB4qgMUZIUpYDra3Q5fIx9SBuvGGtXRIl7YOA6reXREuJ+
+   2Z5u61uAx/IWtTAcnTcGOmMoVpDPQletoO37RJBC2Pg3Sb8b90oqxH8ot
+   Y6/3XiBf/IW6dWPu/fQSASTm0FqHAgT5fl2px+tiYw4vxVMwh9gJHZsEh
+   tKzTTRyCWr5Q9duXXtH/so2M+UiqsbmOIzZDsuhOaPdWE60FzsLol9AZJ
+   vhgc3NKwDLAXBNSQHsBsk92dpeQkLNiB8hTqm2f/Kzdg1qlqnwpXx6nyF
+   kOYwIszSRth9S0rlrlElor6b1WWVlB3J1yBC9tNVq3JOtqd2ucdPLQ7+B
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10442"; a="290304652"
 X-IronPort-AV: E=Sophos;i="5.93,246,1654585200"; 
-   d="scan'208";a="294007767"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2022 04:13:18 -0700
+   d="scan'208";a="290304652"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2022 04:54:53 -0700
+X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.93,246,1654585200"; 
-   d="scan'208";a="668061559"
-Received: from gaoshunl-mobl.ccr.corp.intel.com (HELO [10.254.209.211]) ([10.254.209.211])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2022 04:13:15 -0700
-Message-ID: <11e8ceac-97a5-c8ea-73c3-760929bca263@linux.intel.com>
-Date:   Thu, 18 Aug 2022 19:13:13 +0800
+   d="scan'208";a="935783750"
+Received: from irvmail001.ir.intel.com ([10.43.11.63])
+  by fmsmga005.fm.intel.com with ESMTP; 18 Aug 2022 04:54:49 -0700
+Received: from newjersey.igk.intel.com (newjersey.igk.intel.com [10.102.20.203])
+        by irvmail001.ir.intel.com (8.14.3/8.13.6/MailSET/Hub) with ESMTP id 27IBsmfr013911;
+        Thu, 18 Aug 2022 12:54:48 +0100
+From:   Alexander Lobakin <alexandr.lobakin@intel.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        linux-kbuild@vger.kernel.org, live-patching@vger.kernel.org,
+        lkp@intel.com, stable@vger.kernel.org,
+        Alexander Lobakin <alexandr.lobakin@intel.com>
+Subject: [RFC PATCH 0/3] kallsyms: add option to include relative filepaths into kallsyms
+Date:   Thu, 18 Aug 2022 13:53:03 +0200
+Message-Id: <20220818115306.1109642-1-alexandr.lobakin@intel.com>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Cc:     baolu.lu@linux.intel.com, Joerg Roedel <joro@8bytes.org>,
-        Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        "Jin, Wen" <wen.jin@intel.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2 1/1] iommu/vt-d: Fix kdump kernels boot failure with
- scalable mode
-Content-Language: en-US
-To:     "Tian, Kevin" <kevin.tian@intel.com>,
-        "iommu@lists.linux.dev" <iommu@lists.linux.dev>
-References: <20220817011035.3250131-1-baolu.lu@linux.intel.com>
- <BN9PR11MB5276364739832848F15932B68C6D9@BN9PR11MB5276.namprd11.prod.outlook.com>
-From:   Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <BN9PR11MB5276364739832848F15932B68C6D9@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -69,78 +74,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022/8/18 16:32, Tian, Kevin wrote:
->> From: Lu Baolu <baolu.lu@linux.intel.com>
->> Sent: Wednesday, August 17, 2022 9:11 AM
->>
->> The translation table copying code for kdump kernels is currently based
->> on the extended root/context entry formats of ECS mode defined in older
->> VT-d v2.5, and doesn't handle the scalable mode formats. This causes
->> the kexec capture kernel boot failure with DMAR faults if the IOMMU was
->> enabled in scalable mode by the previous kernel.
->>
->> The ECS mode has already been deprecated by the VT-d spec since v3.0 and
->> Intel IOMMU driver doesn't support this mode as there's no real hardware
->> implementation. Hence this converts ECS checking in copying table code
->> into scalable mode.
->>
->> The existing copying code consumes a bit in the context entry as a mark
->> of copied entry. This marker needs to work for the old format as well as
->> for extended context entries. It's hard to find such a bit for both
-> 
-> The 2nd sentence "This marker..." is misleading. better removed.
+This is an early RFC to not rewrite stuff one more time later on if
+the implementation is not acceptable or any major design changes are
+required. For the TODO list, please scroll to the end.
 
-Okay. I will make it like "It needs to work for ...".
+Make kallsyms independent of symbols positions in vmlinux (or module)
+by including relative filepath in each symbol's kallsyms value. I.e.
 
-> 
->> legacy and scalable mode context entries. This replaces it with a per-
->> IOMMU bitmap.
->>
->> Fixes: 7373a8cc38197 ("iommu/vt-d: Setup context and enable RID2PASID
->> support")
->> Cc: stable@vger.kernel.org
->> Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
->> Tested-by: Wen Jin <wen.jin@intel.com>
->> Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-> ...
->> @@ -2735,8 +2693,8 @@ static int copy_translation_tables(struct
->> intel_iommu *iommu)
->>   	bool new_ext, ext;
->>
->>   	rtaddr_reg = dmar_readq(iommu->reg + DMAR_RTADDR_REG);
->> -	ext        = !!(rtaddr_reg & DMA_RTADDR_RTT);
->> -	new_ext    = !!ecap_ecs(iommu->ecap);
->> +	ext        = !!(rtaddr_reg & DMA_RTADDR_SMT);
->> +	new_ext    = !!ecap_smts(iommu->ecap);
-> 
-> should be !!sm_supported()
+dev_gro_receive -> net/core/gro.c:dev_gro_receive
 
-Not really. The IOMMU was setup by the previous kernel. Here we just
-check whether the scalable mode was enabled there.
+For the implementation details, please look at the patch 3/3.
+Patch 2/3 is just a stub, I plan to reuse kallsyms enhancement from
+the Rust series for it.
+Patch 1/3 is a fix of one modpost macro straight from 2.6.12-rc2.
 
-> 
->>
->>   	/*
->>   	 * The RTT bit can only be changed when translation is disabled,
->> @@ -2747,6 +2705,10 @@ static int copy_translation_tables(struct
->> intel_iommu *iommu)
->>   	if (new_ext != ext)
->>   		return -EINVAL;
->>
->> +	iommu->copied_tables = bitmap_zalloc(BIT_ULL(16), GFP_KERNEL);
->> +	if (!iommu->copied_tables)
->> +		return -ENOMEM;
->> +
->>   	old_rt_phys = rtaddr_reg & VTD_PAGE_MASK;
->>   	if (!old_rt_phys)
->>   		return -EINVAL;
-> 
-> Out of curiosity. What is the rationale that we copy root table and
-> context tables but not pasid tables?
+A nice side effect is that it's now easier to debug the kernel, as
+stacktraces will now tell every call's place in the file tree:
 
-We only copy the context table and reconstruct it when the default
-domain is attached. Before that, there's no need to reconstruct the
-pasid table, hence it's safe to use the previous pasid tables.
+[    0.733191] Call Trace:
+[    0.733668]  <TASK>
+[    0.733980]  lib/dump_stack.c:dump_stack_lvl+0x48/0x68
+[    0.734689]  kernel/panic.c:panic+0xf8/0x2ae
+[    0.735291]  init/do_mounts.c:mount_block_root+0x143/0x1ea
+[    0.736046]  init/do_mounts.c:prepare_namespace+0x13f/0x16e
+[    0.736798]  init/main.c:kernel_init_freeable+0x240/0x24f
+[    0.737549]  ? init/main.c:rest_init+0xc0/0xc0
+[    0.738171]  init/main.c:kernel_init+0x1a/0x140
+[    0.738765]  arch/x86/entry/entry_64.S:ret_from_fork+0x1f/0x30
+[    0.739529]  </TASK>
 
-Best regards,
-baolu
+Here are some stats:
+
+Despite running a small utility on each object file and a script on
+each built-in.a plus one at the kallsyms generation process, it adds
+only 3 seconds to the whole clean build time:
+
+make -j$(($(nproc) + 1)) all compile_commands.json  19071.12s user 3481.97s system 4587% cpu 8:11.64 total
+make -j$(($(nproc) + 1)) all compile_commands.json  19202.88s user 3598.80s system 4607% cpu 8:14.85 total
+
+Compressed kallsyms become bigger by 1.4 Mbytes on x86_64 standard
+distroconfig - 60% of the kallsyms and 2.4% of the decompressed
+vmlinux in the memory:
+
+ffffffff8259ab30 D kallsyms_offsets
+ffffffff82624ed0 D kallsyms_relative_base
+ffffffff82624ed8 D kallsyms_num_syms
+ffffffff82624ee0 D kallsyms_names
+ffffffff827e9c68 D kallsyms_markers
+ffffffff827ea510 D kallsyms_token_table
+ffffffff827ea8c0 D kallsyms_token_index
+ffffffff827eaac0 d .LC1
+
+->
+
+ffffffff8259ac30 D kallsyms_offsets
+ffffffff82624fb8 D kallsyms_relative_base
+ffffffff82624fc0 D kallsyms_num_syms
+ffffffff82624fc8 D kallsyms_names
+ffffffff8294de50 D kallsyms_markers
+ffffffff8294e6f8 D kallsyms_token_table
+ffffffff8294eac8 D kallsyms_token_index
+ffffffff8294ecc8 d .LC1
+
+TODO:
+ * ELF rel and MIPS relocation support (only rela currently, just
+   to test on x86_64);
+ * modules support. Currently, the kernel reuses standard ELF strtab
+   for module kallsyms. My plan is to create a new section which will
+   have the same symbol order as symtab, but point to new complete
+   strings with filepaths, and use this section solely for kallsyms
+   (leaving symtab alone);
+ * LTO support (now relies on that object files are ELFs);
+ * the actual kallsyms/livepatching/probes code which will use
+   filepaths instead of indexes/positions.
+
+Have fun!
+
+Alexander Lobakin (3):
+  modpost: fix TO_NATIVE() with expressions and consts
+  [STUB] increase kallsyms length limit
+  kallsyms: add option to include relative filepaths into kallsyms
+
+ .gitignore                |   1 +
+ Makefile                  |   2 +-
+ include/linux/kallsyms.h  |   2 +-
+ init/Kconfig              |  26 ++-
+ kernel/livepatch/core.c   |   4 +-
+ scripts/Makefile.build    |   7 +-
+ scripts/Makefile.lib      |  10 +-
+ scripts/Makefile.modfinal |   3 +-
+ scripts/gen_sympaths.pl   | 270 ++++++++++++++++++++++++++
+ scripts/kallsyms.c        |  89 +++++++--
+ scripts/link-vmlinux.sh   |  14 +-
+ scripts/mod/.gitignore    |   1 +
+ scripts/mod/Makefile      |   9 +
+ scripts/mod/modpost.h     |   7 +-
+ scripts/mod/sympath.c     | 385 ++++++++++++++++++++++++++++++++++++++
+ 15 files changed, 796 insertions(+), 34 deletions(-)
+ create mode 100755 scripts/gen_sympaths.pl
+ create mode 100644 scripts/mod/sympath.c
+
+-- 
+2.37.2
+
