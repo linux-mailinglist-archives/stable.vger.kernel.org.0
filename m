@@ -2,245 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BD7B5983A6
-	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 15:04:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C348598413
+	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 15:26:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244609AbiHRNCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Aug 2022 09:02:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52226 "EHLO
+        id S244953AbiHRN0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Aug 2022 09:26:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244612AbiHRNC0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 09:02:26 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4624CB441F
-        for <stable@vger.kernel.org>; Thu, 18 Aug 2022 06:02:16 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id s3-20020a17090a2f0300b001facfc6fdbcso1107403pjd.1
-        for <stable@vger.kernel.org>; Thu, 18 Aug 2022 06:02:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=iyJ8a0+Q11wpj6Xm1lfvhar/WsSf14ZnhDpis/hRpGc=;
-        b=nUN1J9TlzwwbgCx+cs97MtgVnPoAfhc7Z6wLYnhf9XlftasErYgstZqCOOP+poaERd
-         15bfVK3uM8nx83r/3B4gJjAs7YLniAF1qcg7dLYDEBufJS6HtoaW42J5tvHxTwINnFoq
-         Hpj7PnDXHI216Uf7pAH35zGiMX765S/x6bNgMegD+xFS6I0xVHNQAKQphgKVDZiNj1bl
-         6UvSb/c3XTKBzqsqmu2M/lrasRG1+1rvSTkIU24BnKsDITp1HfQE98auGeUTyLzFuifJ
-         vnLw4PV9A4zKHNY9bqDWk24yw67Hc5hZSN8vMw/oKKSnWmx9Pzw0Fm3CcnYwzec0KiwS
-         kZsg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=iyJ8a0+Q11wpj6Xm1lfvhar/WsSf14ZnhDpis/hRpGc=;
-        b=yv3Bz4wxOZvn2Iv20Vb6nDqo9ZIB/JwVF3GXuHKYlZ9eIEsCheSdNXbvtqzwKXLrvT
-         +JAdSyGcq1tuhEGdwkkKyVyNgW9ZaKHGJtVLMEFOUrzXswPW+QkXWyVf4MCFU+MZHAh2
-         oGAtaArpxafy3Ml+Tj0x/qdAXUMChN4jqffo/ecNSjC9a93pCtE+tPf/aHQ+6SbG11Fg
-         G04Tk5+ujyRd76qHRfOoCsh75tLsFCLyxH3PJOCCZlkDmTJpQB1L8HU4JvYG9XZjyojS
-         dy/9Y1NjDmOlRJyuzjfOq1SkYrYkW4RXJHzamnt+BYcfuMFXyN2JK3jV0Eg74BlEqa1q
-         TAVw==
-X-Gm-Message-State: ACgBeo1rbyI/79wsKWovOfbU/RL3c4lYK4lXnVAZ8udFCVuC64TutdgT
-        Utz/GTBpz4hQf+NY/HWboMgiRXdY891Z8p+nK+hubg==
-X-Google-Smtp-Source: AA6agR4sBbRQd4QKg5AWU+KEIOhLag4MaYRCgpj9yY17U4L9qL49ZcnhJD+sEi1CLkaHh5moqrBmC5rRkk+tvmQl/lg=
-X-Received: by 2002:a17:902:d50b:b0:172:a41f:b204 with SMTP id
- b11-20020a170902d50b00b00172a41fb204mr2543037plg.70.1660827735062; Thu, 18
- Aug 2022 06:02:15 -0700 (PDT)
+        with ESMTP id S245084AbiHRN0Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 09:26:16 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA2BE9C1F6;
+        Thu, 18 Aug 2022 06:26:14 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27ID0BtS027112;
+        Thu, 18 Aug 2022 13:26:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=F3bmkDPwt+zlKjze2zKYRPH5RJeld2Yio31gn14ffKc=;
+ b=fxDsKqbKkcc3dZClWJ7exYmVtQz+9+CKYyS+r6fOb0M5OBrGjMaKZ4gUV3u0udLQT0ia
+ D4Em4UvcWv8uUsBLIXzu6DPp2eoulax2W9TCBxMXoRgS8LbFPL5UhXOPXZsm/uB3wU1Q
+ xD3UQDOxeBgydRcwnJ1+J1QG7YzMMZE9G3URWW/XfTSvzppt9Crr/oe85uea8dG4dvTg
+ cd93cONJGRpUCim9Xe58PjCE3XUuhCBJR6RW2ZdvBfPhUQSDth81X0F4DV+aAcoElZaz
+ beiA4GpYYzZ6m2FaExZ/E/z1qAFe/hpcTyJf6MeGf8aapFwXE6uaIFp+zONC/LnH038o gw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j1nx6gxac-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Aug 2022 13:26:12 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 27ID0JVC027872;
+        Thu, 18 Aug 2022 13:26:11 GMT
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3j1nx6gx9s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Aug 2022 13:26:11 +0000
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 27IDKo80016253;
+        Thu, 18 Aug 2022 13:26:10 GMT
+Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
+        by ppma04wdc.us.ibm.com with ESMTP id 3hx3k9y30y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 18 Aug 2022 13:26:10 +0000
+Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
+        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 27IDQ96C49414650
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 18 Aug 2022 13:26:09 GMT
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E53436E059;
+        Thu, 18 Aug 2022 13:26:09 +0000 (GMT)
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DEE676E053;
+        Thu, 18 Aug 2022 13:26:08 +0000 (GMT)
+Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.ibm.com.com (unknown [9.160.64.167])
+        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Thu, 18 Aug 2022 13:26:08 +0000 (GMT)
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     jjherne@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com, stable@vger.kernel.org
+Subject: [PATCH v2 1/2] s390/vfio-ap: fix hang during removal of mdev after duplicate assignment
+Date:   Thu, 18 Aug 2022 09:26:05 -0400
+Message-Id: <20220818132606.13321-2-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20220818132606.13321-1-akrowiak@linux.ibm.com>
+References: <20220818132606.13321-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
-References: <20220818110859.1918035-1-jens.wiklander@linaro.org> <CAFA6WYO9ZoVNt+Npj7R+2=5rJ-Gxwy+QGEMziP7Z=eFupjjECQ@mail.gmail.com>
-In-Reply-To: <CAFA6WYO9ZoVNt+Npj7R+2=5rJ-Gxwy+QGEMziP7Z=eFupjjECQ@mail.gmail.com>
-From:   Jens Wiklander <jens.wiklander@linaro.org>
-Date:   Thu, 18 Aug 2022 15:02:04 +0200
-Message-ID: <CAHUa44HoS4QgDzVgcsZkgAhK81wGXKQyqLWbLe9tqqrQELx=MA@mail.gmail.com>
-Subject: Re: [PATCH v2] tee: add overflow check in register_shm_helper()
-To:     Sumit Garg <sumit.garg@linaro.org>
-Cc:     linux-kernel@vger.kernel.org, op-tee@lists.trustedfirmware.org,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        stable@vger.kernel.org, Nimish Mishra <neelam.nimish@gmail.com>,
-        Anirban Chakraborty <ch.anirban00727@gmail.com>,
-        Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>,
-        Jerome Forissier <jerome.forissier@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: HF5u6iRCroJZRUOtS0NRZAmiAeK3zTqY
+X-Proofpoint-ORIG-GUID: S-txIsbb-veF7rIWsbJYSMMSFyTDGj0t
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-18_12,2022-08-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 mlxlogscore=999 priorityscore=1501
+ suspectscore=0 mlxscore=0 spamscore=0 adultscore=0 clxscore=1011
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208180045
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sumit,
+When the same adapter or domain is assigned more than one time prior to
+removing the matrix mdev to which it is assigned, the remove operation
+will hang. The reason is because the same vfio_ap_queue objects with an
+APQN containing the APID of the adapter or APQI of the domain being
+assigned will get added to the hashtable that holds them multiple times.
+This results in the pprev and next pointers of the hlist_node (mdev_qnode
+field in the vfio_ap_queue object) pointing to the queue object itself.
+This causes an interminable loop when the mdev is removed and the queue
+table is iterated to reset the queues.
 
-On Thu, Aug 18, 2022 at 2:41 PM Sumit Garg <sumit.garg@linaro.org> wrote:
->
-> Hi Jens,
->
-> On Thu, 18 Aug 2022 at 16:39, Jens Wiklander <jens.wiklander@linaro.org> wrote:
-> >
-> > With special lengths supplied by user space, register_shm_helper() has
-> > an integer overflow when calculating the number of pages covered by a
-> > supplied user space memory region. This causes
-> > internal_get_user_pages_fast() a helper function of
-> > pin_user_pages_fast() to do a NULL pointer dereference.
-> >
-> > [   14.141620] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
-> > [   14.142556] Mem abort info:
-> > [   14.142829]   ESR = 0x0000000096000044
-> > [   14.143237]   EC = 0x25: DABT (current EL), IL = 32 bits
-> > [   14.143742]   SET = 0, FnV = 0
-> > [   14.144052]   EA = 0, S1PTW = 0
-> > [   14.144348]   FSC = 0x04: level 0 translation fault
-> > [   14.144767] Data abort info:
-> > [   14.145053]   ISV = 0, ISS = 0x00000044
-> > [   14.145394]   CM = 0, WnR = 1
-> > [   14.145766] user pgtable: 4k pages, 48-bit VAs, pgdp=000000004278e000
-> > [   14.146279] [0000000000000010] pgd=0000000000000000, p4d=0000000000000000
-> > [   14.147435] Internal error: Oops: 96000044 [#1] PREEMPT SMP
-> > [   14.148026] Modules linked in:
-> > [   14.148595] CPU: 1 PID: 173 Comm: optee_example_a Not tainted 5.19.0 #11
-> > [   14.149204] Hardware name: QEMU QEMU Virtual Machine, BIOS 0.0.0 02/06/2015
-> > [   14.149832] pstate: 604000c5 (nZCv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-> > [   14.150481] pc : internal_get_user_pages_fast+0x474/0xa80
-> > [   14.151640] lr : internal_get_user_pages_fast+0x404/0xa80
-> > [   14.152408] sp : ffff80000a88bb30
-> > [   14.152711] x29: ffff80000a88bb30 x28: 0000fffff836d000 x27: 0000fffff836e000
-> > [   14.153580] x26: fffffc0000000000 x25: fffffc0000f4a1c0 x24: ffff00000289fb70
-> > [   14.154634] x23: ffff000002702e08 x22: 0000000000040001 x21: ffff8000097eec60
-> > [   14.155378] x20: 0000000000f4a1c0 x19: 00e800007d287f43 x18: 0000000000000000
-> > [   14.156215] x17: 0000000000000000 x16: 0000000000000000 x15: 0000fffff836cfb0
-> > [   14.157068] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
-> > [   14.157747] x11: 0000000000000000 x10: 0000000000000000 x9 : 0000000000000000
-> > [   14.158576] x8 : ffff00000276ec80 x7 : 0000000000000000 x6 : 000000000000003f
-> > [   14.159243] x5 : 0000000000000000 x4 : ffff000041ec4eac x3 : ffff000002774cb8
-> > [   14.159977] x2 : 0000000000000004 x1 : 0000000000000010 x0 : 0000000000000000
-> > [   14.160883] Call trace:
-> > [   14.161166]  internal_get_user_pages_fast+0x474/0xa80
-> > [   14.161763]  pin_user_pages_fast+0x24/0x4c
-> > [   14.162227]  register_shm_helper+0x194/0x330
-> > [   14.162734]  tee_shm_register_user_buf+0x78/0x120
-> > [   14.163290]  tee_ioctl+0xd0/0x11a0
-> > [   14.163739]  __arm64_sys_ioctl+0xa8/0xec
-> > [   14.164227]  invoke_syscall+0x48/0x114
-> > [   14.164653]  el0_svc_common.constprop.0+0x44/0xec
-> > [   14.165130]  do_el0_svc+0x2c/0xc0
-> > [   14.165498]  el0_svc+0x2c/0x84
-> > [   14.165847]  el0t_64_sync_handler+0x1ac/0x1b0
-> > [   14.166258]  el0t_64_sync+0x18c/0x190
-> > [   14.166878] Code: 91002318 11000401 b900f7e1 f9403be1 (f820d839)
-> > [   14.167666] ---[ end trace 0000000000000000 ]---
-> >
-> > Fix this by adding an overflow check when calculating the end of the
-> > memory range. Also add an explicit call to access_ok() in
-> > tee_shm_register_user_buf() to catch an invalid user space address
-> > early.
-> >
-> > Fixes: 033ddf12bcf5 ("tee: add register user memory")
-> > Cc: stable@vger.kernel.org
-> > Reported-by: Nimish Mishra <neelam.nimish@gmail.com>
-> > Reported-by: Anirban Chakraborty <ch.anirban00727@gmail.com>
-> > Reported-by: Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>
-> > Suggested-by: Jerome Forissier <jerome.forissier@linaro.org>
-> > Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-> > ---
-> >  drivers/tee/tee_shm.c | 23 +++++++++++++++++++----
-> >  1 file changed, 19 insertions(+), 4 deletions(-)
-> >
->
-> I can't see the v1 and neither a changelog for v2, so my comments
-> below may be duplicate.
+To fix this problem, the assignment operation is bypassed when assigning
+an adapter or domain if it is already assigned to the matrix mdev.
 
-Fair point. The original patch wasn't posted publicly, but in order to
-avoid confusion with that patch I chose to publish this as V2.
+Since it is not necessary to assign a resource already assigned or to
+unassign a resource that has not been assigned, this patch will bypass
+all assignment/unassignment operations for an adapter, domain or
+control domain under these circumstances.
 
->
-> > diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
-> > index f2b1bcefcadd..f71651021c8d 100644
-> > --- a/drivers/tee/tee_shm.c
-> > +++ b/drivers/tee/tee_shm.c
-> > @@ -231,15 +231,30 @@ EXPORT_SYMBOL_GPL(tee_shm_alloc_priv_buf);
-> >
-> >  static struct tee_shm *
-> >  register_shm_helper(struct tee_context *ctx, unsigned long addr,
-> > -                   size_t length, u32 flags, int id)
-> > +                   unsigned long length, u32 flags, int id)
-> >  {
-> >         struct tee_device *teedev = ctx->teedev;
-> > +       unsigned long end_addr;
-> >         struct tee_shm *shm;
-> >         unsigned long start;
-> >         size_t num_pages;
-> >         void *ret;
-> >         int rc;
-> >
-> > +       /* Check for overflows, this may be input from user space */
->
-> IMO, this bound checking should be part of the parent function (like
-> tee_shm_register_user_buf() in this case).
+Cc: stable@vger.kernel.org
+Fixes: 771e387d5e79 ("s390/vfio-ap: manage link between queue struct and matrix mdev")
+Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
-I don't see any harm in checking it here even if it will then check
-input from tee_shm_register_kernel_buf() too. Then I'm also reusing
-the result in the roundup() and that should be done in this function.
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 6c8c41fac4e1..ee82207b4e60 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -984,6 +984,11 @@ static ssize_t assign_adapter_store(struct device *dev,
+ 		goto done;
+ 	}
+ 
++	if (test_bit_inv(apid, matrix_mdev->matrix.apm)) {
++		ret = count;
++		goto done;
++	}
++
+ 	set_bit_inv(apid, matrix_mdev->matrix.apm);
+ 
+ 	ret = vfio_ap_mdev_validate_masks(matrix_mdev);
+@@ -1109,6 +1114,11 @@ static ssize_t unassign_adapter_store(struct device *dev,
+ 		goto done;
+ 	}
+ 
++	if (!test_bit_inv(apid, matrix_mdev->matrix.apm)) {
++		ret = count;
++		goto done;
++	}
++
+ 	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
+ 	vfio_ap_mdev_hot_unplug_adapter(matrix_mdev, apid);
+ 	ret = count;
+@@ -1183,6 +1193,11 @@ static ssize_t assign_domain_store(struct device *dev,
+ 		goto done;
+ 	}
+ 
++	if (test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
++		ret = count;
++		goto done;
++	}
++
+ 	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
+ 
+ 	ret = vfio_ap_mdev_validate_masks(matrix_mdev);
+@@ -1286,6 +1301,11 @@ static ssize_t unassign_domain_store(struct device *dev,
+ 		goto done;
+ 	}
+ 
++	if (!test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
++		ret = count;
++		goto done;
++	}
++
+ 	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
+ 	vfio_ap_mdev_hot_unplug_domain(matrix_mdev, apqi);
+ 	ret = count;
+@@ -1329,6 +1349,11 @@ static ssize_t assign_control_domain_store(struct device *dev,
+ 		goto done;
+ 	}
+ 
++	if (test_bit_inv(id, matrix_mdev->matrix.adm)) {
++		ret = count;
++		goto done;
++	}
++
+ 	/* Set the bit in the ADM (bitmask) corresponding to the AP control
+ 	 * domain number (id). The bits in the mask, from most significant to
+ 	 * least significant, correspond to IDs 0 up to the one less than the
+@@ -1378,6 +1403,11 @@ static ssize_t unassign_control_domain_store(struct device *dev,
+ 		goto done;
+ 	}
+ 
++	if (!test_bit_inv(domid, matrix_mdev->matrix.adm)) {
++		ret = count;
++		goto done;
++	}
++
+ 	clear_bit_inv(domid, matrix_mdev->matrix.adm);
+ 
+ 	if (test_bit_inv(domid, matrix_mdev->shadow_apcb.adm)) {
+-- 
+2.31.1
 
->
-> > +       addr = untagged_addr(addr);
-> > +       start = rounddown(addr, PAGE_SIZE);
-> > +       if (check_add_overflow(addr, length, &end_addr))
-> > +               return ERR_PTR(-EINVAL);
->
-> Isn't this check redundant after access_ok()? AFAICS, access_ok()
-> should limit the upper bound to TASK_SIZE_MAX which should detect any
-> overflows.
-
-It may be redundant, depending on the configuration. It's likely
-redundant on all platforms we care about at the moment, but who knows
-where this will be used in the future.
-
->
-> > +       end_addr = roundup(end_addr, PAGE_SIZE);
-> > +       if (end_addr < start)
-> > +               return ERR_PTR(-EINVAL);
->
-> Ditto?
-
-Yeah, same argument.
-
-Thanks,
-Jens
-
->
-> -Sumit
->
-> > +       num_pages = (end_addr - start) / PAGE_SIZE;
-> > +
-> > +       /* Error out early if no pages are to be registered */
-> > +       if (!num_pages)
-> > +               return ERR_PTR(-EINVAL);
-> > +
-> >         if (!tee_device_get(teedev))
-> >                 return ERR_PTR(-EINVAL);
-> >
-> > @@ -261,11 +276,8 @@ register_shm_helper(struct tee_context *ctx, unsigned long addr,
-> >         shm->flags = flags;
-> >         shm->ctx = ctx;
-> >         shm->id = id;
-> > -       addr = untagged_addr(addr);
-> > -       start = rounddown(addr, PAGE_SIZE);
-> >         shm->offset = addr - start;
-> >         shm->size = length;
-> > -       num_pages = (roundup(addr + length, PAGE_SIZE) - start) / PAGE_SIZE;
-> >         shm->pages = kcalloc(num_pages, sizeof(*shm->pages), GFP_KERNEL);
-> >         if (!shm->pages) {
-> >                 ret = ERR_PTR(-ENOMEM);
-> > @@ -326,6 +338,9 @@ struct tee_shm *tee_shm_register_user_buf(struct tee_context *ctx,
-> >         void *ret;
-> >         int id;
-> >
-> > +       if (!access_ok((void __user *)addr, length))
-> > +               return ERR_PTR(-EFAULT);
-> > +
-> >         mutex_lock(&teedev->mutex);
-> >         id = idr_alloc(&teedev->idr, NULL, 1, 0, GFP_KERNEL);
-> >         mutex_unlock(&teedev->mutex);
-> > --
-> > 2.31.1
-> >
