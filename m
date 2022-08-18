@@ -2,72 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1BD8597CB1
-	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 06:11:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F847597D52
+	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 06:27:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242818AbiHREKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Aug 2022 00:10:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37930 "EHLO
+        id S243213AbiHREVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Aug 2022 00:21:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240797AbiHREKu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 00:10:50 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6895F8E0EB
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 21:10:49 -0700 (PDT)
+        with ESMTP id S243217AbiHREVi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 00:21:38 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96CB6266E
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 21:20:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660795848;
+        s=mimecast20190719; t=1660796445;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=x8r+esrHDv+sAqG/RyUV1eRrGc6wzowBT+uiQCy4WWI=;
-        b=aaklZLubQGHZNl0EiofeSe6gFOmpLBT8mTR1cP/AGXlOPZrtZRGBVn0J9LzD7D49FaUyGl
-        090EDrlWRWBn1nbS/0E0dv/9QVv8q8zRO8UYm4VxpmYQkWG1MsLyJSTPAg+Rm18TcO/mGR
-        wqQtXsIu93J3vKAG94vwDM8anB1pNg0=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=SMrl9R9Na006+oVqKBRzVE6TL1iKkeMxduae8kp14pQ=;
+        b=FRnFeOTxJ9b18KKFhQvo6CYZsOZhZ5mqn8iPKs9QgwMmDhdpQPpvMLo02J8He9b1oHXlRc
+        Xbu8JfesElmDb25VbGmlYJceDb6R62ykJjvRj6YZEzVpvxYwJ3CwzfzMK1PkfmOS8/J+la
+        GWzbXbnBeNJbcr1WblEOrsLzMbhNtQI=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-182-TX9h30Q8OR-RdpV52YTl4w-1; Thu, 18 Aug 2022 00:10:46 -0400
-X-MC-Unique: TX9h30Q8OR-RdpV52YTl4w-1
-Received: by mail-pj1-f70.google.com with SMTP id x8-20020a17090a1f8800b001faa9857ef2so427423pja.0
-        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 21:10:46 -0700 (PDT)
+ us-mta-325-sTANOX8pPuSsfALskYlBTQ-1; Thu, 18 Aug 2022 00:20:44 -0400
+X-MC-Unique: sTANOX8pPuSsfALskYlBTQ-1
+Received: by mail-pj1-f72.google.com with SMTP id on14-20020a17090b1d0e00b001f842dd5e90so2225160pjb.5
+        for <stable@vger.kernel.org>; Wed, 17 Aug 2022 21:20:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=x8r+esrHDv+sAqG/RyUV1eRrGc6wzowBT+uiQCy4WWI=;
-        b=QUN2mZF0QNcok+aI6j3UCAu20ufSGSBMG+T/3tyu9N+7BAGbYD2HvjUwjzxM8qToc+
-         LID6kcrY+a5yViZIopqLx09y1pbLAq4QPR341j9qDkOiA5n6II3r7AvC19KnPuIddm7v
-         pbkEnaqs2f25Hulb867zzZPxXLRfLsqxlIFb6xxWocMSWwlj2KTWqMmQpGtXDGsWgN4Y
-         TXFvxZccUDHmWimbqVSwPXa/gurS+ECZFRAl25zzGKBIkc3yPwhKlgEkn0D6GsJFNMj+
-         L1mbvn4HwIGe135pvtVyoGJ1/2w1jaSPeIuMg7dPqtBa70sqZFADEvD1Dh4Ct5wXNNmo
-         hUIQ==
-X-Gm-Message-State: ACgBeo2MmZLwODEk2eBgr1Y2WZgufLw4nxwFppwJdDz7wY9k4xhNxTCR
-        VeNMXDUV2DnhwZn1mON3HJzbJmGxMJbRntCmmqyH3c32v8cy5XoPAB//48n53QFPmCXd646F3AD
-        fi3f8WCzaLrDeCHHY
-X-Received: by 2002:a17:902:c40a:b0:16e:cc02:b9ab with SMTP id k10-20020a170902c40a00b0016ecc02b9abmr1054177plk.81.1660795845337;
-        Wed, 17 Aug 2022 21:10:45 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7vg00nUNQXf0nwIVtoYV7CtO8KdUgmBSnGSIivN3pgSiqyxtEen+v6SKgXDbgwRG+8fizXGw==
-X-Received: by 2002:a17:902:c40a:b0:16e:cc02:b9ab with SMTP id k10-20020a170902c40a00b0016ecc02b9abmr1054160plk.81.1660795844984;
-        Wed, 17 Aug 2022 21:10:44 -0700 (PDT)
+        bh=SMrl9R9Na006+oVqKBRzVE6TL1iKkeMxduae8kp14pQ=;
+        b=eTWn9BjaTrYfAbFC/AgNcUhSvWhFo9OJybZgMQwbBtvKu9bvukqzIrmiv47Kfj9ahh
+         Yjd/UiDcqMq7gaBP6FuUzOltEGkMX+YE2qXJ/RjpHF1a1oVahKSDRK43+Sy8tH58G8hN
+         lTgN609D7zGFfUj3mdfagN2K5a1dSwS98xPHdx9eWWAq02VLNnSSInPGxcnxz3O5BDfh
+         1zrqwlHbAA5ktgPwERDssXaueVyq+YqktFDXEq/2zWWduhkjXMFMxRnZhTIYrLJV8yI7
+         8pSNNIcIOwWAneVwUY4hX/zCEkMqNPSC3Amwftjv5jCG4ae9jGjU/ciuWNyLX/OQiGnF
+         QdwA==
+X-Gm-Message-State: ACgBeo0nBgrWnpRCwVlF8JGG5nDccOBO+pV6YIih8rFHlZb5lIwFV7MR
+        JPeN5/3DbVu8JcCwV8Ize077k0WB8atwOX6OJTaez8pg5+AnxAG2eDOr+wN5RwoaFCDOkZKsGMZ
+        Rbw/B/XUFFGhPPg+x
+X-Received: by 2002:a63:cc42:0:b0:41d:c915:ffd with SMTP id q2-20020a63cc42000000b0041dc9150ffdmr1086407pgi.161.1660796443297;
+        Wed, 17 Aug 2022 21:20:43 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR7keLsnIoXwE9vTJyTddTTtmnZZ+tVH+E/mplogkoJx3E/5W0hQoTNUKzdujf8ngXOD9pwZ6w==
+X-Received: by 2002:a63:cc42:0:b0:41d:c915:ffd with SMTP id q2-20020a63cc42000000b0041dc9150ffdmr1086396pgi.161.1660796443044;
+        Wed, 17 Aug 2022 21:20:43 -0700 (PDT)
 Received: from localhost ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id w6-20020a626206000000b005289627ae6asm345364pfb.187.2022.08.17.21.10.41
+        by smtp.gmail.com with ESMTPSA id f7-20020a170902684700b0016d93c84049sm278876pln.54.2022.08.17.21.20.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Aug 2022 21:10:43 -0700 (PDT)
-Date:   Thu, 18 Aug 2022 12:09:38 +0800
+        Wed, 17 Aug 2022 21:20:42 -0700 (PDT)
+Date:   Thu, 18 Aug 2022 12:15:36 +0800
 From:   Coiby Xu <coxu@redhat.com>
 To:     gregkh@linuxfoundation.org
 Cc:     bhe@redhat.com, msuchanek@suse.de, will@kernel.org,
         zohar@linux.ibm.com, stable@vger.kernel.org
 Subject: Re: FAILED: patch "[PATCH] arm64: kexec_file: use more system
- keyrings to verify kernel" failed to apply to 5.15-stable tree
-Message-ID: <20220818040938.pllzarythgusnyzf@Rk>
-References: <16605775859368@kroah.com>
+ keyrings to verify kernel" failed to apply to 5.10-stable tree
+Message-ID: <20220818041536.5urxrunzmdawkdh7@Rk>
+References: <166057758686253@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <16605775859368@kroah.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+In-Reply-To: <166057758686253@kroah.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -78,6 +78,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi Greg,
 
+
 This patch depends on three prerequisites. This full list of commit ids
 should be backported is shown below,
 
@@ -86,39 +87,39 @@ should be backported is shown below,
 3. c903dae8941d ("kexec, KEYS: make the code in bzImage64_verify_sig generic")
 4. 0d519cadf751 ("arm64: kexec_file: use more system keyrings to verify kernel image signature")
 
-And I can confirm they can be applied to linux-5.15.y branch
-successfully,
-     $ git checkout -b arm_key_5.15.y stable/linux-5.15.y
-     branch 'arm_key_5.15.y' set up to track 'stable/linux-5.15.y'.
-     Switched to a new branch 'arm_key_5.15.y'
-     $ git cherry-pick 65d9a9a60fd7 689a71493bd2 c903dae8941d 0d519cadf751
-     Auto-merging arch/arm64/include/asm/kexec.h
-     Auto-merging arch/powerpc/include/asm/kexec.h
-     Auto-merging arch/s390/include/asm/kexec.h
-     Auto-merging arch/x86/include/asm/kexec.h
-     Auto-merging include/linux/kexec.h
-     Auto-merging kernel/kexec_file.c
-     [arm_key_5.15.y 7c7844771360] kexec_file: drop weak attribute from functions
-      Author: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-      Date: Fri Jul 1 13:04:04 2022 +0530
-      6 files changed, 61 insertions(+), 40 deletions(-)
-     Auto-merging include/linux/kexec.h
-     Auto-merging kernel/kexec_file.c
-     [arm_key_5.15.y 4283e2681d86] kexec: clean up arch_kexec_kernel_verify_sig
-      Date: Thu Jul 14 21:40:24 2022 +0800
-      2 files changed, 13 insertions(+), 25 deletions(-)
-     Auto-merging include/linux/kexec.h
-     Auto-merging kernel/kexec_file.c
-     [arm_key_5.15.y c0cf50b9056f] kexec, KEYS: make the code in bzImage64_verify_sig generic
-      Date: Thu Jul 14 21:40:25 2022 +0800
-      3 files changed, 25 insertions(+), 19 deletions(-)
-     [arm_key_5.15.y 40b98256cb89] arm64: kexec_file: use more system keyrings to verify kernel image signature
-      Date: Thu Jul 14 21:40:26 2022 +0800
-      1 file changed, 1 insertion(+), 10 deletions(-)
+$ git checkout -b arm_key_5.10.y stable/linux-5.10.y
+Updating files: 100% (33255/33255), done.
+branch 'arm_key_5.10.y' set up to track 'stable/linux-5.10.y'.
+Switched to a new branch 'arm_key_5.10.y'
+$ git cherry-pick 65d9a9a60fd7 689a71493bd2 c903dae8941d 0d519cadf751
+Auto-merging arch/arm64/include/asm/kexec.h
+Auto-merging arch/powerpc/include/asm/kexec.h
+Auto-merging arch/s390/include/asm/kexec.h
+Auto-merging arch/x86/include/asm/kexec.h
+Auto-merging include/linux/kexec.h
+Auto-merging kernel/kexec_file.c
+[arm_key_5.10.y 624dfcf3b8de] kexec_file: drop weak attribute from functions
+  Author: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+  Date: Fri Jul 1 13:04:04 2022 +0530
+  6 files changed, 61 insertions(+), 40 deletions(-)
+Auto-merging include/linux/kexec.h
+Auto-merging kernel/kexec_file.c
+[arm_key_5.10.y da8cfa52682e] kexec: clean up arch_kexec_kernel_verify_sig
+  Date: Thu Jul 14 21:40:24 2022 +0800
+  2 files changed, 13 insertions(+), 25 deletions(-)
+Auto-merging arch/x86/kernel/kexec-bzimage64.c
+Auto-merging include/linux/kexec.h
+Auto-merging kernel/kexec_file.c
+[arm_key_5.10.y 0bb032082ce6] kexec, KEYS: make the code in bzImage64_verify_sig generic
+  Date: Thu Jul 14 21:40:25 2022 +0800
+  3 files changed, 25 insertions(+), 19 deletions(-)
+[arm_key_5.10.y fde64a36fa74] arm64: kexec_file: use more system keyrings to verify kernel image signature
+  Date: Thu Jul 14 21:40:26 2022 +0800
+  1 file changed, 1 insertion(+), 10 deletions(-)
 
-On Mon, Aug 15, 2022 at 05:33:05PM +0200, gregkh@linuxfoundation.org wrote:
+On Mon, Aug 15, 2022 at 05:33:06PM +0200, gregkh@linuxfoundation.org wrote:
 >
->The patch below does not apply to the 5.15-stable tree.
+>The patch below does not apply to the 5.10-stable tree.
 >If someone wants it applied there, or to any other stable or longterm
 >tree, then please email the backport, including the original git commit
 >id to <stable@vger.kernel.org>.
