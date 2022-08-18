@@ -2,133 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64ECD598643
-	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 16:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3ED59864D
+	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 16:47:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240240AbiHROoz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Aug 2022 10:44:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46222 "EHLO
+        id S244743AbiHROrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Aug 2022 10:47:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245745AbiHROow (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 10:44:52 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57BBF39B93
-        for <stable@vger.kernel.org>; Thu, 18 Aug 2022 07:44:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1660833890;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZlNW+boxKqgfwr0TWqSRLZOIUoJTEM6tD/36NIupE70=;
-        b=eWM0kZleNy9WMT6fUahmrH5J3EhHBQP3V9TiaybrazKqb7TMvtoj/yKglHjEezEKrM4MGo
-        jIrPIlwvWNECpxkdT7JgMkD7tOiPEhfC0eWFTNX1dIc7W0uTbGWlibHJeMrRGpyCaY1zLA
-        oSYJ+8j98RUHwuMGaChoDGPHMwKLpZc=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-441-ndbGINIoMkmCyer_AOg7HA-1; Thu, 18 Aug 2022 10:44:49 -0400
-X-MC-Unique: ndbGINIoMkmCyer_AOg7HA-1
-Received: by mail-qk1-f200.google.com with SMTP id bq19-20020a05620a469300b006bb70e293ccso1540542qkb.1
-        for <stable@vger.kernel.org>; Thu, 18 Aug 2022 07:44:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=ZlNW+boxKqgfwr0TWqSRLZOIUoJTEM6tD/36NIupE70=;
-        b=yrcMDwcjH0yN/c2L64GZ8rABtN0NaYDgHEoFFNRtpXAU1EnFp3KWRXRxlhCMQsOdik
-         IdjjXIo6pjo3IwgkjFO7wdy1VgS9obQg1JsNiF9QMNCX9gqMWpB7XfYu3SZ3FHJPJALc
-         QLMcgz8EuOaH+HwdBTJZPAfJfMcXS/sKgncpwSSfEjxQXoJLmlSQbMPu8WISnk7oEJtf
-         AVPKqvkQHVBzvxFdFLJY0PXMX+KfgQot/p0LIEGEPtyqdUl3AmnTde9a2G0olfu6DJyO
-         d1rZVXYfLxsrpq87BgYhNbflTtfs/rmqzYQakoEbVgRxBC6j7E2RvYEtZI7R2apWSH94
-         pmuQ==
-X-Gm-Message-State: ACgBeo3vRDou8Jlvrm78u6Y6/jC+tIn+Mqz2QVGXfugNFZSuPuYCNtpr
-        hGsZzm0vQkKqZz031pI7lxfukU5U03Pdb8VqRHNj03O87NlRGMoQPpF58JJ8TdoRDNPs4ppDLwM
-        i4xGjhYw/NrUbhdlF
-X-Received: by 2002:a05:622a:1c3:b0:344:56b5:f14b with SMTP id t3-20020a05622a01c300b0034456b5f14bmr2982403qtw.152.1660833888693;
-        Thu, 18 Aug 2022 07:44:48 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR6Y7IFVVzndjOAS+SeXLhYlIl9eakAp1CbXrmWdBV9kzpU04h8jW0ij46cg9iIRTWVE+UYkxA==
-X-Received: by 2002:a05:622a:1c3:b0:344:56b5:f14b with SMTP id t3-20020a05622a01c300b0034456b5f14bmr2982368qtw.152.1660833888473;
-        Thu, 18 Aug 2022 07:44:48 -0700 (PDT)
-Received: from xz-m1.local (bras-base-aurron9127w-grc-35-70-27-3-10.dsl.bell.ca. [70.27.3.10])
-        by smtp.gmail.com with ESMTPSA id y10-20020a05622a120a00b003435a198849sm1216076qtx.47.2022.08.18.07.44.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Aug 2022 07:44:47 -0700 (PDT)
-Date:   Thu, 18 Aug 2022 10:44:46 -0400
-From:   Peter Xu <peterx@redhat.com>
-To:     "Huang, Ying" <ying.huang@intel.com>
-Cc:     Nadav Amit <nadav.amit@gmail.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        huang ying <huang.ying.caritas@gmail.com>,
-        Linux MM <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "Sierra Guiza, Alejandro (Alex)" <alex.sierra@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        David Hildenbrand <david@redhat.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Karol Herbst <kherbst@redhat.com>,
-        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
-        Logan Gunthorpe <logang@deltatee.com>, paulus@ozlabs.org,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] mm/migrate_device.c: Copy pte dirty bit to page
-Message-ID: <Yv5QXkS4Bm9pTBeG@xz-m1.local>
-References: <6e77914685ede036c419fa65b6adc27f25a6c3e9.1660635033.git-series.apopple@nvidia.com>
- <CAC=cRTPGiXWjk=CYnCrhJnLx3mdkGDXZpvApo6yTbeW7+ZGajA@mail.gmail.com>
- <Yvv/eGfi3LW8WxPZ@xz-m1.local>
- <871qtfvdlw.fsf@nvdebian.thelocal>
- <YvxWUY9eafFJ27ef@xz-m1.local>
- <87o7wjtn2g.fsf@nvdebian.thelocal>
- <87tu6bbaq7.fsf@yhuang6-desk2.ccr.corp.intel.com>
- <1D2FB37E-831B-445E-ADDC-C1D3FF0425C1@gmail.com>
- <Yv1BJKb5he3dOHdC@xz-m1.local>
- <87czcyawl6.fsf@yhuang6-desk2.ccr.corp.intel.com>
+        with ESMTP id S233992AbiHROrT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 10:47:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0338ABB926;
+        Thu, 18 Aug 2022 07:47:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9416260B3F;
+        Thu, 18 Aug 2022 14:47:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98B4DC433C1;
+        Thu, 18 Aug 2022 14:47:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1660834036;
+        bh=vkra+54wSOIY+Y+8ajG7f72gPrM+M8yjbxSyC4XndDc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LNjBIGy2aDIQKn0/m/2vLz7gWbb+Mhtvi8/RiYREGS5rL0/rCC8RMXAJH1lcKRkgk
+         1DpHRpQulWGffTzE7e0P22n32+4zkTU5YSNvxPqsYi4ACCI+IINgdQ8S/3YlXAHwCg
+         0bhIipR3qJReZrwZn4JEXdShmonF/fexjAtdpBW4=
+Date:   Thu, 18 Aug 2022 16:47:14 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     "Alan J. Wylie" <alan@wylie.me.uk>, linux-usb@vger.kernel.org
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: Regression in 5.19.0: USB errors during boot
+Message-ID: <Yv5Q8gDvVTGOHd8k@kroah.com>
+References: <25342.20092.262450.330346@wylie.me.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87czcyawl6.fsf@yhuang6-desk2.ccr.corp.intel.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+In-Reply-To: <25342.20092.262450.330346@wylie.me.uk>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 18, 2022 at 02:34:45PM +0800, Huang, Ying wrote:
-> > In this specific case, the only way to do safe tlb batching in my mind is:
-> >
-> > 	pte_offset_map_lock();
-> > 	arch_enter_lazy_mmu_mode();
-> >         // If any pending tlb, do it now
-> >         if (mm_tlb_flush_pending())
-> > 		flush_tlb_range(vma, start, end);
-> >         else
-> >                 flush_tlb_batched_pending();
+[Adding in linux-usb@vger]
+
+
+On Thu, Aug 18, 2022 at 03:36:44PM +0100, Alan J. Wylie wrote:
 > 
-> I don't think we need the above 4 lines.  Because we will flush TLB
-> before we access the pages.
+> Apologies for the delay in reporting this: I messed up my first attempt at
+> bisecting, then I've spent a week going to, enjoying, returning from and
+> recovering from a music festival.
+> 
+> Up to and including 5.18.18 things are fine. With 5.19.0 (and .1 and .2)  I see
+> lots of errors and hangs on the USB2 chipset, e.g.
+> 
+> $ grep "usb 9-4" dmesg.5.19.2
+> [    6.669075] usb 9-4: new full-speed USB device number 2 using ohci-pci
+> [    6.829087] usb 9-4: device descriptor read/64, error -32
+> [    7.097094] usb 9-4: device descriptor read/64, error -32
+> [    7.361087] usb 9-4: new full-speed USB device number 3 using ohci-pci
+> [    7.521152] usb 9-4: device descriptor read/64, error -32
+> [    7.789066] usb 9-4: device descriptor read/64, error -32
+> [    8.081070] usb 9-4: new full-speed USB device number 4 using ohci-pci
+> [    8.497138] usb 9-4: device not accepting address 4, error -32
+> [    8.653140] usb 9-4: new full-speed USB device number 5 using ohci-pci
+> [    9.069141] usb 9-4: device not accepting address 5, error -32
+> $
+> 
+> $ grep "usb 1-2" dmesg.5.19.2
+> [    5.917102] usb 1-2: new high-speed USB device number 2 using ehci-pci
+> [    6.277076] usb 1-2: device descriptor read/64, error -71
+> [    6.513143] usb 1-2: device descriptor read/64, error -32
+> [    6.753146] usb 1-2: new high-speed USB device number 3 using ehci-pci
+> [    6.881143] usb 1-2: device descriptor read/64, error -32
+> [    7.117144] usb 1-2: device descriptor read/64, error -32
+> [    7.429141] usb 1-2: new high-speed USB device number 4 using ehci-pci
+> [    7.845134] usb 1-2: device not accepting address 4, error -32
+> [    7.977142] usb 1-2: new high-speed USB device number 5 using ehci-pci
+> [    8.393158] usb 1-2: device not accepting address 5, error -32
+> $
+> 
+> the USB port is then no longer usable
+> 
+> This is not reproducible on the other chipset (USB3) on this machine,
+> nor on two other systems. Swapping USB cables doesn't help.
+> 
+> I have bisected it to
+> 
+> $ git bisect bad
+> 78013eaadf696d2105982abb4018fbae394ca08f is the first bad commit
+> commit 78013eaadf696d2105982abb4018fbae394ca08f
+> Author: Christoph Hellwig <hch@lst.de>
+> Date:   Mon Feb 14 14:11:44 2022 +0100
+> 
+>     x86: remove the IOMMU table infrastructure
+> 
+> however it will not easily revert
+> 
+> I'll be more than happy to assist with any debugging/testing.
+> 
+> $ git revert 78013eaadf696d2105982abb4018fbae394ca08f
+> Auto-merging arch/x86/include/asm/dma-mapping.h
+> CONFLICT (content): Merge conflict in arch/x86/include/asm/dma-mapping.h
+> Auto-merging arch/x86/include/asm/iommu.h
+> Auto-merging arch/x86/include/asm/xen/swiotlb-xen.h
+> Auto-merging arch/x86/kernel/Makefile
+> Auto-merging arch/x86/kernel/pci-dma.c
+> CONFLICT (content): Merge conflict in arch/x86/kernel/pci-dma.c
+> Auto-merging arch/x86/kernel/vmlinux.lds.S
+> Auto-merging drivers/iommu/amd/init.c
+> Auto-merging drivers/iommu/amd/iommu.c
+> CONFLICT (content): Merge conflict in drivers/iommu/amd/iommu.c
+> Auto-merging drivers/iommu/intel/dmar.c
+> error: could not revert 78013eaadf69... x86: remove the IOMMU table infrastructure
+> 
+> # dmidecode  | grep -A2 "^Base Board"
+> Base Board Information
+>      Manufacturer: Gigabyte Technology Co., Ltd.
+>      Product Name: 970A-DS3P
+> #
+> 
+> # lspci -nn | grep -i usb
+> 00:12.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller [1002:4397]
+> 00:12.2 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller [1002:4396]
+> 00:13.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller [1002:4397]
+> 00:13.2 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller [1002:4396]
+> 00:14.5 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI2 Controller [1002:4399]
+> 00:16.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller [1002:4397]
+> 00:16.2 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller [1002:4396]
+> 02:00.0 USB controller [0c03]: VIA Technologies, Inc. VL805/806 xHCI USB 3.0 Controller [1106:3483] (rev 01)
 
-Could you elaborate?
+So this only happens with the on-board USB 2 controller?
 
-> Can you find any issue if we don't use the above 4 lines?
+This is odd, I would not expect one PCI controller to work, but the
+other one not.
 
-It seems okay to me to leave stall tlb at least within the scope of this
-function. It only collects present ptes and flush propoerly for them.  I
-don't quickly see any other implications to other not touched ptes - unlike
-e.g. mprotect(), there's a strong barrier of not allowing further write
-after mprotect() returns.
 
-Still I don't know whether there'll be any side effect of having stall tlbs
-in !present ptes because I'm not familiar enough with the private dev swap
-migration code.  But I think having them will be safe, even if redundant.
+> #
+> 
+> # lspci -v -s 00:12
+> 00:12.0 USB controller: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB OHCI0 Controller (prog-if 10 [OHCI])
+> 	Subsystem: Gigabyte Technology Co., Ltd GA-880GMA-USB3
+> 	Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 18
+> 	Memory at fe50a000 (32-bit, non-prefetchable) [size=4K]
+> 	Kernel driver in use: ohci-pci
+> 				 	Kernel modules: ohci_pci
+> 00:12.2 USB controller: Advanced Micro Devices, Inc. [AMD/ATI] SB7x0/SB8x0/SB9x0 USB EHCI Controller (prog-if 20 [EHCI])
+> 	Subsystem: Gigabyte Technology Co., Ltd GA-880GMA-USB3
+> 	Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 17
+> 	Memory at fe509000 (32-bit, non-prefetchable) [size=256]
+> 	Capabilities: [c0] Power Management version 2
+> 	Capabilities: [e4] Debug port: BAR=1 offset=00e0
+> 	Kernel driver in use: ehci-pci
+> 	Kernel modules: ehci_pci
+> #
 
-Thanks,
+What is the output of the lspci -v for the USB 3 controller?
 
--- 
-Peter Xu
+Christoph, any ideas?
 
+thanks,
+
+greg k-h
