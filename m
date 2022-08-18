@@ -2,172 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 471505986EA
-	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 17:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 631635987B8
+	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 17:45:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344054AbiHRPI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Aug 2022 11:08:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42212 "EHLO
+        id S1343833AbiHRPo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Aug 2022 11:44:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344052AbiHRPIw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 11:08:52 -0400
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83F0C6565D;
-        Thu, 18 Aug 2022 08:08:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1660835331; x=1692371331;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=TeTULpA5GIa1PuFYDxit9KmGEMhkRijHwhLM1hJOi10=;
-  b=mrGe1M3ntn1qTlOvNvUGtCBznPAqDJB+gSvEKpLbeDvu66LPuofOyN2l
-   pTG3sBfDDuX0OJZqYpc8nn0hptKOuBQZed0NbY6yXx61TNKrfh9aDj/nu
-   RNCvFNyczCUcMOugGPu1nXXkXmGdtHE3kyi120r3M+dFS8UhagQAWq5ws
-   VOquAt3TkhF5r9kk52akCBebL+NGuZhPBWcdrpjnJLOe9z8KYR5nrC3Zl
-   fTFKvKyltu9iBKYLRz3qquHKJwM4R7m2b0lNaMfb0EX+Y5BVm1me7ZQjJ
-   JIsLUCUTkn12irBrCFF5FUQA4y5vgyrocLDv7r941SLGXYrlO92Pe0GOz
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10443"; a="318803193"
-X-IronPort-AV: E=Sophos;i="5.93,246,1654585200"; 
-   d="scan'208";a="318803193"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2022 08:08:51 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,246,1654585200"; 
-   d="scan'208";a="734080808"
-Received: from irvmail001.ir.intel.com ([10.43.11.63])
-  by orsmga004.jf.intel.com with ESMTP; 18 Aug 2022 08:08:47 -0700
-Received: from newjersey.igk.intel.com (newjersey.igk.intel.com [10.102.20.203])
-        by irvmail001.ir.intel.com (8.14.3/8.13.6/MailSET/Hub) with ESMTP id 27IF8jgm008292;
-        Thu, 18 Aug 2022 16:08:45 +0100
-From:   Alexander Lobakin <alexandr.lobakin@intel.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Alexander Lobakin <alexandr.lobakin@intel.com>,
-        linux-kernel@vger.kernel.org,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        linux-kbuild@vger.kernel.org, live-patching@vger.kernel.org,
-        lkp@intel.com, stable@vger.kernel.org
-Subject: Re: [RFC PATCH 1/3] modpost: fix TO_NATIVE() with expressions and consts
-Date:   Thu, 18 Aug 2022 17:07:06 +0200
-Message-Id: <20220818150706.1114737-1-alexandr.lobakin@intel.com>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <Yv5ITarFK9Z3bkhZ@kroah.com>
-References: <20220818115306.1109642-1-alexandr.lobakin@intel.com> <20220818115306.1109642-2-alexandr.lobakin@intel.com> <Yv4v5vwXDER3GA2y@kroah.com> <20220818140153.1113308-1-alexandr.lobakin@intel.com> <Yv5ITarFK9Z3bkhZ@kroah.com>
+        with ESMTP id S1343738AbiHRPoX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 11:44:23 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 953E898A72;
+        Thu, 18 Aug 2022 08:44:21 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id y13so3932101ejp.13;
+        Thu, 18 Aug 2022 08:44:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc;
+        bh=Ec3feK6zKsC+98ovkMATqjfc9Z/8JYfrz7WWBe9hbu0=;
+        b=n1L41zYEotNz+sRGLeQHeg0o4rLhip/SSEh8KtQLtgj6dKL4Io0jXGLDn4lpUo8pnA
+         ZeWuoyhBX5NuCVJ7jhGxZS7P3Ij2OxCAvS4te5Oo8wvX0TwYtu6QraE1LL/5lbrJi5qR
+         UAvfIznRBpwbr0h+tVaMWfO5OhwBKeeWqLw610pjzCV/J0Kx86oDNGkDmOJMarhenfem
+         9iIwQ5afmIK8sxdokaypNM6d2GtQUkueaxq07cges7dJz9mbqjjaGrCLbySIX4xjEmy8
+         D9OR1x5mEQPihesnD/0wHCufDL0SS+agooQXhEBSAVL75iJ9EqwddmKsSbO+CHILQ29M
+         KkEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
+        bh=Ec3feK6zKsC+98ovkMATqjfc9Z/8JYfrz7WWBe9hbu0=;
+        b=iBBl4S7/glIQa+ZTJmTSY7b/KG59XqBQXzyfk38tzORkTYya4dEEgcFd8BnNm6DM3V
+         +txenW7tCXR3Qume4CfN6T9RAILeIXb7pYqiS4f09uUCPRwuSrr9IEgSxXesXwSXje8O
+         RR/o7OhyFEzE5EQMGkKuf4lI94t9TIKm5IC4/ejfHhoE+1iwS9xcwcI9Q23rmrIqhAqq
+         DsSZzVJSQ8NiRGkim+p7MdBbEuiXgDhsUYSwkhBqubAZj9aVceamkH2OuKbfi2uraj6n
+         mn5f40wy5+wV+7A/3+T2GgvSvmv5hUO7ASzc76opjkYcgLxWzfdTzNuqGYzaaBHiTqsO
+         2cHQ==
+X-Gm-Message-State: ACgBeo14a8wwld9akek+U7wDtNAAJeWnlmN7coSVnepDnuf8FkoBEJj7
+        xtftd5xGhkqzsyODsP8W5ZCYwoZuechOMw==
+X-Google-Smtp-Source: AA6agR7bv9A5h1FXBZGLz9hoeqqDOqBD00nwlatN4sVaPOMCBXCMWy9JRGmrXAUB3/EMMBP03jGwmg==
+X-Received: by 2002:a17:907:2848:b0:730:cab8:3ce5 with SMTP id el8-20020a170907284800b00730cab83ce5mr2224448ejc.718.1660837459629;
+        Thu, 18 Aug 2022 08:44:19 -0700 (PDT)
+Received: from deepwhite.fritz.box ([2001:9e8:220d:e00:f78b:3e64:f8af:69ef])
+        by smtp.gmail.com with ESMTPSA id v1-20020a170906292100b0073a62f3b447sm997486ejd.44.2022.08.18.08.44.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Aug 2022 08:44:19 -0700 (PDT)
+From:   Pavel Rojtberg <rojtberg@gmail.com>
+X-Google-Original-From: Pavel Rojtberg < rojtberg@gmail.com >
+To:     linux-input@vger.kernel.org, dmitry.torokhov@gmail.com,
+        gregkh@linuxfoundation.org
+Cc:     Pavel Rojtberg <rojtberg@gmail.com>, stable@vger.kernel.org,
+        Jasper Poppe <jgpoppe@gmail.com>,
+        Jeremy Palmer <jpalmer@linz.govt.nz>,
+        Ruineka <ruinairas1992@gmail.com>,
+        Cleber de Mattos Casali <clebercasali@gmail.com>,
+        Kyle Gospodnetich <me@kylegospodneti.ch>
+Subject: [PATCH v2 1/4] Input: xpad - add supported devices as contributed on github
+Date:   Thu, 18 Aug 2022 17:44:08 +0200
+Message-Id: <20220818154411.510308-2-rojtberg@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220818154411.510308-1-rojtberg@gmail.com>
+References: <20220818154411.510308-1-rojtberg@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg KH <gregkh@linuxfoundation.org>
-Date: Thu, 18 Aug 2022 16:10:21 +0200
+From: Pavel Rojtberg <rojtberg@gmail.com>
 
-> On Thu, Aug 18, 2022 at 04:01:53PM +0200, Alexander Lobakin wrote:
-> > From: Greg KH <gregkh@linuxfoundation.org>
-> > Date: Thu, 18 Aug 2022 14:26:14 +0200
-> > 
-> > > On Thu, Aug 18, 2022 at 01:53:04PM +0200, Alexander Lobakin wrote:
-> > > > Macro TO_NATIVE() directly takes a reference to its argument @x
-> > > > without making an intermediate variable. This makes compilers
-> > > > emit build warnings and errors if @x is an expression or a deref
-> > > > of a const pointer (when target Endianness != host Endianness):
-> > > > 
-> > > > >> scripts/mod/modpost.h:87:18: error: lvalue required as unary '&' operand
-> > > >       87 |         __endian(&(x), &(__x), sizeof(__x));                    \
-> > > >          |                  ^
-> > > >    scripts/mod/sympath.c:19:25: note: in expansion of macro 'TO_NATIVE'
-> > > >       19 | #define t(x)            TO_NATIVE(x)
-> > > >          |                         ^~~~~~~~~
-> > > >    scripts/mod/sympath.c:100:31: note: in expansion of macro 't'
-> > > >      100 |                 eh->e_shoff = t(h(eh->e_shoff) + off);
-> > > > 
-> > > > >> scripts/mod/modpost.h:87:24: warning: passing argument 2 of '__endian'
-> > > > discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
-> > > >       87 |         __endian(&(x), &(__x), sizeof(__x));                    \
-> > > >          |                        ^~~~~~
-> > > >    scripts/mod/sympath.c:18:25: note: in expansion of macro 'TO_NATIVE'
-> > > >       18 | #define h(x)            TO_NATIVE(x)
-> > > >          |                         ^~~~~~~~~
-> > > >    scripts/mod/sympath.c:178:48: note: in expansion of macro 'h'
-> > > >      178 |              iter < end; iter = (void *)iter + h(eh->e_shentsize)) {
-> > > 
-> > > How come this hasn't shown up in cross-builds today?
-> > 
-> > It doesn't happen with the current code.
-> 
-> Great, so there is no bug that you are trying to fix :)
-> 
-> > > > Create a temporary variable, assign @x to it and don't use @x after
-> > > > that. This makes it possible to pass expressions as an argument.
-> > > > Also, do a cast-away for the second argument when calling __endian()
-> > > > to avoid 'discarded qualifiers' warning, as typeof() preserves
-> > > > qualifiers and makes compilers think that we're passing pointer
-> > > > to a const.
-> > > > 
-> > > > Reported-by: kernel test robot <lkp@intel.com>
-> > > > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> > > > Cc: stable@vger.kernel.org # 4.9+
-> > > 
-> > > Where are these build warnings showing up at that we don't see them
-> > > today, yet this is needed to go back to all stable trees?
-> > 
-> > I thought all fixes should go to the applicable stable trees, am I
-> > wrong? If so, I'll drop the tag in the next spin.
-> 
-> But this isn't fixing a bug in the code today that anyone can hit, so
-> why would you mark it as such?
+This is based on multiple commits at https://github.com/paroj/xpad
 
-So do you mean that a fix is a fix not when it makes some wrong code
-work properly, but only when there's a certain bug report and this
-fix seems to resolve it?
-I.e, if there are no ways to reach some code in which 2 + 2 == 5,
-there is no bug? A loaded shotgun can't be considered loaded unless
-someone shots his leg?
+Cc: stable@vger.kernel.org
+Signed-off-by: Jasper Poppe <jgpoppe@gmail.com>
+Signed-off-by: Jeremy Palmer <jpalmer@linz.govt.nz>
+Signed-off-by: Ruineka <ruinairas1992@gmail.com>
+Signed-off-by: Cleber de Mattos Casali <clebercasali@gmail.com>
+Signed-off-by: Kyle Gospodnetich <me@kylegospodneti.ch>
+Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-I mean, I understand the rule "don't touch if it works", but dunno,
-I don't feel it's: 1) completely justified; 2) always followed in
-the current stable trees.
-But I'm not a -stable maintainer :)
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 53126d9..629646b 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -113,6 +113,8 @@ static const struct xpad_device {
+ 	u8 xtype;
+ } xpad_device[] = {
+ 	{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 0, XTYPE_XBOX360 },
++	{ 0x03eb, 0xff01, "Wooting One (Legacy)", 0, XTYPE_XBOX360 },
++	{ 0x03eb, 0xff02, "Wooting Two (Legacy)", 0, XTYPE_XBOX360 },
+ 	{ 0x044f, 0x0f00, "Thrustmaster Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f03, "Thrustmaster Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
+@@ -244,6 +246,7 @@ static const struct xpad_device {
+ 	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
+ 	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
++	{ 0x0f0d, 0x00c5, "Hori Fighting Commander ONE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x0f30, 0x010b, "Philips Recoil", 0, XTYPE_XBOX },
+ 	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
+ 	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", 0, XTYPE_XBOX },
+@@ -260,6 +263,7 @@ static const struct xpad_device {
+ 	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x1430, 0xf801, "RedOctane Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x146b, 0x0601, "BigBen Interactive XBOX 360 Controller", 0, XTYPE_XBOX360 },
++	{ 0x146b, 0x0604, "Bigben Interactive DAIJA Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x1532, 0x0037, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+ 	{ 0x1532, 0x0a00, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x1532, 0x0a03, "Razer Wildcat", 0, XTYPE_XBOXONE },
+@@ -325,6 +329,7 @@ static const struct xpad_device {
+ 	{ 0x24c6, 0x5502, "Hori Fighting Stick VX Alt", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5503, "Hori Fighting Edge", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5506, "Hori SOULCALIBUR V Stick", 0, XTYPE_XBOX360 },
++	{ 0x24c6, 0x5510, "Hori Fighting Commander ONE (Xbox 360/PC Mode)", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x550d, "Hori GEM Xbox controller", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x550e, "Hori Real Arcade Pro V Kai 360", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x551a, "PowerA FUSION Pro Controller", 0, XTYPE_XBOXONE },
+@@ -334,6 +339,14 @@ static const struct xpad_device {
+ 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
++	{ 0x2563, 0x058d, "OneXPlayer Gamepad", 0, XTYPE_XBOX360 },
++	{ 0x2dc8, 0x2000, "8BitDo Pro 2 Wired Controller fox Xbox", 0, XTYPE_XBOXONE },
++	{ 0x31e3, 0x1100, "Wooting One", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1200, "Wooting Two", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1210, "Wooting Lekker", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1220, "Wooting Two HE", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1300, "Wooting 60HE (AVR)", 0, XTYPE_XBOX360 },
++	{ 0x31e3, 0x1310, "Wooting 60HE (ARM)", 0, XTYPE_XBOX360 },
+ 	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
+ 	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
+ 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
+@@ -419,6 +432,7 @@ static const signed short xpad_abs_triggers[] = {
+ static const struct usb_device_id xpad_table[] = {
+ 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
+ 	XPAD_XBOX360_VENDOR(0x0079),		/* GPD Win 2 Controller */
++	XPAD_XBOX360_VENDOR(0x03eb),		/* Wooting Keyboards (Legacy) */
+ 	XPAD_XBOX360_VENDOR(0x044f),		/* Thrustmaster X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
+ 	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
+@@ -429,6 +443,7 @@ static const struct usb_device_id xpad_table[] = {
+ 	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
+ 	XPAD_XBOXONE_VENDOR(0x0738),		/* Mad Catz FightStick TE 2 */
+ 	XPAD_XBOX360_VENDOR(0x07ff),		/* Mad Catz GamePad */
++	XPAD_XBOX360_VENDOR(0x0c12),		/* Zeroplus X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
+ 	XPAD_XBOXONE_VENDOR(0x0e6f),		/* 0x0e6f X-Box One controllers */
+ 	XPAD_XBOX360_VENDOR(0x0f0d),		/* Hori Controllers */
+@@ -450,8 +465,12 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA Controllers */
+ 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
+ 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
++	XPAD_XBOX360_VENDOR(0x2563),		/* OneXPlayer Gamepad */
++	XPAD_XBOX360_VENDOR(0x260d),		/* Dareu H101 */
++	XPAD_XBOXONE_VENDOR(0x2dc8),		/* 8BitDo Pro 2 Wired Controller for Xbox */
+ 	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
+ 	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
++	XPAD_XBOX360_VENDOR(0x31e3),		/* Wooting Keyboards */
+ 	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
+ 	{ }
+ };
+-- 
+2.34.1
 
-> 
-> > I remember we had such discussion already regarding fixing stuff in
-> > modpost, which can happen only with never mainlained GCC LTO or with
-> > the in-dev code. At the end that fix made it into the stables IIRC.
-> 
-> I don't remember taking fixes for out-of-tree LTO stuff, but I shouldn't
-> have :)
-
-This: [0]
-
-There is no way to repro it on the stable kernels, but it's here
-backported :)
-
-> 
-> thanks,
-> 
-> greg k-h
-
-[0] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-4.19.y&id=03bd6eaab3e1cbd4e5060b36a67000165f6e0482
-
-Thanks,
-Olek
