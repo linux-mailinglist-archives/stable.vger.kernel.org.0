@@ -2,62 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FD14598322
-	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 14:27:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DA9D59833E
+	for <lists+stable@lfdr.de>; Thu, 18 Aug 2022 14:41:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244636AbiHRM0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Aug 2022 08:26:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50734 "EHLO
+        id S239006AbiHRMlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Aug 2022 08:41:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244633AbiHRM0U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 08:26:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C67B5A3E1;
-        Thu, 18 Aug 2022 05:26:19 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27868B82168;
-        Thu, 18 Aug 2022 12:26:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45369C433C1;
-        Thu, 18 Aug 2022 12:26:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660825576;
-        bh=2HfeV/FUeCfFB9ahk1dEIdH1Z5Xm4ZpUI9pxyzXtVNY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ldExojEWXMzZbv5iaFVyGoeebhh1grtNtOMHurAW12WWoZEOxE387gy4UaZ4z4H3M
-         oi712cn5j905RlOoF1cE25p10FoK+joF2aUY+v9jxXooNL+wYu9QOQcG3DsJ/iv4rZ
-         jF590iJWZlf1aT2bEszQcOp9qcFA2JKcn5pQpuL8=
-Date:   Thu, 18 Aug 2022 14:26:14 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Alexander Lobakin <alexandr.lobakin@intel.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        linux-kbuild@vger.kernel.org, live-patching@vger.kernel.org,
-        lkp@intel.com, stable@vger.kernel.org
-Subject: Re: [RFC PATCH 1/3] modpost: fix TO_NATIVE() with expressions and
- consts
-Message-ID: <Yv4v5vwXDER3GA2y@kroah.com>
-References: <20220818115306.1109642-1-alexandr.lobakin@intel.com>
- <20220818115306.1109642-2-alexandr.lobakin@intel.com>
+        with ESMTP id S235717AbiHRMlU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 08:41:20 -0400
+Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83206785BA
+        for <stable@vger.kernel.org>; Thu, 18 Aug 2022 05:41:19 -0700 (PDT)
+Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-31f445bd486so36885907b3.13
+        for <stable@vger.kernel.org>; Thu, 18 Aug 2022 05:41:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=5rXUOHhskRbBGMrHFKMKpCUmS/SVGUEBn6c1uymCBt8=;
+        b=rOphPYbeTMscULjHLfgec8G6sNu69XNjNNCn7oEj6KAr5ObRmXTeF7QBZKL7VnjI6n
+         LWsTHtDAYwz8GRMdn7dGVLC73AJJOCiNIKJU4jBhZXdyR0WVrbJ/cX0RqDStx2QyvUXR
+         /aOneHdyLH4LgPSjsSj3nmq846Ft6L1iQEFbmZSRGUdFyW257kzPP5Rp6OpjWB7VWCC1
+         sthfIlrN0UGqLWlbBEXs30GkyoIyHo6yDqyL3cpDe2Gp2nlTZ69buhb1NOYYsUN6Ldl3
+         jyidAcZk8JO9XE2r6ZQT/WjRtQI7AA5NAhV0IU/Xp4eHOtus1/WLHGEfXdUv+QkezKbT
+         gPcA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=5rXUOHhskRbBGMrHFKMKpCUmS/SVGUEBn6c1uymCBt8=;
+        b=W3vPsWZ6FTNSDBfqcoCr3Hn6qqrKNtYNAqQ4QWlXplo0W1xxtfvjZG0NK+OLczv0Hh
+         TgNOzUQxlKeyk5CuTtNcJmSDMnWaAVkAyBdu4f4Nso2oRRgGpufoqaCE6i/slqnFzhcM
+         YL+mk/Ex4cEIkqScv3ns6FTQoYMIIZoEAv47Gp5PNM5xEGtYCF/3XqwQYBcDr6M4Iq6C
+         8Xqr9MRFQa0DK4MIDMc6BEWXYWLTGWs1bsvRjifm3BY4Ks9q7GYD3NwTVmb9++g5oIo7
+         ky5WLcWjc4RQdXZRyjH87Yqua0Nb1zQ4dLeFWkSzqir6byBwrXTy92kEfHaGHNfLwkP6
+         yVRg==
+X-Gm-Message-State: ACgBeo3YOAnHhedpSh94fKthRmcxlPqYyoHNYbnoDaLBzfNDlXO0il8w
+        oSSVWQfp4iyP+vF0VfsgKp4p/HX5KCM+YeyYfIKUiw==
+X-Google-Smtp-Source: AA6agR5pWmvVW76h8e3oaNR0EdooGvG6m2OkXkzO3kaLlun+zss1ipiyoDjiH1QTIGXgnLJzmwkNEtviNjrblaOpUMw=
+X-Received: by 2002:a25:4708:0:b0:693:8486:4194 with SMTP id
+ u8-20020a254708000000b0069384864194mr1785851yba.419.1660826478698; Thu, 18
+ Aug 2022 05:41:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220818115306.1109642-2-alexandr.lobakin@intel.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+References: <20220818110859.1918035-1-jens.wiklander@linaro.org>
+In-Reply-To: <20220818110859.1918035-1-jens.wiklander@linaro.org>
+From:   Sumit Garg <sumit.garg@linaro.org>
+Date:   Thu, 18 Aug 2022 18:11:07 +0530
+Message-ID: <CAFA6WYO9ZoVNt+Npj7R+2=5rJ-Gxwy+QGEMziP7Z=eFupjjECQ@mail.gmail.com>
+Subject: Re: [PATCH v2] tee: add overflow check in register_shm_helper()
+To:     Jens Wiklander <jens.wiklander@linaro.org>
+Cc:     linux-kernel@vger.kernel.org, op-tee@lists.trustedfirmware.org,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        stable@vger.kernel.org, Nimish Mishra <neelam.nimish@gmail.com>,
+        Anirban Chakraborty <ch.anirban00727@gmail.com>,
+        Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>,
+        Jerome Forissier <jerome.forissier@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -66,49 +69,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 18, 2022 at 01:53:04PM +0200, Alexander Lobakin wrote:
-> Macro TO_NATIVE() directly takes a reference to its argument @x
-> without making an intermediate variable. This makes compilers
-> emit build warnings and errors if @x is an expression or a deref
-> of a const pointer (when target Endianness != host Endianness):
-> 
-> >> scripts/mod/modpost.h:87:18: error: lvalue required as unary '&' operand
->       87 |         __endian(&(x), &(__x), sizeof(__x));                    \
->          |                  ^
->    scripts/mod/sympath.c:19:25: note: in expansion of macro 'TO_NATIVE'
->       19 | #define t(x)            TO_NATIVE(x)
->          |                         ^~~~~~~~~
->    scripts/mod/sympath.c:100:31: note: in expansion of macro 't'
->      100 |                 eh->e_shoff = t(h(eh->e_shoff) + off);
-> 
-> >> scripts/mod/modpost.h:87:24: warning: passing argument 2 of '__endian'
-> discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
->       87 |         __endian(&(x), &(__x), sizeof(__x));                    \
->          |                        ^~~~~~
->    scripts/mod/sympath.c:18:25: note: in expansion of macro 'TO_NATIVE'
->       18 | #define h(x)            TO_NATIVE(x)
->          |                         ^~~~~~~~~
->    scripts/mod/sympath.c:178:48: note: in expansion of macro 'h'
->      178 |              iter < end; iter = (void *)iter + h(eh->e_shentsize)) {
+Hi Jens,
 
-How come this hasn't shown up in cross-builds today?
+On Thu, 18 Aug 2022 at 16:39, Jens Wiklander <jens.wiklander@linaro.org> wrote:
+>
+> With special lengths supplied by user space, register_shm_helper() has
+> an integer overflow when calculating the number of pages covered by a
+> supplied user space memory region. This causes
+> internal_get_user_pages_fast() a helper function of
+> pin_user_pages_fast() to do a NULL pointer dereference.
+>
+> [   14.141620] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
+> [   14.142556] Mem abort info:
+> [   14.142829]   ESR = 0x0000000096000044
+> [   14.143237]   EC = 0x25: DABT (current EL), IL = 32 bits
+> [   14.143742]   SET = 0, FnV = 0
+> [   14.144052]   EA = 0, S1PTW = 0
+> [   14.144348]   FSC = 0x04: level 0 translation fault
+> [   14.144767] Data abort info:
+> [   14.145053]   ISV = 0, ISS = 0x00000044
+> [   14.145394]   CM = 0, WnR = 1
+> [   14.145766] user pgtable: 4k pages, 48-bit VAs, pgdp=000000004278e000
+> [   14.146279] [0000000000000010] pgd=0000000000000000, p4d=0000000000000000
+> [   14.147435] Internal error: Oops: 96000044 [#1] PREEMPT SMP
+> [   14.148026] Modules linked in:
+> [   14.148595] CPU: 1 PID: 173 Comm: optee_example_a Not tainted 5.19.0 #11
+> [   14.149204] Hardware name: QEMU QEMU Virtual Machine, BIOS 0.0.0 02/06/2015
+> [   14.149832] pstate: 604000c5 (nZCv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+> [   14.150481] pc : internal_get_user_pages_fast+0x474/0xa80
+> [   14.151640] lr : internal_get_user_pages_fast+0x404/0xa80
+> [   14.152408] sp : ffff80000a88bb30
+> [   14.152711] x29: ffff80000a88bb30 x28: 0000fffff836d000 x27: 0000fffff836e000
+> [   14.153580] x26: fffffc0000000000 x25: fffffc0000f4a1c0 x24: ffff00000289fb70
+> [   14.154634] x23: ffff000002702e08 x22: 0000000000040001 x21: ffff8000097eec60
+> [   14.155378] x20: 0000000000f4a1c0 x19: 00e800007d287f43 x18: 0000000000000000
+> [   14.156215] x17: 0000000000000000 x16: 0000000000000000 x15: 0000fffff836cfb0
+> [   14.157068] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
+> [   14.157747] x11: 0000000000000000 x10: 0000000000000000 x9 : 0000000000000000
+> [   14.158576] x8 : ffff00000276ec80 x7 : 0000000000000000 x6 : 000000000000003f
+> [   14.159243] x5 : 0000000000000000 x4 : ffff000041ec4eac x3 : ffff000002774cb8
+> [   14.159977] x2 : 0000000000000004 x1 : 0000000000000010 x0 : 0000000000000000
+> [   14.160883] Call trace:
+> [   14.161166]  internal_get_user_pages_fast+0x474/0xa80
+> [   14.161763]  pin_user_pages_fast+0x24/0x4c
+> [   14.162227]  register_shm_helper+0x194/0x330
+> [   14.162734]  tee_shm_register_user_buf+0x78/0x120
+> [   14.163290]  tee_ioctl+0xd0/0x11a0
+> [   14.163739]  __arm64_sys_ioctl+0xa8/0xec
+> [   14.164227]  invoke_syscall+0x48/0x114
+> [   14.164653]  el0_svc_common.constprop.0+0x44/0xec
+> [   14.165130]  do_el0_svc+0x2c/0xc0
+> [   14.165498]  el0_svc+0x2c/0x84
+> [   14.165847]  el0t_64_sync_handler+0x1ac/0x1b0
+> [   14.166258]  el0t_64_sync+0x18c/0x190
+> [   14.166878] Code: 91002318 11000401 b900f7e1 f9403be1 (f820d839)
+> [   14.167666] ---[ end trace 0000000000000000 ]---
+>
+> Fix this by adding an overflow check when calculating the end of the
+> memory range. Also add an explicit call to access_ok() in
+> tee_shm_register_user_buf() to catch an invalid user space address
+> early.
+>
+> Fixes: 033ddf12bcf5 ("tee: add register user memory")
+> Cc: stable@vger.kernel.org
+> Reported-by: Nimish Mishra <neelam.nimish@gmail.com>
+> Reported-by: Anirban Chakraborty <ch.anirban00727@gmail.com>
+> Reported-by: Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>
+> Suggested-by: Jerome Forissier <jerome.forissier@linaro.org>
+> Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+> ---
+>  drivers/tee/tee_shm.c | 23 +++++++++++++++++++----
+>  1 file changed, 19 insertions(+), 4 deletions(-)
+>
 
+I can't see the v1 and neither a changelog for v2, so my comments
+below may be duplicate.
 
-> 
-> Create a temporary variable, assign @x to it and don't use @x after
-> that. This makes it possible to pass expressions as an argument.
-> Also, do a cast-away for the second argument when calling __endian()
-> to avoid 'discarded qualifiers' warning, as typeof() preserves
-> qualifiers and makes compilers think that we're passing pointer
-> to a const.
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> Cc: stable@vger.kernel.org # 4.9+
+> diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
+> index f2b1bcefcadd..f71651021c8d 100644
+> --- a/drivers/tee/tee_shm.c
+> +++ b/drivers/tee/tee_shm.c
+> @@ -231,15 +231,30 @@ EXPORT_SYMBOL_GPL(tee_shm_alloc_priv_buf);
+>
+>  static struct tee_shm *
+>  register_shm_helper(struct tee_context *ctx, unsigned long addr,
+> -                   size_t length, u32 flags, int id)
+> +                   unsigned long length, u32 flags, int id)
+>  {
+>         struct tee_device *teedev = ctx->teedev;
+> +       unsigned long end_addr;
+>         struct tee_shm *shm;
+>         unsigned long start;
+>         size_t num_pages;
+>         void *ret;
+>         int rc;
+>
+> +       /* Check for overflows, this may be input from user space */
 
-Where are these build warnings showing up at that we don't see them
-today, yet this is needed to go back to all stable trees?
+IMO, this bound checking should be part of the parent function (like
+tee_shm_register_user_buf() in this case).
 
-still confused,
+> +       addr = untagged_addr(addr);
+> +       start = rounddown(addr, PAGE_SIZE);
+> +       if (check_add_overflow(addr, length, &end_addr))
+> +               return ERR_PTR(-EINVAL);
 
-greg k-h
+Isn't this check redundant after access_ok()? AFAICS, access_ok()
+should limit the upper bound to TASK_SIZE_MAX which should detect any
+overflows.
+
+> +       end_addr = roundup(end_addr, PAGE_SIZE);
+> +       if (end_addr < start)
+> +               return ERR_PTR(-EINVAL);
+
+Ditto?
+
+-Sumit
+
+> +       num_pages = (end_addr - start) / PAGE_SIZE;
+> +
+> +       /* Error out early if no pages are to be registered */
+> +       if (!num_pages)
+> +               return ERR_PTR(-EINVAL);
+> +
+>         if (!tee_device_get(teedev))
+>                 return ERR_PTR(-EINVAL);
+>
+> @@ -261,11 +276,8 @@ register_shm_helper(struct tee_context *ctx, unsigned long addr,
+>         shm->flags = flags;
+>         shm->ctx = ctx;
+>         shm->id = id;
+> -       addr = untagged_addr(addr);
+> -       start = rounddown(addr, PAGE_SIZE);
+>         shm->offset = addr - start;
+>         shm->size = length;
+> -       num_pages = (roundup(addr + length, PAGE_SIZE) - start) / PAGE_SIZE;
+>         shm->pages = kcalloc(num_pages, sizeof(*shm->pages), GFP_KERNEL);
+>         if (!shm->pages) {
+>                 ret = ERR_PTR(-ENOMEM);
+> @@ -326,6 +338,9 @@ struct tee_shm *tee_shm_register_user_buf(struct tee_context *ctx,
+>         void *ret;
+>         int id;
+>
+> +       if (!access_ok((void __user *)addr, length))
+> +               return ERR_PTR(-EFAULT);
+> +
+>         mutex_lock(&teedev->mutex);
+>         id = idr_alloc(&teedev->idr, NULL, 1, 0, GFP_KERNEL);
+>         mutex_unlock(&teedev->mutex);
+> --
+> 2.31.1
+>
