@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 256FB59A490
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:05:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0DFE59A390
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355055AbiHSQ4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:56:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41396 "EHLO
+        id S1354050AbiHSQwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:52:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354290AbiHSQy5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:54:57 -0400
+        with ESMTP id S1354605AbiHSQvY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:51:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E278754A4;
-        Fri, 19 Aug 2022 09:15:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5956A12CDE6;
+        Fri, 19 Aug 2022 09:14:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6026B82828;
-        Fri, 19 Aug 2022 16:09:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF941C433C1;
-        Fri, 19 Aug 2022 16:09:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93495B82816;
+        Fri, 19 Aug 2022 16:08:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E227BC433D6;
+        Fri, 19 Aug 2022 16:08:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925390;
-        bh=StjgcR6nA87Jhlh+ZwYMvS8/tCMtuZEn7F+G7iUqQg8=;
+        s=korg; t=1660925301;
+        bh=InaW1CtemCWyOs2I41nHjCaQsp2pWF+nl0S9h5SEmyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jqm+hTQuS3YJzyh92NBUGxuSXUXIf7mo/MXVphNx9YIJAgxxKs7R9ZSO5Gob1MeK4
-         91XbY0jSdmz1wpVuh1G6AbQveAJq+KgHD9c244dWK54K2hsfo7qybBm9Mb6I+bwdig
-         OYC0cV/s3rtGfgkEj9/n00SdVRf8Y9ATYKIudX6k=
+        b=197ds4qFqZbY2XrtYkprKl7XhcOXqtKqeuroD9l4RElROo1ne1Z+VzTu6a7HpemWJ
+         D/eO/Z//0EK6q1R++RE5VQMX435u+Ihpz7HS+rt+DCB3shs9zoPMpaOM57mi5PQ3sj
+         GsRWjvllxTyqohuUyw0EXV3LtXHaMSqFIdzHO56k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        kernel test robot <lkp@intel.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Yury Norov <yury.norov@gmail.com>
-Subject: [PATCH 5.10 447/545] x86/olpc: fix logical not is only applied to the left hand side
-Date:   Fri, 19 Aug 2022 17:43:37 +0200
-Message-Id: <20220819153849.436542896@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.10 448/545] posix-cpu-timers: Cleanup CPU timers before freeing them during exec
+Date:   Fri, 19 Aug 2022 17:43:38 +0200
+Message-Id: <20220819153849.478179293@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,49 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit 3a2ba42cbd0b669ce3837ba400905f93dd06c79f upstream.
+commit e362359ace6f87c201531872486ff295df306d13 upstream.
 
-The bitops compile-time optimization series revealed one more
-problem in olpc-xo1-sci.c:send_ebook_state(), resulted in GCC
-warnings:
+Commit 55e8c8eb2c7b ("posix-cpu-timers: Store a reference to a pid not a
+task") started looking up tasks by PID when deleting a CPU timer.
 
-arch/x86/platform/olpc/olpc-xo1-sci.c: In function 'send_ebook_state':
-arch/x86/platform/olpc/olpc-xo1-sci.c:83:63: warning: logical not is only applied to the left hand side of comparison [-Wlogical-not-parentheses]
-   83 |         if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
-      |                                                               ^~
-arch/x86/platform/olpc/olpc-xo1-sci.c:83:13: note: add parentheses around left hand side expression to silence this warning
+When a non-leader thread calls execve, it will switch PIDs with the leader
+process. Then, as it calls exit_itimers, posix_cpu_timer_del cannot find
+the task because the timer still points out to the old PID.
 
-Despite this code working as intended, this redundant double
-negation of boolean value, together with comparing to `char`
-with no explicit conversion to bool, makes compilers think
-the author made some unintentional logical mistakes here.
-Make it the other way around and negate the char instead
-to silence the warnings.
+That means that armed timers won't be disarmed, that is, they won't be
+removed from the timerqueue_list. exit_itimers will still release their
+memory, and when that list is later processed, it leads to a
+use-after-free.
 
-Fixes: d2aa37411b8e ("x86/olpc/xo1/sci: Produce wakeup events for buttons and switches")
-Cc: stable@vger.kernel.org # 3.5+
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-and-tested-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
+Clean up the timers from the de-threaded task before freeing them. This
+prevents a reported use-after-free.
+
+Fixes: 55e8c8eb2c7b ("posix-cpu-timers: Store a reference to a pid not a task")
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220809170751.164716-1-cascardo@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/platform/olpc/olpc-xo1-sci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/exec.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/platform/olpc/olpc-xo1-sci.c
-+++ b/arch/x86/platform/olpc/olpc-xo1-sci.c
-@@ -80,7 +80,7 @@ static void send_ebook_state(void)
- 		return;
- 	}
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1286,6 +1286,9 @@ int begin_new_exec(struct linux_binprm *
+ 	bprm->mm = NULL;
  
--	if (!!test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == state)
-+	if (test_bit(SW_TABLET_MODE, ebook_switch_idev->sw) == !!state)
- 		return; /* Nothing new to report. */
- 
- 	input_report_switch(ebook_switch_idev, SW_TABLET_MODE, state);
+ #ifdef CONFIG_POSIX_TIMERS
++	spin_lock_irq(&me->sighand->siglock);
++	posix_cpu_timers_exit(me);
++	spin_unlock_irq(&me->sighand->siglock);
+ 	exit_itimers(me);
+ 	flush_itimer_signals();
+ #endif
 
 
