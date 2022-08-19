@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3288B59A1EA
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:36:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A9C59A084
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351069AbiHSQDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:03:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60472 "EHLO
+        id S1351057AbiHSQC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:02:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351462AbiHSQBm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:01:42 -0400
+        with ESMTP id S1351424AbiHSQBi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:01:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68D0F108F1D;
-        Fri, 19 Aug 2022 08:53:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA19105236;
+        Fri, 19 Aug 2022 08:53:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6C54B82814;
-        Fri, 19 Aug 2022 15:53:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3051AC433C1;
-        Fri, 19 Aug 2022 15:53:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B9E8B82819;
+        Fri, 19 Aug 2022 15:53:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67581C433D6;
+        Fri, 19 Aug 2022 15:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924404;
-        bh=1tBHeFIEQC/xbFFgNO0fwdZJn6eyhjD4eBeuyYuriOg=;
+        s=korg; t=1660924407;
+        bh=LMkp6NyyuV2Ez/uJw716SkPh5MsLtM2lf94sqx8wvtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e8tQgp7ztz7NXFdeT4bJpYznqNQdWkJ6DkxcHAK333Pm+ZB8Hm8EQnkMDa62sdy6l
-         LXt6+wdoqk3Gl8hCgcid61KoWaUhrW7045eqLkQfWArncB4q0DqJWK00BVjZOW9S2w
-         4uBDheYuqO8tQM1SWUvNlGeRadkz7Pc+wp9h9X3k=
+        b=twj2F6cAWNpB9vWR2t1+hEhiiC8KW9Ygr0aK/gEWbwevZIJFkqyfny3SSWj7gTfQK
+         EGMYNydd4Bjd0pxOgXEoBua2eqTOXXTK8IZBmscPoNjXHESdLFeNoQ91E7Kiaed8HY
+         OMe40r+oKgggHVXcWEJGkIys2VnfFDdoikJCdCGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        David Lechner <david@lechnology.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 160/545] drm/st7735r: Fix module autoloading for Okaya RH128128T
-Date:   Fri, 19 Aug 2022 17:38:50 +0200
-Message-Id: <20220819153836.520320999@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 161/545] wifi: rtlwifi: fix error codes in rtl_debugfs_set_write_h2c()
+Date:   Fri, 19 Aug 2022 17:38:51 +0200
+Message-Id: <20220819153836.555750735@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -56,49 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 9ad6f181ad9a19a26bda73a7b199df44ccfcdaba ]
+[ Upstream commit b88d28146c30a8e14f0f012d56ebf19b68a348f4 ]
 
-The SPI core always reports a "MODALIAS=spi:<foo>", even if the device was
-registered via OF. This means that the st7735r.ko module won't autoload if
-a DT has a node with a compatible "okaya,rh128128t" string.
+If the copy_from_user() fails or the user gives invalid date then the
+correct thing to do is to return a negative error code.  (Currently it
+returns success).
 
-In that case, kmod expects a "MODALIAS=of:N*T*Cokaya,rh128128t" uevent but
-instead will get a "MODALIAS=spi:rh128128t", which is not present in the
-list of aliases:
+I made a copy additional related cleanups:
+1) There is no need to check "buffer" for NULL.  That's handled by
+copy_from_user().
+2) The "h2c_len" variable cannot be negative because it is unsigned
+and because sscanf() does not return negative error codes.
 
-  $ modinfo drivers/gpu/drm/tiny/st7735r.ko | grep alias
-  alias:          of:N*T*Cokaya,rh128128tC*
-  alias:          of:N*T*Cokaya,rh128128t
-  alias:          of:N*T*Cjianda,jd-t18003-t01C*
-  alias:          of:N*T*Cjianda,jd-t18003-t01
-  alias:          spi:jd-t18003-t01
-
-To workaround this issue, add in the SPI table an entry for that device.
-
-Fixes: d1d511d516f7 ("drm: tiny: st7735r: Add support for Okaya RH128128T")
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: David Lechner <david@lechnology.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220520091602.179078-1-javierm@redhat.com
+Fixes: 610247f46feb ("rtlwifi: Improve debugging by using debugfs")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/YoOLnDkHgVltyXK7@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tiny/st7735r.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/realtek/rtlwifi/debug.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/tiny/st7735r.c b/drivers/gpu/drm/tiny/st7735r.c
-index c0bc2a18edde..9d0c127bdb0c 100644
---- a/drivers/gpu/drm/tiny/st7735r.c
-+++ b/drivers/gpu/drm/tiny/st7735r.c
-@@ -175,6 +175,7 @@ MODULE_DEVICE_TABLE(of, st7735r_of_match);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/debug.c b/drivers/net/wireless/realtek/rtlwifi/debug.c
+index 901cdfe3723c..0b1bc04cb6ad 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/debug.c
++++ b/drivers/net/wireless/realtek/rtlwifi/debug.c
+@@ -329,8 +329,8 @@ static ssize_t rtl_debugfs_set_write_h2c(struct file *filp,
  
- static const struct spi_device_id st7735r_id[] = {
- 	{ "jd-t18003-t01", (uintptr_t)&jd_t18003_t01_cfg },
-+	{ "rh128128t", (uintptr_t)&rh128128t_cfg },
- 	{ },
- };
- MODULE_DEVICE_TABLE(spi, st7735r_id);
+ 	tmp_len = (count > sizeof(tmp) - 1 ? sizeof(tmp) - 1 : count);
+ 
+-	if (!buffer || copy_from_user(tmp, buffer, tmp_len))
+-		return count;
++	if (copy_from_user(tmp, buffer, tmp_len))
++		return -EFAULT;
+ 
+ 	tmp[tmp_len] = '\0';
+ 
+@@ -340,8 +340,8 @@ static ssize_t rtl_debugfs_set_write_h2c(struct file *filp,
+ 			 &h2c_data[4], &h2c_data[5],
+ 			 &h2c_data[6], &h2c_data[7]);
+ 
+-	if (h2c_len <= 0)
+-		return count;
++	if (h2c_len == 0)
++		return -EINVAL;
+ 
+ 	for (i = 0; i < h2c_len; i++)
+ 		h2c_data_packed[i] = (u8)h2c_data[i];
 -- 
 2.35.1
 
