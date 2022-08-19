@@ -2,105 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9309599A5A
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 13:03:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEAB8599A3E
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 13:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348491AbiHSLC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 07:02:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44084 "EHLO
+        id S1348377AbiHSLDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 07:03:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348495AbiHSLCn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 07:02:43 -0400
-Received: from maynard.decadent.org.uk (maynard.decadent.org.uk [95.217.213.242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1ACFF61A8;
-        Fri, 19 Aug 2022 04:02:42 -0700 (PDT)
-Received: from 213.219.160.184.adsl.dyn.edpnet.net ([213.219.160.184] helo=deadeye)
-        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1oOzlk-0002zN-5f; Fri, 19 Aug 2022 13:02:28 +0200
-Received: from ben by deadeye with local (Exim 4.96)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1oOzli-000aat-1m;
-        Fri, 19 Aug 2022 13:02:26 +0200
-Message-ID: <2d899b4a9a08f79396a071eb8c06d524ae6033b0.camel@decadent.org.uk>
-Subject: Re: [PATCH] x86/speculation: Avoid LFENCE in FILL_RETURN_BUFFER on
- CPUs that lack it
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     x86@kernel.org, linux-kernel@vger.kernel.org,
-        1017425@bugs.debian.org,
-        =?ISO-8859-1?Q?Martin-=C9ric?= Racine <martin-eric.racine@iki.fi>,
-        stable@vger.kernel.org, regressions@lists.linux.dev,
-        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Date:   Fri, 19 Aug 2022 13:02:17 +0200
-In-Reply-To: <Yv9OGVc+WpoDAB0X@worktop.programming.kicks-ass.net>
-References: <Yv7aRJ/SvVhSdnSB@decadent.org.uk>
-         <Yv9OGVc+WpoDAB0X@worktop.programming.kicks-ass.net>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-YjhQggnj2zhMxQngHr7f"
-User-Agent: Evolution 3.44.3-1 
+        with ESMTP id S1348480AbiHSLDC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 07:03:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31233F4CA0;
+        Fri, 19 Aug 2022 04:03:01 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F26AB8274A;
+        Fri, 19 Aug 2022 11:02:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFFF4C433C1;
+        Fri, 19 Aug 2022 11:02:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1660906978;
+        bh=C3OlPPVigA+yCoVFlq9TEoz3QweRVJiAh9FBT//IFQs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=TjE30BvksmGabfTkUy4uFdYwtz0ddZVRvWxPub0OwJHbNn8z9kQY9CwK5vOw+juFa
+         JHA3MrN6K8Q6/dxgnJrc8GWeNLffbEQBRforFchHuUgIhKn9LxuPntgzQ/onv8SxRV
+         Pa5j2qgdSwwJJTDCbf5sszY4ylqVZXX3FwXjEODk=
+Date:   Fri, 19 Aug 2022 13:02:55 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Alexander Lobakin <alexandr.lobakin@intel.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        linux-kbuild@vger.kernel.org, live-patching@vger.kernel.org,
+        lkp@intel.com, stable@vger.kernel.org
+Subject: Re: [RFC PATCH 3/3] kallsyms: add option to include relative
+ filepaths into kallsyms
+Message-ID: <Yv9t3y5kkuFKCPKp@kroah.com>
+References: <20220818115306.1109642-1-alexandr.lobakin@intel.com>
+ <20220818115306.1109642-4-alexandr.lobakin@intel.com>
+ <Yv4vT6s6UHYvXOlX@kroah.com>
+ <20220818135629.1113036-1-alexandr.lobakin@intel.com>
+ <Yv5IfiwqGumJwVGT@kroah.com>
+ <20220819105001.1130876-1-alexandr.lobakin@intel.com>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 213.219.160.184
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220819105001.1130876-1-alexandr.lobakin@intel.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Aug 19, 2022 at 12:50:01PM +0200, Alexander Lobakin wrote:
+> From: Greg KH <gregkh@linuxfoundation.org>
+> Date: Thu, 18 Aug 2022 16:11:10 +0200
+> 
+> > On Thu, Aug 18, 2022 at 03:56:29PM +0200, Alexander Lobakin wrote:
+> > > From: Greg KH <gregkh@linuxfoundation.org>
+> > > Date: Thu, 18 Aug 2022 14:23:43 +0200
+> > > 
+> > > > On Thu, Aug 18, 2022 at 01:53:06PM +0200, Alexander Lobakin wrote:
+> > > > > Currently, kallsyms kernel code copes with symbols with the same
+> > > > > name by indexing them according to their position in vmlinux and
+> > > > > requiring to provide an index of the desired symbol. This is not
+> > > > > really quite reliable and is fragile to any features performing
+> > > > > symbol or section manipulations such as FG-KASLR.
+> > > > 
+> > > > Ah, here's the reasoning, stuff like this should go into the 0/X message
+> > > > too, right?
+> > > > 
+> > > > Anyway, what is currently broken that requires this?  What will this
+> > > > make easier in the future?  What in the future will depend on this?
+> > > 
+> > > 2) FG-KASLR will depend and probably some more crazy hardening
+> > >    stuff. And/or perf-based function/symbol placement, which is
+> > >    in the "discuss and dream sometimes" stage.
+> > 
+> > I have no idea what "FG-KASLR" is.  Why not submit these changes when
+> > whatever that is is ready for submission?
+> 
+> It doesn't matter much, the main idea is that the current approach
+> with relying on symbol positions in the vmlinux is broken when we
+> reorder symbols during the kernel initialization.
+> As I said, this is an early RFC do discuss the idea and the
+> implementation. I could submit it along with FG-KASLR, but then if
+> there would be major change requests, I'd need to redo lots of
+> stuff, which is not very efficient. It's better to settle down the
+> implementation details in advance.
 
---=-YjhQggnj2zhMxQngHr7f
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+It's better for you to get this all working on your own first, before
+asking the community to review and accept something that is not required
+at all for the kernel today.  Why waste our time for no benefit to the
+kernel now?
 
-On Fri, 2022-08-19 at 10:47 +0200, Peter Zijlstra wrote:
-> On Fri, Aug 19, 2022 at 02:33:08AM +0200, Ben Hutchings wrote:
-> > From: Ben Hutchings <benh@debian.org>
-> >=20
-> > The mitigation for PBRSB includes adding LFENCE instructions to the
-> > RSB filling sequence.  However, RSB filling is done on some older CPUs
-> > that don't support the LFENCE instruction.
-> >=20
->=20
-> Wait; what? There are chips that enable the RSB mitigations and DONT
-> have LFENCE ?!?
+You all know better than this.  As it is, Intel is on "thin ice" when it
+comes to kernel submissions and abusing the community by sending stuff
+out when it is not reviewed by anyone internally and needs correcting,
+don't make it any worse.
 
-Yes, X86_FEATURE_RSB_CTXSW is enabled if any other Spectre v2
-mitigation is enabled.  And all Intel family 6 (except some early
-Atoms) and AMD family 5+ get Spectre v2 mitigation by default.
-
-Ben.
-
---=20
-Ben Hutchings
-Beware of bugs in the above code;
-I have only proved it correct, not tried it. - Donald Knuth
-
---=-YjhQggnj2zhMxQngHr7f
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmL/bbkACgkQ57/I7JWG
-EQmxQg//ZS3fq6QOEM160thdxrPitpXbg0ygRoO4bBjmDY8G/+2sne8MEPRq2r2U
-gKHbq5O6TTLbGDQjZBwGwMEg1omi8dLHt9m9I8YKBxBwqOHdqO4UrZa9cuvVQnF4
-TDTGeBO7sGMRPcuaff7HPKMgjQL2E6+Db2DbZhxvtPkKyRRuoCRONajy7z/W+K0F
-9nHY/offfF5EXLySFwqSE1ypm/MTBVro4EGPFKMe/znSx5y4jFh6Dci39BAVb+rf
-YyzI1y5bmbBnRhy/GGbb/zVhPiQxnwjKCq4o9SUGCh+cWDLfrU8nmkttzxwb2J29
-KEK488/fxi7sI4WB7IxPMTI8REqyrxBq8ybWW0i1HBWt+VieHYroqMrsi9kjrgOU
-6ae6V5PPi773/WzLK/sYnKlKB74V7svRRsFXgk5p5GKVoIGngaWhNQNAknDpdhPK
-Sl8sQTsgS8mUnPIKitwtEgNX+XzvKUuSz8ep0tO/a96ZMahoBSbKO2dt2n+jv7e5
-FU17Q8IKFnqpb9SybcUhD/BGiTLJ7sWcb+sR20Nlxk2ji0j67gzkKcmtVU+qsgLB
-3IzG38XZsd5X+RwTUyO+ZRvTdjKTcj7phIywd+PgYBaWbck1y2OGygJt4U2FDe7a
-MPMJwbDp3jIE3lt/k+XDWY9x2HvXF5C1ZuOdhSapp+eRW4yVkzs=
-=QDsX
------END PGP SIGNATURE-----
-
---=-YjhQggnj2zhMxQngHr7f--
+greg k-h
