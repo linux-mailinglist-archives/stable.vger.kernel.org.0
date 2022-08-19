@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2112E59A17C
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A7359A0AB
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350569AbiHSPxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:53:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39920 "EHLO
+        id S1350349AbiHSPxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:53:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350498AbiHSPww (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:52:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B1FC26116;
-        Fri, 19 Aug 2022 08:49:10 -0700 (PDT)
+        with ESMTP id S1350253AbiHSPwx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:52:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 218453F30A;
+        Fri, 19 Aug 2022 08:49:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E88C615D5;
-        Fri, 19 Aug 2022 15:49:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CB21C433C1;
-        Fri, 19 Aug 2022 15:49:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89D5FB827F8;
+        Fri, 19 Aug 2022 15:49:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB8B5C433D6;
+        Fri, 19 Aug 2022 15:49:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924146;
-        bh=T6OdgomtQF8h/Ev+PsIA3mkjZM1v1/X1TP2oNUof3OE=;
+        s=korg; t=1660924149;
+        bh=O/YfwSmjRYDMU8h9NU3lCH4Z2PCRxIJwIgLk2YQTIYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s68qtpt8vhwM+DHuHzTJiIMBuuk9J/0+ZfnuoXnBFVRUJBgLvlyZ0F6WZZ4kbgW0m
-         60lciMwXNTx6/MHxYpfJSeOVECd0XgizVbvR4k/5Qzcl2msFkpfM8AsTzJX+Z/0C5+
-         R84DLJqeJ5qq5uOLDqnkUhTbs//zHBIGFdorMeBU=
+        b=OscMTfNS9yjY56fXeMntXYnlMfbmE+wSSt9NaVEj+S/eALNsI6q33CNWdp/ccw5u8
+         AdGpH96F4Q47KA6sV7b17TuZtIGFx8PUzB7D1Hb0svH/mJaFkc7IeKZcAo6H4/scOa
+         AjhkjaKKYahsF29fdTXy51F3gzQKu+Ep5shNokUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>
-Subject: [PATCH 5.10 071/545] lockdep: Allow tuning tracing capacity constants.
-Date:   Fri, 19 Aug 2022 17:37:21 +0200
-Message-Id: <20220819153832.433175501@linuxfoundation.org>
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.10 072/545] netfilter: nf_tables: do not allow SET_ID to refer to another table
+Date:   Fri, 19 Aug 2022 17:37:22 +0200
+Message-Id: <20220819153832.482676122@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,115 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit 5dc33592e95534dc8455ce3e9baaaf3dae0fff82 upstream.
+commit 470ee20e069a6d05ae549f7d0ef2bdbcee6a81b2 upstream.
 
-Since syzkaller continues various test cases until the kernel crashes,
-syzkaller tends to examine more locking dependencies than normal systems.
-As a result, syzbot is reporting that the fuzz testing was terminated
-due to hitting upper limits lockdep can track [1] [2] [3]. Since analysis
-via /proc/lockdep* did not show any obvious culprit [4] [5], we have no
-choice but allow tuning tracing capacity constants.
+When doing lookups for sets on the same batch by using its ID, a set from a
+different table can be used.
 
-[1] https://syzkaller.appspot.com/bug?id=3d97ba93fb3566000c1c59691ea427370d33ea1b
-[2] https://syzkaller.appspot.com/bug?id=381cb436fe60dc03d7fd2a092b46d7f09542a72a
-[3] https://syzkaller.appspot.com/bug?id=a588183ac34c1437fc0785e8f220e88282e5a29f
-[4] https://lkml.kernel.org/r/4b8f7a57-fa20-47bd-48a0-ae35d860f233@i-love.sakura.ne.jp
-[5] https://lkml.kernel.org/r/1c351187-253b-2d49-acaf-4563c63ae7d2@i-love.sakura.ne.jp
+Then, when the table is removed, a reference to the set may be kept after
+the set is freed, leading to a potential use-after-free.
 
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+When looking for sets by ID, use the table that was used for the lookup by
+name, and only return sets belonging to that same table.
+
+This fixes CVE-2022-2586, also reported as ZDI-CAN-17470.
+
+Reported-by: Team Orca of Sea Security (@seasecresponse)
+Fixes: 958bee14d071 ("netfilter: nf_tables: use new transaction infrastructure to handle sets")
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/locking/lockdep.c           |    2 -
- kernel/locking/lockdep_internals.h |    8 +++----
- lib/Kconfig.debug                  |   40 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 45 insertions(+), 5 deletions(-)
+ net/netfilter/nf_tables_api.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -1397,7 +1397,7 @@ static int add_lock_to_list(struct lock_
- /*
-  * For good efficiency of modular, we use power of 2
-  */
--#define MAX_CIRCULAR_QUEUE_SIZE		4096UL
-+#define MAX_CIRCULAR_QUEUE_SIZE		(1UL << CONFIG_LOCKDEP_CIRCULAR_QUEUE_BITS)
- #define CQ_MASK				(MAX_CIRCULAR_QUEUE_SIZE-1)
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -3638,6 +3638,7 @@ static struct nft_set *nft_set_lookup_by
+ }
  
- /*
---- a/kernel/locking/lockdep_internals.h
-+++ b/kernel/locking/lockdep_internals.h
-@@ -99,16 +99,16 @@ static const unsigned long LOCKF_USED_IN
- #define MAX_STACK_TRACE_ENTRIES	262144UL
- #define STACK_TRACE_HASH_SIZE	8192
- #else
--#define MAX_LOCKDEP_ENTRIES	32768UL
-+#define MAX_LOCKDEP_ENTRIES	(1UL << CONFIG_LOCKDEP_BITS)
+ static struct nft_set *nft_set_lookup_byid(const struct net *net,
++					   const struct nft_table *table,
+ 					   const struct nlattr *nla, u8 genmask)
+ {
+ 	struct nft_trans *trans;
+@@ -3648,6 +3649,7 @@ static struct nft_set *nft_set_lookup_by
+ 			struct nft_set *set = nft_trans_set(trans);
  
--#define MAX_LOCKDEP_CHAINS_BITS	16
-+#define MAX_LOCKDEP_CHAINS_BITS	CONFIG_LOCKDEP_CHAINS_BITS
+ 			if (id == nft_trans_set_id(trans) &&
++			    set->table == table &&
+ 			    nft_active_genmask(set, genmask))
+ 				return set;
+ 		}
+@@ -3668,7 +3670,7 @@ struct nft_set *nft_set_lookup_global(co
+ 		if (!nla_set_id)
+ 			return set;
  
- /*
-  * Stack-trace: tightly packed array of stack backtrace
-  * addresses. Protected by the hash_lock.
-  */
--#define MAX_STACK_TRACE_ENTRIES	524288UL
--#define STACK_TRACE_HASH_SIZE	16384
-+#define MAX_STACK_TRACE_ENTRIES	(1UL << CONFIG_LOCKDEP_STACK_TRACE_BITS)
-+#define STACK_TRACE_HASH_SIZE	(1 << CONFIG_LOCKDEP_STACK_TRACE_HASH_BITS)
- #endif
- 
- /*
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -1307,6 +1307,46 @@ config LOCKDEP
- config LOCKDEP_SMALL
- 	bool
- 
-+config LOCKDEP_BITS
-+	int "Bitsize for MAX_LOCKDEP_ENTRIES"
-+	depends on LOCKDEP && !LOCKDEP_SMALL
-+	range 10 30
-+	default 15
-+	help
-+	  Try increasing this value if you hit "BUG: MAX_LOCKDEP_ENTRIES too low!" message.
-+
-+config LOCKDEP_CHAINS_BITS
-+	int "Bitsize for MAX_LOCKDEP_CHAINS"
-+	depends on LOCKDEP && !LOCKDEP_SMALL
-+	range 10 30
-+	default 16
-+	help
-+	  Try increasing this value if you hit "BUG: MAX_LOCKDEP_CHAINS too low!" message.
-+
-+config LOCKDEP_STACK_TRACE_BITS
-+	int "Bitsize for MAX_STACK_TRACE_ENTRIES"
-+	depends on LOCKDEP && !LOCKDEP_SMALL
-+	range 10 30
-+	default 19
-+	help
-+	  Try increasing this value if you hit "BUG: MAX_STACK_TRACE_ENTRIES too low!" message.
-+
-+config LOCKDEP_STACK_TRACE_HASH_BITS
-+	int "Bitsize for STACK_TRACE_HASH_SIZE"
-+	depends on LOCKDEP && !LOCKDEP_SMALL
-+	range 10 30
-+	default 14
-+	help
-+	  Try increasing this value if you need large MAX_STACK_TRACE_ENTRIES.
-+
-+config LOCKDEP_CIRCULAR_QUEUE_BITS
-+	int "Bitsize for elements in circular_queue struct"
-+	depends on LOCKDEP
-+	range 10 30
-+	default 12
-+	help
-+	  Try increasing this value if you hit "lockdep bfs error:-1" warning due to __cq_enqueue() failure.
-+
- config DEBUG_LOCKDEP
- 	bool "Lock dependency engine debugging"
- 	depends on DEBUG_KERNEL && LOCKDEP
+-		set = nft_set_lookup_byid(net, nla_set_id, genmask);
++		set = nft_set_lookup_byid(net, table, nla_set_id, genmask);
+ 	}
+ 	return set;
+ }
 
 
