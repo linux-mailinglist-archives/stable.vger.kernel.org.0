@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97CEC59A4E1
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:06:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E59E59A3F8
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353659AbiHSQmn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:42:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42874 "EHLO
+        id S1353683AbiHSQoX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:44:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354113AbiHSQlu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:41:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DBEE1296C3;
-        Fri, 19 Aug 2022 09:10:35 -0700 (PDT)
+        with ESMTP id S1353681AbiHSQmz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:42:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43A17111C2D;
+        Fri, 19 Aug 2022 09:11:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9B4161811;
-        Fri, 19 Aug 2022 16:10:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E05A6C433C1;
-        Fri, 19 Aug 2022 16:10:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 08A4B61831;
+        Fri, 19 Aug 2022 16:11:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07248C433C1;
+        Fri, 19 Aug 2022 16:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925434;
-        bh=OuBP3EZABoATWLplK79AVl6BvvWf0TZZLXbKO6eBR7A=;
+        s=korg; t=1660925469;
+        bh=76ZGQOkP+oP8gNAIe5MRNKdqBKfUTNnmdCtMPmtdlHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SWKdCw/I6f8ggFnefNCfXIuLR1MUSgf082/Fnw9CSEmq9Ks2K60e8VSnfoyP87JK6
-         DnHrHEaBexNI8P0F/sTQY2X1I5zg0EoWdHT3oySiq0ctFnFafYJV7ewcYyprboT3Rm
-         z6sRyp3rqnadf2/HkN9VgZ6v8/Rzu7LGFuvrHVOU=
+        b=eXqkimD3VdpHHR6xucdS6C37/lyPRQCe4n/iUZkL57brpA6RgHXM9RIIIlZX0+BD/
+         cj8za4Hpoc0HeY6XR9IbKkNe4kG0kMzx/nw4N7WT5Ud3Bu8ZKuNpoCICsstW2E3z1E
+         PV5xW0oHgRyl6cgGFbPI//EEX7gStoEn+kf/CHZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 472/545] iommu/vt-d: avoid invalid memory access via node_online(NUMA_NO_NODE)
-Date:   Fri, 19 Aug 2022 17:44:02 +0200
-Message-Id: <20220819153850.522230547@linuxfoundation.org>
+        stable@vger.kernel.org, Sean V Kelley <sean.v.kelley@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 473/545] PCI/AER: Write AER Capability only when we control it
+Date:   Fri, 19 Aug 2022 17:44:03 +0200
+Message-Id: <20220819153850.566901888@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -57,64 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Sean V Kelley <sean.v.kelley@intel.com>
 
-[ Upstream commit b0b0b77ea611e3088e9523e60860f4f41b62b235 ]
+[ Upstream commit 50cc18fcd3053fb46a09db5a39e6516e9560f765 ]
 
-KASAN reports:
+If an OS has not been granted AER control via _OSC, it should not make
+changes to PCI_ERR_ROOT_COMMAND and PCI_ERR_ROOT_STATUS related registers.
+Per section 4.5.1 of the System Firmware Intermediary (SFI) _OSC and DPC
+Updates ECN [1], this bit also covers these aspects of the PCI Express
+Advanced Error Reporting. Based on the above and earlier discussion [2],
+make the following changes:
 
-[ 4.668325][ T0] BUG: KASAN: wild-memory-access in dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
-[    4.676149][    T0] Read of size 8 at addr 1fffffff85115558 by task swapper/0/0
-[    4.683454][    T0]
-[    4.685638][    T0] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.19.0-rc3-00004-g0e862838f290 #1
-[    4.694331][    T0] Hardware name: Supermicro SYS-5018D-FN4T/X10SDV-8C-TLN4F, BIOS 1.1 03/02/2016
-[    4.703196][    T0] Call Trace:
-[    4.706334][    T0]  <TASK>
-[ 4.709133][ T0] ? dmar_parse_one_rhsa (arch/x86/include/asm/bitops.h:214 arch/x86/include/asm/bitops.h:226 include/asm-generic/bitops/instrumented-non-atomic.h:142 include/linux/nodemask.h:415 drivers/iommu/intel/dmar.c:497)
+Add a check for the native case (i.e., AER control via _OSC)
 
-after converting the type of the first argument (@nr, bit number)
-of arch_test_bit() from `long` to `unsigned long`[0].
+Note that the previous "clear, reset, enable" order suggests that the reset
+might cause errors that we should ignore. After this commit, those errors
+(if any) will remain logged in the PCI_ERR_ROOT_STATUS register.
 
-Under certain conditions (for example, when ACPI NUMA is disabled
-via command line), pxm_to_node() can return %NUMA_NO_NODE (-1).
-It is valid 'magic' number of NUMA node, but not valid bit number
-to use in bitops.
-node_online() eventually descends to test_bit() without checking
-for the input, assuming it's on caller side (which might be good
-for perf-critical tasks). There, -1 becomes %ULONG_MAX which leads
-to an insane array index when calculating bit position in memory.
+[1] System Firmware Intermediary (SFI) _OSC and DPC Updates ECN, Feb 24,
+    2020, affecting PCI Firmware Specification, Rev. 3.2
+    https://members.pcisig.com/wg/PCI-SIG/document/14076
+[2] https://lore.kernel.org/linux-pci/20201020162820.GA370938@bjorn-Precision-5520/
 
-For now, add an explicit check for @node being not %NUMA_NO_NODE
-before calling test_bit(). The actual logics didn't change here
-at all.
-
-[0] https://github.com/norov/linux/commit/0e862838f290147ea9c16db852d8d494b552d38d
-
-Fixes: ee34b32d8c29 ("dmar: support for parsing Remapping Hardware Static Affinity structure")
-Cc: stable@vger.kernel.org # 2.6.33+
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
+Link: https://lore.kernel.org/r/20201121001036.8560-2-sean.v.kelley@intel.com
+Tested-by: Jonathan Cameron <Jonathan.Cameron@huawei.com> # non-native/no RCEC
+Signed-off-by: Sean V Kelley <sean.v.kelley@intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/dmar.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/pcie/aer.c | 29 ++++++++++++++++-------------
+ 1 file changed, 16 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
-index 70d569b80ecf..0bc497f4cb9f 100644
---- a/drivers/iommu/intel/dmar.c
-+++ b/drivers/iommu/intel/dmar.c
-@@ -497,7 +497,7 @@ static int dmar_parse_one_rhsa(struct acpi_dmar_header *header, void *arg)
- 		if (drhd->reg_base_addr == rhsa->base_address) {
- 			int node = pxm_to_node(rhsa->proximity_domain);
+diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
+index c40546eeecb3..61f78b20b0cf 100644
+--- a/drivers/pci/pcie/aer.c
++++ b/drivers/pci/pcie/aer.c
+@@ -1366,23 +1366,26 @@ static pci_ers_result_t aer_root_reset(struct pci_dev *dev)
+ 	u32 reg32;
+ 	int rc;
  
--			if (!node_online(node))
-+			if (node != NUMA_NO_NODE && !node_online(node))
- 				node = NUMA_NO_NODE;
- 			drhd->iommu->node = node;
- 			return 0;
+-
+-	/* Disable Root's interrupt in response to error messages */
+-	pci_read_config_dword(dev, aer + PCI_ERR_ROOT_COMMAND, &reg32);
+-	reg32 &= ~ROOT_PORT_INTR_ON_MESG_MASK;
+-	pci_write_config_dword(dev, aer + PCI_ERR_ROOT_COMMAND, reg32);
++	if (pcie_aer_is_native(dev)) {
++		/* Disable Root's interrupt in response to error messages */
++		pci_read_config_dword(dev, aer + PCI_ERR_ROOT_COMMAND, &reg32);
++		reg32 &= ~ROOT_PORT_INTR_ON_MESG_MASK;
++		pci_write_config_dword(dev, aer + PCI_ERR_ROOT_COMMAND, reg32);
++	}
+ 
+ 	rc = pci_bus_error_reset(dev);
+-	pci_info(dev, "Root Port link has been reset\n");
++	pci_info(dev, "Root Port link has been reset (%d)\n", rc);
+ 
+-	/* Clear Root Error Status */
+-	pci_read_config_dword(dev, aer + PCI_ERR_ROOT_STATUS, &reg32);
+-	pci_write_config_dword(dev, aer + PCI_ERR_ROOT_STATUS, reg32);
++	if (pcie_aer_is_native(dev)) {
++		/* Clear Root Error Status */
++		pci_read_config_dword(dev, aer + PCI_ERR_ROOT_STATUS, &reg32);
++		pci_write_config_dword(dev, aer + PCI_ERR_ROOT_STATUS, reg32);
+ 
+-	/* Enable Root Port's interrupt in response to error messages */
+-	pci_read_config_dword(dev, aer + PCI_ERR_ROOT_COMMAND, &reg32);
+-	reg32 |= ROOT_PORT_INTR_ON_MESG_MASK;
+-	pci_write_config_dword(dev, aer + PCI_ERR_ROOT_COMMAND, reg32);
++		/* Enable Root Port's interrupt in response to error messages */
++		pci_read_config_dword(dev, aer + PCI_ERR_ROOT_COMMAND, &reg32);
++		reg32 |= ROOT_PORT_INTR_ON_MESG_MASK;
++		pci_write_config_dword(dev, aer + PCI_ERR_ROOT_COMMAND, reg32);
++	}
+ 
+ 	return rc ? PCI_ERS_RESULT_DISCONNECT : PCI_ERS_RESULT_RECOVERED;
+ }
 -- 
 2.35.1
 
