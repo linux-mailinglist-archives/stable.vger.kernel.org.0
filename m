@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CC2E59A0C9
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F22759A073
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351455AbiHSQLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:11:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37132 "EHLO
+        id S1351470AbiHSQLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:11:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351887AbiHSQKu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:10:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D62112F88;
-        Fri, 19 Aug 2022 08:57:05 -0700 (PDT)
+        with ESMTP id S1351964AbiHSQLK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:11:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75772112FA0;
+        Fri, 19 Aug 2022 08:57:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B64DB8280D;
-        Fri, 19 Aug 2022 15:57:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FD35C433C1;
-        Fri, 19 Aug 2022 15:57:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4039B82811;
+        Fri, 19 Aug 2022 15:57:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA824C4314D;
+        Fri, 19 Aug 2022 15:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924623;
-        bh=ANp5/WgIDqRyMIC57uBIBNKXBydsllsjWz8DlfgB8ZM=;
+        s=korg; t=1660924626;
+        bh=lsOEVslGO3TFVkzQWYHdToQBRgkZdOisYOpph8MXjKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPh9KpA63lYSkm2ZmeJg4RJoeFLyJd97CVWBjeaOETegzS0WzvV6Q1EED5K7yizy0
-         iGf8tbIbqvX/zQ/YhiD+bACb1JWmGchyS0nhJAMjw74rHrKtO9pniV9cvMH69DyYZp
-         WKu82LN+e9giDTLArJIB7BUQ7x+lSfApXHO7fffM=
+        b=KRlWL4T+mwmO8mtYETaImZ3LkrJuzDiFikPga2TEm3RCgYcyPvPnLskzENelkxuxG
+         6I6/exhk9Ani1CV+SgFZRsaxJ7lcNXujjVQSHPXawjfJTdf+kELoid5dnNOFHeO2Yv
+         9zS2BK+gwDbBZdY+gsuAz+QteJVK5aYTMFFirqcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 230/545] fs: check FMODE_LSEEK to control internal pipe splicing
-Date:   Fri, 19 Aug 2022 17:40:00 +0200
-Message-Id: <20220819153839.648613517@linuxfoundation.org>
+Subject: [PATCH 5.10 231/545] wifi: wil6210: debugfs: fix info leak in wil_write_file_wmi()
+Date:   Fri, 19 Aug 2022 17:40:01 +0200
+Message-Id: <20220819153839.695417078@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,56 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 97ef77c52b789ec1411d360ed99dca1efe4b2c81 ]
+[ Upstream commit 7a4836560a6198d245d5732e26f94898b12eb760 ]
 
-The original direct splicing mechanism from Jens required the input to
-be a regular file because it was avoiding the special socket case. It
-also recognized blkdevs as being close enough to a regular file. But it
-forgot about chardevs, which behave the same way and work fine here.
+The simple_write_to_buffer() function will succeed if even a single
+byte is initialized.  However, we need to initialize the whole buffer
+to prevent information leaks.  Just use memdup_user().
 
-This is an okayish heuristic, but it doesn't totally work. For example,
-a few chardevs should be spliceable here. And a few regular files
-shouldn't. This patch fixes this by instead checking whether FMODE_LSEEK
-is set, which represents decently enough what we need rewinding for when
-splicing to internal pipes.
-
-Fixes: b92ce5589374 ("[PATCH] splice: add direct fd <-> fd splicing support")
-Cc: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: ff974e408334 ("wil6210: debugfs interface to send raw WMI command")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/Ysg14NdKAZF/hcNG@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/splice.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ath/wil6210/debugfs.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/fs/splice.c b/fs/splice.c
-index 866d5c2367b2..6610e55c0e2a 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -806,17 +806,15 @@ ssize_t splice_direct_to_actor(struct file *in, struct splice_desc *sd,
- {
- 	struct pipe_inode_info *pipe;
- 	long ret, bytes;
--	umode_t i_mode;
- 	size_t len;
- 	int i, flags, more;
+diff --git a/drivers/net/wireless/ath/wil6210/debugfs.c b/drivers/net/wireless/ath/wil6210/debugfs.c
+index 2d618f90afa7..58c98e58bccb 100644
+--- a/drivers/net/wireless/ath/wil6210/debugfs.c
++++ b/drivers/net/wireless/ath/wil6210/debugfs.c
+@@ -1012,18 +1012,12 @@ static ssize_t wil_write_file_wmi(struct file *file, const char __user *buf,
+ 	u16 cmdid;
+ 	int rc, rc1;
  
- 	/*
--	 * We require the input being a regular file, as we don't want to
--	 * randomly drop data for eg socket -> socket splicing. Use the
--	 * piped splicing for that!
-+	 * We require the input to be seekable, as we don't want to randomly
-+	 * drop data for eg socket -> socket splicing. Use the piped splicing
-+	 * for that!
- 	 */
--	i_mode = file_inode(in)->i_mode;
--	if (unlikely(!S_ISREG(i_mode) && !S_ISBLK(i_mode)))
-+	if (unlikely(!(in->f_mode & FMODE_LSEEK)))
+-	if (cmdlen < 0)
++	if (cmdlen < 0 || *ppos != 0)
  		return -EINVAL;
  
- 	/*
+-	wmi = kmalloc(len, GFP_KERNEL);
+-	if (!wmi)
+-		return -ENOMEM;
+-
+-	rc = simple_write_to_buffer(wmi, len, ppos, buf, len);
+-	if (rc < 0) {
+-		kfree(wmi);
+-		return rc;
+-	}
++	wmi = memdup_user(buf, len);
++	if (IS_ERR(wmi))
++		return PTR_ERR(wmi);
+ 
+ 	cmd = (cmdlen > 0) ? &wmi[1] : NULL;
+ 	cmdid = le16_to_cpu(wmi->command_id);
 -- 
 2.35.1
 
