@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 098825993FE
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 06:18:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33E245993F6
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 06:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346062AbiHSEQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 00:16:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46256 "EHLO
+        id S1346118AbiHSERY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 00:17:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232389AbiHSEQR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 00:16:17 -0400
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78738DA3C8;
-        Thu, 18 Aug 2022 21:16:16 -0700 (PDT)
-Received: by mail-ej1-x636.google.com with SMTP id i14so6688596ejg.6;
-        Thu, 18 Aug 2022 21:16:16 -0700 (PDT)
+        with ESMTP id S1346113AbiHSERX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 00:17:23 -0400
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B14D7DAA14;
+        Thu, 18 Aug 2022 21:17:22 -0700 (PDT)
+Received: by mail-ed1-x52a.google.com with SMTP id s11so4215729edd.13;
+        Thu, 18 Aug 2022 21:17:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc;
-        bh=vq1yZ0EE5iMuU3VXtaQDcy0x0rnS5PWC/88eh+empEo=;
-        b=NzNdQOgCrCIL0I2Xc0Dm59Sa6UUlWHOuEF95rHuCDjE/E440pppYQd44fnia0iqGtc
-         bwrQsf4YpQyO/n/cdcFwf/dYenrPlNLBnso/zOeK05h0izgq2sP8+b8Ys27UMzxR2Pzs
-         OtR0kJbOqNbMTjefPUPKHWoqtFAhKe7dmjRla7jlQrTff7D/4gK+ZY+1zL/xHtoV6iNC
-         0hsPBixC4WGZjgzRpoZy6nXKaPZMJ9PkfJOIazDqbFC+NbZLxcwJvhRVt3AZgADfKj9E
-         c2NBWcW3wO/FFXerQkEgthOmPvXInrhsgroOCxn1oWrDPI4lv6mUhBEi2mn4rSG7vLh5
-         TU4g==
+        bh=6lvvXLfM5LOdFLVUiNZsTdpLpiUI86D4rWn+DOqYFh0=;
+        b=ibp45+6h5fzr/+9Ziardi4SQETtREv18AtDH1XSs3KsI5cHwHF+5uBV1cGVZfS474j
+         LTn9qriJulu3ZlRobCNa78GUscmgvcP+nyJMmnM4Mh35zz2vO+4mG5i09awCM2ke1j67
+         DjBFoLSOxKuCDw8E7bt/YhxFOP6HAAE5XKjxYo/o1aWh+DnYfjt1P6m7zTiyjCtMsBml
+         Bz7lGsm5uId/cMoWDTsbWVwCLmneLNdCobEijmfF5sDwrXM+KTzFdD0GXeMzP+AKGWOk
+         +yk1i3hsmKLrfQJGz7mMoK2aLgQiDqpS8sUUYn55LXo9wuJ4jcaKDZ2f9gmigw1ouO1Y
+         nq6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=vq1yZ0EE5iMuU3VXtaQDcy0x0rnS5PWC/88eh+empEo=;
-        b=f2o408t5e7sUt4jgKvK/+uZiZMwNtx+3KlqTsS7nYP8pSDJDQsdLqVSltabBqUBxB6
-         CSwnUG7NHuU2x2b055oizsk3N5n3X4+/lIPcaqPzPF95y1ldWNXbvL/c30nvzr3l84SK
-         UGQC8a/xAfAqcqpIHLmMPBT5nAEDFOy2bs8J5tSL1E1I0DbypRbCBxtQxxj8yiHyESox
-         +7qgzEwd11YkROWciP+UtuQdnPcQ/hRUJshmaVRlAGgQkZpfnIAU8v4hWTVgTraCo9fN
-         4tFcAt4trPTL6SSTf2cN44D1D6KNbgYp4jufCvZt+HIb89tpZnXZqMSScqxg3GBMqGiP
-         B6gA==
-X-Gm-Message-State: ACgBeo21403EaXFATk5ex7ZfEhfpHjZl+d8CKJpu0gyUykFexc647XQR
-        i6ptboJzmxjpLRs29MCIJu5Q+0CELz0=
-X-Google-Smtp-Source: AA6agR4u+xoL53tF8jTeclefhfqlSHhBWjqPkJU0U4z6pxBmppCwnNGc/weUdHGATmCfPOiVyXK0rw==
-X-Received: by 2002:a17:907:60c7:b0:731:2be4:f72d with SMTP id hv7-20020a17090760c700b007312be4f72dmr3597074ejc.639.1660882575071;
-        Thu, 18 Aug 2022 21:16:15 -0700 (PDT)
+        bh=6lvvXLfM5LOdFLVUiNZsTdpLpiUI86D4rWn+DOqYFh0=;
+        b=3tYU0nJR1v6CSoF7UHt6X7SCkj+JSMD0Bj+RPioi/RQqDmwyNaEejSb8WASrednaG4
+         o2cUi1fOtK2d5E9Vs9VVbPCEqKa6bSTrHac+eatTlCqyiaJoyKpVExr2zdYTx79Pd3GN
+         drejmwb4CnPHREE7HlZUqCxz3FcF320NZWNSYWU3VV9B5vbhF2x+X+4w+6zIaRjux423
+         Awx46aSuCwUy7CUhCcFXvyQatBdtg1I72jnmCLp/ceqJX1oDW0aDWHorymBmiMD+/Hrp
+         RImXnvJmrn55+DQWOmy1w4gQxHeINltnHI6kdUr0QA6cGmooiSax1iRhiN/Hp45ayxN+
+         KKlg==
+X-Gm-Message-State: ACgBeo2W0aas/qmVZwpi3tCw6kdA1yS+3wBwnsiaPBDhuHGMd3StWkK3
+        BFdatCneBmT1b/fEZR6SIEIAscRXvxQ=
+X-Google-Smtp-Source: AA6agR5Z07MgU4moBeeqztDOefM0MAGvbUBpqvrsjjGU91Kk0uWVg/sUdlSZTVDXHp7liUsXnY3Lqg==
+X-Received: by 2002:a05:6402:1f87:b0:43b:b88d:1d93 with SMTP id c7-20020a0564021f8700b0043bb88d1d93mr4507704edc.314.1660882640878;
+        Thu, 18 Aug 2022 21:17:20 -0700 (PDT)
 Received: from jernej-laptop.localnet (82-149-1-172.dynamic.telemach.net. [82.149.1.172])
-        by smtp.gmail.com with ESMTPSA id h22-20020a1709070b1600b0073087f7dfe2sm1703723ejl.125.2022.08.18.21.16.13
+        by smtp.gmail.com with ESMTPSA id d2-20020a170906304200b0073c37199b86sm1234394ejd.159.2022.08.18.21.17.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Aug 2022 21:16:14 -0700 (PDT)
+        Thu, 18 Aug 2022 21:17:20 -0700 (PDT)
 From:   Jernej =?utf-8?B?xaBrcmFiZWM=?= <jernej.skrabec@gmail.com>
 To:     linux-media@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
         Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
@@ -62,11 +62,11 @@ Cc:     kernel@collabora.com,
         linux-staging@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 3/3] media: cedrus: Fix endless loop in cedrus_h265_skip_bits()
-Date:   Fri, 19 Aug 2022 06:16:12 +0200
-Message-ID: <5849126.lOV4Wx5bFT@jernej-laptop>
-In-Reply-To: <20220818203308.439043-4-nicolas.dufresne@collabora.com>
-References: <20220818203308.439043-1-nicolas.dufresne@collabora.com> <20220818203308.439043-4-nicolas.dufresne@collabora.com>
+Subject: Re: [PATCH v1 2/3] media: cedrus: Set the platform driver data earlier
+Date:   Fri, 19 Aug 2022 06:17:19 +0200
+Message-ID: <4418189.LvFx2qVVIh@jernej-laptop>
+In-Reply-To: <20220818203308.439043-3-nicolas.dufresne@collabora.com>
+References: <20220818203308.439043-1-nicolas.dufresne@collabora.com> <20220818203308.439043-3-nicolas.dufresne@collabora.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset="UTF-8"
@@ -80,62 +80,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dne =C4=8Detrtek, 18. avgust 2022 ob 22:33:08 CEST je Nicolas Dufresne napi=
+Dne =C4=8Detrtek, 18. avgust 2022 ob 22:33:07 CEST je Nicolas Dufresne napi=
 sal(a):
 > From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 >=20
-> The busy status bit may never de-assert if number of programmed skip
-> bits is incorrect, resulting in a kernel hang because the bit is polled
-> endlessly in the code. Fix it by adding timeout for the bit-polling.
-> This problem is reproducible by setting the data_bit_offset field of
-> the HEVC slice params to a wrong value by userspace.
->=20
-> Cc: stable@vger.kernel.org
-> Reported-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+> The cedrus_hw_resume() crashes with NULL deference on driver probe if
+> runtime PM is disabled because it uses platform data that hasn't been
+> set up yet. Fix this by setting the platform data earlier during probe.
 
-=46ixes tag would be nice.
-
-> ---
->  drivers/staging/media/sunxi/cedrus/cedrus_h265.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-> b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c index
-> f703c585d91c5..f0bc118021b0a 100644
-> --- a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-> +++ b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
-> @@ -227,6 +227,7 @@ static void cedrus_h265_pred_weight_write(struct
-> cedrus_dev *dev, static void cedrus_h265_skip_bits(struct cedrus_dev *dev,
-> int num) {
->  	int count =3D 0;
-> +	u32 reg;
->=20
->  	while (count < num) {
->  		int tmp =3D min(num - count, 32);
-> @@ -234,8 +235,9 @@ static void cedrus_h265_skip_bits(struct cedrus_dev
-> *dev, int num) cedrus_write(dev, VE_DEC_H265_TRIGGER,
->  			     VE_DEC_H265_TRIGGER_FLUSH_BITS |
->  			     VE_DEC_H265_TRIGGER_TYPE_N_BITS(tmp));
-> -		while (cedrus_read(dev, VE_DEC_H265_STATUS) &
-> VE_DEC_H265_STATUS_VLD_BUSY) -			udelay(1);
-> +
-> +		if (cedrus_wait_for(dev, VE_DEC_H265_STATUS,
-> VE_DEC_H265_STATUS_VLD_BUSY)) +		=09
-dev_err_ratelimited(dev->dev, "timed out
-> waiting to skip bits\n");
-
-Reporting issue is nice, but better would be to propagate error, since ther=
-e=20
-is no way to properly decode this slice if above code block fails.
+Does it even work without PM? Maybe it would be better if Cedrus would sele=
+ct=20
+PM in Kconfig.
 
 Best regards,
 Jernej
 
 >=20
->  		count +=3D tmp;
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+> ---
+>  drivers/staging/media/sunxi/cedrus/cedrus.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/staging/media/sunxi/cedrus/cedrus.c
+> b/drivers/staging/media/sunxi/cedrus/cedrus.c index
+> 960a0130cd620..55c54dfdc585c 100644
+> --- a/drivers/staging/media/sunxi/cedrus/cedrus.c
+> +++ b/drivers/staging/media/sunxi/cedrus/cedrus.c
+> @@ -448,6 +448,8 @@ static int cedrus_probe(struct platform_device *pdev)
+>  	if (!dev)
+>  		return -ENOMEM;
+>=20
+> +	platform_set_drvdata(pdev, dev);
+> +
+>  	dev->vfd =3D cedrus_video_device;
+>  	dev->dev =3D &pdev->dev;
+>  	dev->pdev =3D pdev;
+> @@ -521,8 +523,6 @@ static int cedrus_probe(struct platform_device *pdev)
+>  		goto err_m2m_mc;
 >  	}
+>=20
+> -	platform_set_drvdata(pdev, dev);
+> -
+>  	return 0;
+>=20
+>  err_m2m_mc:
 
 
 
