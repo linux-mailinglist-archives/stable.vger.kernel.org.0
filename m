@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B052959A193
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8C0B59A14F
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350711AbiHSQCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:02:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35214 "EHLO
+        id S1350779AbiHSQCi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:02:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351010AbiHSP75 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:59:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE24010975D;
+        with ESMTP id S1350598AbiHSQAY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:00:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDB3710974A;
         Fri, 19 Aug 2022 08:52:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74CEAB82812;
-        Fri, 19 Aug 2022 15:52:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92B8C433D6;
-        Fri, 19 Aug 2022 15:52:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DB4FB82811;
+        Fri, 19 Aug 2022 15:52:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D47DC433C1;
+        Fri, 19 Aug 2022 15:52:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924339;
-        bh=7qVHYV7A6UukR/WJl+oKwqL6JvoHa4LpnEt0nyj+uKE=;
+        s=korg; t=1660924341;
+        bh=Ovj+PbJiaMvOoIvT4elf4ggjMn2RnMeVq16lCvwN+I0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2ogwhNjCIyiXMFuTxfCvceY932fRddAjDyxczmi5VqKg44arTkhBhy0q0YrdWE8b
-         jD3w7ZS99YLkwsYY6hl1YCYeAmO+JFL3gR3KCKDCvuB2AUvVvfeAPEWKMx4LIolKC8
-         VA3T9THJ0G3D/BmOvqK+dahYQ/dB0wEKrPrLZrUQ=
+        b=kcPL4InyLpX3FAqXXolDgu/RSswvyf0Fyd/eqP1hbbKZ8aQttDTJqYwJ+ENyjVkAR
+         QPl5uSnPUk5giahuq0Q3+Yadt8dVkwULLtvsV03Do97jUDREMgjBOaX1Tx/BwVlKyB
+         dIGEA4IQBgcW50Y0n+JhH+oXhaPsz6eiyje3r7ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Tam=C3=A1s=20Sz=C5=B1cs?= <tszucs@protonmail.ch>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Liu Jinbao <liujinbao1@xiaomi.com>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 137/545] arm64: tegra: Fix SDMMC1 CD on P2888
-Date:   Fri, 19 Aug 2022 17:38:27 +0200
-Message-Id: <20220819153835.469858351@linuxfoundation.org>
+Subject: [PATCH 5.10 138/545] erofs: avoid consecutive detection for Highmem memory
+Date:   Fri, 19 Aug 2022 17:38:28 +0200
+Message-Id: <20220819153835.509897972@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,34 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tamás Szűcs <tszucs@protonmail.ch>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[ Upstream commit b415bb7c976f1d595ed752001c0938f702645dab ]
+[ Upstream commit 448b5a1548d87c246c3d0c3df8480d3c6eb6c11a ]
 
-Hook SDMMC1 CD up with CVM GPIO02 (SOC_GPIO11) used for card detection on J4
-(uSD socket) on the carrier.
+Currently, vmap()s are avoided if physical addresses are
+consecutive for decompressed buffers.
 
-Fixes: ef633bfc21e9 ("arm64: tegra: Enable card detect for SD card on P2888")
-Signed-off-by: Tamás Szűcs <tszucs@protonmail.ch>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+I observed that is very common for 4KiB pclusters since the
+numbers of decompressed pages are almost 2 or 3.
+
+However, such detection doesn't work for Highmem pages on
+32-bit machines, let's fix it now.
+
+Reported-by: Liu Jinbao <liujinbao1@xiaomi.com>
+Fixes: 7fc45dbc938a ("staging: erofs: introduce generic decompression backend")
+Link: https://lore.kernel.org/r/20220708101001.21242-1-hsiangkao@linux.alibaba.com
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/erofs/decompressor.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-index d71b7a1140fe..216dc30fa26c 100644
---- a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-@@ -75,7 +75,7 @@ eeprom@50 {
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index 8a6260aac26c..f921580b56cb 100644
+--- a/fs/erofs/decompressor.c
++++ b/fs/erofs/decompressor.c
+@@ -56,14 +56,18 @@ static int z_erofs_lz4_prepare_destpages(struct z_erofs_decompress_req *rq,
  
- 		/* SDMMC1 (SD/MMC) */
- 		mmc@3400000 {
--			cd-gpios = <&gpio TEGRA194_MAIN_GPIO(A, 0) GPIO_ACTIVE_LOW>;
-+			cd-gpios = <&gpio TEGRA194_MAIN_GPIO(G, 7) GPIO_ACTIVE_LOW>;
- 		};
- 
- 		/* SDMMC4 (eMMC) */
+ 		if (page) {
+ 			__clear_bit(j, bounced);
+-			if (kaddr) {
+-				if (kaddr + PAGE_SIZE == page_address(page))
++			if (!PageHighMem(page)) {
++				if (!i) {
++					kaddr = page_address(page);
++					continue;
++				}
++				if (kaddr &&
++				    kaddr + PAGE_SIZE == page_address(page)) {
+ 					kaddr += PAGE_SIZE;
+-				else
+-					kaddr = NULL;
+-			} else if (!i) {
+-				kaddr = page_address(page);
++					continue;
++				}
+ 			}
++			kaddr = NULL;
+ 			continue;
+ 		}
+ 		kaddr = NULL;
 -- 
 2.35.1
 
