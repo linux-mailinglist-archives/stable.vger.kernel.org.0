@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02CC659A089
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 735A459A06B
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351955AbiHSQSe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:18:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52154 "EHLO
+        id S1352031AbiHSQS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:18:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352197AbiHSQPy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:15:54 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A17EE86B3;
-        Fri, 19 Aug 2022 08:59:04 -0700 (PDT)
+        with ESMTP id S1352193AbiHSQPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:15:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ED9910446F;
+        Fri, 19 Aug 2022 08:59:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 196EFCE26B7;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 098BF61644;
+        Fri, 19 Aug 2022 15:59:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01C64C433C1;
         Fri, 19 Aug 2022 15:59:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17606C433D6;
-        Fri, 19 Aug 2022 15:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924741;
-        bh=Vgx2IQuBGe2TlPRL5ofApdMmc10UjK42/Nn9oSwg9p0=;
+        s=korg; t=1660924744;
+        bh=u0HsNN8rMYruFAvZHEvP0r2fe53rUhzO3lCv1NuR+A8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OI7kmaQN4Z/sIBLPUFFKDRawRdN5bkxS0zkGjj4krSqOHy9GGI43OMCyTbcdRcFZC
-         +YMKgl7pUGRpu781rQQ3SIKIxUs8rWqRGuGlAk/aMQ2cesxWB2FUO54nUQVfm3KhLh
-         CfRt7l+f6+t3e2U8PleU7ZC/kt40lFvWHCdQu7Vk=
+        b=WGtQfe/FHZCT3gNwIS08lh92af1Nta7SuYB2DpwedsgvlKSo8t5TwATegNIteeSvH
+         UltlNxusgzc4p5J0vIunJ+IFp9ZmFDaZVB/sNMws03jNazbWdA12cYUZXn8AZ/46eF
+         gsOiP6XhIo5kdXrs6hTa4wbwnPcG4PrdQDDNvmFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 267/545] wireguard: ratelimiter: use hrtimer in selftest
-Date:   Fri, 19 Aug 2022 17:40:37 +0200
-Message-Id: <20220819153841.272787644@linuxfoundation.org>
+Subject: [PATCH 5.10 268/545] wireguard: allowedips: dont corrupt stack when detecting overflow
+Date:   Fri, 19 Aug 2022 17:40:38 +0200
+Message-Id: <20220819153841.324199211@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -57,133 +58,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 151c8e499f4705010780189377f85b57400ccbf5 ]
+[ Upstream commit c31b14d86dfe7174361e8c6e5df6c2c3a4d5918c ]
 
-Using msleep() is problematic because it's compared against
-ratelimiter.c's ktime_get_coarse_boottime_ns(), which means on systems
-with slow jiffies (such as UML's forced HZ=100), the result is
-inaccurate. So switch to using schedule_hrtimeout().
+In case push_rcu() and related functions are buggy, there's a
+WARN_ON(len >= 128), which the selftest tries to hit by being tricky. In
+case it is hit, we shouldn't corrupt the kernel's stack, though;
+otherwise it may be hard to even receive the report that it's buggy. So
+conditionalize the stack write based on that WARN_ON()'s return value.
 
-However, hrtimer gives us access only to the traditional posix timers,
-and none of the _COARSE variants. So now, rather than being too
-imprecise like jiffies, it's too precise.
+Note that this never *actually* happens anyway. The WARN_ON() in the
+first place is bounded by IS_ENABLED(DEBUG), and isn't expected to ever
+actually hit. This is just a debugging sanity check.
 
-One solution would be to give it a large "range" value, but this will
-still fire early on a loaded system. A better solution is to align the
-timeout to the actual coarse timer, and then round up to the nearest
-tick, plus change.
+Additionally, hoist the constant 128 into a named enum,
+MAX_ALLOWEDIPS_BITS, so that it's clear why this value is chosen.
 
-So add the timeout to the current coarse time, and then
-schedule_hrtimer() until the absolute computed time.
-
-This should hopefully reduce flakes in CI as well. Note that we keep the
-retry loop in case the entire function is running behind, because the
-test could still be scheduled out, by either the kernel or by the
-hypervisor's kernel, in which case restarting the test and hoping to not
-be scheduled out still helps.
-
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/all/CAHk-=wjJZGA6w_DxA+k7Ejbqsq+uGK==koPai3sqdsfJqemvag@mail.gmail.com/
 Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireguard/selftest/ratelimiter.c | 25 +++++++++++---------
- kernel/time/hrtimer.c                        |  1 +
- 2 files changed, 15 insertions(+), 11 deletions(-)
+ drivers/net/wireguard/allowedips.c          | 9 ++++++---
+ drivers/net/wireguard/selftest/allowedips.c | 6 +++---
+ 2 files changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireguard/selftest/ratelimiter.c b/drivers/net/wireguard/selftest/ratelimiter.c
-index 007cd4457c5f..ba87d294604f 100644
---- a/drivers/net/wireguard/selftest/ratelimiter.c
-+++ b/drivers/net/wireguard/selftest/ratelimiter.c
-@@ -6,28 +6,29 @@
- #ifdef DEBUG
+diff --git a/drivers/net/wireguard/allowedips.c b/drivers/net/wireguard/allowedips.c
+index 9a4c8ff32d9d..5bf7822c53f1 100644
+--- a/drivers/net/wireguard/allowedips.c
++++ b/drivers/net/wireguard/allowedips.c
+@@ -6,6 +6,8 @@
+ #include "allowedips.h"
+ #include "peer.h"
  
- #include <linux/jiffies.h>
-+#include <linux/hrtimer.h>
++enum { MAX_ALLOWEDIPS_BITS = 128 };
++
+ static struct kmem_cache *node_cache;
  
- static const struct {
- 	bool result;
--	unsigned int msec_to_sleep_before;
-+	u64 nsec_to_sleep_before;
- } expected_results[] __initconst = {
- 	[0 ... PACKETS_BURSTABLE - 1] = { true, 0 },
- 	[PACKETS_BURSTABLE] = { false, 0 },
--	[PACKETS_BURSTABLE + 1] = { true, MSEC_PER_SEC / PACKETS_PER_SECOND },
-+	[PACKETS_BURSTABLE + 1] = { true, NSEC_PER_SEC / PACKETS_PER_SECOND },
- 	[PACKETS_BURSTABLE + 2] = { false, 0 },
--	[PACKETS_BURSTABLE + 3] = { true, (MSEC_PER_SEC / PACKETS_PER_SECOND) * 2 },
-+	[PACKETS_BURSTABLE + 3] = { true, (NSEC_PER_SEC / PACKETS_PER_SECOND) * 2 },
- 	[PACKETS_BURSTABLE + 4] = { true, 0 },
- 	[PACKETS_BURSTABLE + 5] = { false, 0 }
- };
- 
- static __init unsigned int maximum_jiffies_at_index(int index)
+ static void swap_endian(u8 *dst, const u8 *src, u8 bits)
+@@ -40,7 +42,8 @@ static void push_rcu(struct allowedips_node **stack,
+ 		     struct allowedips_node __rcu *p, unsigned int *len)
  {
--	unsigned int total_msecs = 2 * MSEC_PER_SEC / PACKETS_PER_SECOND / 3;
-+	u64 total_nsecs = 2 * NSEC_PER_SEC / PACKETS_PER_SECOND / 3;
- 	int i;
- 
- 	for (i = 0; i <= index; ++i)
--		total_msecs += expected_results[i].msec_to_sleep_before;
--	return msecs_to_jiffies(total_msecs);
-+		total_nsecs += expected_results[i].nsec_to_sleep_before;
-+	return nsecs_to_jiffies(total_nsecs);
+ 	if (rcu_access_pointer(p)) {
+-		WARN_ON(IS_ENABLED(DEBUG) && *len >= 128);
++		if (WARN_ON(IS_ENABLED(DEBUG) && *len >= MAX_ALLOWEDIPS_BITS))
++			return;
+ 		stack[(*len)++] = rcu_dereference_raw(p);
+ 	}
  }
+@@ -52,7 +55,7 @@ static void node_free_rcu(struct rcu_head *rcu)
  
- static __init int timings_test(struct sk_buff *skb4, struct iphdr *hdr4,
-@@ -42,8 +43,12 @@ static __init int timings_test(struct sk_buff *skb4, struct iphdr *hdr4,
- 	loop_start_time = jiffies;
+ static void root_free_rcu(struct rcu_head *rcu)
+ {
+-	struct allowedips_node *node, *stack[128] = {
++	struct allowedips_node *node, *stack[MAX_ALLOWEDIPS_BITS] = {
+ 		container_of(rcu, struct allowedips_node, rcu) };
+ 	unsigned int len = 1;
  
- 	for (i = 0; i < ARRAY_SIZE(expected_results); ++i) {
--		if (expected_results[i].msec_to_sleep_before)
--			msleep(expected_results[i].msec_to_sleep_before);
-+		if (expected_results[i].nsec_to_sleep_before) {
-+			ktime_t timeout = ktime_add(ktime_add_ns(ktime_get_coarse_boottime(), TICK_NSEC * 4 / 3),
-+						    ns_to_ktime(expected_results[i].nsec_to_sleep_before));
-+			set_current_state(TASK_UNINTERRUPTIBLE);
-+			schedule_hrtimeout_range_clock(&timeout, 0, HRTIMER_MODE_ABS, CLOCK_BOOTTIME);
-+		}
+@@ -65,7 +68,7 @@ static void root_free_rcu(struct rcu_head *rcu)
  
- 		if (time_is_before_jiffies(loop_start_time +
- 					   maximum_jiffies_at_index(i)))
-@@ -127,7 +132,7 @@ bool __init wg_ratelimiter_selftest(void)
- 	if (IS_ENABLED(CONFIG_KASAN) || IS_ENABLED(CONFIG_UBSAN))
- 		return true;
+ static void root_remove_peer_lists(struct allowedips_node *root)
+ {
+-	struct allowedips_node *node, *stack[128] = { root };
++	struct allowedips_node *node, *stack[MAX_ALLOWEDIPS_BITS] = { root };
+ 	unsigned int len = 1;
  
--	BUILD_BUG_ON(MSEC_PER_SEC % PACKETS_PER_SECOND != 0);
-+	BUILD_BUG_ON(NSEC_PER_SEC % PACKETS_PER_SECOND != 0);
+ 	while (len > 0 && (node = stack[--len])) {
+diff --git a/drivers/net/wireguard/selftest/allowedips.c b/drivers/net/wireguard/selftest/allowedips.c
+index e173204ae7d7..41db10f9be49 100644
+--- a/drivers/net/wireguard/selftest/allowedips.c
++++ b/drivers/net/wireguard/selftest/allowedips.c
+@@ -593,10 +593,10 @@ bool __init wg_allowedips_selftest(void)
+ 	wg_allowedips_remove_by_peer(&t, a, &mutex);
+ 	test_negative(4, a, 192, 168, 0, 1);
  
- 	if (wg_ratelimiter_init())
- 		goto out;
-@@ -176,7 +181,6 @@ bool __init wg_ratelimiter_selftest(void)
- 				test += test_count;
- 				goto err;
- 			}
--			msleep(500);
- 			continue;
- 		} else if (ret < 0) {
- 			test += test_count;
-@@ -195,7 +199,6 @@ bool __init wg_ratelimiter_selftest(void)
- 				test += test_count;
- 				goto err;
- 			}
--			msleep(50);
- 			continue;
- 		}
- 		test += test_count;
-diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
-index 4ef90718c114..544ce87ba38a 100644
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -2209,6 +2209,7 @@ schedule_hrtimeout_range_clock(ktime_t *expires, u64 delta,
- 
- 	return !t.task ? 0 : -EINTR;
- }
-+EXPORT_SYMBOL_GPL(schedule_hrtimeout_range_clock);
- 
- /**
-  * schedule_hrtimeout_range - sleep until timeout
+-	/* These will hit the WARN_ON(len >= 128) in free_node if something
+-	 * goes wrong.
++	/* These will hit the WARN_ON(len >= MAX_ALLOWEDIPS_BITS) in free_node
++	 * if something goes wrong.
+ 	 */
+-	for (i = 0; i < 128; ++i) {
++	for (i = 0; i < MAX_ALLOWEDIPS_BITS; ++i) {
+ 		part = cpu_to_be64(~(1LLU << (i % 64)));
+ 		memset(&ip, 0xff, 16);
+ 		memcpy((u8 *)&ip + (i < 64) * 8, &part, 8);
 -- 
 2.35.1
 
