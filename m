@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25EEC599F14
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 271BF599FC1
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351072AbiHSQGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:06:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50022 "EHLO
+        id S1351396AbiHSQIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:08:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351654AbiHSQGQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:06:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16067107745;
-        Fri, 19 Aug 2022 08:55:39 -0700 (PDT)
+        with ESMTP id S1351844AbiHSQGl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:06:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85CDD104758;
+        Fri, 19 Aug 2022 08:55:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28782B82818;
-        Fri, 19 Aug 2022 15:55:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73AD6C433D6;
-        Fri, 19 Aug 2022 15:55:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 74107614FE;
+        Fri, 19 Aug 2022 15:55:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80E99C433B5;
+        Fri, 19 Aug 2022 15:55:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924535;
-        bh=O4Pyhf6igLpXD9eZbGXbgoOBWUQsc/ilXYUP0Ea1LMA=;
+        s=korg; t=1660924538;
+        bh=Uou/vE3UmCNcEvFQuUMTDOkCNj2QMbdtUT/5O2mbpZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p7oXtDpDDZecVGisOvZNkT658uScLC6CplN4QEJldvgpjhqd6na9T+1yzaFknk5A9
-         ZGFlqcM3bUNKltZ6kq4RO41Cq0ly+V/iysKiosmDbXPi0sepQ+LCIu2FJEzPazDIvx
-         2TVbsCXaAxedPvdt+6tJwVdYxzeE2wY7/0GWCmu4=
+        b=FY22a+9EwtfY5iT0PEMb7XiYuM9nUMcTNjsqFtp2av7HiVNA1iQe5Bs1U5DIdN0lV
+         YoA/X+VaXqOj+meApDkDxjGQe/RxW/IfamOCOMUglzBDK0zoz9Cf5jXs4cE5E/u8IO
+         xv4cZ4T+j+JtkPo8eV97SITLdqATjUGqB5lsWvP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>,
         Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 202/545] drm/vc4: hdmi: Limit the BCM2711 to the max without scrambling
-Date:   Fri, 19 Aug 2022 17:39:32 +0200
-Message-Id: <20220819153838.425713142@linuxfoundation.org>
+Subject: [PATCH 5.10 203/545] drm/vc4: hdmi: Fix timings for interlaced modes
+Date:   Fri, 19 Aug 2022 17:39:33 +0200
+Message-Id: <20220819153838.464782682@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,50 +55,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
 
-[ Upstream commit 24169a2b0533a6c4030c91a7a074039e7c98fde6 ]
+[ Upstream commit 0ee5a40152b15f200ed3a0d51e8aa782ea979c6a ]
 
-Unlike the previous generations, the HSM clock limitation is way above
-what we can reach without scrambling, so let's move the maximum
-frequency we support to the maximum clock frequency without scrambling.
+Increase the number of post-sync blanking lines on odd fields instead of
+decreasing it on even fields. This makes the total number of lines
+properly match the modelines.
 
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Additionally fix the value of PV_VCONTROL_ODD_DELAY, which did not take
+pixels_per_clock into account, causing some displays to invert the
+fields when driven by bcm2711.
+
+Fixes: 682e62c45406 ("drm/vc4: Fix support for interlaced modes on HDMI.")
+Signed-off-by: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
+Link: https://lore.kernel.org/r/20220613144800.326124-31-maxime@cerno.tech
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201215154243.540115-9-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/vc4/vc4_crtc.c |    7 ++++---
+ drivers/gpu/drm/vc4/vc4_hdmi.c |   12 ++++++------
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
+--- a/drivers/gpu/drm/vc4/vc4_crtc.c
++++ b/drivers/gpu/drm/vc4/vc4_crtc.c
+@@ -346,7 +346,8 @@ static void vc4_crtc_config_pv(struct dr
+ 				 PV_HORZB_HACTIVE));
+ 
+ 	CRTC_WRITE(PV_VERTA,
+-		   VC4_SET_FIELD(mode->crtc_vtotal - mode->crtc_vsync_end,
++		   VC4_SET_FIELD(mode->crtc_vtotal - mode->crtc_vsync_end +
++				 interlace,
+ 				 PV_VERTA_VBP) |
+ 		   VC4_SET_FIELD(mode->crtc_vsync_end - mode->crtc_vsync_start,
+ 				 PV_VERTA_VSYNC));
+@@ -358,7 +359,7 @@ static void vc4_crtc_config_pv(struct dr
+ 	if (interlace) {
+ 		CRTC_WRITE(PV_VERTA_EVEN,
+ 			   VC4_SET_FIELD(mode->crtc_vtotal -
+-					 mode->crtc_vsync_end - 1,
++					 mode->crtc_vsync_end,
+ 					 PV_VERTA_VBP) |
+ 			   VC4_SET_FIELD(mode->crtc_vsync_end -
+ 					 mode->crtc_vsync_start,
+@@ -378,7 +379,7 @@ static void vc4_crtc_config_pv(struct dr
+ 			   PV_VCONTROL_CONTINUOUS |
+ 			   (is_dsi ? PV_VCONTROL_DSI : 0) |
+ 			   PV_VCONTROL_INTERLACE |
+-			   VC4_SET_FIELD(mode->htotal * pixel_rep / 2,
++			   VC4_SET_FIELD(mode->htotal * pixel_rep / (2 * ppc),
+ 					 PV_VCONTROL_ODD_DELAY));
+ 		CRTC_WRITE(PV_VSYNCD_EVEN, 0);
+ 	} else {
 --- a/drivers/gpu/drm/vc4/vc4_hdmi.c
 +++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -83,6 +83,8 @@
- #define CEC_CLOCK_FREQ 40000
- #define VC4_HSM_MID_CLOCK 149985000
+@@ -522,12 +522,12 @@ static void vc4_hdmi_set_timings(struct
+ 				   VC4_HDMI_VERTA_VFP) |
+ 		     VC4_SET_FIELD(mode->crtc_vdisplay, VC4_HDMI_VERTA_VAL));
+ 	u32 vertb = (VC4_SET_FIELD(0, VC4_HDMI_VERTB_VSPO) |
+-		     VC4_SET_FIELD(mode->crtc_vtotal - mode->crtc_vsync_end,
++		     VC4_SET_FIELD(mode->crtc_vtotal - mode->crtc_vsync_end +
++				   interlaced,
+ 				   VC4_HDMI_VERTB_VBP));
+ 	u32 vertb_even = (VC4_SET_FIELD(0, VC4_HDMI_VERTB_VSPO) |
+ 			  VC4_SET_FIELD(mode->crtc_vtotal -
+-					mode->crtc_vsync_end -
+-					interlaced,
++					mode->crtc_vsync_end,
+ 					VC4_HDMI_VERTB_VBP));
  
-+#define HDMI_14_MAX_TMDS_CLK   (340 * 1000 * 1000)
-+
- static int vc4_hdmi_debugfs_regs(struct seq_file *m, void *unused)
- {
- 	struct drm_info_node *node = (struct drm_info_node *)m->private;
-@@ -1939,7 +1941,7 @@ static const struct vc4_hdmi_variant bcm
- 	.encoder_type		= VC4_ENCODER_TYPE_HDMI0,
- 	.debugfs_name		= "hdmi0_regs",
- 	.card_name		= "vc4-hdmi-0",
--	.max_pixel_clock	= 297000000,
-+	.max_pixel_clock	= HDMI_14_MAX_TMDS_CLK,
- 	.registers		= vc5_hdmi_hdmi0_fields,
- 	.num_registers		= ARRAY_SIZE(vc5_hdmi_hdmi0_fields),
- 	.phy_lane_mapping	= {
-@@ -1965,7 +1967,7 @@ static const struct vc4_hdmi_variant bcm
- 	.encoder_type		= VC4_ENCODER_TYPE_HDMI1,
- 	.debugfs_name		= "hdmi1_regs",
- 	.card_name		= "vc4-hdmi-1",
--	.max_pixel_clock	= 297000000,
-+	.max_pixel_clock	= HDMI_14_MAX_TMDS_CLK,
- 	.registers		= vc5_hdmi_hdmi1_fields,
- 	.num_registers		= ARRAY_SIZE(vc5_hdmi_hdmi1_fields),
- 	.phy_lane_mapping	= {
+ 	HDMI_WRITE(HDMI_HORZA,
+@@ -566,12 +566,12 @@ static void vc5_hdmi_set_timings(struct
+ 				   VC5_HDMI_VERTA_VFP) |
+ 		     VC4_SET_FIELD(mode->crtc_vdisplay, VC5_HDMI_VERTA_VAL));
+ 	u32 vertb = (VC4_SET_FIELD(0, VC5_HDMI_VERTB_VSPO) |
+-		     VC4_SET_FIELD(mode->crtc_vtotal - mode->crtc_vsync_end,
++		     VC4_SET_FIELD(mode->crtc_vtotal - mode->crtc_vsync_end +
++				   interlaced,
+ 				   VC4_HDMI_VERTB_VBP));
+ 	u32 vertb_even = (VC4_SET_FIELD(0, VC5_HDMI_VERTB_VSPO) |
+ 			  VC4_SET_FIELD(mode->crtc_vtotal -
+-					mode->crtc_vsync_end -
+-					interlaced,
++					mode->crtc_vsync_end,
+ 					VC4_HDMI_VERTB_VBP));
+ 
+ 	HDMI_WRITE(HDMI_VEC_INTERFACE_XBAR, 0x354021);
 
 
