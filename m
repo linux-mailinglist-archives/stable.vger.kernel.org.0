@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 359A559A1A1
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5386459A042
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351382AbiHSQHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:07:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49988 "EHLO
+        id S1351091AbiHSQHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:07:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351775AbiHSQGb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:06:31 -0400
+        with ESMTP id S1351816AbiHSQGh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:06:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0937810DCE9;
-        Fri, 19 Aug 2022 08:55:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8794110E78F;
+        Fri, 19 Aug 2022 08:56:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DABD5B82814;
-        Fri, 19 Aug 2022 15:55:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E790C433D7;
-        Fri, 19 Aug 2022 15:55:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EECCAB827F8;
+        Fri, 19 Aug 2022 15:55:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 405FFC433C1;
+        Fri, 19 Aug 2022 15:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924553;
-        bh=75PJQzjZ5bs1glYwli5PDChBligTr07n+c98BVE86jI=;
+        s=korg; t=1660924556;
+        bh=trQnr5ZakF/YKPwkG69HhIwdy3VsaxAgovN1ZJBb76c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2h02apd69zpruO+NNKgePi393OLayDAnbnxQPvbIS3YEzYd1fUqdVhU7JArgsw3jG
-         rfPj/4e3LOCJIbE8+Jl2yJPAnO+BvvykDxu6UO384SjH9DJNNVTCAO7adcYaWEkg0t
-         +VhqcwN6JcmwsAlAjovbxJrWIJtRkRWr/MkBavdM=
+        b=NEqeKtngsOLdjvJyxngrxT2mHauTBvUykUfRSYHmi2RT0qPkYOB/z301i/yYAUNkm
+         P8QUvu4XZt+w79J77w4lEo/GFemduEp+K6//kyxyiDeRkjoB1DGLDMBqeMsD4sWBnb
+         xUB/kmMYlwwYS7IWcveZL6buRBRe7e94/8VCzgoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Bo-Chen Chen <rex-bc.chen@mediatek.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 208/545] drm/rockchip: Fix an error handling path rockchip_dp_probe()
-Date:   Fri, 19 Aug 2022 17:39:38 +0200
-Message-Id: <20220819153838.682555560@linuxfoundation.org>
+Subject: [PATCH 5.10 209/545] drm/mediatek: dpi: Remove output format of YUV
+Date:   Fri, 19 Aug 2022 17:39:39 +0200
+Message-Id: <20220819153838.731537765@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,43 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Bo-Chen Chen <rex-bc.chen@mediatek.com>
 
-[ Upstream commit 5074376822fe99fa4ce344b851c5016d00c0444f ]
+[ Upstream commit c9ed0713b3c35fc45677707ba47f432cad95da56 ]
 
-Should component_add() fail, we should call analogix_dp_remove() in the
-error handling path, as already done in the remove function.
+DPI is not support output format as YUV, but there is the setting of
+configuring output YUV. Therefore, remove them in this patch.
 
-Fixes: 152cce0006ab ("drm/bridge: analogix_dp: Split bind() into probe() and real bind()")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/b719d9061bb97eb85145fbd3c5e63f4549f2e13e.1655572071.git.christophe.jaillet@wanadoo.fr
+Fixes: 9e629c17aa8d ("drm/mediatek: Add DPI sub driver")
+Signed-off-by: Bo-Chen Chen <rex-bc.chen@mediatek.com>
+Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20220701035845.16458-5-rex-bc.chen@mediatek.com/
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/analogix_dp-rockchip.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/mediatek/mtk_dpi.c | 31 ++++++------------------------
+ 1 file changed, 6 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
-index ade2327a10e2..512581698a1e 100644
---- a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
-@@ -398,7 +398,15 @@ static int rockchip_dp_probe(struct platform_device *pdev)
- 	if (IS_ERR(dp->adp))
- 		return PTR_ERR(dp->adp);
+diff --git a/drivers/gpu/drm/mediatek/mtk_dpi.c b/drivers/gpu/drm/mediatek/mtk_dpi.c
+index 52f11a63a330..554ad60af4e9 100644
+--- a/drivers/gpu/drm/mediatek/mtk_dpi.c
++++ b/drivers/gpu/drm/mediatek/mtk_dpi.c
+@@ -52,13 +52,7 @@ enum mtk_dpi_out_channel_swap {
+ };
  
--	return component_add(dev, &rockchip_dp_component_ops);
-+	ret = component_add(dev, &rockchip_dp_component_ops);
-+	if (ret)
-+		goto err_dp_remove;
-+
-+	return 0;
-+
-+err_dp_remove:
-+	analogix_dp_remove(dp->adp);
-+	return ret;
+ enum mtk_dpi_out_color_format {
+-	MTK_DPI_COLOR_FORMAT_RGB,
+-	MTK_DPI_COLOR_FORMAT_RGB_FULL,
+-	MTK_DPI_COLOR_FORMAT_YCBCR_444,
+-	MTK_DPI_COLOR_FORMAT_YCBCR_422,
+-	MTK_DPI_COLOR_FORMAT_XV_YCC,
+-	MTK_DPI_COLOR_FORMAT_YCBCR_444_FULL,
+-	MTK_DPI_COLOR_FORMAT_YCBCR_422_FULL
++	MTK_DPI_COLOR_FORMAT_RGB
+ };
+ 
+ struct mtk_dpi {
+@@ -358,24 +352,11 @@ static void mtk_dpi_config_disable_edge(struct mtk_dpi *dpi)
+ static void mtk_dpi_config_color_format(struct mtk_dpi *dpi,
+ 					enum mtk_dpi_out_color_format format)
+ {
+-	if ((format == MTK_DPI_COLOR_FORMAT_YCBCR_444) ||
+-	    (format == MTK_DPI_COLOR_FORMAT_YCBCR_444_FULL)) {
+-		mtk_dpi_config_yuv422_enable(dpi, false);
+-		mtk_dpi_config_csc_enable(dpi, true);
+-		mtk_dpi_config_swap_input(dpi, false);
+-		mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_BGR);
+-	} else if ((format == MTK_DPI_COLOR_FORMAT_YCBCR_422) ||
+-		   (format == MTK_DPI_COLOR_FORMAT_YCBCR_422_FULL)) {
+-		mtk_dpi_config_yuv422_enable(dpi, true);
+-		mtk_dpi_config_csc_enable(dpi, true);
+-		mtk_dpi_config_swap_input(dpi, true);
+-		mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_RGB);
+-	} else {
+-		mtk_dpi_config_yuv422_enable(dpi, false);
+-		mtk_dpi_config_csc_enable(dpi, false);
+-		mtk_dpi_config_swap_input(dpi, false);
+-		mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_RGB);
+-	}
++	/* only support RGB888 */
++	mtk_dpi_config_yuv422_enable(dpi, false);
++	mtk_dpi_config_csc_enable(dpi, false);
++	mtk_dpi_config_swap_input(dpi, false);
++	mtk_dpi_config_channel_swap(dpi, MTK_DPI_OUT_CHANNEL_SWAP_RGB);
  }
  
- static int rockchip_dp_remove(struct platform_device *pdev)
+ static void mtk_dpi_power_off(struct mtk_dpi *dpi)
 -- 
 2.35.1
 
