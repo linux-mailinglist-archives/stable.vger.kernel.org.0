@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78F1559A162
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 660CA599F0A
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350135AbiHSPrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:47:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50752 "EHLO
+        id S1350169AbiHSPrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:47:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350158AbiHSPqh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:46:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CA35BCBD;
-        Fri, 19 Aug 2022 08:46:34 -0700 (PDT)
+        with ESMTP id S1350178AbiHSPqu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:46:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 684851B79F;
+        Fri, 19 Aug 2022 08:46:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1554615E9;
-        Fri, 19 Aug 2022 15:46:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E303CC433D6;
-        Fri, 19 Aug 2022 15:46:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3ACA616A9;
+        Fri, 19 Aug 2022 15:46:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E35AAC4314B;
+        Fri, 19 Aug 2022 15:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660923993;
-        bh=t8aBSXZyR6pXAwCE1GwGbstpS9XP3hAfI2b0z8JcBWE=;
+        s=korg; t=1660923996;
+        bh=YbPq9NNG3cYB6MK7uwbwTPsU2RWj+UAGaCHof1Nm5zU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0CeYe3O/uEVLAEyFRu2y+FvKe6VUyYvq3RsKeV+oY3SVhX/zXnSzSOU6TJrRmMHu9
-         ro2H5nYweBlXYmetk7+hun0QQT1yQ7Aca6vkTn1ggi0rVEvXLED4dzV9lu7XCiDEHz
-         kG4nAm6cdaWm9uCzSnyxohDCSodycQNtViYpfrmo=
+        b=YHhvr1OSJ2YOzuhUKsa2rGKj5eZJQGk7L/lXaC43IwumuhZIA+0Jtp9KqQHHJHwWr
+         jyfsqs0VFwPOWvl+kl6b6Rg+Py+f91ennRNfQKXdGTk5HbTeCwfHgbEgI50ltx2iPL
+         mjr+e7rFkbVlLMsAwb3ImiH4W0pzHc5qwIcFyoxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ivan Hasenkampf <ivan.hasenkampf@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 007/545] ALSA: hda/realtek: Add quirk for HP Spectre x360 15-eb0xxx
-Date:   Fri, 19 Aug 2022 17:36:17 +0200
-Message-Id: <20220819153829.497232391@linuxfoundation.org>
+        stable@vger.kernel.org, Jeongik Cha <jeongik@google.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 008/545] wifi: mac80211_hwsim: fix race condition in pending packet
+Date:   Fri, 19 Aug 2022 17:36:18 +0200
+Message-Id: <20220819153829.547093919@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,33 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Hasenkampf <ivan.hasenkampf@gmail.com>
+From: Jeongik Cha <jeongik@google.com>
 
-commit 24df5428ef9d1ca1edd54eca7eb667110f2dfae3 upstream.
+commit 4ee186fa7e40ae06ebbfbad77e249e3746e14114 upstream.
 
-Fixes speaker output on HP Spectre x360 15-eb0xxx
+A pending packet uses a cookie as an unique key, but it can be duplicated
+because it didn't use atomic operators.
 
-[ re-sorted in SSID order by tiwai ]
+And also, a pending packet can be null in hwsim_tx_info_frame_received_nl
+due to race condition with mac80211_hwsim_stop.
 
-Signed-off-by: Ivan Hasenkampf <ivan.hasenkampf@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220803164001.290394-1-ivan.hasenkampf@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+For this,
+ * Use an atomic type and operator for a cookie
+ * Add a lock around the loop for pending packets
+
+Signed-off-by: Jeongik Cha <jeongik@google.com>
+Link: https://lore.kernel.org/r/20220704084354.3556326-1-jeongik@google.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/mac80211_hwsim.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8790,6 +8790,8 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x861f, "HP Elite Dragonfly G1", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x86c7, "HP Envy AiO 32", ALC274_FIXUP_HP_ENVY_GPIO),
-+	SND_PCI_QUIRK(0x103c, 0x86e7, "HP Spectre x360 15-eb0xxx", ALC285_FIXUP_HP_SPECTRE_X360_EB1),
-+	SND_PCI_QUIRK(0x103c, 0x86e8, "HP Spectre x360 15-eb0xxx", ALC285_FIXUP_HP_SPECTRE_X360_EB1),
- 	SND_PCI_QUIRK(0x103c, 0x8716, "HP Elite Dragonfly G2 Notebook PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8720, "HP EliteBook x360 1040 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -593,7 +593,7 @@ struct mac80211_hwsim_data {
+ 	bool ps_poll_pending;
+ 	struct dentry *debugfs;
+ 
+-	uintptr_t pending_cookie;
++	atomic64_t pending_cookie;
+ 	struct sk_buff_head pending;	/* packets pending */
+ 	/*
+ 	 * Only radios in the same group can communicate together (the
+@@ -1200,7 +1200,7 @@ static void mac80211_hwsim_tx_frame_nl(s
+ 	int i;
+ 	struct hwsim_tx_rate tx_attempts[IEEE80211_TX_MAX_RATES];
+ 	struct hwsim_tx_rate_flag tx_attempts_flags[IEEE80211_TX_MAX_RATES];
+-	uintptr_t cookie;
++	u64 cookie;
+ 
+ 	if (data->ps != PS_DISABLED)
+ 		hdr->frame_control |= cpu_to_le16(IEEE80211_FCTL_PM);
+@@ -1269,8 +1269,7 @@ static void mac80211_hwsim_tx_frame_nl(s
+ 		goto nla_put_failure;
+ 
+ 	/* We create a cookie to identify this skb */
+-	data->pending_cookie++;
+-	cookie = data->pending_cookie;
++	cookie = (u64)atomic64_inc_return(&data->pending_cookie);
+ 	info->rate_driver_data[0] = (void *)cookie;
+ 	if (nla_put_u64_64bit(skb, HWSIM_ATTR_COOKIE, cookie, HWSIM_ATTR_PAD))
+ 		goto nla_put_failure;
+@@ -3508,6 +3507,7 @@ static int hwsim_tx_info_frame_received_
+ 	const u8 *src;
+ 	unsigned int hwsim_flags;
+ 	int i;
++	unsigned long flags;
+ 	bool found = false;
+ 
+ 	if (!info->attrs[HWSIM_ATTR_ADDR_TRANSMITTER] ||
+@@ -3535,18 +3535,20 @@ static int hwsim_tx_info_frame_received_
+ 	}
+ 
+ 	/* look for the skb matching the cookie passed back from user */
++	spin_lock_irqsave(&data2->pending.lock, flags);
+ 	skb_queue_walk_safe(&data2->pending, skb, tmp) {
+ 		u64 skb_cookie;
+ 
+ 		txi = IEEE80211_SKB_CB(skb);
+-		skb_cookie = (u64)(uintptr_t)txi->rate_driver_data[0];
++		skb_cookie = (u64)txi->rate_driver_data[0];
+ 
+ 		if (skb_cookie == ret_skb_cookie) {
+-			skb_unlink(skb, &data2->pending);
++			__skb_unlink(skb, &data2->pending);
+ 			found = true;
+ 			break;
+ 		}
+ 	}
++	spin_unlock_irqrestore(&data2->pending.lock, flags);
+ 
+ 	/* not found */
+ 	if (!found)
 
 
