@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAE00599FC3
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E04C59A07A
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352397AbiHSQWV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:22:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41824 "EHLO
+        id S1352407AbiHSQW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:22:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352476AbiHSQVF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:21:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB4482649;
-        Fri, 19 Aug 2022 09:02:24 -0700 (PDT)
+        with ESMTP id S1352479AbiHSQVG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:21:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC25AA18C;
+        Fri, 19 Aug 2022 09:02:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54CCEB8280F;
-        Fri, 19 Aug 2022 16:02:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5E58C433C1;
-        Fri, 19 Aug 2022 16:02:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B66E614DA;
+        Fri, 19 Aug 2022 16:02:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74B1DC433D6;
+        Fri, 19 Aug 2022 16:02:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924942;
-        bh=WsWSH+oyi1DODDRADVOG7AcofdZtoMJUgq/k2eKaiPk=;
+        s=korg; t=1660924944;
+        bh=3rE75/9xyZ7cw2tec2PKWCjR7BHjg9/lJTJxgkppOC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPO8KRIYD2eIhCMrEx4hCNSv8uh/Du//ub7DW2NCyVauKRyfHguhqiD7jxbiNrbRT
-         hTHxCXCDuMxS+OtHrJy8ytlfX8XymQqK9VDp/4dxPFnUSAT1XO8tHGgGvK7rcMzGUm
-         3s+VdmiejHKgpd9PtUAmUDRTpKHfXZVGWyvEOC3w=
+        b=b21UDkGDVjAw+wxCuLINvpXF3I9H4fDbkz0jfOCEAhNrILhJDiblwx/mgU+3ejmD2
+         oBQCN3cQlwIi5TvM0/jQ5oQW3JPn1dn1Bm2qcVoI6ZQLdA/K7n8v1eI0150+Y/sU8q
+         w3FMn6HPdu3CvnQ3vDvzJ7zqdAWs6ELXEhYvwhok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Christopher Obbard <chris.obbard@collabora.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 331/545] um: random: Dont initialise hwrng struct with zero
-Date:   Fri, 19 Aug 2022 17:41:41 +0200
-Message-Id: <20220819153844.191617220@linuxfoundation.org>
+Subject: [PATCH 5.10 332/545] RDMA/rtrs: Define MIN_CHUNK_SIZE
+Date:   Fri, 19 Aug 2022 17:41:42 +0200
+Message-Id: <20220819153844.240357527@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,44 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christopher Obbard <chris.obbard@collabora.com>
+From: Gioh Kim <gi-oh.kim@cloud.ionos.com>
 
-[ Upstream commit 9e70cbd11b03889c92462cf52edb2bd023c798fa ]
+[ Upstream commit 3f3d0eabc14b6ea1fcbe85a60ee9d44e2b930b8a ]
 
-Initialising the hwrng struct with zeros causes a
-compile-time sparse warning:
+Define MIN_CHUNK_SIZE to replace the hard-coding number.
+We need 4k for metadata, so MIN_CHUNK_SIZE should be at least 8k.
 
- $ ARCH=um make -j10 W=1 C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__'
- ...
- CHECK   arch/um/drivers/random.c
- arch/um/drivers/random.c:31:31: sparse: warning: Using plain integer as NULL pointer
-
-Fix the warning by not initialising the hwrng struct
-with zeros as it is initialised anyway during module
-init.
-
-Fixes: 72d3e093afae ("um: random: Register random as hwrng-core device")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Christopher Obbard <chris.obbard@collabora.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Link: https://lore.kernel.org/r/20210528113018.52290-7-jinpu.wang@ionos.com
+Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/random.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/ulp/rtrs/rtrs-pri.h | 1 +
+ drivers/infiniband/ulp/rtrs/rtrs-srv.c | 4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/um/drivers/random.c b/arch/um/drivers/random.c
-index e4b9b2ce9abf..4b712395763e 100644
---- a/arch/um/drivers/random.c
-+++ b/arch/um/drivers/random.c
-@@ -28,7 +28,7 @@
-  * protects against a module being loaded twice at the same time.
-  */
- static int random_fd = -1;
--static struct hwrng hwrng = { 0, };
-+static struct hwrng hwrng;
- static DECLARE_COMPLETION(have_data);
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-pri.h b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
+index 51c60f542876..333de9d52172 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-pri.h
++++ b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
+@@ -56,6 +56,7 @@ enum {
+ 	 * somewhere between 1 and 65536 and it depends on the system.
+ 	 */
+ 	MAX_SESS_QUEUE_DEPTH = 65536,
++	MIN_CHUNK_SIZE = 8192,
  
- static int rng_dev_read(struct hwrng *rng, void *buf, size_t max, bool block)
+ 	RTRS_HB_INTERVAL_MS = 5000,
+ 	RTRS_HB_MISSED_MAX = 5,
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+index b033bfa9f383..b152a742cd3c 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+@@ -2193,9 +2193,9 @@ static int check_module_params(void)
+ 		       sess_queue_depth, 1, MAX_SESS_QUEUE_DEPTH);
+ 		return -EINVAL;
+ 	}
+-	if (max_chunk_size < 4096 || !is_power_of_2(max_chunk_size)) {
++	if (max_chunk_size < MIN_CHUNK_SIZE || !is_power_of_2(max_chunk_size)) {
+ 		pr_err("Invalid max_chunk_size value %d, has to be >= %d and should be power of two.\n",
+-		       max_chunk_size, 4096);
++		       max_chunk_size, MIN_CHUNK_SIZE);
+ 		return -EINVAL;
+ 	}
+ 
 -- 
 2.35.1
 
