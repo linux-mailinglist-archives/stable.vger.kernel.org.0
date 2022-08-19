@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5925B599FF8
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C7459A0EC
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350158AbiHSPvO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:51:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51004 "EHLO
+        id S1350046AbiHSPvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:51:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350458AbiHSPuf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:50:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF957E319;
-        Fri, 19 Aug 2022 08:48:15 -0700 (PDT)
+        with ESMTP id S1350491AbiHSPuk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:50:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29CD42A962;
+        Fri, 19 Aug 2022 08:48:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5208616E8;
-        Fri, 19 Aug 2022 15:48:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1B31C433C1;
-        Fri, 19 Aug 2022 15:48:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98AD6B82811;
+        Fri, 19 Aug 2022 15:48:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF1B9C433C1;
+        Fri, 19 Aug 2022 15:48:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924094;
-        bh=5dukMsRD07uxta7hAVW9LUcDVBnPXNhu7XZL/vzxyq0=;
+        s=korg; t=1660924097;
+        bh=DrI3adp2yRRvfdOujNonbvaglt/cevXcbaCIs4dPlcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gKj+gwGKaUOKyArGuy3aikt0MNWv4QBxbfUbYe4J4qsonvAe96ASZSjPnBsODVNtw
-         oTzFW8neFh0rtb+5a6NeQfJlz+mIXR/rxtHGUcoUsqtKR46i3bNWK3saWqgYYIHtQb
-         7+5H5trdwviq9FSoqg838TH3Er1hShE3mSBdKI24=
+        b=mwWgcjUAdPn5dXQ1NF4CHUxsAsmHUXY/3u/4HdxLu/agQ4tFDF1/TX5+pJyQEZsLS
+         z+LC8uFblHrXGvShbu2cS7a2q4buyQExxPHrjD+MfeEhodH/LKkzHHtvuE0ZcciaD5
+         SLWnVqfWs0tUlHQs362hR53YhImBJ7vcu4MmhcX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        "Darrick J. Wong" <djwong@kernel.org>,
+        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Chandan Babu R <chandanrlinux@gmail.com>,
         Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 5.10 023/545] mm: Add kvrealloc()
-Date:   Fri, 19 Aug 2022 17:36:33 +0200
-Message-Id: <20220819153830.232332727@linuxfoundation.org>
+Subject: [PATCH 5.10 024/545] xfs: only set IOMAP_F_SHARED when providing a srcmap to a write
+Date:   Fri, 19 Aug 2022 17:36:34 +0200
+Message-Id: <20220819153830.270831781@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,127 +55,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-commit de2860f4636256836450c6543be744a50118fc66 upstream.
+commit 72a048c1056a72e37ea2ee34cc73d8c6d6cb4290 upstream.
 
-During log recovery of an XFS filesystem with 64kB directory
-buffers, rebuilding a buffer split across two log records results
-in a memory allocation warning from krealloc like this:
+While prototyping a free space defragmentation tool, I observed an
+unexpected IO error while running a sequence of commands that can be
+recreated by the following sequence of commands:
 
-xfs filesystem being mounted at /mnt/scratch supports timestamps until 2038 (0x7fffffff)
-XFS (dm-0): Unmounting Filesystem
-XFS (dm-0): Mounting V5 Filesystem
-XFS (dm-0): Starting recovery (logdev: internal)
-------------[ cut here ]------------
-WARNING: CPU: 5 PID: 3435170 at mm/page_alloc.c:3539 get_page_from_freelist+0xdee/0xe40
-.....
-RIP: 0010:get_page_from_freelist+0xdee/0xe40
+$ xfs_io -f -c "pwrite -S 0x58 -b 10m 0 10m" file1
+$ cp --reflink=always file1 file2
+$ punch-alternating -o 1 file2
+$ xfs_io -c "funshare 0 10m" file2
+fallocate: Input/output error
+
+I then scraped this (abbreviated) stack trace from dmesg:
+
+WARNING: CPU: 0 PID: 30788 at fs/iomap/buffered-io.c:577 iomap_write_begin+0x376/0x450
+CPU: 0 PID: 30788 Comm: xfs_io Not tainted 5.14.0-rc6-xfsx #rc6 5ef57b62a900814b3e4d885c755e9014541c8732
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:iomap_write_begin+0x376/0x450
+RSP: 0018:ffffc90000c0fc20 EFLAGS: 00010297
+RAX: 0000000000000001 RBX: ffffc90000c0fd10 RCX: 0000000000001000
+RDX: ffffc90000c0fc54 RSI: 000000000000000c RDI: 000000000000000c
+RBP: ffff888005d5dbd8 R08: 0000000000102000 R09: ffffc90000c0fc50
+R10: 0000000000b00000 R11: 0000000000101000 R12: ffffea0000336c40
+R13: 0000000000001000 R14: ffffc90000c0fd10 R15: 0000000000101000
+FS:  00007f4b8f62fe40(0000) GS:ffff88803ec00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000056361c554108 CR3: 000000000524e004 CR4: 00000000001706f0
 Call Trace:
- ? complete+0x3f/0x50
- __alloc_pages+0x16f/0x300
- alloc_pages+0x87/0x110
- kmalloc_order+0x2c/0x90
- kmalloc_order_trace+0x1d/0x90
- __kmalloc_track_caller+0x215/0x270
- ? xlog_recover_add_to_cont_trans+0x63/0x1f0
- krealloc+0x54/0xb0
- xlog_recover_add_to_cont_trans+0x63/0x1f0
- xlog_recovery_process_trans+0xc1/0xd0
- xlog_recover_process_ophdr+0x86/0x130
- xlog_recover_process_data+0x9f/0x160
- xlog_recover_process+0xa2/0x120
- xlog_do_recovery_pass+0x40b/0x7d0
- ? __irq_work_queue_local+0x4f/0x60
- ? irq_work_queue+0x3a/0x50
- xlog_do_log_recovery+0x70/0x150
- xlog_do_recover+0x38/0x1d0
- xlog_recover+0xd8/0x170
- xfs_log_mount+0x181/0x300
- xfs_mountfs+0x4a1/0x9b0
- xfs_fs_fill_super+0x3c0/0x7b0
- get_tree_bdev+0x171/0x270
- ? suffix_kstrtoint.constprop.0+0xf0/0xf0
- xfs_fs_get_tree+0x15/0x20
- vfs_get_tree+0x24/0xc0
- path_mount+0x2f5/0xaf0
- __x64_sys_mount+0x108/0x140
- do_syscall_64+0x3a/0x70
+ iomap_unshare_actor+0x95/0x140
+ iomap_apply+0xfa/0x300
+ iomap_file_unshare+0x44/0x60
+ xfs_reflink_unshare+0x50/0x140 [xfs 61947ea9b3a73e79d747dbc1b90205e7987e4195]
+ xfs_file_fallocate+0x27c/0x610 [xfs 61947ea9b3a73e79d747dbc1b90205e7987e4195]
+ vfs_fallocate+0x133/0x330
+ __x64_sys_fallocate+0x3e/0x70
+ do_syscall_64+0x35/0x80
  entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7f4b8f79140a
 
-Essentially, we are taking a multi-order allocation from kmem_alloc()
-(which has an open coded no fail, no warn loop) and then
-reallocating it out to 64kB using krealloc(__GFP_NOFAIL) and that is
-then triggering the above warning.
+Looking at the iomap tracepoints, I saw this:
 
-This is a regression caused by converting this code from an open
-coded no fail/no warn reallocation loop to using __GFP_NOFAIL.
+iomap_iter:           dev 8:64 ino 0x100 pos 0 length 0 flags WRITE|0x80 (0x81) ops xfs_buffered_write_iomap_ops caller iomap_file_unshare
+iomap_iter_dstmap:    dev 8:64 ino 0x100 bdev 8:64 addr -1 offset 0 length 131072 type DELALLOC flags SHARED
+iomap_iter_srcmap:    dev 8:64 ino 0x100 bdev 8:64 addr 147456 offset 0 length 4096 type MAPPED flags
+iomap_iter:           dev 8:64 ino 0x100 pos 0 length 4096 flags WRITE|0x80 (0x81) ops xfs_buffered_write_iomap_ops caller iomap_file_unshare
+iomap_iter_dstmap:    dev 8:64 ino 0x100 bdev 8:64 addr -1 offset 4096 length 4096 type DELALLOC flags SHARED
+console:              WARNING: CPU: 0 PID: 30788 at fs/iomap/buffered-io.c:577 iomap_write_begin+0x376/0x450
 
-What we actually need here is kvrealloc(), so that if contiguous
-page allocation fails we fall back to vmalloc() and we don't
-get nasty warnings happening in XFS.
+The first time funshare calls ->iomap_begin, xfs sees that the first
+block is shared and creates a 128k delalloc reservation in the COW fork.
+The delalloc reservation is returned as dstmap, and the shared block is
+returned as srcmap.  So far so good.
 
-Fixes: 771915c4f688 ("xfs: remove kmem_realloc()")
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+funshare calls ->iomap_begin to try the second block.  This time there's
+no srcmap (punch-alternating punched it out!) but we still have the
+delalloc reservation in the COW fork.  Therefore, we again return the
+reservation as dstmap and the hole as srcmap.  iomap_unshare_iter
+incorrectly tries to unshare the hole, which __iomap_write_begin rejects
+because shared regions must be fully written and therefore cannot
+require zeroing.
+
+Therefore, change the buffered write iomap_begin function not to set
+IOMAP_F_SHARED when there isn't a source mapping to read from for the
+unsharing.
+
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Chandan Babu R <chandanrlinux@gmail.com>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_log_recover.c |    4 +++-
- include/linux/mm.h       |    2 ++
- mm/util.c                |   15 +++++++++++++++
- 3 files changed, 20 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_iomap.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/xfs/xfs_log_recover.c
-+++ b/fs/xfs/xfs_log_recover.c
-@@ -2061,7 +2061,9 @@ xlog_recover_add_to_cont_trans(
- 	old_ptr = item->ri_buf[item->ri_cnt-1].i_addr;
- 	old_len = item->ri_buf[item->ri_cnt-1].i_len;
- 
--	ptr = krealloc(old_ptr, len + old_len, GFP_KERNEL | __GFP_NOFAIL);
-+	ptr = kvrealloc(old_ptr, old_len, len + old_len, GFP_KERNEL);
-+	if (!ptr)
-+		return -ENOMEM;
- 	memcpy(&ptr[old_len], dp, len);
- 	item->ri_buf[item->ri_cnt-1].i_len += len;
- 	item->ri_buf[item->ri_cnt-1].i_addr = ptr;
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -788,6 +788,8 @@ static inline void *kvcalloc(size_t n, s
- 	return kvmalloc_array(n, size, flags | __GFP_ZERO);
- }
- 
-+extern void *kvrealloc(const void *p, size_t oldsize, size_t newsize,
-+		gfp_t flags);
- extern void kvfree(const void *addr);
- extern void kvfree_sensitive(const void *addr, size_t len);
- 
---- a/mm/util.c
-+++ b/mm/util.c
-@@ -661,6 +661,21 @@ void kvfree_sensitive(const void *addr,
- }
- EXPORT_SYMBOL(kvfree_sensitive);
- 
-+void *kvrealloc(const void *p, size_t oldsize, size_t newsize, gfp_t flags)
-+{
-+	void *newp;
+--- a/fs/xfs/xfs_iomap.c
++++ b/fs/xfs/xfs_iomap.c
+@@ -1062,11 +1062,11 @@ found_cow:
+ 		error = xfs_bmbt_to_iomap(ip, srcmap, &imap, 0);
+ 		if (error)
+ 			return error;
+-	} else {
+-		xfs_trim_extent(&cmap, offset_fsb,
+-				imap.br_startoff - offset_fsb);
++		return xfs_bmbt_to_iomap(ip, iomap, &cmap, IOMAP_F_SHARED);
+ 	}
+-	return xfs_bmbt_to_iomap(ip, iomap, &cmap, IOMAP_F_SHARED);
 +
-+	if (oldsize >= newsize)
-+		return (void *)p;
-+	newp = kvmalloc(newsize, flags);
-+	if (!newp)
-+		return NULL;
-+	memcpy(newp, p, oldsize);
-+	kvfree(p);
-+	return newp;
-+}
-+EXPORT_SYMBOL(kvrealloc);
-+
- static inline void *__page_rmapping(struct page *page)
- {
- 	unsigned long mapping;
++	xfs_trim_extent(&cmap, offset_fsb, imap.br_startoff - offset_fsb);
++	return xfs_bmbt_to_iomap(ip, iomap, &cmap, 0);
+ 
+ out_unlock:
+ 	xfs_iunlock(ip, XFS_ILOCK_EXCL);
 
 
