@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0729759A253
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1551259A25E
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353202AbiHSQd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:33:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34284 "EHLO
+        id S1352863AbiHSQel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:34:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353749AbiHSQcd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:32:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F23410BE1F;
-        Fri, 19 Aug 2022 09:06:53 -0700 (PDT)
+        with ESMTP id S1352895AbiHSQck (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:32:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D5EB10D5B7;
+        Fri, 19 Aug 2022 09:06:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 000D661811;
-        Fri, 19 Aug 2022 16:06:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01905C433D6;
-        Fri, 19 Aug 2022 16:06:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A37EDB82804;
+        Fri, 19 Aug 2022 16:06:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE0B2C433D6;
+        Fri, 19 Aug 2022 16:06:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925212;
-        bh=sGAPkWxP+xDyr6Za3OEBFuLkln3k6B7lx6cCJIvfWC8=;
+        s=korg; t=1660925215;
+        bh=6dF5TB/aJ1+miP79MTYgnNJanT5YTS6HF7U0DLVihcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RaJCWdvPRYa/5LSbeUSMW9014EK62rr+zIqN2WkROllQiOVdL+yYgg1PzVen/kWnI
-         hfL1xAwsRFWykihMhSfXNDQ/vrHig0xIjYy17SqfeZQGr1EiderS5gpGuyw8DIgFCe
-         u/tNhnnStLEtiMkUZ8PFzAhXwhD01Nw3S7zfXjlA=
+        b=vf1jYEpB7FANnHJ+7nWv0V85A8UldJh6HSdiPk/IerAKNU8K925xQCbSAPDORVVEF
+         lkRK+LEXpO3g3KOBZfmvNfR41RiBrnB4Tg39tSdCEMVDH5cz2f8aVjT+RZBVuoqylq
+         DtNxIEZK+HbGT0Tv4Aufnn/Ugz4LExvpQk2xhbBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Chao Liu <liuchao@coolpad.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 420/545] f2fs: fix to remove F2FS_COMPR_FL and tag F2FS_NOCOMP_FL at the same time
-Date:   Fri, 19 Aug 2022 17:43:10 +0200
-Message-Id: <20220819153848.221957251@linuxfoundation.org>
+Subject: [PATCH 5.10 421/545] powerpc/spufs: Fix refcount leak in spufs_init_isolated_loader
+Date:   Fri, 19 Aug 2022 17:43:11 +0200
+Message-Id: <20220819153848.272071255@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,80 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Liu <liuchao@coolpad.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 8ee236dcaa690d09ca612622e8bc8d09c302021d ]
+[ Upstream commit 6ac059dacffa8ab2f7798f20e4bd3333890c541c ]
 
-If the inode has the compress flag, it will fail to use
-'chattr -c +m' to remove its compress flag and tag no compress flag.
-However, the same command will be successful when executed again,
-as shown below:
+of_find_node_by_path() returns remote device nodepointer with
+refcount incremented, we should use of_node_put() on it when done.
+Add missing of_node_put() to avoid refcount leak.
 
-  $ touch foo.txt
-  $ chattr +c foo.txt
-  $ chattr -c +m foo.txt
-  chattr: Invalid argument while setting flags on foo.txt
-  $ chattr -c +m foo.txt
-  $ f2fs_io getflags foo.txt
-  get a flag on foo.txt ret=0, flags=nocompression,inline_data
-
-Fix this by removing some checks in f2fs_setflags_common()
-that do not affect the original logic. I go through all the
-possible scenarios, and the results are as follows. Bold is
-the only thing that has changed.
-
-+---------------+-----------+-----------+----------+
-|               |            file flags            |
-+ command       +-----------+-----------+----------+
-|               | no flag   | compr     | nocompr  |
-+---------------+-----------+-----------+----------+
-| chattr +c     | compr     | compr     | -EINVAL  |
-| chattr -c     | no flag   | no flag   | nocompr  |
-| chattr +m     | nocompr   | -EINVAL   | nocompr  |
-| chattr -m     | no flag   | compr     | no flag  |
-| chattr +c +m  | -EINVAL   | -EINVAL   | -EINVAL  |
-| chattr +c -m  | compr     | compr     | compr    |
-| chattr -c +m  | nocompr   | *nocompr* | nocompr  |
-| chattr -c -m  | no flag   | no flag   | no flag  |
-+---------------+-----------+-----------+----------+
-
-Link: https://lore.kernel.org/linux-f2fs-devel/20220621064833.1079383-1-chaoliu719@gmail.com/
-Fixes: 4c8ff7095bef ("f2fs: support data compression")
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Chao Liu <liuchao@coolpad.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 0afacde3df4c ("[POWERPC] spufs: allow isolated mode apps by starting the SPE loader")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220603121543.22884-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ arch/powerpc/platforms/cell/spufs/inode.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index defa068b4c7c..d56fcace1821 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -1844,10 +1844,7 @@ static int f2fs_setflags_common(struct inode *inode, u32 iflags, u32 mask)
- 		if (masked_flags & F2FS_COMPR_FL) {
- 			if (!f2fs_disable_compressed_file(inode))
- 				return -EINVAL;
--		}
--		if (iflags & F2FS_NOCOMP_FL)
--			return -EINVAL;
--		if (iflags & F2FS_COMPR_FL) {
-+		} else {
- 			if (!f2fs_may_compress(inode))
- 				return -EINVAL;
- 			if (S_ISREG(inode->i_mode) && inode->i_size)
-@@ -1856,10 +1853,6 @@ static int f2fs_setflags_common(struct inode *inode, u32 iflags, u32 mask)
- 			set_compress_context(inode);
- 		}
- 	}
--	if ((iflags ^ masked_flags) & F2FS_NOCOMP_FL) {
--		if (masked_flags & F2FS_COMPR_FL)
--			return -EINVAL;
--	}
+diff --git a/arch/powerpc/platforms/cell/spufs/inode.c b/arch/powerpc/platforms/cell/spufs/inode.c
+index 25390569e24c..908e9b8e79fe 100644
+--- a/arch/powerpc/platforms/cell/spufs/inode.c
++++ b/arch/powerpc/platforms/cell/spufs/inode.c
+@@ -664,6 +664,7 @@ spufs_init_isolated_loader(void)
+ 		return;
  
- 	fi->i_flags = iflags | (fi->i_flags & ~mask);
- 	f2fs_bug_on(F2FS_I_SB(inode), (fi->i_flags & F2FS_COMPR_FL) &&
+ 	loader = of_get_property(dn, "loader", &size);
++	of_node_put(dn);
+ 	if (!loader)
+ 		return;
+ 
 -- 
 2.35.1
 
