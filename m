@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF67E59A090
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13A9959A0B7
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351075AbiHSQDD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:03:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36206 "EHLO
+        id S1351101AbiHSQDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:03:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351450AbiHSQBl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:01:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86BEF10AE1A;
-        Fri, 19 Aug 2022 08:53:36 -0700 (PDT)
+        with ESMTP id S1351520AbiHSQBz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:01:55 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 234AF7E821;
+        Fri, 19 Aug 2022 08:53:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9955CB82816;
-        Fri, 19 Aug 2022 15:53:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9C83C433D6;
-        Fri, 19 Aug 2022 15:53:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DCB6ECE26B5;
+        Fri, 19 Aug 2022 15:53:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D03FDC433D6;
+        Fri, 19 Aug 2022 15:53:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924414;
-        bh=jf8Sd1limL+roBuK7Uscg4a20NxbVJNZTR5nepUuyeY=;
+        s=korg; t=1660924417;
+        bh=LRYanTTuM7Fr/DtH9Gv9pC3t6OmIF336n5aBC7aLuoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wq1/7Jpnv+C+rwp6mxFeX60AFydMsCD4w9XFkLdJo55mD4tIeD8Vhz5hzPfGPtC/d
-         dxeACnZrziPaEwNXagPf/CHhJMpalIF9vSpSrr86OW/nPgWwf5EbIRNKIIx+CEudUM
-         iCG1riHrCmulsbhWXh+341/3n23mXAGvSHIpvfkQ=
+        b=PvvdyVT4S/8a+gU8rT7hO8kiu4Z146EvFsy7k4Y2qgLFD5o2tVctCi0zO96rijayc
+         mmnodvP+GgnYXFj80U4ZtNgTgN54oL6g2pEamWuBelkZTNJ9vd30Mdk2YGgYxhGtdl
+         ql8PcQCSKfqtGiVBiAoPnbFT94SJcpYemjyWO91E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunhao Tian <t123yh.xyz@gmail.com>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        stable@vger.kernel.org,
+        Manikanta Pubbisetty <quic_mpubbise@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 163/545] drm/mipi-dbi: align max_chunk to 2 in spi_transfer
-Date:   Fri, 19 Aug 2022 17:38:53 +0200
-Message-Id: <20220819153836.656237907@linuxfoundation.org>
+Subject: [PATCH 5.10 164/545] ath11k: Fix incorrect debug_mask mappings
+Date:   Fri, 19 Aug 2022 17:38:54 +0200
+Message-Id: <20220819153836.704634117@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,46 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunhao Tian <t123yh.xyz@gmail.com>
+From: Manikanta Pubbisetty <quic_mpubbise@quicinc.com>
 
-[ Upstream commit 435c249008cba04ed6a7975e9411f3b934620204 ]
+[ Upstream commit 9331f7d3c54a263bede5055e106e40b28d0bd937 ]
 
-In __spi_validate, there's a validation that no partial transfers
-are accepted (xfer->len % w_size must be zero). When
-max_chunk is not a multiple of bpw (e.g. max_chunk = 65535,
-bpw = 16), the transfer will be rejected.
+Currently a couple of debug_mask entries are mapped to the same value,
+this could enable unintended driver logging. If enabling DP_TX logs was
+the intention, then this could also enable PCI logs flooding the dmesg
+buffer or vice versa. Fix this by correctly assigning the debug masks.
 
-This patch aligns max_chunk to 2 bytes (the maximum value of bpw is 16),
-so that no partial transfer will occur.
+Found during code review.
 
-Fixes: d23d4d4dac01 ("drm/tinydrm: Move tinydrm_spi_transfer()")
+Tested-on: WCN6750 hw1.0 AHB WLAN.MSL.1.0.1-00887-QCAMSLSWPLZ-1
 
-Signed-off-by: Yunhao Tian <t123yh.xyz@gmail.com>
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220510030219.2486687-1-t123yh.xyz@gmail.com
+Fixes: aa2092a9bab3f ("ath11k: add raw mode and software crypto support")
+Signed-off-by: Manikanta Pubbisetty <quic_mpubbise@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220602115621.15339-1-quic_mpubbise@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mipi_dbi.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/wireless/ath/ath11k/debug.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
-index 230c4fd7131c..9f132229aed1 100644
---- a/drivers/gpu/drm/drm_mipi_dbi.c
-+++ b/drivers/gpu/drm/drm_mipi_dbi.c
-@@ -1137,6 +1137,13 @@ int mipi_dbi_spi_transfer(struct spi_device *spi, u32 speed_hz,
- 	size_t chunk;
- 	int ret;
+diff --git a/drivers/net/wireless/ath/ath11k/debug.h b/drivers/net/wireless/ath/ath11k/debug.h
+index 659a275e2eb3..694ebba17fad 100644
+--- a/drivers/net/wireless/ath/ath11k/debug.h
++++ b/drivers/net/wireless/ath/ath11k/debug.h
+@@ -23,8 +23,8 @@ enum ath11k_debug_mask {
+ 	ATH11K_DBG_TESTMODE	= 0x00000400,
+ 	ATH11k_DBG_HAL		= 0x00000800,
+ 	ATH11K_DBG_PCI		= 0x00001000,
+-	ATH11K_DBG_DP_TX	= 0x00001000,
+-	ATH11K_DBG_DP_RX	= 0x00002000,
++	ATH11K_DBG_DP_TX	= 0x00002000,
++	ATH11K_DBG_DP_RX	= 0x00004000,
+ 	ATH11K_DBG_ANY		= 0xffffffff,
+ };
  
-+	/* In __spi_validate, there's a validation that no partial transfers
-+	 * are accepted (xfer->len % w_size must be zero).
-+	 * Here we align max_chunk to multiple of 2 (16bits),
-+	 * to prevent transfers from being rejected.
-+	 */
-+	max_chunk = ALIGN_DOWN(max_chunk, 2);
-+
- 	spi_message_init_with_transfers(&m, &tr, 1);
- 
- 	while (len) {
 -- 
 2.35.1
 
