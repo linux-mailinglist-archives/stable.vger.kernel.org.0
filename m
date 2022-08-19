@@ -2,258 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D97599596
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 09:09:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74FB25995C2
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 09:09:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346959AbiHSHCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 03:02:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55836 "EHLO
+        id S242670AbiHSHIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 03:08:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346852AbiHSHCH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 03:02:07 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBAFEE094C;
-        Fri, 19 Aug 2022 00:02:05 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 68F4E5CAB7;
-        Fri, 19 Aug 2022 07:02:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1660892524; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+5IMyQ0vRQHg0CYBYHzX1uY9nm3Yz7CsNSEpKK9MTg8=;
-        b=uLTnLntiVeI0nf41pMOf72tcJN59GUcJd2rv1S1mtzyf8cHc/uRJJsXKIPO/FzuRZ0XKIN
-        sqZFt5Z1yRZTs3lSOIjD3aGelcVchPqZ4Kwdb/xY0ni9tYjsqD7U78VDbvsO0M+Pkl1yAd
-        PFkF03K1zvbM9QMDDUp/dVz3sxdeVmw=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 4F05213AC1;
-        Fri, 19 Aug 2022 07:02:03 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id qNhaBms1/2JJRAAAMHmgww
-        (envelope-from <wqu@suse.com>); Fri, 19 Aug 2022 07:02:03 +0000
+        with ESMTP id S243562AbiHSHIX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 03:08:23 -0400
+Received: from EUR01-HE1-obe.outbound.protection.outlook.com (mail-eopbgr130085.outbound.protection.outlook.com [40.107.13.85])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D7CF2CC88;
+        Fri, 19 Aug 2022 00:08:22 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=EA9bUOOTmdb5/yHD6+qkTeiwtK1o8yFoTA0dld/py31z4U6l1rFmAz7bfXt6iKye2Hq3uETmztQXN3uXt4RpmRtNqBOpZ7lpRyt3e1jQFGeE09z8QsZJWLUuz7DAavxkmjrFyqpxuLpjK92D7VRB/aVsRnGrQQSERTuxO42ENA+fvUB1LxRMtChbqc50bDJFrpdH5dnbKM6D6vTXu8ih4nmaqYT8VMgsFZ1tVudJWqIDhCaskf2hxoJ+MdDMsKq7pVGD8EpGQDS5a1oe4z5qtdC8M3+niGlEX/B4TGqo+3mXpbx9w9MW++/zdzo/+2T2hXxmuqFub0pMuxlkMjECVQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=dQGh5JRPBQabco0LRtz74NH6Q+/ogDdoH0vswusc+Uk=;
+ b=LzDF+jNKfqhWsglTGFRe/T8QHlTzq8oC8i9lEyQH8fSyUGrfIDJsl0FKrEUn7COdFpwodcWGzCfDsqTrq59oeMEdMUeqOEzcOdK4NUPquVY2y7VwQl+AeqO9X8qZfuryJiztgsCl8u3JFcZfJ9hqL4eJ+d1OOqAl22sbas+/OI0P/7Np2iD9GyLVO3IOpAuyMvevZoOrX2iJjtrF3/NGFpGZCFBJpFzCp6dz6sJD09AWqOZ2RloiWDs+W1OSczRB3XCWjUq4yi+9eG5MVMaB38VCeeEAQ+Apl8DDMBn0DeOip69bVrCVZn7N/Oblncu8BsAdGHKp5ZX4ZWpcD9EdPw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=suse.com; dmarc=pass action=none header.from=suse.com;
+ dkim=pass header.d=suse.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=dQGh5JRPBQabco0LRtz74NH6Q+/ogDdoH0vswusc+Uk=;
+ b=1J55MlX2zd2Hflr7yDclzLPTgbpcxl9nfoeL/zf1I+1VUZ28AROk/SI7TwKEgoOLzFEvOeuPFVOrAdvz7Q5s9FDYZgLjzhrkXkkJEd7GH4KEzx8EEf/FlGJ0yZcTM5IX5vKWEYgQfj+KzJrXwiwl6pp2Bv9eTpoZ//0qspK7rOfeeprPUsYGCtjennczlUNO43E7jQ7uvGp98urDglcji2HWQ4IRKM6bHrYrHDL3Z/jX7AM/rNn0wryhqCP5s0PsDlAdLN5pA7cty/LTA27f7i7HCl3Cyg6iCIuRRdmSQByp1M+uDRAr0iU0uEiuPp1qOBcjpI18NR1kR2CR1UcPvw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=suse.com;
+Received: from AS8PR04MB8465.eurprd04.prod.outlook.com (2603:10a6:20b:348::19)
+ by DBBPR04MB7498.eurprd04.prod.outlook.com (2603:10a6:10:20b::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5546.16; Fri, 19 Aug
+ 2022 07:08:17 +0000
+Received: from AS8PR04MB8465.eurprd04.prod.outlook.com
+ ([fe80::c4b3:5f3a:8bf5:f6e9]) by AS8PR04MB8465.eurprd04.prod.outlook.com
+ ([fe80::c4b3:5f3a:8bf5:f6e9%9]) with mapi id 15.20.5546.018; Fri, 19 Aug 2022
+ 07:08:17 +0000
+Message-ID: <ee7c8476-7c93-100d-a0ff-441b71f61e6a@suse.com>
+Date:   Fri, 19 Aug 2022 15:08:07 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.12.0
+Subject: Re: [PATCH STABLE 5.19 0/2] btrfs: raid56: backports to reduce
+ corruption
+Content-Language: en-US
 From:   Qu Wenruo <wqu@suse.com>
 To:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
 Cc:     David Sterba <dsterba@suse.com>
-Subject: [PATCH STABLE 5.19 2/2] btrfs: raid56: don't trust any cached sector in __raid56_parity_recover()
-Date:   Fri, 19 Aug 2022 15:01:39 +0800
-Message-Id: <395e757174642361ce1db65d221a915ce6868e40.1660891713.git.wqu@suse.com>
-X-Mailer: git-send-email 2.37.1
-In-Reply-To: <cover.1660891713.git.wqu@suse.com>
 References: <cover.1660891713.git.wqu@suse.com>
+In-Reply-To: <cover.1660891713.git.wqu@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SJ0PR05CA0054.namprd05.prod.outlook.com
+ (2603:10b6:a03:33f::29) To AS8PR04MB8465.eurprd04.prod.outlook.com
+ (2603:10a6:20b:348::19)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 910361c0-6e89-4292-19af-08da81b19707
+X-MS-TrafficTypeDiagnostic: DBBPR04MB7498:EE_
+X-LD-Processed: f7a17af6-1c5c-4a36-aa8b-f5be247aa4ba,ExtFwd
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 0rDCBFprO/xA3l4nqv9dA7PFXCwAKNHcU9e6WfBNIcHtGeVruQzDiJgJ9zdYCDb06R5Bo71ehBfTeWA1TWuK7/dYjcOYu1ITXVsVEKIwSxOD9bajqj6MlgYzqTdTgefy1VuNtce0AA7Cu1/lhGbHEhN2nvxqkOgN6a/pwrqH9rG/z4fRgjH9FKce6kKxT6T/R7ln2uDiu7xOWwYeTNxv4QEQ8mXNems6YNOXBnG0OWJxJGcw0K1RJywWo4naeWVOOGl7luUkVqc6FEjwiP1TgLuKRpO1qlLHuxNJztgy+5JH1hMxumP/u8swDMnlswRdDgEjfzcPWsdK3rGBNulSfc9CPMPGsNUZO88QoYqYjKBO8EDwzjZH01lgCdHx3vSjXm9SEiWmnNVSpz9gB3QfmyHxqvgJmexttzTRkovXeQagPon9+DNtANGsDuAjopuKgt5U85vwaF63f54Ec9rMT6yf+Mfk7+ObnGU2vtc6U5v0xVQwU3iL0S2emfDfIpvVm3/fcvvB6haUa1agaU8vD6s0bhn8xr9dXALocBuIgrKq4bps40oN5LSvfyGnWqYDjBq1r4sfRi2xCxccep+ncP8MpuHZfQSwynUEJgtS2qKmmz7lVkQ+621vzBYfGGHZ3xDG77Mq+kWuNz0dE6V1LW0NTW9Oc6TCnkkRO0uEhYZxbw8xbYYDAcilQ/EsI7UC9tXbW2EpSj+g4xHy2NH7fEjlY8O1Mi+uy9vpziaWjnWCwKwChjyhfyDiITFo08q4xK1D6COZm5lON6IxG8XKZY0COSucO894B5JJ7K0UbKMk9IrhPMboC6sJ2he9+W5cFfjZBB9eAVK1srJYtxBP5Q==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS8PR04MB8465.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(136003)(366004)(376002)(39860400002)(346002)(396003)(2616005)(38100700002)(186003)(83380400001)(5660300002)(8936002)(450100002)(66946007)(66556008)(66476007)(4326008)(2906002)(41300700001)(478600001)(8676002)(6512007)(6506007)(107886003)(53546011)(6486002)(6666004)(316002)(31686004)(31696002)(86362001)(36756003)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?Zi90SkVMVzZHNmVzd1Vvd0RKSUw1YmlySGMxblI3K3hUYjN4R1k3Si9mZ0Rh?=
+ =?utf-8?B?UUQveGpJVHJxTXlPSG12dU83cTVPaFVDVm5aQ1FQNVgrZEJ2cXIxSnZNZmNz?=
+ =?utf-8?B?d1VWQUhhSDBDd3JzNUFPdE1MdEIvTTYxY2V2WGk3dzRwcUUwNW1xSkMzaHZP?=
+ =?utf-8?B?YUZZUlg0T3h4OWtrMUNBTmdSNE8wT0NmNmU3cTJobE1JR0xPdW5hUGEwZFU3?=
+ =?utf-8?B?bHgrVEdpMm1UNi8wcDlrN2NLc2lRRUV2QldxWnFwMXMxdEVRNW1CYWpCdzZp?=
+ =?utf-8?B?eUUwVnhPVkJVbDNqamZ0RmJpdXYxUU9UUnBnWDlwZUMvSEpxeWw0d3lyME1F?=
+ =?utf-8?B?T3VMaEQyb3pMbks1Ky96QjNjNU1LbTdzRnRYSmNPY25BWkRpTjVhOThWRzZs?=
+ =?utf-8?B?NnRXU2VBcVhYUnE5bFN5RjZrbVNEVWROcUM2cG5mbDNzMEdiaUozMUdoZG9Y?=
+ =?utf-8?B?OWh5Q0FJZUkyekVZSWdnSkhWNklKY1FYWXozTkkrTmNjT1c1ZlBwNlM1QTFh?=
+ =?utf-8?B?WEtSbDhlczZ4ZWlGSGJkeUhmQXZ3MklYakVKSXhRQzVWNi8zMjZZTHUzeU4r?=
+ =?utf-8?B?Q29nK1Fhc3BYV2lhbGVEM3k5QW1RYTZMRTdEMkNXeVFmOE04WnA2OUtEWnBE?=
+ =?utf-8?B?dkFaUlRsN08vNU0xendxRFlXblRKWUVFcHFrSGZ6eUJpajlsNjhkWnVFT3Mx?=
+ =?utf-8?B?Q2lPQXNUbXZKUTBpYnFUdmo1RU52bHBISEsyOWx0eFM3MzZ6RHk3bnVxNitU?=
+ =?utf-8?B?S2FQT3ZXWmM4NWJ5cisrbEFHdEVXeU83SmFYNWVXczFqb0VHL3puRjI5L3BZ?=
+ =?utf-8?B?Y0tIMy8wazMyM2NlN0tOY2hkeG5YSVljTHhWVTBxRDQwZytHUUxCRERYMTU1?=
+ =?utf-8?B?MW1xdFRtYlZQYWpSQmpCZU03dnh0dWJIZkRMN1NHWmFJZGUrMlIxd2ZPeGtS?=
+ =?utf-8?B?NER5b1kzNTFuUk0wVzRwWENSV1NRQzdwYytCRlprUzlrQ3graGphYmZJR0hV?=
+ =?utf-8?B?ekNEZGgzS1g4ZS9rM29UcVZRUjNsTFRCd2ZBL2lOdnpnQzRkQVNGT0FSUVFG?=
+ =?utf-8?B?MU5ub0h6ZnE0WE0xM2Ria21Ea0NSNzlRMmoybDdTVGp6THlMSUFtVkdvU2o3?=
+ =?utf-8?B?UXFvQzRDb0RoTElncGhyRlBvMmRLd2M5WTdaR0lmaUw3VkVTc0x4WkxReUpr?=
+ =?utf-8?B?d3M5ZXd2S0Y0dExjRlhtZ05sNGs0WDVPQXNXQ0hqOGxOMWpDZk1ZQloyN3RM?=
+ =?utf-8?B?dldRZDBBQ0lNTml4NnlzMm96RTdwMVFvdnZpbmh5b2tCdjNpYWxraWE2QmNt?=
+ =?utf-8?B?SlMzQ1hoeXNIbk9aNFpEZ0FkTjdMSlowbXFXSDBFV0lENzd2elI4aVplQVlF?=
+ =?utf-8?B?QVdUeFg0M2NDOFRZZWF3UkEvSTdweWlSdnJrMjdPcVRWUGFpSkdtWXJJbWt4?=
+ =?utf-8?B?TGNnTlZIa0UvdU9TYTNnZVdHeE0zQy9SdGdQZFhicEFaU25zUzM3US9xWXJw?=
+ =?utf-8?B?aTBUZGZYcmxCTXVYbk9FM3owVmM3Q0JLeElQa2s4THdXNDdibGpGMFk3UHlP?=
+ =?utf-8?B?VWcxUXB6Q2pjbEltTm5WbkdhZ2hPcDVHd2Z3UVU3dGZzMXBmdUdKMmFndGpk?=
+ =?utf-8?B?cXlSRklWR0FyTjVQNVNmU2tBc1F2ZWtITlNhdEZLeS93SE1RRko1RldiQ3Uy?=
+ =?utf-8?B?SU0xM3UwaXBpZS9Lckl0N1Q1RlF3RU5uSDEwdG1YeXVsZzA2U3hXWUliNHNx?=
+ =?utf-8?B?OFVaK0wrNW1aWS83WTNJNm9lK1NMV1dXZDczaDhVMjlybzd1S09GRHZiMzVE?=
+ =?utf-8?B?YTdwZzlCK2pnT0NSZjVvYXI4aGVPbTlodEZuV3JBTjU5UUYxN0tBUEtPa3A4?=
+ =?utf-8?B?T25iRWxxSEZBYzdTUjdOU2JVVXdnWUZ6S2ZBd3JmYTFGcnZUR2M5aU5KR3Zy?=
+ =?utf-8?B?L3QrN0tzV2YybUE1NjllcWg5S2Y4MGs5ZW4rRkl3QldPVXc2bS93NkhXSk5O?=
+ =?utf-8?B?UEI1VUFiMUxPUTh4L2F6MUVxdXpCNmVPQ1l5cWd5QllZMXB4cVpTWUxrTHhy?=
+ =?utf-8?B?Q2lBSVYwdmdxYnErb0dwK3VLUCtQcGVQU0xObTVldFRjM0Q0ZERlcVc5c3Fk?=
+ =?utf-8?B?NU9RenpkTEdQUVNCQmpnUXJvTmpObW1UMzJBUHBOOENhR0VrYzdrRGtpRmtN?=
+ =?utf-8?Q?103NS+doNzAfRWBG9l4kY8g=3D?=
+X-OriginatorOrg: suse.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 910361c0-6e89-4292-19af-08da81b19707
+X-MS-Exchange-CrossTenant-AuthSource: AS8PR04MB8465.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Aug 2022 07:08:17.1866
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: f7a17af6-1c5c-4a36-aa8b-f5be247aa4ba
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: OaW/VQNsQVNdYpCdhSKAhWRLF2DI4b1Ja17FDkHwePKt0JuriCPN71YvbxTfaznY
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DBBPR04MB7498
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit f6065f8edeb25f4a9dfe0b446030ad995a84a088 upstream.
+BTW, since I have to re-run all the tests for every stable branch, for 
+the stable branches and 5.18.x backports may be delayed a little.
 
-[BUG]
-There is a small workload which will always fail with recent kernel:
-(A simplified version from btrfs/125 test case)
+In that case, I guess I should submit backports in the most recent 
+stable branches first?
 
-  mkfs.btrfs -f -m raid5 -d raid5 -b 1G $dev1 $dev2 $dev3
-  mount $dev1 $mnt
-  xfs_io -f -c "pwrite -S 0xee 0 1M" $mnt/file1
-  sync
-  umount $mnt
-  btrfs dev scan -u $dev3
-  mount -o degraded $dev1 $mnt
-  xfs_io -f -c "pwrite -S 0xff 0 128M" $mnt/file2
-  umount $mnt
-  btrfs dev scan
-  mount $dev1 $mnt
-  btrfs balance start --full-balance $mnt
-  umount $mnt
+Thanks,
+Qu
 
-The failure is always failed to read some tree blocks:
-
-  BTRFS info (device dm-4): relocating block group 217710592 flags data|raid5
-  BTRFS error (device dm-4): parent transid verify failed on 38993920 wanted 9 found 7
-  BTRFS error (device dm-4): parent transid verify failed on 38993920 wanted 9 found 7
-  ...
-
-[CAUSE]
-With the recently added debug output, we can see all RAID56 operations
-related to full stripe 38928384:
-
-  56.1183: raid56_read_partial: full_stripe=38928384 devid=2 type=DATA1 offset=0 opf=0x0 physical=9502720 len=65536
-  56.1185: raid56_read_partial: full_stripe=38928384 devid=3 type=DATA2 offset=16384 opf=0x0 physical=9519104 len=16384
-  56.1185: raid56_read_partial: full_stripe=38928384 devid=3 type=DATA2 offset=49152 opf=0x0 physical=9551872 len=16384
-  56.1187: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=0 opf=0x1 physical=9502720 len=16384
-  56.1188: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=32768 opf=0x1 physical=9535488 len=16384
-  56.1188: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=0 opf=0x1 physical=30474240 len=16384
-  56.1189: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=32768 opf=0x1 physical=30507008 len=16384
-  56.1218: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=49152 opf=0x1 physical=9551872 len=16384
-  56.1219: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=49152 opf=0x1 physical=30523392 len=16384
-  56.2721: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
-  56.2723: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
-  56.2724: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
-
-Before we enter raid56_parity_recover(), we have triggered some metadata
-write for the full stripe 38928384, this leads to us to read all the
-sectors from disk.
-
-Furthermore, btrfs raid56 write will cache its calculated P/Q sectors to
-avoid unnecessary read.
-
-This means, for that full stripe, after any partial write, we will have
-stale data, along with P/Q calculated using that stale data.
-
-Thankfully due to patch "btrfs: only write the sectors in the vertical stripe
-which has data stripes" we haven't submitted all the corrupted P/Q to disk.
-
-When we really need to recover certain range, aka in
-raid56_parity_recover(), we will use the cached rbio, along with its
-cached sectors (the full stripe is all cached).
-
-This explains why we have no event raid56_scrub_read_recover()
-triggered.
-
-Since we have the cached P/Q which is calculated using the stale data,
-the recovered one will just be stale.
-
-In our particular test case, it will always return the same incorrect
-metadata, thus causing the same error message "parent transid verify
-failed on 39010304 wanted 9 found 7" again and again.
-
-[BTRFS DESTRUCTIVE RMW PROBLEM]
-
-Test case btrfs/125 (and above workload) always has its trouble with
-the destructive read-modify-write (RMW) cycle:
-
-        0       32K     64K
-Data1:  | Good  | Good  |
-Data2:  | Bad   | Bad   |
-Parity: | Good  | Good  |
-
-In above case, if we trigger any write into Data1, we will use the bad
-data in Data2 to re-generate parity, killing the only chance to recovery
-Data2, thus Data2 is lost forever.
-
-This destructive RMW cycle is not specific to btrfs RAID56, but there
-are some btrfs specific behaviors making the case even worse:
-
-- Btrfs will cache sectors for unrelated vertical stripes.
-
-  In above example, if we're only writing into 0~32K range, btrfs will
-  still read data range (32K ~ 64K) of Data1, and (64K~128K) of Data2.
-  This behavior is to cache sectors for later update.
-
-  Incidentally commit d4e28d9b5f04 ("btrfs: raid56: make steal_rbio()
-  subpage compatible") has a bug which makes RAID56 to never trust the
-  cached sectors, thus slightly improve the situation for recovery.
-
-  Unfortunately, follow up fix "btrfs: update stripe_sectors::uptodate in
-  steal_rbio" will revert the behavior back to the old one.
-
-- Btrfs raid56 partial write will update all P/Q sectors and cache them
-
-  This means, even if data at (64K ~ 96K) of Data2 is free space, and
-  only (96K ~ 128K) of Data2 is really stale data.
-  And we write into that (96K ~ 128K), we will update all the parity
-  sectors for the full stripe.
-
-  This unnecessary behavior will completely kill the chance of recovery.
-
-  Thankfully, an unrelated optimization "btrfs: only write the sectors
-  in the vertical stripe which has data stripes" will prevent
-  submitting the write bio for untouched vertical sectors.
-
-  That optimization will keep the on-disk P/Q untouched for a chance for
-  later recovery.
-
-[FIX]
-Although we have no good way to completely fix the destructive RMW
-(unless we go full scrub for each partial write), we can still limit the
-damage.
-
-With patch "btrfs: only write the sectors in the vertical stripe which
-has data stripes" now we won't really submit the P/Q of unrelated
-vertical stripes, so the on-disk P/Q should still be fine.
-
-Now we really need to do is just drop all the cached sectors when doing
-recovery.
-
-By this, we have a chance to read the original P/Q from disk, and have a
-chance to recover the stale data, while still keep the cache to speed up
-regular write path.
-
-In fact, just dropping all the cache for recovery path is good enough to
-allow the test case btrfs/125 along with the small script to pass
-reliably.
-
-The lack of metadata write after the degraded mount, and forced metadata
-COW is saving us this time.
-
-So this patch will fix the behavior by not trust any cache in
-__raid56_parity_recover(), to solve the problem while still keep the
-cache useful.
-
-But please note that this test pass DOES NOT mean we have solved the
-destructive RMW problem, we just do better damage control a little
-better.
-
-Related patches:
-
-- btrfs: only write the sectors in the vertical stripe
-- d4e28d9b5f04 ("btrfs: raid56: make steal_rbio() subpage compatible")
-- btrfs: update stripe_sectors::uptodate in steal_rbio
-
-Acked-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
----
- fs/btrfs/raid56.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
-
-diff --git a/fs/btrfs/raid56.c b/fs/btrfs/raid56.c
-index ddf9f7a7418e..93975e3d5070 100644
---- a/fs/btrfs/raid56.c
-+++ b/fs/btrfs/raid56.c
-@@ -2218,9 +2218,12 @@ static int __raid56_parity_recover(struct btrfs_raid_bio *rbio)
- 	atomic_set(&rbio->error, 0);
- 
- 	/*
--	 * read everything that hasn't failed.  Thanks to the
--	 * stripe cache, it is possible that some or all of these
--	 * pages are going to be uptodate.
-+	 * Read everything that hasn't failed. However this time we will
-+	 * not trust any cached sector.
-+	 * As we may read out some stale data but higher layer is not reading
-+	 * that stale part.
-+	 *
-+	 * So here we always re-read everything in recovery path.
- 	 */
- 	for (stripe = 0; stripe < rbio->real_stripes; stripe++) {
- 		if (rbio->faila == stripe || rbio->failb == stripe) {
-@@ -2231,13 +2234,7 @@ static int __raid56_parity_recover(struct btrfs_raid_bio *rbio)
- 		for (sectornr = 0; sectornr < rbio->stripe_nsectors; sectornr++) {
- 			struct sector_ptr *sector;
- 
--			/*
--			 * the rmw code may have already read this
--			 * page in
--			 */
- 			sector = rbio_stripe_sector(rbio, stripe, sectornr);
--			if (sector->uptodate)
--				continue;
- 
- 			ret = rbio_add_io_sector(rbio, &bio_list, sector,
- 						 stripe, sectornr, rbio->stripe_len,
--- 
-2.37.1
-
+On 2022/8/19 15:01, Qu Wenruo wrote:
+> This backport is going to address the following possible corruption for
+> btrfs RAID56:
+> 
+> - RMW always writes the full P/Q stripe
+>    This happens even only some vertical stripes are dirty.
+> 
+>    If some data sectors are corrupted in the clean vertical stripes,
+>    then such unnecessary P/Q updates will wipe the chance or recovery,
+>    as the P/Q will be calculated using corrupted data.
+> 
+>    This will be addressed by the first backport patch.
+> 
+> - Don't trust any cached sector when doing recovery
+>    Although above patch will avoid unnecessary P/Q writes, the full P/Q
+>    stripe will still be updated in the in-memory only RAID56 cache.
+> 
+>    To properly recovery data stripes, we should not trust any cached
+>    sector, and always read data from disk, which will avoid corrupted
+>    P/Q sectors.
+> 
+>    This will be addressed by the second backport patch.
+> 
+> This would make some previously always-fail test cases, like btrfs/125,
+> to pass, and end users have a lower chance to corrupt their RAID56 data.
+> 
+> Since this is a data corruption related fix, these backport patches are
+> needed for all stable branches.
+> 
+> Unfortunately due to the new cleanups in v6.0-rc, these backport patches
+> have quite some conflicts (even for 5.19), and have to be manually resolved.
+> Almost every stable branch will need their own backports.
+> 
+> Acked-by: David Sterba <dsterba@suse.com>
+> 
+> Qu Wenruo (2):
+>    btrfs: only write the sectors in the vertical stripe which has data
+>      stripes
+>    btrfs: raid56: don't trust any cached sector in
+>      __raid56_parity_recover()
+> 
+>   fs/btrfs/raid56.c | 68 ++++++++++++++++++++++++++++++++++++++---------
+>   1 file changed, 55 insertions(+), 13 deletions(-)
+> 
