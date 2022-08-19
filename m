@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2043259A19B
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52A5359A224
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352553AbiHSQYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:24:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42328 "EHLO
+        id S1352908AbiHSQcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:32:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352555AbiHSQXT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:23:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C8BBCD539;
-        Fri, 19 Aug 2022 09:02:57 -0700 (PDT)
+        with ESMTP id S1353188AbiHSQbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:31:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 147CB11D529;
+        Fri, 19 Aug 2022 09:05:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B69C1B82819;
-        Fri, 19 Aug 2022 16:02:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D5DFC433D6;
-        Fri, 19 Aug 2022 16:02:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B107761825;
+        Fri, 19 Aug 2022 16:04:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9E92C433D6;
+        Fri, 19 Aug 2022 16:04:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924974;
-        bh=AcJrX1xUykEM0PUZFgTpse9dGF07x7CuOQftmr59ePw=;
+        s=korg; t=1660925094;
+        bh=0rSuf08xxpAs4juZrf9DdyilhYifmFUsrkyHzwVov84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBRCC2semryP2zuKSI0n7yxj0xrALrlQedcR2g6QwxHGG5kXQgbvwUUN4ckoqGfAJ
-         Z4zOwHePnaoYx8K8Yi9h6hXzr1hwdywXOMuYEbGcCHWqMR7rLzXrbP3+MtyNGvV3a6
-         drhzfA38VqYU8DSuojY0G1aHsBqcipv5LcYhATJ4=
+        b=2kTlsVujd273sMzw0OvFCxbxse9Xu9EBn3RzBQFkvCSETh3q1FhYfhovrZ/fLV26h
+         3flVRBE2uXzHcW+52ESDqRNmqsL+DrIlvjqLC3AtVcmFo+hXJSQ+6yIka3ujPSwkWM
+         6g53l/Jko3UVBROyj/z/Moixig6lZDDeQy5h13hM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 341/545] HID: mcp2221: prevent a buffer overflow in mcp_smbus_write()
-Date:   Fri, 19 Aug 2022 17:41:51 +0200
-Message-Id: <20220819153844.658940181@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Robert Richter <rric@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 342/545] mmc: cavium-octeon: Add of_node_put() when breaking out of loop
+Date:   Fri, 19 Aug 2022 17:41:52 +0200
+Message-Id: <20220819153844.706015370@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,42 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 62ac2473553a00229e67bdf3cb023b62cf7f5a9a ]
+[ Upstream commit 19bbb49acf8d7a03cb83e05624363741a4c3ec6f ]
 
-Smatch Warning:
-drivers/hid/hid-mcp2221.c:388 mcp_smbus_write() error: __memcpy()
-'&mcp->txbuf[5]' too small (59 vs 255)
-drivers/hid/hid-mcp2221.c:388 mcp_smbus_write() error: __memcpy() 'buf'
-too small (34 vs 255)
+In octeon_mmc_probe(), we should call of_node_put() when breaking
+out of for_each_child_of_node() which has increased and decreased
+the refcount during each iteration.
 
-The 'len' variable can take a value between 0-255 as it can come from
-data->block[0] and it is user data. So add an bound check to prevent a
-buffer overflow in memcpy().
-
-Fixes: 67a95c21463d ("HID: mcp2221: add usb to i2c-smbus host bridge")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 01d95843335c ("mmc: cavium: Add MMC support for Octeon SOCs.")
+Signed-off-by: Liang He <windhl@126.com>
+Acked-by: Robert Richter <rric@kernel.org>
+Link: https://lore.kernel.org/r/20220719095216.1241601-1-windhl@126.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-mcp2221.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mmc/host/cavium-octeon.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index 4211b9839209..de52e9f7bb8c 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -385,6 +385,9 @@ static int mcp_smbus_write(struct mcp2221 *mcp, u16 addr,
- 		data_len = 7;
- 		break;
- 	default:
-+		if (len > I2C_SMBUS_BLOCK_MAX)
-+			return -EINVAL;
-+
- 		memcpy(&mcp->txbuf[5], buf, len);
- 		data_len = len + 5;
- 	}
+diff --git a/drivers/mmc/host/cavium-octeon.c b/drivers/mmc/host/cavium-octeon.c
+index 2c4b2df52adb..12dca91a8ef6 100644
+--- a/drivers/mmc/host/cavium-octeon.c
++++ b/drivers/mmc/host/cavium-octeon.c
+@@ -277,6 +277,7 @@ static int octeon_mmc_probe(struct platform_device *pdev)
+ 		if (ret) {
+ 			dev_err(&pdev->dev, "Error populating slots\n");
+ 			octeon_mmc_set_shared_power(host, 0);
++			of_node_put(cn);
+ 			goto error;
+ 		}
+ 		i++;
 -- 
 2.35.1
 
