@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFF6E599EA6
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:44:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA54599E9E
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:44:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349849AbiHSPju (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:39:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36280 "EHLO
+        id S1349874AbiHSPj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:39:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349619AbiHSPjt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:39:49 -0400
+        with ESMTP id S1349506AbiHSPjv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:39:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1F6AE68D6;
-        Fri, 19 Aug 2022 08:39:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C398565E5;
+        Fri, 19 Aug 2022 08:39:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58665B8280D;
-        Fri, 19 Aug 2022 15:39:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43629C433C1;
-        Fri, 19 Aug 2022 15:39:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7189FB8280F;
+        Fri, 19 Aug 2022 15:39:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD584C4314B;
+        Fri, 19 Aug 2022 15:39:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660923585;
-        bh=w8YA1h7bHAygZNSqHoIsEtpk+d6IKmNmlflXwWAXx10=;
+        s=korg; t=1660923588;
+        bh=ADw06pRCuPZeTUd/Uq+mdKxMJyGKpyXRKWJnc9JYbVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AEXBthtcjW4dJYxli3KHsA8Q6BVwFkjOI2/7Z/7Ov2LLPUhCpYg+DLQdtaHi8ZQNg
-         MnZrKoe9d4a6uKemP+HZY+QUYBJX5RbSWZ5KcU4dTF+ODr2KdOHoZq3im3fBYXBVrZ
-         TmW1om/ou/FW+Ed+VmJ87aFk2B+HG4P9mqWMCBTU=
+        b=GObXdGItgM49Vv4iy/DHgcbZGw0WwMWQdLdayWxyiCuT+akEZOMkmlnab6U4FUD3X
+         qakePs4Bcn4dsM3GualuVlIHuFHskTCXt1NxRIobF1kwJ2pIrdQd5s1ZqxQiy9wY7c
+         CcM6nBx/bpFz0WiMRfqGhRbgippJfbOBWsalV79o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        Qu Wenruo <wqu@suse.com>
-Subject: [PATCH 5.19 5/7] btrfs: raid56: dont trust any cached sector in __raid56_parity_recover()
-Date:   Fri, 19 Aug 2022 17:39:21 +0200
-Message-Id: <20220819153711.755011793@linuxfoundation.org>
+        stable@vger.kernel.org, kexec@lists.infradead.org,
+        keyrings@vger.kernel.org, linux-security-module@vger.kernel.org,
+        Michal Suchanek <msuchanek@suse.de>,
+        Coiby Xu <coxu@redhat.com>, Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.19 6/7] kexec, KEYS: make the code in bzImage64_verify_sig generic
+Date:   Fri, 19 Aug 2022 17:39:22 +0200
+Message-Id: <20220819153711.785888674@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153711.552247994@linuxfoundation.org>
 References: <20220819153711.552247994@linuxfoundation.org>
@@ -53,201 +55,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Coiby Xu <coxu@redhat.com>
 
-commit f6065f8edeb25f4a9dfe0b446030ad995a84a088 upstream.
+commit c903dae8941deb55043ee46ded29e84e97cd84bb upstream.
 
-[BUG]
-There is a small workload which will always fail with recent kernel:
-(A simplified version from btrfs/125 test case)
+commit 278311e417be ("kexec, KEYS: Make use of platform keyring for
+signature verify") adds platform keyring support on x86 kexec but not
+arm64.
 
-  mkfs.btrfs -f -m raid5 -d raid5 -b 1G $dev1 $dev2 $dev3
-  mount $dev1 $mnt
-  xfs_io -f -c "pwrite -S 0xee 0 1M" $mnt/file1
-  sync
-  umount $mnt
-  btrfs dev scan -u $dev3
-  mount -o degraded $dev1 $mnt
-  xfs_io -f -c "pwrite -S 0xff 0 128M" $mnt/file2
-  umount $mnt
-  btrfs dev scan
-  mount $dev1 $mnt
-  btrfs balance start --full-balance $mnt
-  umount $mnt
+The code in bzImage64_verify_sig uses the keys on the
+.builtin_trusted_keys, .machine, if configured and enabled,
+.secondary_trusted_keys, also if configured, and .platform keyrings
+to verify the signed kernel image as PE file.
 
-The failure is always failed to read some tree blocks:
-
-  BTRFS info (device dm-4): relocating block group 217710592 flags data|raid5
-  BTRFS error (device dm-4): parent transid verify failed on 38993920 wanted 9 found 7
-  BTRFS error (device dm-4): parent transid verify failed on 38993920 wanted 9 found 7
-  ...
-
-[CAUSE]
-With the recently added debug output, we can see all RAID56 operations
-related to full stripe 38928384:
-
-  56.1183: raid56_read_partial: full_stripe=38928384 devid=2 type=DATA1 offset=0 opf=0x0 physical=9502720 len=65536
-  56.1185: raid56_read_partial: full_stripe=38928384 devid=3 type=DATA2 offset=16384 opf=0x0 physical=9519104 len=16384
-  56.1185: raid56_read_partial: full_stripe=38928384 devid=3 type=DATA2 offset=49152 opf=0x0 physical=9551872 len=16384
-  56.1187: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=0 opf=0x1 physical=9502720 len=16384
-  56.1188: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=32768 opf=0x1 physical=9535488 len=16384
-  56.1188: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=0 opf=0x1 physical=30474240 len=16384
-  56.1189: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=32768 opf=0x1 physical=30507008 len=16384
-  56.1218: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=49152 opf=0x1 physical=9551872 len=16384
-  56.1219: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=49152 opf=0x1 physical=30523392 len=16384
-  56.2721: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
-  56.2723: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
-  56.2724: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
-
-Before we enter raid56_parity_recover(), we have triggered some metadata
-write for the full stripe 38928384, this leads to us to read all the
-sectors from disk.
-
-Furthermore, btrfs raid56 write will cache its calculated P/Q sectors to
-avoid unnecessary read.
-
-This means, for that full stripe, after any partial write, we will have
-stale data, along with P/Q calculated using that stale data.
-
-Thankfully due to patch "btrfs: only write the sectors in the vertical stripe
-which has data stripes" we haven't submitted all the corrupted P/Q to disk.
-
-When we really need to recover certain range, aka in
-raid56_parity_recover(), we will use the cached rbio, along with its
-cached sectors (the full stripe is all cached).
-
-This explains why we have no event raid56_scrub_read_recover()
-triggered.
-
-Since we have the cached P/Q which is calculated using the stale data,
-the recovered one will just be stale.
-
-In our particular test case, it will always return the same incorrect
-metadata, thus causing the same error message "parent transid verify
-failed on 39010304 wanted 9 found 7" again and again.
-
-[BTRFS DESTRUCTIVE RMW PROBLEM]
-
-Test case btrfs/125 (and above workload) always has its trouble with
-the destructive read-modify-write (RMW) cycle:
-
-        0       32K     64K
-Data1:  | Good  | Good  |
-Data2:  | Bad   | Bad   |
-Parity: | Good  | Good  |
-
-In above case, if we trigger any write into Data1, we will use the bad
-data in Data2 to re-generate parity, killing the only chance to recovery
-Data2, thus Data2 is lost forever.
-
-This destructive RMW cycle is not specific to btrfs RAID56, but there
-are some btrfs specific behaviors making the case even worse:
-
-- Btrfs will cache sectors for unrelated vertical stripes.
-
-  In above example, if we're only writing into 0~32K range, btrfs will
-  still read data range (32K ~ 64K) of Data1, and (64K~128K) of Data2.
-  This behavior is to cache sectors for later update.
-
-  Incidentally commit d4e28d9b5f04 ("btrfs: raid56: make steal_rbio()
-  subpage compatible") has a bug which makes RAID56 to never trust the
-  cached sectors, thus slightly improve the situation for recovery.
-
-  Unfortunately, follow up fix "btrfs: update stripe_sectors::uptodate in
-  steal_rbio" will revert the behavior back to the old one.
-
-- Btrfs raid56 partial write will update all P/Q sectors and cache them
-
-  This means, even if data at (64K ~ 96K) of Data2 is free space, and
-  only (96K ~ 128K) of Data2 is really stale data.
-  And we write into that (96K ~ 128K), we will update all the parity
-  sectors for the full stripe.
-
-  This unnecessary behavior will completely kill the chance of recovery.
-
-  Thankfully, an unrelated optimization "btrfs: only write the sectors
-  in the vertical stripe which has data stripes" will prevent
-  submitting the write bio for untouched vertical sectors.
-
-  That optimization will keep the on-disk P/Q untouched for a chance for
-  later recovery.
-
-[FIX]
-Although we have no good way to completely fix the destructive RMW
-(unless we go full scrub for each partial write), we can still limit the
-damage.
-
-With patch "btrfs: only write the sectors in the vertical stripe which
-has data stripes" now we won't really submit the P/Q of unrelated
-vertical stripes, so the on-disk P/Q should still be fine.
-
-Now we really need to do is just drop all the cached sectors when doing
-recovery.
-
-By this, we have a chance to read the original P/Q from disk, and have a
-chance to recover the stale data, while still keep the cache to speed up
-regular write path.
-
-In fact, just dropping all the cache for recovery path is good enough to
-allow the test case btrfs/125 along with the small script to pass
-reliably.
-
-The lack of metadata write after the degraded mount, and forced metadata
-COW is saving us this time.
-
-So this patch will fix the behavior by not trust any cache in
-__raid56_parity_recover(), to solve the problem while still keep the
-cache useful.
-
-But please note that this test pass DOES NOT mean we have solved the
-destructive RMW problem, we just do better damage control a little
-better.
-
-Related patches:
-
-- btrfs: only write the sectors in the vertical stripe
-- d4e28d9b5f04 ("btrfs: raid56: make steal_rbio() subpage compatible")
-- btrfs: update stripe_sectors::uptodate in steal_rbio
-
-Acked-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: kexec@lists.infradead.org
+Cc: keyrings@vger.kernel.org
+Cc: linux-security-module@vger.kernel.org
+Reviewed-by: Michal Suchanek <msuchanek@suse.de>
+Signed-off-by: Coiby Xu <coxu@redhat.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/raid56.c |   15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ arch/x86/kernel/kexec-bzimage64.c |   20 +-------------------
+ include/linux/kexec.h             |    7 +++++++
+ kernel/kexec_file.c               |   17 +++++++++++++++++
+ 3 files changed, 25 insertions(+), 19 deletions(-)
 
---- a/fs/btrfs/raid56.c
-+++ b/fs/btrfs/raid56.c
-@@ -2218,9 +2218,12 @@ static int __raid56_parity_recover(struc
- 	atomic_set(&rbio->error, 0);
+--- a/arch/x86/kernel/kexec-bzimage64.c
++++ b/arch/x86/kernel/kexec-bzimage64.c
+@@ -17,7 +17,6 @@
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
+ #include <linux/efi.h>
+-#include <linux/verification.h>
  
- 	/*
--	 * read everything that hasn't failed.  Thanks to the
--	 * stripe cache, it is possible that some or all of these
--	 * pages are going to be uptodate.
-+	 * Read everything that hasn't failed. However this time we will
-+	 * not trust any cached sector.
-+	 * As we may read out some stale data but higher layer is not reading
-+	 * that stale part.
-+	 *
-+	 * So here we always re-read everything in recovery path.
- 	 */
- 	for (stripe = 0; stripe < rbio->real_stripes; stripe++) {
- 		if (rbio->faila == stripe || rbio->failb == stripe) {
-@@ -2231,13 +2234,7 @@ static int __raid56_parity_recover(struc
- 		for (sectornr = 0; sectornr < rbio->stripe_nsectors; sectornr++) {
- 			struct sector_ptr *sector;
+ #include <asm/bootparam.h>
+ #include <asm/setup.h>
+@@ -528,28 +527,11 @@ static int bzImage64_cleanup(void *loade
+ 	return 0;
+ }
  
--			/*
--			 * the rmw code may have already read this
--			 * page in
--			 */
- 			sector = rbio_stripe_sector(rbio, stripe, sectornr);
--			if (sector->uptodate)
--				continue;
+-#ifdef CONFIG_KEXEC_BZIMAGE_VERIFY_SIG
+-static int bzImage64_verify_sig(const char *kernel, unsigned long kernel_len)
+-{
+-	int ret;
+-
+-	ret = verify_pefile_signature(kernel, kernel_len,
+-				      VERIFY_USE_SECONDARY_KEYRING,
+-				      VERIFYING_KEXEC_PE_SIGNATURE);
+-	if (ret == -ENOKEY && IS_ENABLED(CONFIG_INTEGRITY_PLATFORM_KEYRING)) {
+-		ret = verify_pefile_signature(kernel, kernel_len,
+-					      VERIFY_USE_PLATFORM_KEYRING,
+-					      VERIFYING_KEXEC_PE_SIGNATURE);
+-	}
+-	return ret;
+-}
+-#endif
+-
+ const struct kexec_file_ops kexec_bzImage64_ops = {
+ 	.probe = bzImage64_probe,
+ 	.load = bzImage64_load,
+ 	.cleanup = bzImage64_cleanup,
+ #ifdef CONFIG_KEXEC_BZIMAGE_VERIFY_SIG
+-	.verify_sig = bzImage64_verify_sig,
++	.verify_sig = kexec_kernel_verify_pe_sig,
+ #endif
+ };
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -19,6 +19,7 @@
+ #include <asm/io.h>
  
- 			ret = rbio_add_io_sector(rbio, &bio_list, sector,
- 						 stripe, sectornr, rbio->stripe_len,
+ #include <uapi/linux/kexec.h>
++#include <linux/verification.h>
+ 
+ /* Location of a reserved region to hold the crash kernel.
+  */
+@@ -212,6 +213,12 @@ static inline void *arch_kexec_kernel_im
+ }
+ #endif
+ 
++#ifdef CONFIG_KEXEC_SIG
++#ifdef CONFIG_SIGNED_PE_FILE_VERIFICATION
++int kexec_kernel_verify_pe_sig(const char *kernel, unsigned long kernel_len);
++#endif
++#endif
++
+ extern int kexec_add_buffer(struct kexec_buf *kbuf);
+ int kexec_locate_mem_hole(struct kexec_buf *kbuf);
+ 
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -123,6 +123,23 @@ void kimage_file_post_load_cleanup(struc
+ }
+ 
+ #ifdef CONFIG_KEXEC_SIG
++#ifdef CONFIG_SIGNED_PE_FILE_VERIFICATION
++int kexec_kernel_verify_pe_sig(const char *kernel, unsigned long kernel_len)
++{
++	int ret;
++
++	ret = verify_pefile_signature(kernel, kernel_len,
++				      VERIFY_USE_SECONDARY_KEYRING,
++				      VERIFYING_KEXEC_PE_SIGNATURE);
++	if (ret == -ENOKEY && IS_ENABLED(CONFIG_INTEGRITY_PLATFORM_KEYRING)) {
++		ret = verify_pefile_signature(kernel, kernel_len,
++					      VERIFY_USE_PLATFORM_KEYRING,
++					      VERIFYING_KEXEC_PE_SIGNATURE);
++	}
++	return ret;
++}
++#endif
++
+ static int kexec_image_verify_sig(struct kimage *image, void *buf,
+ 				  unsigned long buf_len)
+ {
 
 
