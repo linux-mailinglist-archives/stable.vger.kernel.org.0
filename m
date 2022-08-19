@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F170059A02A
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C296459A0FA
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350097AbiHSPqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:46:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50566 "EHLO
+        id S1350114AbiHSPqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:46:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349957AbiHSPqG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:46:06 -0400
+        with ESMTP id S1350090AbiHSPqR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:46:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CF1F63BA;
-        Fri, 19 Aug 2022 08:46:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F27126DF;
+        Fri, 19 Aug 2022 08:46:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C69D0616B5;
-        Fri, 19 Aug 2022 15:46:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD672C433B5;
-        Fri, 19 Aug 2022 15:46:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C347161562;
+        Fri, 19 Aug 2022 15:46:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4891C433D6;
+        Fri, 19 Aug 2022 15:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660923964;
-        bh=qpyjHBlNmvh5qz8ZjsmPzt6EGeEiWMCvxwoRJDS94vo=;
+        s=korg; t=1660923968;
+        bh=5kiUs4sPPJU/Wj5M37mT4DSsBeG8+nlzUmmHSuqPbYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TdbmYuzm6ydCZvYwYuiHbhTUrt2yB+Q8zlxcb5dFf/3yutg1LNAZM3ET7ftfVuZgj
-         8MXC22SdSVQBmZ5f5U5JGG7EsWuWBrJGRHZLQS4UANAXRhvtDpR15ihn3ix1Q3VAwu
-         Sbpk3RLjHN0CvWzJ4F+JdVwziCB4YmCRP7oejL38=
+        b=j3JRfPslqTfGs6IcgGOorPbBzpOddhH5w5J6FTodqFVQujKTKAyWfPdiZZ5NjPPig
+         Bxur6sxQxSR40asrqIxXgsXwDvem9qcpVr+AGroylh8zuy1q0NRj/K+jYdx6apcrBD
+         GYmRCvvyJC3ulbBA+ifcfrevBR08gZy6iPtRnzfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 011/545] add barriers to buffer_uptodate and set_buffer_uptodate
-Date:   Fri, 19 Aug 2022 17:36:21 +0200
-Message-Id: <20220819153829.681391309@linuxfoundation.org>
+        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.10 012/545] HID: wacom: Only report rotation for art pen
+Date:   Fri, 19 Aug 2022 17:36:22 +0200
+Message-Id: <20220819153829.731267299@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,77 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Ping Cheng <pinglinux@gmail.com>
 
-commit d4252071b97d2027d246f6a82cbee4d52f618b47 upstream.
+commit 7ccced33a0ba39b0103ae1dfbf7f1dffdc0a1bc2 upstream.
 
-Let's have a look at this piece of code in __bread_slow:
+The generic routine, wacom_wac_pen_event, turns rotation value 90
+degree anti-clockwise before posting the events. This non-zero
+event trggers a non-zero ABS_Z event for non art pen tools. However,
+HID_DG_TWIST is only supported by art pen.
 
-	get_bh(bh);
-	bh->b_end_io = end_buffer_read_sync;
-	submit_bh(REQ_OP_READ, 0, bh);
-	wait_on_buffer(bh);
-	if (buffer_uptodate(bh))
-		return bh;
-
-Neither wait_on_buffer nor buffer_uptodate contain any memory barrier.
-Consequently, if someone calls sb_bread and then reads the buffer data,
-the read of buffer data may be executed before wait_on_buffer(bh) on
-architectures with weak memory ordering and it may return invalid data.
-
-Fix this bug by adding a memory barrier to set_buffer_uptodate and an
-acquire barrier to buffer_uptodate (in a similar way as
-folio_test_uptodate and folio_mark_uptodate).
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+[jkosina@suse.cz: fix build: add missing brace]
 Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/buffer_head.h |   25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ drivers/hid/wacom_wac.c |   29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
---- a/include/linux/buffer_head.h
-+++ b/include/linux/buffer_head.h
-@@ -117,7 +117,6 @@ static __always_inline int test_clear_bu
-  * of the form "mark_buffer_foo()".  These are higher-level functions which
-  * do something in addition to setting a b_state bit.
-  */
--BUFFER_FNS(Uptodate, uptodate)
- BUFFER_FNS(Dirty, dirty)
- TAS_BUFFER_FNS(Dirty, dirty)
- BUFFER_FNS(Lock, locked)
-@@ -135,6 +134,30 @@ BUFFER_FNS(Meta, meta)
- BUFFER_FNS(Prio, prio)
- BUFFER_FNS(Defer_Completion, defer_completion)
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -638,9 +638,26 @@ static int wacom_intuos_id_mangle(int to
+ 	return (tool_id & ~0xFFF) << 4 | (tool_id & 0xFFF);
+ }
  
-+static __always_inline void set_buffer_uptodate(struct buffer_head *bh)
++static bool wacom_is_art_pen(int tool_id)
 +{
-+	/*
-+	 * make it consistent with folio_mark_uptodate
-+	 * pairs with smp_load_acquire in buffer_uptodate
-+	 */
-+	smp_mb__before_atomic();
-+	set_bit(BH_Uptodate, &bh->b_state);
++	bool is_art_pen = false;
++
++	switch (tool_id) {
++	case 0x885:	/* Intuos3 Marker Pen */
++	case 0x804:	/* Intuos4/5 13HD/24HD Marker Pen */
++	case 0x10804:	/* Intuos4/5 13HD/24HD Art Pen */
++		is_art_pen = true;
++		break;
++	}
++	return is_art_pen;
 +}
 +
-+static __always_inline void clear_buffer_uptodate(struct buffer_head *bh)
-+{
-+	clear_bit(BH_Uptodate, &bh->b_state);
-+}
+ static int wacom_intuos_get_tool_type(int tool_id)
+ {
+-	int tool_type;
++	int tool_type = BTN_TOOL_PEN;
 +
-+static __always_inline int buffer_uptodate(const struct buffer_head *bh)
-+{
-+	/*
-+	 * make it consistent with folio_test_uptodate
-+	 * pairs with smp_mb__before_atomic in set_buffer_uptodate
-+	 */
-+	return (smp_load_acquire(&bh->b_state) & (1UL << BH_Uptodate)) != 0;
-+}
-+
- #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
++	if (wacom_is_art_pen(tool_id))
++		return tool_type;
  
- /* If we *know* page->private refers to buffer_heads */
+ 	switch (tool_id) {
+ 	case 0x812: /* Inking pen */
+@@ -655,12 +672,9 @@ static int wacom_intuos_get_tool_type(in
+ 	case 0x852:
+ 	case 0x823: /* Intuos3 Grip Pen */
+ 	case 0x813: /* Intuos3 Classic Pen */
+-	case 0x885: /* Intuos3 Marker Pen */
+ 	case 0x802: /* Intuos4/5 13HD/24HD General Pen */
+-	case 0x804: /* Intuos4/5 13HD/24HD Marker Pen */
+ 	case 0x8e2: /* IntuosHT2 pen */
+ 	case 0x022:
+-	case 0x10804: /* Intuos4/5 13HD/24HD Art Pen */
+ 	case 0x10842: /* MobileStudio Pro Pro Pen slim */
+ 	case 0x14802: /* Intuos4/5 13HD/24HD Classic Pen */
+ 	case 0x16802: /* Cintiq 13HD Pro Pen */
+@@ -718,10 +732,6 @@ static int wacom_intuos_get_tool_type(in
+ 	case 0x10902: /* Intuos4/5 13HD/24HD Airbrush */
+ 		tool_type = BTN_TOOL_AIRBRUSH;
+ 		break;
+-
+-	default: /* Unknown tool */
+-		tool_type = BTN_TOOL_PEN;
+-		break;
+ 	}
+ 	return tool_type;
+ }
+@@ -2312,6 +2322,9 @@ static void wacom_wac_pen_event(struct h
+ 		}
+ 		return;
+ 	case HID_DG_TWIST:
++		/* don't modify the value if the pen doesn't support the feature */
++		if (!wacom_is_art_pen(wacom_wac->id[0])) return;
++
+ 		/*
+ 		 * Userspace expects pen twist to have its zero point when
+ 		 * the buttons/finger is on the tablet's left. HID values
 
 
