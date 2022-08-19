@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9AD6599FE0
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FB4F599F39
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352110AbiHSQTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:19:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36484 "EHLO
+        id S1351914AbiHSQSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:18:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352059AbiHSQPe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:15:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2702B67141;
-        Fri, 19 Aug 2022 08:58:32 -0700 (PDT)
+        with ESMTP id S1352072AbiHSQPg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:15:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72E1DD7408;
+        Fri, 19 Aug 2022 08:58:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1AAF6175A;
-        Fri, 19 Aug 2022 15:58:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90267C433D7;
-        Fri, 19 Aug 2022 15:58:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6409EB8280C;
+        Fri, 19 Aug 2022 15:58:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A109BC433C1;
+        Fri, 19 Aug 2022 15:58:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924711;
-        bh=Da8cBBxBX4IhDdWFQDWVx1kklTczDRwaRgYukRzqfeo=;
+        s=korg; t=1660924714;
+        bh=MI5hWrxAm++B9la5lw2nKSFP4NMDajRRZhTsFJup0wE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GOHs3B9Pt7fVrKDoZEQc79ivsShWBBXPbgOkS0dZRoHxDMruO5aoFcoe6dDodLAwh
-         bKjSAZrU2qPplAxpmWvk8W2/Ssnzlq3WS9RWLEvmclCj+6I/9dy/Bz6QJ/QXe/yOD1
-         zz3ZDDVGfan666nGtxG/IR1IR1vGbjyl1k78Y6Lo=
+        b=2o3gdvaBO2j6FRmROQqHebsFyvAn4HadHIad/vSgMnJHhKkN89QRUXeJFDYZvxIzG
+         KfHNK5MTOtsS+YIUNehfSH8SZ2fVH/eUz1OjV7cYJlWxymwnzp4XIXNYB/vYgLjCuv
+         yW1V0HSVY/H0E5PjPzDASy4C5O4bYU3ZgPEQus8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 258/545] tcp: sk->sk_bound_dev_if once in inet_request_bound_dev_if()
-Date:   Fri, 19 Aug 2022 17:40:28 +0200
-Message-Id: <20220819153840.900835053@linuxfoundation.org>
+Subject: [PATCH 5.10 259/545] ipv6: add READ_ONCE(sk->sk_bound_dev_if) in INET6_MATCH()
+Date:   Fri, 19 Aug 2022 17:40:29 +0200
+Message-Id: <20220819153840.939616875@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -56,42 +56,121 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit fdb5fd7f736ec7ae9fb36d2842ea6d9ebc4e7269 ]
+[ Upstream commit 5d368f03280d3678433a7f119efe15dfbbb87bc8 ]
 
-inet_request_bound_dev_if() reads sk->sk_bound_dev_if twice
-while listener socket is not locked.
+INET6_MATCH() runs without holding a lock on the socket.
 
-Another cpu could change this field under us.
+We probably need to annotate most reads.
+
+This patch makes INET6_MATCH() an inline function
+to ease our changes.
+
+v2: inline function only defined if IS_ENABLED(CONFIG_IPV6)
+    Change the name to inet6_match(), this is no longer a macro.
 
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/inet_sock.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ include/net/inet6_hashtables.h | 28 +++++++++++++++++++---------
+ net/ipv4/inet_hashtables.c     |  2 +-
+ net/ipv6/inet6_hashtables.c    |  6 +++---
+ net/ipv6/udp.c                 |  2 +-
+ 4 files changed, 24 insertions(+), 14 deletions(-)
 
-diff --git a/include/net/inet_sock.h b/include/net/inet_sock.h
-index 3c039d4b0e48..886ed0950b7f 100644
---- a/include/net/inet_sock.h
-+++ b/include/net/inet_sock.h
-@@ -117,14 +117,15 @@ static inline u32 inet_request_mark(const struct sock *sk, struct sk_buff *skb)
- static inline int inet_request_bound_dev_if(const struct sock *sk,
- 					    struct sk_buff *skb)
- {
-+	int bound_dev_if = READ_ONCE(sk->sk_bound_dev_if);
- #ifdef CONFIG_NET_L3_MASTER_DEV
- 	struct net *net = sock_net(sk);
+diff --git a/include/net/inet6_hashtables.h b/include/net/inet6_hashtables.h
+index 81b965953036..f259e1ae14ba 100644
+--- a/include/net/inet6_hashtables.h
++++ b/include/net/inet6_hashtables.h
+@@ -103,15 +103,25 @@ struct sock *inet6_lookup(struct net *net, struct inet_hashinfo *hashinfo,
+ 			  const int dif);
  
--	if (!sk->sk_bound_dev_if && net->ipv4.sysctl_tcp_l3mdev_accept)
-+	if (!bound_dev_if && net->ipv4.sysctl_tcp_l3mdev_accept)
- 		return l3mdev_master_ifindex_by_index(net, skb->skb_iif);
- #endif
+ int inet6_hash(struct sock *sk);
+-#endif /* IS_ENABLED(CONFIG_IPV6) */
  
--	return sk->sk_bound_dev_if;
-+	return bound_dev_if;
- }
+-#define INET6_MATCH(__sk, __net, __saddr, __daddr, __ports, __dif, __sdif) \
+-	(((__sk)->sk_portpair == (__ports))			&&	\
+-	 ((__sk)->sk_family == AF_INET6)			&&	\
+-	 ipv6_addr_equal(&(__sk)->sk_v6_daddr, (__saddr))		&&	\
+-	 ipv6_addr_equal(&(__sk)->sk_v6_rcv_saddr, (__daddr))	&&	\
+-	 (((__sk)->sk_bound_dev_if == (__dif))	||			\
+-	  ((__sk)->sk_bound_dev_if == (__sdif)))		&&	\
+-	 net_eq(sock_net(__sk), (__net)))
++static inline bool inet6_match(struct net *net, const struct sock *sk,
++			       const struct in6_addr *saddr,
++			       const struct in6_addr *daddr,
++			       const __portpair ports,
++			       const int dif, const int sdif)
++{
++	int bound_dev_if;
++
++	if (!net_eq(sock_net(sk), net) ||
++	    sk->sk_family != AF_INET6 ||
++	    sk->sk_portpair != ports ||
++	    !ipv6_addr_equal(&sk->sk_v6_daddr, saddr) ||
++	    !ipv6_addr_equal(&sk->sk_v6_rcv_saddr, daddr))
++		return false;
++
++	bound_dev_if = READ_ONCE(sk->sk_bound_dev_if);
++	return bound_dev_if == dif || bound_dev_if == sdif;
++}
++#endif /* IS_ENABLED(CONFIG_IPV6) */
  
- static inline int inet_sk_bound_l3mdev(const struct sock *sk)
+ #endif /* _INET6_HASHTABLES_H */
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index 7dbe80e30b9d..feb7f072f2b2 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -536,7 +536,7 @@ static bool inet_ehash_lookup_by_sk(struct sock *sk,
+ 		}
+ #if IS_ENABLED(CONFIG_IPV6)
+ 		else if (sk->sk_family == AF_INET6) {
+-			if (unlikely(INET6_MATCH(esk, net,
++			if (unlikely(inet6_match(net, esk,
+ 						 &sk->sk_v6_daddr,
+ 						 &sk->sk_v6_rcv_saddr,
+ 						 ports, dif, sdif))) {
+diff --git a/net/ipv6/inet6_hashtables.c b/net/ipv6/inet6_hashtables.c
+index 40203255ed88..b4a5e01e1201 100644
+--- a/net/ipv6/inet6_hashtables.c
++++ b/net/ipv6/inet6_hashtables.c
+@@ -71,12 +71,12 @@ struct sock *__inet6_lookup_established(struct net *net,
+ 	sk_nulls_for_each_rcu(sk, node, &head->chain) {
+ 		if (sk->sk_hash != hash)
+ 			continue;
+-		if (!INET6_MATCH(sk, net, saddr, daddr, ports, dif, sdif))
++		if (!inet6_match(net, sk, saddr, daddr, ports, dif, sdif))
+ 			continue;
+ 		if (unlikely(!refcount_inc_not_zero(&sk->sk_refcnt)))
+ 			goto out;
+ 
+-		if (unlikely(!INET6_MATCH(sk, net, saddr, daddr, ports, dif, sdif))) {
++		if (unlikely(!inet6_match(net, sk, saddr, daddr, ports, dif, sdif))) {
+ 			sock_gen_put(sk);
+ 			goto begin;
+ 		}
+@@ -269,7 +269,7 @@ static int __inet6_check_established(struct inet_timewait_death_row *death_row,
+ 		if (sk2->sk_hash != hash)
+ 			continue;
+ 
+-		if (likely(INET6_MATCH(sk2, net, saddr, daddr, ports,
++		if (likely(inet6_match(net, sk2, saddr, daddr, ports,
+ 				       dif, sdif))) {
+ 			if (sk2->sk_state == TCP_TIME_WAIT) {
+ 				tw = inet_twsk(sk2);
+diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
+index 7745d8a40209..4e90e5a52945 100644
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -1019,7 +1019,7 @@ static struct sock *__udp6_lib_demux_lookup(struct net *net,
+ 
+ 	udp_portaddr_for_each_entry_rcu(sk, &hslot2->head) {
+ 		if (sk->sk_state == TCP_ESTABLISHED &&
+-		    INET6_MATCH(sk, net, rmt_addr, loc_addr, ports, dif, sdif))
++		    inet6_match(net, sk, rmt_addr, loc_addr, ports, dif, sdif))
+ 			return sk;
+ 		/* Only check first socket in chain */
+ 		break;
 -- 
 2.35.1
 
