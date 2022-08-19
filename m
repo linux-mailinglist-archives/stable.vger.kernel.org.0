@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31AC9599F44
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A126C59A1D5
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:36:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351999AbiHSQSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:18:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52032 "EHLO
+        id S1352051AbiHSQTC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:19:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352397AbiHSQQa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:16:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FBE01156E5;
-        Fri, 19 Aug 2022 08:59:50 -0700 (PDT)
+        with ESMTP id S1352430AbiHSQQg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:16:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB48B108F1C;
+        Fri, 19 Aug 2022 08:59:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3DC29B8281A;
-        Fri, 19 Aug 2022 15:59:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 955C4C433D7;
-        Fri, 19 Aug 2022 15:59:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B150A6178A;
+        Fri, 19 Aug 2022 15:59:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAEA9C433C1;
+        Fri, 19 Aug 2022 15:59:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924788;
-        bh=PghGDNWF3KVsVlVbJVBVOQRWWMiKyUQBBS3UZocD1es=;
+        s=korg; t=1660924791;
+        bh=qVykEADmkqDd7dMui6E8TD0P8QHRoDILfpFsL3tT9i4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KTy3cj6SvyBKMU2ayVn2DaxkxeXd2M01cRuaynKmH/CgtOkfzUzAKkmHXaOQtf6Ob
-         RYQK9GI77GeakxJMFGqqum0rAJdSVCvy4lK5Hk6c8DvRCNkknCsMLMtjlRSuqP4pYX
-         FVlptZh6gg4oPNMqaEK+IRXP9xQQ9GqVBF9xbXI4=
+        b=qzV+zuP5sM6tL2OtGmb5RxjNV0ozar9ozYVl5miImlTPGuA1pcFW8uUvTeBksEg/r
+         AOmAYFduCgOsrLpJi3pELN6Df0obxenSpLhPdP2j+8YJdRv/bjU+fA/DIPOfGg7A9N
+         uUXxG5ADMRYBgnF+BsdHkBCYoZD+pT6BpVPNVf5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 253/545] net/mlx5e: Fix the value of MLX5E_MAX_RQ_NUM_MTTS
-Date:   Fri, 19 Aug 2022 17:40:23 +0200
-Message-Id: <20220819153840.687917868@linuxfoundation.org>
+Subject: [PATCH 5.10 254/545] crypto: hisilicon/hpre - dont use GFP_KERNEL to alloc mem during softirq
+Date:   Fri, 19 Aug 2022 17:40:24 +0200
+Message-Id: <20220819153840.721711207@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,38 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 562696c3c62c7c23dd896e9447252ce9268cb812 ]
+[ Upstream commit 98dfa9343f37bdd4112966292751e3a93aaf2e56 ]
 
-MLX5E_MAX_RQ_NUM_MTTS should be the maximum value, so that
-MLX5_MTT_OCTW(MLX5E_MAX_RQ_NUM_MTTS) fits into u16. The current value of
-1 << 17 results in MLX5_MTT_OCTW(1 << 17) = 1 << 16, which doesn't fit
-into u16. This commit replaces it with the maximum value that still
-fits u16.
+The hpre encryption driver may be used to encrypt and decrypt packets
+during the rx softirq, it is not allowed to use GFP_KERNEL.
 
-Fixes: 73281b78a37a ("net/mlx5e: Derive Striding RQ size from MTU")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: c8b4b477079d ("crypto: hisilicon - add HiSilicon HPRE accelerator")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h | 2 +-
+ drivers/crypto/hisilicon/hpre/hpre_crypto.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-index 73060b30fece..b0229ceae234 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -101,7 +101,7 @@ struct page_pool;
- #define MLX5E_REQUIRED_WQE_MTTS		(MLX5_ALIGN_MTTS(MLX5_MPWRQ_PAGES_PER_WQE + 1))
- #define MLX5E_REQUIRED_MTTS(wqes)	(wqes * MLX5E_REQUIRED_WQE_MTTS)
- #define MLX5E_MAX_RQ_NUM_MTTS	\
--	((1 << 16) * 2) /* So that MLX5_MTT_OCTW(num_mtts) fits into u16 */
-+	(ALIGN_DOWN(U16_MAX, 4) * 2) /* So that MLX5_MTT_OCTW(num_mtts) fits into u16 */
- #define MLX5E_ORDER2_MAX_PACKET_MTU (order_base_2(10 * 1024))
- #define MLX5E_PARAMS_MAXIMUM_LOG_RQ_SIZE_MPW	\
- 		(ilog2(MLX5E_MAX_RQ_NUM_MTTS / MLX5E_REQUIRED_WQE_MTTS))
+diff --git a/drivers/crypto/hisilicon/hpre/hpre_crypto.c b/drivers/crypto/hisilicon/hpre/hpre_crypto.c
+index a87f9904087a..90c13ebe7e83 100644
+--- a/drivers/crypto/hisilicon/hpre/hpre_crypto.c
++++ b/drivers/crypto/hisilicon/hpre/hpre_crypto.c
+@@ -210,7 +210,7 @@ static int hpre_prepare_dma_buf(struct hpre_asym_request *hpre_req,
+ 	if (unlikely(shift < 0))
+ 		return -EINVAL;
+ 
+-	ptr = dma_alloc_coherent(dev, ctx->key_sz, tmp, GFP_KERNEL);
++	ptr = dma_alloc_coherent(dev, ctx->key_sz, tmp, GFP_ATOMIC);
+ 	if (unlikely(!ptr))
+ 		return -ENOMEM;
+ 
 -- 
 2.35.1
 
