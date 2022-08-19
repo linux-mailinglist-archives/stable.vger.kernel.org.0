@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC26159A092
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A61C0599F23
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352258AbiHSQVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:21:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40824 "EHLO
+        id S1352276AbiHSQVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:21:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352389AbiHSQUp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:20:45 -0400
+        with ESMTP id S1352405AbiHSQUr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:20:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84F0E248;
-        Fri, 19 Aug 2022 09:01:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 568AAB5A47;
+        Fri, 19 Aug 2022 09:01:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2180D617A5;
-        Fri, 19 Aug 2022 16:01:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1489BC433D6;
-        Fri, 19 Aug 2022 16:01:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 773AF61644;
+        Fri, 19 Aug 2022 16:01:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57728C433C1;
+        Fri, 19 Aug 2022 16:01:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924901;
-        bh=K2CM2tFdnxFMHQXII/3DaGSfjgDDyPL/dtPysxPT0IE=;
+        s=korg; t=1660924904;
+        bh=2BxS2z9fUVXK8JFR2a1gYx1ckx/r6/L7iaArnJXsr20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a3lS0rh1EvF6RUta+/iPCuGo2WSKEP/peBux69c8eiFDDTNxRqP3Qnbx54WkFzYLE
-         6ok+NShCGdAnKQDWUhT2PMv0kVtp5kI9bo3EE/zYMAifjUaCiIpBRyzDxjpb+arkKU
-         +MLjRheVGpXDpvPTKtdULQjs3JyC5jVrb1/vW1qo=
+        b=o998yzDJmdi5oAR93vUEzdBtZtWqepvIaUyl+eDURFKysX753l9JW4OUOI/iCBR7l
+         8feRryuFb8nV3IPimkQUtlXmaPevTzO0V4eohndyT5j34DIR0zkeTokzDsY/v3+iiu
+         SbIwj5IyDZ+hTdpueAyObdmeJF9yYen87mxTjL1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Marangi <ansuelsmth@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Scott Benesh <scott.benesh@microchip.com>,
+        Scott Teel <scott.teel@microchip.com>,
+        Mike McGowen <mike.mcgowen@microchip.com>,
+        Kevin Barnett <kevin.barnett@microchip.com>,
+        Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>,
+        Don Brace <don.brace@microchip.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 320/545] PCI: qcom: Set up rev 2.1.0 PARF_PHY before enabling clocks
-Date:   Fri, 19 Aug 2022 17:41:30 +0200
-Message-Id: <20220819153843.670897718@linuxfoundation.org>
+Subject: [PATCH 5.10 321/545] scsi: smartpqi: Fix DMA direction for RAID requests
+Date:   Fri, 19 Aug 2022 17:41:31 +0200
+Message-Id: <20220819153843.713394651@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,66 +59,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Marangi <ansuelsmth@gmail.com>
+From: Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>
 
-[ Upstream commit 38f897ae3d44900f627cad708a15db498ce2ca31 ]
+[ Upstream commit 69695aeaa6621bc49cdd7a8e5a8d1042461e496e ]
 
-We currently enable clocks BEFORE we write to PARF_PHY_CTRL reg to enable
-clocks and resets. This causes the driver to never set to a ready state
-with the error 'Phy link never came up'.
+Correct a SOP READ and WRITE DMA flags for some requests.
 
-This is caused by the PHY clock getting enabled before setting the required
-bits in the PARF regs.
+This update corrects DMA direction issues with SCSI commands removed from
+the controller's internal lookup table.
 
-A workaround for this was set but with this new discovery we can drop
-the workaround and use a proper solution to the problem by just enabling
-the clock only AFTER the PARF_PHY_CTRL bit is set.
+Currently, SCSI READ BLOCK LIMITS (0x5) was removed from the controller
+lookup table and exposed a DMA direction flag issue.
 
-This correctly sets up the PCIe link and makes it usable even when a
-bootloader leaves the PCIe link in an undefined state.
+SCSI READ BLOCK LIMITS was recently removed from our controller lookup
+table so the controller uses the respective IU flag field to set the DMA
+data direction. Since the DMA direction is incorrect the FW never completes
+the request causing a hang.
 
-Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
-Link: https://lore.kernel.org/r/20220708222743.27019-1-ansuelsmth@gmail.com
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Some SCSI commands which use SCSI READ BLOCK LIMITS
+
+      * sg_map
+      * mt -f /dev/stX status
+
+After updating controller firmware, users may notice their tape units
+failing. This patch resolves the issue.
+
+Also, the AIO path DMA direction is correct.
+
+The DMA direction flag is a day-one bug with no reported BZ.
+
+Fixes: 6c223761eb54 ("smartpqi: initial commit of Microsemi smartpqi driver")
+Link: https://lore.kernel.org/r/165730605618.177165.9054223644512926624.stgit@brunhilda
+Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
+Reviewed-by: Scott Teel <scott.teel@microchip.com>
+Reviewed-by: Mike McGowen <mike.mcgowen@microchip.com>
+Reviewed-by: Kevin Barnett <kevin.barnett@microchip.com>
+Signed-off-by: Mahesh Rajashekhara <Mahesh.Rajashekhara@microchip.com>
+Signed-off-by: Don Brace <don.brace@microchip.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-qcom.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/scsi/smartpqi/smartpqi_init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
-index 1b8b3c12eece..5fbd80908a99 100644
---- a/drivers/pci/controller/dwc/pcie-qcom.c
-+++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -320,8 +320,6 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
- 	reset_control_assert(res->ext_reset);
- 	reset_control_assert(res->phy_reset);
- 
--	writel(1, pcie->parf + PCIE20_PARF_PHY_CTRL);
--
- 	ret = regulator_bulk_enable(ARRAY_SIZE(res->supplies), res->supplies);
- 	if (ret < 0) {
- 		dev_err(dev, "cannot enable regulators\n");
-@@ -364,15 +362,15 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
- 		goto err_deassert_axi;
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index de73ade70c24..fcff35e20a4a 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -4997,10 +4997,10 @@ static int pqi_raid_submit_scsi_cmd_with_io_request(
  	}
  
--	ret = clk_bulk_prepare_enable(ARRAY_SIZE(res->clks), res->clks);
--	if (ret)
--		goto err_clks;
--
- 	/* enable PCIe clocks and resets */
- 	val = readl(pcie->parf + PCIE20_PARF_PHY_CTRL);
- 	val &= ~BIT(0);
- 	writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
- 
-+	ret = clk_bulk_prepare_enable(ARRAY_SIZE(res->clks), res->clks);
-+	if (ret)
-+		goto err_clks;
-+
- 	if (of_device_is_compatible(node, "qcom,pcie-ipq8064") ||
- 	    of_device_is_compatible(node, "qcom,pcie-ipq8064-v2")) {
- 		writel(PCS_DEEMPH_TX_DEEMPH_GEN1(24) |
+ 	switch (scmd->sc_data_direction) {
+-	case DMA_TO_DEVICE:
++	case DMA_FROM_DEVICE:
+ 		request->data_direction = SOP_READ_FLAG;
+ 		break;
+-	case DMA_FROM_DEVICE:
++	case DMA_TO_DEVICE:
+ 		request->data_direction = SOP_WRITE_FLAG;
+ 		break;
+ 	case DMA_NONE:
 -- 
 2.35.1
 
