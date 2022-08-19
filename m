@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53CC859A148
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC96F59A1C9
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351671AbiHSQLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:11:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36534 "EHLO
+        id S1351518AbiHSQLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:11:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351810AbiHSQKj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:10:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 286CD111C23;
-        Fri, 19 Aug 2022 08:56:55 -0700 (PDT)
+        with ESMTP id S1351930AbiHSQLD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:11:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61DCD11231E;
+        Fri, 19 Aug 2022 08:56:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BEE761589;
-        Fri, 19 Aug 2022 15:56:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E975C43143;
-        Fri, 19 Aug 2022 15:56:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 134B6B82819;
+        Fri, 19 Aug 2022 15:56:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42FABC43140;
+        Fri, 19 Aug 2022 15:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924613;
-        bh=791j+2hWy8TOd/D1gDSC01GR07M5nk56qoSUdhg5FAU=;
+        s=korg; t=1660924616;
+        bh=/bz97d8eC9tLEAccbjF2RV+Ifl5jlUarddDXwnlxLb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jb72wLmbeA6KM3JKw47hpss9g8TTJUBfev0N+VMrF+zxJ9OvZ0lpj3p2rrYctQO1/
-         P5oPa8tcU4h+xeQWCNQBO6Sz9Opo1xD3xFhM2d5a519gRGR0jMnMuitvP4Y00mDt23
-         UWfhDWj3FpVGFF7p0oDvpoacVfKGlpeoWZlWWH2s=
+        b=WTWly/4lAAMJp8TTX5S2Ia4+lueVyqfeeRmvZx77R6r+x14Psj1nWySpY4/a7qzix
+         qa2PZXDIQbJVkjMx8av5aEG24ieLRkvJ4jJZjGIWebaqwr9sLJJB8QKDir/WigTv/T
+         pqbyzWTeR+2uRND5b373mBaMINwea8P8ujsQ1EiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         John Stultz <jstultz@google.com>,
         Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 227/545] selftests: timers: valid-adjtimex: build fix for newer toolchains
-Date:   Fri, 19 Aug 2022 17:39:57 +0200
-Message-Id: <20220819153839.532535791@linuxfoundation.org>
+Subject: [PATCH 5.10 228/545] selftests: timers: clocksource-switch: fix passing errors from child
+Date:   Fri, 19 Aug 2022 17:39:58 +0200
+Message-Id: <20220819153839.572434394@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -58,35 +58,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit 9a162977d20436be5678a8e21a8e58eb4616d86a ]
+[ Upstream commit 4d8f52ac5fa9eede7b7aa2f2d67c841d9eeb655f ]
 
-Toolchains with an include file 'sys/timex.h' based on 3.18 will have a
-'clock_adjtime' definition added, so it can't be static in the code:
+The return value from system() is a waitpid-style integer. Do not return
+it directly because with the implicit masking in exit() it will always
+return 0. Access it with appropriate macros to really pass on errors.
 
-valid-adjtimex.c:43:12: error: static declaration of ‘clock_adjtime’ follows non-static declaration
-
-Fixes: e03a58c320e1 ("kselftests: timers: Add adjtimex SETOFFSET validity tests")
+Fixes: 7290ce1423c3 ("selftests/timers: Add clocksource-switch test from timetest suite")
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Acked-by: John Stultz <jstultz@google.com>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/timers/valid-adjtimex.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/timers/clocksource-switch.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/timers/valid-adjtimex.c b/tools/testing/selftests/timers/valid-adjtimex.c
-index 5397de708d3c..48b9a803235a 100644
---- a/tools/testing/selftests/timers/valid-adjtimex.c
-+++ b/tools/testing/selftests/timers/valid-adjtimex.c
-@@ -40,7 +40,7 @@
- #define ADJ_SETOFFSET 0x0100
+diff --git a/tools/testing/selftests/timers/clocksource-switch.c b/tools/testing/selftests/timers/clocksource-switch.c
+index bfc974b4572d..c18313a5f357 100644
+--- a/tools/testing/selftests/timers/clocksource-switch.c
++++ b/tools/testing/selftests/timers/clocksource-switch.c
+@@ -110,10 +110,10 @@ int run_tests(int secs)
  
- #include <sys/syscall.h>
--static int clock_adjtime(clockid_t id, struct timex *tx)
-+int clock_adjtime(clockid_t id, struct timex *tx)
- {
- 	return syscall(__NR_clock_adjtime, id, tx);
+ 	sprintf(buf, "./inconsistency-check -t %i", secs);
+ 	ret = system(buf);
+-	if (ret)
+-		return ret;
++	if (WIFEXITED(ret) && WEXITSTATUS(ret))
++		return WEXITSTATUS(ret);
+ 	ret = system("./nanosleep");
+-	return ret;
++	return WIFEXITED(ret) ? WEXITSTATUS(ret) : 0;
  }
+ 
+ 
 -- 
 2.35.1
 
