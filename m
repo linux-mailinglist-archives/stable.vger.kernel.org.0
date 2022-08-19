@@ -2,125 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B2575999D9
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 12:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B0F5999FC
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 12:43:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347036AbiHSKgi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 06:36:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55960 "EHLO
+        id S1348209AbiHSKlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 06:41:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245098AbiHSKgh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 06:36:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BF9AF2C8F;
-        Fri, 19 Aug 2022 03:36:36 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4577BB8274C;
-        Fri, 19 Aug 2022 10:36:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A501C433C1;
-        Fri, 19 Aug 2022 10:36:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660905394;
-        bh=XlLJ8l/1+WmR0BqWmHIhNjMDhoHHPr4K1bRmEQU2kEY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FomLmqxAv/zaRTN+pz2QA0qNlNg47OdmOMbej4vQkDwfgws8O0+qrWQd8+vhz5Iui
-         tkGSP13X8+R7Cxnljmp29Ew6xg3Tn+4U8XWD4NH0MC+HGkXLtHNVZrcTYqrwx/Vg72
-         v1Tf/28IzxDy/z46ojAtb6FgvALHw2phf9/CJsrU=
-Date:   Fri, 19 Aug 2022 12:36:31 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jens Wiklander <jens.wiklander@linaro.org>
-Cc:     linux-kernel@vger.kernel.org, op-tee@lists.trustedfirmware.org,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Jerome Forissier <jerome.forissier@linaro.org>,
-        stable@vger.kernel.org, Nimish Mishra <neelam.nimish@gmail.com>,
-        Anirban Chakraborty <ch.anirban00727@gmail.com>,
-        Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>,
-        Linus Torvalds <torvalds@linuxfoundation.org>
-Subject: Re: [PATCH v3] tee: add overflow check in register_shm_helper()
-Message-ID: <Yv9nr4/XQI0Tl4XO@kroah.com>
-References: <20220819094952.2602066-1-jens.wiklander@linaro.org>
+        with ESMTP id S1347814AbiHSKls (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 06:41:48 -0400
+Received: from mx0a-0064b401.pphosted.com (mx0a-0064b401.pphosted.com [205.220.166.238])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D773F4382;
+        Fri, 19 Aug 2022 03:41:47 -0700 (PDT)
+Received: from pps.filterd (m0250810.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27JAWGUj024458;
+        Fri, 19 Aug 2022 03:39:05 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type :
+ content-transfer-encoding; s=PPS06212021;
+ bh=V5UHwYCKN3dH57rjW4b86xzSQCOzujFIliAIIiMc64A=;
+ b=mbYE3qaSLCSSJ8mkJGCzQPFPge4gotNjkj3PlLIHjFV9hLxycyPfuSEu6nt2NtypNaTm
+ lAaRBNpIHBLMIvmYQ/4N5hlVnmkOY6EgNe9RkHKY5GfNcM8agZ8LdOoFm0/6jJhNTjWd
+ Lw5qRfa2ZLLaCxmQtjY5xTTMwdh/K/e2k2k+KfZzNOu0gn7Np1muY53lFWig0k8D/zN9
+ HwNQWpei34DChZFwgxu1o79VJJLT2FwcdufL3F8UU0j6QhiyXc/jYPUZlrfblSf/gcjR
+ B6tkTFJRzUoqoIXAOaarxSRBcx2J5kjUCw8kUSINI21nhYvCH9lKMYrI/TAeHOBEKVT1 ng== 
+Received: from ala-exchng01.corp.ad.wrs.com (unknown-82-252.windriver.com [147.11.82.252])
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3hx783d5cm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+        Fri, 19 Aug 2022 03:39:05 -0700
+Received: from otp-dpanait-l2.corp.ad.wrs.com (128.224.125.191) by
+ ala-exchng01.corp.ad.wrs.com (147.11.82.252) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2242.12; Fri, 19 Aug 2022 03:39:01 -0700
+From:   Dragos-Marian Panait <dragos.panait@windriver.com>
+To:     <stable@vger.kernel.org>
+CC:     Pavel Skripkin <paskripkin@gmail.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Vasanthakumar Thiagarajan <vasanth@atheros.com>,
+        Sujith <Sujith.Manoharan@atheros.com>,
+        Senthil Balasubramanian <senthilkumar@atheros.com>,
+        "John W . Linville" <linville@tuxdriver.com>,
+        <linux-wireless@vger.kernel.org>, <netdev@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH 5.10 0/1] ath9k: fix use-after-free in ath9k_hif_usb_rx_cb
+Date:   Fri, 19 Aug 2022 13:38:51 +0300
+Message-ID: <20220819103852.902332-1-dragos.panait@windriver.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220819094952.2602066-1-jens.wiklander@linaro.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [128.224.125.191]
+X-ClientProxiedBy: ala-exchng01.corp.ad.wrs.com (147.11.82.252) To
+ ala-exchng01.corp.ad.wrs.com (147.11.82.252)
+X-Proofpoint-ORIG-GUID: inYO1mV4n7fjUxtR6KRXfBoSYH-eQHjP
+X-Proofpoint-GUID: inYO1mV4n7fjUxtR6KRXfBoSYH-eQHjP
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-19_06,2022-08-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
+ spamscore=0 impostorscore=0 suspectscore=0 phishscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 adultscore=0 priorityscore=1501
+ mlxlogscore=307 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208190041
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 19, 2022 at 11:49:52AM +0200, Jens Wiklander wrote:
-> With special lengths supplied by user space, register_shm_helper() has
-> an integer overflow when calculating the number of pages covered by a
-> supplied user space memory region. This causes
-> internal_get_user_pages_fast() a helper function of
-> pin_user_pages_fast() to do a NULL pointer dereference.
-> 
-> [   14.141620] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
-> [   14.142556] Mem abort info:
-> [   14.142829]   ESR = 0x0000000096000044
-> [   14.143237]   EC = 0x25: DABT (current EL), IL = 32 bits
-> [   14.143742]   SET = 0, FnV = 0
-> [   14.144052]   EA = 0, S1PTW = 0
-> [   14.144348]   FSC = 0x04: level 0 translation fault
-> [   14.144767] Data abort info:
-> [   14.145053]   ISV = 0, ISS = 0x00000044
-> [   14.145394]   CM = 0, WnR = 1
-> [   14.145766] user pgtable: 4k pages, 48-bit VAs, pgdp=000000004278e000
-> [   14.146279] [0000000000000010] pgd=0000000000000000, p4d=0000000000000000
-> [   14.147435] Internal error: Oops: 96000044 [#1] PREEMPT SMP
-> [   14.148026] Modules linked in:
-> [   14.148595] CPU: 1 PID: 173 Comm: optee_example_a Not tainted 5.19.0 #11
-> [   14.149204] Hardware name: QEMU QEMU Virtual Machine, BIOS 0.0.0 02/06/2015
-> [   14.149832] pstate: 604000c5 (nZCv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-> [   14.150481] pc : internal_get_user_pages_fast+0x474/0xa80
-> [   14.151640] lr : internal_get_user_pages_fast+0x404/0xa80
-> [   14.152408] sp : ffff80000a88bb30
-> [   14.152711] x29: ffff80000a88bb30 x28: 0000fffff836d000 x27: 0000fffff836e000
-> [   14.153580] x26: fffffc0000000000 x25: fffffc0000f4a1c0 x24: ffff00000289fb70
-> [   14.154634] x23: ffff000002702e08 x22: 0000000000040001 x21: ffff8000097eec60
-> [   14.155378] x20: 0000000000f4a1c0 x19: 00e800007d287f43 x18: 0000000000000000
-> [   14.156215] x17: 0000000000000000 x16: 0000000000000000 x15: 0000fffff836cfb0
-> [   14.157068] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
-> [   14.157747] x11: 0000000000000000 x10: 0000000000000000 x9 : 0000000000000000
-> [   14.158576] x8 : ffff00000276ec80 x7 : 0000000000000000 x6 : 000000000000003f
-> [   14.159243] x5 : 0000000000000000 x4 : ffff000041ec4eac x3 : ffff000002774cb8
-> [   14.159977] x2 : 0000000000000004 x1 : 0000000000000010 x0 : 0000000000000000
-> [   14.160883] Call trace:
-> [   14.161166]  internal_get_user_pages_fast+0x474/0xa80
-> [   14.161763]  pin_user_pages_fast+0x24/0x4c
-> [   14.162227]  register_shm_helper+0x194/0x330
-> [   14.162734]  tee_shm_register_user_buf+0x78/0x120
-> [   14.163290]  tee_ioctl+0xd0/0x11a0
-> [   14.163739]  __arm64_sys_ioctl+0xa8/0xec
-> [   14.164227]  invoke_syscall+0x48/0x114
-> [   14.164653]  el0_svc_common.constprop.0+0x44/0xec
-> [   14.165130]  do_el0_svc+0x2c/0xc0
-> [   14.165498]  el0_svc+0x2c/0x84
-> [   14.165847]  el0t_64_sync_handler+0x1ac/0x1b0
-> [   14.166258]  el0t_64_sync+0x18c/0x190
-> [   14.166878] Code: 91002318 11000401 b900f7e1 f9403be1 (f820d839)
-> [   14.167666] ---[ end trace 0000000000000000 ]---
-> 
-> Fix this by adding an overflow check when calculating the end of the
-> memory range. Also add an explicit call to access_ok() in
-> tee_shm_register_user_buf() to catch an invalid user space address
-> early.
-> 
-> Fixes: 033ddf12bcf5 ("tee: add register user memory")
-> Cc: stable@vger.kernel.org
-> Reported-by: Nimish Mishra <neelam.nimish@gmail.com>
-> Reported-by: Anirban Chakraborty <ch.anirban00727@gmail.com>
-> Reported-by: Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>
-> Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-> Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+The following commit is needed to fix CVE-2022-1679:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0ac4827f78c7ffe8eef074bc010e7e34bc22f533
 
-This conflicts with 573ae4f13f63 ("tee: add overflow check in
-register_shm_helper()") in Linus's tree :(
+Pavel Skripkin (1):
+  ath9k: fix use-after-free in ath9k_hif_usb_rx_cb
+
+ drivers/net/wireless/ath/ath9k/htc.h          | 10 +++++-----
+ drivers/net/wireless/ath/ath9k/htc_drv_init.c |  3 ++-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
+
+
+base-commit: 6eae1503ddf94b4c3581092d566b17ed12d80f20
+-- 
+2.37.1
 
