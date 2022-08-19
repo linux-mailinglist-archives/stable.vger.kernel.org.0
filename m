@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA82059A034
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4573A59A1F4
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:36:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350452AbiHSPzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:55:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40100 "EHLO
+        id S1350628AbiHSPyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:54:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350606AbiHSPy2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:54:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EEEC106531;
-        Fri, 19 Aug 2022 08:49:41 -0700 (PDT)
+        with ESMTP id S1350594AbiHSPyI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:54:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16DE7543CD;
+        Fri, 19 Aug 2022 08:49:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5EE761711;
-        Fri, 19 Aug 2022 15:49:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD404C433D7;
-        Fri, 19 Aug 2022 15:49:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B25A66170C;
+        Fri, 19 Aug 2022 15:49:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADCC5C433C1;
+        Fri, 19 Aug 2022 15:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924170;
-        bh=tRMypaLnigkjeLRUmrWAejT49vT0wyzqMWkQO2IPZGc=;
+        s=korg; t=1660924173;
+        bh=xa9awBFNuvjnDUiojN4ngg94h5XL+TXVfCZlEsYL2hI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MBre20RNS/peCzayasvICDkL1KODJ9OG20Z5Eto1GtANMOFxXNB+FpxWoUZro82sd
-         leVEH7JqKcF4SfbYC5hk7yM9y4iD/kAtoHvJR4rBu8MfteEyCY7vngTrDYS39R92hX
-         TSMmUn6jnOWg6CWHiR2bE1PtqlnlFsaKmOKFi7R8=
+        b=bXW5Y+FcQiReVGA1M3TgEqEGLJlQmZr/q5elg0u0x6qbvN00f4t1GTt4XVGbHJGJH
+         3kHUO0pxO24ale3nLj7qGz6VGl0C0JPc7889VBAwMD81JLWSJWSNGj+PX9lpEqhfpk
+         urkD8YWphf0kiXvkfdR7773T01jQEBbPy8883Z4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Francis Laniel <flaniel@linux.microsoft.com>,
+        stable@vger.kernel.org, hewenliang <hewenliang4@huawei.com>,
+        Haibin Zhang <haibinzhang@tencent.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 078/545] arm64: Do not forget syscall when starting a new thread.
-Date:   Fri, 19 Aug 2022 17:37:28 +0200
-Message-Id: <20220819153832.760137236@linuxfoundation.org>
+Subject: [PATCH 5.10 079/545] arm64: fix oops in concurrently setting insn_emulation sysctls
+Date:   Fri, 19 Aug 2022 17:37:29 +0200
+Message-Id: <20220819153832.800115559@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,38 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francis Laniel <flaniel@linux.microsoft.com>
+From: haibinzhang (张海斌) <haibinzhang@tencent.com>
 
-[ Upstream commit de6921856f99c11d3986c6702d851e1328d4f7f6 ]
+[ Upstream commit af483947d472eccb79e42059276c4deed76f99a6 ]
 
-Enable tracing of the execve*() system calls with the
-syscalls:sys_exit_execve tracepoint by removing the call to
-forget_syscall() when starting a new thread and preserving the value of
-regs->syscallno across exec.
+emulation_proc_handler() changes table->data for proc_dointvec_minmax
+and can generate the following Oops if called concurrently with itself:
 
-Signed-off-by: Francis Laniel <flaniel@linux.microsoft.com>
-Link: https://lore.kernel.org/r/20220608162447.666494-2-flaniel@linux.microsoft.com
+ | Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
+ | Internal error: Oops: 96000006 [#1] SMP
+ | Call trace:
+ | update_insn_emulation_mode+0xc0/0x148
+ | emulation_proc_handler+0x64/0xb8
+ | proc_sys_call_handler+0x9c/0xf8
+ | proc_sys_write+0x18/0x20
+ | __vfs_write+0x20/0x48
+ | vfs_write+0xe4/0x1d0
+ | ksys_write+0x70/0xf8
+ | __arm64_sys_write+0x20/0x28
+ | el0_svc_common.constprop.0+0x7c/0x1c0
+ | el0_svc_handler+0x2c/0xa0
+ | el0_svc+0x8/0x200
+
+To fix this issue, keep the table->data as &insn->current_mode and
+use container_of() to retrieve the insn pointer. Another mutex is
+used to protect against the current_mode update but not for retrieving
+insn_emulation as table->data is no longer changing.
+
+Co-developed-by: hewenliang <hewenliang4@huawei.com>
+Signed-off-by: hewenliang <hewenliang4@huawei.com>
+Signed-off-by: Haibin Zhang <haibinzhang@tencent.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20220128090324.2727688-1-hewenliang4@huawei.com
+Link: https://lore.kernel.org/r/9A004C03-250B-46C5-BF39-782D7551B00E@tencent.com
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/processor.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/armv8_deprecated.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
-index fce8cbecd6bc..7c546c3487c9 100644
---- a/arch/arm64/include/asm/processor.h
-+++ b/arch/arm64/include/asm/processor.h
-@@ -194,8 +194,9 @@ void tls_preserve_current_state(void);
+diff --git a/arch/arm64/kernel/armv8_deprecated.c b/arch/arm64/kernel/armv8_deprecated.c
+index 7364de008bab..91b8a8378ba3 100644
+--- a/arch/arm64/kernel/armv8_deprecated.c
++++ b/arch/arm64/kernel/armv8_deprecated.c
+@@ -59,6 +59,7 @@ struct insn_emulation {
+ static LIST_HEAD(insn_emulation);
+ static int nr_insn_emulated __initdata;
+ static DEFINE_RAW_SPINLOCK(insn_emulation_lock);
++static DEFINE_MUTEX(insn_emulation_mutex);
  
- static inline void start_thread_common(struct pt_regs *regs, unsigned long pc)
+ static void register_emulation_hooks(struct insn_emulation_ops *ops)
  {
-+	s32 previous_syscall = regs->syscallno;
- 	memset(regs, 0, sizeof(*regs));
--	forget_syscall(regs);
-+	regs->syscallno = previous_syscall;
- 	regs->pc = pc;
+@@ -207,10 +208,10 @@ static int emulation_proc_handler(struct ctl_table *table, int write,
+ 				  loff_t *ppos)
+ {
+ 	int ret = 0;
+-	struct insn_emulation *insn = (struct insn_emulation *) table->data;
++	struct insn_emulation *insn = container_of(table->data, struct insn_emulation, current_mode);
+ 	enum insn_emulation_mode prev_mode = insn->current_mode;
  
- 	if (system_uses_irq_prio_masking())
+-	table->data = &insn->current_mode;
++	mutex_lock(&insn_emulation_mutex);
+ 	ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
+ 
+ 	if (ret || !write || prev_mode == insn->current_mode)
+@@ -223,7 +224,7 @@ static int emulation_proc_handler(struct ctl_table *table, int write,
+ 		update_insn_emulation_mode(insn, INSN_UNDEF);
+ 	}
+ ret:
+-	table->data = insn;
++	mutex_unlock(&insn_emulation_mutex);
+ 	return ret;
+ }
+ 
+@@ -247,7 +248,7 @@ static void __init register_insn_emulation_sysctl(void)
+ 		sysctl->maxlen = sizeof(int);
+ 
+ 		sysctl->procname = insn->ops->name;
+-		sysctl->data = insn;
++		sysctl->data = &insn->current_mode;
+ 		sysctl->extra1 = &insn->min;
+ 		sysctl->extra2 = &insn->max;
+ 		sysctl->proc_handler = emulation_proc_handler;
 -- 
 2.35.1
 
