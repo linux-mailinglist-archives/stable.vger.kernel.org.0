@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB564599F38
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 487BA59A1EC
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:36:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352596AbiHSQ0o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:26:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42330 "EHLO
+        id S1352571AbiHSQ0m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:26:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352896AbiHSQZs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:25:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CF82B6D75;
+        with ESMTP id S1352972AbiHSQZ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:25:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1F9AB6026;
         Fri, 19 Aug 2022 09:03:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30229B82802;
-        Fri, 19 Aug 2022 16:03:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E966C433C1;
-        Fri, 19 Aug 2022 16:03:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 724A4617A5;
+        Fri, 19 Aug 2022 16:03:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8184BC433C1;
+        Fri, 19 Aug 2022 16:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925014;
-        bh=rH4/5QZYBSyBtSC5tRu7KwpcfHv88JeoQnMUlVOMGM4=;
+        s=korg; t=1660925016;
+        bh=LLTeC4buUX1RpkGN4KskQVmxDsOfq3Ye4iclIgdlGK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CeLq+KJCuar0FkKe23JGhIFv9G3CyrnsynRsRsy3vgFVBSDXCZQok6b6uB6vOa/ty
-         xojpCMxCoR7NEgy3o9tJWBWtSV+L0/AIZzjMcLBJ5rKhwKcqyCZKFXo7xK+UOM5+ug
-         Pb80ZjYAwXg1WVN1rG/fSKnmdsR0NUUS5B4IIcu8=
+        b=QcJWZxeiXIZIR7ob+wHgmYE2XJELRX6B0rphmfbD//lp2+na4B2NwwubwghevxiUX
+         Y34F/EvuSRxefvSoqRpYtXCbW57ni8MySa8rc5Tieq/zrI2XHseEyin7qc4Lr+lcV5
+         Pi7xCQhGAQHnpBFeZGFDZS2zl8cPABGVM/epTODY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+833061116fa28df97f3b@syzkaller.appspotmail.com,
-        Zhu Yanjun <yanjun.zhu@linux.dev>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 356/545] RDMA/rxe: Fix error unwind in rxe_create_qp()
-Date:   Fri, 19 Aug 2022 17:42:06 +0200
-Message-Id: <20220819153845.318534120@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 357/545] null_blk: fix ida error handling in null_add_dev()
+Date:   Fri, 19 Aug 2022 17:42:07 +0200
+Message-Id: <20220819153845.358195814@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -56,67 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit fd5382c5805c4bcb50fd25b7246247d3f7114733 ]
+[ Upstream commit ee452a8d984f94fa8e894f003a52e776e4572881 ]
 
-In the function rxe_create_qp(), rxe_qp_from_init() is called to
-initialize qp, internally things like the spin locks are not setup until
-rxe_qp_init_req().
+There needs to be some error checking if ida_simple_get() fails.
+Also call ida_free() if there are errors later.
 
-If an error occures before this point then the unwind will call
-rxe_cleanup() and eventually to rxe_qp_do_cleanup()/rxe_cleanup_task()
-which will oops when trying to access the uninitialized spinlock.
-
-Move the spinlock initializations earlier before any failures.
-
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20220731063621.298405-1-yanjun.zhu@linux.dev
-Reported-by: syzbot+833061116fa28df97f3b@syzkaller.appspotmail.com
-Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 94bc02e30fb8 ("nullb: use ida to manage index")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YtEhXsr6vJeoiYhd@kili
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_qp.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/block/null_blk_main.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
-index a1b79015e6f2..2847ab4d9a5f 100644
---- a/drivers/infiniband/sw/rxe/rxe_qp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_qp.c
-@@ -184,6 +184,14 @@ static void rxe_qp_init_misc(struct rxe_dev *rxe, struct rxe_qp *qp,
- 	spin_lock_init(&qp->grp_lock);
- 	spin_lock_init(&qp->state_lock);
+diff --git a/drivers/block/null_blk_main.c b/drivers/block/null_blk_main.c
+index bb3686c3869d..c6ba8f9f3f31 100644
+--- a/drivers/block/null_blk_main.c
++++ b/drivers/block/null_blk_main.c
+@@ -1876,8 +1876,13 @@ static int null_add_dev(struct nullb_device *dev)
+ 	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, nullb->q);
  
-+	spin_lock_init(&qp->req.task.state_lock);
-+	spin_lock_init(&qp->resp.task.state_lock);
-+	spin_lock_init(&qp->comp.task.state_lock);
+ 	mutex_lock(&lock);
+-	nullb->index = ida_simple_get(&nullb_indexes, 0, 0, GFP_KERNEL);
+-	dev->index = nullb->index;
++	rv = ida_simple_get(&nullb_indexes, 0, 0, GFP_KERNEL);
++	if (rv < 0) {
++		mutex_unlock(&lock);
++		goto out_cleanup_zone;
++	}
++	nullb->index = rv;
++	dev->index = rv;
+ 	mutex_unlock(&lock);
+ 
+ 	blk_queue_logical_block_size(nullb->q, dev->blocksize);
+@@ -1889,13 +1894,16 @@ static int null_add_dev(struct nullb_device *dev)
+ 
+ 	rv = null_gendisk_register(nullb);
+ 	if (rv)
+-		goto out_cleanup_zone;
++		goto out_ida_free;
+ 
+ 	mutex_lock(&lock);
+ 	list_add_tail(&nullb->list, &nullb_list);
+ 	mutex_unlock(&lock);
+ 
+ 	return 0;
 +
-+	spin_lock_init(&qp->sq.sq_lock);
-+	spin_lock_init(&qp->rq.producer_lock);
-+	spin_lock_init(&qp->rq.consumer_lock);
-+
- 	atomic_set(&qp->ssn, 0);
- 	atomic_set(&qp->skb_out, 0);
- }
-@@ -239,7 +247,6 @@ static int rxe_qp_init_req(struct rxe_dev *rxe, struct rxe_qp *qp,
- 	qp->req.opcode		= -1;
- 	qp->comp.opcode		= -1;
- 
--	spin_lock_init(&qp->sq.sq_lock);
- 	skb_queue_head_init(&qp->req_pkts);
- 
- 	rxe_init_task(rxe, &qp->req.task, qp,
-@@ -289,9 +296,6 @@ static int rxe_qp_init_resp(struct rxe_dev *rxe, struct rxe_qp *qp,
- 		}
- 	}
- 
--	spin_lock_init(&qp->rq.producer_lock);
--	spin_lock_init(&qp->rq.consumer_lock);
--
- 	skb_queue_head_init(&qp->resp_pkts);
- 
- 	rxe_init_task(rxe, &qp->resp.task, qp,
++out_ida_free:
++	ida_free(&nullb_indexes, nullb->index);
+ out_cleanup_zone:
+ 	null_free_zoned_dev(dev);
+ out_cleanup_blk_queue:
 -- 
 2.35.1
 
