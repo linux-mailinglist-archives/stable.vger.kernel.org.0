@@ -2,51 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A60EA59A408
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEA1659A44B
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:05:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353541AbiHSQie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:38:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60788 "EHLO
+        id S1353637AbiHSQmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:42:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353234AbiHSQgs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:36:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD3AF123093;
-        Fri, 19 Aug 2022 09:07:57 -0700 (PDT)
+        with ESMTP id S1353313AbiHSQkC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:40:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40CB618B20;
+        Fri, 19 Aug 2022 09:08:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF9DFB82820;
-        Fri, 19 Aug 2022 16:07:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD82EC433C1;
-        Fri, 19 Aug 2022 16:07:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21DCE6181A;
+        Fri, 19 Aug 2022 16:07:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4F99C433D6;
+        Fri, 19 Aug 2022 16:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925236;
-        bh=e25EplunFs+xhOssElaZHcLWfqW4P+ZY5UR2hRo+Ob0=;
+        s=korg; t=1660925246;
+        bh=DSjYKFmh06ko8rlbhaj8I90fRkZxrFNOwFOoqQGzFfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t5x6EQC82OBx9vBhOuBvjbNHmV9kyE+r6imHruH2+os4TaDi+mA1SkBa+Ko/8apTA
-         KC1Jm26StT7QB6nl8QYcEC90NGR56ZWSiJoDIB6bAtAsZaBvtuwuje5JIqhMhtPaE0
-         6pK5LQ/mgDjHDAvKryBYaZJHQ0ZEneu2tIxTu3HE=
+        b=d20B2fnK/jRc/sIAOcnBaqDHzjer8CSt1CTmwwJTMTwSC4WgmngOXtR3G+nvVK3en
+         reJww1njkmRZ1HZKRhHmVFwWpdsuj9scn0MjWSckjS8NpNHIUzDqQjc4p4WQeZ9w6w
+         lnS1M9BxsG/RWeTd0IRxjNg+fgl7F5fyidAFhqno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=E8=B0=AD=E6=A2=93=E7=85=8A?= <tanzixuan.me@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jiri Olsa <jolsa@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, Martin KaFai Lau <kafai@fb.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 427/545] genelf: Use HAVE_LIBCRYPTO_SUPPORT, not the never defined HAVE_LIBCRYPTO
-Date:   Fri, 19 Aug 2022 17:43:17 +0200
-Message-Id: <20220819153848.523952231@linuxfoundation.org>
+Subject: [PATCH 5.10 430/545] sched, cpuset: Fix dl_cpu_busy() panic due to empty cs->cpus_allowed
+Date:   Fri, 19 Aug 2022 17:43:20 +0200
+Message-Id: <20220819153848.651668076@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -64,53 +55,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit 91cea6be90e436c55cde8770a15e4dac9d3032d0 ]
+[ Upstream commit b6e8d40d43ae4dec00c8fea2593eeea3114b8f44 ]
 
-When genelf was introduced it tested for HAVE_LIBCRYPTO not
-HAVE_LIBCRYPTO_SUPPORT, which is the define the feature test for openssl
-defines, fix it.
+With cgroup v2, the cpuset's cpus_allowed mask can be empty indicating
+that the cpuset will just use the effective CPUs of its parent. So
+cpuset_can_attach() can call task_can_attach() with an empty mask.
+This can lead to cpumask_any_and() returns nr_cpu_ids causing the call
+to dl_bw_of() to crash due to percpu value access of an out of bound
+CPU value. For example:
 
-This also adds disables the deprecation warning, someone has to fix this
-to build with openssl 3.0 before the warning becomes a hard error.
+	[80468.182258] BUG: unable to handle page fault for address: ffffffff8b6648b0
+	  :
+	[80468.191019] RIP: 0010:dl_cpu_busy+0x30/0x2b0
+	  :
+	[80468.207946] Call Trace:
+	[80468.208947]  cpuset_can_attach+0xa0/0x140
+	[80468.209953]  cgroup_migrate_execute+0x8c/0x490
+	[80468.210931]  cgroup_update_dfl_csses+0x254/0x270
+	[80468.211898]  cgroup_subtree_control_write+0x322/0x400
+	[80468.212854]  kernfs_fop_write_iter+0x11c/0x1b0
+	[80468.213777]  new_sync_write+0x11f/0x1b0
+	[80468.214689]  vfs_write+0x1eb/0x280
+	[80468.215592]  ksys_write+0x5f/0xe0
+	[80468.216463]  do_syscall_64+0x5c/0x80
+	[80468.224287]  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: 9b07e27f88b9cd78 ("perf inject: Add jitdump mmap injection support")
-Reported-by: 谭梓煊 <tanzixuan.me@gmail.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/YulpPqXSOG0Q4J1o@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fix that by using effective_cpus instead. For cgroup v1, effective_cpus
+is the same as cpus_allowed. For v2, effective_cpus is the real cpumask
+to be used by tasks within the cpuset anyway.
+
+Also update task_can_attach()'s 2nd argument name to cs_effective_cpus to
+reflect the change. In addition, a check is added to task_can_attach()
+to guard against the possibility that cpumask_any_and() may return a
+value >= nr_cpu_ids.
+
+Fixes: 7f51412a415d ("sched/deadline: Fix bandwidth check/update when migrating tasks between exclusive cpusets")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Juri Lelli <juri.lelli@redhat.com>
+Link: https://lore.kernel.org/r/20220803015451.2219567-1-longman@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/genelf.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ include/linux/sched.h  | 2 +-
+ kernel/cgroup/cpuset.c | 2 +-
+ kernel/sched/core.c    | 8 +++++---
+ 3 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/tools/perf/util/genelf.c b/tools/perf/util/genelf.c
-index aed49806a09b..953338b9e887 100644
---- a/tools/perf/util/genelf.c
-+++ b/tools/perf/util/genelf.c
-@@ -30,7 +30,11 @@
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 4bca80c9931f..4e8425c1c560 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1658,7 +1658,7 @@ current_restore_flags(unsigned long orig_flags, unsigned long flags)
+ }
  
- #define BUILD_ID_URANDOM /* different uuid for each run */
+ extern int cpuset_cpumask_can_shrink(const struct cpumask *cur, const struct cpumask *trial);
+-extern int task_can_attach(struct task_struct *p, const struct cpumask *cs_cpus_allowed);
++extern int task_can_attach(struct task_struct *p, const struct cpumask *cs_effective_cpus);
+ #ifdef CONFIG_SMP
+ extern void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask);
+ extern int set_cpus_allowed_ptr(struct task_struct *p, const struct cpumask *new_mask);
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index ec39e123c2a5..c51863b63f93 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -2162,7 +2162,7 @@ static int cpuset_can_attach(struct cgroup_taskset *tset)
+ 		goto out_unlock;
  
--#ifdef HAVE_LIBCRYPTO
-+// FIXME, remove this and fix the deprecation warnings before its removed and
-+// We'll break for good here...
-+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-+
-+#ifdef HAVE_LIBCRYPTO_SUPPORT
+ 	cgroup_taskset_for_each(task, css, tset) {
+-		ret = task_can_attach(task, cs->cpus_allowed);
++		ret = task_can_attach(task, cs->effective_cpus);
+ 		if (ret)
+ 			goto out_unlock;
+ 		ret = security_task_setscheduler(task);
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 042efabf5378..8765de76a179 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -6586,7 +6586,7 @@ int cpuset_cpumask_can_shrink(const struct cpumask *cur,
+ }
  
- #define BUILD_ID_MD5
- #undef BUILD_ID_SHA	/* does not seem to work well when linked with Java */
+ int task_can_attach(struct task_struct *p,
+-		    const struct cpumask *cs_cpus_allowed)
++		    const struct cpumask *cs_effective_cpus)
+ {
+ 	int ret = 0;
+ 
+@@ -6605,9 +6605,11 @@ int task_can_attach(struct task_struct *p,
+ 	}
+ 
+ 	if (dl_task(p) && !cpumask_intersects(task_rq(p)->rd->span,
+-					      cs_cpus_allowed)) {
+-		int cpu = cpumask_any_and(cpu_active_mask, cs_cpus_allowed);
++					      cs_effective_cpus)) {
++		int cpu = cpumask_any_and(cpu_active_mask, cs_effective_cpus);
+ 
++		if (unlikely(cpu >= nr_cpu_ids))
++			return -EINVAL;
+ 		ret = dl_cpu_busy(cpu, p);
+ 	}
+ 
 -- 
 2.35.1
 
