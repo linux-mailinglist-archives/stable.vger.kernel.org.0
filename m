@@ -2,83 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8612F599B1B
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 13:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDD0D599B35
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 13:44:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347592AbiHSLdv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 07:33:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38488 "EHLO
+        id S1348094AbiHSLfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 07:35:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347538AbiHSLdu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 07:33:50 -0400
-Received: from meesny.iki.fi (meesny.iki.fi [IPv6:2001:67c:2b0:1c1::201])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 370632D1FE;
-        Fri, 19 Aug 2022 04:33:47 -0700 (PDT)
-Received: from mail-vs1-f43.google.com (mail-vs1-f43.google.com [209.85.217.43])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: martin-eric.racine)
-        by meesny.iki.fi (Postfix) with ESMTPSA id BA0F72065F;
-        Fri, 19 Aug 2022 14:33:44 +0300 (EEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi; s=meesny;
-        t=1660908824; h=from:from:reply-to:reply-to:subject:subject:date:date:
+        with ESMTP id S1348355AbiHSLfR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 07:35:17 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD8D4E1AA4;
+        Fri, 19 Aug 2022 04:35:15 -0700 (PDT)
+Date:   Fri, 19 Aug 2022 11:35:13 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1660908914;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=fkx3l2Jsr5sn7pf41ZGYs34bVyvOXQOv8D/DfIbdLs4=;
-        b=jvNOhQxCaIxg8axFbz7wCTaU1KV/nOQCmIzGuUqNw5LS+lfmzjNQTC6KolbhoBgBIUiYH9
-        nsbYjG6RtqL/XyVJzVfxtvraI7edzi0GzAEhwZbTCIt3LH4qm5JfdLnoshikVZ3PpeOvHH
-        pVxGB8eEH2JA8Y2Tl5bZRJQ6gg4Uf60=
-Received: by mail-vs1-f43.google.com with SMTP id z185so4184817vsb.4;
-        Fri, 19 Aug 2022 04:33:44 -0700 (PDT)
-X-Gm-Message-State: ACgBeo3JqDmziwEC9RUhjdrHJUYiZrktluNJaPlcAoiWTgc04TQ325ar
-        Rx3qpCLC29kxpodHpNv54aamuExjbwHl3VD1SrE=
-X-Google-Smtp-Source: AA6agR6W0iWWXzz2sZkerBMRwwozpy0qrrVZxzp7D6cWhuSVrTiOEAnBUCz0CDdjQq7II9fbkjswjtsDDlClM4nra4o=
-X-Received: by 2002:a67:c819:0:b0:38f:784f:c377 with SMTP id
- u25-20020a67c819000000b0038f784fc377mr2234906vsk.15.1660908823365; Fri, 19
- Aug 2022 04:33:43 -0700 (PDT)
+        bh=e2d1x1wXW94BN9CUt81tokZU3wlmpSZRCpLk5ROItVE=;
+        b=Wuf5+csFybaAt9Lg98c4gd0/5WcJfJyGDYRL8PnERgWz2ijOgDoSnVadZLB498snqK5XrX
+        +vs18JMZU8cvfihbfqJbdeKdXGOrI2HcG9KoEOZSEhdZ13hpdX53YMUkbEIClD5JsaJ4pP
+        gJKfIUuehI5GjlD+PIolDxtjDRd9Nsq2Jp7geQOV1PhCAvF0iu7dtE/7sYd8kfjtyO4WsK
+        RqCsOVaIs7VtIXqUE2ivK5UyXSsT2dEheGqne/T4NWPG50wWXo6ieojBWniwBXKDp8Iq2i
+        6TeHnjFPCsVWvLFhQh0zGCLIJE3NmeJ0RxfOe6gxALhSHRgdlImyZwPfTcKxew==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1660908914;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=e2d1x1wXW94BN9CUt81tokZU3wlmpSZRCpLk5ROItVE=;
+        b=YinbB1i+KGrejAgn2vkyeo1yLV7F8EpiZq1qHpAT9qv3VUvZMe149Ciy0vA+Na2P8bcZcg
+        bmtDcSaEWBkDmjAQ==
+From:   "tip-bot2 for Peter Zijlstra" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/nospec: Unwreck the RSB stuffing
+Cc:     stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net>
+References: <YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net>
 MIME-Version: 1.0
-References: <Yv7aRJ/SvVhSdnSB@decadent.org.uk> <Yv9OGVc+WpoDAB0X@worktop.programming.kicks-ass.net>
- <Yv9tj9vbQ9nNlXoY@worktop.programming.kicks-ass.net>
-In-Reply-To: <Yv9tj9vbQ9nNlXoY@worktop.programming.kicks-ass.net>
-Reply-To: martin-eric.racine@iki.fi
-From:   =?UTF-8?Q?Martin=2D=C3=89ric_Racine?= <martin-eric.racine@iki.fi>
-Date:   Fri, 19 Aug 2022 14:33:32 +0300
-X-Gmail-Original-Message-ID: <CAPZXPQe+MPTGD3MH1HORvCZa08HhdbWy=zh7rLSCwA6edM2Ccg@mail.gmail.com>
-Message-ID: <CAPZXPQe+MPTGD3MH1HORvCZa08HhdbWy=zh7rLSCwA6edM2Ccg@mail.gmail.com>
-Subject: Re: [PATCH] x86/speculation: Avoid LFENCE in FILL_RETURN_BUFFER on
- CPUs that lack it
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Ben Hutchings <ben@decadent.org.uk>, x86@kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        1017425@bugs.debian.org, stable@vger.kernel.org,
-        regressions@lists.linux.dev,
-        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi;
-        s=meesny; t=1660908824;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=fkx3l2Jsr5sn7pf41ZGYs34bVyvOXQOv8D/DfIbdLs4=;
-        b=rjfIm3WhysBqcVoqDra2pO/z7G2hhRhEndLGJtAIVdUSISYt9ezBwLMrd/mghTxOPSbX1Q
-        TfAEV4istT8bkFx1rwAD+NUgvUF6KhkOsbnQ+6EB/9MF0HfH/dwFE1RaI5K6z5Y72sUijq
-        QyuJows/mW9QDBwVy6QL7/b4Y9t7HKQ=
-ARC-Authentication-Results: i=1;
-        ORIGINATING;
-        auth=pass smtp.auth=martin-eric.racine smtp.mailfrom=martin-eric.racine@iki.fi
-ARC-Seal: i=1; s=meesny; d=iki.fi; t=1660908824; a=rsa-sha256; cv=none;
-        b=d7uWLKMeMUDzepnKQKoJICuYpRzHhvIM+shCzJV6F4wy0eR0q+1ZDlILwdml8FkOI+D2Xj
-        eN6nrrc/DGgioCH9CyZn5o8pn2iZb4VnNgrWUIGBn1Whom9Tmp/OqDdZW96iew07MlXveg
-        8yzEb9i+kT/zKgPtZ82QfjXgUPBuGIY=
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+Message-ID: <166090891305.401.3919810455794070606.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -87,20 +64,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 19, 2022 at 2:01 PM Peter Zijlstra <peterz@infradead.org> wrote=
-:
-> I'm not entirly sure what to do here. On the one hand, it's 32bit, so
-> who gives a crap, otoh we shouldn't break these ancient chips either I
-> suppose.
+The following commit has been merged into the x86/urgent branch of tip:
 
-This is something that I've repeatedly had to bring up, whenever
-something breaks because someone meant well by enabling more security
-bells and whistles:
+Commit-ID:     4e3aa9238277597c6c7624f302d81a7b568b6f2d
+Gitweb:        https://git.kernel.org/tip/4e3aa9238277597c6c7624f302d81a7b568b6f2d
+Author:        Peter Zijlstra <peterz@infradead.org>
+AuthorDate:    Tue, 16 Aug 2022 14:28:36 +02:00
+Committer:     Peter Zijlstra <peterz@infradead.org>
+CommitterDate: Fri, 19 Aug 2022 13:24:32 +02:00
 
-x86-32 is by definition legacy hardware. Enabling more bells and
-whistles essentially kills support for all but the very latest
-variants of the x86-32 family. This is the wrong approach. The right
-approach is to accept that building for x86-32 inherently means
-building for older and thus less secure architectures.
+x86/nospec: Unwreck the RSB stuffing
 
-Martin-=C3=89ric
+Commit 2b1299322016 ("x86/speculation: Add RSB VM Exit protections")
+made a right mess of the RSB stuffing, rewrite the whole thing to not
+suck.
+
+Thanks to Andrew for the enlightening comment about Post-Barrier RSB
+things so we can make this code less magical.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net
+---
+ arch/x86/include/asm/nospec-branch.h | 80 +++++++++++++--------------
+ 1 file changed, 39 insertions(+), 41 deletions(-)
+
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index e64fd20..10731cc 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -35,33 +35,44 @@
+ #define RSB_CLEAR_LOOPS		32	/* To forcibly overwrite all entries */
+ 
+ /*
++ * Common helper for __FILL_RETURN_BUFFER and __FILL_ONE_RETURN.
++ */
++#define __FILL_RETURN_SLOT			\
++	ANNOTATE_INTRA_FUNCTION_CALL;		\
++	call	772f;				\
++	int3;					\
++772:
++
++/*
++ * Stuff the entire RSB.
++ *
+  * Google experimented with loop-unrolling and this turned out to be
+  * the optimal version - two calls, each with their own speculation
+  * trap should their return address end up getting used, in a loop.
+  */
+-#define __FILL_RETURN_BUFFER(reg, nr, sp)	\
+-	mov	$(nr/2), reg;			\
+-771:						\
+-	ANNOTATE_INTRA_FUNCTION_CALL;		\
+-	call	772f;				\
+-773:	/* speculation trap */			\
+-	UNWIND_HINT_EMPTY;			\
+-	pause;					\
+-	lfence;					\
+-	jmp	773b;				\
+-772:						\
+-	ANNOTATE_INTRA_FUNCTION_CALL;		\
+-	call	774f;				\
+-775:	/* speculation trap */			\
+-	UNWIND_HINT_EMPTY;			\
+-	pause;					\
+-	lfence;					\
+-	jmp	775b;				\
+-774:						\
+-	add	$(BITS_PER_LONG/8) * 2, sp;	\
+-	dec	reg;				\
+-	jnz	771b;				\
+-	/* barrier for jnz misprediction */	\
++#define __FILL_RETURN_BUFFER(reg, nr)			\
++	mov	$(nr/2), reg;				\
++771:							\
++	__FILL_RETURN_SLOT				\
++	__FILL_RETURN_SLOT				\
++	add	$(BITS_PER_LONG/8) * 2, %_ASM_SP;	\
++	dec	reg;					\
++	jnz	771b;					\
++	/* barrier for jnz misprediction */		\
++	lfence;
++
++/*
++ * Stuff a single RSB slot.
++ *
++ * To mitigate Post-Barrier RSB speculation, one CALL instruction must be
++ * forced to retire before letting a RET instruction execute.
++ *
++ * On PBRSB-vulnerable CPUs, it is not safe for a RET to be executed
++ * before this point.
++ */
++#define __FILL_ONE_RETURN				\
++	__FILL_RETURN_SLOT				\
++	add	$(BITS_PER_LONG/8), %_ASM_SP;		\
+ 	lfence;
+ 
+ #ifdef __ASSEMBLY__
+@@ -132,28 +143,15 @@
+ #endif
+ .endm
+ 
+-.macro ISSUE_UNBALANCED_RET_GUARD
+-	ANNOTATE_INTRA_FUNCTION_CALL
+-	call .Lunbalanced_ret_guard_\@
+-	int3
+-.Lunbalanced_ret_guard_\@:
+-	add $(BITS_PER_LONG/8), %_ASM_SP
+-	lfence
+-.endm
+-
+  /*
+   * A simpler FILL_RETURN_BUFFER macro. Don't make people use the CPP
+   * monstrosity above, manually.
+   */
+-.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2
+-.ifb \ftr2
+-	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
+-.else
+-	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", "", \ftr, "jmp .Lunbalanced_\@", \ftr2
+-.endif
+-	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
+-.Lunbalanced_\@:
+-	ISSUE_UNBALANCED_RET_GUARD
++.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2=ALT_NOT(X86_FEATURE_ALWAYS)
++	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", \
++		__stringify(__FILL_RETURN_BUFFER(\reg,\nr)), \ftr, \
++		__stringify(__FILL_ONE_RETURN), \ftr2
++
+ .Lskip_rsb_\@:
+ .endm
+ 
