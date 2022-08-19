@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE4D859A453
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:05:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29E1D59A4F2
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:06:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354418AbiHSQyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:54:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57512 "EHLO
+        id S1354347AbiHSQyR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:54:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354421AbiHSQxh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:53:37 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F3E931DED;
-        Fri, 19 Aug 2022 09:15:16 -0700 (PDT)
+        with ESMTP id S1354351AbiHSQws (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:52:48 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E038E12CDE3;
+        Fri, 19 Aug 2022 09:14:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3DEC4CE26AC;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 43290CE26B7;
+        Fri, 19 Aug 2022 16:13:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C40FC433D7;
         Fri, 19 Aug 2022 16:13:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D11EC433C1;
-        Fri, 19 Aug 2022 16:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925609;
-        bh=3CxRal1Wz7dBYYhtwSv0Lq8UgsO8mOKXA/8E1KJSgzY=;
+        s=korg; t=1660925612;
+        bh=lwuN6VTFP1zBL9eoIkTQqR16l7lBZMYs5E+TzRiZ2B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VNYe5B+99BccbWn/3SSx+uUspZpdoQ9ARa7pYGjyX8RO/SXphcRXWpkP1CwnwM1Gu
-         fD6OAPwDtc2KgVvkAYs69y/PVGEKFD1PyMMBMy2yJAj0CyoBP9HbrP29OkjeWj4dBI
-         JfLARyOKsL/DF+65f+JruKK1RckjpEZOHkkjr02Y=
+        b=n5JwbhQvLcZf+d3MkT9L4fLOyE1Zx2W9wxCDiB4OkhLpGqoHdR2mOTBhOFIrjBfvH
+         HZ5MFquHOoOVWVpeVb8DrDeVihlHe+yUcM72eXjkKuOaXe6/JG/SqfOyfCxhO6DRGN
+         XH6UG+jNocAYVVFKpVhLn4yQTmmrHg8OTvCcFQ4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 5.10 537/545] Bluetooth: L2CAP: Fix l2cap_global_chan_by_psm regression
-Date:   Fri, 19 Aug 2022 17:45:07 +0200
-Message-Id: <20220819153853.617121540@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.10 538/545] mtd: rawnand: arasan: Prevent an unsupported configuration
+Date:   Fri, 19 Aug 2022 17:45:08 +0200
+Message-Id: <20220819153853.664599425@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -53,56 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 332f1795ca202489c665a75e62e18ff6284de077 upstream.
+commit fc9e18f9e987ad46722dad53adab1c12148c213c upstream.
 
-The patch d0be8347c623: "Bluetooth: L2CAP: Fix use-after-free caused
-by l2cap_chan_put" from Jul 21, 2022, leads to the following Smatch
-static checker warning:
+Under the following conditions:
+* after rounding up by 4 the number of bytes to transfer (this is
+  related to the controller's internal constraints),
+* if this (rounded) amount of data is situated beyond the end of the
+  device,
+* and only in NV-DDR mode,
+the Arasan NAND controller timeouts.
 
-        net/bluetooth/l2cap_core.c:1977 l2cap_global_chan_by_psm()
-        error: we previously assumed 'c' could be null (see line 1996)
+This currently can happen in a particular helper used when picking
+software ECC algorithms. Let's prevent this situation by refusing to use
+the NV-DDR interface with software engines.
 
-Fixes: d0be8347c623 ("Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: 4edde6031458 ("mtd: rawnand: arasan: Support NV-DDR interface")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20211008163640.1753821-1-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/mtd/nand/raw/arasan-nand-controller.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -1966,11 +1966,11 @@ static struct l2cap_chan *l2cap_global_c
- 						   bdaddr_t *dst,
- 						   u8 link_type)
- {
--	struct l2cap_chan *c, *c1 = NULL;
-+	struct l2cap_chan *c, *tmp, *c1 = NULL;
- 
- 	read_lock(&chan_list_lock);
- 
--	list_for_each_entry(c, &chan_list, global_l) {
-+	list_for_each_entry_safe(c, tmp, &chan_list, global_l) {
- 		if (state && c->state != state)
- 			continue;
- 
-@@ -1989,11 +1989,10 @@ static struct l2cap_chan *l2cap_global_c
- 			dst_match = !bacmp(&c->dst, dst);
- 			if (src_match && dst_match) {
- 				c = l2cap_chan_hold_unless_zero(c);
--				if (!c)
--					continue;
--
--				read_unlock(&chan_list_lock);
--				return c;
-+				if (c) {
-+					read_unlock(&chan_list_lock);
-+					return c;
-+				}
- 			}
- 
- 			/* Closest match */
+--- a/drivers/mtd/nand/raw/arasan-nand-controller.c
++++ b/drivers/mtd/nand/raw/arasan-nand-controller.c
+@@ -891,6 +891,21 @@ static int anfc_setup_interface(struct n
+ 		nvddr = nand_get_nvddr_timings(conf);
+ 		if (IS_ERR(nvddr))
+ 			return PTR_ERR(nvddr);
++
++		/*
++		 * The controller only supports data payload requests which are
++		 * a multiple of 4. In practice, most data accesses are 4-byte
++		 * aligned and this is not an issue. However, rounding up will
++		 * simply be refused by the controller if we reached the end of
++		 * the device *and* we are using the NV-DDR interface(!). In
++		 * this situation, unaligned data requests ending at the device
++		 * boundary will confuse the controller and cannot be performed.
++		 *
++		 * This is something that happens in nand_read_subpage() when
++		 * selecting software ECC support and must be avoided.
++		 */
++		if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_SOFT)
++			return -ENOTSUPP;
+ 	} else {
+ 		sdr = nand_get_sdr_timings(conf);
+ 		if (IS_ERR(sdr))
 
 
