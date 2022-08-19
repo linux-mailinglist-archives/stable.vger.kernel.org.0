@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E233599F76
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9107459A16D
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350727AbiHSP5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:57:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38500 "EHLO
+        id S1350824AbiHSP5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:57:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351072AbiHSP4V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:56:21 -0400
+        with ESMTP id S1350552AbiHSP4j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:56:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D76F108931;
-        Fri, 19 Aug 2022 08:51:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D62BB10895E;
+        Fri, 19 Aug 2022 08:51:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7624616F9;
-        Fri, 19 Aug 2022 15:51:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE2D6C433C1;
-        Fri, 19 Aug 2022 15:51:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBD5061734;
+        Fri, 19 Aug 2022 15:51:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6EE2C433C1;
+        Fri, 19 Aug 2022 15:51:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924281;
-        bh=oXFRchSpsAw6enE5S+hGW9CUqREHUlNKONvJdEmGHJg=;
+        s=korg; t=1660924284;
+        bh=bC4mioEGpy6YJ8y80rAi0DRjq8ciYbvHcfjOXcdJuiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDT4pXby/EwQ8Px5m9SccwIvJ4XRfu9WBrWnnjc3C+04eO+CMtAEwrFbIrN28XL2f
-         q3TyvbK+ECtIMARjT0E3amoK/d8w7yttK9P7+GYvT/2ZBDDx6qSfqLrj/PI1/ViN4a
-         aHwiYPZ8gsoQ3kp0B2EVLpez26gJ+nn7pPxdlQEM=
+        b=iBBoAz1KzDlOaOEA2n0IAtlVObiEEGNltnZRWI7ul6kg7L731C+bJtQrxk5IBmk6t
+         uWPSHzhxCETYBzNKvRLD+RrfskEsAajwZstloxdUnDh92JuPR/k9Bhspq3z8Umuixp
+         LM8+1O1VhvpjpqisW4VNNzO5MPIs0qvtiqDZ5/2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexander Stein <alexander.stein@ew.tq-group.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 086/545] ARM: dts: imx6ul: add missing properties for sram
-Date:   Fri, 19 Aug 2022 17:37:36 +0200
-Message-Id: <20220819153833.107076323@linuxfoundation.org>
+Subject: [PATCH 5.10 087/545] ARM: dts: imx6ul: change operating-points to uint32-matrix
+Date:   Fri, 19 Aug 2022 17:37:37 +0200
+Message-Id: <20220819153833.149742665@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -57,35 +57,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 5655699cf5cff9f4c4ee703792156bdd05d1addf ]
+[ Upstream commit edb67843983bbdf61b4c8c3c50618003d38bb4ae ]
 
-All 3 properties are required by sram.yaml. Fixes the dtbs_check
-warning:
-sram@900000: '#address-cells' is a required property
-sram@900000: '#size-cells' is a required property
-sram@900000: 'ranges' is a required property
+operating-points is a uint32-matrix as per opp-v1.yaml. Change it
+accordingly. While at it, change fsl,soc-operating-points as well,
+although there is no bindings file (yet). But they should have the same
+format. Fixes the dt_binding_check warning:
+cpu@0: operating-points:0: [696000, 1275000, 528000, 1175000, 396000,
+1025000, 198000, 950000] is too long
+cpu@0: operating-points:0: Additional items are not allowed (528000,
+1175000, 396000, 1025000, 198000, 950000 were unexpected)
 
 Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6ul.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/imx6ul.dtsi | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
 diff --git a/arch/arm/boot/dts/imx6ul.dtsi b/arch/arm/boot/dts/imx6ul.dtsi
-index d7d9f3e46b92..34eccc1db12c 100644
+index 34eccc1db12c..02640c19c1ec 100644
 --- a/arch/arm/boot/dts/imx6ul.dtsi
 +++ b/arch/arm/boot/dts/imx6ul.dtsi
-@@ -147,6 +147,9 @@ soc {
- 		ocram: sram@900000 {
- 			compatible = "mmio-sram";
- 			reg = <0x00900000 0x20000>;
-+			ranges = <0 0x00900000 0x20000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
- 		};
- 
- 		intc: interrupt-controller@a01000 {
+@@ -62,20 +62,18 @@ cpu0: cpu@0 {
+ 			clock-frequency = <696000000>;
+ 			clock-latency = <61036>; /* two CLK32 periods */
+ 			#cooling-cells = <2>;
+-			operating-points = <
++			operating-points =
+ 				/* kHz	uV */
+-				696000	1275000
+-				528000	1175000
+-				396000	1025000
+-				198000	950000
+-			>;
+-			fsl,soc-operating-points = <
++				<696000	1275000>,
++				<528000	1175000>,
++				<396000	1025000>,
++				<198000	950000>;
++			fsl,soc-operating-points =
+ 				/* KHz	uV */
+-				696000	1275000
+-				528000	1175000
+-				396000	1175000
+-				198000	1175000
+-			>;
++				<696000	1275000>,
++				<528000	1175000>,
++				<396000	1175000>,
++				<198000	1175000>;
+ 			clocks = <&clks IMX6UL_CLK_ARM>,
+ 				 <&clks IMX6UL_CLK_PLL2_BUS>,
+ 				 <&clks IMX6UL_CLK_PLL2_PFD2>,
 -- 
 2.35.1
 
