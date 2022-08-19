@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14BFE59A138
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA02D59A079
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350384AbiHSQGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:06:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47548 "EHLO
+        id S1351004AbiHSQCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:02:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351530AbiHSQF6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:05:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15BA010446A;
-        Fri, 19 Aug 2022 08:55:28 -0700 (PDT)
+        with ESMTP id S1351377AbiHSQBZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:01:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 467ED105230;
+        Fri, 19 Aug 2022 08:53:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93D4E615E9;
-        Fri, 19 Aug 2022 15:54:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0B60C433D6;
-        Fri, 19 Aug 2022 15:54:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 501A461765;
+        Fri, 19 Aug 2022 15:53:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 248AAC433C1;
+        Fri, 19 Aug 2022 15:53:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924488;
-        bh=RIwl/gZEn6BfV0/4TL+k02CQuHR+qY+o/OUWzQg+4JY=;
+        s=korg; t=1660924394;
+        bh=bqw9yx6OrijSHK4DhwtQW8xRnobUCvPzRs0/17YF7EA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pfUtZWaENqq44izQH8F6LK30bjJhQLjvmbsBaz14xiVYWbrL77XWxZ5vsDBhNQcWk
-         Bs9DZucpK24hDeXzM9OvyxZKoI7H9/AhqE1VpBQK1bLjUozO3/n1MU3AzoHi6ujUp0
-         VcrfTHihuimjqzeV6akjYv3jHSaUioleTY8Jy/hk=
+        b=zCqsGhhjBe0uKkemls+fZK03/YyD6DPvkHtA7vECJwuqz/jzQ+cmgGLbinj0E9g7c
+         lrJlAxGjpaEpPr35ICA9AcsPrDDWBgWxpaXSakwGqazk/iG9Jh6dN9ICPXcHeU6Z29
+         xwHWfFxv+q+M1g3kVX8Z/et4iQqkterTTW8bPgoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Marek Vasut <marex@denx.de>, Jonas Karlman <jonas@kwiboo.se>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 156/545] pwm: lpc18xx-sct: Convert to devm_platform_ioremap_resource()
-Date:   Fri, 19 Aug 2022 17:38:46 +0200
-Message-Id: <20220819153836.324676736@linuxfoundation.org>
+Subject: [PATCH 5.10 157/545] drm/bridge: tc358767: Move (e)DP bridge endpoint parsing into dedicated function
+Date:   Fri, 19 Aug 2022 17:38:47 +0200
+Message-Id: <20220819153836.373770300@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -56,42 +59,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <tiny.windzz@gmail.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 74ec20a4e6a064ac2cdfb577c115cb948b307f0f ]
+[ Upstream commit 8478095a8c4bcea3c83b0767d6c9127434160761 ]
 
-Use devm_platform_ioremap_resource() to simplify code.
+The TC358767/TC358867/TC9595 are all capable of operating in multiple
+modes, DPI-to-(e)DP, DSI-to-(e)DP, DSI-to-DPI. Only the first mode is
+currently supported. In order to support the rest of the modes without
+making the tc_probe() overly long, split the bridge endpoint parsing
+into dedicated function, where the necessary logic to detect the bridge
+mode based on which endpoints are connected, can be implemented.
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Tested-by: Lucas Stach <l.stach@pengutronix.de> # In both DPI to eDP and DSI to DPI mode.
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Jonas Karlman <jonas@kwiboo.se>
+Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+Cc: Maxime Ripard <maxime@cerno.tech>
+Cc: Neil Armstrong <narmstrong@baylibre.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220329085015.39159-7-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-lpc18xx-sct.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/gpu/drm/bridge/tc358767.c | 30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pwm/pwm-lpc18xx-sct.c b/drivers/pwm/pwm-lpc18xx-sct.c
-index 9b15b6a79082..f32a9e0692ad 100644
---- a/drivers/pwm/pwm-lpc18xx-sct.c
-+++ b/drivers/pwm/pwm-lpc18xx-sct.c
-@@ -325,7 +325,6 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+diff --git a/drivers/gpu/drm/bridge/tc358767.c b/drivers/gpu/drm/bridge/tc358767.c
+index 34a3e4e9f717..9af564cf92e5 100644
+--- a/drivers/gpu/drm/bridge/tc358767.c
++++ b/drivers/gpu/drm/bridge/tc358767.c
+@@ -1535,19 +1535,12 @@ static irqreturn_t tc_irq_handler(int irq, void *arg)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
++static int tc_probe_edp_bridge_endpoint(struct tc_data *tc)
  {
- 	struct lpc18xx_pwm_chip *lpc18xx_pwm;
- 	struct pwm_device *pwm;
--	struct resource *res;
- 	int ret, i;
- 	u64 val;
+-	struct device *dev = &client->dev;
++	struct device *dev = tc->dev;
+ 	struct drm_panel *panel;
+-	struct tc_data *tc;
+ 	int ret;
  
-@@ -336,8 +335,7 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+-	tc = devm_kzalloc(dev, sizeof(*tc), GFP_KERNEL);
+-	if (!tc)
+-		return -ENOMEM;
+-
+-	tc->dev = dev;
+-
+ 	/* port@2 is the output port */
+ 	ret = drm_of_find_panel_or_bridge(dev->of_node, 2, 0, &panel, NULL);
+ 	if (ret && ret != -ENODEV)
+@@ -1566,6 +1559,25 @@ static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		tc->bridge.type = DRM_MODE_CONNECTOR_DisplayPort;
+ 	}
  
- 	lpc18xx_pwm->dev = &pdev->dev;
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	lpc18xx_pwm->base = devm_ioremap_resource(&pdev->dev, res);
-+	lpc18xx_pwm->base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(lpc18xx_pwm->base))
- 		return PTR_ERR(lpc18xx_pwm->base);
- 
++	return ret;
++}
++
++static int tc_probe(struct i2c_client *client, const struct i2c_device_id *id)
++{
++	struct device *dev = &client->dev;
++	struct tc_data *tc;
++	int ret;
++
++	tc = devm_kzalloc(dev, sizeof(*tc), GFP_KERNEL);
++	if (!tc)
++		return -ENOMEM;
++
++	tc->dev = dev;
++
++	ret = tc_probe_edp_bridge_endpoint(tc);
++	if (ret)
++		return ret;
++
+ 	/* Shut down GPIO is optional */
+ 	tc->sd_gpio = devm_gpiod_get_optional(dev, "shutdown", GPIOD_OUT_HIGH);
+ 	if (IS_ERR(tc->sd_gpio))
 -- 
 2.35.1
 
