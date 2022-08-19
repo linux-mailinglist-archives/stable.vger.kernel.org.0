@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A827859A151
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7F3359A199
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350702AbiHSP46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:56:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39962 "EHLO
+        id S1350720AbiHSP5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:57:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350965AbiHSP4H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:56:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A0D530547;
-        Fri, 19 Aug 2022 08:51:03 -0700 (PDT)
+        with ESMTP id S1351046AbiHSP4S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:56:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D4F65550;
+        Fri, 19 Aug 2022 08:51:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65614B82813;
-        Fri, 19 Aug 2022 15:51:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8F05C4347C;
-        Fri, 19 Aug 2022 15:50:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24720B8280C;
+        Fri, 19 Aug 2022 15:51:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7709AC4314A;
+        Fri, 19 Aug 2022 15:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924260;
-        bh=e48tc2OR3RCBc0ZTNyT/lHkQqToIZBrW1d32zs+2JUE=;
+        s=korg; t=1660924274;
+        bh=ZhQdQ25lhwjVuqIW3YiIiWB8Dz9feH/CLcYEmXCV7wM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ryyc/S/99OdPlslEI1GWkQDbaHmK9P+ra46CwOCwUkBqBWpLTdKCVlpdwfD6hDSjG
-         Mwf4V537PUnK7GiYstG+G4gitNF6Cpq33zF0NKRHWWAYhnujqvnXGQWWMzPO/dqP3F
-         fxlULuIEhYh3SNL8YdWRqm8/hPCYhZYHoy8zUVmE=
+        b=TX3DfVABcfjVoc9K0Bf3PS6pSxh/C/K9n9aM/Wf/mS0PJSOjbC5j7+RY0zS7cDiVI
+         Y4l0kIwYm/KV8aoiMy5qFUaWm9oYYtgmELKqUG2qc3grNA3S11lzhWNUGw9Aw1xjui
+         JlIvohmxB6xAGbgIXd8xJLxd9dVMNhKL5d/+RSRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Samuel Holland <samuel@sholland.org>,
+        stable@vger.kernel.org, Hacash Robot <hacashRobot@santino.com>,
+        William Dean <williamsukatube@163.com>,
         Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 083/545] genirq: GENERIC_IRQ_IPI depends on SMP
-Date:   Fri, 19 Aug 2022 17:37:33 +0200
-Message-Id: <20220819153832.971337534@linuxfoundation.org>
+Subject: [PATCH 5.10 084/545] irqchip/mips-gic: Check the return value of ioremap() in gic_of_init()
+Date:   Fri, 19 Aug 2022 17:37:34 +0200
+Message-Id: <20220819153833.016933564@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,49 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: William Dean <williamsukatube@163.com>
 
-[ Upstream commit 0f5209fee90b4544c58b4278d944425292789967 ]
+[ Upstream commit 71349cc85e5930dce78ed87084dee098eba24b59 ]
 
-The generic IPI code depends on the IRQ affinity mask being allocated
-and initialized. This will not be the case if SMP is disabled. Fix up
-the remaining driver that selected GENERIC_IRQ_IPI in a non-SMP config.
+The function ioremap() in gic_of_init() can fail, so
+its return value should be checked.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
+Reported-by: Hacash Robot <hacashRobot@santino.com>
+Signed-off-by: William Dean <williamsukatube@163.com>
 Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220701200056.46555-3-samuel@sholland.org
+Link: https://lore.kernel.org/r/20220723100128.2964304-1-williamsukatube@163.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/Kconfig | 2 +-
- kernel/irq/Kconfig      | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-mips-gic.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
-index c4b971cd239d..3c24bf45263c 100644
---- a/drivers/irqchip/Kconfig
-+++ b/drivers/irqchip/Kconfig
-@@ -178,7 +178,7 @@ config MADERA_IRQ
- config IRQ_MIPS_CPU
- 	bool
- 	select GENERIC_IRQ_CHIP
--	select GENERIC_IRQ_IPI if SYS_SUPPORTS_MULTITHREADING
-+	select GENERIC_IRQ_IPI if SMP && SYS_SUPPORTS_MULTITHREADING
- 	select IRQ_DOMAIN
- 	select GENERIC_IRQ_EFFECTIVE_AFF_MASK
+diff --git a/drivers/irqchip/irq-mips-gic.c b/drivers/irqchip/irq-mips-gic.c
+index 8b08b31ea2ba..8ada91bdbe4d 100644
+--- a/drivers/irqchip/irq-mips-gic.c
++++ b/drivers/irqchip/irq-mips-gic.c
+@@ -766,6 +766,10 @@ static int __init gic_of_init(struct device_node *node,
+ 	}
  
-diff --git a/kernel/irq/Kconfig b/kernel/irq/Kconfig
-index 164a031cfdb6..0f2a44fc0971 100644
---- a/kernel/irq/Kconfig
-+++ b/kernel/irq/Kconfig
-@@ -82,6 +82,7 @@ config IRQ_FASTEOI_HIERARCHY_HANDLERS
- # Generic IRQ IPI support
- config GENERIC_IRQ_IPI
- 	bool
-+	depends on SMP
- 	select IRQ_DOMAIN_HIERARCHY
+ 	mips_gic_base = ioremap(gic_base, gic_len);
++	if (!mips_gic_base) {
++		pr_err("Failed to ioremap gic_base\n");
++		return -ENOMEM;
++	}
  
- # Generic MSI interrupt support
+ 	gicconfig = read_gic_config();
+ 	gic_shared_intrs = gicconfig & GIC_CONFIG_NUMINTERRUPTS;
 -- 
 2.35.1
 
