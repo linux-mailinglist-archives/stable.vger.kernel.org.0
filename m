@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E6B599EAE
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:44:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 720C5599E77
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:43:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349970AbiHSPls (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:41:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38596 "EHLO
+        id S1349990AbiHSPlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:41:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349987AbiHSPlA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:41:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AAD7102645;
-        Fri, 19 Aug 2022 08:40:50 -0700 (PDT)
+        with ESMTP id S1350009AbiHSPlB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:41:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63017E341F;
+        Fri, 19 Aug 2022 08:40:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41526B82812;
-        Fri, 19 Aug 2022 15:40:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D4F9C433C1;
-        Fri, 19 Aug 2022 15:40:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2D81615ED;
+        Fri, 19 Aug 2022 15:40:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D20C7C433C1;
+        Fri, 19 Aug 2022 15:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660923649;
-        bh=bcOZ4df+8jVzaKVhVAkFAKR1x3LIzs27krUqQ9YnTbM=;
+        s=korg; t=1660923652;
+        bh=c/vhoYm7qWTuTa71RxkMDXidcM2P22GbZN/xGxqMp74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kjwPv5lUKVe2Fg/2jFGdYTR2Gmh1zfek3/fpFllOR7HzPmhb7NSX8uw4jPqjM7lg4
-         gG9roBTk8Su8AwGFaxca/xZOnREGkfLpFZ3bxInn7O5DQ916LXetFL3IDiIofXHDUq
-         GCisRtJOvn3BLYTe/+qcZYyTdih+Tt/7alAOpkDo=
+        b=G5zVv4FAmcXJMbHyIi53Ct17Y78AEXsaiLKndCfdb95npxmLDe4bSrXk2dgoiB9s8
+         IOupID12uPCU8/YwoUPpj9VybcXPe8KQnpAF0Mkh0eyHSe4OFU3RilUjaKK/Wsg+g0
+         jz+0hM12FliiaBDrU1AlB6hfpZFOTDVF1mV+UXek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        Qu Wenruo <wqu@suse.com>
-Subject: [PATCH 5.15 10/14] btrfs: raid56: dont trust any cached sector in __raid56_parity_recover()
-Date:   Fri, 19 Aug 2022 17:40:26 +0200
-Message-Id: <20220819153712.007595343@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.15 11/14] kexec_file: drop weak attribute from functions
+Date:   Fri, 19 Aug 2022 17:40:27 +0200
+Message-Id: <20220819153712.040538428@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153711.658766010@linuxfoundation.org>
 References: <20220819153711.658766010@linuxfoundation.org>
@@ -53,204 +56,246 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit f6065f8edeb25f4a9dfe0b446030ad995a84a088 upstream.
+commit 65d9a9a60fd71be964effb2e94747a6acb6e7015 upstream.
 
-[BUG]
-There is a small workload which will always fail with recent kernel:
-(A simplified version from btrfs/125 test case)
+As requested
+(http://lkml.kernel.org/r/87ee0q7b92.fsf@email.froward.int.ebiederm.org),
+this series converts weak functions in kexec to use the #ifdef approach.
 
-  mkfs.btrfs -f -m raid5 -d raid5 -b 1G $dev1 $dev2 $dev3
-  mount $dev1 $mnt
-  xfs_io -f -c "pwrite -S 0xee 0 1M" $mnt/file1
-  sync
-  umount $mnt
-  btrfs dev scan -u $dev3
-  mount -o degraded $dev1 $mnt
-  xfs_io -f -c "pwrite -S 0xff 0 128M" $mnt/file2
-  umount $mnt
-  btrfs dev scan
-  mount $dev1 $mnt
-  btrfs balance start --full-balance $mnt
-  umount $mnt
+Quoting the 3e35142ef99fe ("kexec_file: drop weak attribute from
+arch_kexec_apply_relocations[_add]") changelog:
 
-The failure is always failed to read some tree blocks:
+: Since commit d1bcae833b32f1 ("ELF: Don't generate unused section symbols")
+: [1], binutils (v2.36+) started dropping section symbols that it thought
+: were unused.  This isn't an issue in general, but with kexec_file.c, gcc
+: is placing kexec_arch_apply_relocations[_add] into a separate
+: .text.unlikely section and the section symbol ".text.unlikely" is being
+: dropped.  Due to this, recordmcount is unable to find a non-weak symbol in
+: .text.unlikely to generate a relocation record against.
 
-  BTRFS info (device dm-4): relocating block group 217710592 flags data|raid5
-  BTRFS error (device dm-4): parent transid verify failed on 38993920 wanted 9 found 7
-  BTRFS error (device dm-4): parent transid verify failed on 38993920 wanted 9 found 7
-  ...
+This patch (of 2);
 
-[CAUSE]
-With the recently added debug output, we can see all RAID56 operations
-related to full stripe 38928384:
+Drop __weak attribute from functions in kexec_file.c:
+- arch_kexec_kernel_image_probe()
+- arch_kimage_file_post_load_cleanup()
+- arch_kexec_kernel_image_load()
+- arch_kexec_locate_mem_hole()
+- arch_kexec_kernel_verify_sig()
 
-  56.1183: raid56_read_partial: full_stripe=38928384 devid=2 type=DATA1 offset=0 opf=0x0 physical=9502720 len=65536
-  56.1185: raid56_read_partial: full_stripe=38928384 devid=3 type=DATA2 offset=16384 opf=0x0 physical=9519104 len=16384
-  56.1185: raid56_read_partial: full_stripe=38928384 devid=3 type=DATA2 offset=49152 opf=0x0 physical=9551872 len=16384
-  56.1187: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=0 opf=0x1 physical=9502720 len=16384
-  56.1188: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=32768 opf=0x1 physical=9535488 len=16384
-  56.1188: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=0 opf=0x1 physical=30474240 len=16384
-  56.1189: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=32768 opf=0x1 physical=30507008 len=16384
-  56.1218: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=49152 opf=0x1 physical=9551872 len=16384
-  56.1219: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=49152 opf=0x1 physical=30523392 len=16384
-  56.2721: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
-  56.2723: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
-  56.2724: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
+arch_kexec_kernel_image_load() calls into kexec_image_load_default(), so
+drop the static attribute for the latter.
 
-Before we enter raid56_parity_recover(), we have triggered some metadata
-write for the full stripe 38928384, this leads to us to read all the
-sectors from disk.
+arch_kexec_kernel_verify_sig() is not overridden by any architecture, so
+drop the __weak attribute.
 
-Furthermore, btrfs raid56 write will cache its calculated P/Q sectors to
-avoid unnecessary read.
-
-This means, for that full stripe, after any partial write, we will have
-stale data, along with P/Q calculated using that stale data.
-
-Thankfully due to patch "btrfs: only write the sectors in the vertical stripe
-which has data stripes" we haven't submitted all the corrupted P/Q to disk.
-
-When we really need to recover certain range, aka in
-raid56_parity_recover(), we will use the cached rbio, along with its
-cached sectors (the full stripe is all cached).
-
-This explains why we have no event raid56_scrub_read_recover()
-triggered.
-
-Since we have the cached P/Q which is calculated using the stale data,
-the recovered one will just be stale.
-
-In our particular test case, it will always return the same incorrect
-metadata, thus causing the same error message "parent transid verify
-failed on 39010304 wanted 9 found 7" again and again.
-
-[BTRFS DESTRUCTIVE RMW PROBLEM]
-
-Test case btrfs/125 (and above workload) always has its trouble with
-the destructive read-modify-write (RMW) cycle:
-
-        0       32K     64K
-Data1:  | Good  | Good  |
-Data2:  | Bad   | Bad   |
-Parity: | Good  | Good  |
-
-In above case, if we trigger any write into Data1, we will use the bad
-data in Data2 to re-generate parity, killing the only chance to recovery
-Data2, thus Data2 is lost forever.
-
-This destructive RMW cycle is not specific to btrfs RAID56, but there
-are some btrfs specific behaviors making the case even worse:
-
-- Btrfs will cache sectors for unrelated vertical stripes.
-
-  In above example, if we're only writing into 0~32K range, btrfs will
-  still read data range (32K ~ 64K) of Data1, and (64K~128K) of Data2.
-  This behavior is to cache sectors for later update.
-
-  Incidentally commit d4e28d9b5f04 ("btrfs: raid56: make steal_rbio()
-  subpage compatible") has a bug which makes RAID56 to never trust the
-  cached sectors, thus slightly improve the situation for recovery.
-
-  Unfortunately, follow up fix "btrfs: update stripe_sectors::uptodate in
-  steal_rbio" will revert the behavior back to the old one.
-
-- Btrfs raid56 partial write will update all P/Q sectors and cache them
-
-  This means, even if data at (64K ~ 96K) of Data2 is free space, and
-  only (96K ~ 128K) of Data2 is really stale data.
-  And we write into that (96K ~ 128K), we will update all the parity
-  sectors for the full stripe.
-
-  This unnecessary behavior will completely kill the chance of recovery.
-
-  Thankfully, an unrelated optimization "btrfs: only write the sectors
-  in the vertical stripe which has data stripes" will prevent
-  submitting the write bio for untouched vertical sectors.
-
-  That optimization will keep the on-disk P/Q untouched for a chance for
-  later recovery.
-
-[FIX]
-Although we have no good way to completely fix the destructive RMW
-(unless we go full scrub for each partial write), we can still limit the
-damage.
-
-With patch "btrfs: only write the sectors in the vertical stripe which
-has data stripes" now we won't really submit the P/Q of unrelated
-vertical stripes, so the on-disk P/Q should still be fine.
-
-Now we really need to do is just drop all the cached sectors when doing
-recovery.
-
-By this, we have a chance to read the original P/Q from disk, and have a
-chance to recover the stale data, while still keep the cache to speed up
-regular write path.
-
-In fact, just dropping all the cache for recovery path is good enough to
-allow the test case btrfs/125 along with the small script to pass
-reliably.
-
-The lack of metadata write after the degraded mount, and forced metadata
-COW is saving us this time.
-
-So this patch will fix the behavior by not trust any cache in
-__raid56_parity_recover(), to solve the problem while still keep the
-cache useful.
-
-But please note that this test pass DOES NOT mean we have solved the
-destructive RMW problem, we just do better damage control a little
-better.
-
-Related patches:
-
-- btrfs: only write the sectors in the vertical stripe
-- d4e28d9b5f04 ("btrfs: raid56: make steal_rbio() subpage compatible")
-- btrfs: update stripe_sectors::uptodate in steal_rbio
-
-Acked-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: https://lkml.kernel.org/r/cover.1656659357.git.naveen.n.rao@linux.vnet.ibm.com
+Link: https://lkml.kernel.org/r/2cd7ca1fe4d6bb6ca38e3283c717878388ed6788.1656659357.git.naveen.n.rao@linux.vnet.ibm.com
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Suggested-by: Eric Biederman <ebiederm@xmission.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/raid56.c |   19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+ arch/arm64/include/asm/kexec.h   |    4 ++-
+ arch/powerpc/include/asm/kexec.h |    9 +++++++
+ arch/s390/include/asm/kexec.h    |    3 ++
+ arch/x86/include/asm/kexec.h     |    6 +++++
+ include/linux/kexec.h            |   44 +++++++++++++++++++++++++++++++++------
+ kernel/kexec_file.c              |   35 +------------------------------
+ 6 files changed, 61 insertions(+), 40 deletions(-)
 
---- a/fs/btrfs/raid56.c
-+++ b/fs/btrfs/raid56.c
-@@ -2085,9 +2085,12 @@ static int __raid56_parity_recover(struc
- 	atomic_set(&rbio->error, 0);
+--- a/arch/arm64/include/asm/kexec.h
++++ b/arch/arm64/include/asm/kexec.h
+@@ -103,7 +103,9 @@ extern const struct kexec_file_ops kexec
  
- 	/*
--	 * read everything that hasn't failed.  Thanks to the
--	 * stripe cache, it is possible that some or all of these
--	 * pages are going to be uptodate.
-+	 * Read everything that hasn't failed. However this time we will
-+	 * not trust any cached sector.
-+	 * As we may read out some stale data but higher layer is not reading
-+	 * that stale part.
-+	 *
-+	 * So here we always re-read everything in recovery path.
- 	 */
- 	for (stripe = 0; stripe < rbio->real_stripes; stripe++) {
- 		if (rbio->faila == stripe || rbio->failb == stripe) {
-@@ -2096,16 +2099,6 @@ static int __raid56_parity_recover(struc
- 		}
+ struct kimage;
  
- 		for (pagenr = 0; pagenr < rbio->stripe_npages; pagenr++) {
--			struct page *p;
+-extern int arch_kimage_file_post_load_cleanup(struct kimage *image);
++int arch_kimage_file_post_load_cleanup(struct kimage *image);
++#define arch_kimage_file_post_load_cleanup arch_kimage_file_post_load_cleanup
++
+ extern int load_other_segments(struct kimage *image,
+ 		unsigned long kernel_load_addr, unsigned long kernel_size,
+ 		char *initrd, unsigned long initrd_len,
+--- a/arch/powerpc/include/asm/kexec.h
++++ b/arch/powerpc/include/asm/kexec.h
+@@ -119,6 +119,15 @@ int setup_purgatory(struct kimage *image
+ #ifdef CONFIG_PPC64
+ struct kexec_buf;
+ 
++int arch_kexec_kernel_image_probe(struct kimage *image, void *buf, unsigned long buf_len);
++#define arch_kexec_kernel_image_probe arch_kexec_kernel_image_probe
++
++int arch_kimage_file_post_load_cleanup(struct kimage *image);
++#define arch_kimage_file_post_load_cleanup arch_kimage_file_post_load_cleanup
++
++int arch_kexec_locate_mem_hole(struct kexec_buf *kbuf);
++#define arch_kexec_locate_mem_hole arch_kexec_locate_mem_hole
++
+ int load_crashdump_segments_ppc64(struct kimage *image,
+ 				  struct kexec_buf *kbuf);
+ int setup_purgatory_ppc64(struct kimage *image, const void *slave_code,
+--- a/arch/s390/include/asm/kexec.h
++++ b/arch/s390/include/asm/kexec.h
+@@ -92,5 +92,8 @@ int arch_kexec_apply_relocations_add(str
+ 				     const Elf_Shdr *relsec,
+ 				     const Elf_Shdr *symtab);
+ #define arch_kexec_apply_relocations_add arch_kexec_apply_relocations_add
++
++int arch_kimage_file_post_load_cleanup(struct kimage *image);
++#define arch_kimage_file_post_load_cleanup arch_kimage_file_post_load_cleanup
+ #endif
+ #endif /*_S390_KEXEC_H */
+--- a/arch/x86/include/asm/kexec.h
++++ b/arch/x86/include/asm/kexec.h
+@@ -193,6 +193,12 @@ int arch_kexec_apply_relocations_add(str
+ 				     const Elf_Shdr *relsec,
+ 				     const Elf_Shdr *symtab);
+ #define arch_kexec_apply_relocations_add arch_kexec_apply_relocations_add
++
++void *arch_kexec_kernel_image_load(struct kimage *image);
++#define arch_kexec_kernel_image_load arch_kexec_kernel_image_load
++
++int arch_kimage_file_post_load_cleanup(struct kimage *image);
++#define arch_kimage_file_post_load_cleanup arch_kimage_file_post_load_cleanup
+ #endif
+ #endif
+ 
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -182,21 +182,53 @@ int kexec_purgatory_get_set_symbol(struc
+ 				   void *buf, unsigned int size,
+ 				   bool get_value);
+ void *kexec_purgatory_get_symbol_addr(struct kimage *image, const char *name);
++void *kexec_image_load_default(struct kimage *image);
++
++#ifndef arch_kexec_kernel_image_probe
++static inline int
++arch_kexec_kernel_image_probe(struct kimage *image, void *buf, unsigned long buf_len)
++{
++	return kexec_image_probe_default(image, buf, buf_len);
++}
++#endif
++
++#ifndef arch_kimage_file_post_load_cleanup
++static inline int arch_kimage_file_post_load_cleanup(struct kimage *image)
++{
++	return kexec_image_post_load_cleanup_default(image);
++}
++#endif
++
++#ifndef arch_kexec_kernel_image_load
++static inline void *arch_kexec_kernel_image_load(struct kimage *image)
++{
++	return kexec_image_load_default(image);
++}
++#endif
+ 
+-/* Architectures may override the below functions */
+-int arch_kexec_kernel_image_probe(struct kimage *image, void *buf,
+-				  unsigned long buf_len);
+-void *arch_kexec_kernel_image_load(struct kimage *image);
+-int arch_kimage_file_post_load_cleanup(struct kimage *image);
+ #ifdef CONFIG_KEXEC_SIG
+ int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+ 				 unsigned long buf_len);
+ #endif
+-int arch_kexec_locate_mem_hole(struct kexec_buf *kbuf);
+ 
+ extern int kexec_add_buffer(struct kexec_buf *kbuf);
+ int kexec_locate_mem_hole(struct kexec_buf *kbuf);
+ 
++#ifndef arch_kexec_locate_mem_hole
++/**
++ * arch_kexec_locate_mem_hole - Find free memory to place the segments.
++ * @kbuf:                       Parameters for the memory search.
++ *
++ * On success, kbuf->mem will have the start address of the memory region found.
++ *
++ * Return: 0 on success, negative errno on error.
++ */
++static inline int arch_kexec_locate_mem_hole(struct kexec_buf *kbuf)
++{
++	return kexec_locate_mem_hole(kbuf);
++}
++#endif
++
+ /* Alignment required for elf header segment */
+ #define ELF_CORE_HEADER_ALIGN   4096
+ 
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -62,14 +62,7 @@ int kexec_image_probe_default(struct kim
+ 	return ret;
+ }
+ 
+-/* Architectures can provide this probe function */
+-int __weak arch_kexec_kernel_image_probe(struct kimage *image, void *buf,
+-					 unsigned long buf_len)
+-{
+-	return kexec_image_probe_default(image, buf, buf_len);
+-}
 -
--			/*
--			 * the rmw code may have already read this
--			 * page in
--			 */
--			p = rbio_stripe_page(rbio, stripe, pagenr);
--			if (PageUptodate(p))
--				continue;
+-static void *kexec_image_load_default(struct kimage *image)
++void *kexec_image_load_default(struct kimage *image)
+ {
+ 	if (!image->fops || !image->fops->load)
+ 		return ERR_PTR(-ENOEXEC);
+@@ -80,11 +73,6 @@ static void *kexec_image_load_default(st
+ 				 image->cmdline_buf_len);
+ }
+ 
+-void * __weak arch_kexec_kernel_image_load(struct kimage *image)
+-{
+-	return kexec_image_load_default(image);
+-}
 -
- 			ret = rbio_add_io_page(rbio, &bio_list,
- 				       rbio_stripe_page(rbio, stripe, pagenr),
- 				       stripe, pagenr, rbio->stripe_len);
+ int kexec_image_post_load_cleanup_default(struct kimage *image)
+ {
+ 	if (!image->fops || !image->fops->cleanup)
+@@ -93,11 +81,6 @@ int kexec_image_post_load_cleanup_defaul
+ 	return image->fops->cleanup(image->image_loader_data);
+ }
+ 
+-int __weak arch_kimage_file_post_load_cleanup(struct kimage *image)
+-{
+-	return kexec_image_post_load_cleanup_default(image);
+-}
+-
+ #ifdef CONFIG_KEXEC_SIG
+ static int kexec_image_verify_sig_default(struct kimage *image, void *buf,
+ 					  unsigned long buf_len)
+@@ -110,8 +93,7 @@ static int kexec_image_verify_sig_defaul
+ 	return image->fops->verify_sig(buf, buf_len);
+ }
+ 
+-int __weak arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+-					unsigned long buf_len)
++int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf, unsigned long buf_len)
+ {
+ 	return kexec_image_verify_sig_default(image, buf, buf_len);
+ }
+@@ -617,19 +599,6 @@ int kexec_locate_mem_hole(struct kexec_b
+ }
+ 
+ /**
+- * arch_kexec_locate_mem_hole - Find free memory to place the segments.
+- * @kbuf:                       Parameters for the memory search.
+- *
+- * On success, kbuf->mem will have the start address of the memory region found.
+- *
+- * Return: 0 on success, negative errno on error.
+- */
+-int __weak arch_kexec_locate_mem_hole(struct kexec_buf *kbuf)
+-{
+-	return kexec_locate_mem_hole(kbuf);
+-}
+-
+-/**
+  * kexec_add_buffer - place a buffer in a kexec segment
+  * @kbuf:	Buffer contents and memory parameters.
+  *
 
 
