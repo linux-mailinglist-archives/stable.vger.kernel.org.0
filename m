@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD6DB59A1F0
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:36:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D4B659A01C
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:32:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352093AbiHSQXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:23:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41976 "EHLO
+        id S1352103AbiHSQXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:23:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351613AbiHSQVJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:21:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DC1574B8D;
-        Fri, 19 Aug 2022 09:02:42 -0700 (PDT)
+        with ESMTP id S1352159AbiHSQVS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:21:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB164A98F4;
+        Fri, 19 Aug 2022 09:02:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02167B8280D;
-        Fri, 19 Aug 2022 16:02:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FF83C433D6;
-        Fri, 19 Aug 2022 16:02:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 06EB4B8281A;
+        Fri, 19 Aug 2022 16:02:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 466A0C433C1;
+        Fri, 19 Aug 2022 16:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924959;
-        bh=P1VYVGNOavNF8RQzM/uLlQlUG2FfNU83k2ALbbh9MVQ=;
+        s=korg; t=1660924962;
+        bh=Ue5WTpNkr1YCPFe7K+gnxnV31/gUq1gsXowARGuCpMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0i1ZVHNGbamI27FINjTSFQmFu99BJDc2Isq0tyAv55h54gyPBWyyEt6Jb94emoQr
-         6bLsCxtvw5srlI8p2URrdGWWADz8hnSbIan29r0PMzS+u4KOutK+fq6gKvQcYmaadJ
-         L2PSptf5RqN1cmjHHXmAzrfsUXLY1VBYs9z0Qtj8=
+        b=K5LrtWGYIoTSShYRH4/OaD8fYGqMN6JNAqnn83qQqXNAtVGvX6lRgxy/XKxi1Glph
+         I9gM26YsBB8/Ak+XCHscBlegRQzL+A/mZcb8P9FHyOLYENpGIraKq1VNmJe30ut8xy
+         lroBuRgdIRGP7GlDvELcWFEgVTWqMCGKvlIFHUZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haoyue Xu <xuhaoyue1@hisilicon.com>,
-        Wenpeng Liang <liangwenpeng@huawei.com>,
+        stable@vger.kernel.org, Cheng Xu <chengyou@linux.alibaba.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 337/545] RDMA/hns: Fix incorrect clearing of interrupt status register
-Date:   Fri, 19 Aug 2022 17:41:47 +0200
-Message-Id: <20220819153844.471428927@linuxfoundation.org>
+Subject: [PATCH 5.10 338/545] RDMA/siw: Fix duplicated reported IW_CM_EVENT_CONNECT_REPLY event
+Date:   Fri, 19 Aug 2022 17:41:48 +0200
+Message-Id: <20220819153844.520448682@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,39 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haoyue Xu <xuhaoyue1@hisilicon.com>
+From: Cheng Xu <chengyou@linux.alibaba.com>
 
-[ Upstream commit ecb4db5c3590aa956b4b2c352081a5b632d1f9f9 ]
+[ Upstream commit 3056fc6c32e613b760422b94c7617ac9a24a4721 ]
 
-The driver will clear all the interrupts in the same area
-when the driver handles the interrupt of type AEQ overflow.
-It should only set the interrupt status bit of type AEQ overflow.
+If siw_recv_mpa_rr returns -EAGAIN, it means that the MPA reply hasn't
+been received completely, and should not report IW_CM_EVENT_CONNECT_REPLY
+in this case. This may trigger a call trace in iw_cm. A simple way to
+trigger this:
+ server: ib_send_lat
+ client: ib_send_lat -R <server_ip>
 
-Fixes: a5073d6054f7 ("RDMA/hns: Add eq support of hip08")
-Link: https://lore.kernel.org/r/20220714134353.16700-4-liangwenpeng@huawei.com
-Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+The call trace looks like this:
+
+ kernel BUG at drivers/infiniband/core/iwcm.c:894!
+ invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+ <...>
+ Workqueue: iw_cm_wq cm_work_handler [iw_cm]
+ Call Trace:
+  <TASK>
+  cm_work_handler+0x1dd/0x370 [iw_cm]
+  process_one_work+0x1e2/0x3b0
+  worker_thread+0x49/0x2e0
+  ? rescuer_thread+0x370/0x370
+  kthread+0xe5/0x110
+  ? kthread_complete_and_exit+0x20/0x20
+  ret_from_fork+0x1f/0x30
+  </TASK>
+
+Fixes: 6c52fdc244b5 ("rdma/siw: connection management")
+Link: https://lore.kernel.org/r/dae34b5fd5c2ea2bd9744812c1d2653a34a94c67.1657706960.git.chengyou@linux.alibaba.com
+Signed-off-by: Cheng Xu <chengyou@linux.alibaba.com>
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/sw/siw/siw_cm.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index abe882ec1bae..6dab03b7aca8 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -5642,8 +5642,8 @@ static irqreturn_t hns_roce_v2_msix_interrupt_abn(int irq, void *dev_id)
+diff --git a/drivers/infiniband/sw/siw/siw_cm.c b/drivers/infiniband/sw/siw/siw_cm.c
+index 6e7399c2ca8c..b87ba4c9fccf 100644
+--- a/drivers/infiniband/sw/siw/siw_cm.c
++++ b/drivers/infiniband/sw/siw/siw_cm.c
+@@ -725,11 +725,11 @@ static int siw_proc_mpareply(struct siw_cep *cep)
+ 	enum mpa_v2_ctrl mpa_p2p_mode = MPA_V2_RDMA_NO_RTR;
  
- 		dev_err(dev, "AEQ overflow!\n");
+ 	rv = siw_recv_mpa_rr(cep);
+-	if (rv != -EAGAIN)
+-		siw_cancel_mpatimer(cep);
+ 	if (rv)
+ 		goto out_err;
  
--		int_st |= 1 << HNS_ROCE_V2_VF_INT_ST_AEQ_OVERFLOW_S;
--		roce_write(hr_dev, ROCEE_VF_ABN_INT_ST_REG, int_st);
-+		roce_write(hr_dev, ROCEE_VF_ABN_INT_ST_REG,
-+			   1 << HNS_ROCE_V2_VF_INT_ST_AEQ_OVERFLOW_S);
++	siw_cancel_mpatimer(cep);
++
+ 	rep = &cep->mpa.hdr;
  
- 		/* Set reset level for reset_event() */
- 		if (ops->set_default_reset_request)
+ 	if (__mpa_rr_revision(rep->params.bits) > MPA_REVISION_2) {
+@@ -895,7 +895,8 @@ static int siw_proc_mpareply(struct siw_cep *cep)
+ 	}
+ 
+ out_err:
+-	siw_cm_upcall(cep, IW_CM_EVENT_CONNECT_REPLY, -EINVAL);
++	if (rv != -EAGAIN)
++		siw_cm_upcall(cep, IW_CM_EVENT_CONNECT_REPLY, -EINVAL);
+ 
+ 	return rv;
+ }
 -- 
 2.35.1
 
