@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3764159A434
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:05:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1A2C59A450
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:05:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354112AbiHSQr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:47:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36784 "EHLO
+        id S1353717AbiHSQq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:46:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353987AbiHSQqx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:46:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91289113DCE;
-        Fri, 19 Aug 2022 09:12:30 -0700 (PDT)
+        with ESMTP id S1353867AbiHSQpJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:45:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886BB129834;
+        Fri, 19 Aug 2022 09:11:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8E5161898;
-        Fri, 19 Aug 2022 16:11:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8E4BC433D6;
-        Fri, 19 Aug 2022 16:11:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A68F9B82825;
+        Fri, 19 Aug 2022 16:10:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0554C433D6;
+        Fri, 19 Aug 2022 16:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925497;
-        bh=mWUWAxCqeA3FTq772JsNj5qWEE9jE6doiOyela3xc4k=;
+        s=korg; t=1660925399;
+        bh=wmXqVLhkAsme1Bpjtm7hE7CfIWls9rVVCZTZVxxVBfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EuaGYDLgJwt0ABtNTWTH+E0WgplkEi8vJLf4l5SODRk0nlKm17S+NT2GjN/v5wdfp
-         zUbC5XA8fpNvkcxOEx5NrsgVRd6mbqtl+thefnmmVXF5X/Jqo8/EvJU+oW2S/BRfqA
-         e31IvPusYOwKPYIxh4tktK85ormIuOYvY8k2yHpw=
+        b=X8fkMir1LdKENinKcrP7lo5Sre15rieRQNHTyZNSNWB0lWbYjDrKAflJzovn4ZWTB
+         Ncd41NxeQyGD06eEUs8qxF5bYkI7foqdZKL3cte8WNIqYqXB/8beovEqbcUSRPf/an
+         0+7AsWqxlir/XGTt1HjK9bQ4/gD5b2zGY+qhJ+og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sean V Kelley <sean.v.kelley@intel.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 479/545] PCI/ERR: Avoid negated conditional for clarity
-Date:   Fri, 19 Aug 2022 17:44:09 +0200
-Message-Id: <20220819153850.862483452@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 480/545] PCI/ERR: Add pci_walk_bridge() to pcie_do_recovery()
+Date:   Fri, 19 Aug 2022 17:44:10 +0200
+Message-Id: <20220819153850.911668266@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -59,42 +57,100 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean V Kelley <sean.v.kelley@intel.com>
 
-[ Upstream commit 3d7d8fc78f4b504819882278fcfe10784eb985fa ]
+[ Upstream commit 05e9ae19ab83881a0f33025bd1288e41e552a34b ]
 
-Reverse the sense of the Root Port/Downstream Port conditional for clarity.
-No functional change intended.
+Consolidate subordinate bus checks with pci_walk_bus() into
+pci_walk_bridge() for walking below potentially AER affected bridges.
 
-Link: https://lore.kernel.org/r/20201121001036.8560-9-sean.v.kelley@intel.com
+Link: https://lore.kernel.org/r/20201121001036.8560-10-sean.v.kelley@intel.com
 Tested-by: Jonathan Cameron <Jonathan.Cameron@huawei.com> # non-native/no RCEC
 Signed-off-by: Sean V Kelley <sean.v.kelley@intel.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pcie/err.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/pci/pcie/err.c | 30 +++++++++++++++++++++++-------
+ 1 file changed, 23 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/pci/pcie/err.c b/drivers/pci/pcie/err.c
-index 46a5b84f8842..931e75f2549d 100644
+index 931e75f2549d..8b53aecdb43d 100644
 --- a/drivers/pci/pcie/err.c
 +++ b/drivers/pci/pcie/err.c
-@@ -159,11 +159,11 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev,
- 	 * Error recovery runs on all subordinates of the bridge.  If the
- 	 * bridge detected the error, it is cleared at the end.
- 	 */
--	if (!(type == PCI_EXP_TYPE_ROOT_PORT ||
--	      type == PCI_EXP_TYPE_DOWNSTREAM))
--		bridge = pci_upstream_bridge(dev);
--	else
-+	if (type == PCI_EXP_TYPE_ROOT_PORT ||
-+	    type == PCI_EXP_TYPE_DOWNSTREAM)
- 		bridge = dev;
-+	else
-+		bridge = pci_upstream_bridge(dev);
+@@ -146,13 +146,30 @@ static int report_resume(struct pci_dev *dev, void *data)
+ 	return 0;
+ }
  
- 	bus = bridge->subordinate;
++/**
++ * pci_walk_bridge - walk bridges potentially AER affected
++ * @bridge:	bridge which may be a Port
++ * @cb:		callback to be called for each device found
++ * @userdata:	arbitrary pointer to be passed to callback
++ *
++ * If the device provided is a bridge, walk the subordinate bus, including
++ * any bridged devices on buses under this bus.  Call the provided callback
++ * on each device found.
++ */
++static void pci_walk_bridge(struct pci_dev *bridge,
++			    int (*cb)(struct pci_dev *, void *),
++			    void *userdata)
++{
++	if (bridge->subordinate)
++		pci_walk_bus(bridge->subordinate, cb, userdata);
++}
++
+ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev,
+ 		pci_channel_state_t state,
+ 		pci_ers_result_t (*reset_subordinates)(struct pci_dev *pdev))
+ {
+ 	int type = pci_pcie_type(dev);
+ 	struct pci_dev *bridge;
+-	struct pci_bus *bus;
+ 	pci_ers_result_t status = PCI_ERS_RESULT_CAN_RECOVER;
+ 
+ 	/*
+@@ -165,23 +182,22 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev,
+ 	else
+ 		bridge = pci_upstream_bridge(dev);
+ 
+-	bus = bridge->subordinate;
  	pci_dbg(bridge, "broadcast error_detected message\n");
+ 	if (state == pci_channel_io_frozen) {
+-		pci_walk_bus(bus, report_frozen_detected, &status);
++		pci_walk_bridge(bridge, report_frozen_detected, &status);
+ 		status = reset_subordinates(bridge);
+ 		if (status != PCI_ERS_RESULT_RECOVERED) {
+ 			pci_warn(bridge, "subordinate device reset failed\n");
+ 			goto failed;
+ 		}
+ 	} else {
+-		pci_walk_bus(bus, report_normal_detected, &status);
++		pci_walk_bridge(bridge, report_normal_detected, &status);
+ 	}
+ 
+ 	if (status == PCI_ERS_RESULT_CAN_RECOVER) {
+ 		status = PCI_ERS_RESULT_RECOVERED;
+ 		pci_dbg(bridge, "broadcast mmio_enabled message\n");
+-		pci_walk_bus(bus, report_mmio_enabled, &status);
++		pci_walk_bridge(bridge, report_mmio_enabled, &status);
+ 	}
+ 
+ 	if (status == PCI_ERS_RESULT_NEED_RESET) {
+@@ -192,14 +208,14 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev,
+ 		 */
+ 		status = PCI_ERS_RESULT_RECOVERED;
+ 		pci_dbg(bridge, "broadcast slot_reset message\n");
+-		pci_walk_bus(bus, report_slot_reset, &status);
++		pci_walk_bridge(bridge, report_slot_reset, &status);
+ 	}
+ 
+ 	if (status != PCI_ERS_RESULT_RECOVERED)
+ 		goto failed;
+ 
+ 	pci_dbg(bridge, "broadcast resume message\n");
+-	pci_walk_bus(bus, report_resume, &status);
++	pci_walk_bridge(bridge, report_resume, &status);
+ 
+ 	if (pcie_aer_is_native(bridge))
+ 		pcie_clear_device_status(bridge);
 -- 
 2.35.1
 
