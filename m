@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E51FF59A255
+	by mail.lfdr.de (Postfix) with ESMTP id 0729759A253
 	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353226AbiHSQeF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:34:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45966 "EHLO
+        id S1353202AbiHSQd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:33:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353760AbiHSQce (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:32:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0334410DCD4;
-        Fri, 19 Aug 2022 09:06:52 -0700 (PDT)
+        with ESMTP id S1353749AbiHSQcd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:32:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F23410BE1F;
+        Fri, 19 Aug 2022 09:06:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC3A8B8281F;
-        Fri, 19 Aug 2022 16:06:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BA02C43140;
-        Fri, 19 Aug 2022 16:06:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 000D661811;
+        Fri, 19 Aug 2022 16:06:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01905C433D6;
+        Fri, 19 Aug 2022 16:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925209;
-        bh=/deEQ7RT5Ri/0KjhQfwEy88BiGV/RDtZZ7zEgzL9xZg=;
+        s=korg; t=1660925212;
+        bh=sGAPkWxP+xDyr6Za3OEBFuLkln3k6B7lx6cCJIvfWC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IqDD7l653YesaSIv+UeeDzCsbDOBzwYNjpFLecXWCqCK1qkXg5PhjixKrq/Yy7yzK
-         cJSD4UR3w1Gx9SyHLS4rcM8pDr32x3YgLRIQ2P/b/kU6oj3xAwPgcmc9nKcv7sS06Y
-         bZlC+059jJmI3iyhBpJNJgBK3+Qhk3XmNTLn+724=
+        b=RaJCWdvPRYa/5LSbeUSMW9014EK62rr+zIqN2WkROllQiOVdL+yYgg1PzVen/kWnI
+         hfL1xAwsRFWykihMhSfXNDQ/vrHig0xIjYy17SqfeZQGr1EiderS5gpGuyw8DIgFCe
+         u/tNhnnStLEtiMkUZ8PFzAhXwhD01Nw3S7zfXjlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Byungki Lee <dominicus79@gmail.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Chao Liu <liuchao@coolpad.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 419/545] f2fs: write checkpoint during FG_GC
-Date:   Fri, 19 Aug 2022 17:43:09 +0200
-Message-Id: <20220819153848.171639158@linuxfoundation.org>
+Subject: [PATCH 5.10 420/545] f2fs: fix to remove F2FS_COMPR_FL and tag F2FS_NOCOMP_FL at the same time
+Date:   Fri, 19 Aug 2022 17:43:10 +0200
+Message-Id: <20220819153848.221957251@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,73 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Byungki Lee <dominicus79@gmail.com>
+From: Chao Liu <liuchao@coolpad.com>
 
-[ Upstream commit a9163b947ae8f7af7cb8d63606cd87b9facbfe74 ]
+[ Upstream commit 8ee236dcaa690d09ca612622e8bc8d09c302021d ]
 
-If there's not enough free sections each of which consistis of large segments,
-we can hit no free section for upcoming section allocation. Let's reclaim some
-prefree segments by writing checkpoints.
+If the inode has the compress flag, it will fail to use
+'chattr -c +m' to remove its compress flag and tag no compress flag.
+However, the same command will be successful when executed again,
+as shown below:
 
-Signed-off-by: Byungki Lee <dominicus79@gmail.com>
+  $ touch foo.txt
+  $ chattr +c foo.txt
+  $ chattr -c +m foo.txt
+  chattr: Invalid argument while setting flags on foo.txt
+  $ chattr -c +m foo.txt
+  $ f2fs_io getflags foo.txt
+  get a flag on foo.txt ret=0, flags=nocompression,inline_data
+
+Fix this by removing some checks in f2fs_setflags_common()
+that do not affect the original logic. I go through all the
+possible scenarios, and the results are as follows. Bold is
+the only thing that has changed.
+
++---------------+-----------+-----------+----------+
+|               |            file flags            |
++ command       +-----------+-----------+----------+
+|               | no flag   | compr     | nocompr  |
++---------------+-----------+-----------+----------+
+| chattr +c     | compr     | compr     | -EINVAL  |
+| chattr -c     | no flag   | no flag   | nocompr  |
+| chattr +m     | nocompr   | -EINVAL   | nocompr  |
+| chattr -m     | no flag   | compr     | no flag  |
+| chattr +c +m  | -EINVAL   | -EINVAL   | -EINVAL  |
+| chattr +c -m  | compr     | compr     | compr    |
+| chattr -c +m  | nocompr   | *nocompr* | nocompr  |
+| chattr -c -m  | no flag   | no flag   | no flag  |
++---------------+-----------+-----------+----------+
+
+Link: https://lore.kernel.org/linux-f2fs-devel/20220621064833.1079383-1-chaoliu719@gmail.com/
+Fixes: 4c8ff7095bef ("f2fs: support data compression")
 Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Chao Liu <liuchao@coolpad.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c | 38 +++++++++++++++++++++++---------------
- 1 file changed, 23 insertions(+), 15 deletions(-)
+ fs/f2fs/file.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index 22bb5e07f656..3b53fdebf03d 100644
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -1741,23 +1741,31 @@ int f2fs_gc(struct f2fs_sb_info *sbi, bool sync,
- 	if (sync)
- 		goto stop;
- 
--	if (has_not_enough_free_secs(sbi, sec_freed, 0)) {
--		if (skipped_round <= MAX_SKIP_GC_COUNT ||
--					skipped_round * 2 < round) {
--			segno = NULL_SEGNO;
--			goto gc_more;
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index defa068b4c7c..d56fcace1821 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -1844,10 +1844,7 @@ static int f2fs_setflags_common(struct inode *inode, u32 iflags, u32 mask)
+ 		if (masked_flags & F2FS_COMPR_FL) {
+ 			if (!f2fs_disable_compressed_file(inode))
+ 				return -EINVAL;
 -		}
-+	if (!has_not_enough_free_secs(sbi, sec_freed, 0))
-+		goto stop;
- 
--		if (first_skipped < last_skipped &&
--				(last_skipped - first_skipped) >
--						sbi->skipped_gc_rwsem) {
--			f2fs_drop_inmem_pages_all(sbi, true);
--			segno = NULL_SEGNO;
--			goto gc_more;
--		}
--		if (gc_type == FG_GC && !is_sbi_flag_set(sbi, SBI_CP_DISABLED))
-+	if (skipped_round <= MAX_SKIP_GC_COUNT || skipped_round * 2 < round) {
-+
-+		/* Write checkpoint to reclaim prefree segments */
-+		if (free_sections(sbi) < NR_CURSEG_PERSIST_TYPE &&
-+				prefree_segments(sbi) &&
-+				!is_sbi_flag_set(sbi, SBI_CP_DISABLED)) {
- 			ret = f2fs_write_checkpoint(sbi, &cpc);
+-		if (iflags & F2FS_NOCOMP_FL)
+-			return -EINVAL;
+-		if (iflags & F2FS_COMPR_FL) {
++		} else {
+ 			if (!f2fs_may_compress(inode))
+ 				return -EINVAL;
+ 			if (S_ISREG(inode->i_mode) && inode->i_size)
+@@ -1856,10 +1853,6 @@ static int f2fs_setflags_common(struct inode *inode, u32 iflags, u32 mask)
+ 			set_compress_context(inode);
+ 		}
+ 	}
+-	if ((iflags ^ masked_flags) & F2FS_NOCOMP_FL) {
+-		if (masked_flags & F2FS_COMPR_FL)
+-			return -EINVAL;
 -	}
-+			if (ret)
-+				goto stop;
-+		}
-+		segno = NULL_SEGNO;
-+		goto gc_more;
-+	}
-+	if (first_skipped < last_skipped &&
-+			(last_skipped - first_skipped) >
-+					sbi->skipped_gc_rwsem) {
-+		f2fs_drop_inmem_pages_all(sbi, true);
-+		segno = NULL_SEGNO;
-+		goto gc_more;
-+	}
-+	if (gc_type == FG_GC && !is_sbi_flag_set(sbi, SBI_CP_DISABLED))
-+		ret = f2fs_write_checkpoint(sbi, &cpc);
- stop:
- 	SIT_I(sbi)->last_victim[ALLOC_NEXT] = 0;
- 	SIT_I(sbi)->last_victim[FLUSH_DEVICE] = init_segno;
+ 
+ 	fi->i_flags = iflags | (fi->i_flags & ~mask);
+ 	f2fs_bug_on(F2FS_I_SB(inode), (fi->i_flags & F2FS_COMPR_FL) &&
 -- 
 2.35.1
 
