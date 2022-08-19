@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1654159A23B
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 831A759A237
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353117AbiHSQdT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:33:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34782 "EHLO
+        id S1353108AbiHSQdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:33:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353559AbiHSQcA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:32:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13DE211E93D;
-        Fri, 19 Aug 2022 09:06:15 -0700 (PDT)
+        with ESMTP id S1353499AbiHSQbt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:31:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0C9010C818;
+        Fri, 19 Aug 2022 09:05:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1634617A7;
-        Fri, 19 Aug 2022 16:05:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D08A5C433C1;
-        Fri, 19 Aug 2022 16:05:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA96FB8281A;
+        Fri, 19 Aug 2022 16:05:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20C83C433C1;
+        Fri, 19 Aug 2022 16:05:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925149;
-        bh=JLzz5dq88jRbBg6ItZt/44TfxmNsOXXimPAGwGAhAmo=;
+        s=korg; t=1660925152;
+        bh=dJ4gpbam+XmG3kQqJjRjup7wnD2kSrhGt7KyInmx5Qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a5eVPyskYrJLH13PckPMtN9wOL0pJ/h0nIhHRtoV937swFnkDerLF19+jcXHtCIAR
-         gD9OFt5IPPMSTQ8a4nJ9RJcmuLGYpNcN+uYtuIjm48+AwickToXplYK/WPdBnSFsZM
-         s+CcEmPctIl2nWDcA2yvdKixHVOtrr/UjXilenZM=
+        b=i5ovZsFT7mQ4OoiXPz6CcAt9niAfYhASF2xA4bDBeVY4JIpPB3QJw/BSWQDOW3noW
+         ysQdenEM8rkkuR3k7ECB+iZsRZWfjXsfTcHopo7RTsahLCaNqv+hQDKn0SHUAIlpCN
+         4aUCXwwToxtTurpWQ6ydIXE21EbpAVJcdI0Jvszo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Stefani Seibold <stefani@seibold.net>,
-        Randy Dunlap <randy.dunlap@oracle.com>,
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        Peter Zijlstra <peterz@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 399/545] kfifo: fix kfifo_to_user() return type
-Date:   Fri, 19 Aug 2022 17:42:49 +0200
-Message-Id: <20220819153847.279739866@linuxfoundation.org>
+Subject: [PATCH 5.10 400/545] lib/smp_processor_id: fix imbalanced instrumentation_end() call
+Date:   Fri, 19 Aug 2022 17:42:50 +0200
+Message-Id: <20220819153847.326395667@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -56,42 +58,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 045ed31e23aea840648c290dbde04797064960db ]
+[ Upstream commit bd27acaac24e4b252ee28dddcabaee80456d0faf ]
 
-The kfifo_to_user() macro is supposed to return zero for success or
-negative error codes.  Unfortunately, there is a signedness bug so it
-returns unsigned int.  This only affects callers which try to save the
-result in ssize_t and as far as I can see the only place which does that
-is line6_hwdep_read().
+Currently instrumentation_end() won't be called if printk_ratelimit()
+returned false.
 
-TL;DR: s/_uint/_int/.
-
-Link: https://lkml.kernel.org/r/YrVL3OJVLlNhIMFs@kili
-Fixes: 144ecf310eb5 ("kfifo: fix kfifo_alloc() to return a signed int value")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Stefani Seibold <stefani@seibold.net>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>
+Link: https://lkml.kernel.org/r/a636d8e0-ad32-5888-acac-671f7f553bb3@I-love.SAKURA.ne.jp
+Fixes: 126f21f0e8d46e2c ("lib/smp_processor_id: Move it into noinstr section")
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Alexandre Chartre <alexandre.chartre@oracle.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kfifo.h | 2 +-
+ lib/smp_processor_id.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/kfifo.h b/include/linux/kfifo.h
-index 86249476b57f..0b35a41440ff 100644
---- a/include/linux/kfifo.h
-+++ b/include/linux/kfifo.h
-@@ -688,7 +688,7 @@ __kfifo_uint_must_check_helper( \
-  * writer, you don't need extra locking to use these macro.
-  */
- #define	kfifo_to_user(fifo, to, len, copied) \
--__kfifo_uint_must_check_helper( \
-+__kfifo_int_must_check_helper( \
- ({ \
- 	typeof((fifo) + 1) __tmp = (fifo); \
- 	void __user *__to = (to); \
+diff --git a/lib/smp_processor_id.c b/lib/smp_processor_id.c
+index 525222e4f409..2916606a9333 100644
+--- a/lib/smp_processor_id.c
++++ b/lib/smp_processor_id.c
+@@ -46,9 +46,9 @@ unsigned int check_preemption_disabled(const char *what1, const char *what2)
+ 
+ 	printk("caller is %pS\n", __builtin_return_address(0));
+ 	dump_stack();
+-	instrumentation_end();
+ 
+ out_enable:
++	instrumentation_end();
+ 	preempt_enable_no_resched_notrace();
+ out:
+ 	return this_cpu;
 -- 
 2.35.1
 
