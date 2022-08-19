@@ -2,116 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5126D599325
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 04:47:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96048599331
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 04:51:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343806AbiHSCqn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Aug 2022 22:46:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49300 "EHLO
+        id S1344185AbiHSCvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Aug 2022 22:51:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242618AbiHSCqm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 22:46:42 -0400
-Received: from yamato.tf-network.de (yamato.tf-network.de [93.186.202.221])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB11CCD52
-        for <stable@vger.kernel.org>; Thu, 18 Aug 2022 19:46:40 -0700 (PDT)
-Received: from amavis3.tf-network.de ([IPv6:2001:4ba0:ffa0:1b::d1:221])
-        by yamato.tf-network.de (Postfix) with ESMTP id 4M85k51lMSz4RgC;
-        Fri, 19 Aug 2022 04:46:37 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at amavis3.tf-network.de
-Received: from smtp.tf-network.de ([93.186.202.221])
-        by amavis3.tf-network.de ([IPv6:2001:4ba0:ffa0:1b::d1:221]) (amavisd-new, port 10024)
-        with LMTP id aCKhr1TY8UhC; Fri, 19 Aug 2022 04:46:36 +0200 (CEST)
-Received: from [10.1.0.10] (xdsl-78-34-186-118.nc.de [78.34.186.118])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by smtp.tf-network.de (Postfix) with ESMTPSA id 4M85k44hTtz442N;
-        Fri, 19 Aug 2022 04:46:36 +0200 (CEST)
-Message-ID: <0192a465-d75d-c09a-732a-eb2215bf3479@whissi.de>
-Date:   Fri, 19 Aug 2022 04:46:35 +0200
+        with ESMTP id S1344394AbiHSCvg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 22:51:36 -0400
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F434CCE08;
+        Thu, 18 Aug 2022 19:51:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1660877495; x=1692413495;
+  h=from:to:cc:subject:references:date:in-reply-to:
+   message-id:mime-version;
+  bh=4EIcg7RWk2yRi+CSvUOFGKBdAdmQg2lkeFcyyl4c1Jg=;
+  b=MAQm/qzGZtALfQNlgWU4xhzpIPSCxEXsgws/OH7C6edZHdhPXSVo3UkL
+   eaftOK38EVbj47t9BOOJbkZMnpqnpkswckM1iUs9BqgRcU/O3vBlPc2Xj
+   nbjrsqpBRae9qddYqLO26yfh7GsUw2qM4vmVXlY6n1aro/IE936El9PYA
+   mNc9jlz5OjbbUQ59SBO/zMKN7rABbtf+79FcCMwioDMNflaeAR00yjJpq
+   y5FMDdkc9dQt9EX55Hr6TWHcFpXLzybpJdjkl+w36c0nRu78ySSt6BR5W
+   OnhEv9VgwuaoIZmzXjkBxaJh/Fv5jX+NgznhBEETOg/W0ClCOpSuCsu04
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10443"; a="275964302"
+X-IronPort-AV: E=Sophos;i="5.93,247,1654585200"; 
+   d="scan'208";a="275964302"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2022 19:51:34 -0700
+X-IronPort-AV: E=Sophos;i="5.93,247,1654585200"; 
+   d="scan'208";a="936054349"
+Received: from yhuang6-desk2.sh.intel.com (HELO yhuang6-desk2.ccr.corp.intel.com) ([10.238.208.55])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Aug 2022 19:51:29 -0700
+From:   "Huang, Ying" <ying.huang@intel.com>
+To:     Peter Xu <peterx@redhat.com>
+Cc:     Nadav Amit <nadav.amit@gmail.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        huang ying <huang.ying.caritas@gmail.com>,
+        Linux MM <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Sierra Guiza, Alejandro (Alex)" <alex.sierra@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        David Hildenbrand <david@redhat.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Karol Herbst <kherbst@redhat.com>,
+        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
+        Logan Gunthorpe <logang@deltatee.com>, paulus@ozlabs.org,
+        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] mm/migrate_device.c: Copy pte dirty bit to page
+References: <6e77914685ede036c419fa65b6adc27f25a6c3e9.1660635033.git-series.apopple@nvidia.com>
+        <CAC=cRTPGiXWjk=CYnCrhJnLx3mdkGDXZpvApo6yTbeW7+ZGajA@mail.gmail.com>
+        <Yvv/eGfi3LW8WxPZ@xz-m1.local> <871qtfvdlw.fsf@nvdebian.thelocal>
+        <YvxWUY9eafFJ27ef@xz-m1.local> <87o7wjtn2g.fsf@nvdebian.thelocal>
+        <87tu6bbaq7.fsf@yhuang6-desk2.ccr.corp.intel.com>
+        <1D2FB37E-831B-445E-ADDC-C1D3FF0425C1@gmail.com>
+        <Yv1BJKb5he3dOHdC@xz-m1.local>
+        <87czcyawl6.fsf@yhuang6-desk2.ccr.corp.intel.com>
+        <Yv5QXkS4Bm9pTBeG@xz-m1.local>
+Date:   Fri, 19 Aug 2022 10:51:27 +0800
+In-Reply-To: <Yv5QXkS4Bm9pTBeG@xz-m1.local> (Peter Xu's message of "Thu, 18
+        Aug 2022 10:44:46 -0400")
+Message-ID: <874jy9aqts.fsf@yhuang6-desk2.ccr.corp.intel.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.1.2
-From:   Thomas Deutschmann <whissi@whissi.de>
-Subject: Re: [REGRESSION] v5.17-rc1+: FIFREEZE ioctl system call hangs
-To:     Song Liu <song@kernel.org>, Vishal Verma <vverma@digitalocean.com>
-Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        Jens Axboe <axboe@kernel.dk>
-References: <000401d8a746$3eaca200$bc05e600$@whissi.de>
- <000001d8ad7e$c340ad70$49c20850$@whissi.de>
- <2a2d1075-aa22-8c4d-ca21-274200dce2fc@leemhuis.info>
- <0FBCAB10-545E-45E2-A0C8-D7620817651D@digitalocean.com>
- <CAPhsuW5f9QD+gzJ9eBhn5irsHvrsvkWjSnA4MPaHsQjjLMypXg@mail.gmail.com>
- <43e678ca-3fc3-6c08-f035-2c31a34dd889@whissi.de>
- <701f3fc0-2f0c-a32c-0d41-b489a9a59b99@whissi.de>
-Content-Language: en-US
-In-Reply-To: <701f3fc0-2f0c-a32c-0d41-b489a9a59b99@whissi.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ascii
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-08-17 20:29, Thomas Deutschmann wrote:
-> I will do another round with 2b7196a219bf (good) <-> 5.18 (bad).
+Peter Xu <peterx@redhat.com> writes:
 
-...and this one also ended up in
+> On Thu, Aug 18, 2022 at 02:34:45PM +0800, Huang, Ying wrote:
+>> > In this specific case, the only way to do safe tlb batching in my mind is:
+>> >
+>> > 	pte_offset_map_lock();
+>> > 	arch_enter_lazy_mmu_mode();
+>> >         // If any pending tlb, do it now
+>> >         if (mm_tlb_flush_pending())
+>> > 		flush_tlb_range(vma, start, end);
+>> >         else
+>> >                 flush_tlb_batched_pending();
+>> 
+>> I don't think we need the above 4 lines.  Because we will flush TLB
+>> before we access the pages.
+>
+> Could you elaborate?
 
-> first bad commit: [fa55b7dcdc43c1aa1ba12bca9d2dd4318c2a0dbf] Linux 5.16-rc1 
+As you have said below, we don't use non-present PTEs and flush present
+PTEs before we access the pages.
 
-Now I built vanilla 5.18.18 and fsfreeze will hang after FIFREEZE ioctl 
-system call after running my reproducer which generated I/O load.
+>> Can you find any issue if we don't use the above 4 lines?
+>
+> It seems okay to me to leave stall tlb at least within the scope of this
+> function. It only collects present ptes and flush propoerly for them.  I
+> don't quickly see any other implications to other not touched ptes - unlike
+> e.g. mprotect(), there's a strong barrier of not allowing further write
+> after mprotect() returns.
 
-=> So looks like bug is still present, right?
+Yes.  I think so too.
 
-When I now just edit Makefile and set KV <5.16-rc1, i.e.
+> Still I don't know whether there'll be any side effect of having stall tlbs
+> in !present ptes because I'm not familiar enough with the private dev swap
+> migration code.  But I think having them will be safe, even if redundant.
 
-> diff --git a/Makefile b/Makefile
-> index 23162e2bdf14..0f344944d828 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -1,7 +1,7 @@
->  # SPDX-License-Identifier: GPL-2.0
->  VERSION = 5
-> -PATCHLEVEL = 18
-> -SUBLEVEL = 18
-> +PATCHLEVEL = 15
-> +SUBLEVEL = 0
->  EXTRAVERSION =
->  NAME = Superb Owl
-> 
+I don't think it's a good idea to be redundant.  That may hide the real
+issue.
 
-then I can no longer reproduce the problem.
-
-Of course,
-
-> diff --git a/Makefile b/Makefile
-> index 23162e2bdf14..0f344944d828 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -1,7 +1,7 @@
->  # SPDX-License-Identifier: GPL-2.0
->  VERSION = 5
-> -PATCHLEVEL = 18
-> -SUBLEVEL = 18
-> +PATCHLEVEL = 15
-> +SUBLEVEL = 99
->  EXTRAVERSION =
->  NAME = Superb Owl
-> 
-
-will freeze again.
-
-For me it looks like kernel is taking a different code path depending on 
-KV but I don't know how to proceed. Any idea how to continue debugging this?
-
-
--- 
-Regards,
-Thomas
+Best Regards,
+Huang, Ying
