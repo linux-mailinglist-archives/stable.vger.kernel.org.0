@@ -2,60 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDD0D599B35
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 13:44:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 555C6599B0B
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 13:43:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348094AbiHSLfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 07:35:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41300 "EHLO
+        id S1348155AbiHSLio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 07:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348355AbiHSLfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 07:35:17 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD8D4E1AA4;
-        Fri, 19 Aug 2022 04:35:15 -0700 (PDT)
-Date:   Fri, 19 Aug 2022 11:35:13 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1660908914;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=e2d1x1wXW94BN9CUt81tokZU3wlmpSZRCpLk5ROItVE=;
-        b=Wuf5+csFybaAt9Lg98c4gd0/5WcJfJyGDYRL8PnERgWz2ijOgDoSnVadZLB498snqK5XrX
-        +vs18JMZU8cvfihbfqJbdeKdXGOrI2HcG9KoEOZSEhdZ13hpdX53YMUkbEIClD5JsaJ4pP
-        gJKfIUuehI5GjlD+PIolDxtjDRd9Nsq2Jp7geQOV1PhCAvF0iu7dtE/7sYd8kfjtyO4WsK
-        RqCsOVaIs7VtIXqUE2ivK5UyXSsT2dEheGqne/T4NWPG50wWXo6ieojBWniwBXKDp8Iq2i
-        6TeHnjFPCsVWvLFhQh0zGCLIJE3NmeJ0RxfOe6gxALhSHRgdlImyZwPfTcKxew==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1660908914;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=e2d1x1wXW94BN9CUt81tokZU3wlmpSZRCpLk5ROItVE=;
-        b=YinbB1i+KGrejAgn2vkyeo1yLV7F8EpiZq1qHpAT9qv3VUvZMe149Ciy0vA+Na2P8bcZcg
-        bmtDcSaEWBkDmjAQ==
-From:   "tip-bot2 for Peter Zijlstra" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/nospec: Unwreck the RSB stuffing
-Cc:     stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net>
-References: <YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net>
+        with ESMTP id S1346618AbiHSLin (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 07:38:43 -0400
+Received: from maynard.decadent.org.uk (maynard.decadent.org.uk [95.217.213.242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0118E1260A;
+        Fri, 19 Aug 2022 04:38:40 -0700 (PDT)
+Received: from 213.219.160.184.adsl.dyn.edpnet.net ([213.219.160.184] helo=deadeye)
+        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1oP0Ke-0003FT-Gc; Fri, 19 Aug 2022 13:38:32 +0200
+Received: from ben by deadeye with local (Exim 4.96)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1oP0Kd-000b3h-39;
+        Fri, 19 Aug 2022 13:38:31 +0200
+Message-ID: <9395338630e3313c1bf0393ae507925d1f9af870.camel@decadent.org.uk>
+Subject: Re: [PATCH] x86/speculation: Avoid LFENCE in FILL_RETURN_BUFFER on
+ CPUs that lack it
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     x86@kernel.org, linux-kernel@vger.kernel.org,
+        1017425@bugs.debian.org,
+        =?ISO-8859-1?Q?Martin-=C9ric?= Racine <martin-eric.racine@iki.fi>,
+        stable@vger.kernel.org, regressions@lists.linux.dev,
+        Daniel Sneddon <daniel.sneddon@linux.intel.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Date:   Fri, 19 Aug 2022 13:38:27 +0200
+In-Reply-To: <Yv9tj9vbQ9nNlXoY@worktop.programming.kicks-ass.net>
+References: <Yv7aRJ/SvVhSdnSB@decadent.org.uk>
+         <Yv9OGVc+WpoDAB0X@worktop.programming.kicks-ass.net>
+         <Yv9tj9vbQ9nNlXoY@worktop.programming.kicks-ass.net>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-nQrCdQRVr0v9wcLsIe/Y"
+User-Agent: Evolution 3.44.3-1 
 MIME-Version: 1.0
-Message-ID: <166090891305.401.3919810455794070606.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+X-SA-Exim-Connect-IP: 213.219.160.184
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -64,134 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     4e3aa9238277597c6c7624f302d81a7b568b6f2d
-Gitweb:        https://git.kernel.org/tip/4e3aa9238277597c6c7624f302d81a7b568b6f2d
-Author:        Peter Zijlstra <peterz@infradead.org>
-AuthorDate:    Tue, 16 Aug 2022 14:28:36 +02:00
-Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Fri, 19 Aug 2022 13:24:32 +02:00
+--=-nQrCdQRVr0v9wcLsIe/Y
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-x86/nospec: Unwreck the RSB stuffing
+On Fri, 2022-08-19 at 13:01 +0200, Peter Zijlstra wrote:
+> On Fri, Aug 19, 2022 at 10:47:21AM +0200, Peter Zijlstra wrote:
+> > On Fri, Aug 19, 2022 at 02:33:08AM +0200, Ben Hutchings wrote:
+> > > From: Ben Hutchings <benh@debian.org>
+> > >=20
+> > > The mitigation for PBRSB includes adding LFENCE instructions to the
+> > > RSB filling sequence.  However, RSB filling is done on some older CPU=
+s
+> > > that don't support the LFENCE instruction.
+> > >=20
+> >=20
+> > Wait; what? There are chips that enable the RSB mitigations and DONT
+> > have LFENCE ?!?
+>=20
+> So I gave in and clicked on the horrible bugzilla thing. Apparently this
+> is P3/Athlon64 era crud.
+>=20
+> Anyway, the added LFENCE isn't because of retbleed; it is because you
+> can steer the jnz and terminate the loop early and then not actually
+> complete the RSB stuffing.
 
-Commit 2b1299322016 ("x86/speculation: Add RSB VM Exit protections")
-made a right mess of the RSB stuffing, rewrite the whole thing to not
-suck.
+I know, I corrected that further down.
 
-Thanks to Andrew for the enlightening comment about Post-Barrier RSB
-things so we can make this code less magical.
+> New insights etc.. So it's a geniune fix for the existing rsb stuffing.
+>=20
+> I'm not entirly sure what to do here. On the one hand, it's 32bit, so
+> who gives a crap, otoh we shouldn't break these ancient chips either I
+> suppose.
+>=20
+> How's something like so then? It goes on top of my other patch cleaning
+> up this RSB mess:
+>=20
+>   https://lkml.kernel.org/r/Yv9m%2FhuNJLuyviIn%40worktop.programming.kick=
+s-ass.net
+[...]
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/YvuNdDWoUZSBjYcm@worktop.programming.kicks-ass.net
----
- arch/x86/include/asm/nospec-branch.h | 80 +++++++++++++--------------
- 1 file changed, 39 insertions(+), 41 deletions(-)
+That should be:
+https://lore.kernel.org/all/Yv9m%2FhuNJLuyviIn@worktop.programming.kicks-as=
+s.net/
+(the redirector unescapes the URL-escaped /).
 
-diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
-index e64fd20..10731cc 100644
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -35,33 +35,44 @@
- #define RSB_CLEAR_LOOPS		32	/* To forcibly overwrite all entries */
- 
- /*
-+ * Common helper for __FILL_RETURN_BUFFER and __FILL_ONE_RETURN.
-+ */
-+#define __FILL_RETURN_SLOT			\
-+	ANNOTATE_INTRA_FUNCTION_CALL;		\
-+	call	772f;				\
-+	int3;					\
-+772:
-+
-+/*
-+ * Stuff the entire RSB.
-+ *
-  * Google experimented with loop-unrolling and this turned out to be
-  * the optimal version - two calls, each with their own speculation
-  * trap should their return address end up getting used, in a loop.
-  */
--#define __FILL_RETURN_BUFFER(reg, nr, sp)	\
--	mov	$(nr/2), reg;			\
--771:						\
--	ANNOTATE_INTRA_FUNCTION_CALL;		\
--	call	772f;				\
--773:	/* speculation trap */			\
--	UNWIND_HINT_EMPTY;			\
--	pause;					\
--	lfence;					\
--	jmp	773b;				\
--772:						\
--	ANNOTATE_INTRA_FUNCTION_CALL;		\
--	call	774f;				\
--775:	/* speculation trap */			\
--	UNWIND_HINT_EMPTY;			\
--	pause;					\
--	lfence;					\
--	jmp	775b;				\
--774:						\
--	add	$(BITS_PER_LONG/8) * 2, sp;	\
--	dec	reg;				\
--	jnz	771b;				\
--	/* barrier for jnz misprediction */	\
-+#define __FILL_RETURN_BUFFER(reg, nr)			\
-+	mov	$(nr/2), reg;				\
-+771:							\
-+	__FILL_RETURN_SLOT				\
-+	__FILL_RETURN_SLOT				\
-+	add	$(BITS_PER_LONG/8) * 2, %_ASM_SP;	\
-+	dec	reg;					\
-+	jnz	771b;					\
-+	/* barrier for jnz misprediction */		\
-+	lfence;
-+
-+/*
-+ * Stuff a single RSB slot.
-+ *
-+ * To mitigate Post-Barrier RSB speculation, one CALL instruction must be
-+ * forced to retire before letting a RET instruction execute.
-+ *
-+ * On PBRSB-vulnerable CPUs, it is not safe for a RET to be executed
-+ * before this point.
-+ */
-+#define __FILL_ONE_RETURN				\
-+	__FILL_RETURN_SLOT				\
-+	add	$(BITS_PER_LONG/8), %_ASM_SP;		\
- 	lfence;
- 
- #ifdef __ASSEMBLY__
-@@ -132,28 +143,15 @@
- #endif
- .endm
- 
--.macro ISSUE_UNBALANCED_RET_GUARD
--	ANNOTATE_INTRA_FUNCTION_CALL
--	call .Lunbalanced_ret_guard_\@
--	int3
--.Lunbalanced_ret_guard_\@:
--	add $(BITS_PER_LONG/8), %_ASM_SP
--	lfence
--.endm
--
-  /*
-   * A simpler FILL_RETURN_BUFFER macro. Don't make people use the CPP
-   * monstrosity above, manually.
-   */
--.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2
--.ifb \ftr2
--	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
--.else
--	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", "", \ftr, "jmp .Lunbalanced_\@", \ftr2
--.endif
--	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
--.Lunbalanced_\@:
--	ISSUE_UNBALANCED_RET_GUARD
-+.macro FILL_RETURN_BUFFER reg:req nr:req ftr:req ftr2=ALT_NOT(X86_FEATURE_ALWAYS)
-+	ALTERNATIVE_2 "jmp .Lskip_rsb_\@", \
-+		__stringify(__FILL_RETURN_BUFFER(\reg,\nr)), \ftr, \
-+		__stringify(__FILL_ONE_RETURN), \ftr2
-+
- .Lskip_rsb_\@:
- .endm
- 
+So that puts the whole __FILL_RETURN_BUFFER inside an alternative, and
+we can't have nested alternatives.  That's unfortunate.
+
+Ben.
+
+--=20
+Ben Hutchings
+Beware of bugs in the above code;
+I have only proved it correct, not tried it. - Donald Knuth
+
+--=-nQrCdQRVr0v9wcLsIe/Y
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmL/djMACgkQ57/I7JWG
+EQlHpg/9FbaeEJKro9Qcmw+qk86shNJCNfyfeGVeLs0aiM6KgDOp17SaTPzAleea
+Y4UeZYgu36lGTPh+RnK9Llb6bJgqlG3ad90VyUO0fBcY7uuJF/uTxHtNQVRNYRHL
+pqmH36qNzJ8FGsHYbl6ikhpIiw5Ail4js4WbCiW0f5eL8BWyAKj2seKHkRpIkd2I
+eq8/Ux9YXRhGhGnPj+1XRhl/nqw7Hb1KUMjtGqUwKIjp/1NkubbzFnqRsQPL0w0i
+fLi/dbdtepWlcg8zy6xKa9B1xHqfPOnjldD4G2CDLrpprWacjkTZIoHY2WJmqv4+
+aU+q3XinoxZHODeqxD2DJ+r7TzJcBiSj+ypf3HxwR8YHReQVjUbdMLmMe6bXYX/f
+EyDNw1OaJUaxbbEPQM1dJaJOLKGPHGUgKQuucMJq1R6kcKqhnLfWIoPBaL/gKbHk
+xo6Tyg2WAMN14UzzDFzqTFwndU5zlA95J/Xi1RiS3muKdNkcpu33NnbEG45tpEiM
+P+N/xqZr1dvJ9BYYWlkA8OAdDcSnmL9vkHxuzWuHTyh1gxnW99C6IWosr5sIVc2G
+REAhuTXssLSMXsfm3plqmtPyXaJIm7vHSmB/d1OV9LylZOCOcqsGjmE1H0CbkVf9
+dPdEFxXudTWbOb9965rEzhQYMn3OWsv6Ik17S3S3ZAdeo4hMDEY=
+=P7Kd
+-----END PGP SIGNATURE-----
+
+--=-nQrCdQRVr0v9wcLsIe/Y--
