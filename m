@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DA06599F29
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC51A599FAF
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352144AbiHSQVR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:21:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52276 "EHLO
+        id S1352128AbiHSQVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:21:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352298AbiHSQUc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:20:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F325A10A764;
-        Fri, 19 Aug 2022 09:01:25 -0700 (PDT)
+        with ESMTP id S1352283AbiHSQUa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:20:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0770111892C;
+        Fri, 19 Aug 2022 09:01:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BBE22612DF;
-        Fri, 19 Aug 2022 16:01:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBADBC433C1;
-        Fri, 19 Aug 2022 16:01:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 917B8B82812;
+        Fri, 19 Aug 2022 16:01:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFF76C433D6;
+        Fri, 19 Aug 2022 16:01:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924883;
-        bh=nm4OJZwJEZv1pIUYaeMBoUGeJreDgEESneK9E8E3b3k=;
+        s=korg; t=1660924886;
+        bh=ERRidEaSPf8YlJJ5Z2ddvXrwawPyaJ/IhkO6FODEPfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhf7A9n+wNzi5jkb60mJLRYdnpIRU9ENfylqEZWQqv9GM7KD8wdQhvbQjyQn73CH/
-         2K4iM92s6yV9tFfX0rK0wQX8YnOBckMHd7AGQVbqHoMHc82+NejACLqrymxFNDTGaT
-         70YGDZEpUH8cun17TRKXg9t8/F6Gnv/GBFBIw6EI=
+        b=oqVSKUzHoQWGWngp1JdsrKW9JIebigmKVDPN2Wnb71ozzkE4slW3RYKwHj46bAsJw
+         KyuMSUlp6wrXI7wwEN2Hh8RxW07Yzu2qk4hyOjDINx03iNPQchVSiEl37e0rvGAF90
+         ksj4++GSuTshLbTmtB+Paa3sggbvup1G1b7DcyS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manoj Basapathi <manojbm@codeaurora.org>,
-        Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        netfilter-devel@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Jagath Jog J <jagathjog1996@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 283/545] netfilter: xtables: Bring SPDX identifier back
-Date:   Fri, 19 Aug 2022 17:40:53 +0200
-Message-Id: <20220819153841.970605527@linuxfoundation.org>
+Subject: [PATCH 5.10 284/545] iio: accel: bma400: Fix the scale min and max macro values
+Date:   Fri, 19 Aug 2022 17:40:54 +0200
+Message-Id: <20220819153842.020636845@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -57,65 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Jagath Jog J <jagathjog1996@gmail.com>
 
-[ Upstream commit 20646f5b1e798bcc20044ae90ac3702f177bf254 ]
+[ Upstream commit 747c7cf1592e226d40543231b26502b332d0ea2f ]
 
-Commit e2be04c7f995 ("License cleanup: add SPDX license identifier to
-uapi header files with a license") added the correct SPDX identifier to
-include/uapi/linux/netfilter/xt_IDLETIMER.h.
+Changing the scale macro values to match the bma400 sensitivity
+for 1 LSB of all the available ranges.
 
-A subsequent commit removed it for no reason and reintroduced the UAPI
-license incorrectness as the file is now missing the UAPI exception
-again.
-
-Add it back and remove the GPLv2 boilerplate while at it.
-
-Fixes: 68983a354a65 ("netfilter: xtables: Add snapshot of hardidletimer target")
-Cc: Manoj Basapathi <manojbm@codeaurora.org>
-Cc: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
-Cc: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: netfilter-devel@vger.kernel.org
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 465c811f1f20 ("iio: accel: Add driver for the BMA400")
+Signed-off-by: Jagath Jog J <jagathjog1996@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220505133021.22362-2-jagathjog1996@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/netfilter/xt_IDLETIMER.h | 17 +----------------
- 1 file changed, 1 insertion(+), 16 deletions(-)
+ drivers/iio/accel/bma400.h | 23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/netfilter/xt_IDLETIMER.h b/include/uapi/linux/netfilter/xt_IDLETIMER.h
-index 49ddcdc61c09..7bfb31a66fc9 100644
---- a/include/uapi/linux/netfilter/xt_IDLETIMER.h
-+++ b/include/uapi/linux/netfilter/xt_IDLETIMER.h
-@@ -1,6 +1,5 @@
-+/* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
- /*
-- * linux/include/linux/netfilter/xt_IDLETIMER.h
-- *
-  * Header file for Xtables timer target module.
-  *
-  * Copyright (C) 2004, 2010 Nokia Corporation
-@@ -10,20 +9,6 @@
-  * by Luciano Coelho <luciano.coelho@nokia.com>
-  *
-  * Contact: Luciano Coelho <luciano.coelho@nokia.com>
-- *
-- * This program is free software; you can redistribute it and/or
-- * modify it under the terms of the GNU General Public License
-- * version 2 as published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope that it will be useful, but
-- * WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-- * General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-- * 02110-1301 USA
-  */
+diff --git a/drivers/iio/accel/bma400.h b/drivers/iio/accel/bma400.h
+index 5ad10db9819f..416090c6b1e8 100644
+--- a/drivers/iio/accel/bma400.h
++++ b/drivers/iio/accel/bma400.h
+@@ -83,8 +83,27 @@
+ #define BMA400_ACC_ODR_MIN_WHOLE_HZ 25
+ #define BMA400_ACC_ODR_MIN_HZ       12
  
- #ifndef _XT_IDLETIMER_H
+-#define BMA400_SCALE_MIN            38357
+-#define BMA400_SCALE_MAX            306864
++/*
++ * BMA400_SCALE_MIN macro value represents m/s^2 for 1 LSB before
++ * converting to micro values for +-2g range.
++ *
++ * For +-2g - 1 LSB = 0.976562 milli g = 0.009576 m/s^2
++ * For +-4g - 1 LSB = 1.953125 milli g = 0.019153 m/s^2
++ * For +-16g - 1 LSB = 7.8125 milli g = 0.076614 m/s^2
++ *
++ * The raw value which is used to select the different ranges is determined
++ * by the first bit set position from the scale value, so BMA400_SCALE_MIN
++ * should be odd.
++ *
++ * Scale values for +-2g, +-4g, +-8g and +-16g are populated into bma400_scales
++ * array by left shifting BMA400_SCALE_MIN.
++ * e.g.:
++ * To select +-2g = 9577 << 0 = raw value to write is 0.
++ * To select +-8g = 9577 << 2 = raw value to write is 2.
++ * To select +-16g = 9577 << 3 = raw value to write is 3.
++ */
++#define BMA400_SCALE_MIN            9577
++#define BMA400_SCALE_MAX            76617
+ 
+ #define BMA400_NUM_REGULATORS       2
+ #define BMA400_VDD_REGULATOR        0
 -- 
 2.35.1
 
