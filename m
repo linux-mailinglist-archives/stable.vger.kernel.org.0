@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E1F659A174
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DA7959A08E
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351425AbiHSQJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:09:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55076 "EHLO
+        id S1350176AbiHSQJU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:09:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351369AbiHSQH2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:07:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E108F10E7AA;
-        Fri, 19 Aug 2022 08:56:11 -0700 (PDT)
+        with ESMTP id S1351424AbiHSQH3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:07:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0994108100;
+        Fri, 19 Aug 2022 08:56:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F9B7B8280C;
-        Fri, 19 Aug 2022 15:56:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 793C2C433C1;
-        Fri, 19 Aug 2022 15:56:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9156061199;
+        Fri, 19 Aug 2022 15:56:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55E41C433D6;
+        Fri, 19 Aug 2022 15:56:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924567;
-        bh=LZk7gSWpaSoUsHd/k9TE2xG/PGVAIeKrKwCihr/MDmk=;
+        s=korg; t=1660924572;
+        bh=0YmcELewkq0m2pG7nTjmkORBYFQKbDKx046uezXclag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PPi0K4bUqvOHRU8I5pMxvisGoWttKwREP1EwCVBwoT1dw+Qm0ion528CKidsxYWjQ
-         8gghU+C3Tubx1qbXPJUQPT3AnazPlhqc1/a60uVpY0UHJxoaN+rjJZxWi+HM9WgpXI
-         RIEMcrKMe3NBS2r3mXOsi+yFdVyCrsxQv51je5CQ=
+        b=D6In01/FNI1SxcDhZK3qWR4O8S5620UiAM6km83lBTS2SyxkQ1Pfd6rNfWZwFZam5
+         CJpp9rIpPq3nn6Xic6lgbUCMVjFdGqDFnx89FiwAJfshtKditFG40vRmfDg4DPCRsw
+         ssdtVDD9F96b82FhntKFx0odEtQzH3CPx4eXdVWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 211/545] drm: bridge: sii8620: fix possible off-by-one
-Date:   Fri, 19 Aug 2022 17:39:41 +0200
-Message-Id: <20220819153838.805153736@linuxfoundation.org>
+Subject: [PATCH 5.10 212/545] lib: bitmap: order includes alphabetically
+Date:   Fri, 19 Aug 2022 17:39:42 +0200
+Message-Id: <20220819153838.848648623@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,50 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-[ Upstream commit 21779cc21c732c5eff8ea1624be6590450baa30f ]
+[ Upstream commit c13656b904b6173aad723d9680a81c60de2f5edc ]
 
-The next call to sii8620_burst_get_tx_buf will result in off-by-one
-When ctx->burst.tx_count + size == ARRAY_SIZE(ctx->burst.tx_buf). The same
-thing happens in sii8620_burst_get_rx_buf.
+For better readability and maintenance: order the includes in bitmap
+source files alphabetically.
 
-This patch also change tx_count and tx_buf to rx_count and rx_buf in
-sii8620_burst_get_rx_buf. It is unreasonable to check tx_buf's size and
-use rx_buf.
-
-Fixes: e19e9c692f81 ("drm/bridge/sii8620: add support for burst eMSC transmissions")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220518065856.18936-1-hbh25y@gmail.com
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/sil-sii8620.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/bitmap.h | 4 ++--
+ lib/bitmap.c           | 9 +++++----
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
-index ec7745c31da0..ab0bce4a988c 100644
---- a/drivers/gpu/drm/bridge/sil-sii8620.c
-+++ b/drivers/gpu/drm/bridge/sil-sii8620.c
-@@ -605,7 +605,7 @@ static void *sii8620_burst_get_tx_buf(struct sii8620 *ctx, int len)
- 	u8 *buf = &ctx->burst.tx_buf[ctx->burst.tx_count];
- 	int size = len + 2;
+diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
+index 99058eb81042..4dd2e1d39c74 100644
+--- a/include/linux/bitmap.h
++++ b/include/linux/bitmap.h
+@@ -4,10 +4,10 @@
  
--	if (ctx->burst.tx_count + size > ARRAY_SIZE(ctx->burst.tx_buf)) {
-+	if (ctx->burst.tx_count + size >= ARRAY_SIZE(ctx->burst.tx_buf)) {
- 		dev_err(ctx->dev, "TX-BLK buffer exhausted\n");
- 		ctx->error = -EINVAL;
- 		return NULL;
-@@ -622,7 +622,7 @@ static u8 *sii8620_burst_get_rx_buf(struct sii8620 *ctx, int len)
- 	u8 *buf = &ctx->burst.rx_buf[ctx->burst.rx_count];
- 	int size = len + 1;
+ #ifndef __ASSEMBLY__
  
--	if (ctx->burst.tx_count + size > ARRAY_SIZE(ctx->burst.tx_buf)) {
-+	if (ctx->burst.rx_count + size >= ARRAY_SIZE(ctx->burst.rx_buf)) {
- 		dev_err(ctx->dev, "RX-BLK buffer exhausted\n");
- 		ctx->error = -EINVAL;
- 		return NULL;
+-#include <linux/types.h>
+ #include <linux/bitops.h>
+-#include <linux/string.h>
+ #include <linux/kernel.h>
++#include <linux/string.h>
++#include <linux/types.h>
+ 
+ /*
+  * bitmaps provide bit arrays that consume one or more unsigned
+diff --git a/lib/bitmap.c b/lib/bitmap.c
+index 75006c4036e9..78f70d9007ad 100644
+--- a/lib/bitmap.c
++++ b/lib/bitmap.c
+@@ -3,17 +3,18 @@
+  * lib/bitmap.c
+  * Helper functions for bitmap.h.
+  */
+-#include <linux/export.h>
+-#include <linux/thread_info.h>
+-#include <linux/ctype.h>
+-#include <linux/errno.h>
++
+ #include <linux/bitmap.h>
+ #include <linux/bitops.h>
+ #include <linux/bug.h>
++#include <linux/ctype.h>
++#include <linux/errno.h>
++#include <linux/export.h>
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
++#include <linux/thread_info.h>
+ #include <linux/uaccess.h>
+ 
+ #include <asm/page.h>
 -- 
 2.35.1
 
