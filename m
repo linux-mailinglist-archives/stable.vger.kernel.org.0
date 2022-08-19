@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 542BA59A3AE
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E40059A32A
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:03:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353609AbiHSQm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:42:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33618 "EHLO
+        id S1353570AbiHSQm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:42:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353243AbiHSQjz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:39:55 -0400
+        with ESMTP id S1353315AbiHSQkD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:40:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2082E42F7;
-        Fri, 19 Aug 2022 09:08:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB806FAC7F;
+        Fri, 19 Aug 2022 09:08:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 042A461811;
-        Fri, 19 Aug 2022 16:07:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E74BDC433C1;
-        Fri, 19 Aug 2022 16:07:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 11DCA61835;
+        Fri, 19 Aug 2022 16:07:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D752C433D6;
+        Fri, 19 Aug 2022 16:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925255;
-        bh=xIKOzEbAHX9r+GH4VZhr1OOjANvkwjV7THn/VhsTL20=;
+        s=korg; t=1660925258;
+        bh=K+emOYHNQWqJh5sMA1kjgcBGz3OpadQdHQLQLTykXtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdi1j8G0dTzDmeX5vmdm9p/ZO5SHLwH6m82Dhore6P/ohzYoqFYF+EIwwsCyaU608
-         bFoVVjqNHjeePszMeo6SFcbwwUcNLRvwvoDxJnpQG3nWW1uCLaimA29TW/tlvxr+5q
-         N2bL0wBAnJ2vl1KcJ510tYJRRjCXAp0vBAmk86LI=
+        b=SZxqe1wKDNvuQEYD9rgVj8DIbtiRbxn5SvNUlI4YSqgtYVC9tpAlyMHoPiXHrujAp
+         Gm1uUuTW1Eb30UhLGVr6PREUEQbg0jy/cAoiJjbRFdHKgU75L4HTH3L7/U8rD+rjA8
+         dIW16KZ5GW6VpNXKbq34IFxrnzreleFUEGQWavlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Valentin Schneider <vschneid@redhat.com>,
+        Tianchen Ding <dtcccc@linux.alibaba.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 433/545] tools/thermal: Fix possible path truncations
-Date:   Fri, 19 Aug 2022 17:43:23 +0200
-Message-Id: <20220819153848.803646606@linuxfoundation.org>
+Subject: [PATCH 5.10 434/545] sched: Fix the check of nr_running at queue wakelist
+Date:   Fri, 19 Aug 2022 17:43:24 +0200
+Message-Id: <20220819153848.838226872@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,107 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Tianchen Ding <dtcccc@linux.alibaba.com>
 
-[ Upstream commit 6c58cf40e3a1d2f47c09d3489857e9476316788a ]
+[ Upstream commit 28156108fecb1f808b21d216e8ea8f0d205a530c ]
 
-A build with -D_FORTIFY_SOURCE=2 enabled will produce the following warnings:
+The commit 2ebb17717550 ("sched/core: Offload wakee task activation if it
+the wakee is descheduling") checked rq->nr_running <= 1 to avoid task
+stacking when WF_ON_CPU.
 
-sysfs.c:63:30: warning: '%s' directive output may be truncated writing up to 255 bytes into a region of size between 0 and 255 [-Wformat-truncation=]
-  snprintf(filepath, 256, "%s/%s", path, filename);
-                              ^~
-Bump up the buffer to PATH_MAX which is the limit and account for all of
-the possible NUL and separators that could lead to exceeding the
-allocated buffer sizes.
+Per the ordering of writes to p->on_rq and p->on_cpu, observing p->on_cpu
+(WF_ON_CPU) in ttwu_queue_cond() implies !p->on_rq, IOW p has gone through
+the deactivate_task() in __schedule(), thus p has been accounted out of
+rq->nr_running. As such, the task being the only runnable task on the rq
+implies reading rq->nr_running == 0 at that point.
 
-Fixes: 94f69966faf8 ("tools/thermal: Introduce tmon, a tool for thermal subsystem")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The benchmark result is in [1].
+
+[1] https://lore.kernel.org/all/e34de686-4e85-bde1-9f3c-9bbc86b38627@linux.alibaba.com/
+
+Suggested-by: Valentin Schneider <vschneid@redhat.com>
+Signed-off-by: Tianchen Ding <dtcccc@linux.alibaba.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <vschneid@redhat.com>
+Link: https://lore.kernel.org/r/20220608233412.327341-2-dtcccc@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/thermal/tmon/sysfs.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ kernel/sched/core.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/tools/thermal/tmon/sysfs.c b/tools/thermal/tmon/sysfs.c
-index b00b1bfd9d8e..cb1108bc9249 100644
---- a/tools/thermal/tmon/sysfs.c
-+++ b/tools/thermal/tmon/sysfs.c
-@@ -13,6 +13,7 @@
- #include <stdint.h>
- #include <dirent.h>
- #include <libintl.h>
-+#include <limits.h>
- #include <ctype.h>
- #include <time.h>
- #include <syslog.h>
-@@ -33,9 +34,9 @@ int sysfs_set_ulong(char *path, char *filename, unsigned long val)
- {
- 	FILE *fd;
- 	int ret = -1;
--	char filepath[256];
-+	char filepath[PATH_MAX + 2]; /* NUL and '/' */
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 8765de76a179..649440107cae 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -2671,8 +2671,12 @@ static inline bool ttwu_queue_cond(int cpu, int wake_flags)
+ 	 * CPU then use the wakelist to offload the task activation to
+ 	 * the soon-to-be-idle CPU as the current CPU is likely busy.
+ 	 * nr_running is checked to avoid unnecessary task stacking.
++	 *
++	 * Note that we can only get here with (wakee) p->on_rq=0,
++	 * p->on_cpu can be whatever, we've done the dequeue, so
++	 * the wakee has been accounted out of ->nr_running.
+ 	 */
+-	if ((wake_flags & WF_ON_CPU) && cpu_rq(cpu)->nr_running <= 1)
++	if ((wake_flags & WF_ON_CPU) && !cpu_rq(cpu)->nr_running)
+ 		return true;
  
--	snprintf(filepath, 256, "%s/%s", path, filename);
-+	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
- 
- 	fd = fopen(filepath, "w");
- 	if (!fd) {
-@@ -57,9 +58,9 @@ static int sysfs_get_ulong(char *path, char *filename, unsigned long *p_ulong)
- {
- 	FILE *fd;
- 	int ret = -1;
--	char filepath[256];
-+	char filepath[PATH_MAX + 2]; /* NUL and '/' */
- 
--	snprintf(filepath, 256, "%s/%s", path, filename);
-+	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
- 
- 	fd = fopen(filepath, "r");
- 	if (!fd) {
-@@ -76,9 +77,9 @@ static int sysfs_get_string(char *path, char *filename, char *str)
- {
- 	FILE *fd;
- 	int ret = -1;
--	char filepath[256];
-+	char filepath[PATH_MAX + 2]; /* NUL and '/' */
- 
--	snprintf(filepath, 256, "%s/%s", path, filename);
-+	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
- 
- 	fd = fopen(filepath, "r");
- 	if (!fd) {
-@@ -199,8 +200,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
- {
- 	unsigned long trip_instance = 0;
- 	char cdev_name_linked[256];
--	char cdev_name[256];
--	char cdev_trip_name[256];
-+	char cdev_name[PATH_MAX];
-+	char cdev_trip_name[PATH_MAX];
- 	int cdev_id;
- 
- 	if (nl->d_type == DT_LNK) {
-@@ -213,7 +214,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
- 			return -EINVAL;
- 		}
- 		/* find the link to real cooling device record binding */
--		snprintf(cdev_name, 256, "%s/%s", tz_name, nl->d_name);
-+		snprintf(cdev_name, sizeof(cdev_name) - 2, "%s/%s",
-+			 tz_name, nl->d_name);
- 		memset(cdev_name_linked, 0, sizeof(cdev_name_linked));
- 		if (readlink(cdev_name, cdev_name_linked,
- 				sizeof(cdev_name_linked) - 1) != -1) {
-@@ -226,8 +228,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
- 			/* find the trip point in which the cdev is binded to
- 			 * in this tzone
- 			 */
--			snprintf(cdev_trip_name, 256, "%s%s", nl->d_name,
--				"_trip_point");
-+			snprintf(cdev_trip_name, sizeof(cdev_trip_name) - 1,
-+				"%s%s", nl->d_name, "_trip_point");
- 			sysfs_get_ulong(tz_name, cdev_trip_name,
- 					&trip_instance);
- 			/* validate trip point range, e.g. trip could return -1
+ 	return false;
 -- 
 2.35.1
 
