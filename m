@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DACE959A027
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2D2C59A09C
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352164AbiHSQXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:23:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42332 "EHLO
+        id S1352595AbiHSQXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:23:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352165AbiHSQVT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:21:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79F94B728D;
-        Fri, 19 Aug 2022 09:02:47 -0700 (PDT)
+        with ESMTP id S1352326AbiHSQWC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:22:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45DCED4774;
+        Fri, 19 Aug 2022 09:02:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 37D3E614DA;
-        Fri, 19 Aug 2022 16:02:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 408DAC433C1;
-        Fri, 19 Aug 2022 16:02:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03469B8280D;
+        Fri, 19 Aug 2022 16:02:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62715C433C1;
+        Fri, 19 Aug 2022 16:02:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924965;
-        bh=AWCP9M4pMoXHkzEm335nFo9facEPfSbGH8zo8pZEi/M=;
+        s=korg; t=1660924971;
+        bh=8bpU67eqb8WPMzD9hcA8NYNJGxS6i9S0T8KAvq3ofH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tqlS8XiW8qCUJZ50V969jIw+isalrHDXw5Z7lEqcNw+Kw8FOPpEV0e/RgMHX6DXt7
-         2Yspda64TP4z9zRTQaB9u76KbyyvTh3P+4ywYY+U3bce3whFo2ZNeNnK/CttqZ+VEo
-         ZzBlc8sVct2+39lq+XXasp2r9UQ+2N6bBPgZpzNY=
+        b=mFsLonYcCnxSf0K+qqhy951hK38JjFZs2l/bQUQ0/di4zMjuwMUelrclpiZ19DKqa
+         E0kg7hrg7rkSWIdu5eyTX7DRbUEUgOYX8MaoJkJuU+ZyrPCpOuHycu4dAMUC7jbsqy
+         ok389wZBhpxlwXa2VbnHYez+xgTUS3Vbfc8eth1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 339/545] RDMA/hfi1: fix potential memory leak in setup_base_ctxt()
-Date:   Fri, 19 Aug 2022 17:41:49 +0200
-Message-Id: <20220819153844.562898276@linuxfoundation.org>
+Subject: [PATCH 5.10 340/545] gpio: gpiolib-of: Fix refcount bugs in of_mm_gpiochip_add_data()
+Date:   Fri, 19 Aug 2022 17:41:50 +0200
+Message-Id: <20220819153844.610960518@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,43 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit aa2a1df3a2c85f855af7d54466ac10bd48645d63 ]
+[ Upstream commit 5d07a692f9562f9c06e62cce369e9dd108173a0f ]
 
-setup_base_ctxt() allocates a memory chunk for uctxt->groups with
-hfi1_alloc_ctxt_rcv_groups(). When init_user_ctxt() fails, uctxt->groups
-is not released, which will lead to a memory leak.
+We should use of_node_get() when a new reference of device_node
+is created. It is noted that the old reference stored in
+'mm_gc->gc.of_node' should also be decreased.
 
-We should release the uctxt->groups with hfi1_free_ctxt_rcv_groups()
-when init_user_ctxt() fails.
+This patch is based on the fact that there is a call site in function
+'qe_add_gpiochips()' of src file 'drivers\soc\fsl\qe\gpio.c'. In this
+function, of_mm_gpiochip_add_data() is contained in an iteration of
+for_each_compatible_node() which will automatically increase and
+decrease the refcount. So we need additional of_node_get() for the
+reference escape in of_mm_gpiochip_add_data().
 
-Fixes: e87473bc1b6c ("IB/hfi1: Only set fd pointer when base context is completely initialized")
-Link: https://lore.kernel.org/r/20220711070718.2318320-1-niejianglei2021@163.com
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Acked-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: a19e3da5bc5f ("of/gpio: Kill of_gpio_chip and add members directly to gpio_chip")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/file_ops.c | 4 +++-
+ drivers/gpio/gpiolib-of.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/file_ops.c b/drivers/infiniband/hw/hfi1/file_ops.c
-index cfc2110fc38a..d84b1098762c 100644
---- a/drivers/infiniband/hw/hfi1/file_ops.c
-+++ b/drivers/infiniband/hw/hfi1/file_ops.c
-@@ -1220,8 +1220,10 @@ static int setup_base_ctxt(struct hfi1_filedata *fd,
- 		goto done;
+diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
+index 01424af654db..2e63274a4c2c 100644
+--- a/drivers/gpio/gpiolib-of.c
++++ b/drivers/gpio/gpiolib-of.c
+@@ -863,7 +863,8 @@ int of_mm_gpiochip_add_data(struct device_node *np,
+ 	if (mm_gc->save_regs)
+ 		mm_gc->save_regs(mm_gc);
  
- 	ret = init_user_ctxt(fd, uctxt);
--	if (ret)
-+	if (ret) {
-+		hfi1_free_ctxt_rcv_groups(uctxt);
- 		goto done;
-+	}
+-	mm_gc->gc.of_node = np;
++	of_node_put(mm_gc->gc.of_node);
++	mm_gc->gc.of_node = of_node_get(np);
  
- 	user_init(uctxt);
+ 	ret = gpiochip_add_data(gc, data);
+ 	if (ret)
+@@ -871,6 +872,7 @@ int of_mm_gpiochip_add_data(struct device_node *np,
  
+ 	return 0;
+ err2:
++	of_node_put(np);
+ 	iounmap(mm_gc->regs);
+ err1:
+ 	kfree(gc->label);
 -- 
 2.35.1
 
