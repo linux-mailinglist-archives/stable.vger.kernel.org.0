@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E70359A05B
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AED16599F6A
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350166AbiHSPvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:51:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52098 "EHLO
+        id S1350244AbiHSPvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:51:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350422AbiHSPub (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:50:31 -0400
+        with ESMTP id S1350435AbiHSPud (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:50:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35A54105F38;
-        Fri, 19 Aug 2022 08:48:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91BFA20BDD;
+        Fri, 19 Aug 2022 08:48:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13189B82813;
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD3B9B827F8;
+        Fri, 19 Aug 2022 15:48:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25AF0C433C1;
         Fri, 19 Aug 2022 15:48:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 577ABC433D7;
-        Fri, 19 Aug 2022 15:48:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924085;
-        bh=LLjEaiaU+rXJ5Hm1Jja3z9R4ceG3bb+NgXlEBIT10xg=;
+        s=korg; t=1660924088;
+        bh=eiBYGI/GfKKQfsl7Kp3lm0urt+HgH2Yhm6H9UA64sHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rnY6lqY4MPDXKwY+Qggefk/+L8ufHM5zh/OOHSjBKjzShhccSBNrXCj7g0vMwMnHH
-         eNC/wqoOeWZpdEXHcAm+/mAL/lxWEHd0KxK3Wr/fZlyNpP0ZPSXkEUIn0A5YFh61HT
-         tu1T2ILKwJF41RicJKTLCtuMA1EWwb9K/SRfzXHs=
+        b=EO63s94M5IzBU9lWewIZY1yksxaYTCM6MYPsw4jiRJ0SQNwA+fG9q0DaYudlznQeY
+         Zl/KzOAneQD9slwjVVfGcBs89rCpcMZz8sJ2cSb4KnPR+iS7RWneMzMSlEFje9gJ4T
+         JtLXYb+X58WV1MB/4XFQXZwo4GH/ffuN/6QWC3m4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>
-Subject: [PATCH 5.10 020/545] KVM: x86: Set error code to segment selector on LLDT/LTR non-canonical #GP
-Date:   Fri, 19 Aug 2022 17:36:30 +0200
-Message-Id: <20220819153830.096003133@linuxfoundation.org>
+        stable@vger.kernel.org, Kai Huang <kai.huang@intel.com>,
+        Michael Roth <michael.roth@amd.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 021/545] KVM: x86: Tag kvm_mmu_x86_module_init() with __init
+Date:   Fri, 19 Aug 2022 17:36:31 +0200
+Message-Id: <20220819153830.146714805@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,39 +57,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit 2626206963ace9e8bf92b6eea5ff78dd674c555c upstream.
+commit 982bae43f11c37b51d2f1961bb25ef7cac3746fa upstream.
 
-When injecting a #GP on LLDT/LTR due to a non-canonical LDT/TSS base, set
-the error code to the selector.  Intel SDM's says nothing about the #GP,
-but AMD's APM explicitly states that both LLDT and LTR set the error code
-to the selector, not zero.
+Mark kvm_mmu_x86_module_init() with __init, the entire reason it exists
+is to initialize variables when kvm.ko is loaded, i.e. it must never be
+called after module initialization.
 
-Note, a non-canonical memory operand on LLDT/LTR does generate a #GP(0),
-but the KVM code in question is specific to the base from the descriptor.
-
-Fixes: e37a75a13cda ("KVM: x86: Emulator ignores LDTR/TR extended base on LLDT/LTR")
+Fixes: 1d0e84806047 ("KVM: x86/mmu: Resolve nx_huge_pages when kvm.ko is loaded")
 Cc: stable@vger.kernel.org
+Reviewed-by: Kai Huang <kai.huang@intel.com>
+Tested-by: Michael Roth <michael.roth@amd.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20220711232750.1092012-3-seanjc@google.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220803224957.1285926-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/kvm_host.h |    2 +-
+ arch/x86/kvm/mmu/mmu.c          |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -1809,8 +1809,8 @@ static int __load_segment_descriptor(str
- 		if (ret != X86EMUL_CONTINUE)
- 			return ret;
- 		if (emul_is_noncanonical_address(get_desc_base(&seg_desc) |
--				((u64)base3 << 32), ctxt))
--			return emulate_gp(ctxt, 0);
-+						 ((u64)base3 << 32), ctxt))
-+			return emulate_gp(ctxt, err_code);
- 	}
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1340,7 +1340,7 @@ static inline int kvm_arch_flush_remote_
+ 		return -ENOTSUPP;
+ }
  
- 	if (seg == VCPU_SREG_TR) {
+-void kvm_mmu_x86_module_init(void);
++void __init kvm_mmu_x86_module_init(void);
+ int kvm_mmu_vendor_module_init(void);
+ void kvm_mmu_vendor_module_exit(void);
+ 
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -5886,7 +5886,7 @@ static int set_nx_huge_pages(const char
+  * nx_huge_pages needs to be resolved to true/false when kvm.ko is loaded, as
+  * its default value of -1 is technically undefined behavior for a boolean.
+  */
+-void kvm_mmu_x86_module_init(void)
++void __init kvm_mmu_x86_module_init(void)
+ {
+ 	if (nx_huge_pages == -1)
+ 		__set_nx_huge_pages(get_nx_auto_mode());
 
 
