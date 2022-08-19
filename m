@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F4DD59A34F
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:03:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 781B159A39E
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354212AbiHSQwL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:52:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44026 "EHLO
+        id S1354245AbiHSQwO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:52:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354645AbiHSQv3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:51:29 -0400
+        with ESMTP id S1354654AbiHSQva (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:51:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E02741156FD;
-        Fri, 19 Aug 2022 09:14:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D8BE12D290;
+        Fri, 19 Aug 2022 09:14:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF8B9B8280D;
-        Fri, 19 Aug 2022 16:13:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BA9BC433D6;
-        Fri, 19 Aug 2022 16:13:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D506FB82822;
+        Fri, 19 Aug 2022 16:13:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D9FC433D6;
+        Fri, 19 Aug 2022 16:13:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925615;
-        bh=WbEMAlrawh08q0dXgHD22Zl1G6evzjYEaZ+pVq1Yp3s=;
+        s=korg; t=1660925618;
+        bh=qh/axndb7wUJZpXguucKoIulVp/Qb3Nd7Atm6YWpB5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vWHu1/ExxdPFOoelkl8QV1P5BV+AToHosGjfL455es+BifeaUpb+VAoXnRty6/Rvq
-         KAtvl8kKvNMcw8s3sQw/PbATtjqaBbEmAd3Lr347js/k4qGVWcaWa8NSNeWRLnNSpn
-         nLNjfSCmbRtogx3ra9YFeLUXDYQ0QWSViApbYKV4=
+        b=y9ZQj3DckfWVp2p7hgYC1LmPn1eLwJ8pZYoJxn47yXRJfcXmPzyvvUkbREH1tzsBS
+         jF+HNBEYLO4L2gseyvMdQgiTIdbW9bDuE4Np2Xy4Yw2kaniE5OwBqEzYWawF/jtC20
+         j5IRiYcWw6SlFeesh4IReuBTwWx/UweguVmkNVKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Lewis <aaronlewis@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 539/545] kvm: x86/pmu: Fix the compare function used by the pmu event filter
-Date:   Fri, 19 Aug 2022 17:45:09 +0200
-Message-Id: <20220819153853.713095678@linuxfoundation.org>
+        stable@vger.kernel.org, Nimish Mishra <neelam.nimish@gmail.com>,
+        Anirban Chakraborty <ch.anirban00727@gmail.com>,
+        Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>,
+        Jerome Forissier <jerome.forissier@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 540/545] tee: add overflow check in register_shm_helper()
+Date:   Fri, 19 Aug 2022 17:45:10 +0200
+Message-Id: <20220819153853.762825860@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,44 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Lewis <aaronlewis@google.com>
+From: Jens Wiklander <jens.wiklander@linaro.org>
 
-commit 4ac19ead0dfbabd8e0bfc731f507cfb0b95d6c99 upstream.
+commit 573ae4f13f630d6660008f1974c0a8a29c30e18a upstream.
 
-When returning from the compare function the u64 is truncated to an
-int.  This results in a loss of the high nybble[1] in the event select
-and its sign if that nybble is in use.  Switch from using a result that
-can end up being truncated to a result that can only be: 1, 0, -1.
+With special lengths supplied by user space, register_shm_helper() has
+an integer overflow when calculating the number of pages covered by a
+supplied user space memory region.
 
-[1] bits 35:32 in the event select register and bits 11:8 in the event
-    select.
+This causes internal_get_user_pages_fast() a helper function of
+pin_user_pages_fast() to do a NULL pointer dereference:
 
-Fixes: 7ff775aca48ad ("KVM: x86/pmu: Use binary search to check filtered events")
-Signed-off-by: Aaron Lewis <aaronlewis@google.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220517051238.2566934-1-aaronlewis@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
+  Modules linked in:
+  CPU: 1 PID: 173 Comm: optee_example_a Not tainted 5.19.0 #11
+  Hardware name: QEMU QEMU Virtual Machine, BIOS 0.0.0 02/06/2015
+  pc : internal_get_user_pages_fast+0x474/0xa80
+  Call trace:
+   internal_get_user_pages_fast+0x474/0xa80
+   pin_user_pages_fast+0x24/0x4c
+   register_shm_helper+0x194/0x330
+   tee_shm_register_user_buf+0x78/0x120
+   tee_ioctl+0xd0/0x11a0
+   __arm64_sys_ioctl+0xa8/0xec
+   invoke_syscall+0x48/0x114
+
+Fix this by adding an an explicit call to access_ok() in
+tee_shm_register_user_buf() to catch an invalid user space address
+early.
+
+Fixes: 033ddf12bcf5 ("tee: add register user memory")
+Cc: stable@vger.kernel.org
+Reported-by: Nimish Mishra <neelam.nimish@gmail.com>
+Reported-by: Anirban Chakraborty <ch.anirban00727@gmail.com>
+Reported-by: Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>
+Suggested-by: Jerome Forissier <jerome.forissier@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/pmu.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/tee/tee_shm.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/kvm/pmu.c
-+++ b/arch/x86/kvm/pmu.c
-@@ -170,9 +170,12 @@ static bool pmc_resume_counter(struct kv
- 	return true;
- }
+--- a/drivers/tee/tee_shm.c
++++ b/drivers/tee/tee_shm.c
+@@ -222,6 +222,9 @@ struct tee_shm *tee_shm_register(struct
+ 		goto err;
+ 	}
  
--static int cmp_u64(const void *a, const void *b)
-+static int cmp_u64(const void *pa, const void *pb)
- {
--	return *(__u64 *)a - *(__u64 *)b;
-+	u64 a = *(u64 *)pa;
-+	u64 b = *(u64 *)pb;
++	if (!access_ok((void __user *)addr, length))
++		return ERR_PTR(-EFAULT);
 +
-+	return (a > b) - (a < b);
- }
- 
- void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel)
+ 	mutex_lock(&teedev->mutex);
+ 	shm->id = idr_alloc(&teedev->idr, shm, 1, 0, GFP_KERNEL);
+ 	mutex_unlock(&teedev->mutex);
 
 
