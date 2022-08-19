@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2777559A3A5
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 542BA59A3AE
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353383AbiHSQkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:40:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32956 "EHLO
+        id S1353609AbiHSQm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:42:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353368AbiHSQjZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:39:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98BC49109E;
-        Fri, 19 Aug 2022 09:08:18 -0700 (PDT)
+        with ESMTP id S1353243AbiHSQjz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:39:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2082E42F7;
+        Fri, 19 Aug 2022 09:08:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27050614DA;
-        Fri, 19 Aug 2022 16:07:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DDC2C433C1;
-        Fri, 19 Aug 2022 16:07:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 042A461811;
+        Fri, 19 Aug 2022 16:07:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E74BDC433C1;
+        Fri, 19 Aug 2022 16:07:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925249;
-        bh=fw9i8RhpOoj2gMS4VBjk+TrGpw1xeKcJG7ORRDyhstA=;
+        s=korg; t=1660925255;
+        bh=xIKOzEbAHX9r+GH4VZhr1OOjANvkwjV7THn/VhsTL20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pKTZCeqYKL9PCZRiGqLG/i9SVut/pBxuoDQY19pfr1X4u6lAkwJiXGjv8E1XgUkAl
-         e1glqmszu/fzqCiaAlXDRUernvl1Mjwm8Ml0hRbCxc5e4xT83C4lgxIPTScRDKFRwc
-         zoKA5s8jyT5KDj6coD5cGAd9Y1rnJQSqtRlxlmIc=
+        b=cdi1j8G0dTzDmeX5vmdm9p/ZO5SHLwH6m82Dhore6P/ohzYoqFYF+EIwwsCyaU608
+         bFoVVjqNHjeePszMeo6SFcbwwUcNLRvwvoDxJnpQG3nWW1uCLaimA29TW/tlvxr+5q
+         N2bL0wBAnJ2vl1KcJ510tYJRRjCXAp0vBAmk86LI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Siddh Raman Pant <code@siddh.me>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 431/545] x86/numa: Use cpumask_available instead of hardcoded NULL check
-Date:   Fri, 19 Aug 2022 17:43:21 +0200
-Message-Id: <20220819153848.703712858@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 433/545] tools/thermal: Fix possible path truncations
+Date:   Fri, 19 Aug 2022 17:43:23 +0200
+Message-Id: <20220819153848.803646606@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -53,71 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddh Raman Pant <code@siddh.me>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 625395c4a0f4775e0fe00f616888d2e6c1ba49db ]
+[ Upstream commit 6c58cf40e3a1d2f47c09d3489857e9476316788a ]
 
-GCC-12 started triggering a new warning:
+A build with -D_FORTIFY_SOURCE=2 enabled will produce the following warnings:
 
-  arch/x86/mm/numa.c: In function ‘cpumask_of_node’:
-  arch/x86/mm/numa.c:916:39: warning: the comparison will always evaluate as ‘false’ for the address of ‘node_to_cpumask_map’ will never be NULL [-Waddress]
-    916 |         if (node_to_cpumask_map[node] == NULL) {
-        |                                       ^~
+sysfs.c:63:30: warning: '%s' directive output may be truncated writing up to 255 bytes into a region of size between 0 and 255 [-Wformat-truncation=]
+  snprintf(filepath, 256, "%s/%s", path, filename);
+                              ^~
+Bump up the buffer to PATH_MAX which is the limit and account for all of
+the possible NUL and separators that could lead to exceeding the
+allocated buffer sizes.
 
-node_to_cpumask_map is of type cpumask_var_t[].
-
-When CONFIG_CPUMASK_OFFSTACK is set, cpumask_var_t is typedef'd to a
-pointer for dynamic allocation, else to an array of one element. The
-"wicked game" can be checked on line 700 of include/linux/cpumask.h.
-
-The original code in debug_cpumask_set_cpu() and cpumask_of_node() were
-probably written by the original authors with CONFIG_CPUMASK_OFFSTACK=y
-(i.e. dynamic allocation) in mind, checking if the cpumask was available
-via a direct NULL check.
-
-When CONFIG_CPUMASK_OFFSTACK is not set, GCC gives the above warning
-while compiling the kernel.
-
-Fix that by using cpumask_available(), which does the NULL check when
-CONFIG_CPUMASK_OFFSTACK is set, otherwise returns true. Use it wherever
-such checks are made.
-
-Conditional definitions of cpumask_available() can be found along with
-the definition of cpumask_var_t. Check the cpumask.h reference mentioned
-above.
-
-Fixes: c032ef60d1aa ("cpumask: convert node_to_cpumask_map[] to cpumask_var_t")
-Fixes: de2d9445f162 ("x86: Unify node_to_cpumask_map handling between 32 and 64bit")
-Signed-off-by: Siddh Raman Pant <code@siddh.me>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20220731160913.632092-1-code@siddh.me
+Fixes: 94f69966faf8 ("tools/thermal: Introduce tmon, a tool for thermal subsystem")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/numa.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/thermal/tmon/sysfs.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
-index e94da744386f..9dc31996c7ed 100644
---- a/arch/x86/mm/numa.c
-+++ b/arch/x86/mm/numa.c
-@@ -861,7 +861,7 @@ void debug_cpumask_set_cpu(int cpu, int node, bool enable)
- 		return;
- 	}
- 	mask = node_to_cpumask_map[node];
--	if (!mask) {
-+	if (!cpumask_available(mask)) {
- 		pr_err("node_to_cpumask_map[%i] NULL\n", node);
- 		dump_stack();
- 		return;
-@@ -907,7 +907,7 @@ const struct cpumask *cpumask_of_node(int node)
- 		dump_stack();
- 		return cpu_none_mask;
- 	}
--	if (node_to_cpumask_map[node] == NULL) {
-+	if (!cpumask_available(node_to_cpumask_map[node])) {
- 		printk(KERN_WARNING
- 			"cpumask_of_node(%d): no node_to_cpumask_map!\n",
- 			node);
+diff --git a/tools/thermal/tmon/sysfs.c b/tools/thermal/tmon/sysfs.c
+index b00b1bfd9d8e..cb1108bc9249 100644
+--- a/tools/thermal/tmon/sysfs.c
++++ b/tools/thermal/tmon/sysfs.c
+@@ -13,6 +13,7 @@
+ #include <stdint.h>
+ #include <dirent.h>
+ #include <libintl.h>
++#include <limits.h>
+ #include <ctype.h>
+ #include <time.h>
+ #include <syslog.h>
+@@ -33,9 +34,9 @@ int sysfs_set_ulong(char *path, char *filename, unsigned long val)
+ {
+ 	FILE *fd;
+ 	int ret = -1;
+-	char filepath[256];
++	char filepath[PATH_MAX + 2]; /* NUL and '/' */
+ 
+-	snprintf(filepath, 256, "%s/%s", path, filename);
++	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
+ 
+ 	fd = fopen(filepath, "w");
+ 	if (!fd) {
+@@ -57,9 +58,9 @@ static int sysfs_get_ulong(char *path, char *filename, unsigned long *p_ulong)
+ {
+ 	FILE *fd;
+ 	int ret = -1;
+-	char filepath[256];
++	char filepath[PATH_MAX + 2]; /* NUL and '/' */
+ 
+-	snprintf(filepath, 256, "%s/%s", path, filename);
++	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
+ 
+ 	fd = fopen(filepath, "r");
+ 	if (!fd) {
+@@ -76,9 +77,9 @@ static int sysfs_get_string(char *path, char *filename, char *str)
+ {
+ 	FILE *fd;
+ 	int ret = -1;
+-	char filepath[256];
++	char filepath[PATH_MAX + 2]; /* NUL and '/' */
+ 
+-	snprintf(filepath, 256, "%s/%s", path, filename);
++	snprintf(filepath, sizeof(filepath), "%s/%s", path, filename);
+ 
+ 	fd = fopen(filepath, "r");
+ 	if (!fd) {
+@@ -199,8 +200,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
+ {
+ 	unsigned long trip_instance = 0;
+ 	char cdev_name_linked[256];
+-	char cdev_name[256];
+-	char cdev_trip_name[256];
++	char cdev_name[PATH_MAX];
++	char cdev_trip_name[PATH_MAX];
+ 	int cdev_id;
+ 
+ 	if (nl->d_type == DT_LNK) {
+@@ -213,7 +214,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
+ 			return -EINVAL;
+ 		}
+ 		/* find the link to real cooling device record binding */
+-		snprintf(cdev_name, 256, "%s/%s", tz_name, nl->d_name);
++		snprintf(cdev_name, sizeof(cdev_name) - 2, "%s/%s",
++			 tz_name, nl->d_name);
+ 		memset(cdev_name_linked, 0, sizeof(cdev_name_linked));
+ 		if (readlink(cdev_name, cdev_name_linked,
+ 				sizeof(cdev_name_linked) - 1) != -1) {
+@@ -226,8 +228,8 @@ static int find_tzone_cdev(struct dirent *nl, char *tz_name,
+ 			/* find the trip point in which the cdev is binded to
+ 			 * in this tzone
+ 			 */
+-			snprintf(cdev_trip_name, 256, "%s%s", nl->d_name,
+-				"_trip_point");
++			snprintf(cdev_trip_name, sizeof(cdev_trip_name) - 1,
++				"%s%s", nl->d_name, "_trip_point");
+ 			sysfs_get_ulong(tz_name, cdev_trip_name,
+ 					&trip_instance);
+ 			/* validate trip point range, e.g. trip could return -1
 -- 
 2.35.1
 
