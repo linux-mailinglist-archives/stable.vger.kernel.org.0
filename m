@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 938CF59A06E
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 067E659A00B
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:32:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352037AbiHSQS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:18:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52678 "EHLO
+        id S1352167AbiHSQTu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:19:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352777AbiHSQRr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:17:47 -0400
+        with ESMTP id S1352884AbiHSQSB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:18:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 449FD1184D5;
-        Fri, 19 Aug 2022 09:00:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F8891184E5;
+        Fri, 19 Aug 2022 09:01:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44279617A5;
-        Fri, 19 Aug 2022 16:00:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5174BC433C1;
-        Fri, 19 Aug 2022 16:00:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F86E617A7;
+        Fri, 19 Aug 2022 16:00:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 612A4C433C1;
+        Fri, 19 Aug 2022 16:00:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924840;
-        bh=SBzQteFzmwAx5cbaMvhguyziPkBKT50j+fZw3n8Q/0I=;
+        s=korg; t=1660924843;
+        bh=eR0tZIvRvaH/L5ucyop9lSP+vc7zcIFE4nTjR/Nsrr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rYCiW5GpE9KDQv3Alxek8l4WKO25s0HXBETb5E+4lD7DtiIZDk/Dye0YuaKBf946J
-         cffy4XwekQocuhxtsAOqiZ7LF66YhZAkgp4XEBdfLZ7Q/tzcouTfsTd54G/tEkVxfw
-         V+rEZ/rtUjghajgiO4hZ7Wgjj3EAdUfxvF1JUpHU=
+        b=QoQwS19xQB1IUj5Sl81qovHvOi85lmKmHw0O5/aagQslZtpbtteKtSzbRVQPH8+0p
+         bl25AoJv0Kk75WZQLTt3neFVUWy8Nnu4KseEDnv1dqQKSAeEtkZPg0mnTzaYgREISK
+         eUzxpw0oHOii4EhC1nCxBZ3hY1RZO2tZ2L/j1mQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Marko <robimarko@gmail.com>,
+        stable@vger.kernel.org,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 299/545] clk: qcom: ipq8074: set BRANCH_HALT_DELAY flag for UBI clocks
-Date:   Fri, 19 Aug 2022 17:41:09 +0200
-Message-Id: <20220819153842.715785819@linuxfoundation.org>
+Subject: [PATCH 5.10 300/545] clk: qcom: camcc-sdm845: Fix topology around titan_top power domain
+Date:   Fri, 19 Aug 2022 17:41:10 +0200
+Message-Id: <20220819153842.763464524@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,111 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Marko <robimarko@gmail.com>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
-[ Upstream commit 2bd357e698207e2e65db03007e4be65bf9d6a7b3 ]
+[ Upstream commit 103dd2338bbff567bce7acd00fc5a09c806b38ec ]
 
-Currently, attempting to enable the UBI clocks will cause the stuck at
-off warning to be printed and clk_enable will fail.
+On SDM845 two found VFE GDSC power domains shall not be operated, if
+titan top is turned off, thus the former power domains will be set as
+subdomains by a GDSC registration routine.
 
-[   14.936694] gcc_ubi1_ahb_clk status stuck at 'off'
-
-Downstream 5.4 QCA kernel has fixed this by seting the BRANCH_HALT_DELAY
-flag on UBI clocks, so lets do the same.
-
-Fixes: 5736294aef83 ("clk: qcom: ipq8074: add NSS clocks")
-Signed-off-by: Robert Marko <robimarko@gmail.com>
+Fixes: 78412c262004 ("clk: qcom: Add camera clock controller driver for SDM845")
+Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220515210048.483898-6-robimarko@gmail.com
+Link: https://lore.kernel.org/r/20220519214133.1728979-2-vladimir.zapolskiy@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-ipq8074.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/clk/qcom/camcc-sdm845.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/clk/qcom/gcc-ipq8074.c b/drivers/clk/qcom/gcc-ipq8074.c
-index f1017f2e61bd..2c2ecfc5e61f 100644
---- a/drivers/clk/qcom/gcc-ipq8074.c
-+++ b/drivers/clk/qcom/gcc-ipq8074.c
-@@ -3354,6 +3354,7 @@ static struct clk_branch gcc_nssnoc_ubi1_ahb_clk = {
+diff --git a/drivers/clk/qcom/camcc-sdm845.c b/drivers/clk/qcom/camcc-sdm845.c
+index 1b2cefef7431..a8a2cfa83290 100644
+--- a/drivers/clk/qcom/camcc-sdm845.c
++++ b/drivers/clk/qcom/camcc-sdm845.c
+@@ -1521,6 +1521,8 @@ static struct clk_branch cam_cc_sys_tmr_clk = {
+ 	},
+ };
  
- static struct clk_branch gcc_ubi0_ahb_clk = {
- 	.halt_reg = 0x6820c,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x6820c,
- 		.enable_mask = BIT(0),
-@@ -3371,6 +3372,7 @@ static struct clk_branch gcc_ubi0_ahb_clk = {
++static struct gdsc titan_top_gdsc;
++
+ static struct gdsc bps_gdsc = {
+ 	.gdscr = 0x6004,
+ 	.pd = {
+@@ -1554,6 +1556,7 @@ static struct gdsc ife_0_gdsc = {
+ 		.name = "ife_0_gdsc",
+ 	},
+ 	.flags = POLL_CFG_GDSCR,
++	.parent = &titan_top_gdsc.pd,
+ 	.pwrsts = PWRSTS_OFF_ON,
+ };
  
- static struct clk_branch gcc_ubi0_axi_clk = {
- 	.halt_reg = 0x68200,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68200,
- 		.enable_mask = BIT(0),
-@@ -3388,6 +3390,7 @@ static struct clk_branch gcc_ubi0_axi_clk = {
+@@ -1563,6 +1566,7 @@ static struct gdsc ife_1_gdsc = {
+ 		.name = "ife_1_gdsc",
+ 	},
+ 	.flags = POLL_CFG_GDSCR,
++	.parent = &titan_top_gdsc.pd,
+ 	.pwrsts = PWRSTS_OFF_ON,
+ };
  
- static struct clk_branch gcc_ubi0_nc_axi_clk = {
- 	.halt_reg = 0x68204,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68204,
- 		.enable_mask = BIT(0),
-@@ -3405,6 +3408,7 @@ static struct clk_branch gcc_ubi0_nc_axi_clk = {
- 
- static struct clk_branch gcc_ubi0_core_clk = {
- 	.halt_reg = 0x68210,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68210,
- 		.enable_mask = BIT(0),
-@@ -3422,6 +3426,7 @@ static struct clk_branch gcc_ubi0_core_clk = {
- 
- static struct clk_branch gcc_ubi0_mpt_clk = {
- 	.halt_reg = 0x68208,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68208,
- 		.enable_mask = BIT(0),
-@@ -3439,6 +3444,7 @@ static struct clk_branch gcc_ubi0_mpt_clk = {
- 
- static struct clk_branch gcc_ubi1_ahb_clk = {
- 	.halt_reg = 0x6822c,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x6822c,
- 		.enable_mask = BIT(0),
-@@ -3456,6 +3462,7 @@ static struct clk_branch gcc_ubi1_ahb_clk = {
- 
- static struct clk_branch gcc_ubi1_axi_clk = {
- 	.halt_reg = 0x68220,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68220,
- 		.enable_mask = BIT(0),
-@@ -3473,6 +3480,7 @@ static struct clk_branch gcc_ubi1_axi_clk = {
- 
- static struct clk_branch gcc_ubi1_nc_axi_clk = {
- 	.halt_reg = 0x68224,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68224,
- 		.enable_mask = BIT(0),
-@@ -3490,6 +3498,7 @@ static struct clk_branch gcc_ubi1_nc_axi_clk = {
- 
- static struct clk_branch gcc_ubi1_core_clk = {
- 	.halt_reg = 0x68230,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68230,
- 		.enable_mask = BIT(0),
-@@ -3507,6 +3516,7 @@ static struct clk_branch gcc_ubi1_core_clk = {
- 
- static struct clk_branch gcc_ubi1_mpt_clk = {
- 	.halt_reg = 0x68228,
-+	.halt_check = BRANCH_HALT_DELAY,
- 	.clkr = {
- 		.enable_reg = 0x68228,
- 		.enable_mask = BIT(0),
 -- 
 2.35.1
 
