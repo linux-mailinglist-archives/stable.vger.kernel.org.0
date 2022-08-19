@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A12C959A11E
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50D0759A0DA
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352220AbiHSQZA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:25:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43880 "EHLO
+        id S1352390AbiHSQZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:25:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352301AbiHSQXn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:23:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5492410AE2C;
-        Fri, 19 Aug 2022 09:03:02 -0700 (PDT)
+        with ESMTP id S1352615AbiHSQYH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:24:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88801118939;
+        Fri, 19 Aug 2022 09:03:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76C3861698;
-        Fri, 19 Aug 2022 16:03:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7402EC433C1;
-        Fri, 19 Aug 2022 16:03:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F7B9617A7;
+        Fri, 19 Aug 2022 16:03:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D097C433C1;
+        Fri, 19 Aug 2022 16:03:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924980;
-        bh=WHMmWCgwwPXyEPkvSjaXRYjhVjOCuqU/bjLEKj6qOZo=;
+        s=korg; t=1660924983;
+        bh=Gz2Jr+pS+jA08IitzJi1AbwCWv5VZEhjC2YGN6UtlOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oybAIbQKujfSnBvOjE+Gaqxmrp7oCykUEbQ15FWyXECkN2vRVs6kleFWOr36bWuYW
-         /uxU60BAYHwjl7mVu9uXVjvGwHjXSzpvSBtSWQe62gmUdJbcJ3nSgxy2tWreZQW1WS
-         DwlqHuNcvNLZL+wPRPHmsMw0/Zee4ca3ql1Ef3eQ=
+        b=iEuRTZFwMorBPElul2lABd0CVrs39ShEuxILLVDDVst59Liv9UvxwX1RjtVpcQRAs
+         AseB3WkEKSYmfr3oZaiU3qFZ3BQSSZp2TE99/EpEj8/IBqIvBjWv81/pziGnf1v94d
+         GZgOs4fVzKrYoAJ2QvQupH3Y1BBRPj+CEGlNSlq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Karl Olsen <karl@micro-technic.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 315/545] memstick/ms_block: Fix a memory leak
-Date:   Fri, 19 Aug 2022 17:41:25 +0200
-Message-Id: <20220819153843.449908803@linuxfoundation.org>
+Subject: [PATCH 5.10 316/545] mmc: sdhci-of-at91: fix set_uhs_signaling rewriting of MC1R
+Date:   Fri, 19 Aug 2022 17:41:26 +0200
+Message-Id: <20220819153843.500723665@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,37 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 54eb7a55be6779c4d0c25eaf5056498a28595049 ]
+[ Upstream commit 5987e6ded29d52e42fc7b06aa575c60a25eee38e ]
 
-'erased_blocks_bitmap' is never freed. As it is allocated at the same time
-as 'used_blocks_bitmap', it is likely that it should be freed also at the
-same time.
+In set_uhs_signaling, the DDR bit is being set by fully writing the MC1R
+register.
+This can lead to accidental erase of certain bits in this register.
+Avoid this by doing a read-modify-write operation.
 
-Add the corresponding bitmap_free() in msb_data_clear().
-
-Fixes: 0ab30494bc4f ("memstick: add support for legacy memorysticks")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/b3b78926569445962ea5c3b6e9102418a9effb88.1656155715.git.christophe.jaillet@wanadoo.fr
+Fixes: d0918764c17b ("mmc: sdhci-of-at91: fix MMC_DDR_52 timing selection")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Tested-by: Karl Olsen <karl@micro-technic.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20220630090926.15061-1-eugen.hristev@microchip.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/core/ms_block.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/sdhci-of-at91.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
-index 6fa3ad3a94a0..6df98c0e5622 100644
---- a/drivers/memstick/core/ms_block.c
-+++ b/drivers/memstick/core/ms_block.c
-@@ -1954,6 +1954,7 @@ static void msb_data_clear(struct msb_data *msb)
+diff --git a/drivers/mmc/host/sdhci-of-at91.c b/drivers/mmc/host/sdhci-of-at91.c
+index d1a1c548c515..0452c312b65e 100644
+--- a/drivers/mmc/host/sdhci-of-at91.c
++++ b/drivers/mmc/host/sdhci-of-at91.c
+@@ -100,8 +100,13 @@ static void sdhci_at91_set_clock(struct sdhci_host *host, unsigned int clock)
+ static void sdhci_at91_set_uhs_signaling(struct sdhci_host *host,
+ 					 unsigned int timing)
  {
- 	kfree(msb->boot_page);
- 	bitmap_free(msb->used_blocks_bitmap);
-+	bitmap_free(msb->erased_blocks_bitmap);
- 	kfree(msb->lba_to_pba_table);
- 	kfree(msb->cache);
- 	msb->card = NULL;
+-	if (timing == MMC_TIMING_MMC_DDR52)
+-		sdhci_writeb(host, SDMMC_MC1R_DDR, SDMMC_MC1R);
++	u8 mc1r;
++
++	if (timing == MMC_TIMING_MMC_DDR52) {
++		mc1r = sdhci_readb(host, SDMMC_MC1R);
++		mc1r |= SDMMC_MC1R_DDR;
++		sdhci_writeb(host, mc1r, SDMMC_MC1R);
++	}
+ 	sdhci_set_uhs_signaling(host, timing);
+ }
+ 
 -- 
 2.35.1
 
