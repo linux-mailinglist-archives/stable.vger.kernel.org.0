@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85E3959A01D
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:32:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6E80599FFD
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352005AbiHSQVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:21:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52136 "EHLO
+        id S1352493AbiHSQVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:21:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352117AbiHSQTZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:19:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEA1C75FF8;
-        Fri, 19 Aug 2022 09:01:14 -0700 (PDT)
+        with ESMTP id S1352070AbiHSQTK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:19:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECBB611847D;
+        Fri, 19 Aug 2022 09:01:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00BF2B8281C;
-        Fri, 19 Aug 2022 16:01:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 537D6C433C1;
-        Fri, 19 Aug 2022 16:00:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A7D2616B3;
+        Fri, 19 Aug 2022 16:01:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 476C7C433C1;
+        Fri, 19 Aug 2022 16:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924858;
-        bh=Mz8OE5iBpjsa6W4suORVh2DhFN2IeA795EDGdfk/FkA=;
+        s=korg; t=1660924861;
+        bh=mZdDAXadWmFIttx25Wr5E6+vtakiqgoPmNDTMADLk1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rq6XHIwULTL3fOQsI/V1xWKFPZl1ODCGnYOu3dIDLuwCX0mVNFUj+k8SjBXuqpfrx
-         p9pQ4nL/8Omao9DdOq/+S50m8d9BOMyFBUyErReha8kYKA8zNrsvfXeDRjr79b2PNi
-         g6obRVLCGX6/DysWj3x90/vGdR6/dSLjej+QDi2c=
+        b=PK51UMTC4KyueqAX06S2EXIGubf38x7Np7bw+DYAx/Hi1LHoJzq7jKj+OCGUH4PcH
+         5tKmiuwfT7kJTRbWIHGvJ8t1/X8HAK0ksjNJGbq2FvUqsrxI5TEzXvnq374qkMH7rM
+         jfvFUh+aSf5rmu/irKcBkLZFJa/ev4PerDtlFjPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quentin Perret <qperret@google.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 305/545] KVM: arm64: Dont return from void function
-Date:   Fri, 19 Aug 2022 17:41:15 +0200
-Message-Id: <20220819153842.994244146@linuxfoundation.org>
+        stable@vger.kernel.org, Austin Kim <austin.kim@lge.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 306/545] dmaengine: sf-pdma: apply proper spinlock flags in sf_pdma_prep_dma_memcpy()
+Date:   Fri, 19 Aug 2022 17:41:16 +0200
+Message-Id: <20220819153843.043321900@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -53,51 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Perret <qperret@google.com>
+From: Austin Kim <austin.kim@lge.com>
 
-[ Upstream commit 1c3ace2b8b3995d3213c5e2d2aca01a0577a3b0f ]
+[ Upstream commit 94b4cd7c5fc0dd6858a046b00ca729fb0512b9ba ]
 
-Although harmless, the return statement in kvm_unexpected_el2_exception
-is rather confusing as the function itself has a void return type. The
-C standard is also pretty clear that "A return statement with an
-expression shall not appear in a function whose return type is void".
-Given that this return statement does not seem to add any actual value,
-let's not pointlessly violate the standard.
+The second parameter of spinlock_irq[save/restore] function is flags,
+which is the last input parameter of sf_pdma_prep_dma_memcpy().
 
-Build-tested with GCC 10 and CLANG 13 for good measure, the disassembled
-code is identical with or without the return statement.
+So declare local variable 'iflags' to be used as the second parameter of
+spinlock_irq[save/restore] function.
 
-Fixes: e9ee186bb735 ("KVM: arm64: Add kvm_extable for vaxorcism code")
-Signed-off-by: Quentin Perret <qperret@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220705142310.3847918-1-qperret@google.com
+Signed-off-by: Austin Kim <austin.kim@lge.com>
+Link: https://lore.kernel.org/r/20210611065336.GA1121@raspberrypi
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/hyp/nvhe/switch.c | 2 +-
- arch/arm64/kvm/hyp/vhe/switch.c  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/dma/sf-pdma/sf-pdma.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/kvm/hyp/nvhe/switch.c b/arch/arm64/kvm/hyp/nvhe/switch.c
-index 6624596846d3..2401164c5f86 100644
---- a/arch/arm64/kvm/hyp/nvhe/switch.c
-+++ b/arch/arm64/kvm/hyp/nvhe/switch.c
-@@ -279,5 +279,5 @@ void __noreturn hyp_panic(void)
- 
- asmlinkage void kvm_unexpected_el2_exception(void)
+diff --git a/drivers/dma/sf-pdma/sf-pdma.c b/drivers/dma/sf-pdma/sf-pdma.c
+index 528deb5d9f31..1cd2d7df9715 100644
+--- a/drivers/dma/sf-pdma/sf-pdma.c
++++ b/drivers/dma/sf-pdma/sf-pdma.c
+@@ -94,6 +94,7 @@ sf_pdma_prep_dma_memcpy(struct dma_chan *dchan,	dma_addr_t dest, dma_addr_t src,
  {
--	return __kvm_unexpected_el2_exception();
-+	__kvm_unexpected_el2_exception();
- }
-diff --git a/arch/arm64/kvm/hyp/vhe/switch.c b/arch/arm64/kvm/hyp/vhe/switch.c
-index 532e687f6936..99e2581e9806 100644
---- a/arch/arm64/kvm/hyp/vhe/switch.c
-+++ b/arch/arm64/kvm/hyp/vhe/switch.c
-@@ -228,5 +228,5 @@ void __noreturn hyp_panic(void)
+ 	struct sf_pdma_chan *chan = to_sf_pdma_chan(dchan);
+ 	struct sf_pdma_desc *desc;
++	unsigned long iflags;
  
- asmlinkage void kvm_unexpected_el2_exception(void)
- {
--	return __kvm_unexpected_el2_exception();
-+	__kvm_unexpected_el2_exception();
+ 	if (chan && (!len || !dest || !src)) {
+ 		dev_err(chan->pdma->dma_dev.dev,
+@@ -109,10 +110,10 @@ sf_pdma_prep_dma_memcpy(struct dma_chan *dchan,	dma_addr_t dest, dma_addr_t src,
+ 	desc->dirn = DMA_MEM_TO_MEM;
+ 	desc->async_tx = vchan_tx_prep(&chan->vchan, &desc->vdesc, flags);
+ 
+-	spin_lock_irqsave(&chan->vchan.lock, flags);
++	spin_lock_irqsave(&chan->vchan.lock, iflags);
+ 	chan->desc = desc;
+ 	sf_pdma_fill_desc(desc, dest, src, len);
+-	spin_unlock_irqrestore(&chan->vchan.lock, flags);
++	spin_unlock_irqrestore(&chan->vchan.lock, iflags);
+ 
+ 	return desc->async_tx;
  }
 -- 
 2.35.1
