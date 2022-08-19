@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7237159A123
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E10F59A021
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:32:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350657AbiHSP4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:56:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40138 "EHLO
+        id S1350676AbiHSP4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:56:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350861AbiHSPzy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:55:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E19910522D;
-        Fri, 19 Aug 2022 08:50:38 -0700 (PDT)
+        with ESMTP id S1350926AbiHSP4D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:56:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9D5E10521D;
+        Fri, 19 Aug 2022 08:50:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96015B82812;
-        Fri, 19 Aug 2022 15:50:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDCF3C433C1;
-        Fri, 19 Aug 2022 15:50:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3B0A616F9;
+        Fri, 19 Aug 2022 15:50:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B31DFC433D6;
+        Fri, 19 Aug 2022 15:50:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924234;
-        bh=hwBSpc7erig/674qMUa5THYn7tKXm6QBe24djanajcU=;
+        s=korg; t=1660924237;
+        bh=gVNJEFm1Q3F65zmNeU+fdgNngxG14eW9scGa3m0pN5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=11OIJrzOBXlEF/hw++wClartAFy+ho27mll2Ky3P9oc3kMhMFMpyiWvc52pTtRq7f
-         6qLsyE8iagJs2eGeNXEikr1LzSM7Ydl9sMl6z3V+8+2qhG3p0bK5eqhHItpPsGdr/x
-         Rjn+fw8ugnhwZGrwUVJBR26etINkDYo3cM8Va7qQ=
+        b=2TArbcc9Hp94AC+5hfd3hCTkB3wr9VZZCeQkbCmR3EmQBy7qnwqfmBj4RgDguwAPe
+         0Xuc5/QKJWmBLL78ogWoiAkp7dYvpYFt6QDvp0Sr2vGjPlGwp4brj2ZD7XCpfnxx/n
+         Whfv8YJqYjwx5i4iBeF2O3oXnBRyqkvXXaUpYPiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 101/545] ARM: shmobile: rcar-gen2: Increase refcount for new reference
-Date:   Fri, 19 Aug 2022 17:37:51 +0200
-Message-Id: <20220819153833.795054640@linuxfoundation.org>
+Subject: [PATCH 5.10 102/545] firmware: tegra: Fix error check return value of debugfs_create_file()
+Date:   Fri, 19 Aug 2022 17:37:52 +0200
+Message-Id: <20220819153833.841992911@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,58 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit 75a185fb92e58ccd3670258d8d3b826bd2fa6d29 ]
+[ Upstream commit afcdb8e55c91c6ff0700ab272fd0f74e899ab884 ]
 
-In rcar_gen2_regulator_quirk(), for_each_matching_node_and_match() will
-automatically increase and decrease the refcount.  However, we should
-call of_node_get() for the new reference created in 'quirk->np'.
-Besides, we also should call of_node_put() before the 'quirk' being
-freed.
+If an error occurs, debugfs_create_file() will return ERR_PTR(-ERROR),
+so use IS_ERR() to check it.
 
-Signed-off-by: Liang He <windhl@126.com>
-Link: https://lore.kernel.org/r/20220701121804.234223-1-windhl@126.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/firmware/tegra/bpmp-debugfs.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c b/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
-index 09ef73b99dd8..ba44cec5e59a 100644
---- a/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
-+++ b/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
-@@ -125,6 +125,7 @@ static int regulator_quirk_notify(struct notifier_block *nb,
+diff --git a/drivers/firmware/tegra/bpmp-debugfs.c b/drivers/firmware/tegra/bpmp-debugfs.c
+index 440d99c63638..fad97ec8e81f 100644
+--- a/drivers/firmware/tegra/bpmp-debugfs.c
++++ b/drivers/firmware/tegra/bpmp-debugfs.c
+@@ -429,7 +429,7 @@ static int bpmp_populate_debugfs_inband(struct tegra_bpmp *bpmp,
+ 			mode |= attrs & DEBUGFS_S_IWUSR ? 0200 : 0;
+ 			dentry = debugfs_create_file(name, mode, parent, bpmp,
+ 						     &bpmp_debug_fops);
+-			if (!dentry) {
++			if (IS_ERR(dentry)) {
+ 				err = -ENOMEM;
+ 				goto out;
+ 			}
+@@ -680,7 +680,7 @@ static int bpmp_populate_dir(struct tegra_bpmp *bpmp, struct seqbuf *seqbuf,
  
- 	list_for_each_entry_safe(pos, tmp, &quirk_list, list) {
- 		list_del(&pos->list);
-+		of_node_put(pos->np);
- 		kfree(pos);
- 	}
- 
-@@ -174,11 +175,12 @@ static int __init rcar_gen2_regulator_quirk(void)
- 		memcpy(&quirk->i2c_msg, id->data, sizeof(quirk->i2c_msg));
- 
- 		quirk->id = id;
--		quirk->np = np;
-+		quirk->np = of_node_get(np);
- 		quirk->i2c_msg.addr = addr;
- 
- 		ret = of_irq_parse_one(np, 0, argsa);
- 		if (ret) {	/* Skip invalid entry and continue */
-+			of_node_put(np);
- 			kfree(quirk);
- 			continue;
+ 		if (t & DEBUGFS_S_ISDIR) {
+ 			dentry = debugfs_create_dir(name, parent);
+-			if (!dentry)
++			if (IS_ERR(dentry))
+ 				return -ENOMEM;
+ 			err = bpmp_populate_dir(bpmp, seqbuf, dentry, depth+1);
+ 			if (err < 0)
+@@ -693,7 +693,7 @@ static int bpmp_populate_dir(struct tegra_bpmp *bpmp, struct seqbuf *seqbuf,
+ 			dentry = debugfs_create_file(name, mode,
+ 						     parent, bpmp,
+ 						     &debugfs_fops);
+-			if (!dentry)
++			if (IS_ERR(dentry))
+ 				return -ENOMEM;
  		}
-@@ -225,6 +227,7 @@ static int __init rcar_gen2_regulator_quirk(void)
- err_mem:
- 	list_for_each_entry_safe(pos, tmp, &quirk_list, list) {
- 		list_del(&pos->list);
-+		of_node_put(pos->np);
- 		kfree(pos);
  	}
+@@ -743,11 +743,11 @@ int tegra_bpmp_init_debugfs(struct tegra_bpmp *bpmp)
+ 		return 0;
  
+ 	root = debugfs_create_dir("bpmp", NULL);
+-	if (!root)
++	if (IS_ERR(root))
+ 		return -ENOMEM;
+ 
+ 	bpmp->debugfs_mirror = debugfs_create_dir("debug", root);
+-	if (!bpmp->debugfs_mirror) {
++	if (IS_ERR(bpmp->debugfs_mirror)) {
+ 		err = -ENOMEM;
+ 		goto out;
+ 	}
 -- 
 2.35.1
 
