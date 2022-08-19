@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73FDE599FF5
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 307C1599F10
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352062AbiHSQTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:19:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52032 "EHLO
+        id S1351989AbiHSQSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:18:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352507AbiHSQQ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:16:56 -0400
+        with ESMTP id S1352542AbiHSQRD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:17:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77612117746;
-        Fri, 19 Aug 2022 09:00:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACB6E117774;
+        Fri, 19 Aug 2022 09:00:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AC5A617A6;
-        Fri, 19 Aug 2022 16:00:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0F1BC433D7;
-        Fri, 19 Aug 2022 16:00:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 952EE616B3;
+        Fri, 19 Aug 2022 16:00:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C388C433C1;
+        Fri, 19 Aug 2022 16:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924809;
-        bh=gGfAA5KNw0nD+54rO+uIFUWNqXpcq6SPs2gFcs7Wx+c=;
+        s=korg; t=1660924813;
+        bh=yNbO08elAEoY/dw+6rSOTyJSJXQ7EEE8nArmGuo7i6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nA3/NG1Lu6X4FW4QbEbWJwbNQZ+t7dgs4HKsA7nxQi4Spem0ecAFN/9qyuGDUDvOL
-         j5p2OqUjyxBmgO9GUoh9rAWNzj+M5KktbnXF878ZJcUGI4Ct7bhsM+h2iyVTpiEAOc
-         cFuCM7yWQuzUMFsqQJV6IsuMIcuUAa6KpIqEFdWs=
+        b=Krte+lqBUNIF1NM5k72X+bTRpgq/QMYdv8r4lDmJWZ95oJ+xypHOHeBApKTj4XHRx
+         CQT9uLyKeghTTTgBGhnYwJ5sxG9BaaRdVyuOMFzWcaD1kORxI+zs6/QUGD6UPWDm4N
+         I/eOIBzoZ85lqU+DMd8zHtsQPn357PAvo3/TyAgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Duoming Zhou <duoming@zju.edu.cn>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 290/545] mwifiex: fix sleep in atomic context bugs caused by dev_coredumpv
-Date:   Fri, 19 Aug 2022 17:41:00 +0200
-Message-Id: <20220819153842.313013538@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Frank Li <Frank.Li@nxp.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 291/545] dmaengine: dw-edma: Fix eDMA Rd/Wr-channels and DMA-direction semantics
+Date:   Fri, 19 Aug 2022 17:41:01 +0200
+Message-Id: <20220819153842.353179189@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,171 +57,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit a52ed4866d2b90dd5e4ae9dabd453f3ed8fa3cbc ]
+[ Upstream commit c1e33979171da63cf47e56243ccb8ba82363c7d3 ]
 
-There are sleep in atomic context bugs when uploading device dump
-data in mwifiex. The root cause is that dev_coredumpv could not
-be used in atomic contexts, because it calls dev_set_name which
-include operations that may sleep. The call tree shows execution
-paths that could lead to bugs:
+In accordance with [1, 2] the DW eDMA controller has been created to be
+part of the DW PCIe Root Port and DW PCIe End-point controllers and to
+offload the transferring of large blocks of data between application and
+remote PCIe domains leaving the system CPU free for other tasks. In the
+first case (eDMA being part of DW PCIe Root Port) the eDMA controller is
+always accessible via the CPU DBI interface and never over the PCIe wire.
 
-   (Interrupt context)
-fw_dump_timer_fn
-  mwifiex_upload_device_dump
-    dev_coredumpv(..., GFP_KERNEL)
-      dev_coredumpm()
-        kzalloc(sizeof(*devcd), gfp); //may sleep
-        dev_set_name
-          kobject_set_name_vargs
-            kvasprintf_const(GFP_KERNEL, ...); //may sleep
-            kstrdup(s, GFP_KERNEL); //may sleep
+The latter case is more complex. Depending on the DW PCIe End-Point IP-core
+synthesize parameters it's possible to have the eDMA registers accessible
+not only from the application CPU side, but also via mapping the eDMA CSRs
+over a dedicated endpoint BAR. So based on the specifics denoted above the
+eDMA driver is supposed to support two types of the DMA controller setups:
 
-The corresponding fail log is shown below:
+  1) eDMA embedded into the DW PCIe Root Port/End-point and accessible over
+     the local CPU from the application side.
 
-[  135.275938] usb 1-1: == mwifiex dump information to /sys/class/devcoredump start
-[  135.281029] BUG: sleeping function called from invalid context at include/linux/sched/mm.h:265
-...
-[  135.293613] Call Trace:
-[  135.293613]  <IRQ>
-[  135.293613]  dump_stack_lvl+0x57/0x7d
-[  135.293613]  __might_resched.cold+0x138/0x173
-[  135.293613]  ? dev_coredumpm+0xca/0x2e0
-[  135.293613]  kmem_cache_alloc_trace+0x189/0x1f0
-[  135.293613]  ? devcd_match_failing+0x30/0x30
-[  135.293613]  dev_coredumpm+0xca/0x2e0
-[  135.293613]  ? devcd_freev+0x10/0x10
-[  135.293613]  dev_coredumpv+0x1c/0x20
-[  135.293613]  ? devcd_match_failing+0x30/0x30
-[  135.293613]  mwifiex_upload_device_dump+0x65/0xb0
-[  135.293613]  ? mwifiex_dnld_fw+0x1b0/0x1b0
-[  135.293613]  call_timer_fn+0x122/0x3d0
-[  135.293613]  ? msleep_interruptible+0xb0/0xb0
-[  135.293613]  ? lock_downgrade+0x3c0/0x3c0
-[  135.293613]  ? __next_timer_interrupt+0x13c/0x160
-[  135.293613]  ? lockdep_hardirqs_on_prepare+0xe/0x220
-[  135.293613]  ? mwifiex_dnld_fw+0x1b0/0x1b0
-[  135.293613]  __run_timers.part.0+0x3f8/0x540
-[  135.293613]  ? call_timer_fn+0x3d0/0x3d0
-[  135.293613]  ? arch_restore_msi_irqs+0x10/0x10
-[  135.293613]  ? lapic_next_event+0x31/0x40
-[  135.293613]  run_timer_softirq+0x4f/0xb0
-[  135.293613]  __do_softirq+0x1c2/0x651
-...
-[  135.293613] RIP: 0010:default_idle+0xb/0x10
-[  135.293613] RSP: 0018:ffff888006317e68 EFLAGS: 00000246
-[  135.293613] RAX: ffffffff82ad8d10 RBX: ffff888006301cc0 RCX: ffffffff82ac90e1
-[  135.293613] RDX: ffffed100d9ff1b4 RSI: ffffffff831ad140 RDI: ffffffff82ad8f20
-[  135.293613] RBP: 0000000000000003 R08: 0000000000000000 R09: ffff88806cff8d9b
-[  135.293613] R10: ffffed100d9ff1b3 R11: 0000000000000001 R12: ffffffff84593410
-[  135.293613] R13: 0000000000000000 R14: 0000000000000000 R15: 1ffff11000c62fd2
-...
-[  135.389205] usb 1-1: == mwifiex dump information to /sys/class/devcoredump end
+  2) eDMA embedded into the DW PCIe End-point and accessible via the PCIe
+     wire with MWr/MRd TLPs generated by the CPU PCIe host controller.
 
-This patch uses delayed work to replace timer and moves the operations
-that may sleep into a delayed work in order to mitigate bugs, it was
-tested on Marvell 88W8801 chip whose port is usb and the firmware is
-usb8801_uapsta.bin. The following is the result after using delayed
-work to replace timer.
+Since the CPU memory resides different sides in these cases the semantics
+of the MEM_TO_DEV and DEV_TO_MEM operations is flipped with respect to the
+Tx and Rx DMA channels. So MEM_TO_DEV/DEV_TO_MEM corresponds to the Tx/Rx
+channels in setup 1) and to the Rx/Tx channels in case of setup 2).
 
-[  134.936453] usb 1-1: == mwifiex dump information to /sys/class/devcoredump start
-[  135.043344] usb 1-1: == mwifiex dump information to /sys/class/devcoredump end
+The DW eDMA driver has supported the case 2) since e63d79d1ffcd
+("dmaengine: Add Synopsys eDMA IP core driver") in the framework of the
+drivers/dma/dw-edma/dw-edma-pcie.c driver.
 
-As we can see, there is no bug now.
+The case 1) support was added later by bd96f1b2f43a ("dmaengine: dw-edma:
+support local dma device transfer semantics").  Afterwards the driver was
+supposed to cover the both possible eDMA setups, but the latter commit
+turned out to be not fully correct.
 
-Fixes: f5ecd02a8b20 ("mwifiex: device dump support for usb interface")
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/b63b77fc84ed3e8a6bef02378e17c7c71a0bc3be.1654569290.git.duoming@zju.edu.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The problem was that the commit together with the new functionality support
+also changed the channel direction semantics so the eDMA Read-channel
+(corresponding to the DMA_DEV_TO_MEM direction for case 1) now uses the
+sgl/cyclic base addresses as the Source addresses of the DMA transfers and
+dma_slave_config.dst_addr as the Destination address of the DMA transfers.
+
+Similarly the eDMA Write-channel (corresponding to the DMA_MEM_TO_DEV
+direction for case 1) now uses dma_slave_config.src_addr as a source
+address of the DMA transfers and sgl/cyclic base address as the Destination
+address of the DMA transfers. This contradicts the logic of the
+DMA-interface, which implies that DEV side is supposed to belong to the
+PCIe device memory and MEM - to the CPU/Application memory. Indeed it seems
+irrational to have the SG-list defined in the PCIe bus space, while
+expecting a contiguous buffer allocated in the CPU memory. Moreover the
+passed SG-list and cyclic DMA buffers are supposed to be mapped in a way so
+to be seen by the DW eDMA Application (CPU) interface.
+
+So in order to have the correct DW eDMA interface we need to invert the
+eDMA Rd/Wr-channels and DMA-slave directions semantics by selecting the
+src/dst addresses based on the DMA transfer direction instead of using the
+channel direction capability.
+
+[1] DesignWare Cores PCI Express Controller Databook - DWC PCIe Root Port,
+    v.5.40a, March 2019, p.1092
+[2] DesignWare Cores PCI Express Controller Databook - DWC PCIe Endpoint,
+    v.5.40a, March 2019, p.1189
+
+Co-developed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Fixes: bd96f1b2f43a ("dmaengine: dw-edma: support local dma device transfer semantics")
+Link: https://lore.kernel.org/r/20220524152159.2370739-7-Frank.Li@nxp.com
+Tested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Signed-off-by: Frank Li <Frank.Li@nxp.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-By: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/init.c      | 9 +++++----
- drivers/net/wireless/marvell/mwifiex/main.h      | 3 ++-
- drivers/net/wireless/marvell/mwifiex/sta_event.c | 6 +++---
- 3 files changed, 10 insertions(+), 8 deletions(-)
+ drivers/dma/dw-edma/dw-edma-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/init.c b/drivers/net/wireless/marvell/mwifiex/init.c
-index f006a3d72b40..e5bb240eb3ed 100644
---- a/drivers/net/wireless/marvell/mwifiex/init.c
-+++ b/drivers/net/wireless/marvell/mwifiex/init.c
-@@ -63,9 +63,10 @@ static void wakeup_timer_fn(struct timer_list *t)
- 		adapter->if_ops.card_reset(adapter);
- }
+diff --git a/drivers/dma/dw-edma/dw-edma-core.c b/drivers/dma/dw-edma/dw-edma-core.c
+index 58c8cc8fe0e1..d7ed50f8b929 100644
+--- a/drivers/dma/dw-edma/dw-edma-core.c
++++ b/drivers/dma/dw-edma/dw-edma-core.c
+@@ -400,7 +400,7 @@ dw_edma_device_transfer(struct dw_edma_transfer *xfer)
+ 		chunk->ll_region.sz += burst->sz;
+ 		desc->alloc_sz += burst->sz;
  
--static void fw_dump_timer_fn(struct timer_list *t)
-+static void fw_dump_work(struct work_struct *work)
- {
--	struct mwifiex_adapter *adapter = from_timer(adapter, t, devdump_timer);
-+	struct mwifiex_adapter *adapter =
-+		container_of(work, struct mwifiex_adapter, devdump_work.work);
- 
- 	mwifiex_upload_device_dump(adapter);
- }
-@@ -321,7 +322,7 @@ static void mwifiex_init_adapter(struct mwifiex_adapter *adapter)
- 	adapter->active_scan_triggered = false;
- 	timer_setup(&adapter->wakeup_timer, wakeup_timer_fn, 0);
- 	adapter->devdump_len = 0;
--	timer_setup(&adapter->devdump_timer, fw_dump_timer_fn, 0);
-+	INIT_DELAYED_WORK(&adapter->devdump_work, fw_dump_work);
- }
- 
- /*
-@@ -400,7 +401,7 @@ static void
- mwifiex_adapter_cleanup(struct mwifiex_adapter *adapter)
- {
- 	del_timer(&adapter->wakeup_timer);
--	del_timer_sync(&adapter->devdump_timer);
-+	cancel_delayed_work_sync(&adapter->devdump_work);
- 	mwifiex_cancel_all_pending_cmd(adapter);
- 	wake_up_interruptible(&adapter->cmd_wait_q.wait);
- 	wake_up_interruptible(&adapter->hs_activate_wait_q);
-diff --git a/drivers/net/wireless/marvell/mwifiex/main.h b/drivers/net/wireless/marvell/mwifiex/main.h
-index f4e3dce10d65..3357cb7a5230 100644
---- a/drivers/net/wireless/marvell/mwifiex/main.h
-+++ b/drivers/net/wireless/marvell/mwifiex/main.h
-@@ -49,6 +49,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/slab.h>
- #include <linux/of_irq.h>
-+#include <linux/workqueue.h>
- 
- #include "decl.h"
- #include "ioctl.h"
-@@ -1053,7 +1054,7 @@ struct mwifiex_adapter {
- 	/* Device dump data/length */
- 	void *devdump_data;
- 	int devdump_len;
--	struct timer_list devdump_timer;
-+	struct delayed_work devdump_work;
- 
- 	bool ignore_btcoex_events;
- };
-diff --git a/drivers/net/wireless/marvell/mwifiex/sta_event.c b/drivers/net/wireless/marvell/mwifiex/sta_event.c
-index 05073a49ab5f..069d47b59f9f 100644
---- a/drivers/net/wireless/marvell/mwifiex/sta_event.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sta_event.c
-@@ -622,8 +622,8 @@ mwifiex_fw_dump_info_event(struct mwifiex_private *priv,
- 		 * transmission event get lost, in this cornel case,
- 		 * user would still get partial of the dump.
- 		 */
--		mod_timer(&adapter->devdump_timer,
--			  jiffies + msecs_to_jiffies(MWIFIEX_TIMER_10S));
-+		schedule_delayed_work(&adapter->devdump_work,
-+				      msecs_to_jiffies(MWIFIEX_TIMER_10S));
- 	}
- 
- 	/* Overflow check */
-@@ -642,7 +642,7 @@ mwifiex_fw_dump_info_event(struct mwifiex_private *priv,
- 	return;
- 
- upload_dump:
--	del_timer_sync(&adapter->devdump_timer);
-+	cancel_delayed_work_sync(&adapter->devdump_work);
- 	mwifiex_upload_device_dump(adapter);
- }
- 
+-		if (chan->dir == EDMA_DIR_WRITE) {
++		if (dir == DMA_DEV_TO_MEM) {
+ 			burst->sar = src_addr;
+ 			if (xfer->cyclic) {
+ 				burst->dar = xfer->xfer.cyclic.paddr;
 -- 
 2.35.1
 
