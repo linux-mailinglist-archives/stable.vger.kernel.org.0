@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CA41599FA7
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D64599F18
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350087AbiHSPvM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:51:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52112 "EHLO
+        id S1349942AbiHSPvL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:51:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350234AbiHSPuG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:50:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 643FF105219;
-        Fri, 19 Aug 2022 08:47:58 -0700 (PDT)
+        with ESMTP id S1350134AbiHSPuO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:50:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06A1110522F;
+        Fri, 19 Aug 2022 08:48:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F255616B5;
-        Fri, 19 Aug 2022 15:47:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C06BC433D6;
-        Fri, 19 Aug 2022 15:47:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42115616F9;
+        Fri, 19 Aug 2022 15:48:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ECA5C433D6;
+        Fri, 19 Aug 2022 15:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924077;
-        bh=eH8DaH1rOHUDuA9B08awRUYCR1/DUe2jXgaguD0AhxA=;
+        s=korg; t=1660924079;
+        bh=ajfY1cKPPdwe5FTthnuG6ewUtH2PDjpg5AYoSXiLcqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0lPmnkSBQPz+kfQ4fbMvsUetRVe38Uqnoz0ChAf17KGOlpS6Qxw0QizA6YbWwvfW
-         IV9LqvFraEQdk0qDAAIwEn3R4hY6Sez3bdVEEwjkmnXAdre0SRnZeuy8TQWemJJyJY
-         5zte+PoTrGtPvSTPmfORA09VtEOuyHxux4x14LYI=
+        b=OK/KVC/goxsQo+WJzOa7rjzVsw/uQNT5E1DAnH72rvWwAfn5HzN8rHbjsb22ZBIQr
+         uruWOxxFJtsrb3zmwpPnmNZ3R48zLQ9XfA+34CVNozttUEORFPFt0fivdosRhDdOZ1
+         6DqhLJJY8hCduPOIes44wtuz3j5O2J7pzOCR083A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        David Airlie <airlied@linux.ie>
-Subject: [PATCH 5.10 046/545] drm/nouveau/acpi: Dont print error when we get -EINPROGRESS from pm_runtime
-Date:   Fri, 19 Aug 2022 17:36:56 +0200
-Message-Id: <20220819153831.277673694@linuxfoundation.org>
+        stable@vger.kernel.org, Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH 5.10 047/545] drm/amdgpu: Check BOs requested pinning domains against its preferred_domains
+Date:   Fri, 19 Aug 2022 17:36:57 +0200
+Message-Id: <20220819153831.317705356@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -53,32 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Leo Li <sunpeng.li@amd.com>
 
-commit 53c26181950ddc3c8ace3c0939c89e9c4d8deeb9 upstream.
+commit f5ba14043621f4afdf3ad5f92ee2d8dbebbe4340 upstream.
 
-Since this isn't actually a failure.
+When pinning a buffer, we should check to see if there are any
+additional restrictions imposed by bo->preferred_domains. This will
+prevent the BO from being moved to an invalid domain when pinning.
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Reviewed-by: David Airlie <airlied@linux.ie>
-Fixes: 79e765ad665d ("drm/nouveau/drm/nouveau: Prevent handling ACPI HPD events too early")
-Cc: <stable@vger.kernel.org> # v4.19+
-Link: https://patchwork.freedesktop.org/patch/msgid/20220714174234.949259-2-lyude@redhat.com
+For example, this can happen if the user requests to create a BO in GTT
+domain for display scanout. amdgpu_dm will allow pinning to either VRAM
+or GTT domains, since DCN can scanout from either or. However, in
+amdgpu_bo_pin_restricted(), pinning to VRAM is preferred if there is
+adequate carveout. This can lead to pinning to VRAM despite the user
+requesting GTT placement for the BO.
+
+v2: Allow the kernel to override the domain, which can happen when
+    exporting a BO to a V4L camera (for example).
+
+Signed-off-by: Leo Li <sunpeng.li@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_display.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/nouveau/nouveau_display.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_display.c
-@@ -543,7 +543,7 @@ nouveau_display_acpi_ntfy(struct notifie
- 				 * it's own hotplug events.
- 				 */
- 				pm_runtime_put_autosuspend(drm->dev->dev);
--			} else if (ret == 0) {
-+			} else if (ret == 0 || ret == -EINPROGRESS) {
- 				/* We've started resuming the GPU already, so
- 				 * it will handle scheduling a full reprobe
- 				 * itself
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+@@ -905,6 +905,10 @@ int amdgpu_bo_pin_restricted(struct amdg
+ 	if (WARN_ON_ONCE(min_offset > max_offset))
+ 		return -EINVAL;
+ 
++	/* Check domain to be pinned to against preferred domains */
++	if (bo->preferred_domains & domain)
++		domain = bo->preferred_domains & domain;
++
+ 	/* A shared bo cannot be migrated to VRAM */
+ 	if (bo->prime_shared_count) {
+ 		if (domain & AMDGPU_GEM_DOMAIN_GTT)
 
 
