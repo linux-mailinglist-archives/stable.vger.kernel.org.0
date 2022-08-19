@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B28E559A48D
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B43759A491
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:05:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353376AbiHSQmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:42:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40448 "EHLO
+        id S1353400AbiHSQjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:39:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353882AbiHSQlM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:41:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE81D1256DB;
-        Fri, 19 Aug 2022 09:09:24 -0700 (PDT)
+        with ESMTP id S1353434AbiHSQhk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:37:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EACBE123C8A;
+        Fri, 19 Aug 2022 09:07:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D9E661838;
-        Fri, 19 Aug 2022 16:08:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F45CC433D7;
-        Fri, 19 Aug 2022 16:08:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0CD8B82802;
+        Fri, 19 Aug 2022 16:07:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A830C433C1;
+        Fri, 19 Aug 2022 16:07:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925293;
-        bh=zrrn6LAh6NYx6fLBmOiaBaMtl8pQ4I2f5vpr76aVJU4=;
+        s=korg; t=1660925264;
+        bh=MR/WQ03ufFX6kSt75F16agGty5l0x1n6KmHP4Yzz8Ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xJdMp2tLEumL1h05TGJd+6/hpBa2LPj0qaqDl1uZ3IWwjnP9tDASMauD4fuyeZUZO
-         9Hh3vlROK0rRyU+xcCJurEd8X7D/uzFP1cvB+n9YY/CADh9vT5HKoypLlaSRyVw6Hk
-         zORc1/7YMcLcUI76Wl7ALKs4+ggSXviTipy7W88s=
+        b=M/DsuYBV/iF62Sz23gIK4fsugyijXqXiRhCIc+/eapZA3QpqE28qhcZNSW8wa+OkR
+         U4XfXYC8MomHUrMKq+C+levOef4qwnPXs0wutO/devvR6vdaJ0tzoUdhvpwUW2PGMA
+         gPXc7LHQwvjbpi7U+UjS/ih6IzEI3G8TvqsFG9+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 406/545] s390/dump: fix old lowcore virtual vs physical address confusion
-Date:   Fri, 19 Aug 2022 17:42:56 +0200
-Message-Id: <20220819153847.598763008@linuxfoundation.org>
+Subject: [PATCH 5.10 409/545] ASoC: qcom: q6dsp: Fix an off-by-one in q6adm_alloc_copp()
+Date:   Fri, 19 Aug 2022 17:42:59 +0200
+Message-Id: <20220819153847.729459572@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,80 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit dc306186a130c6d9feb0aabc1c71b8ed1674a3bf ]
+[ Upstream commit 673f58f62ca6fc98979d1cf3fe89c3ff33f29b2e ]
 
-Virtual addresses of vmcore_info and os_info members are
-wrongly passed to copy_oldmem_kernel(), while the function
-expects physical address of the source. Instead, __pa()
-macro should have been applied.
+find_first_zero_bit() returns MAX_COPPS_PER_PORT at max here.
+So 'idx' should be tested with ">=" or the test can't match.
 
-Yet, use of __pa() macro could be somehow confusing, since
-copy_oldmem_kernel() may treat the source as an offset, not
-as a direct physical address (that depens from the oldmem
-availability and location).
-
-Fix the virtual vs physical address confusion and make the
-way the old lowcore is read consistent across all sources.
-
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 7b20b2be51e1 ("ASoC: qdsp6: q6adm: Add q6adm driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/0fca3271649736053eb9649d87e1ca01b056be40.1658394124.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/asm-offsets.c | 2 ++
- arch/s390/kernel/crash_dump.c  | 2 +-
- arch/s390/kernel/os_info.c     | 3 ++-
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ sound/soc/qcom/qdsp6/q6adm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
-index 483051e10db3..e070073930a9 100644
---- a/arch/s390/kernel/asm-offsets.c
-+++ b/arch/s390/kernel/asm-offsets.c
-@@ -150,6 +150,8 @@ int main(void)
- 	OFFSET(__LC_BR_R1, lowcore, br_r1_trampoline);
- 	/* software defined ABI-relevant lowcore locations 0xe00 - 0xe20 */
- 	OFFSET(__LC_DUMP_REIPL, lowcore, ipib);
-+	OFFSET(__LC_VMCORE_INFO, lowcore, vmcore_info);
-+	OFFSET(__LC_OS_INFO, lowcore, os_info);
- 	/* hardware defined lowcore locations 0x1000 - 0x18ff */
- 	OFFSET(__LC_MCESAD, lowcore, mcesad);
- 	OFFSET(__LC_EXT_PARAMS2, lowcore, ext_params2);
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index 205b2e2648aa..76762dc67ca9 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -432,7 +432,7 @@ static void *get_vmcoreinfo_old(unsigned long *size)
- 	Elf64_Nhdr note;
- 	void *addr;
+diff --git a/sound/soc/qcom/qdsp6/q6adm.c b/sound/soc/qcom/qdsp6/q6adm.c
+index 72f29720398c..182d36a34faf 100644
+--- a/sound/soc/qcom/qdsp6/q6adm.c
++++ b/sound/soc/qcom/qdsp6/q6adm.c
+@@ -217,7 +217,7 @@ static struct q6copp *q6adm_alloc_copp(struct q6adm *adm, int port_idx)
+ 	idx = find_first_zero_bit(&adm->copp_bitmap[port_idx],
+ 				  MAX_COPPS_PER_PORT);
  
--	if (copy_oldmem_kernel(&addr, &S390_lowcore.vmcore_info, sizeof(addr)))
-+	if (copy_oldmem_kernel(&addr, (void *)__LC_VMCORE_INFO, sizeof(addr)))
- 		return NULL;
- 	memset(nt_name, 0, sizeof(nt_name));
- 	if (copy_oldmem_kernel(&note, addr, sizeof(note)))
-diff --git a/arch/s390/kernel/os_info.c b/arch/s390/kernel/os_info.c
-index 0a5e4bafb6ad..1b8e2aff20e3 100644
---- a/arch/s390/kernel/os_info.c
-+++ b/arch/s390/kernel/os_info.c
-@@ -15,6 +15,7 @@
- #include <asm/checksum.h>
- #include <asm/lowcore.h>
- #include <asm/os_info.h>
-+#include <asm/asm-offsets.h>
+-	if (idx > MAX_COPPS_PER_PORT)
++	if (idx >= MAX_COPPS_PER_PORT)
+ 		return ERR_PTR(-EBUSY);
  
- /*
-  * OS info structure has to be page aligned
-@@ -123,7 +124,7 @@ static void os_info_old_init(void)
- 		return;
- 	if (!OLDMEM_BASE)
- 		goto fail;
--	if (copy_oldmem_kernel(&addr, &S390_lowcore.os_info, sizeof(addr)))
-+	if (copy_oldmem_kernel(&addr, (void *)__LC_OS_INFO, sizeof(addr)))
- 		goto fail;
- 	if (addr == 0 || addr % PAGE_SIZE)
- 		goto fail;
+ 	c = kzalloc(sizeof(*c), GFP_ATOMIC);
 -- 
 2.35.1
 
