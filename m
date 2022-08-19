@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6964E599F17
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73FDE599FF5
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352055AbiHSQTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:19:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46808 "EHLO
+        id S1352062AbiHSQTW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:19:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352511AbiHSQQ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:16:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C5C21175DE;
-        Fri, 19 Aug 2022 09:00:07 -0700 (PDT)
+        with ESMTP id S1352507AbiHSQQ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:16:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77612117746;
+        Fri, 19 Aug 2022 09:00:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80FCFB8280F;
-        Fri, 19 Aug 2022 16:00:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A60C433C1;
-        Fri, 19 Aug 2022 16:00:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AC5A617A6;
+        Fri, 19 Aug 2022 16:00:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0F1BC433D7;
+        Fri, 19 Aug 2022 16:00:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924806;
-        bh=RC6lXEymBzfAqCZ9b6uCBQLC/nq3rGk6sjYUMbqsevM=;
+        s=korg; t=1660924809;
+        bh=gGfAA5KNw0nD+54rO+uIFUWNqXpcq6SPs2gFcs7Wx+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cIxQkf8nqAF4tUWWUa4Yty6/2hKPLQZI5GEc51PjhwmApRafHd3BjIZiAAA0I6wGR
-         qGbsWQWXUPhLlOdJJpsmGDq5jphXli8EwR7mrDhpi79J2slYDbdsGbXgNAy/biaYKU
-         EjqOr8bBTyb2TPKNbEW0B1e4Py2VCOYUrczs+otk=
+        b=nA3/NG1Lu6X4FW4QbEbWJwbNQZ+t7dgs4HKsA7nxQi4Spem0ecAFN/9qyuGDUDvOL
+         j5p2OqUjyxBmgO9GUoh9rAWNzj+M5KktbnXF878ZJcUGI4Ct7bhsM+h2iyVTpiEAOc
+         cFuCM7yWQuzUMFsqQJV6IsuMIcuUAa6KpIqEFdWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Duoming Zhou <duoming@zju.edu.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 289/545] mwifiex: Ignore BTCOEX events from the 88W8897 firmware
-Date:   Fri, 19 Aug 2022 17:40:59 +0200
-Message-Id: <20220819153842.266637844@linuxfoundation.org>
+Subject: [PATCH 5.10 290/545] mwifiex: fix sleep in atomic context bugs caused by dev_coredumpv
+Date:   Fri, 19 Aug 2022 17:41:00 +0200
+Message-Id: <20220819153842.313013538@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,76 +54,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Dreßler <verdre@v0yd.nl>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 84d94e16efa268e4f2887d858cd67ee37b870f25 ]
+[ Upstream commit a52ed4866d2b90dd5e4ae9dabd453f3ed8fa3cbc ]
 
-The firmware of the 88W8897 PCIe+USB card sends those events very
-unreliably, sometimes bluetooth together with 2.4ghz-wifi is used and no
-COEX event comes in, and sometimes bluetooth is disabled but the
-coexistance mode doesn't get disabled.
+There are sleep in atomic context bugs when uploading device dump
+data in mwifiex. The root cause is that dev_coredumpv could not
+be used in atomic contexts, because it calls dev_set_name which
+include operations that may sleep. The call tree shows execution
+paths that could lead to bugs:
 
-This means we sometimes end up capping the rx/tx window size while
-bluetooth is not enabled anymore, artifically limiting wifi speeds even
-though bluetooth is not being used.
+   (Interrupt context)
+fw_dump_timer_fn
+  mwifiex_upload_device_dump
+    dev_coredumpv(..., GFP_KERNEL)
+      dev_coredumpm()
+        kzalloc(sizeof(*devcd), gfp); //may sleep
+        dev_set_name
+          kobject_set_name_vargs
+            kvasprintf_const(GFP_KERNEL, ...); //may sleep
+            kstrdup(s, GFP_KERNEL); //may sleep
 
-Since we can't fix the firmware, let's just ignore those events on the
-88W8897 device. From some Wireshark capture sessions it seems that the
-Windows driver also doesn't change the rx/tx window sizes when bluetooth
-gets enabled or disabled, so this is fairly consistent with the Windows
-driver.
+The corresponding fail log is shown below:
 
-Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211103205827.14559-1-verdre@v0yd.nl
+[  135.275938] usb 1-1: == mwifiex dump information to /sys/class/devcoredump start
+[  135.281029] BUG: sleeping function called from invalid context at include/linux/sched/mm.h:265
+...
+[  135.293613] Call Trace:
+[  135.293613]  <IRQ>
+[  135.293613]  dump_stack_lvl+0x57/0x7d
+[  135.293613]  __might_resched.cold+0x138/0x173
+[  135.293613]  ? dev_coredumpm+0xca/0x2e0
+[  135.293613]  kmem_cache_alloc_trace+0x189/0x1f0
+[  135.293613]  ? devcd_match_failing+0x30/0x30
+[  135.293613]  dev_coredumpm+0xca/0x2e0
+[  135.293613]  ? devcd_freev+0x10/0x10
+[  135.293613]  dev_coredumpv+0x1c/0x20
+[  135.293613]  ? devcd_match_failing+0x30/0x30
+[  135.293613]  mwifiex_upload_device_dump+0x65/0xb0
+[  135.293613]  ? mwifiex_dnld_fw+0x1b0/0x1b0
+[  135.293613]  call_timer_fn+0x122/0x3d0
+[  135.293613]  ? msleep_interruptible+0xb0/0xb0
+[  135.293613]  ? lock_downgrade+0x3c0/0x3c0
+[  135.293613]  ? __next_timer_interrupt+0x13c/0x160
+[  135.293613]  ? lockdep_hardirqs_on_prepare+0xe/0x220
+[  135.293613]  ? mwifiex_dnld_fw+0x1b0/0x1b0
+[  135.293613]  __run_timers.part.0+0x3f8/0x540
+[  135.293613]  ? call_timer_fn+0x3d0/0x3d0
+[  135.293613]  ? arch_restore_msi_irqs+0x10/0x10
+[  135.293613]  ? lapic_next_event+0x31/0x40
+[  135.293613]  run_timer_softirq+0x4f/0xb0
+[  135.293613]  __do_softirq+0x1c2/0x651
+...
+[  135.293613] RIP: 0010:default_idle+0xb/0x10
+[  135.293613] RSP: 0018:ffff888006317e68 EFLAGS: 00000246
+[  135.293613] RAX: ffffffff82ad8d10 RBX: ffff888006301cc0 RCX: ffffffff82ac90e1
+[  135.293613] RDX: ffffed100d9ff1b4 RSI: ffffffff831ad140 RDI: ffffffff82ad8f20
+[  135.293613] RBP: 0000000000000003 R08: 0000000000000000 R09: ffff88806cff8d9b
+[  135.293613] R10: ffffed100d9ff1b3 R11: 0000000000000001 R12: ffffffff84593410
+[  135.293613] R13: 0000000000000000 R14: 0000000000000000 R15: 1ffff11000c62fd2
+...
+[  135.389205] usb 1-1: == mwifiex dump information to /sys/class/devcoredump end
+
+This patch uses delayed work to replace timer and moves the operations
+that may sleep into a delayed work in order to mitigate bugs, it was
+tested on Marvell 88W8801 chip whose port is usb and the firmware is
+usb8801_uapsta.bin. The following is the result after using delayed
+work to replace timer.
+
+[  134.936453] usb 1-1: == mwifiex dump information to /sys/class/devcoredump start
+[  135.043344] usb 1-1: == mwifiex dump information to /sys/class/devcoredump end
+
+As we can see, there is no bug now.
+
+Fixes: f5ecd02a8b20 ("mwifiex: device dump support for usb interface")
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/b63b77fc84ed3e8a6bef02378e17c7c71a0bc3be.1654569290.git.duoming@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/main.h      | 2 ++
- drivers/net/wireless/marvell/mwifiex/pcie.c      | 3 +++
- drivers/net/wireless/marvell/mwifiex/sta_event.c | 3 +++
- 3 files changed, 8 insertions(+)
+ drivers/net/wireless/marvell/mwifiex/init.c      | 9 +++++----
+ drivers/net/wireless/marvell/mwifiex/main.h      | 3 ++-
+ drivers/net/wireless/marvell/mwifiex/sta_event.c | 6 +++---
+ 3 files changed, 10 insertions(+), 8 deletions(-)
 
+diff --git a/drivers/net/wireless/marvell/mwifiex/init.c b/drivers/net/wireless/marvell/mwifiex/init.c
+index f006a3d72b40..e5bb240eb3ed 100644
+--- a/drivers/net/wireless/marvell/mwifiex/init.c
++++ b/drivers/net/wireless/marvell/mwifiex/init.c
+@@ -63,9 +63,10 @@ static void wakeup_timer_fn(struct timer_list *t)
+ 		adapter->if_ops.card_reset(adapter);
+ }
+ 
+-static void fw_dump_timer_fn(struct timer_list *t)
++static void fw_dump_work(struct work_struct *work)
+ {
+-	struct mwifiex_adapter *adapter = from_timer(adapter, t, devdump_timer);
++	struct mwifiex_adapter *adapter =
++		container_of(work, struct mwifiex_adapter, devdump_work.work);
+ 
+ 	mwifiex_upload_device_dump(adapter);
+ }
+@@ -321,7 +322,7 @@ static void mwifiex_init_adapter(struct mwifiex_adapter *adapter)
+ 	adapter->active_scan_triggered = false;
+ 	timer_setup(&adapter->wakeup_timer, wakeup_timer_fn, 0);
+ 	adapter->devdump_len = 0;
+-	timer_setup(&adapter->devdump_timer, fw_dump_timer_fn, 0);
++	INIT_DELAYED_WORK(&adapter->devdump_work, fw_dump_work);
+ }
+ 
+ /*
+@@ -400,7 +401,7 @@ static void
+ mwifiex_adapter_cleanup(struct mwifiex_adapter *adapter)
+ {
+ 	del_timer(&adapter->wakeup_timer);
+-	del_timer_sync(&adapter->devdump_timer);
++	cancel_delayed_work_sync(&adapter->devdump_work);
+ 	mwifiex_cancel_all_pending_cmd(adapter);
+ 	wake_up_interruptible(&adapter->cmd_wait_q.wait);
+ 	wake_up_interruptible(&adapter->hs_activate_wait_q);
 diff --git a/drivers/net/wireless/marvell/mwifiex/main.h b/drivers/net/wireless/marvell/mwifiex/main.h
-index 5923c5c14c8d..f4e3dce10d65 100644
+index f4e3dce10d65..3357cb7a5230 100644
 --- a/drivers/net/wireless/marvell/mwifiex/main.h
 +++ b/drivers/net/wireless/marvell/mwifiex/main.h
-@@ -1054,6 +1054,8 @@ struct mwifiex_adapter {
+@@ -49,6 +49,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
+ #include <linux/of_irq.h>
++#include <linux/workqueue.h>
+ 
+ #include "decl.h"
+ #include "ioctl.h"
+@@ -1053,7 +1054,7 @@ struct mwifiex_adapter {
+ 	/* Device dump data/length */
  	void *devdump_data;
  	int devdump_len;
- 	struct timer_list devdump_timer;
-+
-+	bool ignore_btcoex_events;
+-	struct timer_list devdump_timer;
++	struct delayed_work devdump_work;
+ 
+ 	bool ignore_btcoex_events;
  };
- 
- void mwifiex_process_tx_queue(struct mwifiex_adapter *adapter);
-diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
-index 7c137eba8cda..b0024893a1cb 100644
---- a/drivers/net/wireless/marvell/mwifiex/pcie.c
-+++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
-@@ -3142,6 +3142,9 @@ static int mwifiex_init_pcie(struct mwifiex_adapter *adapter)
- 	if (ret)
- 		goto err_alloc_buffers;
- 
-+	if (pdev->device == PCIE_DEVICE_ID_MARVELL_88W8897)
-+		adapter->ignore_btcoex_events = true;
-+
- 	return 0;
- 
- err_alloc_buffers:
 diff --git a/drivers/net/wireless/marvell/mwifiex/sta_event.c b/drivers/net/wireless/marvell/mwifiex/sta_event.c
-index 753458628f86..05073a49ab5f 100644
+index 05073a49ab5f..069d47b59f9f 100644
 --- a/drivers/net/wireless/marvell/mwifiex/sta_event.c
 +++ b/drivers/net/wireless/marvell/mwifiex/sta_event.c
-@@ -1061,6 +1061,9 @@ int mwifiex_process_sta_event(struct mwifiex_private *priv)
- 		break;
- 	case EVENT_BT_COEX_WLAN_PARA_CHANGE:
- 		dev_dbg(adapter->dev, "EVENT: BT coex wlan param update\n");
-+		if (adapter->ignore_btcoex_events)
-+			break;
-+
- 		mwifiex_bt_coex_wlan_param_update_event(priv,
- 							adapter->event_skb);
- 		break;
+@@ -622,8 +622,8 @@ mwifiex_fw_dump_info_event(struct mwifiex_private *priv,
+ 		 * transmission event get lost, in this cornel case,
+ 		 * user would still get partial of the dump.
+ 		 */
+-		mod_timer(&adapter->devdump_timer,
+-			  jiffies + msecs_to_jiffies(MWIFIEX_TIMER_10S));
++		schedule_delayed_work(&adapter->devdump_work,
++				      msecs_to_jiffies(MWIFIEX_TIMER_10S));
+ 	}
+ 
+ 	/* Overflow check */
+@@ -642,7 +642,7 @@ mwifiex_fw_dump_info_event(struct mwifiex_private *priv,
+ 	return;
+ 
+ upload_dump:
+-	del_timer_sync(&adapter->devdump_timer);
++	cancel_delayed_work_sync(&adapter->devdump_work);
+ 	mwifiex_upload_device_dump(adapter);
+ }
+ 
 -- 
 2.35.1
 
