@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6E80599FFD
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E36759A0FE
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352493AbiHSQVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:21:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52070 "EHLO
+        id S1349849AbiHSQVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:21:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352070AbiHSQTK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:19:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECBB611847D;
-        Fri, 19 Aug 2022 09:01:06 -0700 (PDT)
+        with ESMTP id S1352220AbiHSQUU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:20:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2A5FED004;
+        Fri, 19 Aug 2022 09:01:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A7D2616B3;
-        Fri, 19 Aug 2022 16:01:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 476C7C433C1;
-        Fri, 19 Aug 2022 16:01:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9066B8280D;
+        Fri, 19 Aug 2022 16:01:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CB83C433D6;
+        Fri, 19 Aug 2022 16:01:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924861;
-        bh=mZdDAXadWmFIttx25Wr5E6+vtakiqgoPmNDTMADLk1g=;
+        s=korg; t=1660924867;
+        bh=daebPpSAZ226xpg22SGy4zNmGUBZwGgYc0R6kPi30Yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PK51UMTC4KyueqAX06S2EXIGubf38x7Np7bw+DYAx/Hi1LHoJzq7jKj+OCGUH4PcH
-         5tKmiuwfT7kJTRbWIHGvJ8t1/X8HAK0ksjNJGbq2FvUqsrxI5TEzXvnq374qkMH7rM
-         jfvFUh+aSf5rmu/irKcBkLZFJa/ev4PerDtlFjPc=
+        b=ctm4AjyyoveXfujAvSBrycw0nifqokMtqJtxhY1k0VKKclfkZGx6gWEvWhGT2ML91
+         kOPt6dJsyqZPhhfp7T0qARLVikrfxhJXz8OV8bvE507bWI+/V9QEdGLiZqobq72LLu
+         1J8RMF0ywb6jIMcgj6bLc42AQaAQpR6Ef0DaLXpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Austin Kim <austin.kim@lge.com>,
+        stable@vger.kernel.org,
+        Viacheslav Mitrofanov <v.v.mitrofanov@yadro.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 306/545] dmaengine: sf-pdma: apply proper spinlock flags in sf_pdma_prep_dma_memcpy()
-Date:   Fri, 19 Aug 2022 17:41:16 +0200
-Message-Id: <20220819153843.043321900@linuxfoundation.org>
+Subject: [PATCH 5.10 307/545] dmaengine: sf-pdma: Add multithread support for a DMA channel
+Date:   Fri, 19 Aug 2022 17:41:17 +0200
+Message-Id: <20220819153843.091778469@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -53,49 +54,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Austin Kim <austin.kim@lge.com>
+From: Viacheslav Mitrofanov <v.v.mitrofanov@yadro.com>
 
-[ Upstream commit 94b4cd7c5fc0dd6858a046b00ca729fb0512b9ba ]
+[ Upstream commit b2cc5c465c2cb8ab697c3fd6583c614e3f6cfbcc ]
 
-The second parameter of spinlock_irq[save/restore] function is flags,
-which is the last input parameter of sf_pdma_prep_dma_memcpy().
+When we get a DMA channel and try to use it in multiple threads it
+will cause oops and hanging the system.
 
-So declare local variable 'iflags' to be used as the second parameter of
-spinlock_irq[save/restore] function.
+% echo 64 > /sys/module/dmatest/parameters/threads_per_chan
+% echo 10000 > /sys/module/dmatest/parameters/iterations
+% echo 1 > /sys/module/dmatest/parameters/run
+[   89.480664] Unable to handle kernel NULL pointer dereference at virtual
+               address 00000000000000a0
+[   89.488725] Oops [#1]
+[   89.494708] CPU: 2 PID: 1008 Comm: dma0chan0-copy0 Not tainted
+               5.17.0-rc5
+[   89.509385] epc : vchan_find_desc+0x32/0x46
+[   89.513553]  ra : sf_pdma_tx_status+0xca/0xd6
 
-Signed-off-by: Austin Kim <austin.kim@lge.com>
-Link: https://lore.kernel.org/r/20210611065336.GA1121@raspberrypi
+This happens because of data race. Each thread rewrite channels's
+descriptor as soon as device_prep_dma_memcpy() is called. It leads to the
+situation when the driver thinks that it uses right descriptor that
+actually is freed or substituted for other one.
+
+With current fixes a descriptor changes its value only when it has
+been used. A new descriptor is acquired from vc->desc_issued queue that
+is already filled with descriptors that are ready to be sent. Threads
+have no direct access to DMA channel descriptor. Now it is just possible
+to queue a descriptor for further processing.
+
+Fixes: 6973886ad58e ("dmaengine: sf-pdma: add platform DMA support for HiFive Unleashed A00")
+Signed-off-by: Viacheslav Mitrofanov <v.v.mitrofanov@yadro.com>
+Link: https://lore.kernel.org/r/20220701082942.12835-1-v.v.mitrofanov@yadro.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sf-pdma/sf-pdma.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/dma/sf-pdma/sf-pdma.c | 44 ++++++++++++++++++++++++-----------
+ 1 file changed, 30 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/dma/sf-pdma/sf-pdma.c b/drivers/dma/sf-pdma/sf-pdma.c
-index 528deb5d9f31..1cd2d7df9715 100644
+index 1cd2d7df9715..5c615a8b514b 100644
 --- a/drivers/dma/sf-pdma/sf-pdma.c
 +++ b/drivers/dma/sf-pdma/sf-pdma.c
-@@ -94,6 +94,7 @@ sf_pdma_prep_dma_memcpy(struct dma_chan *dchan,	dma_addr_t dest, dma_addr_t src,
+@@ -52,16 +52,6 @@ static inline struct sf_pdma_desc *to_sf_pdma_desc(struct virt_dma_desc *vd)
+ static struct sf_pdma_desc *sf_pdma_alloc_desc(struct sf_pdma_chan *chan)
  {
- 	struct sf_pdma_chan *chan = to_sf_pdma_chan(dchan);
  	struct sf_pdma_desc *desc;
-+	unsigned long iflags;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&chan->lock, flags);
+-
+-	if (chan->desc && !chan->desc->in_use) {
+-		spin_unlock_irqrestore(&chan->lock, flags);
+-		return chan->desc;
+-	}
+-
+-	spin_unlock_irqrestore(&chan->lock, flags);
  
- 	if (chan && (!len || !dest || !src)) {
- 		dev_err(chan->pdma->dma_dev.dev,
-@@ -109,10 +110,10 @@ sf_pdma_prep_dma_memcpy(struct dma_chan *dchan,	dma_addr_t dest, dma_addr_t src,
- 	desc->dirn = DMA_MEM_TO_MEM;
+ 	desc = kzalloc(sizeof(*desc), GFP_NOWAIT);
+ 	if (!desc)
+@@ -111,7 +101,6 @@ sf_pdma_prep_dma_memcpy(struct dma_chan *dchan,	dma_addr_t dest, dma_addr_t src,
  	desc->async_tx = vchan_tx_prep(&chan->vchan, &desc->vdesc, flags);
  
--	spin_lock_irqsave(&chan->vchan.lock, flags);
-+	spin_lock_irqsave(&chan->vchan.lock, iflags);
- 	chan->desc = desc;
+ 	spin_lock_irqsave(&chan->vchan.lock, iflags);
+-	chan->desc = desc;
  	sf_pdma_fill_desc(desc, dest, src, len);
--	spin_unlock_irqrestore(&chan->vchan.lock, flags);
-+	spin_unlock_irqrestore(&chan->vchan.lock, iflags);
+ 	spin_unlock_irqrestore(&chan->vchan.lock, iflags);
  
- 	return desc->async_tx;
+@@ -170,11 +159,17 @@ static size_t sf_pdma_desc_residue(struct sf_pdma_chan *chan,
+ 	unsigned long flags;
+ 	u64 residue = 0;
+ 	struct sf_pdma_desc *desc;
+-	struct dma_async_tx_descriptor *tx;
++	struct dma_async_tx_descriptor *tx = NULL;
+ 
+ 	spin_lock_irqsave(&chan->vchan.lock, flags);
+ 
+-	tx = &chan->desc->vdesc.tx;
++	list_for_each_entry(vd, &chan->vchan.desc_submitted, node)
++		if (vd->tx.cookie == cookie)
++			tx = &vd->tx;
++
++	if (!tx)
++		goto out;
++
+ 	if (cookie == tx->chan->completed_cookie)
+ 		goto out;
+ 
+@@ -241,6 +236,19 @@ static void sf_pdma_enable_request(struct sf_pdma_chan *chan)
+ 	writel(v, regs->ctrl);
  }
+ 
++static struct sf_pdma_desc *sf_pdma_get_first_pending_desc(struct sf_pdma_chan *chan)
++{
++	struct virt_dma_chan *vchan = &chan->vchan;
++	struct virt_dma_desc *vdesc;
++
++	if (list_empty(&vchan->desc_issued))
++		return NULL;
++
++	vdesc = list_first_entry(&vchan->desc_issued, struct virt_dma_desc, node);
++
++	return container_of(vdesc, struct sf_pdma_desc, vdesc);
++}
++
+ static void sf_pdma_xfer_desc(struct sf_pdma_chan *chan)
+ {
+ 	struct sf_pdma_desc *desc = chan->desc;
+@@ -268,8 +276,11 @@ static void sf_pdma_issue_pending(struct dma_chan *dchan)
+ 
+ 	spin_lock_irqsave(&chan->vchan.lock, flags);
+ 
+-	if (vchan_issue_pending(&chan->vchan) && chan->desc)
++	if (!chan->desc && vchan_issue_pending(&chan->vchan)) {
++		/* vchan_issue_pending has made a check that desc in not NULL */
++		chan->desc = sf_pdma_get_first_pending_desc(chan);
+ 		sf_pdma_xfer_desc(chan);
++	}
+ 
+ 	spin_unlock_irqrestore(&chan->vchan.lock, flags);
+ }
+@@ -298,6 +309,11 @@ static void sf_pdma_donebh_tasklet(struct tasklet_struct *t)
+ 	spin_lock_irqsave(&chan->vchan.lock, flags);
+ 	list_del(&chan->desc->vdesc.node);
+ 	vchan_cookie_complete(&chan->desc->vdesc);
++
++	chan->desc = sf_pdma_get_first_pending_desc(chan);
++	if (chan->desc)
++		sf_pdma_xfer_desc(chan);
++
+ 	spin_unlock_irqrestore(&chan->vchan.lock, flags);
+ }
+ 
 -- 
 2.35.1
 
