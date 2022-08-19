@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70FF859A1C8
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7237159A123
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350695AbiHSP44 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:56:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39932 "EHLO
+        id S1350657AbiHSP4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:56:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350948AbiHSP4F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:56:05 -0400
+        with ESMTP id S1350861AbiHSPzy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:55:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED7B810521C;
-        Fri, 19 Aug 2022 08:50:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E19910522D;
+        Fri, 19 Aug 2022 08:50:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF0DDB82813;
-        Fri, 19 Aug 2022 15:50:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDB76C433D7;
-        Fri, 19 Aug 2022 15:50:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96015B82812;
+        Fri, 19 Aug 2022 15:50:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDCF3C433C1;
+        Fri, 19 Aug 2022 15:50:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924231;
-        bh=YWfPQ3t+jkwgV2snpf/9bjEHZjXzjouQLMHW9tuflZw=;
+        s=korg; t=1660924234;
+        bh=hwBSpc7erig/674qMUa5THYn7tKXm6QBe24djanajcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yx22Ea2TckR53pfmSXtf+cnpeknZnO8zG7rviqlI6TkCbg8WT6PsVMDpRf8PO6SgK
-         wUew2FQfDMnULaaY99HiUrPJTTxiLdGHY/QNxyCq0h5tdiBZXfMN4p5pOftDqwTns0
-         TBmNCQALp6Bv/r6BSnyVJjDCTs6uNG/tYvjVX18M=
+        b=11OIJrzOBXlEF/hw++wClartAFy+ho27mll2Ky3P9oc3kMhMFMpyiWvc52pTtRq7f
+         6qLsyE8iagJs2eGeNXEikr1LzSM7Ydl9sMl6z3V+8+2qhG3p0bK5eqhHItpPsGdr/x
+         Rjn+fw8ugnhwZGrwUVJBR26etINkDYo3cM8Va7qQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 100/545] arm64: dts: allwinner: a64: orangepi-win: Fix LED node name
-Date:   Fri, 19 Aug 2022 17:37:50 +0200
-Message-Id: <20220819153833.760276079@linuxfoundation.org>
+Subject: [PATCH 5.10 101/545] ARM: shmobile: rcar-gen2: Increase refcount for new reference
+Date:   Fri, 19 Aug 2022 17:37:51 +0200
+Message-Id: <20220819153833.795054640@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,35 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit b8eb2df19fbf97aa1e950cf491232c2e3bef8357 ]
+[ Upstream commit 75a185fb92e58ccd3670258d8d3b826bd2fa6d29 ]
 
-"status" does not match any pattern in the gpio-leds binding. Rename the
-node to the preferred pattern. This fixes a `make dtbs_check` error.
+In rcar_gen2_regulator_quirk(), for_each_matching_node_and_match() will
+automatically increase and decrease the refcount.  However, we should
+call of_node_get() for the new reference created in 'quirk->np'.
+Besides, we also should call of_node_put() before the 'quirk' being
+freed.
 
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220702132816.46456-1-samuel@sholland.org
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220701121804.234223-1-windhl@126.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts
-index 70e31743f0ba..3c08497568ea 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts
-@@ -40,7 +40,7 @@ hdmi_con_in: endpoint {
- 	leds {
- 		compatible = "gpio-leds";
+diff --git a/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c b/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
+index 09ef73b99dd8..ba44cec5e59a 100644
+--- a/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
++++ b/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
+@@ -125,6 +125,7 @@ static int regulator_quirk_notify(struct notifier_block *nb,
  
--		status {
-+		led-0 {
- 			label = "orangepi:green:status";
- 			gpios = <&pio 7 11 GPIO_ACTIVE_HIGH>; /* PH11 */
- 		};
+ 	list_for_each_entry_safe(pos, tmp, &quirk_list, list) {
+ 		list_del(&pos->list);
++		of_node_put(pos->np);
+ 		kfree(pos);
+ 	}
+ 
+@@ -174,11 +175,12 @@ static int __init rcar_gen2_regulator_quirk(void)
+ 		memcpy(&quirk->i2c_msg, id->data, sizeof(quirk->i2c_msg));
+ 
+ 		quirk->id = id;
+-		quirk->np = np;
++		quirk->np = of_node_get(np);
+ 		quirk->i2c_msg.addr = addr;
+ 
+ 		ret = of_irq_parse_one(np, 0, argsa);
+ 		if (ret) {	/* Skip invalid entry and continue */
++			of_node_put(np);
+ 			kfree(quirk);
+ 			continue;
+ 		}
+@@ -225,6 +227,7 @@ static int __init rcar_gen2_regulator_quirk(void)
+ err_mem:
+ 	list_for_each_entry_safe(pos, tmp, &quirk_list, list) {
+ 		list_del(&pos->list);
++		of_node_put(pos->np);
+ 		kfree(pos);
+ 	}
+ 
 -- 
 2.35.1
 
