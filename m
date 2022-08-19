@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7C2759A282
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF5F59A278
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353275AbiHSQhS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:37:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58928 "EHLO
+        id S1353233AbiHSQgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:36:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353382AbiHSQfh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:35:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4561B107AF3;
-        Fri, 19 Aug 2022 09:07:24 -0700 (PDT)
+        with ESMTP id S1353553AbiHSQg1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:36:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BE9F122DA8;
+        Fri, 19 Aug 2022 09:07:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7892B82813;
-        Fri, 19 Aug 2022 16:07:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18DDDC433C1;
-        Fri, 19 Aug 2022 16:07:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DE21617A5;
+        Fri, 19 Aug 2022 16:07:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C2E5C43147;
+        Fri, 19 Aug 2022 16:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925233;
-        bh=ylVkh8v+450dEiwjru0VBg5cl/Fq58A+w4Oz09L0Oco=;
+        s=korg; t=1660925239;
+        bh=Mt7AGGcZfiDtZCpqwjCJ+SIH9BMtPjFp1JhQA7qDVTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qo4Gsn9lWrliddcyb1ORKSl3JUWJ+m6slNc2Vb/5WVwktOeYZzqF39hGLf0zNEJiN
-         4PQyAUUIugUv7d8a6yj4ibeeZDBlpU6SgIKAz/gRc0bwXnOeVFUpmJ9c1voEp7bsrm
-         I1U+zIdB5Anm6PwPO+PZNNqFE8sZ6RpAi1dT84L4=
+        b=Yg7bQUMc5yInDwMRGuxNCQGIW8VJEOjbeqHUaXEE6uSkjAAVtGGJfrQtnQa+cgRGx
+         NtfCVWY3XUH+6DSZQXrs2y7qFXPPZlUKMRSg86jmLQ2L91ay68yXvsarGDRckl9/Wo
+         1LZs6wjGxHm2ke/+plVvjQnlB80HVIKfXP726OwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 426/545] powerpc/pci: Fix PHB numbering when using opal-phbid
-Date:   Fri, 19 Aug 2022 17:43:16 +0200
-Message-Id: <20220819153848.477906421@linuxfoundation.org>
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 428/545] scripts/faddr2line: Fix vmlinux detection on arm64
+Date:   Fri, 19 Aug 2022 17:43:18 +0200
+Message-Id: <20220819153848.562615132@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,56 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-[ Upstream commit f4b39e88b42d13366b831270306326b5c20971ca ]
+[ Upstream commit b6a5068854cfe372da7dee3224dcf023ed5b00cb ]
 
-The recent change to the PHB numbering logic has a logic error in the
-handling of "ibm,opal-phbid".
+Since commit dcea997beed6 ("faddr2line: Fix overlapping text section
+failures, the sequel"), faddr2line is completely broken on arm64.
 
-When an "ibm,opal-phbid" property is present, &prop is written to and
-ret is set to zero.
+For some reason, on arm64, the vmlinux ELF object file type is ET_DYN
+rather than ET_EXEC.  Check for both when determining whether the object
+is vmlinux.
 
-The following call to of_alias_get_id() is skipped because ret == 0.
+Modules and vmlinux.o have type ET_REL on all arches.
 
-But then the if (ret >= 0) is true, and the body of that if statement
-sets prop = ret which throws away the value that was just read from
-"ibm,opal-phbid".
-
-Fix the logic by only doing the ret >= 0 check in the of_alias_get_id()
-case.
-
-Fixes: 0fe1e96fef0a ("powerpc/pci: Prefer PCI domain assignment via DT 'linux,pci-domain' and alias")
-Reviewed-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220802105723.1055178-1-mpe@ellerman.id.au
+Fixes: dcea997beed6 ("faddr2line: Fix overlapping text section failures, the sequel")
+Reported-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/dad1999737471b06d6188ce4cdb11329aa41682c.1658426357.git.jpoimboe@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/pci-common.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ scripts/faddr2line | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/pci-common.c b/arch/powerpc/kernel/pci-common.c
-index 7af00a880e16..f9d35c9ea4ae 100644
---- a/arch/powerpc/kernel/pci-common.c
-+++ b/arch/powerpc/kernel/pci-common.c
-@@ -89,11 +89,13 @@ static int get_phb_number(struct device_node *dn)
- 	}
- 	if (ret)
- 		ret = of_property_read_u64(dn, "ibm,opal-phbid", &prop);
--	if (ret)
-+
-+	if (ret) {
- 		ret = of_alias_get_id(dn, "pci");
--	if (ret >= 0) {
--		prop = ret;
--		ret = 0;
-+		if (ret >= 0) {
-+			prop = ret;
-+			ret = 0;
-+		}
- 	}
- 	if (ret) {
- 		u32 prop_32;
+diff --git a/scripts/faddr2line b/scripts/faddr2line
+index 94ed98dd899f..57099687e5e1 100755
+--- a/scripts/faddr2line
++++ b/scripts/faddr2line
+@@ -112,7 +112,9 @@ __faddr2line() {
+ 	# section offsets.
+ 	local file_type=$(${READELF} --file-header $objfile |
+ 		${AWK} '$1 == "Type:" { print $2; exit }')
+-	[[ $file_type = "EXEC" ]] && is_vmlinux=1
++	if [[ $file_type = "EXEC" ]] || [[ $file_type == "DYN" ]]; then
++		is_vmlinux=1
++	fi
+ 
+ 	# Go through each of the object's symbols which match the func name.
+ 	# In rare cases there might be duplicates, in which case we print all
 -- 
 2.35.1
 
