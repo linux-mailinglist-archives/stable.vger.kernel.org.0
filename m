@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D958599E9B
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:44:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F298F599E8C
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:43:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349846AbiHSPjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:39:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36132 "EHLO
+        id S1349845AbiHSPjr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:39:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349293AbiHSPjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:39:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EF531D306;
-        Fri, 19 Aug 2022 08:39:41 -0700 (PDT)
+        with ESMTP id S1349338AbiHSPjp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:39:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E51965E5;
+        Fri, 19 Aug 2022 08:39:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C95CFB8280C;
-        Fri, 19 Aug 2022 15:39:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C262C433D6;
-        Fri, 19 Aug 2022 15:39:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D420CB8280C;
+        Fri, 19 Aug 2022 15:39:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31FB4C433D6;
+        Fri, 19 Aug 2022 15:39:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660923578;
-        bh=QXKbbD2rBMM2SVJ7jtAh4BSriiVTIwVcRFRHymGJ04g=;
+        s=korg; t=1660923581;
+        bh=YJw9ujvj844MIy5wukf49WencRlfOJACXwYnspuFcBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3SAMutcobvIlFHxK4hNs1QaoUFVLom0IE0Fxj9yVTU8M6obnF888bzlg4h0FDJf6
-         7/5i5WrdYUoVQaZhozyBAwQXzBk9z5xtlD7aUpXYe+8YPrDm41i4fN4duZ+0e4pWc7
-         uCSb/KkhALgtJHY5k9LWlb+HA7fMklgoWfmPWu/k=
+        b=uLBYjEFp/+AQHBbpET12hl4YuZqLH5i2psyGK5pMJfLsXVTPhJ7FgIQAQJwDvVXBP
+         +T6tOm6aXNt3CBDDkCbFGM6HLwbWHQmId3YjvA8CSMUIZVS+K6A+Ayiz5SE4RvGvZE
+         OUzIA3kUn//teBiihkmD8qi0chs//UTGJGkYg64w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Stephen Hemminger <stephen@networkplumber.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.19 3/7] net_sched: cls_route: disallow handle of 0
-Date:   Fri, 19 Aug 2022 17:39:19 +0200
-Message-Id: <20220819153711.691135829@linuxfoundation.org>
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
+        Qu Wenruo <wqu@suse.com>
+Subject: [PATCH 5.19 4/7] btrfs: only write the sectors in the vertical stripe which has data stripes
+Date:   Fri, 19 Aug 2022 17:39:20 +0200
+Message-Id: <20220819153711.724552991@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153711.552247994@linuxfoundation.org>
 References: <20220819153711.552247994@linuxfoundation.org>
@@ -54,87 +53,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamal Hadi Salim <jhs@mojatatu.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 02799571714dc5dd6948824b9d080b44a295f695 upstream.
+commit bd8f7e627703ca5707833d623efcd43f104c7b3f upstream.
 
-Follows up on:
-https://lore.kernel.org/all/20220809170518.164662-1-cascardo@canonical.com/
+If we have only 8K partial write at the beginning of a full RAID56
+stripe, we will write the following contents:
 
-handle of 0 implies from/to of universe realm which is not very
-sensible.
+                    0  8K           32K             64K
+Disk 1	(data):     |XX|            |               |
+Disk 2  (data):     |               |               |
+Disk 3  (parity):   |XXXXXXXXXXXXXXX|XXXXXXXXXXXXXXX|
 
-Lets see what this patch will do:
-$sudo tc qdisc add dev $DEV root handle 1:0 prio
+|X| means the sector will be written back to disk.
 
-//lets manufacture a way to insert handle of 0
-$sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 \
-route to 0 from 0 classid 1:10 action ok
+Note that, although we won't write any sectors from disk 2, but we will
+write the full 64KiB of parity to disk.
 
-//gets rejected...
-Error: handle of 0 is not valid.
-We have an error talking to the kernel, -1
+This behavior is fine for now, but not for the future (especially for
+RAID56J, as we waste quite some space to journal the unused parity
+stripes).
 
-//lets create a legit entry..
-sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 route from 10 \
-classid 1:10 action ok
+So here we will also utilize the btrfs_raid_bio::dbitmap, anytime we
+queue a higher level bio into an rbio, we will update rbio::dbitmap to
+indicate which vertical stripes we need to writeback.
 
-//what did the kernel insert?
-$sudo tc filter ls dev $DEV parent 1:0
-filter protocol ip pref 100 route chain 0
-filter protocol ip pref 100 route chain 0 fh 0x000a8000 flowid 1:10 from 10
-	action order 1: gact action pass
-	 random type none pass val 0
-	 index 1 ref 1 bind 1
+And at finish_rmw(), we also check dbitmap to see if we need to write
+any sector in the vertical stripe.
 
-//Lets try to replace that legit entry with a handle of 0
-$ sudo tc filter replace dev $DEV parent 1:0 protocol ip prio 100 \
-handle 0x000a8000 route to 0 from 0 classid 1:10 action drop
+So after the patch, above example will only lead to the following
+writeback pattern:
 
-Error: Replacing with handle of 0 is invalid.
-We have an error talking to the kernel, -1
+                    0  8K           32K             64K
+Disk 1	(data):     |XX|            |               |
+Disk 2  (data):     |               |               |
+Disk 3  (parity):   |XX|            |               |
 
-And last, lets run Cascardo's POC:
-$ ./poc
-0
-0
--22
--22
--22
-
-Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Acked-by: Stephen Hemminger <stephen@networkplumber.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Acked-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_route.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/btrfs/raid56.c |   53 +++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 49 insertions(+), 4 deletions(-)
 
---- a/net/sched/cls_route.c
-+++ b/net/sched/cls_route.c
-@@ -424,6 +424,11 @@ static int route4_set_parms(struct net *
- 			return -EINVAL;
+--- a/fs/btrfs/raid56.c
++++ b/fs/btrfs/raid56.c
+@@ -403,6 +403,9 @@ static void merge_rbio(struct btrfs_raid
+ {
+ 	bio_list_merge(&dest->bio_list, &victim->bio_list);
+ 	dest->bio_list_bytes += victim->bio_list_bytes;
++	/* Also inherit the bitmaps from @victim. */
++	bitmap_or(dest->dbitmap, victim->dbitmap, dest->dbitmap,
++		  dest->stripe_nsectors);
+ 	dest->generic_bio_cnt += victim->generic_bio_cnt;
+ 	bio_list_init(&victim->bio_list);
+ }
+@@ -944,6 +947,12 @@ static void rbio_orig_end_io(struct btrf
+ 
+ 	if (rbio->generic_bio_cnt)
+ 		btrfs_bio_counter_sub(rbio->bioc->fs_info, rbio->generic_bio_cnt);
++	/*
++	 * Clear the data bitmap, as the rbio may be cached for later usage.
++	 * do this before before unlock_stripe() so there will be no new bio
++	 * for this bio.
++	 */
++	bitmap_clear(rbio->dbitmap, 0, rbio->stripe_nsectors);
+ 
+ 	/*
+ 	 * At this moment, rbio->bio_list is empty, however since rbio does not
+@@ -1294,6 +1303,9 @@ static noinline void finish_rmw(struct b
+ 	else
+ 		BUG();
+ 
++	/* We should have at least one data sector. */
++	ASSERT(bitmap_weight(rbio->dbitmap, rbio->stripe_nsectors));
++
+ 	/* at this point we either have a full stripe,
+ 	 * or we've read the full stripe from the drive.
+ 	 * recalculate the parity and write the new results.
+@@ -1368,6 +1380,10 @@ static noinline void finish_rmw(struct b
+ 		for (sectornr = 0; sectornr < rbio->stripe_nsectors; sectornr++) {
+ 			struct sector_ptr *sector;
+ 
++			/* This vertical stripe has no data, skip it. */
++			if (!test_bit(sectornr, rbio->dbitmap))
++				continue;
++
+ 			if (stripe < rbio->nr_data) {
+ 				sector = sector_in_rbio(rbio, stripe, sectornr, 1);
+ 				if (!sector)
+@@ -1394,6 +1410,10 @@ static noinline void finish_rmw(struct b
+ 		for (sectornr = 0; sectornr < rbio->stripe_nsectors; sectornr++) {
+ 			struct sector_ptr *sector;
+ 
++			/* This vertical stripe has no data, skip it. */
++			if (!test_bit(sectornr, rbio->dbitmap))
++				continue;
++
+ 			if (stripe < rbio->nr_data) {
+ 				sector = sector_in_rbio(rbio, stripe, sectornr, 1);
+ 				if (!sector)
+@@ -1845,6 +1865,33 @@ static void btrfs_raid_unplug(struct blk
+ 	run_plug(plug);
+ }
+ 
++/* Add the original bio into rbio->bio_list, and update rbio::dbitmap. */
++static void rbio_add_bio(struct btrfs_raid_bio *rbio, struct bio *orig_bio)
++{
++	const struct btrfs_fs_info *fs_info = rbio->bioc->fs_info;
++	const u64 orig_logical = orig_bio->bi_iter.bi_sector << SECTOR_SHIFT;
++	const u64 full_stripe_start = rbio->bioc->raid_map[0];
++	const u32 orig_len = orig_bio->bi_iter.bi_size;
++	const u32 sectorsize = fs_info->sectorsize;
++	u64 cur_logical;
++
++	ASSERT(orig_logical >= full_stripe_start &&
++	       orig_logical + orig_len <= full_stripe_start +
++	       rbio->nr_data * rbio->stripe_len);
++
++	bio_list_add(&rbio->bio_list, orig_bio);
++	rbio->bio_list_bytes += orig_bio->bi_iter.bi_size;
++
++	/* Update the dbitmap. */
++	for (cur_logical = orig_logical; cur_logical < orig_logical + orig_len;
++	     cur_logical += sectorsize) {
++		int bit = ((u32)(cur_logical - full_stripe_start) >>
++			   fs_info->sectorsize_bits) % rbio->stripe_nsectors;
++
++		set_bit(bit, rbio->dbitmap);
++	}
++}
++
+ /*
+  * our main entry point for writes from the rest of the FS.
+  */
+@@ -1861,9 +1908,8 @@ int raid56_parity_write(struct bio *bio,
+ 		btrfs_put_bioc(bioc);
+ 		return PTR_ERR(rbio);
+ 	}
+-	bio_list_add(&rbio->bio_list, bio);
+-	rbio->bio_list_bytes = bio->bi_iter.bi_size;
+ 	rbio->operation = BTRFS_RBIO_WRITE;
++	rbio_add_bio(rbio, bio);
+ 
+ 	btrfs_bio_counter_inc_noblocked(fs_info);
+ 	rbio->generic_bio_cnt = 1;
+@@ -2268,8 +2314,7 @@ int raid56_parity_recover(struct bio *bi
  	}
  
-+	if (!nhandle) {
-+		NL_SET_ERR_MSG(extack, "Replacing with handle of 0 is invalid");
-+		return -EINVAL;
-+	}
-+
- 	h1 = to_hash(nhandle);
- 	b = rtnl_dereference(head->table[h1]);
- 	if (!b) {
-@@ -477,6 +482,11 @@ static int route4_change(struct net *net
- 	int err;
- 	bool new = true;
+ 	rbio->operation = BTRFS_RBIO_READ_REBUILD;
+-	bio_list_add(&rbio->bio_list, bio);
+-	rbio->bio_list_bytes = bio->bi_iter.bi_size;
++	rbio_add_bio(rbio, bio);
  
-+	if (!handle) {
-+		NL_SET_ERR_MSG(extack, "Creating with handle of 0 is invalid");
-+		return -EINVAL;
-+	}
-+
- 	if (opt == NULL)
- 		return handle ? -EINVAL : 0;
- 
+ 	rbio->faila = find_logical_bio_stripe(rbio, bio);
+ 	if (rbio->faila == -1) {
 
 
