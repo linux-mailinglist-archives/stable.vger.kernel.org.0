@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9214659A011
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:32:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9046459A1AC
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352172AbiHSQTv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:19:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52416 "EHLO
+        id S1352059AbiHSQTY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:19:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352887AbiHSQSC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:18:02 -0400
+        with ESMTP id S1352829AbiHSQRw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:17:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 026EC109A28;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACB1E109A0A;
         Fri, 19 Aug 2022 09:01:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2AAEFB827F8;
-        Fri, 19 Aug 2022 16:00:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9030FC433C1;
-        Fri, 19 Aug 2022 16:00:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03F82B82812;
+        Fri, 19 Aug 2022 16:00:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66C2CC433C1;
+        Fri, 19 Aug 2022 16:00:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924852;
-        bh=oHE8NdQs2C19dr7h8yVkyh2h8g6uL/b9qy2FrVV/yzI=;
+        s=korg; t=1660924855;
+        bh=mFpks+6CJE9JybU0qYCKr1moepg052c0NDycVc86EZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vv0pPc+mUpQ5HC/c/4sGdMfmhJf7BPAxozlloVx3Ci+h44JM51GLgAkONnTtfRSKK
-         m/J2zmtwV3f6Mul/eXLZwg/KLM6wbOypyE2XbvZf/wzIb+mP+YZOpBnTxHsAHTs8ip
-         uAuUSl4iCtGxBFv0ywI0NNBP7N6tAr7tsb82AQFY=
+        b=Hx1umKUrEmPXg7zwgdpYqB2G2u/ob9yitdxSc6Eat372qam0PnbevW7VjwXb5YmoK
+         f+iiGbY4mQIhGn/V7YpUepWfd4XT48G5cFN6h7Fv75uurGvaDa0MulMH53ukBkJdB+
+         QjtR0KV1ZBESF5BQSmgSK6Q2UUAEWowXfX2ybvcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Vidya Sagar <vidyas@nvidia.com>, Rob Herring <robh@kernel.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 303/545] PCI: dwc: Always enable CDM check if "snps,enable-cdm-check" exists
-Date:   Fri, 19 Aug 2022 17:41:13 +0200
-Message-Id: <20220819153842.894243190@linuxfoundation.org>
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 304/545] soundwire: bus_type: fix remove and shutdown support
+Date:   Fri, 19 Aug 2022 17:41:14 +0200
+Message-Id: <20220819153842.945524699@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -57,59 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit ec7b952f453ce7eabe7e1bea584626934d44f668 ]
+[ Upstream commit df6407782964dc7e35ad84230abb38f46314b245 ]
 
-If the "snps,enable-cdm-check" property exists, we should enable the CDM
-check.  But previously dw_pcie_setup() could exit before doing so if the
-"num-lanes" property was absent or invalid.
+The bus sdw_drv_remove() and sdw_drv_shutdown() helpers are used
+conditionally, if the driver provides these routines.
 
-Move the CDM enable earlier so we do it regardless of whether "num-lanes"
-is present.
+These helpers already test if the driver provides a .remove or
+.shutdown callback, so there's no harm in invoking the
+sdw_drv_remove() and sdw_drv_shutdown() unconditionally.
 
-[bhelgaas: commit log]
-Fixes: 07f123def73e ("PCI: dwc: Add support to enable CDM register check")
-Link: https://lore.kernel.org/r/20220624143428.8334-7-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Vidya Sagar <vidyas@nvidia.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+In addition, the current code is imbalanced with
+dev_pm_domain_attach() called from sdw_drv_probe(), but
+dev_pm_domain_detach() called from sdw_drv_remove() only if the driver
+provides a .remove callback.
+
+Fixes: 9251345dca24b ("soundwire: Add SoundWire bus type")
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20220610015105.25987-1-yung-chuan.liao@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-designware.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/soundwire/bus_type.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-designware.c b/drivers/pci/controller/dwc/pcie-designware.c
-index 69651c6ae6c6..2b74ff88c5c5 100644
---- a/drivers/pci/controller/dwc/pcie-designware.c
-+++ b/drivers/pci/controller/dwc/pcie-designware.c
-@@ -598,6 +598,13 @@ void dw_pcie_setup(struct dw_pcie *pci)
- 	val |= PORT_LINK_DLL_LINK_EN;
- 	dw_pcie_writel_dbi(pci, PCIE_PORT_LINK_CONTROL, val);
+diff --git a/drivers/soundwire/bus_type.c b/drivers/soundwire/bus_type.c
+index 575b9bad99d5..2e8986cccdd4 100644
+--- a/drivers/soundwire/bus_type.c
++++ b/drivers/soundwire/bus_type.c
+@@ -184,12 +184,8 @@ int __sdw_register_driver(struct sdw_driver *drv, struct module *owner)
  
-+	if (of_property_read_bool(np, "snps,enable-cdm-check")) {
-+		val = dw_pcie_readl_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS);
-+		val |= PCIE_PL_CHK_REG_CHK_REG_CONTINUOUS |
-+		       PCIE_PL_CHK_REG_CHK_REG_START;
-+		dw_pcie_writel_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS, val);
-+	}
-+
- 	of_property_read_u32(np, "num-lanes", &pci->num_lanes);
- 	if (!pci->num_lanes) {
- 		dev_dbg(pci->dev, "Using h/w default number of lanes\n");
-@@ -644,11 +651,4 @@ void dw_pcie_setup(struct dw_pcie *pci)
- 		break;
- 	}
- 	dw_pcie_writel_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL, val);
+ 	drv->driver.owner = owner;
+ 	drv->driver.probe = sdw_drv_probe;
 -
--	if (of_property_read_bool(np, "snps,enable-cdm-check")) {
--		val = dw_pcie_readl_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS);
--		val |= PCIE_PL_CHK_REG_CHK_REG_CONTINUOUS |
--		       PCIE_PL_CHK_REG_CHK_REG_START;
--		dw_pcie_writel_dbi(pci, PCIE_PL_CHK_REG_CONTROL_STATUS, val);
--	}
+-	if (drv->remove)
+-		drv->driver.remove = sdw_drv_remove;
+-
+-	if (drv->shutdown)
+-		drv->driver.shutdown = sdw_drv_shutdown;
++	drv->driver.remove = sdw_drv_remove;
++	drv->driver.shutdown = sdw_drv_shutdown;
+ 
+ 	return driver_register(&drv->driver);
  }
 -- 
 2.35.1
