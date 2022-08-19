@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEA1659A44B
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:05:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2777559A3A5
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353637AbiHSQmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:42:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60982 "EHLO
+        id S1353383AbiHSQkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:40:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353313AbiHSQkC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:40:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40CB618B20;
-        Fri, 19 Aug 2022 09:08:28 -0700 (PDT)
+        with ESMTP id S1353368AbiHSQjZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:39:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98BC49109E;
+        Fri, 19 Aug 2022 09:08:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21DCE6181A;
-        Fri, 19 Aug 2022 16:07:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4F99C433D6;
-        Fri, 19 Aug 2022 16:07:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 27050614DA;
+        Fri, 19 Aug 2022 16:07:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DDC2C433C1;
+        Fri, 19 Aug 2022 16:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925246;
-        bh=DSjYKFmh06ko8rlbhaj8I90fRkZxrFNOwFOoqQGzFfw=;
+        s=korg; t=1660925249;
+        bh=fw9i8RhpOoj2gMS4VBjk+TrGpw1xeKcJG7ORRDyhstA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d20B2fnK/jRc/sIAOcnBaqDHzjer8CSt1CTmwwJTMTwSC4WgmngOXtR3G+nvVK3en
-         reJww1njkmRZ1HZKRhHmVFwWpdsuj9scn0MjWSckjS8NpNHIUzDqQjc4p4WQeZ9w6w
-         lnS1M9BxsG/RWeTd0IRxjNg+fgl7F5fyidAFhqno=
+        b=pKTZCeqYKL9PCZRiGqLG/i9SVut/pBxuoDQY19pfr1X4u6lAkwJiXGjv8E1XgUkAl
+         e1glqmszu/fzqCiaAlXDRUernvl1Mjwm8Ml0hRbCxc5e4xT83C4lgxIPTScRDKFRwc
+         zoKA5s8jyT5KDj6coD5cGAd9Y1rnJQSqtRlxlmIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 430/545] sched, cpuset: Fix dl_cpu_busy() panic due to empty cs->cpus_allowed
-Date:   Fri, 19 Aug 2022 17:43:20 +0200
-Message-Id: <20220819153848.651668076@linuxfoundation.org>
+        stable@vger.kernel.org, Siddh Raman Pant <code@siddh.me>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 431/545] x86/numa: Use cpumask_available instead of hardcoded NULL check
+Date:   Fri, 19 Aug 2022 17:43:21 +0200
+Message-Id: <20220819153848.703712858@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,107 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Siddh Raman Pant <code@siddh.me>
 
-[ Upstream commit b6e8d40d43ae4dec00c8fea2593eeea3114b8f44 ]
+[ Upstream commit 625395c4a0f4775e0fe00f616888d2e6c1ba49db ]
 
-With cgroup v2, the cpuset's cpus_allowed mask can be empty indicating
-that the cpuset will just use the effective CPUs of its parent. So
-cpuset_can_attach() can call task_can_attach() with an empty mask.
-This can lead to cpumask_any_and() returns nr_cpu_ids causing the call
-to dl_bw_of() to crash due to percpu value access of an out of bound
-CPU value. For example:
+GCC-12 started triggering a new warning:
 
-	[80468.182258] BUG: unable to handle page fault for address: ffffffff8b6648b0
-	  :
-	[80468.191019] RIP: 0010:dl_cpu_busy+0x30/0x2b0
-	  :
-	[80468.207946] Call Trace:
-	[80468.208947]  cpuset_can_attach+0xa0/0x140
-	[80468.209953]  cgroup_migrate_execute+0x8c/0x490
-	[80468.210931]  cgroup_update_dfl_csses+0x254/0x270
-	[80468.211898]  cgroup_subtree_control_write+0x322/0x400
-	[80468.212854]  kernfs_fop_write_iter+0x11c/0x1b0
-	[80468.213777]  new_sync_write+0x11f/0x1b0
-	[80468.214689]  vfs_write+0x1eb/0x280
-	[80468.215592]  ksys_write+0x5f/0xe0
-	[80468.216463]  do_syscall_64+0x5c/0x80
-	[80468.224287]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  arch/x86/mm/numa.c: In function ‘cpumask_of_node’:
+  arch/x86/mm/numa.c:916:39: warning: the comparison will always evaluate as ‘false’ for the address of ‘node_to_cpumask_map’ will never be NULL [-Waddress]
+    916 |         if (node_to_cpumask_map[node] == NULL) {
+        |                                       ^~
 
-Fix that by using effective_cpus instead. For cgroup v1, effective_cpus
-is the same as cpus_allowed. For v2, effective_cpus is the real cpumask
-to be used by tasks within the cpuset anyway.
+node_to_cpumask_map is of type cpumask_var_t[].
 
-Also update task_can_attach()'s 2nd argument name to cs_effective_cpus to
-reflect the change. In addition, a check is added to task_can_attach()
-to guard against the possibility that cpumask_any_and() may return a
-value >= nr_cpu_ids.
+When CONFIG_CPUMASK_OFFSTACK is set, cpumask_var_t is typedef'd to a
+pointer for dynamic allocation, else to an array of one element. The
+"wicked game" can be checked on line 700 of include/linux/cpumask.h.
 
-Fixes: 7f51412a415d ("sched/deadline: Fix bandwidth check/update when migrating tasks between exclusive cpusets")
-Signed-off-by: Waiman Long <longman@redhat.com>
+The original code in debug_cpumask_set_cpu() and cpumask_of_node() were
+probably written by the original authors with CONFIG_CPUMASK_OFFSTACK=y
+(i.e. dynamic allocation) in mind, checking if the cpumask was available
+via a direct NULL check.
+
+When CONFIG_CPUMASK_OFFSTACK is not set, GCC gives the above warning
+while compiling the kernel.
+
+Fix that by using cpumask_available(), which does the NULL check when
+CONFIG_CPUMASK_OFFSTACK is set, otherwise returns true. Use it wherever
+such checks are made.
+
+Conditional definitions of cpumask_available() can be found along with
+the definition of cpumask_var_t. Check the cpumask.h reference mentioned
+above.
+
+Fixes: c032ef60d1aa ("cpumask: convert node_to_cpumask_map[] to cpumask_var_t")
+Fixes: de2d9445f162 ("x86: Unify node_to_cpumask_map handling between 32 and 64bit")
+Signed-off-by: Siddh Raman Pant <code@siddh.me>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Juri Lelli <juri.lelli@redhat.com>
-Link: https://lore.kernel.org/r/20220803015451.2219567-1-longman@redhat.com
+Link: https://lore.kernel.org/r/20220731160913.632092-1-code@siddh.me
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sched.h  | 2 +-
- kernel/cgroup/cpuset.c | 2 +-
- kernel/sched/core.c    | 8 +++++---
- 3 files changed, 7 insertions(+), 5 deletions(-)
+ arch/x86/mm/numa.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 4bca80c9931f..4e8425c1c560 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1658,7 +1658,7 @@ current_restore_flags(unsigned long orig_flags, unsigned long flags)
- }
- 
- extern int cpuset_cpumask_can_shrink(const struct cpumask *cur, const struct cpumask *trial);
--extern int task_can_attach(struct task_struct *p, const struct cpumask *cs_cpus_allowed);
-+extern int task_can_attach(struct task_struct *p, const struct cpumask *cs_effective_cpus);
- #ifdef CONFIG_SMP
- extern void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask);
- extern int set_cpus_allowed_ptr(struct task_struct *p, const struct cpumask *new_mask);
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index ec39e123c2a5..c51863b63f93 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -2162,7 +2162,7 @@ static int cpuset_can_attach(struct cgroup_taskset *tset)
- 		goto out_unlock;
- 
- 	cgroup_taskset_for_each(task, css, tset) {
--		ret = task_can_attach(task, cs->cpus_allowed);
-+		ret = task_can_attach(task, cs->effective_cpus);
- 		if (ret)
- 			goto out_unlock;
- 		ret = security_task_setscheduler(task);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 042efabf5378..8765de76a179 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6586,7 +6586,7 @@ int cpuset_cpumask_can_shrink(const struct cpumask *cur,
- }
- 
- int task_can_attach(struct task_struct *p,
--		    const struct cpumask *cs_cpus_allowed)
-+		    const struct cpumask *cs_effective_cpus)
- {
- 	int ret = 0;
- 
-@@ -6605,9 +6605,11 @@ int task_can_attach(struct task_struct *p,
+diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
+index e94da744386f..9dc31996c7ed 100644
+--- a/arch/x86/mm/numa.c
++++ b/arch/x86/mm/numa.c
+@@ -861,7 +861,7 @@ void debug_cpumask_set_cpu(int cpu, int node, bool enable)
+ 		return;
  	}
- 
- 	if (dl_task(p) && !cpumask_intersects(task_rq(p)->rd->span,
--					      cs_cpus_allowed)) {
--		int cpu = cpumask_any_and(cpu_active_mask, cs_cpus_allowed);
-+					      cs_effective_cpus)) {
-+		int cpu = cpumask_any_and(cpu_active_mask, cs_effective_cpus);
- 
-+		if (unlikely(cpu >= nr_cpu_ids))
-+			return -EINVAL;
- 		ret = dl_cpu_busy(cpu, p);
+ 	mask = node_to_cpumask_map[node];
+-	if (!mask) {
++	if (!cpumask_available(mask)) {
+ 		pr_err("node_to_cpumask_map[%i] NULL\n", node);
+ 		dump_stack();
+ 		return;
+@@ -907,7 +907,7 @@ const struct cpumask *cpumask_of_node(int node)
+ 		dump_stack();
+ 		return cpu_none_mask;
  	}
- 
+-	if (node_to_cpumask_map[node] == NULL) {
++	if (!cpumask_available(node_to_cpumask_map[node])) {
+ 		printk(KERN_WARNING
+ 			"cpumask_of_node(%d): no node_to_cpumask_map!\n",
+ 			node);
 -- 
 2.35.1
 
