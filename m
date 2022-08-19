@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAB38599E78
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:43:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE112599E80
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350067AbiHSPma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:42:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36850 "EHLO
+        id S1349999AbiHSPmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:42:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349721AbiHSPlu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:41:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56841101D20;
-        Fri, 19 Aug 2022 08:41:09 -0700 (PDT)
+        with ESMTP id S1350001AbiHSPlw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:41:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 031DB102F35;
+        Fri, 19 Aug 2022 08:41:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 749D3615FC;
-        Fri, 19 Aug 2022 15:41:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FDA5C433C1;
-        Fri, 19 Aug 2022 15:41:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46CD2B8277D;
+        Fri, 19 Aug 2022 15:41:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 947BEC433D7;
+        Fri, 19 Aug 2022 15:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660923667;
-        bh=QXKbbD2rBMM2SVJ7jtAh4BSriiVTIwVcRFRHymGJ04g=;
+        s=korg; t=1660923670;
+        bh=3ZsFsvZyMK+E7wOFl4R8OLSIHARPZ4AMFBzPb0nUZ6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hHa2v3hybS9+H/eLQFowKQJiHAJ/hkS8sxY6jZoazvF5vtxWVSm6K2QQPGIzwy7uk
-         4kfCQF8wwIrcyy1VYAaUtOVH7yrNAzRPQS0hgeg25vQ0AxjgAN3CYtkE8qykJm0Mpi
-         6rC1aGgRTnslyPTMOT9xR4PnGMY8veAbwwEwnZ4E=
+        b=XsVtPRkEgKCFURn5YwJ95C7IwKKGu21+9CdrYWqKULAUef6Gv+VRArCyAfo4sWbny
+         R0G/FripBkk/X6KWJTbUtTNqUsCyQqPNQqgIx1XqbGKZEc1LSO8Cz5WU9GfCWpihu5
+         taP0x/xYsFz+jthcCyMQvNqRddSF7duw81Y7aBBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Stephen Hemminger <stephen@networkplumber.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 03/14] net_sched: cls_route: disallow handle of 0
-Date:   Fri, 19 Aug 2022 17:40:19 +0200
-Message-Id: <20220819153711.787764500@linuxfoundation.org>
+        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
+        zdi-disclosures@trendmicro.com
+Subject: [PATCH 5.15 04/14] ksmbd: prevent out of bound read for SMB2_WRITE
+Date:   Fri, 19 Aug 2022 17:40:20 +0200
+Message-Id: <20220819153711.816369367@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153711.658766010@linuxfoundation.org>
 References: <20220819153711.658766010@linuxfoundation.org>
@@ -54,87 +55,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamal Hadi Salim <jhs@mojatatu.com>
+From: Hyunchul Lee <hyc.lee@gmail.com>
 
-commit 02799571714dc5dd6948824b9d080b44a295f695 upstream.
+commit ac60778b87e45576d7bfdbd6f53df902654e6f09 upstream.
 
-Follows up on:
-https://lore.kernel.org/all/20220809170518.164662-1-cascardo@canonical.com/
+OOB read memory can be written to a file,
+if DataOffset is 0 and Length is too large
+in SMB2_WRITE request of compound request.
 
-handle of 0 implies from/to of universe realm which is not very
-sensible.
+To prevent this, when checking the length of
+the data area of SMB2_WRITE in smb2_get_data_area_len(),
+let the minimum of DataOffset be the size of
+SMB2 header + the size of SMB2_WRITE header.
 
-Lets see what this patch will do:
-$sudo tc qdisc add dev $DEV root handle 1:0 prio
+This bug can lead an oops looking something like:
 
-//lets manufacture a way to insert handle of 0
-$sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 \
-route to 0 from 0 classid 1:10 action ok
+[  798.008715] BUG: KASAN: slab-out-of-bounds in copy_page_from_iter_atomic+0xd3d/0x14b0
+[  798.008724] Read of size 252 at addr ffff88800f863e90 by task kworker/0:2/2859
+...
+[  798.008754] Call Trace:
+[  798.008756]  <TASK>
+[  798.008759]  dump_stack_lvl+0x49/0x5f
+[  798.008764]  print_report.cold+0x5e/0x5cf
+[  798.008768]  ? __filemap_get_folio+0x285/0x6d0
+[  798.008774]  ? copy_page_from_iter_atomic+0xd3d/0x14b0
+[  798.008777]  kasan_report+0xaa/0x120
+[  798.008781]  ? copy_page_from_iter_atomic+0xd3d/0x14b0
+[  798.008784]  kasan_check_range+0x100/0x1e0
+[  798.008788]  memcpy+0x24/0x60
+[  798.008792]  copy_page_from_iter_atomic+0xd3d/0x14b0
+[  798.008795]  ? pagecache_get_page+0x53/0x160
+[  798.008799]  ? iov_iter_get_pages_alloc+0x1590/0x1590
+[  798.008803]  ? ext4_write_begin+0xfc0/0xfc0
+[  798.008807]  ? current_time+0x72/0x210
+[  798.008811]  generic_perform_write+0x2c8/0x530
+[  798.008816]  ? filemap_fdatawrite_wbc+0x180/0x180
+[  798.008820]  ? down_write+0xb4/0x120
+[  798.008824]  ? down_write_killable+0x130/0x130
+[  798.008829]  ext4_buffered_write_iter+0x137/0x2c0
+[  798.008833]  ext4_file_write_iter+0x40b/0x1490
+[  798.008837]  ? __fsnotify_parent+0x275/0xb20
+[  798.008842]  ? __fsnotify_update_child_dentry_flags+0x2c0/0x2c0
+[  798.008846]  ? ext4_buffered_write_iter+0x2c0/0x2c0
+[  798.008851]  __kernel_write+0x3a1/0xa70
+[  798.008855]  ? __x64_sys_preadv2+0x160/0x160
+[  798.008860]  ? security_file_permission+0x4a/0xa0
+[  798.008865]  kernel_write+0xbb/0x360
+[  798.008869]  ksmbd_vfs_write+0x27e/0xb90 [ksmbd]
+[  798.008881]  ? ksmbd_vfs_read+0x830/0x830 [ksmbd]
+[  798.008892]  ? _raw_read_unlock+0x2a/0x50
+[  798.008896]  smb2_write+0xb45/0x14e0 [ksmbd]
+[  798.008909]  ? __kasan_check_write+0x14/0x20
+[  798.008912]  ? _raw_spin_lock_bh+0xd0/0xe0
+[  798.008916]  ? smb2_read+0x15e0/0x15e0 [ksmbd]
+[  798.008927]  ? memcpy+0x4e/0x60
+[  798.008931]  ? _raw_spin_unlock+0x19/0x30
+[  798.008934]  ? ksmbd_smb2_check_message+0x16af/0x2350 [ksmbd]
+[  798.008946]  ? _raw_spin_lock_bh+0xe0/0xe0
+[  798.008950]  handle_ksmbd_work+0x30e/0x1020 [ksmbd]
+[  798.008962]  process_one_work+0x778/0x11c0
+[  798.008966]  ? _raw_spin_lock_irq+0x8e/0xe0
+[  798.008970]  worker_thread+0x544/0x1180
+[  798.008973]  ? __cpuidle_text_end+0x4/0x4
+[  798.008977]  kthread+0x282/0x320
+[  798.008982]  ? process_one_work+0x11c0/0x11c0
+[  798.008985]  ? kthread_complete_and_exit+0x30/0x30
+[  798.008989]  ret_from_fork+0x1f/0x30
+[  798.008995]  </TASK>
 
-//gets rejected...
-Error: handle of 0 is not valid.
-We have an error talking to the kernel, -1
-
-//lets create a legit entry..
-sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 route from 10 \
-classid 1:10 action ok
-
-//what did the kernel insert?
-$sudo tc filter ls dev $DEV parent 1:0
-filter protocol ip pref 100 route chain 0
-filter protocol ip pref 100 route chain 0 fh 0x000a8000 flowid 1:10 from 10
-	action order 1: gact action pass
-	 random type none pass val 0
-	 index 1 ref 1 bind 1
-
-//Lets try to replace that legit entry with a handle of 0
-$ sudo tc filter replace dev $DEV parent 1:0 protocol ip prio 100 \
-handle 0x000a8000 route to 0 from 0 classid 1:10 action drop
-
-Error: Replacing with handle of 0 is invalid.
-We have an error talking to the kernel, -1
-
-And last, lets run Cascardo's POC:
-$ ./poc
-0
-0
--22
--22
--22
-
-Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Acked-by: Stephen Hemminger <stephen@networkplumber.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
+Cc: stable@vger.kernel.org
+Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-17817
+Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_route.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/ksmbd/smb2misc.c |    7 +++++--
+ fs/ksmbd/smb2pdu.c  |    6 ++----
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
---- a/net/sched/cls_route.c
-+++ b/net/sched/cls_route.c
-@@ -424,6 +424,11 @@ static int route4_set_parms(struct net *
- 			return -EINVAL;
- 	}
- 
-+	if (!nhandle) {
-+		NL_SET_ERR_MSG(extack, "Replacing with handle of 0 is invalid");
-+		return -EINVAL;
-+	}
-+
- 	h1 = to_hash(nhandle);
- 	b = rtnl_dereference(head->table[h1]);
- 	if (!b) {
-@@ -477,6 +482,11 @@ static int route4_change(struct net *net
- 	int err;
- 	bool new = true;
- 
-+	if (!handle) {
-+		NL_SET_ERR_MSG(extack, "Creating with handle of 0 is invalid");
-+		return -EINVAL;
-+	}
-+
- 	if (opt == NULL)
- 		return handle ? -EINVAL : 0;
- 
+--- a/fs/ksmbd/smb2misc.c
++++ b/fs/ksmbd/smb2misc.c
+@@ -132,8 +132,11 @@ static int smb2_get_data_area_len(unsign
+ 		*len = le16_to_cpu(((struct smb2_read_req *)hdr)->ReadChannelInfoLength);
+ 		break;
+ 	case SMB2_WRITE:
+-		if (((struct smb2_write_req *)hdr)->DataOffset) {
+-			*off = le16_to_cpu(((struct smb2_write_req *)hdr)->DataOffset);
++		if (((struct smb2_write_req *)hdr)->DataOffset ||
++		    ((struct smb2_write_req *)hdr)->Length) {
++			*off = max_t(unsigned int,
++				     le16_to_cpu(((struct smb2_write_req *)hdr)->DataOffset),
++				     offsetof(struct smb2_write_req, Buffer) - 4);
+ 			*len = le32_to_cpu(((struct smb2_write_req *)hdr)->Length);
+ 			break;
+ 		}
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -6471,10 +6471,8 @@ int smb2_write(struct ksmbd_work *work)
+ 		    (offsetof(struct smb2_write_req, Buffer) - 4)) {
+ 			data_buf = (char *)&req->Buffer[0];
+ 		} else {
+-			if ((u64)le16_to_cpu(req->DataOffset) + length > get_rfc1002_len(req)) {
+-				pr_err("invalid write data offset %u, smb_len %u\n",
+-				       le16_to_cpu(req->DataOffset),
+-				       get_rfc1002_len(req));
++			if (le16_to_cpu(req->DataOffset) <
++			    offsetof(struct smb2_write_req, Buffer)) {
+ 				err = -EINVAL;
+ 				goto out;
+ 			}
 
 
