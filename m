@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8023559A241
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 198F259A218
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353133AbiHSQd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:33:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36818 "EHLO
+        id S1352880AbiHSQck (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:32:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352741AbiHSQ3B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:29:01 -0400
+        with ESMTP id S1352825AbiHSQaB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:30:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D2CB11A2D8;
-        Fri, 19 Aug 2022 09:04:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9CC611A2E5;
+        Fri, 19 Aug 2022 09:04:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DBBFFB8281A;
-        Fri, 19 Aug 2022 16:04:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EA15C433D7;
-        Fri, 19 Aug 2022 16:04:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 022B3B8281C;
+        Fri, 19 Aug 2022 16:04:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B3CEC433C1;
+        Fri, 19 Aug 2022 16:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925059;
-        bh=rMQujy9Rm3AKuwyWWpNKXcNcOHF3RqjwmCE5Oj/ybzs=;
+        s=korg; t=1660925062;
+        bh=TZ2I0orKzVsErbjWyCR70Fk0ZaBl7NXIQBB05th5cEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ppl4Q3raaqYAZxW9F4Tv1/MS4gHMpZb3CHGayGpicf7e/skkpKDL0FDeIVQ0uyt91
-         RU4QAxHao+kBXveLgGLo123aOScFjgOjdvWnJ0nwyyG3r5KPOI/Lrc18uQ5wK2ky7b
-         SmpTS02xwaRGKwchms8cfTRNINY/+ZpG5enGs9mE=
+        b=tmdfwbNcVscWfQ6jpVpC8v04r9zpEyY+hfuU6eVsA6ZFzK7lG0b+3yDmwvA0zWWps
+         iCwBMeJb9tPBPBH1wEW1odAJXzFG0HyyN2QKkGIFxMx6Dmoy+lgUZcBfSrfO+JeRna
+         BfWaCrr/xcp7f7so/SAF06hr975S6Rc4LFOEj4nI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        stable@vger.kernel.org,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 370/545] serial: 8250: Export ICR access helpers for internal use
-Date:   Fri, 19 Aug 2022 17:42:20 +0200
-Message-Id: <20220819153845.971433258@linuxfoundation.org>
+Subject: [PATCH 5.10 371/545] serial: 8250_dw: Store LSR into lsr_saved_flags in dw8250_tx_wait_empty()
+Date:   Fri, 19 Aug 2022 17:42:21 +0200
+Message-Id: <20220819153846.014567427@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,108 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit cb5a40e3143bc64437858b337273fd63cc42e9c2 ]
+[ Upstream commit af14f3007e2dca0d112f10f6717ba43093f74e81 ]
 
-Make ICR access helpers available outside 8250_port.c, however retain
-them as ordinary static functions so as not to regress code generation.
+Make sure LSR flags are preserved in dw8250_tx_wait_empty(). This
+function is called from a low-level out function and therefore cannot
+call serial_lsr_in() as it would lead to infinite recursion.
 
-This is because `serial_icr_write' is currently automatically inlined by
-GCC, however `serial_icr_read' is not.  Making them both static inline
-would grow code produced, e.g.:
+It is borderline if the flags need to be saved here at all since this
+code relates to writing LCR register which usually implies no important
+characters should be arriving.
 
-$ i386-linux-gnu-size --format=gnu 8250_port-{old,new}.o
-      text       data        bss      total filename
-     15065       3378          0      18443 8250_port-old.o
-     15289       3378          0      18667 8250_port-new.o
-
-and:
-
-$ riscv64-linux-gnu-size --format=gnu 8250_port-{old,new}.o
-      text       data        bss      total filename
-     16980       5306          0      22286 8250_port-old.o
-     17124       5306          0      22430 8250_port-new.o
-
-while making them external would needlessly add a new module interface
-and lose the benefit from `serial_icr_write' getting inlined outside
-8250_port.o.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: 914eaf935ec7 ("serial: 8250_dw: Allow TX FIFO to drain before writing to UART_LCR")
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204181517500.9383@angie.orcam.me.uk
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220608095431.18376-7-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250.h      | 22 ++++++++++++++++++++++
- drivers/tty/serial/8250/8250_port.c | 21 ---------------------
- 2 files changed, 22 insertions(+), 21 deletions(-)
+ drivers/tty/serial/8250/8250_dw.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/tty/serial/8250/8250.h b/drivers/tty/serial/8250/8250.h
-index 34aa2714f3c9..b6dc9003b8c4 100644
---- a/drivers/tty/serial/8250/8250.h
-+++ b/drivers/tty/serial/8250/8250.h
-@@ -119,6 +119,28 @@ static inline void serial_out(struct uart_8250_port *up, int offset, int value)
- 	up->port.serial_out(&up->port, offset, value);
- }
+diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
+index 49559731bbcf..ace221afeb03 100644
+--- a/drivers/tty/serial/8250/8250_dw.c
++++ b/drivers/tty/serial/8250/8250_dw.c
+@@ -124,12 +124,15 @@ static void dw8250_check_lcr(struct uart_port *p, int value)
+ /* Returns once the transmitter is empty or we run out of retries */
+ static void dw8250_tx_wait_empty(struct uart_port *p)
+ {
++	struct uart_8250_port *up = up_to_u8250p(p);
+ 	unsigned int tries = 20000;
+ 	unsigned int delay_threshold = tries - 1000;
+ 	unsigned int lsr;
  
-+/*
-+ * For the 16C950
-+ */
-+static void serial_icr_write(struct uart_8250_port *up, int offset, int value)
-+{
-+	serial_out(up, UART_SCR, offset);
-+	serial_out(up, UART_ICR, value);
-+}
+ 	while (tries--) {
+ 		lsr = readb (p->membase + (UART_LSR << p->regshift));
++		up->lsr_saved_flags |= lsr & LSR_SAVE_FLAGS;
 +
-+static unsigned int __maybe_unused serial_icr_read(struct uart_8250_port *up,
-+						   int offset)
-+{
-+	unsigned int value;
-+
-+	serial_icr_write(up, UART_ACR, up->acr | UART_ACR_ICRRD);
-+	serial_out(up, UART_SCR, offset);
-+	value = serial_in(up, UART_ICR);
-+	serial_icr_write(up, UART_ACR, up->acr);
-+
-+	return value;
-+}
-+
- void serial8250_clear_and_reinit_fifos(struct uart_8250_port *p);
+ 		if (lsr & UART_LSR_TEMT)
+ 			break;
  
- static inline int serial_dl_read(struct uart_8250_port *up)
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 43884e8b5161..9d60418e4adb 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -529,27 +529,6 @@ serial_port_out_sync(struct uart_port *p, int offset, int value)
- 	}
- }
- 
--/*
-- * For the 16C950
-- */
--static void serial_icr_write(struct uart_8250_port *up, int offset, int value)
--{
--	serial_out(up, UART_SCR, offset);
--	serial_out(up, UART_ICR, value);
--}
--
--static unsigned int serial_icr_read(struct uart_8250_port *up, int offset)
--{
--	unsigned int value;
--
--	serial_icr_write(up, UART_ACR, up->acr | UART_ACR_ICRRD);
--	serial_out(up, UART_SCR, offset);
--	value = serial_in(up, UART_ICR);
--	serial_icr_write(up, UART_ACR, up->acr);
--
--	return value;
--}
--
- /*
-  * FIFO support.
-  */
 -- 
 2.35.1
 
