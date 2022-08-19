@@ -2,54 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF48599EB0
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:44:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F577599EB9
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:44:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349506AbiHSPko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:40:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37024 "EHLO
+        id S1349877AbiHSPkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:40:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349944AbiHSPkd (ORCPT
+        with ESMTP id S1349936AbiHSPkd (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:40:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 576C21022A1;
-        Fri, 19 Aug 2022 08:40:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FB9B102284;
+        Fri, 19 Aug 2022 08:40:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41C15B82811;
-        Fri, 19 Aug 2022 15:40:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BEC6C433C1;
-        Fri, 19 Aug 2022 15:40:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C57BDB82812;
+        Fri, 19 Aug 2022 15:40:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BC13C433C1;
+        Fri, 19 Aug 2022 15:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660923624;
-        bh=aN7ikgqYQS/8ATnVfbtoQ7KtdoZZkAyN1Q6O+e/woho=;
-        h=From:To:Cc:Subject:Date:From;
-        b=DmoKRLjvRz1NXNYiW6JTo/MDbmhqb/04FLEFqZZsCg3xFdTT9sxVsF1qKFFa30drq
-         hofInAWqCXsEU7XVh2V/kdRoOSqpr+4bTElBs8B9dGs75Nmh5+4jl3T1BgFjkptKQF
-         gJrWbMVM3TAydxWd436xq3sSgCMmoq8M49nGOHFo=
+        s=korg; t=1660923621;
+        bh=62hkTjfnNifN8BfItveFX+WXW+B3n4hjnsSe2EsACOA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=sbGk84/XlXbiQIxQmIUl6IfYfpSRG7+OceVB9RodNjhMKmogNORvqi1L4sI36X7ri
+         DFbIUuYmbSU2WUQ+Aij0gbNE2Qxx7F5N5G2+tRQLOsJsq9xwadOI2SFipsZsA/DW9C
+         4oyZTwhdVL2gojEls6bOubraW4kmNdEVRsBGx9/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.18 0/6] 5.18.19-rc1 review
-Date:   Fri, 19 Aug 2022 17:40:12 +0200
-Message-Id: <20220819153710.430046927@linuxfoundation.org>
+        stable@vger.kernel.org, Nimish Mishra <neelam.nimish@gmail.com>,
+        Anirban Chakraborty <ch.anirban00727@gmail.com>,
+        Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>,
+        Jerome Forissier <jerome.forissier@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.18 1/6] tee: add overflow check in register_shm_helper()
+Date:   Fri, 19 Aug 2022 17:40:13 +0200
+Message-Id: <20220819153710.490832335@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
-MIME-Version: 1.0
+In-Reply-To: <20220819153710.430046927@linuxfoundation.org>
+References: <20220819153710.430046927@linuxfoundation.org>
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.19-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.18.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.18.19-rc1
-X-KernelTest-Deadline: 2022-08-21T15:37+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,67 +59,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--------------------
-NOTE, this is the LAST 5.18.y stable release.  This tree will be
-end-of-life after this one.  Please move to 5.19.y at this point in time
-or let us know why that is not possible.
--------------------
+From: Jens Wiklander <jens.wiklander@linaro.org>
 
-This is the start of the stable review cycle for the 5.18.19 release.
-There are 6 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+commit 573ae4f13f630d6660008f1974c0a8a29c30e18a upstream.
 
-Responses should be made by Sun, 21 Aug 2022 15:36:59 +0000.
-Anything received after that time might be too late.
+With special lengths supplied by user space, register_shm_helper() has
+an integer overflow when calculating the number of pages covered by a
+supplied user space memory region.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.19-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
-and the diffstat can be found below.
+This causes internal_get_user_pages_fast() a helper function of
+pin_user_pages_fast() to do a NULL pointer dereference:
 
-thanks,
+  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
+  Modules linked in:
+  CPU: 1 PID: 173 Comm: optee_example_a Not tainted 5.19.0 #11
+  Hardware name: QEMU QEMU Virtual Machine, BIOS 0.0.0 02/06/2015
+  pc : internal_get_user_pages_fast+0x474/0xa80
+  Call trace:
+   internal_get_user_pages_fast+0x474/0xa80
+   pin_user_pages_fast+0x24/0x4c
+   register_shm_helper+0x194/0x330
+   tee_shm_register_user_buf+0x78/0x120
+   tee_ioctl+0xd0/0x11a0
+   __arm64_sys_ioctl+0xa8/0xec
+   invoke_syscall+0x48/0x114
 
-greg k-h
+Fix this by adding an an explicit call to access_ok() in
+tee_shm_register_user_buf() to catch an invalid user space address
+early.
 
--------------
-Pseudo-Shortlog of commits:
+Fixes: 033ddf12bcf5 ("tee: add register user memory")
+Cc: stable@vger.kernel.org
+Reported-by: Nimish Mishra <neelam.nimish@gmail.com>
+Reported-by: Anirban Chakraborty <ch.anirban00727@gmail.com>
+Reported-by: Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>
+Suggested-by: Jerome Forissier <jerome.forissier@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tee/tee_shm.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.18.19-rc1
-
-Coiby Xu <coxu@redhat.com>
-    arm64: kexec_file: use more system keyrings to verify kernel image signature
-
-Coiby Xu <coxu@redhat.com>
-    kexec, KEYS: make the code in bzImage64_verify_sig generic
-
-Qu Wenruo <wqu@suse.com>
-    btrfs: raid56: don't trust any cached sector in __raid56_parity_recover()
-
-Qu Wenruo <wqu@suse.com>
-    btrfs: only write the sectors in the vertical stripe which has data stripes
-
-Jamal Hadi Salim <jhs@mojatatu.com>
-    net_sched: cls_route: disallow handle of 0
-
-Jens Wiklander <jens.wiklander@linaro.org>
-    tee: add overflow check in register_shm_helper()
-
-
--------------
-
-Diffstat:
-
- Makefile                          |  4 +--
- arch/arm64/kernel/kexec_image.c   | 11 +-----
- arch/x86/kernel/kexec-bzimage64.c | 20 +----------
- drivers/tee/tee_shm.c             |  3 ++
- fs/btrfs/raid56.c                 | 74 ++++++++++++++++++++++++++++++---------
- include/linux/kexec.h             |  7 ++++
- kernel/kexec_file.c               | 17 +++++++++
- net/sched/cls_route.c             | 10 ++++++
- 8 files changed, 98 insertions(+), 48 deletions(-)
+--- a/drivers/tee/tee_shm.c
++++ b/drivers/tee/tee_shm.c
+@@ -311,6 +311,9 @@ struct tee_shm *tee_shm_register_user_bu
+ 	void *ret;
+ 	int id;
+ 
++	if (!access_ok((void __user *)addr, length))
++		return ERR_PTR(-EFAULT);
++
+ 	mutex_lock(&teedev->mutex);
+ 	id = idr_alloc(&teedev->idr, NULL, 1, 0, GFP_KERNEL);
+ 	mutex_unlock(&teedev->mutex);
 
 
