@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2D2C59A09C
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2043259A19B
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352595AbiHSQXs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:23:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35204 "EHLO
+        id S1352553AbiHSQYj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:24:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352326AbiHSQWC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:22:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45DCED4774;
-        Fri, 19 Aug 2022 09:02:54 -0700 (PDT)
+        with ESMTP id S1352555AbiHSQXT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:23:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C8BBCD539;
+        Fri, 19 Aug 2022 09:02:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03469B8280D;
-        Fri, 19 Aug 2022 16:02:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62715C433C1;
-        Fri, 19 Aug 2022 16:02:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B69C1B82819;
+        Fri, 19 Aug 2022 16:02:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D5DFC433D6;
+        Fri, 19 Aug 2022 16:02:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924971;
-        bh=8bpU67eqb8WPMzD9hcA8NYNJGxS6i9S0T8KAvq3ofH0=;
+        s=korg; t=1660924974;
+        bh=AcJrX1xUykEM0PUZFgTpse9dGF07x7CuOQftmr59ePw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mFsLonYcCnxSf0K+qqhy951hK38JjFZs2l/bQUQ0/di4zMjuwMUelrclpiZ19DKqa
-         E0kg7hrg7rkSWIdu5eyTX7DRbUEUgOYX8MaoJkJuU+ZyrPCpOuHycu4dAMUC7jbsqy
-         ok389wZBhpxlwXa2VbnHYez+xgTUS3Vbfc8eth1Q=
+        b=mBRCC2semryP2zuKSI0n7yxj0xrALrlQedcR2g6QwxHGG5kXQgbvwUUN4ckoqGfAJ
+         Z4zOwHePnaoYx8K8Yi9h6hXzr1hwdywXOMuYEbGcCHWqMR7rLzXrbP3+MtyNGvV3a6
+         drhzfA38VqYU8DSuojY0G1aHsBqcipv5LcYhATJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang He <windhl@126.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 340/545] gpio: gpiolib-of: Fix refcount bugs in of_mm_gpiochip_add_data()
-Date:   Fri, 19 Aug 2022 17:41:50 +0200
-Message-Id: <20220819153844.610960518@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 341/545] HID: mcp2221: prevent a buffer overflow in mcp_smbus_write()
+Date:   Fri, 19 Aug 2022 17:41:51 +0200
+Message-Id: <20220819153844.658940181@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,51 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit 5d07a692f9562f9c06e62cce369e9dd108173a0f ]
+[ Upstream commit 62ac2473553a00229e67bdf3cb023b62cf7f5a9a ]
 
-We should use of_node_get() when a new reference of device_node
-is created. It is noted that the old reference stored in
-'mm_gc->gc.of_node' should also be decreased.
+Smatch Warning:
+drivers/hid/hid-mcp2221.c:388 mcp_smbus_write() error: __memcpy()
+'&mcp->txbuf[5]' too small (59 vs 255)
+drivers/hid/hid-mcp2221.c:388 mcp_smbus_write() error: __memcpy() 'buf'
+too small (34 vs 255)
 
-This patch is based on the fact that there is a call site in function
-'qe_add_gpiochips()' of src file 'drivers\soc\fsl\qe\gpio.c'. In this
-function, of_mm_gpiochip_add_data() is contained in an iteration of
-for_each_compatible_node() which will automatically increase and
-decrease the refcount. So we need additional of_node_get() for the
-reference escape in of_mm_gpiochip_add_data().
+The 'len' variable can take a value between 0-255 as it can come from
+data->block[0] and it is user data. So add an bound check to prevent a
+buffer overflow in memcpy().
 
-Fixes: a19e3da5bc5f ("of/gpio: Kill of_gpio_chip and add members directly to gpio_chip")
-Signed-off-by: Liang He <windhl@126.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Fixes: 67a95c21463d ("HID: mcp2221: add usb to i2c-smbus host bridge")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-of.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/hid/hid-mcp2221.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
-index 01424af654db..2e63274a4c2c 100644
---- a/drivers/gpio/gpiolib-of.c
-+++ b/drivers/gpio/gpiolib-of.c
-@@ -863,7 +863,8 @@ int of_mm_gpiochip_add_data(struct device_node *np,
- 	if (mm_gc->save_regs)
- 		mm_gc->save_regs(mm_gc);
- 
--	mm_gc->gc.of_node = np;
-+	of_node_put(mm_gc->gc.of_node);
-+	mm_gc->gc.of_node = of_node_get(np);
- 
- 	ret = gpiochip_add_data(gc, data);
- 	if (ret)
-@@ -871,6 +872,7 @@ int of_mm_gpiochip_add_data(struct device_node *np,
- 
- 	return 0;
- err2:
-+	of_node_put(np);
- 	iounmap(mm_gc->regs);
- err1:
- 	kfree(gc->label);
+diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+index 4211b9839209..de52e9f7bb8c 100644
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -385,6 +385,9 @@ static int mcp_smbus_write(struct mcp2221 *mcp, u16 addr,
+ 		data_len = 7;
+ 		break;
+ 	default:
++		if (len > I2C_SMBUS_BLOCK_MAX)
++			return -EINVAL;
++
+ 		memcpy(&mcp->txbuf[5], buf, len);
+ 		data_len = len + 5;
+ 	}
 -- 
 2.35.1
 
