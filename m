@@ -2,125 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B8E9599E69
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:43:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E7F599E66
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:43:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349819AbiHSPhh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:37:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33554 "EHLO
+        id S1349831AbiHSPji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:39:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349817AbiHSPhg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:37:36 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B15ACE831F;
-        Fri, 19 Aug 2022 08:37:35 -0700 (PDT)
-Received: from nicolas-tpx395.localdomain (zone.collabora.co.uk [167.235.23.81])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        with ESMTP id S1349834AbiHSPje (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:39:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14E4ED5981;
+        Fri, 19 Aug 2022 08:39:33 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: nicolas)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id CEFC36601DC1;
-        Fri, 19 Aug 2022 16:37:30 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1660923453;
-        bh=yPtWZ9dIeoSnNCWNTE1Z+qUHDWr0Ag6n3/7+J9VVv8s=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=YPyLcdiuSpMv6Qmg1v2M1IdOBzsVHjTCwxcqM/eVA5UQqG0DxkbKaMW4tTqCfl4Xt
-         GpmOwmCRrvzvkpqsZ9iFJo9+h/QofDgaI3+Qzd/7lT/EEVf/wBKaiuLstvdh2kPyeT
-         tmrybLzL/faEvfdmudArNQhS2hKEFxnKDVZs/BNIiSe+7TG1riqXhff15tUd1wfYxq
-         VT7nllVpMuW3ENKXdWS393D/qsgSoyQtHbzQcgSRWE2McS0CuurppiLmDHmC91455Z
-         WLl9a2zBjsqubtRWacvH2nAxEQvsFPetiivf5nTO/3Ikm7rNb9P37HKaPaTtQhhi+M
-         FQJbeXK/gDvgA==
-Message-ID: <47ce07adc73887b5afaf9815a78b793d0e9a6b54.camel@collabora.com>
-Subject: Re: [PATCH v1 2/3] media: cedrus: Set the platform driver data
- earlier
-From:   Nicolas Dufresne <nicolas.dufresne@collabora.com>
-To:     Jernej =?UTF-8?Q?=C5=A0krabec?= <jernej.skrabec@gmail.com>,
-        linux-media@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Samuel Holland <samuel@sholland.org>
-Cc:     kernel@collabora.com,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        stable@vger.kernel.org, linux-staging@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
-        linux-kernel@vger.kernel.org
-Date:   Fri, 19 Aug 2022 11:37:20 -0400
-In-Reply-To: <4418189.LvFx2qVVIh@jernej-laptop>
-References: <20220818203308.439043-1-nicolas.dufresne@collabora.com>
-         <20220818203308.439043-3-nicolas.dufresne@collabora.com>
-         <4418189.LvFx2qVVIh@jernej-laptop>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.44.4 (3.44.4-1.fc36) 
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4877B8277D;
+        Fri, 19 Aug 2022 15:39:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCDFFC433C1;
+        Fri, 19 Aug 2022 15:39:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1660923570;
+        bh=H0vxhM7HL4/AGDOJs2mfHmG05H0DqsPisMmOkoJIHzk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=b7Tyx78U9TuaEmCugNElBWRq0TYJU+NbN3uiMWAinixBY16SAL/HelGanGZmZOkbS
+         NtK8X9nz4M4vipm+1++QcCaiyvJGy23ULghPNHmVbv5Jj6DnELy21nwoh3GkwO7UsS
+         VY49Kaj/SB1vEVZ0PRmbKxm8Gbookbk77QhMS6fM=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.19 0/7] 5.19.3-rc1 review
+Date:   Fri, 19 Aug 2022 17:39:16 +0200
+Message-Id: <20220819153711.552247994@linuxfoundation.org>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.3-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.19.3-rc1
+X-KernelTest-Deadline: 2022-08-21T15:37+00:00
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Le vendredi 19 ao=C3=BBt 2022 =C3=A0 06:17 +0200, Jernej =C5=A0krabec a =C3=
-=A9crit=C2=A0:
-> Dne =C4=8Detrtek, 18. avgust 2022 ob 22:33:07 CEST je Nicolas Dufresne na=
-pisal(a):
-> > From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> >=20
-> > The cedrus_hw_resume() crashes with NULL deference on driver probe if
-> > runtime PM is disabled because it uses platform data that hasn't been
-> > set up yet. Fix this by setting the platform data earlier during probe.
->=20
-> Does it even work without PM? Maybe it would be better if Cedrus would se=
-lect=20
-> PM in Kconfig.
+This is the start of the stable review cycle for the 5.19.3 release.
+There are 7 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-I cannot comment myself on this, but it does not seem to invalidate this
-Dmitry's fix.
+Responses should be made by Sun, 21 Aug 2022 15:36:59 +0000.
+Anything received after that time might be too late.
 
->=20
-> Best regards,
-> Jernej
->=20
-> >=20
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> > Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-> > ---
-> >  drivers/staging/media/sunxi/cedrus/cedrus.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> >=20
-> > diff --git a/drivers/staging/media/sunxi/cedrus/cedrus.c
-> > b/drivers/staging/media/sunxi/cedrus/cedrus.c index
-> > 960a0130cd620..55c54dfdc585c 100644
-> > --- a/drivers/staging/media/sunxi/cedrus/cedrus.c
-> > +++ b/drivers/staging/media/sunxi/cedrus/cedrus.c
-> > @@ -448,6 +448,8 @@ static int cedrus_probe(struct platform_device *pde=
-v)
-> >  	if (!dev)
-> >  		return -ENOMEM;
-> >=20
-> > +	platform_set_drvdata(pdev, dev);
-> > +
-> >  	dev->vfd =3D cedrus_video_device;
-> >  	dev->dev =3D &pdev->dev;
-> >  	dev->pdev =3D pdev;
-> > @@ -521,8 +523,6 @@ static int cedrus_probe(struct platform_device *pde=
-v)
-> >  		goto err_m2m_mc;
-> >  	}
-> >=20
-> > -	platform_set_drvdata(pdev, dev);
-> > -
-> >  	return 0;
-> >=20
-> >  err_m2m_mc:
->=20
->=20
->=20
->=20
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.19.3-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.19.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.19.3-rc1
+
+Coiby Xu <coxu@redhat.com>
+    arm64: kexec_file: use more system keyrings to verify kernel image signature
+
+Coiby Xu <coxu@redhat.com>
+    kexec, KEYS: make the code in bzImage64_verify_sig generic
+
+Qu Wenruo <wqu@suse.com>
+    btrfs: raid56: don't trust any cached sector in __raid56_parity_recover()
+
+Qu Wenruo <wqu@suse.com>
+    btrfs: only write the sectors in the vertical stripe which has data stripes
+
+Jamal Hadi Salim <jhs@mojatatu.com>
+    net_sched: cls_route: disallow handle of 0
+
+Jens Wiklander <jens.wiklander@linaro.org>
+    tee: add overflow check in register_shm_helper()
+
+Marco Elver <elver@google.com>
+    Revert "mm: kfence: apply kmemleak_ignore_phys on early allocated pool"
+
+
+-------------
+
+Diffstat:
+
+ Makefile                          |  4 +--
+ arch/arm64/kernel/kexec_image.c   | 11 +------
+ arch/x86/kernel/kexec-bzimage64.c | 20 +-----------
+ drivers/tee/tee_shm.c             |  3 ++
+ fs/btrfs/raid56.c                 | 68 +++++++++++++++++++++++++++++++--------
+ include/linux/kexec.h             |  7 ++++
+ kernel/kexec_file.c               | 17 ++++++++++
+ mm/kfence/core.c                  | 18 +++++------
+ net/sched/cls_route.c             | 10 ++++++
+ 9 files changed, 105 insertions(+), 53 deletions(-)
+
 
