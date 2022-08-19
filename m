@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 785DE59A22B
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8A7F59A242
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353063AbiHSQc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:32:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44828 "EHLO
+        id S1353135AbiHSQd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:33:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353362AbiHSQb0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:31:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9013411E903;
-        Fri, 19 Aug 2022 09:05:49 -0700 (PDT)
+        with ESMTP id S1353546AbiHSQb4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:31:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ABCF11E926;
+        Fri, 19 Aug 2022 09:06:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82207B8281A;
-        Fri, 19 Aug 2022 16:05:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E07FDC433D6;
-        Fri, 19 Aug 2022 16:05:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01CB16181A;
+        Fri, 19 Aug 2022 16:05:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E125BC433C1;
+        Fri, 19 Aug 2022 16:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925140;
-        bh=qpFce+Tb+zJ1EIH4VJ8KyblvgOQHtWdFvmTVlDgV8G0=;
+        s=korg; t=1660925143;
+        bh=taOFjwG/oEmxhFwNnlXZcPoYM8Ds3Fx/LnUKUtBM40Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ann5xachG5rs11jdoj1cAN0cbkm2gcH5H6+0UWnhQJA0TNvSBQP4JeCpJCiEqqESs
-         X3OJ0f4S1AE8DU5m6G21cnX5yiv4tZ2PfvY9OJV6ezTQV6Sh0LgYGCakNcRZPkjQQ8
-         l909ppyRO0tciiLz+/yB37+/THNrAoGHH72+BRnU=
+        b=s+uQCbU9XaYCTFR7Soi4wmJQgxag2BqroKIyRjVvr75UVj9Wom7NEuZIfwOMurh3g
+         LFJ4M7E68hlbeSaQgOCfWWFzkxBGvty1lxDxqUo1A//jCmtGqv7uwr5j1cS2e4/HEi
+         vSj9/NE0ht2csDUnvD6U34v2zWGZSrjUWxjKJHgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 396/545] tty: n_gsm: fix missing corner cases in gsmld_poll()
-Date:   Fri, 19 Aug 2022 17:42:46 +0200
-Message-Id: <20220819153847.134824715@linuxfoundation.org>
+        stable@vger.kernel.org, Sam Protsenko <semen.protsenko@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 397/545] iommu/exynos: Handle failed IOMMU device registration properly
+Date:   Fri, 19 Aug 2022 17:42:47 +0200
+Message-Id: <20220819153847.182654870@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -53,47 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Sam Protsenko <semen.protsenko@linaro.org>
 
-[ Upstream commit 7e5b4322cde067e1d0f1bf8f490e93f664a7c843 ]
+[ Upstream commit fce398d2d02c0a9a2bedf7c7201b123e153e8963 ]
 
-gsmld_poll() currently fails to handle the following corner cases correctly:
-- remote party closed the associated tty
+If iommu_device_register() fails in exynos_sysmmu_probe(), the previous
+calls have to be cleaned up. In this case, the iommu_device_sysfs_add()
+should be cleaned up, by calling its remove counterpart call.
 
-Add the missing checks and map those to EPOLLHUP.
-Reorder the checks to group them by their reaction.
-
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220707113223.3685-4-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d2c302b6e8b1 ("iommu/exynos: Make use of iommu_device_register interface")
+Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20220714165550.8884-3-semen.protsenko@linaro.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/iommu/exynos-iommu.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index a6c0a1b76ddb..cb5ed4155a8d 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -2747,12 +2747,15 @@ static __poll_t gsmld_poll(struct tty_struct *tty, struct file *file,
+diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
+index de324b4eedfe..0cdb5493a464 100644
+--- a/drivers/iommu/exynos-iommu.c
++++ b/drivers/iommu/exynos-iommu.c
+@@ -635,7 +635,7 @@ static int exynos_sysmmu_probe(struct platform_device *pdev)
  
- 	poll_wait(file, &tty->read_wait, wait);
- 	poll_wait(file, &tty->write_wait, wait);
+ 	ret = iommu_device_register(&data->iommu);
+ 	if (ret)
+-		return ret;
++		goto err_iommu_register;
+ 
+ 	platform_set_drvdata(pdev, data);
+ 
+@@ -662,6 +662,10 @@ static int exynos_sysmmu_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(dev);
+ 
+ 	return 0;
 +
-+	if (gsm->dead)
-+		mask |= EPOLLHUP;
- 	if (tty_hung_up_p(file))
- 		mask |= EPOLLHUP;
-+	if (test_bit(TTY_OTHER_CLOSED, &tty->flags))
-+		mask |= EPOLLHUP;
- 	if (!tty_is_writelocked(tty) && tty_write_room(tty) > 0)
- 		mask |= EPOLLOUT | EPOLLWRNORM;
--	if (gsm->dead)
--		mask |= EPOLLHUP;
- 	return mask;
++err_iommu_register:
++	iommu_device_sysfs_remove(&data->iommu);
++	return ret;
  }
  
+ static int __maybe_unused exynos_sysmmu_suspend(struct device *dev)
 -- 
 2.35.1
 
