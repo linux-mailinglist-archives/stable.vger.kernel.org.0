@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B397599FE6
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86D6E59A13F
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350346AbiHSPuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:50:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50732 "EHLO
+        id S1349920AbiHSPuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:50:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350128AbiHSPtf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:49:35 -0400
+        with ESMTP id S1350140AbiHSPtg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:49:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11169104B1F;
-        Fri, 19 Aug 2022 08:47:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1BB104761;
+        Fri, 19 Aug 2022 08:47:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 914F7B827F8;
-        Fri, 19 Aug 2022 15:47:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00853C433D7;
-        Fri, 19 Aug 2022 15:47:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ACFF3B82814;
+        Fri, 19 Aug 2022 15:47:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B327C433D6;
+        Fri, 19 Aug 2022 15:47:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924062;
-        bh=P7q+UipvlCw/WKePsi4TKb/8NcwBOlpJ3wZ4c8QT+WY=;
+        s=korg; t=1660924065;
+        bh=ec+WUlwlBNEQUkcBaoJZbAaGDOf3aSCfnbsL47325vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vw2gaYGisOzKnIDM6FRZoMgJcqFMSTxIpw2imb/sCR795kVBE9o5L9RDe2s7J8zOc
-         CQwV/NzffT9YLREGqrQAfrEq2OVZAX1oKnn8BsvWW7e+v2CFXruRm8QSKtx2NKAXu8
-         NWh3HYXz0T19sG3dLUmPpTCr1BAX6lR7F6FhpddM=
+        b=R1IXq8nHJ+4LmnSYIMJnKKHdXka6K0vpj2m3ktn5uRlIICTz2xq/Ra9Hyjb6p+FXn
+         p3edIzvbXGiC6Y1k+ZNW+hxoZmGZBLmJGtsLLxoZxmCFmC4KhFC0em0f+84lULw34A
+         vChE1wUSFkx3IH1d3F/Q2G5HfB/u5QhWJWtb29P4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.10 042/545] drm/gem: Properly annotate WW context on drm_gem_lock_reservations() error
-Date:   Fri, 19 Aug 2022 17:36:52 +0200
-Message-Id: <20220819153831.100583523@linuxfoundation.org>
+        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.org>,
+        Maxime Ripard <maxime@cerno.tech>
+Subject: [PATCH 5.10 043/545] drm/vc4: hdmi: Disable audio if dmas property is present but empty
+Date:   Fri, 19 Aug 2022 17:36:53 +0200
+Message-Id: <20220819153831.142217593@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -57,47 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+From: Phil Elwell <phil@raspberrypi.org>
 
-commit 2939deac1fa220bc82b89235f146df1d9b52e876 upstream.
+commit db2b927f8668adf3ac765e0921cd2720f5c04172 upstream.
 
-Use ww_acquire_fini() in the error code paths. Otherwise lockdep
-thinks that lock is held when lock's memory is freed after the
-drm_gem_lock_reservations() error. The ww_acquire_context needs to be
-annotated as "released", which fixes the noisy "WARNING: held lock freed!"
-splat of VirtIO-GPU driver with CONFIG_DEBUG_MUTEXES=y and enabled lockdep.
+The dmas property is used to hold the dmaengine channel used for audio
+output.
 
-Cc: stable@vger.kernel.org
-Fixes: 7edc3e3b975b5 ("drm: Add helpers for locking an array of BO reservations.")
-Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220630200405.1883897-2-dmitry.osipenko@collabora.com
+Older device trees were missing that property, so if it's not there we
+disable the audio output entirely.
+
+However, some overlays have set an empty value to that property, mostly
+to workaround the fact that overlays cannot remove a property. Let's add
+a test for that case and if it's empty, let's disable it as well.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Phil Elwell <phil@raspberrypi.org>
+Link: https://lore.kernel.org/r/20220613144800.326124-18-maxime@cerno.tech
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_gem.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/drm_gem.c
-+++ b/drivers/gpu/drm/drm_gem.c
-@@ -1277,7 +1277,7 @@ retry:
- 		ret = dma_resv_lock_slow_interruptible(obj->resv,
- 								 acquire_ctx);
- 		if (ret) {
--			ww_acquire_done(acquire_ctx);
-+			ww_acquire_fini(acquire_ctx);
- 			return ret;
- 		}
- 	}
-@@ -1302,7 +1302,7 @@ retry:
- 				goto retry;
- 			}
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -1231,12 +1231,12 @@ static int vc4_hdmi_audio_init(struct vc
+ 	struct snd_soc_card *card = &vc4_hdmi->audio.card;
+ 	struct device *dev = &vc4_hdmi->pdev->dev;
+ 	const __be32 *addr;
+-	int index;
++	int index, len;
+ 	int ret;
  
--			ww_acquire_done(acquire_ctx);
-+			ww_acquire_fini(acquire_ctx);
- 			return ret;
- 		}
+-	if (!of_find_property(dev->of_node, "dmas", NULL)) {
++	if (!of_find_property(dev->of_node, "dmas", &len) || !len) {
+ 		dev_warn(dev,
+-			 "'dmas' DT property is missing, no HDMI audio\n");
++			 "'dmas' DT property is missing or empty, no HDMI audio\n");
+ 		return 0;
  	}
+ 
 
 
