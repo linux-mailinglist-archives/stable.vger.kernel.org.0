@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6F8E59A08B
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E61659A1E1
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:36:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352122AbiHSQVO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:21:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39544 "EHLO
+        id S1352580AbiHSQ0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:26:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352273AbiHSQU1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:20:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8813F109A38;
-        Fri, 19 Aug 2022 09:01:24 -0700 (PDT)
+        with ESMTP id S1352717AbiHSQZY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:25:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21C669FDD;
+        Fri, 19 Aug 2022 09:03:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27A30B8280F;
-        Fri, 19 Aug 2022 16:01:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62639C433D6;
-        Fri, 19 Aug 2022 16:01:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D782EB82802;
+        Fri, 19 Aug 2022 16:03:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 280F6C433D6;
+        Fri, 19 Aug 2022 16:03:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924873;
-        bh=WQmwcwkSAkbHRkR++9IsuWEB1OqnHSvSHLZ3n5R9+nI=;
+        s=korg; t=1660924995;
+        bh=Vi5nOn57Hq/yjy93n2CxGZ9yBwsNUVNFG9Sh/CociKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdzY0FRIxDATtznd01d8Gi29CJGgnec2OwsOG5vKR19xZycEPYstvvZxvj1PfY4Mc
-         i1q7f2WgYCFV67jHZpk6rZkibpFZsojlrROxiUE6BbDRbnRLYdXGhUkqQkIAsYI2Ce
-         0coq/Vj5neGTaOVqIB2INfHkk8bloX7WTQbtJPtY=
+        b=iqaHVLIKX/Zch4xP356lPUFfsM8OKREO4nwHFsHQGLPIhqhwll8LujUgIteTzFzP3
+         upH4rV6NDwCXwx3RrDMJ/fKmHvwvujWO/6taXrBD/+dGOMa90wgormX0qz8uj8Cgao
+         QIarSUi93EXRWb4E+hvQZ9TUl1BXh7sBXjZMRGFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 309/545] intel_th: Fix a resource leak in an error handling path
-Date:   Fri, 19 Aug 2022 17:41:19 +0200
-Message-Id: <20220819153843.183637595@linuxfoundation.org>
+Subject: [PATCH 5.10 310/545] intel_th: msu-sink: Potential dereference of null pointer
+Date:   Fri, 19 Aug 2022 17:41:20 +0200
+Message-Id: <20220819153843.230782415@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -56,53 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 086c28ab7c5699256aced0049aae9c42f1410313 ]
+[ Upstream commit 82f76a4a720791d889de775b5f7541d601efc8bd ]
 
-If an error occurs after calling 'pci_alloc_irq_vectors()',
-'pci_free_irq_vectors()' must be called as already done in the remove
-function.
+The return value of dma_alloc_coherent() needs to be checked.
+To avoid use of null pointer in sg_set_buf() in case of the failure of
+alloc.
 
-Fixes: 7b7036d47c35 ("intel_th: pci: Use MSI interrupt signalling")
+Fixes: f220df66f676 ("intel_th: msu-sink: An example msu buffer "sink"")
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Link: https://lore.kernel.org/r/20220705082637.59979-2-alexander.shishkin@linux.intel.com
+Link: https://lore.kernel.org/r/20220705082637.59979-3-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/intel_th/pci.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/hwtracing/intel_th/msu-sink.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hwtracing/intel_th/pci.c b/drivers/hwtracing/intel_th/pci.c
-index 817cdb29bbd8..d032c4de9ce6 100644
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -100,8 +100,10 @@ static int intel_th_pci_probe(struct pci_dev *pdev,
- 		}
- 
- 	th = intel_th_alloc(&pdev->dev, drvdata, resource, r);
--	if (IS_ERR(th))
--		return PTR_ERR(th);
-+	if (IS_ERR(th)) {
-+		err = PTR_ERR(th);
-+		goto err_free_irq;
-+	}
- 
- 	th->activate   = intel_th_pci_activate;
- 	th->deactivate = intel_th_pci_deactivate;
-@@ -109,6 +111,10 @@ static int intel_th_pci_probe(struct pci_dev *pdev,
- 	pci_set_master(pdev);
- 
- 	return 0;
+diff --git a/drivers/hwtracing/intel_th/msu-sink.c b/drivers/hwtracing/intel_th/msu-sink.c
+index 2c7f5116be12..891b28ea25fe 100644
+--- a/drivers/hwtracing/intel_th/msu-sink.c
++++ b/drivers/hwtracing/intel_th/msu-sink.c
+@@ -71,6 +71,9 @@ static int msu_sink_alloc_window(void *data, struct sg_table **sgt, size_t size)
+ 		block = dma_alloc_coherent(priv->dev->parent->parent,
+ 					   PAGE_SIZE, &sg_dma_address(sg_ptr),
+ 					   GFP_KERNEL);
++		if (!block)
++			return -ENOMEM;
 +
-+err_free_irq:
-+	pci_free_irq_vectors(pdev);
-+	return err;
- }
+ 		sg_set_buf(sg_ptr, block, PAGE_SIZE);
+ 	}
  
- static void intel_th_pci_remove(struct pci_dev *pdev)
 -- 
 2.35.1
 
