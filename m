@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05DE059A12E
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43CED599F4B
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350425AbiHSP4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:56:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40174 "EHLO
+        id S1350281AbiHSPvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:51:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350650AbiHSPzL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:55:11 -0400
+        with ESMTP id S1350516AbiHSPun (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:50:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EE81107D96;
-        Fri, 19 Aug 2022 08:49:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4003866A75;
+        Fri, 19 Aug 2022 08:48:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5FEB61702;
-        Fri, 19 Aug 2022 15:49:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DCACC433B5;
-        Fri, 19 Aug 2022 15:49:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77AB4616B5;
+        Fri, 19 Aug 2022 15:48:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80C57C433D6;
+        Fri, 19 Aug 2022 15:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924193;
-        bh=ohXzVHtE6DItpFVp9j+MEuEkFNvRx8jj9TPewUENQ+k=;
+        s=korg; t=1660924102;
+        bh=Ogkj3HbqZ7xuA3Rhml/SyvozyJ2wnDnjE1hW7yVbzwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vSPxcwMmD9JrhxpfixrENDOqamGgZxhuwSesEoD0rEdhcMbD8WQyVDxyxUJPk0Tu4
-         Q1nkDBI1knZUjTd8QhxA28UcdQTqjMH/itVUcqDqdjj56Pdx1ZrmCY5F7XpOsQD45+
-         8iIpETjZS7OxCTC28ouO++4iChx/uyLPmjq1gbzI=
+        b=0tOznqz0CdLaBOVhlIyTmuAXk8pFBeL6tr5QQxPQIC5elCLQW59U50fj9auEamDuI
+         rR9yrxhn8xhZq2QA66+iXTgT7FmJ7XzPO46y1Qq0Vxi4L5Ekw6x/AusnrtkdVkC//q
+         Omg/wHx7mAkgQ1RdVjgcuNwh73O2qGEOSfbC2EGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.10 048/545] mtd: rawnand: arasan: Update NAND bus clock instead of system clock
-Date:   Fri, 19 Aug 2022 17:36:58 +0200
-Message-Id: <20220819153831.365442311@linuxfoundation.org>
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 049/545] iio: light: isl29028: Fix the warning in isl29028_remove()
+Date:   Fri, 19 Aug 2022 17:36:59 +0200
+Message-Id: <20220819153831.414839633@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,50 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit 7499bfeedb47efc1ee4dc793b92c610d46e6d6a6 upstream.
+commit 06674fc7c003b9d0aa1d37fef7ab2c24802cc6ad upstream.
 
-In current implementation the Arasan NAND driver is updating the
-system clock(i.e., anand->clk) in accordance to the timing modes
-(i.e., SDR or NVDDR). But as per the Arasan NAND controller spec the
-flash clock or the NAND bus clock(i.e., nfc->bus_clk), need to be
-updated instead. This patch keeps the system clock unchanged and updates
-the NAND bus clock as per the timing modes.
+The driver use the non-managed form of the register function in
+isl29028_remove(). To keep the release order as mirroring the ordering
+in probe, the driver should use non-managed form in probe, too.
 
-Fixes: 197b88fecc50 ("mtd: rawnand: arasan: Add new Arasan NAND controller")
-CC: stable@vger.kernel.org # 5.8+
-Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220628154824.12222-2-amit.kumar-mahapatra@xilinx.com
+The following log reveals it:
+
+[   32.374955] isl29028 0-0010: remove
+[   32.376861] general protection fault, probably for non-canonical address 0xdffffc0000000006: 0000 [#1] PREEMPT SMP KASAN PTI
+[   32.377676] KASAN: null-ptr-deref in range [0x0000000000000030-0x0000000000000037]
+[   32.379432] RIP: 0010:kernfs_find_and_get_ns+0x28/0xe0
+[   32.385461] Call Trace:
+[   32.385807]  sysfs_unmerge_group+0x59/0x110
+[   32.386110]  dpm_sysfs_remove+0x58/0xc0
+[   32.386391]  device_del+0x296/0xe50
+[   32.386959]  cdev_device_del+0x1d/0xd0
+[   32.387231]  devm_iio_device_unreg+0x27/0xb0
+[   32.387542]  devres_release_group+0x319/0x3d0
+[   32.388162]  i2c_device_remove+0x93/0x1f0
+
+Fixes: 2db5054ac28d ("staging: iio: isl29028: add runtime power management support")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220717004241.2281028-1-zheyuma97@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/arasan-nand-controller.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/iio/light/isl29028.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/arasan-nand-controller.c
-+++ b/drivers/mtd/nand/raw/arasan-nand-controller.c
-@@ -283,17 +283,17 @@ static int anfc_select_target(struct nan
+--- a/drivers/iio/light/isl29028.c
++++ b/drivers/iio/light/isl29028.c
+@@ -627,7 +627,7 @@ static int isl29028_probe(struct i2c_cli
+ 					 ISL29028_POWER_OFF_DELAY_MS);
+ 	pm_runtime_use_autosuspend(&client->dev);
  
- 	/* Update clock frequency */
- 	if (nfc->cur_clk != anand->clk) {
--		clk_disable_unprepare(nfc->controller_clk);
--		ret = clk_set_rate(nfc->controller_clk, anand->clk);
-+		clk_disable_unprepare(nfc->bus_clk);
-+		ret = clk_set_rate(nfc->bus_clk, anand->clk);
- 		if (ret) {
- 			dev_err(nfc->dev, "Failed to change clock rate\n");
- 			return ret;
- 		}
- 
--		ret = clk_prepare_enable(nfc->controller_clk);
-+		ret = clk_prepare_enable(nfc->bus_clk);
- 		if (ret) {
- 			dev_err(nfc->dev,
--				"Failed to re-enable the controller clock\n");
-+				"Failed to re-enable the bus clock\n");
- 			return ret;
- 		}
- 
+-	ret = devm_iio_device_register(indio_dev->dev.parent, indio_dev);
++	ret = iio_device_register(indio_dev);
+ 	if (ret < 0) {
+ 		dev_err(&client->dev,
+ 			"%s(): iio registration failed with error %d\n",
 
 
