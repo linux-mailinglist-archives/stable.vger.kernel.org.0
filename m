@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 640B659A04F
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AD03599F74
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350799AbiHSP5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:57:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40298 "EHLO
+        id S1350868AbiHSP6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:58:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351124AbiHSP40 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:56:26 -0400
+        with ESMTP id S1350711AbiHSP47 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:56:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96EF610896E;
-        Fri, 19 Aug 2022 08:51:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 560C3108934;
+        Fri, 19 Aug 2022 08:51:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80397B827F8;
-        Fri, 19 Aug 2022 15:51:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C71E5C433D7;
-        Fri, 19 Aug 2022 15:51:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81ACCB82814;
+        Fri, 19 Aug 2022 15:51:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1DE8C433C1;
+        Fri, 19 Aug 2022 15:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924287;
-        bh=Bb3Dowe88SgXMAAw/tOPGQ0jkgx64iKxbq65M0Yu5y4=;
+        s=korg; t=1660924290;
+        bh=kIWsF77zWPnhFX+qG0aWMe2sCIO7+gDIJgIDthFSsDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2U2OabNptTPvsglCieiJf3R5KXeUPgRGRkWwqnjEk+oiE8IhYJqoCUaYVba7DZM4s
-         7W56OP2/tVNw6YfpxmQPXfdWaT/ycOcPkNOia8BGQZ80hAoQmA4nEB/HCp3/7bx9zI
-         ZOzRTl9AG81wHD5kVmBzoHcn0wXYj2UkuLsMFCoM=
+        b=KB+lZ5yZ3+aHmu0DG558Y4CGG2z/iwTypn/A6NiZSK1JCtbyHQoVYJMluI67jJTHq
+         GjA8OMNijflq1pTD5nW69mb83vBfRp2bDt3snK9pSl8abF6AlwwSVHiXQxTn2KglgN
+         VTGPX4gKBZoMQFqX5fh4xZddkpP6hXy6ezVgFptA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexander Stein <alexander.stein@ew.tq-group.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 088/545] ARM: dts: imx6ul: fix keypad compatible
-Date:   Fri, 19 Aug 2022 17:37:38 +0200
-Message-Id: <20220819153833.188093150@linuxfoundation.org>
+Subject: [PATCH 5.10 089/545] ARM: dts: imx6ul: fix csi node compatible
+Date:   Fri, 19 Aug 2022 17:37:39 +0200
+Message-Id: <20220819153833.234141347@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -57,16 +57,15 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 7d15e0c9a515494af2e3199741cdac7002928a0e ]
+[ Upstream commit e0aca931a2c7c29c88ebf37f9c3cd045e083483d ]
 
-According to binding, the compatible shall only contain imx6ul and imx21
-compatibles. Fixes the dt_binding_check warning:
-keypad@20b8000: compatible: 'oneOf' conditional failed, one must be fixed:
-['fsl,imx6ul-kpp', 'fsl,imx6q-kpp', 'fsl,imx21-kpp'] is too long
-Additional items are not allowed ('fsl,imx6q-kpp', 'fsl,imx21-kpp' were
-unexpected)
-Additional items are not allowed ('fsl,imx21-kpp' was unexpected)
-'fsl,imx21-kpp' was expected
+"fsl,imx6ul-csi" was never listed as compatible to "fsl,imx7-csi", neither
+in yaml bindings, nor previous txt binding. Remove the imx7 part. Fixes
+the dt schema check warning:
+csi@21c4000: compatible: 'oneOf' conditional failed, one must be fixed:
+['fsl,imx6ul-csi', 'fsl,imx7-csi'] is too long
+Additional items are not allowed ('fsl,imx7-csi' was unexpected)
+'fsl,imx8mm-csi' was expected
 
 Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
@@ -76,18 +75,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm/boot/dts/imx6ul.dtsi b/arch/arm/boot/dts/imx6ul.dtsi
-index 02640c19c1ec..1474985b9908 100644
+index 1474985b9908..8e6079a68022 100644
 --- a/arch/arm/boot/dts/imx6ul.dtsi
 +++ b/arch/arm/boot/dts/imx6ul.dtsi
-@@ -541,7 +541,7 @@ fec2: ethernet@20b4000 {
+@@ -995,7 +995,7 @@ cpu_speed_grade: speed-grade@10 {
  			};
  
- 			kpp: keypad@20b8000 {
--				compatible = "fsl,imx6ul-kpp", "fsl,imx6q-kpp", "fsl,imx21-kpp";
-+				compatible = "fsl,imx6ul-kpp", "fsl,imx21-kpp";
- 				reg = <0x020b8000 0x4000>;
- 				interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clks IMX6UL_CLK_KPP>;
+ 			csi: csi@21c4000 {
+-				compatible = "fsl,imx6ul-csi", "fsl,imx7-csi";
++				compatible = "fsl,imx6ul-csi";
+ 				reg = <0x021c4000 0x4000>;
+ 				interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>;
+ 				clocks = <&clks IMX6UL_CLK_CSI>;
 -- 
 2.35.1
 
