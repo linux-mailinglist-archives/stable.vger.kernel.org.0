@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F577599EB9
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:44:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E0D6599E93
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 17:44:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349877AbiHSPkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:40:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36972 "EHLO
+        id S1349935AbiHSPkx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:40:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349936AbiHSPkd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:40:33 -0400
+        with ESMTP id S1349993AbiHSPki (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:40:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FB9B102284;
-        Fri, 19 Aug 2022 08:40:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C781E869C;
+        Fri, 19 Aug 2022 08:40:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C57BDB82812;
-        Fri, 19 Aug 2022 15:40:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BC13C433C1;
-        Fri, 19 Aug 2022 15:40:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C87D9B8277D;
+        Fri, 19 Aug 2022 15:40:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 349B4C433D6;
+        Fri, 19 Aug 2022 15:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660923621;
-        bh=62hkTjfnNifN8BfItveFX+WXW+B3n4hjnsSe2EsACOA=;
+        s=korg; t=1660923629;
+        bh=QXKbbD2rBMM2SVJ7jtAh4BSriiVTIwVcRFRHymGJ04g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sbGk84/XlXbiQIxQmIUl6IfYfpSRG7+OceVB9RodNjhMKmogNORvqi1L4sI36X7ri
-         DFbIUuYmbSU2WUQ+Aij0gbNE2Qxx7F5N5G2+tRQLOsJsq9xwadOI2SFipsZsA/DW9C
-         4oyZTwhdVL2gojEls6bOubraW4kmNdEVRsBGx9/o=
+        b=MZJjOq9Gd1Gkw7aemgJQczCtnNGV7QWMTgDc9pOkyH97SCEJ+3uOEupmJjtWnKptB
+         vPGJHevncZ9HHVnR4BAbBonnLkt44ksUuCeOgum5MF0YbxI6awRkIBxCwIxAClIpiE
+         Sl5hMSJ4M6hOda4vV0eolJRNBbtZJm7jiA9S7AC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nimish Mishra <neelam.nimish@gmail.com>,
-        Anirban Chakraborty <ch.anirban00727@gmail.com>,
-        Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>,
-        Jerome Forissier <jerome.forissier@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.18 1/6] tee: add overflow check in register_shm_helper()
-Date:   Fri, 19 Aug 2022 17:40:13 +0200
-Message-Id: <20220819153710.490832335@linuxfoundation.org>
+        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.18 2/6] net_sched: cls_route: disallow handle of 0
+Date:   Fri, 19 Aug 2022 17:40:14 +0200
+Message-Id: <20220819153710.530694228@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153710.430046927@linuxfoundation.org>
 References: <20220819153710.430046927@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,59 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Jamal Hadi Salim <jhs@mojatatu.com>
 
-commit 573ae4f13f630d6660008f1974c0a8a29c30e18a upstream.
+commit 02799571714dc5dd6948824b9d080b44a295f695 upstream.
 
-With special lengths supplied by user space, register_shm_helper() has
-an integer overflow when calculating the number of pages covered by a
-supplied user space memory region.
+Follows up on:
+https://lore.kernel.org/all/20220809170518.164662-1-cascardo@canonical.com/
 
-This causes internal_get_user_pages_fast() a helper function of
-pin_user_pages_fast() to do a NULL pointer dereference:
+handle of 0 implies from/to of universe realm which is not very
+sensible.
 
-  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
-  Modules linked in:
-  CPU: 1 PID: 173 Comm: optee_example_a Not tainted 5.19.0 #11
-  Hardware name: QEMU QEMU Virtual Machine, BIOS 0.0.0 02/06/2015
-  pc : internal_get_user_pages_fast+0x474/0xa80
-  Call trace:
-   internal_get_user_pages_fast+0x474/0xa80
-   pin_user_pages_fast+0x24/0x4c
-   register_shm_helper+0x194/0x330
-   tee_shm_register_user_buf+0x78/0x120
-   tee_ioctl+0xd0/0x11a0
-   __arm64_sys_ioctl+0xa8/0xec
-   invoke_syscall+0x48/0x114
+Lets see what this patch will do:
+$sudo tc qdisc add dev $DEV root handle 1:0 prio
 
-Fix this by adding an an explicit call to access_ok() in
-tee_shm_register_user_buf() to catch an invalid user space address
-early.
+//lets manufacture a way to insert handle of 0
+$sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 \
+route to 0 from 0 classid 1:10 action ok
 
-Fixes: 033ddf12bcf5 ("tee: add register user memory")
-Cc: stable@vger.kernel.org
-Reported-by: Nimish Mishra <neelam.nimish@gmail.com>
-Reported-by: Anirban Chakraborty <ch.anirban00727@gmail.com>
-Reported-by: Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>
-Suggested-by: Jerome Forissier <jerome.forissier@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+//gets rejected...
+Error: handle of 0 is not valid.
+We have an error talking to the kernel, -1
+
+//lets create a legit entry..
+sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 route from 10 \
+classid 1:10 action ok
+
+//what did the kernel insert?
+$sudo tc filter ls dev $DEV parent 1:0
+filter protocol ip pref 100 route chain 0
+filter protocol ip pref 100 route chain 0 fh 0x000a8000 flowid 1:10 from 10
+	action order 1: gact action pass
+	 random type none pass val 0
+	 index 1 ref 1 bind 1
+
+//Lets try to replace that legit entry with a handle of 0
+$ sudo tc filter replace dev $DEV parent 1:0 protocol ip prio 100 \
+handle 0x000a8000 route to 0 from 0 classid 1:10 action drop
+
+Error: Replacing with handle of 0 is invalid.
+We have an error talking to the kernel, -1
+
+And last, lets run Cascardo's POC:
+$ ./poc
+0
+0
+-22
+-22
+-22
+
+Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Acked-by: Stephen Hemminger <stephen@networkplumber.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/tee_shm.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/sched/cls_route.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/tee/tee_shm.c
-+++ b/drivers/tee/tee_shm.c
-@@ -311,6 +311,9 @@ struct tee_shm *tee_shm_register_user_bu
- 	void *ret;
- 	int id;
+--- a/net/sched/cls_route.c
++++ b/net/sched/cls_route.c
+@@ -424,6 +424,11 @@ static int route4_set_parms(struct net *
+ 			return -EINVAL;
+ 	}
  
-+	if (!access_ok((void __user *)addr, length))
-+		return ERR_PTR(-EFAULT);
++	if (!nhandle) {
++		NL_SET_ERR_MSG(extack, "Replacing with handle of 0 is invalid");
++		return -EINVAL;
++	}
 +
- 	mutex_lock(&teedev->mutex);
- 	id = idr_alloc(&teedev->idr, NULL, 1, 0, GFP_KERNEL);
- 	mutex_unlock(&teedev->mutex);
+ 	h1 = to_hash(nhandle);
+ 	b = rtnl_dereference(head->table[h1]);
+ 	if (!b) {
+@@ -477,6 +482,11 @@ static int route4_change(struct net *net
+ 	int err;
+ 	bool new = true;
+ 
++	if (!handle) {
++		NL_SET_ERR_MSG(extack, "Creating with handle of 0 is invalid");
++		return -EINVAL;
++	}
++
+ 	if (opt == NULL)
+ 		return handle ? -EINVAL : 0;
+ 
 
 
