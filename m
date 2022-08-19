@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E0BC59A3CC
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90D2159A393
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354046AbiHSQrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:47:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38510 "EHLO
+        id S1353873AbiHSQqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:46:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353743AbiHSQq2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:46:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8458C12AD22;
-        Fri, 19 Aug 2022 09:12:28 -0700 (PDT)
+        with ESMTP id S1353973AbiHSQpe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:45:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C54A112FA1;
+        Fri, 19 Aug 2022 09:11:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BB8BB825D3;
-        Fri, 19 Aug 2022 16:11:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECF00C433C1;
-        Fri, 19 Aug 2022 16:11:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB00561838;
+        Fri, 19 Aug 2022 16:11:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C94B8C433C1;
+        Fri, 19 Aug 2022 16:11:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925491;
-        bh=maXJZmtfGHTbigKGqgNHPqRQAaITODt4/YtQSu33wlo=;
+        s=korg; t=1660925494;
+        bh=d8wBo+QR4O8JqqkGeeFMtuP8DDWDZNs6/vactNB//FM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dejY5PZ81ioTDjn/ncS6QfNQBU1VIr8mJWABYGO2e6eqdAYjLeLlVQSHGlAMW3Hoq
-         /O+JOhPyp1H4tnjJuYrEml3K2d1g85KNSAPzkhglXwEJBGz1bK/uYu7J/dvFgYmNc7
-         O898/eWDpIITKfXMhdJa+8lM7ad7YwHnVsmMDlgk=
+        b=A2aQ6/dwMk1NY8T3b85J/8GejnhXvz+QXA/X5f9Q+5E+FmhsQDpJ9+BL2DEgyCZiV
+         fCQ0Rymr1xxXv3996s3w7JB4nYcFD5EtZg5EisF6rijNe2qiKmssD1Yqf5SXgBCkpG
+         uGk7cJ2Akiy3010GSDDCyzyMyAvX2sfBqxE3mAkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sean V Kelley <sean.v.kelley@intel.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
+        Kuppuswamy Sathyanarayanan 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 477/545] PCI/ERR: Simplify by computing pci_pcie_type() once
-Date:   Fri, 19 Aug 2022 17:44:07 +0200
-Message-Id: <20220819153850.764825952@linuxfoundation.org>
+Subject: [PATCH 5.10 478/545] PCI/ERR: Use "bridge" for clarity in pcie_do_recovery()
+Date:   Fri, 19 Aug 2022 17:44:08 +0200
+Message-Id: <20220819153850.812193669@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -57,92 +59,112 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean V Kelley <sean.v.kelley@intel.com>
 
-[ Upstream commit 480ef7cb9fcebda7b28cbed4f6cdcf0a02f4a6ca ]
+[ Upstream commit 0791721d800790e6e533bd8467df67f0dc4f2fec ]
 
-Instead of calling pci_pcie_type(dev) twice, call it once and save the
-result.  No functional change intended.
+pcie_do_recovery() may be called with "dev" being either a bridge (Root
+Port or Switch Downstream Port) or an Endpoint.  The bulk of the function
+deals with the bridge, so if we start with an Endpoint, we reset "dev" to
+be the bridge leading to it.
 
-Link: https://lore.kernel.org/r/20201121001036.8560-7-sean.v.kelley@intel.com
+For clarity, replace "dev" in the body of the function with "bridge".  No
+functional change intended.
+
+Link: https://lore.kernel.org/r/20201121001036.8560-8-sean.v.kelley@intel.com
 Tested-by: Jonathan Cameron <Jonathan.Cameron@huawei.com> # non-native/no RCEC
 Signed-off-by: Sean V Kelley <sean.v.kelley@intel.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pcie/aer.c         | 5 +++--
- drivers/pci/pcie/err.c         | 5 +++--
- drivers/pci/pcie/portdrv_pci.c | 9 +++++----
- 3 files changed, 11 insertions(+), 8 deletions(-)
+ drivers/pci/pcie/err.c | 37 ++++++++++++++++++++-----------------
+ 1 file changed, 20 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
-index 61f78b20b0cf..72dbc193a25f 100644
---- a/drivers/pci/pcie/aer.c
-+++ b/drivers/pci/pcie/aer.c
-@@ -1039,6 +1039,7 @@ EXPORT_SYMBOL_GPL(aer_recover_queue);
-  */
- int aer_get_device_error_info(struct pci_dev *dev, struct aer_err_info *info)
- {
-+	int type = pci_pcie_type(dev);
- 	int aer = dev->aer_cap;
- 	int temp;
- 
-@@ -1057,8 +1058,8 @@ int aer_get_device_error_info(struct pci_dev *dev, struct aer_err_info *info)
- 			&info->mask);
- 		if (!(info->status & ~info->mask))
- 			return 0;
--	} else if (pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT ||
--	           pci_pcie_type(dev) == PCI_EXP_TYPE_DOWNSTREAM ||
-+	} else if (type == PCI_EXP_TYPE_ROOT_PORT ||
-+		   type == PCI_EXP_TYPE_DOWNSTREAM ||
- 		   info->severity == AER_NONFATAL) {
- 
- 		/* Link is still healthy for IO reads */
 diff --git a/drivers/pci/pcie/err.c b/drivers/pci/pcie/err.c
-index 05f61da5ed9d..7a5af873d8bc 100644
+index 7a5af873d8bc..46a5b84f8842 100644
 --- a/drivers/pci/pcie/err.c
 +++ b/drivers/pci/pcie/err.c
-@@ -150,6 +150,7 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev,
- 		pci_channel_state_t state,
+@@ -151,24 +151,27 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev,
  		pci_ers_result_t (*reset_subordinates)(struct pci_dev *pdev))
  {
-+	int type = pci_pcie_type(dev);
- 	pci_ers_result_t status = PCI_ERS_RESULT_CAN_RECOVER;
+ 	int type = pci_pcie_type(dev);
+-	pci_ers_result_t status = PCI_ERS_RESULT_CAN_RECOVER;
++	struct pci_dev *bridge;
  	struct pci_bus *bus;
++	pci_ers_result_t status = PCI_ERS_RESULT_CAN_RECOVER;
  
-@@ -157,8 +158,8 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev,
- 	 * Error recovery runs on all subordinates of the first downstream port.
- 	 * If the downstream port detected the error, it is cleared at the end.
+ 	/*
+-	 * Error recovery runs on all subordinates of the first downstream port.
+-	 * If the downstream port detected the error, it is cleared at the end.
++	 * Error recovery runs on all subordinates of the bridge.  If the
++	 * bridge detected the error, it is cleared at the end.
  	 */
--	if (!(pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT ||
--	      pci_pcie_type(dev) == PCI_EXP_TYPE_DOWNSTREAM))
-+	if (!(type == PCI_EXP_TYPE_ROOT_PORT ||
-+	      type == PCI_EXP_TYPE_DOWNSTREAM))
- 		dev = pci_upstream_bridge(dev);
- 	bus = dev->subordinate;
+ 	if (!(type == PCI_EXP_TYPE_ROOT_PORT ||
+ 	      type == PCI_EXP_TYPE_DOWNSTREAM))
+-		dev = pci_upstream_bridge(dev);
+-	bus = dev->subordinate;
++		bridge = pci_upstream_bridge(dev);
++	else
++		bridge = dev;
  
-diff --git a/drivers/pci/pcie/portdrv_pci.c b/drivers/pci/pcie/portdrv_pci.c
-index 26259630fd10..aac1a6828b4f 100644
---- a/drivers/pci/pcie/portdrv_pci.c
-+++ b/drivers/pci/pcie/portdrv_pci.c
-@@ -101,13 +101,14 @@ static const struct dev_pm_ops pcie_portdrv_pm_ops = {
- static int pcie_portdrv_probe(struct pci_dev *dev,
- 					const struct pci_device_id *id)
- {
-+	int type = pci_pcie_type(dev);
- 	int status;
+-	pci_dbg(dev, "broadcast error_detected message\n");
++	bus = bridge->subordinate;
++	pci_dbg(bridge, "broadcast error_detected message\n");
+ 	if (state == pci_channel_io_frozen) {
+ 		pci_walk_bus(bus, report_frozen_detected, &status);
+-		status = reset_subordinates(dev);
++		status = reset_subordinates(bridge);
+ 		if (status != PCI_ERS_RESULT_RECOVERED) {
+-			pci_warn(dev, "subordinate device reset failed\n");
++			pci_warn(bridge, "subordinate device reset failed\n");
+ 			goto failed;
+ 		}
+ 	} else {
+@@ -177,7 +180,7 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev,
  
- 	if (!pci_is_pcie(dev) ||
--	    ((pci_pcie_type(dev) != PCI_EXP_TYPE_ROOT_PORT) &&
--	     (pci_pcie_type(dev) != PCI_EXP_TYPE_UPSTREAM) &&
--	     (pci_pcie_type(dev) != PCI_EXP_TYPE_DOWNSTREAM) &&
--	     (pci_pcie_type(dev) != PCI_EXP_TYPE_RC_EC)))
-+	    ((type != PCI_EXP_TYPE_ROOT_PORT) &&
-+	     (type != PCI_EXP_TYPE_UPSTREAM) &&
-+	     (type != PCI_EXP_TYPE_DOWNSTREAM) &&
-+	     (type != PCI_EXP_TYPE_RC_EC)))
- 		return -ENODEV;
+ 	if (status == PCI_ERS_RESULT_CAN_RECOVER) {
+ 		status = PCI_ERS_RESULT_RECOVERED;
+-		pci_dbg(dev, "broadcast mmio_enabled message\n");
++		pci_dbg(bridge, "broadcast mmio_enabled message\n");
+ 		pci_walk_bus(bus, report_mmio_enabled, &status);
+ 	}
  
- 	status = pcie_port_device_register(dev);
+@@ -188,27 +191,27 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev,
+ 		 * drivers' slot_reset callbacks?
+ 		 */
+ 		status = PCI_ERS_RESULT_RECOVERED;
+-		pci_dbg(dev, "broadcast slot_reset message\n");
++		pci_dbg(bridge, "broadcast slot_reset message\n");
+ 		pci_walk_bus(bus, report_slot_reset, &status);
+ 	}
+ 
+ 	if (status != PCI_ERS_RESULT_RECOVERED)
+ 		goto failed;
+ 
+-	pci_dbg(dev, "broadcast resume message\n");
++	pci_dbg(bridge, "broadcast resume message\n");
+ 	pci_walk_bus(bus, report_resume, &status);
+ 
+-	if (pcie_aer_is_native(dev))
+-		pcie_clear_device_status(dev);
+-	pci_aer_clear_nonfatal_status(dev);
+-	pci_info(dev, "device recovery successful\n");
++	if (pcie_aer_is_native(bridge))
++		pcie_clear_device_status(bridge);
++	pci_aer_clear_nonfatal_status(bridge);
++	pci_info(bridge, "device recovery successful\n");
+ 	return status;
+ 
+ failed:
+-	pci_uevent_ers(dev, PCI_ERS_RESULT_DISCONNECT);
++	pci_uevent_ers(bridge, PCI_ERS_RESULT_DISCONNECT);
+ 
+ 	/* TODO: Should kernel panic here? */
+-	pci_info(dev, "device recovery failed\n");
++	pci_info(bridge, "device recovery failed\n");
+ 
+ 	return status;
+ }
 -- 
 2.35.1
 
