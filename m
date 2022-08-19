@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC96F59A1C9
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 886B059A16A
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351518AbiHSQLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:11:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
+        id S1351302AbiHSQLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:11:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351930AbiHSQLD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:11:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61DCD11231E;
-        Fri, 19 Aug 2022 08:56:59 -0700 (PDT)
+        with ESMTP id S1351858AbiHSQKp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:10:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E971D11232B;
+        Fri, 19 Aug 2022 08:57:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 134B6B82819;
-        Fri, 19 Aug 2022 15:56:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42FABC43140;
-        Fri, 19 Aug 2022 15:56:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83FDC614DA;
+        Fri, 19 Aug 2022 15:57:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C1BC433C1;
+        Fri, 19 Aug 2022 15:56:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924616;
-        bh=/bz97d8eC9tLEAccbjF2RV+Ifl5jlUarddDXwnlxLb8=;
+        s=korg; t=1660924619;
+        bh=OrNeTHxlYDIcYbDW02upfTtUi0ToYWNUAMpL14jUXmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTWly/4lAAMJp8TTX5S2Ia4+lueVyqfeeRmvZx77R6r+x14Psj1nWySpY4/a7qzix
-         qa2PZXDIQbJVkjMx8av5aEG24ieLRkvJ4jJZjGIWebaqwr9sLJJB8QKDir/WigTv/T
-         pqbyzWTeR+2uRND5b373mBaMINwea8P8ujsQ1EiE=
+        b=yJv23HXYzG/KJaCBssesTZEcGmvuWaLN7IUe0ZFBAnyd4j1SlzW8nqFqIgxicQK/b
+         Upl6IfjsoWbf14SaKoXO0K9aFBw3FlzlD1Vj9Tg58aWgDUEQYcTbvKUo+tz0HRu7vG
+         gGfDbo+DM+u3rC9Mulx4/v+xHuwNNNqw429MvUxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        John Stultz <jstultz@google.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>, Yonghong Song <yhs@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 228/545] selftests: timers: clocksource-switch: fix passing errors from child
-Date:   Fri, 19 Aug 2022 17:39:58 +0200
-Message-Id: <20220819153839.572434394@linuxfoundation.org>
+Subject: [PATCH 5.10 229/545] bpf: Fix subprog names in stack traces.
+Date:   Fri, 19 Aug 2022 17:39:59 +0200
+Message-Id: <20220819153839.610541820@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -56,41 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Alexei Starovoitov <ast@kernel.org>
 
-[ Upstream commit 4d8f52ac5fa9eede7b7aa2f2d67c841d9eeb655f ]
+[ Upstream commit 9c7c48d6a1e2eb5192ad5294c1c4dbd42a88e88b ]
 
-The return value from system() is a waitpid-style integer. Do not return
-it directly because with the implicit masking in exit() it will always
-return 0. Access it with appropriate macros to really pass on errors.
+The commit 7337224fc150 ("bpf: Improve the info.func_info and info.func_info_rec_size behavior")
+accidently made bpf_prog_ksym_set_name() conservative for bpf subprograms.
+Fixed it so instead of "bpf_prog_tag_F" the stack traces print "bpf_prog_tag_full_subprog_name".
 
-Fixes: 7290ce1423c3 ("selftests/timers: Add clocksource-switch test from timetest suite")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: John Stultz <jstultz@google.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 7337224fc150 ("bpf: Improve the info.func_info and info.func_info_rec_size behavior")
+Reported-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20220714211637.17150-1-alexei.starovoitov@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/timers/clocksource-switch.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/bpf/verifier.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/timers/clocksource-switch.c b/tools/testing/selftests/timers/clocksource-switch.c
-index bfc974b4572d..c18313a5f357 100644
---- a/tools/testing/selftests/timers/clocksource-switch.c
-+++ b/tools/testing/selftests/timers/clocksource-switch.c
-@@ -110,10 +110,10 @@ int run_tests(int secs)
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 15ddc4292bc0..de636b7445b1 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -11152,6 +11152,7 @@ static int jit_subprogs(struct bpf_verifier_env *env)
+ 		/* Below members will be freed only at prog->aux */
+ 		func[i]->aux->btf = prog->aux->btf;
+ 		func[i]->aux->func_info = prog->aux->func_info;
++		func[i]->aux->func_info_cnt = prog->aux->func_info_cnt;
+ 		func[i]->aux->poke_tab = prog->aux->poke_tab;
+ 		func[i]->aux->size_poke_tab = prog->aux->size_poke_tab;
  
- 	sprintf(buf, "./inconsistency-check -t %i", secs);
- 	ret = system(buf);
--	if (ret)
--		return ret;
-+	if (WIFEXITED(ret) && WEXITSTATUS(ret))
-+		return WEXITSTATUS(ret);
- 	ret = system("./nanosleep");
--	return ret;
-+	return WIFEXITED(ret) ? WEXITSTATUS(ret) : 0;
- }
+@@ -11164,9 +11165,6 @@ static int jit_subprogs(struct bpf_verifier_env *env)
+ 				poke->aux = func[i]->aux;
+ 		}
  
- 
+-		/* Use bpf_prog_F_tag to indicate functions in stack traces.
+-		 * Long term would need debug info to populate names
+-		 */
+ 		func[i]->aux->name[0] = 'F';
+ 		func[i]->aux->stack_depth = env->subprog_info[i].stack_depth;
+ 		func[i]->jit_requested = 1;
 -- 
 2.35.1
 
