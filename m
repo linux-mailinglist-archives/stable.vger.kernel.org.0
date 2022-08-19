@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E90135990F4
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 01:09:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D23EE5991C4
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 02:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237157AbiHRXJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Aug 2022 19:09:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42510 "EHLO
+        id S233314AbiHSAdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Aug 2022 20:33:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240507AbiHRXJH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 19:09:07 -0400
+        with ESMTP id S229899AbiHSAdR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Aug 2022 20:33:17 -0400
 Received: from maynard.decadent.org.uk (maynard.decadent.org.uk [95.217.213.242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE3B231342
-        for <stable@vger.kernel.org>; Thu, 18 Aug 2022 16:09:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 984A1FD00;
+        Thu, 18 Aug 2022 17:33:15 -0700 (PDT)
 Received: from 213.219.160.184.adsl.dyn.edpnet.net ([213.219.160.184] helo=deadeye)
         by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1oOod9-0000LN-QA; Fri, 19 Aug 2022 01:08:51 +0200
+        id 1oOpwj-0000wB-3a; Fri, 19 Aug 2022 02:33:09 +0200
 Received: from ben by deadeye with local (Exim 4.96)
         (envelope-from <ben@decadent.org.uk>)
-        id 1oOod9-000YsC-0m;
-        Fri, 19 Aug 2022 01:08:51 +0200
-Date:   Fri, 19 Aug 2022 01:08:51 +0200
-From:   Ben Hutchings <benh@debian.org>
+        id 1oOpwi-000a0S-0N;
+        Fri, 19 Aug 2022 02:33:08 +0200
+Date:   Fri, 19 Aug 2022 02:33:08 +0200
+From:   Ben Hutchings <ben@decadent.org.uk>
 To:     x86@kernel.org
-Cc:     linux-kernel@ver.kernel.org, 1017425@bugs.debian.org,
+Cc:     linux-kernel@vger.kernel.org, 1017425@bugs.debian.org,
         =?iso-8859-1?Q?Martin-=C9ric?= Racine <martin-eric.racine@iki.fi>,
         stable@vger.kernel.org, regressions@lists.linux.dev,
         Daniel Sneddon <daniel.sneddon@linux.intel.com>,
         Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 Subject: [PATCH] x86/speculation: Avoid LFENCE in FILL_RETURN_BUFFER on CPUs
  that lack it
-Message-ID: <Yv7Gg2nu4CpSY58S@decadent.org.uk>
+Message-ID: <Yv7aRJ/SvVhSdnSB@decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="X9reK1QatItOUBDw"
+        protocol="application/pgp-signature"; boundary="eT0M3T1LYdQ/WIvW"
 Content-Disposition: inline
 X-SA-Exim-Connect-IP: 213.219.160.184
 X-SA-Exim-Mail-From: ben@decadent.org.uk
 X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -51,10 +51,12 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---X9reK1QatItOUBDw
+--eT0M3T1LYdQ/WIvW
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
+
+=46rom: Ben Hutchings <benh@debian.org>
 
 The mitigation for PBRSB includes adding LFENCE instructions to the
 RSB filling sequence.  However, RSB filling is done on some older CPUs
@@ -74,6 +76,11 @@ Fixes: 2b1299322016 ("x86/speculation: Add RSB VM Exit protections")
 Fixes: ba6e31af2be9 ("x86/speculation: Add LFENCE to RSB fill sequence")
 Signed-off-by: Ben Hutchings <benh@debian.org>
 ---
+Re-sending this with properly matched From address and server.
+Apologies if you got 2 copies.
+
+Ben.
+
  arch/x86/include/asm/nospec-branch.h | 11 +++++++----
  1 file changed, 7 insertions(+), 4 deletions(-)
 
@@ -115,24 +122,24 @@ index e64fd20778b6..b1029fd88474 100644
 =20
   /*
 
---X9reK1QatItOUBDw
+--eT0M3T1LYdQ/WIvW
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmL+xn0ACgkQ57/I7JWG
-EQltURAAgnJN1OPNWZt4of2uNaxsWdziuJHTwiGBj0CISrZIBrEK5fFUyUP9pHdv
-qR5EV+dN04rge9ZHHskxlHVY0zz4RXjP34IWekKyTiVPSYK1EnEsdlD6gFYWNZ1H
-J/yu50W9fPi0lNAR94g8ZNokqyvTDpDFqlJfZMNX/oCBkDZ1tdiUKdjN+lHQwOAm
-9G4upD541+UFnsSAt/sBEbyAOz8XJxNLJNVvXYrm8+6NnhuWI40RYUFtuK/p15kC
-Hj0pbKMaJPKL8QeMeCE+gUKZEqCA7AVYZ51NTJn4uDs1yqXU/u5hEz92U3bhCWDM
-Y18b4Af75uMIIwF0irNQYJDzIoZWYjFcDG5lMq0CKw/VrQrizqQPJBwkuKCxZwNv
-5PyEu3YLb4RsRI8d0ItP46Osa9lXR5NKXVqWbvPFjg+7MfYUAwmSdgdf7CPC1nEs
-6NbpnjJan9C63vYJ5+kjAthLFlh/dzlg36EeTSwgK1aqdS9LUS3NG/5BIs3UGjGh
-Z5MTEpXUcihHlxN7sLwGR7/xwyRjyj4ChymnnhTWRW0h7sgxh+aexfxTH6i8hWWV
-BdYXbe7K5brpSAIcHUUAl7XwDYlAfWR18I+vAzxuSWbqK8MwqQqjwXH4eJh4kNDL
-yXpZqG1ScwZsqVDlLHjc6Bs+Buzw789esQoyn1RgxZbT0dYtvmU=
-=tFRN
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmL+2j0ACgkQ57/I7JWG
+EQlPgA/+JoIOscO32lmTqexszlIn0F8EUMhfZfCh6h3mSgt0w8B1r4oBmEZTs9x5
+HOHjeG0ZtdQvTKm10bCn2eCQq9xhH35m/OSNoysS64lFsQLyKmvXoV2U36nvxSnu
+S7Dd0pt1Mgxs6o7+l/Gxhd1Jva6JagwjZjcOe3cPmcMtgbBZfPsmAofkSbq/89u4
+iBeUm7YE5i7zRB5DZWHbMs+GIEGdyRplu1u7pYxRSg9XQg/zSdNdS02c5v8/PLx2
+NgTGVR+t858WG791oTNXqkV1SG1s3LNuimJej155QCxyMNrJgAqre713cv9x5uEA
+tU/VRZdPoYkee/L6d31p77C9+BV1PD2wy1pUFVBEvXV7cbDXvpXNjb5ZRAHPSBIa
+1LBP1jrvCfeq7r4qQPIjIU5T8mU6ClJKkHLnf0ZjFwDvyNOEHy9dlH5ShjYy/oFX
+Wedrbb7Y/sk39fxF5km0ns8gL/s689HbT1quEbqE2NhjfurOlSTuejwE4kZv8+O9
+OTvzIPOoM0rjNZOWKn89zLwSygZxJeEczWiA6dml6vuqdU9p0TAI5b7DCvbcr71J
+KziLwMJAGHIik+FYKS34tKsQaHTUIIbgNV3H1GLZnQrcYH0zfSDvO0q+X8bVcSWB
+5k23Kkd4wwcu/WEVBSAIkiMoHmQrxUauVOcIDBXOoi0je9B67kQ=
+=/q8V
 -----END PGP SIGNATURE-----
 
---X9reK1QatItOUBDw--
+--eT0M3T1LYdQ/WIvW--
