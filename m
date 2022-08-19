@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15F7859A15A
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A99759A071
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352485AbiHSQ0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:26:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43880 "EHLO
+        id S1352510AbiHSQ0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:26:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352964AbiHSQZ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:25:56 -0400
+        with ESMTP id S1353008AbiHSQ0A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:26:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2B3CCD7AA;
-        Fri, 19 Aug 2022 09:03:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38A20F14D6;
+        Fri, 19 Aug 2022 09:03:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95B376177D;
-        Fri, 19 Aug 2022 16:03:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DCA4C433C1;
-        Fri, 19 Aug 2022 16:03:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F134612DF;
+        Fri, 19 Aug 2022 16:03:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C282C433D7;
+        Fri, 19 Aug 2022 16:03:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925008;
-        bh=pqdQLRP42is6J4yONh0EUvZdjqKEWNKz2KLGxYYby6s=;
+        s=korg; t=1660925011;
+        bh=fafzBX3pbMLUlCle5R2Fa+/PttDn+jS3CmHEktaG9G4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tZFXvWZFhveLQopamTKTkRoE3RxIN2pxGztPRs9H2DHp9cklOdx7rgGjhCYFWzav+
-         aNi/r0hLZhdrGQQJ2JBgNjDB8DuBeOcF6m0u6wIVgGXHI0s6cdR4549mzP8f+D3nV1
-         uTLCN/zLVcOh0eFYEu5khICvrUxryegWDLiE5rtI=
+        b=w4aEHsZklvg4dGXTMOgEoO3a2Ndy7xwrjQTlipwHMq/RuGAoN4RMTcyeo28+LhKZ+
+         DCiGKkDyfcJG29L6hcDOh82Fh5AX/gCI4Bt0f5iT2cRU0nRwnzv4/jkm/ygB7KIQcf
+         ZbXS7ysP3nB3EQgQ+NBBXolLuzoAj5lYtpM2VRmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrei Vagin <avagin@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Itay Aveksis <itayav@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 354/545] selftests: kvm: set rax before vmcall
-Date:   Fri, 19 Aug 2022 17:42:04 +0200
-Message-Id: <20220819153845.226419355@linuxfoundation.org>
+Subject: [PATCH 5.10 355/545] RDMA/mlx5: Add missing check for return value in get namespace flow
+Date:   Fri, 19 Aug 2022 17:42:05 +0200
+Message-Id: <20220819153845.279115503@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,43 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Vagin <avagin@google.com>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-[ Upstream commit 281106f938d3daaea6f8b6723a8217a2a1ef6936 ]
+[ Upstream commit c9776457bd5eaad4ce4ecb17af8d8f3cc6957c0b ]
 
-kvm_hypercall has to place the hypercall number in rax.
+Add missing check for return value when calling to
+mlx5_ib_ft_type_to_namespace, even though it can't really fail in this
+specific call.
 
-Trace events show that kvm_pv_test doesn't work properly:
-     kvm_pv_test-53132: kvm_hypercall: nr 0x0 a0 0x0 a1 0x0 a2 0x0 a3 0x0
-     kvm_pv_test-53132: kvm_hypercall: nr 0x0 a0 0x0 a1 0x0 a2 0x0 a3 0x0
-     kvm_pv_test-53132: kvm_hypercall: nr 0x0 a0 0x0 a1 0x0 a2 0x0 a3 0x0
-
-With this change, it starts working as expected:
-     kvm_pv_test-54285: kvm_hypercall: nr 0x5 a0 0x0 a1 0x0 a2 0x0 a3 0x0
-     kvm_pv_test-54285: kvm_hypercall: nr 0xa a0 0x0 a1 0x0 a2 0x0 a3 0x0
-     kvm_pv_test-54285: kvm_hypercall: nr 0xb a0 0x0 a1 0x0 a2 0x0 a3 0x0
-
-Signed-off-by: Andrei Vagin <avagin@google.com>
-Message-Id: <20220722230241.1944655-5-avagin@google.com>
-Fixes: ac4a4d6de22e ("selftests: kvm: test enforcement of paravirtual cpuid features")
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 52438be44112 ("RDMA/mlx5: Allow inserting a steering rule to the FDB")
+Link: https://lore.kernel.org/r/7b9ceda217d9368a51dc47a46b769bad4af9ac92.1659256069.git.leonro@nvidia.com
+Reviewed-by: Itay Aveksis <itayav@nvidia.com>
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/lib/x86_64/processor.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx5/fs.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/lib/x86_64/processor.c b/tools/testing/selftests/kvm/lib/x86_64/processor.c
-index d10c5c05bdf0..f5d2d27bee05 100644
---- a/tools/testing/selftests/kvm/lib/x86_64/processor.c
-+++ b/tools/testing/selftests/kvm/lib/x86_64/processor.c
-@@ -1253,6 +1253,6 @@ uint64_t kvm_hypercall(uint64_t nr, uint64_t a0, uint64_t a1, uint64_t a2,
+diff --git a/drivers/infiniband/hw/mlx5/fs.c b/drivers/infiniband/hw/mlx5/fs.c
+index b3391ecedda7..0404e6f22d37 100644
+--- a/drivers/infiniband/hw/mlx5/fs.c
++++ b/drivers/infiniband/hw/mlx5/fs.c
+@@ -2081,12 +2081,10 @@ static int mlx5_ib_matcher_ns(struct uverbs_attr_bundle *attrs,
+ 		if (err)
+ 			return err;
  
- 	asm volatile("vmcall"
- 		     : "=a"(r)
--		     : "b"(a0), "c"(a1), "d"(a2), "S"(a3));
-+		     : "a"(nr), "b"(a0), "c"(a1), "d"(a2), "S"(a3));
- 	return r;
- }
+-		if (flags) {
+-			mlx5_ib_ft_type_to_namespace(
++		if (flags)
++			return mlx5_ib_ft_type_to_namespace(
+ 				MLX5_IB_UAPI_FLOW_TABLE_TYPE_NIC_TX,
+ 				&obj->ns_type);
+-			return 0;
+-		}
+ 	}
+ 
+ 	obj->ns_type = MLX5_FLOW_NAMESPACE_BYPASS;
 -- 
 2.35.1
 
