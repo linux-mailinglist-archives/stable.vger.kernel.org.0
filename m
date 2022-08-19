@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D90B59A18B
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 604C859A1D7
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:36:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350948AbiHSQCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:02:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60238 "EHLO
+        id S1351042AbiHSQC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:02:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351244AbiHSQBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:01:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1412610A760;
-        Fri, 19 Aug 2022 08:53:01 -0700 (PDT)
+        with ESMTP id S1351415AbiHSQBf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:01:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07C56647C8;
+        Fri, 19 Aug 2022 08:53:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32284615E7;
-        Fri, 19 Aug 2022 15:53:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFF0EC433D6;
-        Fri, 19 Aug 2022 15:52:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12C4461767;
+        Fri, 19 Aug 2022 15:53:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A5B1C433D6;
+        Fri, 19 Aug 2022 15:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924379;
-        bh=mMHWB+1et05fSZ7uZu7j8PjCDavhZJN072Bc+vANuQE=;
+        s=korg; t=1660924382;
+        bh=kFCMjgGG9L4dx69d+8a8KmsN8u+ngZyXC7hm+vH0Gk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QhWrXHAP641NBwiyPF6Ri7d7kuzAzCsPpejPf2gVIrxZgb5uwGKnJKWoUyGloEs0A
-         4gvIF5Ieyr+PGjSckS58o3kJ1vGdiFIqFDhOhY8/bhj4Ges7PqQ2k7t1C6jo+zicmk
-         MkCWvqVVIJRByNPKtg6MrrbAgCzV0X+j3lhk38fU=
+        b=a8iMhUpXnVY2wbcGaOw9BhkZEoue0gF3Z8riKIbQjPZs65jGxrgtgSZKL//n2P/kp
+         VHhJSoKbstqHJnTdqJOq+cgYpULmCYaNDWqcxLsCU3wxJQr+rfVxsyjYAV6oZ9aqjO
+         fFAPRVB43dZz0C0OTxCV21UHwJkhVOjmlQv9ZP8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Brian Cain <bcain@codeaurora.org>,
-        David Rientjes <rientjes@google.com>,
-        Oliver Glitta <glittao@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 121/545] hexagon: select ARCH_WANT_LD_ORPHAN_WARN
-Date:   Fri, 19 Aug 2022 17:38:11 +0200
-Message-Id: <20220819153834.707125710@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 122/545] arm64: cpufeature: Allow different PMU versions in ID_DFR0_EL1
+Date:   Fri, 19 Aug 2022 17:38:12 +0200
+Message-Id: <20220819153834.755575719@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -60,40 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Alexandru Elisei <alexandru.elisei@arm.com>
 
-[ Upstream commit 113616ec5b64b23a1c9b663adafadabdfbec0f51 ]
+[ Upstream commit 506506cad3947b942425b119ffa2b06715d5d804 ]
 
-Now that we handle all of the sections in a Hexagon defconfig, select
-ARCH_WANT_LD_ORPHAN_WARN so that unhandled sections are warned about by
-default.
+Commit b20d1ba3cf4b ("arm64: cpufeature: allow for version discrepancy in
+PMU implementations") made it possible to run Linux on a machine with PMUs
+with different versions without tainting the kernel. The patch relaxed the
+restriction only for the ID_AA64DFR0_EL1.PMUVer field, and missed doing the
+same for ID_DFR0_EL1.PerfMon , which also reports the PMU version, but for
+the AArch32 state.
 
-Link: https://lkml.kernel.org/r/20210521011239.1332345-4-nathan@kernel.org
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Brian Cain <bcain@codeaurora.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Oliver Glitta <glittao@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+For example, with Linux running on two clusters with different PMU
+versions, the kernel is tainted when bringing up secondaries with the
+following message:
+
+[    0.097027] smp: Bringing up secondary CPUs ...
+[..]
+[    0.142805] Detected PIPT I-cache on CPU4
+[    0.142805] CPU features: SANITY CHECK: Unexpected variation in SYS_ID_DFR0_EL1. Boot CPU: 0x00000004011088, CPU4: 0x00000005011088
+[    0.143555] CPU features: Unsupported CPU feature variation detected.
+[    0.143702] GICv3: CPU4: found redistributor 10000 region 0:0x000000002f180000
+[    0.143702] GICv3: CPU4: using allocated LPI pending table @0x00000008800d0000
+[    0.144888] CPU4: Booted secondary processor 0x0000010000 [0x410fd0f0]
+
+The boot CPU implements FEAT_PMUv3p1 (ID_DFR0_EL1.PerfMon, bits 27:24, is
+0b0100), but CPU4, part of the other cluster, implements FEAT_PMUv3p4
+(ID_DFR0_EL1.PerfMon = 0b0101).
+
+Treat the PerfMon field as FTR_NONSTRICT and FTR_EXACT to pass the sanity
+check and to match how PMUVer is treated for the 64bit ID register.
+
+Fixes: b20d1ba3cf4b ("arm64: cpufeature: allow for version discrepancy in PMU implementations")
+Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Link: https://lore.kernel.org/r/20220617111332.203061-1-alexandru.elisei@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/hexagon/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/kernel/cpufeature.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-index f2afabbadd43..cc2c1ae48e62 100644
---- a/arch/hexagon/Kconfig
-+++ b/arch/hexagon/Kconfig
-@@ -32,6 +32,7 @@ config HEXAGON
- 	select MODULES_USE_ELF_RELA
- 	select GENERIC_CPU_DEVICES
- 	select SET_FS
-+	select ARCH_WANT_LD_ORPHAN_WARN
- 	help
- 	  Qualcomm Hexagon is a processor architecture designed for high
- 	  performance and low power across a wide variety of applications.
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index c9108ed40645..4087e2d1f39e 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -508,7 +508,7 @@ static const struct arm64_ftr_bits ftr_id_pfr2[] = {
+ 
+ static const struct arm64_ftr_bits ftr_id_dfr0[] = {
+ 	/* [31:28] TraceFilt */
+-	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_DFR0_PERFMON_SHIFT, 4, 0xf),
++	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_EXACT, ID_DFR0_PERFMON_SHIFT, 4, 0),
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_DFR0_MPROFDBG_SHIFT, 4, 0),
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_DFR0_MMAPTRC_SHIFT, 4, 0),
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_DFR0_COPTRC_SHIFT, 4, 0),
 -- 
 2.35.1
 
