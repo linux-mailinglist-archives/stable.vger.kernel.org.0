@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86D6E59A13F
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61F28599F9A
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349920AbiHSPuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:50:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51004 "EHLO
+        id S1349883AbiHSPuW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:50:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350140AbiHSPtg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:49:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1BB104761;
-        Fri, 19 Aug 2022 08:47:48 -0700 (PDT)
+        with ESMTP id S1350317AbiHSPti (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:49:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD939104B2C;
+        Fri, 19 Aug 2022 08:47:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ACFF3B82814;
-        Fri, 19 Aug 2022 15:47:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B327C433D6;
-        Fri, 19 Aug 2022 15:47:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A452B616B3;
+        Fri, 19 Aug 2022 15:47:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4F3BC433D6;
+        Fri, 19 Aug 2022 15:47:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924065;
-        bh=ec+WUlwlBNEQUkcBaoJZbAaGDOf3aSCfnbsL47325vQ=;
+        s=korg; t=1660924068;
+        bh=38z5+1E7HVbT6HeQjqkDPqJFtUVE6OakjVGr/qrHk+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R1IXq8nHJ+4LmnSYIMJnKKHdXka6K0vpj2m3ktn5uRlIICTz2xq/Ra9Hyjb6p+FXn
-         p3edIzvbXGiC6Y1k+ZNW+hxoZmGZBLmJGtsLLxoZxmCFmC4KhFC0em0f+84lULw34A
-         vChE1wUSFkx3IH1d3F/Q2G5HfB/u5QhWJWtb29P4=
+        b=tsQGqy9Xm5jKxEt35hVXgQq1EA1qbIUlQuOCnG0ed5PxNPhSL9SYqWHCVjiPw4WIK
+         pReB1JPbheRDnag+U0LdxMCcB+JJXfZD9uiYjjzqK5bMSmAUE7Y7gdkaKsUEvacSL3
+         i/T/I9Eh4iLIy2H/kjHKbtjUsN5njUGQKztUHDFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.org>,
-        Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 5.10 043/545] drm/vc4: hdmi: Disable audio if dmas property is present but empty
-Date:   Fri, 19 Aug 2022 17:36:53 +0200
-Message-Id: <20220819153831.142217593@linuxfoundation.org>
+        stable@vger.kernel.org, Timur Tabi <ttabi@nvidia.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.10 044/545] drm/nouveau: fix another off-by-one in nvbios_addr
+Date:   Fri, 19 Aug 2022 17:36:54 +0200
+Message-Id: <20220819153831.183858332@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -53,46 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Elwell <phil@raspberrypi.org>
+From: Timur Tabi <ttabi@nvidia.com>
 
-commit db2b927f8668adf3ac765e0921cd2720f5c04172 upstream.
+commit c441d28945fb113220d48d6c86ebc0b090a2b677 upstream.
 
-The dmas property is used to hold the dmaengine channel used for audio
-output.
+This check determines whether a given address is part of
+image 0 or image 1.  Image 1 starts at offset image0_size,
+so that address should be included.
 
-Older device trees were missing that property, so if it's not there we
-disable the audio output entirely.
-
-However, some overlays have set an empty value to that property, mostly
-to workaround the fact that overlays cannot remove a property. Let's add
-a test for that case and if it's empty, let's disable it as well.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Phil Elwell <phil@raspberrypi.org>
-Link: https://lore.kernel.org/r/20220613144800.326124-18-maxime@cerno.tech
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Fixes: 4d4e9907ff572 ("drm/nouveau/bios: guard against out-of-bounds accesses to image")
+Cc: <stable@vger.kernel.org> # v4.8+
+Signed-off-by: Timur Tabi <ttabi@nvidia.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220511163716.3520591-1-ttabi@nvidia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/vc4/vc4_hdmi.c
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -1231,12 +1231,12 @@ static int vc4_hdmi_audio_init(struct vc
- 	struct snd_soc_card *card = &vc4_hdmi->audio.card;
- 	struct device *dev = &vc4_hdmi->pdev->dev;
- 	const __be32 *addr;
--	int index;
-+	int index, len;
- 	int ret;
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c
+@@ -33,7 +33,7 @@ nvbios_addr(struct nvkm_bios *bios, u32
+ {
+ 	u32 p = *addr;
  
--	if (!of_find_property(dev->of_node, "dmas", NULL)) {
-+	if (!of_find_property(dev->of_node, "dmas", &len) || !len) {
- 		dev_warn(dev,
--			 "'dmas' DT property is missing, no HDMI audio\n");
-+			 "'dmas' DT property is missing or empty, no HDMI audio\n");
- 		return 0;
+-	if (*addr > bios->image0_size && bios->imaged_addr) {
++	if (*addr >= bios->image0_size && bios->imaged_addr) {
+ 		*addr -= bios->image0_size;
+ 		*addr += bios->imaged_addr;
  	}
- 
 
 
