@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E07159A487
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:05:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0F8C59A3C5
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353612AbiHSQmd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:42:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44986 "EHLO
+        id S1350445AbiHSQmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:42:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353795AbiHSQkz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:40:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD5D1C0B46;
-        Fri, 19 Aug 2022 09:09:29 -0700 (PDT)
+        with ESMTP id S1353857AbiHSQlJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:41:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4D2B12578F;
+        Fri, 19 Aug 2022 09:09:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1C3E61199;
-        Fri, 19 Aug 2022 16:08:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF0DEC433D6;
-        Fri, 19 Aug 2022 16:08:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC6CD61639;
+        Fri, 19 Aug 2022 16:08:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D570C43141;
+        Fri, 19 Aug 2022 16:08:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925298;
-        bh=detBaYXQoLpFdi36XYeBPf2ApWvSIz/XLoAeDWZpDmM=;
+        s=korg; t=1660925332;
+        bh=qBJun0bWQYxXyX9cv6OKocqYB+O1BIvrD1jsikgfFIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EIR46W+ZeGh8MOir4gCKV+hwYJxB2RfseZhuBnS+XwFpehwBxMUTpuBpOha8+pBns
-         NlRbguns0Ij1oga6Ke/z/z3J5KdRkDFCpDAnswAzUWU/ft2wiVSo3nbX9vw2jZ3rX0
-         KRQQkHwKNBWAxTex2IrDORLbQ0rthbNAQG12G/SU=
+        b=Far5wnp31bNbkUbATA0TOtUdbhp6VurU6CnHw227cul447uu3RRtgPG2ouiw8AB/l
+         T5GO9iVI+70UTiaOOyS8Rv0aluLFTeKtQL/mw10vnwShcLug2G42wLdPHlVUslcC6g
+         wctB0TQD2QRV2Id99rc9ZtZd1IlReVILHXApUakw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
+        stable@vger.kernel.org, Tony Battersby <tonyb@cybernetics.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 439/545] scsi: zfcp: Fix missing auto port scan and thus missing target ports
-Date:   Fri, 19 Aug 2022 17:43:29 +0200
-Message-Id: <20220819153849.073161064@linuxfoundation.org>
+Subject: [PATCH 5.10 440/545] scsi: qla2xxx: Fix discovery issues in FC-AL topology
+Date:   Fri, 19 Aug 2022 17:43:30 +0200
+Message-Id: <20220819153849.113964391@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,232 +56,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Maier <maier@linux.ibm.com>
+From: Arun Easi <aeasi@marvell.com>
 
-commit 4da8c5f76825269f28d6a89fa752934a4bcb6dfa upstream.
+commit 47ccb113cead905bdc236571bf8ac6fed90321b3 upstream.
 
-Case (1):
-  The only waiter on wka_port->completion_wq is zfcp_fc_wka_port_get()
-  trying to open a WKA port. As such it should only be woken up by WKA port
-  *open* responses, not by WKA port close responses.
+A direct attach tape device, when gets swapped with another, was not
+discovered. Fix this by looking at loop map and reinitialize link if there
+are devices present.
 
-Case (2):
-  A close WKA port response coming in just after having sent a new open WKA
-  port request and before blocking for the open response with wait_event()
-  in zfcp_fc_wka_port_get() erroneously renders the wait_event a NOP
-  because the close handler overwrites wka_port->status. Hence the
-  wait_event condition is erroneously true and it does not enter blocking
-  state.
-
-With non-negligible probability, the following time space sequence happens
-depending on timing without this fix:
-
-user process        ERP thread zfcp work queue tasklet system work queue
-============        ========== =============== ======= =================
-$ echo 1 > online
-zfcp_ccw_set_online
-zfcp_ccw_activate
-zfcp_erp_adapter_reopen
-msleep scan backoff zfcp_erp_strategy
-|                   ...
-|                   zfcp_erp_action_cleanup
-|                   ...
-|                   queue delayed scan_work
-|                   queue ns_up_work
-|                              ns_up_work:
-|                              zfcp_fc_wka_port_get
-|                               open wka request
-|                                              open response
-|                              GSPN FC-GS
-|                              RSPN FC-GS [NPIV-only]
-|                              zfcp_fc_wka_port_put
-|                               (--wka->refcount==0)
-|                               sched delayed wka->work
-|
-~~~Case (1)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-zfcp_erp_wait
-flush scan_work
-|                                                      wka->work:
-|                                                      wka->status=CLOSING
-|                                                      close wka request
-|                              scan_work:
-|                              zfcp_fc_wka_port_get
-|                               (wka->status==CLOSING)
-|                               wka->status=OPENING
-|                               open wka request
-|                               wait_event
-|                               |              close response
-|                               |              wka->status=OFFLINE
-|                               |              wake_up /*WRONG*/
-~~~Case (2)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|                                                      wka->work:
-|                                                      wka->status=CLOSING
-|                                                      close wka request
-zfcp_erp_wait
-flush scan_work
-|                              scan_work:
-|                              zfcp_fc_wka_port_get
-|                               (wka->status==CLOSING)
-|                               wka->status=OPENING
-|                               open wka request
-|                                              close response
-|                                              wka->status=OFFLINE
-|                                              wake_up /*WRONG&NOP*/
-|                               wait_event /*NOP*/
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|                               (wka->status!=ONLINE)
-|                               return -EIO
-|                              return early
-                                               open response
-                                               wka->status=ONLINE
-                                               wake_up /*NOP*/
-
-So we erroneously end up with no automatic port scan. This is a big problem
-when it happens during boot. The timing is influenced by v3.19 commit
-18f87a67e6d6 ("zfcp: auto port scan resiliency").
-
-Fix it by fully mutually excluding zfcp_fc_wka_port_get() and
-zfcp_fc_wka_port_offline(). For that to work, we make the latter block
-until we got the response for a close WKA port. In order not to penalize
-the system workqueue, we move wka_port->work to our own adapter workqueue.
-Note that before v2.6.30 commit 828bc1212a68 ("[SCSI] zfcp: Set WKA-port to
-offline on adapter deactivation"), zfcp did block in
-zfcp_fc_wka_port_offline() as well, but with a different condition.
-
-While at it, make non-functional cleanups to improve code reading in
-zfcp_fc_wka_port_get(). If we cannot send the WKA port open request, don't
-rely on the subsequent wait_event condition to immediately let this case
-pass without blocking. Also don't want to rely on the additional condition
-handling the refcount to be skipped just to finally return with -EIO.
-
-Link: https://lore.kernel.org/r/20220729162529.1620730-1-maier@linux.ibm.com
-Fixes: 5ab944f97e09 ("[SCSI] zfcp: attach and release SAN nameserver port on demand")
-Cc: <stable@vger.kernel.org> #v2.6.28+
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Link: https://lore.kernel.org/linux-scsi/baef87c3-5dad-3b47-44c1-6914bfc90108@cybernetics.com/
+Link: https://lore.kernel.org/r/20220713052045.10683-8-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reported-by: Tony Battersby <tonyb@cybernetics.com>
+Tested-by: Tony Battersby <tonyb@cybernetics.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/scsi/zfcp_fc.c  |   29 ++++++++++++++++++++---------
- drivers/s390/scsi/zfcp_fc.h  |    6 ++++--
- drivers/s390/scsi/zfcp_fsf.c |    4 ++--
- 3 files changed, 26 insertions(+), 13 deletions(-)
+ drivers/scsi/qla2xxx/qla_gbl.h  |    3 ++-
+ drivers/scsi/qla2xxx/qla_init.c |   29 +++++++++++++++++++++++++++++
+ drivers/scsi/qla2xxx/qla_mbx.c  |    5 ++++-
+ 3 files changed, 35 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/scsi/zfcp_fc.c
-+++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -145,27 +145,33 @@ void zfcp_fc_enqueue_event(struct zfcp_a
+--- a/drivers/scsi/qla2xxx/qla_gbl.h
++++ b/drivers/scsi/qla2xxx/qla_gbl.h
+@@ -405,7 +405,8 @@ extern int
+ qla2x00_get_resource_cnts(scsi_qla_host_t *);
  
- static int zfcp_fc_wka_port_get(struct zfcp_fc_wka_port *wka_port)
- {
-+	int ret = -EIO;
+ extern int
+-qla2x00_get_fcal_position_map(scsi_qla_host_t *ha, char *pos_map);
++qla2x00_get_fcal_position_map(scsi_qla_host_t *ha, char *pos_map,
++		u8 *num_entries);
+ 
+ extern int
+ qla2x00_get_link_status(scsi_qla_host_t *, uint16_t, struct link_statistics *,
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -5270,6 +5270,22 @@ static int qla2x00_configure_n2n_loop(sc
+ 	return QLA_FUNCTION_FAILED;
+ }
+ 
++static void
++qla_reinitialize_link(scsi_qla_host_t *vha)
++{
++	int rval;
 +
- 	if (mutex_lock_interruptible(&wka_port->mutex))
- 		return -ERESTARTSYS;
++	atomic_set(&vha->loop_state, LOOP_DOWN);
++	atomic_set(&vha->loop_down_timer, LOOP_DOWN_TIME);
++	rval = qla2x00_full_login_lip(vha);
++	if (rval == QLA_SUCCESS) {
++		ql_dbg(ql_dbg_disc, vha, 0xd050, "Link reinitialized\n");
++	} else {
++		ql_dbg(ql_dbg_disc, vha, 0xd051,
++			"Link reinitialization failed (%d)\n", rval);
++	}
++}
++
+ /*
+  * qla2x00_configure_local_loop
+  *	Updates Fibre Channel Device Database with local loop devices.
+@@ -5321,6 +5337,19 @@ qla2x00_configure_local_loop(scsi_qla_ho
+ 		spin_unlock_irqrestore(&vha->work_lock, flags);
  
- 	if (wka_port->status == ZFCP_FC_WKA_PORT_OFFLINE ||
- 	    wka_port->status == ZFCP_FC_WKA_PORT_CLOSING) {
- 		wka_port->status = ZFCP_FC_WKA_PORT_OPENING;
--		if (zfcp_fsf_open_wka_port(wka_port))
-+		if (zfcp_fsf_open_wka_port(wka_port)) {
-+			/* could not even send request, nothing to wait for */
- 			wka_port->status = ZFCP_FC_WKA_PORT_OFFLINE;
-+			goto out;
-+		}
- 	}
- 
--	mutex_unlock(&wka_port->mutex);
--
--	wait_event(wka_port->completion_wq,
-+	wait_event(wka_port->opened,
- 		   wka_port->status == ZFCP_FC_WKA_PORT_ONLINE ||
- 		   wka_port->status == ZFCP_FC_WKA_PORT_OFFLINE);
- 
- 	if (wka_port->status == ZFCP_FC_WKA_PORT_ONLINE) {
- 		atomic_inc(&wka_port->refcount);
--		return 0;
-+		ret = 0;
-+		goto out;
- 	}
--	return -EIO;
-+out:
-+	mutex_unlock(&wka_port->mutex);
-+	return ret;
- }
- 
- static void zfcp_fc_wka_port_offline(struct work_struct *work)
-@@ -181,9 +187,12 @@ static void zfcp_fc_wka_port_offline(str
- 
- 	wka_port->status = ZFCP_FC_WKA_PORT_CLOSING;
- 	if (zfcp_fsf_close_wka_port(wka_port)) {
-+		/* could not even send request, nothing to wait for */
- 		wka_port->status = ZFCP_FC_WKA_PORT_OFFLINE;
--		wake_up(&wka_port->completion_wq);
-+		goto out;
- 	}
-+	wait_event(wka_port->closed,
-+		   wka_port->status == ZFCP_FC_WKA_PORT_OFFLINE);
- out:
- 	mutex_unlock(&wka_port->mutex);
- }
-@@ -193,13 +202,15 @@ static void zfcp_fc_wka_port_put(struct
- 	if (atomic_dec_return(&wka_port->refcount) != 0)
- 		return;
- 	/* wait 10 milliseconds, other reqs might pop in */
--	schedule_delayed_work(&wka_port->work, HZ / 100);
-+	queue_delayed_work(wka_port->adapter->work_queue, &wka_port->work,
-+			   msecs_to_jiffies(10));
- }
- 
- static void zfcp_fc_wka_port_init(struct zfcp_fc_wka_port *wka_port, u32 d_id,
- 				  struct zfcp_adapter *adapter)
- {
--	init_waitqueue_head(&wka_port->completion_wq);
-+	init_waitqueue_head(&wka_port->opened);
-+	init_waitqueue_head(&wka_port->closed);
- 
- 	wka_port->adapter = adapter;
- 	wka_port->d_id = d_id;
---- a/drivers/s390/scsi/zfcp_fc.h
-+++ b/drivers/s390/scsi/zfcp_fc.h
-@@ -185,7 +185,8 @@ enum zfcp_fc_wka_status {
- /**
-  * struct zfcp_fc_wka_port - representation of well-known-address (WKA) FC port
-  * @adapter: Pointer to adapter structure this WKA port belongs to
-- * @completion_wq: Wait for completion of open/close command
-+ * @opened: Wait for completion of open command
-+ * @closed: Wait for completion of close command
-  * @status: Current status of WKA port
-  * @refcount: Reference count to keep port open as long as it is in use
-  * @d_id: FC destination id or well-known-address
-@@ -195,7 +196,8 @@ enum zfcp_fc_wka_status {
+ 		if (vha->scan.scan_retry < MAX_SCAN_RETRIES) {
++			u8 loop_map_entries = 0;
++			int rc;
++
++			rc = qla2x00_get_fcal_position_map(vha, NULL,
++						&loop_map_entries);
++			if (rc == QLA_SUCCESS && loop_map_entries > 1) {
++				/*
++				 * There are devices that are still not logged
++				 * in. Reinitialize to give them a chance.
++				 */
++				qla_reinitialize_link(vha);
++				return QLA_FUNCTION_FAILED;
++			}
+ 			set_bit(LOCAL_LOOP_UPDATE, &vha->dpc_flags);
+ 			set_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags);
+ 		}
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -3017,7 +3017,8 @@ qla2x00_get_resource_cnts(scsi_qla_host_
+  *	Kernel context.
   */
- struct zfcp_fc_wka_port {
- 	struct zfcp_adapter	*adapter;
--	wait_queue_head_t	completion_wq;
-+	wait_queue_head_t	opened;
-+	wait_queue_head_t	closed;
- 	enum zfcp_fc_wka_status	status;
- 	atomic_t		refcount;
- 	u32			d_id;
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -1889,7 +1889,7 @@ static void zfcp_fsf_open_wka_port_handl
- 		wka_port->status = ZFCP_FC_WKA_PORT_ONLINE;
+ int
+-qla2x00_get_fcal_position_map(scsi_qla_host_t *vha, char *pos_map)
++qla2x00_get_fcal_position_map(scsi_qla_host_t *vha, char *pos_map,
++		u8 *num_entries)
+ {
+ 	int rval;
+ 	mbx_cmd_t mc;
+@@ -3057,6 +3058,8 @@ qla2x00_get_fcal_position_map(scsi_qla_h
+ 
+ 		if (pos_map)
+ 			memcpy(pos_map, pmap, FCAL_MAP_SIZE);
++		if (num_entries)
++			*num_entries = pmap[0];
  	}
- out:
--	wake_up(&wka_port->completion_wq);
-+	wake_up(&wka_port->opened);
- }
+ 	dma_pool_free(ha->s_dma_pool, pmap, pmap_dma);
  
- /**
-@@ -1948,7 +1948,7 @@ static void zfcp_fsf_close_wka_port_hand
- 	}
- 
- 	wka_port->status = ZFCP_FC_WKA_PORT_OFFLINE;
--	wake_up(&wka_port->completion_wq);
-+	wake_up(&wka_port->closed);
- }
- 
- /**
 
 
