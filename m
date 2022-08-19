@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA771599FD6
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AB8159A041
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351112AbiHSQEx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:04:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56960 "EHLO
+        id S1351050AbiHSQEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:04:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351113AbiHSQDI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:03:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35885106FA1;
-        Fri, 19 Aug 2022 08:54:35 -0700 (PDT)
+        with ESMTP id S1351051AbiHSQC5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:02:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FE49D5DFA;
+        Fri, 19 Aug 2022 08:54:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7213C616B3;
-        Fri, 19 Aug 2022 15:54:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83673C433C1;
-        Fri, 19 Aug 2022 15:54:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03387B82811;
+        Fri, 19 Aug 2022 15:54:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28215C433C1;
+        Fri, 19 Aug 2022 15:54:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924465;
-        bh=2BXTnrYIo8l+zFZrpBe3c0CIOLQzVwN6oj3EOVh/E+k=;
+        s=korg; t=1660924469;
+        bh=BokTBTMkZ4346PaQMeY33bF5LXXEd68/+dwp0v89MXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CU/nsHqyd0g66nGqHKJuVw1PRgefjPa9OmoYkUbOhU24vkplnoAqU6tTupJkEYt7L
-         Tckl6LedRU/4xaITB7HpTXDFcVLzqKKL6uHLPwxDmVztxSAtFN4x1HLX703HCwzeXE
-         unm7c0D6VdFFpXG7XEb1nfrL5+wrhNoSBn/KOq+8=
+        b=ZkC7j41+JhFLgRCOFHITaBNEqi/r34VEECv7+3H4Pkr7moarABJVK2upssIFwpmX8
+         2ak3xMQ/FkmWNr4WTBzbIuf2S49IzDbMb7WEjR+a0gWMoQsub1PX99PyEIBqNVmoJ0
+         5mMadR+iQaLFHac8985ZkEOFjD9WXiHkMQvOn05A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 178/545] media: tw686x: Register the irq at the end of probe
-Date:   Fri, 19 Aug 2022 17:39:08 +0200
-Message-Id: <20220819153837.321292725@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+03110230a11411024147@syzkaller.appspotmail.com,
+        syzbot+c6dde1f690b60e0b9fbe@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 179/545] ath9k: fix use-after-free in ath9k_hif_usb_rx_cb
+Date:   Fri, 19 Aug 2022 17:39:09 +0200
+Message-Id: <20220819153837.369500277@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,80 +57,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit fb730334e0f759d00f72168fbc555e5a95e35210 ]
+[ Upstream commit 0ac4827f78c7ffe8eef074bc010e7e34bc22f533 ]
 
-We got the following warning when booting the kernel:
+Syzbot reported use-after-free Read in ath9k_hif_usb_rx_cb() [0]. The
+problem was in incorrect htc_handle->drv_priv initialization.
 
-[    3.243674] INFO: trying to register non-static key.
-[    3.243922] The code is fine but needs lockdep annotation, or maybe
-[    3.244230] you didn't initialize this object before use?
-[    3.245642] Call Trace:
-[    3.247836]  lock_acquire+0xff/0x2d0
-[    3.248727]  tw686x_audio_irq+0x1a5/0xcc0 [tw686x]
-[    3.249211]  tw686x_irq+0x1f9/0x480 [tw686x]
+Probable call trace which can trigger use-after-free:
 
-The lock 'vc->qlock' will be initialized in tw686x_video_init(), but the
-driver registers the irq before calling the tw686x_video_init(), and we
-got the warning.
+ath9k_htc_probe_device()
+  /* htc_handle->drv_priv = priv; */
+  ath9k_htc_wait_for_target()      <--- Failed
+  ieee80211_free_hw()		   <--- priv pointer is freed
 
-Fix this by registering the irq at the end of probe
+<IRQ>
+...
+ath9k_hif_usb_rx_cb()
+  ath9k_hif_usb_rx_stream()
+   RX_STAT_INC()		<--- htc_handle->drv_priv access
 
-Fixes: 704a84ccdbf1 ("[media] media: Support Intersil/Techwell TW686x-based video capture cards")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+In order to not add fancy protection for drv_priv we can move
+htc_handle->drv_priv initialization at the end of the
+ath9k_htc_probe_device() and add helper macro to make
+all *_STAT_* macros NULL safe, since syzbot has reported related NULL
+deref in that macros [1]
+
+Link: https://syzkaller.appspot.com/bug?id=6ead44e37afb6866ac0c7dd121b4ce07cb665f60 [0]
+Link: https://syzkaller.appspot.com/bug?id=b8101ffcec107c0567a0cd8acbbacec91e9ee8de [1]
+Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
+Reported-and-tested-by: syzbot+03110230a11411024147@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+c6dde1f690b60e0b9fbe@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/d57bbedc857950659bfacac0ab48790c1eda00c8.1655145743.git.paskripkin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/tw686x/tw686x-core.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ drivers/net/wireless/ath/ath9k/htc.h          | 10 +++++-----
+ drivers/net/wireless/ath/ath9k/htc_drv_init.c |  3 ++-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/pci/tw686x/tw686x-core.c b/drivers/media/pci/tw686x/tw686x-core.c
-index 74ae4f0dcee7..8a25a0dac4ae 100644
---- a/drivers/media/pci/tw686x/tw686x-core.c
-+++ b/drivers/media/pci/tw686x/tw686x-core.c
-@@ -315,13 +315,6 @@ static int tw686x_probe(struct pci_dev *pci_dev,
+diff --git a/drivers/net/wireless/ath/ath9k/htc.h b/drivers/net/wireless/ath/ath9k/htc.h
+index 6b45e63fae4b..e3d546ef71dd 100644
+--- a/drivers/net/wireless/ath/ath9k/htc.h
++++ b/drivers/net/wireless/ath/ath9k/htc.h
+@@ -327,11 +327,11 @@ static inline struct ath9k_htc_tx_ctl *HTC_SKB_CB(struct sk_buff *skb)
+ }
  
- 	spin_lock_init(&dev->lock);
- 
--	err = request_irq(pci_dev->irq, tw686x_irq, IRQF_SHARED,
--			  dev->name, dev);
--	if (err < 0) {
--		dev_err(&pci_dev->dev, "unable to request interrupt\n");
--		goto iounmap;
--	}
+ #ifdef CONFIG_ATH9K_HTC_DEBUGFS
 -
- 	timer_setup(&dev->dma_delay_timer, tw686x_dma_delay, 0);
+-#define TX_STAT_INC(c) (hif_dev->htc_handle->drv_priv->debug.tx_stats.c++)
+-#define TX_STAT_ADD(c, a) (hif_dev->htc_handle->drv_priv->debug.tx_stats.c += a)
+-#define RX_STAT_INC(c) (hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c++)
+-#define RX_STAT_ADD(c, a) (hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c += a)
++#define __STAT_SAFE(expr) (hif_dev->htc_handle->drv_priv ? (expr) : 0)
++#define TX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c++)
++#define TX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c += a)
++#define RX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c++)
++#define RX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c += a)
+ #define CAB_STAT_INC   priv->debug.tx_stats.cab_queued++
  
- 	/*
-@@ -333,18 +326,23 @@ static int tw686x_probe(struct pci_dev *pci_dev,
- 	err = tw686x_video_init(dev);
- 	if (err) {
- 		dev_err(&pci_dev->dev, "can't register video\n");
--		goto free_irq;
-+		goto iounmap;
- 	}
+ #define TX_QSTAT_INC(q) (priv->debug.tx_stats.queue_stats[q]++)
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+index ff61ae34ecdf..07ac88fb1c57 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+@@ -944,7 +944,6 @@ int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
+ 	priv->hw = hw;
+ 	priv->htc = htc_handle;
+ 	priv->dev = dev;
+-	htc_handle->drv_priv = priv;
+ 	SET_IEEE80211_DEV(hw, priv->dev);
  
- 	err = tw686x_audio_init(dev);
- 	if (err)
- 		dev_warn(&pci_dev->dev, "can't register audio\n");
+ 	ret = ath9k_htc_wait_for_target(priv);
+@@ -965,6 +964,8 @@ int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
+ 	if (ret)
+ 		goto err_init;
  
-+	err = request_irq(pci_dev->irq, tw686x_irq, IRQF_SHARED,
-+			  dev->name, dev);
-+	if (err < 0) {
-+		dev_err(&pci_dev->dev, "unable to request interrupt\n");
-+		goto iounmap;
-+	}
++	htc_handle->drv_priv = priv;
 +
- 	pci_set_drvdata(pci_dev, dev);
  	return 0;
  
--free_irq:
--	free_irq(pci_dev->irq, dev);
- iounmap:
- 	pci_iounmap(pci_dev, dev->mmio);
- free_region:
+ err_init:
 -- 
 2.35.1
 
