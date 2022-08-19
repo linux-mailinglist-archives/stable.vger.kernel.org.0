@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B30059A407
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C4A959A32D
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:03:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353926AbiHSQqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:46:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54424 "EHLO
+        id S1354127AbiHSQtz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:49:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354103AbiHSQpu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:45:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31E6F12A558;
-        Fri, 19 Aug 2022 09:11:57 -0700 (PDT)
+        with ESMTP id S1354132AbiHSQsJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:48:09 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8C4F12C7EA;
+        Fri, 19 Aug 2022 09:12:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E644B8281C;
-        Fri, 19 Aug 2022 16:11:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE8E4C433C1;
-        Fri, 19 Aug 2022 16:11:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CD073CE26AB;
+        Fri, 19 Aug 2022 16:12:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0D22C43149;
+        Fri, 19 Aug 2022 16:11:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925516;
-        bh=GMnZ7tRDjtB+T0jWJGzxZ1tR9+AlNiyqah4xgPle83g=;
+        s=korg; t=1660925519;
+        bh=xwMDHTFnMLKH4+U7KF18c69Qbn3zdxCc6asbHfolpLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ctvcKVJHzUUV9rOzPge1oqrHoFNw8yO5juPBstZtS40fNvRvkS6i+oFXPizqaMAsD
-         s2epNZ2ysJnlk3zlQlaZmAdH9jZmheFiFCcbvs39ubnUcpe8Af7L5hB2RMcg2RHrrU
-         F+5IMUnkveHXWL25vlTpLMuUBlChxO9JAjw4OhXY=
+        b=Tc/TYN4VXcCyQKuixKrWT7JvaoaDSscQ3/T/owmMjP0tUUcnwZhC5Xixi4qrp2VIz
+         2BIqp6u3t7SLepNxQi2xXwH7Wrmj3jRvIHLkxxDPVy/4sITA4ONCztcbUAh3FArCiY
+         kb5f4ybFfdk1LfmknOKr8lRHNX++U8kQGZubxSyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Andreas Dilger <adilger@dilger.ca>,
+        stable@vger.kernel.org, Baokun Li <libaokun1@huawei.com>,
+        Jan Kara <jack@suse.cz>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 516/545] ext4: check if directory block is within i_size
-Date:   Fri, 19 Aug 2022 17:44:46 +0200
-Message-Id: <20220819153852.607421846@linuxfoundation.org>
+Subject: [PATCH 5.10 517/545] ext4: add EXT4_INODE_HAS_XATTR_SPACE macro in xattr.h
+Date:   Fri, 19 Aug 2022 17:44:47 +0200
+Message-Id: <20220819153852.662298440@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,51 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Czerner <lczerner@redhat.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 65f8ea4cd57dbd46ea13b41dc8bac03176b04233 upstream.
+commit 179b14152dcb6a24c3415200603aebca70ff13af upstream.
 
-Currently ext4 directory handling code implicitly assumes that the
-directory blocks are always within the i_size. In fact ext4_append()
-will attempt to allocate next directory block based solely on i_size and
-the i_size is then appropriately increased after a successful
-allocation.
+When adding an xattr to an inode, we must ensure that the inode_size is
+not less than EXT4_GOOD_OLD_INODE_SIZE + extra_isize + pad. Otherwise,
+the end position may be greater than the start position, resulting in UAF.
 
-However, for this to work it requires i_size to be correct. If, for any
-reason, the directory inode i_size is corrupted in a way that the
-directory tree refers to a valid directory block past i_size, we could
-end up corrupting parts of the directory tree structure by overwriting
-already used directory blocks when modifying the directory.
-
-Fix it by catching the corruption early in __ext4_read_dirblock().
-
-Addresses Red-Hat-Bugzilla: #2070205
-CVE: CVE-2022-1184
-Signed-off-by: Lukas Czerner <lczerner@redhat.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20220704142721.157985-1-lczerner@redhat.com
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220616021358.2504451-2-libaokun1@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/namei.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/ext4/xattr.h |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -109,6 +109,13 @@ static struct buffer_head *__ext4_read_d
- 	struct ext4_dir_entry *dirent;
- 	int is_dx_block = 0;
+--- a/fs/ext4/xattr.h
++++ b/fs/ext4/xattr.h
+@@ -95,6 +95,19 @@ struct ext4_xattr_entry {
  
-+	if (block >= inode->i_size) {
-+		ext4_error_inode(inode, func, line, block,
-+		       "Attempting to read directory block (%u) that is past i_size (%llu)",
-+		       block, inode->i_size);
-+		return ERR_PTR(-EFSCORRUPTED);
-+	}
+ #define EXT4_ZERO_XATTR_VALUE ((void *)-1)
+ 
++/*
++ * If we want to add an xattr to the inode, we should make sure that
++ * i_extra_isize is not 0 and that the inode size is not less than
++ * EXT4_GOOD_OLD_INODE_SIZE + extra_isize + pad.
++ *   EXT4_GOOD_OLD_INODE_SIZE   extra_isize header   entry   pad  data
++ * |--------------------------|------------|------|---------|---|-------|
++ */
++#define EXT4_INODE_HAS_XATTR_SPACE(inode)				\
++	((EXT4_I(inode)->i_extra_isize != 0) &&				\
++	 (EXT4_GOOD_OLD_INODE_SIZE + EXT4_I(inode)->i_extra_isize +	\
++	  sizeof(struct ext4_xattr_ibody_header) + EXT4_XATTR_PAD <=	\
++	  EXT4_INODE_SIZE((inode)->i_sb)))
 +
- 	if (ext4_simulate_fail(inode->i_sb, EXT4_SIM_DIRBLOCK_EIO))
- 		bh = ERR_PTR(-EIO);
- 	else
+ struct ext4_xattr_info {
+ 	const char *name;
+ 	const void *value;
 
 
