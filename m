@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C68059A0C2
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2112E59A17C
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350086AbiHSPxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:53:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40852 "EHLO
+        id S1350569AbiHSPxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:53:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350002AbiHSPwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:52:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 426E3106B3D;
-        Fri, 19 Aug 2022 08:49:05 -0700 (PDT)
+        with ESMTP id S1350498AbiHSPww (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:52:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B1FC26116;
+        Fri, 19 Aug 2022 08:49:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 324B7616B3;
-        Fri, 19 Aug 2022 15:49:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FCF6C433C1;
-        Fri, 19 Aug 2022 15:49:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E88C615D5;
+        Fri, 19 Aug 2022 15:49:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CB21C433C1;
+        Fri, 19 Aug 2022 15:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924143;
-        bh=71bTs8+DdYlyzXQOg/QtkRrEs67hwsdiz1TizUPSiqY=;
+        s=korg; t=1660924146;
+        bh=T6OdgomtQF8h/Ev+PsIA3mkjZM1v1/X1TP2oNUof3OE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GZfy+/emT5w9LzS9DS/SxEG382MtR2v5B9SQGjcoZjaTmxocMGTu+DN5SiqN/Fp9F
-         b+UbnxDto1YCi39gljSIOboV31KUAIGORun2q6wLRBVesaQ37wgQ5km2/F3EiZNgFv
-         ZyNXOs75HwgIQSRz9NI1GP/x2bAwD2/fxRI6v9ls=
+        b=s68qtpt8vhwM+DHuHzTJiIMBuuk9J/0+ZfnuoXnBFVRUJBgLvlyZ0F6WZZ4kbgW0m
+         60lciMwXNTx6/MHxYpfJSeOVECd0XgizVbvR4k/5Qzcl2msFkpfM8AsTzJX+Z/0C5+
+         R84DLJqeJ5qq5uOLDqnkUhTbs//zHBIGFdorMeBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>
-Subject: [PATCH 5.10 070/545] usb: dwc3: gadget: fix high speed multiplier setting
-Date:   Fri, 19 Aug 2022 17:37:20 +0200
-Message-Id: <20220819153832.380922840@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>
+Subject: [PATCH 5.10 071/545] lockdep: Allow tuning tracing capacity constants.
+Date:   Fri, 19 Aug 2022 17:37:21 +0200
+Message-Id: <20220819153832.433175501@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -53,38 +55,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 8affe37c525d800a2628c4ecfaed13b77dc5634a upstream.
+commit 5dc33592e95534dc8455ce3e9baaaf3dae0fff82 upstream.
 
-For High-Speed Transfers the prepare_one_trb function is calculating the
-multiplier setting for the trb based on the length parameter of the trb
-currently prepared. This assumption is wrong. For trbs with a sg list,
-the length of the actual request has to be taken instead.
+Since syzkaller continues various test cases until the kernel crashes,
+syzkaller tends to examine more locking dependencies than normal systems.
+As a result, syzbot is reporting that the fuzz testing was terminated
+due to hitting upper limits lockdep can track [1] [2] [3]. Since analysis
+via /proc/lockdep* did not show any obvious culprit [4] [5], we have no
+choice but allow tuning tracing capacity constants.
 
-Fixes: 40d829fb2ec6 ("usb: dwc3: gadget: Correct ISOC DATA PIDs for short packets")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Link: https://lore.kernel.org/r/20220704141812.1532306-3-m.grzeschik@pengutronix.de
+[1] https://syzkaller.appspot.com/bug?id=3d97ba93fb3566000c1c59691ea427370d33ea1b
+[2] https://syzkaller.appspot.com/bug?id=381cb436fe60dc03d7fd2a092b46d7f09542a72a
+[3] https://syzkaller.appspot.com/bug?id=a588183ac34c1437fc0785e8f220e88282e5a29f
+[4] https://lkml.kernel.org/r/4b8f7a57-fa20-47bd-48a0-ae35d860f233@i-love.sakura.ne.jp
+[5] https://lkml.kernel.org/r/1c351187-253b-2d49-acaf-4563c63ae7d2@i-love.sakura.ne.jp
+
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Acked-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/locking/lockdep.c           |    2 -
+ kernel/locking/lockdep_internals.h |    8 +++----
+ lib/Kconfig.debug                  |   40 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 45 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1052,10 +1052,10 @@ static void dwc3_prepare_one_trb(struct
- 				unsigned int mult = 2;
- 				unsigned int maxp = usb_endpoint_maxp(ep->desc);
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -1397,7 +1397,7 @@ static int add_lock_to_list(struct lock_
+ /*
+  * For good efficiency of modular, we use power of 2
+  */
+-#define MAX_CIRCULAR_QUEUE_SIZE		4096UL
++#define MAX_CIRCULAR_QUEUE_SIZE		(1UL << CONFIG_LOCKDEP_CIRCULAR_QUEUE_BITS)
+ #define CQ_MASK				(MAX_CIRCULAR_QUEUE_SIZE-1)
  
--				if (trb_length <= (2 * maxp))
-+				if (req->request.length <= (2 * maxp))
- 					mult--;
+ /*
+--- a/kernel/locking/lockdep_internals.h
++++ b/kernel/locking/lockdep_internals.h
+@@ -99,16 +99,16 @@ static const unsigned long LOCKF_USED_IN
+ #define MAX_STACK_TRACE_ENTRIES	262144UL
+ #define STACK_TRACE_HASH_SIZE	8192
+ #else
+-#define MAX_LOCKDEP_ENTRIES	32768UL
++#define MAX_LOCKDEP_ENTRIES	(1UL << CONFIG_LOCKDEP_BITS)
  
--				if (trb_length <= maxp)
-+				if (req->request.length <= maxp)
- 					mult--;
+-#define MAX_LOCKDEP_CHAINS_BITS	16
++#define MAX_LOCKDEP_CHAINS_BITS	CONFIG_LOCKDEP_CHAINS_BITS
  
- 				trb->size |= DWC3_TRB_SIZE_PCM1(mult);
+ /*
+  * Stack-trace: tightly packed array of stack backtrace
+  * addresses. Protected by the hash_lock.
+  */
+-#define MAX_STACK_TRACE_ENTRIES	524288UL
+-#define STACK_TRACE_HASH_SIZE	16384
++#define MAX_STACK_TRACE_ENTRIES	(1UL << CONFIG_LOCKDEP_STACK_TRACE_BITS)
++#define STACK_TRACE_HASH_SIZE	(1 << CONFIG_LOCKDEP_STACK_TRACE_HASH_BITS)
+ #endif
+ 
+ /*
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -1307,6 +1307,46 @@ config LOCKDEP
+ config LOCKDEP_SMALL
+ 	bool
+ 
++config LOCKDEP_BITS
++	int "Bitsize for MAX_LOCKDEP_ENTRIES"
++	depends on LOCKDEP && !LOCKDEP_SMALL
++	range 10 30
++	default 15
++	help
++	  Try increasing this value if you hit "BUG: MAX_LOCKDEP_ENTRIES too low!" message.
++
++config LOCKDEP_CHAINS_BITS
++	int "Bitsize for MAX_LOCKDEP_CHAINS"
++	depends on LOCKDEP && !LOCKDEP_SMALL
++	range 10 30
++	default 16
++	help
++	  Try increasing this value if you hit "BUG: MAX_LOCKDEP_CHAINS too low!" message.
++
++config LOCKDEP_STACK_TRACE_BITS
++	int "Bitsize for MAX_STACK_TRACE_ENTRIES"
++	depends on LOCKDEP && !LOCKDEP_SMALL
++	range 10 30
++	default 19
++	help
++	  Try increasing this value if you hit "BUG: MAX_STACK_TRACE_ENTRIES too low!" message.
++
++config LOCKDEP_STACK_TRACE_HASH_BITS
++	int "Bitsize for STACK_TRACE_HASH_SIZE"
++	depends on LOCKDEP && !LOCKDEP_SMALL
++	range 10 30
++	default 14
++	help
++	  Try increasing this value if you need large MAX_STACK_TRACE_ENTRIES.
++
++config LOCKDEP_CIRCULAR_QUEUE_BITS
++	int "Bitsize for elements in circular_queue struct"
++	depends on LOCKDEP
++	range 10 30
++	default 12
++	help
++	  Try increasing this value if you hit "lockdep bfs error:-1" warning due to __cq_enqueue() failure.
++
+ config DEBUG_LOCKDEP
+ 	bool "Lock dependency engine debugging"
+ 	depends on DEBUG_KERNEL && LOCKDEP
 
 
