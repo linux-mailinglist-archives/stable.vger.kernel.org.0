@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 307C1599F10
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6E7559A0D1
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351989AbiHSQSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:18:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55082 "EHLO
+        id S1351482AbiHSQST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:18:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352542AbiHSQRD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:17:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACB6E117774;
-        Fri, 19 Aug 2022 09:00:14 -0700 (PDT)
+        with ESMTP id S1352550AbiHSQRE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:17:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5D1C118443;
+        Fri, 19 Aug 2022 09:00:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 952EE616B3;
-        Fri, 19 Aug 2022 16:00:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C388C433C1;
-        Fri, 19 Aug 2022 16:00:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B51A6B8280F;
+        Fri, 19 Aug 2022 16:00:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D49DDC433C1;
+        Fri, 19 Aug 2022 16:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924813;
-        bh=yNbO08elAEoY/dw+6rSOTyJSJXQ7EEE8nArmGuo7i6M=;
+        s=korg; t=1660924816;
+        bh=wGlY8l1IjCaTRXUpZ+cnqahPiMuyWU/17IN0szIg3Lw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Krte+lqBUNIF1NM5k72X+bTRpgq/QMYdv8r4lDmJWZ95oJ+xypHOHeBApKTj4XHRx
-         CQT9uLyKeghTTTgBGhnYwJ5sxG9BaaRdVyuOMFzWcaD1kORxI+zs6/QUGD6UPWDm4N
-         I/eOIBzoZ85lqU+DMd8zHtsQPn357PAvo3/TyAgw=
+        b=0vHtOWtD1Ptz+f07egt5KRrqBSl5pSsR3Lyrjutt2itl+519RGjS5zQsQNlZzSg0G
+         MpmaBtfERDKmIiC7R2Jd/Fonrz8S8qJ96d6KPH77cHhqozfrL3hpWoA7TMHrFuU1q0
+         qDMTdKQKk1B4/OuSdEXV1rtl0hVm4AUoDLHKMf/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Frank Li <Frank.Li@nxp.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 291/545] dmaengine: dw-edma: Fix eDMA Rd/Wr-channels and DMA-direction semantics
-Date:   Fri, 19 Aug 2022 17:41:01 +0200
-Message-Id: <20220819153842.353179189@linuxfoundation.org>
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 292/545] misc: rtsx: Fix an error handling path in rtsx_pci_probe()
+Date:   Fri, 19 Aug 2022 17:41:02 +0200
+Message-Id: <20220819153842.399824072@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -57,97 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit c1e33979171da63cf47e56243ccb8ba82363c7d3 ]
+[ Upstream commit 44fd1917314e9d4f53dd95dd65df1c152f503d3a ]
 
-In accordance with [1, 2] the DW eDMA controller has been created to be
-part of the DW PCIe Root Port and DW PCIe End-point controllers and to
-offload the transferring of large blocks of data between application and
-remote PCIe domains leaving the system CPU free for other tasks. In the
-first case (eDMA being part of DW PCIe Root Port) the eDMA controller is
-always accessible via the CPU DBI interface and never over the PCIe wire.
+If an error occurs after a successful idr_alloc() call, the corresponding
+resource must be released with idr_remove() as already done in the .remove
+function.
 
-The latter case is more complex. Depending on the DW PCIe End-Point IP-core
-synthesize parameters it's possible to have the eDMA registers accessible
-not only from the application CPU side, but also via mapping the eDMA CSRs
-over a dedicated endpoint BAR. So based on the specifics denoted above the
-eDMA driver is supposed to support two types of the DMA controller setups:
+Update the error handling path to add the missing idr_remove() call.
 
-  1) eDMA embedded into the DW PCIe Root Port/End-point and accessible over
-     the local CPU from the application side.
-
-  2) eDMA embedded into the DW PCIe End-point and accessible via the PCIe
-     wire with MWr/MRd TLPs generated by the CPU PCIe host controller.
-
-Since the CPU memory resides different sides in these cases the semantics
-of the MEM_TO_DEV and DEV_TO_MEM operations is flipped with respect to the
-Tx and Rx DMA channels. So MEM_TO_DEV/DEV_TO_MEM corresponds to the Tx/Rx
-channels in setup 1) and to the Rx/Tx channels in case of setup 2).
-
-The DW eDMA driver has supported the case 2) since e63d79d1ffcd
-("dmaengine: Add Synopsys eDMA IP core driver") in the framework of the
-drivers/dma/dw-edma/dw-edma-pcie.c driver.
-
-The case 1) support was added later by bd96f1b2f43a ("dmaengine: dw-edma:
-support local dma device transfer semantics").  Afterwards the driver was
-supposed to cover the both possible eDMA setups, but the latter commit
-turned out to be not fully correct.
-
-The problem was that the commit together with the new functionality support
-also changed the channel direction semantics so the eDMA Read-channel
-(corresponding to the DMA_DEV_TO_MEM direction for case 1) now uses the
-sgl/cyclic base addresses as the Source addresses of the DMA transfers and
-dma_slave_config.dst_addr as the Destination address of the DMA transfers.
-
-Similarly the eDMA Write-channel (corresponding to the DMA_MEM_TO_DEV
-direction for case 1) now uses dma_slave_config.src_addr as a source
-address of the DMA transfers and sgl/cyclic base address as the Destination
-address of the DMA transfers. This contradicts the logic of the
-DMA-interface, which implies that DEV side is supposed to belong to the
-PCIe device memory and MEM - to the CPU/Application memory. Indeed it seems
-irrational to have the SG-list defined in the PCIe bus space, while
-expecting a contiguous buffer allocated in the CPU memory. Moreover the
-passed SG-list and cyclic DMA buffers are supposed to be mapped in a way so
-to be seen by the DW eDMA Application (CPU) interface.
-
-So in order to have the correct DW eDMA interface we need to invert the
-eDMA Rd/Wr-channels and DMA-slave directions semantics by selecting the
-src/dst addresses based on the DMA transfer direction instead of using the
-channel direction capability.
-
-[1] DesignWare Cores PCI Express Controller Databook - DWC PCIe Root Port,
-    v.5.40a, March 2019, p.1092
-[2] DesignWare Cores PCI Express Controller Databook - DWC PCIe Endpoint,
-    v.5.40a, March 2019, p.1189
-
-Co-developed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Fixes: bd96f1b2f43a ("dmaengine: dw-edma: support local dma device transfer semantics")
-Link: https://lore.kernel.org/r/20220524152159.2370739-7-Frank.Li@nxp.com
-Tested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-By: Vinod Koul <vkoul@kernel.org>
+Fixes: ada8a8a13b13 ("mfd: Add realtek pcie card reader driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/e8dc41716cbf52fb37a12e70d8972848e69df6d6.1655271216.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dw-edma/dw-edma-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/cardreader/rtsx_pcr.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/dw-edma/dw-edma-core.c b/drivers/dma/dw-edma/dw-edma-core.c
-index 58c8cc8fe0e1..d7ed50f8b929 100644
---- a/drivers/dma/dw-edma/dw-edma-core.c
-+++ b/drivers/dma/dw-edma/dw-edma-core.c
-@@ -400,7 +400,7 @@ dw_edma_device_transfer(struct dw_edma_transfer *xfer)
- 		chunk->ll_region.sz += burst->sz;
- 		desc->alloc_sz += burst->sz;
+diff --git a/drivers/misc/cardreader/rtsx_pcr.c b/drivers/misc/cardreader/rtsx_pcr.c
+index 5d15607027e9..358b000b3a55 100644
+--- a/drivers/misc/cardreader/rtsx_pcr.c
++++ b/drivers/misc/cardreader/rtsx_pcr.c
+@@ -1529,7 +1529,7 @@ static int rtsx_pci_probe(struct pci_dev *pcidev,
+ 	pcr->remap_addr = ioremap(base, len);
+ 	if (!pcr->remap_addr) {
+ 		ret = -ENOMEM;
+-		goto free_handle;
++		goto free_idr;
+ 	}
  
--		if (chan->dir == EDMA_DIR_WRITE) {
-+		if (dir == DMA_DEV_TO_MEM) {
- 			burst->sar = src_addr;
- 			if (xfer->cyclic) {
- 				burst->dar = xfer->xfer.cyclic.paddr;
+ 	pcr->rtsx_resv_buf = dma_alloc_coherent(&(pcidev->dev),
+@@ -1591,6 +1591,10 @@ static int rtsx_pci_probe(struct pci_dev *pcidev,
+ 			pcr->rtsx_resv_buf, pcr->rtsx_resv_buf_addr);
+ unmap:
+ 	iounmap(pcr->remap_addr);
++free_idr:
++	spin_lock(&rtsx_pci_lock);
++	idr_remove(&rtsx_pci_idr, pcr->id);
++	spin_unlock(&rtsx_pci_lock);
+ free_handle:
+ 	kfree(handle);
+ free_pcr:
 -- 
 2.35.1
 
