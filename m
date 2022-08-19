@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A9C559A060
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CD1B59A112
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352072AbiHSQTM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:19:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52548 "EHLO
+        id S1352096AbiHSQTR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:19:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352230AbiHSQQC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:16:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4766A1095B4;
-        Fri, 19 Aug 2022 08:59:15 -0700 (PDT)
+        with ESMTP id S1352264AbiHSQQI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:16:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AD0D108B39;
+        Fri, 19 Aug 2022 08:59:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86753612DF;
-        Fri, 19 Aug 2022 15:59:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78FAFC433C1;
-        Fri, 19 Aug 2022 15:59:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FDE2617A6;
+        Fri, 19 Aug 2022 15:59:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AA40C433D6;
+        Fri, 19 Aug 2022 15:59:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924753;
-        bh=Y2YVxMxFUYn+u8NnVUBKFgPVl4Mn/bDpZE1Y3UP0Zr4=;
+        s=korg; t=1660924757;
+        bh=EV4wr2hu2Sxq/LOx2C5FGvFlFkpJ1iz8Kk4U1TX4jmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j1VHfErOrKB/M26fDiFC6kspyPY/kc/AwngDP8722wDKNZiR2P4XIXmkD43qczwHt
-         nuwxW51GuClXs7ewcZyGiQOgWeBw61mNsEu9mDYWpRKUyI3wOH7LtcUMsTwetEQcgK
-         YpJ39Ht9CDlm07opV2vm2ebajUPVJvZujxQPs6IM=
+        b=MtVXhGWyoxgm74q2kH1QeEYfPIi6/IyxbnpMyzp4W/oipE7/NKT/wszw51X0j0JMf
+         gsrdIR9H3VmgUms6Z9r9jSBROYfmfnwzthjNCHj0dNw2tKyeWUX1BCnlbtuih5vsnP
+         sgQUofIm0SdzeVB+09O3b3jXdVo2FH/eQxKLPho4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Liang Yang <liang.yang@amlogic.com>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 271/545] mtd: maps: Fix refcount leak in ap_flash_init
-Date:   Fri, 19 Aug 2022 17:40:41 +0200
-Message-Id: <20220819153841.461866605@linuxfoundation.org>
+Subject: [PATCH 5.10 272/545] mtd: rawnand: meson: Fix a potential double free issue
+Date:   Fri, 19 Aug 2022 17:40:42 +0200
+Message-Id: <20220819153841.509976087@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,36 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 77087a04c8fd554134bddcb8a9ff87b21f357926 ]
+[ Upstream commit ec0da06337751b18f6dee06b6526e0f0d6e80369 ]
 
-of_find_matching_node() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+When meson_nfc_nand_chip_cleanup() is called, it will call:
+	meson_nfc_free_buffer(&meson_chip->nand);
+	nand_cleanup(&meson_chip->nand);
 
-Fixes: b0afd44bc192 ("mtd: physmap_of: add a hook for Versatile write protection")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+nand_cleanup() in turn will call nand_detach() which calls the
+.detach_chip() which is here meson_nand_detach_chip().
+
+meson_nand_detach_chip() already calls meson_nfc_free_buffer(), so we
+could double free some memory.
+
+Fix it by removing the unneeded explicit call to meson_nfc_free_buffer().
+
+Fixes: 8fae856c5350 ("mtd: rawnand: meson: add support for Amlogic NAND flash controller")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Liang Yang <liang.yang@amlogic.com>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220523143255.4376-1-linmq006@gmail.com
+Link: https://lore.kernel.org/linux-mtd/ec15c358b8063f7c50ff4cd628cf0d2e14e43f49.1653064877.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/maps/physmap-versatile.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/nand/raw/meson_nand.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/mtd/maps/physmap-versatile.c b/drivers/mtd/maps/physmap-versatile.c
-index 297a50957356..a1b8b7b25f88 100644
---- a/drivers/mtd/maps/physmap-versatile.c
-+++ b/drivers/mtd/maps/physmap-versatile.c
-@@ -93,6 +93,7 @@ static int ap_flash_init(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
- 	ebi_base = of_iomap(ebi, 0);
-+	of_node_put(ebi);
- 	if (!ebi_base)
- 		return -ENODEV;
+diff --git a/drivers/mtd/nand/raw/meson_nand.c b/drivers/mtd/nand/raw/meson_nand.c
+index 817bddccb775..327a2257ec26 100644
+--- a/drivers/mtd/nand/raw/meson_nand.c
++++ b/drivers/mtd/nand/raw/meson_nand.c
+@@ -1307,7 +1307,6 @@ static int meson_nfc_nand_chip_cleanup(struct meson_nfc *nfc)
+ 		if (ret)
+ 			return ret;
  
+-		meson_nfc_free_buffer(&meson_chip->nand);
+ 		nand_cleanup(&meson_chip->nand);
+ 		list_del(&meson_chip->node);
+ 	}
 -- 
 2.35.1
 
