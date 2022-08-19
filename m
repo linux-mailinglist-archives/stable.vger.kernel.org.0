@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF7359A21D
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09E1A59A223
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353004AbiHSQcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:32:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55378 "EHLO
+        id S1352704AbiHSQct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:32:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353045AbiHSQa2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:30:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F61C11CF02;
-        Fri, 19 Aug 2022 09:04:51 -0700 (PDT)
+        with ESMTP id S1353151AbiHSQap (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:30:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B91F411C95A;
+        Fri, 19 Aug 2022 09:04:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BBEB614DA;
-        Fri, 19 Aug 2022 16:04:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 763C9C433D7;
-        Fri, 19 Aug 2022 16:04:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 852996181A;
+        Fri, 19 Aug 2022 16:04:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 775FEC433D6;
+        Fri, 19 Aug 2022 16:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925087;
-        bh=r70nKsL/8zfp2nKwdnuul6ARJ8xpvktdkih8ho7I+ug=;
+        s=korg; t=1660925091;
+        bh=Q1XKlkSmNB0ooyHW5Aovx9xJyAFbdCyQd9xyTfaZqJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UKRbuvJHCX8fPMWF2+tlYsQU/540W2g5PF41r6Ysg9g7EAfOC2ouzIxHZsIk1tnLe
-         zqMx+IAvE5aex36d7xgHkQ+Tj5wmiF1W07oZWP5q24t3WQJ2j5npPLEiFaC1tPUgs1
-         NSxtgSHC9cPZPhoKG9NxXzkeNpndxjL8Pvp+xXI0=
+        b=QRk1aIW+yfGFHAVld46MtZFY/YEtQMen13nZ+c72v+zRIYMk+bvb1B+ta9YAlRg5G
+         hnMgn8eZTZjsyxYHy6Em1i56ORO6J8gXMGEvLzwT424GNqECoTRwb4BNX95+tUUTkr
+         rfWtYuRTJOd2ndG6n6F18aTt1bSNYar2OkkkzH2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 350/545] RDMA/srpt: Duplicate port name members
-Date:   Fri, 19 Aug 2022 17:42:00 +0200
-Message-Id: <20220819153845.046738423@linuxfoundation.org>
+Subject: [PATCH 5.10 351/545] RDMA/srpt: Introduce a reference count in struct srpt_device
+Date:   Fri, 19 Aug 2022 17:42:01 +0200
+Message-Id: <20220819153845.086670476@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -56,81 +56,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit b03b1ae2a3125d4475452e4f19f5d3a6e910ff6e ]
+[ Upstream commit aa7dfbb41b5a60ab90e244d6f586b8cb5c791c3e ]
 
-Prepare for decoupling the lifetimes of struct srpt_port and struct
-srpt_port_id by duplicating the port name into struct srpt_port.
+This will be used to keep struct srpt_device around as long as either the
+RDMA port exists or a LIO target port is associated with the struct
+srpt_device.
 
-Link: https://lore.kernel.org/r/20220727193415.1583860-2-bvanassche@acm.org
+Link: https://lore.kernel.org/r/20220727193415.1583860-3-bvanassche@acm.org
 Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srpt/ib_srpt.c |  9 ++++++---
- drivers/infiniband/ulp/srpt/ib_srpt.h | 10 +++++++---
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ drivers/infiniband/ulp/srpt/ib_srpt.c | 17 +++++++++++++++--
+ drivers/infiniband/ulp/srpt/ib_srpt.h |  2 ++
+ 2 files changed, 17 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/infiniband/ulp/srpt/ib_srpt.c b/drivers/infiniband/ulp/srpt/ib_srpt.c
-index 07ecc7dc1822..4cecdcee606a 100644
+index 4cecdcee606a..211d4e82e4ba 100644
 --- a/drivers/infiniband/ulp/srpt/ib_srpt.c
 +++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
-@@ -566,14 +566,17 @@ static int srpt_refresh_port(struct srpt_port *sport)
- 		return ret;
+@@ -3101,6 +3101,18 @@ static int srpt_use_srq(struct srpt_device *sdev, bool use_srq)
+ 	return ret;
+ }
  
- 	sport->port_guid_id.wwn.priv = sport;
--	srpt_format_guid(sport->port_guid_id.name,
--			 sizeof(sport->port_guid_id.name),
-+	srpt_format_guid(sport->guid_name, ARRAY_SIZE(sport->guid_name),
- 			 &sport->gid.global.interface_id);
-+	memcpy(sport->port_guid_id.name, sport->guid_name,
-+	       ARRAY_SIZE(sport->guid_name));
- 	sport->port_gid_id.wwn.priv = sport;
--	snprintf(sport->port_gid_id.name, sizeof(sport->port_gid_id.name),
-+	snprintf(sport->gid_name, ARRAY_SIZE(sport->gid_name),
- 		 "0x%016llx%016llx",
- 		 be64_to_cpu(sport->gid.global.subnet_prefix),
- 		 be64_to_cpu(sport->gid.global.interface_id));
-+	memcpy(sport->port_gid_id.name, sport->gid_name,
-+	       ARRAY_SIZE(sport->gid_name));
++static void srpt_free_sdev(struct kref *refcnt)
++{
++	struct srpt_device *sdev = container_of(refcnt, typeof(*sdev), refcnt);
++
++	kfree(sdev);
++}
++
++static void srpt_sdev_put(struct srpt_device *sdev)
++{
++	kref_put(&sdev->refcnt, srpt_free_sdev);
++}
++
+ /**
+  * srpt_add_one - InfiniBand device addition callback function
+  * @device: Describes a HCA.
+@@ -3118,6 +3130,7 @@ static int srpt_add_one(struct ib_device *device)
+ 	if (!sdev)
+ 		return -ENOMEM;
  
- 	if (rdma_protocol_iwarp(sport->sdev->device, sport->port))
- 		return 0;
++	kref_init(&sdev->refcnt);
+ 	sdev->device = device;
+ 	mutex_init(&sdev->sdev_mutex);
+ 
+@@ -3213,7 +3226,7 @@ static int srpt_add_one(struct ib_device *device)
+ 	srpt_free_srq(sdev);
+ 	ib_dealloc_pd(sdev->pd);
+ free_dev:
+-	kfree(sdev);
++	srpt_sdev_put(sdev);
+ 	pr_info("%s(%s) failed.\n", __func__, dev_name(&device->dev));
+ 	return ret;
+ }
+@@ -3257,7 +3270,7 @@ static void srpt_remove_one(struct ib_device *device, void *client_data)
+ 
+ 	ib_dealloc_pd(sdev->pd);
+ 
+-	kfree(sdev);
++	srpt_sdev_put(sdev);
+ }
+ 
+ static struct ib_client srpt_client = {
 diff --git a/drivers/infiniband/ulp/srpt/ib_srpt.h b/drivers/infiniband/ulp/srpt/ib_srpt.h
-index bdeb010efee6..1d28f13196c9 100644
+index 1d28f13196c9..978a338f1f0e 100644
 --- a/drivers/infiniband/ulp/srpt/ib_srpt.h
 +++ b/drivers/infiniband/ulp/srpt/ib_srpt.h
-@@ -376,7 +376,7 @@ struct srpt_tpg {
- };
+@@ -434,6 +434,7 @@ struct srpt_port {
  
  /**
-- * struct srpt_port_id - information about an RDMA port name
-+ * struct srpt_port_id - LIO RDMA port information
-  * @mutex:	Protects @tpg_list changes.
-  * @tpg_list:	TPGs associated with the RDMA port name.
-  * @wwn:	WWN associated with the RDMA port name.
-@@ -402,8 +402,10 @@ struct srpt_port_id {
-  * @lid:       cached value of the port's lid.
-  * @gid:       cached value of the port's gid.
-  * @work:      work structure for refreshing the aforementioned cached values.
-- * @port_guid_id: target port GUID
-- * @port_gid_id: target port GID
-+ * @guid_name: port name in GUID format.
-+ * @port_guid_id: LIO target port information for the port name in GUID format.
-+ * @gid_name:  port name in GID format.
-+ * @port_gid_id: LIO target port information for the port name in GID format.
-  * @port_attrib:   Port attributes that can be accessed through configfs.
-  * @refcount:	   Number of objects associated with this port.
-  * @freed_channels: Completion that will be signaled once @refcount becomes 0.
-@@ -419,7 +421,9 @@ struct srpt_port {
- 	u32			lid;
- 	union ib_gid		gid;
- 	struct work_struct	work;
-+	char			guid_name[64];
- 	struct srpt_port_id	port_guid_id;
-+	char			gid_name[64];
- 	struct srpt_port_id	port_gid_id;
- 	struct srpt_port_attrib port_attrib;
- 	atomic_t		refcount;
+  * struct srpt_device - information associated by SRPT with a single HCA
++ * @refcnt:	   Reference count for this device.
+  * @device:        Backpointer to the struct ib_device managed by the IB core.
+  * @pd:            IB protection domain.
+  * @lkey:          L_Key (local key) with write access to all local memory.
+@@ -449,6 +450,7 @@ struct srpt_port {
+  * @port:          Information about the ports owned by this HCA.
+  */
+ struct srpt_device {
++	struct kref		refcnt;
+ 	struct ib_device	*device;
+ 	struct ib_pd		*pd;
+ 	u32			lkey;
 -- 
 2.35.1
 
