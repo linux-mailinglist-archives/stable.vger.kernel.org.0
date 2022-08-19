@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D440759A314
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:03:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1763D59A375
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353777AbiHSQoB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:44:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56614 "EHLO
+        id S1353845AbiHSQou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:44:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353627AbiHSQme (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:42:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29C11129818;
-        Fri, 19 Aug 2022 09:11:03 -0700 (PDT)
+        with ESMTP id S1353720AbiHSQnP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:43:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 329DD111C23;
+        Fri, 19 Aug 2022 09:11:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0AAD61831;
-        Fri, 19 Aug 2022 16:11:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE9B0C433C1;
-        Fri, 19 Aug 2022 16:11:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93690B8281A;
+        Fri, 19 Aug 2022 16:11:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB256C433C1;
+        Fri, 19 Aug 2022 16:11:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925463;
-        bh=Xqe1kNlPDdEINyC5igfE7q3ovCl54Fa6yCcM0bnPJ0Y=;
+        s=korg; t=1660925466;
+        bh=MeueB1VICeYwOx5V+NEyLArwKuISXywHXupW8fCtY8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wcg9YXRPqgT29HLXyyT9Y52HPIPCTQ4YeVYNuhj6ezi28H1M3qYdVtCLfyEuJa410
-         JJYXBIz7aYdv82cVnVEyppgCQmX+HhOsOF/0CK3smo8v8QrPbgtCFgtlLbijpy2+HE
-         pdhzs5IMMzhYai9uYQivRhbO6ugHraAGwbn/9/84=
+        b=lbXGT/kP41TFPA1fXHnT27O00xVJw4nx5kLSvD2uj6BstwISVzZ7ORG9egspt/Id4
+         jt/c8PMYAmsPGin2G1AmxbQA1eATc5pJUS824agFLoQsAIuyiLllwzhMg70jY2J+Bc
+         2dAcsQc+2KQxDcftUhkxRKqmDXmyBg1rn631Bu6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Sachin Sant <sachinp@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Stas Sergeev <stsp@users.sourceforge.net>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 498/545] powerpc/powernv/kvm: Use darn for H_RANDOM on Power9
-Date:   Fri, 19 Aug 2022 17:44:28 +0200
-Message-Id: <20220819153851.777568501@linuxfoundation.org>
+Subject: [PATCH 5.10 499/545] KVM: VMX: Drop guest CPUID check for VMXE in vmx_set_cr4()
+Date:   Fri, 19 Aug 2022 17:44:29 +0200
+Message-Id: <20220819153851.818824528@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,143 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-[ Upstream commit 7ef3d06f1bc4a5e62273726f3dc2bd258ae1c71f ]
+[ Upstream commit d3a9e4146a6f79f19430bca3f2a4d6ebaaffe36b ]
 
-The existing logic in KVM to support guests calling H_RANDOM only works
-on Power8, because it looks for an RNG in the device tree, but on Power9
-we just use darn.
+Drop vmx_set_cr4()'s somewhat hidden guest_cpuid_has() check on VMXE now
+that common x86 handles the check by incorporating VMXE into the CR4
+reserved bits, i.e. in cr4_guest_rsvd_bits.  This fixes a bug where KVM
+incorrectly rejects KVM_SET_SREGS with CR4.VMXE=1 if it's executed
+before KVM_SET_CPUID{,2}.
 
-In addition the existing code needs to work in real mode, so we have the
-special cased powernv_get_random_real_mode() to deal with that.
-
-Instead just have KVM call ppc_md.get_random_seed(), and do the real
-mode check inside of there, that way we use whatever RNG is available,
-including darn on Power9.
-
-Fixes: e928e9cb3601 ("KVM: PPC: Book3S HV: Add fast real-mode H_RANDOM implementation.")
-Cc: stable@vger.kernel.org # v4.1+
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Tested-by: Sachin Sant <sachinp@linux.ibm.com>
-[mpe: Rebase on previous commit, update change log appropriately]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220727143219.2684192-2-mpe@ellerman.id.au
+Fixes: 5e1746d6205d ("KVM: nVMX: Allow setting the VMXE bit in CR4")
+Reported-by: Stas Sergeev <stsp@users.sourceforge.net>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20201007014417.29276-2-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/archrandom.h |  5 ----
- arch/powerpc/kvm/book3s_hv_builtin.c  |  7 +++---
- arch/powerpc/platforms/powernv/rng.c  | 36 ++++++---------------------
- 3 files changed, 12 insertions(+), 36 deletions(-)
+ arch/x86/kvm/vmx/vmx.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
-index 9a53e29680f4..258174304904 100644
---- a/arch/powerpc/include/asm/archrandom.h
-+++ b/arch/powerpc/include/asm/archrandom.h
-@@ -38,12 +38,7 @@ static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
- #endif /* CONFIG_ARCH_RANDOM */
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 9b520da3f748..1b75847d8a49 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -3217,9 +3217,10 @@ int vmx_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
+ 		 * must first be able to turn on cr4.VMXE (see handle_vmon()).
+ 		 * So basically the check on whether to allow nested VMX
+ 		 * is here.  We operate under the default treatment of SMM,
+-		 * so VMX cannot be enabled under SMM.
++		 * so VMX cannot be enabled under SMM.  Note, guest CPUID is
++		 * intentionally ignored, it's handled by cr4_guest_rsvd_bits.
+ 		 */
+-		if (!nested_vmx_allowed(vcpu) || is_smm(vcpu))
++		if (!nested || is_smm(vcpu))
+ 			return 1;
+ 	}
  
- #ifdef CONFIG_PPC_POWERNV
--int powernv_hwrng_present(void);
- int powernv_get_random_long(unsigned long *v);
--int powernv_get_random_real_mode(unsigned long *v);
--#else
--static inline int powernv_hwrng_present(void) { return 0; }
--static inline int powernv_get_random_real_mode(unsigned long *v) { return 0; }
- #endif
- 
- #endif /* _ASM_POWERPC_ARCHRANDOM_H */
-diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
-index 856a04ca833c..2f3e8b547f4e 100644
---- a/arch/powerpc/kvm/book3s_hv_builtin.c
-+++ b/arch/powerpc/kvm/book3s_hv_builtin.c
-@@ -19,7 +19,7 @@
- #include <asm/cputable.h>
- #include <asm/kvm_ppc.h>
- #include <asm/kvm_book3s.h>
--#include <asm/archrandom.h>
-+#include <asm/machdep.h>
- #include <asm/xics.h>
- #include <asm/xive.h>
- #include <asm/dbell.h>
-@@ -176,13 +176,14 @@ EXPORT_SYMBOL_GPL(kvmppc_hcall_impl_hv_realmode);
- 
- int kvmppc_hwrng_present(void)
- {
--	return powernv_hwrng_present();
-+	return ppc_md.get_random_seed != NULL;
- }
- EXPORT_SYMBOL_GPL(kvmppc_hwrng_present);
- 
- long kvmppc_rm_h_random(struct kvm_vcpu *vcpu)
- {
--	if (powernv_get_random_real_mode(&vcpu->arch.regs.gpr[4]))
-+	if (ppc_md.get_random_seed &&
-+	    ppc_md.get_random_seed(&vcpu->arch.regs.gpr[4]))
- 		return H_SUCCESS;
- 
- 	return H_HARDWARE;
-diff --git a/arch/powerpc/platforms/powernv/rng.c b/arch/powerpc/platforms/powernv/rng.c
-index a99033c3dce7..5f81ff9b5265 100644
---- a/arch/powerpc/platforms/powernv/rng.c
-+++ b/arch/powerpc/platforms/powernv/rng.c
-@@ -29,15 +29,6 @@ struct powernv_rng {
- 
- static DEFINE_PER_CPU(struct powernv_rng *, powernv_rng);
- 
--int powernv_hwrng_present(void)
--{
--	struct powernv_rng *rng;
--
--	rng = get_cpu_var(powernv_rng);
--	put_cpu_var(rng);
--	return rng != NULL;
--}
--
- static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
- {
- 	unsigned long parity;
-@@ -58,19 +49,6 @@ static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
- 	return val;
- }
- 
--int powernv_get_random_real_mode(unsigned long *v)
--{
--	struct powernv_rng *rng;
--
--	rng = raw_cpu_read(powernv_rng);
--	if (!rng)
--		return 0;
--
--	*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
--
--	return 1;
--}
--
- static int powernv_get_random_darn(unsigned long *v)
- {
- 	unsigned long val;
-@@ -107,12 +85,14 @@ int powernv_get_random_long(unsigned long *v)
- {
- 	struct powernv_rng *rng;
- 
--	rng = get_cpu_var(powernv_rng);
--
--	*v = rng_whiten(rng, in_be64(rng->regs));
--
--	put_cpu_var(rng);
--
-+	if (mfmsr() & MSR_DR) {
-+		rng = get_cpu_var(powernv_rng);
-+		*v = rng_whiten(rng, in_be64(rng->regs));
-+		put_cpu_var(rng);
-+	} else {
-+		rng = raw_cpu_read(powernv_rng);
-+		*v = rng_whiten(rng, __raw_rm_readq(rng->regs_real));
-+	}
- 	return 1;
- }
- EXPORT_SYMBOL_GPL(powernv_get_random_long);
 -- 
 2.35.1
 
