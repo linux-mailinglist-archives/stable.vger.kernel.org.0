@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3279059A384
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C688E59A321
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:03:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354485AbiHSQyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:54:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39080 "EHLO
+        id S1354462AbiHSQyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:54:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354403AbiHSQxa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:53:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 617BC12E3D2;
-        Fri, 19 Aug 2022 09:15:13 -0700 (PDT)
+        with ESMTP id S1354374AbiHSQwz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:52:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B274113DDF;
+        Fri, 19 Aug 2022 09:15:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4BD55B8282A;
-        Fri, 19 Aug 2022 16:13:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8800EC433D7;
-        Fri, 19 Aug 2022 16:13:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B379F61199;
+        Fri, 19 Aug 2022 16:13:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6ABBC433D6;
+        Fri, 19 Aug 2022 16:13:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925625;
-        bh=QXKbbD2rBMM2SVJ7jtAh4BSriiVTIwVcRFRHymGJ04g=;
+        s=korg; t=1660925628;
+        bh=l3ea2BQc2Mx2nsTETQ8b1/ks6UmsAsGgyuwl9uThfyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uj9mV/lyYM3/UHZ8IBKacVxZEWz0TKuR2jWLCDjH/OIFvvBufkSXkGwV9nddidhHN
-         vKyhZ8M01PDXpPATiy6LKebtLfM4jhp4ZazhhCjV4wjdqx0aqf6P/DQQn/D6k0IUYy
-         wC7SgPQo+kGwIgCfwQQYCvtyVa59Z/vWSQvKTyPs=
+        b=zlr+HlWn3hfHNZsxMTpBczfaQUt9BDYqaiK41/DZP7lTep6iJoT1XOmLj2YMSQQBe
+         1UrXkY6xEUZCbRZ1IQgfMHot8vCWh4u6M/r2LGvBBt3ZePABTUKWF5pJZGKPfuhYyx
+         jhep8nnub5opBMp2DFYU2P9/DFQnEt6sinkfUKhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Stephen Hemminger <stephen@networkplumber.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 542/545] net_sched: cls_route: disallow handle of 0
-Date:   Fri, 19 Aug 2022 17:45:12 +0200
-Message-Id: <20220819153853.863593552@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Fedor Pchelkin <pchelkin@ispras.ru>
+Subject: [PATCH 5.10 543/545] sched/fair: Fix fault in reweight_entity
+Date:   Fri, 19 Aug 2022 17:45:13 +0200
+Message-Id: <20220819153853.902863420@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,87 +57,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamal Hadi Salim <jhs@mojatatu.com>
+From: Tadeusz Struk <tadeusz.struk@linaro.org>
 
-commit 02799571714dc5dd6948824b9d080b44a295f695 upstream.
+commit 13765de8148f71fa795e0a6607de37c49ea5915a upstream.
 
-Follows up on:
-https://lore.kernel.org/all/20220809170518.164662-1-cascardo@canonical.com/
+Syzbot found a GPF in reweight_entity. This has been bisected to
+commit 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid
+sched_task_group")
 
-handle of 0 implies from/to of universe realm which is not very
-sensible.
+There is a race between sched_post_fork() and setpriority(PRIO_PGRP)
+within a thread group that causes a null-ptr-deref in
+reweight_entity() in CFS. The scenario is that the main process spawns
+number of new threads, which then call setpriority(PRIO_PGRP, 0, -20),
+wait, and exit.  For each of the new threads the copy_process() gets
+invoked, which adds the new task_struct and calls sched_post_fork()
+for it.
 
-Lets see what this patch will do:
-$sudo tc qdisc add dev $DEV root handle 1:0 prio
+In the above scenario there is a possibility that
+setpriority(PRIO_PGRP) and set_one_prio() will be called for a thread
+in the group that is just being created by copy_process(), and for
+which the sched_post_fork() has not been executed yet. This will
+trigger a null pointer dereference in reweight_entity(), as it will
+try to access the run queue pointer, which hasn't been set.
 
-//lets manufacture a way to insert handle of 0
-$sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 \
-route to 0 from 0 classid 1:10 action ok
+Before the mentioned change the cfs_rq pointer for the task  has been
+set in sched_fork(), which is called much earlier in copy_process(),
+before the new task is added to the thread_group.  Now it is done in
+the sched_post_fork(), which is called after that.  To fix the issue
+the remove the update_load param from the update_load param() function
+and call reweight_task() only if the task flag doesn't have the
+TASK_NEW flag set.
 
-//gets rejected...
-Error: handle of 0 is not valid.
-We have an error talking to the kernel, -1
-
-//lets create a legit entry..
-sudo tc filter add dev $DEV parent 1:0 protocol ip prio 100 route from 10 \
-classid 1:10 action ok
-
-//what did the kernel insert?
-$sudo tc filter ls dev $DEV parent 1:0
-filter protocol ip pref 100 route chain 0
-filter protocol ip pref 100 route chain 0 fh 0x000a8000 flowid 1:10 from 10
-	action order 1: gact action pass
-	 random type none pass val 0
-	 index 1 ref 1 bind 1
-
-//Lets try to replace that legit entry with a handle of 0
-$ sudo tc filter replace dev $DEV parent 1:0 protocol ip prio 100 \
-handle 0x000a8000 route to 0 from 0 classid 1:10 action drop
-
-Error: Replacing with handle of 0 is invalid.
-We have an error talking to the kernel, -1
-
-And last, lets run Cascardo's POC:
-$ ./poc
-0
-0
--22
--22
--22
-
-Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Acked-by: Stephen Hemminger <stephen@networkplumber.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid sched_task_group")
+Reported-by: syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20220203161846.1160750-1-tadeusz.struk@linaro.org
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_route.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ kernel/sched/core.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/net/sched/cls_route.c
-+++ b/net/sched/cls_route.c
-@@ -424,6 +424,11 @@ static int route4_set_parms(struct net *
- 			return -EINVAL;
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -844,8 +844,9 @@ int tg_nop(struct task_group *tg, void *
+ }
+ #endif
+ 
+-static void set_load_weight(struct task_struct *p, bool update_load)
++static void set_load_weight(struct task_struct *p)
+ {
++	bool update_load = !(READ_ONCE(p->state) & TASK_NEW);
+ 	int prio = p->static_prio - MAX_RT_PRIO;
+ 	struct load_weight *load = &p->se.load;
+ 
+@@ -3266,7 +3267,7 @@ int sched_fork(unsigned long clone_flags
+ 			p->static_prio = NICE_TO_PRIO(0);
+ 
+ 		p->prio = p->normal_prio = p->static_prio;
+-		set_load_weight(p, false);
++		set_load_weight(p);
+ 
+ 		/*
+ 		 * We don't need the reset flag anymore after the fork. It has
+@@ -5015,7 +5016,7 @@ void set_user_nice(struct task_struct *p
+ 		put_prev_task(rq, p);
+ 
+ 	p->static_prio = NICE_TO_PRIO(nice);
+-	set_load_weight(p, true);
++	set_load_weight(p);
+ 	old_prio = p->prio;
+ 	p->prio = effective_prio(p);
+ 
+@@ -5188,7 +5189,7 @@ static void __setscheduler_params(struct
+ 	 */
+ 	p->rt_priority = attr->sched_priority;
+ 	p->normal_prio = normal_prio(p);
+-	set_load_weight(p, true);
++	set_load_weight(p);
+ }
+ 
+ /*
+@@ -7200,7 +7201,7 @@ void __init sched_init(void)
+ 		atomic_set(&rq->nr_iowait, 0);
  	}
  
-+	if (!nhandle) {
-+		NL_SET_ERR_MSG(extack, "Replacing with handle of 0 is invalid");
-+		return -EINVAL;
-+	}
-+
- 	h1 = to_hash(nhandle);
- 	b = rtnl_dereference(head->table[h1]);
- 	if (!b) {
-@@ -477,6 +482,11 @@ static int route4_change(struct net *net
- 	int err;
- 	bool new = true;
+-	set_load_weight(&init_task, false);
++	set_load_weight(&init_task);
  
-+	if (!handle) {
-+		NL_SET_ERR_MSG(extack, "Creating with handle of 0 is invalid");
-+		return -EINVAL;
-+	}
-+
- 	if (opt == NULL)
- 		return handle ? -EINVAL : 0;
- 
+ 	/*
+ 	 * The boot idle thread does lazy MMU switching as well:
 
 
