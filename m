@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B2FE59A44F
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0F4459A3D1
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353817AbiHSQqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:46:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37616 "EHLO
+        id S1354126AbiHSQsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:48:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354010AbiHSQpk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:45:40 -0400
+        with ESMTP id S1354005AbiHSQqx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:46:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF9B412A1F6;
-        Fri, 19 Aug 2022 09:11:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF34312C359;
+        Fri, 19 Aug 2022 09:12:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 52A0B6181D;
-        Fri, 19 Aug 2022 16:11:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52FF2C433D7;
-        Fri, 19 Aug 2022 16:11:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0175618B3;
+        Fri, 19 Aug 2022 16:12:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3F35C433D6;
+        Fri, 19 Aug 2022 16:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925503;
-        bh=Ezh7s0Ir8HE1oXQFVy9uky/oHq/rIozNW7hj7M2ENd0=;
+        s=korg; t=1660925538;
+        bh=UAT7Y9+eghMhtipisJYCxWU40Q9aQYtPksCApGHfw04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqoCLVuEsJFl6v0kvBaMcx6N8bXBvITMAW00zLTr6lx+0TP9jqfgOvnfB2JqGN5HZ
-         jdiEkHJ67GmdbpC14kxq0g2S4FaoySuiXJ3io9Pz0lnEOpjTz//q8+wWxTGaJz6i69
-         zdv8Kmt5wrqkvbaqoNHcFmcAqvJcfRtbIapTxR9A=
+        b=I1i12ifhyDbQ+tpISgMweUsnT/s4gxxfjM9mMiwt/2KcJ30ocvIKlpZ5uPzXPalno
+         BMXwP0VlmUBBzVgrQW99yoNkM5dJhaY7XzvzwC+zPs9iBvN6gSOlA751t1GPKscqeU
+         L0HUJuDQ3GG4HHkD9G4xKINPQ7gapwhv7Iiz9cSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 504/545] KVM: x86/pmu: preserve IA32_PERF_CAPABILITIES across CPUID refresh
-Date:   Fri, 19 Aug 2022 17:44:34 +0200
-Message-Id: <20220819153852.035256590@linuxfoundation.org>
+Subject: [PATCH 5.10 505/545] KVM: x86/pmu: Use binary search to check filtered events
+Date:   Fri, 19 Aug 2022 17:44:35 +0200
+Message-Id: <20220819153852.083624234@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -53,72 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Jim Mattson <jmattson@google.com>
 
-[ Upstream commit a755753903a40d982f6dd23d65eb96b248a2577a ]
+[ Upstream commit 7ff775aca48adc854436b92c060e5eebfffb6a4a ]
 
-Once MSR_IA32_PERF_CAPABILITIES is changed via vmx_set_msr(), the
-value should not be changed by cpuid(). To ensure that the new value
-is kept, the default initialization path is moved to intel_pmu_init().
-The effective value of the MSR will be 0 if PDCM is clear, however.
+The PMU event filter may contain up to 300 events. Replace the linear
+search in reprogram_gp_counter() with a binary search.
 
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-Id: <20220115052431.447232-2-jmattson@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/pmu_intel.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ arch/x86/kvm/pmu.c | 30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/pmu_intel.c b/arch/x86/kvm/vmx/pmu_intel.c
-index bd70c1d7f345..b3ca19682975 100644
---- a/arch/x86/kvm/vmx/pmu_intel.c
-+++ b/arch/x86/kvm/vmx/pmu_intel.c
-@@ -153,12 +153,17 @@ static struct kvm_pmc *intel_rdpmc_ecx_to_pmc(struct kvm_vcpu *vcpu,
- 	return &counters[array_index_nospec(idx, num_counters)];
+diff --git a/arch/x86/kvm/pmu.c b/arch/x86/kvm/pmu.c
+index 2f83b5d948b3..350e7cdaad02 100644
+--- a/arch/x86/kvm/pmu.c
++++ b/arch/x86/kvm/pmu.c
+@@ -13,6 +13,8 @@
+ #include <linux/types.h>
+ #include <linux/kvm_host.h>
+ #include <linux/perf_event.h>
++#include <linux/bsearch.h>
++#include <linux/sort.h>
+ #include <asm/perf_event.h>
+ #include "x86.h"
+ #include "cpuid.h"
+@@ -168,13 +170,17 @@ static bool pmc_resume_counter(struct kvm_pmc *pmc)
+ 	return true;
  }
  
--static inline bool fw_writes_is_enabled(struct kvm_vcpu *vcpu)
-+static inline u64 vcpu_get_perf_capabilities(struct kvm_vcpu *vcpu)
- {
- 	if (!guest_cpuid_has(vcpu, X86_FEATURE_PDCM))
--		return false;
-+		return 0;
- 
--	return vcpu->arch.perf_capabilities & PMU_CAP_FW_WRITES;
-+	return vcpu->arch.perf_capabilities;
++static int cmp_u64(const void *a, const void *b)
++{
++	return *(__u64 *)a - *(__u64 *)b;
 +}
 +
-+static inline bool fw_writes_is_enabled(struct kvm_vcpu *vcpu)
-+{
-+	return (vcpu_get_perf_capabilities(vcpu) & PMU_CAP_FW_WRITES) != 0;
- }
+ void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel)
+ {
+ 	u64 config;
+ 	u32 type = PERF_TYPE_RAW;
+ 	struct kvm *kvm = pmc->vcpu->kvm;
+ 	struct kvm_pmu_event_filter *filter;
+-	int i;
+ 	bool allow_event = true;
  
- static inline struct kvm_pmc *get_fw_gp_pmc(struct kvm_pmu *pmu, u32 msr)
-@@ -328,7 +333,6 @@ static void intel_pmu_refresh(struct kvm_vcpu *vcpu)
- 	pmu->counter_bitmask[KVM_PMC_FIXED] = 0;
- 	pmu->version = 0;
- 	pmu->reserved_bits = 0xffffffff00200000ull;
--	vcpu->arch.perf_capabilities = 0;
+ 	if (eventsel & ARCH_PERFMON_EVENTSEL_PIN_CONTROL)
+@@ -189,16 +195,13 @@ void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel)
  
- 	entry = kvm_find_cpuid_entry(vcpu, 0xa, 0);
- 	if (!entry)
-@@ -341,8 +345,6 @@ static void intel_pmu_refresh(struct kvm_vcpu *vcpu)
- 		return;
- 
- 	perf_get_x86_pmu_capability(&x86_pmu);
--	if (guest_cpuid_has(vcpu, X86_FEATURE_PDCM))
--		vcpu->arch.perf_capabilities = vmx_get_perf_capabilities();
- 
- 	pmu->nr_arch_gp_counters = min_t(int, eax.split.num_counters,
- 					 x86_pmu.num_counters_gp);
-@@ -406,6 +408,8 @@ static void intel_pmu_init(struct kvm_vcpu *vcpu)
- 		pmu->fixed_counters[i].idx = i + INTEL_PMC_IDX_FIXED;
- 		pmu->fixed_counters[i].current_config = 0;
- 	}
+ 	filter = srcu_dereference(kvm->arch.pmu_event_filter, &kvm->srcu);
+ 	if (filter) {
+-		for (i = 0; i < filter->nevents; i++)
+-			if (filter->events[i] ==
+-			    (eventsel & AMD64_RAW_EVENT_MASK_NB))
+-				break;
+-		if (filter->action == KVM_PMU_EVENT_ALLOW &&
+-		    i == filter->nevents)
+-			allow_event = false;
+-		if (filter->action == KVM_PMU_EVENT_DENY &&
+-		    i < filter->nevents)
+-			allow_event = false;
++		__u64 key = eventsel & AMD64_RAW_EVENT_MASK_NB;
 +
-+	vcpu->arch.perf_capabilities = vmx_get_perf_capabilities();
- }
++		if (bsearch(&key, filter->events, filter->nevents,
++			    sizeof(__u64), cmp_u64))
++			allow_event = filter->action == KVM_PMU_EVENT_ALLOW;
++		else
++			allow_event = filter->action == KVM_PMU_EVENT_DENY;
+ 	}
+ 	if (!allow_event)
+ 		return;
+@@ -507,6 +510,11 @@ int kvm_vm_ioctl_set_pmu_event_filter(struct kvm *kvm, void __user *argp)
+ 	/* Ensure nevents can't be changed between the user copies. */
+ 	*filter = tmp;
  
- static void intel_pmu_reset(struct kvm_vcpu *vcpu)
++	/*
++	 * Sort the in-kernel list so that we can search it with bsearch.
++	 */
++	sort(&filter->events, filter->nevents, sizeof(__u64), cmp_u64, NULL);
++
+ 	mutex_lock(&kvm->lock);
+ 	filter = rcu_replace_pointer(kvm->arch.pmu_event_filter, filter,
+ 				     mutex_is_locked(&kvm->lock));
 -- 
 2.35.1
 
