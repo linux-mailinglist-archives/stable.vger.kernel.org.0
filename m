@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A920859A1A5
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6964E599F17
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351863AbiHSQSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:18:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51002 "EHLO
+        id S1352055AbiHSQTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:19:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352508AbiHSQQ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:16:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAE861175D1;
-        Fri, 19 Aug 2022 09:00:06 -0700 (PDT)
+        with ESMTP id S1352511AbiHSQQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:16:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C5C21175DE;
+        Fri, 19 Aug 2022 09:00:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95EC2B8281C;
-        Fri, 19 Aug 2022 16:00:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4AEAC433C1;
-        Fri, 19 Aug 2022 16:00:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80FCFB8280F;
+        Fri, 19 Aug 2022 16:00:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A60C433C1;
+        Fri, 19 Aug 2022 16:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924803;
-        bh=xRccUg+RYk2HYXcKqv40Tc20yTxns1wD23CNpPqj9F8=;
+        s=korg; t=1660924806;
+        bh=RC6lXEymBzfAqCZ9b6uCBQLC/nq3rGk6sjYUMbqsevM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ikH5z9ren+u89aZB6p/LHNepsWlAWV0OpPHPE+8W252VujA0i+QRRWMtJ1sSRQcyB
-         m2Jfwn8Pd6HmR9SEHf8fVG/9hUxR8uyOHJszM441orAIJX+1Gx6dgalLfJkIyxTI70
-         kgWeSG7JCIZonGN8JG3Ocg44x+SGKbEQvhwsQLH4=
+        b=cIxQkf8nqAF4tUWWUa4Yty6/2hKPLQZI5GEc51PjhwmApRafHd3BjIZiAAA0I6wGR
+         qGbsWQWXUPhLlOdJJpsmGDq5jphXli8EwR7mrDhpi79J2slYDbdsGbXgNAy/biaYKU
+         EjqOr8bBTyb2TPKNbEW0B1e4Py2VCOYUrczs+otk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 288/545] KVM: Dont set Accessed/Dirty bits for ZERO_PAGE
-Date:   Fri, 19 Aug 2022 17:40:58 +0200
-Message-Id: <20220819153842.220152009@linuxfoundation.org>
+Subject: [PATCH 5.10 289/545] mwifiex: Ignore BTCOEX events from the 88W8897 firmware
+Date:   Fri, 19 Aug 2022 17:40:59 +0200
+Message-Id: <20220819153842.266637844@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,62 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Jonas Dreßler <verdre@v0yd.nl>
 
-[ Upstream commit a1040b0d42acf69bb4f6dbdc54c2dcd78eea1de5 ]
+[ Upstream commit 84d94e16efa268e4f2887d858cd67ee37b870f25 ]
 
-Don't set Accessed/Dirty bits for a struct page with PG_reserved set,
-i.e. don't set A/D bits for the ZERO_PAGE.  The ZERO_PAGE (or pages
-depending on the architecture) should obviously never be written, and
-similarly there's no point in marking it accessed as the page will never
-be swapped out or reclaimed.  The comment in page-flags.h is quite clear
-that PG_reserved pages should be managed only by their owner, and
-strictly following that mandate also simplifies KVM's logic.
+The firmware of the 88W8897 PCIe+USB card sends those events very
+unreliably, sometimes bluetooth together with 2.4ghz-wifi is used and no
+COEX event comes in, and sometimes bluetooth is disabled but the
+coexistance mode doesn't get disabled.
 
-Fixes: 7df003c85218 ("KVM: fix overflow of zero page refcount with ksm running")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220429010416.2788472-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This means we sometimes end up capping the rx/tx window size while
+bluetooth is not enabled anymore, artifically limiting wifi speeds even
+though bluetooth is not being used.
+
+Since we can't fix the firmware, let's just ignore those events on the
+88W8897 device. From some Wireshark capture sessions it seems that the
+Windows driver also doesn't change the rx/tx window sizes when bluetooth
+gets enabled or disabled, so this is fairly consistent with the Windows
+driver.
+
+Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211103205827.14559-1-verdre@v0yd.nl
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/main.h      | 2 ++
+ drivers/net/wireless/marvell/mwifiex/pcie.c      | 3 +++
+ drivers/net/wireless/marvell/mwifiex/sta_event.c | 3 +++
+ 3 files changed, 8 insertions(+)
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index c5dbac10c372..421b0ff72b46 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2339,16 +2339,28 @@ void kvm_release_pfn_dirty(kvm_pfn_t pfn)
- }
- EXPORT_SYMBOL_GPL(kvm_release_pfn_dirty);
- 
-+static bool kvm_is_ad_tracked_pfn(kvm_pfn_t pfn)
-+{
-+	if (!pfn_valid(pfn))
-+		return false;
+diff --git a/drivers/net/wireless/marvell/mwifiex/main.h b/drivers/net/wireless/marvell/mwifiex/main.h
+index 5923c5c14c8d..f4e3dce10d65 100644
+--- a/drivers/net/wireless/marvell/mwifiex/main.h
++++ b/drivers/net/wireless/marvell/mwifiex/main.h
+@@ -1054,6 +1054,8 @@ struct mwifiex_adapter {
+ 	void *devdump_data;
+ 	int devdump_len;
+ 	struct timer_list devdump_timer;
 +
-+	/*
-+	 * Per page-flags.h, pages tagged PG_reserved "should in general not be
-+	 * touched (e.g. set dirty) except by its owner".
-+	 */
-+	return !PageReserved(pfn_to_page(pfn));
-+}
-+
- void kvm_set_pfn_dirty(kvm_pfn_t pfn)
- {
--	if (!kvm_is_reserved_pfn(pfn) && !kvm_is_zone_device_pfn(pfn))
-+	if (kvm_is_ad_tracked_pfn(pfn))
- 		SetPageDirty(pfn_to_page(pfn));
- }
- EXPORT_SYMBOL_GPL(kvm_set_pfn_dirty);
++	bool ignore_btcoex_events;
+ };
  
- void kvm_set_pfn_accessed(kvm_pfn_t pfn)
- {
--	if (!kvm_is_reserved_pfn(pfn) && !kvm_is_zone_device_pfn(pfn))
-+	if (kvm_is_ad_tracked_pfn(pfn))
- 		mark_page_accessed(pfn_to_page(pfn));
- }
- EXPORT_SYMBOL_GPL(kvm_set_pfn_accessed);
+ void mwifiex_process_tx_queue(struct mwifiex_adapter *adapter);
+diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
+index 7c137eba8cda..b0024893a1cb 100644
+--- a/drivers/net/wireless/marvell/mwifiex/pcie.c
++++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
+@@ -3142,6 +3142,9 @@ static int mwifiex_init_pcie(struct mwifiex_adapter *adapter)
+ 	if (ret)
+ 		goto err_alloc_buffers;
+ 
++	if (pdev->device == PCIE_DEVICE_ID_MARVELL_88W8897)
++		adapter->ignore_btcoex_events = true;
++
+ 	return 0;
+ 
+ err_alloc_buffers:
+diff --git a/drivers/net/wireless/marvell/mwifiex/sta_event.c b/drivers/net/wireless/marvell/mwifiex/sta_event.c
+index 753458628f86..05073a49ab5f 100644
+--- a/drivers/net/wireless/marvell/mwifiex/sta_event.c
++++ b/drivers/net/wireless/marvell/mwifiex/sta_event.c
+@@ -1061,6 +1061,9 @@ int mwifiex_process_sta_event(struct mwifiex_private *priv)
+ 		break;
+ 	case EVENT_BT_COEX_WLAN_PARA_CHANGE:
+ 		dev_dbg(adapter->dev, "EVENT: BT coex wlan param update\n");
++		if (adapter->ignore_btcoex_events)
++			break;
++
+ 		mwifiex_bt_coex_wlan_param_update_event(priv,
+ 							adapter->event_skb);
+ 		break;
 -- 
 2.35.1
 
