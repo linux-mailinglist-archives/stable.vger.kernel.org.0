@@ -2,119 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA23759A57A
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:39:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B05F459A68B
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 21:40:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350454AbiHSSP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 14:15:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54188 "EHLO
+        id S231806AbiHSTfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 15:35:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350713AbiHSSPe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 14:15:34 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C48E260A;
-        Fri, 19 Aug 2022 11:14:50 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id w138so2368453pfc.10;
-        Fri, 19 Aug 2022 11:14:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc;
-        bh=e+XtPeC3pjXDO7mdGWjhmTQzwtsJL/vQCieYQy7ut4E=;
-        b=RX96LJt+nOABWd+tsDkCkJJ7ntjNDGsnLZCKTN40l1WMltyOWXnXDzPzO83USsN0PV
-         3A0TvTZm3VkCGrBPHBt74Dd7yArIlqYRJwJilL9Iyr6dNNsYbXshY6sqUJz6UG7z2VOo
-         bskFlEjh3nC75nA86dV3NdKadcJTVwH+aT3rHLZFSEgwhb/Xd1x0RyGQlXhT0G5UcKeu
-         DmquNOwyGoQXfC/w5Z4m3gWP9NvLKLj+r1/yhyHgfckukKJ5d4qAegqo6pjSkYtaqJyN
-         JALqwvzSJpBN2TplDQAJ/OBLYDmZ5e7v9IzeNJwHMNFnNN0IO7ljorTbiUQT0I08PbOs
-         BT7Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=e+XtPeC3pjXDO7mdGWjhmTQzwtsJL/vQCieYQy7ut4E=;
-        b=ic0C89BEnciL20zS9DuonzPei84T0QVHzmG+L5/NbVOdnU8Qr0P2WLsB5SrvY9L8RU
-         0f6rJuKYIi8u867iuJhJrUHRpkj6qf/4y4LPJwzV2+FqiBYH5j4j3s+/RD8pSsfgAQdy
-         N4sCPHOFxspTzpfLOiNa6LU0Pn7Wb/lTINT14todw0g+4nnOd/pagNCwnaxHtUe1D9WG
-         7vqDkKkPoSDKOIxBkOkAPSOvViqXaU/j+ZXJ5mIz2Ivgd292DyP+5434WtE34MaOV/GV
-         Nnk2Hi2op3JV1VhaC/B6baf6zsN7TA3xU1xqAgd2z0o9isJdZyBH5ZrYWsRWlpK8cDF3
-         ycdw==
-X-Gm-Message-State: ACgBeo2RM+ktGBk3Mi0iseVOzOO0HTNljyc9uY4Mwkurj3UjGdLR+07L
-        LPBMcCfVawAFWlQsd8xAAqkdcZM5+uIPpw==
-X-Google-Smtp-Source: AA6agR7xTFAzynYIJYRzrlVVHR6OZIAJi++KYll4/saep5sBM9gyrbqjn5FwfEdFJjQ9izY7rFGCUg==
-X-Received: by 2002:a63:d5:0:b0:41a:58f:929e with SMTP id 204-20020a6300d5000000b0041a058f929emr7103736pga.260.1660932888846;
-        Fri, 19 Aug 2022 11:14:48 -0700 (PDT)
-Received: from lrumancik.svl.corp.google.com ([2620:15c:2d4:203:3995:f9b1:1e6b:e373])
-        by smtp.gmail.com with ESMTPSA id t14-20020a170902e84e00b0015ee60ef65bsm3460918plg.260.2022.08.19.11.14.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Aug 2022 11:14:48 -0700 (PDT)
-From:   Leah Rumancik <leah.rumancik@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     linux-xfs@vger.kernel.org, amir73il@gmail.com,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Allison Henderson <allison.henderson@oracle.com>,
-        Catherine Hoang <catherine.hoang@oracle.com>,
-        Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 9/9] xfs: reject crazy array sizes being fed to XFS_IOC_GETBMAP*
-Date:   Fri, 19 Aug 2022 11:14:31 -0700
-Message-Id: <20220819181431.4113819-10-leah.rumancik@gmail.com>
-X-Mailer: git-send-email 2.37.1.595.g718a3a8f04-goog
-In-Reply-To: <20220819181431.4113819-1-leah.rumancik@gmail.com>
-References: <20220819181431.4113819-1-leah.rumancik@gmail.com>
+        with ESMTP id S231530AbiHSTfL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 15:35:11 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7D7BC2F99
+        for <stable@vger.kernel.org>; Fri, 19 Aug 2022 12:35:09 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1oP7lr-0003qd-5V; Fri, 19 Aug 2022 21:35:07 +0200
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1oP7lp-000lsq-Ln; Fri, 19 Aug 2022 21:35:05 +0200
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1oP7lo-00Cni9-Kn; Fri, 19 Aug 2022 21:35:04 +0200
+Date:   Fri, 19 Aug 2022 21:35:01 +0200
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.19 0191/1157] hwmon: (sht15) Fix wrong assumptions in
+ device remove callback
+Message-ID: <20220819193501.glb43pf64zkl7n3p@pengutronix.de>
+References: <20220815180439.416659447@linuxfoundation.org>
+ <20220815180447.391756473@linuxfoundation.org>
+ <20220815214911.wy7p5sqbog6r6tcg@pengutronix.de>
+ <Yvt0Ms9ur2aSj2Zz@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="m7u2qoobcl7vkpee"
+Content-Disposition: inline
+In-Reply-To: <Yvt0Ms9ur2aSj2Zz@kroah.com>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
 
-[ Upstream commit 29d650f7e3ab55283b89c9f5883d0c256ce478b5 ]
+--m7u2qoobcl7vkpee
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Syzbot tripped over the following complaint from the kernel:
+Hello Greg,
 
-WARNING: CPU: 2 PID: 15402 at mm/util.c:597 kvmalloc_node+0x11e/0x125 mm/util.c:597
+On Tue, Aug 16, 2022 at 12:40:50PM +0200, Greg Kroah-Hartman wrote:
+> On Mon, Aug 15, 2022 at 11:49:11PM +0200, Uwe Kleine-K=F6nig wrote:
+> > On Mon, Aug 15, 2022 at 07:52:27PM +0200, Greg Kroah-Hartman wrote:
+> > > From: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+> > >=20
+> > > [ Upstream commit 7d4edccc9bbfe1dcdff641343f7b0c6763fbe774 ]
+> > >=20
+> > > Taking a lock at the beginning of .remove() doesn't prevent new reade=
+rs.
+> > > With the existing approach it can happen, that a read occurs just when
+> > > the lock was taken blocking the reader until the lock is released at =
+the
+> > > end of the remove callback which then accessed *data that is already
+> > > freed then.
+> > >=20
+> > > To actually fix this problem the hwmon core needs some adaption. Until
+> > > this is implemented take the optimistic approach of assuming that all
+> > > readers are gone after hwmon_device_unregister() and
+> > > sysfs_remove_group() as most other drivers do. (And once the core
+> > > implements that, taking the lock would deadlock.)
+> > >=20
+> > > So drop the lock, move the reset to after device unregistration to ke=
+ep
+> > > the device in a workable state until it's deregistered. Also add a er=
+ror
+> > > message in case the reset fails and return 0 anyhow. (Returning an er=
+ror
+> > > code, doesn't stop the platform device unregistration and only results
+> > > in a little helpful error message before the devm cleanup handlers are
+> > > called.)
+> > >=20
+> > > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+> > > Link: https://lore.kernel.org/r/20220725194344.150098-1-u.kleine-koen=
+ig@pengutronix.de
+> > > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> >=20
+> > Does this mean my concerns I expressed in the mail with Message-Id:
+> > 20220814155638.idxnihylofsxqlql@pengutronix.de were not taken into
+> > consideration?
+>=20
+> I can't find that message-id on lore.kernel.org, do you have a link?
 
-While trying to run XFS_IOC_GETBMAP against the following structure:
+Oh, I missed your request earlier. No I don't have a link, the mail was
+sent to Sasha Levin, Jean Delvare, Guenter Roeck and stable-commits as I
+just replied to the "note to let you know that I've just added the patch
+titled [...] to the 5.19-stable tree".
 
-struct getbmap fubar = {
-	.bmv_count	= 0x22dae649,
-};
+I wrote:
+> I'd say adding this patch to stable isn't right. The problem existed
+> since v3.0 (commit cc15c7ebb424e45ba2c5ceecbe52d025219ee970) and was
+> never reported to be hit in practise. And given that the problem doesn't
+> go away completely but (AFAICT) just opens the possibility for a hwmon
+> core fix, I'd say it's not worth a backport.
 
-Obviously, this is a crazy huge value since the next thing that the
-ioctl would do is allocate 37GB of memory.  This is enough to make
-kvmalloc mad, but isn't large enough to trip the validation functions.
-In other words, I'm fussing with checks that were **already sufficient**
-because that's easier than dealing with 644 internal bug reports.  Yes,
-that's right, six hundred and forty-four.
+Best regards
+Uwe
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Allison Henderson <allison.henderson@oracle.com>
-Reviewed-by: Catherine Hoang <catherine.hoang@oracle.com>
-Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
----
- fs/xfs/xfs_ioctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
 
-diff --git a/fs/xfs/xfs_ioctl.c b/fs/xfs/xfs_ioctl.c
-index fba52e75e98b..bcc3c18c8080 100644
---- a/fs/xfs/xfs_ioctl.c
-+++ b/fs/xfs/xfs_ioctl.c
-@@ -1545,7 +1545,7 @@ xfs_ioc_getbmap(
- 
- 	if (bmx.bmv_count < 2)
- 		return -EINVAL;
--	if (bmx.bmv_count > ULONG_MAX / recsize)
-+	if (bmx.bmv_count >= INT_MAX / recsize)
- 		return -ENOMEM;
- 
- 	buf = kvzalloc(bmx.bmv_count * sizeof(*buf), GFP_KERNEL);
--- 
-2.37.1.595.g718a3a8f04-goog
+--m7u2qoobcl7vkpee
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmL/5eIACgkQwfwUeK3K
+7AkGfwf+L+JbxtND792d9fKcXW+J9kb3VlkKrMzaMHmzVTKCHbG3WbO4CV2ZBCTV
+sVssp8PP1hpqIjI9/9hYekKhjyROkpJDQM3ADjaIDKvHcwk5ZA4Qrhy9FD/YSAPi
+4bXP9ZP/crrSHZwHoyTEdIyh3ys9W/mdGRg9+PuJ3nB6xkNEvF5gVMdB/68wSV6C
+z9gP69dfLMG5cFpaKKhSdD/rJaVqw9A+GgKnQnd+yIbAd/AqBb9Mrn2XBTG/97Lk
++KK2stEqVG/sHhvCQsvBwj3XGmElSja+FWcWGnQdXM+57i8IVE4poyTuj2JWAupe
+UJcWje/F3xofJJu3InLakL5VZ+nqRA==
+=H/ju
+-----END PGP SIGNATURE-----
+
+--m7u2qoobcl7vkpee--
