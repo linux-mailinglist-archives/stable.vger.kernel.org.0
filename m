@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFC41599F09
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE27059A0E0
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352263AbiHSQVg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:21:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40810 "EHLO
+        id S1352080AbiHSQTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:19:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352388AbiHSQUp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:20:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C59310A76A;
-        Fri, 19 Aug 2022 09:01:38 -0700 (PDT)
+        with ESMTP id S1352451AbiHSQQl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:16:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58435116ECA;
+        Fri, 19 Aug 2022 09:00:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05E1FB8280C;
-        Fri, 19 Aug 2022 16:01:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFA27C433D6;
-        Fri, 19 Aug 2022 16:01:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B67DB82814;
+        Fri, 19 Aug 2022 15:59:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A71BAC433D6;
+        Fri, 19 Aug 2022 15:59:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924895;
-        bh=fDMiJkUJXq/6ql0CIBkC7iDv1sl3hWmBD+OxG2A8bEE=;
+        s=korg; t=1660924797;
+        bh=YdPA2pUsmy1j4WukL3ftC+x/O9+nLCAZcpceB+7WrAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ylGYYiUnlY+L3T2kFBWtwGIjq8Alq6SVGIWRkXqDZszQamL4msPmWQCLxkPC9GGET
-         z1ijpY5QZ7px+6+rdtvWmzH+Y41KsQ5dl5ztaqBgqMQXt9CPgjQcsn3+B9EPr7ZG1C
-         yztbUtcOWSYGnYKx0mP7+Ha4Ph25Xh8bazxXUawY=
+        b=j5SqKM/45JS5PWFbygA9vPWeauYpkhrnABZWiEfIyPtKtM/IKwujcXwUfIIdSo/fh
+         ZiED/g86ai54L1VUVEOXWWJFLSyiD9ju8/LjyUzLClXzJnIfg9eSfIBPnD/tCzcyGX
+         ClFsmORu72A/syw4bUkeNWOvG2CPY+xp5dkzjvNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Xu Yilun <yilun.xu@intel.com>,
+        Marco Pagani <marpagan@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 277/545] mtd: st_spi_fsm: Add a clk_disable_unprepare() in .probe()s error path
-Date:   Fri, 19 Aug 2022 17:40:47 +0200
-Message-Id: <20220819153841.719713866@linuxfoundation.org>
+Subject: [PATCH 5.10 278/545] fpga: altera-pr-ip: fix unsigned comparison with less than zero
+Date:   Fri, 19 Aug 2022 17:40:48 +0200
+Message-Id: <20220819153841.759220471@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -56,43 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Marco Pagani <marpagan@redhat.com>
 
-[ Upstream commit 28607b426c3d050714f250d0faeb99d2e9106e90 ]
+[ Upstream commit 2df84a757d87fd62869fc401119d429735377ec5 ]
 
-For all but one error path clk_disable_unprepare() is already there. Add
-it to the one location where it's missing.
+Fix the "comparison with less than zero" warning reported by
+cppcheck for the unsigned (size_t) parameter count of the
+alt_pr_fpga_write() function.
 
-Fixes: 481815a6193b ("mtd: st_spi_fsm: Handle clk_prepare_enable/clk_disable_unprepare.")
-Fixes: 69d5af8d016c ("mtd: st_spi_fsm: Obtain and use EMI clock")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220607152458.232847-2-u.kleine-koenig@pengutronix.de
+Fixes: d201cc17a8a3 ("fpga pr ip: Core driver support for Altera Partial Reconfiguration IP")
+Reviewed-by: Tom Rix <trix@redhat.com>
+Acked-by: Xu Yilun <yilun.xu@intel.com>
+Signed-off-by: Marco Pagani <marpagan@redhat.com>
+Link: https://lore.kernel.org/r/20220609140520.42662-1-marpagan@redhat.com
+Signed-off-by: Xu Yilun <yilun.xu@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/devices/st_spi_fsm.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/fpga/altera-pr-ip-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/devices/st_spi_fsm.c b/drivers/mtd/devices/st_spi_fsm.c
-index 1888523d9745..9bee99f07af0 100644
---- a/drivers/mtd/devices/st_spi_fsm.c
-+++ b/drivers/mtd/devices/st_spi_fsm.c
-@@ -2115,10 +2115,12 @@ static int stfsm_probe(struct platform_device *pdev)
- 		(long long)fsm->mtd.size, (long long)(fsm->mtd.size >> 20),
- 		fsm->mtd.erasesize, (fsm->mtd.erasesize >> 10));
+diff --git a/drivers/fpga/altera-pr-ip-core.c b/drivers/fpga/altera-pr-ip-core.c
+index 2cf25fd5e897..75b4b3ec933a 100644
+--- a/drivers/fpga/altera-pr-ip-core.c
++++ b/drivers/fpga/altera-pr-ip-core.c
+@@ -108,7 +108,7 @@ static int alt_pr_fpga_write(struct fpga_manager *mgr, const char *buf,
+ 	u32 *buffer_32 = (u32 *)buf;
+ 	size_t i = 0;
  
--	return mtd_device_register(&fsm->mtd, NULL, 0);
--
-+	ret = mtd_device_register(&fsm->mtd, NULL, 0);
-+	if (ret) {
- err_clk_unprepare:
--	clk_disable_unprepare(fsm->clk);
-+		clk_disable_unprepare(fsm->clk);
-+	}
-+
- 	return ret;
- }
+-	if (count <= 0)
++	if (!count)
+ 		return -EINVAL;
  
+ 	/* Write out the complete 32-bit chunks */
 -- 
 2.35.1
 
