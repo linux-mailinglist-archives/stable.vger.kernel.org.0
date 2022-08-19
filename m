@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 597D059A467
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:05:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 774A859A304
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:03:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353645AbiHSQmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:42:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40036 "EHLO
+        id S1353651AbiHSQml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:42:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353981AbiHSQl0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:41:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA3B5127BE1;
-        Fri, 19 Aug 2022 09:10:03 -0700 (PDT)
+        with ESMTP id S1353554AbiHSQkE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:40:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D488A062B;
+        Fri, 19 Aug 2022 09:08:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 334FF61826;
-        Fri, 19 Aug 2022 16:08:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24962C433C1;
-        Fri, 19 Aug 2022 16:08:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9178B8280D;
+        Fri, 19 Aug 2022 16:08:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37272C433C1;
+        Fri, 19 Aug 2022 16:08:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925319;
-        bh=3puHSXokcytXBi8/BS7xGw0gqdsNB8AaGMGI6JR8Myg=;
+        s=korg; t=1660925322;
+        bh=fRpaHOTVvjGhWoeLgmyrtXPSRl5K4DcJaXeRA0U0+9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i/aBTmIzOBkbqRPrg8ACqwmh16dZm88fXPPAf4gHjSHmJSYEBqMjqUUxdeN42NtFK
-         W44DUyIlBca7mnzXDYHNtUcXP2BZ0EKZ807DjoGKEyRcUa2Rlvnsasia+FmvnL6i9W
-         qfqRHQR2bDsK72AkjP2iu9DRQlluT8dUzPNFWwOE=
+        b=XsmDPZp0JmsVJiw3BnPi4CJIESHcuJcmw87nipeZ816lhR+xPW/G1b+UtSrmNWpc3
+         uBK0OpjPgC9fI1OfKjc9n1G+ZQvJO7x7CB77aHFOH9943gMlVsduBMHibXW/qhJE0r
+         tBqXODcDVyEpYRe7Qw6ZWhzaRL3polNcKTI7F3JE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jitao Shi <jitao.shi@mediatek.com>,
-        Xinlei Lee <xinlei.lee@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Rex-BC Chen <rex-bc.chen@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 454/545] drm/mediatek: Keep dsi as LP00 before dcs cmds transfer
-Date:   Fri, 19 Aug 2022 17:43:44 +0200
-Message-Id: <20220819153849.716224298@linuxfoundation.org>
+        stable@vger.kernel.org, Elia Devito <eliadevito@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 455/545] HID: Ignore battery for Elan touchscreen on HP Spectre X360 15-df0xxx
+Date:   Fri, 19 Aug 2022 17:43:45 +0200
+Message-Id: <20220819153849.760682240@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -58,114 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jitao Shi <jitao.shi@mediatek.com>
+From: Elia Devito <eliadevito@gmail.com>
 
-[ Upstream commit 39e8d062b03c3dc257d880d82bd55cdd9e185a3b ]
+[ Upstream commit decfe496fe77061dea658a0bfa11afd4f92b540d ]
 
-To comply with the panel sequence, hold the mipi signal to LP00 before
-the dcs cmds transmission, and pull the mipi signal high from LP00 to
-LP11 until the start of the dcs cmds transmission.
+Battery status is reported for the HP Spectre X360 Convertible 15-df0xxx
+even if it does not have a battery. Prevent it to always report the
+battery as low.
 
-The normal panel timing is :
-(1) pp1800 DC pull up
-(2) avdd & avee AC pull high
-(3) lcm_reset pull high -> pull low -> pull high
-(4) Pull MIPI signal high (LP11) -> initial code -> send video data
-    (HS mode)
-
-The power-off sequence is reversed.
-If dsi is not in cmd mode, then dsi will pull the mipi signal high in
-the mtk_output_dsi_enable function. The delay in lane_ready func is
-the reaction time of dsi_rx after pulling up the mipi signal.
-
-Fixes: 2dd8075d2185 ("drm/mediatek: mtk_dsi: Use the drm_panel_bridge API")
-
-Link: https://patchwork.kernel.org/project/linux-mediatek/patch/1653012007-11854-4-git-send-email-xinlei.lee@mediatek.com/
-Cc: <stable@vger.kernel.org> # 5.10.x: 7f6335c6a258: drm/mediatek: Modify dsi funcs to atomic operations
-Cc: <stable@vger.kernel.org> # 5.10.x: cde7e2e35c28: drm/mediatek: Separate poweron/poweroff from enable/disable and define new funcs
-Cc: <stable@vger.kernel.org> # 5.10.x
-Signed-off-by: Jitao Shi <jitao.shi@mediatek.com>
-Signed-off-by: Xinlei Lee <xinlei.lee@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Signed-off-by: Elia Devito <eliadevito@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_dsi.c | 28 +++++++++++++++++++++-------
- 1 file changed, 21 insertions(+), 7 deletions(-)
+ drivers/hid/hid-ids.h   | 1 +
+ drivers/hid/hid-input.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
-index 9d54bb6aec30..7d37d2a01e3c 100644
---- a/drivers/gpu/drm/mediatek/mtk_dsi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
-@@ -202,6 +202,7 @@ struct mtk_dsi {
- 	struct mtk_phy_timing phy_timing;
- 	int refcount;
- 	bool enabled;
-+	bool lanes_ready;
- 	u32 irq_data;
- 	wait_queue_head_t irq_wait_queue;
- 	const struct mtk_dsi_driver_data *driver_data;
-@@ -644,18 +645,11 @@ static int mtk_dsi_poweron(struct mtk_dsi *dsi)
- 	mtk_dsi_reset_engine(dsi);
- 	mtk_dsi_phy_timconfig(dsi);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 3744c3db5140..cf69191b6693 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -389,6 +389,7 @@
+ #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
+ #define USB_DEVICE_ID_HP_X2		0x074d
+ #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
++#define I2C_DEVICE_ID_HP_SPECTRE_X360_15	0x2817
+ #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
  
--	mtk_dsi_rxtx_control(dsi);
--	usleep_range(30, 100);
--	mtk_dsi_reset_dphy(dsi);
- 	mtk_dsi_ps_control_vact(dsi);
- 	mtk_dsi_set_vm_cmd(dsi);
- 	mtk_dsi_config_vdo_timing(dsi);
- 	mtk_dsi_set_interrupt_enable(dsi);
+ #define USB_VENDOR_ID_ELECOM		0x056e
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index a17d1dda9570..329b7ffb7e6a 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -324,6 +324,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_SPECTRE_X360_15),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{}
+ };
  
--	mtk_dsi_clk_ulp_mode_leave(dsi);
--	mtk_dsi_lane0_ulp_mode_leave(dsi);
--	mtk_dsi_clk_hs_mode(dsi, 0);
--
- 	return 0;
- err_disable_engine_clk:
- 	clk_disable_unprepare(dsi->engine_clk);
-@@ -686,6 +680,23 @@ static void mtk_dsi_poweroff(struct mtk_dsi *dsi)
- 	clk_disable_unprepare(dsi->digital_clk);
- 
- 	phy_power_off(dsi->phy);
-+
-+	dsi->lanes_ready = false;
-+}
-+
-+static void mtk_dsi_lane_ready(struct mtk_dsi *dsi)
-+{
-+	if (!dsi->lanes_ready) {
-+		dsi->lanes_ready = true;
-+		mtk_dsi_rxtx_control(dsi);
-+		usleep_range(30, 100);
-+		mtk_dsi_reset_dphy(dsi);
-+		mtk_dsi_clk_ulp_mode_leave(dsi);
-+		mtk_dsi_lane0_ulp_mode_leave(dsi);
-+		mtk_dsi_clk_hs_mode(dsi, 0);
-+		msleep(20);
-+		/* The reaction time after pulling up the mipi signal for dsi_rx */
-+	}
- }
- 
- static void mtk_output_dsi_enable(struct mtk_dsi *dsi)
-@@ -693,6 +704,7 @@ static void mtk_output_dsi_enable(struct mtk_dsi *dsi)
- 	if (dsi->enabled)
- 		return;
- 
-+	mtk_dsi_lane_ready(dsi);
- 	mtk_dsi_set_mode(dsi);
- 	mtk_dsi_clk_hs_mode(dsi, 1);
- 
-@@ -924,6 +936,8 @@ static ssize_t mtk_dsi_host_transfer(struct mipi_dsi_host *host,
- 	if (MTK_DSI_HOST_IS_READ(msg->type))
- 		irq_flag |= LPRX_RD_RDY_INT_FLAG;
- 
-+	mtk_dsi_lane_ready(dsi);
-+
- 	ret = mtk_dsi_host_send_cmd(dsi, msg, irq_flag);
- 	if (ret)
- 		goto restore_dsi_mode;
 -- 
 2.35.1
 
