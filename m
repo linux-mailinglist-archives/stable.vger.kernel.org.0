@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAB1659A4EE
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:06:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9593459A3BF
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353907AbiHSQql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:46:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37706 "EHLO
+        id S1353787AbiHSQq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:46:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354018AbiHSQpl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:45:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D1761136B4;
-        Fri, 19 Aug 2022 09:11:33 -0700 (PDT)
+        with ESMTP id S1353902AbiHSQp1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:45:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B91F128EC5;
+        Fri, 19 Aug 2022 09:11:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3548B8281D;
-        Fri, 19 Aug 2022 16:10:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6BD9C433C1;
-        Fri, 19 Aug 2022 16:10:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 110FF612DF;
+        Fri, 19 Aug 2022 16:10:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03B7EC433C1;
+        Fri, 19 Aug 2022 16:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925431;
-        bh=UbvKfmtzs32cFDTyTo+GWVhRq/t9RCRY5QIwE/sesu8=;
+        s=korg; t=1660925437;
+        bh=PMsee/xeDl2L2ooNnHy0RE8rDd2txj4pw7WYdLJn8S0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NB3OH1aThwwmcBxoO99/wyWoWFUsoQfwdLiNv3+njhuMhi64vhLSWqxkag1KWqxZ2
-         mXY6MIu9YnZPaBbw2aUKVfE7UE1EN5xxI8KBoWKTdGpjLq7nOkHFc/ev8UWNTMs8Um
-         5vrFbH1MgeSpsi6xI/XeraUKHexKYN358SkA3W84=
+        b=0QL3I+uMJXEEWB+QiTbJm7sdgD8aT2uuc/h3THMKFzqA70yaCWbAJttoL/82Tdhtl
+         Yvvu3+biT5cRYe4zEegDfUrIdbzn8m1QcVJVR08bI6Lz/3uQVfrzX+ySr239cj1NG8
+         Ws/FnrYCT5C5D9uhXMB/wfvOYP8WrjpZz/9oVtl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Rudo <prudo@linux.ibm.com>,
-        kexec@lists.infradead.org, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        Michal Suchanek <msuchanek@suse.de>,
-        "Lee, Chun-Yi" <jlee@suse.com>, Baoquan He <bhe@redhat.com>,
-        Coiby Xu <coxu@redhat.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Luo Meng <luomeng12@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 489/545] kexec, KEYS, s390: Make use of built-in and secondary keyring for signature verification
-Date:   Fri, 19 Aug 2022 17:44:19 +0200
-Message-Id: <20220819153851.328682509@linuxfoundation.org>
+Subject: [PATCH 5.10 490/545] dm thin: fix use-after-free crash in dm_sm_register_threshold_callback
+Date:   Fri, 19 Aug 2022 17:44:20 +0200
+Message-Id: <20220819153851.377811572@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -59,69 +55,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Suchanek <msuchanek@suse.de>
+From: Luo Meng <luomeng12@huawei.com>
 
-[ Upstream commit 0828c4a39be57768b8788e8cbd0d84683ea757e5 ]
+[ Upstream commit 3534e5a5ed2997ca1b00f44a0378a075bd05e8a3 ]
 
-commit e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-adds support for KEXEC_SIG verification with keys from platform keyring
-but the built-in keys and secondary keyring are not used.
+Fault inject on pool metadata device reports:
+  BUG: KASAN: use-after-free in dm_pool_register_metadata_threshold+0x40/0x80
+  Read of size 8 at addr ffff8881b9d50068 by task dmsetup/950
 
-Add support for the built-in keys and secondary keyring as x86 does.
+  CPU: 7 PID: 950 Comm: dmsetup Tainted: G        W         5.19.0-rc6 #1
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x34/0x44
+   print_address_description.constprop.0.cold+0xeb/0x3f4
+   kasan_report.cold+0xe6/0x147
+   dm_pool_register_metadata_threshold+0x40/0x80
+   pool_ctr+0xa0a/0x1150
+   dm_table_add_target+0x2c8/0x640
+   table_load+0x1fd/0x430
+   ctl_ioctl+0x2c4/0x5a0
+   dm_ctl_ioctl+0xa/0x10
+   __x64_sys_ioctl+0xb3/0xd0
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Fixes: e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
+This can be easily reproduced using:
+  echo offline > /sys/block/sda/device/state
+  dd if=/dev/zero of=/dev/mapper/thin bs=4k count=10
+  dmsetup load pool --table "0 20971520 thin-pool /dev/sda /dev/sdb 128 0 0"
+
+If a metadata commit fails, the transaction will be aborted and the
+metadata space maps will be destroyed. If a DM table reload then
+happens for this failed thin-pool, a use-after-free will occur in
+dm_sm_register_threshold_callback (called from
+dm_pool_register_metadata_threshold).
+
+Fix this by in dm_pool_register_metadata_threshold() by returning the
+-EINVAL error if the thin-pool is in fail mode. Also fail pool_ctr()
+with a new error message: "Error registering metadata threshold".
+
+Fixes: ac8c3f3df65e4 ("dm thin: generate event when metadata threshold passed")
 Cc: stable@vger.kernel.org
-Cc: Philipp Rudo <prudo@linux.ibm.com>
-Cc: kexec@lists.infradead.org
-Cc: keyrings@vger.kernel.org
-Cc: linux-security-module@vger.kernel.org
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
-Acked-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Coiby Xu <coxu@redhat.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Luo Meng <luomeng12@huawei.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/machine_kexec_file.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/md/dm-thin-metadata.c | 7 +++++--
+ drivers/md/dm-thin.c          | 4 +++-
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-index 76cd09879eaf..53da174754d9 100644
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -29,6 +29,7 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
- 	struct module_signature *ms;
- 	unsigned long sig_len;
-+	int ret;
+diff --git a/drivers/md/dm-thin-metadata.c b/drivers/md/dm-thin-metadata.c
+index 6ebb2127f3e2..842d79e5ea3a 100644
+--- a/drivers/md/dm-thin-metadata.c
++++ b/drivers/md/dm-thin-metadata.c
+@@ -2058,10 +2058,13 @@ int dm_pool_register_metadata_threshold(struct dm_pool_metadata *pmd,
+ 					dm_sm_threshold_fn fn,
+ 					void *context)
+ {
+-	int r;
++	int r = -EINVAL;
  
- 	/* Skip signature verification when not secure IPLed. */
- 	if (!ipl_secure_flag)
-@@ -63,11 +64,18 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 		return -EBADMSG;
- 	}
+ 	pmd_write_lock_in_core(pmd);
+-	r = dm_sm_register_threshold_callback(pmd->metadata_sm, threshold, fn, context);
++	if (!pmd->fail_io) {
++		r = dm_sm_register_threshold_callback(pmd->metadata_sm,
++						      threshold, fn, context);
++	}
+ 	pmd_write_unlock(pmd);
  
--	return verify_pkcs7_signature(kernel, kernel_len,
--				      kernel + kernel_len, sig_len,
--				      VERIFY_USE_PLATFORM_KEYRING,
--				      VERIFYING_MODULE_SIGNATURE,
--				      NULL, NULL);
-+	ret = verify_pkcs7_signature(kernel, kernel_len,
-+				     kernel + kernel_len, sig_len,
-+				     VERIFY_USE_SECONDARY_KEYRING,
-+				     VERIFYING_MODULE_SIGNATURE,
-+				     NULL, NULL);
-+	if (ret == -ENOKEY && IS_ENABLED(CONFIG_INTEGRITY_PLATFORM_KEYRING))
-+		ret = verify_pkcs7_signature(kernel, kernel_len,
-+					     kernel + kernel_len, sig_len,
-+					     VERIFY_USE_PLATFORM_KEYRING,
-+					     VERIFYING_MODULE_SIGNATURE,
-+					     NULL, NULL);
-+	return ret;
- }
- #endif /* CONFIG_KEXEC_SIG */
+ 	return r;
+diff --git a/drivers/md/dm-thin.c b/drivers/md/dm-thin.c
+index fff4c50df74d..a196d7cb51bd 100644
+--- a/drivers/md/dm-thin.c
++++ b/drivers/md/dm-thin.c
+@@ -3401,8 +3401,10 @@ static int pool_ctr(struct dm_target *ti, unsigned argc, char **argv)
+ 						calc_metadata_threshold(pt),
+ 						metadata_low_callback,
+ 						pool);
+-	if (r)
++	if (r) {
++		ti->error = "Error registering metadata threshold";
+ 		goto out_flags_changed;
++	}
  
+ 	dm_pool_register_pre_commit_callback(pool->pmd,
+ 					     metadata_pre_commit_callback, pool);
 -- 
 2.35.1
 
