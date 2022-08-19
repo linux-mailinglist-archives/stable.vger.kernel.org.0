@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 831A759A237
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFD8859A23F
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353108AbiHSQdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:33:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44872 "EHLO
+        id S1353046AbiHSQdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:33:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353499AbiHSQbt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:31:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0C9010C818;
-        Fri, 19 Aug 2022 09:05:55 -0700 (PDT)
+        with ESMTP id S1353576AbiHSQcD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:32:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8875511DF7E;
+        Fri, 19 Aug 2022 09:06:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA96FB8281A;
-        Fri, 19 Aug 2022 16:05:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20C83C433C1;
-        Fri, 19 Aug 2022 16:05:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A74D6181D;
+        Fri, 19 Aug 2022 16:05:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B8A7C433C1;
+        Fri, 19 Aug 2022 16:05:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925152;
-        bh=dJ4gpbam+XmG3kQqJjRjup7wnD2kSrhGt7KyInmx5Qk=;
+        s=korg; t=1660925155;
+        bh=AD/vWRMOvNFRxnHKMIJOvSwHXchkrJHKZPayuloKjnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i5ovZsFT7mQ4OoiXPz6CcAt9niAfYhASF2xA4bDBeVY4JIpPB3QJw/BSWQDOW3noW
-         ysQdenEM8rkkuR3k7ECB+iZsRZWfjXsfTcHopo7RTsahLCaNqv+hQDKn0SHUAIlpCN
-         4aUCXwwToxtTurpWQ6ydIXE21EbpAVJcdI0Jvszo=
+        b=LLbE++CMZuwfM/aDSYtxQBJv26qWvuO7ZPWqNUVk4r1myC/y60wTP9ZVMVxm9w4NC
+         I/CDpoyRjBLzbcXKrexB4V9YWSuagmbLYWPwuy9HllQWETXH9pvRy4ZC6M5Nk0Ug0C
+         EaS3RORrB3jhbTzn9bSrQGghL6CSjd4VkeWLuL4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
+        Sibi Sankar <quic_sibis@quicinc.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 400/545] lib/smp_processor_id: fix imbalanced instrumentation_end() call
-Date:   Fri, 19 Aug 2022 17:42:50 +0200
-Message-Id: <20220819153847.326395667@linuxfoundation.org>
+Subject: [PATCH 5.10 401/545] remoteproc: sysmon: Wait for SSCTL service to come up
+Date:   Fri, 19 Aug 2022 17:42:51 +0200
+Message-Id: <20220819153847.371989448@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -58,40 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Sibi Sankar <quic_sibis@quicinc.com>
 
-[ Upstream commit bd27acaac24e4b252ee28dddcabaee80456d0faf ]
+[ Upstream commit 47c04e00eff86a81cd357c3feed04c86089bcb85 ]
 
-Currently instrumentation_end() won't be called if printk_ratelimit()
-returned false.
+The SSCTL service comes up after a finite time when the remote Q6 comes
+out of reset. Any graceful shutdowns requested during this period will
+be a NOP and abrupt tearing down of the glink channel might lead to pending
+transactions on the remote Q6 side and will ultimately lead to a fatal
+error. Fix this by waiting for the SSCTL service when a graceful shutdown
+is requested.
 
-Link: https://lkml.kernel.org/r/a636d8e0-ad32-5888-acac-671f7f553bb3@I-love.SAKURA.ne.jp
-Fixes: 126f21f0e8d46e2c ("lib/smp_processor_id: Move it into noinstr section")
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Alexandre Chartre <alexandre.chartre@oracle.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 1fb82ee806d1 ("remoteproc: qcom: Introduce sysmon")
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Sibi Sankar <quic_sibis@quicinc.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/1657022900-2049-7-git-send-email-quic_sibis@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/smp_processor_id.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/remoteproc/qcom_sysmon.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/lib/smp_processor_id.c b/lib/smp_processor_id.c
-index 525222e4f409..2916606a9333 100644
---- a/lib/smp_processor_id.c
-+++ b/lib/smp_processor_id.c
-@@ -46,9 +46,9 @@ unsigned int check_preemption_disabled(const char *what1, const char *what2)
+diff --git a/drivers/remoteproc/qcom_sysmon.c b/drivers/remoteproc/qcom_sysmon.c
+index b37b111b15b3..a26221a6f6c2 100644
+--- a/drivers/remoteproc/qcom_sysmon.c
++++ b/drivers/remoteproc/qcom_sysmon.c
+@@ -41,6 +41,7 @@ struct qcom_sysmon {
+ 	struct completion comp;
+ 	struct completion ind_comp;
+ 	struct completion shutdown_comp;
++	struct completion ssctl_comp;
+ 	struct mutex lock;
  
- 	printk("caller is %pS\n", __builtin_return_address(0));
- 	dump_stack();
--	instrumentation_end();
+ 	bool ssr_ack;
+@@ -422,6 +423,8 @@ static int ssctl_new_server(struct qmi_handle *qmi, struct qmi_service *svc)
  
- out_enable:
-+	instrumentation_end();
- 	preempt_enable_no_resched_notrace();
- out:
- 	return this_cpu;
+ 	svc->priv = sysmon;
+ 
++	complete(&sysmon->ssctl_comp);
++
+ 	return 0;
+ }
+ 
+@@ -478,6 +481,7 @@ static int sysmon_start(struct rproc_subdev *subdev)
+ 		.ssr_event = SSCTL_SSR_EVENT_AFTER_POWERUP
+ 	};
+ 
++	reinit_completion(&sysmon->ssctl_comp);
+ 	mutex_lock(&sysmon->state_lock);
+ 	sysmon->state = SSCTL_SSR_EVENT_AFTER_POWERUP;
+ 	blocking_notifier_call_chain(&sysmon_notifiers, 0, (void *)&event);
+@@ -520,6 +524,11 @@ static void sysmon_stop(struct rproc_subdev *subdev, bool crashed)
+ 	if (crashed)
+ 		return;
+ 
++	if (sysmon->ssctl_instance) {
++		if (!wait_for_completion_timeout(&sysmon->ssctl_comp, HZ / 2))
++			dev_err(sysmon->dev, "timeout waiting for ssctl service\n");
++	}
++
+ 	if (sysmon->ssctl_version)
+ 		ssctl_request_shutdown(sysmon);
+ 	else if (sysmon->ept)
+@@ -606,6 +615,7 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
+ 	init_completion(&sysmon->comp);
+ 	init_completion(&sysmon->ind_comp);
+ 	init_completion(&sysmon->shutdown_comp);
++	init_completion(&sysmon->ssctl_comp);
+ 	mutex_init(&sysmon->lock);
+ 	mutex_init(&sysmon->state_lock);
+ 
 -- 
 2.35.1
 
