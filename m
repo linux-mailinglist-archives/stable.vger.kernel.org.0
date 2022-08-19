@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 793E8599F83
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02CC659A089
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351950AbiHSQSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:18:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52134 "EHLO
+        id S1351955AbiHSQSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:18:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352194AbiHSQPx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:15:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E899EEC65;
-        Fri, 19 Aug 2022 08:59:01 -0700 (PDT)
+        with ESMTP id S1352197AbiHSQPy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:15:54 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A17EE86B3;
+        Fri, 19 Aug 2022 08:59:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9516BB8281A;
-        Fri, 19 Aug 2022 15:58:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8DDAC433C1;
-        Fri, 19 Aug 2022 15:58:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 196EFCE26B7;
+        Fri, 19 Aug 2022 15:59:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17606C433D6;
+        Fri, 19 Aug 2022 15:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924738;
-        bh=x1nvLc9CrqSmqg+NraW75NyoG9pTX8hIo5Za1XCSb04=;
+        s=korg; t=1660924741;
+        bh=Vgx2IQuBGe2TlPRL5ofApdMmc10UjK42/Nn9oSwg9p0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cH+Dx/2zYotJ3K1NzHwtlgdwaT/gWSPWJ8AwYEneo0n8HiS8COoumx06Sb+qQ7oWU
-         sgL9HwwVZhMJPUXpUnh2Fe3BPqGDJcv9ip+GwTuj0xfi31HzPL2bT33JqY7B/QNxaE
-         z2jUuHDZvfT/vx1YjPDtBUjIDMMSMnB8huJO0m2c=
+        b=OI7kmaQN4Z/sIBLPUFFKDRawRdN5bkxS0zkGjj4krSqOHy9GGI43OMCyTbcdRcFZC
+         +YMKgl7pUGRpu781rQQ3SIKIxUs8rWqRGuGlAk/aMQ2cesxWB2FUO54nUQVfm3KhLh
+         CfRt7l+f6+t3e2U8PleU7ZC/kt40lFvWHCdQu7Vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 266/545] dccp: put dccp_qpolicy_full() and dccp_qpolicy_push() in the same lock
-Date:   Fri, 19 Aug 2022 17:40:36 +0200
-Message-Id: <20220819153841.224184356@linuxfoundation.org>
+Subject: [PATCH 5.10 267/545] wireguard: ratelimiter: use hrtimer in selftest
+Date:   Fri, 19 Aug 2022 17:40:37 +0200
+Message-Id: <20220819153841.272787644@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,68 +55,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit a41b17ff9dacd22f5f118ee53d82da0f3e52d5e3 ]
+[ Upstream commit 151c8e499f4705010780189377f85b57400ccbf5 ]
 
-In the case of sk->dccps_qpolicy == DCCPQ_POLICY_PRIO, dccp_qpolicy_full
-will drop a skb when qpolicy is full. And the lock in dccp_sendmsg is
-released before sock_alloc_send_skb and then relocked after
-sock_alloc_send_skb. The following conditions may lead dccp_qpolicy_push
-to add skb to an already full sk_write_queue:
+Using msleep() is problematic because it's compared against
+ratelimiter.c's ktime_get_coarse_boottime_ns(), which means on systems
+with slow jiffies (such as UML's forced HZ=100), the result is
+inaccurate. So switch to using schedule_hrtimeout().
 
-thread1--->lock
-thread1--->dccp_qpolicy_full: queue is full. drop a skb
-thread1--->unlock
-thread2--->lock
-thread2--->dccp_qpolicy_full: queue is not full. no need to drop.
-thread2--->unlock
-thread1--->lock
-thread1--->dccp_qpolicy_push: add a skb. queue is full.
-thread1--->unlock
-thread2--->lock
-thread2--->dccp_qpolicy_push: add a skb!
-thread2--->unlock
+However, hrtimer gives us access only to the traditional posix timers,
+and none of the _COARSE variants. So now, rather than being too
+imprecise like jiffies, it's too precise.
 
-Fix this by moving dccp_qpolicy_full.
+One solution would be to give it a large "range" value, but this will
+still fire early on a loaded system. A better solution is to align the
+timeout to the actual coarse timer, and then round up to the nearest
+tick, plus change.
 
-Fixes: b1308dc015eb ("[DCCP]: Set TX Queue Length Bounds via Sysctl")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20220729110027.40569-1-hbh25y@gmail.com
+So add the timeout to the current coarse time, and then
+schedule_hrtimer() until the absolute computed time.
+
+This should hopefully reduce flakes in CI as well. Note that we keep the
+retry loop in case the entire function is running behind, because the
+test could still be scheduled out, by either the kernel or by the
+hypervisor's kernel, in which case restarting the test and hoping to not
+be scheduled out still helps.
+
+Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dccp/proto.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/wireguard/selftest/ratelimiter.c | 25 +++++++++++---------
+ kernel/time/hrtimer.c                        |  1 +
+ 2 files changed, 15 insertions(+), 11 deletions(-)
 
-diff --git a/net/dccp/proto.c b/net/dccp/proto.c
-index 548cf0135647..65e81e0199b0 100644
---- a/net/dccp/proto.c
-+++ b/net/dccp/proto.c
-@@ -747,11 +747,6 @@ int dccp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+diff --git a/drivers/net/wireguard/selftest/ratelimiter.c b/drivers/net/wireguard/selftest/ratelimiter.c
+index 007cd4457c5f..ba87d294604f 100644
+--- a/drivers/net/wireguard/selftest/ratelimiter.c
++++ b/drivers/net/wireguard/selftest/ratelimiter.c
+@@ -6,28 +6,29 @@
+ #ifdef DEBUG
  
- 	lock_sock(sk);
+ #include <linux/jiffies.h>
++#include <linux/hrtimer.h>
  
--	if (dccp_qpolicy_full(sk)) {
--		rc = -EAGAIN;
--		goto out_release;
--	}
--
- 	timeo = sock_sndtimeo(sk, noblock);
+ static const struct {
+ 	bool result;
+-	unsigned int msec_to_sleep_before;
++	u64 nsec_to_sleep_before;
+ } expected_results[] __initconst = {
+ 	[0 ... PACKETS_BURSTABLE - 1] = { true, 0 },
+ 	[PACKETS_BURSTABLE] = { false, 0 },
+-	[PACKETS_BURSTABLE + 1] = { true, MSEC_PER_SEC / PACKETS_PER_SECOND },
++	[PACKETS_BURSTABLE + 1] = { true, NSEC_PER_SEC / PACKETS_PER_SECOND },
+ 	[PACKETS_BURSTABLE + 2] = { false, 0 },
+-	[PACKETS_BURSTABLE + 3] = { true, (MSEC_PER_SEC / PACKETS_PER_SECOND) * 2 },
++	[PACKETS_BURSTABLE + 3] = { true, (NSEC_PER_SEC / PACKETS_PER_SECOND) * 2 },
+ 	[PACKETS_BURSTABLE + 4] = { true, 0 },
+ 	[PACKETS_BURSTABLE + 5] = { false, 0 }
+ };
  
- 	/*
-@@ -770,6 +765,11 @@ int dccp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
- 	if (skb == NULL)
- 		goto out_release;
+ static __init unsigned int maximum_jiffies_at_index(int index)
+ {
+-	unsigned int total_msecs = 2 * MSEC_PER_SEC / PACKETS_PER_SECOND / 3;
++	u64 total_nsecs = 2 * NSEC_PER_SEC / PACKETS_PER_SECOND / 3;
+ 	int i;
  
-+	if (dccp_qpolicy_full(sk)) {
-+		rc = -EAGAIN;
-+		goto out_discard;
-+	}
-+
- 	if (sk->sk_state == DCCP_CLOSED) {
- 		rc = -ENOTCONN;
- 		goto out_discard;
+ 	for (i = 0; i <= index; ++i)
+-		total_msecs += expected_results[i].msec_to_sleep_before;
+-	return msecs_to_jiffies(total_msecs);
++		total_nsecs += expected_results[i].nsec_to_sleep_before;
++	return nsecs_to_jiffies(total_nsecs);
+ }
+ 
+ static __init int timings_test(struct sk_buff *skb4, struct iphdr *hdr4,
+@@ -42,8 +43,12 @@ static __init int timings_test(struct sk_buff *skb4, struct iphdr *hdr4,
+ 	loop_start_time = jiffies;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(expected_results); ++i) {
+-		if (expected_results[i].msec_to_sleep_before)
+-			msleep(expected_results[i].msec_to_sleep_before);
++		if (expected_results[i].nsec_to_sleep_before) {
++			ktime_t timeout = ktime_add(ktime_add_ns(ktime_get_coarse_boottime(), TICK_NSEC * 4 / 3),
++						    ns_to_ktime(expected_results[i].nsec_to_sleep_before));
++			set_current_state(TASK_UNINTERRUPTIBLE);
++			schedule_hrtimeout_range_clock(&timeout, 0, HRTIMER_MODE_ABS, CLOCK_BOOTTIME);
++		}
+ 
+ 		if (time_is_before_jiffies(loop_start_time +
+ 					   maximum_jiffies_at_index(i)))
+@@ -127,7 +132,7 @@ bool __init wg_ratelimiter_selftest(void)
+ 	if (IS_ENABLED(CONFIG_KASAN) || IS_ENABLED(CONFIG_UBSAN))
+ 		return true;
+ 
+-	BUILD_BUG_ON(MSEC_PER_SEC % PACKETS_PER_SECOND != 0);
++	BUILD_BUG_ON(NSEC_PER_SEC % PACKETS_PER_SECOND != 0);
+ 
+ 	if (wg_ratelimiter_init())
+ 		goto out;
+@@ -176,7 +181,6 @@ bool __init wg_ratelimiter_selftest(void)
+ 				test += test_count;
+ 				goto err;
+ 			}
+-			msleep(500);
+ 			continue;
+ 		} else if (ret < 0) {
+ 			test += test_count;
+@@ -195,7 +199,6 @@ bool __init wg_ratelimiter_selftest(void)
+ 				test += test_count;
+ 				goto err;
+ 			}
+-			msleep(50);
+ 			continue;
+ 		}
+ 		test += test_count;
+diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
+index 4ef90718c114..544ce87ba38a 100644
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -2209,6 +2209,7 @@ schedule_hrtimeout_range_clock(ktime_t *expires, u64 delta,
+ 
+ 	return !t.task ? 0 : -EINTR;
+ }
++EXPORT_SYMBOL_GPL(schedule_hrtimeout_range_clock);
+ 
+ /**
+  * schedule_hrtimeout_range - sleep until timeout
 -- 
 2.35.1
 
