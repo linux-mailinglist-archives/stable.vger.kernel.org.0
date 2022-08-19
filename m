@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D223599F3A
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B397599FE6
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350306AbiHSPuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:50:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51214 "EHLO
+        id S1350346AbiHSPuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:50:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350308AbiHSPte (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:49:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94FF510476C;
-        Fri, 19 Aug 2022 08:47:41 -0700 (PDT)
+        with ESMTP id S1350128AbiHSPtf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:49:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11169104B1F;
+        Fri, 19 Aug 2022 08:47:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DE3D61639;
-        Fri, 19 Aug 2022 15:47:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43F18C433D6;
-        Fri, 19 Aug 2022 15:47:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 914F7B827F8;
+        Fri, 19 Aug 2022 15:47:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00853C433D7;
+        Fri, 19 Aug 2022 15:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924059;
-        bh=7pMGTLfm7+yf402Et0WC41HMCYeZJIfscGaDIL9XAwM=;
+        s=korg; t=1660924062;
+        bh=P7q+UipvlCw/WKePsi4TKb/8NcwBOlpJ3wZ4c8QT+WY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CquJTd0uBeS41JzGA4Imsdx03v58CmpfK5VHxt548WBSRuBlKosY6spujP+TjtHqo
-         I6NbJrFj5dd3hTToo8nNJE+648Ifq137D2csMi/PiDuflfh3p923YIySRnJ4bZoJlr
-         75vP5U08iwZZx77y51d8LG03pLb4DUcOtGS9OwLo=
+        b=vw2gaYGisOzKnIDM6FRZoMgJcqFMSTxIpw2imb/sCR795kVBE9o5L9RDe2s7J8zOc
+         CQwV/NzffT9YLREGqrQAfrEq2OVZAX1oKnn8BsvWW7e+v2CFXruRm8QSKtx2NKAXu8
+         NWh3HYXz0T19sG3dLUmPpTCr1BAX6lR7F6FhpddM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 041/545] parisc: io_pgetevents_time64() needs compat syscall in 32-bit compat mode
-Date:   Fri, 19 Aug 2022 17:36:51 +0200
-Message-Id: <20220819153831.064206223@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.10 042/545] drm/gem: Properly annotate WW context on drm_gem_lock_reservations() error
+Date:   Fri, 19 Aug 2022 17:36:52 +0200
+Message-Id: <20220819153831.100583523@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -52,36 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-commit 6431e92fc827bdd2d28f79150d90415ba9ce0d21 upstream.
+commit 2939deac1fa220bc82b89235f146df1d9b52e876 upstream.
 
-For all syscalls in 32-bit compat mode on 64-bit kernels the upper
-32-bits of the 64-bit registers are zeroed out, so a negative 32-bit
-signed value will show up as positive 64-bit signed value.
+Use ww_acquire_fini() in the error code paths. Otherwise lockdep
+thinks that lock is held when lock's memory is freed after the
+drm_gem_lock_reservations() error. The ww_acquire_context needs to be
+annotated as "released", which fixes the noisy "WARNING: held lock freed!"
+splat of VirtIO-GPU driver with CONFIG_DEBUG_MUTEXES=y and enabled lockdep.
 
-This behaviour breaks the io_pgetevents_time64() syscall which expects
-signed 64-bit values for the "min_nr" and "nr" parameters.
-Fix this by switching to the compat_sys_io_pgetevents_time64() syscall,
-which uses "compat_long_t" types for those parameters.
-
-Cc: <stable@vger.kernel.org> # v5.1+
-Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org
+Fixes: 7edc3e3b975b5 ("drm: Add helpers for locking an array of BO reservations.")
+Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220630200405.1883897-2-dmitry.osipenko@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/syscalls/syscall.tbl |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_gem.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/parisc/kernel/syscalls/syscall.tbl
-+++ b/arch/parisc/kernel/syscalls/syscall.tbl
-@@ -413,7 +413,7 @@
- 412	32	utimensat_time64		sys_utimensat			sys_utimensat
- 413	32	pselect6_time64			sys_pselect6			compat_sys_pselect6_time64
- 414	32	ppoll_time64			sys_ppoll			compat_sys_ppoll_time64
--416	32	io_pgetevents_time64		sys_io_pgetevents		sys_io_pgetevents
-+416	32	io_pgetevents_time64		sys_io_pgetevents		compat_sys_io_pgetevents_time64
- 417	32	recvmmsg_time64			sys_recvmmsg			compat_sys_recvmmsg_time64
- 418	32	mq_timedsend_time64		sys_mq_timedsend		sys_mq_timedsend
- 419	32	mq_timedreceive_time64		sys_mq_timedreceive		sys_mq_timedreceive
+--- a/drivers/gpu/drm/drm_gem.c
++++ b/drivers/gpu/drm/drm_gem.c
+@@ -1277,7 +1277,7 @@ retry:
+ 		ret = dma_resv_lock_slow_interruptible(obj->resv,
+ 								 acquire_ctx);
+ 		if (ret) {
+-			ww_acquire_done(acquire_ctx);
++			ww_acquire_fini(acquire_ctx);
+ 			return ret;
+ 		}
+ 	}
+@@ -1302,7 +1302,7 @@ retry:
+ 				goto retry;
+ 			}
+ 
+-			ww_acquire_done(acquire_ctx);
++			ww_acquire_fini(acquire_ctx);
+ 			return ret;
+ 		}
+ 	}
 
 
