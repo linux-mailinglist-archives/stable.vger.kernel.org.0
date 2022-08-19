@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 172BA59A236
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4377959A23E
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353101AbiHSQdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:33:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36818 "EHLO
+        id S1353128AbiHSQdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:33:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353480AbiHSQbq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:31:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C886911E915;
-        Fri, 19 Aug 2022 09:06:05 -0700 (PDT)
+        with ESMTP id S1353570AbiHSQcD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:32:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78DD911E922;
+        Fri, 19 Aug 2022 09:06:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2C08B82804;
-        Fri, 19 Aug 2022 16:06:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB6E8C433C1;
-        Fri, 19 Aug 2022 16:06:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFC8761828;
+        Fri, 19 Aug 2022 16:06:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5A7CC433D6;
+        Fri, 19 Aug 2022 16:06:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925162;
-        bh=9aFWhDb0sLjSYCbmI8Iu1nyBKM24DyHPC+Y0uMpBoEI=;
+        s=korg; t=1660925168;
+        bh=z/UO+2PwZzvfVwCT7IfKCqZuNzeSaV93JPtQ9ZEOdic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YkwE/jvJlz/xvPdGYjduTJP0vi1CcTjL+8j0be4X5cW29HaEjY5EfQCU7RLVxeiNo
-         PscwnutkEy4dNMWVn8Gd/hB6mra8/kvlWADGlTn7s87L+ifFZjvIbxqOueTWefZj2s
-         v27xCWc+FR5qErfzooFGhV5qjKku4HmbTkN/ZblQ=
+        b=oBe26MrLb3yvMhZbzbb9wWpHFybJkhAoT6xVr9cYOAFYGryEjR3l4p0xBKQYZtxEM
+         qHqW3MXzxBKFLtalAlBELlxc87FUNVbPmpN6BbpTVVWKc6mJYkOylnbq9oqGo0AgOy
+         k7+Av7xyodsx3QYlr6dxSEXawmszeTc32CrUwyjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 403/545] mfd: max77620: Fix refcount leak in max77620_initialise_fps
-Date:   Fri, 19 Aug 2022 17:42:53 +0200
-Message-Id: <20220819153847.468618053@linuxfoundation.org>
+        stable@vger.kernel.org, Liang He <windhl@126.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 404/545] iommu/arm-smmu: qcom_iommu: Add of_node_put() when breaking out of loop
+Date:   Fri, 19 Aug 2022 17:42:54 +0200
+Message-Id: <20220819153847.517939867@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,40 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 1520669c8255bd637c6b248b2be910e2688d38dd ]
+[ Upstream commit a91eb6803c1c715738682fece095145cbd68fe0b ]
 
-of_get_child_by_name() returns a node pointer with refcount
-incremented, we should use of_node_put() on it when not need anymore.
-Add missing of_node_put() to avoid refcount leak.
+In qcom_iommu_has_secure_context(), we should call of_node_put()
+for the reference 'child' when breaking out of for_each_child_of_node()
+which will automatically increase and decrease the refcount.
 
-Fixes: 327156c59360 ("mfd: max77620: Add core driver for MAX77620/MAX20024")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20220601043222.64441-1-linmq006@gmail.com
+Fixes: d051f28c8807 ("iommu/qcom: Initialize secure page table")
+Signed-off-by: Liang He <windhl@126.com>
+Link: https://lore.kernel.org/r/20220719124955.1242171-1-windhl@126.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/max77620.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iommu/arm/arm-smmu/qcom_iommu.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/max77620.c b/drivers/mfd/max77620.c
-index fec2096474ad..a6661e07035b 100644
---- a/drivers/mfd/max77620.c
-+++ b/drivers/mfd/max77620.c
-@@ -419,9 +419,11 @@ static int max77620_initialise_fps(struct max77620_chip *chip)
- 		ret = max77620_config_fps(chip, fps_child);
- 		if (ret < 0) {
- 			of_node_put(fps_child);
-+			of_node_put(fps_np);
- 			return ret;
- 		}
- 	}
-+	of_node_put(fps_np);
+diff --git a/drivers/iommu/arm/arm-smmu/qcom_iommu.c b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
+index b30d6c966e2c..a24390c548a9 100644
+--- a/drivers/iommu/arm/arm-smmu/qcom_iommu.c
++++ b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
+@@ -766,9 +766,12 @@ static bool qcom_iommu_has_secure_context(struct qcom_iommu_dev *qcom_iommu)
+ {
+ 	struct device_node *child;
  
- 	config = chip->enable_global_lpm ? MAX77620_ONOFFCNFG2_SLP_LPM_MSK : 0;
- 	ret = regmap_update_bits(chip->rmap, MAX77620_REG_ONOFFCNFG2,
+-	for_each_child_of_node(qcom_iommu->dev->of_node, child)
+-		if (of_device_is_compatible(child, "qcom,msm-iommu-v1-sec"))
++	for_each_child_of_node(qcom_iommu->dev->of_node, child) {
++		if (of_device_is_compatible(child, "qcom,msm-iommu-v1-sec")) {
++			of_node_put(child);
+ 			return true;
++		}
++	}
+ 
+ 	return false;
+ }
 -- 
 2.35.1
 
