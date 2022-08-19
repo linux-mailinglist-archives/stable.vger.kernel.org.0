@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80A0D599FA5
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B870599FB9
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350967AbiHSQCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:02:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58122 "EHLO
+        id S1350057AbiHSQCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:02:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351314AbiHSQBR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:01:17 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E694DA5;
-        Fri, 19 Aug 2022 08:53:12 -0700 (PDT)
+        with ESMTP id S1350743AbiHSP7r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:59:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B01A1647D9;
+        Fri, 19 Aug 2022 08:51:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 02577CE26BF;
-        Fri, 19 Aug 2022 15:53:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFFB5C433C1;
-        Fri, 19 Aug 2022 15:53:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27EE7B8281A;
+        Fri, 19 Aug 2022 15:51:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ECAFC433C1;
+        Fri, 19 Aug 2022 15:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924385;
-        bh=opWy0O5OTamT+0c/R43KXN60EgWbjqlI6jS+eL26dls=;
+        s=korg; t=1660924298;
+        bh=W/ltPX1c32PbsqIxEAExA6ikOuFnxtc/3GF5aJ9ksmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gU1NUn0ByPo+F2VDMaxbmtapqWUhjHg0EIRCyDQRaLur9UDSjeMfApz9A1GYf5DE7
-         pUWqUh374ntWzSCdehqF1A2I2soDYxKwxLttmFdOKbScY/ufgujm6M0mMadzwCcsj8
-         g0ztWjlU4N76C4xDCCdN36uj/AC0i1LcxeJMJ+Nc=
+        b=I+hx3T16P6qektnaQOeek0gNNRTB2mhfFg+Pf9fnqVCNACPUpDbNh8KSAAJujpj2M
+         RLhF14TCJrAVjxvxcSCWslJsX5aThFAKSwUBNL169h9GphplXRX5OUdylY1u0E/veA
+         LJsHcC9Omz9rFXdDGFlEWYcYuRifsOLVcrqNxC3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Arnd Bergmann <arnd@arndb.de>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 123/545] locking/lockdep: Fix lockdep_init_map_*() confusion
-Date:   Fri, 19 Aug 2022 17:38:13 +0200
-Message-Id: <20220819153834.803911319@linuxfoundation.org>
+Subject: [PATCH 5.10 124/545] soc: fsl: guts: machine variable might be unset
+Date:   Fri, 19 Aug 2022 17:38:14 +0200
+Message-Id: <20220819153834.848255029@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,99 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit eae6d58d67d9739be5f7ae2dbead1d0ef6528243 ]
+[ Upstream commit ab3f045774f704c4e7b6a878102f4e9d4ae7bc74 ]
 
-Commit dfd5e3f5fe27 ("locking/lockdep: Mark local_lock_t") added yet
-another lockdep_init_map_*() variant, but forgot to update all the
-existing users of the most complicated version.
+If both the model and the compatible properties are missing, then
+machine will not be set. Initialize it with NULL.
 
-This could lead to a loss of lock_type and hence an incorrect report.
-Given the relative rarity of both local_lock and these annotations,
-this is unlikely to happen in practise, still, best fix things.
-
-Fixes: dfd5e3f5fe27 ("locking/lockdep: Mark local_lock_t")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/YqyEDtoan20K0CVD@worktop.programming.kicks-ass.net
+Fixes: 34c1c21e94ac ("soc: fsl: fix section mismatch build warnings")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/lockdep.h  | 30 +++++++++++++++++-------------
- kernel/locking/lockdep.c |  7 ++++---
- 2 files changed, 21 insertions(+), 16 deletions(-)
+ drivers/soc/fsl/guts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/lockdep.h b/include/linux/lockdep.h
-index 20b6797babe2..2c2586312b44 100644
---- a/include/linux/lockdep.h
-+++ b/include/linux/lockdep.h
-@@ -192,7 +192,7 @@ static inline void
- lockdep_init_map_waits(struct lockdep_map *lock, const char *name,
- 		       struct lock_class_key *key, int subclass, u8 inner, u8 outer)
- {
--	lockdep_init_map_type(lock, name, key, subclass, inner, LD_WAIT_INV, LD_LOCK_NORMAL);
-+	lockdep_init_map_type(lock, name, key, subclass, inner, outer, LD_LOCK_NORMAL);
- }
+diff --git a/drivers/soc/fsl/guts.c b/drivers/soc/fsl/guts.c
+index 091e94c04f30..6b0c433954bf 100644
+--- a/drivers/soc/fsl/guts.c
++++ b/drivers/soc/fsl/guts.c
+@@ -141,7 +141,7 @@ static int fsl_guts_probe(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	struct resource *res;
+ 	const struct fsl_soc_die_attr *soc_die;
+-	const char *machine;
++	const char *machine = NULL;
+ 	u32 svr;
  
- static inline void
-@@ -215,24 +215,28 @@ static inline void lockdep_init_map(struct lockdep_map *lock, const char *name,
-  * or they are too narrow (they suffer from a false class-split):
-  */
- #define lockdep_set_class(lock, key)				\
--	lockdep_init_map_waits(&(lock)->dep_map, #key, key, 0,	\
--			       (lock)->dep_map.wait_type_inner,	\
--			       (lock)->dep_map.wait_type_outer)
-+	lockdep_init_map_type(&(lock)->dep_map, #key, key, 0,	\
-+			      (lock)->dep_map.wait_type_inner,	\
-+			      (lock)->dep_map.wait_type_outer,	\
-+			      (lock)->dep_map.lock_type)
- 
- #define lockdep_set_class_and_name(lock, key, name)		\
--	lockdep_init_map_waits(&(lock)->dep_map, name, key, 0,	\
--			       (lock)->dep_map.wait_type_inner,	\
--			       (lock)->dep_map.wait_type_outer)
-+	lockdep_init_map_type(&(lock)->dep_map, name, key, 0,	\
-+			      (lock)->dep_map.wait_type_inner,	\
-+			      (lock)->dep_map.wait_type_outer,	\
-+			      (lock)->dep_map.lock_type)
- 
- #define lockdep_set_class_and_subclass(lock, key, sub)		\
--	lockdep_init_map_waits(&(lock)->dep_map, #key, key, sub,\
--			       (lock)->dep_map.wait_type_inner,	\
--			       (lock)->dep_map.wait_type_outer)
-+	lockdep_init_map_type(&(lock)->dep_map, #key, key, sub,	\
-+			      (lock)->dep_map.wait_type_inner,	\
-+			      (lock)->dep_map.wait_type_outer,	\
-+			      (lock)->dep_map.lock_type)
- 
- #define lockdep_set_subclass(lock, sub)					\
--	lockdep_init_map_waits(&(lock)->dep_map, #lock, (lock)->dep_map.key, sub,\
--			       (lock)->dep_map.wait_type_inner,		\
--			       (lock)->dep_map.wait_type_outer)
-+	lockdep_init_map_type(&(lock)->dep_map, #lock, (lock)->dep_map.key, sub,\
-+			      (lock)->dep_map.wait_type_inner,		\
-+			      (lock)->dep_map.wait_type_outer,		\
-+			      (lock)->dep_map.lock_type)
- 
- #define lockdep_set_novalidate_class(lock) \
- 	lockdep_set_class_and_name(lock, &__lockdep_no_validate__, #lock)
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index c3387cdc075a..6cbd2b444476 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -5139,9 +5139,10 @@ __lock_set_class(struct lockdep_map *lock, const char *name,
- 		return 0;
- 	}
- 
--	lockdep_init_map_waits(lock, name, key, 0,
--			       lock->wait_type_inner,
--			       lock->wait_type_outer);
-+	lockdep_init_map_type(lock, name, key, 0,
-+			      lock->wait_type_inner,
-+			      lock->wait_type_outer,
-+			      lock->lock_type);
- 	class = register_lock_class(lock, subclass, 0);
- 	hlock->class_idx = class - lock_classes;
- 
+ 	/* Initialize guts */
 -- 
 2.35.1
 
