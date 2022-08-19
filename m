@@ -2,117 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCA0C59A789
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 23:21:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C742F59A7A2
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 23:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352343AbiHSVQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 17:16:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59748 "EHLO
+        id S1352408AbiHSVYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 17:24:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352273AbiHSVQf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 17:16:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7DDDE7265;
-        Fri, 19 Aug 2022 14:16:34 -0700 (PDT)
+        with ESMTP id S1352401AbiHSVYD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 17:24:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A1E35754D;
+        Fri, 19 Aug 2022 14:24:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C6BD616E4;
-        Fri, 19 Aug 2022 21:16:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05B56C433D6;
-        Fri, 19 Aug 2022 21:16:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660943793;
-        bh=GOhiVfsBqX2y7z90q7076zjMmF36TVkpwUIPXpa8SDU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y550pgYDKfKcM94iqZr/Kgq976SROYgaTEdPCdGJTjVuM9A8E9QcWgimbBLXTrhgC
-         wFFQeAuB8KcNOT+QpevCOXkINubcBNAPa1d24Q0EBAxU5908J5ExF6xMOcwgxZDNUN
-         OfF9Ohl6YRulDg4I8E9E1kcGPHJ2yCG7Qwf0n7NalTbH08DnVK91ipOBZrpsgsIIaI
-         5h7yZxM71gpMmuIQjUh353asy0fDMY8F/VJCNC9aoB/cAswa6sDF6nVNMniOi8WrcH
-         eJm1uH+UyCmoqEMAiM9/PlgF9nleEDZlPAKon/5iBGyNTQ/7zdDIQWWp2cub8TYMt9
-         JYqLUlDZr7G+w==
-From:   SeongJae Park <sj@kernel.org>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     SeongJae Park <sj@kernel.org>, gregkh@linuxfoundation.org,
-        badari.pulavarty@intel.com, damon@lists.linux.dev,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] mm/damon/dbgfs: avoid duplicate context directory creation
-Date:   Fri, 19 Aug 2022 21:16:31 +0000
-Message-Id: <20220819211631.16658-1-sj@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220819140809.1e3929fd8f50bfc32cae31d3@linux-foundation.org>
-References: 
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA6E7B8291D;
+        Fri, 19 Aug 2022 21:24:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84D8BC433D6;
+        Fri, 19 Aug 2022 21:23:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1660944239;
+        bh=RGCq+yclmqz/4K4fKBxGLV3MGUpC7HXWYy6B5tp8OhE=;
+        h=Date:To:From:Subject:From;
+        b=pGU1uX3VF9tgqVx2ApVkZclMm1hSraNgI3ryo19XTPQfOjh2yVnIZGe5Iqpk+WE7x
+         VSr7UHJ7M9biPmHxziaUsloRxus8FkYd9QNUthFVgFZsyZvY70D80prBk92qXG2mrd
+         O1QgE3Z7EsZ76hSGo6yR9P6tN/ntc53GonvQEYrs=
+Date:   Fri, 19 Aug 2022 14:23:58 -0700
+To:     mm-commits@vger.kernel.org, willy@infradead.org,
+        stable@vger.kernel.org, songmuchun@bytedance.com,
+        osalvador@suse.de, mike.kravetz@oracle.com, liushixin2@huawei.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + bootmem-remove-the-vmemmap-pages-from-kmemleak-in-put_page_bootmem.patch added to mm-hotfixes-unstable branch
+Message-Id: <20220819212359.84D8BC433D6@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 19 Aug 2022 14:08:09 -0700 Andrew Morton <akpm@linux-foundation.org> wrote:
 
-> On Fri, 19 Aug 2022 17:19:30 +0000 SeongJae Park <sj@kernel.org> wrote:
-> 
-> > From: Badari Pulavarty <badari.pulavarty@intel.com>
-> > 
-> > When user tries to create a DAMON context via the DAMON debugfs
-> > interface with a name of an already existing context, the context
-> > directory creation silently fails but the context is added in the
-> > internal data structure.  As a result, memory could leak and DAMON
-> > cannot be turned on.  An example test case is as below:
-> > 
-> >     # cd /sys/kernel/debug/damon/
-> >     # echo "off" >  monitor_on
-> >     # echo paddr > target_ids
-> >     # echo "abc" > mk_context
-> >     # echo "abc" > mk_context
-> >     # echo $$ > abc/target_ids
-> >     # echo "on" > monitor_on  <<< fails
-> > 
-> > This commit fixes the issue by checking if the name already exist and
-> > immediately returning '-EEXIST' in the case.
-> > 
-> > ...
-> >
-> > --- a/mm/damon/dbgfs.c
-> > +++ b/mm/damon/dbgfs.c
-> > @@ -795,7 +795,7 @@ static void dbgfs_destroy_ctx(struct damon_ctx *ctx)
-> >   */
-> >  static int dbgfs_mk_context(char *name)
-> >  {
-> > -	struct dentry *root, **new_dirs, *new_dir;
-> > +	struct dentry *root, **new_dirs, *new_dir, *dir;
-> >  	struct damon_ctx **new_ctxs, *new_ctx;
-> >  
-> >  	if (damon_nr_running_ctxs())
-> > @@ -817,6 +817,12 @@ static int dbgfs_mk_context(char *name)
-> >  	if (!root)
-> >  		return -ENOENT;
-> >  
-> > +	dir = debugfs_lookup(name, root);
-> > +	if (dir) {
-> > +		dput(dir);
-> > +		return -EEXIST;
-> > +	}
-> > +
-> >  	new_dir = debugfs_create_dir(name, root);
-> >  	dbgfs_dirs[dbgfs_nr_ctxs] = new_dir;
-> 
-> It would be simpler (and less racy) to check the debugfs_create_dir()
-> return value for IS_ERR()?
+The patch titled
+     Subject: bootmem: remove the vmemmap pages from kmemleak in put_page_bootmem
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     bootmem-remove-the-vmemmap-pages-from-kmemleak-in-put_page_bootmem.patch
 
-I was merely following Greg's previous advice for ignoring the return value[1]
-of the function, but I might misunderstanding his intention, so CC-ing Greg.
-Greg, may I ask your opinion?
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/bootmem-remove-the-vmemmap-pages-from-kmemleak-in-put_page_bootmem.patch
 
-[1] https://lore.kernel.org/linux-mm/YB1kZaD%2F7omxXztF@kroah.com/
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Thanks,
-SJ
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Liu Shixin <liushixin2@huawei.com>
+Subject: bootmem: remove the vmemmap pages from kmemleak in put_page_bootmem
+Date: Fri, 19 Aug 2022 17:40:05 +0800
+
+The vmemmap pages is marked by kmemleak when allocated from memblock. 
+Remove it from kmemleak when freeing the page.  Otherwise, when we reuse
+the page, kmemleak may report such an error and then stop working.
+
+ kmemleak: Cannot insert 0xffff98fb6eab3d40 into the object search tree (overlaps existing)
+ kmemleak: Kernel memory leak detector disabled
+ kmemleak: Object 0xffff98fb6be00000 (size 335544320):
+ kmemleak:   comm "swapper", pid 0, jiffies 4294892296
+ kmemleak:   min_count = 0
+ kmemleak:   count = 0
+ kmemleak:   flags = 0x1
+ kmemleak:   checksum = 0
+ kmemleak:   backtrace:
+
+Link: https://lkml.kernel.org/r/20220819094005.2928241-1-liushixin2@huawei.com
+Fixes: f41f2ed43ca5 (mm: hugetlb: free the vmemmap pages associated with each HugeTLB page)
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/bootmem_info.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/mm/bootmem_info.c~bootmem-remove-the-vmemmap-pages-from-kmemleak-in-put_page_bootmem
++++ a/mm/bootmem_info.c
+@@ -12,6 +12,7 @@
+ #include <linux/memblock.h>
+ #include <linux/bootmem_info.h>
+ #include <linux/memory_hotplug.h>
++#include <linux/kmemleak.h>
+ 
+ void get_page_bootmem(unsigned long info, struct page *page, unsigned long type)
+ {
+@@ -33,6 +34,7 @@ void put_page_bootmem(struct page *page)
+ 		ClearPagePrivate(page);
+ 		set_page_private(page, 0);
+ 		INIT_LIST_HEAD(&page->lru);
++		kmemleak_free_part(page_to_virt(page), PAGE_SIZE);
+ 		free_reserved_page(page);
+ 	}
+ }
+_
+
+Patches currently in -mm which might be from liushixin2@huawei.com are
+
+bootmem-remove-the-vmemmap-pages-from-kmemleak-in-free_bootmem_page.patch
+bootmem-remove-the-vmemmap-pages-from-kmemleak-in-put_page_bootmem.patch
+
