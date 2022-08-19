@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D18E59A001
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15F7859A15A
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352395AbiHSQ0d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:26:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52964 "EHLO
+        id S1352485AbiHSQ0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:26:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352825AbiHSQZh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:25:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FC9060522;
-        Fri, 19 Aug 2022 09:03:29 -0700 (PDT)
+        with ESMTP id S1352964AbiHSQZ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:25:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2B3CCD7AA;
+        Fri, 19 Aug 2022 09:03:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C320B82804;
-        Fri, 19 Aug 2022 16:03:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8230DC433D6;
-        Fri, 19 Aug 2022 16:03:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95B376177D;
+        Fri, 19 Aug 2022 16:03:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DCA4C433C1;
+        Fri, 19 Aug 2022 16:03:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925004;
-        bh=gkqRS+TbmjeplEzOWCMiTsyo8jJqDRvczpG0XMFK4mA=;
+        s=korg; t=1660925008;
+        bh=pqdQLRP42is6J4yONh0EUvZdjqKEWNKz2KLGxYYby6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CdfLAJVQr7w0prB/QJLu1tAGTyrzQFlb9nyY/xU1IEtN0z0Afa6zIBdnS2HRc93tF
-         FWHJiHseIflMHcpiPkiCTotjNiCsnVUz6CP9Oa9JG+ULezgV5oZnTyCeoq/7sv24IA
-         Qh5AD4DAufBv5X7DocoFYH9DUGWxOsLKUZ8a3sgQ=
+        b=tZFXvWZFhveLQopamTKTkRoE3RxIN2pxGztPRs9H2DHp9cklOdx7rgGjhCYFWzav+
+         aNi/r0hLZhdrGQQJ2JBgNjDB8DuBeOcF6m0u6wIVgGXHI0s6cdR4549mzP8f+D3nV1
+         uTLCN/zLVcOh0eFYEu5khICvrUxryegWDLiE5rtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Andrei Vagin <avagin@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 353/545] mm/mmap.c: fix missing call to vm_unacct_memory in mmap_region
-Date:   Fri, 19 Aug 2022 17:42:03 +0200
-Message-Id: <20220819153845.182316973@linuxfoundation.org>
+Subject: [PATCH 5.10 354/545] selftests: kvm: set rax before vmcall
+Date:   Fri, 19 Aug 2022 17:42:04 +0200
+Message-Id: <20220819153845.226419355@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,38 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Andrei Vagin <avagin@google.com>
 
-[ Upstream commit 7f82f922319ede486540e8746769865b9508d2c2 ]
+[ Upstream commit 281106f938d3daaea6f8b6723a8217a2a1ef6936 ]
 
-Since the beginning, charged is set to 0 to avoid calling vm_unacct_memory
-twice because vm_unacct_memory will be called by above unmap_region.  But
-since commit 4f74d2c8e827 ("vm: remove 'nr_accounted' calculations from
-the unmap_vmas() interfaces"), unmap_region doesn't call vm_unacct_memory
-anymore.  So charged shouldn't be set to 0 now otherwise the calling to
-paired vm_unacct_memory will be missed and leads to imbalanced account.
+kvm_hypercall has to place the hypercall number in rax.
 
-Link: https://lkml.kernel.org/r/20220618082027.43391-1-linmiaohe@huawei.com
-Fixes: 4f74d2c8e827 ("vm: remove 'nr_accounted' calculations from the unmap_vmas() interfaces")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Trace events show that kvm_pv_test doesn't work properly:
+     kvm_pv_test-53132: kvm_hypercall: nr 0x0 a0 0x0 a1 0x0 a2 0x0 a3 0x0
+     kvm_pv_test-53132: kvm_hypercall: nr 0x0 a0 0x0 a1 0x0 a2 0x0 a3 0x0
+     kvm_pv_test-53132: kvm_hypercall: nr 0x0 a0 0x0 a1 0x0 a2 0x0 a3 0x0
+
+With this change, it starts working as expected:
+     kvm_pv_test-54285: kvm_hypercall: nr 0x5 a0 0x0 a1 0x0 a2 0x0 a3 0x0
+     kvm_pv_test-54285: kvm_hypercall: nr 0xa a0 0x0 a1 0x0 a2 0x0 a3 0x0
+     kvm_pv_test-54285: kvm_hypercall: nr 0xb a0 0x0 a1 0x0 a2 0x0 a3 0x0
+
+Signed-off-by: Andrei Vagin <avagin@google.com>
+Message-Id: <20220722230241.1944655-5-avagin@google.com>
+Fixes: ac4a4d6de22e ("selftests: kvm: test enforcement of paravirtual cpuid features")
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mmap.c | 1 -
- 1 file changed, 1 deletion(-)
+ tools/testing/selftests/kvm/lib/x86_64/processor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/mmap.c b/mm/mmap.c
-index 102f73ed4b1b..a50042918cc7 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1902,7 +1902,6 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
+diff --git a/tools/testing/selftests/kvm/lib/x86_64/processor.c b/tools/testing/selftests/kvm/lib/x86_64/processor.c
+index d10c5c05bdf0..f5d2d27bee05 100644
+--- a/tools/testing/selftests/kvm/lib/x86_64/processor.c
++++ b/tools/testing/selftests/kvm/lib/x86_64/processor.c
+@@ -1253,6 +1253,6 @@ uint64_t kvm_hypercall(uint64_t nr, uint64_t a0, uint64_t a1, uint64_t a2,
  
- 	/* Undo any partial mapping done by a device driver. */
- 	unmap_region(mm, vma, prev, vma->vm_start, vma->vm_end);
--	charged = 0;
- 	if (vm_flags & VM_SHARED)
- 		mapping_unmap_writable(file->f_mapping);
- allow_write_and_free_vma:
+ 	asm volatile("vmcall"
+ 		     : "=a"(r)
+-		     : "b"(a0), "c"(a1), "d"(a2), "S"(a3));
++		     : "a"(nr), "b"(a0), "c"(a1), "d"(a2), "S"(a3));
+ 	return r;
+ }
 -- 
 2.35.1
 
