@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C40B59A44D
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 612B359A4B5
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353768AbiHSQn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:43:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54932 "EHLO
+        id S1353765AbiHSQn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:43:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353628AbiHSQme (ORCPT
+        with ESMTP id S1353625AbiHSQme (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:42:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E517410EECD;
-        Fri, 19 Aug 2022 09:10:56 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CFB31296FC;
+        Fri, 19 Aug 2022 09:10:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F277761199;
-        Fri, 19 Aug 2022 16:09:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E39D4C433C1;
-        Fri, 19 Aug 2022 16:09:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC7B7B825D3;
+        Fri, 19 Aug 2022 16:09:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02A3EC433C1;
+        Fri, 19 Aug 2022 16:09:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925374;
-        bh=V4LgSedpr3Mn3JFQSAmnZTgGzA5U6Wo8O3HklmKyLu4=;
+        s=korg; t=1660925377;
+        bh=6n9zMhMjibMnoxJAvUJgUwuv1vcKVmaFXEhQLCNELsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xeCNkiAdHGELmdZ7HdbKTsruoSb4bWddrXvDC36bvmJea6Ot8qVo5LDJLDDYzBnkg
-         ZxuySrzsoR6sjkJAu+4a5L1/OGE67z5gyCVVmxj8QvbUV/sYafrgQC5iH+2j9GLwEn
-         ZUwUuVYj4oMVuOkS6H9K7z+jRkj5HfH7uJiKtbGo=
+        b=DF/PDYCnBflffzhreUAq9/W1adzn//rhs65SSiqE6EaUzfQgBuzjaluXMHWDqp3rz
+         fZ0F4VVQ2dEs88tPGcgi22jAVUup6owTeWEMW3LRG2Q8O2FudcRc9IvNDJ8hlBRjrW
+         HfpwQRUpsi1YUUStxIkw9UaeEgHV/9durJIIw9FE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naresh Bannoth <nbannoth@in.ibm.com>,
-        Kyle Mahlkuch <Kyle.Mahlkuch@ibm.com>,
-        Quinn Tran <qutran@marvell.com>,
+        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 442/545] scsi: qla2xxx: Fix erroneous mailbox timeout after PCI error injection
-Date:   Fri, 19 Aug 2022 17:43:32 +0200
-Message-Id: <20220819153849.211600932@linuxfoundation.org>
+Subject: [PATCH 5.10 443/545] scsi: qla2xxx: Fix losing FCP-2 targets on long port disable with I/Os
+Date:   Fri, 19 Aug 2022 17:43:33 +0200
+Message-Id: <20220819153849.261964005@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -56,61 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Arun Easi <aeasi@marvell.com>
 
-commit f260694e6463b63ae550aad25ddefe94cb1904da upstream.
+commit 2416ccd3815ba1613e10a6da0a24ef21acfe5633 upstream.
 
-Clear wait for mailbox interrupt flag to prevent stale mailbox:
+FCP-2 devices were not coming back online once they were lost, login
+retries exhausted, and then came back up.  Fix this by accepting RSCN when
+the device is not online.
 
-Feb 22 05:22:56 ltcden4-lp7 kernel: qla2xxx [0135:90:00.1]-500a:4: LOOP UP detected (16 Gbps).
-Feb 22 05:22:59 ltcden4-lp7 kernel: qla2xxx [0135:90:00.1]-d04c:4: MBX Command timeout for cmd 69, ...
-
-To fix the issue, driver needs to clear the MBX_INTR_WAIT flag on purging
-the mailbox. When the stale mailbox completion does arrive, it will be
-dropped.
-
-Link: https://lore.kernel.org/r/20220616053508.27186-11-njavali@marvell.com
-Fixes: b6faaaf796d7 ("scsi: qla2xxx: Serialize mailbox request")
-Cc: Naresh Bannoth <nbannoth@in.ibm.com>
-Cc: Kyle Mahlkuch <Kyle.Mahlkuch@ibm.com>
+Link: https://lore.kernel.org/r/20220616053508.27186-10-njavali@marvell.com
+Fixes: 44c57f205876 ("scsi: qla2xxx: Changes to support FCP2 Target")
 Cc: stable@vger.kernel.org
-Reported-by: Naresh Bannoth <nbannoth@in.ibm.com>
-Tested-by: Naresh Bannoth <nbannoth@in.ibm.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_mbx.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/scsi/qla2xxx/qla_init.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -271,6 +271,12 @@ qla2x00_mailbox_command(scsi_qla_host_t
- 		atomic_inc(&ha->num_pend_mbx_stage3);
- 		if (!wait_for_completion_timeout(&ha->mbx_intr_comp,
- 		    mcp->tov * HZ)) {
-+			ql_dbg(ql_dbg_mbx, vha, 0x117a,
-+			    "cmd=%x Timeout.\n", command);
-+			spin_lock_irqsave(&ha->hardware_lock, flags);
-+			clear_bit(MBX_INTR_WAIT, &ha->mbx_cmd_flags);
-+			spin_unlock_irqrestore(&ha->hardware_lock, flags);
-+
- 			if (chip_reset != ha->chip_reset) {
- 				spin_lock_irqsave(&ha->hardware_lock, flags);
- 				ha->flags.mbox_busy = 0;
-@@ -281,12 +287,6 @@ qla2x00_mailbox_command(scsi_qla_host_t
- 				rval = QLA_ABORTED;
- 				goto premature_exit;
- 			}
--			ql_dbg(ql_dbg_mbx, vha, 0x117a,
--			    "cmd=%x Timeout.\n", command);
--			spin_lock_irqsave(&ha->hardware_lock, flags);
--			clear_bit(MBX_INTR_WAIT, &ha->mbx_cmd_flags);
--			spin_unlock_irqrestore(&ha->hardware_lock, flags);
--
- 		} else if (ha->flags.purge_mbox ||
- 		    chip_reset != ha->chip_reset) {
- 			spin_lock_irqsave(&ha->hardware_lock, flags);
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -1734,7 +1734,8 @@ void qla2x00_handle_rscn(scsi_qla_host_t
+ 	case RSCN_PORT_ADDR:
+ 		fcport = qla2x00_find_fcport_by_nportid(vha, &ea->id, 1);
+ 		if (fcport) {
+-			if (fcport->flags & FCF_FCP2_DEVICE) {
++			if (fcport->flags & FCF_FCP2_DEVICE &&
++			    atomic_read(&fcport->state) == FCS_ONLINE) {
+ 				ql_dbg(ql_dbg_disc, vha, 0x2115,
+ 				       "Delaying session delete for FCP2 portid=%06x %8phC ",
+ 					fcport->d_id.b24, fcport->port_name);
+@@ -1746,7 +1747,8 @@ void qla2x00_handle_rscn(scsi_qla_host_t
+ 		break;
+ 	case RSCN_AREA_ADDR:
+ 		list_for_each_entry(fcport, &vha->vp_fcports, list) {
+-			if (fcport->flags & FCF_FCP2_DEVICE)
++			if (fcport->flags & FCF_FCP2_DEVICE &&
++			    atomic_read(&fcport->state) == FCS_ONLINE)
+ 				continue;
+ 
+ 			if ((ea->id.b24 & 0xffff00) == (fcport->d_id.b24 & 0xffff00)) {
+@@ -1757,7 +1759,8 @@ void qla2x00_handle_rscn(scsi_qla_host_t
+ 		break;
+ 	case RSCN_DOM_ADDR:
+ 		list_for_each_entry(fcport, &vha->vp_fcports, list) {
+-			if (fcport->flags & FCF_FCP2_DEVICE)
++			if (fcport->flags & FCF_FCP2_DEVICE &&
++			    atomic_read(&fcport->state) == FCS_ONLINE)
+ 				continue;
+ 
+ 			if ((ea->id.b24 & 0xff0000) == (fcport->d_id.b24 & 0xff0000)) {
+@@ -1769,7 +1772,8 @@ void qla2x00_handle_rscn(scsi_qla_host_t
+ 	case RSCN_FAB_ADDR:
+ 	default:
+ 		list_for_each_entry(fcport, &vha->vp_fcports, list) {
+-			if (fcport->flags & FCF_FCP2_DEVICE)
++			if (fcport->flags & FCF_FCP2_DEVICE &&
++			    atomic_read(&fcport->state) == FCS_ONLINE)
+ 				continue;
+ 
+ 			fcport->scan_needed = 1;
 
 
