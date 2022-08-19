@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E72E59A1C2
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5E3F59A1A7
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350554AbiHSP4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:56:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40878 "EHLO
+        id S1350689AbiHSP4z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:56:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350928AbiHSP4D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:56:03 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 722261011;
-        Fri, 19 Aug 2022 08:50:52 -0700 (PDT)
+        with ESMTP id S1350951AbiHSP4G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:56:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3BC3319;
+        Fri, 19 Aug 2022 08:50:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 63B68CE26B5;
+        by ams.source.kernel.org (Postfix) with ESMTPS id BBCA0B827F8;
+        Fri, 19 Aug 2022 15:50:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A4C0C433C1;
         Fri, 19 Aug 2022 15:50:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 682E8C433C1;
-        Fri, 19 Aug 2022 15:50:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924248;
-        bh=uJHMEQ/p9vxDrf88lSYBSMdt4WRsz6QhQJuyXjLLLfo=;
+        s=korg; t=1660924251;
+        bh=d/iGv3GxcSHuxsO3Syz/ugha7MoQ9UUrS+dhzXkqnuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wobVQfwRDGFICCHC26ghBep6VqInF+3IxdeBGVVZdr32mCciaN9+aPOhMQQibNkxs
-         mTnMCkARDgB8gZCQGGM15AItPSgbushMjO1kdC8UWh25FnWWWPiKg46ls57Y/gsuSi
-         QdCUekXldwB2iJ+A3qpZWxxyDHsju/dcDNqCH3Gg=
+        b=GMrwtXQ48JWhOZZdDzLzDOOHgw8hTrMUGkfi2VhC6XoUZ9Fpfb7ZUQCH7UWamzR+l
+         tCJFkeDe0FnxF6khK7FIsYX+TdlzBXAkVZOv27gFGvsrUY7AZ+7q1NjZLtsDdXUt9R
+         UI2MQVtj4RM4zMQcU1FKexQ/KFTfLulC9ZHtnDTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 106/545] powerpc/64s: Disable stack variable initialisation for prom_init
-Date:   Fri, 19 Aug 2022 17:37:56 +0200
-Message-Id: <20220819153834.035056764@linuxfoundation.org>
+Subject: [PATCH 5.10 107/545] spi: spi-rspi: Fix PIO fallback on RZ platforms
+Date:   Fri, 19 Aug 2022 17:37:57 +0200
+Message-Id: <20220819153834.087327904@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,53 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit be640317a1d0b9cf42fedb2debc2887a7cfa38de ]
+[ Upstream commit b620aa3a7be346f04ae7789b165937615c6ee8d3 ]
 
-With GCC 12 allmodconfig prom_init fails to build:
+RSPI IP on RZ/{A, G2L} SoC's has the same signal for both interrupt
+and DMA transfer request. Setting DMARS register for DMA transfer
+makes the signal to work as a DMA transfer request signal and
+subsequent interrupt requests to the interrupt controller
+are masked.
 
-  Error: External symbol 'memset' referenced from prom_init.c
-  make[2]: *** [arch/powerpc/kernel/Makefile:204: arch/powerpc/kernel/prom_init_check] Error 1
+PIO fallback does not work as interrupt signal is disabled.
 
-The allmodconfig build enables KASAN, so all calls to memset in
-prom_init should be converted to __memset by the #ifdefs in
-asm/string.h, because prom_init must use the non-KASAN instrumented
-versions.
+This patch fixes this issue by re-enabling the interrupts by
+calling dmaengine_synchronize().
 
-The build failure happens because there's a call to memset that hasn't
-been caught by the pre-processor and converted to __memset. Typically
-that's because it's a memset generated by the compiler itself, and that
-is the case here.
-
-With GCC 12, allmodconfig enables CONFIG_INIT_STACK_ALL_PATTERN, which
-causes the compiler to emit memset calls to initialise on-stack
-variables with a pattern.
-
-Because prom_init is non-user-facing boot-time only code, as a
-workaround just disable stack variable initialisation to unbreak the
-build.
-
-Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220718134418.354114-1-mpe@ellerman.id.au
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20220721143449.879257-1-biju.das.jz@bp.renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-rspi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
-index 376104c166fc..db2bdc4cec64 100644
---- a/arch/powerpc/kernel/Makefile
-+++ b/arch/powerpc/kernel/Makefile
-@@ -20,6 +20,7 @@ CFLAGS_prom.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
- CFLAGS_prom_init.o += -fno-stack-protector
- CFLAGS_prom_init.o += -DDISABLE_BRANCH_PROFILING
- CFLAGS_prom_init.o += -ffreestanding
-+CFLAGS_prom_init.o += $(call cc-option, -ftrivial-auto-var-init=uninitialized)
- 
- ifdef CONFIG_FUNCTION_TRACER
- # Do not trace early boot code
+diff --git a/drivers/spi/spi-rspi.c b/drivers/spi/spi-rspi.c
+index ea03cc589e61..4600e3c9e49e 100644
+--- a/drivers/spi/spi-rspi.c
++++ b/drivers/spi/spi-rspi.c
+@@ -612,6 +612,10 @@ static int rspi_dma_transfer(struct rspi_data *rspi, struct sg_table *tx,
+ 					       rspi->dma_callbacked, HZ);
+ 	if (ret > 0 && rspi->dma_callbacked) {
+ 		ret = 0;
++		if (tx)
++			dmaengine_synchronize(rspi->ctlr->dma_tx);
++		if (rx)
++			dmaengine_synchronize(rspi->ctlr->dma_rx);
+ 	} else {
+ 		if (!ret) {
+ 			dev_err(&rspi->ctlr->dev, "DMA timeout\n");
 -- 
 2.35.1
 
