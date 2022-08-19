@@ -2,42 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C58C59A372
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:03:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A60EA59A408
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350406AbiHSQmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:42:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42654 "EHLO
+        id S1353541AbiHSQie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:38:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353332AbiHSQkF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:40:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0887BC6B5C;
-        Fri, 19 Aug 2022 09:08:32 -0700 (PDT)
+        with ESMTP id S1353234AbiHSQgs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:36:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD3AF123093;
+        Fri, 19 Aug 2022 09:07:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25C7AB82822;
-        Fri, 19 Aug 2022 16:08:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82872C433D6;
-        Fri, 19 Aug 2022 16:08:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF9DFB82820;
+        Fri, 19 Aug 2022 16:07:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD82EC433C1;
+        Fri, 19 Aug 2022 16:07:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925289;
-        bh=NvIn2LoP/495gjA98dLbCw3goiC192Zqfodd4zGLDLg=;
+        s=korg; t=1660925236;
+        bh=e25EplunFs+xhOssElaZHcLWfqW4P+ZY5UR2hRo+Ob0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dArxODaDmrOdMtQxKDhPMFHY6TeRh50goWZinEXRYfu3Xijv3q1XmNnr6qnynl33J
-         tZKXKDq9CW8zgjFpFL22yFO7ok0fGzLRUTTNZwjsAROu5R2gjA88cvZEJclUIofR/d
-         NSBtSp/UZXnuDPaJgCeTWCvYPaE4Pr7RUgh81VYw=
+        b=t5x6EQC82OBx9vBhOuBvjbNHmV9kyE+r6imHruH2+os4TaDi+mA1SkBa+Ko/8apTA
+         KC1Jm26StT7QB6nl8QYcEC90NGR56ZWSiJoDIB6bAtAsZaBvtuwuje5JIqhMhtPaE0
+         6pK5LQ/mgDjHDAvKryBYaZJHQ0ZEneu2tIxTu3HE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
+        =?UTF-8?q?=E8=B0=AD=E6=A2=93=E7=85=8A?= <tanzixuan.me@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, Martin KaFai Lau <kafai@fb.com>,
+        Nick Terrell <terrelln@fb.com>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 415/545] ASoC: mchp-spdifrx: disable end of block interrupt on failures
-Date:   Fri, 19 Aug 2022 17:43:05 +0200
-Message-Id: <20220819153848.008018637@linuxfoundation.org>
+Subject: [PATCH 5.10 427/545] genelf: Use HAVE_LIBCRYPTO_SUPPORT, not the never defined HAVE_LIBCRYPTO
+Date:   Fri, 19 Aug 2022 17:43:17 +0200
+Message-Id: <20220819153848.523952231@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,57 +64,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit 768ac4f12ca0fda935f58eb8c5120e9d795bc6e3 ]
+[ Upstream commit 91cea6be90e436c55cde8770a15e4dac9d3032d0 ]
 
-Disable end of block interrupt in case of wait for completion timeout
-or errors to undo previously enable operation (done in
-mchp_spdifrx_isr_blockend_en()). Otherwise we can end up with an
-unbalanced reference counter for this interrupt.
+When genelf was introduced it tested for HAVE_LIBCRYPTO not
+HAVE_LIBCRYPTO_SUPPORT, which is the define the feature test for openssl
+defines, fix it.
 
-Fixes: ef265c55c1ac ("ASoC: mchp-spdifrx: add driver for SPDIF RX")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220727090814.2446111-2-claudiu.beznea@microchip.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This also adds disables the deprecation warning, someone has to fix this
+to build with openssl 3.0 before the warning becomes a hard error.
+
+Fixes: 9b07e27f88b9cd78 ("perf inject: Add jitdump mmap injection support")
+Reported-by: 谭梓煊 <tanzixuan.me@gmail.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Nick Terrell <terrelln@fb.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/YulpPqXSOG0Q4J1o@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/mchp-spdifrx.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ tools/perf/util/genelf.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/atmel/mchp-spdifrx.c b/sound/soc/atmel/mchp-spdifrx.c
-index e6ded6f8453f..46f3407ed0e8 100644
---- a/sound/soc/atmel/mchp-spdifrx.c
-+++ b/sound/soc/atmel/mchp-spdifrx.c
-@@ -288,15 +288,17 @@ static void mchp_spdifrx_isr_blockend_en(struct mchp_spdifrx_dev *dev)
- 	spin_unlock_irqrestore(&dev->blockend_lock, flags);
- }
+diff --git a/tools/perf/util/genelf.c b/tools/perf/util/genelf.c
+index aed49806a09b..953338b9e887 100644
+--- a/tools/perf/util/genelf.c
++++ b/tools/perf/util/genelf.c
+@@ -30,7 +30,11 @@
  
--/* called from atomic context only */
-+/* called from atomic/non-atomic context */
- static void mchp_spdifrx_isr_blockend_dis(struct mchp_spdifrx_dev *dev)
- {
--	spin_lock(&dev->blockend_lock);
-+	unsigned long flags;
+ #define BUILD_ID_URANDOM /* different uuid for each run */
+ 
+-#ifdef HAVE_LIBCRYPTO
++// FIXME, remove this and fix the deprecation warnings before its removed and
++// We'll break for good here...
++#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 +
-+	spin_lock_irqsave(&dev->blockend_lock, flags);
- 	dev->blockend_refcount--;
- 	/* don't enable BLOCKEND interrupt if it's already enabled */
- 	if (dev->blockend_refcount == 0)
- 		regmap_write(dev->regmap, SPDIFRX_IDR, SPDIFRX_IR_BLOCKEND);
--	spin_unlock(&dev->blockend_lock);
-+	spin_unlock_irqrestore(&dev->blockend_lock, flags);
- }
++#ifdef HAVE_LIBCRYPTO_SUPPORT
  
- static irqreturn_t mchp_spdif_interrupt(int irq, void *dev_id)
-@@ -575,6 +577,7 @@ static int mchp_spdifrx_subcode_ch_get(struct mchp_spdifrx_dev *dev,
- 	if (ret <= 0) {
- 		dev_dbg(dev->dev, "user data for channel %d timeout\n",
- 			channel);
-+		mchp_spdifrx_isr_blockend_dis(dev);
- 		return ret;
- 	}
- 
+ #define BUILD_ID_MD5
+ #undef BUILD_ID_SHA	/* does not seem to work well when linked with Java */
 -- 
 2.35.1
 
