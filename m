@@ -2,54 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4E55599A52
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 13:03:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9309599A5A
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 13:03:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348415AbiHSLCH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 07:02:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43208 "EHLO
+        id S1348491AbiHSLC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 07:02:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348084AbiHSLCD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 07:02:03 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B205F4CB5;
-        Fri, 19 Aug 2022 04:02:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=yNbb9DcZhKAMxe5tLSY8DOtaWoVmJm1w9u6wWD3tWtU=; b=g8Ut10YmlQXyyHUmopkV7/LoGs
-        ijbuy5AH+slUSkC1AjgbFYfFaW7E8p1mbCNNpEPAtySeudz3+3JaHTkAaVJPImQvjOTENtUlv0iBp
-        t+EhhtMfvuzzAcxxqfOmp8qnheJzhMg2tMMSZ+EdsmgRbkjY0g/9UEe24KPn4PNxE1FP4OM7k0Wyg
-        G9RaHFO2Wb9nIO9h6dr5MzS6RU+4DYUaIfByiu/ZNRpZ+Otz4kaACgU4cY3YA8VrxYO6Gac802GC9
-        OWY0ESm/ovWmRVTgQUSlqOtQN1/SpBZAqhDUbmuhdnJXo977bXIt+K61zl8xoLOtHjesovMuq7Kbi
-        C7OP7tqg==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=worktop.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oOzku-003qr4-V2; Fri, 19 Aug 2022 11:01:37 +0000
-Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 3C2FA980163; Fri, 19 Aug 2022 13:01:35 +0200 (CEST)
-Date:   Fri, 19 Aug 2022 13:01:35 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Ben Hutchings <ben@decadent.org.uk>
+        with ESMTP id S1348495AbiHSLCn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 07:02:43 -0400
+Received: from maynard.decadent.org.uk (maynard.decadent.org.uk [95.217.213.242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1ACFF61A8;
+        Fri, 19 Aug 2022 04:02:42 -0700 (PDT)
+Received: from 213.219.160.184.adsl.dyn.edpnet.net ([213.219.160.184] helo=deadeye)
+        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1oOzlk-0002zN-5f; Fri, 19 Aug 2022 13:02:28 +0200
+Received: from ben by deadeye with local (Exim 4.96)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1oOzli-000aat-1m;
+        Fri, 19 Aug 2022 13:02:26 +0200
+Message-ID: <2d899b4a9a08f79396a071eb8c06d524ae6033b0.camel@decadent.org.uk>
+Subject: Re: [PATCH] x86/speculation: Avoid LFENCE in FILL_RETURN_BUFFER on
+ CPUs that lack it
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Peter Zijlstra <peterz@infradead.org>
 Cc:     x86@kernel.org, linux-kernel@vger.kernel.org,
         1017425@bugs.debian.org,
-        =?iso-8859-1?Q?Martin-=C9ric?= Racine <martin-eric.racine@iki.fi>,
+        =?ISO-8859-1?Q?Martin-=C9ric?= Racine <martin-eric.racine@iki.fi>,
         stable@vger.kernel.org, regressions@lists.linux.dev,
         Daniel Sneddon <daniel.sneddon@linux.intel.com>,
         Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Subject: Re: [PATCH] x86/speculation: Avoid LFENCE in FILL_RETURN_BUFFER on
- CPUs that lack it
-Message-ID: <Yv9tj9vbQ9nNlXoY@worktop.programming.kicks-ass.net>
-References: <Yv7aRJ/SvVhSdnSB@decadent.org.uk>
- <Yv9OGVc+WpoDAB0X@worktop.programming.kicks-ass.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date:   Fri, 19 Aug 2022 13:02:17 +0200
 In-Reply-To: <Yv9OGVc+WpoDAB0X@worktop.programming.kicks-ass.net>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+References: <Yv7aRJ/SvVhSdnSB@decadent.org.uk>
+         <Yv9OGVc+WpoDAB0X@worktop.programming.kicks-ass.net>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-YjhQggnj2zhMxQngHr7f"
+User-Agent: Evolution 3.44.3-1 
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: 213.219.160.184
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,75 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 19, 2022 at 10:47:21AM +0200, Peter Zijlstra wrote:
+
+--=-YjhQggnj2zhMxQngHr7f
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, 2022-08-19 at 10:47 +0200, Peter Zijlstra wrote:
 > On Fri, Aug 19, 2022 at 02:33:08AM +0200, Ben Hutchings wrote:
 > > From: Ben Hutchings <benh@debian.org>
-> > 
+> >=20
 > > The mitigation for PBRSB includes adding LFENCE instructions to the
 > > RSB filling sequence.  However, RSB filling is done on some older CPUs
 > > that don't support the LFENCE instruction.
-> > 
-> 
+> >=20
+>=20
 > Wait; what? There are chips that enable the RSB mitigations and DONT
 > have LFENCE ?!?
 
-So I gave in and clicked on the horrible bugzilla thing. Apparently this
-is P3/Athlon64 era crud.
+Yes, X86_FEATURE_RSB_CTXSW is enabled if any other Spectre v2
+mitigation is enabled.  And all Intel family 6 (except some early
+Atoms) and AMD family 5+ get Spectre v2 mitigation by default.
 
-Anyway, the added LFENCE isn't because of retbleed; it is because you
-can steer the jnz and terminate the loop early and then not actually
-complete the RSB stuffing.
+Ben.
 
-New insights etc.. So it's a geniune fix for the existing rsb stuffing.
+--=20
+Ben Hutchings
+Beware of bugs in the above code;
+I have only proved it correct, not tried it. - Donald Knuth
 
-I'm not entirly sure what to do here. On the one hand, it's 32bit, so
-who gives a crap, otoh we shouldn't break these ancient chips either I
-suppose.
+--=-YjhQggnj2zhMxQngHr7f
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
-How's something like so then? It goes on top of my other patch cleaning
-up this RSB mess:
+-----BEGIN PGP SIGNATURE-----
 
-  https://lkml.kernel.org/r/Yv9m%2FhuNJLuyviIn%40worktop.programming.kicks-ass.net
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmL/bbkACgkQ57/I7JWG
+EQmxQg//ZS3fq6QOEM160thdxrPitpXbg0ygRoO4bBjmDY8G/+2sne8MEPRq2r2U
+gKHbq5O6TTLbGDQjZBwGwMEg1omi8dLHt9m9I8YKBxBwqOHdqO4UrZa9cuvVQnF4
+TDTGeBO7sGMRPcuaff7HPKMgjQL2E6+Db2DbZhxvtPkKyRRuoCRONajy7z/W+K0F
+9nHY/offfF5EXLySFwqSE1ypm/MTBVro4EGPFKMe/znSx5y4jFh6Dci39BAVb+rf
+YyzI1y5bmbBnRhy/GGbb/zVhPiQxnwjKCq4o9SUGCh+cWDLfrU8nmkttzxwb2J29
+KEK488/fxi7sI4WB7IxPMTI8REqyrxBq8ybWW0i1HBWt+VieHYroqMrsi9kjrgOU
+6ae6V5PPi773/WzLK/sYnKlKB74V7svRRsFXgk5p5GKVoIGngaWhNQNAknDpdhPK
+Sl8sQTsgS8mUnPIKitwtEgNX+XzvKUuSz8ep0tO/a96ZMahoBSbKO2dt2n+jv7e5
+FU17Q8IKFnqpb9SybcUhD/BGiTLJ7sWcb+sR20Nlxk2ji0j67gzkKcmtVU+qsgLB
+3IzG38XZsd5X+RwTUyO+ZRvTdjKTcj7phIywd+PgYBaWbck1y2OGygJt4U2FDe7a
+MPMJwbDp3jIE3lt/k+XDWY9x2HvXF5C1ZuOdhSapp+eRW4yVkzs=
+=QDsX
+-----END PGP SIGNATURE-----
 
----
-Subject: x86/nospec: Fix i386 RSB stuffing
-
-Turns out that i386 doesn't unconditionally have LFENCE, as such the
-loop in __FILL_RETURN_BUFFER isn't actually speculation safe on such
-chips.
-
-Fixes: ba6e31af2be9 ("x86/speculation: Add LFENCE to RSB fill sequence")
-Reported-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
-
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -50,6 +50,7 @@
-  * the optimal version - two calls, each with their own speculation
-  * trap should their return address end up getting used, in a loop.
-  */
-+#ifdef CONFIG_X86_64
- #define __FILL_RETURN_BUFFER(reg, nr)			\
- 	mov	$(nr/2), reg;				\
- 771:							\
-@@ -60,6 +61,17 @@
- 	jnz	771b;					\
- 	/* barrier for jnz misprediction */		\
- 	lfence;
-+#else
-+/*
-+ * i386 doesn't unconditionally have LFENCE, as such it can't
-+ * do a loop.
-+ */
-+#define __FILL_RETURN_BUFFER(reg, nr)			\
-+	.rept nr;					\
-+	__FILL_RETURN_SLOT;				\
-+	.endr;						\
-+	add	$(BITS_PER_LONG/8) * nr, %_ASM_SP;
-+#endif
- 
- /*
-  * Stuff a single RSB slot.
-
-
+--=-YjhQggnj2zhMxQngHr7f--
