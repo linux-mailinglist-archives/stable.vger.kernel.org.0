@@ -2,119 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E842B59A3CB
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9935059A554
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:39:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354862AbiHSRt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 13:49:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35310 "EHLO
+        id S1349711AbiHSSPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 14:15:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351958AbiHSRtR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 13:49:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17C2832D80;
-        Fri, 19 Aug 2022 10:19:37 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A90D761709;
-        Fri, 19 Aug 2022 17:19:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85184C433C1;
-        Fri, 19 Aug 2022 17:19:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660929576;
-        bh=3Sdln9qJKHLzw3ch7twkCCMwF2dg/LGZE0fJeB2Pqds=;
-        h=From:To:Cc:Subject:Date:From;
-        b=WDXGks4O7BdiqUE7X0ObnfF1Zyc1+QRtTDQWZKrcu/dYHW20fJbBaY5zTopwpzRcr
-         iT1CheRg5d9nG1nbiK+07tKfvbRrMPPAzYs5xdQS9G94QOx6JiQ+CZqnjz5bLfoTQM
-         8GizFsATxnYxbVf0njAQVdq4u3/+gJxXl8HMgOFRfzNYQuZFqeZm2bQA2iehreJcJr
-         MsgssHY7b9NDzkvL3zvPSqZdzev4Zl7VTNxdSDSPb4x7IYajtOS5mXMkGX9sEwD/g5
-         YzO+4CjEDdZnIOJknjJdGpijVe7LNFh8j3wLUZmLKeBi2YCJXcIkfdlNSLufGy6I/p
-         rjfnuFJRi3Ofg==
-From:   SeongJae Park <sj@kernel.org>
-To:     akpm@linux-foundation.org
-Cc:     sj@kernel.org, badari.pulavarty@intel.com, damon@lists.linux.dev,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v2] mm/damon/dbgfs: avoid duplicate context directory creation
-Date:   Fri, 19 Aug 2022 17:19:30 +0000
-Message-Id: <20220819171930.16166-1-sj@kernel.org>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S1350228AbiHSSPZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 14:15:25 -0400
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 253BC13D66;
+        Fri, 19 Aug 2022 11:14:38 -0700 (PDT)
+Received: by mail-pg1-x536.google.com with SMTP id d71so4264560pgc.13;
+        Fri, 19 Aug 2022 11:14:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=k8VR6LyMQ/VASaTeiHHeMXj88ybif2kViyX94kiK/Yo=;
+        b=qWnblMxBWEnees4ZfIIGldm0NscZCNzVkKM77GXScvcBV63nIEOGoz6mz/sBVJXoET
+         9mdEvPyPDH6mZbQcja3mvPewiblARZRTRNb72YCo0RAd3ppaY50M0WdyxlO5ljwaAPLJ
+         lUexeUnxcVOOwV+/J5gEOarL2l+0gSZXM2HO4AGpS4Sig4r3Hsj42A2Q46QlDNFlTbNy
+         xUJTDZP6MTIWsaVFd/lUYp6Mfj//XrZs9GN/gf9+qwyF24MA+15JOSp4dVzY6w2rJ9Zi
+         B3n4k4khypKn0V99ubWj4fvfWZAE3icPx9SMDG4yLMxNOSJGxe3Uf9gs6lsqRNS6zms/
+         RALg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=k8VR6LyMQ/VASaTeiHHeMXj88ybif2kViyX94kiK/Yo=;
+        b=WMQco8oQM3Vrb6lg2qfU62DsUxViHGipP7n68vzvdkZjBkqMNTSfBa81pA1NuvwXTc
+         ydvkPbBfIR+jhHgkTLHPZi1CH2W+G2V0eayxMjxgOtyl2tnUzQaHCn+NNwiPHo84ft2A
+         M6z61dW31DWAJoIRd0BDsr5FtSg0PgDwquaRpPtzTMywz9clctmrphBDgKtfaH7a27+4
+         yh4ayTQHe6BWFQLAYH5O3FLPbqrlydXtJ9mSIYzgv8iHLuinWlPKukrHWmz3PWkORBFA
+         gwSt89mAbnLSGf4al4oJK7+zu1TmVArhswzRWgUMJHLgQXp/9HcJHo4u3Me8eLDshHNI
+         ubww==
+X-Gm-Message-State: ACgBeo1OTfKzLRQvyc5kXnGc/hnYKbSD4JYRkur5iS90Z9l6W0VB/jEk
+        KgRi2DsB4Bq3uGN46J8+FIvAZuKZKv8=
+X-Google-Smtp-Source: AA6agR6RHO4+oksh3EnhF2gI+NSQZiJIcibZoRXYqgWQce0FhbMgn7y3SptXcsHeKpcC6yULbjrTwA==
+X-Received: by 2002:a05:6a00:804:b0:52f:43f9:b634 with SMTP id m4-20020a056a00080400b0052f43f9b634mr9060395pfk.62.1660932877331;
+        Fri, 19 Aug 2022 11:14:37 -0700 (PDT)
+Received: from lrumancik.svl.corp.google.com ([2620:15c:2d4:203:3995:f9b1:1e6b:e373])
+        by smtp.gmail.com with ESMTPSA id t14-20020a170902e84e00b0015ee60ef65bsm3460918plg.260.2022.08.19.11.14.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Aug 2022 11:14:36 -0700 (PDT)
+From:   Leah Rumancik <leah.rumancik@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     linux-xfs@vger.kernel.org, amir73il@gmail.com,
+        Leah Rumancik <leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 0/9] xfs stable candidate patches for 5.15.y (part 4)
+Date:   Fri, 19 Aug 2022 11:14:22 -0700
+Message-Id: <20220819181431.4113819-1-leah.rumancik@gmail.com>
+X-Mailer: git-send-email 2.37.1.595.g718a3a8f04-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Badari Pulavarty <badari.pulavarty@intel.com>
+Hello,
 
-When user tries to create a DAMON context via the DAMON debugfs
-interface with a name of an already existing context, the context
-directory creation silently fails but the context is added in the
-internal data structure.  As a result, memory could leak and DAMON
-cannot be turned on.  An example test case is as below:
+Here's another round of xfs backports for 5.15.y that have been
+through testing and ACK'd.
 
-    # cd /sys/kernel/debug/damon/
-    # echo "off" >  monitor_on
-    # echo paddr > target_ids
-    # echo "abc" > mk_context
-    # echo "abc" > mk_context
-    # echo $$ > abc/target_ids
-    # echo "on" > monitor_on  <<< fails
+Thanks,
+Leah
 
-This commit fixes the issue by checking if the name already exist and
-immediately returning '-EEXIST' in the case.
+Brian Foster (2):
+  xfs: flush inodegc workqueue tasks before cancel
+  xfs: fix soft lockup via spinning in filestream ag selection loop
 
-Fixes: 75c1c2b53c78 ("mm/damon/dbgfs: support multiple contexts")
-Cc: <stable@vger.kernel.org> # 5.15.x
-Signed-off-by: Badari Pulavarty <badari.pulavarty@intel.com>
-Signed-off-by: SeongJae Park <sj@kernel.org>
----
-Changes from v1
-(https://lore.kernel.org/damon/DM6PR11MB3978994F75A4104D714437379C679@DM6PR11MB3978.namprd11.prod.outlook.com/)
-- Manually check duplicate entry instead of checking
-  'debugfs_create_dir()' return value
-- Reword commit message and the test case
+Darrick J. Wong (6):
+  xfs: reserve quota for dir expansion when linking/unlinking files
+  xfs: reserve quota for target dir expansion when renaming files
+  xfs: remove infinite loop when reserving free block pool
+  xfs: always succeed at setting the reserve pool size
+  xfs: fix overfilling of reserve pool
+  xfs: reject crazy array sizes being fed to XFS_IOC_GETBMAP*
 
-Seems Badari have some email client issue, so I (SJ) am making this
-second version of the patch based on Badari's final proposal and repost
-on behalf of Badari.
+Eric Sandeen (1):
+  xfs: revert "xfs: actually bump warning counts when we send warnings"
 
- mm/damon/dbgfs.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_filestream.c  |  7 ++--
+ fs/xfs/xfs_fsops.c       | 50 ++++++++++-------------
+ fs/xfs/xfs_icache.c      | 22 ++--------
+ fs/xfs/xfs_inode.c       | 79 ++++++++++++++++++++++--------------
+ fs/xfs/xfs_ioctl.c       |  2 +-
+ fs/xfs/xfs_trans.c       | 86 ++++++++++++++++++++++++++++++++++++++++
+ fs/xfs/xfs_trans.h       |  3 ++
+ fs/xfs/xfs_trans_dquot.c |  1 -
+ 8 files changed, 167 insertions(+), 83 deletions(-)
 
-diff --git a/mm/damon/dbgfs.c b/mm/damon/dbgfs.c
-index 51d67c8050dd..364b44063c2f 100644
---- a/mm/damon/dbgfs.c
-+++ b/mm/damon/dbgfs.c
-@@ -795,7 +795,7 @@ static void dbgfs_destroy_ctx(struct damon_ctx *ctx)
-  */
- static int dbgfs_mk_context(char *name)
- {
--	struct dentry *root, **new_dirs, *new_dir;
-+	struct dentry *root, **new_dirs, *new_dir, *dir;
- 	struct damon_ctx **new_ctxs, *new_ctx;
- 
- 	if (damon_nr_running_ctxs())
-@@ -817,6 +817,12 @@ static int dbgfs_mk_context(char *name)
- 	if (!root)
- 		return -ENOENT;
- 
-+	dir = debugfs_lookup(name, root);
-+	if (dir) {
-+		dput(dir);
-+		return -EEXIST;
-+	}
-+
- 	new_dir = debugfs_create_dir(name, root);
- 	dbgfs_dirs[dbgfs_nr_ctxs] = new_dir;
- 
 -- 
-2.25.1
+2.37.1.595.g718a3a8f04-goog
 
