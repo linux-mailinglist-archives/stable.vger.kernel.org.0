@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1D64599F18
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05DE059A12E
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349942AbiHSPvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:51:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52190 "EHLO
+        id S1350425AbiHSP4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:56:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350134AbiHSPuO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:50:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06A1110522F;
-        Fri, 19 Aug 2022 08:48:00 -0700 (PDT)
+        with ESMTP id S1350650AbiHSPzL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:55:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EE81107D96;
+        Fri, 19 Aug 2022 08:49:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 42115616F9;
-        Fri, 19 Aug 2022 15:48:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ECA5C433D6;
-        Fri, 19 Aug 2022 15:47:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5FEB61702;
+        Fri, 19 Aug 2022 15:49:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DCACC433B5;
+        Fri, 19 Aug 2022 15:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924079;
-        bh=ajfY1cKPPdwe5FTthnuG6ewUtH2PDjpg5AYoSXiLcqs=;
+        s=korg; t=1660924193;
+        bh=ohXzVHtE6DItpFVp9j+MEuEkFNvRx8jj9TPewUENQ+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OK/KVC/goxsQo+WJzOa7rjzVsw/uQNT5E1DAnH72rvWwAfn5HzN8rHbjsb22ZBIQr
-         uruWOxxFJtsrb3zmwpPnmNZ3R48zLQ9XfA+34CVNozttUEORFPFt0fivdosRhDdOZ1
-         6DqhLJJY8hCduPOIes44wtuz3j5O2J7pzOCR083A=
+        b=vSPxcwMmD9JrhxpfixrENDOqamGgZxhuwSesEoD0rEdhcMbD8WQyVDxyxUJPk0Tu4
+         Q1nkDBI1knZUjTd8QhxA28UcdQTqjMH/itVUcqDqdjj56Pdx1ZrmCY5F7XpOsQD45+
+         8iIpETjZS7OxCTC28ouO++4iChx/uyLPmjq1gbzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 5.10 047/545] drm/amdgpu: Check BOs requested pinning domains against its preferred_domains
-Date:   Fri, 19 Aug 2022 17:36:57 +0200
-Message-Id: <20220819153831.317705356@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.10 048/545] mtd: rawnand: arasan: Update NAND bus clock instead of system clock
+Date:   Fri, 19 Aug 2022 17:36:58 +0200
+Message-Id: <20220819153831.365442311@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -54,46 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Li <sunpeng.li@amd.com>
+From: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
 
-commit f5ba14043621f4afdf3ad5f92ee2d8dbebbe4340 upstream.
+commit 7499bfeedb47efc1ee4dc793b92c610d46e6d6a6 upstream.
 
-When pinning a buffer, we should check to see if there are any
-additional restrictions imposed by bo->preferred_domains. This will
-prevent the BO from being moved to an invalid domain when pinning.
+In current implementation the Arasan NAND driver is updating the
+system clock(i.e., anand->clk) in accordance to the timing modes
+(i.e., SDR or NVDDR). But as per the Arasan NAND controller spec the
+flash clock or the NAND bus clock(i.e., nfc->bus_clk), need to be
+updated instead. This patch keeps the system clock unchanged and updates
+the NAND bus clock as per the timing modes.
 
-For example, this can happen if the user requests to create a BO in GTT
-domain for display scanout. amdgpu_dm will allow pinning to either VRAM
-or GTT domains, since DCN can scanout from either or. However, in
-amdgpu_bo_pin_restricted(), pinning to VRAM is preferred if there is
-adequate carveout. This can lead to pinning to VRAM despite the user
-requesting GTT placement for the BO.
-
-v2: Allow the kernel to override the domain, which can happen when
-    exporting a BO to a V4L camera (for example).
-
-Signed-off-by: Leo Li <sunpeng.li@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: 197b88fecc50 ("mtd: rawnand: arasan: Add new Arasan NAND controller")
+CC: stable@vger.kernel.org # 5.8+
+Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220628154824.12222-2-amit.kumar-mahapatra@xilinx.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_object.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/mtd/nand/raw/arasan-nand-controller.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-@@ -905,6 +905,10 @@ int amdgpu_bo_pin_restricted(struct amdg
- 	if (WARN_ON_ONCE(min_offset > max_offset))
- 		return -EINVAL;
+--- a/drivers/mtd/nand/raw/arasan-nand-controller.c
++++ b/drivers/mtd/nand/raw/arasan-nand-controller.c
+@@ -283,17 +283,17 @@ static int anfc_select_target(struct nan
  
-+	/* Check domain to be pinned to against preferred domains */
-+	if (bo->preferred_domains & domain)
-+		domain = bo->preferred_domains & domain;
-+
- 	/* A shared bo cannot be migrated to VRAM */
- 	if (bo->prime_shared_count) {
- 		if (domain & AMDGPU_GEM_DOMAIN_GTT)
+ 	/* Update clock frequency */
+ 	if (nfc->cur_clk != anand->clk) {
+-		clk_disable_unprepare(nfc->controller_clk);
+-		ret = clk_set_rate(nfc->controller_clk, anand->clk);
++		clk_disable_unprepare(nfc->bus_clk);
++		ret = clk_set_rate(nfc->bus_clk, anand->clk);
+ 		if (ret) {
+ 			dev_err(nfc->dev, "Failed to change clock rate\n");
+ 			return ret;
+ 		}
+ 
+-		ret = clk_prepare_enable(nfc->controller_clk);
++		ret = clk_prepare_enable(nfc->bus_clk);
+ 		if (ret) {
+ 			dev_err(nfc->dev,
+-				"Failed to re-enable the controller clock\n");
++				"Failed to re-enable the bus clock\n");
+ 			return ret;
+ 		}
+ 
 
 
