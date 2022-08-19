@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8A7F59A242
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28E4259A230
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353135AbiHSQd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:33:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43814 "EHLO
+        id S1353086AbiHSQdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:33:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353546AbiHSQb4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:31:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ABCF11E926;
-        Fri, 19 Aug 2022 09:06:12 -0700 (PDT)
+        with ESMTP id S1353429AbiHSQbk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:31:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11B6E11E90E;
+        Fri, 19 Aug 2022 09:05:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01CB16181A;
-        Fri, 19 Aug 2022 16:05:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E125BC433C1;
-        Fri, 19 Aug 2022 16:05:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4AC7617A5;
+        Fri, 19 Aug 2022 16:05:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD9AEC433D7;
+        Fri, 19 Aug 2022 16:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925143;
-        bh=taOFjwG/oEmxhFwNnlXZcPoYM8Ds3Fx/LnUKUtBM40Q=;
+        s=korg; t=1660925146;
+        bh=Md5RQ6iHQPX4e7LRHADrQoCMdtevRuFoWjv4ghAxn0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s+uQCbU9XaYCTFR7Soi4wmJQgxag2BqroKIyRjVvr75UVj9Wom7NEuZIfwOMurh3g
-         LFJ4M7E68hlbeSaQgOCfWWFzkxBGvty1lxDxqUo1A//jCmtGqv7uwr5j1cS2e4/HEi
-         vSj9/NE0ht2csDUnvD6U34v2zWGZSrjUWxjKJHgI=
+        b=cFos/ZAqZ9oyVtpHQ1iukmNz/8AXB6yXE88LHwa27DTq+NRBKZL2rTsguUj5hXo2f
+         CE87zYcjcf1BOSzUtsaXMcv1WfE9rNuF302RpgUsMe+xuc4CC5UWV4EsWUpDV6kQ02
+         7kJKwl8NS9c4jV3Z/UjOqcUYsiu2UM9Wxn3Vw298=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Protsenko <semen.protsenko@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 397/545] iommu/exynos: Handle failed IOMMU device registration properly
-Date:   Fri, 19 Aug 2022 17:42:47 +0200
-Message-Id: <20220819153847.182654870@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 398/545] rpmsg: qcom_smd: Fix refcount leak in qcom_smd_parse_edge
+Date:   Fri, 19 Aug 2022 17:42:48 +0200
+Message-Id: <20220819153847.231724894@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,49 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Protsenko <semen.protsenko@linaro.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit fce398d2d02c0a9a2bedf7c7201b123e153e8963 ]
+[ Upstream commit 65382585f067d4256ba087934f30f85c9b6984de ]
 
-If iommu_device_register() fails in exynos_sysmmu_probe(), the previous
-calls have to be cleaned up. In this case, the iommu_device_sysfs_add()
-should be cleaned up, by calling its remove counterpart call.
+of_parse_phandle() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when done.
 
-Fixes: d2c302b6e8b1 ("iommu/exynos: Make use of iommu_device_register interface")
-Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/20220714165550.8884-3-semen.protsenko@linaro.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 53e2822e56c7 ("rpmsg: Introduce Qualcomm SMD backend")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220511120737.57374-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/exynos-iommu.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/rpmsg/qcom_smd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index de324b4eedfe..0cdb5493a464 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -635,7 +635,7 @@ static int exynos_sysmmu_probe(struct platform_device *pdev)
+diff --git a/drivers/rpmsg/qcom_smd.c b/drivers/rpmsg/qcom_smd.c
+index a4db9f6100d2..0b1e853d8c91 100644
+--- a/drivers/rpmsg/qcom_smd.c
++++ b/drivers/rpmsg/qcom_smd.c
+@@ -1364,6 +1364,7 @@ static int qcom_smd_parse_edge(struct device *dev,
+ 		}
  
- 	ret = iommu_device_register(&data->iommu);
- 	if (ret)
--		return ret;
-+		goto err_iommu_register;
- 
- 	platform_set_drvdata(pdev, data);
- 
-@@ -662,6 +662,10 @@ static int exynos_sysmmu_probe(struct platform_device *pdev)
- 	pm_runtime_enable(dev);
- 
- 	return 0;
-+
-+err_iommu_register:
-+	iommu_device_sysfs_remove(&data->iommu);
-+	return ret;
- }
- 
- static int __maybe_unused exynos_sysmmu_suspend(struct device *dev)
+ 		edge->ipc_regmap = syscon_node_to_regmap(syscon_np);
++		of_node_put(syscon_np);
+ 		if (IS_ERR(edge->ipc_regmap)) {
+ 			ret = PTR_ERR(edge->ipc_regmap);
+ 			goto put_node;
 -- 
 2.35.1
 
