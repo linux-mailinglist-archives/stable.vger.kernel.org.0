@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9412059A1B8
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4F8359A0C1
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:34:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351935AbiHSQSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:18:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45350 "EHLO
+        id S1352071AbiHSQTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:19:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352220AbiHSQP5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:15:57 -0400
+        with ESMTP id S1352249AbiHSQQF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:16:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C8A107ACA;
-        Fri, 19 Aug 2022 08:59:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FF91108B04;
+        Fri, 19 Aug 2022 08:59:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DA046175A;
-        Fri, 19 Aug 2022 15:59:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19A59C433C1;
-        Fri, 19 Aug 2022 15:59:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C783617B6;
+        Fri, 19 Aug 2022 15:59:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30F53C433C1;
+        Fri, 19 Aug 2022 15:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924747;
-        bh=MdB3PvHOk2GIdsHwS3dREinhxK0gOcwEJ8wSaf7lMCg=;
+        s=korg; t=1660924750;
+        bh=dUu8ueBkoD9WU0J+cgsPNoGbfDPcl41stYx5RPPV8tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SFdVquZIgFUgD8cCF1MmsbKQj2wzwN6lAmm2heOMnYK4Wf8D3LXrN0qhEVHsARfa9
-         VFErkoBM+iF3yh7OX61IZ2xiZtngAgFOm/3Dw2ToFna1xGf7EyCAPrezGeiLbCbKFV
-         O6zNNf2QLYNeXRWPWUKDrcg1Z6H5q02nBCx+Bc6Q=
+        b=PMClyR2CXMIh5ggA7/szONT3KGPSPQfim4/tzqoC+JwYcU6FI6Q+rmCFvNEpaCaC5
+         /6PFOrPr66y4Hi35QYisuC4oc5C0dNaCmj8I6CDGPHDF0F0mZ40bufRKn144gaA4CO
+         r8LaJCyFLmO/BMk5weUn2xc9k+nkFno6t74ISE7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ralph Siemsen <ralph.siemsen@linaro.org>,
-        Phil Edworthy <phil.edworthy@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 269/545] clk: renesas: r9a06g032: Fix UART clkgrp bitsel
-Date:   Fri, 19 Aug 2022 17:40:39 +0200
-Message-Id: <20220819153841.365051576@linuxfoundation.org>
+Subject: [PATCH 5.10 270/545] mtd: maps: Fix refcount leak in of_flash_probe_versatile
+Date:   Fri, 19 Aug 2022 17:40:40 +0200
+Message-Id: <20220819153841.412789570@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,52 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ralph Siemsen <ralph.siemsen@linaro.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 2dee50ab9e72a3cae75b65e5934c8dd3e9bf01bc ]
+[ Upstream commit 33ec82a6d2b119938f26e5c8040ed5d92378eb54 ]
 
-There are two UART clock groups, each having a mux to select its
-upstream clock source. The register/bit definitions for accessing these
-two muxes appear to have been reversed since introduction. Correct them
-so as to match the hardware manual.
+of_find_matching_node_and_match() returns a node pointer with refcount
+incremented, we should use of_node_put() on it when not need anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 4c3d88526eba ("clk: renesas: Renesas R9A06G032 clock driver")
-
-Signed-off-by: Ralph Siemsen <ralph.siemsen@linaro.org>
-Reviewed-by: Phil Edworthy <phil.edworthy@renesas.com>
-Link: https://lore.kernel.org/r/20220518182527.1693156-1-ralph.siemsen@linaro.org
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: b0afd44bc192 ("mtd: physmap_of: add a hook for Versatile write protection")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220523140205.48625-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/r9a06g032-clocks.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/mtd/maps/physmap-versatile.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/renesas/r9a06g032-clocks.c b/drivers/clk/renesas/r9a06g032-clocks.c
-index 892e91b92f2c..245150a5484a 100644
---- a/drivers/clk/renesas/r9a06g032-clocks.c
-+++ b/drivers/clk/renesas/r9a06g032-clocks.c
-@@ -286,8 +286,8 @@ static const struct r9a06g032_clkdesc r9a06g032_clocks[] = {
- 		.name = "uart_group_012",
- 		.type = K_BITSEL,
- 		.source = 1 + R9A06G032_DIV_UART,
--		/* R9A06G032_SYSCTRL_REG_PWRCTRL_PG1_PR2 */
--		.dual.sel = ((0xec / 4) << 5) | 24,
-+		/* R9A06G032_SYSCTRL_REG_PWRCTRL_PG0_0 */
-+		.dual.sel = ((0x34 / 4) << 5) | 30,
- 		.dual.group = 0,
- 	},
- 	{
-@@ -295,8 +295,8 @@ static const struct r9a06g032_clkdesc r9a06g032_clocks[] = {
- 		.name = "uart_group_34567",
- 		.type = K_BITSEL,
- 		.source = 1 + R9A06G032_DIV_P2_PG,
--		/* R9A06G032_SYSCTRL_REG_PWRCTRL_PG0_0 */
--		.dual.sel = ((0x34 / 4) << 5) | 30,
-+		/* R9A06G032_SYSCTRL_REG_PWRCTRL_PG1_PR2 */
-+		.dual.sel = ((0xec / 4) << 5) | 24,
- 		.dual.group = 1,
- 	},
- 	D_UGATE(CLK_UART0, "clk_uart0", UART_GROUP_012, 0, 0, 0x1b2, 0x1b3, 0x1b4, 0x1b5),
+diff --git a/drivers/mtd/maps/physmap-versatile.c b/drivers/mtd/maps/physmap-versatile.c
+index ad7cd9cfaee0..297a50957356 100644
+--- a/drivers/mtd/maps/physmap-versatile.c
++++ b/drivers/mtd/maps/physmap-versatile.c
+@@ -207,6 +207,7 @@ int of_flash_probe_versatile(struct platform_device *pdev,
+ 
+ 		versatile_flashprot = (enum versatile_flashprot)devid->data;
+ 		rmap = syscon_node_to_regmap(sysnp);
++		of_node_put(sysnp);
+ 		if (IS_ERR(rmap))
+ 			return PTR_ERR(rmap);
+ 
 -- 
 2.35.1
 
