@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4985F59A272
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BAB759A270
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:37:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352954AbiHSQgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:36:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52152 "EHLO
+        id S1350375AbiHSQgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:36:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353334AbiHSQf1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:35:27 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E18122D8E;
-        Fri, 19 Aug 2022 09:07:18 -0700 (PDT)
+        with ESMTP id S1353403AbiHSQfm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:35:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09C0910445C;
+        Fri, 19 Aug 2022 09:07:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 42DA4CE26AB;
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD16AB82812;
+        Fri, 19 Aug 2022 16:07:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2399BC43470;
         Fri, 19 Aug 2022 16:07:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 126CEC433D6;
-        Fri, 19 Aug 2022 16:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925224;
-        bh=SQhOmKRkHngwaM31lG1iRhvPdLyjjRN49EdHiCQNM+U=;
+        s=korg; t=1660925227;
+        bh=11/Dr3LRJ6C8AUMn8I/rOmXtkk74gmNURapeKT1lers=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bP7F4Pf16kf8ra8juh1nlXRgNUtcdyhBj2UE4ANoQV65/rxCYFVj1YK17BX+MFa8B
-         D8B7qHzm5Jc5CPh74eJXDV+pw3E8r5KTI3kx+t6JSTwg3SR9X+iM9F7i6849pehu4W
-         zjqk+u3iECkwBNiDXlOsx3/3lnpfYDtZgsCUaZYo=
+        b=J8mkCf4kWeuWttQCz9xs/6vKhwOOP4rWvAlW/KnLsBU693IMKyu6vhC7ppqVBt6qR
+         2rl3+/hI/wJqj5T5pwxrAA4tqEyuZLNc4R5boIr2T/1eDF+j7hN7MVZEXaYeiqZRTE
+         nQa9ZVzYloerD3xm3ud+TJUnoRgVd/UHqzsRv+KY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 424/545] perf symbol: Fail to read phdr workaround
-Date:   Fri, 19 Aug 2022 17:43:14 +0200
-Message-Id: <20220819153848.390491464@linuxfoundation.org>
+Subject: [PATCH 5.10 425/545] kprobes: Forbid probing on trampoline and BPF code areas
+Date:   Fri, 19 Aug 2022 17:43:15 +0200
+Message-Id: <20220819153848.437327403@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -51,9 +45,9 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URI_HEX autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,105 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 6d518ac7be6223811ab947897273b1bbef846180 ]
+[ Upstream commit 28f6c37a2910f565b4f5960df52b2eccae28c891 ]
 
-The perf jvmti agent doesn't create program headers, in this case
-fallback on section headers as happened previously.
+kernel_text_address() treats ftrace_trampoline, kprobe_insn_slot
+and bpf_text_address as valid kprobe addresses - which is not ideal.
 
-Committer notes:
+These text areas are removable and changeable without any notification
+to kprobes, and probing on them can trigger unexpected behavior:
 
-To test this, from a public post by Ian:
+  https://lkml.org/lkml/2022/7/26/1148
 
-1) download a Java workload dacapo-9.12-MR1-bach.jar from
-https://sourceforge.net/projects/dacapobench/
+Considering that jump_label and static_call text are already
+forbiden to probe, kernel_text_address() should be replaced with
+core_kernel_text() and is_module_text_address() to check other text
+areas which are unsafe to kprobe.
 
-2) build perf such as "make -C tools/perf O=/tmp/perf NO_LIBBFD=1" it
-should detect Java and create /tmp/perf/libperf-jvmti.so
+[ mingo: Rewrote the changelog. ]
 
-3) run perf with the jvmti agent:
-
-  perf record -k 1 java -agentpath:/tmp/perf/libperf-jvmti.so -jar dacapo-9.12-MR1-bach.jar -n 10 fop
-
-4) run perf inject:
-
-  perf inject -i perf.data -o perf-injected.data -j
-
-5) run perf report
-
-  perf report -i perf-injected.data | grep org.apache.fop
-
-With this patch reverted I see lots of symbols like:
-
-     0.00%  java             jitted-388040-4656.so  [.] org.apache.fop.fo.FObj.bind(org.apache.fop.fo.PropertyList)
-
-With the patch (2d86612aacb7805f ("perf symbol: Correct address for bss
-symbols")) I see lots of:
-
-  dso__load_sym_internal: failed to find program header for symbol:
-  Lorg/apache/fop/fo/FObj;bind(Lorg/apache/fop/fo/PropertyList;)V
-  st_value: 0x40
-
-Fixes: 2d86612aacb7805f ("perf symbol: Correct address for bss symbols")
-Reviewed-by: Leo Yan <leo.yan@linaro.org>
-Signed-off-by: Ian Rogers <irogers@google.com>
-Tested-by: Leo Yan <leo.yan@linaro.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/20220731164923.691193-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 5b485629ba0d ("kprobes, extable: Identify kprobes trampolines as kernel text area")
+Fixes: 74451e66d516 ("bpf: make jited programs visible in traces")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Link: https://lore.kernel.org/r/20220801033719.228248-1-chenzhongjin@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/symbol-elf.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ kernel/kprobes.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-index 1cab29d45bfb..d8d79a9ec775 100644
---- a/tools/perf/util/symbol-elf.c
-+++ b/tools/perf/util/symbol-elf.c
-@@ -1249,16 +1249,29 @@ int dso__load_sym(struct dso *dso, struct map *map, struct symsrc *syms_ss,
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index cdea59acd66b..a397042e4660 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1640,7 +1640,8 @@ static int check_kprobe_address_safe(struct kprobe *p,
+ 	preempt_disable();
  
- 			if (elf_read_program_header(syms_ss->elf,
- 						    (u64)sym.st_value, &phdr)) {
--				pr_warning("%s: failed to find program header for "
-+				pr_debug4("%s: failed to find program header for "
- 					   "symbol: %s st_value: %#" PRIx64 "\n",
- 					   __func__, elf_name, (u64)sym.st_value);
--				continue;
-+				pr_debug4("%s: adjusting symbol: st_value: %#" PRIx64 " "
-+					"sh_addr: %#" PRIx64 " sh_offset: %#" PRIx64 "\n",
-+					__func__, (u64)sym.st_value, (u64)shdr.sh_addr,
-+					(u64)shdr.sh_offset);
-+				/*
-+				 * Fail to find program header, let's rollback
-+				 * to use shdr.sh_addr and shdr.sh_offset to
-+				 * calibrate symbol's file address, though this
-+				 * is not necessary for normal C ELF file, we
-+				 * still need to handle java JIT symbols in this
-+				 * case.
-+				 */
-+				sym.st_value -= shdr.sh_addr - shdr.sh_offset;
-+			} else {
-+				pr_debug4("%s: adjusting symbol: st_value: %#" PRIx64 " "
-+					"p_vaddr: %#" PRIx64 " p_offset: %#" PRIx64 "\n",
-+					__func__, (u64)sym.st_value, (u64)phdr.p_vaddr,
-+					(u64)phdr.p_offset);
-+				sym.st_value -= phdr.p_vaddr - phdr.p_offset;
- 			}
--			pr_debug4("%s: adjusting symbol: st_value: %#" PRIx64 " "
--				  "p_vaddr: %#" PRIx64 " p_offset: %#" PRIx64 "\n",
--				  __func__, (u64)sym.st_value, (u64)phdr.p_vaddr,
--				  (u64)phdr.p_offset);
--			sym.st_value -= phdr.p_vaddr - phdr.p_offset;
- 		}
- 
- 		demangled = demangle_sym(dso, kmodule, elf_name);
+ 	/* Ensure it is not in reserved area nor out of text */
+-	if (!kernel_text_address((unsigned long) p->addr) ||
++	if (!(core_kernel_text((unsigned long) p->addr) ||
++	    is_module_text_address((unsigned long) p->addr)) ||
+ 	    within_kprobe_blacklist((unsigned long) p->addr) ||
+ 	    jump_label_text_reserved(p->addr, p->addr) ||
+ 	    static_call_text_reserved(p->addr, p->addr) ||
 -- 
 2.35.1
 
