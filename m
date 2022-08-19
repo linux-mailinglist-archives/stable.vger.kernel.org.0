@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0344F59A3E0
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F11BB59A3B9
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:04:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353989AbiHSQtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:49:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41870 "EHLO
+        id S1354023AbiHSQuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:50:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354110AbiHSQr5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:47:57 -0400
+        with ESMTP id S1354031AbiHSQsO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:48:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06AD212C36B;
-        Fri, 19 Aug 2022 09:12:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29BCA113DCF;
+        Fri, 19 Aug 2022 09:13:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1572618BC;
-        Fri, 19 Aug 2022 16:12:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D54FAC433D6;
-        Fri, 19 Aug 2022 16:12:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9C3561831;
+        Fri, 19 Aug 2022 16:12:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7ACFC433D7;
+        Fri, 19 Aug 2022 16:12:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925550;
-        bh=5lA1HArRxp2DQ+Sz9uGv4aPDu9GIfbZKVBSUtLiEdig=;
+        s=korg; t=1660925553;
+        bh=ScgBIY3HQMCcOzB+zPgCsLe9LaGbzeQNrwHYt+biqjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o0NfroIKF2UxfFCxbXgM8rWY74y0xK08spzy61jWh6W3utPPM25FbMem2AnMfaB67
-         RUYKu/FxSLGkX5gyunjMAMxnHQuDsyS4DPnXwNaoOxTDA0DXbTvW2esJJFwu5I3lQ7
-         rj7Mdg8VU55ygUK/FUt29fcb8ApvBGI7hvrEhqHo=
+        b=k7cY8N+R2a66TyV2Z8KP0FwUm1DNmRglqyapBIDwfq6cwz0B/E6Ex3syaNYkEGfns
+         LGf6Ll8nJIoyipo8ByJufgXaaICZ7sGww5cNCrUkMYaMy08k4ZUTzGfqDoJHySqtJ+
+         9D6p8iy9CO0oVLUj189BCuTKcmH9jL7z/YMVTuXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.10 526/545] dm raid: fix address sanitizer warning in raid_status
-Date:   Fri, 19 Aug 2022 17:44:56 +0200
-Message-Id: <20220819153853.100177933@linuxfoundation.org>
+        stable@vger.kernel.org, Zhenpeng Lin <zplin@u.northwestern.edu>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Kamal Mostafa <kamal@canonical.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 527/545] net_sched: cls_route: remove from list when handle is 0
+Date:   Fri, 19 Aug 2022 17:44:57 +0200
+Message-Id: <20220819153853.141906769@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -53,63 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit 1fbeea217d8f297fe0e0956a1516d14ba97d0396 upstream.
+commit 9ad36309e2719a884f946678e0296be10f0bb4c1 upstream.
 
-There is this warning when using a kernel with the address sanitizer
-and running this testsuite:
-https://gitlab.com/cki-project/kernel-tests/-/tree/main/storage/swraid/scsi_raid
+When a route filter is replaced and the old filter has a 0 handle, the old
+one won't be removed from the hashtable, while it will still be freed.
 
-==================================================================
-BUG: KASAN: slab-out-of-bounds in raid_status+0x1747/0x2820 [dm_raid]
-Read of size 4 at addr ffff888079d2c7e8 by task lvcreate/13319
-CPU: 0 PID: 13319 Comm: lvcreate Not tainted 5.18.0-0.rc3.<snip> #1
-Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
-Call Trace:
- <TASK>
- dump_stack_lvl+0x6a/0x9c
- print_address_description.constprop.0+0x1f/0x1e0
- print_report.cold+0x55/0x244
- kasan_report+0xc9/0x100
- raid_status+0x1747/0x2820 [dm_raid]
- dm_ima_measure_on_table_load+0x4b8/0xca0 [dm_mod]
- table_load+0x35c/0x630 [dm_mod]
- ctl_ioctl+0x411/0x630 [dm_mod]
- dm_ctl_ioctl+0xa/0x10 [dm_mod]
- __x64_sys_ioctl+0x12a/0x1a0
- do_syscall_64+0x5b/0x80
+The test was there since before commit 1109c00547fc ("net: sched: RCU
+cls_route"), when a new filter was not allocated when there was an old one.
+The old filter was reused and the reinserting would only be necessary if an
+old filter was replaced. That was still wrong for the same case where the
+old handle was 0.
 
-The warning is caused by reading conf->max_nr_stripes in raid_status. The
-code in raid_status reads mddev->private, casts it to struct r5conf and
-reads the entry max_nr_stripes.
+Remove the old filter from the list independently from its handle value.
 
-However, if we have different raid type than 4/5/6, mddev->private
-doesn't point to struct r5conf; it may point to struct r0conf, struct
-r1conf, struct r10conf or struct mpconf. If we cast a pointer to one
-of these structs to struct r5conf, we will be reading invalid memory
-and KASAN warns about it.
+This fixes CVE-2022-2588, also reported as ZDI-CAN-17440.
 
-Fix this bug by reading struct r5conf only if raid type is 4, 5 or 6.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Reported-by: Zhenpeng Lin <zplin@u.northwestern.edu>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Reviewed-by: Kamal Mostafa <kamal@canonical.com>
+Cc: <stable@vger.kernel.org>
+Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Link: https://lore.kernel.org/r/20220809170518.164662-1-cascardo@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-raid.c |    2 +-
+ net/sched/cls_route.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-raid.c
-+++ b/drivers/md/dm-raid.c
-@@ -3514,7 +3514,7 @@ static void raid_status(struct dm_target
- {
- 	struct raid_set *rs = ti->private;
- 	struct mddev *mddev = &rs->md;
--	struct r5conf *conf = mddev->private;
-+	struct r5conf *conf = rs_is_raid456(rs) ? mddev->private : NULL;
- 	int i, max_nr_stripes = conf ? conf->max_nr_stripes : 0;
- 	unsigned long recovery;
- 	unsigned int raid_param_cnt = 1; /* at least 1 for chunksize */
+--- a/net/sched/cls_route.c
++++ b/net/sched/cls_route.c
+@@ -526,7 +526,7 @@ static int route4_change(struct net *net
+ 	rcu_assign_pointer(f->next, f1);
+ 	rcu_assign_pointer(*fp, f);
+ 
+-	if (fold && fold->handle && f->handle != fold->handle) {
++	if (fold) {
+ 		th = to_hash(fold->handle);
+ 		h = from_hash(fold->handle >> 16);
+ 		b = rtnl_dereference(head->table[th]);
 
 
