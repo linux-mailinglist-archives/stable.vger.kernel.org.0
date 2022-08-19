@@ -2,169 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64DFD599A04
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 12:43:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5EE35999D7
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 12:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348413AbiHSKlu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 06:41:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35628 "EHLO
+        id S1348275AbiHSKji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 06:39:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348138AbiHSKls (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 06:41:48 -0400
-Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4659DF4CA6;
-        Fri, 19 Aug 2022 03:41:47 -0700 (PDT)
-Received: from pps.filterd (m0250811.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27J94Icf013162;
-        Fri, 19 Aug 2022 10:39:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=PPS06212021;
- bh=wpwRBKCANBd8VJRSiuQX4m9UKQRZ3RxOQTTsWgM9a5g=;
- b=WfZ9Gno8Nctu4ny0kQDdVsgI+Bjm491Qi+8hvgw7Gx22mgKnh3oFwENWcREOS7US+uF5
- 7IYUmJ77EWzfvL9J5fpB12IrUH9vVoZKwOAdxXSL9GtR5UxfMVNhE4x6B38wJMWdSref
- MTZuhk5/v8EbKM13yRQfLmi9j/1l7mHOt1dWhvnmW5CmKKXXRZnGAMCRbBx0o5uEpM0g
- rZRIOpD4cELzEFuWpyWIHE+tarmF82q1SOEMMHN5YbFnu/a2cgZWzPLAwgxGXeVETdNQ
- qNAOJlf09h9l1JY6c+ZOUIVvyJxF0yxZI6loD0tPQLxCai3GJcBbbVdnrYZJdwhJwgWG lA== 
-Received: from ala-exchng01.corp.ad.wrs.com (unknown-82-252.windriver.com [147.11.82.252])
-        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3hx160w9pr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-        Fri, 19 Aug 2022 10:39:09 +0000
-Received: from otp-dpanait-l2.corp.ad.wrs.com (128.224.125.191) by
- ala-exchng01.corp.ad.wrs.com (147.11.82.252) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.12; Fri, 19 Aug 2022 03:39:05 -0700
-From:   Dragos-Marian Panait <dragos.panait@windriver.com>
-To:     <stable@vger.kernel.org>
-CC:     Pavel Skripkin <paskripkin@gmail.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Vasanthakumar Thiagarajan <vasanth@atheros.com>,
-        Sujith <Sujith.Manoharan@atheros.com>,
-        Senthil Balasubramanian <senthilkumar@atheros.com>,
-        "John W . Linville" <linville@tuxdriver.com>,
-        <linux-wireless@vger.kernel.org>, <netdev@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH 5.10 1/1] ath9k: fix use-after-free in ath9k_hif_usb_rx_cb
-Date:   Fri, 19 Aug 2022 13:38:52 +0300
-Message-ID: <20220819103852.902332-2-dragos.panait@windriver.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220819103852.902332-1-dragos.panait@windriver.com>
-References: <20220819103852.902332-1-dragos.panait@windriver.com>
+        with ESMTP id S1348396AbiHSKjh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 06:39:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68DDFC578A
+        for <stable@vger.kernel.org>; Fri, 19 Aug 2022 03:39:36 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA930616F9
+        for <stable@vger.kernel.org>; Fri, 19 Aug 2022 10:39:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC438C433D7;
+        Fri, 19 Aug 2022 10:39:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1660905575;
+        bh=ynYMGSNSyCqNRPoz/VtI037SmQDAlMGxmUEUDpSwmOU=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Iz+nNKRS5xT09La4xsdPALTGUpop6o+xVwNFrsvvqx1Zsr8hbzT6YLlHieSb7bpbu
+         GNyCduIgJ7hqc9DlhHIieg5Mj1SmTf0iZZDniMaOrrEyyinW0MB41wydKnwJVHj2z1
+         adh1AgoTaSZE3y4M6Y5IKsBklaQUlKAABCxrmg6A=
+Subject: FAILED: patch "[PATCH] tee: add overflow check in register_shm_helper()" failed to apply to 4.14-stable tree
+To:     jens.wiklander@linaro.org, ch.anirban00727@gmail.com,
+        debdeep.mukhopadhyay@gmail.com, jerome.forissier@linaro.org,
+        neelam.nimish@gmail.com, torvalds@linux-foundation.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 19 Aug 2022 12:39:27 +0200
+Message-ID: <166090556711344@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [128.224.125.191]
-X-ClientProxiedBy: ala-exchng01.corp.ad.wrs.com (147.11.82.252) To
- ala-exchng01.corp.ad.wrs.com (147.11.82.252)
-X-Proofpoint-ORIG-GUID: e--IdYYXg4cGUhC8OnhQIF-E7EyH-arn
-X-Proofpoint-GUID: e--IdYYXg4cGUhC8OnhQIF-E7EyH-arn
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-19_06,2022-08-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=977 lowpriorityscore=0 malwarescore=0 mlxscore=0 phishscore=0
- spamscore=0 adultscore=0 bulkscore=0 suspectscore=0 impostorscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2208190041
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 0ac4827f78c7ffe8eef074bc010e7e34bc22f533 upstream.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Syzbot reported use-after-free Read in ath9k_hif_usb_rx_cb() [0]. The
-problem was in incorrect htc_handle->drv_priv initialization.
+thanks,
 
-Probable call trace which can trigger use-after-free:
+greg k-h
 
-ath9k_htc_probe_device()
-  /* htc_handle->drv_priv = priv; */
-  ath9k_htc_wait_for_target()      <--- Failed
-  ieee80211_free_hw()		   <--- priv pointer is freed
+------------------ original commit in Linus's tree ------------------
 
-<IRQ>
-...
-ath9k_hif_usb_rx_cb()
-  ath9k_hif_usb_rx_stream()
-   RX_STAT_INC()		<--- htc_handle->drv_priv access
+From 573ae4f13f630d6660008f1974c0a8a29c30e18a Mon Sep 17 00:00:00 2001
+From: Jens Wiklander <jens.wiklander@linaro.org>
+Date: Thu, 18 Aug 2022 13:08:59 +0200
+Subject: [PATCH] tee: add overflow check in register_shm_helper()
 
-In order to not add fancy protection for drv_priv we can move
-htc_handle->drv_priv initialization at the end of the
-ath9k_htc_probe_device() and add helper macro to make
-all *_STAT_* macros NULL safe, since syzbot has reported related NULL
-deref in that macros [1]
+With special lengths supplied by user space, register_shm_helper() has
+an integer overflow when calculating the number of pages covered by a
+supplied user space memory region.
 
-Link: https://syzkaller.appspot.com/bug?id=6ead44e37afb6866ac0c7dd121b4ce07cb665f60 [0]
-Link: https://syzkaller.appspot.com/bug?id=b8101ffcec107c0567a0cd8acbbacec91e9ee8de [1]
-Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
-Reported-and-tested-by: syzbot+03110230a11411024147@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+c6dde1f690b60e0b9fbe@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/d57bbedc857950659bfacac0ab48790c1eda00c8.1655145743.git.paskripkin@gmail.com
-Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
----
- drivers/net/wireless/ath/ath9k/htc.h          | 10 +++++-----
- drivers/net/wireless/ath/ath9k/htc_drv_init.c |  3 ++-
- 2 files changed, 7 insertions(+), 6 deletions(-)
+This causes internal_get_user_pages_fast() a helper function of
+pin_user_pages_fast() to do a NULL pointer dereference:
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc.h b/drivers/net/wireless/ath/ath9k/htc.h
-index 6b45e63fae4b..e3d546ef71dd 100644
---- a/drivers/net/wireless/ath/ath9k/htc.h
-+++ b/drivers/net/wireless/ath/ath9k/htc.h
-@@ -327,11 +327,11 @@ static inline struct ath9k_htc_tx_ctl *HTC_SKB_CB(struct sk_buff *skb)
- }
+  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
+  Modules linked in:
+  CPU: 1 PID: 173 Comm: optee_example_a Not tainted 5.19.0 #11
+  Hardware name: QEMU QEMU Virtual Machine, BIOS 0.0.0 02/06/2015
+  pc : internal_get_user_pages_fast+0x474/0xa80
+  Call trace:
+   internal_get_user_pages_fast+0x474/0xa80
+   pin_user_pages_fast+0x24/0x4c
+   register_shm_helper+0x194/0x330
+   tee_shm_register_user_buf+0x78/0x120
+   tee_ioctl+0xd0/0x11a0
+   __arm64_sys_ioctl+0xa8/0xec
+   invoke_syscall+0x48/0x114
+
+Fix this by adding an an explicit call to access_ok() in
+tee_shm_register_user_buf() to catch an invalid user space address
+early.
+
+Fixes: 033ddf12bcf5 ("tee: add register user memory")
+Cc: stable@vger.kernel.org
+Reported-by: Nimish Mishra <neelam.nimish@gmail.com>
+Reported-by: Anirban Chakraborty <ch.anirban00727@gmail.com>
+Reported-by: Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>
+Suggested-by: Jerome Forissier <jerome.forissier@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
+index f2b1bcefcadd..1175f3a46859 100644
+--- a/drivers/tee/tee_shm.c
++++ b/drivers/tee/tee_shm.c
+@@ -326,6 +326,9 @@ struct tee_shm *tee_shm_register_user_buf(struct tee_context *ctx,
+ 	void *ret;
+ 	int id;
  
- #ifdef CONFIG_ATH9K_HTC_DEBUGFS
--
--#define TX_STAT_INC(c) (hif_dev->htc_handle->drv_priv->debug.tx_stats.c++)
--#define TX_STAT_ADD(c, a) (hif_dev->htc_handle->drv_priv->debug.tx_stats.c += a)
--#define RX_STAT_INC(c) (hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c++)
--#define RX_STAT_ADD(c, a) (hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c += a)
-+#define __STAT_SAFE(expr) (hif_dev->htc_handle->drv_priv ? (expr) : 0)
-+#define TX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c++)
-+#define TX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c += a)
-+#define RX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c++)
-+#define RX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c += a)
- #define CAB_STAT_INC   priv->debug.tx_stats.cab_queued++
- 
- #define TX_QSTAT_INC(q) (priv->debug.tx_stats.queue_stats[q]++)
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-index ff61ae34ecdf..07ac88fb1c57 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-@@ -944,7 +944,6 @@ int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
- 	priv->hw = hw;
- 	priv->htc = htc_handle;
- 	priv->dev = dev;
--	htc_handle->drv_priv = priv;
- 	SET_IEEE80211_DEV(hw, priv->dev);
- 
- 	ret = ath9k_htc_wait_for_target(priv);
-@@ -965,6 +964,8 @@ int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
- 	if (ret)
- 		goto err_init;
- 
-+	htc_handle->drv_priv = priv;
++	if (!access_ok((void __user *)addr, length))
++		return ERR_PTR(-EFAULT);
 +
- 	return 0;
- 
- err_init:
--- 
-2.37.1
+ 	mutex_lock(&teedev->mutex);
+ 	id = idr_alloc(&teedev->idr, NULL, 1, 0, GFP_KERNEL);
+ 	mutex_unlock(&teedev->mutex);
 
