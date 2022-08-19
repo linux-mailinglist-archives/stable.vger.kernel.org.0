@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C85E959A15E
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:35:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C365A599FC6
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351742AbiHSQCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:02:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57626 "EHLO
+        id S1351142AbiHSQDR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:03:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350881AbiHSP7l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:59:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F4610958F;
-        Fri, 19 Aug 2022 08:52:12 -0700 (PDT)
+        with ESMTP id S1351248AbiHSQBE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:01:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9459DB4428;
+        Fri, 19 Aug 2022 08:52:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8A07B82811;
-        Fri, 19 Aug 2022 15:52:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F5B6C433D7;
-        Fri, 19 Aug 2022 15:52:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0900061714;
+        Fri, 19 Aug 2022 15:52:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10C78C433D6;
+        Fri, 19 Aug 2022 15:52:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924330;
-        bh=16N7gqoDhgtgU26/uFo+Xnm3wcLCzPvXEWtJM8/2n9s=;
+        s=korg; t=1660924333;
+        bh=mxljtDHMst5iwqEorc0AT/oDFsf1xLqdqqSlxIcDaPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mpMxrDbpi3tmPlau5cBsR5QJP8+rt4uhdkWzQWQ9fmxXNoHqhRwRfJMDVzltDE9P2
-         SR3biK1FXBPlDU9lvfAF3FAGXL1Q1byt5VVWaemRx7jWRodPfPJsn3dAQAJcX/bewd
-         YY7ydftqmEiIzxdMtuYNw9BW7+rfzGB/x+2Pp/n8=
+        b=O0YN4qs4aQC0V/c+ccIIix1VM+cTTY9VHSlraVJQlepE3jRWhazoS/fq5hFjbsejp
+         3MHRlTAqGTm0Hkglty4XhYR8unIVrhqFrHqd/BtqyUPTHjTIruqg0OO8+LHDwqICuK
+         lidq2mifO3Ug7uhlh/e9s+UwKx7G9so132MxalOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 134/545] ARM: dts: qcom: pm8841: add required thermal-sensor-cells
-Date:   Fri, 19 Aug 2022 17:38:24 +0200
-Message-Id: <20220819153835.340843211@linuxfoundation.org>
+Subject: [PATCH 5.10 135/545] bus: hisi_lpc: fix missing platform_device_put() in hisi_lpc_acpi_probe()
+Date:   Fri, 19 Aug 2022 17:38:25 +0200
+Message-Id: <20220819153835.383298485@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,33 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit e2759fa0676c9a32bbddb9aff955b54bb35066ad ]
+[ Upstream commit 54872fea6a5ac967ec2272aea525d1438ac6735a ]
 
-The PM8841 temperature sensor has to define thermal-sensor-cells.
+In error case in hisi_lpc_acpi_probe() after calling platform_device_add(),
+hisi_lpc_acpi_remove() can't release the failed 'pdev', so it will be leak,
+call platform_device_put() to fix this problem.
+I'v constructed this error case and tested this patch on D05 board.
 
-Fixes: dab8134ca072 ("ARM: dts: qcom: Add PM8841 functions device nodes")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220608112702.80873-2-krzysztof.kozlowski@linaro.org
+Fixes: 99c0228d6ff1 ("HISI LPC: Re-Add ACPI child enumeration support")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-pm8841.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/bus/hisi_lpc.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom-pm8841.dtsi b/arch/arm/boot/dts/qcom-pm8841.dtsi
-index 2fd59c440903..c73e5b149ac5 100644
---- a/arch/arm/boot/dts/qcom-pm8841.dtsi
-+++ b/arch/arm/boot/dts/qcom-pm8841.dtsi
-@@ -25,6 +25,7 @@ temp-alarm@2400 {
- 			compatible = "qcom,spmi-temp-alarm";
- 			reg = <0x2400>;
- 			interrupts = <4 0x24 0 IRQ_TYPE_EDGE_RISING>;
-+			#thermal-sensor-cells = <0>;
- 		};
- 	};
+diff --git a/drivers/bus/hisi_lpc.c b/drivers/bus/hisi_lpc.c
+index 378f5d62a991..e7eaa8784fee 100644
+--- a/drivers/bus/hisi_lpc.c
++++ b/drivers/bus/hisi_lpc.c
+@@ -503,13 +503,13 @@ static int hisi_lpc_acpi_probe(struct device *hostdev)
+ {
+ 	struct acpi_device *adev = ACPI_COMPANION(hostdev);
+ 	struct acpi_device *child;
++	struct platform_device *pdev;
+ 	int ret;
  
+ 	/* Only consider the children of the host */
+ 	list_for_each_entry(child, &adev->children, node) {
+ 		const char *hid = acpi_device_hid(child);
+ 		const struct hisi_lpc_acpi_cell *cell;
+-		struct platform_device *pdev;
+ 		const struct resource *res;
+ 		bool found = false;
+ 		int num_res;
+@@ -571,22 +571,24 @@ static int hisi_lpc_acpi_probe(struct device *hostdev)
+ 
+ 		ret = platform_device_add_resources(pdev, res, num_res);
+ 		if (ret)
+-			goto fail;
++			goto fail_put_device;
+ 
+ 		ret = platform_device_add_data(pdev, cell->pdata,
+ 					       cell->pdata_size);
+ 		if (ret)
+-			goto fail;
++			goto fail_put_device;
+ 
+ 		ret = platform_device_add(pdev);
+ 		if (ret)
+-			goto fail;
++			goto fail_put_device;
+ 
+ 		acpi_device_set_enumerated(child);
+ 	}
+ 
+ 	return 0;
+ 
++fail_put_device:
++	platform_device_put(pdev);
+ fail:
+ 	hisi_lpc_acpi_remove(hostdev);
+ 	return ret;
 -- 
 2.35.1
 
