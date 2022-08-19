@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D366759A57E
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E89D659A59E
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349906AbiHSSPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 14:15:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45488 "EHLO
+        id S1349972AbiHSSPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 14:15:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350573AbiHSSP2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 14:15:28 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA0F92DC6;
-        Fri, 19 Aug 2022 11:14:40 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id 12so4296322pga.1;
-        Fri, 19 Aug 2022 11:14:40 -0700 (PDT)
+        with ESMTP id S1350621AbiHSSPa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 14:15:30 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45E113CDA;
+        Fri, 19 Aug 2022 11:14:41 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id bf22so5348164pjb.4;
+        Fri, 19 Aug 2022 11:14:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc;
-        bh=zyEmZ6pSXSCb2FIby9CbhEWVxXTomK0HClRyYX/LZAo=;
-        b=cSUzeR5nplM760GgjUDWnSXnwFRwPvLZKSwVljnDX0dNWn8DuxvBoygPVuyXWuel93
-         rZvoXpicV0O7O8cNGRCB2IIPn60X//26ORwXwpoI44hA/SyIagbVehDrWNvx5bwSCnyS
-         WaK0Pw6nWsoSpS5fTH2PnDBEdKMEvWmjUYHgyW8L9a8d9zJd/2fxX+HqqdvFZLu3hpY/
-         H0mdiPVvWQE/2/MAF6SUbgQGB10WszZjpNPdJ5qIqR+JWXge4gdxI+/pHuGFrITLSiUN
-         GgUxPhPATekp6ZKxtcy+DRqphMaIGfncrIpRfrxQR6PcogzXeAQUZM4QukxWvWLpHYhM
-         7/Sw==
+        bh=C5lgC4kpzep5Mv+Wwyxx7oLNV95NU6fFpgEONgVs94g=;
+        b=Gu8mk3GV1O5QAtdWHeCnTwIteSntblr7LMikhynBNeB8XDNUlzaDyAM+yufdgudeJc
+         64PYVZlfg0tAcvU3cN5TufQcAFl5GZuqwbgsHOzwCwFE8rhCJMtaIH2oo13PuHhiTsjH
+         VcjJhrJFwQZevY6mEJQRUXDvEMhGkewAp6r/Ui2uqmvzoQKknqaL6plioJlhNBdr/aSJ
+         suWRxbphigdSKYlSxLXNCAQJiNcrZPBZZ5N1w+ki/j61gbSAdqlKoOY1klMI2JdrCxAJ
+         Zh4Mt3mT04y6xzd3sH8edcJjlo4YTOOpIdJTy7dT+236QM5ngfUOaJOvowG48tx9J3i6
+         ubqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=zyEmZ6pSXSCb2FIby9CbhEWVxXTomK0HClRyYX/LZAo=;
-        b=gJEEwiCY1nCG9EbuV28e0okP0X7BtUgd1zTW3JkOJ2wOA+/hQTR/NyBsAz/m3kKsHe
-         8IvA3OhKix+Oxh9PUCRrrB+g0qS2x45PggUFbbmtrYtUXLe+cmV/d4WAVQkGr6e7I1kB
-         81SiW0atVNQimVR2oLXCWFFDo14zHvvkFJaqR4vB6mnt9BEEnK1L9Gr02Y0vyzoZtf9M
-         gsSpcJFEek76KXBtG47DjPAJOMbadKrzQmhrIujLELIFS25CCZ/oq/0SZn1J/ZQyr85n
-         /zpICwuIxbM4yplrbjYWsutwaxcA9ocTP4x4V61a0lQAy5+494Sds+UKH9o/ODNVY8r8
-         4XjQ==
-X-Gm-Message-State: ACgBeo2DC7uTEPUu71QZCX9LKu2rDz9rYFvKoR7fepYC6ozo4digMs3H
-        X3zvl2atTjZnq5OYgX6jI/YwuORGNOf00Q==
-X-Google-Smtp-Source: AA6agR46jbe9Ef5h6xd8p/t2t1VjRmZR/p7vyOA4Il6KRg3u1FEuJcg8NuBJAkS8ap2cfKDUCSuNSQ==
-X-Received: by 2002:a63:64a:0:b0:429:8c1a:81a2 with SMTP id 71-20020a63064a000000b004298c1a81a2mr6814032pgg.503.1660932879803;
-        Fri, 19 Aug 2022 11:14:39 -0700 (PDT)
+        bh=C5lgC4kpzep5Mv+Wwyxx7oLNV95NU6fFpgEONgVs94g=;
+        b=ruFjAS+FJ5Tp1rHi9NY7y1f3HBIwmEFdgkV/mKXG1zqMgwF+uKqR+po92mUecwsdXe
+         9Id1LxaYF++QHIDcSXCBVHazKkNVAk7U2DnsgejhyRcL9vL1dYdqhBNrnBmmmqsvF+jS
+         VRMCddmqNYxd+yWS84I2gRkLcumpW8lgJ6ZMRIjC/Be/DabGgu90OkFkvDWKr6NeG1UD
+         MSwQ0JozzP78C0vkAQb4RL/pI7QyqEDYzMMto2+ViJpOPED6NKqeHWoSDFXvvmeL4Wkw
+         LE5OziFseepBfUdAc8l2LVgeHYFgB1XKVL4sSsWKJj5bCfqJIseTkZuM9Aa35OQEeCIj
+         2KCA==
+X-Gm-Message-State: ACgBeo19XZxx4iolIZHTneLoCVn406BXJy5LGz5zD68tFw2UpG9QfOFS
+        2IcSuiOnmquqwGKYebYPK52OH5MVV9b/hQ==
+X-Google-Smtp-Source: AA6agR6KYRhLTxVu+2c1A98fMP6mc4F8Wn23lN3HXoqfyRvUKMCz3DJ9m2N7uwjwbWZT1YzmX6VFbw==
+X-Received: by 2002:a17:90a:e586:b0:1fa:d28b:ab9b with SMTP id g6-20020a17090ae58600b001fad28bab9bmr8225271pjz.47.1660932880810;
+        Fri, 19 Aug 2022 11:14:40 -0700 (PDT)
 Received: from lrumancik.svl.corp.google.com ([2620:15c:2d4:203:3995:f9b1:1e6b:e373])
-        by smtp.gmail.com with ESMTPSA id t14-20020a170902e84e00b0015ee60ef65bsm3460918plg.260.2022.08.19.11.14.38
+        by smtp.gmail.com with ESMTPSA id t14-20020a170902e84e00b0015ee60ef65bsm3460918plg.260.2022.08.19.11.14.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Aug 2022 11:14:39 -0700 (PDT)
+        Fri, 19 Aug 2022 11:14:40 -0700 (PDT)
 From:   Leah Rumancik <leah.rumancik@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     linux-xfs@vger.kernel.org, amir73il@gmail.com,
         "Darrick J. Wong" <djwong@kernel.org>,
         Dave Chinner <dchinner@redhat.com>,
         Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 2/9] xfs: reserve quota for dir expansion when linking/unlinking files
-Date:   Fri, 19 Aug 2022 11:14:24 -0700
-Message-Id: <20220819181431.4113819-3-leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 3/9] xfs: reserve quota for target dir expansion when renaming files
+Date:   Fri, 19 Aug 2022 11:14:25 -0700
+Message-Id: <20220819181431.4113819-4-leah.rumancik@gmail.com>
 X-Mailer: git-send-email 2.37.1.595.g718a3a8f04-goog
 In-Reply-To: <20220819181431.4113819-1-leah.rumancik@gmail.com>
 References: <20220819181431.4113819-1-leah.rumancik@gmail.com>
@@ -73,243 +73,106 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Darrick J. Wong" <djwong@kernel.org>
 
-[ Upstream commit 871b9316e7a778ff97bdc34fdb2f2977f616651d ]
+[ Upstream commit 41667260bc84db4dfe566e3f6ab6da5293d60d8d ]
 
-XFS does not reserve quota for directory expansion when linking or
-unlinking children from a directory.  This means that we don't reject
-the expansion with EDQUOT when we're at or near a hard limit, which
-means that unprivileged userspace can use link()/unlink() to exceed
+XFS does not reserve quota for directory expansion when renaming
+children into a directory.  This means that we don't reject the
+expansion with EDQUOT when we're at or near a hard limit, which means
+that unprivileged userspace can use rename() to exceed quota.
+
+Rename operations don't always expand the target directory, and we allow
+a rename to proceed with no space reservation if we don't need to add a
+block to the target directory to handle the addition.  Moreover, the
+unlink operation on the source directory generally does not expand the
+directory (you'd have to free a block and then cause a btree split) and
+it's probably of little consequence to leave the corner case that
+renaming a file out of a directory can increase its size.
+
+As with link and unlink, there is a further bug in that we do not
+trigger the blockgc workers to try to clear space when we're out of
 quota.
 
-The fix for this is nuanced -- link operations don't always expand the
-directory, and we allow a link to proceed with no space reservation if
-we don't need to add a block to the directory to handle the addition.
-Unlink operations generally do not expand the directory (you'd have to
-free a block and then cause a btree split) and we can defer the
-directory block freeing if there is no space reservation.
-
-Moreover, there is a further bug in that we do not trigger the blockgc
-workers to try to clear space when we're out of quota.
-
-To fix both cases, create a new xfs_trans_alloc_dir function that
-allocates the transaction, locks and joins the inodes, and reserves
-quota for the directory.  If there isn't sufficient space or quota,
-we'll switch the caller to reservationless mode.  This should prevent
-quota usage overruns with the least restriction in functionality.
+Because rename is its own special tricky animal, we'll patch xfs_rename
+directly to reserve quota to the rename transaction.  We'll leave
+cleaning up the rest of xfs_rename for the metadata directory tree
+patchset.
 
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
 Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/xfs_inode.c | 46 +++++++++----------------
- fs/xfs/xfs_trans.c | 86 ++++++++++++++++++++++++++++++++++++++++++++++
- fs/xfs/xfs_trans.h |  3 ++
- 3 files changed, 106 insertions(+), 29 deletions(-)
+ fs/xfs/xfs_inode.c | 33 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 32 insertions(+), 1 deletion(-)
 
 diff --git a/fs/xfs/xfs_inode.c b/fs/xfs/xfs_inode.c
-index c19f3ca605af..f4dec7f6c6d0 100644
+index f4dec7f6c6d0..fb7a97cdf99f 100644
 --- a/fs/xfs/xfs_inode.c
 +++ b/fs/xfs/xfs_inode.c
-@@ -1223,7 +1223,7 @@ xfs_link(
- {
- 	xfs_mount_t		*mp = tdp->i_mount;
- 	xfs_trans_t		*tp;
+@@ -3103,7 +3103,8 @@ xfs_rename(
+ 	bool			new_parent = (src_dp != target_dp);
+ 	bool			src_is_directory = S_ISDIR(VFS_I(src_ip)->i_mode);
+ 	int			spaceres;
 -	int			error;
++	bool			retried = false;
 +	int			error, nospace_error = 0;
- 	int			resblks;
  
- 	trace_xfs_link(tdp, target_name);
-@@ -1242,19 +1242,11 @@ xfs_link(
- 		goto std_return;
+ 	trace_xfs_rename(src_dp, target_dp, src_name, target_name);
  
- 	resblks = XFS_LINK_SPACE_RES(mp, target_name->len);
--	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_link, resblks, 0, 0, &tp);
--	if (error == -ENOSPC) {
--		resblks = 0;
--		error = xfs_trans_alloc(mp, &M_RES(mp)->tr_link, 0, 0, 0, &tp);
--	}
-+	error = xfs_trans_alloc_dir(tdp, &M_RES(mp)->tr_link, sip, &resblks,
-+			&tp, &nospace_error);
- 	if (error)
- 		goto std_return;
+@@ -3127,9 +3128,12 @@ xfs_rename(
+ 	xfs_sort_for_rename(src_dp, target_dp, src_ip, target_ip, wip,
+ 				inodes, &num_inodes);
  
--	xfs_lock_two_inodes(sip, XFS_ILOCK_EXCL, tdp, XFS_ILOCK_EXCL);
--
--	xfs_trans_ijoin(tp, sip, XFS_ILOCK_EXCL);
--	xfs_trans_ijoin(tp, tdp, XFS_ILOCK_EXCL);
--
- 	error = xfs_iext_count_may_overflow(tdp, XFS_DATA_FORK,
- 			XFS_IEXT_DIR_MANIP_CNT(mp));
- 	if (error)
-@@ -1312,6 +1304,8 @@ xfs_link(
-  error_return:
- 	xfs_trans_cancel(tp);
-  std_return:
++retry:
++	nospace_error = 0;
+ 	spaceres = XFS_RENAME_SPACE_RES(mp, target_name->len);
+ 	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_rename, spaceres, 0, 0, &tp);
+ 	if (error == -ENOSPC) {
++		nospace_error = error;
+ 		spaceres = 0;
+ 		error = xfs_trans_alloc(mp, &M_RES(mp)->tr_rename, 0, 0, 0,
+ 				&tp);
+@@ -3183,6 +3187,31 @@ xfs_rename(
+ 					target_dp, target_name, target_ip,
+ 					spaceres);
+ 
++	/*
++	 * Try to reserve quota to handle an expansion of the target directory.
++	 * We'll allow the rename to continue in reservationless mode if we hit
++	 * a space usage constraint.  If we trigger reservationless mode, save
++	 * the errno if there isn't any free space in the target directory.
++	 */
++	if (spaceres != 0) {
++		error = xfs_trans_reserve_quota_nblks(tp, target_dp, spaceres,
++				0, false);
++		if (error == -EDQUOT || error == -ENOSPC) {
++			if (!retried) {
++				xfs_trans_cancel(tp);
++				xfs_blockgc_free_quota(target_dp, 0);
++				retried = true;
++				goto retry;
++			}
++
++			nospace_error = error;
++			spaceres = 0;
++			error = 0;
++		}
++		if (error)
++			goto out_trans_cancel;
++	}
++
+ 	/*
+ 	 * Check for expected errors before we dirty the transaction
+ 	 * so we can return an error without a transaction abort.
+@@ -3429,6 +3458,8 @@ xfs_rename(
+ out_release_wip:
+ 	if (wip)
+ 		xfs_irele(wip);
 +	if (error == -ENOSPC && nospace_error)
 +		error = nospace_error;
  	return error;
  }
  
-@@ -2761,6 +2755,7 @@ xfs_remove(
- 	xfs_mount_t		*mp = dp->i_mount;
- 	xfs_trans_t             *tp = NULL;
- 	int			is_dir = S_ISDIR(VFS_I(ip)->i_mode);
-+	int			dontcare;
- 	int                     error = 0;
- 	uint			resblks;
- 
-@@ -2778,31 +2773,24 @@ xfs_remove(
- 		goto std_return;
- 
- 	/*
--	 * We try to get the real space reservation first,
--	 * allowing for directory btree deletion(s) implying
--	 * possible bmap insert(s).  If we can't get the space
--	 * reservation then we use 0 instead, and avoid the bmap
--	 * btree insert(s) in the directory code by, if the bmap
--	 * insert tries to happen, instead trimming the LAST
--	 * block from the directory.
-+	 * We try to get the real space reservation first, allowing for
-+	 * directory btree deletion(s) implying possible bmap insert(s).  If we
-+	 * can't get the space reservation then we use 0 instead, and avoid the
-+	 * bmap btree insert(s) in the directory code by, if the bmap insert
-+	 * tries to happen, instead trimming the LAST block from the directory.
-+	 *
-+	 * Ignore EDQUOT and ENOSPC being returned via nospace_error because
-+	 * the directory code can handle a reservationless update and we don't
-+	 * want to prevent a user from trying to free space by deleting things.
- 	 */
- 	resblks = XFS_REMOVE_SPACE_RES(mp);
--	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_remove, resblks, 0, 0, &tp);
--	if (error == -ENOSPC) {
--		resblks = 0;
--		error = xfs_trans_alloc(mp, &M_RES(mp)->tr_remove, 0, 0, 0,
--				&tp);
--	}
-+	error = xfs_trans_alloc_dir(dp, &M_RES(mp)->tr_remove, ip, &resblks,
-+			&tp, &dontcare);
- 	if (error) {
- 		ASSERT(error != -ENOSPC);
- 		goto std_return;
- 	}
- 
--	xfs_lock_two_inodes(dp, XFS_ILOCK_EXCL, ip, XFS_ILOCK_EXCL);
--
--	xfs_trans_ijoin(tp, dp, XFS_ILOCK_EXCL);
--	xfs_trans_ijoin(tp, ip, XFS_ILOCK_EXCL);
--
- 	/*
- 	 * If we're removing a directory perform some additional validation.
- 	 */
-diff --git a/fs/xfs/xfs_trans.c b/fs/xfs/xfs_trans.c
-index 67dec11e34c7..95c183072e7a 100644
---- a/fs/xfs/xfs_trans.c
-+++ b/fs/xfs/xfs_trans.c
-@@ -1201,3 +1201,89 @@ xfs_trans_alloc_ichange(
- 	xfs_trans_cancel(tp);
- 	return error;
- }
-+
-+/*
-+ * Allocate an transaction, lock and join the directory and child inodes to it,
-+ * and reserve quota for a directory update.  If there isn't sufficient space,
-+ * @dblocks will be set to zero for a reservationless directory update and
-+ * @nospace_error will be set to a negative errno describing the space
-+ * constraint we hit.
-+ *
-+ * The caller must ensure that the on-disk dquots attached to this inode have
-+ * already been allocated and initialized.  The ILOCKs will be dropped when the
-+ * transaction is committed or cancelled.
-+ */
-+int
-+xfs_trans_alloc_dir(
-+	struct xfs_inode	*dp,
-+	struct xfs_trans_res	*resv,
-+	struct xfs_inode	*ip,
-+	unsigned int		*dblocks,
-+	struct xfs_trans	**tpp,
-+	int			*nospace_error)
-+{
-+	struct xfs_trans	*tp;
-+	struct xfs_mount	*mp = ip->i_mount;
-+	unsigned int		resblks;
-+	bool			retried = false;
-+	int			error;
-+
-+retry:
-+	*nospace_error = 0;
-+	resblks = *dblocks;
-+	error = xfs_trans_alloc(mp, resv, resblks, 0, 0, &tp);
-+	if (error == -ENOSPC) {
-+		*nospace_error = error;
-+		resblks = 0;
-+		error = xfs_trans_alloc(mp, resv, resblks, 0, 0, &tp);
-+	}
-+	if (error)
-+		return error;
-+
-+	xfs_lock_two_inodes(dp, XFS_ILOCK_EXCL, ip, XFS_ILOCK_EXCL);
-+
-+	xfs_trans_ijoin(tp, dp, XFS_ILOCK_EXCL);
-+	xfs_trans_ijoin(tp, ip, XFS_ILOCK_EXCL);
-+
-+	error = xfs_qm_dqattach_locked(dp, false);
-+	if (error) {
-+		/* Caller should have allocated the dquots! */
-+		ASSERT(error != -ENOENT);
-+		goto out_cancel;
-+	}
-+
-+	error = xfs_qm_dqattach_locked(ip, false);
-+	if (error) {
-+		/* Caller should have allocated the dquots! */
-+		ASSERT(error != -ENOENT);
-+		goto out_cancel;
-+	}
-+
-+	if (resblks == 0)
-+		goto done;
-+
-+	error = xfs_trans_reserve_quota_nblks(tp, dp, resblks, 0, false);
-+	if (error == -EDQUOT || error == -ENOSPC) {
-+		if (!retried) {
-+			xfs_trans_cancel(tp);
-+			xfs_blockgc_free_quota(dp, 0);
-+			retried = true;
-+			goto retry;
-+		}
-+
-+		*nospace_error = error;
-+		resblks = 0;
-+		error = 0;
-+	}
-+	if (error)
-+		goto out_cancel;
-+
-+done:
-+	*tpp = tp;
-+	*dblocks = resblks;
-+	return 0;
-+
-+out_cancel:
-+	xfs_trans_cancel(tp);
-+	return error;
-+}
-diff --git a/fs/xfs/xfs_trans.h b/fs/xfs/xfs_trans.h
-index 50da47f23a07..faba74d4c702 100644
---- a/fs/xfs/xfs_trans.h
-+++ b/fs/xfs/xfs_trans.h
-@@ -265,6 +265,9 @@ int xfs_trans_alloc_icreate(struct xfs_mount *mp, struct xfs_trans_res *resv,
- int xfs_trans_alloc_ichange(struct xfs_inode *ip, struct xfs_dquot *udqp,
- 		struct xfs_dquot *gdqp, struct xfs_dquot *pdqp, bool force,
- 		struct xfs_trans **tpp);
-+int xfs_trans_alloc_dir(struct xfs_inode *dp, struct xfs_trans_res *resv,
-+		struct xfs_inode *ip, unsigned int *dblocks,
-+		struct xfs_trans **tpp, int *nospace_error);
- 
- static inline void
- xfs_trans_set_context(
 -- 
 2.37.1.595.g718a3a8f04-goog
 
