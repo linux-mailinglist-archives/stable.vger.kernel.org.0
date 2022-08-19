@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 487BA59A1EC
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:36:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 127F259A05A
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352571AbiHSQ0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:26:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44482 "EHLO
+        id S1352642AbiHSQ0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:26:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352972AbiHSQZ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:25:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1F9AB6026;
-        Fri, 19 Aug 2022 09:03:38 -0700 (PDT)
+        with ESMTP id S1353090AbiHSQ0L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:26:11 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A9F1CAC94;
+        Fri, 19 Aug 2022 09:03:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 724A4617A5;
-        Fri, 19 Aug 2022 16:03:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8184BC433C1;
-        Fri, 19 Aug 2022 16:03:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9309BCE26AA;
+        Fri, 19 Aug 2022 16:03:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80370C433D6;
+        Fri, 19 Aug 2022 16:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925016;
-        bh=LLTeC4buUX1RpkGN4KskQVmxDsOfq3Ye4iclIgdlGK0=;
+        s=korg; t=1660925019;
+        bh=atgAS25s2COpB8BFvUkh8vDm4Mkm8/SqFe6Oe0UtabQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QcJWZxeiXIZIR7ob+wHgmYE2XJELRX6B0rphmfbD//lp2+na4B2NwwubwghevxiUX
-         Y34F/EvuSRxefvSoqRpYtXCbW57ni8MySa8rc5Tieq/zrI2XHseEyin7qc4Lr+lcV5
-         Pi7xCQhGAQHnpBFeZGFDZS2zl8cPABGVM/epTODY=
+        b=LXDVnANnkSpwZKodoq03xC5hcl4Ppw7+2c4EahLZuZxIMChTlXl80jz10xcx4ZDMm
+         cItORCNUgv/VR+wOwkOtiGSLEk+FRB06ufDylX+RqkDKfWraql3WvV9UVEEyFsqaEg
+         eRpAowilaTX0DxKJpvFxEFFDYep3i+KXChckGhto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 357/545] null_blk: fix ida error handling in null_add_dev()
-Date:   Fri, 19 Aug 2022 17:42:07 +0200
-Message-Id: <20220819153845.358195814@linuxfoundation.org>
+        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 358/545] nvme: use command_id instead of req->tag in trace_nvme_complete_rq()
+Date:   Fri, 19 Aug 2022 17:42:08 +0200
+Message-Id: <20220819153845.402530904@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -53,60 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Bean Huo <beanhuo@micron.com>
 
-[ Upstream commit ee452a8d984f94fa8e894f003a52e776e4572881 ]
+[ Upstream commit 679c54f2de672b7d79d02f8c4ad483ff6dd8ce2e ]
 
-There needs to be some error checking if ida_simple_get() fails.
-Also call ida_free() if there are errors later.
+Use command_id instead of req->tag in trace_nvme_complete_rq(),
+because of commit e7006de6c238 ("nvme: code command_id with a genctr
+for use authentication after release"), cmd->common.command_id is set to
+((genctl & 0xf)< 12 | req->tag), no longer req->tag, which makes cid in
+trace_nvme_complete_rq and trace_nvme_setup_cmd are not the same.
 
-Fixes: 94bc02e30fb8 ("nullb: use ida to manage index")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YtEhXsr6vJeoiYhd@kili
+Fixes: e7006de6c238 ("nvme: code command_id with a genctr for use authentication after release")
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk_main.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/nvme/host/trace.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/null_blk_main.c b/drivers/block/null_blk_main.c
-index bb3686c3869d..c6ba8f9f3f31 100644
---- a/drivers/block/null_blk_main.c
-+++ b/drivers/block/null_blk_main.c
-@@ -1876,8 +1876,13 @@ static int null_add_dev(struct nullb_device *dev)
- 	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, nullb->q);
- 
- 	mutex_lock(&lock);
--	nullb->index = ida_simple_get(&nullb_indexes, 0, 0, GFP_KERNEL);
--	dev->index = nullb->index;
-+	rv = ida_simple_get(&nullb_indexes, 0, 0, GFP_KERNEL);
-+	if (rv < 0) {
-+		mutex_unlock(&lock);
-+		goto out_cleanup_zone;
-+	}
-+	nullb->index = rv;
-+	dev->index = rv;
- 	mutex_unlock(&lock);
- 
- 	blk_queue_logical_block_size(nullb->q, dev->blocksize);
-@@ -1889,13 +1894,16 @@ static int null_add_dev(struct nullb_device *dev)
- 
- 	rv = null_gendisk_register(nullb);
- 	if (rv)
--		goto out_cleanup_zone;
-+		goto out_ida_free;
- 
- 	mutex_lock(&lock);
- 	list_add_tail(&nullb->list, &nullb_list);
- 	mutex_unlock(&lock);
- 
- 	return 0;
-+
-+out_ida_free:
-+	ida_free(&nullb_indexes, nullb->index);
- out_cleanup_zone:
- 	null_free_zoned_dev(dev);
- out_cleanup_blk_queue:
+diff --git a/drivers/nvme/host/trace.h b/drivers/nvme/host/trace.h
+index 35bac7a25422..aa8b0f86b2be 100644
+--- a/drivers/nvme/host/trace.h
++++ b/drivers/nvme/host/trace.h
+@@ -98,7 +98,7 @@ TRACE_EVENT(nvme_complete_rq,
+ 	    TP_fast_assign(
+ 		__entry->ctrl_id = nvme_req(req)->ctrl->instance;
+ 		__entry->qid = nvme_req_qid(req);
+-		__entry->cid = req->tag;
++		__entry->cid = nvme_req(req)->cmd->common.command_id;
+ 		__entry->result = le64_to_cpu(nvme_req(req)->result.u64);
+ 		__entry->retries = nvme_req(req)->retries;
+ 		__entry->flags = nvme_req(req)->flags;
 -- 
 2.35.1
 
