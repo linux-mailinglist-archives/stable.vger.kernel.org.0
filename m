@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A99759A071
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB564599F38
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352510AbiHSQ0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:26:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41910 "EHLO
+        id S1352596AbiHSQ0o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:26:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353008AbiHSQ0A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:26:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38A20F14D6;
-        Fri, 19 Aug 2022 09:03:45 -0700 (PDT)
+        with ESMTP id S1352896AbiHSQZs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:25:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CF82B6D75;
+        Fri, 19 Aug 2022 09:03:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F134612DF;
-        Fri, 19 Aug 2022 16:03:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C282C433D7;
-        Fri, 19 Aug 2022 16:03:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30229B82802;
+        Fri, 19 Aug 2022 16:03:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E966C433C1;
+        Fri, 19 Aug 2022 16:03:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925011;
-        bh=fafzBX3pbMLUlCle5R2Fa+/PttDn+jS3CmHEktaG9G4=;
+        s=korg; t=1660925014;
+        bh=rH4/5QZYBSyBtSC5tRu7KwpcfHv88JeoQnMUlVOMGM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w4aEHsZklvg4dGXTMOgEoO3a2Ndy7xwrjQTlipwHMq/RuGAoN4RMTcyeo28+LhKZ+
-         DCiGKkDyfcJG29L6hcDOh82Fh5AX/gCI4Bt0f5iT2cRU0nRwnzv4/jkm/ygB7KIQcf
-         ZbXS7ysP3nB3EQgQ+NBBXolLuzoAj5lYtpM2VRmE=
+        b=CeLq+KJCuar0FkKe23JGhIFv9G3CyrnsynRsRsy3vgFVBSDXCZQok6b6uB6vOa/ty
+         xojpCMxCoR7NEgy3o9tJWBWtSV+L0/AIZzjMcLBJ5rKhwKcqyCZKFXo7xK+UOM5+ug
+         Pb80ZjYAwXg1WVN1rG/fSKnmdsR0NUUS5B4IIcu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Itay Aveksis <itayav@nvidia.com>,
-        Maor Gottlieb <maorg@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        stable@vger.kernel.org,
+        syzbot+833061116fa28df97f3b@syzkaller.appspotmail.com,
+        Zhu Yanjun <yanjun.zhu@linux.dev>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 355/545] RDMA/mlx5: Add missing check for return value in get namespace flow
-Date:   Fri, 19 Aug 2022 17:42:05 +0200
-Message-Id: <20220819153845.279115503@linuxfoundation.org>
+Subject: [PATCH 5.10 356/545] RDMA/rxe: Fix error unwind in rxe_create_qp()
+Date:   Fri, 19 Aug 2022 17:42:06 +0200
+Message-Id: <20220819153845.318534120@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -56,44 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
 
-[ Upstream commit c9776457bd5eaad4ce4ecb17af8d8f3cc6957c0b ]
+[ Upstream commit fd5382c5805c4bcb50fd25b7246247d3f7114733 ]
 
-Add missing check for return value when calling to
-mlx5_ib_ft_type_to_namespace, even though it can't really fail in this
-specific call.
+In the function rxe_create_qp(), rxe_qp_from_init() is called to
+initialize qp, internally things like the spin locks are not setup until
+rxe_qp_init_req().
 
-Fixes: 52438be44112 ("RDMA/mlx5: Allow inserting a steering rule to the FDB")
-Link: https://lore.kernel.org/r/7b9ceda217d9368a51dc47a46b769bad4af9ac92.1659256069.git.leonro@nvidia.com
-Reviewed-by: Itay Aveksis <itayav@nvidia.com>
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+If an error occures before this point then the unwind will call
+rxe_cleanup() and eventually to rxe_qp_do_cleanup()/rxe_cleanup_task()
+which will oops when trying to access the uninitialized spinlock.
+
+Move the spinlock initializations earlier before any failures.
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20220731063621.298405-1-yanjun.zhu@linux.dev
+Reported-by: syzbot+833061116fa28df97f3b@syzkaller.appspotmail.com
+Signed-off-by: Zhu Yanjun <yanjun.zhu@linux.dev>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/fs.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/fs.c b/drivers/infiniband/hw/mlx5/fs.c
-index b3391ecedda7..0404e6f22d37 100644
---- a/drivers/infiniband/hw/mlx5/fs.c
-+++ b/drivers/infiniband/hw/mlx5/fs.c
-@@ -2081,12 +2081,10 @@ static int mlx5_ib_matcher_ns(struct uverbs_attr_bundle *attrs,
- 		if (err)
- 			return err;
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index a1b79015e6f2..2847ab4d9a5f 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -184,6 +184,14 @@ static void rxe_qp_init_misc(struct rxe_dev *rxe, struct rxe_qp *qp,
+ 	spin_lock_init(&qp->grp_lock);
+ 	spin_lock_init(&qp->state_lock);
  
--		if (flags) {
--			mlx5_ib_ft_type_to_namespace(
-+		if (flags)
-+			return mlx5_ib_ft_type_to_namespace(
- 				MLX5_IB_UAPI_FLOW_TABLE_TYPE_NIC_TX,
- 				&obj->ns_type);
--			return 0;
--		}
++	spin_lock_init(&qp->req.task.state_lock);
++	spin_lock_init(&qp->resp.task.state_lock);
++	spin_lock_init(&qp->comp.task.state_lock);
++
++	spin_lock_init(&qp->sq.sq_lock);
++	spin_lock_init(&qp->rq.producer_lock);
++	spin_lock_init(&qp->rq.consumer_lock);
++
+ 	atomic_set(&qp->ssn, 0);
+ 	atomic_set(&qp->skb_out, 0);
+ }
+@@ -239,7 +247,6 @@ static int rxe_qp_init_req(struct rxe_dev *rxe, struct rxe_qp *qp,
+ 	qp->req.opcode		= -1;
+ 	qp->comp.opcode		= -1;
+ 
+-	spin_lock_init(&qp->sq.sq_lock);
+ 	skb_queue_head_init(&qp->req_pkts);
+ 
+ 	rxe_init_task(rxe, &qp->req.task, qp,
+@@ -289,9 +296,6 @@ static int rxe_qp_init_resp(struct rxe_dev *rxe, struct rxe_qp *qp,
+ 		}
  	}
  
- 	obj->ns_type = MLX5_FLOW_NAMESPACE_BYPASS;
+-	spin_lock_init(&qp->rq.producer_lock);
+-	spin_lock_init(&qp->rq.consumer_lock);
+-
+ 	skb_queue_head_init(&qp->resp_pkts);
+ 
+ 	rxe_init_task(rxe, &qp->resp.task, qp,
 -- 
 2.35.1
 
