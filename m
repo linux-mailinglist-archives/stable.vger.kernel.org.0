@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B29EE59A066
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:33:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEBE9599F2F
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349680AbiHSPsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:48:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50824 "EHLO
+        id S1350198AbiHSPso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:48:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350117AbiHSPrZ (ORCPT
+        with ESMTP id S1349918AbiHSPrZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:47:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF7AB26DF;
-        Fri, 19 Aug 2022 08:47:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5124313F64;
+        Fri, 19 Aug 2022 08:47:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 85EE2616BD;
-        Fri, 19 Aug 2022 15:47:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91EB4C433D6;
-        Fri, 19 Aug 2022 15:47:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91917616D5;
+        Fri, 19 Aug 2022 15:47:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 966C2C433D6;
+        Fri, 19 Aug 2022 15:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924023;
-        bh=vTR0PrPgVmeQWORMSuwYWD0IQIU+J/c4E+LEqVxqI+w=;
+        s=korg; t=1660924027;
+        bh=xiETIeoHQ+5PvRfu22IMJsts+TQDJtrJiMNFQMjmY/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BPYqRWIwNLgHp9KtrggERWgJwMhSwA51vnQsEzD8buDyZhvVJriTi3N4vnnDcG1pH
-         /OvXmf3QA6vUOapciSM47lUXULGg1dnRM9lxMEJ4/YUZd3fQF2tZnB8iaBlSrrAt40
-         o0U/SGnC6IvhzRnytZge8j6SPUMH9InNN9sW9gSY=
+        b=jHv220vru0XZ1ZOhJIk/s6gGt9AY0CzEkBPjQGm9gnGUMYfYALoQPIFvPRtr5pgor
+         ztfdY5DO7+PNMC0EHl6l+21GnKDM5nPjiJRVFAYNxRbwIwqMfiEVsq2pHOgLnkBxaS
+         z7Qgi6YCMVKYq+SQiztbU9J6IsF8hGDIPSCr53JA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bedant Patnaik <bedant.patnaik@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 030/545] ALSA: hda/realtek: Add a quirk for HP OMEN 15 (8786) mute LED
-Date:   Fri, 19 Aug 2022 17:36:40 +0200
-Message-Id: <20220819153830.537271507@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+31a641689d43387f05d3@syzkaller.appspotmail.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: [PATCH 5.10 031/545] tty: vt: initialize unicode screen buffer
+Date:   Fri, 19 Aug 2022 17:36:41 +0200
+Message-Id: <20220819153830.589119680@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -53,31 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bedant Patnaik <bedant.patnaik@gmail.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 30267718fe2d4dbea49015b022f6f1fe16ca31ab upstream.
+commit af77c56aa35325daa2bc2bed5c2ebf169be61b86 upstream.
 
-Board ID 8786 seems to be another variant of the Omen 15 that needs
-ALC285_FIXUP_HP_MUTE_LED for working mute LED.
+syzbot reports kernel infoleak at vcs_read() [1], for buffer can be read
+immediately after resize operation. Initialize buffer using kzalloc().
 
-Signed-off-by: Bedant Patnaik <bedant.patnaik@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220809142455.6473-1-bedant.patnaik@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  ----------
+  #include <fcntl.h>
+  #include <unistd.h>
+  #include <sys/ioctl.h>
+  #include <linux/fb.h>
+
+  int main(int argc, char *argv[])
+  {
+    struct fb_var_screeninfo var = { };
+    const int fb_fd = open("/dev/fb0", 3);
+    ioctl(fb_fd, FBIOGET_VSCREENINFO, &var);
+    var.yres = 0x21;
+    ioctl(fb_fd, FBIOPUT_VSCREENINFO, &var);
+    return read(open("/dev/vcsu", O_RDONLY), &var, sizeof(var)) == -1;
+  }
+  ----------
+
+Link: https://syzkaller.appspot.com/bug?extid=31a641689d43387f05d3 [1]
+Cc: stable <stable@vger.kernel.org>
+Reported-by: syzbot <syzbot+31a641689d43387f05d3@syzkaller.appspotmail.com>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Link: https://lore.kernel.org/r/4ef053cf-e796-fb5e-58b7-3ae58242a4ad@I-love.SAKURA.ne.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/vt/vt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8817,6 +8817,7 @@ static const struct snd_pci_quirk alc269
- 		      ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8783, "HP ZBook Fury 15 G7 Mobile Workstation",
- 		      ALC285_FIXUP_HP_GPIO_AMP_INIT),
-+	SND_PCI_QUIRK(0x103c, 0x8786, "HP OMEN 15", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8787, "HP OMEN 15", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8788, "HP OMEN 15", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87c8, "HP", ALC287_FIXUP_HP_GPIO_LED),
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -344,7 +344,7 @@ static struct uni_screen *vc_uniscr_allo
+ 	/* allocate everything in one go */
+ 	memsize = cols * rows * sizeof(char32_t);
+ 	memsize += rows * sizeof(char32_t *);
+-	p = vmalloc(memsize);
++	p = vzalloc(memsize);
+ 	if (!p)
+ 		return NULL;
+ 
 
 
