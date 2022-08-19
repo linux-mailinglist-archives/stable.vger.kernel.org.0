@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD60159A01F
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:32:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25EEC599F14
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351377AbiHSQHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:07:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49102 "EHLO
+        id S1351072AbiHSQGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:06:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351758AbiHSQG3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:06:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB23D107F05;
-        Fri, 19 Aug 2022 08:55:48 -0700 (PDT)
+        with ESMTP id S1351654AbiHSQGQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:06:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16067107745;
+        Fri, 19 Aug 2022 08:55:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78D87616B3;
-        Fri, 19 Aug 2022 15:55:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C805C433C1;
-        Fri, 19 Aug 2022 15:55:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28782B82818;
+        Fri, 19 Aug 2022 15:55:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73AD6C433D6;
+        Fri, 19 Aug 2022 15:55:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924532;
-        bh=UKa314WESJCjsyExFx48p4VTNyM/6qFWQEI7i2N5gms=;
+        s=korg; t=1660924535;
+        bh=O4Pyhf6igLpXD9eZbGXbgoOBWUQsc/ilXYUP0Ea1LMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gTGlnhuyttwDeqeGfFxGwbWpk4kI0o/xxcBMUyUsa2t68cP7RR0hRHRqk88aVIKk
-         oa4vW0/Ys2WvOTavqz+nTGidVHokLV1jFDgoB2I0qwbazSwvmtrMZ3xjSlOPk/tQGt
-         StL5M0ofSQLwtw3w3MuBADdekffKETtmpFWvG2T8=
+        b=p7oXtDpDDZecVGisOvZNkT658uScLC6CplN4QEJldvgpjhqd6na9T+1yzaFknk5A9
+         ZGFlqcM3bUNKltZ6kq4RO41Cq0ly+V/iysKiosmDbXPi0sepQ+LCIu2FJEzPazDIvx
+         2TVbsCXaAxedPvdt+6tJwVdYxzeE2wY7/0GWCmu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org,
         Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 201/545] drm/vc4: hdmi: Dont access the connector state in reset if kmalloc fails
-Date:   Fri, 19 Aug 2022 17:39:31 +0200
-Message-Id: <20220819153838.387286468@linuxfoundation.org>
+Subject: [PATCH 5.10 202/545] drm/vc4: hdmi: Limit the BCM2711 to the max without scrambling
+Date:   Fri, 19 Aug 2022 17:39:32 +0200
+Message-Id: <20220819153838.425713142@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -57,43 +57,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit e55a07751146ef8ebc2c561564437b78f46405d3 ]
+[ Upstream commit 24169a2b0533a6c4030c91a7a074039e7c98fde6 ]
 
-drm_atomic_helper_connector_reset uses kmalloc which, from an API
-standpoint, can fail, and thus setting connector->state to NULL.
-However, our reset hook then calls drm_atomic_helper_connector_tv_reset
-that will access connector->state without checking if it's a valid
-pointer or not.
+Unlike the previous generations, the HSM clock limitation is way above
+what we can reach without scrambling, so let's move the maximum
+frequency we support to the maximum clock frequency without scrambling.
 
-Make sure we don't end up accessing a NULL pointer.
-
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
 Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Suggested-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201215154243.540115-5-maxime@cerno.tech
+Link: https://patchwork.freedesktop.org/patch/msgid/20201215154243.540115-9-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 9a90f22df3d2..978afe706ee2 100644
 --- a/drivers/gpu/drm/vc4/vc4_hdmi.c
 +++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -209,7 +209,9 @@ static int vc4_hdmi_connector_get_modes(struct drm_connector *connector)
- static void vc4_hdmi_connector_reset(struct drm_connector *connector)
- {
- 	drm_atomic_helper_connector_reset(connector);
--	drm_atomic_helper_connector_tv_reset(connector);
-+
-+	if (connector->state)
-+		drm_atomic_helper_connector_tv_reset(connector);
- }
+@@ -83,6 +83,8 @@
+ #define CEC_CLOCK_FREQ 40000
+ #define VC4_HSM_MID_CLOCK 149985000
  
- static const struct drm_connector_funcs vc4_hdmi_connector_funcs = {
--- 
-2.35.1
-
++#define HDMI_14_MAX_TMDS_CLK   (340 * 1000 * 1000)
++
+ static int vc4_hdmi_debugfs_regs(struct seq_file *m, void *unused)
+ {
+ 	struct drm_info_node *node = (struct drm_info_node *)m->private;
+@@ -1939,7 +1941,7 @@ static const struct vc4_hdmi_variant bcm
+ 	.encoder_type		= VC4_ENCODER_TYPE_HDMI0,
+ 	.debugfs_name		= "hdmi0_regs",
+ 	.card_name		= "vc4-hdmi-0",
+-	.max_pixel_clock	= 297000000,
++	.max_pixel_clock	= HDMI_14_MAX_TMDS_CLK,
+ 	.registers		= vc5_hdmi_hdmi0_fields,
+ 	.num_registers		= ARRAY_SIZE(vc5_hdmi_hdmi0_fields),
+ 	.phy_lane_mapping	= {
+@@ -1965,7 +1967,7 @@ static const struct vc4_hdmi_variant bcm
+ 	.encoder_type		= VC4_ENCODER_TYPE_HDMI1,
+ 	.debugfs_name		= "hdmi1_regs",
+ 	.card_name		= "vc4-hdmi-1",
+-	.max_pixel_clock	= 297000000,
++	.max_pixel_clock	= HDMI_14_MAX_TMDS_CLK,
+ 	.registers		= vc5_hdmi_hdmi1_fields,
+ 	.num_registers		= ARRAY_SIZE(vc5_hdmi_hdmi1_fields),
+ 	.phy_lane_mapping	= {
 
 
