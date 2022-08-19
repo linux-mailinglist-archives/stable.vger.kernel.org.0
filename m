@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29E1D59A4F2
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:06:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F4DD59A34F
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:03:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354347AbiHSQyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 12:54:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45586 "EHLO
+        id S1354212AbiHSQwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 12:52:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354351AbiHSQws (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:52:48 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E038E12CDE3;
+        with ESMTP id S1354645AbiHSQv3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 12:51:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E02741156FD;
         Fri, 19 Aug 2022 09:14:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 43290CE26B7;
-        Fri, 19 Aug 2022 16:13:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C40FC433D7;
-        Fri, 19 Aug 2022 16:13:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF8B9B8280D;
+        Fri, 19 Aug 2022 16:13:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BA9BC433D6;
+        Fri, 19 Aug 2022 16:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660925612;
-        bh=lwuN6VTFP1zBL9eoIkTQqR16l7lBZMYs5E+TzRiZ2B8=;
+        s=korg; t=1660925615;
+        bh=WbEMAlrawh08q0dXgHD22Zl1G6evzjYEaZ+pVq1Yp3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n5JwbhQvLcZf+d3MkT9L4fLOyE1Zx2W9wxCDiB4OkhLpGqoHdR2mOTBhOFIrjBfvH
-         HZ5MFquHOoOVWVpeVb8DrDeVihlHe+yUcM72eXjkKuOaXe6/JG/SqfOyfCxhO6DRGN
-         XH6UG+jNocAYVVFKpVhLn4yQTmmrHg8OTvCcFQ4o=
+        b=vWHu1/ExxdPFOoelkl8QV1P5BV+AToHosGjfL455es+BifeaUpb+VAoXnRty6/Rvq
+         KAtvl8kKvNMcw8s3sQw/PbATtjqaBbEmAd3Lr347js/k4qGVWcaWa8NSNeWRLnNSpn
+         nLNjfSCmbRtogx3ra9YFeLUXDYQ0QWSViApbYKV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.10 538/545] mtd: rawnand: arasan: Prevent an unsupported configuration
-Date:   Fri, 19 Aug 2022 17:45:08 +0200
-Message-Id: <20220819153853.664599425@linuxfoundation.org>
+        stable@vger.kernel.org, Aaron Lewis <aaronlewis@google.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 539/545] kvm: x86/pmu: Fix the compare function used by the pmu event filter
+Date:   Fri, 19 Aug 2022 17:45:09 +0200
+Message-Id: <20220819153853.713095678@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -52,53 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Aaron Lewis <aaronlewis@google.com>
 
-commit fc9e18f9e987ad46722dad53adab1c12148c213c upstream.
+commit 4ac19ead0dfbabd8e0bfc731f507cfb0b95d6c99 upstream.
 
-Under the following conditions:
-* after rounding up by 4 the number of bytes to transfer (this is
-  related to the controller's internal constraints),
-* if this (rounded) amount of data is situated beyond the end of the
-  device,
-* and only in NV-DDR mode,
-the Arasan NAND controller timeouts.
+When returning from the compare function the u64 is truncated to an
+int.  This results in a loss of the high nybble[1] in the event select
+and its sign if that nybble is in use.  Switch from using a result that
+can end up being truncated to a result that can only be: 1, 0, -1.
 
-This currently can happen in a particular helper used when picking
-software ECC algorithms. Let's prevent this situation by refusing to use
-the NV-DDR interface with software engines.
+[1] bits 35:32 in the event select register and bits 11:8 in the event
+    select.
 
-Fixes: 4edde6031458 ("mtd: rawnand: arasan: Support NV-DDR interface")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20211008163640.1753821-1-miquel.raynal@bootlin.com
+Fixes: 7ff775aca48ad ("KVM: x86/pmu: Use binary search to check filtered events")
+Signed-off-by: Aaron Lewis <aaronlewis@google.com>
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220517051238.2566934-1-aaronlewis@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/arasan-nand-controller.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ arch/x86/kvm/pmu.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/mtd/nand/raw/arasan-nand-controller.c
-+++ b/drivers/mtd/nand/raw/arasan-nand-controller.c
-@@ -891,6 +891,21 @@ static int anfc_setup_interface(struct n
- 		nvddr = nand_get_nvddr_timings(conf);
- 		if (IS_ERR(nvddr))
- 			return PTR_ERR(nvddr);
+--- a/arch/x86/kvm/pmu.c
++++ b/arch/x86/kvm/pmu.c
+@@ -170,9 +170,12 @@ static bool pmc_resume_counter(struct kv
+ 	return true;
+ }
+ 
+-static int cmp_u64(const void *a, const void *b)
++static int cmp_u64(const void *pa, const void *pb)
+ {
+-	return *(__u64 *)a - *(__u64 *)b;
++	u64 a = *(u64 *)pa;
++	u64 b = *(u64 *)pb;
 +
-+		/*
-+		 * The controller only supports data payload requests which are
-+		 * a multiple of 4. In practice, most data accesses are 4-byte
-+		 * aligned and this is not an issue. However, rounding up will
-+		 * simply be refused by the controller if we reached the end of
-+		 * the device *and* we are using the NV-DDR interface(!). In
-+		 * this situation, unaligned data requests ending at the device
-+		 * boundary will confuse the controller and cannot be performed.
-+		 *
-+		 * This is something that happens in nand_read_subpage() when
-+		 * selecting software ECC support and must be avoided.
-+		 */
-+		if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_SOFT)
-+			return -ENOTSUPP;
- 	} else {
- 		sdr = nand_get_sdr_timings(conf);
- 		if (IS_ERR(sdr))
++	return (a > b) - (a < b);
+ }
+ 
+ void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel)
 
 
