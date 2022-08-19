@@ -2,60 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E89D659A59E
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CB5559A592
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 20:39:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349972AbiHSSPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 14:15:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47888 "EHLO
+        id S1350211AbiHSSPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 14:15:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350621AbiHSSPa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 14:15:30 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45E113CDA;
-        Fri, 19 Aug 2022 11:14:41 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id bf22so5348164pjb.4;
-        Fri, 19 Aug 2022 11:14:41 -0700 (PDT)
+        with ESMTP id S1350655AbiHSSPb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 14:15:31 -0400
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FC0D25E9A;
+        Fri, 19 Aug 2022 11:14:43 -0700 (PDT)
+Received: by mail-pg1-x536.google.com with SMTP id r22so4285985pgm.5;
+        Fri, 19 Aug 2022 11:14:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc;
-        bh=C5lgC4kpzep5Mv+Wwyxx7oLNV95NU6fFpgEONgVs94g=;
-        b=Gu8mk3GV1O5QAtdWHeCnTwIteSntblr7LMikhynBNeB8XDNUlzaDyAM+yufdgudeJc
-         64PYVZlfg0tAcvU3cN5TufQcAFl5GZuqwbgsHOzwCwFE8rhCJMtaIH2oo13PuHhiTsjH
-         VcjJhrJFwQZevY6mEJQRUXDvEMhGkewAp6r/Ui2uqmvzoQKknqaL6plioJlhNBdr/aSJ
-         suWRxbphigdSKYlSxLXNCAQJiNcrZPBZZ5N1w+ki/j61gbSAdqlKoOY1klMI2JdrCxAJ
-         Zh4Mt3mT04y6xzd3sH8edcJjlo4YTOOpIdJTy7dT+236QM5ngfUOaJOvowG48tx9J3i6
-         ubqw==
+        bh=S/EDilCN6R/rInC4ILcrmRd4Xiig+SrevRMQ+U2aGso=;
+        b=gCCAwVIGWsS+wJtd07K2iy37HLgvpMWr3yaPCE8/RwiAO/pWSZO4bmm3syBycdWYu6
+         VBHkXA17W++6JhROi0LfjkJR+fIdlLe6eF62JEMWK3PSYEiBJcl8yngsnl0h50phLJjk
+         ANHcXYeOUnu0ZkOJTCsk/iH8IKw4cFwaW9DroEnn34xbISsDkDRn7QLravqdjPHQoKZm
+         X0Lrqgan5HzqHuO4KQo6YVg5R3otPk0ABtSmX5RMa6B/ala5jmFMfw68U3ET/Y/Q4Rn4
+         ZGOxWrmGKlaMGbFXKrepJSa/+BBTE8ArwWzzSx4owe1Uq7WQL5cdiJbXTgr3ZUPDdPvF
+         K/Bw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=C5lgC4kpzep5Mv+Wwyxx7oLNV95NU6fFpgEONgVs94g=;
-        b=ruFjAS+FJ5Tp1rHi9NY7y1f3HBIwmEFdgkV/mKXG1zqMgwF+uKqR+po92mUecwsdXe
-         9Id1LxaYF++QHIDcSXCBVHazKkNVAk7U2DnsgejhyRcL9vL1dYdqhBNrnBmmmqsvF+jS
-         VRMCddmqNYxd+yWS84I2gRkLcumpW8lgJ6ZMRIjC/Be/DabGgu90OkFkvDWKr6NeG1UD
-         MSwQ0JozzP78C0vkAQb4RL/pI7QyqEDYzMMto2+ViJpOPED6NKqeHWoSDFXvvmeL4Wkw
-         LE5OziFseepBfUdAc8l2LVgeHYFgB1XKVL4sSsWKJj5bCfqJIseTkZuM9Aa35OQEeCIj
-         2KCA==
-X-Gm-Message-State: ACgBeo19XZxx4iolIZHTneLoCVn406BXJy5LGz5zD68tFw2UpG9QfOFS
-        2IcSuiOnmquqwGKYebYPK52OH5MVV9b/hQ==
-X-Google-Smtp-Source: AA6agR6KYRhLTxVu+2c1A98fMP6mc4F8Wn23lN3HXoqfyRvUKMCz3DJ9m2N7uwjwbWZT1YzmX6VFbw==
-X-Received: by 2002:a17:90a:e586:b0:1fa:d28b:ab9b with SMTP id g6-20020a17090ae58600b001fad28bab9bmr8225271pjz.47.1660932880810;
-        Fri, 19 Aug 2022 11:14:40 -0700 (PDT)
+        bh=S/EDilCN6R/rInC4ILcrmRd4Xiig+SrevRMQ+U2aGso=;
+        b=DgiLXAE8okKLGAznAXfeh3uTQbWN97TeRUTBu6LFMgQM989RWabjzYSrIvYMsbMiYI
+         AemTEV+aVzJgKBfg1DtX2QJsJsKKNy/k5N5uGr9GhtYOPBqZah/uIypknkNnxJKzxWxt
+         k6RJsr77uRkxPu4cT/U9ka4ldw8X6LS1/43aN5ScC0QyLmbTj1vsceP9mnG0B/Ia2V1u
+         qRTZvzkeBDwhohKkoxjVdBSDW/Ns+n7Yp+0Qom59X3G/QMxh4cZ9LJgCSZamChR29Qyw
+         aZPZO85W04HfbCLVl+4S3IgLYiJ6wlNNwE3UkKmRCewTJNkK44iEurL4ZFs/0xyU5V6T
+         KE0A==
+X-Gm-Message-State: ACgBeo3NxdkUhtFJhagAhe+GiPX0vPUfrNTQhCcxDPzbLAP/jZDQ2aV0
+        e/FqQF9GF0kR4vsUwP0gojYHGR3C6AcDbQ==
+X-Google-Smtp-Source: AA6agR4CZaEFWfzkrJhW6yCBXAO9w6XmZASJDe7u0aikAaZrFJ42yEJCwupQBOWi7EUFc5BX1FqXSg==
+X-Received: by 2002:a65:6d98:0:b0:41d:d9:a338 with SMTP id bc24-20020a656d98000000b0041d00d9a338mr7081525pgb.421.1660932882356;
+        Fri, 19 Aug 2022 11:14:42 -0700 (PDT)
 Received: from lrumancik.svl.corp.google.com ([2620:15c:2d4:203:3995:f9b1:1e6b:e373])
-        by smtp.gmail.com with ESMTPSA id t14-20020a170902e84e00b0015ee60ef65bsm3460918plg.260.2022.08.19.11.14.39
+        by smtp.gmail.com with ESMTPSA id t14-20020a170902e84e00b0015ee60ef65bsm3460918plg.260.2022.08.19.11.14.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Aug 2022 11:14:40 -0700 (PDT)
+        Fri, 19 Aug 2022 11:14:41 -0700 (PDT)
 From:   Leah Rumancik <leah.rumancik@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     linux-xfs@vger.kernel.org, amir73il@gmail.com,
         "Darrick J. Wong" <djwong@kernel.org>,
+        Brian Foster <bfoster@redhat.com>,
         Dave Chinner <dchinner@redhat.com>,
         Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 3/9] xfs: reserve quota for target dir expansion when renaming files
-Date:   Fri, 19 Aug 2022 11:14:25 -0700
-Message-Id: <20220819181431.4113819-4-leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 4/9] xfs: remove infinite loop when reserving free block pool
+Date:   Fri, 19 Aug 2022 11:14:26 -0700
+Message-Id: <20220819181431.4113819-5-leah.rumancik@gmail.com>
 X-Mailer: git-send-email 2.37.1.595.g718a3a8f04-goog
 In-Reply-To: <20220819181431.4113819-1-leah.rumancik@gmail.com>
 References: <20220819181431.4113819-1-leah.rumancik@gmail.com>
@@ -73,106 +74,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Darrick J. Wong" <djwong@kernel.org>
 
-[ Upstream commit 41667260bc84db4dfe566e3f6ab6da5293d60d8d ]
+[ Upstream commit 15f04fdc75aaaa1cccb0b8b3af1be290e118a7bc ]
 
-XFS does not reserve quota for directory expansion when renaming
-children into a directory.  This means that we don't reject the
-expansion with EDQUOT when we're at or near a hard limit, which means
-that unprivileged userspace can use rename() to exceed quota.
+Infinite loops in kernel code are scary.  Calls to xfs_reserve_blocks
+should be rare (people should just use the defaults!) so we really don't
+need to try so hard.  Simplify the logic here by removing the infinite
+loop.
 
-Rename operations don't always expand the target directory, and we allow
-a rename to proceed with no space reservation if we don't need to add a
-block to the target directory to handle the addition.  Moreover, the
-unlink operation on the source directory generally does not expand the
-directory (you'd have to free a block and then cause a btree split) and
-it's probably of little consequence to leave the corner case that
-renaming a file out of a directory can increase its size.
-
-As with link and unlink, there is a further bug in that we do not
-trigger the blockgc workers to try to clear space when we're out of
-quota.
-
-Because rename is its own special tricky animal, we'll patch xfs_rename
-directly to reserve quota to the rename transaction.  We'll leave
-cleaning up the rest of xfs_rename for the metadata directory tree
-patchset.
-
+Cc: Brian Foster <bfoster@redhat.com>
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
 Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/xfs_inode.c | 33 ++++++++++++++++++++++++++++++++-
- 1 file changed, 32 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_fsops.c | 50 +++++++++++++++++++---------------------------
+ 1 file changed, 20 insertions(+), 30 deletions(-)
 
-diff --git a/fs/xfs/xfs_inode.c b/fs/xfs/xfs_inode.c
-index f4dec7f6c6d0..fb7a97cdf99f 100644
---- a/fs/xfs/xfs_inode.c
-+++ b/fs/xfs/xfs_inode.c
-@@ -3103,7 +3103,8 @@ xfs_rename(
- 	bool			new_parent = (src_dp != target_dp);
- 	bool			src_is_directory = S_ISDIR(VFS_I(src_ip)->i_mode);
- 	int			spaceres;
--	int			error;
-+	bool			retried = false;
-+	int			error, nospace_error = 0;
+diff --git a/fs/xfs/xfs_fsops.c b/fs/xfs/xfs_fsops.c
+index 710e857bb825..3c6d9d6836ef 100644
+--- a/fs/xfs/xfs_fsops.c
++++ b/fs/xfs/xfs_fsops.c
+@@ -430,46 +430,36 @@ xfs_reserve_blocks(
+ 	 * If the request is larger than the current reservation, reserve the
+ 	 * blocks before we update the reserve counters. Sample m_fdblocks and
+ 	 * perform a partial reservation if the request exceeds free space.
++	 *
++	 * The code below estimates how many blocks it can request from
++	 * fdblocks to stash in the reserve pool.  This is a classic TOCTOU
++	 * race since fdblocks updates are not always coordinated via
++	 * m_sb_lock.
+ 	 */
+-	error = -ENOSPC;
+-	do {
+-		free = percpu_counter_sum(&mp->m_fdblocks) -
++	free = percpu_counter_sum(&mp->m_fdblocks) -
+ 						xfs_fdblocks_unavailable(mp);
+-		if (free <= 0)
+-			break;
+-
+-		delta = request - mp->m_resblks;
+-		lcounter = free - delta;
+-		if (lcounter < 0)
+-			/* We can't satisfy the request, just get what we can */
+-			fdblks_delta = free;
+-		else
+-			fdblks_delta = delta;
+-
++	delta = request - mp->m_resblks;
++	if (delta > 0 && free > 0) {
+ 		/*
+ 		 * We'll either succeed in getting space from the free block
+-		 * count or we'll get an ENOSPC. If we get a ENOSPC, it means
+-		 * things changed while we were calculating fdblks_delta and so
+-		 * we should try again to see if there is anything left to
+-		 * reserve.
+-		 *
+-		 * Don't set the reserved flag here - we don't want to reserve
+-		 * the extra reserve blocks from the reserve.....
++		 * count or we'll get an ENOSPC.  Don't set the reserved flag
++		 * here - we don't want to reserve the extra reserve blocks
++		 * from the reserve.
+ 		 */
++		fdblks_delta = min(free, delta);
+ 		spin_unlock(&mp->m_sb_lock);
+ 		error = xfs_mod_fdblocks(mp, -fdblks_delta, 0);
+ 		spin_lock(&mp->m_sb_lock);
+-	} while (error == -ENOSPC);
  
- 	trace_xfs_rename(src_dp, target_dp, src_name, target_name);
- 
-@@ -3127,9 +3128,12 @@ xfs_rename(
- 	xfs_sort_for_rename(src_dp, target_dp, src_ip, target_ip, wip,
- 				inodes, &num_inodes);
- 
-+retry:
-+	nospace_error = 0;
- 	spaceres = XFS_RENAME_SPACE_RES(mp, target_name->len);
- 	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_rename, spaceres, 0, 0, &tp);
- 	if (error == -ENOSPC) {
-+		nospace_error = error;
- 		spaceres = 0;
- 		error = xfs_trans_alloc(mp, &M_RES(mp)->tr_rename, 0, 0, 0,
- 				&tp);
-@@ -3183,6 +3187,31 @@ xfs_rename(
- 					target_dp, target_name, target_ip,
- 					spaceres);
- 
-+	/*
-+	 * Try to reserve quota to handle an expansion of the target directory.
-+	 * We'll allow the rename to continue in reservationless mode if we hit
-+	 * a space usage constraint.  If we trigger reservationless mode, save
-+	 * the errno if there isn't any free space in the target directory.
-+	 */
-+	if (spaceres != 0) {
-+		error = xfs_trans_reserve_quota_nblks(tp, target_dp, spaceres,
-+				0, false);
-+		if (error == -EDQUOT || error == -ENOSPC) {
-+			if (!retried) {
-+				xfs_trans_cancel(tp);
-+				xfs_blockgc_free_quota(target_dp, 0);
-+				retried = true;
-+				goto retry;
-+			}
-+
-+			nospace_error = error;
-+			spaceres = 0;
-+			error = 0;
+-	/*
+-	 * Update the reserve counters if blocks have been successfully
+-	 * allocated.
+-	 */
+-	if (!error && fdblks_delta) {
+-		mp->m_resblks += fdblks_delta;
+-		mp->m_resblks_avail += fdblks_delta;
++		/*
++		 * Update the reserve counters if blocks have been successfully
++		 * allocated.
++		 */
++		if (!error) {
++			mp->m_resblks += fdblks_delta;
++			mp->m_resblks_avail += fdblks_delta;
 +		}
-+		if (error)
-+			goto out_trans_cancel;
-+	}
-+
- 	/*
- 	 * Check for expected errors before we dirty the transaction
- 	 * so we can return an error without a transaction abort.
-@@ -3429,6 +3458,8 @@ xfs_rename(
- out_release_wip:
- 	if (wip)
- 		xfs_irele(wip);
-+	if (error == -ENOSPC && nospace_error)
-+		error = nospace_error;
- 	return error;
- }
- 
+ 	}
+-
+ out:
+ 	if (outval) {
+ 		outval->resblks = mp->m_resblks;
 -- 
 2.37.1.595.g718a3a8f04-goog
 
