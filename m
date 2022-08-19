@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E7B0599FBE
-	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:30:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8420599F2D
+	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 18:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350543AbiHSPxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 11:53:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40876 "EHLO
+        id S1350246AbiHSPx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 11:53:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350133AbiHSPwq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:52:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D4A3106B15;
-        Fri, 19 Aug 2022 08:49:00 -0700 (PDT)
+        with ESMTP id S1350349AbiHSPwu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 11:52:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60C4A101D17;
+        Fri, 19 Aug 2022 08:49:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5AE6B82816;
-        Fri, 19 Aug 2022 15:48:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07A42C433D6;
-        Fri, 19 Aug 2022 15:48:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A661FB8277D;
+        Fri, 19 Aug 2022 15:49:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19B75C433D6;
+        Fri, 19 Aug 2022 15:48:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660924137;
-        bh=rkWXU3TEa6CIXUl/UnvFRmLkzh9CC0lIVI2ALWVyQsY=;
+        s=korg; t=1660924140;
+        bh=AmkQYuO17mh7nm7AbzGHZdh77pxfoigebwan4cQlFM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xqyE5fB5E/FjZUrJk9LosQHJDQr3+D9xISlmMqsAVNjrS8pohtJT2aCQUss5FHgVR
-         TVfhmwwqHItMgebiqSXKeYbQCAP9Kq5yocYxlIIDl6FRexjT8VuqiWEu9FhT8thFav
-         fOAAR9oRiyMY9ysmxmwH4bXVRPFnZLEDU0IXZZaY=
+        b=dtirVH886UUBR/Dmg31GNbh6OFh+hhBJH3I2kHGJzsmNc9ctH0RbOIWlCu0V5QEZJ
+         Qpo7zraB4ITgkW+7ueW/9jzajc+1vfwX0Kc2WOd/u/nQRWO57JYCYaTcvyX19ggF9n
+         dhCzvYAwkJrByvfcDuj0e/ErhmK9Y6inVEs7BAmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ryuta NAKANISHI <nakanishi.ryuta@socionext.com>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.10 068/545] arm64: dts: uniphier: Fix USB interrupts for PXs3 SoC
-Date:   Fri, 19 Aug 2022 17:37:18 +0200
-Message-Id: <20220819153832.287146918@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>
+Subject: [PATCH 5.10 069/545] usb: dwc3: gadget: refactor dwc3_repare_one_trb
+Date:   Fri, 19 Aug 2022 17:37:19 +0200
+Message-Id: <20220819153832.330830463@linuxfoundation.org>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
 References: <20220819153829.135562864@linuxfoundation.org>
@@ -55,46 +53,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-commit fe17b91a7777df140d0f1433991da67ba658796c upstream.
+commit 23385cec5f354794dadced7f28c31da7ae3eb54c upstream.
 
-An interrupt for USB device are shared with USB host. Set interrupt-names
-property to common "dwc_usb3" instead of "host" and "peripheral".
+The function __dwc3_prepare_one_trb has many parameters. Since it is
+only used in dwc3_prepare_one_trb there is no point in keeping the
+function. We merge both functions and get rid of the big list of
+parameters.
 
-Cc: stable@vger.kernel.org
-Fixes: d7b9beb830d7 ("arm64: dts: uniphier: Add USB3 controller nodes")
-Reported-by: Ryuta NAKANISHI <nakanishi.ryuta@socionext.com>
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 40d829fb2ec6 ("usb: dwc3: gadget: Correct ISOC DATA PIDs for short packets")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Link: https://lore.kernel.org/r/20220704141812.1532306-2-m.grzeschik@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/socionext/uniphier-pxs3.dtsi |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/dwc3/gadget.c |   92 ++++++++++++++++++++--------------------------
+ 1 file changed, 40 insertions(+), 52 deletions(-)
 
---- a/arch/arm64/boot/dts/socionext/uniphier-pxs3.dtsi
-+++ b/arch/arm64/boot/dts/socionext/uniphier-pxs3.dtsi
-@@ -599,8 +599,8 @@
- 			compatible = "socionext,uniphier-dwc3", "snps,dwc3";
- 			status = "disabled";
- 			reg = <0x65a00000 0xcd00>;
--			interrupt-names = "host", "peripheral";
--			interrupts = <0 134 4>, <0 135 4>;
-+			interrupt-names = "dwc_usb3";
-+			interrupts = <0 134 4>;
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&pinctrl_usb0>, <&pinctrl_usb2>;
- 			clock-names = "ref", "bus_early", "suspend";
-@@ -701,8 +701,8 @@
- 			compatible = "socionext,uniphier-dwc3", "snps,dwc3";
- 			status = "disabled";
- 			reg = <0x65c00000 0xcd00>;
--			interrupt-names = "host", "peripheral";
--			interrupts = <0 137 4>, <0 138 4>;
-+			interrupt-names = "dwc_usb3";
-+			interrupts = <0 137 4>;
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&pinctrl_usb1>, <&pinctrl_usb3>;
- 			clock-names = "ref", "bus_early", "suspend";
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -970,17 +970,49 @@ static u32 dwc3_calc_trbs_left(struct dw
+ 	return trbs_left;
+ }
+ 
+-static void __dwc3_prepare_one_trb(struct dwc3_ep *dep, struct dwc3_trb *trb,
+-		dma_addr_t dma, unsigned int length, unsigned int chain,
+-		unsigned int node, unsigned int stream_id,
+-		unsigned int short_not_ok, unsigned int no_interrupt,
+-		unsigned int is_last, bool must_interrupt)
++/**
++ * dwc3_prepare_one_trb - setup one TRB from one request
++ * @dep: endpoint for which this request is prepared
++ * @req: dwc3_request pointer
++ * @trb_length: buffer size of the TRB
++ * @chain: should this TRB be chained to the next?
++ * @node: only for isochronous endpoints. First TRB needs different type.
++ * @use_bounce_buffer: set to use bounce buffer
++ * @must_interrupt: set to interrupt on TRB completion
++ */
++static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
++		struct dwc3_request *req, unsigned int trb_length,
++		unsigned int chain, unsigned int node, bool use_bounce_buffer,
++		bool must_interrupt)
+ {
++	struct dwc3_trb		*trb;
++	dma_addr_t		dma;
++	unsigned int		stream_id = req->request.stream_id;
++	unsigned int		short_not_ok = req->request.short_not_ok;
++	unsigned int		no_interrupt = req->request.no_interrupt;
++	unsigned int		is_last = req->request.is_last;
+ 	struct dwc3		*dwc = dep->dwc;
+ 	struct usb_gadget	*gadget = dwc->gadget;
+ 	enum usb_device_speed	speed = gadget->speed;
+ 
+-	trb->size = DWC3_TRB_SIZE_LENGTH(length);
++	if (use_bounce_buffer)
++		dma = dep->dwc->bounce_addr;
++	else if (req->request.num_sgs > 0)
++		dma = sg_dma_address(req->start_sg);
++	else
++		dma = req->request.dma;
++
++	trb = &dep->trb_pool[dep->trb_enqueue];
++
++	if (!req->trb) {
++		dwc3_gadget_move_started_request(req);
++		req->trb = trb;
++		req->trb_dma = dwc3_trb_dma_offset(dep, trb);
++	}
++
++	req->num_trbs++;
++
++	trb->size = DWC3_TRB_SIZE_LENGTH(trb_length);
+ 	trb->bpl = lower_32_bits(dma);
+ 	trb->bph = upper_32_bits(dma);
+ 
+@@ -1020,10 +1052,10 @@ static void __dwc3_prepare_one_trb(struc
+ 				unsigned int mult = 2;
+ 				unsigned int maxp = usb_endpoint_maxp(ep->desc);
+ 
+-				if (length <= (2 * maxp))
++				if (trb_length <= (2 * maxp))
+ 					mult--;
+ 
+-				if (length <= maxp)
++				if (trb_length <= maxp)
+ 					mult--;
+ 
+ 				trb->size |= DWC3_TRB_SIZE_PCM1(mult);
+@@ -1092,50 +1124,6 @@ static void __dwc3_prepare_one_trb(struc
+ 	trace_dwc3_prepare_trb(dep, trb);
+ }
+ 
+-/**
+- * dwc3_prepare_one_trb - setup one TRB from one request
+- * @dep: endpoint for which this request is prepared
+- * @req: dwc3_request pointer
+- * @trb_length: buffer size of the TRB
+- * @chain: should this TRB be chained to the next?
+- * @node: only for isochronous endpoints. First TRB needs different type.
+- * @use_bounce_buffer: set to use bounce buffer
+- * @must_interrupt: set to interrupt on TRB completion
+- */
+-static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
+-		struct dwc3_request *req, unsigned int trb_length,
+-		unsigned int chain, unsigned int node, bool use_bounce_buffer,
+-		bool must_interrupt)
+-{
+-	struct dwc3_trb		*trb;
+-	dma_addr_t		dma;
+-	unsigned int		stream_id = req->request.stream_id;
+-	unsigned int		short_not_ok = req->request.short_not_ok;
+-	unsigned int		no_interrupt = req->request.no_interrupt;
+-	unsigned int		is_last = req->request.is_last;
+-
+-	if (use_bounce_buffer)
+-		dma = dep->dwc->bounce_addr;
+-	else if (req->request.num_sgs > 0)
+-		dma = sg_dma_address(req->start_sg);
+-	else
+-		dma = req->request.dma;
+-
+-	trb = &dep->trb_pool[dep->trb_enqueue];
+-
+-	if (!req->trb) {
+-		dwc3_gadget_move_started_request(req);
+-		req->trb = trb;
+-		req->trb_dma = dwc3_trb_dma_offset(dep, trb);
+-	}
+-
+-	req->num_trbs++;
+-
+-	__dwc3_prepare_one_trb(dep, trb, dma, trb_length, chain, node,
+-			stream_id, short_not_ok, no_interrupt, is_last,
+-			must_interrupt);
+-}
+-
+ static bool dwc3_needs_extra_trb(struct dwc3_ep *dep, struct dwc3_request *req)
+ {
+ 	unsigned int maxp = usb_endpoint_maxp(dep->endpoint.desc);
 
 
