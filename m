@@ -2,77 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9669E599AAC
+	by mail.lfdr.de (Postfix) with ESMTP id 03F44599AAA
 	for <lists+stable@lfdr.de>; Fri, 19 Aug 2022 13:18:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348608AbiHSLHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 07:07:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48708 "EHLO
+        id S1348724AbiHSLKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 07:10:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348516AbiHSLHU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 07:07:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F5F2FBA5A
-        for <stable@vger.kernel.org>; Fri, 19 Aug 2022 04:07:18 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4872BB82751
-        for <stable@vger.kernel.org>; Fri, 19 Aug 2022 11:07:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A19CC433D6;
-        Fri, 19 Aug 2022 11:07:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1660907235;
-        bh=JPvnrUaQleYG9fRiIClWCkl3WYvHdIiARyVnVZJi1Lc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wurFzNTj5Vap5hppYQ2Ij9Ax+y8OnAYSx4a/ASuQViWHYhX7MZidZyx+qEZpY265Q
-         uL6MvsJTHRYBoCXkO2ZAzNElIC2dDrdgIxHOJuPVH5jcxiad0GBhQc9Q8aVXAwHNr3
-         001ETPPGl5XiIsa1PE9hd3GISxITcwZN08gMDDpU=
-Date:   Fri, 19 Aug 2022 13:07:08 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Michael Bestas <mkbestas@gmail.com>
-Cc:     hsinyi@chromium.org, rppt@linux.ibm.com, stable@vger.kernel.org,
-        swboyd@chromium.org, will@kernel.org
-Subject: Re: [PATCH] arm64: map FDT as RW for early_init_dt_scan()
-Message-ID: <Yv9u3A33IpJ8cPwU@kroah.com>
-References: <YvKVlhUZ2I1omy5S@kroah.com>
- <20220809181753.2556152-1-mkbestas@gmail.com>
+        with ESMTP id S1348704AbiHSLKS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 07:10:18 -0400
+Received: from mx0a-0064b401.pphosted.com (mx0a-0064b401.pphosted.com [205.220.166.238])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0266F4936;
+        Fri, 19 Aug 2022 04:10:17 -0700 (PDT)
+Received: from pps.filterd (m0250809.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27JAovmx007348;
+        Fri, 19 Aug 2022 04:07:32 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type :
+ content-transfer-encoding; s=PPS06212021;
+ bh=+xpItXt+HbP/PTzbqUy6/Ew9gXqfYLiFNtFjEYDxdK8=;
+ b=cdC+mml+3lMcwt2DJKKc4IQQByaxAPTcV7u4qRRh4Kxb/x9eTDUFZslcj/pdawMBCJOj
+ puQrwhbZnwX2lmCTrG5S0tMz5BWnwlWrOU4nDm+/1BlKIBM61gkiapCxkeKvm5I5G1md
+ ZUFqH371nCBdI2GeCXgIrezFivST/7nstUJDo0TVCq6kxFwi99gf1JYsaM+PI44TRZ/L
+ bXlrG/M7US9fvfdAs1d1oMqLWKuPvqwhKWcgzRc74y2ZZHEz74CKWm1o1gGrgd6GRzBt
+ xNIPwQe+3cnCydQ379IW8F/m0G/ifegLbWYAZD5SyeNVno9INIFYKEHULVK4DdafXgJb FA== 
+Received: from ala-exchng01.corp.ad.wrs.com (unknown-82-252.windriver.com [147.11.82.252])
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3hxbfjn0j1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+        Fri, 19 Aug 2022 04:07:32 -0700
+Received: from otp-dpanait-l2.corp.ad.wrs.com (128.224.125.191) by
+ ala-exchng01.corp.ad.wrs.com (147.11.82.252) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2242.12; Fri, 19 Aug 2022 04:07:28 -0700
+From:   Dragos-Marian Panait <dragos.panait@windriver.com>
+To:     <stable@vger.kernel.org>
+CC:     Pavel Skripkin <paskripkin@gmail.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Vasanthakumar Thiagarajan <vasanth@atheros.com>,
+        Sujith <Sujith.Manoharan@atheros.com>,
+        Senthil Balasubramanian <senthilkumar@atheros.com>,
+        "John W . Linville" <linville@tuxdriver.com>,
+        <linux-wireless@vger.kernel.org>, <netdev@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH 5.4 0/1] ath9k: fix use-after-free in ath9k_hif_usb_rx_cb
+Date:   Fri, 19 Aug 2022 14:07:18 +0300
+Message-ID: <20220819110719.915478-1-dragos.panait@windriver.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220809181753.2556152-1-mkbestas@gmail.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [128.224.125.191]
+X-ClientProxiedBy: ala-exchng01.corp.ad.wrs.com (147.11.82.252) To
+ ala-exchng01.corp.ad.wrs.com (147.11.82.252)
+X-Proofpoint-GUID: FjGF5FM6SlIzvYmFTN3t0l51Ie4CMrey
+X-Proofpoint-ORIG-GUID: FjGF5FM6SlIzvYmFTN3t0l51Ie4CMrey
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-19_06,2022-08-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ mlxlogscore=307 clxscore=1015 phishscore=0 bulkscore=0 priorityscore=1501
+ impostorscore=0 spamscore=0 lowpriorityscore=0 mlxscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2207270000
+ definitions=main-2208190043
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 09, 2022 at 09:17:53PM +0300, Michael Bestas wrote:
-> On Tue, 9 Aug 2022 19:12:54 +0200
-> Greg KH <gregkh@linuxfoundation.org> wrote:
-> 
-> > What about 4.14.y and newer?
-> > 
-> > thanks,
-> > 
-> > greg k-h  
-> 
-> This patch should be required on all stable kernels that got commit
-> "fdt: add support for rng-seed", however I have not tested it.
-> 
-> A similar backport exists in android 4.19 kernel:
-> https://android-review.googlesource.com/c/kernel/common/+/1238592
+The following commit is needed to fix CVE-2022-1679:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0ac4827f78c7ffe8eef074bc010e7e34bc22f533
 
-Great, please submit it so that we can include it.
+Pavel Skripkin (1):
+  ath9k: fix use-after-free in ath9k_hif_usb_rx_cb
 
-Also for 4.14.y.  I can't take a patch for an older kernel tree without
-the same commit being in a newer one, otherwise people would have
-regressions when upgrading.
+ drivers/net/wireless/ath/ath9k/htc.h          | 10 +++++-----
+ drivers/net/wireless/ath/ath9k/htc_drv_init.c |  3 ++-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-thanks,
 
-greg k-h
+base-commit: de0cd3ea700d1e8ed76705d02e33b524cbb84cf3
+-- 
+2.37.1
+
