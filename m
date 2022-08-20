@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDFFA59B270
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 09:01:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F88459B275
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 09:01:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229797AbiHUHAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 03:00:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49746 "EHLO
+        id S229900AbiHUHBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 03:01:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229836AbiHUHAV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 03:00:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD5D02A978;
-        Sun, 21 Aug 2022 00:00:17 -0700 (PDT)
+        with ESMTP id S229866AbiHUHAX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 03:00:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9DED2A97D;
+        Sun, 21 Aug 2022 00:00:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2044B80BA8;
-        Sun, 21 Aug 2022 07:00:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AB50C433C1;
-        Sun, 21 Aug 2022 07:00:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EE0A1B80BAB;
+        Sun, 21 Aug 2022 07:00:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EADCC433D6;
+        Sun, 21 Aug 2022 07:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661065214;
-        bh=WOM4Nyv3E4KUCgCalBOHyh7tljALqF9cO2FpVC93Dsg=;
+        s=korg; t=1661065217;
+        bh=U3R0PXOVeBNi/aGM4YLPCESs8wspJ1yGJqt1ZsKx6+c=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=P5nqA6/JwNGEoxKmIXlM2AfpJ8tHuvIPuRcsPx7rhBvZpVpKyhZlP5QTT+FpW/o1V
-         Ve5PgLAz2juv5NojFPu7sIFE+W1bbdwLjkPls3JGs364nChsSPlShBVG0rjSJvRYQ0
-         9ZwAA3Xb1BC6upMy1mwr9TSd7FCovq5IHi984YxU=
-Date:   Sat, 20 Aug 2022 20:14:42 +0200
+        b=x7Tf+AMVCgIQZwayiOfU/Y1dszhZX8/KbmuJcz/pS1ymQMDBPzGnQSi3kEHmunUhb
+         9crcz/ibXy39LqfgyrmoBMQ47F9XCVOGed0JyVtgzzLxH6mS2yrRHi+q9ClqBKgjcH
+         nz7755oseR7rTVc5iHnf51Hk3OcP10cEOgAQTzDY=
+Date:   Sat, 20 Aug 2022 20:16:07 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.19 0191/1157] hwmon: (sht15) Fix wrong assumptions in
- device remove callback
-Message-ID: <YwEkkn1xmGM5kHel@kroah.com>
-References: <20220815180439.416659447@linuxfoundation.org>
- <20220815180447.391756473@linuxfoundation.org>
- <20220815214911.wy7p5sqbog6r6tcg@pengutronix.de>
- <Yvt0Ms9ur2aSj2Zz@kroah.com>
- <20220819193501.glb43pf64zkl7n3p@pengutronix.de>
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
+Subject: Re: [PATCH 5.18 0/6] 5.18.19-rc1 review
+Message-ID: <YwEk5xZ/wXWJMMUq@kroah.com>
+References: <20220819153710.430046927@linuxfoundation.org>
+ <YwCxc5gwpmGRBUL1@debian>
+ <CADVatmM_xDmAORG8J0KgrCOwmEyVKd7kc8VGQRHPaLZzifivhg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220819193501.glb43pf64zkl7n3p@pengutronix.de>
+In-Reply-To: <CADVatmM_xDmAORG8J0KgrCOwmEyVKd7kc8VGQRHPaLZzifivhg@mail.gmail.com>
 X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,DATE_IN_PAST_12_24,
         DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
         RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -58,53 +59,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 19, 2022 at 09:35:01PM +0200, Uwe Kleine-König wrote:
-> Hello Greg,
+On Sat, Aug 20, 2022 at 11:32:36AM +0100, Sudip Mukherjee wrote:
+> On Sat, Aug 20, 2022 at 11:03 AM Sudip Mukherjee (Codethink)
+> <sudipm.mukherjee@gmail.com> wrote:
+> >
+> > Hi Greg,
+> >
+> > On Fri, Aug 19, 2022 at 05:40:12PM +0200, Greg Kroah-Hartman wrote:
+> > > -------------------
+> > > NOTE, this is the LAST 5.18.y stable release.  This tree will be
+> > > end-of-life after this one.  Please move to 5.19.y at this point in time
+> > > or let us know why that is not possible.
+> > > -------------------
+> > >
+> > > This is the start of the stable review cycle for the 5.18.19 release.
+> > > There are 6 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
+> > >
+> > > Responses should be made by Sun, 21 Aug 2022 15:36:59 +0000.
+> > > Anything received after that time might be too late.
+> >
 > 
-> On Tue, Aug 16, 2022 at 12:40:50PM +0200, Greg Kroah-Hartman wrote:
-> > On Mon, Aug 15, 2022 at 11:49:11PM +0200, Uwe Kleine-König wrote:
-> > > On Mon, Aug 15, 2022 at 07:52:27PM +0200, Greg Kroah-Hartman wrote:
-> > > > From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-> > > > 
-> > > > [ Upstream commit 7d4edccc9bbfe1dcdff641343f7b0c6763fbe774 ]
-> > > > 
-> > > > Taking a lock at the beginning of .remove() doesn't prevent new readers.
-> > > > With the existing approach it can happen, that a read occurs just when
-> > > > the lock was taken blocking the reader until the lock is released at the
-> > > > end of the remove callback which then accessed *data that is already
-> > > > freed then.
-> > > > 
-> > > > To actually fix this problem the hwmon core needs some adaption. Until
-> > > > this is implemented take the optimistic approach of assuming that all
-> > > > readers are gone after hwmon_device_unregister() and
-> > > > sysfs_remove_group() as most other drivers do. (And once the core
-> > > > implements that, taking the lock would deadlock.)
-> > > > 
-> > > > So drop the lock, move the reset to after device unregistration to keep
-> > > > the device in a workable state until it's deregistered. Also add a error
-> > > > message in case the reset fails and return 0 anyhow. (Returning an error
-> > > > code, doesn't stop the platform device unregistration and only results
-> > > > in a little helpful error message before the devm cleanup handlers are
-> > > > called.)
-> > > > 
-> > > > Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-> > > > Link: https://lore.kernel.org/r/20220725194344.150098-1-u.kleine-koenig@pengutronix.de
-> > > > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > > 
-> > > Does this mean my concerns I expressed in the mail with Message-Id:
-> > > 20220814155638.idxnihylofsxqlql@pengutronix.de were not taken into
-> > > consideration?
-> > 
-> > I can't find that message-id on lore.kernel.org, do you have a link?
+> <snip>
 > 
-> Oh, I missed your request earlier. No I don't have a link, the mail was
-> sent to Sasha Levin, Jean Delvare, Guenter Roeck and stable-commits as I
-> just replied to the "note to let you know that I've just added the patch
-> titled [...] to the 5.19-stable tree".
+> >
+> > powerpc failure is not seen in mainline. Same error as csky and mips.
+> >
+> > In function 'memcmp',
+> >     inlined from 'bacmp' at ./include/net/bluetooth/bluetooth.h:302:9,
+> >     inlined from 'l2cap_global_chan_by_psm' at net/bluetooth/l2cap_core.c:2002:15:
+> > ./include/linux/fortify-string.h:44:33: error: '__builtin_memcmp' specified bound 6 exceeds source size 0 [-Werror=stringop-overread]
+> >    44 | #define __underlying_memcmp     __builtin_memcmp
+> >       |                                 ^
+> > ./include/linux/fortify-string.h:404:16: note: in expansion of macro '__underlying_memcmp'
+> >   404 |         return __underlying_memcmp(p, q, size);
+> >       |                ^~~~~~~~~~~~~~~~~~~
+> > In function 'memcmp',
+> >     inlined from 'bacmp' at ./include/net/bluetooth/bluetooth.h:302:9,
+> >     inlined from 'l2cap_global_chan_by_psm' at net/bluetooth/l2cap_core.c:2003:15:
+> > ./include/linux/fortify-string.h:44:33: error: '__builtin_memcmp' specified bound 6 exceeds source size 0 [-Werror=stringop-overread]
+> >    44 | #define __underlying_memcmp     __builtin_memcmp
+> >       |                                 ^
+> > ./include/linux/fortify-string.h:404:16: note: in expansion of macro '__underlying_memcmp'
+> >   404 |         return __underlying_memcmp(p, q, size);
+> >       |                ^~~~~~~~~~~~~~~~~~~
+> >
+> > I am bisecting now to find out what caused it.
+> 
+> Introduced in v5.18.18 due to 11e008e59970 ("Bluetooth: L2CAP: Fix
+> l2cap_global_chan_by_psm regression").
+> But v5.19.y and mainline does not show the build failure as they also
+> have 41b7a347bf14 ("powerpc: Book3S 64-bit outline-only KASAN
+> support").
 
-Ok, I've dropped it now from all pending queues (5.10 and older), I can
-also revert it from the newer ones if you want me to.
+Ick, that's a mess.  This is going to be the last 5.18 tree, so I'm just
+going to leave this alone...
 
 thanks,
 
