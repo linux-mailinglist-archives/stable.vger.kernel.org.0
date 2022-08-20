@@ -2,32 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8D2F59AA91
-	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 03:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B53F59AA96
+	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 03:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244620AbiHTBs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 21:48:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45524 "EHLO
+        id S233470AbiHTB4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 21:56:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238875AbiHTBs1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 21:48:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19FBD17AAA;
-        Fri, 19 Aug 2022 18:48:22 -0700 (PDT)
+        with ESMTP id S229595AbiHTB4u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 21:56:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE2FCE191B;
+        Fri, 19 Aug 2022 18:56:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 948E1B82A29;
-        Sat, 20 Aug 2022 01:48:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37A86C4314B;
-        Sat, 20 Aug 2022 01:48:20 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.96)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1oPDbF-004uWL-1o;
-        Fri, 19 Aug 2022 21:48:33 -0400
-Message-ID: <20220820014833.395997394@goodmis.org>
-User-Agent: quilt/0.66
-Date:   Fri, 19 Aug 2022 21:40:39 -0400
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 462656194C;
+        Sat, 20 Aug 2022 01:56:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C302BC433D6;
+        Sat, 20 Aug 2022 01:56:47 +0000 (UTC)
+Date:   Fri, 19 Aug 2022 21:57:00 -0400
 From:   Steven Rostedt <rostedt@goodmis.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Ingo Molnar <mingo@kernel.org>,
@@ -35,11 +29,15 @@ Cc:     Ingo Molnar <mingo@kernel.org>,
         Masami Hiramatsu <mhiramat@kernel.org>,
         Tzvetomir Stoyanov <tz.stoyanov@gmail.com>,
         Tom Zanussi <zanussi@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH 4/4] tracing/eprobes: Have event probes be consistent with kprobes and
- uprobes
+Subject: Re: [PATCH 2/4] tracing/eprobes: Do not hardcode $comm as a string
+Message-ID: <20220819215700.549b4dac@gandalf.local.home>
+In-Reply-To: <20220820014833.035925907@goodmis.org>
 References: <20220820014035.531145719@goodmis.org>
+        <20220820014833.035925907@goodmis.org>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
         HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
@@ -49,140 +47,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+On Fri, 19 Aug 2022 21:40:37 -0400
+Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Currently, if a symbol "@" is attempted to be used with an event probe
-(eprobes), it will cause a NULL pointer dereference crash.
+> +++ b/kernel/trace/trace_probe.c
+> @@ -622,9 +622,10 @@ static int traceprobe_parse_probe_arg_body(const char *argv, ssize_t *size,
+>  
+>  	/*
+>  	 * Since $comm and immediate string can not be dereferenced,
+> -	 * we can find those by strcmp.
+> +	 * we can find those by strcmp. But ignore for eprobes.
+>  	 */
+> -	if (strcmp(arg, "$comm") == 0 || strncmp(arg, "\\\"", 2) == 0) {
+> +	if (!(flags & TPARG_FL_TPOINT) &&
+> +	    strcmp(arg, "$comm") == 0 || strncmp(arg, "\\\"", 2) == 0) {
 
-Both kprobes and uprobes can reference data other than the main registers.
-Such as immediate address, symbols and the current task name. Have eprobes
-do the same thing.
+And my tests fail shortly after I send this. It complains about a new
+warning. The above needs parenthesis around it.
 
-For "comm", if "comm" is used and the event being attached to does not
-have the "comm" field, then make it the "$comm" that kprobes has. This is
-consistent to the way histograms and filters work.
+Will send a v2 after my tests pass, in case it finds something else I
+missed.
 
-Cc: stable@vger.kernel.org
-Fixes: 7491e2c44278 ("tracing: Add a probe that attaches to trace events")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
----
- kernel/trace/trace_eprobe.c | 67 +++++++++++++++++++++++++++++++++----
- 1 file changed, 61 insertions(+), 6 deletions(-)
+-- Steve
 
-diff --git a/kernel/trace/trace_eprobe.c b/kernel/trace/trace_eprobe.c
-index a1d3423ab74f..63218a541217 100644
---- a/kernel/trace/trace_eprobe.c
-+++ b/kernel/trace/trace_eprobe.c
-@@ -227,6 +227,7 @@ static int trace_eprobe_tp_arg_update(struct trace_eprobe *ep, int i)
- 	struct probe_arg *parg = &ep->tp.args[i];
- 	struct ftrace_event_field *field;
- 	struct list_head *head;
-+	int ret = -ENOENT;
- 
- 	head = trace_get_fields(ep->event);
- 	list_for_each_entry(field, head, link) {
-@@ -236,9 +237,17 @@ static int trace_eprobe_tp_arg_update(struct trace_eprobe *ep, int i)
- 			return 0;
- 		}
- 	}
-+
-+	/* Argument no found on event. But allow for comm and COMM to be used */
-+	if (strcmp(parg->code->data, "COMM") == 0 ||
-+	    strcmp(parg->code->data, "comm") == 0) {
-+		parg->code->op = FETCH_OP_COMM;
-+		ret = 0;
-+	}
-+
- 	kfree(parg->code->data);
- 	parg->code->data = NULL;
--	return -ENOENT;
-+	return ret;
- }
- 
- static int eprobe_event_define_fields(struct trace_event_call *event_call)
-@@ -363,16 +372,38 @@ static unsigned long get_event_field(struct fetch_insn *code, void *rec)
- 
- static int get_eprobe_size(struct trace_probe *tp, void *rec)
- {
-+	struct fetch_insn *code;
- 	struct probe_arg *arg;
- 	int i, len, ret = 0;
- 
- 	for (i = 0; i < tp->nr_args; i++) {
- 		arg = tp->args + i;
--		if (unlikely(arg->dynamic)) {
-+		if (arg->dynamic) {
- 			unsigned long val;
- 
--			val = get_event_field(arg->code, rec);
--			len = process_fetch_insn_bottom(arg->code + 1, val, NULL, NULL);
-+			code = arg->code;
-+ retry:
-+			switch (code->op) {
-+			case FETCH_OP_TP_ARG:
-+				val = get_event_field(code, rec);
-+				break;
-+			case FETCH_OP_IMM:
-+				val = code->immediate;
-+				break;
-+			case FETCH_OP_COMM:
-+				val = (unsigned long)current->comm;
-+				break;
-+			case FETCH_OP_DATA:
-+				val = (unsigned long)code->data;
-+				break;
-+			case FETCH_NOP_SYMBOL:	/* Ignore a place holder */
-+				code++;
-+				goto retry;
-+			default:
-+				continue;
-+			}
-+			code++;
-+			len = process_fetch_insn_bottom(code, val, NULL, NULL);
- 			if (len > 0)
- 				ret += len;
- 		}
-@@ -390,8 +421,28 @@ process_fetch_insn(struct fetch_insn *code, void *rec, void *dest,
- {
- 	unsigned long val;
- 
--	val = get_event_field(code, rec);
--	return process_fetch_insn_bottom(code + 1, val, dest, base);
-+ retry:
-+	switch (code->op) {
-+	case FETCH_OP_TP_ARG:
-+		val = get_event_field(code, rec);
-+		break;
-+	case FETCH_OP_IMM:
-+		val = code->immediate;
-+		break;
-+	case FETCH_OP_COMM:
-+		val = (unsigned long)current->comm;
-+		break;
-+	case FETCH_OP_DATA:
-+		val = (unsigned long)code->data;
-+		break;
-+	case FETCH_NOP_SYMBOL:	/* Ignore a place holder */
-+		code++;
-+		goto retry;
-+	default:
-+		return -EILSEQ;
-+	}
-+	code++;
-+	return process_fetch_insn_bottom(code, val, dest, base);
- }
- NOKPROBE_SYMBOL(process_fetch_insn)
- 
-@@ -866,6 +917,10 @@ static int trace_eprobe_tp_update_arg(struct trace_eprobe *ep, const char *argv[
- 			trace_probe_log_err(0, BAD_ATTACH_ARG);
- 	}
- 
-+	/* Handle symbols "@" */
-+	if (!ret)
-+		ret = traceprobe_update_arg(&ep->tp.args[i]);
-+
- 	return ret;
- }
- 
--- 
-2.35.1
+
+
+>  		/* The type of $comm must be "string", and not an array. */
+>  		if (parg->count || (t && strcmp(t, "string")))
+>  			goto out;
+> -- 
