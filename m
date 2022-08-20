@@ -2,66 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A411859AEF5
-	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 18:04:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F95659AFE8
+	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 21:24:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233248AbiHTQD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Aug 2022 12:03:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38806 "EHLO
+        id S229521AbiHTTXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Aug 2022 15:23:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344352AbiHTQD4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 12:03:56 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5701D1D30C
-        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 09:03:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1661011434;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=dk1zbtbPz6wFeKktH5u18CfghQGE/vszg2cVU5h0PNU=;
-        b=QnwgELuMwCwPkf5O7M0JfexbXyI17IVkIDPSSyIjuZS78kUwIM8Y6VgDh9UnwjOVgIWI/U
-        NtE/B9OrZBetrN1vCpIZNwm+6HLaesOt1X18peANouS/glZExDe9ke7meez0MRV5SqbPL1
-        DqImv7JmsqymJrmtsalPPHmorqGuN7M=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-656-N4TlRh6JNyaL8pFQZ5MCpg-1; Sat, 20 Aug 2022 12:03:50 -0400
-X-MC-Unique: N4TlRh6JNyaL8pFQZ5MCpg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id E275080029D;
-        Sat, 20 Aug 2022 16:03:49 +0000 (UTC)
-Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id C2DC42026D4C;
-        Sat, 20 Aug 2022 16:03:49 +0000 (UTC)
-Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 27KG3nT9015653;
-        Sat, 20 Aug 2022 12:03:49 -0400
-Received: from localhost (mpatocka@localhost)
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 27KG3muE015649;
-        Sat, 20 Aug 2022 12:03:49 -0400
-X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
-Date:   Sat, 20 Aug 2022 12:03:48 -0400 (EDT)
-From:   Mikulas Patocka <mpatocka@redhat.com>
-X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
-To:     Pavel Machek <pavel@denx.de>
-cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Song Liu <song@kernel.org>, Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH 5.15 089/779] md-raid10: fix KASAN warning
-In-Reply-To: <20220819104534.GA11901@duo.ucw.cz>
-Message-ID: <alpine.LRH.2.02.2208201202090.15558@file01.intranet.prod.int.rdu2.redhat.com>
-References: <20220815180337.130757997@linuxfoundation.org> <20220815180341.087873206@linuxfoundation.org> <20220819104534.GA11901@duo.ucw.cz>
-User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
+        with ESMTP id S229812AbiHTTXR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 15:23:17 -0400
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E396D328;
+        Sat, 20 Aug 2022 12:23:11 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 327521C0004; Sat, 20 Aug 2022 21:23:09 +0200 (CEST)
+Date:   Sat, 20 Aug 2022 21:23:08 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.10 000/545] 5.10.137-rc1 review
+Message-ID: <20220820192308.GA5295@duo.ucw.cz>
+References: <20220819153829.135562864@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.4
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
+Content-Disposition: inline
+In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -69,31 +44,39 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+--VS++wcV0S1rZb1Fb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 19 Aug 2022, Pavel Machek wrote:
+Hi!
 
-> Hi!
-> 
-> > From: Mikulas Patocka <mpatocka@redhat.com>
-> > 
-> > commit d17f744e883b2f8d13cca252d71cfe8ace346f7d upstream.
-> > 
-> > There's a KASAN warning in raid10_remove_disk when running the lvm
-> > test lvconvert-raid-reshape.sh. We fix this warning by verifying that the
-> > value "number" is valid.
-> > 
-> > BUG: KASAN: slab-out-of-bounds in raid10_remove_disk+0x61/0x2a0 [raid10]
-> > Read of size 8 at addr ffff889108f3d300 by task mdX_raid10/124682
-> 
-> Is this place for array_index_nospec?
-> 
-> Best regards,
-> 								Pavel
+> This is the start of the stable review cycle for the 5.10.137 release.
+> There are 545 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
-Hi
+CIP testing did not find any problems here:
 
-I think it is not needed - userspace code can't trigger this code path at 
-will.
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+5.10.y
 
-Mikulas
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
 
+Best regards,
+                                                                Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--VS++wcV0S1rZb1Fb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYwE0nAAKCRAw5/Bqldv6
+8j6bAJ9GdCUn4deuhSch0NvlIAG9sfBBYACfedkFc7eCWoSWkA3HJr1X7H1kmk8=
+=UjoQ
+-----END PGP SIGNATURE-----
+
+--VS++wcV0S1rZb1Fb--
