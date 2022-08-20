@@ -2,132 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53C3059AA56
-	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 03:05:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1038D59AA8E
+	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 03:52:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244833AbiHTBEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Aug 2022 21:04:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59048 "EHLO
+        id S235521AbiHTBs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Aug 2022 21:48:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230223AbiHTBEu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 21:04:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB85B1095BD
-        for <stable@vger.kernel.org>; Fri, 19 Aug 2022 18:04:49 -0700 (PDT)
+        with ESMTP id S232860AbiHTBs0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Aug 2022 21:48:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C708C1401E;
+        Fri, 19 Aug 2022 18:48:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66ECA618CE
-        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 01:04:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8535C43141
-        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 01:04:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1660957488;
-        bh=/+ZC0w82kc/bfDuYBIgG/HR+pney7i1yXva3ldnJsgE=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Nqrf7/wprdMflE6z7u3/RsY/8GlHVm0ErKB266r85igMtX+wGaWRjA5jX9bmQ6ms1
-         JZnmDLzscLdh/ESskjXJt5cU/QrapTi75ZHM+xHDmFjQuApJD8QErjZ8jvM1aM/KO4
-         wsh9/zsMdP6Rb8lSetTusajeyQpNsleXOcpqS6VOI2sc84io31YoDrM03gRjIAO4zR
-         lsV4ALl/GfTzRIoLI8DbB2eke2BLyJZXXG9N/XypG9wXA/+AzHaIhGIbBMqeGn593C
-         YKsJAtkSltbYgULkrCi9f5rGXvfhb6TruhAzyzGayLqn/oe4uc7NhmaTZ3metZKn9B
-         ChVu310QMOuUA==
-Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-32a09b909f6so163344937b3.0
-        for <stable@vger.kernel.org>; Fri, 19 Aug 2022 18:04:48 -0700 (PDT)
-X-Gm-Message-State: ACgBeo0fPJNTdKB49p4i7ZkgOEecOu7XnBjAsraWRK5VlAdU8zyvf/5j
-        ToeOnNXni2dQ4qTzbKxaZeo55ueNo9f8XEDnG4g=
-X-Google-Smtp-Source: AA6agR7+9THx7w6NR2eGp9SXeAJVzTaUBuGXj6rYMP1Mivt8CtTu5kKiRiMhoIy3tpqheVPCJg35nk+7wp3SWDlhDQU=
-X-Received: by 2002:a81:63c3:0:b0:323:ce27:4e4d with SMTP id
- x186-20020a8163c3000000b00323ce274e4dmr10313901ywb.472.1660957487793; Fri, 19
- Aug 2022 18:04:47 -0700 (PDT)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EC1861944;
+        Sat, 20 Aug 2022 01:48:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B808CC433D7;
+        Sat, 20 Aug 2022 01:48:19 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.96)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1oPDbF-004uUf-04;
+        Fri, 19 Aug 2022 21:48:33 -0400
+Message-ID: <20220820014832.854211663@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Fri, 19 Aug 2022 21:40:36 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Tzvetomir Stoyanov <tz.stoyanov@gmail.com>,
+        Tom Zanussi <zanussi@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH 1/4] tracing/eprobes: Do not allow eprobes to use $stack, or % for regs
+References: <20220820014035.531145719@goodmis.org>
 MIME-Version: 1.0
-References: <000401d8a746$3eaca200$bc05e600$@whissi.de> <000001d8ad7e$c340ad70$49c20850$@whissi.de>
- <2a2d1075-aa22-8c4d-ca21-274200dce2fc@leemhuis.info> <0FBCAB10-545E-45E2-A0C8-D7620817651D@digitalocean.com>
- <CAPhsuW5f9QD+gzJ9eBhn5irsHvrsvkWjSnA4MPaHsQjjLMypXg@mail.gmail.com>
- <43e678ca-3fc3-6c08-f035-2c31a34dd889@whissi.de> <701f3fc0-2f0c-a32c-0d41-b489a9a59b99@whissi.de>
- <0192a465-d75d-c09a-732a-eb2215bf3479@whissi.de>
-In-Reply-To: <0192a465-d75d-c09a-732a-eb2215bf3479@whissi.de>
-From:   Song Liu <song@kernel.org>
-Date:   Fri, 19 Aug 2022 18:04:36 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW6yLLcj3GtA+4mUFooQmfGo3cVTYn-xBEY2KuP1wwmQNA@mail.gmail.com>
-Message-ID: <CAPhsuW6yLLcj3GtA+4mUFooQmfGo3cVTYn-xBEY2KuP1wwmQNA@mail.gmail.com>
-Subject: Re: [REGRESSION] v5.17-rc1+: FIFREEZE ioctl system call hangs
-To:     Thomas Deutschmann <whissi@whissi.de>
-Cc:     Vishal Verma <vverma@digitalocean.com>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        Jens Axboe <axboe@kernel.dk>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 18, 2022 at 7:46 PM Thomas Deutschmann <whissi@whissi.de> wrote:
->
-> On 2022-08-17 20:29, Thomas Deutschmann wrote:
-> > I will do another round with 2b7196a219bf (good) <-> 5.18 (bad).
->
-> ...and this one also ended up in
->
-> > first bad commit: [fa55b7dcdc43c1aa1ba12bca9d2dd4318c2a0dbf] Linux 5.16-rc1
->
-> Now I built vanilla 5.18.18 and fsfreeze will hang after FIFREEZE ioctl
-> system call after running my reproducer which generated I/O load.
->
-> => So looks like bug is still present, right?
->
-> When I now just edit Makefile and set KV <5.16-rc1, i.e.
->
-> > diff --git a/Makefile b/Makefile
-> > index 23162e2bdf14..0f344944d828 100644
-> > --- a/Makefile
-> > +++ b/Makefile
-> > @@ -1,7 +1,7 @@
-> >  # SPDX-License-Identifier: GPL-2.0
-> >  VERSION = 5
-> > -PATCHLEVEL = 18
-> > -SUBLEVEL = 18
-> > +PATCHLEVEL = 15
-> > +SUBLEVEL = 0
-> >  EXTRAVERSION =
-> >  NAME = Superb Owl
-> >
->
-> then I can no longer reproduce the problem.
->
-> Of course,
->
-> > diff --git a/Makefile b/Makefile
-> > index 23162e2bdf14..0f344944d828 100644
-> > --- a/Makefile
-> > +++ b/Makefile
-> > @@ -1,7 +1,7 @@
-> >  # SPDX-License-Identifier: GPL-2.0
-> >  VERSION = 5
-> > -PATCHLEVEL = 18
-> > -SUBLEVEL = 18
-> > +PATCHLEVEL = 15
-> > +SUBLEVEL = 99
-> >  EXTRAVERSION =
-> >  NAME = Superb Owl
-> >
->
-> will freeze again.
->
-> For me it looks like kernel is taking a different code path depending on
-> KV but I don't know how to proceed. Any idea how to continue debugging this?
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
 
-Hmm.. does the user space use different logic based on the kernel version?
+While playing with event probes (eprobes), I tried to see what would
+happen if I attempted to retrieve the instruction pointer (%rip) knowing
+that event probes do not use pt_regs. The result was:
 
-I still cannot reproduce the issue. Have you tried to reproduce the
-issue without
-mysqld? Something with fio will be great.
+ BUG: kernel NULL pointer dereference, address: 0000000000000024
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP PTI
+ CPU: 1 PID: 1847 Comm: trace-cmd Not tainted 5.19.0-rc5-test+ #309
+ Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01
+v03.03 07/14/2016
+ RIP: 0010:get_event_field.isra.0+0x0/0x50
+ Code: ff 48 c7 c7 c0 8f 74 a1 e8 3d 8b f5 ff e8 88 09 f6 ff 4c 89 e7 e8
+50 6a 13 00 48 89 ef 5b 5d 41 5c 41 5d e9 42 6a 13 00 66 90 <48> 63 47 24
+8b 57 2c 48 01 c6 8b 47 28 83 f8 02 74 0e 83 f8 04 74
+ RSP: 0018:ffff916c394bbaf0 EFLAGS: 00010086
+ RAX: ffff916c854041d8 RBX: ffff916c8d9fbf50 RCX: ffff916c255d2000
+ RDX: 0000000000000000 RSI: ffff916c255d2008 RDI: 0000000000000000
+ RBP: 0000000000000000 R08: ffff916c3a2a0c08 R09: ffff916c394bbda8
+ R10: 0000000000000000 R11: 0000000000000000 R12: ffff916c854041d8
+ R13: ffff916c854041b0 R14: 0000000000000000 R15: 0000000000000000
+ FS:  0000000000000000(0000) GS:ffff916c9ea40000(0000)
+knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000024 CR3: 000000011b60a002 CR4: 00000000001706e0
+ Call Trace:
+  <TASK>
+  get_eprobe_size+0xb4/0x640
+  ? __mod_node_page_state+0x72/0xc0
+  __eprobe_trace_func+0x59/0x1a0
+  ? __mod_lruvec_page_state+0xaa/0x1b0
+  ? page_remove_file_rmap+0x14/0x230
+  ? page_remove_rmap+0xda/0x170
+  event_triggers_call+0x52/0xe0
+  trace_event_buffer_commit+0x18f/0x240
+  trace_event_raw_event_sched_wakeup_template+0x7a/0xb0
+  try_to_wake_up+0x260/0x4c0
+  __wake_up_common+0x80/0x180
+  __wake_up_common_lock+0x7c/0xc0
+  do_notify_parent+0x1c9/0x2a0
+  exit_notify+0x1a9/0x220
+  do_exit+0x2ba/0x450
+  do_group_exit+0x2d/0x90
+  __x64_sys_exit_group+0x14/0x20
+  do_syscall_64+0x3b/0x90
+  entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Thanks,
-Song
+Obviously this is not the desired result.
+
+Move the testing for TPARG_FL_TPOINT which is only used for event probes
+to the top of the "$" variable check, as all the other variables are not
+used for event probes. Also add a check in the register parsing "%" to
+fail if an event probe is used.
+
+Cc: stable@vger.kernel.org
+Fixes: 7491e2c44278 ("tracing: Add a probe that attaches to trace events")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+---
+ kernel/trace/trace_probe.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
+
+diff --git a/kernel/trace/trace_probe.c b/kernel/trace/trace_probe.c
+index 850a88abd33b..dec657af363c 100644
+--- a/kernel/trace/trace_probe.c
++++ b/kernel/trace/trace_probe.c
+@@ -283,7 +283,14 @@ static int parse_probe_vars(char *arg, const struct fetch_type *t,
+ 	int ret = 0;
+ 	int len;
+ 
+-	if (strcmp(arg, "retval") == 0) {
++	if (flags & TPARG_FL_TPOINT) {
++		if (code->data)
++			return -EFAULT;
++		code->data = kstrdup(arg, GFP_KERNEL);
++		if (!code->data)
++			return -ENOMEM;
++		code->op = FETCH_OP_TP_ARG;
++	} else if (strcmp(arg, "retval") == 0) {
+ 		if (flags & TPARG_FL_RETURN) {
+ 			code->op = FETCH_OP_RETVAL;
+ 		} else {
+@@ -323,13 +330,6 @@ static int parse_probe_vars(char *arg, const struct fetch_type *t,
+ 		code->op = FETCH_OP_ARG;
+ 		code->param = (unsigned int)param - 1;
+ #endif
+-	} else if (flags & TPARG_FL_TPOINT) {
+-		if (code->data)
+-			return -EFAULT;
+-		code->data = kstrdup(arg, GFP_KERNEL);
+-		if (!code->data)
+-			return -ENOMEM;
+-		code->op = FETCH_OP_TP_ARG;
+ 	} else
+ 		goto inval_var;
+ 
+@@ -384,6 +384,11 @@ parse_probe_arg(char *arg, const struct fetch_type *type,
+ 		break;
+ 
+ 	case '%':	/* named register */
++		if (flags & TPARG_FL_TPOINT) {
++			/* eprobes do not handle registers */
++			trace_probe_log_err(offs, BAD_VAR);
++			break;
++		}
+ 		ret = regs_query_register_offset(arg + 1);
+ 		if (ret >= 0) {
+ 			code->op = FETCH_OP_REG;
+-- 
+2.35.1
