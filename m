@@ -2,115 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFAE459AB5C
-	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 06:27:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0853659AB67
+	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 06:36:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231598AbiHTE1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Aug 2022 00:27:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59806 "EHLO
+        id S243064AbiHTEf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Aug 2022 00:35:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229458AbiHTE1b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 00:27:31 -0400
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CF2512ABE
-        for <stable@vger.kernel.org>; Fri, 19 Aug 2022 21:27:29 -0700 (PDT)
-Received: by mail-lf1-x12d.google.com with SMTP id a16so163465lfs.3
-        for <stable@vger.kernel.org>; Fri, 19 Aug 2022 21:27:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc;
-        bh=wC9lL9Kc6Kp7xZsJEHL/dIwZgeCbFL0R65oEXkMpUCA=;
-        b=fXJr+IvqO5eCLb4L0UNuczZ9ytlfp93vBptFNfXYrkEM4z+aLvwjCDezTPjppA0MbE
-         0MeM/jpKhgBUvnnC9yaWkqmdX3s76mvgMTc1lDf5Mzmhjxp4KHnPbmUxKpBLKzah5FER
-         3jT0ZV/4hcOdQzDAGHvt8T4loNkP74uKIm59r44Ebltvd5D0RztGXXjo944NXqhu9bWZ
-         YS5cQ0q2YyuZ4KDbaJCuObYLp4jvsis8zduYJ7THpi75EPKa1pmxFJn0Ykt2YNSBEHvf
-         lkw5wVZSngpCxNVehDv4Iijum6BMafTE0qEQjh7/RcLcfb39UqAMGO3Y3tv/YhbiOzYe
-         g5bg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc;
-        bh=wC9lL9Kc6Kp7xZsJEHL/dIwZgeCbFL0R65oEXkMpUCA=;
-        b=c7YFCI3xA3Db5nI+Jwd8dJJsLp0wSMa5/cVTv/SIo5gMe0ksU1PYMEuv/6PEm83rIH
-         Tg6Tk7Gj0fMT7LlfTpjqDK1jZAlMCnSL56ipJYfMggD4cz9UzW+X9/QizT6Ix9CL9ylK
-         CJSzUF8X2c4hd7/WKjaF7m6dITlh7QkJX+dJMo5mi7axyPSiz3HWcm/LuTK05Uu+1xsq
-         1iVbchw8ah4FGgn+GWP296Gmn8nXaofcWzaEkU2ekaA9jpa0ySW+gYr9fsp6BUZ1xXET
-         onYuilhVhJscabuah+97xjALnxBX80uoS2ecWIwYjcXZmHgjAwkICMGUvXl+AJOvuX3o
-         467A==
-X-Gm-Message-State: ACgBeo3ZalRNGyGVxEqiGl3jxrcucLyScTf9ZLtQaOpWVsjzNocTBJ0X
-        yLQgtfLGDavGbbhfaTr6aBDIWkuPF9pGT9SDgzGKjbC9xHTxBg==
-X-Google-Smtp-Source: AA6agR7p+ven6ErQfFbkAvUx1F1VvXjx8u5VcCIIsX5st+SftUxZQa+jCMMAoIJmnvfUWU+Q1dRvLxf5/wJ06Ey0BoM=
-X-Received: by 2002:a05:6512:131f:b0:492:992f:1f3c with SMTP id
- x31-20020a056512131f00b00492992f1f3cmr3188670lfu.565.1660969646675; Fri, 19
- Aug 2022 21:27:26 -0700 (PDT)
+        with ESMTP id S229458AbiHTEf6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 00:35:58 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0915DA3C2;
+        Fri, 19 Aug 2022 21:35:55 -0700 (PDT)
+Received: from dggpemm500021.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4M8m364hr8znTbf;
+        Sat, 20 Aug 2022 12:33:38 +0800 (CST)
+Received: from dggpemm500019.china.huawei.com (7.185.36.180) by
+ dggpemm500021.china.huawei.com (7.185.36.109) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Sat, 20 Aug 2022 12:35:53 +0800
+Received: from k04.huawei.com (10.67.174.115) by
+ dggpemm500019.china.huawei.com (7.185.36.180) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Sat, 20 Aug 2022 12:35:53 +0800
+From:   Pu Lehui <pulehui@huawei.com>
+To:     <bpf@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <stable@vger.kernel.org>,
+        <syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Pu Lehui <pulehui@huawei.com>
+Subject: [PATCH 5.10] bpf: Fix KASAN use-after-free Read in compute_effective_progs
+Date:   Sat, 20 Aug 2022 13:05:18 +0800
+Message-ID: <20220820050518.2118130-1-pulehui@huawei.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-From:   =?UTF-8?B?6I+c5Y+2?= <ye.jingchen@gmail.com>
-Date:   Sat, 20 Aug 2022 12:27:14 +0800
-Message-ID: <CAA6RncSwQL5A1Ox3a088Kpp4=-bHPzAGcJa_fEFkiE801tAJjw@mail.gmail.com>
-Subject: No Audio from AMDGPU HDMI on 5.19.2
-To:     stable@vger.kernel.org
-Cc:     regressions@lists.linux.dev, amd-gfx@lists.freedesktop.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.67.174.115]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpemm500019.china.huawei.com (7.185.36.180)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+From: Tadeusz Struk <tadeusz.struk@linaro.org>
 
-I experienced this issue on Arch Linux 5.19.2-arch1-1 kernel on an HP
-laptop with AMD Ryzen 6850HS CPU (detailed spec below), that the audio
-is completely silent on the HDMI connected monitor. KDE audio settings
-says everything works normally, HDMI audio shows up and can be
-selected as the default output, just no sound from it.
+commit 4c46091ee985ae84c60c5e95055d779fcd291d87 upstream.
 
-It worked fine on Arch kernel v5.19.1-arch2. Laptop speakers always
-work, and the monitor works when connected to another Windows laptop
-over HDMI, so the monitor isn't the culprit I assume.
+Syzbot found a Use After Free bug in compute_effective_progs().
+The reproducer creates a number of BPF links, and causes a fault
+injected alloc to fail, while calling bpf_link_detach on them.
+Link detach triggers the link to be freed by bpf_link_free(),
+which calls __cgroup_bpf_detach() and update_effective_progs().
+If the memory allocation in this function fails, the function restores
+the pointer to the bpf_cgroup_link on the cgroup list, but the memory
+gets freed just after it returns. After this, every subsequent call to
+update_effective_progs() causes this already deallocated pointer to be
+dereferenced in prog_list_length(), and triggers KASAN UAF error.
 
-Kernel log from the journal didn't seem to contain something relevant,
-but it may be me not knowing what to look for.
+To fix this issue don't preserve the pointer to the prog or link in the
+list, but remove it and replace it with a dummy prog without shrinking
+the table. The subsequent call to __cgroup_bpf_detach() or
+__cgroup_bpf_detach() will correct it.
 
-This is discovered on Arch Linux kernel 5.19.2-arch1-1, but also
-reproducible on vanilla v5.19.2 tag.
+Fixes: af6eea57437a ("bpf: Implement bpf_link-based cgroup BPF program attachment")
+Reported-by: <syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com>
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://syzkaller.appspot.com/bug?id=8ebf179a95c2a2670f7cf1ba62429ec044369db4
+Link: https://lore.kernel.org/bpf/20220517180420.87954-1-tadeusz.struk@linaro.org
+Signed-off-by: Pu Lehui <pulehui@huawei.com>
+---
+ kernel/bpf/cgroup.c | 70 ++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 60 insertions(+), 10 deletions(-)
 
-Bisecting between tag v5.19.1 and v5.19.2 in the stable tree gives:
-308d0d5d98c294b1185d6d7da60b268e0fe30193 is the first bad commit
-commit 308d0d5d98c294b1185d6d7da60b268e0fe30193
-Author: Leung, Martin <Martin.Leung@amd.com>
-Date:   Fri May 13 17:40:42 2022 -0400
+diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
+index 6aa9e10c6335..d154e52dd7ae 100644
+--- a/kernel/bpf/cgroup.c
++++ b/kernel/bpf/cgroup.c
+@@ -653,6 +653,60 @@ static struct bpf_prog_list *find_detach_entry(struct list_head *progs,
+ 	return ERR_PTR(-ENOENT);
+ }
+ 
++/**
++ * purge_effective_progs() - After compute_effective_progs fails to alloc new
++ *			     cgrp->bpf.inactive table we can recover by
++ *			     recomputing the array in place.
++ *
++ * @cgrp: The cgroup which descendants to travers
++ * @prog: A program to detach or NULL
++ * @link: A link to detach or NULL
++ * @type: Type of detach operation
++ */
++static void purge_effective_progs(struct cgroup *cgrp, struct bpf_prog *prog,
++				  struct bpf_cgroup_link *link,
++				  enum bpf_attach_type type)
++{
++	struct cgroup_subsys_state *css;
++	struct bpf_prog_array *progs;
++	struct bpf_prog_list *pl;
++	struct list_head *head;
++	struct cgroup *cg;
++	int pos;
++
++	/* recompute effective prog array in place */
++	css_for_each_descendant_pre(css, &cgrp->self) {
++		struct cgroup *desc = container_of(css, struct cgroup, self);
++
++		if (percpu_ref_is_zero(&desc->bpf.refcnt))
++			continue;
++
++		/* find position of link or prog in effective progs array */
++		for (pos = 0, cg = desc; cg; cg = cgroup_parent(cg)) {
++			if (pos && !(cg->bpf.flags[type] & BPF_F_ALLOW_MULTI))
++				continue;
++
++			head = &cg->bpf.progs[type];
++			list_for_each_entry(pl, head, node) {
++				if (!prog_list_prog(pl))
++					continue;
++				if (pl->prog == prog && pl->link == link)
++					goto found;
++				pos++;
++			}
++		}
++found:
++		BUG_ON(!cg);
++		progs = rcu_dereference_protected(
++				desc->bpf.effective[type],
++				lockdep_is_held(&cgroup_mutex));
++
++		/* Remove the program from the array */
++		WARN_ONCE(bpf_prog_array_delete_safe_at(progs, pos),
++			  "Failed to purge a prog from array at index %d", pos);
++	}
++}
++
+ /**
+  * __cgroup_bpf_detach() - Detach the program or link from a cgroup, and
+  *                         propagate the change to descendants
+@@ -671,7 +725,6 @@ int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
+ 	u32 flags = cgrp->bpf.flags[type];
+ 	struct bpf_prog_list *pl;
+ 	struct bpf_prog *old_prog;
+-	int err;
+ 
+ 	if (prog && link)
+ 		/* only one of prog or link can be specified */
+@@ -686,9 +739,12 @@ int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
+ 	pl->prog = NULL;
+ 	pl->link = NULL;
+ 
+-	err = update_effective_progs(cgrp, type);
+-	if (err)
+-		goto cleanup;
++	if (update_effective_progs(cgrp, type)) {
++		/* if update effective array failed replace the prog with a dummy prog*/
++		pl->prog = old_prog;
++		pl->link = link;
++		purge_effective_progs(cgrp, old_prog, link, type);
++	}
+ 
+ 	/* now can actually delete it from this cgroup list */
+ 	list_del(&pl->node);
+@@ -700,12 +756,6 @@ int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
+ 		bpf_prog_put(old_prog);
+ 	static_branch_dec(&cgroup_bpf_enabled_key);
+ 	return 0;
+-
+-cleanup:
+-	/* restore back prog or link */
+-	pl->prog = old_prog;
+-	pl->link = link;
+-	return err;
+ }
+ 
+ /* Must be called with cgroup_mutex held to avoid races. */
+-- 
+2.25.1
 
-   drm/amdgpu/display: Prepare for new interfaces
-
-   [ Upstream commit a820190204aef0739aa3a067d00273d117f9367c ]
-
-Anything else I can do to investigate?
-
-My hardware spec:
-Laptop: HP EliteBook 845 14 inch G9 Notebook PC
-CPU: AMD Ryzen 7 PRO 6850HS with Radeon Graphics
-GPU: VGA compatible controller: Advanced Micro Devices, Inc. [AMD/ATI]
-Rembrandt [Radeon 680M]
-
-% lspci | grep -i audio
-63:00.1 Audio device: Advanced Micro Devices, Inc. [AMD/ATI] Rembrandt
-Radeon High Definition Audio Controller
-63:00.5 Multimedia controller: Advanced Micro Devices, Inc. [AMD]
-ACP/ACP3X/ACP6x Audio Coprocessor (rev 60)
-63:00.6 Audio device: Advanced Micro Devices, Inc. [AMD] Family
-17h/19h HD Audio Controller
-
-Software:
-plasma-desktop 5.25.4-1
-plasma-pa 5.25.4-1
-pipewire 1:0.3.56-1
-pipewire-pulse 1:0.3.56-1
-wireplumber 0.4.11-4
-alsa-card-profiles 1:0.3.56-1
-linux-firmware 20220708.be7798e-1
-sof-firmware 2.2-1
