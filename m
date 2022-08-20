@@ -2,52 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB09659ACC0
-	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 10:50:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1086059ACE7
+	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 11:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343986AbiHTItv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Aug 2022 04:49:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33378 "EHLO
+        id S1344268AbiHTJZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Aug 2022 05:25:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344696AbiHTItt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 04:49:49 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC63FA033B;
-        Sat, 20 Aug 2022 01:49:47 -0700 (PDT)
+        with ESMTP id S234988AbiHTJZk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 05:25:40 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA06D5F983;
+        Sat, 20 Aug 2022 02:25:38 -0700 (PDT)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 7D7C11F954;
-        Sat, 20 Aug 2022 08:49:46 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id C5923337A8;
+        Sat, 20 Aug 2022 09:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1660985386; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=bujd+j2pIZfP/aYTjooIUoA0NEySBak3KeCfAnCzdpo=;
-        b=UrrPcH9QAJJSAe8uTB2WQ41nVuQvRr68CJcGAsdqaAkmRMIl+zkJHigvmmvqeV9G+ijARp
-        V5x/iFUHQssQx2XGKTbm/m/U0QpzqgZWYtA7mLh0jMhup9ZZ0HploReEJGNBkN1IFfQjUm
-        gSfxPkFNKVJDPdc5aqm6ZAp65ZBhMg8=
+        t=1660987536; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=kJU1ufk7XsI6BxvM7y8ee3l2GxtzRVD+Tg1mt0G7ZYc=;
+        b=J+NnjJlsSZkjxe4+QRQfV1WFaeKpYiRY31Xsi/w8OiVSq6NjuIY7p8QpDu1g83mJSEjP7U
+        /WkFYpr2jvyeLB11aZ9DKc94f+Ghl4j9SAWsS5iXxO6dtpRNXWvJR9jrx4LohFq/zijX8q
+        F/nJvM90ehANBi/p58aDfOujwRwNRrs=
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 3959013523;
-        Sat, 20 Aug 2022 08:49:44 +0000 (UTC)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 627FB13440;
+        Sat, 20 Aug 2022 09:25:36 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id WBqtOiigAGNGKAAAMHmgww
-        (envelope-from <wqu@suse.com>); Sat, 20 Aug 2022 08:49:44 +0000
-From:   Qu Wenruo <wqu@suse.com>
-To:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Sterba <dsterba@suse.com>
-Subject: [PATCH STABLE 4.14 2/2] btrfs: raid56: don't trust any cached sector in __raid56_parity_recover()
-Date:   Sat, 20 Aug 2022 16:49:23 +0800
-Message-Id: <949b700622933e9a2c5fe999017c14f5597ce6a6.1660985049.git.wqu@suse.com>
-X-Mailer: git-send-email 2.37.1
-In-Reply-To: <cover.1660985049.git.wqu@suse.com>
-References: <cover.1660985049.git.wqu@suse.com>
+        id WEGEFpCoAGPJMAAAMHmgww
+        (envelope-from <jgross@suse.com>); Sat, 20 Aug 2022 09:25:36 +0000
+From:   Juergen Gross <jgross@suse.com>
+To:     xen-devel@lists.xenproject.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
+Cc:     Juergen Gross <jgross@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Pavel Machek <pavel@ucw.cz>, Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH v2 00/10] x86: make pat and mtrr independent from each other
+Date:   Sat, 20 Aug 2022 11:25:23 +0200
+Message-Id: <20220820092533.29420-1-jgross@suse.com>
+X-Mailer: git-send-email 2.35.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -59,204 +63,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit f6065f8edeb25f4a9dfe0b446030ad995a84a088 upstream.
+Today PAT can't be used without MTRR being available, unless MTRR is at
+least configured via CONFIG_MTRR and the system is running as Xen PV
+guest. In this case PAT is automatically available via the hypervisor,
+but the PAT MSR can't be modified by the kernel and MTRR is disabled.
 
-[BUG]
-There is a small workload which will always fail with recent kernel:
-(A simplified version from btrfs/125 test case)
+The same applies to a kernel built with no MTRR support: it won't
+allow to use the PAT MSR, even if there is no technical reason for
+that, other than setting up PAT on all cpus the same way (which is a
+requirement of the processor's cache management) is relying on some
+MTRR specific code.
 
-  mkfs.btrfs -f -m raid5 -d raid5 -b 1G $dev1 $dev2 $dev3
-  mount $dev1 $mnt
-  xfs_io -f -c "pwrite -S 0xee 0 1M" $mnt/file1
-  sync
-  umount $mnt
-  btrfs dev scan -u $dev3
-  mount -o degraded $dev1 $mnt
-  xfs_io -f -c "pwrite -S 0xff 0 128M" $mnt/file2
-  umount $mnt
-  btrfs dev scan
-  mount $dev1 $mnt
-  btrfs balance start --full-balance $mnt
-  umount $mnt
+Fix all of that by:
 
-The failure is always failed to read some tree blocks:
+- moving the function needed by PAT from MTRR specific code one level
+  up
+- reworking the init sequences of MTRR and PAT to be more similar to
+  each other without calling PAT from MTRR code
+- removing the dependency of PAT on MTRR
 
-  BTRFS info (device dm-4): relocating block group 217710592 flags data|raid5
-  BTRFS error (device dm-4): parent transid verify failed on 38993920 wanted 9 found 7
-  BTRFS error (device dm-4): parent transid verify failed on 38993920 wanted 9 found 7
-  ...
+While working on that I discovered two minor bugs in MTRR code, which
+are fixed, too.
 
-[CAUSE]
-With the recently added debug output, we can see all RAID56 operations
-related to full stripe 38928384:
+Changes in V2:
+- complete rework of the patches based on comments by Boris Petkov
+- added several patches to the series
 
-  56.1183: raid56_read_partial: full_stripe=38928384 devid=2 type=DATA1 offset=0 opf=0x0 physical=9502720 len=65536
-  56.1185: raid56_read_partial: full_stripe=38928384 devid=3 type=DATA2 offset=16384 opf=0x0 physical=9519104 len=16384
-  56.1185: raid56_read_partial: full_stripe=38928384 devid=3 type=DATA2 offset=49152 opf=0x0 physical=9551872 len=16384
-  56.1187: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=0 opf=0x1 physical=9502720 len=16384
-  56.1188: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=32768 opf=0x1 physical=9535488 len=16384
-  56.1188: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=0 opf=0x1 physical=30474240 len=16384
-  56.1189: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=32768 opf=0x1 physical=30507008 len=16384
-  56.1218: raid56_write_stripe: full_stripe=38928384 devid=3 type=DATA2 offset=49152 opf=0x1 physical=9551872 len=16384
-  56.1219: raid56_write_stripe: full_stripe=38928384 devid=1 type=PQ1 offset=49152 opf=0x1 physical=30523392 len=16384
-  56.2721: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
-  56.2723: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
-  56.2724: raid56_parity_recover: full stripe=38928384 eb=39010304 mirror=2
+Juergen Gross (10):
+  x86/mtrr: fix MTRR fixup on APs
+  x86/mtrr: remove unused cyrix_set_all() function
+  x86/mtrr: replace use_intel() with a local flag
+  x86: move some code out of arch/x86/kernel/cpu/mtrr
+  x86/mtrr: split generic_set_all()
+  x86/mtrr: remove set_all callback from struct mtrr_ops
+  x86/mtrr: simplify mtrr_bp_init()
+  x86/mtrr: let cache_aps_delayed_init replace mtrr_aps_delayed_init
+  x86/mtrr: add a stop_machine() handler calling only cache_cpu_init()
+  x86: decouple pat and mtrr handling
 
-Before we enter raid56_parity_recover(), we have triggered some metadata
-write for the full stripe 38928384, this leads to us to read all the
-sectors from disk.
+ arch/x86/include/asm/cacheinfo.h   |  14 +++
+ arch/x86/include/asm/memtype.h     |   5 +-
+ arch/x86/include/asm/mtrr.h        |  12 +--
+ arch/x86/kernel/cpu/cacheinfo.c    | 159 +++++++++++++++++++++++++++++
+ arch/x86/kernel/cpu/common.c       |   3 +-
+ arch/x86/kernel/cpu/mtrr/cyrix.c   |  34 ------
+ arch/x86/kernel/cpu/mtrr/generic.c | 120 ++++------------------
+ arch/x86/kernel/cpu/mtrr/mtrr.c    | 158 +++++-----------------------
+ arch/x86/kernel/cpu/mtrr/mtrr.h    |   5 -
+ arch/x86/kernel/setup.c            |  14 +--
+ arch/x86/kernel/smpboot.c          |   9 +-
+ arch/x86/mm/pat/memtype.c          | 127 +++++++----------------
+ arch/x86/power/cpu.c               |   3 +-
+ 13 files changed, 274 insertions(+), 389 deletions(-)
 
-Furthermore, btrfs raid56 write will cache its calculated P/Q sectors to
-avoid unnecessary read.
-
-This means, for that full stripe, after any partial write, we will have
-stale data, along with P/Q calculated using that stale data.
-
-Thankfully due to patch "btrfs: only write the sectors in the vertical stripe
-which has data stripes" we haven't submitted all the corrupted P/Q to disk.
-
-When we really need to recover certain range, aka in
-raid56_parity_recover(), we will use the cached rbio, along with its
-cached sectors (the full stripe is all cached).
-
-This explains why we have no event raid56_scrub_read_recover()
-triggered.
-
-Since we have the cached P/Q which is calculated using the stale data,
-the recovered one will just be stale.
-
-In our particular test case, it will always return the same incorrect
-metadata, thus causing the same error message "parent transid verify
-failed on 39010304 wanted 9 found 7" again and again.
-
-[BTRFS DESTRUCTIVE RMW PROBLEM]
-
-Test case btrfs/125 (and above workload) always has its trouble with
-the destructive read-modify-write (RMW) cycle:
-
-        0       32K     64K
-Data1:  | Good  | Good  |
-Data2:  | Bad   | Bad   |
-Parity: | Good  | Good  |
-
-In above case, if we trigger any write into Data1, we will use the bad
-data in Data2 to re-generate parity, killing the only chance to recovery
-Data2, thus Data2 is lost forever.
-
-This destructive RMW cycle is not specific to btrfs RAID56, but there
-are some btrfs specific behaviors making the case even worse:
-
-- Btrfs will cache sectors for unrelated vertical stripes.
-
-  In above example, if we're only writing into 0~32K range, btrfs will
-  still read data range (32K ~ 64K) of Data1, and (64K~128K) of Data2.
-  This behavior is to cache sectors for later update.
-
-  Incidentally commit d4e28d9b5f04 ("btrfs: raid56: make steal_rbio()
-  subpage compatible") has a bug which makes RAID56 to never trust the
-  cached sectors, thus slightly improve the situation for recovery.
-
-  Unfortunately, follow up fix "btrfs: update stripe_sectors::uptodate in
-  steal_rbio" will revert the behavior back to the old one.
-
-- Btrfs raid56 partial write will update all P/Q sectors and cache them
-
-  This means, even if data at (64K ~ 96K) of Data2 is free space, and
-  only (96K ~ 128K) of Data2 is really stale data.
-  And we write into that (96K ~ 128K), we will update all the parity
-  sectors for the full stripe.
-
-  This unnecessary behavior will completely kill the chance of recovery.
-
-  Thankfully, an unrelated optimization "btrfs: only write the sectors
-  in the vertical stripe which has data stripes" will prevent
-  submitting the write bio for untouched vertical sectors.
-
-  That optimization will keep the on-disk P/Q untouched for a chance for
-  later recovery.
-
-[FIX]
-Although we have no good way to completely fix the destructive RMW
-(unless we go full scrub for each partial write), we can still limit the
-damage.
-
-With patch "btrfs: only write the sectors in the vertical stripe which
-has data stripes" now we won't really submit the P/Q of unrelated
-vertical stripes, so the on-disk P/Q should still be fine.
-
-Now we really need to do is just drop all the cached sectors when doing
-recovery.
-
-By this, we have a chance to read the original P/Q from disk, and have a
-chance to recover the stale data, while still keep the cache to speed up
-regular write path.
-
-In fact, just dropping all the cache for recovery path is good enough to
-allow the test case btrfs/125 along with the small script to pass
-reliably.
-
-The lack of metadata write after the degraded mount, and forced metadata
-COW is saving us this time.
-
-So this patch will fix the behavior by not trust any cache in
-__raid56_parity_recover(), to solve the problem while still keep the
-cache useful.
-
-But please note that this test pass DOES NOT mean we have solved the
-destructive RMW problem, we just do better damage control a little
-better.
-
-Related patches:
-
-- btrfs: only write the sectors in the vertical stripe
-- d4e28d9b5f04 ("btrfs: raid56: make steal_rbio() subpage compatible")
-- btrfs: update stripe_sectors::uptodate in steal_rbio
-
-Acked-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
----
- fs/btrfs/raid56.c | 19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
-
-diff --git a/fs/btrfs/raid56.c b/fs/btrfs/raid56.c
-index d016493abdb3..e1da0049d404 100644
---- a/fs/btrfs/raid56.c
-+++ b/fs/btrfs/raid56.c
-@@ -2096,9 +2096,12 @@ static int __raid56_parity_recover(struct btrfs_raid_bio *rbio)
- 	atomic_set(&rbio->error, 0);
- 
- 	/*
--	 * read everything that hasn't failed.  Thanks to the
--	 * stripe cache, it is possible that some or all of these
--	 * pages are going to be uptodate.
-+	 * Read everything that hasn't failed. However this time we will
-+	 * not trust any cached sector.
-+	 * As we may read out some stale data but higher layer is not reading
-+	 * that stale part.
-+	 *
-+	 * So here we always re-read everything in recovery path.
- 	 */
- 	for (stripe = 0; stripe < rbio->real_stripes; stripe++) {
- 		if (rbio->faila == stripe || rbio->failb == stripe) {
-@@ -2107,16 +2110,6 @@ static int __raid56_parity_recover(struct btrfs_raid_bio *rbio)
- 		}
- 
- 		for (pagenr = 0; pagenr < rbio->stripe_npages; pagenr++) {
--			struct page *p;
--
--			/*
--			 * the rmw code may have already read this
--			 * page in
--			 */
--			p = rbio_stripe_page(rbio, stripe, pagenr);
--			if (PageUptodate(p))
--				continue;
--
- 			ret = rbio_add_io_page(rbio, &bio_list,
- 				       rbio_stripe_page(rbio, stripe, pagenr),
- 				       stripe, pagenr, rbio->stripe_len);
 -- 
-2.37.1
+2.35.3
 
