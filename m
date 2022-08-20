@@ -2,55 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18D4D59AEAF
-	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 16:34:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D12459AEB7
+	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 16:37:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346367AbiHTOdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Aug 2022 10:33:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35218 "EHLO
+        id S1345244AbiHTOhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Aug 2022 10:37:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346217AbiHTOdm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 10:33:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F321014D08;
-        Sat, 20 Aug 2022 07:33:40 -0700 (PDT)
+        with ESMTP id S1345362AbiHTOhV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 10:37:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B4DD51A0C;
+        Sat, 20 Aug 2022 07:37:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8FC8BB80CAD;
-        Sat, 20 Aug 2022 14:33:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E952AC433D6;
-        Sat, 20 Aug 2022 14:33:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1B75B80CE7;
+        Sat, 20 Aug 2022 14:37:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99438C433D6;
+        Sat, 20 Aug 2022 14:37:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661006018;
-        bh=/7B/Xs/HCL3KwHGK4v8gKrA+qwU9VsmeusLYvJqdSBs=;
+        s=k20201202; t=1661006238;
+        bh=BWn2AuZzmBQWgCHdWYaKRFlhXdOsJZRS65HElJ+rCnE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pYA1RNwP46Oqkl4EvxCL/VVLLVJ6SXm1Xo9I897g3uyZ+Y2f7a86kcbLRMsYOMlDo
-         1fM9SkM7uvbsSbbCormVLazdZfOfxVnbD3k417++h3CdEbt4h0ptK066T0VFtGQrt7
-         WnzmwPJRzL21+MmBBGNmSApBBiMoMQ1gvJHHjrTU6tQt6jBHhXrvm8F17SUddtPDjH
-         4dBzSYMPrvy/kSHPjgmOSSaV9TJPwFWzp014kIZG4mkU1ZH8bEoz1qkcvzG5Emo6gE
-         XYC62n8OH6f14eywKUEkQWkWh49qSM5ojIJG5K/Cr6aGxcEYQBSGrRAC2fl7QeksFM
-         VUcMtQB3UpaCQ==
-Date:   Sat, 20 Aug 2022 10:33:36 -0400
+        b=c0/5SZHW21ph5f4RPJG97a05DM5d7Lpao/oGNc8IrLae65UMG0PQhuBVVmwlVPxQL
+         9e7vfn6zON8NsmuFTIKxNxYHxcsnua3klYYFWVuHmnvWZBcw5W2nnwAY6ApLOzo34i
+         hvGS5swdxJf9hdWZAJ4JaT2X4OYQQw4zF4WliNfhoNu7LM1EclC4Wb+08AucuzI0Re
+         JVBVTUBeaJ8IRu6Culw2PO5W+8NvYbaTlK7G+YrEaBZ/5Xr0/bfM79QEWLQvfM3aXT
+         Sqs1Uds/CEA/zSAtIvhAzOny89n8ryglMphBY7gAE4fEHA206UG8wflCl5UzKy2U4D
+         W05rEP29vxoBA==
+Date:   Sat, 20 Aug 2022 10:37:17 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Conor.Dooley@microchip.com
+To:     Ard Biesheuvel <ardb@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        gregkh@linuxfoundation.org, Brice.Goglin@inria.fr,
-        sudeep.holla@arm.com, Daire.McNamara@microchip.com,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        paul.walmsley@sifive.com, palmer@dabbelt.com,
-        aou@eecs.berkeley.edu, linux-riscv@lists.infradead.org,
-        devicetree@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.19 08/48] riscv: dts: microchip: Add mpfs'
- topology information
-Message-ID: <YwDwwEXgGundXB1X@sashalap>
-References: <20220814161943.2394452-1-sashal@kernel.org>
- <20220814161943.2394452-8-sashal@kernel.org>
- <eeee7a72-8200-a374-8038-405605e0c290@microchip.com>
+        Lecopzer Chen <lecopzer.chen@mediatek.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        linux@armlinux.org.uk, ryabinin.a.a@gmail.com,
+        matthias.bgg@gmail.com, arnd@arndb.de, rostedt@goodmis.org,
+        nick.hawkins@hpe.com, john@phrozen.org,
+        linux-arm-kernel@lists.infradead.org, kasan-dev@googlegroups.com,
+        linux-mediatek@lists.infradead.org
+Subject: Re: [PATCH AUTOSEL 5.19 54/64] ARM: 9202/1: kasan: support
+ CONFIG_KASAN_VMALLOC
+Message-ID: <YwDxnRGKNbk5Chay@sashalap>
+References: <20220814152437.2374207-1-sashal@kernel.org>
+ <20220814152437.2374207-54-sashal@kernel.org>
+ <CAMj1kXEzSwOtMGUi1VMg9xj60sHJ=9GHdjK2LXBXahSPmm56jw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <eeee7a72-8200-a374-8038-405605e0c290@microchip.com>
+In-Reply-To: <CAMj1kXEzSwOtMGUi1VMg9xj60sHJ=9GHdjK2LXBXahSPmm56jw@mail.gmail.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -61,33 +63,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Aug 14, 2022 at 04:31:08PM +0000, Conor.Dooley@microchip.com wrote:
->On 14/08/2022 17:19, Sasha Levin wrote:
->> From: Conor Dooley <conor.dooley@microchip.com>
+On Tue, Aug 16, 2022 at 04:45:14PM +0200, Ard Biesheuvel wrote:
+>On Sun, 14 Aug 2022 at 17:30, Sasha Levin <sashal@kernel.org> wrote:
 >>
->> [ Upstream commit 88d319c6abaeb37f0e2323275eaf57a8388e0265 ]
+>> From: Lecopzer Chen <lecopzer.chen@mediatek.com>
 >>
->> The mpfs has no cpu-map node, so tools like hwloc cannot correctly
->> parse the topology. Add the node using the existing node labels.
+>> [ Upstream commit 565cbaad83d83e288927b96565211109bc984007 ]
 >>
->+CC Greg
+>> Simply make shadow of vmalloc area mapped on demand.
+>>
+>> Since the virtual address of vmalloc for Arm is also between
+>> MODULE_VADDR and 0x100000000 (ZONE_HIGHMEM), which means the shadow
+>> address has already included between KASAN_SHADOW_START and
+>> KASAN_SHADOW_END.
+>> Thus we need to change nothing for memory map of Arm.
+>>
+>> This can fix ARM_MODULE_PLTS with KASan, support KASan for higmem
+>> and support CONFIG_VMAP_STACK with KASan.
+>>
+>> Signed-off-by: Lecopzer Chen <lecopzer.chen@mediatek.com>
+>> Tested-by: Linus Walleij <linus.walleij@linaro.org>
+>> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+>> Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
 >
->Hey Sasha,
->Technically this is an optional property so I didn't mark any of
->the patches as CC: stable as they not really fixes. The plan to is
->to fix the hwloc problem at the source rather than papering over it
->with the dts:
->https://lore.kernel.org/linux-riscv/20220715175155.3567243-1-mail@conchuod.ie/
->
->Those patches are delayed until after -rc1 as they weren't reviewed
->from the riscv side prior to the arm64 tree closing, but the plan is
->to backport those instead.
->
->I suppose there's no harm having these too, but I'll leave that up
->to the better judgement of others... What do you (plural) think?
+>This patch does not belong in -stable. It has no fixes: or cc:stable
+>tags, and the contents are completely inappropriate for backporting
+>anywhere. In general, I think that no patch that touches arch/arm
+>(with the exception of DTS updates, perhaps) should ever be backported
+>unless proposed or acked by the maintainer.
 
-I'll just drop these. Feel free to send us a note when the fix is
-ready...
+I'll drop it.
+
+>I know I shouldn't ask, but how were these patches build/boot tested?
+>KAsan is very tricky to get right, especially on 32-bit ARM ...
+
+They were only build tested at this stage. They go through
+boot/functional test only after they are actually queued up for the
+various trees.
 
 -- 
 Thanks,
