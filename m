@@ -2,175 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B68F59ACE4
-	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 11:29:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B9B59ACF2
+	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 11:36:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344378AbiHTJZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Aug 2022 05:25:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47112 "EHLO
+        id S1344262AbiHTJfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Aug 2022 05:35:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244085AbiHTJZk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 05:25:40 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA20A5FAD7;
-        Sat, 20 Aug 2022 02:25:38 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 25C021FA75;
-        Sat, 20 Aug 2022 09:25:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1660987537; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=dNonIY2eSN2qALXA1xwqca8n1uiC2OZmHsAoG2ku6S4=;
-        b=V/DSldnei2N0b/QjoZVHWD91fOusf/NBo0/8KqkWOsov44+Zf25qNDINpw+6cJHaFuWV2n
-        sIcrQI04yUJyzSgBFXyN9sl+qQyIuu1oi2bh6+M/3sIkYTYNpNHAkgh4E1QpuICJVDdhgt
-        BKvehrmm4SOtEce3Ucp+OllxKvMFKgI=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id D0E1B13440;
-        Sat, 20 Aug 2022 09:25:36 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 6DubMZCoAGPJMAAAMHmgww
-        (envelope-from <jgross@suse.com>); Sat, 20 Aug 2022 09:25:36 +0000
-From:   Juergen Gross <jgross@suse.com>
-To:     xen-devel@lists.xenproject.org, x86@kernel.org,
+        with ESMTP id S245125AbiHTJfK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 05:35:10 -0400
+Received: from gproxy1-pub.mail.unifiedlayer.com (gproxy1-pub.mail.unifiedlayer.com [69.89.25.95])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31C3821830
+        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 02:35:09 -0700 (PDT)
+Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
+        by progateway3.mail.pro1.eigbox.com (Postfix) with ESMTP id 7EF2F10041FA3
+        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 09:34:58 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id PKscolYLhpnCyPKsco2fIS; Sat, 20 Aug 2022 09:34:58 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=d5kwdTvE c=1 sm=1 tr=0 ts=6300aac2
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=biHskzXt2R4A:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=P_Ggkjto_qLeQm38W8AA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=pfUh0OkdD9ECtf/Ulbr9qrfSPNo3aES6azkpvwDTpsY=; b=UIpbHoa864y7Aafq/VALhprIth
+        RjPm+iR41cwYusjlbfyyUDOc2t0d+TINQBhkhZro2m0SAn4Jb2uWun6dne1GvLM/0rLctj5fTKapr
+        7Bg9ZmTN5FxaAY2XZDE2hgD844auCjuX2R+jYvlVnBmvOWMeX3yt47eYTA9eZssCbbDcD2XiFfcGU
+        NHAqO9jOwpb95NYIbqDdCyni0jBBNRKE/hjz7jmekdiNO6zTw78QVR7oEh3JP0+QJKbu9XflNh9SN
+        2RmCz5B3AcOP04gSNY4BKTTH7uI9YCeibzm2VR44Dkycuk2Zo+19G5g/PEFuPJQltEvH1ttvt4Zpc
+        okHAeR4A==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:41002 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1oPKsa-003W0a-S6;
+        Sat, 20 Aug 2022 03:34:56 -0600
+Subject: Re: [PATCH 5.18 0/6] 5.18.19-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org
-Subject: [PATCH v2 01/10] x86/mtrr: fix MTRR fixup on APs
-Date:   Sat, 20 Aug 2022 11:25:24 +0200
-Message-Id: <20220820092533.29420-2-jgross@suse.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220820092533.29420-1-jgross@suse.com>
-References: <20220820092533.29420-1-jgross@suse.com>
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220819153710.430046927@linuxfoundation.org>
+In-Reply-To: <20220819153710.430046927@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <63b7a770-fc9d-e001-f303-431c77895b61@w6rz.net>
+Date:   Sat, 20 Aug 2022 02:34:54 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1oPKsa-003W0a-S6
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:41002
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When booting or resuming the system MTRR state is saved on the boot
-processor and then this state is loaded into MTRRs of all other cpus.
-During update of the MTRRs the MTRR mechanism needs to be disabled by
-writing the related MSR. The old contents of this MSR are saved in a
-set of static variables and later those static variables are used to
-restore the MSR.
+On 8/19/22 8:40 AM, Greg Kroah-Hartman wrote:
+> -------------------
+> NOTE, this is the LAST 5.18.y stable release.  This tree will be
+> end-of-life after this one.  Please move to 5.19.y at this point in time
+> or let us know why that is not possible.
+> -------------------
+>
+> This is the start of the stable review cycle for the 5.18.19 release.
+> There are 6 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sun, 21 Aug 2022 15:36:59 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.19-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-In case the MSR contents need to be modified on a cpu due to the MSR
-not having been initialized properly by the BIOS, the related update
-function is modifying the static variables accordingly.
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Unfortunately the MTRR state update is usually running on all cpus
-at the same time, so using just one set of static variables for all
-cpus is racy in case the MSR contents differ across cpus.
-
-Fix that by using percpu variables for saving the MSR contents.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
-I thought adding a "Fixes:" tag for the kernel's initial git commit
-would maybe be entertaining, but without being really helpful.
-The percpu variables were preferred over on-stack ones in order to
-avoid more code churn in followup patches decoupling PAT from MTRR
-support.
-V2:
-- new patch
----
- arch/x86/kernel/cpu/mtrr/generic.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
-
-diff --git a/arch/x86/kernel/cpu/mtrr/generic.c b/arch/x86/kernel/cpu/mtrr/generic.c
-index 558108296f3c..3d185fcf08ca 100644
---- a/arch/x86/kernel/cpu/mtrr/generic.c
-+++ b/arch/x86/kernel/cpu/mtrr/generic.c
-@@ -679,7 +679,8 @@ static bool set_mtrr_var_ranges(unsigned int index, struct mtrr_var_range *vr)
- 	return changed;
- }
- 
--static u32 deftype_lo, deftype_hi;
-+static DEFINE_PER_CPU(u32, deftype_lo);
-+static DEFINE_PER_CPU(u32, deftype_hi);
- 
- /**
-  * set_mtrr_state - Set the MTRR state for this CPU.
-@@ -691,6 +692,7 @@ static unsigned long set_mtrr_state(void)
- {
- 	unsigned long change_mask = 0;
- 	unsigned int i;
-+	u32 *lo = this_cpu_ptr(&deftype_lo);
- 
- 	for (i = 0; i < num_var_ranges; i++) {
- 		if (set_mtrr_var_ranges(i, &mtrr_state.var_ranges[i]))
-@@ -704,10 +706,10 @@ static unsigned long set_mtrr_state(void)
- 	 * Set_mtrr_restore restores the old value of MTRRdefType,
- 	 * so to set it we fiddle with the saved value:
- 	 */
--	if ((deftype_lo & 0xff) != mtrr_state.def_type
--	    || ((deftype_lo & 0xc00) >> 10) != mtrr_state.enabled) {
-+	if ((*lo & 0xff) != mtrr_state.def_type
-+	    || ((*lo & 0xc00) >> 10) != mtrr_state.enabled) {
- 
--		deftype_lo = (deftype_lo & ~0xcff) | mtrr_state.def_type |
-+		*lo = (*lo & ~0xcff) | mtrr_state.def_type |
- 			     (mtrr_state.enabled << 10);
- 		change_mask |= MTRR_CHANGE_MASK_DEFTYPE;
- 	}
-@@ -729,6 +731,8 @@ static DEFINE_RAW_SPINLOCK(set_atomicity_lock);
- static void prepare_set(void) __acquires(set_atomicity_lock)
- {
- 	unsigned long cr0;
-+	u32 *lo = this_cpu_ptr(&deftype_lo);
-+	u32 *hi = this_cpu_ptr(&deftype_hi);
- 
- 	/*
- 	 * Note that this is not ideal
-@@ -763,10 +767,10 @@ static void prepare_set(void) __acquires(set_atomicity_lock)
- 	flush_tlb_local();
- 
- 	/* Save MTRR state */
--	rdmsr(MSR_MTRRdefType, deftype_lo, deftype_hi);
-+	rdmsr(MSR_MTRRdefType, *lo, *hi);
- 
- 	/* Disable MTRRs, and set the default type to uncached */
--	mtrr_wrmsr(MSR_MTRRdefType, deftype_lo & ~0xcff, deftype_hi);
-+	mtrr_wrmsr(MSR_MTRRdefType, *lo & ~0xcff, *hi);
- 
- 	/* Again, only flush caches if we have to. */
- 	if (!static_cpu_has(X86_FEATURE_SELFSNOOP))
-@@ -775,12 +779,15 @@ static void prepare_set(void) __acquires(set_atomicity_lock)
- 
- static void post_set(void) __releases(set_atomicity_lock)
- {
-+	u32 *lo = this_cpu_ptr(&deftype_lo);
-+	u32 *hi = this_cpu_ptr(&deftype_hi);
-+
- 	/* Flush TLBs (no need to flush caches - they are disabled) */
- 	count_vm_tlb_event(NR_TLB_LOCAL_FLUSH_ALL);
- 	flush_tlb_local();
- 
- 	/* Intel (P6) standard MTRRs */
--	mtrr_wrmsr(MSR_MTRRdefType, deftype_lo, deftype_hi);
-+	mtrr_wrmsr(MSR_MTRRdefType, *lo, *hi);
- 
- 	/* Enable caches */
- 	write_cr0(read_cr0() & ~X86_CR0_CD);
--- 
-2.35.3
+Tested-by: Ron Economos <re@w6rz.net>
 
