@@ -2,55 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DE5B59AD21
-	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 12:08:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE18859AD1D
+	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 12:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231132AbiHTKFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Aug 2022 06:05:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33124 "EHLO
+        id S1344798AbiHTKFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Aug 2022 06:05:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244085AbiHTKFT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 06:05:19 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECDB95C9DD;
-        Sat, 20 Aug 2022 03:05:18 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id s206so5512545pgs.3;
-        Sat, 20 Aug 2022 03:05:18 -0700 (PDT)
+        with ESMTP id S1344722AbiHTKFo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 06:05:44 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDAE35C9DD
+        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 03:05:42 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id v4so5490134pgi.10
+        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 03:05:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=heitbaum.com; s=google;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc;
-        bh=tKANqQNee213Fd/MH26P1ahBy0H/vTClvInzOpycDPQ=;
-        b=EAkpKzxMJkOPTWnUlmb2CUsHw9u47BKWVGzqphvLp3Dt6WFNbCydqG8IAzVdncr5+d
-         QYvykDEAhe3VketIPcgGx8EbVZDzcu3KqGkx7MYFaD2jMqaqZcvcUaEAFXYzFimsYJ0f
-         wbHxQig6pgxeTI0/mjBlMzbB5MkcR2ktcM62KF/texEBEKpbvUjCFhsHxEkZUilGlwK1
-         +kYrAzRYR51KGQN9DDIktb5b3BcYY8raTe8Fj9p3nrmwXj9/P45yon9CZgfmZsoRL25X
-         0QBJZLpaema1P9CltWARkIyKmFbYQPHjU3hKJSAd5xn6RsS32CBohR3t/HD8O9K2LOMJ
-         QZYA==
+        bh=DFOB75nREFyam4jv0rdX/qkwfHqx3sA+NhMOQuDv6iw=;
+        b=Nv3KZN7UJW5oczoe5n5fnv8zXhzcdawc8LLJr3Sf4UFs3J4mV8ALEUD8v9Z6xcAt3t
+         /doN6cSIjvpkL6C8PdsZ06d8N95ZkfVSBRtAmWPJbKyaE/VvcEjIoBfnQ0kHUg1h4lQu
+         lEQ7eAyKdGGXHdiB4uXkgF3u34XhA66yL92Gc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=tKANqQNee213Fd/MH26P1ahBy0H/vTClvInzOpycDPQ=;
-        b=sk8cvvL+rAnKYA6RgCuYttW/G2OzKD125OpQ8gR7cPNNaXPYuDCddrOrlGRqa1UTvw
-         M/eI/UkfEg/mmK5DJwxYE+Flfh9QE9EPhBm7tUYXSt1Py/C8NZ2Zq2GZM0L/JkxS2zXO
-         y8o1wXfrd8JB2EG4jHARTK16ifUaFoLHsVQGVhEqEDxk4bPAnhO/tGxpjElbgKK+2/25
-         YXiLvi+U8menh6AVeFIy17f0eEJu5xDiqwdRE5un+IUPnnELCpGSksP0DFcTQKKLK5fl
-         2rO+hC1eoxrlhRyob8t8ovagqrVHXd+6CCeXXp0qgPAN2hc/MdtoyUIBLFRRdj4jwIbq
-         Y9Iw==
-X-Gm-Message-State: ACgBeo290Q0/67w5bsx8R0wkJj80R8yfhu/8b8dh+frx8td+eTgeRnQj
-        v3XHpJR+6GnLQWr+Ve+RWEejpsGs98k=
-X-Google-Smtp-Source: AA6agR5huIMoODVzf0guzrRUeEu0JIDZ5FWRD6Cl2qMKPZSarnM0VycodFaKlF5GqBGvImfh0xsqjw==
-X-Received: by 2002:a63:e011:0:b0:42a:1c12:17a9 with SMTP id e17-20020a63e011000000b0042a1c1217a9mr7947156pgh.557.1660989918453;
-        Sat, 20 Aug 2022 03:05:18 -0700 (PDT)
-Received: from debian.me (subs03-180-214-233-14.three.co.id. [180.214.233.14])
-        by smtp.gmail.com with ESMTPSA id n8-20020a634d48000000b0040dd052ab11sm4032801pgl.58.2022.08.20.03.05.17
+        bh=DFOB75nREFyam4jv0rdX/qkwfHqx3sA+NhMOQuDv6iw=;
+        b=3IOEVV6KzjJcEPdK8DP8b56pq6vpeqU3xEac/vIVwUnSS9QP0kEStKoDc3aKOALxp6
+         6vl/gyE36hj+fmBovhhzfQy+RXdIQ9GlGitRBwa7bMOftBGgTqhMyHSRtsq1nJMEquHg
+         ShCQj637RMrxryn72Ow26lxRaP5RrhHZJ6Ufw1jgeeWjX1z4ppNTTkZzGINzmMWpT+Fn
+         FxPsjksi7r761bqOfdPQLThfUqCwHoO0sSIB9M2jLGQOMo4WbLrcEpp63GYSBdcuptUX
+         oQYenKqCt3EidHb8NkPklCZxZA8JK6/rdyjOOu7TEcRcmf83uJS3BpaXbpkjaeJusqxT
+         bcmw==
+X-Gm-Message-State: ACgBeo3rrP7xAbxWfo+yXzrEkFBXL8dkCCbXBCgQBTZ6a0Ex5+ceOmF0
+        cJ3HD3M0GRBJ0znmTpbloxhKnQ==
+X-Google-Smtp-Source: AA6agR7dKGuUKhGx2/lcPi0GmMBC7gbTx2cUzCsfSp/+oMsj9l1Xl4zY0TnYgigsr6KJasiNyeomqw==
+X-Received: by 2002:a63:8b44:0:b0:41c:df4c:7275 with SMTP id j65-20020a638b44000000b0041cdf4c7275mr9814749pge.434.1660989942211;
+        Sat, 20 Aug 2022 03:05:42 -0700 (PDT)
+Received: from c29ccaf5f13c ([203.220.223.63])
+        by smtp.gmail.com with ESMTPSA id nb16-20020a17090b35d000b001f516895294sm4530726pjb.40.2022.08.20.03.05.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 20 Aug 2022 03:05:17 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id 3F0D7103C69; Sat, 20 Aug 2022 17:05:13 +0700 (WIB)
-Date:   Sat, 20 Aug 2022 17:05:13 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
+        Sat, 20 Aug 2022 03:05:41 -0700 (PDT)
+Date:   Sat, 20 Aug 2022 10:05:33 +0000
+From:   Rudi Heitbaum <rudi@heitbaum.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
@@ -58,54 +53,48 @@ Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
         slade@sladewatkins.com
-Subject: Re: [PATCH 5.15 00/14] 5.15.62-rc1 review
-Message-ID: <YwCx2fX6phAM7UQC@debian.me>
-References: <20220819153711.658766010@linuxfoundation.org>
+Subject: Re: [PATCH 5.10 000/545] 5.10.137-rc1 review
+Message-ID: <20220820100533.GA1012216@c29ccaf5f13c>
+References: <20220819153829.135562864@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="aqquMfmXNv50FzKY"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220819153711.658766010@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---aqquMfmXNv50FzKY
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Aug 19, 2022 at 05:40:16PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.62 release.
-> There are 14 patches in this series, all will be posted as a response
+On Fri, Aug 19, 2022 at 05:36:10PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.137 release.
+> There are 545 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->=20
+> 
+> Responses should be made by Sun, 21 Aug 2022 15:36:59 +0000.
+> Anything received after that time might be too late.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.1.0).
+Hi Greg,
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+5.10.137-rc1 tested.
 
---=20
-An old man doll... just what I always wanted! - Clara
+Run tested on:
+- Intel Skylake x86_64 (nuc6 i5-6260U)
 
---aqquMfmXNv50FzKY
-Content-Type: application/pgp-signature; name="signature.asc"
+In addition - build tested for:
+- Allwinner A64
+- Allwinner H3
+- Allwinner H5
+- Allwinner H6
+- Rockchip RK3288
+- Rockchip RK3328
+- Rockchip RK3399pro
 
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCYwCxzwAKCRD2uYlJVVFO
-ox7XAP9Zwh23hgxZ1XCQ06JRl1rpeD5XEjxF3Gz8WE/oC4hwzgD+PkaSoz3ckdSO
-u2V67Oq8OOAIRZcELqWpTFT1xeEWNQ0=
-=cwS8
------END PGP SIGNATURE-----
-
---aqquMfmXNv50FzKY--
+Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
+--
+Rudi
