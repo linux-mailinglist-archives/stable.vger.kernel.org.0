@@ -2,104 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7136C59B11E
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 03:00:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FAD359B25F
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 08:58:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235908AbiHUA6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Aug 2022 20:58:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58866 "EHLO
+        id S229748AbiHUG6b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 02:58:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236461AbiHUA63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 20:58:29 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08410E09A;
-        Sat, 20 Aug 2022 17:58:28 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id w7so804545pjq.5;
-        Sat, 20 Aug 2022 17:58:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc;
-        bh=gJJPIO5dNxW6EyfA695WG3TfAG/Ru+2Vzl8NFbsY9NI=;
-        b=geFufmwjEU+kVZPJlMFz4m+CZtZc0/bwMIQExscCof/C059rW8A2aYYebgQQEuTg5i
-         9dCugfGejzCbLYGFJalfc987UCf27fJEzDBbyHVmFfwUkBoHRZz+nrPcC6dTszLeyWy1
-         PSXLJWTFoNL/5g6YbnHmb0KG72R9KfXM7gBFE2CXw/ljKyUpp1fRnJRqJNFfLe6stNeA
-         3LEac0/4ZCcMsffGaWztBaJCl0/3tts4JlYpRMODxz0rmCapkWQorcmxbjGwZULolLzb
-         WnGLLHFQz3k8a79UGXrj6qESLNo1gVZK8vVc0WrKrYZMHnaVSw1ABBwwO5pHcBGK1mz5
-         l3FA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc;
-        bh=gJJPIO5dNxW6EyfA695WG3TfAG/Ru+2Vzl8NFbsY9NI=;
-        b=Yir3aTG8IP5948uxL13Cr81U4CHMt2A4ctWf8Azd5qEnGsEVbzu/qVq1ZzujvNITwF
-         s1H5FR0X8VXm/60ibMLr3KDFpUeo/zP9GlcuIJhpBlBKP6Yn8H1KWCjVTjkIY50Cfn/C
-         fHGIg3f4mJX3pCcxe0pupPewH5HisyVVGGxY7idKoz6ySrVEUbriUMlF27qLmNbmAPiP
-         PDUUI0YII5A81HIF9Q5k2Cefn2y7V2m7CHmJXz6INo/u8jEuq/COWIpiSacOqb2+36ML
-         4EFuWNMRBD6mVfjgLW+WDatStVbuC7PixsfhzPFAfazP4Zy4QTlkG9QffIfo/SI0nn2a
-         mxwQ==
-X-Gm-Message-State: ACgBeo2HR7KDmeydH5lW5yFkCzB7EwYwg9UNGiHyMLBvPC2C2iR1RNEY
-        E+zRJhnmlJNmNOiQrVAE2Tc=
-X-Google-Smtp-Source: AA6agR5zrYq5Wcy7HhYVrNdbR7A6OfKKIBJ0uMGnkaMIBySdducy19i17oDojhmWxNyKeeL0LPRoOw==
-X-Received: by 2002:a17:902:cf4c:b0:170:5b7a:8f89 with SMTP id e12-20020a170902cf4c00b001705b7a8f89mr13801780plg.121.1661043507519;
-        Sat, 20 Aug 2022 17:58:27 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id u15-20020a170902714f00b001714853e503sm5524481plm.36.2022.08.20.17.58.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 20 Aug 2022 17:58:26 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Sat, 20 Aug 2022 17:58:26 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.18 0/6] 5.18.19-rc1 review
-Message-ID: <20220821005826.GA990405@roeck-us.net>
-References: <20220819153710.430046927@linuxfoundation.org>
+        with ESMTP id S229725AbiHUG61 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 02:58:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63E112ADE;
+        Sat, 20 Aug 2022 23:58:24 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0017060CD4;
+        Sun, 21 Aug 2022 06:58:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D12EC433D6;
+        Sun, 21 Aug 2022 06:58:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661065103;
+        bh=tbuVzHoEL8ZVZPHiH4E6B7fj2SIHZgFp4d15ptne13A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qeS88CcrbZxYoNjnNZ8rrfUJAL0QH8+Ilq9eUT2AWxAB/JeIQ5ONfou68r+J8agdD
+         Kd2kevU/0A4V3wpOZAv32UzCjcexHXYMLyYAa4cWfNDtwWKtddQxNh5ADur/eZP5vj
+         CHtkQ+AHGAuqFb0t0Z4ZBk6MTfI66ufO+p5Glitw=
+Date:   Sat, 20 Aug 2022 19:32:37 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     SeongJae Park <sj@kernel.org>, badari.pulavarty@intel.com,
+        damon@lists.linux.dev, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] mm/damon/dbgfs: avoid duplicate context directory
+ creation
+Message-ID: <YwEatUUtU8570PRV@kroah.com>
+References: <20220819171930.16166-1-sj@kernel.org>
+ <20220819140809.1e3929fd8f50bfc32cae31d3@linux-foundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220819153710.430046927@linuxfoundation.org>
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+In-Reply-To: <20220819140809.1e3929fd8f50bfc32cae31d3@linux-foundation.org>
+X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,DATE_IN_PAST_12_24,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 19, 2022 at 05:40:12PM +0200, Greg Kroah-Hartman wrote:
-> -------------------
-> NOTE, this is the LAST 5.18.y stable release.  This tree will be
-> end-of-life after this one.  Please move to 5.19.y at this point in time
-> or let us know why that is not possible.
-> -------------------
+On Fri, Aug 19, 2022 at 02:08:09PM -0700, Andrew Morton wrote:
+> On Fri, 19 Aug 2022 17:19:30 +0000 SeongJae Park <sj@kernel.org> wrote:
 > 
-> This is the start of the stable review cycle for the 5.18.19 release.
-> There are 6 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> > From: Badari Pulavarty <badari.pulavarty@intel.com>
+> > 
+> > When user tries to create a DAMON context via the DAMON debugfs
+> > interface with a name of an already existing context, the context
+> > directory creation silently fails but the context is added in the
+> > internal data structure.  As a result, memory could leak and DAMON
+> > cannot be turned on.  An example test case is as below:
+> > 
+> >     # cd /sys/kernel/debug/damon/
+> >     # echo "off" >  monitor_on
+> >     # echo paddr > target_ids
+> >     # echo "abc" > mk_context
+> >     # echo "abc" > mk_context
+> >     # echo $$ > abc/target_ids
+> >     # echo "on" > monitor_on  <<< fails
+> > 
+> > This commit fixes the issue by checking if the name already exist and
+> > immediately returning '-EEXIST' in the case.
+> > 
+> > ...
+> >
+> > --- a/mm/damon/dbgfs.c
+> > +++ b/mm/damon/dbgfs.c
+> > @@ -795,7 +795,7 @@ static void dbgfs_destroy_ctx(struct damon_ctx *ctx)
+> >   */
+> >  static int dbgfs_mk_context(char *name)
+> >  {
+> > -	struct dentry *root, **new_dirs, *new_dir;
+> > +	struct dentry *root, **new_dirs, *new_dir, *dir;
+> >  	struct damon_ctx **new_ctxs, *new_ctx;
+> >  
+> >  	if (damon_nr_running_ctxs())
+> > @@ -817,6 +817,12 @@ static int dbgfs_mk_context(char *name)
+> >  	if (!root)
+> >  		return -ENOENT;
+> >  
+> > +	dir = debugfs_lookup(name, root);
+> > +	if (dir) {
+> > +		dput(dir);
+> > +		return -EEXIST;
+> > +	}
+> > +
+> >  	new_dir = debugfs_create_dir(name, root);
+> >  	dbgfs_dirs[dbgfs_nr_ctxs] = new_dir;
 > 
-> Responses should be made by Sun, 21 Aug 2022 15:36:59 +0000.
-> Anything received after that time might be too late.
+> It would be simpler (and less racy) to check the debugfs_create_dir()
+> return value for IS_ERR()?
 > 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 487 pass: 486 fail: 1
-Failed tests:
-	arm:bletchley-bmc:aspeed_g5_defconfig:notests:usb0:net,nic:aspeed-bmc-facebook-bletchley:rootfs
 
-No new failures. As with v5.15.y, I did not receive this e-mail and had
-to copy it from lore instead.
+Yes, if you _HAVE_ to know if the code works properly (i.e. because your
+feature totally depends on debugfs like damon does), or you have a
+potential duplicate name like this, then sure, check the return value
+and do something based on it.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+It's odd enough that you should put a comment above the check just so I
+don't go and send a patch to delete it later on :)
 
-Guenter
+thanks,
+
+greg k-h
