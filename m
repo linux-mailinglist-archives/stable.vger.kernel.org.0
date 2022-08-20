@@ -2,69 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 588B359ACAE
-	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 10:42:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 980E159ACB3
+	for <lists+stable@lfdr.de>; Sat, 20 Aug 2022 10:45:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344696AbiHTImJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Aug 2022 04:42:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51212 "EHLO
+        id S1344726AbiHTIpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Aug 2022 04:45:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344663AbiHTImI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 04:42:08 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 148B48A6DB
-        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 01:42:06 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id c39so8129961edf.0
-        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 01:42:06 -0700 (PDT)
+        with ESMTP id S1343849AbiHTIpG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 04:45:06 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658F472EE5
+        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 01:45:05 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id q2so5987155edb.6
+        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 01:45:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=ntTjbxdUm3MDErKQAVjGnhDOTUmCLMXKB9v/vZjYPM0=;
-        b=jScGbc/hd6xdg8aDGHhEvu5TS+/Wr3vfh5NqYz7htO8bZ9hx46Fo/wHFdVZUKEIL9M
-         sXO6FLrWU6HeB5lrSMX4lb/9M8J7IPbKP72nvknHPZ+NPfNkFKMS/U/yR2BbY5TwHHZG
-         SWsACWgBKrcDdHGQsYUBaFYSb4Q1Zud+RInaHfGNvHqs2UtyZ3ZxAK1BP350X3begZ/X
-         vrrDm/suq9vRHraGmF9orvkUN5EqSrh77WgjN8cfYgkfcEt7YN9xXiDP89se01T4OFJV
-         kJonLM1rSecK4etciKsg+D89FGnF1NnFaucefH68w+gzcciOs6RDzxJJm5MPRdouvE0M
-         TIXg==
+        d=amarulasolutions.com; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=C3neU1AtxmqWdDSuYqkB7lF7A3shUmwSCsbgD00NRVo=;
+        b=eThpM9uxRwJzTuhVFBRMNJ9H0vTr2TRrapx/uMb8SXuMEM0TzA5O4w/AzUVnfw8+3n
+         7nQ5CmprNuO1C8uBjy+7pNZiEdrlbPmrWvBNxXoT1gE7ZCj8uNcIQLC0FgtjwkVcHjYH
+         6Jx9/6JQFwfLzdsSVWBmswc57cxIcKa9k/qF8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=ntTjbxdUm3MDErKQAVjGnhDOTUmCLMXKB9v/vZjYPM0=;
-        b=2PCUJ/RGtK0hoGeGbDpR8f4BPTBXbqZC5g1wX0mbx6VGJzf63Yey+sep9Zw30yMLlQ
-         D7wq6bgCb2u7ydXwqsTtiegQwMneAChhyQKfzefOOEnCeHwsX1hlWvn6Ul/bDsZ6sKEL
-         oWwaluCCQ07//GWLtswaiVKhZeIksj+lCtezLFv5Jp3z3piH+VQRBeptWcKwqKiR0GAv
-         ei0E5RrVkpwkCTBBcm/dzEQb2d2JcZRbepIyyOGGKPU01kSlaCfLphM7ZKmE7quuQc/k
-         uUpMK8W/8Hg/Ak3cQKsPvBnkcleg1siduwie5xJS0B6VYIvvnxU+nx4aMPw3jZXrXtje
-         cC4w==
-X-Gm-Message-State: ACgBeo2Vw6V6yf5pDkk0YHEOuZCA3MHOvqlb6nyoLP+ybeEJwZDRK2Ud
-        N73Rtk6rlcxflXxoMvNTkaxXK7IxVRb/p592h9+6CQ==
-X-Google-Smtp-Source: AA6agR41qvT8f/ZiJdy/AN7TzVIRTzPPeBb4Yh6H5iyb6/c6RcclKSHPU05It49tFbCxb2i3g462rWsAs7Dzgx9jHF8=
-X-Received: by 2002:aa7:d31a:0:b0:445:f4cd:b1c3 with SMTP id
- p26-20020aa7d31a000000b00445f4cdb1c3mr8712289edq.110.1660984924470; Sat, 20
- Aug 2022 01:42:04 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=C3neU1AtxmqWdDSuYqkB7lF7A3shUmwSCsbgD00NRVo=;
+        b=s6+A8Auxu1017P/91GAvZtIu5itU8ejDYEjC6E7WckEdJTzW0TPP5NfC5w/OZEjeXq
+         md4r7tG5iDC4D7Hh95ZGHvGvvlX/X1ZIezxVcAaJOsDbUKyPD4OVBJ7lCASp0p1Enkj7
+         j0Hr2SfYhosq6tpkvWEQQHmp964zFJVR7FrJR4NGnJCVqT/WaGssv6XFLOwhl93bWPcC
+         erwnJlD0AnIPfyKkHafuzXB0gJD5yBNPXSPu/6ehrp6i1+10dZFDY0yM2T+0+H6nN5Nf
+         4GtUa5EEJt9CZSwBAlCUK8wbKHftw8CMpwoUmfHckdZ6zXLLEsXmU6Sr+Ncqsu7rcXdP
+         64jA==
+X-Gm-Message-State: ACgBeo3rF7k/Y/JC2JPWx20mB7KBcVVMH0BZsLIaEfT9U+LHPpXFdWUu
+        ld+cqZj6ETtNlLMLMik97appUQ==
+X-Google-Smtp-Source: AA6agR5oabpEWO5QscsCqYPMks7b1iYiqWxeVRvCi+N5mOHWAK+GrXRSzxRY5E99PWwWo7LsPzOhxA==
+X-Received: by 2002:aa7:dc13:0:b0:443:3f15:8440 with SMTP id b19-20020aa7dc13000000b004433f158440mr8563131edu.274.1660985103939;
+        Sat, 20 Aug 2022 01:45:03 -0700 (PDT)
+Received: from dario-ThinkPad-T14s-Gen-2i.homenet.telecomitalia.it (host-79-31-31-9.retail.telecomitalia.it. [79.31.31.9])
+        by smtp.gmail.com with ESMTPSA id k8-20020a17090632c800b0073cd7cc2c81sm2170821ejk.181.2022.08.20.01.45.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 20 Aug 2022 01:45:03 -0700 (PDT)
+From:   Dario Binacchi <dario.binacchi@amarulasolutions.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-amarula@amarulasolutions.com,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [RESEND PATCH v5 1/2] dmaengine: mxs: use platform_driver_register
+Date:   Sat, 20 Aug 2022 10:44:59 +0200
+Message-Id: <20220820084500.689445-1-dario.binacchi@amarulasolutions.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-References: <20220819153829.135562864@linuxfoundation.org>
-In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 20 Aug 2022 14:11:53 +0530
-Message-ID: <CA+G9fYsj9ihvrUnMJ2zK-wLF6fcP6D6Kn7GRPqN3-BsrUVmr-Q@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/545] 5.10.137-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com, Nicholas Piggin <npiggin@gmail.com>,
-        =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,214 +71,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 19 Aug 2022 at 21:16, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.137 release.
-> There are 545 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 21 Aug 2022 15:36:59 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.137-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Driver registration fails on SOC imx8mn as its supplier, the clock
+control module, is probed later than subsys initcall level. This driver
+uses platform_driver_probe which is not compatible with deferred probing
+and won't be probed again later if probe function fails due to clock not
+being available at that time.
 
-Results from Linaro's test farm.
-Following regression found on powerpc.
+This patch replaces the use of platform_driver_probe with
+platform_driver_register which will allow probing the driver later again
+when the clock control module will be available.
 
-> Nicholas Piggin <npiggin@gmail.com>
->     KVM: PPC: Book3S HV: Remove virt mode checks from real mode handlers
+Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
+Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
+Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+Cc: stable@vger.kernel.org
 
-The powerpc defconfig build failed on stable-rc 5.10 with gcc and clang.
+---
 
-In file included from arch/powerpc/kvm/book3s_xive.c:53:
-arch/powerpc/kvm/book3s_xive.c:42:15: error: 'xive_vm_h_ipi' defined
-but not used [-Werror=unused-function]
-   42 | #define X_PFX xive_vm_
-      |               ^~~~~~~~
-arch/powerpc/kvm/book3s_xive_template.c:8:20: note: in definition of
-macro 'XGLUE'
-    8 | #define XGLUE(a,b) a##b
-      |                    ^
-arch/powerpc/kvm/book3s_xive_template.c:606:14: note: in expansion of
-macro 'GLUE'
-  606 | X_STATIC int GLUE(X_PFX,h_ipi)(struct kvm_vcpu *vcpu, unsigned
-long server,
-      |              ^~~~
-arch/powerpc/kvm/book3s_xive_template.c:606:19: note: in expansion of
-macro 'X_PFX'
-  606 | X_STATIC int GLUE(X_PFX,h_ipi)(struct kvm_vcpu *vcpu, unsigned
-long server,
-      |                   ^~~~~
-arch/powerpc/kvm/book3s_xive.c:42:15: error: 'xive_vm_h_eoi' defined
-but not used [-Werror=unused-function]
-   42 | #define X_PFX xive_vm_
-      |               ^~~~~~~~
-arch/powerpc/kvm/book3s_xive_template.c:8:20: note: in definition of
-macro 'XGLUE'
-    8 | #define XGLUE(a,b) a##b
-      |                    ^
-arch/powerpc/kvm/book3s_xive_template.c:501:14: note: in expansion of
-macro 'GLUE'
-  501 | X_STATIC int GLUE(X_PFX,h_eoi)(struct kvm_vcpu *vcpu, unsigned
-long xirr)
-      |              ^~~~
-arch/powerpc/kvm/book3s_xive_template.c:501:19: note: in expansion of
-macro 'X_PFX'
-  501 | X_STATIC int GLUE(X_PFX,h_eoi)(struct kvm_vcpu *vcpu, unsigned
-long xirr)
-      |                   ^~~~~
-arch/powerpc/kvm/book3s_xive.c:42:15: error: 'xive_vm_h_cppr' defined
-but not used [-Werror=unused-function]
-   42 | #define X_PFX xive_vm_
-      |               ^~~~~~~~
-arch/powerpc/kvm/book3s_xive_template.c:8:20: note: in definition of
-macro 'XGLUE'
-    8 | #define XGLUE(a,b) a##b
-      |                    ^
-arch/powerpc/kvm/book3s_xive_template.c:442:14: note: in expansion of
-macro 'GLUE'
-  442 | X_STATIC int GLUE(X_PFX,h_cppr)(struct kvm_vcpu *vcpu,
-unsigned long cppr)
-      |              ^~~~
-arch/powerpc/kvm/book3s_xive_template.c:442:19: note: in expansion of
-macro 'X_PFX'
-  442 | X_STATIC int GLUE(X_PFX,h_cppr)(struct kvm_vcpu *vcpu,
-unsigned long cppr)
-      |                   ^~~~~
-arch/powerpc/kvm/book3s_xive.c:42:15: error: 'xive_vm_h_ipoll' defined
-but not used [-Werror=unused-function]
-   42 | #define X_PFX xive_vm_
-      |               ^~~~~~~~
-arch/powerpc/kvm/book3s_xive_template.c:8:20: note: in definition of
-macro 'XGLUE'
-    8 | #define XGLUE(a,b) a##b
-      |                    ^
-arch/powerpc/kvm/book3s_xive_template.c:323:24: note: in expansion of
-macro 'GLUE'
-  323 | X_STATIC unsigned long GLUE(X_PFX,h_ipoll)(struct kvm_vcpu
-*vcpu, unsigned long server)
-      |                        ^~~~
-arch/powerpc/kvm/book3s_xive_template.c:323:29: note: in expansion of
-macro 'X_PFX'
-  323 | X_STATIC unsigned long GLUE(X_PFX,h_ipoll)(struct kvm_vcpu
-*vcpu, unsigned long server)
-      |                             ^~~~~
-arch/powerpc/kvm/book3s_xive.c:42:15: error: 'xive_vm_h_xirr' defined
-but not used [-Werror=unused-function]
-   42 | #define X_PFX xive_vm_
-      |               ^~~~~~~~
-arch/powerpc/kvm/book3s_xive_template.c:8:20: note: in definition of
-macro 'XGLUE'
-    8 | #define XGLUE(a,b) a##b
-      |                    ^
-arch/powerpc/kvm/book3s_xive_template.c:272:24: note: in expansion of
-macro 'GLUE'
-  272 | X_STATIC unsigned long GLUE(X_PFX,h_xirr)(struct kvm_vcpu *vcpu)
-      |                        ^~~~
-arch/powerpc/kvm/book3s_xive_template.c:272:29: note: in expansion of
-macro 'X_PFX'
-  272 | X_STATIC unsigned long GLUE(X_PFX,h_xirr)(struct kvm_vcpu *vcpu)
-      |                             ^~~~~
-cc1: all warnings being treated as errors
+Changes in v5:
+- Update the commit message.
+- Add the patch "dmaengine: mxs: fix section mismatch" to remove the
+  warning raised by this patch.
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Changes in v4:
+- Restore __init in front of mxs_dma_probe() definition.
+- Rename the mxs_dma_driver variable to mxs_dma_driver_probe.
+- Update the commit message.
+- Use builtin_platform_driver() instead of module_platform_driver().
 
-## Build
-* kernel: 5.10.137-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.10.y
-* git commit: 623e70e98313ed8ce5eb6da1ec87e1471d4e6af6
-* git describe: v5.10.136-546-g623e70e98313
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.136-546-g623e70e98313
+Changes in v3:
+- Restore __init in front of mxs_dma_init() definition.
 
-## Test Regressions (compared to v5.10.136)
+Changes in v2:
+- Add the tag "Cc: stable@vger.kernel.org" in the sign-off area.
 
-* powerpc, build
-  - clang-13-defconfig
-  - clang-14-defconfig
-  - clang-nightly-defconfig
-  - gcc-10-defconfig
-  - gcc-11-defconfig
-  - gcc-8-defconfig
-  - gcc-9-defconfig
+ drivers/dma/mxs-dma.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-## No metric Regressions (compared to v5.10.136)
+diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
+index 994fc4d2aca4..18f8154b859b 100644
+--- a/drivers/dma/mxs-dma.c
++++ b/drivers/dma/mxs-dma.c
+@@ -839,10 +839,6 @@ static struct platform_driver mxs_dma_driver = {
+ 		.name	= "mxs-dma",
+ 		.of_match_table = mxs_dma_dt_ids,
+ 	},
++	.probe = mxs_dma_probe,
+ };
+-
+-static int __init mxs_dma_module_init(void)
+-{
+-	return platform_driver_probe(&mxs_dma_driver, mxs_dma_probe);
+-}
+-subsys_initcall(mxs_dma_module_init);
++builtin_platform_driver(mxs_dma_driver);
+-- 
+2.32.0
 
-## No test Fixes (compared to v5.10.136)
-
-## No metric Fixes (compared to v5.10.136)
-
-## Test result summary
-total: 125787, pass: 110926, fail: 582, skip: 13467, xfail: 812
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 309 total, 309 passed, 0 failed
-* arm64: 71 total, 69 passed, 2 failed
-* i386: 60 total, 58 passed, 2 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 51 total, 44 passed, 7 failed
-* riscv: 27 total, 27 passed, 0 failed
-* s390: 21 total, 21 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 64 total, 62 passed, 2 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
