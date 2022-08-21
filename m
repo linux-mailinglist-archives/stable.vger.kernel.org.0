@@ -2,102 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 827C459B589
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 18:56:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72B3859B5BC
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 19:52:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230133AbiHUQ4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 12:56:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35528 "EHLO
+        id S229560AbiHURwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 13:52:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229507AbiHUQzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 12:55:50 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDD1D1D31C
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 09:55:49 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id q2so9036058edb.6
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 09:55:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=lNWfa2sX8vnt5lSJ692rCk7pVfqhgMg2NYeRxVqUOuY=;
-        b=O4JxdtOsriCaxkU0Ddyp6gtM+P090AjJwy3irdB1q5Sfg0MfMwHWDqrNkWSGy8cC6p
-         dfAJuYcNgG0jnyHdrU6RqPcJ1OkJ0+WK2vw//eRkXsUXJUNmbjxbqBfpyFx+ny8I230f
-         gZ6xVyxQPqJ5NHCAs7OS0shcK301Aewe7xwKw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=lNWfa2sX8vnt5lSJ692rCk7pVfqhgMg2NYeRxVqUOuY=;
-        b=fBWq7t7QGaoCr4XMEf1Fkt/ET0qRE3tGVB5olyOREzO2y87KrfCTFCB1gKEP1eSPhV
-         HPHtFXwilFt03duh0FkVJpXMalRy8fUnBW2LTnyF6dASRd9rz1kWD7dCFGxY8iKNnPeq
-         3Yhs0/6626Bn4PTMGgrvIBBgAsq72rG6UWRmqgOM9Jyg7VkCw84ISGt5JPhltbHTcri9
-         Z86Oco3N1ofnGk9VZNA2k1vgfDnCQUmpOps7G00ZKQ/joC0pqKcmQYCw9QwHPtaR8Urh
-         L3IS53DgnMs2c3yzkIAB+fWZruJsI9VvNGkdY77ohl5Lmxh5biuaVe6cjENRRyvDRPnn
-         HHqQ==
-X-Gm-Message-State: ACgBeo2CmOzOyY3AXAT1zEW3i1VBaj45NOo5ebAK/BIxgEFxYVoczb5B
-        /xDE29S3jbnsBOp7M3gczOzNidkH0qOhybn/
-X-Google-Smtp-Source: AA6agR5g+LcN3oQy5RK91W2g0TgVzrqqmuA/rjP7JzK1oxAwxRQLEbHlvkOto+5o+uDbCxFhqS4Z6w==
-X-Received: by 2002:a05:6402:2381:b0:446:7a73:e704 with SMTP id j1-20020a056402238100b004467a73e704mr5542878eda.244.1661100948120;
-        Sun, 21 Aug 2022 09:55:48 -0700 (PDT)
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com. [209.85.128.45])
-        by smtp.gmail.com with ESMTPSA id d6-20020a1709063ec600b007389c5a45f0sm1612378ejj.148.2022.08.21.09.55.47
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 21 Aug 2022 09:55:47 -0700 (PDT)
-Received: by mail-wm1-f45.google.com with SMTP id v7-20020a1cac07000000b003a6062a4f81so6574633wme.1
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 09:55:47 -0700 (PDT)
-X-Received: by 2002:a05:600c:4ece:b0:3a6:28:bc59 with SMTP id
- g14-20020a05600c4ece00b003a60028bc59mr13151022wmq.154.1661100946855; Sun, 21
- Aug 2022 09:55:46 -0700 (PDT)
+        with ESMTP id S229491AbiHURwU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 13:52:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A4C18357;
+        Sun, 21 Aug 2022 10:52:19 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4B6660F31;
+        Sun, 21 Aug 2022 17:52:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F7EAC433C1;
+        Sun, 21 Aug 2022 17:52:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1661104338;
+        bh=4p7yfjIq1tiv/g9ut0gygVgmob/tNi6cVnkLCUCXz10=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=JkdQhCJR/uZHyTuzxZahcWiQtflHyk0dww9r8YWVQFIDxSanYudlw4B/HZQ3qmpf2
+         bVCsro16+QMYkszaBCg20ENA2E5TlH0d7VIojnosLTR4BjdmpfKu5uB5NXJzHa8NMg
+         7Vlu5pJGi6c2igKdd/irLW0PBoqvXcDAIbyJuI/D/8Sxxv0NUCkAHemN7LyJWDfn/T
+         CusgC/HcHiSOtboPo/jfwNZKV4drJoDZ2NCFK4g5Q7RyISK9Y/MzdkcF+p2CA9Lr1V
+         lc3Z/KKdjLnB96GwDEpjt5iRjzn+KOcd5JgqI1eIyup7yRTawRbdmv/hV+dujxT+Yq
+         5H4Meemt8OAUA==
+From:   SeongJae Park <sj@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        SeongJae Park <sj@kernel.org>, badari.pulavarty@intel.com,
+        damon@lists.linux.dev, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] mm/damon/dbgfs: avoid duplicate context directory creation
+Date:   Sun, 21 Aug 2022 17:52:15 +0000
+Message-Id: <20220821175215.152419-1-sj@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <YwEatUUtU8570PRV@kroah.com>
+References: 
 MIME-Version: 1.0
-References: <1661019430216134@kroah.com>
-In-Reply-To: <1661019430216134@kroah.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Sun, 21 Aug 2022 09:55:30 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wiCbKaAhzhkSg1Y8DW-WZTkAdQJzXmRpnRBBC1stvKdkA@mail.gmail.com>
-Message-ID: <CAHk-=wiCbKaAhzhkSg1Y8DW-WZTkAdQJzXmRpnRBBC1stvKdkA@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] tee: add overflow check in
- register_shm_helper()" failed to apply to 5.4-stable tree
-To:     gregkh@linuxfoundation.org
-Cc:     jens.wiklander@linaro.org, ch.anirban00727@gmail.com,
-        debdeep.mukhopadhyay@gmail.com, jerome.forissier@linaro.org,
-        neelam.nimish@gmail.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Aug 21, 2022 at 12:00 AM <gregkh@linuxfoundation.org> wrote:
->
->
-> The patch below does not apply to the 5.4-stable tree.
+Hi Greg,
 
-Yeah, there's some major re-org made by commit 53e16519c2ec ("tee:
-replace tee_shm_register()") and related in this area in v5.18.
+On Sat, 20 Aug 2022 19:32:37 +0200 Greg KH <gregkh@linuxfoundation.org> wrote:
 
-I think you need to just add that
+> On Fri, Aug 19, 2022 at 02:08:09PM -0700, Andrew Morton wrote:
+> > On Fri, 19 Aug 2022 17:19:30 +0000 SeongJae Park <sj@kernel.org> wrote:
+> > 
+> > > From: Badari Pulavarty <badari.pulavarty@intel.com>
+> > > 
+> > > When user tries to create a DAMON context via the DAMON debugfs
+> > > interface with a name of an already existing context, the context
+> > > directory creation silently fails but the context is added in the
+> > > internal data structure.  As a result, memory could leak and DAMON
+> > > cannot be turned on.  An example test case is as below:
+> > > 
+> > >     # cd /sys/kernel/debug/damon/
+> > >     # echo "off" >  monitor_on
+> > >     # echo paddr > target_ids
+> > >     # echo "abc" > mk_context
+> > >     # echo "abc" > mk_context
+> > >     # echo $$ > abc/target_ids
+> > >     # echo "on" > monitor_on  <<< fails
+> > > 
+> > > This commit fixes the issue by checking if the name already exist and
+> > > immediately returning '-EEXIST' in the case.
+> > > 
+> > > ...
+> > >
+> > > --- a/mm/damon/dbgfs.c
+> > > +++ b/mm/damon/dbgfs.c
+> > > @@ -795,7 +795,7 @@ static void dbgfs_destroy_ctx(struct damon_ctx *ctx)
+> > >   */
+> > >  static int dbgfs_mk_context(char *name)
+> > >  {
+> > > -	struct dentry *root, **new_dirs, *new_dir;
+> > > +	struct dentry *root, **new_dirs, *new_dir, *dir;
+> > >  	struct damon_ctx **new_ctxs, *new_ctx;
+> > >  
+> > >  	if (damon_nr_running_ctxs())
+> > > @@ -817,6 +817,12 @@ static int dbgfs_mk_context(char *name)
+> > >  	if (!root)
+> > >  		return -ENOENT;
+> > >  
+> > > +	dir = debugfs_lookup(name, root);
+> > > +	if (dir) {
+> > > +		dput(dir);
+> > > +		return -EEXIST;
+> > > +	}
+> > > +
+> > >  	new_dir = debugfs_create_dir(name, root);
+> > >  	dbgfs_dirs[dbgfs_nr_ctxs] = new_dir;
+> > 
+> > It would be simpler (and less racy) to check the debugfs_create_dir()
+> > return value for IS_ERR()?
+> > 
+> 
+> Yes, if you _HAVE_ to know if the code works properly (i.e. because your
+> feature totally depends on debugfs like damon does), or you have a
+> potential duplicate name like this, then sure, check the return value
+> and do something based on it.
+> 
+> It's odd enough that you should put a comment above the check just so I
+> don't go and send a patch to delete it later on :)
 
-        if (!access_ok((void __user *)data.addr, data.length))
-                return -EFAULT;
+Thank you for the kind explanation, Greg.  I will revise this patch to simply
+check the return value with a comment noticing it's really needed due to the
+potential duplicate names.
 
-to tee_ioctl_shm_register() just before the call to tee_shm_register().
 
-It's where it checks "data.flags" too:
+Thanks,
+SJ
 
-        /* Currently no input flags are supported */
-        if (data.flags)
-                return -EINVAL;
 
-so it lines up with that whole "check ioctl arguments in the memory
-block we just copied".
-
-But Jens should probably double-check that.
-
-                Linus
+> 
+> thanks,
+> 
+> greg k-h
+> 
