@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A654B59B420
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 15:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 598E959B421
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 15:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229450AbiHUNxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 09:53:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42472 "EHLO
+        id S229491AbiHUNx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 09:53:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230325AbiHUNxS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 09:53:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6359AB4B
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 06:53:16 -0700 (PDT)
+        with ESMTP id S229799AbiHUNx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 09:53:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85006B4C
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 06:53:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0373060EB0
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 13:53:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEECDC433C1;
-        Sun, 21 Aug 2022 13:53:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 226B060E8C
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 13:53:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 133D6C433C1;
+        Sun, 21 Aug 2022 13:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661089995;
-        bh=UyIOqK1iHosnZXDrgny6kfZ2X6ZJ95E/YCT/bMV5rKo=;
+        s=korg; t=1661090004;
+        bh=ohdrdCPfw7aSp0OphZJ+GqslYSsPfCB5snMCw4rs70g=;
         h=Subject:To:Cc:From:Date:From;
-        b=vM4orTl1S2t5xvPNtN+vpQ7pEa9UEKF1GQ33wzewqlsfpMrqAo2gkVfHgj6+2gOCu
-         X1yJMYM5E2Rk58jVtCAxM0NTM3RcgoZ6+R+HSSID57Aj0yQ1inBoN+aN4e6p1TMhHH
-         FBx0eIF2S+39tRrZGEczu/gXqmnNzrUeMjGWMRV4=
-Subject: FAILED: patch "[PATCH] mmc: meson-gx: Fix an error handling path in" failed to apply to 4.19-stable tree
-To:     christophe.jaillet@wanadoo.fr, ulf.hansson@linaro.org
+        b=f54F/jIrJoYTpYPtDJIhW6RU3Z2b6FC8ggMSzNyYFLFFJ12F3RR7qO3gcjJjwcfOM
+         TWiUJ92/bDm1BxHGZOyz1UmIQ5YSmiG2UOpn8pdFLJqhDdjnl42dtPKewsSzcL+Dr4
+         F1cuozz6DwdklsNGPUDzDm3IKsMqSrRBs5QxaTKg=
+Subject: FAILED: patch "[PATCH] mmc: sdhci-of-dwcmshc: Re-enable support for the BlueField-3" failed to apply to 5.19-stable tree
+To:     limings@nvidia.com, adrian.hunter@intel.com, davwoods@nvidia.com,
+        ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 21 Aug 2022 15:53:03 +0200
-Message-ID: <166108998310690@kroah.com>
+Date:   Sun, 21 Aug 2022 15:53:21 +0200
+Message-ID: <1661090001118170@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,37 +60,67 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b3e1cf31154136da855f3cb6117c17eb0b6bcfb4 Mon Sep 17 00:00:00 2001
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Date: Sun, 7 Aug 2022 08:56:38 +0200
-Subject: [PATCH] mmc: meson-gx: Fix an error handling path in
- meson_mmc_probe()
+From a0753ef66c34c1739580219dca664eda648164b7 Mon Sep 17 00:00:00 2001
+From: Liming Sun <limings@nvidia.com>
+Date: Tue, 9 Aug 2022 13:37:42 -0400
+Subject: [PATCH] mmc: sdhci-of-dwcmshc: Re-enable support for the BlueField-3
+ SoC
 
-The commit in Fixes has introduced a new error handling which should goto
-the existing error handling path.
-Otherwise some resources leak.
+The commit 08f3dff799d4 (mmc: sdhci-of-dwcmshc: add rockchip platform
+support") introduces the use of_device_get_match_data() to check for some
+chips. Unfortunately, it also breaks the BlueField-3 FW, which uses ACPI.
 
-Fixes: 19c6beaa064c ("mmc: meson-gx: add device reset")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+To fix the problem, let's add the ACPI match data and the corresponding
+quirks to re-enable the support for the BlueField-3 SoC.
+
+Reviewed-by: David Woods <davwoods@nvidia.com>
+Signed-off-by: Liming Sun <limings@nvidia.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: 08f3dff799d4 ("mmc: sdhci-of-dwcmshc: add rockchip platform support")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/be4b863bacf323521ba3a02efdc4fca9cdedd1a6.1659855351.git.christophe.jaillet@wanadoo.fr
+Link: https://lore.kernel.org/r/20220809173742.178440-1-limings@nvidia.com
+[Ulf: Clarified the commit message a bit]
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-diff --git a/drivers/mmc/host/meson-gx-mmc.c b/drivers/mmc/host/meson-gx-mmc.c
-index 2f08d442e557..fc462995cf94 100644
---- a/drivers/mmc/host/meson-gx-mmc.c
-+++ b/drivers/mmc/host/meson-gx-mmc.c
-@@ -1172,8 +1172,10 @@ static int meson_mmc_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/mmc/host/sdhci-of-dwcmshc.c b/drivers/mmc/host/sdhci-of-dwcmshc.c
+index 4e904850973c..a7343d4bc50e 100644
+--- a/drivers/mmc/host/sdhci-of-dwcmshc.c
++++ b/drivers/mmc/host/sdhci-of-dwcmshc.c
+@@ -349,6 +349,15 @@ static const struct sdhci_pltfm_data sdhci_dwcmshc_pdata = {
+ 	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
+ };
  
- 	ret = device_reset_optional(&pdev->dev);
--	if (ret)
--		return dev_err_probe(&pdev->dev, ret, "device reset failed\n");
-+	if (ret) {
-+		dev_err_probe(&pdev->dev, ret, "device reset failed\n");
-+		goto free_host;
-+	}
++#ifdef CONFIG_ACPI
++static const struct sdhci_pltfm_data sdhci_dwcmshc_bf3_pdata = {
++	.ops = &sdhci_dwcmshc_ops,
++	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN,
++	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN |
++		   SDHCI_QUIRK2_ACMD23_BROKEN,
++};
++#endif
++
+ static const struct sdhci_pltfm_data sdhci_dwcmshc_rk35xx_pdata = {
+ 	.ops = &sdhci_dwcmshc_rk35xx_ops,
+ 	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN |
+@@ -431,7 +440,10 @@ MODULE_DEVICE_TABLE(of, sdhci_dwcmshc_dt_ids);
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	host->regs = devm_ioremap_resource(&pdev->dev, res);
+ #ifdef CONFIG_ACPI
+ static const struct acpi_device_id sdhci_dwcmshc_acpi_ids[] = {
+-	{ .id = "MLNXBF30" },
++	{
++		.id = "MLNXBF30",
++		.driver_data = (kernel_ulong_t)&sdhci_dwcmshc_bf3_pdata,
++	},
+ 	{}
+ };
+ #endif
+@@ -447,7 +459,7 @@ static int dwcmshc_probe(struct platform_device *pdev)
+ 	int err;
+ 	u32 extra;
+ 
+-	pltfm_data = of_device_get_match_data(&pdev->dev);
++	pltfm_data = device_get_match_data(&pdev->dev);
+ 	if (!pltfm_data) {
+ 		dev_err(&pdev->dev, "Error: No device match data found\n");
+ 		return -ENODEV;
 
