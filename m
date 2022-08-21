@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2B8B59B450
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 16:07:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD4D459B44F
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 16:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231192AbiHUOHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 10:07:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57654 "EHLO
+        id S231154AbiHUOHI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 10:07:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231189AbiHUOHK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 10:07:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 999FBF594
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 07:07:09 -0700 (PDT)
+        with ESMTP id S231195AbiHUOHH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 10:07:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D974FD23
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 07:07:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D6A060DC9
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 14:07:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F1E7C433C1;
-        Sun, 21 Aug 2022 14:07:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3A7A60A67
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 14:07:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6B76C433D6;
+        Sun, 21 Aug 2022 14:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661090828;
-        bh=VcgeA/fIokCVpU2McZLWgpBLVX8lkt3jOK0yvMWyGXQ=;
+        s=korg; t=1661090825;
+        bh=Ixo9wrhElt2BXYAWHtaErPWrfWkw1bkKIRn1AUgN/UA=;
         h=Subject:To:Cc:From:Date:From;
-        b=BBtnudeuXOyDBj734VvE5rGxwqqkdyjKN9Zb81we0BrlXx6RVEak6TbAPh0wzLa+u
-         MXlZrtaFBWW/7PkS4c8VxZtiYDTlKe4ly3NlfaTzsLh99hUKCjsl3WRTSitEuncyo4
-         SeY0pvwBjW4Zj3ABlqaOq37sUMOAy7IWE586d0pA=
-Subject: FAILED: patch "[PATCH] drm/i915: pass a pointer for tlb seqno at" failed to apply to 5.10-stable tree
+        b=UEmX3/GIvIb1VoVseoCg7qR/gE1MKDaFciFmp1jYWV5aJ8r6MFg5YTtaj5UsBtwrP
+         m/kL4XUACFYcjNpyChPwF9KIWZijmXHcbyB71KlecdYkdihVQhCQ9TNW8ZHq89jrV1
+         r1yD/esuAUUIC3DE8ydvwDe14gdmtos0LhdqiI3M=
+Subject: FAILED: patch "[PATCH] drm/i915: pass a pointer for tlb seqno at" failed to apply to 5.4-stable tree
 To:     mchehab@kernel.org, andi.shyti@linux.intel.com,
         rodrigo.vivi@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 21 Aug 2022 16:06:51 +0200
-Message-ID: <1661090811250145@kroah.com>
+Message-ID: <166109081113041@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
