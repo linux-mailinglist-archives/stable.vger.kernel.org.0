@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37E0F59B418
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 15:46:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8340059B41F
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 15:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230358AbiHUNq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 09:46:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37866 "EHLO
+        id S229447AbiHUNxI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 09:53:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbiHUNq0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 09:46:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A47D62315E
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 06:46:25 -0700 (PDT)
+        with ESMTP id S229450AbiHUNxH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 09:53:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665D86575
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 06:53:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5ACC5B80D0D
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 13:46:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60F0DC433D6;
-        Sun, 21 Aug 2022 13:46:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F40AC60EB0
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 13:53:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3DFAC433D6;
+        Sun, 21 Aug 2022 13:53:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661089583;
-        bh=QaYQ4fxHAGyVy5YWPrCcZCzYNhgeupZPZeSqlXWNCRM=;
+        s=korg; t=1661089985;
+        bh=4+zF5sT3AzINqTqmM9tXz9JatwPxl0zwNAGMdO4HZko=;
         h=Subject:To:Cc:From:Date:From;
-        b=V2bM0Q3zyijWPwzNIKVt/5wMgCfY9AzJlNEvNcabINY1is5KsXYUKSdggXHBb/lKL
-         g2EtXnNEkhPzaZO+Y2lLSoOkhGHkoXIJEL8k76MSNlT+4oWEDTtKOV/wbHnlP5qgv7
-         E0jSo0L+8jCRYGxGPExbq5+5Po8lfxCLPwdbg0TI=
-Subject: FAILED: patch "[PATCH] locking/atomic: Make test_and_*_bit() ordered on failure" failed to apply to 4.19-stable tree
-To:     marcan@marcan.st, arnd@arndb.de, torvalds@linux-foundation.org,
-        will@kernel.org
+        b=jCbI/ibpFXiru6uc6UwgD+r+N6rM/sbCjUmbkYZTGEIOcR/Pybt9g2WftWJmuQQda
+         DjBDEZ1+I54lYXRj/eXg1DpU/5ApCCo5GEbJzswn2lpJsSJSJsjTu1K2IDMDyy49/s
+         k8m0nu5oTO+d02KrjBdUokd/ky7anB3rjfvZReBQ=
+Subject: FAILED: patch "[PATCH] mmc: meson-gx: Fix an error handling path in" failed to apply to 5.4-stable tree
+To:     christophe.jaillet@wanadoo.fr, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 21 Aug 2022 15:46:09 +0200
-Message-ID: <1661089569192119@kroah.com>
+Date:   Sun, 21 Aug 2022 15:53:02 +0200
+Message-ID: <1661089982235154@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,74 +59,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 415d832497098030241605c52ea83d4e2cfa7879 Mon Sep 17 00:00:00 2001
-From: Hector Martin <marcan@marcan.st>
-Date: Tue, 16 Aug 2022 16:03:11 +0900
-Subject: [PATCH] locking/atomic: Make test_and_*_bit() ordered on failure
+From b3e1cf31154136da855f3cb6117c17eb0b6bcfb4 Mon Sep 17 00:00:00 2001
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Date: Sun, 7 Aug 2022 08:56:38 +0200
+Subject: [PATCH] mmc: meson-gx: Fix an error handling path in
+ meson_mmc_probe()
 
-These operations are documented as always ordered in
-include/asm-generic/bitops/instrumented-atomic.h, and producer-consumer
-type use cases where one side needs to ensure a flag is left pending
-after some shared data was updated rely on this ordering, even in the
-failure case.
+The commit in Fixes has introduced a new error handling which should goto
+the existing error handling path.
+Otherwise some resources leak.
 
-This is the case with the workqueue code, which currently suffers from a
-reproducible ordering violation on Apple M1 platforms (which are
-notoriously out-of-order) that ends up causing the TTY layer to fail to
-deliver data to userspace properly under the right conditions.  This
-change fixes that bug.
-
-Change the documentation to restrict the "no order on failure" story to
-the _lock() variant (for which it makes sense), and remove the
-early-exit from the generic implementation, which is what causes the
-missing barrier semantics in that case.  Without this, the remaining
-atomic op is fully ordered (including on ARM64 LSE, as of recent
-versions of the architecture spec).
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 19c6beaa064c ("mmc: meson-gx: add device reset")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Cc: stable@vger.kernel.org
-Fixes: e986a0d6cb36 ("locking/atomics, asm-generic/bitops/atomic.h: Rewrite using atomic_*() APIs")
-Fixes: 61e02392d3c7 ("locking/atomic/bitops: Document and clarify ordering semantics for failed test_and_{}_bit()")
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Acked-by: Will Deacon <will@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/be4b863bacf323521ba3a02efdc4fca9cdedd1a6.1659855351.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-diff --git a/Documentation/atomic_bitops.txt b/Documentation/atomic_bitops.txt
-index 093cdaefdb37..d8b101c97031 100644
---- a/Documentation/atomic_bitops.txt
-+++ b/Documentation/atomic_bitops.txt
-@@ -59,7 +59,7 @@ Like with atomic_t, the rule of thumb is:
-  - RMW operations that have a return value are fully ordered.
+diff --git a/drivers/mmc/host/meson-gx-mmc.c b/drivers/mmc/host/meson-gx-mmc.c
+index 2f08d442e557..fc462995cf94 100644
+--- a/drivers/mmc/host/meson-gx-mmc.c
++++ b/drivers/mmc/host/meson-gx-mmc.c
+@@ -1172,8 +1172,10 @@ static int meson_mmc_probe(struct platform_device *pdev)
+ 	}
  
-  - RMW operations that are conditional are unordered on FAILURE,
--   otherwise the above rules apply. In the case of test_and_{}_bit() operations,
-+   otherwise the above rules apply. In the case of test_and_set_bit_lock(),
-    if the bit in memory is unchanged by the operation then it is deemed to have
-    failed.
+ 	ret = device_reset_optional(&pdev->dev);
+-	if (ret)
+-		return dev_err_probe(&pdev->dev, ret, "device reset failed\n");
++	if (ret) {
++		dev_err_probe(&pdev->dev, ret, "device reset failed\n");
++		goto free_host;
++	}
  
-diff --git a/include/asm-generic/bitops/atomic.h b/include/asm-generic/bitops/atomic.h
-index 3096f086b5a3..71ab4ba9c25d 100644
---- a/include/asm-generic/bitops/atomic.h
-+++ b/include/asm-generic/bitops/atomic.h
-@@ -39,9 +39,6 @@ arch_test_and_set_bit(unsigned int nr, volatile unsigned long *p)
- 	unsigned long mask = BIT_MASK(nr);
- 
- 	p += BIT_WORD(nr);
--	if (READ_ONCE(*p) & mask)
--		return 1;
--
- 	old = arch_atomic_long_fetch_or(mask, (atomic_long_t *)p);
- 	return !!(old & mask);
- }
-@@ -53,9 +50,6 @@ arch_test_and_clear_bit(unsigned int nr, volatile unsigned long *p)
- 	unsigned long mask = BIT_MASK(nr);
- 
- 	p += BIT_WORD(nr);
--	if (!(READ_ONCE(*p) & mask))
--		return 0;
--
- 	old = arch_atomic_long_fetch_andnot(mask, (atomic_long_t *)p);
- 	return !!(old & mask);
- }
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	host->regs = devm_ioremap_resource(&pdev->dev, res);
 
