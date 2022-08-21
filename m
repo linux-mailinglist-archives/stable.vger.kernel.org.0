@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 247CE59B422
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 15:53:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D23459B425
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 15:55:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229510AbiHUNxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 09:53:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43364 "EHLO
+        id S229494AbiHUNzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 09:55:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230231AbiHUNxh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 09:53:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E1AA1B1
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 06:53:36 -0700 (PDT)
+        with ESMTP id S230394AbiHUNzD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 09:55:03 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85FDC22BF1
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 06:54:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8A5E60EB0
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 13:53:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2540C433D6;
-        Sun, 21 Aug 2022 13:53:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EE889CE0DEE
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 13:54:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1A43C433D7;
+        Sun, 21 Aug 2022 13:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661090015;
-        bh=HAs4DSQ5t/Lmrh3ba+OPXZEDT9zdnYrPXEkdEeDO/YM=;
+        s=korg; t=1661090093;
+        bh=l0Py4U2wfioaniNTKzv4OBSeGjv/qRT2zW+oNR6q3vg=;
         h=Subject:To:Cc:From:Date:From;
-        b=mFSCTilDH1hXocB9IRJGvx65pFUHLOTVKyMH+dmH8dUlbdQKSY/RIbtiYIb4lELS/
-         FsB3ZJlOZsUqlhZXSvu4TU1LLoGciTeASL6DQ/jojqP1znbmgpyoJijoh/O5C+yzUi
-         uIzd48CrQTn+xKh6aKS8B4HnMFGzZeVU4sOZs0YQ=
-Subject: FAILED: patch "[PATCH] mmc: sdhci-of-dwcmshc: Re-enable support for the BlueField-3" failed to apply to 5.15-stable tree
-To:     limings@nvidia.com, adrian.hunter@intel.com, davwoods@nvidia.com,
-        ulf.hansson@linaro.org
+        b=MZmuZdgKv7/NZ2cLB1XvRy6kacMw2CG13DxuK3Nf37uGf2pDOIcnXtpv3LwEFM+85
+         uVhamGRpwYOqtWv6zSoT04VlkRZWK7F9D5Kz+Bh3fGXtjSIDcr889YHBhXEQ+9+Hq2
+         b+YO6yra5tptABvL2UddyphKORsb6ZLU+r2dWtHw=
+Subject: FAILED: patch "[PATCH] btrfs: fix warning during log replay when bumping inode link" failed to apply to 5.15-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 21 Aug 2022 15:53:24 +0200
-Message-ID: <166109000410728@kroah.com>
+Date:   Sun, 21 Aug 2022 15:54:50 +0200
+Message-ID: <166109009018323@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,67 +59,93 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a0753ef66c34c1739580219dca664eda648164b7 Mon Sep 17 00:00:00 2001
-From: Liming Sun <limings@nvidia.com>
-Date: Tue, 9 Aug 2022 13:37:42 -0400
-Subject: [PATCH] mmc: sdhci-of-dwcmshc: Re-enable support for the BlueField-3
- SoC
+From 769030e11847c5412270c0726ff21d3a1f0a3131 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 1 Aug 2022 14:57:52 +0100
+Subject: [PATCH] btrfs: fix warning during log replay when bumping inode link
+ count
 
-The commit 08f3dff799d4 (mmc: sdhci-of-dwcmshc: add rockchip platform
-support") introduces the use of_device_get_match_data() to check for some
-chips. Unfortunately, it also breaks the BlueField-3 FW, which uses ACPI.
+During log replay, at add_link(), we may increment the link count of
+another inode that has a reference that conflicts with a new reference
+for the inode currently being processed.
 
-To fix the problem, let's add the ACPI match data and the corresponding
-quirks to re-enable the support for the BlueField-3 SoC.
+During log replay, at add_link(), we may drop (unlink) a reference from
+some inode in the subvolume tree if that reference conflicts with a new
+reference found in the log for the inode we are currently processing.
 
-Reviewed-by: David Woods <davwoods@nvidia.com>
-Signed-off-by: Liming Sun <limings@nvidia.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: 08f3dff799d4 ("mmc: sdhci-of-dwcmshc: add rockchip platform support")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220809173742.178440-1-limings@nvidia.com
-[Ulf: Clarified the commit message a bit]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+After the unlink, If the link count has decreased from 1 to 0, then we
+increment the link count to prevent the inode from being deleted if it's
+evicted by an iput() call, because we may have references to add to that
+inode later on (and we will fixup its link count later during log replay).
 
-diff --git a/drivers/mmc/host/sdhci-of-dwcmshc.c b/drivers/mmc/host/sdhci-of-dwcmshc.c
-index 4e904850973c..a7343d4bc50e 100644
---- a/drivers/mmc/host/sdhci-of-dwcmshc.c
-+++ b/drivers/mmc/host/sdhci-of-dwcmshc.c
-@@ -349,6 +349,15 @@ static const struct sdhci_pltfm_data sdhci_dwcmshc_pdata = {
- 	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
- };
- 
-+#ifdef CONFIG_ACPI
-+static const struct sdhci_pltfm_data sdhci_dwcmshc_bf3_pdata = {
-+	.ops = &sdhci_dwcmshc_ops,
-+	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN,
-+	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN |
-+		   SDHCI_QUIRK2_ACMD23_BROKEN,
-+};
-+#endif
-+
- static const struct sdhci_pltfm_data sdhci_dwcmshc_rk35xx_pdata = {
- 	.ops = &sdhci_dwcmshc_rk35xx_ops,
- 	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN |
-@@ -431,7 +440,10 @@ MODULE_DEVICE_TABLE(of, sdhci_dwcmshc_dt_ids);
- 
- #ifdef CONFIG_ACPI
- static const struct acpi_device_id sdhci_dwcmshc_acpi_ids[] = {
--	{ .id = "MLNXBF30" },
-+	{
-+		.id = "MLNXBF30",
-+		.driver_data = (kernel_ulong_t)&sdhci_dwcmshc_bf3_pdata,
-+	},
- 	{}
- };
- #endif
-@@ -447,7 +459,7 @@ static int dwcmshc_probe(struct platform_device *pdev)
- 	int err;
- 	u32 extra;
- 
--	pltfm_data = of_device_get_match_data(&pdev->dev);
-+	pltfm_data = device_get_match_data(&pdev->dev);
- 	if (!pltfm_data) {
- 		dev_err(&pdev->dev, "Error: No device match data found\n");
- 		return -ENODEV;
+However incrementing the link count from 0 to 1 triggers a warning:
+
+  $ cat fs/inode.c
+  (...)
+  void inc_nlink(struct inode *inode)
+  {
+        if (unlikely(inode->i_nlink == 0)) {
+                 WARN_ON(!(inode->i_state & I_LINKABLE));
+                 atomic_long_dec(&inode->i_sb->s_remove_count);
+        }
+  (...)
+
+The I_LINKABLE flag is only set when creating an O_TMPFILE file, so it's
+never set during log replay.
+
+Most of the time, the warning isn't triggered even if we dropped the last
+reference of the conflicting inode, and this is because:
+
+1) The conflicting inode was previously marked for fixup, through a call
+   to link_to_fixup_dir(), which increments the inode's link count;
+
+2) And the last iput() on the inode has not triggered eviction of the
+   inode, nor was eviction triggered after the iput(). So at add_link(),
+   even if we unlink the last reference of the inode, its link count ends
+   up being 1 and not 0.
+
+So this means that if eviction is triggered after link_to_fixup_dir() is
+called, at add_link() we will read the inode back from the subvolume tree
+and have it with a correct link count, matching the number of references
+it has on the subvolume tree. So if when we are at add_link() the inode
+has exactly one reference only, its link count is 1, and after the unlink
+its link count becomes 0.
+
+So fix this by using set_nlink() instead of inc_nlink(), as the former
+accepts a transition from 0 to 1 and it's what we use in other similar
+contexts (like at link_to_fixup_dir().
+
+Also make add_inode_ref() use set_nlink() instead of inc_nlink() to
+bump the link count from 0 to 1.
+
+The warning is actually harmless, but it may scare users. Josef also ran
+into it recently.
+
+CC: stable@vger.kernel.org # 5.1+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index c1fdd6ef3f4a..9205c4a5ca81 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1459,7 +1459,7 @@ static int add_link(struct btrfs_trans_handle *trans,
+ 	 * on the inode will not free it. We will fixup the link count later.
+ 	 */
+ 	if (other_inode->i_nlink == 0)
+-		inc_nlink(other_inode);
++		set_nlink(other_inode, 1);
+ add_link:
+ 	ret = btrfs_add_link(trans, BTRFS_I(dir), BTRFS_I(inode),
+ 			     name, namelen, 0, ref_index);
+@@ -1602,7 +1602,7 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
+ 				 * free it. We will fixup the link count later.
+ 				 */
+ 				if (!ret && inode->i_nlink == 0)
+-					inc_nlink(inode);
++					set_nlink(inode, 1);
+ 			}
+ 			if (ret < 0)
+ 				goto out;
 
