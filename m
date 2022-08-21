@@ -2,115 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7553559B350
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 13:31:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D99D59B3A8
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 14:04:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230158AbiHUL3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 07:29:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53130 "EHLO
+        id S229481AbiHUMD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 08:03:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229651AbiHUL3D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 07:29:03 -0400
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97047140EA;
-        Sun, 21 Aug 2022 04:29:02 -0700 (PDT)
-Received: by mail-ej1-x62e.google.com with SMTP id y13so16350196ejp.13;
-        Sun, 21 Aug 2022 04:29:02 -0700 (PDT)
+        with ESMTP id S229472AbiHUMD5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 08:03:57 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C32917069;
+        Sun, 21 Aug 2022 05:03:54 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id v4so7141956pgi.10;
+        Sun, 21 Aug 2022 05:03:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:from:to:cc;
-        bh=fMM08NkXjQf8LQsd9if/tOzac0dPGc2gucFpi22QVMQ=;
-        b=Pl0IJgXimvbpN8Ay+cPjZUz7W9u9zY5Mds0dOZTqJDTZXNbMF/qhwJjS/rnUGbN1Jr
-         KkHT++eKkZ8wDN5+on6ILJlvMOc8u5Im4o5eQJVoqCmHieLs6pkfaSd5eGfrs6eL40uK
-         kvk2njQtHJ+p2d+cqEjOtY3JE3khnkdv36FkH6AqPqfNaCi4LHC69GZazbeizO1Pca9J
-         r/8I2O72WqThxbqRF1WAYhthGhQ11UfD5h/yTgBQo8ENuXyyJAhQKGFHPS9tv0Ty8m3u
-         VWFL3d+EJ3867f/GBFko/whzW2FcH4luLpibwYyUgGR/DdvHdSbg5aeQ4V1w9AZuebF2
-         vepw==
+        bh=tT9fTOF/JPnDPf7gs+4eVJI4k6ubzr58RBsHYFh88W8=;
+        b=l9zZd6t5v+I/1ZCw6Gayr1fvoXkFir/CsVD/OrOV8QiRN6vMymQYTqWRQpJ2gaPhCk
+         Pfo+myYrPchTX/LtyRtzd2WPoPFZHLYmydMJHiF4hBFVE+ILTCbK9cBxdFMoFAFfOWb2
+         NvEo/7It9uAB4Ox/LCLzZsTf++X/uI6o5IcNxzYBPs93D6YTyucwTyW9BtQnP6QcW8+X
+         mbZHtkN3hL5RNJU0isOVQjTodTnJ34wkX3rkHCWe9Hs4OxhbvXr+RZthNbuPrkSK9ep/
+         KogtyHnva1ApBzS/gqaQQAkkQqQbO00n8t2KdZhC8iGPbjK/5pqwSgTDiv17+/4Ko49l
+         h5Uw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc;
-        bh=fMM08NkXjQf8LQsd9if/tOzac0dPGc2gucFpi22QVMQ=;
-        b=VXvlqYG5kA3R6oP+pSghgC/LZuvisOkTkU7AV8UQCjdKwWXui6p6iwC7nUI4bimq0X
-         sGrmZCetKryTRNjcfIjN0o0KA73vapJYBEaGBw02W8rmsiClec+9NgRRaB88MhZmFbms
-         /gAjpa6U87E/PSAUHwKnvB3/BSS2P4zQAXBYqSaTB/6MSEBCt/oAN6g9yonF9ejN77pS
-         Ci3rjSWBQN9VR6Xc7DbaKKckMxvB9I+B5ye8HtznDhzcSCxTCEe1joR/y9XJcHxblYVt
-         W3JQesnCZzHrivAuk6z2YpU55YobYtsVei2lsETpaZewZF6RsgYZKoBa5EO2uyFMVkiG
-         NnsA==
-X-Gm-Message-State: ACgBeo3Mesdi2KspUUSn30ik5NPsK1/ZraGL/YowOVyEs9QtJw68+xE0
-        nQ7vNiWOnBeb7Mpx0emu8hE=
-X-Google-Smtp-Source: AA6agR5ewCNy9F+q8FAPPV2JuMBq7E35ydIBDWEqmJhjsir4JqdKjtpA6P9Nw0uNlVJtU8RmTWHvrA==
-X-Received: by 2002:a17:907:1629:b0:730:7ad7:24f2 with SMTP id hb41-20020a170907162900b007307ad724f2mr10163420ejc.261.1661081341112;
-        Sun, 21 Aug 2022 04:29:01 -0700 (PDT)
-Received: from gmail.com (195-38-113-151.pool.digikabel.hu. [195.38.113.151])
-        by smtp.gmail.com with ESMTPSA id jv16-20020a170907769000b0073d6ab5bcaasm1596941ejc.212.2022.08.21.04.28.59
+        bh=tT9fTOF/JPnDPf7gs+4eVJI4k6ubzr58RBsHYFh88W8=;
+        b=SXGWoKcwwAY9rKhNcU0cLkxU76zZg6vaEHX3GXzTVhf6Godf8vj5K3kBdVsQY+10U3
+         nfYYquiw50YhNK1fHtxcGIuIwGm1VzDGIv99wMFbDahqqcGAKqGocGhmplkN4PHC00jd
+         jZ7bZUOxyob7dScur4lqTgmltSFjY8zjHlzV4YROxyU8zSzcCuw28h5PBvFnwepAR6vc
+         joKgR0VX28uLObEUu9AirVcRVX0FfmE2exyHfnYmCs7ZcjqkLsYMypNCU3bsd6EEb7UM
+         yb/h86hUD3NetLz8SssMFZEmuAA8WGrMjy8ys9ayt+yDoyiBiK/I3kdVbCkN3s4dwwaD
+         Gsvw==
+X-Gm-Message-State: ACgBeo1ZfC9XAJ+oE9Gjh7FWEm3pLZ338UlGZ1p9WiB7fp1S2OJaenmh
+        YCNIghVQIeZBNkiWUjZGxo4JBzTK4kA=
+X-Google-Smtp-Source: AA6agR5KNnE4NfVoTTRH0ElaCHSvpH5Pnw78EQw/fjgM056leySEwf40VXvllSr46d8+SvAGA9EjAw==
+X-Received: by 2002:a63:5325:0:b0:41b:59f1:79d2 with SMTP id h37-20020a635325000000b0041b59f179d2mr13521789pgb.52.1661083433490;
+        Sun, 21 Aug 2022 05:03:53 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id cp7-20020a170902e78700b0016dc1df9bf7sm6412838plb.27.2022.08.21.05.03.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Aug 2022 04:29:00 -0700 (PDT)
-Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
-Date:   Sun, 21 Aug 2022 13:28:58 +0200
-From:   Ingo Molnar <mingo@kernel.org>
-To:     Mel Gorman <mgorman@suse.de>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Peter Xu <peterx@redhat.com>, Hugh Dickins <hughd@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH v2] sched/all: Change all BUG_ON() instances in the
- scheduler to WARN_ON_ONCE()
-Message-ID: <YwIW+mVeZoTOxn/4@gmail.com>
-References: <20220808073232.8808-1-david@redhat.com>
- <CAHk-=wiEAH+ojSpAgx_Ep=NKPWHU8AdO3V56BXcCsU97oYJ1EA@mail.gmail.com>
- <1a48d71d-41ee-bf39-80d2-0102f4fe9ccb@redhat.com>
- <CAHk-=wg40EAZofO16Eviaj7mfqDhZ2gVEbvfsMf6gYzspRjYvw@mail.gmail.com>
- <YvSsKcAXISmshtHo@gmail.com>
- <CAHk-=wgqW6zQcAW4i-ARJ8KNZZjw6tP3nn0QimyTWO=j+ZKsLA@mail.gmail.com>
- <YvYdbn2GtTlCaand@gmail.com>
- <20220815144143.zjsiamw5y22bvgki@suse.de>
+        Sun, 21 Aug 2022 05:03:51 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Sun, 21 Aug 2022 05:03:48 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.10 000/541] 5.10.137-rc2 review
+Message-ID: <20220821120348.GA2332676@roeck-us.net>
+References: <20220820182952.751374248@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220815144143.zjsiamw5y22bvgki@suse.de>
-X-Spam-Status: No, score=1.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        FSL_HELO_FAKE,HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: *
+In-Reply-To: <20220820182952.751374248@linuxfoundation.org>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Aug 20, 2022 at 08:39:26PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.137 release.
+> There are 541 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Mon, 22 Aug 2022 18:28:24 +0000.
+> Anything received after that time might be too late.
+> 
+Build results:
+	total: 163 pass: 162 fail: 1
+Failed builds:
+	um:defconfig
+Qemu test results:
+	total: 474 pass: 474 fail: 0
 
-* Mel Gorman <mgorman@suse.de> wrote:
+The build error is:
 
-> For the rest, I didn't see obvious recovery paths that would allow the 
-> system to run predictably. Any of them firing will have unpredictable 
-> consequences (e.g. move_queued_task firing would be fun if it was a 
-> per-cpu kthread). Depending on which warning triggers, the remaining life 
-> of the system may be very short but maybe long enough to be logged even 
-> if system locks up shortly afterwards.
+Building um:defconfig ... failed
+--------------
+Error log:
+In file included from arch/um/include/shared/irq_user.h:10,
+                 from arch/um/include/shared/os.h:12,
+                 from arch/um/kernel/umid.c:9:
+include/linux/stddef.h:11:9: error: expected identifier before numeric constant
+   11 |         false   = 0,
+      |         ^~~~~
+include/linux/types.h:30:33: error: two or more data types in declaration specifiers
+   30 | typedef _Bool                   bool;
+      |                                 ^~~~
+In file included from arch/um/include/shared/os.h:17,
+                 from arch/um/kernel/umid.c:9:
+include/linux/types.h:30:1: warning: useless type name in empty declaration
+   30 | typedef _Bool                   bool;
+      | ^~~~~~~
 
-Correct. I'd prefer to keep all these warnings 'simple' - i.e. no attempted 
-recovery & control flow, unless we ever expect these to trigger.
+Bisect points to commit 6660dd43bbf ("um: seed rng using host OS rng"),
+and reverting it fixes the problem.
 
-I.e. instead of adding a 'goto' I'd prefer if we removed most of the ones 
-you highlighted. But wanted to keep this first patch simple.
-
-Thanks,
-
-	Ingo
+Guenter
