@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72B3859B5BC
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 19:52:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A768359B5CD
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 20:09:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229560AbiHURwV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 13:52:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39904 "EHLO
+        id S229988AbiHUSJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 14:09:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbiHURwU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 13:52:20 -0400
+        with ESMTP id S229491AbiHUSJK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 14:09:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A4C18357;
-        Sun, 21 Aug 2022 10:52:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A334F1EEEC;
+        Sun, 21 Aug 2022 11:09:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4B6660F31;
-        Sun, 21 Aug 2022 17:52:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F7EAC433C1;
-        Sun, 21 Aug 2022 17:52:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4187160A67;
+        Sun, 21 Aug 2022 18:09:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01189C433C1;
+        Sun, 21 Aug 2022 18:09:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661104338;
-        bh=4p7yfjIq1tiv/g9ut0gygVgmob/tNi6cVnkLCUCXz10=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JkdQhCJR/uZHyTuzxZahcWiQtflHyk0dww9r8YWVQFIDxSanYudlw4B/HZQ3qmpf2
-         bVCsro16+QMYkszaBCg20ENA2E5TlH0d7VIojnosLTR4BjdmpfKu5uB5NXJzHa8NMg
-         7Vlu5pJGi6c2igKdd/irLW0PBoqvXcDAIbyJuI/D/8Sxxv0NUCkAHemN7LyJWDfn/T
-         CusgC/HcHiSOtboPo/jfwNZKV4drJoDZ2NCFK4g5Q7RyISK9Y/MzdkcF+p2CA9Lr1V
-         lc3Z/KKdjLnB96GwDEpjt5iRjzn+KOcd5JgqI1eIyup7yRTawRbdmv/hV+dujxT+Yq
-         5H4Meemt8OAUA==
+        s=k20201202; t=1661105348;
+        bh=CFxaHOeeNQD9u+hqUUFiCzrpMlWn7QCApyqs9t5RjH8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=QYLY095YIKc1sgsq1NooWz9CeWSILMnF16lNotNHYEiotFvoxZRmjYgxHazbOnXju
+         VU/vP6TFw93W2UCqHaW3pczWK4eaUxTTaf18AwawiRM449VvvBdnMfKdgnq2plxSru
+         FEhktr6PSGOA2Bo1RIhPCl6NHnzPTVIWIVcm7M1SRTPT3hBdTK9S+QdI2RUoI0XHEA
+         ULdFedLOJbSMqqeEjKc4eEfs8M0Ut1iTIhvKeDFbstW0Lfq4ePL4v5HmvU0cwte4ib
+         w6MXWI8cfbOt0/2d8PI1+qE66l4DuL2/ywENhWZJ5otl2qOD6AjgYJEGnx1S13TOTX
+         XXiUCzmFvi/iw==
 From:   SeongJae Park <sj@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        SeongJae Park <sj@kernel.org>, badari.pulavarty@intel.com,
+To:     akpm@linux-foundation.org
+Cc:     badari.pulavarty@intel.com, gregkh@linuxfoundation.org,
         damon@lists.linux.dev, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] mm/damon/dbgfs: avoid duplicate context directory creation
-Date:   Sun, 21 Aug 2022 17:52:15 +0000
-Message-Id: <20220821175215.152419-1-sj@kernel.org>
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        SeongJae Park <sj@kernel.org>
+Subject: [PATCH v3] mm/damon/dbgfs: avoid duplicate context directory creation
+Date:   Sun, 21 Aug 2022 18:08:53 +0000
+Message-Id: <20220821180853.2400-1-sj@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <YwEatUUtU8570PRV@kroah.com>
-References: 
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -55,81 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+From: Badari Pulavarty <badari.pulavarty@intel.com>
 
-On Sat, 20 Aug 2022 19:32:37 +0200 Greg KH <gregkh@linuxfoundation.org> wrote:
+From: Badari Pulavarty <badari.pulavarty@intel.com>
 
-> On Fri, Aug 19, 2022 at 02:08:09PM -0700, Andrew Morton wrote:
-> > On Fri, 19 Aug 2022 17:19:30 +0000 SeongJae Park <sj@kernel.org> wrote:
-> > 
-> > > From: Badari Pulavarty <badari.pulavarty@intel.com>
-> > > 
-> > > When user tries to create a DAMON context via the DAMON debugfs
-> > > interface with a name of an already existing context, the context
-> > > directory creation silently fails but the context is added in the
-> > > internal data structure.  As a result, memory could leak and DAMON
-> > > cannot be turned on.  An example test case is as below:
-> > > 
-> > >     # cd /sys/kernel/debug/damon/
-> > >     # echo "off" >  monitor_on
-> > >     # echo paddr > target_ids
-> > >     # echo "abc" > mk_context
-> > >     # echo "abc" > mk_context
-> > >     # echo $$ > abc/target_ids
-> > >     # echo "on" > monitor_on  <<< fails
-> > > 
-> > > This commit fixes the issue by checking if the name already exist and
-> > > immediately returning '-EEXIST' in the case.
-> > > 
-> > > ...
-> > >
-> > > --- a/mm/damon/dbgfs.c
-> > > +++ b/mm/damon/dbgfs.c
-> > > @@ -795,7 +795,7 @@ static void dbgfs_destroy_ctx(struct damon_ctx *ctx)
-> > >   */
-> > >  static int dbgfs_mk_context(char *name)
-> > >  {
-> > > -	struct dentry *root, **new_dirs, *new_dir;
-> > > +	struct dentry *root, **new_dirs, *new_dir, *dir;
-> > >  	struct damon_ctx **new_ctxs, *new_ctx;
-> > >  
-> > >  	if (damon_nr_running_ctxs())
-> > > @@ -817,6 +817,12 @@ static int dbgfs_mk_context(char *name)
-> > >  	if (!root)
-> > >  		return -ENOENT;
-> > >  
-> > > +	dir = debugfs_lookup(name, root);
-> > > +	if (dir) {
-> > > +		dput(dir);
-> > > +		return -EEXIST;
-> > > +	}
-> > > +
-> > >  	new_dir = debugfs_create_dir(name, root);
-> > >  	dbgfs_dirs[dbgfs_nr_ctxs] = new_dir;
-> > 
-> > It would be simpler (and less racy) to check the debugfs_create_dir()
-> > return value for IS_ERR()?
-> > 
-> 
-> Yes, if you _HAVE_ to know if the code works properly (i.e. because your
-> feature totally depends on debugfs like damon does), or you have a
-> potential duplicate name like this, then sure, check the return value
-> and do something based on it.
-> 
-> It's odd enough that you should put a comment above the check just so I
-> don't go and send a patch to delete it later on :)
+When user tries to create a DAMON context via the DAMON debugfs
+interface with a name of an already existing context, the context
+directory creation fails but a new context is created and added in the
+internal data structure, due to absence of the directory creation
+success check.  As a result, memory could leak and DAMON cannot be
+turned on.  An example test case is as below:
 
-Thank you for the kind explanation, Greg.  I will revise this patch to simply
-check the return value with a comment noticing it's really needed due to the
-potential duplicate names.
+    # cd /sys/kernel/debug/damon/
+    # echo "off" >  monitor_on
+    # echo paddr > target_ids
+    # echo "abc" > mk_context
+    # echo "abc" > mk_context
+    # echo $$ > abc/target_ids
+    # echo "on" > monitor_on  <<< fails
 
+Return value of 'debugfs_create_dir()' is expected to be ignored in
+general, but this is an exceptional case as DAMON feature is depending
+on the debugfs functionality and it has the potential duplicate name
+issue.  This commit therefore fixes the issue by checking the directory
+creation failure and immediately return the error in the case.
 
-Thanks,
-SJ
+Fixes: 75c1c2b53c78 ("mm/damon/dbgfs: support multiple contexts")
+Cc: <stable@vger.kernel.org> # 5.15.x
+Signed-off-by: Badari Pulavarty <badari.pulavarty@intel.com>
+Signed-off-by: SeongJae Park <sj@kernel.org>
+---
+Changes from v2
+(https://lore.kernel.org/damon/20220819171930.16166-1-sj@kernel.org/)
+- Simply check the debugfs_create_dir() return value (Andrew Morton)
+- Put a comment for justifying check of the return value (Greg KH)
 
+Changes from v1
+(https://lore.kernel.org/damon/DM6PR11MB3978994F75A4104D714437379C679@DM6PR11MB3978.namprd11.prod.outlook.com/)
+- Manually check duplicate entry instead of checking
+  'debugfs_create_dir()' return value
+- Reword commit message and the test case
 
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Seems Badari have some email client issue, so I (SJ) am making this
+third version of the patch based on Badari's final proposal and
+reposting on behalf of Badari.
+
+ mm/damon/dbgfs.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/mm/damon/dbgfs.c b/mm/damon/dbgfs.c
+index 51d67c8050dd..3b55a1b219b5 100644
+--- a/mm/damon/dbgfs.c
++++ b/mm/damon/dbgfs.c
+@@ -818,6 +818,9 @@ static int dbgfs_mk_context(char *name)
+ 		return -ENOENT;
+ 
+ 	new_dir = debugfs_create_dir(name, root);
++	/* Below check is required for a potential duplicated name case */
++	if (IS_ERR(new_dir))
++		return PTR_ERR(new_dir);
+ 	dbgfs_dirs[dbgfs_nr_ctxs] = new_dir;
+ 
+ 	new_ctx = dbgfs_new_ctx();
+-- 
+2.25.1
+
