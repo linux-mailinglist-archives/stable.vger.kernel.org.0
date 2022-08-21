@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3749C59B452
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 16:07:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D81BC59B451
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 16:07:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231189AbiHUOHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 10:07:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57762 "EHLO
+        id S230355AbiHUOHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 10:07:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231163AbiHUOHT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 10:07:19 -0400
+        with ESMTP id S231195AbiHUOHP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 10:07:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC615BC16
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 07:07:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7338913D6B
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 07:07:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E885B80D7D
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 14:07:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B86CFC433D6;
-        Sun, 21 Aug 2022 14:07:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EE71B80D5B
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 14:07:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 615CBC433C1;
+        Sun, 21 Aug 2022 14:07:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661090835;
-        bh=KJRywbBhwvUPZ1yP6wA7ZH8TmEiI/iMt8FDbtQkjViE=;
+        s=korg; t=1661090831;
+        bh=nqHwuA9oWyiHu3b8lAg0y1j3f2YMJyNlUZjwfLY+Gps=;
         h=Subject:To:Cc:From:Date:From;
-        b=l5vC/QHC8ehDegV2QyUI+0eJwSI72aAuFUfjdz7aHQ7m2rS+vyqxTP/Y6/7qz1TUh
-         HsP1+4fg6xe+zbb56/kqSsoBLblxwJSc1VJuCze/2AKdyRvIHJ3Gh26FqPO0BNewnl
-         NeQ2q4HM+N+I0XSJDtj9CuiVz6fqzmxy72Kk8OWk=
-Subject: FAILED: patch "[PATCH] drm/i915: pass a pointer for tlb seqno at" failed to apply to 4.19-stable tree
+        b=Qd6KEA1GakzAyI0dsy0jRDTgN07X7bZqrpZ84ppbB4BScx5snwIL9UqtSgVpyDdJX
+         WG2yLU0kbXz2PsjZINBW50GItIvSceemFrXfTfp7RDbniNB4KXWjPGFiNwx8KWRH6z
+         QnNvQ45uNjM5eHD4S4KJ+BhWWCuTd4YtS9ZOWlUA=
+Subject: FAILED: patch "[PATCH] drm/i915: pass a pointer for tlb seqno at" failed to apply to 4.14-stable tree
 To:     mchehab@kernel.org, andi.shyti@linux.intel.com,
         rodrigo.vivi@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 21 Aug 2022 16:06:52 +0200
-Message-ID: <166109081219131@kroah.com>
+Message-ID: <166109081282114@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
