@@ -2,143 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9925359B325
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 12:33:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0CC659B342
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 13:24:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229836AbiHUKdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 06:33:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38104 "EHLO
+        id S229603AbiHULYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 07:24:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229508AbiHUKdI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 06:33:08 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD936555;
-        Sun, 21 Aug 2022 03:33:07 -0700 (PDT)
-Date:   Sun, 21 Aug 2022 10:33:03 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1661077984;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=AkL+xh74pmzfFytjn67BBr102XsZF2Xfe6HRVXtM7so=;
-        b=S3+AqkFsSz9JiuyMZnqyj0O02pAN9aFw7VNWtvICbxelndRaaAzbKau73xlkmRfagORR78
-        QLTFWsjMOAl0hjHlBI+MXEM3JoFI2UETkIVEPH4nvsT1b18ZN63d6Jaub13rsCksL6DEDi
-        XzfMOCQb9UHC0HNJ2lSkmOhc3e342neMV1Dm3sr/rGHoUZpNQ4tGoGKrCj16a0ncXqHpJd
-        Tm1rokMwBrTVqTiaYr/AaSV3GAn6YmaujiRh9vvysBTy8KuuU8zVIg7fNOLZL6uv2FzkiZ
-        d1n0C8K3izB/vM2ekA+w7EME5nwCCYf4t8zAI2SbdyOOq+/rZI04xGMIDeHtCg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1661077984;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=AkL+xh74pmzfFytjn67BBr102XsZF2Xfe6HRVXtM7so=;
-        b=e3knuuocJacqoYUGNiIfZUa1eySg5TzieEZzQh9ETHOcWtxGaBIxudQ6338oQKoSheCNY7
-        FRMD5GHAfqU3xyBg==
-From:   "tip-bot2 for Chen Zhongjin" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/unwind/orc: Unwind ftrace trampolines with
- correct ORC entry
-Cc:     Chen Zhongjin <chenzhongjin@huawei.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        <stable@vger.kernel.org>, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20220819084334.244016-1-chenzhongjin@huawei.com>
-References: <20220819084334.244016-1-chenzhongjin@huawei.com>
+        with ESMTP id S229507AbiHULYC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 07:24:02 -0400
+Received: from sender-of-o50.zoho.in (sender-of-o50.zoho.in [103.117.158.50])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 394E011826;
+        Sun, 21 Aug 2022 04:23:59 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1661081023; cv=none; 
+        d=zohomail.in; s=zohoarc; 
+        b=KrvlIXm5rXYXzjoMOrRcze4AuXywl1HjEMsZdJHrF4+7zwLhJvirZTC/tBLjnSgMkVKFLY/LkoD/2pLHvZWtcfw2hZIBTGSh3Hg3+TLVKFJ2tHkhtjfM1QOHCxn8qqFs/HuRmW/cyH+4dUMvPLUwfAk8gwzDpn+yzT8h5/LgnVQ=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.in; s=zohoarc; 
+        t=1661081023; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=pr6XFxAuncNUkzN57qnmmA5GV4O8hBAFG8BalqlNToE=; 
+        b=Q71/PCc8syQqMKA+huSNVq6174D0RXliurjzRQOAvfXDimwG1r2kgyiJkg+PG6nM2DptfxhxcmNJyXsDWvUbpScKAljw3O9VSAR47B4IS1r5wKxEUv1RuTfRdYpYdnPjUz8tMEePz+nZhPwSGaY7aEMeMSYi19tvjs22c5S6tu4=
+ARC-Authentication-Results: i=1; mx.zohomail.in;
+        dkim=pass  header.i=siddh.me;
+        spf=pass  smtp.mailfrom=code@siddh.me;
+        dmarc=pass header.from=<code@siddh.me>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1661081023;
+        s=zmail; d=siddh.me; i=code@siddh.me;
+        h=Date:Date:From:From:To:To:Cc:Cc:Message-ID:In-Reply-To:References:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+        bh=pr6XFxAuncNUkzN57qnmmA5GV4O8hBAFG8BalqlNToE=;
+        b=VQ5XJJ8w/9MlHjbsTrtMPmKurHKIxT/lFYcRNKLAKtJM2ZIFFTdzC/A5sbueQLkA
+        JWFj9QJ7z6PlLLeGTPGx/2o21cwCkn4EGNYWVGvRBPuVjxDEkGb7VrCkfBcR2eVK9Ok
+        Q8+q6RFw8fw2iMYi6hxxKh5tAgheVE/ShGrvUZFA=
+Received: from mail.zoho.in by mx.zoho.in
+        with SMTP id 1661081012485618.1064345682378; Sun, 21 Aug 2022 16:53:32 +0530 (IST)
+Date:   Sun, 21 Aug 2022 16:53:32 +0530
+From:   Siddh Raman Pant <code@siddh.me>
+To:     "Jens Axboe" <axboe@kernel.dk>,
+        "Carlos Llamas" <cmllamas@google.com>
+Cc:     "linux-block" <linux-block@vger.kernel.org>,
+        "linux-kernel" <linux-kernel@vger.kernel.org>,
+        "linux-kernel-mentees" 
+        <linux-kernel-mentees@lists.linuxfoundation.org>,
+        "syzbot+a8e049cd3abd342936b6" 
+        <syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com>,
+        "stable" <stable@vger.kernel.org>
+Message-ID: <182c024c8f1.2e77843173026.4408233265123165366@siddh.me>
+In-Reply-To: <20220820114105.8792-1-code@siddh.me>
+References: <20220820114105.8792-1-code@siddh.me>
+Subject: Re: [PATCH] loop: Correct UAPI definitions to match with driver
 MIME-Version: 1.0
-Message-ID: <166107798320.401.17179497604353962909.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Importance: Medium
+User-Agent: Zoho Mail
+X-Mailer: Zoho Mail
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_RED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+On Sat, 20 Aug 2022 17:11:05 +0530  Siddh Raman Pant  wrote:
+> Syzkaller has reported a warning in iomap_iter(), which got
+> triggered due to a call to iomap_iter_done() which has:
+> 	WARN_ON_ONCE(iter->iomap.offset > iter->pos);
+> 
+> The warning was triggered because `pos` was being negative.
+> I was having offset = 0, pos = -2950420705881096192.
+> 
+> This ridiculously negative value smells of an overflow, and sure
+> it is.
+> 
+> The userspace can configure a loop using an ioctl call, wherein
+> a configuration of type loop_config is passed (see lo_ioctl()'s
+> case on line 1550 of drivers/block/loop.c). This proceeds to call
+> loop_configure() which in turn calls loop_set_status_from_info()
+> (see line 1050 of loop.c), passing &config->info which is of type
+> loop_info64*. This function then sets the appropriate values, like
+> the offset.
+> 
+> The problem here is loop_device has lo_offset of type loff_t
+> (see line 52 of loop.c), which is typdef-chained to long long,
+> whereas loop_info64 has lo_offset of type __u64 (see line 56 of
+> include/uapi/linux/loop.h).
+> 
+> The function directly copies offset from info to the device as
+> follows (See line 980 of loop.c):
+> 	lo->lo_offset = info->lo_offset;
+> 
+> This results in the encountered overflow (in my case, the RHS
+> was 15496323367828455424).
+> 
+> Thus, convert the type definitions in loop_info64 to their
+> signed counterparts in order to match definitions in loop_device,
+> and check for negative value during loop_set_status_from_info().
+> 
+> Bug report: https://syzkaller.appspot.com/bug?id=c620fe14aac810396d3c3edc9ad73848bf69a29e
+> Reported-and-tested-by: syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Siddh Raman Pant code@siddh.me>
+> ---
+> Unless I am missing any other uses or quirks of UAPI loop_info64,
+> I think this won't introduce regression, since if something is
+> working, it will continue to work. If something does break, then
+> it was relying on overflows, which is anyways an incorrect way
+> to go about.
+> 
+> Also, it seems even the 32-bit compatibility structure uses the
+> signed types (compat_loop_info uses compat_int_t which is s32),
+> so this patch should be fine.
+> 
+>  drivers/block/loop.c      |  3 +++
+>  include/uapi/linux/loop.h | 12 ++++++------
+>  2 files changed, 9 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+> index e3c0ba93c1a3..4ca20ce3158d 100644
+> --- a/drivers/block/loop.c
+> +++ b/drivers/block/loop.c
+> @@ -977,6 +977,9 @@ loop_set_status_from_info(struct loop_device *lo,
+>  		return -EINVAL;
+>  	}
+>  
+> +	if (info->lo_offset lo_sizelimit < 0)
+> +		return -EINVAL;
+> +
+>  	lo->lo_offset = info->lo_offset;
+>  	lo->lo_sizelimit = info->lo_sizelimit;
+>  	memcpy(lo->lo_file_name, info->lo_file_name, LO_NAME_SIZE);
+> diff --git a/include/uapi/linux/loop.h b/include/uapi/linux/loop.h
+> index 6f63527dd2ed..973565f38f9d 100644
+> --- a/include/uapi/linux/loop.h
+> +++ b/include/uapi/linux/loop.h
+> @@ -53,12 +53,12 @@ struct loop_info64 {
+>  	__u64		   lo_device;			/* ioctl r/o */
+>  	__u64		   lo_inode;			/* ioctl r/o */
+>  	__u64		   lo_rdevice;			/* ioctl r/o */
+> -	__u64		   lo_offset;
+> -	__u64		   lo_sizelimit;/* bytes, 0 == max available */
+> -	__u32		   lo_number;			/* ioctl r/o */
+> -	__u32		   lo_encrypt_type;		/* obsolete, ignored */
+> -	__u32		   lo_encrypt_key_size;		/* ioctl w/o */
+> -	__u32		   lo_flags;
+> +	__s64		   lo_offset;
+> +	__s64		   lo_sizelimit;/* bytes, 0 == max available */
+> +	__s32		   lo_number;			/* ioctl r/o */
+> +	__s32		   lo_encrypt_type;		/* obsolete, ignored */
+> +	__s32		   lo_encrypt_key_size;		/* ioctl w/o */
+> +	__s32		   lo_flags;
+>  	__u8		   lo_file_name[LO_NAME_SIZE];
+>  	__u8		   lo_crypt_name[LO_NAME_SIZE];
+>  	__u8		   lo_encrypt_key[LO_KEY_SIZE]; /* ioctl w/o */
+> -- 
+> 2.35.1
 
-Commit-ID:     fc2e426b1161761561624ebd43ce8c8d2fa058da
-Gitweb:        https://git.kernel.org/tip/fc2e426b1161761561624ebd43ce8c8d2fa058da
-Author:        Chen Zhongjin <chenzhongjin@huawei.com>
-AuthorDate:    Fri, 19 Aug 2022 16:43:34 +08:00
-Committer:     Ingo Molnar <mingo@kernel.org>
-CommitterDate: Sun, 21 Aug 2022 12:19:32 +02:00
+There has been discussion on syzkaller mailing list:
+https://groups.google.com/g/syzkaller-bugs/c/bg3ANn_7oJw/m/-MbtBx9cAwAJ
 
-x86/unwind/orc: Unwind ftrace trampolines with correct ORC entry
+Reproducing the latest reply:
 
-When meeting ftrace trampolines in ORC unwinding, unwinder uses address
-of ftrace_{regs_}call address to find the ORC entry, which gets next frame at
-sp+176.
+On Sun, 21 Aug 2022 11:59:05 +0530  Christoph Hellwig  wrote:
+> On Thu, Aug 18, 2022 at 08:51:16PM +0530, Siddh Raman Pant wrote:
+> > On Thu, 18 Aug 2022 20:20:02 +0530  Matthew Wilcox  wrote:
+> > > I don't think changing these from u64 to s64 is the right way to go.
+> > 
+> > Why do you think so? Is there somnething I overlooked?
+> > 
+> > I think it won't intorduce regression, since if something is working,
+> > it will continue to work. If something does break, then they were
+> > relying on overflows, which is anyways an incorrect way to go about.
+> 
+> Well, for example userspace code expecting unsignedness of these
+> types could break.  So if we really think changing the types is so
+> much preferred we'd need to audit common userspace first.  Because
+> of that I think the version proposed by willy is generally preferred.
+>
+> > Also, it seems even the 32-bit compatibility structure uses signed
+> > types.
+> 
+> We should probably fix that as well.
 
-If there is an IRQ hitting at sub $0xa8,%rsp, the next frame should be
-sp+8 instead of 176. It makes unwinder skip correct frame and throw
-warnings such as "wrong direction" or "can't access registers", etc,
-depending on the content of the incorrect frame address.
+Thus, I will send a v2 once the discussion is resolved.
 
-By adding the base address ftrace_{regs_}caller with the offset
-*ip - ops->trampoline*, we can get the correct address to find the ORC entry.
+I had sent this patch because the discussion was stale for 2 days and
+Matthew seemed to be active on other email threads.
 
-Also change "caller" to "tramp_addr" to make variable name conform to
-its content.
-
-[ mingo: Clarified the changelog a bit. ]
-
-Fixes: 6be7fa3c74d1 ("ftrace, orc, x86: Handle ftrace dynamically allocated trampolines")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220819084334.244016-1-chenzhongjin@huawei.com
----
- arch/x86/kernel/unwind_orc.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
-
-diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
-index 38185ae..0ea57da 100644
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -93,22 +93,27 @@ static struct orc_entry *orc_find(unsigned long ip);
- static struct orc_entry *orc_ftrace_find(unsigned long ip)
- {
- 	struct ftrace_ops *ops;
--	unsigned long caller;
-+	unsigned long tramp_addr, offset;
- 
- 	ops = ftrace_ops_trampoline(ip);
- 	if (!ops)
- 		return NULL;
- 
-+	/* Set tramp_addr to the start of the code copied by the trampoline */
- 	if (ops->flags & FTRACE_OPS_FL_SAVE_REGS)
--		caller = (unsigned long)ftrace_regs_call;
-+		tramp_addr = (unsigned long)ftrace_regs_caller;
- 	else
--		caller = (unsigned long)ftrace_call;
-+		tramp_addr = (unsigned long)ftrace_caller;
-+
-+	/* Now place tramp_addr to the location within the trampoline ip is at */
-+	offset = ip - ops->trampoline;
-+	tramp_addr += offset;
- 
- 	/* Prevent unlikely recursion */
--	if (ip == caller)
-+	if (ip == tramp_addr)
- 		return NULL;
- 
--	return orc_find(caller);
-+	return orc_find(tramp_addr);
- }
- #else
- static struct orc_entry *orc_ftrace_find(unsigned long ip)
+Thanks,
+Siddh
