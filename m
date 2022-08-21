@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCFEB59B427
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 15:55:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B014559B428
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 15:57:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229566AbiHUNzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 09:55:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44964 "EHLO
+        id S229585AbiHUN5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 09:57:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230358AbiHUNzT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 09:55:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B3917072
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 06:55:18 -0700 (PDT)
+        with ESMTP id S230152AbiHUN5L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 09:57:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B32921818
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 06:57:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18C9F60EB9
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 13:55:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F773C433D6;
-        Sun, 21 Aug 2022 13:55:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 556F2B80D57
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 13:57:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58FECC433D6;
+        Sun, 21 Aug 2022 13:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661090117;
-        bh=Qvan6vRS4SyPy+WQFMmWsFIAi9m9aw8kIUWac+kzuDg=;
+        s=korg; t=1661090226;
+        bh=PBCCKK3v+DGfl9z/ILdBlMhoKzY/7PoNIn8gjO93GRo=;
         h=Subject:To:Cc:From:Date:From;
-        b=qBSIHVyybrArocmGEeOLrUoxJ9Yf9YIHB4nHw78FkqYiK4vwdZWCAplH8R0AhXw6M
-         H3oKkHfFA55sa4aJt0ugHtMZX3GCUdVfT06Xy13HJ83J7m+YZPB0cG2glARCP5iSOU
-         Oy34RBScF6DOfEO8Xwq6MNJ+aKbFl4KFlPipVtbE=
-Subject: FAILED: patch "[PATCH] btrfs: fix warning during log replay when bumping inode link" failed to apply to 5.4-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com
+        b=q83e0pXbw+5lyUmmJZDZgnI4olteaAPmCcNZCSaTpkmSv+yCkeV4KmfWTFkFAZlDN
+         dKklJActM3Vr+36IifwMT6IDz96DlhSwR0HiMrS+PIB1cWM9XZmyKrM1f0l8bvugHI
+         EkEZXXvqKqcA/uPAol0sSJeqBXNIRXueldw1ULZs=
+Subject: FAILED: patch "[PATCH] mmc: mtk-sd: Clear interrupts when cqe off/disable" failed to apply to 5.19-stable tree
+To:     wenbin.mei@mediatek.com, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 21 Aug 2022 15:55:14 +0200
-Message-ID: <166109011415166@kroah.com>
+Date:   Sun, 21 Aug 2022 15:57:02 +0200
+Message-ID: <166109022262248@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,93 +59,53 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 769030e11847c5412270c0726ff21d3a1f0a3131 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Mon, 1 Aug 2022 14:57:52 +0100
-Subject: [PATCH] btrfs: fix warning during log replay when bumping inode link
- count
+From cc5d1692600613e72f32af60e27330fe0c79f4fe Mon Sep 17 00:00:00 2001
+From: Wenbin Mei <wenbin.mei@mediatek.com>
+Date: Thu, 28 Jul 2022 16:00:48 +0800
+Subject: [PATCH] mmc: mtk-sd: Clear interrupts when cqe off/disable
 
-During log replay, at add_link(), we may increment the link count of
-another inode that has a reference that conflicts with a new reference
-for the inode currently being processed.
+Currently we don't clear MSDC interrupts when cqe off/disable, which led
+to the data complete interrupt will be reserved for the next command.
+If the next command with data transfer after cqe off/disable, we process
+the CMD ready interrupt and trigger DMA start for data, but the data
+complete interrupt is already exists, then SW assume that the data transfer
+is complete, SW will trigger DMA stop, but the data may not be transmitted
+yet or is transmitting, so we may encounter the following error:
+mtk-msdc 11230000.mmc: CMD bus busy detected.
 
-During log replay, at add_link(), we may drop (unlink) a reference from
-some inode in the subvolume tree if that reference conflicts with a new
-reference found in the log for the inode we are currently processing.
+Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
+Fixes: 88bd652b3c74 ("mmc: mediatek: command queue support")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220728080048.21336-1-wenbin.mei@mediatek.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-After the unlink, If the link count has decreased from 1 to 0, then we
-increment the link count to prevent the inode from being deleted if it's
-evicted by an iput() call, because we may have references to add to that
-inode later on (and we will fixup its link count later during log replay).
-
-However incrementing the link count from 0 to 1 triggers a warning:
-
-  $ cat fs/inode.c
-  (...)
-  void inc_nlink(struct inode *inode)
-  {
-        if (unlikely(inode->i_nlink == 0)) {
-                 WARN_ON(!(inode->i_state & I_LINKABLE));
-                 atomic_long_dec(&inode->i_sb->s_remove_count);
-        }
-  (...)
-
-The I_LINKABLE flag is only set when creating an O_TMPFILE file, so it's
-never set during log replay.
-
-Most of the time, the warning isn't triggered even if we dropped the last
-reference of the conflicting inode, and this is because:
-
-1) The conflicting inode was previously marked for fixup, through a call
-   to link_to_fixup_dir(), which increments the inode's link count;
-
-2) And the last iput() on the inode has not triggered eviction of the
-   inode, nor was eviction triggered after the iput(). So at add_link(),
-   even if we unlink the last reference of the inode, its link count ends
-   up being 1 and not 0.
-
-So this means that if eviction is triggered after link_to_fixup_dir() is
-called, at add_link() we will read the inode back from the subvolume tree
-and have it with a correct link count, matching the number of references
-it has on the subvolume tree. So if when we are at add_link() the inode
-has exactly one reference only, its link count is 1, and after the unlink
-its link count becomes 0.
-
-So fix this by using set_nlink() instead of inc_nlink(), as the former
-accepts a transition from 0 to 1 and it's what we use in other similar
-contexts (like at link_to_fixup_dir().
-
-Also make add_inode_ref() use set_nlink() instead of inc_nlink() to
-bump the link count from 0 to 1.
-
-The warning is actually harmless, but it may scare users. Josef also ran
-into it recently.
-
-CC: stable@vger.kernel.org # 5.1+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index c1fdd6ef3f4a..9205c4a5ca81 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -1459,7 +1459,7 @@ static int add_link(struct btrfs_trans_handle *trans,
- 	 * on the inode will not free it. We will fixup the link count later.
- 	 */
- 	if (other_inode->i_nlink == 0)
--		inc_nlink(other_inode);
-+		set_nlink(other_inode, 1);
- add_link:
- 	ret = btrfs_add_link(trans, BTRFS_I(dir), BTRFS_I(inode),
- 			     name, namelen, 0, ref_index);
-@@ -1602,7 +1602,7 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
- 				 * free it. We will fixup the link count later.
- 				 */
- 				if (!ret && inode->i_nlink == 0)
--					inc_nlink(inode);
-+					set_nlink(inode, 1);
- 			}
- 			if (ret < 0)
- 				goto out;
+diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
+index 4ff73d1883de..69d78604d1fc 100644
+--- a/drivers/mmc/host/mtk-sd.c
++++ b/drivers/mmc/host/mtk-sd.c
+@@ -2446,6 +2446,9 @@ static void msdc_cqe_disable(struct mmc_host *mmc, bool recovery)
+ 	/* disable busy check */
+ 	sdr_clr_bits(host->base + MSDC_PATCH_BIT1, MSDC_PB1_BUSY_CHECK_SEL);
+ 
++	val = readl(host->base + MSDC_INT);
++	writel(val, host->base + MSDC_INT);
++
+ 	if (recovery) {
+ 		sdr_set_field(host->base + MSDC_DMA_CTRL,
+ 			      MSDC_DMA_CTRL_STOP, 1);
+@@ -2932,11 +2935,14 @@ static int __maybe_unused msdc_suspend(struct device *dev)
+ 	struct mmc_host *mmc = dev_get_drvdata(dev);
+ 	struct msdc_host *host = mmc_priv(mmc);
+ 	int ret;
++	u32 val;
+ 
+ 	if (mmc->caps2 & MMC_CAP2_CQE) {
+ 		ret = cqhci_suspend(mmc);
+ 		if (ret)
+ 			return ret;
++		val = readl(host->base + MSDC_INT);
++		writel(val, host->base + MSDC_INT);
+ 	}
+ 
+ 	/*
 
