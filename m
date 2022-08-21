@@ -2,127 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7182A59B293
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 09:24:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB7959B2AF
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 10:07:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229686AbiHUHYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 03:24:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43948 "EHLO
+        id S229717AbiHUIGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 04:06:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229651AbiHUHYP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 03:24:15 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FD2920BC3
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 00:24:14 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 90DAE33740;
-        Sun, 21 Aug 2022 07:24:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1661066651; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=nWzz0ycVcNSEJ468E1vHZiWD5Qf3ZUUazUUM3VlGcuc=;
-        b=0YzvirrzVuRVkls5fIB4EZ+voxhjuE+8GE2ScLREPwBE4C1I7HFR+Y9ggIdg2XL9h2hNs5
-        1KG5ELKAdmLvQW0YqL+o9If8HmgdHz3iPrs/yoErUm5BokEmnnVFaMra2tNxLl76W8L+bY
-        mbDOkogR43MRC6Rw164/KEjuNtK5x7w=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1661066651;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=nWzz0ycVcNSEJ468E1vHZiWD5Qf3ZUUazUUM3VlGcuc=;
-        b=fFAgiy2mY/c5JgSwDEkrwGe2q2DoZtJOZlXux38FKC9QIY0hIO1ygdkZb4t/Ig8lO1vDD9
-        AY2JW2K4VRNUEpAg==
-Received: from kitsune.suse.cz (kitsune.suse.cz [10.100.12.127])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 695CF2C141;
-        Sun, 21 Aug 2022 07:24:11 +0000 (UTC)
-Date:   Sun, 21 Aug 2022 09:24:10 +0200
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Coiby Xu <coxu@redhat.com>, bhe@redhat.com, will@kernel.org,
-        zohar@linux.ibm.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] arm64: kexec_file: use more system
- keyrings to verify kernel" failed to apply to 5.15-stable tree
-Message-ID: <20220821072410.GG28810@kitsune.suse.cz>
-References: <16605775859368@kroah.com>
- <20220818040938.pllzarythgusnyzf@Rk>
- <Yv+hC9QyHn55uVAo@kroah.com>
- <YwEl3xUF8mwpuVrB@kroah.com>
+        with ESMTP id S229710AbiHUIGF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 04:06:05 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0674F1A3AC
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 01:06:04 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1oPfy4-0001Wi-SF; Sun, 21 Aug 2022 10:06:00 +0200
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1oPfy3-001422-D0; Sun, 21 Aug 2022 10:05:59 +0200
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1oPfy2-00D71c-Fg; Sun, 21 Aug 2022 10:05:58 +0200
+Date:   Sun, 21 Aug 2022 10:05:55 +0200
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.19 0191/1157] hwmon: (sht15) Fix wrong assumptions in
+ device remove callback
+Message-ID: <20220821080555.rft6xztc2rfn7bny@pengutronix.de>
+References: <20220815180439.416659447@linuxfoundation.org>
+ <20220815180447.391756473@linuxfoundation.org>
+ <20220815214911.wy7p5sqbog6r6tcg@pengutronix.de>
+ <Yvt0Ms9ur2aSj2Zz@kroah.com>
+ <20220819193501.glb43pf64zkl7n3p@pengutronix.de>
+ <YwEkkn1xmGM5kHel@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ngxpe4bl247yovnx"
 Content-Disposition: inline
-In-Reply-To: <YwEl3xUF8mwpuVrB@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <YwEkkn1xmGM5kHel@kroah.com>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Aug 20, 2022 at 08:20:15PM +0200, Greg KH wrote:
-> On Fri, Aug 19, 2022 at 04:41:15PM +0200, Greg KH wrote:
-> > On Thu, Aug 18, 2022 at 12:09:38PM +0800, Coiby Xu wrote:
-> > > Hi Greg,
-> > > 
-> > > This patch depends on three prerequisites. This full list of commit ids
-> > > should be backported is shown below,
-> > > 
-> > > 1. 65d9a9a60fd7 ("kexec_file: drop weak attribute from functions")
-> > > 2. 689a71493bd2 ("kexec: clean up arch_kexec_kernel_verify_sig")
-> > > 3. c903dae8941d ("kexec, KEYS: make the code in bzImage64_verify_sig generic")
-> > > 4. 0d519cadf751 ("arm64: kexec_file: use more system keyrings to verify kernel image signature")
-> > > 
-> > > And I can confirm they can be applied to linux-5.15.y branch
-> > > successfully,
-> > >     $ git checkout -b arm_key_5.15.y stable/linux-5.15.y
-> > >     branch 'arm_key_5.15.y' set up to track 'stable/linux-5.15.y'.
-> > >     Switched to a new branch 'arm_key_5.15.y'
-> > >     $ git cherry-pick 65d9a9a60fd7 689a71493bd2 c903dae8941d 0d519cadf751
-> > >     Auto-merging arch/arm64/include/asm/kexec.h
-> > >     Auto-merging arch/powerpc/include/asm/kexec.h
-> > >     Auto-merging arch/s390/include/asm/kexec.h
-> > >     Auto-merging arch/x86/include/asm/kexec.h
-> > >     Auto-merging include/linux/kexec.h
-> > >     Auto-merging kernel/kexec_file.c
-> > >     [arm_key_5.15.y 7c7844771360] kexec_file: drop weak attribute from functions
-> > >      Author: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-> > >      Date: Fri Jul 1 13:04:04 2022 +0530
-> > >      6 files changed, 61 insertions(+), 40 deletions(-)
-> > >     Auto-merging include/linux/kexec.h
-> > >     Auto-merging kernel/kexec_file.c
-> > >     [arm_key_5.15.y 4283e2681d86] kexec: clean up arch_kexec_kernel_verify_sig
-> > >      Date: Thu Jul 14 21:40:24 2022 +0800
-> > >      2 files changed, 13 insertions(+), 25 deletions(-)
-> > >     Auto-merging include/linux/kexec.h
-> > >     Auto-merging kernel/kexec_file.c
-> > >     [arm_key_5.15.y c0cf50b9056f] kexec, KEYS: make the code in bzImage64_verify_sig generic
-> > >      Date: Thu Jul 14 21:40:25 2022 +0800
-> > >      3 files changed, 25 insertions(+), 19 deletions(-)
-> > >     [arm_key_5.15.y 40b98256cb89] arm64: kexec_file: use more system keyrings to verify kernel image signature
-> > >      Date: Thu Jul 14 21:40:26 2022 +0800
-> > >      1 file changed, 1 insertion(+), 10 deletions(-)
-> > 
-> > thanks, now queued up.
-> 
-> Nope, it causes build breakages in powerpc :(
-s390
-> 
-> See:
-> 	https://lore.kernel.org/r/YwC6eQjx8xC9y3LD@debian
-> and
-> 	https://lore.kernel.org/r/CA+G9fYtXnZP2vdAi4eU_ApC_YFz6TqTd6Eh5Mumb2=0Y_dK5Yw@mail.gmail.com
-> 
-> for the reports.  I'm dropping these from 5.15.y now, please fix this up
-> and resend if you want them included.
 
-The offending function was removed in 5.16 by
-commit 277c8389386e ("s390/kexec_file: move kernel image size check")
+--ngxpe4bl247yovnx
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks
+On Sat, Aug 20, 2022 at 08:14:42PM +0200, Greg Kroah-Hartman wrote:
+> On Fri, Aug 19, 2022 at 09:35:01PM +0200, Uwe Kleine-K=F6nig wrote:
+> > Hello Greg,
+> >=20
+> > On Tue, Aug 16, 2022 at 12:40:50PM +0200, Greg Kroah-Hartman wrote:
+> > > On Mon, Aug 15, 2022 at 11:49:11PM +0200, Uwe Kleine-K=F6nig wrote:
+> > > > On Mon, Aug 15, 2022 at 07:52:27PM +0200, Greg Kroah-Hartman wrote:
+> > > > > From: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+> > > > >=20
+> > > > > [ Upstream commit 7d4edccc9bbfe1dcdff641343f7b0c6763fbe774 ]
+> > > > >=20
+> > > > > Taking a lock at the beginning of .remove() doesn't prevent new r=
+eaders.
+> > > > > With the existing approach it can happen, that a read occurs just=
+ when
+> > > > > the lock was taken blocking the reader until the lock is released=
+ at the
+> > > > > end of the remove callback which then accessed *data that is alre=
+ady
+> > > > > freed then.
+> > > > >=20
+> > > > > To actually fix this problem the hwmon core needs some adaption. =
+Until
+> > > > > this is implemented take the optimistic approach of assuming that=
+ all
+> > > > > readers are gone after hwmon_device_unregister() and
+> > > > > sysfs_remove_group() as most other drivers do. (And once the core
+> > > > > implements that, taking the lock would deadlock.)
+> > > > >=20
+> > > > > So drop the lock, move the reset to after device unregistration t=
+o keep
+> > > > > the device in a workable state until it's deregistered. Also add =
+a error
+> > > > > message in case the reset fails and return 0 anyhow. (Returning a=
+n error
+> > > > > code, doesn't stop the platform device unregistration and only re=
+sults
+> > > > > in a little helpful error message before the devm cleanup handler=
+s are
+> > > > > called.)
+> > > > >=20
+> > > > > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+> > > > > Link: https://lore.kernel.org/r/20220725194344.150098-1-u.kleine-=
+koenig@pengutronix.de
+> > > > > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> > > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > >=20
+> > > > Does this mean my concerns I expressed in the mail with Message-Id:
+> > > > 20220814155638.idxnihylofsxqlql@pengutronix.de were not taken into
+> > > > consideration?
+> > >=20
+> > > I can't find that message-id on lore.kernel.org, do you have a link?
+> >=20
+> > Oh, I missed your request earlier. No I don't have a link, the mail was
+> > sent to Sasha Levin, Jean Delvare, Guenter Roeck and stable-commits as I
+> > just replied to the "note to let you know that I've just added the patch
+> > titled [...] to the 5.19-stable tree".
+>=20
+> Ok, I've dropped it now from all pending queues (5.10 and older), I can
+> also revert it from the newer ones if you want me to.
 
-Michal
+Actually I don't care much. It touches a path that is not usually hit,
+because platform devices are not removed very often. So I expect even if
+the problem with this driver is a different one now, we won't get any
+regressions here.
+
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--ngxpe4bl247yovnx
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmMB52AACgkQwfwUeK3K
+7AlYkAgAl3b1m0Z9dGXgA8Ow+PZpHzugctVa8JxnIglfdzeET6EKwJfIjmfoxxuW
+fOzmqpTygtOblKU96bo1iRgx5/PWlg0ozLzK6K7a5Ac1HDGMt1P98bDAHLCgdpxJ
+PfsuKRFdFYkRQ/HgUnUiPNbwfvhrSBaZ5nJYU2LMG4aWamz8VTQN/pictzNTl442
+vYNXdYslqTpNKE8nEN+5NbeGUY5A4SZV/Ka3YqMcrx3JBdKsEEfhhcm3zjdpRnUy
+dXEs6NvlXzOt5FBnmFeZh0RhTFWv/wCrRzmhtRBLya58cTvPB3tHYuOaxBLc2BDT
+dzkH8Lp5pI4x+yzSXxNLXq/QWvP8pQ==
+=fBdH
+-----END PGP SIGNATURE-----
+
+--ngxpe4bl247yovnx--
