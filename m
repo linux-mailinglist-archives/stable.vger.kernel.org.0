@@ -2,210 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2EFF59B3B7
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 14:17:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D7E59B3C0
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 14:26:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229436AbiHUMRY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 08:17:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59502 "EHLO
+        id S229863AbiHUM0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 08:26:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230079AbiHUMRW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 08:17:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078E520F46
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 05:17:20 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S229673AbiHUM0N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 08:26:13 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6818A23BE7;
+        Sun, 21 Aug 2022 05:26:12 -0700 (PDT)
+Received: from zn.tnic (p200300ea971b9882329c23fffea6a903.dip0.t-ipconnect.de [IPv6:2003:ea:971b:9882:329c:23ff:fea6:a903])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A04A4B80CAD
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 12:17:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8C35C433C1;
-        Sun, 21 Aug 2022 12:17:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661084238;
-        bh=EOITiVyJ40+NYuW/SRDm6Rc+VQ6n+zmYdeklOXdF1mQ=;
-        h=Subject:To:Cc:From:Date:From;
-        b=k8VfkXiA5NrmHyjD07qS/vrmXn+fr2v7+v863/pZd3rDo5EW4ebfvgEBkMxJcfzFC
-         amdL8Rj2wR0wGTMF99OqM+85mV5Wze3OSL2+aZTWhRlQqB/C1PJ+f0eNQf7adIiLr8
-         oHAC6iH/F79utYQObvFLL+6ism/CU4xCREqJKeis=
-Subject: FAILED: patch "[PATCH] um: seed rng using host OS rng" failed to apply to 5.10-stable tree
-To:     Jason@zx2c4.com, anton.ivanov@cambridgegreys.com,
-        johannes@sipsolutions.net
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 21 Aug 2022 14:17:15 +0200
-Message-ID: <1661084235192173@kroah.com>
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id D225F1EC02AD;
+        Sun, 21 Aug 2022 14:26:06 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1661084767;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=g1rcKArseoTcwKRluy/+n/zWWnLG0mmO4BjXiUTjTQo=;
+        b=Iybi51cDAMmwdoswfJCzVyrOZu2xIpJoc4ZLh3BwbIZvIxwN/Il3v3+/iw4QD6FBdGIV5p
+        4jYB7MwWbMe0uBbMOvcK74WMuQGkuULIapHbVjBsvf4CphE5n/UXtrjvPyO/BAD+581FMF
+        EHTbIc1eeAxKJ7PF6dHQI6hheajBQXI=
+Date:   Sun, 21 Aug 2022 14:25:59 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Juergen Gross <jgross@suse.com>
+Cc:     xen-devel@lists.xenproject.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2 01/10] x86/mtrr: fix MTRR fixup on APs
+Message-ID: <YwIkV7mYAC4Ebbwb@zn.tnic>
+References: <20220820092533.29420-1-jgross@suse.com>
+ <20220820092533.29420-2-jgross@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220820092533.29420-2-jgross@suse.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Aug 20, 2022 at 11:25:24AM +0200, Juergen Gross wrote:
+> When booting or resuming the system MTRR state is saved on the boot
+> processor and then this state is loaded into MTRRs of all other cpus.
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+s/cpu/CPU/g
 
-thanks,
+Pls check all commit messages.
 
-greg k-h
+> During update of the MTRRs the MTRR mechanism needs to be disabled by
+> writing the related MSR. The old contents of this MSR are saved in a
+> set of static variables and later those static variables are used to
+> restore the MSR.
+> 
+> In case the MSR contents need to be modified on a cpu due to the MSR
+> not having been initialized properly by the BIOS, the related update
+> function is modifying the static variables accordingly.
+> 
+> Unfortunately the MTRR state update is usually running on all cpus
+> at the same time, so using just one set of static variables for all
+> cpus is racy in case the MSR contents differ across cpus.
+> 
+> Fix that by using percpu variables for saving the MSR contents.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> ---
+> I thought adding a "Fixes:" tag for the kernel's initial git commit
+> would maybe be entertaining, but without being really helpful.
+> The percpu variables were preferred over on-stack ones in order to
+> avoid more code churn in followup patches decoupling PAT from MTRR
+> support.
 
------------------- original commit in Linus's tree ------------------
+So if that thing has been broken for so long and no one noticed, we
+could just as well not backport to stable at all...
 
-From 0b9ba6135d7f18b82f3d8bebb55ded725ba88e0e Mon Sep 17 00:00:00 2001
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Wed, 13 Jul 2022 01:12:21 +0200
-Subject: [PATCH] um: seed rng using host OS rng
+> V2:
+> - new patch
+> ---
+>  arch/x86/kernel/cpu/mtrr/generic.c | 21 ++++++++++++++-------
+>  1 file changed, 14 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/x86/kernel/cpu/mtrr/generic.c b/arch/x86/kernel/cpu/mtrr/generic.c
+> index 558108296f3c..3d185fcf08ca 100644
+> --- a/arch/x86/kernel/cpu/mtrr/generic.c
+> +++ b/arch/x86/kernel/cpu/mtrr/generic.c
+> @@ -679,7 +679,8 @@ static bool set_mtrr_var_ranges(unsigned int index, struct mtrr_var_range *vr)
+>  	return changed;
+>  }
+>  
+> -static u32 deftype_lo, deftype_hi;
+> +static DEFINE_PER_CPU(u32, deftype_lo);
+> +static DEFINE_PER_CPU(u32, deftype_hi);
 
-UML generally does not provide access to special CPU instructions like
-RDRAND, and execution tends to be rather deterministic, with no real
-hardware interrupts, making good randomness really very hard, if not
-all together impossible. Not only is this a security eyebrow raiser, but
-it's also quite annoying when trying to do various pieces of UML-based
-automation that takes a long time to boot, if ever.
+My APM says that the high 32 bits of the MTRRdefType MSR are reserved
+and MBZ. So you can drop the _hi thing and use 0 everywhere. Or rather a
+dummy = 0 var because of that damn rdmsr() macro.
 
-Fix this by trivially calling getrandom() in the host and using that
-seed as "bootloader randomness", which initializes the rng immediately
-at UML boot.
+Or simply use a
 
-The old behavior can be restored the same way as on any other arch, by
-way of CONFIG_TRUST_BOOTLOADER_RANDOMNESS=n or
-random.trust_bootloader=0. So seen from that perspective, this just
-makes UML act like other archs, which is positive in its own right.
+u64 deftype;
 
-Additionally, wire up arch_get_random_{int,long}() in the same way, so
-that reseeds can also make use of the host RNG, controllable by
-CONFIG_TRUST_CPU_RANDOMNESS and random.trust_cpu, per usual.
+use the rdmsrl/wrmsrl() variants and split it when passing to
+umtrr_wrmsr() because that thing wants 2 32s.
 
-Cc: stable@vger.kernel.org
-Acked-by: Johannes Berg <johannes@sipsolutions.net>
-Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+>  /**
+>   * set_mtrr_state - Set the MTRR state for this CPU.
+> @@ -691,6 +692,7 @@ static unsigned long set_mtrr_state(void)
+>  {
+>  	unsigned long change_mask = 0;
+>  	unsigned int i;
+> +	u32 *lo = this_cpu_ptr(&deftype_lo);
 
-diff --git a/arch/um/include/asm/archrandom.h b/arch/um/include/asm/archrandom.h
-new file mode 100644
-index 000000000000..2f24cb96391d
---- /dev/null
-+++ b/arch/um/include/asm/archrandom.h
-@@ -0,0 +1,30 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __ASM_UM_ARCHRANDOM_H__
-+#define __ASM_UM_ARCHRANDOM_H__
-+
-+#include <linux/types.h>
-+
-+/* This is from <os.h>, but better not to #include that in a global header here. */
-+ssize_t os_getrandom(void *buf, size_t len, unsigned int flags);
-+
-+static inline bool __must_check arch_get_random_long(unsigned long *v)
-+{
-+	return os_getrandom(v, sizeof(*v), 0) == sizeof(*v);
-+}
-+
-+static inline bool __must_check arch_get_random_int(unsigned int *v)
-+{
-+	return os_getrandom(v, sizeof(*v), 0) == sizeof(*v);
-+}
-+
-+static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
-+{
-+	return false;
-+}
-+
-+static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
-+{
-+	return false;
-+}
-+
-+#endif
-diff --git a/arch/um/include/shared/os.h b/arch/um/include/shared/os.h
-index fafde1d5416e..0df646c6651e 100644
---- a/arch/um/include/shared/os.h
-+++ b/arch/um/include/shared/os.h
-@@ -11,6 +11,12 @@
- #include <irq_user.h>
- #include <longjmp.h>
- #include <mm_id.h>
-+/* This is to get size_t */
-+#ifndef __UM_HOST__
-+#include <linux/types.h>
-+#else
-+#include <sys/types.h>
-+#endif
- 
- #define CATCH_EINTR(expr) while ((errno = 0, ((expr) < 0)) && (errno == EINTR))
- 
-@@ -243,6 +249,7 @@ extern void stack_protections(unsigned long address);
- extern int raw(int fd);
- extern void setup_machinename(char *machine_out);
- extern void setup_hostinfo(char *buf, int len);
-+extern ssize_t os_getrandom(void *buf, size_t len, unsigned int flags);
- extern void os_dump_core(void) __attribute__ ((noreturn));
- extern void um_early_printk(const char *s, unsigned int n);
- extern void os_fix_helper_signals(void);
-diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
-index 0760e24f2eba..74f3efd96bd4 100644
---- a/arch/um/kernel/um_arch.c
-+++ b/arch/um/kernel/um_arch.c
-@@ -16,6 +16,7 @@
- #include <linux/sched/task.h>
- #include <linux/kmsg_dump.h>
- #include <linux/suspend.h>
-+#include <linux/random.h>
- 
- #include <asm/processor.h>
- #include <asm/cpufeature.h>
-@@ -406,6 +407,8 @@ int __init __weak read_initrd(void)
- 
- void __init setup_arch(char **cmdline_p)
- {
-+	u8 rng_seed[32];
-+
- 	stack_protections((unsigned long) &init_thread_info);
- 	setup_physmem(uml_physmem, uml_reserved, physmem_size, highmem);
- 	mem_total_pages(physmem_size, iomem_size, highmem);
-@@ -416,6 +419,11 @@ void __init setup_arch(char **cmdline_p)
- 	strlcpy(boot_command_line, command_line, COMMAND_LINE_SIZE);
- 	*cmdline_p = command_line;
- 	setup_hostinfo(host_info, sizeof host_info);
-+
-+	if (os_getrandom(rng_seed, sizeof(rng_seed), 0) == sizeof(rng_seed)) {
-+		add_bootloader_randomness(rng_seed, sizeof(rng_seed));
-+		memzero_explicit(rng_seed, sizeof(rng_seed));
-+	}
- }
- 
- void __init check_bugs(void)
-diff --git a/arch/um/os-Linux/util.c b/arch/um/os-Linux/util.c
-index 41297ec404bf..fc0f2a9dee5a 100644
---- a/arch/um/os-Linux/util.c
-+++ b/arch/um/os-Linux/util.c
-@@ -14,6 +14,7 @@
- #include <sys/wait.h>
- #include <sys/mman.h>
- #include <sys/utsname.h>
-+#include <sys/random.h>
- #include <init.h>
- #include <os.h>
- 
-@@ -96,6 +97,11 @@ static inline void __attribute__ ((noreturn)) uml_abort(void)
- 			exit(127);
- }
- 
-+ssize_t os_getrandom(void *buf, size_t len, unsigned int flags)
-+{
-+	return getrandom(buf, len, flags);
-+}
-+
- /*
-  * UML helper threads must not handle SIGWINCH/INT/TERM
-  */
+The tip-tree preferred ordering of variable declarations at the
+beginning of a function is reverse fir tree order::
 
+	struct long_struct_name *descriptive_name;
+	unsigned long foo, bar;
+	unsigned int tmp;
+	int ret;
+
+The above is faster to parse than the reverse ordering::
+
+	int ret;
+	unsigned int tmp;
+	unsigned long foo, bar;
+	struct long_struct_name *descriptive_name;
+
+And even more so than random ordering::
+
+	unsigned long foo, bar;
+	int ret;
+	struct long_struct_name *descriptive_name;
+	unsigned int tmp;
+
+Please check all your patches.
+
+>  	for (i = 0; i < num_var_ranges; i++) {
+>  		if (set_mtrr_var_ranges(i, &mtrr_state.var_ranges[i]))
+> @@ -704,10 +706,10 @@ static unsigned long set_mtrr_state(void)
+>  	 * Set_mtrr_restore restores the old value of MTRRdefType,
+>  	 * so to set it we fiddle with the saved value:
+>  	 */
+> -	if ((deftype_lo & 0xff) != mtrr_state.def_type
+> -	    || ((deftype_lo & 0xc00) >> 10) != mtrr_state.enabled) {
+> +	if ((*lo & 0xff) != mtrr_state.def_type
+> +	    || ((*lo & 0xc00) >> 10) != mtrr_state.enabled) {
+>  
+> -		deftype_lo = (deftype_lo & ~0xcff) | mtrr_state.def_type |
+> +		*lo = (*lo & ~0xcff) | mtrr_state.def_type |
+>  			     (mtrr_state.enabled << 10);
+>  		change_mask |= MTRR_CHANGE_MASK_DEFTYPE;
+>  	}
+> @@ -729,6 +731,8 @@ static DEFINE_RAW_SPINLOCK(set_atomicity_lock);
+>  static void prepare_set(void) __acquires(set_atomicity_lock)
+>  {
+>  	unsigned long cr0;
+> +	u32 *lo = this_cpu_ptr(&deftype_lo);
+> +	u32 *hi = this_cpu_ptr(&deftype_hi);
+
+You don't need the pointers here - this_cpu_read() should be enough.
+
+>  	/*
+>  	 * Note that this is not ideal
+> @@ -763,10 +767,10 @@ static void prepare_set(void) __acquires(set_atomicity_lock)
+>  	flush_tlb_local();
+>  
+>  	/* Save MTRR state */
+> -	rdmsr(MSR_MTRRdefType, deftype_lo, deftype_hi);
+> +	rdmsr(MSR_MTRRdefType, *lo, *hi);
+>  
+>  	/* Disable MTRRs, and set the default type to uncached */
+> -	mtrr_wrmsr(MSR_MTRRdefType, deftype_lo & ~0xcff, deftype_hi);
+> +	mtrr_wrmsr(MSR_MTRRdefType, *lo & ~0xcff, *hi);
+>  
+>  	/* Again, only flush caches if we have to. */
+>  	if (!static_cpu_has(X86_FEATURE_SELFSNOOP))
+> @@ -775,12 +779,15 @@ static void prepare_set(void) __acquires(set_atomicity_lock)
+>  
+>  static void post_set(void) __releases(set_atomicity_lock)
+>  {
+> +	u32 *lo = this_cpu_ptr(&deftype_lo);
+> +	u32 *hi = this_cpu_ptr(&deftype_hi);
+
+Ditto.
+
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
