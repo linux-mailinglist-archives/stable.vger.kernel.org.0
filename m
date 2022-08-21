@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D9C559B404
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 15:42:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B36C659B406
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 15:42:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229519AbiHUNmm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 09:42:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33682 "EHLO
+        id S230196AbiHUNmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 09:42:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230260AbiHUNmk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 09:42:40 -0400
+        with ESMTP id S230260AbiHUNmx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 09:42:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12ED922BEC
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 06:42:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 409D322BFA
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 06:42:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0411B80D57
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 13:42:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02AC0C433C1;
-        Sun, 21 Aug 2022 13:42:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EABE6B80D57
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 13:42:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7C84C433C1;
+        Sun, 21 Aug 2022 13:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661089357;
-        bh=PWHYn2oOMz4jQXNpaUKMoOKCB15CEsLroWFXsqAIpQk=;
+        s=korg; t=1661089369;
+        bh=MWEE3Cz0Wfvt0bgUHWtK4JgtT5LQPZ2Z0k8gFqzFSbg=;
         h=Subject:To:Cc:From:Date:From;
-        b=bdcQXhhPSD8hsHRUmv2mrEsU2pxavTiZcNZwEIG1W7FKAzr1dNyCX906mFvHxJRF1
-         WOt+6MzESQaaCXRgEgAUto3qawzHnfnHY8t1oyUgBQhXjbupdHnN39eyYOyZO45hVP
-         Txn4Htbcz0bJsMIDgC6uiSZ9Knc/A1jna0izZiWU=
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Add quirk for Lenovo Yoga7 14IAL7" failed to apply to 5.19-stable tree
+        b=rN9q5z3vz3gA8gWwhWg0et/oHT2No3HraLLFGtc8jgf8itklJ1zvPBg0/MVheGRxE
+         WmTs/my+PdhS/8pMAeMaarvR/wheVPDX2/ek/Ldno8phNiLTc58/TOxHx6IhpVIgdh
+         v3IGvUMuKtqCNXiGvaIB2BfFVgmbpasFCF7rBgL4=
+Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Add quirk for Lenovo Yoga7 14IAL7" failed to apply to 5.15-stable tree
 To:     tiwai@suse.de, baipush@tutanota.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 21 Aug 2022 15:42:34 +0200
-Message-ID: <166108935418311@kroah.com>
+Date:   Sun, 21 Aug 2022 15:42:35 +0200
+Message-ID: <166108935522674@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
