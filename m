@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B988059B413
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 15:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A89F59B416
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 15:46:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230152AbiHUNpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 09:45:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37420 "EHLO
+        id S230293AbiHUNqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 09:46:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229918AbiHUNpO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 09:45:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA2EF11463
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 06:45:12 -0700 (PDT)
+        with ESMTP id S229799AbiHUNqO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 09:46:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EAED2314E
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 06:46:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47C8460EA8
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 13:45:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D0ACC433C1;
-        Sun, 21 Aug 2022 13:45:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F23ACB80D0D
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 13:46:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 327A3C433C1;
+        Sun, 21 Aug 2022 13:46:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661089511;
-        bh=vZioXRIn77Duoyxp/Nchr9WIH2AVeuHN57Ie+P2lpQE=;
+        s=korg; t=1661089570;
+        bh=bM4dWekcm9l1BSCTG2OydtAbWZoqVoMxzFsZfv79UBw=;
         h=Subject:To:Cc:From:Date:From;
-        b=IVhfGtTqhjfwCcGL114CmUSQ0vp1LKGImUB/MS6tWK6jiINxS3h5z85ODImbxbJJ3
-         Mw8s/Ffkytw9iwvoFSG+EpnUO+jUG/27W92PhlTnAW5DLFsTbtlTeDZoVFK+y/+s5T
-         roK5wXtdGsHWARKt0JrJwDyZuHYiwQM7OZtIcJ7I=
-Subject: FAILED: patch "[PATCH] KVM: Unconditionally get a ref to /dev/kvm module when" failed to apply to 4.9-stable tree
-To:     seanjc@google.com, dmatlack@google.com, pbonzini@redhat.com
+        b=Nuv2lqQ7KQLjlN7ioslUu6ow8rTyQ18eZqcW1u/xptxQ226rwI/xvhWKrp8lXm3Jj
+         8Sjv5J7KUmTEToIoQHwP8LAQ6SiTgCtLWM9b0atPgd69RgGcTKLWPo0EqRSkb4/j/O
+         uuAxOsg9McdTWUlTaFRV0Kj7efFpdYV2kD3+ClF0=
+Subject: FAILED: patch "[PATCH] locking/atomic: Make test_and_*_bit() ordered on failure" failed to apply to 5.10-stable tree
+To:     marcan@marcan.st, arnd@arndb.de, torvalds@linux-foundation.org,
+        will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 21 Aug 2022 15:44:58 +0200
-Message-ID: <16610894985061@kroah.com>
+Date:   Sun, 21 Aug 2022 15:46:07 +0200
+Message-ID: <1661089567161107@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,89 +60,74 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 405294f29faee5de8c10cb9d4a90e229c2835279 Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Tue, 16 Aug 2022 05:39:36 +0000
-Subject: [PATCH] KVM: Unconditionally get a ref to /dev/kvm module when
- creating a VM
+From 415d832497098030241605c52ea83d4e2cfa7879 Mon Sep 17 00:00:00 2001
+From: Hector Martin <marcan@marcan.st>
+Date: Tue, 16 Aug 2022 16:03:11 +0900
+Subject: [PATCH] locking/atomic: Make test_and_*_bit() ordered on failure
 
-Unconditionally get a reference to the /dev/kvm module when creating a VM
-instead of using try_get_module(), which will fail if the module is in
-the process of being forcefully unloaded.  The error handling when
-try_get_module() fails doesn't properly unwind all that has been done,
-e.g. doesn't call kvm_arch_pre_destroy_vm() and doesn't remove the VM
-from the global list.  Not removing VMs from the global list tends to be
-fatal, e.g. leads to use-after-free explosions.
+These operations are documented as always ordered in
+include/asm-generic/bitops/instrumented-atomic.h, and producer-consumer
+type use cases where one side needs to ensure a flag is left pending
+after some shared data was updated rely on this ordering, even in the
+failure case.
 
-The obvious alternative would be to add proper unwinding, but the
-justification for using try_get_module(), "rmmod --wait", is completely
-bogus as support for "rmmod --wait", i.e. delete_module() without
-O_NONBLOCK, was removed by commit 3f2b9c9cdf38 ("module: remove rmmod
---wait option.") nearly a decade ago.
+This is the case with the workqueue code, which currently suffers from a
+reproducible ordering violation on Apple M1 platforms (which are
+notoriously out-of-order) that ends up causing the TTY layer to fail to
+deliver data to userspace properly under the right conditions.  This
+change fixes that bug.
 
-It's still possible for try_get_module() to fail due to the module dying
-(more like being killed), as the module will be tagged MODULE_STATE_GOING
-by "rmmod --force", i.e. delete_module(..., O_TRUNC), but playing nice
-with forced unloading is an exercise in futility and gives a falsea sense
-of security.  Using try_get_module() only prevents acquiring _new_
-references, it doesn't magically put the references held by other VMs,
-and forced unloading doesn't wait, i.e. "rmmod --force" on KVM is all but
-guaranteed to cause spectacular fireworks; the window where KVM will fail
-try_get_module() is tiny compared to the window where KVM is building and
-running the VM with an elevated module refcount.
+Change the documentation to restrict the "no order on failure" story to
+the _lock() variant (for which it makes sense), and remove the
+early-exit from the generic implementation, which is what causes the
+missing barrier semantics in that case.  Without this, the remaining
+atomic op is fully ordered (including on ARM64 LSE, as of recent
+versions of the architecture spec).
 
-Addressing KVM's inability to play nice with "rmmod --force" is firmly
-out-of-scope.  Forcefully unloading any module taints kernel (for obvious
-reasons)  _and_ requires the kernel to be built with
-CONFIG_MODULE_FORCE_UNLOAD=y, which is off by default and comes with the
-amusing disclaimer that it's "mainly for kernel developers and desperate
-users".  In other words, KVM is free to scoff at bug reports due to using
-"rmmod --force" while VMs may be running.
-
-Fixes: 5f6de5cbebee ("KVM: Prevent module exit until all VMs are freed")
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: stable@vger.kernel.org
-Cc: David Matlack <dmatlack@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220816053937.2477106-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: e986a0d6cb36 ("locking/atomics, asm-generic/bitops/atomic.h: Rewrite using atomic_*() APIs")
+Fixes: 61e02392d3c7 ("locking/atomic/bitops: Document and clarify ordering semantics for failed test_and_{}_bit()")
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Acked-by: Will Deacon <will@kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index ee5f48cc100b..15e304e059d4 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1134,6 +1134,9 @@ static struct kvm *kvm_create_vm(unsigned long type, const char *fdname)
- 	if (!kvm)
- 		return ERR_PTR(-ENOMEM);
+diff --git a/Documentation/atomic_bitops.txt b/Documentation/atomic_bitops.txt
+index 093cdaefdb37..d8b101c97031 100644
+--- a/Documentation/atomic_bitops.txt
++++ b/Documentation/atomic_bitops.txt
+@@ -59,7 +59,7 @@ Like with atomic_t, the rule of thumb is:
+  - RMW operations that have a return value are fully ordered.
  
-+	/* KVM is pinned via open("/dev/kvm"), the fd passed to this ioctl(). */
-+	__module_get(kvm_chardev_ops.owner);
-+
- 	KVM_MMU_LOCK_INIT(kvm);
- 	mmgrab(current->mm);
- 	kvm->mm = current->mm;
-@@ -1226,16 +1229,6 @@ static struct kvm *kvm_create_vm(unsigned long type, const char *fdname)
- 	preempt_notifier_inc();
- 	kvm_init_pm_notifier(kvm);
+  - RMW operations that are conditional are unordered on FAILURE,
+-   otherwise the above rules apply. In the case of test_and_{}_bit() operations,
++   otherwise the above rules apply. In the case of test_and_set_bit_lock(),
+    if the bit in memory is unchanged by the operation then it is deemed to have
+    failed.
  
--	/*
--	 * When the fd passed to this ioctl() is opened it pins the module,
--	 * but try_module_get() also prevents getting a reference if the module
--	 * is in MODULE_STATE_GOING (e.g. if someone ran "rmmod --wait").
--	 */
--	if (!try_module_get(kvm_chardev_ops.owner)) {
--		r = -ENODEV;
--		goto out_err;
--	}
+diff --git a/include/asm-generic/bitops/atomic.h b/include/asm-generic/bitops/atomic.h
+index 3096f086b5a3..71ab4ba9c25d 100644
+--- a/include/asm-generic/bitops/atomic.h
++++ b/include/asm-generic/bitops/atomic.h
+@@ -39,9 +39,6 @@ arch_test_and_set_bit(unsigned int nr, volatile unsigned long *p)
+ 	unsigned long mask = BIT_MASK(nr);
+ 
+ 	p += BIT_WORD(nr);
+-	if (READ_ONCE(*p) & mask)
+-		return 1;
 -
- 	return kvm;
- 
- out_err:
-@@ -1259,6 +1252,7 @@ static struct kvm *kvm_create_vm(unsigned long type, const char *fdname)
- out_err_no_srcu:
- 	kvm_arch_free_vm(kvm);
- 	mmdrop(current->mm);
-+	module_put(kvm_chardev_ops.owner);
- 	return ERR_PTR(r);
+ 	old = arch_atomic_long_fetch_or(mask, (atomic_long_t *)p);
+ 	return !!(old & mask);
  }
+@@ -53,9 +50,6 @@ arch_test_and_clear_bit(unsigned int nr, volatile unsigned long *p)
+ 	unsigned long mask = BIT_MASK(nr);
  
+ 	p += BIT_WORD(nr);
+-	if (!(READ_ONCE(*p) & mask))
+-		return 0;
+-
+ 	old = arch_atomic_long_fetch_andnot(mask, (atomic_long_t *)p);
+ 	return !!(old & mask);
+ }
 
