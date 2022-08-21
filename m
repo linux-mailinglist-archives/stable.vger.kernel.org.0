@@ -2,262 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7736D59B331
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 13:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9925359B325
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 12:33:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230152AbiHULL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 07:11:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37546 "EHLO
+        id S229836AbiHUKdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 06:33:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229924AbiHULLZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 07:11:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3307522B3D;
-        Sun, 21 Aug 2022 04:11:24 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB97860C91;
-        Sun, 21 Aug 2022 11:11:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8644C433C1;
-        Sun, 21 Aug 2022 11:11:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661080283;
-        bh=3uYbaZwNU2jQid31a2LPaT/72f7D+hvGvUdLhTmk9us=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ww1Kc1gTt90YncMv+trawoPoYByKQSqodR5PmRHeYDlXd0S1eefbMKnOQiLpP9Cjl
-         +NmqZRsVrNfJ9BO972xxACxbMj1/gz/vFtLHDATWaUkkBa8Bay2TNFHVLzbR+f7zKe
-         GXWwL8GVoeDVT4qDPNoOqHs5RNersw477LRpTXNE=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 486/545] serial: 8250_pci: Replace dev_*() by pci_*() macros
-Date:   Fri, 19 Aug 2022 17:44:16 +0200
-Message-Id: <20220819153851.179783779@linuxfoundation.org>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220819153829.135562864@linuxfoundation.org>
-References: <20220819153829.135562864@linuxfoundation.org>
-User-Agent: quilt/0.67
+        with ESMTP id S229508AbiHUKdI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 06:33:08 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD936555;
+        Sun, 21 Aug 2022 03:33:07 -0700 (PDT)
+Date:   Sun, 21 Aug 2022 10:33:03 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1661077984;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=AkL+xh74pmzfFytjn67BBr102XsZF2Xfe6HRVXtM7so=;
+        b=S3+AqkFsSz9JiuyMZnqyj0O02pAN9aFw7VNWtvICbxelndRaaAzbKau73xlkmRfagORR78
+        QLTFWsjMOAl0hjHlBI+MXEM3JoFI2UETkIVEPH4nvsT1b18ZN63d6Jaub13rsCksL6DEDi
+        XzfMOCQb9UHC0HNJ2lSkmOhc3e342neMV1Dm3sr/rGHoUZpNQ4tGoGKrCj16a0ncXqHpJd
+        Tm1rokMwBrTVqTiaYr/AaSV3GAn6YmaujiRh9vvysBTy8KuuU8zVIg7fNOLZL6uv2FzkiZ
+        d1n0C8K3izB/vM2ekA+w7EME5nwCCYf4t8zAI2SbdyOOq+/rZI04xGMIDeHtCg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1661077984;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=AkL+xh74pmzfFytjn67BBr102XsZF2Xfe6HRVXtM7so=;
+        b=e3knuuocJacqoYUGNiIfZUa1eySg5TzieEZzQh9ETHOcWtxGaBIxudQ6338oQKoSheCNY7
+        FRMD5GHAfqU3xyBg==
+From:   "tip-bot2 for Chen Zhongjin" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/unwind/orc: Unwind ftrace trampolines with
+ correct ORC entry
+Cc:     Chen Zhongjin <chenzhongjin@huawei.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        <stable@vger.kernel.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20220819084334.244016-1-chenzhongjin@huawei.com>
+References: <20220819084334.244016-1-chenzhongjin@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.8 required=5.0 tests=BAYES_00,DATE_IN_PAST_24_48,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Message-ID: <166107798320.401.17179497604353962909.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+The following commit has been merged into the x86/urgent branch of tip:
 
-[ Upstream commit 1177384179416c7136e1348f07609e0da1ae6b91 ]
+Commit-ID:     fc2e426b1161761561624ebd43ce8c8d2fa058da
+Gitweb:        https://git.kernel.org/tip/fc2e426b1161761561624ebd43ce8c8d2fa058da
+Author:        Chen Zhongjin <chenzhongjin@huawei.com>
+AuthorDate:    Fri, 19 Aug 2022 16:43:34 +08:00
+Committer:     Ingo Molnar <mingo@kernel.org>
+CommitterDate: Sun, 21 Aug 2022 12:19:32 +02:00
 
-PCI subsystem provides convenient shortcut macros for message printing.
-Use those macros instead of dev_*().
+x86/unwind/orc: Unwind ftrace trampolines with correct ORC entry
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Jiri Slaby <jslaby@kernel.org>
-Link: https://lore.kernel.org/r/20211022135147.70965-3-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When meeting ftrace trampolines in ORC unwinding, unwinder uses address
+of ftrace_{regs_}call address to find the ORC entry, which gets next frame at
+sp+176.
+
+If there is an IRQ hitting at sub $0xa8,%rsp, the next frame should be
+sp+8 instead of 176. It makes unwinder skip correct frame and throw
+warnings such as "wrong direction" or "can't access registers", etc,
+depending on the content of the incorrect frame address.
+
+By adding the base address ftrace_{regs_}caller with the offset
+*ip - ops->trampoline*, we can get the correct address to find the ORC entry.
+
+Also change "caller" to "tramp_addr" to make variable name conform to
+its content.
+
+[ mingo: Clarified the changelog a bit. ]
+
+Fixes: 6be7fa3c74d1 ("ftrace, orc, x86: Handle ftrace dynamically allocated trampolines")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220819084334.244016-1-chenzhongjin@huawei.com
 ---
- drivers/tty/serial/8250/8250_pci.c | 52 +++++++++++++-----------------
- 1 file changed, 22 insertions(+), 30 deletions(-)
+ arch/x86/kernel/unwind_orc.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
-index 7ce755b47a3d..d2b38ae896d1 100644
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -75,13 +75,12 @@ static int pci_default_setup(struct serial_private*,
- 
- static void moan_device(const char *str, struct pci_dev *dev)
+diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
+index 38185ae..0ea57da 100644
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -93,22 +93,27 @@ static struct orc_entry *orc_find(unsigned long ip);
+ static struct orc_entry *orc_ftrace_find(unsigned long ip)
  {
--	dev_err(&dev->dev,
--	       "%s: %s\n"
-+	pci_err(dev, "%s\n"
- 	       "Please send the output of lspci -vv, this\n"
- 	       "message (0x%04x,0x%04x,0x%04x,0x%04x), the\n"
- 	       "manufacturer and name of serial board or\n"
- 	       "modem board to <linux-serial@vger.kernel.org>.\n",
--	       pci_name(dev), str, dev->vendor, dev->device,
-+	       str, dev->vendor, dev->device,
- 	       dev->subsystem_vendor, dev->subsystem_device);
+ 	struct ftrace_ops *ops;
+-	unsigned long caller;
++	unsigned long tramp_addr, offset;
+ 
+ 	ops = ftrace_ops_trampoline(ip);
+ 	if (!ops)
+ 		return NULL;
+ 
++	/* Set tramp_addr to the start of the code copied by the trampoline */
+ 	if (ops->flags & FTRACE_OPS_FL_SAVE_REGS)
+-		caller = (unsigned long)ftrace_regs_call;
++		tramp_addr = (unsigned long)ftrace_regs_caller;
+ 	else
+-		caller = (unsigned long)ftrace_call;
++		tramp_addr = (unsigned long)ftrace_caller;
++
++	/* Now place tramp_addr to the location within the trampoline ip is at */
++	offset = ip - ops->trampoline;
++	tramp_addr += offset;
+ 
+ 	/* Prevent unlikely recursion */
+-	if (ip == caller)
++	if (ip == tramp_addr)
+ 		return NULL;
+ 
+-	return orc_find(caller);
++	return orc_find(tramp_addr);
  }
- 
-@@ -238,7 +237,7 @@ static int pci_inteli960ni_init(struct pci_dev *dev)
- 	/* is firmware started? */
- 	pci_read_config_dword(dev, 0x44, &oldval);
- 	if (oldval == 0x00001000L) { /* RESET value */
--		dev_dbg(&dev->dev, "Local i960 firmware missing\n");
-+		pci_dbg(dev, "Local i960 firmware missing\n");
- 		return -ENODEV;
- 	}
- 	return 0;
-@@ -588,9 +587,8 @@ static int pci_timedia_probe(struct pci_dev *dev)
- 	 * (0,2,3,5,6: serial only -- 7,8,9: serial + parallel)
- 	 */
- 	if ((dev->subsystem_device & 0x00f0) >= 0x70) {
--		dev_info(&dev->dev,
--			"ignoring Timedia subdevice %04x for parport_serial\n",
--			dev->subsystem_device);
-+		pci_info(dev, "ignoring Timedia subdevice %04x for parport_serial\n",
-+			 dev->subsystem_device);
- 		return -ENODEV;
- 	}
- 
-@@ -827,8 +825,7 @@ static int pci_netmos_9900_numports(struct pci_dev *dev)
- 		if (sub_serports > 0)
- 			return sub_serports;
- 
--		dev_err(&dev->dev,
--			"NetMos/Mostech serial driver ignoring port on ambiguous config.\n");
-+		pci_err(dev, "NetMos/Mostech serial driver ignoring port on ambiguous config.\n");
- 		return 0;
- 	}
- 
-@@ -927,7 +924,7 @@ static int pci_ite887x_init(struct pci_dev *dev)
- 	}
- 
- 	if (i == ARRAY_SIZE(inta_addr)) {
--		dev_err(&dev->dev, "ite887x: could not find iobase\n");
-+		pci_err(dev, "could not find iobase\n");
- 		return -ENODEV;
- 	}
- 
-@@ -1022,9 +1019,7 @@ static int pci_endrun_init(struct pci_dev *dev)
- 	/* EndRun device */
- 	if (deviceID == 0x07000200) {
- 		number_uarts = ioread8(p + 4);
--		dev_dbg(&dev->dev,
--			"%d ports detected on EndRun PCI Express device\n",
--			number_uarts);
-+		pci_dbg(dev, "%d ports detected on EndRun PCI Express device\n", number_uarts);
- 	}
- 	pci_iounmap(dev, p);
- 	return number_uarts;
-@@ -1054,9 +1049,7 @@ static int pci_oxsemi_tornado_init(struct pci_dev *dev)
- 	/* Tornado device */
- 	if (deviceID == 0x07000200) {
- 		number_uarts = ioread8(p + 4);
--		dev_dbg(&dev->dev,
--			"%d ports detected on Oxford PCI Express device\n",
--			number_uarts);
-+		pci_dbg(dev, "%d ports detected on Oxford PCI Express device\n", number_uarts);
- 	}
- 	pci_iounmap(dev, p);
- 	return number_uarts;
-@@ -1116,15 +1109,15 @@ static struct quatech_feature quatech_cards[] = {
- 	{ 0, }
- };
- 
--static int pci_quatech_amcc(u16 devid)
-+static int pci_quatech_amcc(struct pci_dev *dev)
- {
- 	struct quatech_feature *qf = &quatech_cards[0];
- 	while (qf->devid) {
--		if (qf->devid == devid)
-+		if (qf->devid == dev->device)
- 			return qf->amcc;
- 		qf++;
- 	}
--	pr_err("quatech: unknown port type '0x%04X'.\n", devid);
-+	pci_err(dev, "unknown port type '0x%04X'.\n", dev->device);
- 	return 0;
- };
- 
-@@ -1287,7 +1280,7 @@ static int pci_quatech_rs422(struct uart_8250_port *port)
- 
- static int pci_quatech_init(struct pci_dev *dev)
- {
--	if (pci_quatech_amcc(dev->device)) {
-+	if (pci_quatech_amcc(dev)) {
- 		unsigned long base = pci_resource_start(dev, 0);
- 		if (base) {
- 			u32 tmp;
-@@ -1311,7 +1304,7 @@ static int pci_quatech_setup(struct serial_private *priv,
- 	port->port.uartclk = pci_quatech_clock(port);
- 	/* For now just warn about RS422 */
- 	if (pci_quatech_rs422(port))
--		pr_warn("quatech: software control of RS422 features not currently supported.\n");
-+		pci_warn(priv->dev, "software control of RS422 features not currently supported.\n");
- 	return pci_default_setup(priv, board, port, idx);
- }
- 
-@@ -1525,7 +1518,7 @@ static int pci_fintek_setup(struct serial_private *priv,
- 	/* Get the io address from configuration space */
- 	pci_read_config_word(pdev, config_base + 4, &iobase);
- 
--	dev_dbg(&pdev->dev, "%s: idx=%d iobase=0x%x", __func__, idx, iobase);
-+	pci_dbg(pdev, "idx=%d iobase=0x%x", idx, iobase);
- 
- 	port->port.iotype = UPIO_PORT;
- 	port->port.iobase = iobase;
-@@ -1689,7 +1682,7 @@ static int skip_tx_en_setup(struct serial_private *priv,
- 			struct uart_8250_port *port, int idx)
- {
- 	port->port.quirks |= UPQ_NO_TXEN_TEST;
--	dev_dbg(&priv->dev->dev,
-+	pci_dbg(priv->dev,
- 		"serial8250: skipping TxEn test for device [%04x:%04x] subsystem [%04x:%04x]\n",
- 		priv->dev->vendor, priv->dev->device,
- 		priv->dev->subsystem_vendor, priv->dev->subsystem_device);
-@@ -4007,12 +4000,12 @@ pciserial_init_ports(struct pci_dev *dev, const struct pciserial_board *board)
- 		uart.port.irq = 0;
- 	} else {
- 		if (pci_match_id(pci_use_msi, dev)) {
--			dev_dbg(&dev->dev, "Using MSI(-X) interrupts\n");
-+			pci_dbg(dev, "Using MSI(-X) interrupts\n");
- 			pci_set_master(dev);
- 			uart.port.flags &= ~UPF_SHARE_IRQ;
- 			rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_ALL_TYPES);
- 		} else {
--			dev_dbg(&dev->dev, "Using legacy interrupts\n");
-+			pci_dbg(dev, "Using legacy interrupts\n");
- 			rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_LEGACY);
- 		}
- 		if (rc < 0) {
-@@ -4030,12 +4023,12 @@ pciserial_init_ports(struct pci_dev *dev, const struct pciserial_board *board)
- 		if (quirk->setup(priv, board, &uart, i))
- 			break;
- 
--		dev_dbg(&dev->dev, "Setup PCI port: port %lx, irq %d, type %d\n",
-+		pci_dbg(dev, "Setup PCI port: port %lx, irq %d, type %d\n",
- 			uart.port.iobase, uart.port.irq, uart.port.iotype);
- 
- 		priv->line[i] = serial8250_register_8250_port(&uart);
- 		if (priv->line[i] < 0) {
--			dev_err(&dev->dev,
-+			pci_err(dev,
- 				"Couldn't register serial port %lx, irq %d, type %d, error %d\n",
- 				uart.port.iobase, uart.port.irq,
- 				uart.port.iotype, priv->line[i]);
-@@ -4131,8 +4124,7 @@ pciserial_init_one(struct pci_dev *dev, const struct pci_device_id *ent)
- 	}
- 
- 	if (ent->driver_data >= ARRAY_SIZE(pci_boards)) {
--		dev_err(&dev->dev, "invalid driver_data: %ld\n",
--			ent->driver_data);
-+		pci_err(dev, "invalid driver_data: %ld\n", ent->driver_data);
- 		return -EINVAL;
- 	}
- 
-@@ -4215,7 +4207,7 @@ static int pciserial_resume_one(struct device *dev)
- 		err = pci_enable_device(pdev);
- 		/* FIXME: We cannot simply error out here */
- 		if (err)
--			dev_err(dev, "Unable to re-enable ports, trying to continue.\n");
-+			pci_err(pdev, "Unable to re-enable ports, trying to continue.\n");
- 		pciserial_resume_ports(priv);
- 	}
- 	return 0;
--- 
-2.35.1
-
-
-
+ #else
+ static struct orc_entry *orc_ftrace_find(unsigned long ip)
