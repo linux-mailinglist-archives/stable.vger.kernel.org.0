@@ -2,119 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 902AC59B0C8
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 00:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 748C559B0FE
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 02:09:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231648AbiHTWYV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Aug 2022 18:24:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44060 "EHLO
+        id S234922AbiHUAIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Aug 2022 20:08:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229536AbiHTWYT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 18:24:19 -0400
-Received: from qproxy3-pub.mail.unifiedlayer.com (qproxy3-pub.mail.unifiedlayer.com [67.222.38.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D4E5357D9
-        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 15:24:18 -0700 (PDT)
-Received: from gproxy2-pub.mail.unifiedlayer.com (gproxy2-pub.mail.unifiedlayer.com [69.89.18.3])
-        by qproxy3.mail.unifiedlayer.com (Postfix) with ESMTP id BE989802E258
-        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 22:24:07 +0000 (UTC)
-Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
-        by progateway4.mail.pro1.eigbox.com (Postfix) with ESMTP id F23C410047781
-        for <stable@vger.kernel.org>; Sat, 20 Aug 2022 22:23:34 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id PWsQosUwupnCyPWsQo9YBx; Sat, 20 Aug 2022 22:23:34 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=d5kwdTvE c=1 sm=1 tr=0 ts=63015ee6
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=biHskzXt2R4A:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=12TSeHkKMQNx7Ixb/tMcWeMTmuEFIvVPU+uVjS17hGM=; b=pFENPBW9XOU0NQeq1r5JcwFJG1
-        g149DRuEADtj2sDkNk2jq/SOhge+9rasgF6i1mxljRL2CdhOq7C0CeG+rzyuV6oFvRKM3jd8WRTFa
-        I5YeOWlge1isU3082IYuObeQuym7lEfR/BYfa1ffAbmHf+gWwMh+sa8pgL8ALHeJX239ZcirX8Cg0
-        aTi8tOviSUV15mGa2nty3aqlZZsGGbNfFluIogzbY09NJFXtv6417BrGNi7sqvPI2Rr8r0pvvPgVX
-        o1Ja/I3eP29THd8k3e6e1I6TJ/3vQLzz/TSmZnVdufyawgGFJ47cG8kwxOKC3yjauXeD0cUThpYPX
-        qSnuuWAA==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:41060 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1oPWsP-003J6x-8D;
-        Sat, 20 Aug 2022 16:23:33 -0600
-Subject: Re: [PATCH 5.15 00/14] 5.15.62-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220819153711.658766010@linuxfoundation.org>
-In-Reply-To: <20220819153711.658766010@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <1af0d930-d32b-5275-5daf-e97a5c64bf55@w6rz.net>
-Date:   Sat, 20 Aug 2022 15:23:31 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S235643AbiHUAIg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Aug 2022 20:08:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4147912748;
+        Sat, 20 Aug 2022 17:08:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81583B80B66;
+        Sun, 21 Aug 2022 00:08:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E382C43140;
+        Sun, 21 Aug 2022 00:08:30 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.96)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1oPYWD-005Dkz-06;
+        Sat, 20 Aug 2022 20:08:45 -0400
+Message-ID: <20220821000844.870621395@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Sat, 20 Aug 2022 20:07:40 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Krister Johansen <kjlx@templeofstupid.com>,
+        Jiri Olsa <jolsa@kernel.org>
+Subject: [for-linus][PATCH 03/10] tracing/perf: Fix double put of trace event when init fails
+References: <20220821000737.328590235@goodmis.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1oPWsP-003J6x-8D
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:41060
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 8/19/22 8:40 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.62 release.
-> There are 14 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 21 Aug 2022 15:36:59 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.62-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+If in perf_trace_event_init(), the perf_trace_event_open() fails, then it
+will call perf_trace_event_unreg() which will not only unregister the perf
+trace event, but will also call the put() function of the tp_event.
 
-Tested-by: Ron Economos <re@w6rz.net>
+The problem here is that the trace_event_try_get_ref() is called by the
+caller of perf_trace_event_init() and if perf_trace_event_init() returns a
+failure, it will then call trace_event_put(). But since the
+perf_trace_event_unreg() already called the trace_event_put() function, it
+triggers a WARN_ON().
 
+ WARNING: CPU: 1 PID: 30309 at kernel/trace/trace_dynevent.c:46 trace_event_dyn_put_ref+0x15/0x20
+
+If perf_trace_event_reg() does not call the trace_event_try_get_ref() then
+the perf_trace_event_unreg() should not be calling trace_event_put(). This
+breaks symmetry and causes bugs like these.
+
+Pull out the trace_event_put() from perf_trace_event_unreg() and call it
+in the locations that perf_trace_event_unreg() is called. This not only
+fixes this bug, but also brings back the proper symmetry of the reg/unreg
+vs get/put logic.
+
+Link: https://lore.kernel.org/all/cover.1660347763.git.kjlx@templeofstupid.com/
+Link: https://lkml.kernel.org/r/20220816192817.43d5e17f@gandalf.local.home
+
+Cc: stable@vger.kernel.org
+Fixes: 1d18538e6a092 ("tracing: Have dynamic events have a ref counter")
+Reported-by: Krister Johansen <kjlx@templeofstupid.com>
+Reviewed-by: Krister Johansen <kjlx@templeofstupid.com>
+Tested-by: Krister Johansen <kjlx@templeofstupid.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+---
+ kernel/trace/trace_event_perf.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/trace/trace_event_perf.c b/kernel/trace/trace_event_perf.c
+index a114549720d6..61e3a2620fa3 100644
+--- a/kernel/trace/trace_event_perf.c
++++ b/kernel/trace/trace_event_perf.c
+@@ -157,7 +157,7 @@ static void perf_trace_event_unreg(struct perf_event *p_event)
+ 	int i;
+ 
+ 	if (--tp_event->perf_refcount > 0)
+-		goto out;
++		return;
+ 
+ 	tp_event->class->reg(tp_event, TRACE_REG_PERF_UNREGISTER, NULL);
+ 
+@@ -176,8 +176,6 @@ static void perf_trace_event_unreg(struct perf_event *p_event)
+ 			perf_trace_buf[i] = NULL;
+ 		}
+ 	}
+-out:
+-	trace_event_put_ref(tp_event);
+ }
+ 
+ static int perf_trace_event_open(struct perf_event *p_event)
+@@ -241,6 +239,7 @@ void perf_trace_destroy(struct perf_event *p_event)
+ 	mutex_lock(&event_mutex);
+ 	perf_trace_event_close(p_event);
+ 	perf_trace_event_unreg(p_event);
++	trace_event_put_ref(p_event->tp_event);
+ 	mutex_unlock(&event_mutex);
+ }
+ 
+@@ -292,6 +291,7 @@ void perf_kprobe_destroy(struct perf_event *p_event)
+ 	mutex_lock(&event_mutex);
+ 	perf_trace_event_close(p_event);
+ 	perf_trace_event_unreg(p_event);
++	trace_event_put_ref(p_event->tp_event);
+ 	mutex_unlock(&event_mutex);
+ 
+ 	destroy_local_trace_kprobe(p_event->tp_event);
+@@ -347,6 +347,7 @@ void perf_uprobe_destroy(struct perf_event *p_event)
+ 	mutex_lock(&event_mutex);
+ 	perf_trace_event_close(p_event);
+ 	perf_trace_event_unreg(p_event);
++	trace_event_put_ref(p_event->tp_event);
+ 	mutex_unlock(&event_mutex);
+ 	destroy_local_trace_uprobe(p_event->tp_event);
+ }
+-- 
+2.35.1
