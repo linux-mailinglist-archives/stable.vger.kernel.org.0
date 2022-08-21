@@ -2,155 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CB7959B2AF
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 10:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 249BF59B2BC
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 10:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229717AbiHUIGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 04:06:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45424 "EHLO
+        id S229834AbiHUIVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 04:21:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229710AbiHUIGF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 04:06:05 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0674F1A3AC
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 01:06:04 -0700 (PDT)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1oPfy4-0001Wi-SF; Sun, 21 Aug 2022 10:06:00 +0200
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1oPfy3-001422-D0; Sun, 21 Aug 2022 10:05:59 +0200
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1oPfy2-00D71c-Fg; Sun, 21 Aug 2022 10:05:58 +0200
-Date:   Sun, 21 Aug 2022 10:05:55 +0200
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.19 0191/1157] hwmon: (sht15) Fix wrong assumptions in
- device remove callback
-Message-ID: <20220821080555.rft6xztc2rfn7bny@pengutronix.de>
-References: <20220815180439.416659447@linuxfoundation.org>
- <20220815180447.391756473@linuxfoundation.org>
- <20220815214911.wy7p5sqbog6r6tcg@pengutronix.de>
- <Yvt0Ms9ur2aSj2Zz@kroah.com>
- <20220819193501.glb43pf64zkl7n3p@pengutronix.de>
- <YwEkkn1xmGM5kHel@kroah.com>
+        with ESMTP id S229820AbiHUIVa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 04:21:30 -0400
+Received: from rfvt.org.uk (rfvt.org.uk [37.187.119.221])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D87FD1E3CA;
+        Sun, 21 Aug 2022 01:21:28 -0700 (PDT)
+Received: from wylie.me.uk (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by rfvt.org.uk (Postfix) with ESMTPS id 62B7182CC4;
+        Sun, 21 Aug 2022 09:21:23 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=wylie.me.uk;
+        s=mydkim005; t=1661070083;
+        bh=u0WovpEjOWgoBz0CSgRBErAMzNvohbaXiC2A5f/5JtI=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References;
+        b=0sdPYW0VOcsrf7RGo88Dnk+AAsSUP7RQowrblg1JQ0I7stsbsgu29kNCqgyVGZwvG
+         7r1qxVu8R6YwM1A68lAnSMJUPzKfebod5urMDAzi/yPaEStM7RHpA/K9FrZOjt3KuQ
+         x3WOFUrrT5Bg1WoT8QhEBEtMue0vGqia9GwHgT1+owEMcfwD3jp0DjbTs70LR3vzsl
+         9D7j8wmTYQcUZkViCJD+BbMaWYILs2uFd4z691c8LntisSDUP7DmdnGG0vJzyBSv/D
+         F2OQ4AqEnrQsJaQkyvkU/aVZaqii5PavfBK6x9aG1A6vJjBci3Yl0Hg7RvsjTpQpqY
+         RTRFbT9ss8rNw==
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ngxpe4bl247yovnx"
-Content-Disposition: inline
-In-Reply-To: <YwEkkn1xmGM5kHel@kroah.com>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <25345.60162.942383.502797@wylie.me.uk>
+Date:   Sun, 21 Aug 2022 09:21:22 +0100
+From:   "Alan J. Wylie" <alan@wylie.me.uk>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: Regression in 5.19.0: USB errors during boot
+In-Reply-To: <20220821062345.GA26598@lst.de>
+References: <25342.20092.262450.330346@wylie.me.uk>
+        <Yv5Q8gDvVTGOHd8k@kroah.com>
+        <20220821062345.GA26598@lst.de>
+X-Mailer: VM 8.2.0b under 27.2 (x86_64-pc-linux-gnu)
+X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+at 08:23 on Sun 21-Aug-2022 Christoph Hellwig (hch@lst.de) wrote:
 
---ngxpe4bl247yovnx
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Thu, Aug 18, 2022 at 04:47:14PM +0200, Greg Kroah-Hartman wrote:
+> > What is the output of the lspci -v for the USB 3 controller?
+> > 
+> > Christoph, any ideas?
+>
+> Well, with that commit it must be related to dma ops selection.
+> As this appears to be an AMD system the options here are direct,
+> amd_iommu and possibly amd_gart as the odd one in the mix.
+>
+> Alan, can you send me your .config?
 
-On Sat, Aug 20, 2022 at 08:14:42PM +0200, Greg Kroah-Hartman wrote:
-> On Fri, Aug 19, 2022 at 09:35:01PM +0200, Uwe Kleine-K=F6nig wrote:
-> > Hello Greg,
-> >=20
-> > On Tue, Aug 16, 2022 at 12:40:50PM +0200, Greg Kroah-Hartman wrote:
-> > > On Mon, Aug 15, 2022 at 11:49:11PM +0200, Uwe Kleine-K=F6nig wrote:
-> > > > On Mon, Aug 15, 2022 at 07:52:27PM +0200, Greg Kroah-Hartman wrote:
-> > > > > From: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
-> > > > >=20
-> > > > > [ Upstream commit 7d4edccc9bbfe1dcdff641343f7b0c6763fbe774 ]
-> > > > >=20
-> > > > > Taking a lock at the beginning of .remove() doesn't prevent new r=
-eaders.
-> > > > > With the existing approach it can happen, that a read occurs just=
- when
-> > > > > the lock was taken blocking the reader until the lock is released=
- at the
-> > > > > end of the remove callback which then accessed *data that is alre=
-ady
-> > > > > freed then.
-> > > > >=20
-> > > > > To actually fix this problem the hwmon core needs some adaption. =
-Until
-> > > > > this is implemented take the optimistic approach of assuming that=
- all
-> > > > > readers are gone after hwmon_device_unregister() and
-> > > > > sysfs_remove_group() as most other drivers do. (And once the core
-> > > > > implements that, taking the lock would deadlock.)
-> > > > >=20
-> > > > > So drop the lock, move the reset to after device unregistration t=
-o keep
-> > > > > the device in a workable state until it's deregistered. Also add =
-a error
-> > > > > message in case the reset fails and return 0 anyhow. (Returning a=
-n error
-> > > > > code, doesn't stop the platform device unregistration and only re=
-sults
-> > > > > in a little helpful error message before the devm cleanup handler=
-s are
-> > > > > called.)
-> > > > >=20
-> > > > > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
-> > > > > Link: https://lore.kernel.org/r/20220725194344.150098-1-u.kleine-=
-koenig@pengutronix.de
-> > > > > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> > > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > > >=20
-> > > > Does this mean my concerns I expressed in the mail with Message-Id:
-> > > > 20220814155638.idxnihylofsxqlql@pengutronix.de were not taken into
-> > > > consideration?
-> > >=20
-> > > I can't find that message-id on lore.kernel.org, do you have a link?
-> >=20
-> > Oh, I missed your request earlier. No I don't have a link, the mail was
-> > sent to Sasha Levin, Jean Delvare, Guenter Roeck and stable-commits as I
-> > just replied to the "note to let you know that I've just added the patch
-> > titled [...] to the 5.19-stable tree".
->=20
-> Ok, I've dropped it now from all pending queues (5.10 and older), I can
-> also revert it from the newer ones if you want me to.
+I hope that with the following information there is no need for me to
+do so.
 
-Actually I don't care much. It touches a path that is not usually hit,
-because platform devices are not removed very often. So I expect even if
-the problem with this driver is a different one now, we won't get any
-regressions here.
+It is indeed an old AMD CPU
+  Model name:          AMD FX(tm)-4300 Quad-Core Processor
+  CPU family:          21
+  Model:               2
 
-Best regards
-Uwe
+Comparing with another AMD system that doesn't show the problem,
+I see that CONFIG_GART_IOMMU is only set on the one with the problem.
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+The configs have just had "make oldconfig" run on them for years, I
+have no idea why one has it set.
 
---ngxpe4bl247yovnx
-Content-Type: application/pgp-signature; name="signature.asc"
+Clearing it fixes the problem!
 
------BEGIN PGP SIGNATURE-----
+Thanks for the hint, although there is a still wider issue with this
+regression.
 
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmMB52AACgkQwfwUeK3K
-7AlYkAgAl3b1m0Z9dGXgA8Ow+PZpHzugctVa8JxnIglfdzeET6EKwJfIjmfoxxuW
-fOzmqpTygtOblKU96bo1iRgx5/PWlg0ozLzK6K7a5Ac1HDGMt1P98bDAHLCgdpxJ
-PfsuKRFdFYkRQ/HgUnUiPNbwfvhrSBaZ5nJYU2LMG4aWamz8VTQN/pictzNTl442
-vYNXdYslqTpNKE8nEN+5NbeGUY5A4SZV/Ka3YqMcrx3JBdKsEEfhhcm3zjdpRnUy
-dXEs6NvlXzOt5FBnmFeZh0RhTFWv/wCrRzmhtRBLya58cTvPB3tHYuOaxBLc2BDT
-dzkH8Lp5pI4x+yzSXxNLXq/QWvP8pQ==
-=fBdH
------END PGP SIGNATURE-----
+$ diff .config.old  .config
+353c353
+< CONFIG_GART_IOMMU=y
+---
+> # CONFIG_GART_IOMMU is not set
+4683d4682
+< CONFIG_IOMMU_HELPER=y
+4987d4985
+< # CONFIG_IOMMU_DEBUG is not set
+$
 
---ngxpe4bl247yovnx--
+-- 
+Alan J. Wylie                                          https://www.wylie.me.uk/
+
+Dance like no-one's watching. / Encrypt like everyone is.
+Security is inversely proportional to convenience
