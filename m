@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A1859B43E
-	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 16:05:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CDB959B43F
+	for <lists+stable@lfdr.de>; Sun, 21 Aug 2022 16:06:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231392AbiHUOFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Aug 2022 10:05:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56950 "EHLO
+        id S231298AbiHUOGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Aug 2022 10:06:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231298AbiHUOFr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 10:05:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 305E5101CE
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 07:05:45 -0700 (PDT)
+        with ESMTP id S231283AbiHUOGB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Aug 2022 10:06:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE0B6FD23
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 07:06:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFD9D60EC8
-        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 14:05:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8E58C433C1;
-        Sun, 21 Aug 2022 14:05:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D357B80D5B
+        for <stable@vger.kernel.org>; Sun, 21 Aug 2022 14:05:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3577BC433C1;
+        Sun, 21 Aug 2022 14:05:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661090744;
-        bh=AunMLXYGYhgm9dLVS9eLxSCIksjOp+FUJ9OGD+dHNf8=;
+        s=korg; t=1661090756;
+        bh=dWpPYhkEx4UVFLnoqfpyAMt+N63NvJwZcb4JGMQkhrc=;
         h=Subject:To:Cc:From:Date:From;
-        b=H6+gs506fB2wuilb1HgONR+P5r8hLJs6KeVuc/4xsnfzo1v4vZGzOj58m6ZX4L1Ox
-         WMB+UNfTNJlJc8lWe8193LMnHmYXcNRK///gj9sDtPZHzBn/ay032qR0pUyl+ZksYD
-         Rp/3czUm611S2XA3u3VpE76GNIiHaMb1rYmMuOTY=
-Subject: FAILED: patch "[PATCH] drm/i915/gt: Ignore TLB invalidations on idle engines" failed to apply to 4.9-stable tree
+        b=mHp7rfCEXi/rWXacGKP7v9dvCic8CJ7Q4uWcj+Xe8cAgNNJulAxG3aiYQ3GGRk/Hc
+         hXvUyD6nYM11I9bHP88muY64UGXznViRQxdbsNA4V64//iRxDa4RAFRD0OvA0OiVjE
+         o1KBqGMqZs6OYA89rYCYRlwtTLGqllY7zDIOMbb0=
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Invalidate TLB of the OA unit at TLB" failed to apply to 5.4-stable tree
 To:     chris.p.wilson@intel.com, andi.shyti@linux.intel.com,
         fei.yang@intel.com, mchehab@kernel.org, rodrigo.vivi@intel.com,
         thomas.hellstrom@linux.intel.com, tvrtko.ursulin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 21 Aug 2022 16:05:28 +0200
-Message-ID: <1661090728139226@kroah.com>
+Date:   Sun, 21 Aug 2022 16:05:53 +0200
+Message-ID: <16610907533668@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,151 +61,58 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From db100e28fdf026a1fc10657c5170bb1e65663805 Mon Sep 17 00:00:00 2001
+From 180abeb2c5032704787151135b6a38c6b71295a6 Mon Sep 17 00:00:00 2001
 From: Chris Wilson <chris.p.wilson@intel.com>
-Date: Wed, 27 Jul 2022 14:29:51 +0200
-Subject: [PATCH] drm/i915/gt: Ignore TLB invalidations on idle engines
+Date: Wed, 27 Jul 2022 14:29:53 +0200
+Subject: [PATCH] drm/i915/gt: Invalidate TLB of the OA unit at TLB
+ invalidations
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Check if the device is powered down prior to any engine activity,
-as, on such cases, all the TLBs were already invalidated, so an
-explicit TLB invalidation is not needed, thus reducing the
-performance regression impact due to it.
-
-This becomes more significant with GuC, as it can only do so when
-the connection to the GuC is awake.
+Ensure that the TLB of the OA unit is also invalidated
+on gen12 HW, as just invalidating the TLB of an engine is not
+enough.
 
 Cc: stable@vger.kernel.org
 Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
 Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
 Cc: Fei Yang <fei.yang@intel.com>
 Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
 Acked-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Acked-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/278a57a672edac75683f0818b292e95da583a5fe.1658924372.git.mchehab@kernel.org
-(cherry picked from commit 4bedceaed1ae1172cfe72d3ff752b3a1d32fe4d9)
+Link: https://patchwork.freedesktop.org/patch/msgid/59724d9f5cf1e93b1620d01b8332ac991555283d.1658924372.git.mchehab@kernel.org
+(cherry picked from commit dfc83de118ff7930acc9a4c8dfdba7c153aa44d6)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pages.c b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-index 97c820eee115..6835279943df 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-@@ -6,14 +6,15 @@
- 
- #include <drm/drm_cache.h>
- 
-+#include "gt/intel_gt.h"
-+#include "gt/intel_gt_pm.h"
-+
- #include "i915_drv.h"
- #include "i915_gem_object.h"
- #include "i915_scatterlist.h"
- #include "i915_gem_lmem.h"
- #include "i915_gem_mman.h"
- 
--#include "gt/intel_gt.h"
--
- void __i915_gem_object_set_pages(struct drm_i915_gem_object *obj,
- 				 struct sg_table *pages,
- 				 unsigned int sg_page_sizes)
-@@ -217,10 +218,11 @@ __i915_gem_object_unset_pages(struct drm_i915_gem_object *obj)
- 
- 	if (test_and_clear_bit(I915_BO_WAS_BOUND_BIT, &obj->flags)) {
- 		struct drm_i915_private *i915 = to_i915(obj->base.dev);
-+		struct intel_gt *gt = to_gt(i915);
- 		intel_wakeref_t wakeref;
- 
--		with_intel_runtime_pm_if_active(&i915->runtime_pm, wakeref)
--			intel_gt_invalidate_tlbs(to_gt(i915));
-+		with_intel_gt_pm_if_awake(gt, wakeref)
-+			intel_gt_invalidate_tlbs(gt);
- 	}
- 
- 	return pages;
 diff --git a/drivers/gpu/drm/i915/gt/intel_gt.c b/drivers/gpu/drm/i915/gt/intel_gt.c
-index 68c2b0d8f187..c4d43da84d8e 100644
+index c4d43da84d8e..1d84418e8676 100644
 --- a/drivers/gpu/drm/i915/gt/intel_gt.c
 +++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -12,6 +12,7 @@
+@@ -11,6 +11,7 @@
+ #include "pxp/intel_pxp.h"
  
  #include "i915_drv.h"
++#include "i915_perf_oa_regs.h"
  #include "intel_context.h"
-+#include "intel_engine_pm.h"
+ #include "intel_engine_pm.h"
  #include "intel_engine_regs.h"
- #include "intel_ggtt_gmch.h"
- #include "intel_gt.h"
-@@ -924,6 +925,7 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 	struct drm_i915_private *i915 = gt->i915;
- 	struct intel_uncore *uncore = gt->uncore;
- 	struct intel_engine_cs *engine;
-+	intel_engine_mask_t awake, tmp;
- 	enum intel_engine_id id;
- 	const i915_reg_t *regs;
- 	unsigned int num = 0;
-@@ -947,26 +949,31 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 
- 	GEM_TRACE("\n");
- 
--	assert_rpm_wakelock_held(&i915->runtime_pm);
--
- 	mutex_lock(&gt->tlb_invalidate_lock);
- 	intel_uncore_forcewake_get(uncore, FORCEWAKE_ALL);
- 
- 	spin_lock_irq(&uncore->lock); /* serialise invalidate with GT reset */
- 
-+	awake = 0;
- 	for_each_engine(engine, gt, id) {
- 		struct reg_and_bit rb;
- 
-+		if (!intel_engine_pm_is_awake(engine))
-+			continue;
-+
- 		rb = get_reg_and_bit(engine, regs == gen8_regs, regs, num);
- 		if (!i915_mmio_reg_offset(rb.reg))
- 			continue;
- 
- 		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
-+		awake |= engine->mask;
+@@ -969,6 +970,15 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
+ 		awake |= engine->mask;
  	}
  
++	/* Wa_2207587034:tgl,dg1,rkl,adl-s,adl-p */
++	if (awake &&
++	    (IS_TIGERLAKE(i915) ||
++	     IS_DG1(i915) ||
++	     IS_ROCKETLAKE(i915) ||
++	     IS_ALDERLAKE_S(i915) ||
++	     IS_ALDERLAKE_P(i915)))
++		intel_uncore_write_fw(uncore, GEN12_OA_TLB_INV_CR, 1);
++
  	spin_unlock_irq(&uncore->lock);
  
--	for_each_engine(engine, gt, id) {
-+	for_each_engine_masked(engine, gt, awake, tmp) {
-+		struct reg_and_bit rb;
-+
- 		/*
- 		 * HW architecture suggest typical invalidation time at 40us,
- 		 * with pessimistic cases up to 100us and a recommendation to
-@@ -974,12 +981,8 @@ void intel_gt_invalidate_tlbs(struct intel_gt *gt)
- 		 */
- 		const unsigned int timeout_us = 100;
- 		const unsigned int timeout_ms = 4;
--		struct reg_and_bit rb;
- 
- 		rb = get_reg_and_bit(engine, regs == gen8_regs, regs, num);
--		if (!i915_mmio_reg_offset(rb.reg))
--			continue;
--
- 		if (__intel_wait_for_register_fw(uncore,
- 						 rb.reg, rb.bit, 0,
- 						 timeout_us, timeout_ms,
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt_pm.h b/drivers/gpu/drm/i915/gt/intel_gt_pm.h
-index bc898df7a48c..a334787a4939 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt_pm.h
-+++ b/drivers/gpu/drm/i915/gt/intel_gt_pm.h
-@@ -55,6 +55,9 @@ static inline void intel_gt_pm_might_put(struct intel_gt *gt)
- 	for (tmp = 1, intel_gt_pm_get(gt); tmp; \
- 	     intel_gt_pm_put(gt), tmp = 0)
- 
-+#define with_intel_gt_pm_if_awake(gt, wf) \
-+	for (wf = intel_gt_pm_get_if_awake(gt); wf; intel_gt_pm_put_async(gt), wf = 0)
-+
- static inline int intel_gt_pm_wait_for_idle(struct intel_gt *gt)
- {
- 	return intel_wakeref_wait_for_idle(&gt->wakeref);
+ 	for_each_engine_masked(engine, gt, awake, tmp) {
 
