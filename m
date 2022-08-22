@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC9359BF1F
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:00:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F1359BF40
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:08:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234843AbiHVL7p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 07:59:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38284 "EHLO
+        id S234862AbiHVMHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 08:07:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234856AbiHVL7n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 07:59:43 -0400
+        with ESMTP id S234933AbiHVMGo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:06:44 -0400
 Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94FC82409B;
-        Mon, 22 Aug 2022 04:59:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF5143055F;
+        Mon, 22 Aug 2022 05:06:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1661169559;
-        bh=55muDY/ySML+7EMD98wouKtWDQPnhZsyR2VnvOweULg=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=kE87WRRkeVHJ/AH2I3Pk666R+8W0sNBXS3BfVooHZhCYDobfNDwPCsUUrBqAOHVYd
-         R+Xifr3xdXEG0pDnEOPZ1ElirfGuSx/xneHAhLKpuM7ojInoxTVA8oSW7zHHxy/AhO
-         t7OPT3Y0oblG0PGif40+8B9jvAkP1qOir29LTp/c=
+        s=badeba3b8450; t=1661169980;
+        bh=hhrfKulgIvWnC29k0lTd5flxmJIeXghHePCBFVX3MSg=;
+        h=X-UI-Sender-Class:Date:To:Cc:References:From:Subject:In-Reply-To;
+        b=fy/jpVlBlBOE+JOCKZSCQfmVJf3HF8iochCZcjb53yOfQqDy+X4au1l9yG/WTsK07
+         l3d5WCgA20hCqWxh4W+VpUulwweDWZ1JswcIBsrhiZB8OTMqts9OZXtzxVz8+IZgCl
+         ViIj8rtP3KrJZ3Q9inU4zF8d11oa7qnqQ7a/Q+04=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
 Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx105
- [212.227.17.174]) with ESMTPSA (Nemesis) id 1MqJmF-1pBmmD1Q5T-00nNJX; Mon, 22
- Aug 2022 13:59:18 +0200
-Message-ID: <a002f2a6-7c5f-c8f1-f331-7f1ca47132f9@gmx.com>
-Date:   Mon, 22 Aug 2022 19:59:14 +0800
+ [212.227.17.174]) with ESMTPSA (Nemesis) id 1M9nxt-1oVJFu464b-005p3D; Mon, 22
+ Aug 2022 14:06:20 +0200
+Message-ID: <c150cfb1-f719-6cd5-41ca-ca6ca23a4792@gmx.com>
+Date:   Mon, 22 Aug 2022 20:06:15 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.12.0
-Subject: Re: LTS kernel Linux 4.14.290 unable to boot with edk2-ovmf (x86_64
- UEFI runtime)
 Content-Language: en-US
 To:     Willy Tarreau <w@1wt.eu>
 Cc:     Greg KH <gregkh@linuxfoundation.org>,
@@ -42,36 +40,36 @@ Cc:     Greg KH <gregkh@linuxfoundation.org>,
 References: <2d6012e8-805d-4225-80ed-d317c28f1899@gmx.com>
  <YwMhXX6OhROLZ/LR@kroah.com> <1ed5a33a-b667-0e8e-e010-b4365f3713d6@gmx.com>
  <YwMxRAfrrsPE6sNI@kroah.com> <8aff5c17-d414-2412-7269-c9d15f574037@gmx.com>
- <20220822080456.GB17080@1wt.eu>
- <4c42af33-dc05-315a-87d9-be0747a74df4@gmx.com>
- <20220822083044.GC17080@1wt.eu>
- <9aa83875-0a05-6b28-b4df-4071ba8ee343@gmx.com>
- <20220822115326.GD17080@1wt.eu>
+ <YwM3DwvPIGkfE4Tu@kroah.com> <acc6051b-748f-4f06-63b3-919eb831217c@gmx.com>
+ <YwNFxIouYoRo/wT+@kroah.com> <34793a7b-64e4-f1cb-b84e-5804b4f6fac3@gmx.com>
+ <20220822115811.GE17080@1wt.eu>
 From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
-In-Reply-To: <20220822115326.GD17080@1wt.eu>
+Subject: Re: LTS kernel Linux 4.14.290 unable to boot with edk2-ovmf (x86_64
+ UEFI runtime)
+In-Reply-To: <20220822115811.GE17080@1wt.eu>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:eIlOP7EvzP5ueZ1cEazO+3tjXliFXEve5LYT4WlWFKv2M2wae6i
- KRM34pNWnQM9bJprT4j4WL38c/B/VepQbB2p224NMOiBUeWviuVFjisDSg+PNKOhDgzaX1J
- DhNnEv8kISY/6srMavgVNj/qFe3+By6iKYrZ+BGWksqKoru6FH6T8wCsPQlNn7vNq7waPMb
- ZVbgPgl/rh8hdyhi4OLgw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:5WG29oMkM7I=:WgGbrlNFXNhi7sufw9qC9q
- PmFhODQZ65E0Tf8ZaGg7uUKKIDAyiV6NyLTEposwG5JnapLkIkF331q1mCsDBh0DRKgVfRXC8
- 4aoQbbj+5njDFg+PhdC5NfGatOAOQFgeL8zv910jRysthRmGML9e55yBEBF4Vu1yqIuksiMz7
- okDONN3NEIJWfWWzQb4OvBneJJ7kHcUm3BvbEZ1K39+WEC3QC/CkcPXLPRvTivfsZaH+rDCNE
- yObJfJZYCB9j/uuYa0Brla1AjnTp+X6edX/0llJ9LJJ9DwKWuW+82VZOI0OSy9aObw/Pv9GSc
- 2ubhRFHuxp5KJg2kdN3sFLIEtuLfBgBg4O+Yuap25dAbnCi+OUqHyZjW41sJG+B6uCpoWJbGl
- j74+sNdUJABDsZHjXYAFshUWQbJvjm2kL8EKCUPuegmHZHgve4zI1SYHx3XUlXHvtDqYZ6tuL
- xi76jlvLUIsKKIUUWuW12YjDkAXnRwvL/meGJbd7CDOUW0IMjJnPOQ2T4brsDDzuDEl5XnEv8
- tpFZlOOEv30LBQ+21REFdaFrHCZT5Ww2FpLinDqOVT7FmBP/W+BmN89A6UjkQsiPim5IrXrqJ
- +Zfwvqsg5TXKP/jpk04Xc9el+Pyq3VuVa/O7hyrFDSrrNRBTBWAbuFoWP4ufFqY7X8W/vNL14
- vdAMx1fR4G0GZMPsSmDBEmjXbv4OGEbem30bFUqOLgBqXdPtMKeWhmSh9Bx9iuQifQ4KxGm2u
- tGpCMx/FiIhIdx83J4Rdl8tIK2CUa5Jqq+LCpnH714Cq8ktpfKu1CYUKf0IP0qS59XRT1xN0A
- zyJa3RMDKFnjMx/y6a4N8yuPx/XXrIt28MJ+64z2rp+O+Ky7Y5J7ju2pWHHK/sd820yq1UvGx
- DTsQ6ef2e8+ic/C0ovFYGrxxfd+hEh2umWnn0nlbsf5ALkXX23nnXypnGRikqCASPBNhWdEi+
- lanAUoo5R1BT9oKzwx3X50mj/iUDFoVX08LD+ykfDv/pDvKtt/A/jTOPmTGLW8edIdL6HfErZ
- JtyfWE4CvHx84p/hkEf5y4WMzgneVpKNnRw3YYec21ob0UmlnGqZKa+FxPNakfq2gy5oJoDR0
- 1lPN5A5l8QUPi7v97kIgRblibEmaCjgbn39vfUA4IVJevLm7ydIPPCpvg==
+X-Provags-ID: V03:K1:NsbTg2Iway9vOeR2iqUbct9/YeyiOtQeRSeYJm5cw0TQCp6poRZ
+ oQC7O7aVqzYsu6sC7gn2sKx1o0vjKKfp1PIZsbACJ1yvmER+GwfAmU+MzHl37Eft3o7w16F
+ NRVCUaTBOkCfP6uFcp8y6r0da/BzTI8sU0aiHH80buVxXfjidOO5zw1vmhEF/3vxoFxxZVv
+ oIMZFbD9Qm61NDItjHPrA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:Q9ilmBReL2I=:C5smlabipydkaMl6KC6s7r
+ k5Xe1Znp05bOz+gZUtOKRIbY2eQEAqcFpEJYjSwSmdRqp5Z7Kq8i5CZKHaqj2nhx14zKMb59G
+ mLXgbwL5dnt12043384QA/Du9FuCadN1Vx+9QbnROVhivm5AYGfFIJA4e3fRva0IMQcEOeo4e
+ 3o9UFoE4rIhBQD7KvmzhPBbdnTqMhKg/Fq+IXhuspj4XDFa2imV/hyfvfs0CtT/98K0fAgPzI
+ 63EQazp8k8rVLXZM9vMwyxG/VeilxfDFqkhaQj6PI5L/7vcRKq8g3ngtAjlNxTUiNGDguOcV0
+ 5+xr1LTyubVDK8KDoO8VnryI/Rgw3lFDMKTpoL/vRrQC5zRXps29S+cKZLoF+eszWJELEh+ii
+ uoBo7yBWf0eHPpsSSHf19nxVwI2UN72kbBybauXvtr9trGM3bvuUggugdQsU+QKXYVVhRlhm2
+ 3mM8UEfl840eBjSD21CiG4Q7OYrnp3lXjfJ0/TUELC6P54Fnb95njN7Oo6A+FDdVs+IMtaKp/
+ HQ6i9WlrkzUdG64VMrUA5LtXXIMAe7eK+G7HHxin280JQulggxWwckAFUnVsAjicuVpisihND
+ Rv3XcKxyJsYDsZ2uYH/1wt+iyuk/Qmoanaaf/n7BPb/yAuG2x7UxZnGmBy7BZsrpsznuGDkx8
+ g8TeCyiJxDtSCTbY71+YyQaLvKiCmnhpd/Q9D/FpSI3AJkJXh05+9F3IAXgFlWdwtmLRRf875
+ aF2tlxJaQm9dWiFTVl+CoVpZIZy/lV9BvZjkAr5cJ/k77twBxkQPhlKi4nhqvhAJKNkZHuhPJ
+ RN6HQkFzgxkJ6xrTc/8Z6d230OF5+P8v0iHHGsViSneiXNlMRZh80ugpzrduKQ+IYg8ITM9f9
+ x8cyP9iuFjC/F86pCTZWm5ft3iuE4/rh+y51YDbb1cubbNxUEkboaZ6C7Q14hIEpOVVH3voNY
+ o6QKuJDaEK3UyeKZnM1SDemq0Il+uDpr/ri8MnRrC2/IKKTwx1ooYVw35Rx/StiK5petuxzmR
+ zH4Dza6eTPRhzcSrpJRFoCqvsXMwuW0oQOfV4NNafqsqNc4kYUu0MpNJ/OK2QiurbMYlvX9t/
+ K29agjHtv1vTV/s917uvq0bUSCGkSF7fNu5DNXOSBayTLfvV9BpMzqHRg==
 X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -84,66 +82,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 
-On 2022/8/22 19:53, Willy Tarreau wrote:
-> On Mon, Aug 22, 2022 at 07:07:19PM +0800, Qu Wenruo wrote:
+On 2022/8/22 19:58, Willy Tarreau wrote:
+> On Mon, Aug 22, 2022 at 07:43:18PM +0800, Qu Wenruo wrote:
+>> Tried to compile gcc10 from AUR, which failed to compile.
 >>
 >>
->> On 2022/8/22 16:30, Willy Tarreau wrote:
->>> On Mon, Aug 22, 2022 at 04:19:49PM +0800, Qu Wenruo wrote:
->>>>> Regardless, if you need an older compiler, just use these ones:
->>>>>
->>>>>       https://mirrors.edge.kernel.org/pub/tools/crosstool/
->>>>>
->>>>> They go back to 4.9.4 for x86, you'll surely find the right one for =
-your
->>>>> usage. I've long used 4.7.4 for kernels up to 4.9 and 6.5 for 4.19 a=
-nd
->>>>> above, so something within that area will surely match your needs.
->>>>
->>>> BTW, it would be way more awesome if the page can provide some hint o=
-n
->>>> the initial release date of the compilers.
->>>>
->>>> It would help a lot of choose the toolchain then.
->>>
->>> It wouldn't help, if you look closely, you'll notice that in the "othe=
-r
->>> releases" section you have the most recent version of each of them. Th=
-at
->>> does not preclude the existence of the branch earlier. For example gcc=
--9
->>> was released in 2019 and 9.5 was emitted 3 years later. That's quite a=
-n
->>> amplitude that doesn't help.
+>> Anyway, thanks to the advice from Willy, I got the pre-built crosstool
+>> (gcc 7.5) set up, with some small tweaks like disabling
+>> CONFIG_RANDOMIZE_BASE to workaround the RELOCS failure, it at least
+>> compiles for v4.14.0.
 >>
->> Maybe I'm totally wrong, but if GCC10.1 is released May 2020, and even
->> 10.4 is released 2022, then shouldn't we expect the kernel releases
->> around 2020 can be compiled for all GCC 10.x releases?
+>> Although there is still warning from test_gen_len:
 >>
->> Thus the initial release date should be a good enough hint for most cas=
-es.
+>>   Warning: ffffffff818158cc:	0f ff e9             	ud0    %ecx,%ebp
+>>   Warning: objdump says 3 bytes, but insn_get_length() says 2
+>>   Warning: arch/x86/tools/test_get_len found difference at
+>> <cpu_idle_poll>:ffffffff818159b0
 >
-> If you speak about initial release, yes that should generally be a valid
-> assumption.
+> Strange, sounds like a binutils issue though I could be wrong.
+
+I'm using CROSS_COMPILE=3D option, which should cover the objdump from the
+prebuilt "x86_64-linux-objdump" from that precompiled 7.5 crosstool.
+
 >
->> If go this method, for v4.14 I guess I should go gcc 7.x, as gcc 7.1 is
->> released May 2017, even the latest 7.5 is released 2019.
+>> And unfortunately v4.14 still fails to boot, even with GCC 7.5, which
+>> provides an almost perfect (except above wanrings) build.
+>>
+>> I also tried to reduce the CPUid, from host-passthru to qemu64, and
+>> rebuild, no change (same test_get_len wanrings, same boot failure).
+>>
+>> No clue at all now, would try older debian in a VM then.
 >
-> Then it should definitely work. But I think you're spending way too much
-> time comparing dates and discussing on the subject. By the time it took
-> to check these dates, you could already have downloaded one such compile=
-r
-> and built a kernel to verify it did build correctly ;-)
+> I suggest that instead of switching distros you should rather first
+> try 4.14.0 to verify if there was a regression affecting your system.
 
-That's completely true.
+Already tried, the v4.14 above really means v4.14.0 (aka v4.14 tag
+directly from upstream, not from stable).
 
-Except the fact that, even with time period correct tool chain (gcc
-7.5), the compiled v4.14.x kernel (tried both 4.14.0 and latest
-4.14.290), neither can boot nor cause any early boot message to pop up. :(
+And the latest v4.14.290 can not boot neither, even rebuilt using that
+toolchain.
 
-Anyway, thank you very much for the toolchain part, it would definitely
-help for my future adventure related to stable kernels (looking at tons
-of v4.12 related branches with sad face).
+> And if so, then a bisect will certainly be welcome. If it still does
+> not work, then maybe a different distro could help, though I doubt it.
+
+Will try debian for now, or even try some older hardware if I could find..=
+.
 
 Thanks,
 Qu
