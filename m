@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62A5F59BC09
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:52:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E7D059BC0E
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:52:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232555AbiHVIvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:51:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33402 "EHLO
+        id S233841AbiHVIvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:51:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233801AbiHVIvp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:51:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEB7AE01B
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:51:44 -0700 (PDT)
+        with ESMTP id S232555AbiHVIvo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:51:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED9F17061
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:51:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5285A6106C
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:51:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D4AC433D6;
-        Mon, 22 Aug 2022 08:51:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D54D0B80EDE
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:51:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DCB0C43470;
+        Mon, 22 Aug 2022 08:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661158303;
-        bh=DzXn+1hX10ApYrpWI+LuCQve94vg3u8ZNewid5fStd4=;
+        s=korg; t=1661158300;
+        bh=8V2XbWlNgx4aC7cLaf4DUPq0eH2dX3t5Bep92Xjdvn0=;
         h=Subject:To:Cc:From:Date:From;
-        b=loAI2ecUdIMteO88HKP4i6eF3lIYGwiUn5IYA3Rnh0m4bi1GpmNSr6kBeJZuaNroC
-         KBlbJXE4AxAPUI+DXvvEeNiB5V1idyrFZyLhUIUWhDocGaCbEJzdnTuy0E656N67uH
-         91w6nl16Z6TlpjUAXsUs3t9Pvc+Nbw9EgG8ZhF8s=
-Subject: FAILED: patch "[PATCH] vxlan: do not use RT_TOS for IPv6 flowlabel" failed to apply to 4.14-stable tree
+        b=Z/ES6RWKzrZfIxLj9A9hWyy8aIuFMhORzWGjvo95LZd+emsXneytlQapihnowAoKC
+         VXQ6x1FDf6xwakwt6B1GcZYceC5U77zY4YZGMcLuPT6MSh/bm7p8xKMLWyZuelJQKL
+         YRgGmnZAYxXKm6BMMuUOzSCCcOiAUs7aqXuyGZCo=
+Subject: FAILED: patch "[PATCH] vxlan: do not use RT_TOS for IPv6 flowlabel" failed to apply to 4.9-stable tree
 To:     matthias.may@westermo.com, gnault@redhat.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 22 Aug 2022 10:51:28 +0200
-Message-ID: <16611582889796@kroah.com>
+Message-ID: <16611582881125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
