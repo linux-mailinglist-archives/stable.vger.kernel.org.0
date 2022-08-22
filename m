@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5DE159BC38
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 11:04:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E82359BC67
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 11:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233062AbiHVJEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 05:04:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49552 "EHLO
+        id S234308AbiHVJMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 05:12:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234142AbiHVJD7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 05:03:59 -0400
+        with ESMTP id S234328AbiHVJMM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 05:12:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20A77175B7
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 02:03:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5643A2F67E
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 02:11:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B00AA60E94
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 09:03:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4968C433C1;
-        Mon, 22 Aug 2022 09:03:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F6C060EAC
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 09:11:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 392F4C433D7;
+        Mon, 22 Aug 2022 09:11:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661159037;
-        bh=kf7iqgYdlZEct9SQhcEYyEAf497CAVp6Y7yho+erGrk=;
+        s=korg; t=1661159512;
+        bh=lXvfGuI6OPIeUVw0TCOLfzdflQveF5PQdN7eeGRml1Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=vC7DzqyKtCp4qCNEg2z1ZWZc8jXL7P+tEbdpMzvX1Z4/LigGpwjEHWwz0KB3UJEkp
-         T5Ef72duMrIzj6vnvqDqPjz/WaS+3XWX9dIWPtjjrlT++BBE7jGUtWYqima9ekNK7p
-         jjwKGsLOtNbwIaa49CVrL4WW14ZdktidVt25jtks=
-Subject: FAILED: patch "[PATCH] tcp: fix possible freeze in tx path under memory pressure" failed to apply to 5.19-stable tree
-To:     edumazet@google.com, davem@davemloft.net, shakeelb@google.com,
-        soheil@google.com, weiwan@google.com
+        b=vpsB+yLvkrjHFRAmaDld6kywQ1XcbtjuppLNsI9eZN5KjXQ9sk5ncX5BDgweBTUX0
+         uuRnrOYN954BX8t90x22otLWPVSK7rXrf1ueqp+Gnjny6gGo1bfWfV4YGjmKMhIib0
+         iJ3mlKVEw51mj9TTmCKdH+wtVaAn4ks8vO+/7CN0=
+Subject: FAILED: patch "[PATCH] ceph: don't truncate file in atomic_open" failed to apply to 5.19-stable tree
+To:     sehuww@mail.scut.edu.cn, idryomov@gmail.com, xiubli@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 11:03:54 +0200
-Message-ID: <1661159034153194@kroah.com>
+Date:   Mon, 22 Aug 2022 11:11:17 +0200
+Message-ID: <1661159477244209@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,65 +59,47 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f54755f6a11accb2db5ef17f8f75aad0875aefdc Mon Sep 17 00:00:00 2001
-From: Eric Dumazet <edumazet@google.com>
-Date: Tue, 14 Jun 2022 10:17:34 -0700
-Subject: [PATCH] tcp: fix possible freeze in tx path under memory pressure
+From 7cb9994754f8a36ae9e5ec4597c5c4c2d6c03832 Mon Sep 17 00:00:00 2001
+From: Hu Weiwen <sehuww@mail.scut.edu.cn>
+Date: Fri, 1 Jul 2022 10:52:27 +0800
+Subject: [PATCH] ceph: don't truncate file in atomic_open
 
-Blamed commit only dealt with applications issuing small writes.
+Clear O_TRUNC from the flags sent in the MDS create request.
 
-Issue here is that we allow to force memory schedule for the sk_buff
-allocation, but we have no guarantee that sendmsg() is able to
-copy some payload in it.
+`atomic_open' is called before permission check. We should not do any
+modification to the file here. The caller will do the truncation
+afterward.
 
-In this patch, I make sure the socket can use up to tcp_wmem[0] bytes.
+Fixes: 124e68e74099 ("ceph: file operations")
+Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 
-For example, if we consider tcp_wmem[0] = 4096 (default on x86),
-and initial skb->truesize being 1280, tcp_sendmsg() is able to
-copy up to 2816 bytes under memory pressure.
-
-Before this patch a sendmsg() sending more than 2816 bytes
-would either block forever (if persistent memory pressure),
-or return -EAGAIN.
-
-For bigger MTU networks, it is advised to increase tcp_wmem[0]
-to avoid sending too small packets.
-
-v2: deal with zero copy paths.
-
-Fixes: 8e4d980ac215 ("tcp: fix behavior for epoll edge trigger")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Reviewed-by: Wei Wang <weiwan@google.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index b278063a1724..6c3eab485249 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -968,6 +968,23 @@ static int tcp_wmem_schedule(struct sock *sk, int copy)
- 	return min(copy, sk->sk_forward_alloc);
- }
- 
-+static int tcp_wmem_schedule(struct sock *sk, int copy)
-+{
-+	int left;
-+
-+	if (likely(sk_wmem_schedule(sk, copy)))
-+		return copy;
-+
-+	/* We could be in trouble if we have nothing queued.
-+	 * Use whatever is left in sk->sk_forward_alloc and tcp_wmem[0]
-+	 * to guarantee some progress.
+diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+index cd025ff25bf0..b4e978420802 100644
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -749,6 +749,11 @@ int ceph_atomic_open(struct inode *dir, struct dentry *dentry,
+ 	err = ceph_wait_on_conflict_unlink(dentry);
+ 	if (err)
+ 		return err;
++	/*
++	 * Do not truncate the file, since atomic_open is called before the
++	 * permission check. The caller will do the truncation afterward.
 +	 */
-+	left = sock_net(sk)->ipv4.sysctl_tcp_wmem[0] - sk->sk_wmem_queued;
-+	if (left > 0)
-+		sk_forced_mem_schedule(sk, min(left, copy));
-+	return min(copy, sk->sk_forward_alloc);
-+}
-+
- static struct sk_buff *tcp_build_frag(struct sock *sk, int size_goal, int flags,
- 				      struct page *page, int offset, size_t *size)
- {
++	flags &= ~O_TRUNC;
+ 
+ 	if (flags & O_CREAT) {
+ 		if (ceph_quota_is_max_files_exceeded(dir))
+@@ -824,9 +829,7 @@ int ceph_atomic_open(struct inode *dir, struct dentry *dentry,
+ 	}
+ 
+ 	set_bit(CEPH_MDS_R_PARENT_LOCKED, &req->r_req_flags);
+-	err = ceph_mdsc_do_request(mdsc,
+-				   (flags & (O_CREAT|O_TRUNC)) ? dir : NULL,
+-				   req);
++	err = ceph_mdsc_do_request(mdsc, (flags & O_CREAT) ? dir : NULL, req);
+ 	if (err == -ENOENT) {
+ 		dentry = ceph_handle_snapdir(req, dentry);
+ 		if (IS_ERR(dentry)) {
 
