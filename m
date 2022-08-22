@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB3FD59BC11
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:52:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D91D359BC0A
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:52:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233917AbiHVIwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:52:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33638 "EHLO
+        id S233266AbiHVIv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:51:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233844AbiHVIwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:52:01 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DC0F9FCB
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:52:00 -0700 (PDT)
+        with ESMTP id S233884AbiHVIvz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:51:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 073D313F12
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:51:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 12BE5CE1021
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:51:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3645C433C1;
-        Mon, 22 Aug 2022 08:51:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9383661068
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:51:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B391C433D6;
+        Mon, 22 Aug 2022 08:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661158317;
-        bh=/E9Q9IO1FiqDNW5cXQPvnrlfbDcl81aol4QiRu2tpKQ=;
+        s=korg; t=1661158314;
+        bh=6ZmrAoQNWwrjhBAU3Cs+5xI/oujQLN4GYAu1Mu+uDw4=;
         h=Subject:To:Cc:From:Date:From;
-        b=EC7zVbIrHHVMlnXqEZiSso2eYqusTBYRfd32w+jCH17N1xGY8z9yvZ/tKhza1tgVm
-         EeE6uQsutS5s2wH5ViZM9FyReyoHbxoLIUCRzyIIPb8nfhaKHtN/UyCfZGiQFDxtpc
-         yu6XVm4kIYQTmWkPA1UJdnD4gjs40PY2QMhYbvDM=
-Subject: FAILED: patch "[PATCH] mlx5: do not use RT_TOS for IPv6 flowlabel" failed to apply to 4.19-stable tree
+        b=DtTJA7nscB9jqgpMCZUkET1800XdRCLIGsnWu2JqT2K2BFAWb0SuAd8aw3LyPWtaJ
+         3UEhobwE1NQpddNb2VCT17XMzPE7hp+gbSnAkdFOy22to8XnNvAa3bsS2q5VJa/H2o
+         jZzqgQKXYc71X66zSso4tNEUpNtiJHwaj/nLhGPY=
+Subject: FAILED: patch "[PATCH] mlx5: do not use RT_TOS for IPv6 flowlabel" failed to apply to 4.14-stable tree
 To:     matthias.may@westermo.com, gnault@redhat.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 22 Aug 2022 10:51:42 +0200
-Message-ID: <1661158302377@kroah.com>
+Message-ID: <166115830276152@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
