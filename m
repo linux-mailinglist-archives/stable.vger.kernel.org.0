@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16E9059BD5A
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 12:08:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C38E059BD60
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 12:09:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234583AbiHVKIw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 06:08:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37092 "EHLO
+        id S234598AbiHVKJW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 06:09:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234502AbiHVKIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 06:08:45 -0400
+        with ESMTP id S234599AbiHVKIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 06:08:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FF7DDF8E
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 03:08:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EC3312D0D
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 03:08:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE79960EA6
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 10:08:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 007B6C433D6;
-        Mon, 22 Aug 2022 10:08:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15BB260EA6
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 10:08:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BBEEC433C1;
+        Mon, 22 Aug 2022 10:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661162923;
-        bh=2kTzZF0H5bFizVCCSE1kCJt+PdAFBDnSlJaTuk4JzS0=;
+        s=korg; t=1661162926;
+        bh=pwVT2L2rXOLc6nl7t+/itbp/TyidjH0olwTJjtbkqco=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ww4ZRg0PbAn+IenbU6ArUk79D30dj/zYSkMP/AQOci0sQKMSKoJj/RntQhFR/1SAn
-         ijLbG43Xx4QzUoi23e4P2KWgAXt6KJdQAmVDCu+I2Fby1WxrppK4oaktu9TJHovujR
-         /j6MiKmholTXPANPo4lD+xPBjphjlqzdLl+HN0/A=
-Subject: FAILED: patch "[PATCH] fs/ntfs3: Check reserved size for maximum allowed" failed to apply to 5.15-stable tree
+        b=v0yZu/iTptnnqZXPz+M2OaS1nwl/l747ndpvEazd64KT705H8ZUDUIafiz6KpYVWV
+         XmmqPJYIS3UGzB4M31ESE+wP5ro9Nzm5ApAKJUrVMeEwl3mhsQkP9pczzXIDxFuV6o
+         M28QyiJDtNCYdLZKKhrtbiffT5jAO295rtahKrnE=
+Subject: FAILED: patch "[PATCH] fs/ntfs3: extend ni_insert_nonresident to return inserted" failed to apply to 5.19-stable tree
 To:     almaz.alexandrovich@paragon-software.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 12:08:33 +0200
-Message-ID: <1661162913116165@kroah.com>
+Date:   Mon, 22 Aug 2022 12:08:40 +0200
+Message-ID: <1661162920159198@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,59 +59,179 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 13747aac8984e069427e5de5d68bb6cefa98551e Mon Sep 17 00:00:00 2001
+From c1e0ab3789215a3dfbe95f226955e93ea4803391 Mon Sep 17 00:00:00 2001
 From: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Date: Thu, 12 May 2022 19:18:11 +0300
-Subject: [PATCH] fs/ntfs3: Check reserved size for maximum allowed
+Date: Fri, 13 May 2022 18:25:04 +0300
+Subject: [PATCH] fs/ntfs3: extend ni_insert_nonresident to return inserted
+ ATTR_LIST_ENTRY
 
-Also don't mask EFBIG
-Fixes xfstest generic/485
-Fixes: 4342306f0f0d ("fs/ntfs3: Add file operations and implementation")
+Fixes xfstest generic/300
+Fixes: 4534a70b7056 ("fs/ntfs3: Add headers and misc files")
 
 Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 
 diff --git a/fs/ntfs3/attrib.c b/fs/ntfs3/attrib.c
-index 3e9aefcb3e6c..c9b718143603 100644
+index c9b718143603..ad713f620155 100644
 --- a/fs/ntfs3/attrib.c
 +++ b/fs/ntfs3/attrib.c
-@@ -2114,9 +2114,11 @@ int attr_insert_range(struct ntfs_inode *ni, u64 vbo, u64 bytes)
+@@ -320,7 +320,7 @@ int attr_make_nonresident(struct ntfs_inode *ni, struct ATTRIB *attr,
  
- 	if (!attr_b->non_res) {
- 		data_size = le32_to_cpu(attr_b->res.data_size);
-+		alloc_size = data_size;
- 		mask = sbi->cluster_mask; /* cluster_size - 1 */
- 	} else {
- 		data_size = le64_to_cpu(attr_b->nres.data_size);
-+		alloc_size = le64_to_cpu(attr_b->nres.alloc_size);
- 		mask = (sbi->cluster_size << attr_b->nres.c_unit) - 1;
+ 	err = ni_insert_nonresident(ni, attr_s->type, attr_name(attr_s),
+ 				    attr_s->name_len, run, 0, alen,
+-				    attr_s->flags, &attr, NULL);
++				    attr_s->flags, &attr, NULL, NULL);
+ 	if (err)
+ 		goto out3;
+ 
+@@ -637,7 +637,7 @@ int attr_set_size(struct ntfs_inode *ni, enum ATTR_TYPE type,
+ 		/* Insert new attribute segment. */
+ 		err = ni_insert_nonresident(ni, type, name, name_len, run,
+ 					    next_svcn, vcn - next_svcn,
+-					    attr_b->flags, &attr, &mi);
++					    attr_b->flags, &attr, &mi, NULL);
+ 		if (err)
+ 			goto out;
+ 
+@@ -855,7 +855,7 @@ int attr_data_get_block(struct ntfs_inode *ni, CLST vcn, CLST clen, CLST *lcn,
+ 		goto out;
  	}
  
-@@ -2130,6 +2132,13 @@ int attr_insert_range(struct ntfs_inode *ni, u64 vbo, u64 bytes)
- 		return -EINVAL;
+-	asize = le64_to_cpu(attr_b->nres.alloc_size) >> sbi->cluster_bits;
++	asize = le64_to_cpu(attr_b->nres.alloc_size) >> cluster_bits;
+ 	if (vcn >= asize) {
+ 		err = -EINVAL;
+ 		goto out;
+@@ -1047,7 +1047,7 @@ int attr_data_get_block(struct ntfs_inode *ni, CLST vcn, CLST clen, CLST *lcn,
+ 	if (evcn1 > next_svcn) {
+ 		err = ni_insert_nonresident(ni, ATTR_DATA, NULL, 0, run,
+ 					    next_svcn, evcn1 - next_svcn,
+-					    attr_b->flags, &attr, &mi);
++					    attr_b->flags, &attr, &mi, NULL);
+ 		if (err)
+ 			goto out;
+ 	}
+@@ -1647,7 +1647,7 @@ int attr_allocate_frame(struct ntfs_inode *ni, CLST frame, size_t compr_size,
+ 	if (evcn1 > next_svcn) {
+ 		err = ni_insert_nonresident(ni, ATTR_DATA, NULL, 0, run,
+ 					    next_svcn, evcn1 - next_svcn,
+-					    attr_b->flags, &attr, &mi);
++					    attr_b->flags, &attr, &mi, NULL);
+ 		if (err)
+ 			goto out;
+ 	}
+@@ -1812,18 +1812,12 @@ int attr_collapse_range(struct ntfs_inode *ni, u64 vbo, u64 bytes)
+ 				err = ni_insert_nonresident(
+ 					ni, ATTR_DATA, NULL, 0, run, next_svcn,
+ 					evcn1 - eat - next_svcn, a_flags, &attr,
+-					&mi);
++					&mi, &le);
+ 				if (err)
+ 					goto out;
+ 
+ 				/* Layout of records maybe changed. */
+ 				attr_b = NULL;
+-				le = al_find_ex(ni, NULL, ATTR_DATA, NULL, 0,
+-						&next_svcn);
+-				if (!le) {
+-					err = -EINVAL;
+-					goto out;
+-				}
+ 			}
+ 
+ 			/* Free all allocated memory. */
+@@ -1936,9 +1930,10 @@ int attr_punch_hole(struct ntfs_inode *ni, u64 vbo, u64 bytes, u32 *frame_size)
+ 	struct ATTRIB *attr = NULL, *attr_b;
+ 	struct ATTR_LIST_ENTRY *le, *le_b;
+ 	struct mft_inode *mi, *mi_b;
+-	CLST svcn, evcn1, vcn, len, end, alen, dealloc;
++	CLST svcn, evcn1, vcn, len, end, alen, dealloc, next_svcn;
+ 	u64 total_size, alloc_size;
+ 	u32 mask;
++	__le16 a_flags;
+ 
+ 	if (!bytes)
+ 		return 0;
+@@ -2001,6 +1996,7 @@ int attr_punch_hole(struct ntfs_inode *ni, u64 vbo, u64 bytes, u32 *frame_size)
+ 
+ 	svcn = le64_to_cpu(attr_b->nres.svcn);
+ 	evcn1 = le64_to_cpu(attr_b->nres.evcn) + 1;
++	a_flags = attr_b->flags;
+ 
+ 	if (svcn <= vcn && vcn < evcn1) {
+ 		attr = attr_b;
+@@ -2048,6 +2044,17 @@ int attr_punch_hole(struct ntfs_inode *ni, u64 vbo, u64 bytes, u32 *frame_size)
+ 			err = mi_pack_runs(mi, attr, run, evcn1 - svcn);
+ 			if (err)
+ 				goto out;
++			next_svcn = le64_to_cpu(attr->nres.evcn) + 1;
++			if (next_svcn < evcn1) {
++				err = ni_insert_nonresident(ni, ATTR_DATA, NULL,
++							    0, run, next_svcn,
++							    evcn1 - next_svcn,
++							    a_flags, &attr, &mi,
++							    &le);
++				if (err)
++					goto out;
++				/* Layout of records maybe changed. */
++			}
+ 		}
+ 		/* Free all allocated memory. */
+ 		run_truncate(run, 0);
+@@ -2250,7 +2257,7 @@ int attr_insert_range(struct ntfs_inode *ni, u64 vbo, u64 bytes)
+ 	if (next_svcn < evcn1 + len) {
+ 		err = ni_insert_nonresident(ni, ATTR_DATA, NULL, 0, run,
+ 					    next_svcn, evcn1 + len - next_svcn,
+-					    a_flags, NULL, NULL);
++					    a_flags, NULL, NULL, NULL);
+ 		if (err)
+ 			goto out;
+ 	}
+diff --git a/fs/ntfs3/frecord.c b/fs/ntfs3/frecord.c
+index 3576268ee0a1..64041152fd98 100644
+--- a/fs/ntfs3/frecord.c
++++ b/fs/ntfs3/frecord.c
+@@ -1406,7 +1406,7 @@ int ni_insert_nonresident(struct ntfs_inode *ni, enum ATTR_TYPE type,
+ 			  const __le16 *name, u8 name_len,
+ 			  const struct runs_tree *run, CLST svcn, CLST len,
+ 			  __le16 flags, struct ATTRIB **new_attr,
+-			  struct mft_inode **mi)
++			  struct mft_inode **mi, struct ATTR_LIST_ENTRY **le)
+ {
+ 	int err;
+ 	CLST plen;
+@@ -1439,7 +1439,7 @@ int ni_insert_nonresident(struct ntfs_inode *ni, enum ATTR_TYPE type,
  	}
  
-+	/*
-+	 * valid_size <= data_size <= alloc_size
-+	 * Check alloc_size for maximum possible.
-+	 */
-+	if (bytes > sbi->maxbytes_sparse - alloc_size)
-+		return -EFBIG;
-+
- 	vcn = vbo >> sbi->cluster_bits;
- 	len = bytes >> sbi->cluster_bits;
+ 	err = ni_insert_attr(ni, type, name, name_len, asize, name_off, svcn,
+-			     &attr, mi, NULL);
++			     &attr, mi, le);
  
-diff --git a/fs/ntfs3/file.c b/fs/ntfs3/file.c
-index bdffe4b8554b..cf16bde810cc 100644
---- a/fs/ntfs3/file.c
-+++ b/fs/ntfs3/file.c
-@@ -733,9 +733,6 @@ static long ntfs_fallocate(struct file *file, int mode, loff_t vbo, loff_t len)
- 	if (map_locked)
- 		filemap_invalidate_unlock(mapping);
+ 	if (err)
+ 		goto out;
+diff --git a/fs/ntfs3/index.c b/fs/ntfs3/index.c
+index ba2a07dfeaf5..440328147e7e 100644
+--- a/fs/ntfs3/index.c
++++ b/fs/ntfs3/index.c
+@@ -1347,7 +1347,7 @@ static int indx_create_allocate(struct ntfs_index *indx, struct ntfs_inode *ni,
+ 		goto out;
  
--	if (err == -EFBIG)
--		err = -ENOSPC;
--
- 	if (!err) {
- 		inode->i_ctime = inode->i_mtime = current_time(inode);
- 		mark_inode_dirty(inode);
+ 	err = ni_insert_nonresident(ni, ATTR_ALLOC, in->name, in->name_len,
+-				    &run, 0, len, 0, &alloc, NULL);
++				    &run, 0, len, 0, &alloc, NULL, NULL);
+ 	if (err)
+ 		goto out1;
+ 
+diff --git a/fs/ntfs3/ntfs_fs.h b/fs/ntfs3/ntfs_fs.h
+index 8f05b91f3c5e..27b610c5bb29 100644
+--- a/fs/ntfs3/ntfs_fs.h
++++ b/fs/ntfs3/ntfs_fs.h
+@@ -529,7 +529,7 @@ int ni_insert_nonresident(struct ntfs_inode *ni, enum ATTR_TYPE type,
+ 			  const __le16 *name, u8 name_len,
+ 			  const struct runs_tree *run, CLST svcn, CLST len,
+ 			  __le16 flags, struct ATTRIB **new_attr,
+-			  struct mft_inode **mi);
++			  struct mft_inode **mi, struct ATTR_LIST_ENTRY **le);
+ int ni_insert_resident(struct ntfs_inode *ni, u32 data_size,
+ 		       enum ATTR_TYPE type, const __le16 *name, u8 name_len,
+ 		       struct ATTRIB **new_attr, struct mft_inode **mi,
 
