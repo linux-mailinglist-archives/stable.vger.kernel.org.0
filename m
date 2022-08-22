@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2691859BB98
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:29:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E8EF59BB9B
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:29:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232953AbiHVI3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:29:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36598 "EHLO
+        id S233842AbiHVI30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:29:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233429AbiHVI26 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:28:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 101DE101D4
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:28:54 -0700 (PDT)
+        with ESMTP id S233955AbiHVI3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:29:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D0813F64
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:29:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37EE1B80EA1
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:28:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F8E3C433C1;
-        Mon, 22 Aug 2022 08:28:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D512B80EA1
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:29:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA96EC43470;
+        Mon, 22 Aug 2022 08:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661156932;
-        bh=2DTw7OLgWydlI7U/LHbQkU4LBhTEpj09ilA3Rgj9LK0=;
+        s=korg; t=1661156949;
+        bh=HJSYUloXXmfCnkzh5XnER1kS3jTuA1NWK9a68TcgIgc=;
         h=Subject:To:Cc:From:Date:From;
-        b=WqGRNTNNNpg0a8FFgaCysFbyaJjJAHfX0j/M5K1I//nyIami7YCn3zaRViaPeAcOk
-         zcnxjcyqYUM8ICQnaTLnS1M/7LuKCLVb5B05z8Zxa+cvBdX9hrjjUxcJvpQVKSbU1U
-         PwNULcFxz4G3YdE3NyCbjj1i1jNfqPHw/WE5pBbE=
-Subject: FAILED: patch "[PATCH] can: mcp251x: Fix race condition on receive interrupt" failed to apply to 4.9-stable tree
-To:     sebastian.wuerl@ororatech.com, mkl@pengutronix.de
+        b=dRIbVH4agDzBTQJYp/U/dt3YzGC0/aGHIeOGKG2bF5g91MiezAtPiaIAvS3huQfi9
+         +6YS6NUkp3O9LZNAw0E9eiswApOwGOP/IJkfXWqn7kPf03Pa9rSptkVVlVZXQ2Y+pW
+         SC5qSOTD3aKDVl8FmsuFtkl6mmuN0OSaIyNAwTko=
+Subject: FAILED: patch "[PATCH] net: atlantic: fix aq_vec index out of range error" failed to apply to 5.4-stable tree
+To:     acelan.kao@canonical.com, kuba@kernel.org, skalluru@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 10:28:39 +0200
-Message-ID: <1661156919203119@kroah.com>
+Date:   Mon, 22 Aug 2022 10:29:06 +0200
+Message-ID: <166115694623814@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,86 +59,117 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d80d60b0db6ff3dd2e29247cc2a5166d7e9ae37e Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Sebastian=20W=C3=BCrl?= <sebastian.wuerl@ororatech.com>
-Date: Thu, 4 Aug 2022 10:14:11 +0200
-Subject: [PATCH] can: mcp251x: Fix race condition on receive interrupt
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 2ba5e47fb75fbb8fab45f5c1bc8d5c33d8834bd3 Mon Sep 17 00:00:00 2001
+From: "Chia-Lin Kao (AceLan)" <acelan.kao@canonical.com>
+Date: Mon, 8 Aug 2022 16:18:45 +0800
+Subject: [PATCH] net: atlantic: fix aq_vec index out of range error
 
-The mcp251x driver uses both receiving mailboxes of the CAN controller
-chips. For retrieving the CAN frames from the controller via SPI, it checks
-once per interrupt which mailboxes have been filled and will retrieve the
-messages accordingly.
+The final update statement of the for loop exceeds the array range, the
+dereference of self->aq_vec[i] is not checked and then leads to the
+index out of range error.
+Also fixed this kind of coding style in other for loop.
 
-This introduces a race condition, as another CAN frame can enter mailbox 1
-while mailbox 0 is emptied. If now another CAN frame enters mailbox 0 until
-the interrupt handler is called next, mailbox 0 is emptied before
-mailbox 1, leading to out-of-order CAN frames in the network device.
+[   97.937604] UBSAN: array-index-out-of-bounds in drivers/net/ethernet/aquantia/atlantic/aq_nic.c:1404:48
+[   97.937607] index 8 is out of range for type 'aq_vec_s *[8]'
+[   97.937608] CPU: 38 PID: 3767 Comm: kworker/u256:18 Not tainted 5.19.0+ #2
+[   97.937610] Hardware name: Dell Inc. Precision 7865 Tower/, BIOS 1.0.0 06/12/2022
+[   97.937611] Workqueue: events_unbound async_run_entry_fn
+[   97.937616] Call Trace:
+[   97.937617]  <TASK>
+[   97.937619]  dump_stack_lvl+0x49/0x63
+[   97.937624]  dump_stack+0x10/0x16
+[   97.937626]  ubsan_epilogue+0x9/0x3f
+[   97.937627]  __ubsan_handle_out_of_bounds.cold+0x44/0x49
+[   97.937629]  ? __scm_send+0x348/0x440
+[   97.937632]  ? aq_vec_stop+0x72/0x80 [atlantic]
+[   97.937639]  aq_nic_stop+0x1b6/0x1c0 [atlantic]
+[   97.937644]  aq_suspend_common+0x88/0x90 [atlantic]
+[   97.937648]  aq_pm_suspend_poweroff+0xe/0x20 [atlantic]
+[   97.937653]  pci_pm_suspend+0x7e/0x1a0
+[   97.937655]  ? pci_pm_suspend_noirq+0x2b0/0x2b0
+[   97.937657]  dpm_run_callback+0x54/0x190
+[   97.937660]  __device_suspend+0x14c/0x4d0
+[   97.937661]  async_suspend+0x23/0x70
+[   97.937663]  async_run_entry_fn+0x33/0x120
+[   97.937664]  process_one_work+0x21f/0x3f0
+[   97.937666]  worker_thread+0x4a/0x3c0
+[   97.937668]  ? process_one_work+0x3f0/0x3f0
+[   97.937669]  kthread+0xf0/0x120
+[   97.937671]  ? kthread_complete_and_exit+0x20/0x20
+[   97.937672]  ret_from_fork+0x22/0x30
+[   97.937676]  </TASK>
 
-This is fixed by checking the interrupt flags once again after freeing
-mailbox 0, to correctly also empty mailbox 1 before leaving the handler.
+v2. fixed "warning: variable 'aq_vec' set but not used"
 
-For reproducing the bug I created the following setup:
- - Two CAN devices, one Raspberry Pi with MCP2515, the other can be any.
- - Setup CAN to 1 MHz
- - Spam bursts of 5 CAN-messages with increasing CAN-ids
- - Continue sending the bursts while sleeping a second between the bursts
- - Check on the RPi whether the received messages have increasing CAN-ids
- - Without this patch, every burst of messages will contain a flipped pair
+v3. simplified a for loop
 
-v3: https://lore.kernel.org/all/20220804075914.67569-1-sebastian.wuerl@ororatech.com
-v2: https://lore.kernel.org/all/20220804064803.63157-1-sebastian.wuerl@ororatech.com
-v1: https://lore.kernel.org/all/20220803153300.58732-1-sebastian.wuerl@ororatech.com
+Fixes: 97bde5c4f909 ("net: ethernet: aquantia: Support for NIC-specific code")
+Signed-off-by: Chia-Lin Kao (AceLan) <acelan.kao@canonical.com>
+Acked-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+Link: https://lore.kernel.org/r/20220808081845.42005-1-acelan.kao@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-Fixes: bf66f3736a94 ("can: mcp251x: Move to threaded interrupts instead of workqueues.")
-Signed-off-by: Sebastian Würl <sebastian.wuerl@ororatech.com>
-Link: https://lore.kernel.org/all/20220804081411.68567-1-sebastian.wuerl@ororatech.com
-[mkl: reduce scope of intf1, eflag1]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-
-diff --git a/drivers/net/can/spi/mcp251x.c b/drivers/net/can/spi/mcp251x.c
-index e750d13c8841..c320de474f40 100644
---- a/drivers/net/can/spi/mcp251x.c
-+++ b/drivers/net/can/spi/mcp251x.c
-@@ -1070,9 +1070,6 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
+index e11cc29d3264..06508eebb585 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
+@@ -265,12 +265,10 @@ static void aq_nic_service_timer_cb(struct timer_list *t)
+ static void aq_nic_polling_timer_cb(struct timer_list *t)
+ {
+ 	struct aq_nic_s *self = from_timer(self, t, polling_timer);
+-	struct aq_vec_s *aq_vec = NULL;
+ 	unsigned int i = 0U;
  
- 		mcp251x_read_2regs(spi, CANINTF, &intf, &eflag);
+-	for (i = 0U, aq_vec = self->aq_vec[0];
+-		self->aq_vecs > i; ++i, aq_vec = self->aq_vec[i])
+-		aq_vec_isr(i, (void *)aq_vec);
++	for (i = 0U; self->aq_vecs > i; ++i)
++		aq_vec_isr(i, (void *)self->aq_vec[i]);
  
--		/* mask out flags we don't care about */
--		intf &= CANINTF_RX | CANINTF_TX | CANINTF_ERR;
--
- 		/* receive buffer 0 */
- 		if (intf & CANINTF_RX0IF) {
- 			mcp251x_hw_rx(spi, 0);
-@@ -1082,6 +1079,18 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
- 			if (mcp251x_is_2510(spi))
- 				mcp251x_write_bits(spi, CANINTF,
- 						   CANINTF_RX0IF, 0x00);
-+
-+			/* check if buffer 1 is already known to be full, no need to re-read */
-+			if (!(intf & CANINTF_RX1IF)) {
-+				u8 intf1, eflag1;
-+
-+				/* intf needs to be read again to avoid a race condition */
-+				mcp251x_read_2regs(spi, CANINTF, &intf1, &eflag1);
-+
-+				/* combine flags from both operations for error handling */
-+				intf |= intf1;
-+				eflag |= eflag1;
-+			}
+ 	mod_timer(&self->polling_timer, jiffies +
+ 		  AQ_CFG_POLLING_TIMER_INTERVAL);
+@@ -1014,7 +1012,6 @@ int aq_nic_get_regs_count(struct aq_nic_s *self)
+ 
+ u64 *aq_nic_get_stats(struct aq_nic_s *self, u64 *data)
+ {
+-	struct aq_vec_s *aq_vec = NULL;
+ 	struct aq_stats_s *stats;
+ 	unsigned int count = 0U;
+ 	unsigned int i = 0U;
+@@ -1064,11 +1061,11 @@ u64 *aq_nic_get_stats(struct aq_nic_s *self, u64 *data)
+ 	data += i;
+ 
+ 	for (tc = 0U; tc < self->aq_nic_cfg.tcs; tc++) {
+-		for (i = 0U, aq_vec = self->aq_vec[0];
+-		     aq_vec && self->aq_vecs > i;
+-		     ++i, aq_vec = self->aq_vec[i]) {
++		for (i = 0U; self->aq_vecs > i; ++i) {
++			if (!self->aq_vec[i])
++				break;
+ 			data += count;
+-			count = aq_vec_get_sw_stats(aq_vec, tc, data);
++			count = aq_vec_get_sw_stats(self->aq_vec[i], tc, data);
  		}
+ 	}
  
- 		/* receive buffer 1 */
-@@ -1092,6 +1101,9 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
- 				clear_intf |= CANINTF_RX1IF;
- 		}
+@@ -1382,7 +1379,6 @@ int aq_nic_set_loopback(struct aq_nic_s *self)
  
-+		/* mask out flags we don't care about */
-+		intf &= CANINTF_RX | CANINTF_TX | CANINTF_ERR;
-+
- 		/* any error or tx interrupt we need to clear? */
- 		if (intf & (CANINTF_ERR | CANINTF_TX))
- 			clear_intf |= intf & (CANINTF_ERR | CANINTF_TX);
+ int aq_nic_stop(struct aq_nic_s *self)
+ {
+-	struct aq_vec_s *aq_vec = NULL;
+ 	unsigned int i = 0U;
+ 
+ 	netif_tx_disable(self->ndev);
+@@ -1400,9 +1396,8 @@ int aq_nic_stop(struct aq_nic_s *self)
+ 
+ 	aq_ptp_irq_free(self);
+ 
+-	for (i = 0U, aq_vec = self->aq_vec[0];
+-		self->aq_vecs > i; ++i, aq_vec = self->aq_vec[i])
+-		aq_vec_stop(aq_vec);
++	for (i = 0U; self->aq_vecs > i; ++i)
++		aq_vec_stop(self->aq_vec[i]);
+ 
+ 	aq_ptp_ring_stop(self);
+ 
 
