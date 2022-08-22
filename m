@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E09259BFB9
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:51:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 123ED59BFCF
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:54:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233652AbiHVMvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 08:51:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56208 "EHLO
+        id S233652AbiHVMy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 08:54:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233197AbiHVMvZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:51:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D454E2E9CA
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:51:23 -0700 (PDT)
+        with ESMTP id S229704AbiHVMy0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:54:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41E7224BD4
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:54:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7351861147
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:51:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60F20C433D7;
-        Mon, 22 Aug 2022 12:51:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84B62B81134
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:54:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 961FFC433C1;
+        Mon, 22 Aug 2022 12:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661172682;
-        bh=BNTdpYAOW+XAoKSpgB1AcMvsfCYINzo15/tixnTZhvY=;
+        s=korg; t=1661172862;
+        bh=041qeuPuU0G09+nVxexIY4sj9nHileJTJUjDmmpf1So=;
         h=Subject:To:Cc:From:Date:From;
-        b=axxc9p4ZFJ/SbUWZTW0T9kvPc2ojWM/maOOgEz6hFLWPfv1Cysmfy9zjsICXAthyR
-         hqZ+eH6+/xq0xp+QSnfaxuIjk+gvotBePDKNhlUt0Mj+fBZvF5ovbzdQHn9Ue6opnq
-         fkTwoKI+SL9eeR6pggvkP/3hw7A9+MWmC5Nd8+5M=
-Subject: FAILED: patch "[PATCH] netfilter: nf_tables: validate NFTA_SET_ELEM_OBJREF based on" failed to apply to 4.14-stable tree
-To:     pablo@netfilter.org
+        b=Og0Gxl34vI/5nIMEV6A16O4RjnfL3bWEubtmtCk8+ugZnABynOxF1UmYO60MrM+qR
+         hUsBhXx5O/9a+4jHXeYAsxgdTBX2yIqbui+DZIkj92XwYh2vR3t+cRLoCx4H2itBvs
+         u2BErtQpwn0g+iCVNfgLKYBdGov0KFyTH7da8/Fw=
+Subject: FAILED: patch "[PATCH] net: qrtr: start MHI channel after endpoit creation" failed to apply to 5.15-stable tree
+To:     fido_max@inbox.ru, davem@davemloft.net, loic.poulain@linaro.org,
+        mani@kernel.org, quic_hemantk@quicinc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 14:51:09 +0200
-Message-ID: <1661172669236209@kroah.com>
+Date:   Mon, 22 Aug 2022 14:54:19 +0200
+Message-ID: <1661172859246211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,50 +60,73 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5a2f3dc31811e93be15522d9eb13ed61460b76c8 Mon Sep 17 00:00:00 2001
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Date: Fri, 12 Aug 2022 16:19:23 +0200
-Subject: [PATCH] netfilter: nf_tables: validate NFTA_SET_ELEM_OBJREF based on
- NFT_SET_OBJECT flag
+From 68a838b84effb7b57ba7d50b1863fc6ae35a54ce Mon Sep 17 00:00:00 2001
+From: Maxim Kochetkov <fido_max@inbox.ru>
+Date: Thu, 11 Aug 2022 12:48:40 +0300
+Subject: [PATCH] net: qrtr: start MHI channel after endpoit creation
 
-If the NFTA_SET_ELEM_OBJREF netlink attribute is present and
-NFT_SET_OBJECT flag is set on, report EINVAL.
+MHI channel may generates event/interrupt right after enabling.
+It may leads to 2 race conditions issues.
 
-Move existing sanity check earlier to validate that NFT_SET_OBJECT
-requires NFTA_SET_ELEM_OBJREF.
+1)
+Such event may be dropped by qcom_mhi_qrtr_dl_callback() at check:
 
-Fixes: 8aeff920dcc9 ("netfilter: nf_tables: add stateful object reference to set elements")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+	if (!qdev || mhi_res->transaction_status)
+		return;
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 1b9459a364ba..bcfe8120e014 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -5894,6 +5894,15 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
- 			return -EINVAL;
- 	}
+Because dev_set_drvdata(&mhi_dev->dev, qdev) may be not performed at
+this moment. In this situation qrtr-ns will be unable to enumerate
+services in device.
+---------------------------------------------------------------
+
+2)
+Such event may come at the moment after dev_set_drvdata() and
+before qrtr_endpoint_register(). In this case kernel will panic with
+accessing wrong pointer at qcom_mhi_qrtr_dl_callback():
+
+	rc = qrtr_endpoint_post(&qdev->ep, mhi_res->buf_addr,
+				mhi_res->bytes_xferd);
+
+Because endpoint is not created yet.
+--------------------------------------------------------------
+So move mhi_prepare_for_transfer_autoqueue after endpoint creation
+to fix it.
+
+Fixes: a2e2cc0dbb11 ("net: qrtr: Start MHI channels during init")
+Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
+Reviewed-by: Hemant Kumar <quic_hemantk@quicinc.com>
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/net/qrtr/mhi.c b/net/qrtr/mhi.c
+index 18196e1c8c2f..9ced13c0627a 100644
+--- a/net/qrtr/mhi.c
++++ b/net/qrtr/mhi.c
+@@ -78,11 +78,6 @@ static int qcom_mhi_qrtr_probe(struct mhi_device *mhi_dev,
+ 	struct qrtr_mhi_dev *qdev;
+ 	int rc;
  
-+	if (set->flags & NFT_SET_OBJECT) {
-+		if (!nla[NFTA_SET_ELEM_OBJREF] &&
-+		    !(flags & NFT_SET_ELEM_INTERVAL_END))
-+			return -EINVAL;
-+	} else {
-+		if (nla[NFTA_SET_ELEM_OBJREF])
-+			return -EINVAL;
+-	/* start channels */
+-	rc = mhi_prepare_for_transfer_autoqueue(mhi_dev);
+-	if (rc)
+-		return rc;
+-
+ 	qdev = devm_kzalloc(&mhi_dev->dev, sizeof(*qdev), GFP_KERNEL);
+ 	if (!qdev)
+ 		return -ENOMEM;
+@@ -96,6 +91,13 @@ static int qcom_mhi_qrtr_probe(struct mhi_device *mhi_dev,
+ 	if (rc)
+ 		return rc;
+ 
++	/* start channels */
++	rc = mhi_prepare_for_transfer_autoqueue(mhi_dev);
++	if (rc) {
++		qrtr_endpoint_unregister(&qdev->ep);
++		return rc;
 +	}
 +
- 	if ((flags & NFT_SET_ELEM_INTERVAL_END) &&
- 	     (nla[NFTA_SET_ELEM_DATA] ||
- 	      nla[NFTA_SET_ELEM_OBJREF] ||
-@@ -6032,10 +6041,6 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
- 	}
+ 	dev_dbg(qdev->dev, "Qualcomm MHI QRTR driver probed\n");
  
- 	if (nla[NFTA_SET_ELEM_OBJREF] != NULL) {
--		if (!(set->flags & NFT_SET_OBJECT)) {
--			err = -EINVAL;
--			goto err_parse_key_end;
--		}
- 		obj = nft_obj_lookup(ctx->net, ctx->table,
- 				     nla[NFTA_SET_ELEM_OBJREF],
- 				     set->objtype, genmask);
+ 	return 0;
 
