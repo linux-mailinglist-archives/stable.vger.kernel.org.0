@@ -2,131 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22A7359BC2D
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 11:01:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5DE159BC38
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 11:04:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234124AbiHVJBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 05:01:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44664 "EHLO
+        id S233062AbiHVJEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 05:04:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232041AbiHVJA5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 05:00:57 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14EDE2E9EE;
-        Mon, 22 Aug 2022 02:00:56 -0700 (PDT)
-Date:   Mon, 22 Aug 2022 09:00:52 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1661158854;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=dM3ojszo3Veb8HoUmWERKHR8FJOVeplfXo3T1F8LY58=;
-        b=gj7pKeIaBS2ImOOqOgKXS9jcGggbX1n0/F+0+34kqcOkTkaGMNZKhWQRWsvjD3mMX1PkHI
-        XbDhhV0Ealw1qqu1h+Rysm3fviIkPKVKutCziLNWQnXk04ZhQsPXkYRHsshiqTCtWQ9JOQ
-        kyUy5Uvjqr12KLiJ1bOMlH64VrJStGe2vrKi3uRupIU0t1MYSo7C3Bv+DvFhvkavPv0YJj
-        ktgRrELclzmlSKDyz6ZQg0bgpPY00ZkkjTnEb3MKFE9kOPQsWcag6mysA8Jg6yrC41whoX
-        /jXWu3Yd2A8DZigmyOCeaONKijTb9eOXAHcB/vnDZ7FrqVokCTRMYjaS7toa3A==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1661158854;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=dM3ojszo3Veb8HoUmWERKHR8FJOVeplfXo3T1F8LY58=;
-        b=j34P7dibyDnyYA3Xyjlxq2hCc3/JTKJ2n7RxH2UgnSpB3GLctBP1Uwu4Zy89lDxnljQfqf
-        CSwhcVh1E7qt0vDw==
-From:   "tip-bot2 for Kan Liang" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/urgent] perf/x86/lbr: Enable the branch type for the Arch
- LBR by default
-Cc:     Stephane Eranian <eranian@google.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        stable@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20220816125612.2042397-1-kan.liang@linux.intel.com>
-References: <20220816125612.2042397-1-kan.liang@linux.intel.com>
+        with ESMTP id S234142AbiHVJD7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 05:03:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20A77175B7
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 02:03:58 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B00AA60E94
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 09:03:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4968C433C1;
+        Mon, 22 Aug 2022 09:03:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661159037;
+        bh=kf7iqgYdlZEct9SQhcEYyEAf497CAVp6Y7yho+erGrk=;
+        h=Subject:To:Cc:From:Date:From;
+        b=vC7DzqyKtCp4qCNEg2z1ZWZc8jXL7P+tEbdpMzvX1Z4/LigGpwjEHWwz0KB3UJEkp
+         T5Ef72duMrIzj6vnvqDqPjz/WaS+3XWX9dIWPtjjrlT++BBE7jGUtWYqima9ekNK7p
+         jjwKGsLOtNbwIaa49CVrL4WW14ZdktidVt25jtks=
+Subject: FAILED: patch "[PATCH] tcp: fix possible freeze in tx path under memory pressure" failed to apply to 5.19-stable tree
+To:     edumazet@google.com, davem@davemloft.net, shakeelb@google.com,
+        soheil@google.com, weiwan@google.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 22 Aug 2022 11:03:54 +0200
+Message-ID: <1661159034153194@kroah.com>
 MIME-Version: 1.0
-Message-ID: <166115885282.401.13470060231625531121.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the perf/urgent branch of tip:
 
-Commit-ID:     32ba156df1b1c8804a4e5be5339616945eafea22
-Gitweb:        https://git.kernel.org/tip/32ba156df1b1c8804a4e5be5339616945eafea22
-Author:        Kan Liang <kan.liang@linux.intel.com>
-AuthorDate:    Tue, 16 Aug 2022 05:56:11 -07:00
-Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Fri, 19 Aug 2022 19:47:30 +02:00
+The patch below does not apply to the 5.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-perf/x86/lbr: Enable the branch type for the Arch LBR by default
+thanks,
 
-On the platform with Arch LBR, the HW raw branch type encoding may leak
-to the perf tool when the SAVE_TYPE option is not set.
+greg k-h
 
-In the intel_pmu_store_lbr(), the HW raw branch type is stored in
-lbr_entries[].type. If the SAVE_TYPE option is set, the
-lbr_entries[].type will be converted into the generic PERF_BR_* type
-in the intel_pmu_lbr_filter() and exposed to the user tools.
-But if the SAVE_TYPE option is NOT set by the user, the current perf
-kernel doesn't clear the field. The HW raw branch type leaks.
+------------------ original commit in Linus's tree ------------------
 
-There are two solutions to fix the issue for the Arch LBR.
-One is to clear the field if the SAVE_TYPE option is NOT set.
-The other solution is to unconditionally convert the branch type and
-expose the generic type to the user tools.
+From f54755f6a11accb2db5ef17f8f75aad0875aefdc Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Tue, 14 Jun 2022 10:17:34 -0700
+Subject: [PATCH] tcp: fix possible freeze in tx path under memory pressure
 
-The latter is implemented here, because
-- The branch type is valuable information. I don't see a case where
-  you would not benefit from the branch type. (Stephane Eranian)
-- Not having the branch type DOES NOT save any space in the
-  branch record (Stephane Eranian)
-- The Arch LBR HW can retrieve the common branch types from the
-  LBR_INFO. It doesn't require the high overhead SW disassemble.
+Blamed commit only dealt with applications issuing small writes.
 
-Fixes: 47125db27e47 ("perf/x86/intel/lbr: Support Architectural LBR")
-Reported-by: Stephane Eranian <eranian@google.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20220816125612.2042397-1-kan.liang@linux.intel.com
----
- arch/x86/events/intel/lbr.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Issue here is that we allow to force memory schedule for the sk_buff
+allocation, but we have no guarantee that sendmsg() is able to
+copy some payload in it.
 
-diff --git a/arch/x86/events/intel/lbr.c b/arch/x86/events/intel/lbr.c
-index 4f70fb6..47fca6a 100644
---- a/arch/x86/events/intel/lbr.c
-+++ b/arch/x86/events/intel/lbr.c
-@@ -1097,6 +1097,14 @@ static int intel_pmu_setup_hw_lbr_filter(struct perf_event *event)
+In this patch, I make sure the socket can use up to tcp_wmem[0] bytes.
+
+For example, if we consider tcp_wmem[0] = 4096 (default on x86),
+and initial skb->truesize being 1280, tcp_sendmsg() is able to
+copy up to 2816 bytes under memory pressure.
+
+Before this patch a sendmsg() sending more than 2816 bytes
+would either block forever (if persistent memory pressure),
+or return -EAGAIN.
+
+For bigger MTU networks, it is advised to increase tcp_wmem[0]
+to avoid sending too small packets.
+
+v2: deal with zero copy paths.
+
+Fixes: 8e4d980ac215 ("tcp: fix behavior for epoll edge trigger")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Reviewed-by: Wei Wang <weiwan@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index b278063a1724..6c3eab485249 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -968,6 +968,23 @@ static int tcp_wmem_schedule(struct sock *sk, int copy)
+ 	return min(copy, sk->sk_forward_alloc);
+ }
  
- 	if (static_cpu_has(X86_FEATURE_ARCH_LBR)) {
- 		reg->config = mask;
++static int tcp_wmem_schedule(struct sock *sk, int copy)
++{
++	int left;
 +
-+		/*
-+		 * The Arch LBR HW can retrieve the common branch types
-+		 * from the LBR_INFO. It doesn't require the high overhead
-+		 * SW disassemble.
-+		 * Enable the branch type by default for the Arch LBR.
-+		 */
-+		reg->reg |= X86_BR_TYPE_SAVE;
- 		return 0;
- 	}
- 
++	if (likely(sk_wmem_schedule(sk, copy)))
++		return copy;
++
++	/* We could be in trouble if we have nothing queued.
++	 * Use whatever is left in sk->sk_forward_alloc and tcp_wmem[0]
++	 * to guarantee some progress.
++	 */
++	left = sock_net(sk)->ipv4.sysctl_tcp_wmem[0] - sk->sk_wmem_queued;
++	if (left > 0)
++		sk_forced_mem_schedule(sk, min(left, copy));
++	return min(copy, sk->sk_forward_alloc);
++}
++
+ static struct sk_buff *tcp_build_frag(struct sock *sk, int size_goal, int flags,
+ 				      struct page *page, int offset, size_t *size)
+ {
+
