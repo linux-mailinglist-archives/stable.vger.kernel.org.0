@@ -2,96 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F0B859BFB3
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:49:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBBCF59BFB4
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:49:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235178AbiHVMtL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 08:49:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55104 "EHLO
+        id S235174AbiHVMtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 08:49:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235176AbiHVMtK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:49:10 -0400
-Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC8F41A3BD
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:49:08 -0700 (PDT)
-Received: from localhost.localdomain (unknown [95.31.169.23])
-        by mail.ispras.ru (Postfix) with ESMTPSA id D2E3B401014B;
-        Mon, 22 Aug 2022 12:49:06 +0000 (UTC)
-From:   Fedor Pchelkin <pchelkin@ispras.ru>
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Oleksij Rempel <o.rempel@pengutronix.de>, mkl@pengutronix.de,
-        ldv-project@linuxtesting.org
-Subject: [PATCH 5.10 1/1] can: j1939: j1939_session_destroy(): fix memory leak of skbs
-Date:   Mon, 22 Aug 2022 15:48:35 +0300
-Message-Id: <20220822124835.254653-2-pchelkin@ispras.ru>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220822124835.254653-1-pchelkin@ispras.ru>
-References: <20220822124835.254653-1-pchelkin@ispras.ru>
+        with ESMTP id S235179AbiHVMtg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:49:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDC912CE27
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:49:34 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E51EB80EA1
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:49:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E140AC433D6;
+        Mon, 22 Aug 2022 12:49:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661172572;
+        bh=cocKxs88l+bSwGYzUizR3L3RfKP/ayZy7cNX171ffmM=;
+        h=Subject:To:Cc:From:Date:From;
+        b=b+aFIPOUfL4mR+B3mPaDv50RXfJkv1uyFq6/gFi4vouiVT7os3xkVQKT5ty+nQZNr
+         3lRaEOb+sbAHVPr4biyzUvUU0AlTB8i8aw9ZXsYmOWQthBItqRNm3T7pnxtUdAQcNi
+         feOdjloFCvIXuuYueR/iCZKMlcMjytbhRw/MAWxs=
+Subject: FAILED: patch "[PATCH] netfilter: nf_tables: disallow NFTA_SET_ELEM_KEY_END with" failed to apply to 5.10-stable tree
+To:     pablo@netfilter.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 22 Aug 2022 14:49:29 +0200
+Message-ID: <166117256925545@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-commit 8c21c54a53ab21842f5050fa090f26b03c0313d6 upstream.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-We need to drop skb references taken in j1939_session_skb_queue() when
-destroying a session in j1939_session_destroy(). Otherwise those skbs
-would be lost.
+thanks,
 
-Link to Syzkaller info and repro: https://forge.ispras.ru/issues/11743.
+greg k-h
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+------------------ original commit in Linus's tree ------------------
 
-V1: https://lore.kernel.org/all/20220708175949.539064-1-pchelkin@ispras.ru
+From 4963674c2e71fc062f8f089f0f58ffbb5533060b Mon Sep 17 00:00:00 2001
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Date: Tue, 9 Aug 2022 13:39:18 +0200
+Subject: [PATCH] netfilter: nf_tables: disallow NFTA_SET_ELEM_KEY_END with
+ NFT_SET_ELEM_INTERVAL_END flag
 
-Fixes: 9d71dd0 ("can: add support of SAE J1939 protocol")
-Suggested-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/all/20220805150216.66313-1-pchelkin@ispras.ru
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
- net/can/j1939/transport.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+These are mutually exclusive, actually NFTA_SET_ELEM_KEY_END replaces
+the flag notation.
 
-diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
-index 9c39b0f5d6e0..2830a12a4dd1 100644
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -260,6 +260,8 @@ static void __j1939_session_drop(struct j1939_session *session)
+Fixes: 7b225d0b5c6d ("netfilter: nf_tables: add NFTA_SET_ELEM_KEY_END attribute")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 8b084cd669ab..ac549c5b88c2 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -5901,6 +5901,7 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
+ 	      nla[NFTA_SET_ELEM_EXPIRATION] ||
+ 	      nla[NFTA_SET_ELEM_USERDATA] ||
+ 	      nla[NFTA_SET_ELEM_EXPR] ||
++	      nla[NFTA_SET_ELEM_KEY_END] ||
+ 	      nla[NFTA_SET_ELEM_EXPRESSIONS]))
+ 		return -EINVAL;
  
- static void j1939_session_destroy(struct j1939_session *session)
- {
-+	struct sk_buff *skb;
-+
- 	if (session->err)
- 		j1939_sk_errqueue(session, J1939_ERRQUEUE_ABORT);
- 	else
-@@ -270,7 +272,11 @@ static void j1939_session_destroy(struct j1939_session *session)
- 	WARN_ON_ONCE(!list_empty(&session->sk_session_queue_entry));
- 	WARN_ON_ONCE(!list_empty(&session->active_session_list_entry));
- 
--	skb_queue_purge(&session->skb_queue);
-+	while ((skb = skb_dequeue(&session->skb_queue)) != NULL) {
-+		/* drop ref taken in j1939_session_skb_queue() */
-+		skb_unref(skb);
-+		kfree_skb(skb);
-+	}
- 	__j1939_session_drop(session);
- 	j1939_priv_put(session->priv);
- 	kfree(session);
--- 
-2.25.1
 
