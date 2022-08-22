@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A5A759BB40
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:21:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B56B59BB44
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:21:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231480AbiHVIVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:21:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52250 "EHLO
+        id S232331AbiHVIVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:21:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233868AbiHVIU3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:20:29 -0400
+        with ESMTP id S233896AbiHVIUc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:20:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499A41EAFB
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:20:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9917D1EAF0
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:20:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 048DEB80E9B
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:20:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A1EEC433D6;
-        Mon, 22 Aug 2022 08:20:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BA8CB80E9E
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:20:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD5DAC433D6;
+        Mon, 22 Aug 2022 08:20:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661156424;
-        bh=SRVky2011CVY5q6xYO/qWeW53kcnWJk970A7OyW3968=;
+        s=korg; t=1661156428;
+        bh=gU+0EQ3TTmIYVhKD9ajKTyrZN/vnv7SquVa1XqP0X2U=;
         h=Subject:To:Cc:From:Date:From;
-        b=xYeKuE5CwTVl90WXGBTN9ALkVm6W8gO5CLelKb6TT3UCQ3dID6lZeoWUcj0OAvuPW
-         rvTkix1Q652CWH+gAehhQFfZlAyr1/2QbUV6CMu51HDH0/2/2+DQ6xXapUd5JJ6/Vh
-         dihx3TNTlJ0gLGruSxNTjzHEKEbxcBG9B62qD7/Y=
-Subject: FAILED: patch "[PATCH] net: tap: NULL pointer derefence in dev_parse_header_protocol" failed to apply to 5.10-stable tree
+        b=2WNaHiHSF+YtF/DB1qmA9agjWCIRomLsARigowek8yITveVClGYRY+agzoKyXexMS
+         X9cqhJrrjLV0Yni75n0TVc5aKVOmd29fZGAtpLXTv9iWRL3J6OErlFGjVS4yH40dto
+         +5Xg65snY8vnxL0K4FSSc1G5Ai3EmHfAcPJ/BGt0=
+Subject: FAILED: patch "[PATCH] net: tap: NULL pointer derefence in dev_parse_header_protocol" failed to apply to 5.4-stable tree
 To:     cbulinaru@gmail.com, davem@davemloft.net, willemb@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 10:20:18 +0200
-Message-ID: <1661156418200127@kroah.com>
+Date:   Mon, 22 Aug 2022 10:20:20 +0200
+Message-ID: <166115642014711@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
