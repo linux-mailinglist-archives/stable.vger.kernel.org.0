@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15CFF59BFF0
+	by mail.lfdr.de (Postfix) with ESMTP id 5F5DF59BFF1
 	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232736AbiHVM5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234037AbiHVM5e (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 22 Aug 2022 08:57:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35096 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234543AbiHVM53 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:57:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E6F330569
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:57:28 -0700 (PDT)
+        with ESMTP id S234611AbiHVM5b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:57:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ADDA220F7
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:57:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0444EB81134
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:57:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E663C433D6;
-        Mon, 22 Aug 2022 12:57:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA87461156
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:57:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA71C433C1;
+        Mon, 22 Aug 2022 12:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661173045;
-        bh=RT50KZIZ2Cp7/g7We0zfpxBD1x8ctrGfXl7e7r629Vo=;
+        s=korg; t=1661173049;
+        bh=zt6ysUCIZtkRSgjNoH37mujMhipmUnaDdRrCA18/sIw=;
         h=Subject:To:Cc:From:Date:From;
-        b=Yxfn9WTAnzcIjmSe54zfq7NxLPNq0TaidZvMLdm0iXA2FqSLzb3Mg6l7Cwzi5vc3a
-         4gIfyYNsvu8229z9clgnMUTWyfSVE7be1oRjrFLUpeXdBnsqyYZx4HruPYmtQv1hH/
-         H8M1NCWiTMhjaDiZzdnkBo6lrK7Nt9hzolnxJWxA=
-Subject: FAILED: patch "[PATCH] net: mscc: ocelot: fix race between ndo_get_stats64 and" failed to apply to 5.4-stable tree
+        b=P9UqU9TIxSqUuNR7NhyjM/mM4x7Fbuy/y7UAlxm2T/EVtY8G9vEeJnEpvd1mjfRDu
+         3k36D1gGBiRg1SfbCLCA6knwXYOtO1wZb+wG8ZnmYQDfODCxoY97iLEx8DWwqF2C71
+         veGfeEBliygLMMBxdIOS4TIBRgQp3l5gp8aQ/UiQ=
+Subject: FAILED: patch "[PATCH] net: mscc: ocelot: fix race between ndo_get_stats64 and" failed to apply to 4.19-stable tree
 To:     vladimir.oltean@nxp.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 14:57:14 +0200
-Message-ID: <1661173034131183@kroah.com>
+Date:   Mon, 22 Aug 2022 14:57:15 +0200
+Message-ID: <1661173035237144@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
