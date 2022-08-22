@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B42F859BFD4
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:55:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 730C959BFE2
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232195AbiHVMzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 08:55:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33722 "EHLO
+        id S234204AbiHVM4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 08:56:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234965AbiHVMzc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:55:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6B0C1BEBF
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:55:31 -0700 (PDT)
+        with ESMTP id S234000AbiHVM4i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:56:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B2EFDF04
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:56:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61F0161152
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:55:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68662C433D6;
-        Mon, 22 Aug 2022 12:55:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0767AB81134
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:56:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 307E9C433D6;
+        Mon, 22 Aug 2022 12:56:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661172930;
-        bh=LJMe86dltAbusPJ1eHLHOHN9KFg+fhq1ZHw6X7mYYgI=;
+        s=korg; t=1661172994;
+        bh=kSUafjGo1S1pP0U8kr4HACQDG6xHvGoA2vBZl+niosc=;
         h=Subject:To:Cc:From:Date:From;
-        b=j3UTRsNrYau4VOqHPbfhvdio9dr97NQzRSXfd8ZjEPbfZ0mdNKY0Z3ESg7SVth10F
-         AF8KAWmDGVvrzXAKFi1YjsdIFGTt0flM/rJGRM39MSdA7Kr0ptIBximFFYWE6QdjCN
-         BPZ3B1xXAzDyw0fgPvucPhwHVRNjFg7ivTPnqOxk=
-Subject: FAILED: patch "[PATCH] net: moxa: pass pdev instead of ndev to DMA functions" failed to apply to 4.14-stable tree
-To:     saproj@gmail.com, andrew@lunn.ch, kuba@kernel.org
+        b=ji7xFbvxHV6uVvSjVBHrFNbYtpa2tI8dlCOPgR4wUwjkJmCVP2kg1kansWMG+I4AD
+         8gm6uQXSYtD3u6aAuK1xd1/auiztCqqM75IPsCAjyq4NjXS6BC4RxYdcEHwcBzEmwl
+         GdYfpxL6ji/B1ssYNSOm76w0ltUmv2xoHRfYhv9w=
+Subject: FAILED: patch "[PATCH] net: mscc: ocelot: fix incorrect ndo_get_stats64 packet" failed to apply to 5.15-stable tree
+To:     vladimir.oltean@nxp.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 14:55:17 +0200
-Message-ID: <166117291796235@kroah.com>
+Date:   Mon, 22 Aug 2022 14:56:31 +0200
+Message-ID: <1661172991152231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,109 +59,195 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3a12df22a8f68954a4ba48435c06b3d1791c87c4 Mon Sep 17 00:00:00 2001
-From: Sergei Antonov <saproj@gmail.com>
-Date: Fri, 12 Aug 2022 20:13:39 +0300
-Subject: [PATCH] net: moxa: pass pdev instead of ndev to DMA functions
+From 5152de7b79ab0be150f5966481b0c8f996192531 Mon Sep 17 00:00:00 2001
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Tue, 16 Aug 2022 16:53:46 +0300
+Subject: [PATCH] net: mscc: ocelot: fix incorrect ndo_get_stats64 packet
+ counters
 
-dma_map_single() calls fail in moxart_mac_setup_desc_ring() and
-moxart_mac_start_xmit() which leads to an incessant output of this:
+Reading stats using the SYS_COUNT_* register definitions is only used by
+ocelot_get_stats64() from the ocelot switchdev driver, however,
+currently the bucket definitions are incorrect.
 
-[   16.043925] moxart-ethernet 92000000.mac eth0: DMA mapping error
-[   16.050957] moxart-ethernet 92000000.mac eth0: DMA mapping error
-[   16.058229] moxart-ethernet 92000000.mac eth0: DMA mapping error
+Separately, on both RX and TX, we have the following problems:
+- a 256-1023 bucket which actually tracks the 256-511 packets
+- the 1024-1526 bucket actually tracks the 512-1023 packets
+- the 1527-max bucket actually tracks the 1024-1526 packets
 
-Passing pdev to DMA is a common approach among net drivers.
+=> nobody tracks the packets from the real 1527-max bucket
 
-Fixes: 6c821bd9edc9 ("net: Add MOXA ART SoCs ethernet driver")
-Signed-off-by: Sergei Antonov <saproj@gmail.com>
-Suggested-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220812171339.2271788-1-saproj@gmail.com
+Additionally, the RX_PAUSE, RX_CONTROL, RX_LONGS and RX_CLASSIFIED_DROPS
+all track the wrong thing. However this doesn't seem to have any
+consequence, since ocelot_get_stats64() doesn't use these.
+
+Even though this problem only manifests itself for the switchdev driver,
+we cannot split the fix for ocelot and for DSA, since it requires fixing
+the bucket definitions from enum ocelot_reg, which makes us necessarily
+adapt the structures from felix and seville as well.
+
+Fixes: 84705fc16552 ("net: dsa: felix: introduce support for Seville VSC9953 switch")
+Fixes: 56051948773e ("net: dsa: ocelot: add driver for Felix switch family")
+Fixes: a556c76adc05 ("net: mscc: Add initial Ocelot switch support")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/drivers/net/ethernet/moxa/moxart_ether.c b/drivers/net/ethernet/moxa/moxart_ether.c
-index a3214a762e4b..f11f1cb92025 100644
---- a/drivers/net/ethernet/moxa/moxart_ether.c
-+++ b/drivers/net/ethernet/moxa/moxart_ether.c
-@@ -77,7 +77,7 @@ static void moxart_mac_free_memory(struct net_device *ndev)
- 	int i;
- 
- 	for (i = 0; i < RX_DESC_NUM; i++)
--		dma_unmap_single(&ndev->dev, priv->rx_mapping[i],
-+		dma_unmap_single(&priv->pdev->dev, priv->rx_mapping[i],
- 				 priv->rx_buf_size, DMA_FROM_DEVICE);
- 
- 	if (priv->tx_desc_base)
-@@ -147,11 +147,11 @@ static void moxart_mac_setup_desc_ring(struct net_device *ndev)
- 		       desc + RX_REG_OFFSET_DESC1);
- 
- 		priv->rx_buf[i] = priv->rx_buf_base + priv->rx_buf_size * i;
--		priv->rx_mapping[i] = dma_map_single(&ndev->dev,
-+		priv->rx_mapping[i] = dma_map_single(&priv->pdev->dev,
- 						     priv->rx_buf[i],
- 						     priv->rx_buf_size,
- 						     DMA_FROM_DEVICE);
--		if (dma_mapping_error(&ndev->dev, priv->rx_mapping[i]))
-+		if (dma_mapping_error(&priv->pdev->dev, priv->rx_mapping[i]))
- 			netdev_err(ndev, "DMA mapping error\n");
- 
- 		moxart_desc_write(priv->rx_mapping[i],
-@@ -240,7 +240,7 @@ static int moxart_rx_poll(struct napi_struct *napi, int budget)
- 		if (len > RX_BUF_SIZE)
- 			len = RX_BUF_SIZE;
- 
--		dma_sync_single_for_cpu(&ndev->dev,
-+		dma_sync_single_for_cpu(&priv->pdev->dev,
- 					priv->rx_mapping[rx_head],
- 					priv->rx_buf_size, DMA_FROM_DEVICE);
- 		skb = netdev_alloc_skb_ip_align(ndev, len);
-@@ -294,7 +294,7 @@ static void moxart_tx_finished(struct net_device *ndev)
- 	unsigned int tx_tail = priv->tx_tail;
- 
- 	while (tx_tail != tx_head) {
--		dma_unmap_single(&ndev->dev, priv->tx_mapping[tx_tail],
-+		dma_unmap_single(&priv->pdev->dev, priv->tx_mapping[tx_tail],
- 				 priv->tx_len[tx_tail], DMA_TO_DEVICE);
- 
- 		ndev->stats.tx_packets++;
-@@ -358,9 +358,9 @@ static netdev_tx_t moxart_mac_start_xmit(struct sk_buff *skb,
- 
- 	len = skb->len > TX_BUF_SIZE ? TX_BUF_SIZE : skb->len;
- 
--	priv->tx_mapping[tx_head] = dma_map_single(&ndev->dev, skb->data,
-+	priv->tx_mapping[tx_head] = dma_map_single(&priv->pdev->dev, skb->data,
- 						   len, DMA_TO_DEVICE);
--	if (dma_mapping_error(&ndev->dev, priv->tx_mapping[tx_head])) {
-+	if (dma_mapping_error(&priv->pdev->dev, priv->tx_mapping[tx_head])) {
- 		netdev_err(ndev, "DMA mapping error\n");
- 		goto out_unlock;
- 	}
-@@ -379,7 +379,7 @@ static netdev_tx_t moxart_mac_start_xmit(struct sk_buff *skb,
- 		len = ETH_ZLEN;
- 	}
- 
--	dma_sync_single_for_device(&ndev->dev, priv->tx_mapping[tx_head],
-+	dma_sync_single_for_device(&priv->pdev->dev, priv->tx_mapping[tx_head],
- 				   priv->tx_buf_size, DMA_TO_DEVICE);
- 
- 	txdes1 = TX_DESC1_LTS | TX_DESC1_FTS | (len & TX_DESC1_BUF_SIZE_MASK);
-@@ -493,7 +493,7 @@ static int moxart_mac_probe(struct platform_device *pdev)
- 	priv->tx_buf_size = TX_BUF_SIZE;
- 	priv->rx_buf_size = RX_BUF_SIZE;
- 
--	priv->tx_desc_base = dma_alloc_coherent(&pdev->dev, TX_REG_DESC_SIZE *
-+	priv->tx_desc_base = dma_alloc_coherent(p_dev, TX_REG_DESC_SIZE *
- 						TX_DESC_NUM, &priv->tx_base,
- 						GFP_DMA | GFP_KERNEL);
- 	if (!priv->tx_desc_base) {
-@@ -501,7 +501,7 @@ static int moxart_mac_probe(struct platform_device *pdev)
- 		goto init_fail;
- 	}
- 
--	priv->rx_desc_base = dma_alloc_coherent(&pdev->dev, RX_REG_DESC_SIZE *
-+	priv->rx_desc_base = dma_alloc_coherent(p_dev, RX_REG_DESC_SIZE *
- 						RX_DESC_NUM, &priv->rx_base,
- 						GFP_DMA | GFP_KERNEL);
- 	if (!priv->rx_desc_base) {
+diff --git a/drivers/net/dsa/ocelot/felix_vsc9959.c b/drivers/net/dsa/ocelot/felix_vsc9959.c
+index 5859ef3b242c..e1ebe21cad00 100644
+--- a/drivers/net/dsa/ocelot/felix_vsc9959.c
++++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
+@@ -281,19 +281,23 @@ static const u32 vsc9959_sys_regmap[] = {
+ 	REG(SYS_COUNT_RX_64,			0x000024),
+ 	REG(SYS_COUNT_RX_65_127,		0x000028),
+ 	REG(SYS_COUNT_RX_128_255,		0x00002c),
+-	REG(SYS_COUNT_RX_256_1023,		0x000030),
+-	REG(SYS_COUNT_RX_1024_1526,		0x000034),
+-	REG(SYS_COUNT_RX_1527_MAX,		0x000038),
+-	REG(SYS_COUNT_RX_LONGS,			0x000044),
++	REG(SYS_COUNT_RX_256_511,		0x000030),
++	REG(SYS_COUNT_RX_512_1023,		0x000034),
++	REG(SYS_COUNT_RX_1024_1526,		0x000038),
++	REG(SYS_COUNT_RX_1527_MAX,		0x00003c),
++	REG(SYS_COUNT_RX_PAUSE,			0x000040),
++	REG(SYS_COUNT_RX_CONTROL,		0x000044),
++	REG(SYS_COUNT_RX_LONGS,			0x000048),
+ 	REG(SYS_COUNT_TX_OCTETS,		0x000200),
+ 	REG(SYS_COUNT_TX_COLLISION,		0x000210),
+ 	REG(SYS_COUNT_TX_DROPS,			0x000214),
+ 	REG(SYS_COUNT_TX_64,			0x00021c),
+ 	REG(SYS_COUNT_TX_65_127,		0x000220),
+-	REG(SYS_COUNT_TX_128_511,		0x000224),
+-	REG(SYS_COUNT_TX_512_1023,		0x000228),
+-	REG(SYS_COUNT_TX_1024_1526,		0x00022c),
+-	REG(SYS_COUNT_TX_1527_MAX,		0x000230),
++	REG(SYS_COUNT_TX_128_255,		0x000224),
++	REG(SYS_COUNT_TX_256_511,		0x000228),
++	REG(SYS_COUNT_TX_512_1023,		0x00022c),
++	REG(SYS_COUNT_TX_1024_1526,		0x000230),
++	REG(SYS_COUNT_TX_1527_MAX,		0x000234),
+ 	REG(SYS_COUNT_TX_AGING,			0x000278),
+ 	REG(SYS_RESET_CFG,			0x000e00),
+ 	REG(SYS_SR_ETYPE_CFG,			0x000e04),
+diff --git a/drivers/net/dsa/ocelot/seville_vsc9953.c b/drivers/net/dsa/ocelot/seville_vsc9953.c
+index ea0649211356..ebe9ddbbe2b7 100644
+--- a/drivers/net/dsa/ocelot/seville_vsc9953.c
++++ b/drivers/net/dsa/ocelot/seville_vsc9953.c
+@@ -277,19 +277,21 @@ static const u32 vsc9953_sys_regmap[] = {
+ 	REG(SYS_COUNT_RX_64,			0x000024),
+ 	REG(SYS_COUNT_RX_65_127,		0x000028),
+ 	REG(SYS_COUNT_RX_128_255,		0x00002c),
+-	REG(SYS_COUNT_RX_256_1023,		0x000030),
+-	REG(SYS_COUNT_RX_1024_1526,		0x000034),
+-	REG(SYS_COUNT_RX_1527_MAX,		0x000038),
++	REG(SYS_COUNT_RX_256_511,		0x000030),
++	REG(SYS_COUNT_RX_512_1023,		0x000034),
++	REG(SYS_COUNT_RX_1024_1526,		0x000038),
++	REG(SYS_COUNT_RX_1527_MAX,		0x00003c),
+ 	REG(SYS_COUNT_RX_LONGS,			0x000048),
+ 	REG(SYS_COUNT_TX_OCTETS,		0x000100),
+ 	REG(SYS_COUNT_TX_COLLISION,		0x000110),
+ 	REG(SYS_COUNT_TX_DROPS,			0x000114),
+ 	REG(SYS_COUNT_TX_64,			0x00011c),
+ 	REG(SYS_COUNT_TX_65_127,		0x000120),
+-	REG(SYS_COUNT_TX_128_511,		0x000124),
+-	REG(SYS_COUNT_TX_512_1023,		0x000128),
+-	REG(SYS_COUNT_TX_1024_1526,		0x00012c),
+-	REG(SYS_COUNT_TX_1527_MAX,		0x000130),
++	REG(SYS_COUNT_TX_128_255,		0x000124),
++	REG(SYS_COUNT_TX_256_511,		0x000128),
++	REG(SYS_COUNT_TX_512_1023,		0x00012c),
++	REG(SYS_COUNT_TX_1024_1526,		0x000130),
++	REG(SYS_COUNT_TX_1527_MAX,		0x000134),
+ 	REG(SYS_COUNT_TX_AGING,			0x000178),
+ 	REG(SYS_RESET_CFG,			0x000318),
+ 	REG_RESERVED(SYS_SR_ETYPE_CFG),
+diff --git a/drivers/net/ethernet/mscc/ocelot_net.c b/drivers/net/ethernet/mscc/ocelot_net.c
+index 5e6136e80282..9d8cea16245e 100644
+--- a/drivers/net/ethernet/mscc/ocelot_net.c
++++ b/drivers/net/ethernet/mscc/ocelot_net.c
+@@ -739,7 +739,8 @@ static void ocelot_get_stats64(struct net_device *dev,
+ 			    ocelot_read(ocelot, SYS_COUNT_RX_64) +
+ 			    ocelot_read(ocelot, SYS_COUNT_RX_65_127) +
+ 			    ocelot_read(ocelot, SYS_COUNT_RX_128_255) +
+-			    ocelot_read(ocelot, SYS_COUNT_RX_256_1023) +
++			    ocelot_read(ocelot, SYS_COUNT_RX_256_511) +
++			    ocelot_read(ocelot, SYS_COUNT_RX_512_1023) +
+ 			    ocelot_read(ocelot, SYS_COUNT_RX_1024_1526) +
+ 			    ocelot_read(ocelot, SYS_COUNT_RX_1527_MAX);
+ 	stats->multicast = ocelot_read(ocelot, SYS_COUNT_RX_MULTICAST);
+@@ -749,7 +750,8 @@ static void ocelot_get_stats64(struct net_device *dev,
+ 	stats->tx_bytes = ocelot_read(ocelot, SYS_COUNT_TX_OCTETS);
+ 	stats->tx_packets = ocelot_read(ocelot, SYS_COUNT_TX_64) +
+ 			    ocelot_read(ocelot, SYS_COUNT_TX_65_127) +
+-			    ocelot_read(ocelot, SYS_COUNT_TX_128_511) +
++			    ocelot_read(ocelot, SYS_COUNT_TX_128_255) +
++			    ocelot_read(ocelot, SYS_COUNT_TX_256_511) +
+ 			    ocelot_read(ocelot, SYS_COUNT_TX_512_1023) +
+ 			    ocelot_read(ocelot, SYS_COUNT_TX_1024_1526) +
+ 			    ocelot_read(ocelot, SYS_COUNT_TX_1527_MAX);
+diff --git a/drivers/net/ethernet/mscc/vsc7514_regs.c b/drivers/net/ethernet/mscc/vsc7514_regs.c
+index c2af4eb8ca5d..38ab20b48cd4 100644
+--- a/drivers/net/ethernet/mscc/vsc7514_regs.c
++++ b/drivers/net/ethernet/mscc/vsc7514_regs.c
+@@ -180,13 +180,14 @@ const u32 vsc7514_sys_regmap[] = {
+ 	REG(SYS_COUNT_RX_64,				0x000024),
+ 	REG(SYS_COUNT_RX_65_127,			0x000028),
+ 	REG(SYS_COUNT_RX_128_255,			0x00002c),
+-	REG(SYS_COUNT_RX_256_1023,			0x000030),
+-	REG(SYS_COUNT_RX_1024_1526,			0x000034),
+-	REG(SYS_COUNT_RX_1527_MAX,			0x000038),
+-	REG(SYS_COUNT_RX_PAUSE,				0x00003c),
+-	REG(SYS_COUNT_RX_CONTROL,			0x000040),
+-	REG(SYS_COUNT_RX_LONGS,				0x000044),
+-	REG(SYS_COUNT_RX_CLASSIFIED_DROPS,		0x000048),
++	REG(SYS_COUNT_RX_256_511,			0x000030),
++	REG(SYS_COUNT_RX_512_1023,			0x000034),
++	REG(SYS_COUNT_RX_1024_1526,			0x000038),
++	REG(SYS_COUNT_RX_1527_MAX,			0x00003c),
++	REG(SYS_COUNT_RX_PAUSE,				0x000040),
++	REG(SYS_COUNT_RX_CONTROL,			0x000044),
++	REG(SYS_COUNT_RX_LONGS,				0x000048),
++	REG(SYS_COUNT_RX_CLASSIFIED_DROPS,		0x00004c),
+ 	REG(SYS_COUNT_TX_OCTETS,			0x000100),
+ 	REG(SYS_COUNT_TX_UNICAST,			0x000104),
+ 	REG(SYS_COUNT_TX_MULTICAST,			0x000108),
+@@ -196,10 +197,11 @@ const u32 vsc7514_sys_regmap[] = {
+ 	REG(SYS_COUNT_TX_PAUSE,				0x000118),
+ 	REG(SYS_COUNT_TX_64,				0x00011c),
+ 	REG(SYS_COUNT_TX_65_127,			0x000120),
+-	REG(SYS_COUNT_TX_128_511,			0x000124),
+-	REG(SYS_COUNT_TX_512_1023,			0x000128),
+-	REG(SYS_COUNT_TX_1024_1526,			0x00012c),
+-	REG(SYS_COUNT_TX_1527_MAX,			0x000130),
++	REG(SYS_COUNT_TX_128_255,			0x000124),
++	REG(SYS_COUNT_TX_256_511,			0x000128),
++	REG(SYS_COUNT_TX_512_1023,			0x00012c),
++	REG(SYS_COUNT_TX_1024_1526,			0x000130),
++	REG(SYS_COUNT_TX_1527_MAX,			0x000134),
+ 	REG(SYS_COUNT_TX_AGING,				0x000170),
+ 	REG(SYS_RESET_CFG,				0x000508),
+ 	REG(SYS_CMID,					0x00050c),
+diff --git a/include/soc/mscc/ocelot.h b/include/soc/mscc/ocelot.h
+index ac151ecc7f19..e7e5b06deb2d 100644
+--- a/include/soc/mscc/ocelot.h
++++ b/include/soc/mscc/ocelot.h
+@@ -335,7 +335,8 @@ enum ocelot_reg {
+ 	SYS_COUNT_RX_64,
+ 	SYS_COUNT_RX_65_127,
+ 	SYS_COUNT_RX_128_255,
+-	SYS_COUNT_RX_256_1023,
++	SYS_COUNT_RX_256_511,
++	SYS_COUNT_RX_512_1023,
+ 	SYS_COUNT_RX_1024_1526,
+ 	SYS_COUNT_RX_1527_MAX,
+ 	SYS_COUNT_RX_PAUSE,
+@@ -351,7 +352,8 @@ enum ocelot_reg {
+ 	SYS_COUNT_TX_PAUSE,
+ 	SYS_COUNT_TX_64,
+ 	SYS_COUNT_TX_65_127,
+-	SYS_COUNT_TX_128_511,
++	SYS_COUNT_TX_128_255,
++	SYS_COUNT_TX_256_511,
+ 	SYS_COUNT_TX_512_1023,
+ 	SYS_COUNT_TX_1024_1526,
+ 	SYS_COUNT_TX_1527_MAX,
 
