@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D3D759BD6A
+	by mail.lfdr.de (Postfix) with ESMTP id 53ECC59BD69
 	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 12:15:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232473AbiHVKPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232543AbiHVKPm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 22 Aug 2022 06:15:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42944 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234616AbiHVKPb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 06:15:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 006B5EE08
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 03:15:29 -0700 (PDT)
+        with ESMTP id S234650AbiHVKPk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 06:15:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 271A7EE08
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 03:15:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EC43B80EFE
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 10:15:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5956C433C1;
-        Mon, 22 Aug 2022 10:15:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DBD03B8101B
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 10:15:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF594C433D6;
+        Mon, 22 Aug 2022 10:15:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661163327;
-        bh=rW4OBC07jkas+k1WxD3RIgWJ3+Ttwd5CNNtpJoDQwL8=;
+        s=korg; t=1661163336;
+        bh=RgGi/tIzanfdKKS5vCSIfQL2ikzB+oWZwYjCe1+uvEk=;
         h=Subject:To:Cc:From:Date:From;
-        b=hka7CI4ao+EUP+McX62mEvXrBDa5sNyeCZz9bynjzlwQbQBrTPkEGQyHsO0xLxV2X
-         7iSu7IeMBsM4+Zcu5ofPs55/twhqed7rH0LFMfP8cTkV4c45b0FgFsU+y+km4GWHzf
-         50EPct+96UfgvPSSvOGgeM4uJC+XZ+fApzfy9e3s=
-Subject: FAILED: patch "[PATCH] iavf: Fix deadlock in initialization" failed to apply to 5.4-stable tree
+        b=oC4wkdNcB+lxUPzvZWn43NB+HjbkSiRfSvz/CCUgIhuyrAAtjCnItE0bfTwJ0e3k8
+         x47IcHZTNwaLjNUwrKlEfW9JWo+TDkBWwQTagDzW8UdWivwvEwDh9hXuqBjpa16/gk
+         Gub6ggsLpmL/HwCHoGEOImiT2Vc79zQ0Xbckzav4=
+Subject: FAILED: patch "[PATCH] iavf: Fix deadlock in initialization" failed to apply to 5.10-stable tree
 To:     ivecera@redhat.com, anthony.l.nguyen@intel.com,
         konrad0.jankowski@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 12:15:24 +0200
-Message-ID: <166116332464154@kroah.com>
+Date:   Mon, 22 Aug 2022 12:15:25 +0200
+Message-ID: <1661163325187157@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
