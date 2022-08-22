@@ -2,67 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14C4E59BF3F
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:08:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB3459BFA6
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:45:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229882AbiHVMHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 08:07:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46436 "EHLO
+        id S231172AbiHVMpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 08:45:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233467AbiHVMHq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:07:46 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FFE239BBC
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:07:45 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id m10-20020a17090a730a00b001fa986fd8eeso13788814pjk.0
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:07:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc;
-        bh=hVzibnCopXeSOVD5KhXgMM0roqftEojLdUhrsyWiOtY=;
-        b=ozrhkAmAHz5jiuj8Mww6B9MZ2fXfc0Dtp626aZGhDOOCKJehZpejWVMbq0AVeAxdmI
-         VepV0fJqAsgJzxXPSMeMf3p+HZTx+M7E+HT59hxX8A7KXYrKkf/9Cbu0ogVNdi5rj+9w
-         6TX7m4TUiLyg1p+Mr4ciwdswcUmjzccjfnhoXhhYwboVC8Y8BuOIj3UyB3GicODhsiv9
-         LnnU54L2gZe1V5E35y53oMbkCf9nP6YsO6ZmF4zOVlZIVZas2MR0JEzka+7SpWt+2g45
-         Ohv+3oBDkn6Hmm0efUtLcpvTaxa5U8IEUBl7ZD5ZImnAF3YfSRYQLRMm/U08V5o3xAAI
-         3vQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc;
-        bh=hVzibnCopXeSOVD5KhXgMM0roqftEojLdUhrsyWiOtY=;
-        b=K0K5lKPWzRZ80BWs3yCt+mKZuJ9kuFUcFHFV2Jj94queEKzl6IRAV2IXoOR00MmByC
-         wgvMmHFo4+HWtbpnRJjv7PcHUVF/DxBZ7UqcrIUHKgQdi51F5muUe4UCUey0BUuAqIcM
-         OW642UHLr4WFkoZHedWxiZoPRxLvPlzY5v/jIqF3djlgEEq3SKUXZxFpFZRBC0Zd7P5Q
-         fUXZNzhUGLw74EGRGPDFXQlZrtFNKTe1fCXdka8AbjcF/qPqMj96yQU4RDB326MeKQ8Z
-         wnQD2ONVBLtJhcFH+3Eyo1UZa+jeQjhyN8HnWMw5XIOs/aLU316mBAn/UiwUYvSGc7hX
-         9idQ==
-X-Gm-Message-State: ACgBeo15bTl3HYcmpc4KSFMKJS94dDtkUm2oYa5ubSP5qHT006iHqq2f
-        JQqBSaRpCyWHMN5R4GCuQyFWwCYSrIZm17k7UyG2Fg==
-X-Google-Smtp-Source: AA6agR7iT0bxvObjEhDfuKNtTJ0jGL8t6aUzhuExqJsaPc3FQgbP9unZa+fB5y902zreGxsO+RHIQb0RPHCkDcCVkck=
-X-Received: by 2002:a17:902:d50b:b0:172:a41f:b204 with SMTP id
- b11-20020a170902d50b00b00172a41fb204mr19617232plg.70.1661170064646; Mon, 22
- Aug 2022 05:07:44 -0700 (PDT)
+        with ESMTP id S234057AbiHVMpY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:45:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7FEA33418
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:45:22 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5AD71B81195
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:45:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BCA2C433C1;
+        Mon, 22 Aug 2022 12:45:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661172320;
+        bh=Eod1N6gKTBvI6rMRRpxrpl6Do2czlmSic75ftPQvrLI=;
+        h=Subject:To:Cc:From:Date:From;
+        b=r/D3e0UV0IN1o8jCbcKsiM3+pJhF/3p5Qg60QcTD2qfcBEZtyzi1XdmhzN9L8XUXg
+         cYJ2aX2tspYeHUKV2QWYqk6X5fcaU5QFsGvKAeeQwHVJTnCl/adaXp9VuZ6OykoUn9
+         3Nhd19KEw2RnLKXCjIVonYOYSiQCrgmhSbxwJIUg=
+Subject: FAILED: patch "[PATCH] iavf: Fix deadlock in initialization" failed to apply to 5.15-stable tree
+To:     ivecera@redhat.com, anthony.l.nguyen@intel.com,
+        konrad0.jankowski@intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 22 Aug 2022 14:45:16 +0200
+Message-ID: <166117231662182@kroah.com>
 MIME-Version: 1.0
-References: <20220822092621.3691771-1-jens.wiklander@linaro.org>
- <YwNTdQTj8SC/wnYD@kroah.com> <YwNT8tkhHl6K5D2L@kroah.com>
-In-Reply-To: <YwNT8tkhHl6K5D2L@kroah.com>
-From:   Jens Wiklander <jens.wiklander@linaro.org>
-Date:   Mon, 22 Aug 2022 14:07:33 +0200
-Message-ID: <CAHUa44Ehnuuwpw9apQWcgyMqrgfTaGvP=g+EsH3Y-phkgj+AGA@mail.gmail.com>
-Subject: Re: [PATCH] tee: add overflow check in tee_ioctl_shm_register()
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        Jerome Forissier <jerome.forissier@linaro.org>,
-        Nimish Mishra <neelam.nimish@gmail.com>,
-        Anirban Chakraborty <ch.anirban00727@gmail.com>,
-        Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -71,62 +48,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 22, 2022 at 12:01 PM Greg KH <gregkh@linuxfoundation.org> wrote=
-:
->
-> On Mon, Aug 22, 2022 at 11:59:17AM +0200, Greg KH wrote:
-> > On Mon, Aug 22, 2022 at 11:26:21AM +0200, Jens Wiklander wrote:
-> > > commit 573ae4f13f630d6660008f1974c0a8a29c30e18a upstream.
-> > >
-> > > With special lengths supplied by user space, tee_shm_register() has
-> > > an integer overflow when calculating the number of pages covered by a
-> > > supplied user space memory region.
-> > >
-> > > This may cause pin_user_pages_fast() to do a NULL pointer dereference=
-.
-> > >
-> > > Fix this by adding an an explicit call to access_ok() in
-> > > tee_ioctl_shm_register() to catch an invalid user space address early=
-.
-> > >
-> > > Fixes: 033ddf12bcf5 ("tee: add register user memory")
-> > > Cc: stable@vger.kernel.org # 5.4
-> > > Reported-by: Nimish Mishra <neelam.nimish@gmail.com>
-> > > Reported-by: Anirban Chakraborty <ch.anirban00727@gmail.com>
-> > > Reported-by: Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>
-> > > Suggested-by: Jerome Forissier <jerome.forissier@linaro.org>
-> > > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > > [JW: backport to stable-5.4 + update commit message]
-> >
-> > Will this also work for 4.19?
->
-> Nope, it breaks the build on 4.19.y, needs a different backport there:
 
-Yeah, I'm just about to post a 4.19.y backport too.
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Cheers,
-Jens
+thanks,
 
->
->   CC [M]  drivers/tee/tee_core.o
-> drivers/tee/tee_core.c: In function =E2=80=98tee_ioctl_shm_register=E2=80=
-=99:
-> drivers/tee/tee_core.c:178:76: error: macro "access_ok" requires 3 argume=
-nts, but only 2 given
->   178 |         if (!access_ok((void __user *)(unsigned long)data.addr, d=
-ata.length))
->       |                                                                  =
-          ^
-> In file included from ./include/linux/uaccess.h:14,
->                  from drivers/tee/tee_core.c:24:
-> ./arch/x86/include/asm/uaccess.h:98: note: macro "access_ok" defined here
->    98 | #define access_ok(type, addr, size)                              =
-       \
->       |
-> drivers/tee/tee_core.c:178:14: error: =E2=80=98access_ok=E2=80=99 undecla=
-red (first use in this function)
->   178 |         if (!access_ok((void __user *)(unsigned long)data.addr, d=
-ata.length))
->       |              ^~~~~~~~~
->
->
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From cbe9e51126305832cf407ee6bb556ce831488ffe Mon Sep 17 00:00:00 2001
+From: Ivan Vecera <ivecera@redhat.com>
+Date: Mon, 8 Aug 2022 19:58:45 +0200
+Subject: [PATCH] iavf: Fix deadlock in initialization
+
+Fix deadlock that occurs when iavf interface is a part of failover
+configuration.
+
+1. Mutex crit_lock is taken at the beginning of iavf_watchdog_task()
+2. Function iavf_init_config_adapter() is called when adapter
+   state is __IAVF_INIT_CONFIG_ADAPTER
+3. iavf_init_config_adapter() calls register_netdevice() that emits
+   NETDEV_REGISTER event
+4. Notifier function failover_event() then calls
+   net_failover_slave_register() that calls dev_open()
+5. dev_open() calls iavf_open() that tries to take crit_lock in
+   end-less loop
+
+Stack trace:
+...
+[  790.251876]  usleep_range_state+0x5b/0x80
+[  790.252547]  iavf_open+0x37/0x1d0 [iavf]
+[  790.253139]  __dev_open+0xcd/0x160
+[  790.253699]  dev_open+0x47/0x90
+[  790.254323]  net_failover_slave_register+0x122/0x220 [net_failover]
+[  790.255213]  failover_slave_register.part.7+0xd2/0x180 [failover]
+[  790.256050]  failover_event+0x122/0x1ab [failover]
+[  790.256821]  notifier_call_chain+0x47/0x70
+[  790.257510]  register_netdevice+0x20f/0x550
+[  790.258263]  iavf_watchdog_task+0x7c8/0xea0 [iavf]
+[  790.259009]  process_one_work+0x1a7/0x360
+[  790.259705]  worker_thread+0x30/0x390
+
+To fix the situation we should check the current adapter state after
+first unsuccessful mutex_trylock() and return with -EBUSY if it is
+__IAVF_INIT_CONFIG_ADAPTER.
+
+Fixes: 226d528512cf ("iavf: fix locking of critical sections")
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 95d4348e7579..f39440ad5c50 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -4088,8 +4088,17 @@ static int iavf_open(struct net_device *netdev)
+ 		return -EIO;
+ 	}
+ 
+-	while (!mutex_trylock(&adapter->crit_lock))
++	while (!mutex_trylock(&adapter->crit_lock)) {
++		/* If we are in __IAVF_INIT_CONFIG_ADAPTER state the crit_lock
++		 * is already taken and iavf_open is called from an upper
++		 * device's notifier reacting on NETDEV_REGISTER event.
++		 * We have to leave here to avoid dead lock.
++		 */
++		if (adapter->state == __IAVF_INIT_CONFIG_ADAPTER)
++			return -EBUSY;
++
+ 		usleep_range(500, 1000);
++	}
+ 
+ 	if (adapter->state != __IAVF_DOWN) {
+ 		err = -EBUSY;
+
