@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0C5C59BFE8
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:59:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D966959BFFF
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 15:01:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234639AbiHVM6V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 08:58:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35816 "EHLO
+        id S229565AbiHVNBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 09:01:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234652AbiHVM6U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:58:20 -0400
+        with ESMTP id S234820AbiHVNA2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 09:00:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABAAF6579
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:58:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55CEF30549
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 06:00:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19B1CB81134
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:58:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66072C433C1;
-        Mon, 22 Aug 2022 12:58:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00C74B811CF
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 13:00:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35202C433C1;
+        Mon, 22 Aug 2022 13:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661173096;
-        bh=A7ILIYJIHYKxAspthybuSnuh+3URniniLAPtdCi44sQ=;
+        s=korg; t=1661173224;
+        bh=yNbYuwjT0PxJt6l+uHT9VZy/07v2G/VyQWJZAYiUWAQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=rHc0t8bEJ0OcXbI/wn8W7f/aPE62gYI5sqM0EghjMB9L2PtSSJJ7qXP/AJ7MhIto1
-         4KAp4ouqc5S+ndJ7S01U934c2VjFSA8I51yqLnyFgDFCRJ0Dt1NIKVoKQ9xhS5FOjY
-         sUpEuOSnf/Trjjq+Q98b/Gsmtr507EW8UmcMiDyY=
-Subject: FAILED: patch "[PATCH] net: dsa: don't warn in dsa_port_set_state_now() when driver" failed to apply to 4.14-stable tree
-To:     vladimir.oltean@nxp.com, kuba@kernel.org, saproj@gmail.com
+        b=Rg62XDbBeuB9tEl7PbHr4G0BKuHFhCwWjEqrZwFV4AZU3MNv4h6dzSVsA8+mfgGiR
+         SUBHwdO9bTVj1frfLEa9sZi6T1vHdXLWhb1n3KghnSvB9dgwEnUd3WD875NnU2Xf6h
+         XXUxQAcG22z2cGJMAsoJmp/Wgj2+gWHIHOz2ww+M=
+Subject: FAILED: patch "[PATCH] i2c: imx: Make sure to unregister adapter on remove()" failed to apply to 4.19-stable tree
+To:     u.kleine-koenig@pengutronix.de, o.rempel@pengutronix.de,
+        wsa@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 14:58:01 +0200
-Message-ID: <166117308126244@kroah.com>
+Date:   Mon, 22 Aug 2022 15:00:13 +0200
+Message-ID: <1661173213229119@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,47 +60,69 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 211987f3ac734000ea1548784b2a4539a974fbc8 Mon Sep 17 00:00:00 2001
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Tue, 16 Aug 2022 23:14:45 +0300
-Subject: [PATCH] net: dsa: don't warn in dsa_port_set_state_now() when driver
- doesn't support it
+From d98bdd3a5b50446d8e010be5b04ce81c4eabf728 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Date: Wed, 20 Jul 2022 17:09:33 +0200
+Subject: [PATCH] i2c: imx: Make sure to unregister adapter on remove()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-ds->ops->port_stp_state_set() is, like most DSA methods, optional, and
-if absent, the port is supposed to remain in the forwarding state (as
-standalone). Such is the case with the mv88e6060 driver, which does not
-offload the bridge layer. DSA warns that the STP state can't be changed
-to FORWARDING as part of dsa_port_enable_rt(), when in fact it should not.
+If for whatever reasons pm_runtime_resume_and_get() fails and .remove() is
+exited early, the i2c adapter stays around and the irq still calls its
+handler, while the driver data and the register mapping go away. So if
+later the i2c adapter is accessed or the irq triggers this results in
+havoc accessing freed memory and unmapped registers.
 
-The error message is also not up to modern standards, so take the
-opportunity to make it more descriptive.
+So unregister the software resources even if resume failed, and only skip
+the hardware access in that case.
 
-Fixes: fd3645413197 ("net: dsa: change scope of STP state setter")
-Reported-by: Sergei Antonov <saproj@gmail.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Sergei Antonov <saproj@gmail.com>
-Link: https://lore.kernel.org/r/20220816201445.1809483-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 588eb93ea49f ("i2c: imx: add runtime pm support to improve the performance")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 
-diff --git a/net/dsa/port.c b/net/dsa/port.c
-index 2dd76eb1621c..a8895ee3cd60 100644
---- a/net/dsa/port.c
-+++ b/net/dsa/port.c
-@@ -145,11 +145,14 @@ int dsa_port_set_state(struct dsa_port *dp, u8 state, bool do_fast_age)
- static void dsa_port_set_state_now(struct dsa_port *dp, u8 state,
- 				   bool do_fast_age)
- {
-+	struct dsa_switch *ds = dp->ds;
- 	int err;
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 78fb1a4274a6..e47fa3465671 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1572,9 +1572,7 @@ static int i2c_imx_remove(struct platform_device *pdev)
+ 	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
+ 	int irq, ret;
  
- 	err = dsa_port_set_state(dp, state, do_fast_age);
--	if (err)
--		pr_err("DSA: failed to set STP state %u (%d)\n", state, err);
-+	if (err && err != -EOPNOTSUPP) {
-+		dev_err(ds->dev, "port %d failed to set STP state %u: %pe\n",
-+			dp->index, state, ERR_PTR(err));
+-	ret = pm_runtime_resume_and_get(&pdev->dev);
+-	if (ret < 0)
+-		return ret;
++	ret = pm_runtime_get_sync(&pdev->dev);
+ 
+ 	hrtimer_cancel(&i2c_imx->slave_timer);
+ 
+@@ -1585,17 +1583,21 @@ static int i2c_imx_remove(struct platform_device *pdev)
+ 	if (i2c_imx->dma)
+ 		i2c_imx_dma_free(i2c_imx);
+ 
+-	/* setup chip registers to defaults */
+-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
+-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
+-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2CR);
+-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
++	if (ret == 0) {
++		/* setup chip registers to defaults */
++		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
++		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
++		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2CR);
++		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
++		clk_disable(i2c_imx->clk);
 +	}
- }
  
- int dsa_port_set_mst_state(struct dsa_port *dp,
+ 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq >= 0)
+ 		free_irq(irq, i2c_imx);
+-	clk_disable_unprepare(i2c_imx->clk);
++
++	clk_unprepare(i2c_imx->clk);
+ 
+ 	pm_runtime_put_noidle(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
 
