@@ -2,50 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D370E59BD47
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 12:01:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB0C159BD59
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 12:08:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233406AbiHVKBc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 06:01:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59174 "EHLO
+        id S232473AbiHVKIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 06:08:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234372AbiHVKB2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 06:01:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61B0731EEB
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 03:01:26 -0700 (PDT)
+        with ESMTP id S234493AbiHVKIk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 06:08:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11D6CEE31
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 03:08:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DFD5760F8D
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 10:01:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E60EEC433C1;
-        Mon, 22 Aug 2022 10:01:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BBBF3B81011
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 10:08:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 016ADC433D6;
+        Mon, 22 Aug 2022 10:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661162485;
-        bh=bO/ALU+BgGGJCirLHmzFrC3tMjo6CNH75F00tpAQeG4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Qj6fx4MRQ2YyOvSg1UYoCuKwNTZxrZe7SQPa0Wtv+fGF9XlThijQ3qy0RBB6XU1KF
-         EdVQQL9Zz15Roe2n54PZsXsRXB8lx/Qphmcf6G7WyoLRaUvcx9tnXow/3nAOMwoxgy
-         LvOeuQy059/yWkyKXipVxWV5OrNx/uaq8RGuHv7M=
-Date:   Mon, 22 Aug 2022 12:01:22 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jens Wiklander <jens.wiklander@linaro.org>
-Cc:     stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        Jerome Forissier <jerome.forissier@linaro.org>,
-        Nimish Mishra <neelam.nimish@gmail.com>,
-        Anirban Chakraborty <ch.anirban00727@gmail.com>,
-        Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH] tee: add overflow check in tee_ioctl_shm_register()
-Message-ID: <YwNT8tkhHl6K5D2L@kroah.com>
-References: <20220822092621.3691771-1-jens.wiklander@linaro.org>
- <YwNTdQTj8SC/wnYD@kroah.com>
+        s=korg; t=1661162916;
+        bh=ncpRdTJmyzJNykpOrXFz0G0AJbGLTV807bBdpn0G/Fc=;
+        h=Subject:To:Cc:From:Date:From;
+        b=FIsVXAiLy6gsk3k/hza2jzpkZfH2nGc2rUhQhLzlvVaP1PgXu1ri6AJIeMFeyUIMj
+         wFMbE7k3FuVHSv46uOGHfIOupKvPhJDPFFXf8hxjOAYe1yiwZKmizULqbmhcstNsGH
+         3YZ4gpzWO6V32sa9MgZ6umZcJ+DfcUytILeYbE5w=
+Subject: FAILED: patch "[PATCH] fs/ntfs3: Check reserved size for maximum allowed" failed to apply to 5.19-stable tree
+To:     almaz.alexandrovich@paragon-software.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 22 Aug 2022 12:08:33 +0200
+Message-ID: <166116291319551@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <YwNTdQTj8SC/wnYD@kroah.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -56,44 +47,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 22, 2022 at 11:59:17AM +0200, Greg KH wrote:
-> On Mon, Aug 22, 2022 at 11:26:21AM +0200, Jens Wiklander wrote:
-> > commit 573ae4f13f630d6660008f1974c0a8a29c30e18a upstream.
-> > 
-> > With special lengths supplied by user space, tee_shm_register() has
-> > an integer overflow when calculating the number of pages covered by a
-> > supplied user space memory region.
-> > 
-> > This may cause pin_user_pages_fast() to do a NULL pointer dereference.
-> > 
-> > Fix this by adding an an explicit call to access_ok() in
-> > tee_ioctl_shm_register() to catch an invalid user space address early.
-> > 
-> > Fixes: 033ddf12bcf5 ("tee: add register user memory")
-> > Cc: stable@vger.kernel.org # 5.4
-> > Reported-by: Nimish Mishra <neelam.nimish@gmail.com>
-> > Reported-by: Anirban Chakraborty <ch.anirban00727@gmail.com>
-> > Reported-by: Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>
-> > Suggested-by: Jerome Forissier <jerome.forissier@linaro.org>
-> > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > [JW: backport to stable-5.4 + update commit message]
-> 
-> Will this also work for 4.19?
 
-Nope, it breaks the build on 4.19.y, needs a different backport there:
+The patch below does not apply to the 5.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-  CC [M]  drivers/tee/tee_core.o
-drivers/tee/tee_core.c: In function ‘tee_ioctl_shm_register’:
-drivers/tee/tee_core.c:178:76: error: macro "access_ok" requires 3 arguments, but only 2 given
-  178 |         if (!access_ok((void __user *)(unsigned long)data.addr, data.length))
-      |                                                                            ^
-In file included from ./include/linux/uaccess.h:14,
-                 from drivers/tee/tee_core.c:24:
-./arch/x86/include/asm/uaccess.h:98: note: macro "access_ok" defined here
-   98 | #define access_ok(type, addr, size)                                     \
-      |
-drivers/tee/tee_core.c:178:14: error: ‘access_ok’ undeclared (first use in this function)
-  178 |         if (!access_ok((void __user *)(unsigned long)data.addr, data.length))
-      |              ^~~~~~~~~
+thanks,
 
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 13747aac8984e069427e5de5d68bb6cefa98551e Mon Sep 17 00:00:00 2001
+From: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Date: Thu, 12 May 2022 19:18:11 +0300
+Subject: [PATCH] fs/ntfs3: Check reserved size for maximum allowed
+
+Also don't mask EFBIG
+Fixes xfstest generic/485
+Fixes: 4342306f0f0d ("fs/ntfs3: Add file operations and implementation")
+
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+
+diff --git a/fs/ntfs3/attrib.c b/fs/ntfs3/attrib.c
+index 3e9aefcb3e6c..c9b718143603 100644
+--- a/fs/ntfs3/attrib.c
++++ b/fs/ntfs3/attrib.c
+@@ -2114,9 +2114,11 @@ int attr_insert_range(struct ntfs_inode *ni, u64 vbo, u64 bytes)
+ 
+ 	if (!attr_b->non_res) {
+ 		data_size = le32_to_cpu(attr_b->res.data_size);
++		alloc_size = data_size;
+ 		mask = sbi->cluster_mask; /* cluster_size - 1 */
+ 	} else {
+ 		data_size = le64_to_cpu(attr_b->nres.data_size);
++		alloc_size = le64_to_cpu(attr_b->nres.alloc_size);
+ 		mask = (sbi->cluster_size << attr_b->nres.c_unit) - 1;
+ 	}
+ 
+@@ -2130,6 +2132,13 @@ int attr_insert_range(struct ntfs_inode *ni, u64 vbo, u64 bytes)
+ 		return -EINVAL;
+ 	}
+ 
++	/*
++	 * valid_size <= data_size <= alloc_size
++	 * Check alloc_size for maximum possible.
++	 */
++	if (bytes > sbi->maxbytes_sparse - alloc_size)
++		return -EFBIG;
++
+ 	vcn = vbo >> sbi->cluster_bits;
+ 	len = bytes >> sbi->cluster_bits;
+ 
+diff --git a/fs/ntfs3/file.c b/fs/ntfs3/file.c
+index bdffe4b8554b..cf16bde810cc 100644
+--- a/fs/ntfs3/file.c
++++ b/fs/ntfs3/file.c
+@@ -733,9 +733,6 @@ static long ntfs_fallocate(struct file *file, int mode, loff_t vbo, loff_t len)
+ 	if (map_locked)
+ 		filemap_invalidate_unlock(mapping);
+ 
+-	if (err == -EFBIG)
+-		err = -ENOSPC;
+-
+ 	if (!err) {
+ 		inode->i_ctime = inode->i_mtime = current_time(inode);
+ 		mark_inode_dirty(inode);
 
