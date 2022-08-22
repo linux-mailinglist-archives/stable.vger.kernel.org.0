@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0574759BFE5
+	by mail.lfdr.de (Postfix) with ESMTP id 7B78B59BFE6
 	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 14:57:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234115AbiHVM5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 08:57:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34738 "EHLO
+        id S229565AbiHVM5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 08:57:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234037AbiHVM5M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:57:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 848FA31202
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:57:10 -0700 (PDT)
+        with ESMTP id S234543AbiHVM5J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 08:57:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EFFB3054A
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 05:57:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D91061158
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:57:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B0BAC433D6;
-        Mon, 22 Aug 2022 12:57:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C30F4B81134
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 12:57:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1700C433D6;
+        Mon, 22 Aug 2022 12:57:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661173029;
-        bh=Q7wFM2FumhsynrNOygAwVwxovFVzn1X/iFHTj2ugg+Y=;
+        s=korg; t=1661173021;
+        bh=T/SpBPO5uyxtf9ghlY3gbVetb6AVSOcUe9ZNLHJDOpI=;
         h=Subject:To:Cc:From:Date:From;
-        b=LvMt1EGau+ONXmIZ5Efx6FHVoUBLr1kRMkQY7kZiC9YkeEa1+aVyrNytX7Q2QbqGw
-         zbsNosaetfMGf4z8jtXMaFgNcu/qGchYQhBCH9c87nRdY+wlXHgkX4S/HZTCYpkQOr
-         tKMQVS9rHyiCFFX/GzTq7McQ9PdO3gHwakIhXCXc=
-Subject: FAILED: patch "[PATCH] net: mscc: ocelot: fix address of SYS_COUNT_TX_AGING counter" failed to apply to 5.10-stable tree
+        b=orbGI3/M0rnxNoy4briKbK1Q9hTC/7NR36UC2IZrWcq2fbD7c+3io9mAUX0fhCOaP
+         AX9ckRR1LXI4TvuQQT8szYGtD0sn3A58C9P5Rn0El1QbkEewzLU0bx5rqgWHXzwwhp
+         On/cDhzirS1stBpjCt14Q7582bj38S6H7QoOfM88=
+Subject: FAILED: patch "[PATCH] net: mscc: ocelot: fix address of SYS_COUNT_TX_AGING counter" failed to apply to 5.15-stable tree
 To:     vladimir.oltean@nxp.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 22 Aug 2022 14:56:58 +0200
-Message-ID: <166117301880192@kroah.com>
+Message-ID: <166117301816284@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
