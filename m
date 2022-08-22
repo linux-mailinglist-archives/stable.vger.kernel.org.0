@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DF5059BAED
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:06:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBB3F59BADC
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:06:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233671AbiHVIFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:05:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57282 "EHLO
+        id S233679AbiHVIFD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:05:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233684AbiHVIEq (ORCPT
+        with ESMTP id S229635AbiHVIEq (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:04:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04CD22B24F
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:04:00 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BFF32B1A6
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:04:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EDAD60C71
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:03:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73046C433C1;
-        Mon, 22 Aug 2022 08:03:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCC9F6100A
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:04:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0230C433C1;
+        Mon, 22 Aug 2022 08:04:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661155438;
-        bh=OFepda0rBO3zIxQcTSkKGenX23+IHHrQMKV+P/EepO0=;
+        s=korg; t=1661155442;
+        bh=HGYOUjB0fODM8aCnS0eyI+4aTn2GRxIcuRBpcJYv2+U=;
         h=Subject:To:Cc:From:Date:From;
-        b=yReaiTO8i3i2D4+PhSZWfXV4IzR1N9wcBjWf13pu6p4Uaj4SpaYw0VbmCzhQg4wCa
-         ZoNNHiUgZ/zR7fsC865VI+oiz2hWXywMG5U2MEn3vncNwJjyejYpGWos6TV0u7oW94
-         p/lhM//qdNF/3B8KwLVzBi/BYKWf9QdUfQNJjspM=
-Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Turn off 'manual mode' on Dell dock" failed to apply to 5.15-stable tree
+        b=edWx8mx7bL5vdEJReP9BSk1FM7te3pI6HiHLprB7knsB/cY5HFYuMICQyOO6Lrn2d
+         IR+mRYv3MVPEMVlC9x42z3ME/Tajf4bx6+UjTP0d8PI5k+hbYklpxYp+PxJfoD8Piz
+         h8nxcxvDDQ9+7Dn8KfG7JISmqq9On2WYJxeI9B9E=
+Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Turn off 'manual mode' on Dell dock" failed to apply to 5.10-stable tree
 To:     jan@jschaer.ch, tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 10:03:54 +0200
-Message-ID: <1661155434109122@kroah.com>
+Date:   Mon, 22 Aug 2022 10:03:55 +0200
+Message-ID: <166115543513954@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
