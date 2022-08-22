@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98ED059BAD0
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:03:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC5459BAC9
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:03:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233540AbiHVICR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:02:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54704 "EHLO
+        id S233662AbiHVICm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:02:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233559AbiHVICL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:02:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5210D2B1A6
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:02:00 -0700 (PDT)
+        with ESMTP id S233563AbiHVIC0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:02:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3E082B264
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:02:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB2E661012
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:01:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACE88C433C1;
-        Mon, 22 Aug 2022 08:01:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5956261012
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:02:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D766C433D7;
+        Mon, 22 Aug 2022 08:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661155319;
-        bh=0G3LLLGwLqmNpYBo4I31HS4lbX50oncgi1vVAkl9T84=;
+        s=korg; t=1661155327;
+        bh=d3YU2a/7qa60BG2WCUXapUR2genDnEaKOvkcskwtxWY=;
         h=Subject:To:Cc:From:Date:From;
-        b=yk5ICvyxb6HnwUP/F0WuBjVaVi166rR5flSo+WULPr3gva0W6CXqkfDpyUE2Lw4Oa
-         BwBe1ziWK2I2/UlAR+VjDNgXB3JtK11kG6QYyyZlO0cluZj8o7NLTwz8ReEob1t9U8
-         a67EaTDJ11ULgopNYRAmoVvn3vxZgYqjGBf8JvD8=
-Subject: FAILED: patch "[PATCH] ALSA: usb-audio: More comprehensive mixer map for ASUS ROG" failed to apply to 5.4-stable tree
+        b=1B6nfElhHSBA/gpcA3pHhylGYT4TILrxNiwh0zBcVFM+ApFUG4Lmz8cx2QXS9l6Ny
+         XlDiivYxIC8k8PNI++XMeBkBggO0/i4e8WZGkcvTP34o97++XwaIPWr97Z7NJU/UmE
+         5C/hvW8x5xLKKWtRKshqZech9a6bNgixOMzOxo8Q=
+Subject: FAILED: patch "[PATCH] ALSA: usb-audio: More comprehensive mixer map for ASUS ROG" failed to apply to 4.19-stable tree
 To:     tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 22 Aug 2022 10:01:56 +0200
-Message-ID: <166115531614916@kroah.com>
+Message-ID: <166115531610065@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
