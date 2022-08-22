@@ -2,45 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE4B659BAF0
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:06:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7285A59BB02
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 10:08:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232048AbiHVIFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 04:05:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54704 "EHLO
+        id S233602AbiHVIHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 04:07:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233602AbiHVIEv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:04:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFB692CC93
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 01:04:13 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DE5261006
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 08:04:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80D83C433C1;
-        Mon, 22 Aug 2022 08:04:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661155452;
-        bh=Z8exNolnUHCkOXBVWYLHkj/P696kaS3+AhemHnglEws=;
-        h=Subject:To:Cc:From:Date:From;
-        b=HxQPV/fmkfWPNIJ7fkwj+ntwdgVFIFXPpmSqCnvPGlO7MKBQiKkDNG6kpu2Q7zESv
-         AzRty/Xv/nDuSxw2IE7nZsg2KDAQOOoggwyC4f3z4n7/UbYg4xaNSPGNUaowB/rByF
-         fq0nlNNS4lLJXsIbVO1Zh0V4fyDmcAkFtHZUhnsM=
-Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Turn off 'manual mode' on Dell dock" failed to apply to 4.19-stable tree
-To:     jan@jschaer.ch, tiwai@suse.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 10:03:57 +0200
-Message-ID: <166115543718142@kroah.com>
+        with ESMTP id S233393AbiHVIEz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 04:04:55 -0400
+Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C5CA2B1BF;
+        Mon, 22 Aug 2022 01:04:17 -0700 (PDT)
+Received: (Authenticated sender: paul.kocialkowski@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 915AE40002;
+        Mon, 22 Aug 2022 08:04:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1661155456;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Af8UEwDVr1WeGoIs7qSh0v1VGOmRYqe15mtkRmwM7uI=;
+        b=F6wrILK6/Vtb/q8w5hOXTvAsOa3WjkHRwEnPve2X3KrHfH1qA61FhjSKDyZrYWPg/yj3hV
+        HFTOtY/Qu8Oi/VWaorVVxt+27huAxDuUSodv34SjWC99G4DvSZsti2lCCk6e5iuFlaGmVI
+        CC/4b6m2ZoRNFAgueszlc7rX4iTGBqthYkeqISeAR63AkgPINL78Z39GLMOZ8E48S6xDDX
+        r0LdNf7sudzs+grPZ4SfAQ/EyhF1WsoDGHH0DEri8U2IBF0eN26CSmi9MUPkfVJ9PrGcLy
+        6a98B4isZpl/21k/Gu+HCnMnXl05BE2SSMjW5YzQFVacOl+NsOMh9tsh291t5A==
+Date:   Mon, 22 Aug 2022 10:04:09 +0200
+From:   Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+To:     Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Cc:     linux-media@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>, kernel@collabora.com,
+        stable@vger.kernel.org, linux-staging@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 1/3] media: cedrus: Fix watchdog race condition
+Message-ID: <YwM4efK9V4t38RFe@aptenodytes>
+References: <20220818203308.439043-1-nicolas.dufresne@collabora.com>
+ <20220818203308.439043-2-nicolas.dufresne@collabora.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="9C9XXDtt+KGo1SiH"
+Content-Disposition: inline
+In-Reply-To: <20220818203308.439043-2-nicolas.dufresne@collabora.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -48,97 +62,81 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+--9C9XXDtt+KGo1SiH
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+Hi Nicolas,
 
-greg k-h
+On Thu 18 Aug 22, 16:33, Nicolas Dufresne wrote:
+> The watchdog needs to be schedule before we trigger the decode
+> operation, otherwise there is a risk that the decoder IRQ will be
+> called before we have schedule the watchdog. As a side effect, the
+> watchdog would never be cancelled and its function would be called
+> at an inappropriate time.
+>=20
+> This was observed while running Fluster with GStreamer as a backend.
+> Some programming error would cause the decoder IRQ to be call very
+> quickly after the trigger. Later calls into the driver would deadlock
+> due to the unbalanced state.
 
------------------- original commit in Linus's tree ------------------
+Good catch, thanks!
 
-From 2e57a3358dda20128593fff9b39b522f1bdd26c6 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Jan=20Sch=C3=A4r?= <jan@jschaer.ch>
-Date: Mon, 27 Jun 2022 19:18:55 +0200
-Subject: [PATCH] ALSA: usb-audio: Turn off 'manual mode' on Dell dock
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Reviewed-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
 
-This removes the need to power cycle the Dell WD15 dock if it has been
-attached to a Windows machine.
+Cheers,
 
-The Windows driver puts the ALC4020 USB audio controller into
-'manual mode', and then does all the power management and other
-configuration itself, by sending HD audio commands directly to the
-ALC3263 audio codec via vendor-type USB messages. If manual mode is off,
-this is all handled by the firmware, and works well enough.
+Paul
 
-If manual mode is turned on, the latency of the SET INTERFACE command
-goes from several hundred ms to less than 1 ms
-(see https://bugzilla.suse.com/show_bug.cgi?id=1089467), but I'm not
-sure if the additional code that would be required is worth it.
+> Cc: stable@vger.kernel.org
+> Fixes: 7c38a551bda1 ("media: cedrus: Add watchdog for job completion")
+> Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+> ---
+>  drivers/staging/media/sunxi/cedrus/cedrus_dec.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_dec.c b/drivers/st=
+aging/media/sunxi/cedrus/cedrus_dec.c
+> index 3b6aa78a2985f..e7f7602a5ab40 100644
+> --- a/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
+> +++ b/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
+> @@ -106,11 +106,11 @@ void cedrus_device_run(void *priv)
+> =20
+>  	/* Trigger decoding if setup went well, bail out otherwise. */
+>  	if (!error) {
+> -		dev->dec_ops[ctx->current_codec]->trigger(ctx);
+> -
+>  		/* Start the watchdog timer. */
+>  		schedule_delayed_work(&dev->watchdog_work,
+>  				      msecs_to_jiffies(2000));
+> +
+> +		dev->dec_ops[ctx->current_codec]->trigger(ctx);
+>  	} else {
+>  		v4l2_m2m_buf_done_and_job_finish(ctx->dev->m2m_dev,
+>  						 ctx->fh.m2m_ctx,
+> --=20
+> 2.37.2
+>=20
 
-Funnily enough, the Windows driver tries to turn off manual mode when
-the dock is disconnected, which doesn't work for obvious reasons.
+--=20
+Paul Kocialkowski, Bootlin
+Embedded Linux and kernel engineering
+https://bootlin.com
 
-Additionally, fix a bug in dell_dock_init_vol, which didn't work because
-the Control Selector was missing.
-Now, it properly resets the volume to 0dB.
+--9C9XXDtt+KGo1SiH
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Fixes: 964af639ad69 ("ALSA: usb-audio: Initialize Dell Dock playback volumes")
-Signed-off-by: Jan Schär <jan@jschaer.ch>
-Link: https://lore.kernel.org/r/20220627171855.42338-2-jan@jschaer.ch
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+-----BEGIN PGP SIGNATURE-----
 
-diff --git a/sound/usb/mixer_quirks.c b/sound/usb/mixer_quirks.c
-index 66b6476994eb..5a45822e60e7 100644
---- a/sound/usb/mixer_quirks.c
-+++ b/sound/usb/mixer_quirks.c
-@@ -1949,9 +1949,11 @@ static int snd_soundblaster_e1_switch_create(struct usb_mixer_interface *mixer)
- #define REALTEK_HDA_VALUE 0x0038
- 
- #define REALTEK_HDA_SET		62
-+#define REALTEK_MANUAL_MODE	72
- #define REALTEK_HDA_GET_OUT	88
- #define REALTEK_HDA_GET_IN	89
- 
-+#define REALTEK_AUDIO_FUNCTION_GROUP	0x01
- #define REALTEK_LINE1			0x1a
- #define REALTEK_VENDOR_REGISTERS	0x20
- #define REALTEK_HP_OUT			0x21
-@@ -2084,6 +2086,21 @@ static int realtek_add_jack(struct usb_mixer_interface *mixer,
- static int dell_dock_mixer_create(struct usb_mixer_interface *mixer)
- {
- 	int err;
-+	struct usb_device *dev = mixer->chip->dev;
-+
-+	/* Power down the audio codec to avoid loud pops in the next step. */
-+	realtek_hda_set(mixer->chip,
-+			HDA_VERB_CMD(AC_VERB_SET_POWER_STATE,
-+				     REALTEK_AUDIO_FUNCTION_GROUP,
-+				     AC_PWRST_D3));
-+
-+	/*
-+	 * Turn off 'manual mode' in case it was enabled. This removes the need
-+	 * to power cycle the dock after it was attached to a Windows machine.
-+	 */
-+	snd_usb_ctl_msg(dev, usb_sndctrlpipe(dev, 0), REALTEK_MANUAL_MODE,
-+			USB_RECIP_DEVICE | USB_TYPE_VENDOR | USB_DIR_OUT,
-+			0, 0, NULL, 0);
- 
- 	err = realtek_add_jack(mixer, "Line Out Jack", REALTEK_LINE1);
- 	if (err < 0)
-@@ -2104,7 +2121,8 @@ static void dell_dock_init_vol(struct snd_usb_audio *chip, int ch, int id)
- 
- 	snd_usb_ctl_msg(chip->dev, usb_sndctrlpipe(chip->dev, 0), UAC_SET_CUR,
- 			USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_OUT,
--			ch, snd_usb_ctrl_intf(chip) | (id << 8),
-+			(UAC_FU_VOLUME << 8) | ch,
-+			snd_usb_ctrl_intf(chip) | (id << 8),
- 			&buf, 2);
- }
- 
+iQEzBAEBCAAdFiEEJZpWjZeIetVBefti3cLmz3+fv9EFAmMDOHgACgkQ3cLmz3+f
+v9ENKwf+JRXzzEmrQxZWhfCKskt7uuVhWKW/HBMQrYb3guv4d6PGcqi52+9lyStB
+49tTvjlH655bRsQKMEC3DT6Md1inbO6G7CZhH8uAaX43iLx3UgXbI13OCTEfz2V2
+CF1UK+Rm/Cv6eZhS7jCml/bOTA058ScUkemASDt61IhDcsjNo1rmKWulkGtiKhl4
+Fj+Hq4ut9YLfyb/l5RAVPixiXgsMUye4J0z0ANN8XADhL5pkjLIh+wU9BT4jB3Y6
+u9KVVjjwRsux5p78R5jZ9PKhWIbtySCtWWmjK+vsl/+X6jUwcgWUW3tPnxB/JYSI
+FRlmnT/A5hJvZu8f2xD+DF23Oyv1HA==
+=7kSt
+-----END PGP SIGNATURE-----
 
+--9C9XXDtt+KGo1SiH--
