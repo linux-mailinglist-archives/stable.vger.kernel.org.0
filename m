@@ -1,115 +1,199 @@
 Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
-Received: from out1.vger.email (unknown [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD65359BCC7
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 11:27:04 +0200 (CEST)
+Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
+	by mail.lfdr.de (Postfix) with ESMTP id C5DD659BD2B
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 11:53:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233338AbiHVJ0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 05:26:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55122 "EHLO
+        id S232473AbiHVJxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 05:53:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232887AbiHVJ0d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 05:26:33 -0400
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6673717045
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 02:26:32 -0700 (PDT)
-Received: by mail-lf1-x12c.google.com with SMTP id be9so6456630lfb.12
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 02:26:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc;
-        bh=kOmDThbQ/aHdn0cHgaQs8wrJbMuMSQqFEBcMI9WIhrs=;
-        b=Gr2oOPm0jk1R1HATQHAa7/8RFEoHIpAE7XpDgd/o3CGdy1L37xQuFdRreCJ/ybgyCO
-         Uspg8jF/OQBYmdad2MhUnElmlCnxUL17PpQk3J6p4ioNq6aNhOyzldcveFvOptMwGzme
-         l98xqC9sUV4GcghVMoLU9bC5uI4EazsAHkGy+f2Ae4arzIznkbgY0IgFmj6gN1BdtkF/
-         qq5+lEEmcCfHZus4q5NrUzhlFTNFcSW0Q10V4T6VXFH5QcsQCxzOxOjTR8/6E5W79qa8
-         p3BcD0eFZAbwVdrurLSMLgTmX4LrOd6j5TLxond+OvA8H0DBUQrde7JrUTxh0hiRq6Rm
-         ZqYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc;
-        bh=kOmDThbQ/aHdn0cHgaQs8wrJbMuMSQqFEBcMI9WIhrs=;
-        b=y2RIm3OSXerdAngwRWa1coMY1efZd9S/tcjU0kwjrIOGFsv6NqbspyceqZfpguFmdk
-         tdCjUWCb9nVgVqyZqwa8TYVCqWry+8NtjEzOYd/KZnQNT2dmJJI5aqNEcBDfJaDe6nTC
-         HiZaNmB/WKlanpdMkqqmvC6lWkyLu+VHoC4VLogliO05jeNo/8EwWugblD7DQJC6UkUR
-         GcsKxaE/juwTudfdc3tCRZdw8LXuVe705obERGWmn2n5Ek3RJ+W6YLKk6nPIdI7Sy0fE
-         dJU7ecavn7SrTXIy6BirWfImjjj/J+wKkMyUXSvfcsfaqruZ8ON+z79y3aYON78gX6vJ
-         FLuA==
-X-Gm-Message-State: ACgBeo2lTOohi0EnV9riGjBJX0f9L9YsdXEvbTfgIXu52c+x+3WQm947
-        vbBu1F/rVy63OZIyVd4DWoBJyMd2ajA5XA==
-X-Google-Smtp-Source: AA6agR5xTQ8JFege08swgT2dXnLmpBkoODT8zmQCd9uphYzIQ2v+kEuEo2UQKKuAFgMZGr/ZbfzBgA==
-X-Received: by 2002:a05:6512:13a4:b0:477:a28a:2280 with SMTP id p36-20020a05651213a400b00477a28a2280mr6323040lfa.689.1661160390402;
-        Mon, 22 Aug 2022 02:26:30 -0700 (PDT)
-Received: from jade.urgonet (h-79-136-84-253.A175.priv.bahnhof.se. [79.136.84.253])
-        by smtp.gmail.com with ESMTPSA id s8-20020a19ad48000000b0048ae316caf0sm1840204lfd.18.2022.08.22.02.26.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Aug 2022 02:26:29 -0700 (PDT)
-From:   Jens Wiklander <jens.wiklander@linaro.org>
-To:     stable@vger.kernel.org
-Cc:     Sumit Garg <sumit.garg@linaro.org>,
-        Jerome Forissier <jerome.forissier@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Nimish Mishra <neelam.nimish@gmail.com>,
-        Anirban Chakraborty <ch.anirban00727@gmail.com>,
-        Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH] tee: add overflow check in tee_ioctl_shm_register()
-Date:   Mon, 22 Aug 2022 11:26:21 +0200
-Message-Id: <20220822092621.3691771-1-jens.wiklander@linaro.org>
-X-Mailer: git-send-email 2.31.1
+        with ESMTP id S233690AbiHVJxY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 05:53:24 -0400
+Received: from gnuweeb.org (gnuweeb.org [51.81.211.47])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63974264A;
+        Mon, 22 Aug 2022 02:53:22 -0700 (PDT)
+Received: from [192.168.88.254] (unknown [125.160.110.187])
+        by gnuweeb.org (Postfix) with ESMTPSA id 8EB6F80927;
+        Mon, 22 Aug 2022 09:53:17 +0000 (UTC)
+X-GW-Data: lPqxHiMPbJw1wb7CM9QUryAGzr0yq5atzVDdxTR0iA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnuweeb.org;
+        s=default; t=1661162001;
+        bh=iT3I6GSMz8GsVcIXKTF1Mno6cYZkSK5yv1x/6Z/kQY8=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=NVdYj1mRqrGDiox7JcRo9HD9RT1M17Hs/y7e9cUiP9h0/AyRhmSp3bXQo1cpar10q
+         R/v8ux333PQ+1lX9vAQQPQaV8mXF6ZzfP4vhzwT7ACVmNtSf2bBwkvf2jueaaBN2EG
+         Ab0enwRZJUF5RL6+nMVQ8+dkRiI+ZbccA8hhiOoi7YfIj3ngxOMX7gVDg9PGsvR6bS
+         X+1yO+wiIEUFBehZ6QuhQy9WPCayxoqg96ge5nDsjSEaOoqIhN18J9Lt2MT9jt0udy
+         IOr/jl0+odNMKqVyeydiWrvBtE097tPVWvUAJKXxOqY7TMDFpLvrw8UGUZ8+ynAl/R
+         lS1xpn/FTB2QQ==
+Message-ID: <c327e887-dcbf-5537-4fbf-69b30cf9ae36@gnuweeb.org>
+Date:   Mon, 22 Aug 2022 16:53:10 +0700
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [LKP] Re: [vrf] 2ef23e860e:
+ kernel-selftests.net.fcnal-test.sh.fail
+Content-Language: en-US
+To:     Yujie Liu <yujie.liu@intel.com>
+Cc:     kernel test robot <lkp@intel.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        netdev Mailing List <netdev@vger.kernel.org>,
+        stable@vger.kernel.org, lkp@lists.01.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        GNU/Weeb Mailing List <gwml@vger.gnuweeb.org>,
+        Stephen Suryaputra <ssuryaextr@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        David Ahern <dsahern@kernel.org>
+References: <20220822065003.GA33158@inn2.lkp.intel.com>
+ <532c4311-ada3-05c7-bc63-b5cb2d32ca1a@intel.com>
+ <c9451365-e582-3bb0-0180-462d0a4069ed@gnuweeb.org>
+ <70e690da-df88-5d78-d25c-b01ce1f3f886@intel.com>
+ <730e3e31-509b-23d4-3f35-cf787118b005@intel.com>
+From:   Ammar Faizi <ammarfaizi2@gnuweeb.org>
+In-Reply-To: <730e3e31-509b-23d4-3f35-cf787118b005@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 573ae4f13f630d6660008f1974c0a8a29c30e18a upstream.
 
-With special lengths supplied by user space, tee_shm_register() has
-an integer overflow when calculating the number of pages covered by a
-supplied user space memory region.
++ Adding stable and netdev people to the participants.
 
-This may cause pin_user_pages_fast() to do a NULL pointer dereference.
+Full story here:
 
-Fix this by adding an an explicit call to access_ok() in
-tee_ioctl_shm_register() to catch an invalid user space address early.
+    https://lore.gnuweeb.org/gwml/532c4311-ada3-05c7-bc63-b5cb2d32ca1a@intel.com
 
-Fixes: 033ddf12bcf5 ("tee: add register user memory")
-Cc: stable@vger.kernel.org # 5.4
-Reported-by: Nimish Mishra <neelam.nimish@gmail.com>
-Reported-by: Anirban Chakraborty <ch.anirban00727@gmail.com>
-Reported-by: Debdeep Mukhopadhyay <debdeep.mukhopadhyay@gmail.com>
-Suggested-by: Jerome Forissier <jerome.forissier@linaro.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[JW: backport to stable-5.4 + update commit message]
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
----
- drivers/tee/tee_core.c | 3 +++
- 1 file changed, 3 insertions(+)
+If you fix the issue, kindly add following tag
+Reported-by: kernel test robot <yujie.liu@intel.com>
 
-diff --git a/drivers/tee/tee_core.c b/drivers/tee/tee_core.c
-index a7ccd4d2bd10..2db144d2d26f 100644
---- a/drivers/tee/tee_core.c
-+++ b/drivers/tee/tee_core.c
-@@ -182,6 +182,9 @@ tee_ioctl_shm_register(struct tee_context *ctx,
- 	if (data.flags)
- 		return -EINVAL;
- 
-+	if (!access_ok((void __user *)(unsigned long)data.addr, data.length))
-+		return -EFAULT;
-+
- 	shm = tee_shm_register(ctx, data.addr, data.length,
- 			       TEE_SHM_DMA_BUF | TEE_SHM_USER_MAPPED);
- 	if (IS_ERR(shm))
+On 8/22/22 3:17 PM, Yujie Liu wrote:
+> On 8/22/2022 16:09, Yujie Liu wrote:
+>> On 8/22/2022 15:15, Ammar Faizi wrote:
+>>> On 8/22/22 2:03 PM, kernel test robot wrote:
+>>>> =========================================================================================
+>>>> tbox_group/testcase/rootfs/kconfig/compiler/group/test/atomic_test/ucode:
+>>>>    lkp-skl-d01/kernel-selftests/debian-12-x86_64-20220629.cgz/x86_64-rhel-8.3-kselftests/gcc-11/net/fcnal-test.sh/use_cases/0xf0
+>>>>
+>>>> commit:
+>>>>    cae90bd22cffb ("net: bridge: vlan: fix error return code in __vlan_add()")
+>>>>    2ef23e860e765 ("vrf: packets with lladdr src needs dst at input with orig_iif when needs strict")
+>>>>
+>>>> cae90bd22cffb1e1 2ef23e860e765eb1dd287492206
+>>>> ---------------- ---------------------------
+>>>>         fail:runs  %reproduction    fail:runs
+>>>>             |             |             |
+>>>>             :6          100%           6:6     kernel-selftests.net.fcnal-test.sh.fail
+>>>>
+>>>>
+>>>> FYI, we noticed that this is a backport commit of upstream 205704c618af0ab2366015d2281a3b0814d918a0
+>>>> (merged by v5.10), so we also test this case on mainline, and this issue doesn't exist.
+>>>
+>>> Can you test the latest linux-5.4.y branch and see whether the issue
+>>> exists on there?
+>>>
+>>> You can pull from:
+>>>
+>>>    https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git linux-5.4.y
+>>>
+>>> The HEAD commit is:
+>>>
+>>>     de0cd3ea700d1e8ed76705d02e33b524cbb84cf3 ("Linux 5.4.210")
+>>>
+>>
+>> The issue doesn't exist on latest head of linux-5.4.y branch
+> 
+> Sorry, I made a mistake, the issue still exists on linux-5.4-y head.
+
+Thanks for testing, unfortunately, I am not the committer nor author of
+the offending commit. This should have been reported to the netdev list.
+
+I have added them to the CC list. Can you resend the reproducer and
+detailed test output with them CC'ed?
+
+>>
+>> =========================================================================================
+>> atomic_test/compiler/group/kconfig/rootfs/tbox_group/test/testcase/ucode:
+>>    use_cases/gcc-11/net/x86_64-rhel-8.3-kselftests/debian-12-x86_64-20220629.cgz/lkp-skl-d01/fcnal-test.sh/kernel-selftests/0xf0
+>>
+>> commit:
+>>    2ef23e860e765 ("vrf: packets with lladdr src needs dst at input with orig_iif when needs strict")
+>>    cae90bd22cffb ("net: bridge: vlan: fix error return code in __vlan_add()")
+>>    de0cd3ea700d1 ("Linux 5.4.210")
+>>
+>> 2ef23e860e765eb1 cae90bd22cffb1e19a83a794ad5                    v5.4.210
+>> ---------------- --------------------------- ---------------------------
+>>         fail:runs  %reproduction    fail:runs  %reproduction    fail:runs
+>>             |             |             |             |             |
+>>             :6          100%           6:6            0%            :2     kernel-selftests.net.fcnal-test.sh.pass
+> 
+> for this stat, only cae90bd22cffb can pass the test, while 2ef23e860e765 and v5.4.210
+> all failed.
+
+FYI, I found a backported commit with a Fixes tag contains
+205704c618af (commit upstream):
+
+    https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?id=e245ea3b524069e1a264bb50190dceedd59c36fb
+
+But the 5.4.y HEAD that already includes that commit still fails
+based on your report. Let's wait for netdev people' response on
+this. As the mainline doesn't have this issue, maybe something
+need to get backported?
+
+Summary:
+
+These commits only live in 5.4.x stable branch (backport from upstream):
+
+(notice the "Upstream commit")
+
+# Known good commit:
+
+     commit cae90bd22cffb1e19a83a794ad5f57dafb3e76ad
+     Author:     Zhang Changzhong <zhangchangzhong@huawei.com>
+     AuthorDate: Fri Dec 4 16:48:56 2020 +0800
+     Commit:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+     CommitDate: Mon Dec 21 13:27:03 2020 +0100
+
+     net: bridge: vlan: fix error return code in __vlan_add()
+     
+     [ Upstream commit ee4f52a8de2c6f78b01f10b4c330867d88c1653a ]
+     ...
+
+# The next commit after that one fails (first bad commit):
+
+     commit 2ef23e860e765eb1dd287492206d833f04eae9df
+     Author:     Stephen Suryaputra <ssuryaextr@gmail.com>
+     AuthorDate: Thu Dec 3 22:06:04 2020 -0500
+     Commit:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+     CommitDate: Mon Dec 21 13:27:03 2020 +0100
+
+     vrf: packets with lladdr src needs dst at input with orig_iif when needs strict
+     
+     [ Upstream commit 205704c618af0ab2366015d2281a3b0814d918a0 ]
+     ...
+
+# The HEAD of linux-5.4.x still fails:
+
+     commit de0cd3ea700d1e8ed76705d02e33b524cbb84cf3
+     Author:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+     AuthorDate: Thu Aug 11 12:57:53 2022 +0200
+     Commit:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+     CommitDate: Thu Aug 11 12:57:53 2022 +0200
+
+     Linux 5.4.210
+     ...
+
+netdev folks, any comment on this?
+
 -- 
-2.31.1
-
+Ammar Faizi
