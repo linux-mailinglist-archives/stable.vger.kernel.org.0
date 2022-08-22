@@ -2,73 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A314A59BA31
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 09:25:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 920C559BA42
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 09:29:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232817AbiHVHZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 03:25:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45312 "EHLO
+        id S229496AbiHVH30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 03:29:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233355AbiHVHZU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 03:25:20 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1C512A243;
-        Mon, 22 Aug 2022 00:25:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1661153098;
-        bh=++bx+FIr/OJ8Ma7DWnnidJKg8gGmATCR+MLXDTDjB7o=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=dwBdNXeMQEe3XNFKy8GeDuaJ+uT/G3UKIPTrSqiNqamt3/5oU+HgIvdUvoSm2RyTT
-         t5SLdXclKkbWavyW9bY72kE1CfsNywqC+4w4qd28AUUA8rDx7VT1mMzhBM5L8FRveW
-         iPd6MrnDaWPyO2WvczrO7h5Gmp5xt4NTGVxcGVHQ=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx105
- [212.227.17.174]) with ESMTPSA (Nemesis) id 1MCsUC-1oYnFJ0gd6-008pLx; Mon, 22
- Aug 2022 09:24:57 +0200
-Message-ID: <1ed5a33a-b667-0e8e-e010-b4365f3713d6@gmx.com>
-Date:   Mon, 22 Aug 2022 15:24:53 +0800
+        with ESMTP id S233160AbiHVH3Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 03:29:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DB551D0DA
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 00:29:23 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B01160FCA
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 07:29:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B695C433D6;
+        Mon, 22 Aug 2022 07:29:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661153362;
+        bh=r2tcXP+cZvnWw8V6CnuKY42oh1Y5TwbWYiPg2ZSrXBY=;
+        h=Subject:To:Cc:From:Date:From;
+        b=hBKrwxSlxk3YW2rPkkkz9Lm0Xhu1Jvw2+tUaxv6XW8JiwqVGbvdVa/Af4dAIpbhUG
+         vD8sTDloiXTfuHm/HLa/btmIo4+kEJoURssaU+xlvSNXQVuVaHruHwix0Mt6nEVBUg
+         dEioQrc17zdcof1HBGaDVZBM69T4zAp1iPD1itZM=
+Subject: FAILED: patch "[PATCH] tracing/probes: Have kprobes and uprobes use $COMM too" failed to apply to 5.10-stable tree
+To:     rostedt@goodmis.org, akpm@linux-foundation.org,
+        mhiramat@kernel.org, mingo@kernel.org, tz.stoyanov@gmail.com,
+        zanussi@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 22 Aug 2022 09:29:14 +0200
+Message-ID: <166115335415514@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.12.0
-Subject: Re: LTS kernel Linux 4.14.290 unable to boot with edk2-ovmf (x86_64
- UEFI runtime)
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable <stable@vger.kernel.org>,
-        "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-x86_64@vger.kernel.org
-References: <2d6012e8-805d-4225-80ed-d317c28f1899@gmx.com>
- <YwMhXX6OhROLZ/LR@kroah.com>
-From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
-In-Reply-To: <YwMhXX6OhROLZ/LR@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:Pvs5NuqGKX357tY1B+Cjpx2O8DVXYlGmkX/e91DFFh3+ZeSahql
- Ofo4NJ+hLkV5y4fECV8KWRw08N9EhYQKihuyjWDKSPFMoydVJMHdF2fxxNHza4+vX4BPAYu
- 1+DTnP41OJ+ZqPyZwXqe7Zi+F+p8knltDSBOuZ5RJGk+MAVXaROtHZ5/D7VVXpXubA+3ASt
- EwXYnibS1Noksc7/oeP4Q==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:BlCUppmJbYY=:PMEhlSE4Bwuice/SATKWJZ
- 0+WkC3TAelS5kpVct3UgaGXay0QHvPHMgbqZ0d6PPB7QPAW+eyfGzZ7e+TENioMNp/43IwQ7f
- FOxxp28o7eg11KzTp0AoZJyQ8ch+QEWeAWpA9R+NixOYThfeTRtfYb10xPxSv8348Cf6q+JZj
- ioFdhEY7mY1fYNRvU2KN27Phk7mgVj0hfxyCzOCy4c8t6+QKX+3OoHbvEn3Z4n4BjXIaTKsXs
- IQjRnLAUMWUN77OPL5rw7D5jmc04yH67vupJtCEtd+vVqiyxp++epMLcY52l68GJtikdUluV4
- N5b3WrgYk92pP02t3XhCidWJhulwIcRuOeVlJdcc+8ffl1vJBx8tUMCILEmMWQhml/6J6wYee
- I9ngtx1DVDJawj1UPatGWw+9kCNDZ+O/pclGKRWBZONGwrpXEf1uadtPHYCCTNoGTS7J/jxDc
- gmSXqQ6GVxN4hZrxouBykKU3w42bJNFNZF3En3rU87B9HewnrzzQBxt2FBwEenz0ED6FXENLE
- tkeTTJA7/CiKPFeji7h4aUpou/Xg1ikoU7EDvmqJrlSa+W/XAKOiNOI6HwCG3wjBKQZthtEMP
- /+E3pfsdLlvw2xGg6SuIi3AX3qgSu4RxpXWvQS9V0EypGNBD9kSmceCuOpnf56M6Kncu27YfN
- V9FYEZzdFLgW85Xl6d+B/V0Ijh5Uzqbts8GpgYZTZeSE83ROZIujaZJkSIcqvt0FjtxyEiFcj
- 7oArtLqpXaAu1rwnz0nTLgm9APYYTfAU1MBX9vPTg/63eyTUTemg80qt3NIq3Dx0XvLnoV4i7
- S6Nix+qztrIDZovmHb9WGMWWRnlwwOdFLsfCs8IJ4igVvV6jPDCNwOkO+pbscJgcuCTdK1ZXP
- QeGSglXMP6HhQ5T9N6evQJmUyZpmzKniO4YOf2Wo+dmhYJd2HW3FIx3r7DNGuf+ad5SwCuoXI
- 2LGaHP+L77mlfLVztjO0hVbKJVcQNImhSqSHw5Z/KsloOVrNH3nezXkxjjqlVBzSt3HhAyh/d
- 0MSSrFxsFL9o0hUZnqo+kCfyOCRBB2o+JGrWiXbr4GcRyrcJoZr6tBWAYUv0/3N3VkwNeVlBB
- wALrYvRXk2kuko16x+dlsbxr4An1jfKCATvaDcEKKVXbVMcbVUJIzXrAw==
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -76,40 +50,62 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-On 2022/8/22 14:25, Greg KH wrote:
-> On Mon, Aug 22, 2022 at 09:15:59AM +0800, Qu Wenruo wrote:
->> Hi,
->>
->> When backporting some btrfs specific patches to all LTS kernels, I foun=
-d
->> v4.14.290 kernel unable to boot as a KVM guest with edk2-ovmf
->> (edk2-ovmf: 202205, qemu 7.0.0, libvirt 1:8.6.0).
->>
->> While all other LTS/stable branches (4.19.x, 5.4.x, 5.10.x, 5.15.x,
->> 5.18.x, 5.19.x) can boot without a hipccup.
->>
->> I tried the following configs, but none of them can even provide an
->> early output:
->>
->> - CONFIG_X86_VERBOSE_BOOTUP
->> - CONFIG_EARLY_PRINTK
->> - CONFIG_EARLY_PRINTK_EFI
->>
->> Is this a known bug or something new?
->
-> Has this ever worked properly on this very old kernel tree?  If so, can
-> you use 'git bisect' to find the offending commit?
+thanks,
 
-Unfortunately the initial v4.14 from upstream can not even be compiled.
+greg k-h
 
-I'll try some more recent v4.14.x tags to see if I can get a working
-release to do the bisect.
+------------------ original commit in Linus's tree ------------------
 
-Thanks,
-Qu
+From ab8384442ee512fc0fc72deeb036110843d0e7ff Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Date: Sat, 20 Aug 2022 09:43:21 -0400
+Subject: [PATCH] tracing/probes: Have kprobes and uprobes use $COMM too
 
->
-> thanks,
->
-> greg k-h
+Both $comm and $COMM can be used to get current->comm in eprobes and the
+filtering and histogram logic. Make kprobes and uprobes consistent in this
+regard and allow both $comm and $COMM as well. Currently kprobes and
+uprobes only handle $comm, which is inconsistent with the other utilities,
+and can be confusing to users.
+
+Link: https://lkml.kernel.org/r/20220820134401.317014913@goodmis.org
+Link: https://lore.kernel.org/all/20220820220442.776e1ddaf8836e82edb34d01@kernel.org/
+
+Cc: stable@vger.kernel.org
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Tzvetomir Stoyanov <tz.stoyanov@gmail.com>
+Cc: Tom Zanussi <zanussi@kernel.org>
+Fixes: 533059281ee5 ("tracing: probeevent: Introduce new argument fetching code")
+Suggested-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+
+diff --git a/kernel/trace/trace_probe.c b/kernel/trace/trace_probe.c
+index 4daabbb8b772..36dff277de46 100644
+--- a/kernel/trace/trace_probe.c
++++ b/kernel/trace/trace_probe.c
+@@ -314,7 +314,7 @@ static int parse_probe_vars(char *arg, const struct fetch_type *t,
+ 			}
+ 		} else
+ 			goto inval_var;
+-	} else if (strcmp(arg, "comm") == 0) {
++	} else if (strcmp(arg, "comm") == 0 || strcmp(arg, "COMM") == 0) {
+ 		code->op = FETCH_OP_COMM;
+ #ifdef CONFIG_HAVE_FUNCTION_ARG_ACCESS_API
+ 	} else if (((flags & TPARG_FL_MASK) ==
+@@ -625,7 +625,8 @@ static int traceprobe_parse_probe_arg_body(const char *argv, ssize_t *size,
+ 	 * we can find those by strcmp. But ignore for eprobes.
+ 	 */
+ 	if (!(flags & TPARG_FL_TPOINT) &&
+-	    (strcmp(arg, "$comm") == 0 || strncmp(arg, "\\\"", 2) == 0)) {
++	    (strcmp(arg, "$comm") == 0 || strcmp(arg, "$COMM") == 0 ||
++	     strncmp(arg, "\\\"", 2) == 0)) {
+ 		/* The type of $comm must be "string", and not an array. */
+ 		if (parg->count || (t && strcmp(t, "string")))
+ 			goto out;
+
