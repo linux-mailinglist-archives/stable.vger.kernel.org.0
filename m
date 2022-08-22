@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C36D259BC70
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 11:13:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DBBD59BC9A
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 11:17:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230131AbiHVJNM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 05:13:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59194 "EHLO
+        id S234188AbiHVJR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 05:17:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234102AbiHVJMo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 05:12:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC20A2F39D
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 02:12:12 -0700 (PDT)
+        with ESMTP id S234612AbiHVJQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 05:16:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DDF2BEF
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 02:16:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3384760EDC
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 09:12:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BDAFC433C1;
-        Mon, 22 Aug 2022 09:12:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF30DB80F10
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 09:16:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 609D3C433C1;
+        Mon, 22 Aug 2022 09:16:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661159531;
-        bh=48RncARRBZPseE8XtzquU9MGMF0sqxNdNf71MkD2oSI=;
+        s=korg; t=1661159762;
+        bh=nR0AIbxOM5drGZSfy9n5MrA6vwxG75XPSzI++602APs=;
         h=Subject:To:Cc:From:Date:From;
-        b=sPpTsYL7i8aPBoa+frnjQhj34ccUnCyu1mOk7fS5l9UA/LwVyLipEvtlIlbMF5fU7
-         /fp2vF8OJU0K5GPEk/TKo8xFIUM8spI65cFXQmo/ZFs8IDr0yhjqGrj1b6FzK8A9uJ
-         Vl9hO23kgqtZFlBETyq2QvAZ+ingtB+T9uIC76uI=
-Subject: FAILED: patch "[PATCH] ceph: don't truncate file in atomic_open" failed to apply to 4.14-stable tree
-To:     sehuww@mail.scut.edu.cn, idryomov@gmail.com, xiubli@redhat.com
+        b=uM8IKYc/Thz13lPiNIgRu1/mDtO1VvdiDad+3UQM6jmhB45eOF/BRcdpYldnatVwZ
+         gACOoIo2qEPSm+7RG/P+jv5uRCnwGAkKxirzZ3yRKiqjnkGfHUCTrjF13VQocD/xFX
+         x7JTRCKT6slgfnA2wfVeKhGbFeVUXG/b/m53tT1I=
+Subject: FAILED: patch "[PATCH] mt76: mt7921: fix command timeout in AP stop period" failed to apply to 5.19-stable tree
+To:     deren.wu@mediatek.com, nbd@nbd.name, sean.wang@mediatek.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Aug 2022 11:11:20 +0200
-Message-ID: <1661159480205199@kroah.com>
+Date:   Mon, 22 Aug 2022 11:15:43 +0200
+Message-ID: <166115974323365@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,47 +59,156 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7cb9994754f8a36ae9e5ec4597c5c4c2d6c03832 Mon Sep 17 00:00:00 2001
-From: Hu Weiwen <sehuww@mail.scut.edu.cn>
-Date: Fri, 1 Jul 2022 10:52:27 +0800
-Subject: [PATCH] ceph: don't truncate file in atomic_open
+From 9d958b60ebc2434f2b7eae83d77849e22d1059eb Mon Sep 17 00:00:00 2001
+From: Deren Wu <deren.wu@mediatek.com>
+Date: Wed, 8 Jun 2022 20:53:26 +0800
+Subject: [PATCH] mt76: mt7921: fix command timeout in AP stop period
 
-Clear O_TRUNC from the flags sent in the MDS create request.
+Due to AP stop improperly, mt7921 driver would face random command timeout
+by chip fw problem. Migrate AP start/stop process to .start_ap/.stop_ap and
+congiure BSS network settings in both hooks.
 
-`atomic_open' is called before permission check. We should not do any
-modification to the file here. The caller will do the truncation
-afterward.
+The new flow is shown below.
+* AP start
+    .start_ap()
+      configure BSS network resource
+      set BSS to connected state
+    .bss_info_changed()
+      enable fw beacon offload
 
-Fixes: 124e68e74099 ("ceph: file operations")
-Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
-Reviewed-by: Xiubo Li <xiubli@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+* AP stop
+    .bss_info_changed()
+      disable fw beacon offload (skip this command)
+    .stop_ap()
+      set BSS to disconnected state (beacon offload disabled automatically)
+      destroy BSS network resource
 
-diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-index cd025ff25bf0..b4e978420802 100644
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -749,6 +749,11 @@ int ceph_atomic_open(struct inode *dir, struct dentry *dentry,
- 	err = ceph_wait_on_conflict_unlink(dentry);
- 	if (err)
- 		return err;
-+	/*
-+	 * Do not truncate the file, since atomic_open is called before the
-+	 * permission check. The caller will do the truncation afterward.
-+	 */
-+	flags &= ~O_TRUNC;
- 
- 	if (flags & O_CREAT) {
- 		if (ceph_quota_is_max_files_exceeded(dir))
-@@ -824,9 +829,7 @@ int ceph_atomic_open(struct inode *dir, struct dentry *dentry,
+Fixes: 116c69603b01 ("mt76: mt7921: Add AP mode support")
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+index a963e51b7271..8c9b0f0b5c39 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+@@ -1404,6 +1404,8 @@ int mt76_connac_mcu_uni_add_bss(struct mt76_phy *phy,
+ 		else
+ 			conn_type = CONNECTION_INFRA_AP;
+ 		basic_req.basic.conn_type = cpu_to_le32(conn_type);
++		/* Fully active/deactivate BSS network in AP mode only */
++		basic_req.basic.active = enable;
+ 		break;
+ 	case NL80211_IFTYPE_STATION:
+ 		if (vif->p2p)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+index 5163704356d8..4be488da0117 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+@@ -653,15 +653,6 @@ static void mt7921_bss_info_changed(struct ieee80211_hw *hw,
+ 		}
  	}
  
- 	set_bit(CEPH_MDS_R_PARENT_LOCKED, &req->r_req_flags);
--	err = ceph_mdsc_do_request(mdsc,
--				   (flags & (O_CREAT|O_TRUNC)) ? dir : NULL,
--				   req);
-+	err = ceph_mdsc_do_request(mdsc, (flags & O_CREAT) ? dir : NULL, req);
- 	if (err == -ENOENT) {
- 		dentry = ceph_handle_snapdir(req, dentry);
- 		if (IS_ERR(dentry)) {
+-	if (changed & BSS_CHANGED_BEACON_ENABLED && info->enable_beacon) {
+-		struct mt7921_vif *mvif = (struct mt7921_vif *)vif->drv_priv;
+-
+-		mt76_connac_mcu_uni_add_bss(phy->mt76, vif, &mvif->sta.wcid,
+-					    true);
+-		mt7921_mcu_sta_update(dev, NULL, vif, true,
+-				      MT76_STA_INFO_STATE_NONE);
+-	}
+-
+ 	if (changed & (BSS_CHANGED_BEACON |
+ 		       BSS_CHANGED_BEACON_ENABLED))
+ 		mt7921_mcu_uni_add_beacon_offload(dev, hw, vif,
+@@ -1513,6 +1504,44 @@ mt7921_channel_switch_beacon(struct ieee80211_hw *hw,
+ 	mt7921_mutex_release(dev);
+ }
+ 
++static int
++mt7921_start_ap(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
++		unsigned int link_id)
++{
++	struct mt7921_vif *mvif = (struct mt7921_vif *)vif->drv_priv;
++	struct mt7921_phy *phy = mt7921_hw_phy(hw);
++	struct mt7921_dev *dev = mt7921_hw_dev(hw);
++	int err;
++
++	err = mt76_connac_mcu_uni_add_bss(phy->mt76, vif, &mvif->sta.wcid,
++					  true);
++	if (err)
++		return err;
++
++	err = mt7921_mcu_set_bss_pm(dev, vif, true);
++	if (err)
++		return err;
++
++	return mt7921_mcu_sta_update(dev, NULL, vif, true,
++				     MT76_STA_INFO_STATE_NONE);
++}
++
++static void
++mt7921_stop_ap(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
++	       unsigned int link_id)
++{
++	struct mt7921_vif *mvif = (struct mt7921_vif *)vif->drv_priv;
++	struct mt7921_phy *phy = mt7921_hw_phy(hw);
++	struct mt7921_dev *dev = mt7921_hw_dev(hw);
++	int err;
++
++	err = mt7921_mcu_set_bss_pm(dev, vif, false);
++	if (err)
++		return;
++
++	mt76_connac_mcu_uni_add_bss(phy->mt76, vif, &mvif->sta.wcid, false);
++}
++
+ const struct ieee80211_ops mt7921_ops = {
+ 	.tx = mt7921_tx,
+ 	.start = mt7921_start,
+@@ -1523,6 +1552,8 @@ const struct ieee80211_ops mt7921_ops = {
+ 	.conf_tx = mt7921_conf_tx,
+ 	.configure_filter = mt7921_configure_filter,
+ 	.bss_info_changed = mt7921_bss_info_changed,
++	.start_ap = mt7921_start_ap,
++	.stop_ap = mt7921_stop_ap,
+ 	.sta_state = mt7921_sta_state,
+ 	.sta_pre_rcu_remove = mt76_sta_pre_rcu_remove,
+ 	.set_key = mt7921_set_key,
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+index b8e5f550b4d4..bc434e60dfc6 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+@@ -745,7 +745,7 @@ mt7921_mcu_uni_bss_bcnft(struct mt7921_dev *dev, struct ieee80211_vif *vif,
+ 				 &bcnft_req, sizeof(bcnft_req), true);
+ }
+ 
+-static int
++int
+ mt7921_mcu_set_bss_pm(struct mt7921_dev *dev, struct ieee80211_vif *vif,
+ 		      bool enable)
+ {
+@@ -774,9 +774,6 @@ mt7921_mcu_set_bss_pm(struct mt7921_dev *dev, struct ieee80211_vif *vif,
+ 	};
+ 	int err;
+ 
+-	if (vif->type != NL80211_IFTYPE_STATION)
+-		return 0;
+-
+ 	err = mt76_mcu_send_msg(&dev->mt76, MCU_CE_CMD(SET_BSS_ABORT),
+ 				&req_hdr, sizeof(req_hdr), false);
+ 	if (err < 0 || !enable)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h b/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
+index 7da29fadc27f..f7609c8ac549 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
+@@ -284,6 +284,8 @@ int mt7921_wpdma_reset(struct mt7921_dev *dev, bool force);
+ int mt7921_wpdma_reinit_cond(struct mt7921_dev *dev);
+ void mt7921_dma_cleanup(struct mt7921_dev *dev);
+ int mt7921_run_firmware(struct mt7921_dev *dev);
++int mt7921_mcu_set_bss_pm(struct mt7921_dev *dev, struct ieee80211_vif *vif,
++			  bool enable);
+ int mt7921_mcu_sta_update(struct mt7921_dev *dev, struct ieee80211_sta *sta,
+ 			  struct ieee80211_vif *vif, bool enable,
+ 			  enum mt76_sta_info_state state);
 
