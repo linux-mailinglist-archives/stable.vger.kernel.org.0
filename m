@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0024859BD5F
-	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 12:09:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 422DF59BD61
+	for <lists+stable@lfdr.de>; Mon, 22 Aug 2022 12:09:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234603AbiHVKJV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Aug 2022 06:09:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38668 "EHLO
+        id S234588AbiHVKJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Aug 2022 06:09:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234601AbiHVKJV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 06:09:21 -0400
+        with ESMTP id S232543AbiHVKJ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Aug 2022 06:09:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A22A2386
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 03:09:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 097FE248F6
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 03:09:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4564DB80EDD
-        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 10:09:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E98EC433D6;
-        Mon, 22 Aug 2022 10:09:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2008B81018
+        for <stable@vger.kernel.org>; Mon, 22 Aug 2022 10:09:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 143FCC433D6;
+        Mon, 22 Aug 2022 10:09:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1661162957;
-        bh=/TyLCFSAXkJb1f2m3gI4hmB6bGNIEBN8gYD7VygEU+Q=;
+        s=korg; t=1661162965;
+        bh=hgPKontjDNBYJUkRKA0ttrJc4VgASzOnGl1+42oCYuo=;
         h=Subject:To:Cc:From:Date:From;
-        b=xa30vLQAv09JD3EFMHWM7do1uqNen/Ue6fdPqjJDDpezsdkxVZNXnKXLofOZUPRCg
-         sPgSNmA5Rq6LFlDJdyEH3kzeU9OLGt7yg5ToNnWbeyub0W0QXBGXEfRssSAsg8A7b6
-         jjbFMj4KYh3rqzVnkOUzdtCiQ+OMgqTckphFSv64=
-Subject: FAILED: patch "[PATCH] fs/ntfs3: Enable FALLOC_FL_INSERT_RANGE" failed to apply to 5.15-stable tree
+        b=GHgaxJzgtjm6cUX563+8Q+4UJuREa7NzWz4toZab0YYYPyCpitiBeqzQqxZ4kB2zR
+         c10jTQl9r4pmBpZahm7sEUby+NE3boF2Oya/FfZl0sXhlXAvyoikmPLtswEHeSCTdo
+         a1kXNsoiSJrjwMnvjvPygkacQNtqx4hjaEHPRe0Y=
+Subject: FAILED: patch "[PATCH] fs/ntfs3: Enable FALLOC_FL_INSERT_RANGE" failed to apply to 5.19-stable tree
 To:     almaz.alexandrovich@paragon-software.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 22 Aug 2022 12:09:14 +0200
-Message-ID: <16611629546826@kroah.com>
+Message-ID: <1661162954178197@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
